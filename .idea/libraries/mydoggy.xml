@@ -1,0 +1,12 @@
+<component name="libraryTable">
+  <library name="mydoggy">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/extlib/mydoggy-plaf-1.4.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/extlib/TableLayout-20050920.jar!/" />
+      <root url="jar://$PROJECT_DIR$/extlib/mydoggy-res-1.4.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/extlib/mydoggy-api-1.4.2.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

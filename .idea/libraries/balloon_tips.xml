@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="balloon-tips">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/extlib/balloontip_1.0/balloontip-1.0.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

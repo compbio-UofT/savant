@@ -1,0 +1,24 @@
+<component name="ArtifactManager">
+  <artifact name="Savant">
+    <output-path>$PROJECT_DIR$/dist</output-path>
+    <root id="root">
+      <element id="directory" name="lib">
+        <element id="library" level="project" name="commons-logging" />
+        <element id="library" level="project" name="flexdock" />
+        <element id="library" level="project" name="picard" />
+        <element id="library" level="project" name="jpf" />
+        <element id="library" level="project" name="mydoggy" />
+      </element>
+      <element id="archive" name="Savant.jar">
+        <element id="directory" name="META-INF">
+          <element id="file-copy" path="$PROJECT_DIR$/META-INF/MANIFEST.MF" />
+        </element>
+        <element id="module-output" name="Savant" />
+      </element>
+      <element id="directory" name="plugins">
+        <element id="artifact" artifact-name="SavantCore" />
+        <element id="artifact" artifact-name="SavantData" />
+      </element>
+    </root>
+  </artifact>
+</component>
