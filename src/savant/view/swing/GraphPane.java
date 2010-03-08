@@ -422,7 +422,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
             Rectangle2D rectangle =
               new Rectangle2D.Double (
               this.x, this.y, this.w, this.h);
-            g2d.setColor (Color.white);
+            g2d.setColor (Color.gray);
             g2d.setStroke (new BasicStroke(
               1f,
               BasicStroke.CAP_ROUND,
@@ -435,7 +435,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
             //g.setColor(new Color(255,200,200,255));
             //g.drawRect( this.x, this.y, this.w, this.h );
 
-            g.setColor(new Color(255,255,255,50));
+            g.setColor(BrowserDefaults.colorGraphPaneSelectionFill);
             g.fillRect(this.x, this.y, this.w, this.h);
         }
         //this.cords.setText( "w = " + this.w);
@@ -454,6 +454,16 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
 
         Graphics2D g2 = (Graphics2D) g;
         Font smallFont = new Font("Sans-Serif", Font.PLAIN, 10);
+
+        Graphics2D g2d0 = (Graphics2D)g;
+
+            // Paint a gradient from top to bottom
+            GradientPaint gp0 = new GradientPaint(
+                0, 0, BrowserDefaults.colorGraphPaneBackgroundTop,
+                0, this.getHeight(), BrowserDefaults.colorGraphPaneBackgroundBottom );
+
+            g2d0.setPaint( gp0 );
+            g2d0.fillRect( 0, 0, this.getWidth(), this.getHeight() );
 
         if (this.isXGridOn) {
 
