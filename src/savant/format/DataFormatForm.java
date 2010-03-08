@@ -11,6 +11,7 @@
 
 package savant.format;
 
+import java.awt.Dialog;
 import savant.format.header.FileType;
 import savant.view.swing.Savant;
 
@@ -61,6 +62,9 @@ public class DataFormatForm extends JDialog /* javax.swing.JFrame*/ {
             this.setOutputPath(infile);
         }
 
+        //dialog.setModalityType(Dialog.ModalityType type)
+        this.setModal(true);
+        //this.setModalityType(Dialog.DEFAULT_MODALITY_TYPE);
         this.setVisible(true);
     }
 
