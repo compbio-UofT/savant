@@ -71,4 +71,8 @@
     nbproject/build-impl.xml file. 
 
     -->
+ <target name="-pre-jar">
+     <copy file="plugin.xml" todir="${build.classes.dir}">
+     </copy>
+ </target>
 </project>
