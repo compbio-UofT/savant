@@ -109,7 +109,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         framePlaceholderPanel.setLayout(new TableLayout(new double[][]{{0, -1, 0}, {0, -1, 0}}));
 
         frameContentPanel = new JPanel();
-        frameContentPanel.setBackground(Color.darkGray);
+        frameContentPanel.setBackground(BrowserDefaults.colorBrowseBackground);
 
         ContentManager contentManager1 = masterToolWindowManager.getContentManager();
         contentManager1.addContent("MasterKey",
@@ -283,7 +283,6 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
     private void initComponents() {
 
         panel_top = new javax.swing.JPanel();
-        panelExtendedLeft = new javax.swing.JPanel();
         panelExtendedRight = new javax.swing.JPanel();
         panelExtendedMiddle = new javax.swing.JPanel();
         panel_main = new javax.swing.JPanel();
@@ -327,24 +326,6 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         panel_top.setPreferredSize(new java.awt.Dimension(0, 50));
         panel_top.setLayout(new java.awt.BorderLayout());
 
-        panelExtendedLeft.setBackground(new java.awt.Color(0, 0, 0));
-        panelExtendedLeft.setMinimumSize(new java.awt.Dimension(130, 100));
-        panelExtendedLeft.setOpaque(false);
-        panelExtendedLeft.setPreferredSize(new java.awt.Dimension(130, 100));
-
-        javax.swing.GroupLayout panelExtendedLeftLayout = new javax.swing.GroupLayout(panelExtendedLeft);
-        panelExtendedLeft.setLayout(panelExtendedLeftLayout);
-        panelExtendedLeftLayout.setHorizontalGroup(
-            panelExtendedLeftLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 130, Short.MAX_VALUE)
-        );
-        panelExtendedLeftLayout.setVerticalGroup(
-            panelExtendedLeftLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 50, Short.MAX_VALUE)
-        );
-
-        panel_top.add(panelExtendedLeft, java.awt.BorderLayout.LINE_START);
-
         panelExtendedRight.setBackground(new java.awt.Color(153, 255, 0));
         panelExtendedRight.setMinimumSize(new java.awt.Dimension(10, 100));
         panelExtendedRight.setOpaque(false);
@@ -371,7 +352,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         panelExtendedMiddle.setLayout(panelExtendedMiddleLayout);
         panelExtendedMiddleLayout.setHorizontalGroup(
             panelExtendedMiddleLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 860, Short.MAX_VALUE)
+            .addGap(0, 990, Short.MAX_VALUE)
         );
         panelExtendedMiddleLayout.setVerticalGroup(
             panelExtendedMiddleLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -787,7 +768,6 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
     private javax.swing.JMenuItem menuitem_track;
     private javax.swing.JMenuItem menuitem_ucsc;
     private javax.swing.JMenuItem menuitem_undo;
-    private javax.swing.JPanel panelExtendedLeft;
     private javax.swing.JPanel panelExtendedMiddle;
     private javax.swing.JPanel panelExtendedRight;
     private javax.swing.JPanel panel_bottom;
@@ -901,7 +881,6 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
     }
 
     private void initMenu() {
-        initLogo();
         initBrowseMenu();
     }
 
@@ -960,19 +939,6 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         panel.setBorder(loweredetched);
     }
 
-    private void initLogo() {
-
-        JPanel p = this.panelExtendedLeft;
-        BoxLayout bl = new BoxLayout(p, BoxLayout.X_AXIS);
-        p.setLayout(bl);
-
-        p.add(getRigidPadding());
-
-        java.net.URL imageURL = getClass().getResource("/savant/images/logo.png");
-        ImagePanel ip = new ImagePanel(imageURL);
-        p.add(ip);
-    }
-
     private void initBrowseMenu() {
 
         this.menuPanel = new JPanel();
@@ -981,6 +947,9 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         JPanel p = this.menuPanel;
 
         p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
+
+
+        Dimension buttonDimension = new Dimension(45,23);
 
         p.add(getRigidPadding());
         JButton genomeButton = addButton(p, "Genome");
@@ -1043,6 +1012,9 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
 
         p.add(getRigidPadding());
         JButton zoomIn = addButton(p, "+");
+        zoomIn.setPreferredSize(buttonDimension);
+        zoomIn.setMinimumSize(buttonDimension);
+        zoomIn.setMaximumSize(buttonDimension);
         zoomIn.addMouseListener(new MouseListener() {
 
             public void mouseClicked(MouseEvent e) {
@@ -1063,6 +1035,9 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         });
 
         JButton zoomOut = addButton(p, "-");
+        zoomOut.setPreferredSize(buttonDimension);
+        zoomOut.setMinimumSize(buttonDimension);
+        zoomOut.setMaximumSize(buttonDimension);
         zoomOut.addMouseListener(new MouseListener() {
 
             public void mouseClicked(MouseEvent e) {
@@ -1084,7 +1059,12 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
 
         p.add(getRigidPadding());
 
-        JButton shiftFarLeft = addButton(p, "<<");
+        JButton shiftFarLeft = addButton(p, "|<");
+
+        shiftFarLeft.setPreferredSize(buttonDimension);
+        shiftFarLeft.setMinimumSize(buttonDimension);
+        shiftFarLeft.setMaximumSize(buttonDimension);
+
         shiftFarLeft.addMouseListener(new MouseListener() {
 
             public void mouseClicked(MouseEvent e) {
@@ -1105,6 +1085,9 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         });
 
         JButton shiftLeft = addButton(p, "<");
+        shiftLeft.setPreferredSize(buttonDimension);
+        shiftLeft.setMinimumSize(buttonDimension);
+        shiftLeft.setMaximumSize(buttonDimension);
         shiftLeft.addMouseListener(new MouseListener() {
 
             public void mouseClicked(MouseEvent e) {
@@ -1125,6 +1108,9 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         });
 
         JButton shiftRight = addButton(p, ">");
+        shiftRight.setPreferredSize(buttonDimension);
+        shiftRight.setMinimumSize(buttonDimension);
+        shiftRight.setMaximumSize(buttonDimension);
         shiftRight.addMouseListener(new MouseListener() {
 
             public void mouseClicked(MouseEvent e) {
@@ -1144,7 +1130,10 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
             }
         });
 
-        JButton shiftFarRight = addButton(p, ">>");
+        JButton shiftFarRight = addButton(p, ">|");
+        shiftFarRight.setPreferredSize(buttonDimension);
+        shiftFarRight.setMinimumSize(buttonDimension);
+        shiftFarRight.setMaximumSize(buttonDimension);
         shiftFarRight.addMouseListener(new MouseListener() {
 
             public void mouseClicked(MouseEvent e) {
@@ -1242,7 +1231,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
     }
 
     private void initDataTab(JTabbedPane jtp) {
-        JPanel tablePanel = createTabPanel(jtp, "Data View");
+        JPanel tablePanel = createTabPanel(jtp, "Table View");
         currentRangeDataSheet = new DataSheet(this, tablePanel);
         rangeController.addRangeChangedListener(currentRangeDataSheet);
         TrackController.getInstance().addTracksChangedListener(currentRangeDataSheet);
@@ -1250,7 +1239,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
 
     private void initBatchAnalyzeTab(JTabbedPane jtp) {
 
-        JPanel tablePanel = createTabPanel(jtp, "Batch Analysis");
+        JPanel tablePanel = createTabPanel(jtp, "Batch Run");
 
         JButton addBatchAnalysisButton = new JButton("Add Batch Analysis");
         addBatchAnalysisButton.addActionListener(new ActionListener() {
