@@ -75,12 +75,13 @@ public class BAMToCoverage {
             this.sequence = guessSequence(sequenceLength);
         }
 
-        initOutput();
 
     }
 
     public void format() {
 
+        initOutput();
+        
         CloseableIterator<SAMRecord> recordIterator = null;
         try {
 
