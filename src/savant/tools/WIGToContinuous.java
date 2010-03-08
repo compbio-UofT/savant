@@ -21,17 +21,31 @@
 
 package savant.tools;
 
+import savant.format.header.FileType;
+import savant.format.header.FileTypeHeader;
+import savant.format.util.data.FieldType;
+
 import java.io.*;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 public class WIGToContinuous {
 
     private String inFile;
     private String outFile;
+    private DataOutputStream out;
+    // stuff needed by IO; mandated by IOUtils and DataUtils which we're depending on
+    //private RandomAccessFile raf;
 
+    private List<FieldType> fields;
+    private List<Object> modifiers;
+    
     public WIGToContinuous(String inFile, String outFile) {
         this.inFile = inFile;
         this.outFile = outFile;
+
+        initOutput();
     }
 
     private void fillWithZeros(int curent, int dest,DataOutputStream out) throws IOException{
@@ -46,7 +60,6 @@ public class WIGToContinuous {
         //System.out.println("Start process: " + new Date().toString());
         try {
             BufferedReader reader = new BufferedReader(new FileReader(new File(inFile)));
-            DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(outFile)));
 
             String lineIn;
             String[] tokens;
@@ -135,7 +148,7 @@ public class WIGToContinuous {
 
             	lineIn = reader.readLine();
             }
-            out.close();
+            closeOutput();
 
 
 //            int currentPosition=0;
@@ -188,6 +201,41 @@ public class WIGToContinuous {
             e.printStackTrace();  // TODO: log properly
         } catch (IOException io) {
             io.printStackTrace();
+        }
+    }
+
+    private void initOutput() {
+
+        try {
+            // open output stream
+            out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(outFile)));
+
+            // write file type header
+            FileTypeHeader fileTypeHeader = new FileTypeHeader(FileType.CONTINUOUS_GENERIC, 1);
+            out.writeInt(fileTypeHeader.fileType.ordinal());
+            out.writeInt(fileTypeHeader.version);
+
+            // prepare and write fields header
+            fields = new ArrayList<FieldType>();
+            fields.add(FieldType.DOUBLE);
+            modifiers = new ArrayList<Object>();
+            modifiers.add(null);
+            out.writeInt(fields.size());
+            for (FieldType ft : fields) {
+                out.writeInt(ft.ordinal());
+            }
+
+
+        } catch (IOException e) {
+            e.printStackTrace();  // TODO: log properly
+        }
+    }
+
+    private void closeOutput() {
+        try {
+            if (out != null) out.close();
+        } catch (IOException e) {
+            e.printStackTrace();  // TODO: log properly
         }
     }
 
