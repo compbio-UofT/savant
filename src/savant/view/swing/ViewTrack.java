@@ -141,7 +141,7 @@ public abstract class ViewTrack {
                         viewTrack = new BEDViewTrack(name, (BEDIntervalTrack)dataTrack);
                         break;
                     default:
-                        throw new Exception("Unrecorgnized file format");
+                        throw new Exception("Unrecognized file format");
                 }
                 if (viewTrack != null) results.add(viewTrack);
             } catch (Exception e) {
