@@ -69,8 +69,24 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
     private JPanel frameContentPanel;
     private JPanel menuPanel;
 
-    private ToolWindowManager masterToolWindowManager;
-    private ToolWindowManager frameToolWindowManager;
+    private static ToolWindowManager masterToolWindowManager;
+    private static ToolWindowManager frameToolWindowManager;
+
+    private static void addTrackFromFile(String selectedFileName) {
+
+        // Some types of track actually create more than one track per frame, e.g. BAM
+        
+        List<ViewTrack> tracks = ViewTrack.create(selectedFileName);
+
+        if (tracks != null  && tracks.size() > 0) {
+            Frame frame = null;
+            JPanel panel = createDockedFramePanel(MiscUtils.getFilenameFromPath(selectedFileName));
+            if (!tracks.isEmpty()) {
+                frame = new Frame(panel, tracks);
+            }
+            FrameController.getInstance().addFrame(frame, panel);
+        }
+    }
 
     /** == [[ DOCKING ]] ==
      *  Components (such as frames, the Task Pane, etc.)
@@ -1339,16 +1355,11 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         // set the track
         if (selectedFileName != null) {
             selectedFileName = fd.getDirectory() + selectedFileName;
-            JPanel panel = this.createDockedFramePanel(MiscUtils.getFilenameFromPath(selectedFileName));
-
-            // Some types of track actually create more than one track per frame, e.g. BAM
-            List<ViewTrack> tracks = ViewTrack.create(selectedFileName);
-            Frame frame = null;
-            if (!tracks.isEmpty()) {
-                frame = new Frame(panel, tracks);
+            try {
+                addTrackFromFile(selectedFileName);
+            } catch (Exception e) {
+                promptUserToFormatFile(selectedFileName);
             }
-            FrameController.getInstance().addFrame(frame, panel);
-
         }
     }
 
@@ -1373,7 +1384,10 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         return p;
     }
 
-    private JPanel createDockedFramePanel(String name) {
+    private static JPanel createDockedFramePanel(String name) {
+
+        System.out.println("CREATING DOCKED PANEL: " + name);
+
         JPanel p = new JPanel();
         p.setLayout(new BorderLayout());
         frameToolWindowManager.registerToolWindow(name,                 // Id
@@ -1437,25 +1451,39 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
             Genome g = new Genome(filename);
             setGenome(filename, g);
         } catch (FileNotFoundException ex) {
-        } catch (IOException ex) {
+        } catch (Exception ex) {
             promptUserToFormatFile(filename);
-        } catch (Exception e) {
+        /*
+         } catch (Exception e) {
             JFrame frame = new JFrame();
             e.printStackTrace();
             JOptionPane.showMessageDialog(frame, "Error: " + e.getLocalizedMessage());
             frame.setVisible(true);
+         * 
+         */
         }
     }
 
     public static void promptUserToFormatFile(String fileName) {
         String message = "This file does not appear to be formatted. Format now?";
-                String title = "Unrecognized file";
-                // display the JOptionPane showConfirmDialog
-                int reply = JOptionPane.showConfirmDialog(null, message, title, JOptionPane.YES_NO_OPTION);
-                if (reply == JOptionPane.YES_OPTION)
-                {
-                  DataFormatForm dff = new DataFormatForm(fileName);
-                }
+        String title = "Unrecognized file";
+        // display the JOptionPane showConfirmDialog
+        int reply = JOptionPane.showConfirmDialog(null, message, title, JOptionPane.YES_NO_OPTION);
+        if (reply == JOptionPane.YES_OPTION)
+        {
+           DataFormatForm dff = new DataFormatForm(fileName);
+
+           System.out.println("Format complete");
+
+            System.out.println("Format successful? " + dff.didSuccessfullyFormat());
+            System.out.println("Format path? " + dff.getOutputFilePath());
+
+
+           if (dff.didSuccessfullyFormat()) {
+               String outfilepath = dff.getOutputFilePath();
+               addTrackFromFile(outfilepath);
+           }
+        }
     }
 
     /**
