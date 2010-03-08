@@ -93,12 +93,12 @@ public class DataFormatter {
 
             //TODO: remove/delete the outFile (if created)
             deleteTmpOutputFile();
-            
+
             return false;
         }
 
         deleteTmpOutputFile();
-        
+
         return true;
     }
 
@@ -147,7 +147,7 @@ public class DataFormatter {
         while((line = DataUtils.parseTxtLine(inFile, fields)) != null) {
             DataUtils.writeBinaryRecord(outFile, line, fields, modifiers);
         }
-        
+
         inFile.close();
         outFile.close();
     }
@@ -377,9 +377,9 @@ public class DataFormatter {
         } else {
             node2startByte.put(n.index, outFile.getFilePointer());
         }
-        
+
         //System.out.println("Node " + " index: " + n.index + " range: " + n.range + " size: " + n.size + " startByte: " +  node2startByte.get(n.index));
-        System.out.println(n.index + " " + n.size + " " +  node2startByte.get(n.index));
+        //System.out.println(n.index + " " + n.size + " " +  node2startByte.get(n.index));
 
         if (linesPlusRanges != null) {
             for (LinePlusRange lr : linesPlusRanges) {
@@ -473,7 +473,7 @@ public class DataFormatter {
      * @throws IOException
      */
     private void writeIntervalBSTIndex(RandomAccessFile indexOutFile, IntervalSearchTree ibst, HashMap<Integer, Long> node2startByte) throws IOException {
-        
+
         indexOutFile.writeInt(ibst.getNumNodes());
 
         List<Object> record;

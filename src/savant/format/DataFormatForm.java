@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import javax.swing.DefaultListModel;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
@@ -30,13 +31,15 @@ import javax.swing.event.ListSelectionListener;
  *
  * @author mfiume
  */
-public class DataFormatForm extends javax.swing.JFrame {
+public class DataFormatForm extends JDialog /* javax.swing.JFrame*/ {
 
     private static List<String> formats;
     private static HashMap<String,String> formatDescriptionMap;
     private static HashMap<String,FileType> formatTypeMap;
 
     private static JTextArea formatDescriptionTextArea;
+    private boolean didSuccessfullyFormat = false;
+    private String outFilePath;
 
 
     /** Creates new form DataFormatForm */
@@ -263,7 +266,10 @@ public class DataFormatForm extends javax.swing.JFrame {
 
         DataFormatter df = new DataFormatter(infile, outfile, ft);
 
+        this.outFilePath = outfile;
+
         if (df.format()) {
+            didSuccessfullyFormat = true;
             JOptionPane.showMessageDialog(this, "Formatting successful.");
             this.dispose();
         } else {
@@ -364,5 +370,13 @@ public class DataFormatForm extends javax.swing.JFrame {
             this.button_format.setEnabled(true);
         }
 
+    }
+
+    public boolean didSuccessfullyFormat() {
+        return this.didSuccessfullyFormat;
+    }
+
+    public String getOutputFilePath() {
+        return this.outFilePath;
     }
 }
