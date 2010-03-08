@@ -102,7 +102,7 @@ public abstract class ViewTrack {
             bamConverter.format();
             */
             try {
-                dataTrack = new GenericContinuousTrack(trackFilename + ".cov.savant");
+                dataTrack = new GenericContinuousTrack(trackFilename + ".cov");
                 viewTrack = new BAMCoverageViewTrack(name + " coverage" , (GenericContinuousTrack)dataTrack);
                 results.add(viewTrack);
             } catch (IOException e) {
