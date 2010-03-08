@@ -40,15 +40,25 @@ public class BrowserDefaults {
     /**
      * Colors
      */
-    public static Color colorFrameBackground = Color.darkGray;
-    public static Color colorBrowseBackground = new Color(60,60,60);
+
+    public static Color colorGlassPaneBackground = Color.darkGray;
+    public static Color colorGraphPaneBackgroundTop = Color.white;
+    public static Color colorGraphPaneBackgroundBottom = new Color(210,210,210);
+    public static Color colorGraphPaneSelectionFill = new Color(150,150,150,100);
+    public static Color colorGraphPaneSelectionBorder = new Color(30,30,30);
+
+
+    //public static Color colorFrameBackground = Color.darkGray;
+    //public static Color colorBrowseBackground = new Color(60,60,60);
+    public static Color colorFrameBackground = Color.lightGray;
+    public static Color colorBrowseBackground = new Color(60,60,60,100);
 //    public static Color colorBrowseBackground = /*new Color(0, 174, 255, 150);*/ new Color(171, 207, 59);
     public static Color colorBrowseAuxiliaryBackground = new Color(160,160,160);
     public static Color colorTabBackground = new Color(240,240,240);
     public static Color colorFormatBackground = new Color(123, 185, 233);
     //public static Color ColorMain = new Color(0, 174, 255, 150);
-    public static Color colorAccent = Color.white;
-    public static Color colorAxisGrid = Color.gray;
+    public static Color colorAccent = Color.black;
+    public static Color colorAxisGrid = Color.lightGray;
     public static Color colorGraphMain = Color.red;
 
     public static Color A_COLOR = new Color(27, 97, 97);  // blue
