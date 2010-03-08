@@ -72,7 +72,6 @@
 
     -->
     <target  name="-post-jar">
-        <antcall 
     </target>
 
     <target  name="mac-bundle">
