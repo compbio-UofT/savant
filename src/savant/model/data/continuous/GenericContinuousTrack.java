@@ -77,7 +77,7 @@ public class GenericContinuousTrack extends ContinuousTrack {
             int lastIndex = range.getTo() + binSize;
             for  (int i = index; i <= lastIndex; i += binSize) {
 
-                debutFile.seek(i*recordSize);
+                debutFile.seek((i-1)*recordSize);
 
                 double sum = 0.0;
                 int j;
