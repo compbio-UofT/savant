@@ -56,6 +56,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import savant.plugin.PluginDialog;
 
 /**
  * Main application Window (Frame).
@@ -324,13 +325,13 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         menuItemAddToFaves = new javax.swing.JMenuItem();
         menu_view = new javax.swing.JMenu();
         menuItem_viewRangeControls = new javax.swing.JCheckBoxMenuItem();
-        jCheckBoxMenuItem1 = new javax.swing.JCheckBoxMenuItem();
-        jCheckBoxMenuItem2 = new javax.swing.JCheckBoxMenuItem();
         jSeparator1 = new javax.swing.JSeparator();
         menuItemPanLeft = new javax.swing.JMenuItem();
         menuItemPanRight = new javax.swing.JMenuItem();
         menuItemZoomIn = new javax.swing.JMenuItem();
         menuItemZoomOut = new javax.swing.JMenuItem();
+        menu_plugins = new javax.swing.JMenu();
+        menuitem_pluginmanager = new javax.swing.JMenuItem();
         menu_help = new javax.swing.JMenu();
         jMenuItem1 = new javax.swing.JMenuItem();
 
@@ -532,26 +533,6 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
             }
         });
         menu_view.add(menuItem_viewRangeControls);
-
-        jCheckBoxMenuItem1.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_A, java.awt.event.InputEvent.SHIFT_MASK | java.awt.event.InputEvent.CTRL_MASK));
-        jCheckBoxMenuItem1.setSelected(true);
-        jCheckBoxMenuItem1.setText("Annotation Menu");
-        jCheckBoxMenuItem1.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jCheckBoxMenuItem1ActionPerformed(evt);
-            }
-        });
-        menu_view.add(jCheckBoxMenuItem1);
-
-        jCheckBoxMenuItem2.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_I, java.awt.event.InputEvent.SHIFT_MASK | java.awt.event.InputEvent.CTRL_MASK));
-        jCheckBoxMenuItem2.setSelected(true);
-        jCheckBoxMenuItem2.setText("Information & Analysis Menu");
-        jCheckBoxMenuItem2.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jCheckBoxMenuItem2ActionPerformed(evt);
-            }
-        });
-        menu_view.add(jCheckBoxMenuItem2);
         menu_view.add(jSeparator1);
 
         menuItemPanLeft.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_LEFT, java.awt.event.InputEvent.SHIFT_MASK));
@@ -591,6 +572,18 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         menu_view.add(menuItemZoomOut);
 
         menuBar_top.add(menu_view);
+
+        menu_plugins.setText("Plugins");
+
+        menuitem_pluginmanager.setText("Plugin Manager");
+        menuitem_pluginmanager.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                menuitem_pluginmanagerActionPerformed(evt);
+            }
+        });
+        menu_plugins.add(menuitem_pluginmanager);
+
+        menuBar_top.add(menu_plugins);
 
         menu_help.setText("Help");
 
@@ -704,12 +697,6 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         ScreenShot.takeAndSave();
     }//GEN-LAST:event_menuitem_screenActionPerformed
 
-    private void jCheckBoxMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBoxMenuItem1ActionPerformed
-    }//GEN-LAST:event_jCheckBoxMenuItem1ActionPerformed
-
-    private void jCheckBoxMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBoxMenuItem2ActionPerformed
-    }//GEN-LAST:event_jCheckBoxMenuItem2ActionPerformed
-
     private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
         try {
             java.awt.Desktop.getDesktop().browse(java.net.URI.create(BrowserDefaults.url));
@@ -742,6 +729,11 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         }
     }//GEN-LAST:event_menuitem_thousandgenomesActionPerformed
 
+    private void menuitem_pluginmanagerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuitem_pluginmanagerActionPerformed
+        PluginDialog pd = new PluginDialog();
+        pd.setVisible(true);
+    }//GEN-LAST:event_menuitem_pluginmanagerActionPerformed
+
     /**
      * Starts an instance of the Savant Browser
      * @param args the command line arguments
@@ -755,8 +747,6 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         });
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JCheckBoxMenuItem jCheckBoxMenuItem1;
-    private javax.swing.JCheckBoxMenuItem jCheckBoxMenuItem2;
     private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JMenuItem jMenuItem5;
     private javax.swing.JSeparator jSeparator1;
@@ -775,9 +765,11 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
     private javax.swing.JMenu menu_file;
     private javax.swing.JMenu menu_help;
     private javax.swing.JMenu menu_load;
+    private javax.swing.JMenu menu_plugins;
     private javax.swing.JMenu menu_view;
     private javax.swing.JMenuItem menuitem_exit;
     private javax.swing.JMenuItem menuitem_genome;
+    private javax.swing.JMenuItem menuitem_pluginmanager;
     private javax.swing.JMenuItem menuitem_preformatted;
     private javax.swing.JMenuItem menuitem_screen;
     private javax.swing.JMenuItem menuitem_thousandgenomes;
