@@ -678,7 +678,6 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
     private void menuItemFormatActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuItemFormatActionPerformed
         Savant.log("Showing format form...");
         DataFormatForm ff = new DataFormatForm();
-        ff.setVisible(true);
     }//GEN-LAST:event_menuItemFormatActionPerformed
 
     private void menuitem_exitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuitem_exitActionPerformed
@@ -1464,12 +1463,6 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         if (reply == JOptionPane.YES_OPTION)
         {
            DataFormatForm dff = new DataFormatForm(fileName);
-
-           System.out.println("Format complete");
-
-            System.out.println("Format successful? " + dff.didSuccessfullyFormat());
-            System.out.println("Format path? " + dff.getOutputFilePath());
-
 
            if (dff.didSuccessfullyFormat()) {
                String outfilepath = dff.getOutputFilePath();

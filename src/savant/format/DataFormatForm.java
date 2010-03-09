@@ -34,6 +34,8 @@ import javax.swing.event.ListSelectionListener;
  */
 public class DataFormatForm extends JDialog /* javax.swing.JFrame*/ {
 
+    private static List<Boolean> defaultBases;
+    private static List<Boolean> canChooseBaseStatus;
     private static List<String> formats;
     private static HashMap<String,String> formatDescriptionMap;
     private static HashMap<String,FileType> formatTypeMap;
@@ -53,6 +55,8 @@ public class DataFormatForm extends JDialog /* javax.swing.JFrame*/ {
         initComponents();
         initFormats();
         initListActionHandler();
+
+        //checkbox_chooseBase.setVisible(false);
 
         formatDescriptionTextArea = this.textarea_formatDescription;
         validateReadyToFormat();
@@ -91,6 +95,7 @@ public class DataFormatForm extends JDialog /* javax.swing.JFrame*/ {
         jLabel4 = new javax.swing.JLabel();
         textfield_outPath = new javax.swing.JTextField();
         checkbox_tempOut = new javax.swing.JCheckBox();
+        checkbox_chooseBase = new javax.swing.JCheckBox();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Format");
@@ -101,7 +106,7 @@ public class DataFormatForm extends JDialog /* javax.swing.JFrame*/ {
 
         textarea_formatDescription.setColumns(20);
         textarea_formatDescription.setEditable(false);
-        textarea_formatDescription.setFont(new java.awt.Font("Verdana", 0, 10)); // NOI18N
+        textarea_formatDescription.setFont(new java.awt.Font("Verdana", 0, 10));
         textarea_formatDescription.setLineWrap(true);
         textarea_formatDescription.setRows(3);
         textarea_formatDescription.setWrapStyleWord(true);
@@ -145,11 +150,21 @@ public class DataFormatForm extends JDialog /* javax.swing.JFrame*/ {
         textfield_outPath.setDisabledTextColor(new java.awt.Color(255, 255, 255));
 
         checkbox_tempOut.setSelected(true);
-        checkbox_tempOut.setText("Store temporarily");
+        checkbox_tempOut.setText("Store output temporarily");
         checkbox_tempOut.setToolTipText("Store the formatted file just for this session");
         checkbox_tempOut.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 checkbox_tempOutActionPerformed(evt);
+            }
+        });
+
+        checkbox_chooseBase.setSelected(true);
+        checkbox_chooseBase.setText("Input file is 1-based");
+        checkbox_chooseBase.setToolTipText("Checked for 1-based; unchecked for 0-based.");
+        checkbox_chooseBase.setEnabled(false);
+        checkbox_chooseBase.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                checkbox_chooseBaseActionPerformed(evt);
             }
         });
 
@@ -160,6 +175,10 @@ public class DataFormatForm extends JDialog /* javax.swing.JFrame*/ {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(checkbox_tempOut)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(checkbox_chooseBase))
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 346, Short.MAX_VALUE)
                     .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                         .addGroup(layout.createSequentialGroup()
@@ -175,7 +194,6 @@ public class DataFormatForm extends JDialog /* javax.swing.JFrame*/ {
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(button_openOutFile))
                             .addComponent(jLabel3)))
-                    .addComponent(checkbox_tempOut)
                     .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 346, Short.MAX_VALUE)
                     .addComponent(jLabel4))
                 .addContainerGap())
@@ -198,10 +216,15 @@ public class DataFormatForm extends JDialog /* javax.swing.JFrame*/ {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 64, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(checkbox_tempOut)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jLabel3)
-                .addGap(2, 2, 2)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jLabel3)
+                        .addGap(2, 2, 2))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(checkbox_tempOut)
+                            .addComponent(checkbox_chooseBase))
+                        .addGap(18, 18, 18)))
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(textfield_outPath, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(button_openOutFile))
@@ -260,6 +283,7 @@ public class DataFormatForm extends JDialog /* javax.swing.JFrame*/ {
         String infile = this.textfield_inPath.getText();
         String outfile = this.textfield_outPath.getText();
         FileType ft = formatTypeMap.get(formats.get(list_formats.getSelectedIndex()));
+        boolean isInputOneBased = checkbox_chooseBase.isSelected();
 
         if (ft == FileType.INTERVAL_BAM) {
             JOptionPane.showMessageDialog(this, 
@@ -268,7 +292,7 @@ public class DataFormatForm extends JDialog /* javax.swing.JFrame*/ {
             return;
         }
 
-        DataFormatter df = new DataFormatter(infile, outfile, ft);
+        DataFormatter df = new DataFormatter(infile, outfile, ft, isInputOneBased);
 
         this.outFilePath = outfile;
 
@@ -280,6 +304,10 @@ public class DataFormatForm extends JDialog /* javax.swing.JFrame*/ {
              JOptionPane.showMessageDialog(this, "Formatting unsuccessful.");
         }
     }//GEN-LAST:event_button_formatActionPerformed
+
+    private void checkbox_chooseBaseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkbox_chooseBaseActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_checkbox_chooseBaseActionPerformed
 
     /**
     * @param args the command line arguments
@@ -296,6 +324,7 @@ public class DataFormatForm extends JDialog /* javax.swing.JFrame*/ {
     private javax.swing.JButton button_format;
     private javax.swing.JButton button_openInPath;
     private javax.swing.JButton button_openOutFile;
+    private javax.swing.JCheckBox checkbox_chooseBase;
     private javax.swing.JCheckBox checkbox_tempOut;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
@@ -318,6 +347,10 @@ public class DataFormatForm extends JDialog /* javax.swing.JFrame*/ {
                     int index = jl.getSelectedIndex();
                     Savant.log(index + " picked");
                     formatDescriptionTextArea.setText(formatDescriptionMap.get(formats.get(index)));
+
+                    checkbox_chooseBase.setSelected(defaultBases.get(index));
+                    checkbox_chooseBase.setEnabled(canChooseBaseStatus.get(index));
+                    //checkbox_chooseBase.setVisible(canChooseBaseStatus.get(index));
                     //Savant.log("List value changed to " + e.getFirstIndex() + " " + e.getLastIndex() + " " + minIndex + " " + maxIndex);
                 }
                 validateReadyToFormat();
@@ -326,18 +359,20 @@ public class DataFormatForm extends JDialog /* javax.swing.JFrame*/ {
     }
 
     private void initFormats() {
+        defaultBases = new ArrayList<Boolean>();
+        canChooseBaseStatus = new ArrayList<Boolean>();
         formats = new ArrayList<String>();
         formatDescriptionMap = new HashMap<String,String>();
 
         formatTypeMap = new HashMap<String,FileType>();
-        addFormat("FASTA", FileType.SEQUENCE_FASTA ,  "FASTA format is a text-based format for representing either nucleotide sequences or peptide sequences, in which base pairs or amino acids are represented using single-letter codes.");
-        addFormat("BED", FileType.INTERVAL_BED , "BED format is an alternative to GFF format for describing co-ordinates of localized features on genomes.");
-        addFormat("GFF", FileType.INTERVAL_GFF , "GFF is a format for locating & describing genes and other localized features associated with DNA, RNA and Protein sequences.");
-        addFormat("SAM/BAM", FileType.INTERVAL_BAM , "SAM format (binary, for BAM) is a generic format for storing large nucleotide sequence alignments.");
-        addFormat("WIG", FileType.CONTINUOUS_WIG , "WIG format allows display of continuous-valued data in track format. This display type is useful for GC percent, probability scores, and transcriptome data.");
-        addFormat("Generic Interval", FileType.INTERVAL_GENERIC , "Generic intervals can be used to display any number of from to pairs, each with an associated description.");
-        addFormat("Generic Point", FileType.POINT_GENERIC ,"Generic intervals can be used to display any number of positional elements, each with an associated description.");
-        addFormat("Generic Continuous", FileType.CONTINUOUS_GENERIC ,"Generic intervals can be used to display continuous values.");
+        addFormat("FASTA", true, false, FileType.SEQUENCE_FASTA ,  "FASTA format is a text-based format for representing either nucleotide sequences or peptide sequences, in which base pairs or amino acids are represented using single-letter codes.");
+        addFormat("BED", false, false, FileType.INTERVAL_BED , "BED format is an alternative to GFF format for describing co-ordinates of localized features on genomes.");
+        addFormat("GFF", true, false, FileType.INTERVAL_GFF , "GFF is a format for locating & describing genes and other localized features associated with DNA, RNA and Protein sequences.");
+        addFormat("SAM/BAM", true, false, FileType.INTERVAL_BAM , "SAM format (binary, for BAM) is a generic format for storing large nucleotide sequence alignments.");
+        addFormat("WIG", true, false, FileType.CONTINUOUS_WIG , "WIG format allows display of continuous-valued data in track format. This display type is useful for GC percent, probability scores, and transcriptome data.");
+        addFormat("Generic Interval", true, true, FileType.INTERVAL_GENERIC , "Generic intervals can be used to display any number of from to pairs, each with an associated description.");
+        addFormat("Generic Point", true, true, FileType.POINT_GENERIC ,"Generic intervals can be used to display any number of positional elements, each with an associated description.");
+        addFormat("Generic Continuous", true, true, FileType.CONTINUOUS_GENERIC ,"Generic intervals can be used to display continuous values.");
 
         DefaultListModel model = (DefaultListModel) this.list_formats.getModel();
         for (int i = 0; i < formats.size(); i++) {
@@ -345,10 +380,12 @@ public class DataFormatForm extends JDialog /* javax.swing.JFrame*/ {
         }
     }
 
-    private void addFormat(String fname, FileType ft, String fdescription) {
+    private void addFormat(String fname, boolean defaultIsOneBase, boolean canChooseBase, FileType ft, String fdescription) {
         formats.add(fname);
         formatTypeMap.put(fname, ft);
         formatDescriptionMap.put(fname, fdescription);
+        defaultBases.add(defaultIsOneBase);
+        canChooseBaseStatus.add(canChooseBase);
     }
 
     private void setOutputPath(String selectedFileName) {

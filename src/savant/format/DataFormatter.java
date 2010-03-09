@@ -47,10 +47,17 @@ public class DataFormatter {
     FileType fileType;
     int currentVersion = 1;
 
-    public DataFormatter(String inPath, String outPath, FileType fileType) {
+    int baseOffset = 0; // 0 is 1-based; 1 if 0-based
+
+    public DataFormatter(String inPath, String outPath, FileType fileType, boolean isInputOneBased) {
         this.inPath = inPath;
         this.outPath = outPath;
         this.fileType = fileType;
+        setInputOneBased(isInputOneBased);
+    }
+
+    public DataFormatter(String inPath, String outPath, FileType fileType) {
+        this(inPath, outPath,fileType,true);
     }
 
     /**
@@ -196,7 +203,7 @@ public class DataFormatter {
 
     }
 
-    private void formatAsInterval(List<FieldType> fields, List<Object> modifiers, boolean oneBased) throws FileNotFoundException, IOException {
+    private void formatAsInterval(List<FieldType> fields, List<Object> modifiers) throws FileNotFoundException, IOException {
 
         List<Range> intervalIndex2IntervalRange = new ArrayList<Range>();
         List<Long> intevalIndex2StartByte = new ArrayList<Long>();
@@ -220,12 +227,13 @@ public class DataFormatter {
         BufferedReader inFile = this.openInputFile();
         List<Object> line;
         while((line = DataUtils.parseTxtLine(inFile, fields)) != null) {
+            line.set(0, ((Integer)line.get(0)) + this.baseOffset);
+            line.set(1, ((Integer)line.get(1))  + this.baseOffset);
+
             int startInterval = (Integer) line.get(0);
-            minRange = Math.min(minRange, startInterval);
             int endInterval = (Integer) line.get(1);
 
-            if (oneBased) { startInterval++; endInterval++; }
-
+            minRange = Math.min(minRange, startInterval);
             maxRange = Math.max(maxRange, endInterval);
 
             intervalIndex2IntervalRange.add(new Range(startInterval, endInterval));
@@ -321,7 +329,7 @@ public class DataFormatter {
         modifiers.add(null);
         modifiers.add(null);
 
-        formatAsInterval(fields,modifiers, false);
+        formatAsInterval(fields,modifiers);
     }
 
     private void formatAsIntervalGFF() throws FileNotFoundException, IOException {
@@ -347,7 +355,7 @@ public class DataFormatter {
         modifiers.add(null);
         modifiers.add(null);
 
-        formatAsInterval(fields,modifiers, false);
+        formatAsInterval(fields,modifiers);
     }
 
     private void formatAsIntervalBED() throws FileNotFoundException, IOException {
@@ -375,7 +383,7 @@ public class DataFormatter {
         modifiers.add(null);
         modifiers.add(null);
 
-        formatAsInterval(fields,modifiers,true);
+        formatAsInterval(fields,modifiers);
     }
 
      private HashMap<Integer,Long> writeBinsToOutfile(RandomAccessFile outFile, RandomAccessFile srcFile, IntervalSearchTree ibst, HashMap<Integer, List<LinePlusRange>> nodeIndex2IntervalIndices, List<Long> intevalIndex2StartByte, List<FieldType> fields, List<Object> modifiers) throws IOException {
@@ -447,6 +455,7 @@ public class DataFormatter {
 
         BufferedReader inFile = this.openInputFile();
         while ((line = DataUtils.parseTxtLine(inFile, fields)) != null) {
+            line.set(0, ((Integer) line.get(0))+ this.baseOffset);
             DataUtils.writeBinaryRecord(outFile, line, fields, modifiers);
         }
         inFile.close();
@@ -632,5 +641,10 @@ public class DataFormatter {
      */
     private BufferedReader openInputFile() throws FileNotFoundException {
         return new BufferedReader(new FileReader(inPath));
+    }
+
+    private void setInputOneBased(boolean inputOneBased) {
+        if (inputOneBased) { this.baseOffset = 1; }
+        else { this.baseOffset = 0; }
     }
 }
