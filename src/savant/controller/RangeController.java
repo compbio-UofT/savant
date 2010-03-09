@@ -255,7 +255,7 @@ public class RangeController {
      * Shift the currentViewableRange all the way to the left
      */
     public void shiftRangeFarLeft() {
-        Range r = new Range(0, getRange().getLength() - 1);
+        Range r = new Range(1, getRange().getLength());
         setRange(r);
     }
 
@@ -295,7 +295,7 @@ public class RangeController {
             return; // can't go any further out,stay at same range
         }
         else if ( half > middle) {
-            r = new Range(0, length);
+            r = new Range(1, length);
         }
         setRange(r);
     }
