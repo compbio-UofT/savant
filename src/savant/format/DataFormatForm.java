@@ -391,10 +391,10 @@ public class DataFormatForm extends JDialog /* javax.swing.JFrame*/ {
     private void setOutputPath(String selectedFileName) {
         if (this.checkbox_tempOut.isSelected()) {
             this.button_openOutFile.setEnabled(false);
-            this.textfield_outPath.setText(selectedFileName + ".tmp.debut");
+            this.textfield_outPath.setText(selectedFileName + ".tmp.savant");
         } else {
             this.button_openOutFile.setEnabled(true);
-            this.textfield_outPath.setText(selectedFileName + ".debut");
+            this.textfield_outPath.setText(selectedFileName + ".savant");
         }
         validateReadyToFormat();
     }
