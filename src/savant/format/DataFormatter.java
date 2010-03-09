@@ -25,6 +25,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.StringTokenizer;
+import savant.controller.RangeController;
+import savant.tools.BAMToCoverage;
+import savant.tools.WIGToContinuous;
 
 /**
  *
@@ -32,7 +35,7 @@ import java.util.StringTokenizer;
  */
 public class DataFormatter {
 
-    public static String defaultExtension = ".debut";
+    public static String defaultExtension = ".savant";
     public static String indexExtension = ".index";
 
     int byteCounter;
@@ -64,6 +67,9 @@ public class DataFormatter {
             switch (fileType) {
                 case POINT_GENERIC:
                     formatAsPointGeneric();
+                    break;
+                case INTERVAL_BAM:
+                    formatAsBAM();
                     break;
                 case INTERVAL_GENERIC:
                     formatAsIntervalGeneric();
@@ -158,9 +164,10 @@ public class DataFormatter {
      */
     private void formatAsContinuousWIG() throws FileNotFoundException, IOException {
 
-        BufferedReader inFile = this.openInputFile();
-        RandomAccessFile outFile = this.openOutputFile();
+        WIGToContinuous wtc = new WIGToContinuous(this.inPath, this.outPath);
+        wtc.format();
 
+        /*
         List<FieldType> fields = new ArrayList<FieldType>();
         fields.add(FieldType.INTEGER);
         fields.add(FieldType.DOUBLE);
@@ -175,14 +182,21 @@ public class DataFormatter {
         while((line = DataUtils.parseTxtLine(inFile, fields)) != null) {
             DataUtils.writeBinaryRecord(outFile, line, fields, modifiers);
         }
-
-        inFile.close();
-        outFile.close();
+         * 
+         */
     }
 
 
+    private void formatAsBAM() throws FileNotFoundException, IOException {
 
-    private void formatAsInterval(List<FieldType> fields, List<Object> modifiers) throws FileNotFoundException, IOException {
+        RangeController rc = RangeController.getInstance();
+
+        BAMToCoverage btc = new BAMToCoverage(this.inPath, this.inPath + ".bai", this.inPath + ".cov", null, rc.getMaxRange().getLength() );
+        btc.format();
+
+    }
+
+    private void formatAsInterval(List<FieldType> fields, List<Object> modifiers, boolean oneBased) throws FileNotFoundException, IOException {
 
         List<Range> intervalIndex2IntervalRange = new ArrayList<Range>();
         List<Long> intevalIndex2StartByte = new ArrayList<Long>();
@@ -209,6 +223,9 @@ public class DataFormatter {
             int startInterval = (Integer) line.get(0);
             minRange = Math.min(minRange, startInterval);
             int endInterval = (Integer) line.get(1);
+
+            if (oneBased) { startInterval++; endInterval++; }
+
             maxRange = Math.max(maxRange, endInterval);
 
             intervalIndex2IntervalRange.add(new Range(startInterval, endInterval));
@@ -304,7 +321,7 @@ public class DataFormatter {
         modifiers.add(null);
         modifiers.add(null);
 
-        formatAsInterval(fields,modifiers);
+        formatAsInterval(fields,modifiers, false);
     }
 
     private void formatAsIntervalGFF() throws FileNotFoundException, IOException {
@@ -330,7 +347,7 @@ public class DataFormatter {
         modifiers.add(null);
         modifiers.add(null);
 
-        formatAsInterval(fields,modifiers);
+        formatAsInterval(fields,modifiers, false);
     }
 
     private void formatAsIntervalBED() throws FileNotFoundException, IOException {
@@ -358,7 +375,7 @@ public class DataFormatter {
         modifiers.add(null);
         modifiers.add(null);
 
-        formatAsInterval(fields,modifiers);
+        formatAsInterval(fields,modifiers,true);
     }
 
      private HashMap<Integer,Long> writeBinsToOutfile(RandomAccessFile outFile, RandomAccessFile srcFile, IntervalSearchTree ibst, HashMap<Integer, List<LinePlusRange>> nodeIndex2IntervalIndices, List<Long> intevalIndex2StartByte, List<FieldType> fields, List<Object> modifiers) throws IOException {
