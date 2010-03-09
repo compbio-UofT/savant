@@ -1497,7 +1497,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         showRangeControls();
 
         this.loadedGenome = genome;
-        rangeController.setMaxRange(new Range(0, genome.getLength()));
+        rangeController.setMaxRange(new Range(1, genome.getLength()));
 
         rangeSelector.setMaximum(genome.getLength());
 
@@ -1514,7 +1514,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         }
 
         if (!someGenomeSetAlready) {
-            rangeController.setRange(0, 999);
+            rangeController.setRange(1, 999);
         }
 
         this.showRangeControls();
@@ -1527,8 +1527,8 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
      * @param range
      */
     void setRangeDescription(Range range) {
-        textboxFrom.setText(MiscUtils.intToString(range.getFrom() + 1));
-        textboxTo.setText(MiscUtils.intToString(range.getTo() + 1));
+        textboxFrom.setText(MiscUtils.intToString(range.getFrom()));
+        textboxTo.setText(MiscUtils.intToString(range.getTo()));
         //label_rangeLength.setText(MiscUtils.intToString(getRange().getLength()));
     }
 
@@ -1569,7 +1569,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
             return;
         }
 
-        rangeController.setRange(from - 1, to - 1);
+        rangeController.setRange(from, to);
     }
 
     /**
