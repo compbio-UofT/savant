@@ -59,7 +59,7 @@ public class SequenceTrackRenderer extends TrackRenderer {
         List<Object> data = this.getData();
 
         // Don't display sequence if data is too high resolution to see.
-        if (data == null || unitWidth < 1) {
+        if (data == null || unitWidth < 0.2) {
 
             // display informational glass pane
             renderGlassPane(g2, gp);

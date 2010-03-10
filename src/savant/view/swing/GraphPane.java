@@ -678,26 +678,6 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
     public void keyPressed(KeyEvent e) {
         setKeyModifier(e);
 
-        /*
-        // up key
-        if (e.getKeyCode() == KeyEvent.VK_UP) {
-            RangeController rc = RangeController.getInstance();
-            rc.zoomIn();
-        // down key
-        } else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
-            RangeController rc = RangeController.getInstance();
-            rc.zoomOut();
-        // left or page up key
-        } else if (e.getKeyCode() == KeyEvent.VK_LEFT || e.getKeyCode() == KeyEvent.VK_PAGE_UP) {
-            RangeController rc = RangeController.getInstance();
-            rc.shiftRangeLeft();
-        // right or page down key
-        } else if (e.getKeyCode() == KeyEvent.VK_RIGHT || e.getKeyCode() == KeyEvent.VK_PAGE_DOWN) {
-            RangeController rc = RangeController.getInstance();
-            rc.shiftRangeRight();
-        }
-         */
-
         repaint();
     }
 
@@ -815,72 +795,4 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         }
 
     }
-
-    /*
-    public static void renderGlassPane(Graphics2D g2, GraphPane gp, int GLASS_PANE_WIDTH, String GLASS_PANE_MESSAGE) {
-
-        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_ON);
-        Font font = g2.getFont();
-        int arc = 0;
-
-        int h = gp.getSize().height/3;
-        int w = GLASS_PANE_WIDTH;
-
-        if (w > 300)
-        {
-            font = font.deriveFont(Font.PLAIN,48);
-            arc = 20;
-        }
-        else if (w > 150)
-        {
-            font = font.deriveFont(Font.PLAIN,24);
-            arc = 10;
-        }
-        else
-        {
-            font = font.deriveFont(Font.PLAIN,12);
-            arc = 3;
-        }
-        g2.setFont(font);
-        FontMetrics metrics = g2.getFontMetrics();
-
-        Rectangle2D stringBounds = font.getStringBounds(GLASS_PANE_MESSAGE, g2.getFontRenderContext());
-
-        int preferredWidth = (int)stringBounds.getWidth()+metrics.getHeight();
-        int preferredHeight = (int)stringBounds.getHeight()+metrics.getHeight();
-
-        w = Math.min(preferredWidth,w);
-        h = Math.min(preferredHeight,h);
-
-        int x = (gp.getSize().width - w) / 2;
-        int y = (gp.getSize().height - h) / 2;
-        Color vColor = new Color(0, 174, 255, 90);
-
-        g2.setColor(vColor);
-        g2.fillRoundRect(x, y, w, h, arc, arc);
-
-        g2.setColor(Color.WHITE);
-        x = (gp.getSize().width - (int)stringBounds.getWidth()) / 2;
-        y = (gp.getSize().height / 2) + ((metrics.getAscent()- metrics.getDescent()) / 2);
-
-        g2.drawString(GLASS_PANE_MESSAGE,x,y);
-    }
-     *
-     */
-
-/*
-
-    private boolean isLeftClick(MouseEvent e) {
-        return ((e.getModifiers() & InputEvent.BUTTON1_MASK) == InputEvent.BUTTON1_MASK);
-    }
-
-    private boolean isMiddleClick(MouseEvent e) {
-        return ((e.getModifiers() & InputEvent.BUTTON2_MASK) == InputEvent.BUTTON2_MASK);
-    }
-
-    private boolean isRightClick(MouseEvent e) {
-        return ((e.getModifiers() & InputEvent.BUTTON3_MASK) == InputEvent.BUTTON3_MASK);
-    }
- * 
- */
 }

@@ -226,8 +226,8 @@ public class RangeSelectionPanel extends JPanel implements MouseListener, MouseM
 
             if (this.rangeChangedExternally) {
                 Range r = RangeController.getInstance().getRange();
-                from = MiscUtils.intToString(r.getFrom()+1);
-                to = MiscUtils.intToString(r.getTo()+1);
+                from = MiscUtils.intToString(r.getFrom());
+                to = MiscUtils.intToString(r.getTo());
             } else {
                 from = MiscUtils.intToString(translatePixelToPosition(fromX)+1);
                 to = MiscUtils.intToString(translatePixelToPosition(toX)+1);
@@ -242,11 +242,9 @@ public class RangeSelectionPanel extends JPanel implements MouseListener, MouseM
             startTo = toX + 5;
 
             if (startFrom + fromWidth + 5 < startTo) {
-                g.drawString( from, startFrom, ypos );
-                g.drawString( to, startTo, ypos );
+                if (startFrom > 0) { g.drawString( from, startFrom, ypos ); }
+                if (startTo + toWidth < this.getWidth()) { g.drawString( to, startTo, ypos ); }
             }
-
-
     }
 
     public void setMaximum(int max) {

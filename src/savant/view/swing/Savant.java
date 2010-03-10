@@ -812,9 +812,10 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
 
     private void initPlugins() {
         try{
+            // hide the plugin manager menu item
+            menu_plugins.setVisible(false);
+
             // init the AuxData plugins
-
-
             PluginDescriptor core = pluginManager.getRegistry().getPluginDescriptor("savant.core");
             ExtensionPoint point = pluginManager.getRegistry().getExtensionPoint(core.getId(), "AuxData");
 
@@ -1499,7 +1500,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         }
 
         if (!someGenomeSetAlready) {
-            rangeController.setRange(1, 999);
+            rangeController.setRange(1, Math.min(1000,genome.getLength()));
         }
 
         this.showRangeControls();
