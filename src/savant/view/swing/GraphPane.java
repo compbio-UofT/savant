@@ -767,12 +767,12 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
     public void switchLocked() {
         setIsLocked(!this.isLocked);
     }
-    public void hideFrame() {
-        FrameController.getInstance().hideFrame(this);
-    }
-    public void closeFrame() {
-        FrameController.getInstance().closeFrame(this);
-    }
+//    public void hideFrame() {
+//        FrameController.getInstance().hideFrame(this);
+//    }
+//    public void closeFrame() {
+//        FrameController.getInstance().closeFrame(this);
+//    }
     public void setIsLocked(boolean b) {
         this.isLocked = b;
         if (b) {
