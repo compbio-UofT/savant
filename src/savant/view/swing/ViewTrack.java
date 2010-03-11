@@ -18,9 +18,11 @@ package savant.view.swing;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import savant.controller.TrackController;
 import savant.controller.ViewTrackController;
 import savant.format.header.FileType;
 import savant.format.header.FileTypeHeader;
+import savant.model.data.RecordTrack;
 import savant.model.data.interval.BEDIntervalTrack;
 import savant.util.IOUtils;
 import savant.model.Genome;
@@ -64,6 +66,7 @@ public abstract class ViewTrack {
     private List<Mode> drawModes;
     private Mode drawMode;
     private List<TrackRenderer> trackRenderers;
+    private RecordTrack track;
 
     /**
      * Create one or more tracks based on the given file name.
@@ -157,14 +160,19 @@ public abstract class ViewTrack {
      * @param name track name (typically, the file name)
      * @param dataType FileFormat representing file type, e.g. INTERVAL_BED, CONTINUOUS_GENERIC
      */
-    public ViewTrack(String name, FileFormat dataType) {
+    public ViewTrack(String name, FileFormat dataType, RecordTrack track) {
         setName(name);
         setDataType(dataType);
         drawModes = new ArrayList<Mode>();
         trackRenderers = new ArrayList<TrackRenderer>();
+        this.track = track;
 
         ViewTrackController tc = ViewTrackController.getInstance();
         tc.addTrack(this);
+
+        if (track != null) {
+            TrackController.getInstance().addTrack(track);
+        }
     }
 
     public FileFormat getDataType() {
@@ -236,6 +244,10 @@ public abstract class ViewTrack {
         this.drawModes = modes;
     }
 
+    public RecordTrack getTrack() {
+        return this.track;
+    }
+    
     // TODO: don't just throw generic Exception
     public abstract void prepareForRendering(Range range) throws Exception;
 
