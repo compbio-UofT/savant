@@ -1,4 +1,4 @@
-package savant.view.swing;/*
+package savant.plugin;/*
  *    Copyright 2010 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,7 +15,7 @@ package savant.view.swing;/*
  */
 
 /*
- * savant.view.swing.AuxData.java
+ * savant.plugin.AuxData.java
  * Created on Feb 23, 2010
  */
 
