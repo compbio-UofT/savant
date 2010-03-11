@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 
-package savant.util;
+package savant.view.swing.util;
 
 import savant.view.swing.Savant;
 
