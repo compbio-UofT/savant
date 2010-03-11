@@ -18,7 +18,7 @@ package savant.view.swing;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import savant.controller.TrackController;
+import savant.controller.ViewTrackController;
 import savant.format.header.FileType;
 import savant.format.header.FileTypeHeader;
 import savant.model.data.interval.BEDIntervalTrack;
@@ -44,7 +44,6 @@ import savant.view.swing.point.PointViewTrack;
 import savant.view.swing.sequence.SequenceViewTrack;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
@@ -164,7 +163,7 @@ public abstract class ViewTrack {
         drawModes = new ArrayList<Mode>();
         trackRenderers = new ArrayList<TrackRenderer>();
 
-        TrackController tc = TrackController.getInstance();
+        ViewTrackController tc = ViewTrackController.getInstance();
         tc.addTrack(this);
     }
 
