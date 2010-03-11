@@ -14,7 +14,7 @@
  *    limitations under the License.
  */
 
-package savant.controller.event.track;
+package savant.controller.event.viewtrack;
 
 import savant.view.swing.ViewTrack;
 
@@ -25,13 +25,14 @@ import java.util.List;
  *
  * @author mfiume
  */
-public class TrackListChangedEvent extends EventObject {
+public class ViewTrackListChangedEvent extends EventObject {
     private List<ViewTrack> tracks;
 
-    public TrackListChangedEvent( Object source, List<ViewTrack> tracks ) {
+    public ViewTrackListChangedEvent( Object source, List<ViewTrack> tracks ) {
         super( source );
         this.tracks = tracks;
     }
+
     public List<ViewTrack> range() {
         return tracks;
     }
