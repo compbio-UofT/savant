@@ -107,7 +107,7 @@ public class ViewTrackController {
         ViewTrackListChangedEvent evt = new ViewTrackListChangedEvent(this, this.tracks);
         Iterator listeners = this.tracksChangedListeners.iterator();
         while (listeners.hasNext()) {
-            ((ViewTrackListChangedListener) listeners.next()).trackListChangeReceived(evt);
+            ((ViewTrackListChangedListener) listeners.next()).viewTrackListChangeReceived(evt);
         }
     }
 
