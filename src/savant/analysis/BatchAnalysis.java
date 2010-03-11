@@ -35,7 +35,7 @@ public class BatchAnalysis implements RangeChangedListener, BookmarksChangedList
     }
 
        /**
-     * Fire the TrackListChangedEvent
+     * Fire the ViewTrackListChangedEvent
      */
     private synchronized void fireAnalyzeEvent() {
         AnalyzeEvent evt = new AnalyzeEvent(this);
