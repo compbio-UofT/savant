@@ -44,10 +44,6 @@ import java.util.Iterator;
 import java.util.List;
 import javax.swing.JComponent;
 
-import org.flexdock.docking.DockingConstants;
-import org.flexdock.docking.DockingManager;
-import org.flexdock.docking.defaults.DefaultDockingPort;
-
 public class FrameController {
 
     private static FrameController instance;
@@ -70,7 +66,6 @@ public class FrameController {
         }
         return instance;
     }
-    private DefaultDockingPort dockingPort;
 
     private FrameController() {
         frames = new ArrayList<Frame>();
@@ -157,46 +152,6 @@ public class FrameController {
                 Savant.log("Error: could not draw frames (" + e.getMessage() + ")");
             }
         }
-    }
-
-    public void hideFrame(Frame frame) {
-        JComponent jc = this.graphpane2dockable.get(frame.getGraphPane());
-        DockingManager.undock(jc);
-        frame.setHidden(true);
-        fireFrameHiddenEvent(frame);
-    }
-
-    public void hideFrame(GraphPane graphpane) {
-        hideFrame(this.graphpane2frame.get(graphpane));
-    }
-
-    public void showFrame(Frame frame) {
-        JComponent jc = this.graphpane2dockable.get(frame.getGraphPane());
-        DockingManager.registerDockable(jc);
-        dockingPort.dock(jc, DockingConstants.SOUTH_REGION);
-        frame.setHidden(false);
-        fireFrameShownEvent(frame);
-    }
-
-    public void showFrame(GraphPane graphpane) {
-        showFrame(this.graphpane2frame.get(graphpane));
-    }
-
-    public void closeFrame(GraphPane graphpane) {
-        closeFrame(this.graphpane2frame.get(graphpane));
-    }
-
-    public void setDockingPort(DefaultDockingPort dockingPort) {
-        this.dockingPort = dockingPort;
-    }
-
-    private void closeFrame(Frame frame) {
-        this.hideFrame(frame);
-        ViewTrackController tc = ViewTrackController.getInstance();
-        for (ViewTrack track : tc.getTracks()) {
-            tc.removeTrack(track);
-        }
-        this.frames.remove(frame);
     }
 
     public List<Frame> getFrames() { return this.frames; }
