@@ -11,5 +11,5 @@ package savant.controller.event.viewtrack;
  */
 public interface ViewTrackListChangedListener
 {
-    public void trackListChangeReceived( ViewTrackListChangedEvent event );
+    public void viewTrackListChangeReceived( ViewTrackListChangedEvent event );
 }
