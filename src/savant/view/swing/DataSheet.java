@@ -171,7 +171,7 @@ public class DataSheet implements RangeChangedListener, ViewTrackListChangedList
         }
     }
 
-    public void trackListChangeReceived(ViewTrackListChangedEvent event) {
+    public void viewTrackListChangeReceived(ViewTrackListChangedEvent event) {
         updateTrackList();
     }
 
