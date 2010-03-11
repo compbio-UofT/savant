@@ -15,12 +15,12 @@
  */
 package savant.view.swing;
 
-import savant.controller.TrackController;
+import savant.controller.ViewTrackController;
+import savant.controller.event.viewtrack.ViewTrackListChangedEvent;
+import savant.controller.event.viewtrack.ViewTrackListChangedListener;
 import savant.view.swing.Savant;
 import savant.controller.event.range.RangeChangedEvent;
 import savant.controller.event.range.RangeChangedListener;
-import savant.controller.event.track.TrackListChangedEvent;
-import savant.controller.event.track.TrackListChangedListener;
 import savant.view.swing.model.DataTableModel;
 
 import java.awt.Dimension;
@@ -47,7 +47,7 @@ import javax.swing.event.ChangeListener;
  *
  * @author mfiume
  */
-public class DataSheet implements RangeChangedListener, TrackListChangedListener {
+public class DataSheet implements RangeChangedListener, ViewTrackListChangedListener {
 
     private JComboBox trackList;
     private JTable table;
@@ -153,7 +153,7 @@ public class DataSheet implements RangeChangedListener, TrackListChangedListener
 
     private void updateTrackList() {
         this.trackList.removeAllItems();
-        TrackController tc = TrackController.getInstance();
+        ViewTrackController tc = ViewTrackController.getInstance();
         for (ViewTrack t : tc.getTracks()) {
             trackList.addItem(t);
         }
@@ -171,7 +171,7 @@ public class DataSheet implements RangeChangedListener, TrackListChangedListener
         }
     }
 
-    public void trackListChangeReceived(TrackListChangedEvent event) {
+    public void trackListChangeReceived(ViewTrackListChangedEvent event) {
         updateTrackList();
     }
 
