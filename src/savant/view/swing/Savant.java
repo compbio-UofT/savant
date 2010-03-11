@@ -30,7 +30,7 @@ import savant.analysis.BatchAnalysisForm;
 import savant.controller.BookmarkController;
 import savant.controller.FrameController;
 import savant.controller.RangeController;
-import savant.controller.TrackController;
+import savant.controller.ViewTrackController;
 import savant.controller.event.range.RangeChangedEvent;
 import savant.controller.event.range.RangeChangedListener;
 import savant.controller.event.rangeselection.RangeSelectionChangedEvent;
@@ -1243,7 +1243,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         JPanel tablePanel = createTabPanel(jtp, "Table View");
         currentRangeDataSheet = new DataSheet(this, tablePanel);
         rangeController.addRangeChangedListener(currentRangeDataSheet);
-        TrackController.getInstance().addTracksChangedListener(currentRangeDataSheet);
+        ViewTrackController.getInstance().addTracksChangedListener(currentRangeDataSheet);
     }
 
     private void initBatchAnalyzeTab(JTabbedPane jtp) {
