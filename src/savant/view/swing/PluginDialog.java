@@ -9,7 +9,7 @@
  * Created on Mar 9, 2010, 10:11:36 AM
  */
 
-package savant.plugin;
+package savant.view.swing;
 
 import java.awt.FileDialog;
 import java.io.File;
