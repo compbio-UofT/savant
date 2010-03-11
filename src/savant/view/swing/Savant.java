@@ -40,7 +40,7 @@ import savant.model.Genome;
 import savant.plugin.AuxData;
 import savant.util.MiscUtils;
 import savant.util.Range;
-import savant.util.ScreenShot;
+import savant.view.swing.util.ScreenShot;
 import savant.view.swing.sequence.SequenceViewTrack;
 
 import javax.swing.*;
@@ -441,34 +441,36 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         });
         menu_file.add(menuItemFormat);
 
+        if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
         submenu_download.setText("Download");
 
-        menuitem_preformatted.setText("Preformatted");
-        menuitem_preformatted.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                menuitem_preformattedActionPerformed(evt);
-            }
-        });
-        submenu_download.add(menuitem_preformatted);
+            menuitem_preformatted.setText("Preformatted");
+            menuitem_preformatted.addActionListener(new java.awt.event.ActionListener() {
+                public void actionPerformed(java.awt.event.ActionEvent evt) {
+                    menuitem_preformattedActionPerformed(evt);
+                }
+            });
+            submenu_download.add(menuitem_preformatted);
 
-        menuitem_ucsc.setText("UCSC");
-        menuitem_ucsc.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                menuitem_ucscActionPerformed(evt);
-            }
-        });
-        submenu_download.add(menuitem_ucsc);
+            menuitem_ucsc.setText("UCSC");
+            menuitem_ucsc.addActionListener(new java.awt.event.ActionListener() {
+                public void actionPerformed(java.awt.event.ActionEvent evt) {
+                    menuitem_ucscActionPerformed(evt);
+                }
+            });
+            submenu_download.add(menuitem_ucsc);
 
-        menuitem_thousandgenomes.setText("1000 Genomes");
-        menuitem_thousandgenomes.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                menuitem_thousandgenomesActionPerformed(evt);
-            }
-        });
-        submenu_download.add(menuitem_thousandgenomes);
+            menuitem_thousandgenomes.setText("1000 Genomes");
+            menuitem_thousandgenomes.addActionListener(new java.awt.event.ActionListener() {
+                public void actionPerformed(java.awt.event.ActionEvent evt) {
+                    menuitem_thousandgenomesActionPerformed(evt);
+                }
+            });
+            submenu_download.add(menuitem_thousandgenomes);
 
-        menu_file.add(submenu_download);
-        menu_file.add(jSeparator3);
+            menu_file.add(submenu_download);
+            menu_file.add(jSeparator3);
+        }
 
         menuitem_screen.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_S, java.awt.event.InputEvent.CTRL_MASK));
         menuitem_screen.setText("Screenshot");
@@ -588,13 +590,15 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
 
         menu_help.setText("Help");
 
-        jMenuItem1.setText("Website");
-        jMenuItem1.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jMenuItem1ActionPerformed(evt);
-            }
-        });
-        menu_help.add(jMenuItem1);
+        if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
+            jMenuItem1.setText("Website");
+            jMenuItem1.addActionListener(new java.awt.event.ActionListener() {
+                public void actionPerformed(java.awt.event.ActionEvent evt) {
+                    jMenuItem1ActionPerformed(evt);
+                }
+            });
+            menu_help.add(jMenuItem1);
+        }
 
         menuBar_top.add(menu_help);
 
