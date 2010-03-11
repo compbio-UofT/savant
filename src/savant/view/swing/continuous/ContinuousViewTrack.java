@@ -43,11 +43,8 @@ import java.util.List;
  */
 public class ContinuousViewTrack extends ViewTrack {
 
-    GenericContinuousTrack track;
-
     public ContinuousViewTrack(String name, GenericContinuousTrack track) {
-        super(name, FileFormat.CONTINUOUS_GENERIC);
-        this.track = track;
+        super(name, FileFormat.CONTINUOUS_GENERIC, track);
         setColorScheme(getDefaultColorScheme());
     }
 
@@ -69,7 +66,7 @@ public class ContinuousViewTrack extends ViewTrack {
 
     @Override
     public List<Object> retrieveData(Range range, Resolution resolution) throws Exception {
-        return new ArrayList<Object>(track.getRecords(range, resolution));
+        return new ArrayList<Object>(getTrack().getRecords(range, resolution));
     }
 
     @Override
