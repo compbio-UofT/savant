@@ -5,7 +5,7 @@
 
 package savant.analysis;
 
-import savant.util.ScreenShot;
+import savant.view.swing.util.ScreenShot;
 
 /**
  *
