@@ -48,8 +48,6 @@ public class BEDViewTrack extends ViewTrack {
 
     private static Log log = LogFactory.getLog(BEDViewTrack.class);
 
-    private BEDIntervalTrack bedIntervalTrack;
-
     public enum DrawingMode {
         STANDARD
     };
@@ -57,8 +55,7 @@ public class BEDViewTrack extends ViewTrack {
     private static final Mode STANDARD_MODE = new Mode(DrawingMode.STANDARD, "Standard Gene View");
 
     public BEDViewTrack(String name, BEDIntervalTrack bedTrack) {
-        super(name, FileFormat.INTERVAL_BED);
-        this.bedIntervalTrack = bedTrack;
+        super(name, FileFormat.INTERVAL_BED, bedTrack);
         setColorScheme(getDefaultColorScheme());
         setDrawModes(getDefaultDrawModes());
         setDrawMode(STANDARD_MODE);
@@ -82,7 +79,7 @@ public class BEDViewTrack extends ViewTrack {
 
     @Override
     public List<Object> retrieveData(Range range, Resolution resolution) throws Exception {
-        return new ArrayList<Object>(this.bedIntervalTrack.getRecords(range, resolution));
+        return new ArrayList<Object>(getTrack().getRecords(range, resolution));
     }
 
     @Override

@@ -52,11 +52,10 @@ public class BAMViewTrack extends ViewTrack {
     private static final Mode VARIANTS_MODE = new Mode(DrawingMode.VARIANTS, "Show indels and mismatches");
     private static final Mode MATE_PAIRS_MODE = new Mode(DrawingMode.MATE_PAIRS, "Join mate pairs with arcs");
 
-    private BAMIntervalTrack BAMIntervalTrack;
+
 
     public BAMViewTrack(String name, BAMIntervalTrack bamTrack) {
-        super(name, FileFormat.INTERVAL_BAM);
-        this.BAMIntervalTrack = bamTrack;
+        super(name, FileFormat.INTERVAL_BAM, bamTrack);
         setColorScheme(getDefaultColorScheme());
         setDrawModes(getDefaultDrawModes());
         setDrawMode(STANDARD_MODE);
@@ -193,7 +192,7 @@ public class BAMViewTrack extends ViewTrack {
 
     @Override
     public List<Object> retrieveData(Range range, Resolution resolution) throws Exception {
-        return new ArrayList<Object>(this.BAMIntervalTrack.getRecords(range, resolution));
+        return new ArrayList<Object>(getTrack().getRecords(range, resolution));
     }
 
     @Override

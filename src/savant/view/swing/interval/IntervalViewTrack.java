@@ -44,11 +44,8 @@ public class IntervalViewTrack extends ViewTrack {
     private static final Mode PACK_MODE = new Mode(DrawingMode.PACK, "Minimum number of lines");
     private static final Mode ARC_MODE = new Mode(DrawingMode.ARC, "Arcs");
 
-    private GenericIntervalTrack intervalTrack;
-
     public IntervalViewTrack(String name, GenericIntervalTrack intervalTrack) throws FileNotFoundException {
-        super(name, FileFormat.INTERVAL_GENERIC);
-        this.intervalTrack = intervalTrack;
+        super(name, FileFormat.INTERVAL_GENERIC, intervalTrack);
         setColorScheme(getDefaultColorScheme());
         setDrawModes(getDefaultDrawModes());
         setDrawMode(PACK_MODE);
@@ -113,7 +110,7 @@ public class IntervalViewTrack extends ViewTrack {
      *     Get data in the specified range at the specified resolution
      */
     public List<Object> retrieveData(Range range, Resolution resolution) {
-        return new ArrayList<Object>(this.intervalTrack.getRecords(range, resolution));
+        return new ArrayList<Object>(getTrack().getRecords(range, resolution));
     }
 
     public void prepareForRendering(Range range) throws Exception {
