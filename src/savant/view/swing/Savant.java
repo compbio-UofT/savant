@@ -37,6 +37,7 @@ import savant.controller.event.rangeselection.RangeSelectionChangedEvent;
 import savant.controller.event.rangeselection.RangeSelectionChangedListener;
 import savant.format.DataFormatForm;
 import savant.model.Genome;
+import savant.plugin.AuxData;
 import savant.util.MiscUtils;
 import savant.util.Range;
 import savant.util.ScreenShot;
