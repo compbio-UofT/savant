@@ -35,11 +35,8 @@ import java.util.List;
  */
 public class PointViewTrack extends ViewTrack {
 
-    GenericPointTrack pointTrack;
-
     public PointViewTrack(String name, GenericPointTrack pointTrack) {
-        super(name, FileFormat.POINT);
-        this.pointTrack = pointTrack;
+        super(name, FileFormat.POINT, pointTrack);
         setColorScheme(getDefaultColorScheme());
     }
 
@@ -63,7 +60,7 @@ public class PointViewTrack extends ViewTrack {
 
     @Override
     public List<Object> retrieveData(Range range, Resolution resolution) throws Exception {
-        return new ArrayList<Object>(pointTrack.getRecords(range, resolution));
+        return new ArrayList<Object>(getTrack().getRecords(range, resolution));
     }
 
     public void prepareForRendering(Range range) throws Exception {
