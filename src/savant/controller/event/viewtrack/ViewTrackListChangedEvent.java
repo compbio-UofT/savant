@@ -33,7 +33,7 @@ public class ViewTrackListChangedEvent extends EventObject {
         this.tracks = tracks;
     }
 
-    public List<ViewTrack> range() {
+    public List<ViewTrack> getTracks() {
         return tracks;
     }
 
