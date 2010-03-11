@@ -25,8 +25,8 @@
  */
 package savant.controller;
 
-import savant.controller.event.track.TrackListChangedEvent;
-import savant.controller.event.track.TrackListChangedListener;
+import savant.controller.event.viewtrack.ViewTrackListChangedEvent;
+import savant.controller.event.viewtrack.ViewTrackListChangedListener;
 import savant.model.FileFormat;
 import savant.view.swing.ViewTrack;
 import org.apache.commons.logging.Log;
@@ -36,25 +36,25 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class TrackController {
+public class ViewTrackController {
 
-    private static TrackController instance;
+    private static ViewTrackController instance;
 
-    private static Log log = LogFactory.getLog(TrackController.class);
+    private static Log log = LogFactory.getLog(ViewTrackController.class);
 
     List<ViewTrack> tracks;
 
     /** Tracks Changed Listeners */
     private List tracksChangedListeners;
 
-    public static TrackController getInstance() {
+    public static ViewTrackController getInstance() {
         if (instance == null) {
-            instance = new TrackController();
+            instance = new ViewTrackController();
         }
         return instance;
     }
 
-    private TrackController() {
+    private ViewTrackController() {
         tracksChangedListeners = new ArrayList();
         tracks = new ArrayList<ViewTrack>();
     }
@@ -104,18 +104,18 @@ public class TrackController {
      * Fire the RangeChangedEvent
      */
     private synchronized void fireTracksListChangedEvent() {
-        TrackListChangedEvent evt = new TrackListChangedEvent(this, this.tracks);
+        ViewTrackListChangedEvent evt = new ViewTrackListChangedEvent(this, this.tracks);
         Iterator listeners = this.tracksChangedListeners.iterator();
         while (listeners.hasNext()) {
-            ((TrackListChangedListener) listeners.next()).trackListChangeReceived(evt);
+            ((ViewTrackListChangedListener) listeners.next()).trackListChangeReceived(evt);
         }
     }
 
-    public synchronized void addTracksChangedListener(TrackListChangedListener l) {
+    public synchronized void addTracksChangedListener(ViewTrackListChangedListener l) {
         tracksChangedListeners.add(l);
     }
 
-    public synchronized void removeTracksChangedListener(TrackListChangedListener l) {
+    public synchronized void removeTracksChangedListener(ViewTrackListChangedListener l) {
         tracksChangedListeners.remove(l);
     }
 
