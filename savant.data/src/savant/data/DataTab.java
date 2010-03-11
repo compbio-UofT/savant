@@ -24,7 +24,7 @@ package savant.data;
 import org.java.plugin.Plugin;
 import savant.controller.RangeController;
 import savant.controller.TrackController;
-import savant.view.swing.AuxData;
+import savant.plugin.AuxData;
 import savant.view.swing.BrowserDefaults;
 import savant.data.DataSheet;
 
