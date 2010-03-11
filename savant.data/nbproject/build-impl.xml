@@ -33,6 +33,7 @@ is divided into following sections:
                 INITIALIZATION SECTION 
                 ======================
             -->
+            <target name="-init-libraries"/>
     <target name="-pre-init">
         <!-- Empty placeholder for easier customization. -->
         <!-- You can override this target in the ../build.xml file. -->
