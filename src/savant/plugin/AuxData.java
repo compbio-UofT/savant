@@ -29,5 +29,5 @@ public interface AuxData {
      * @param tabbedPane parent tabbedpane for auxiliary data components
      */
 
-    public void init(JTabbedPane tabbedPane);
+    public void init(JTabbedPane tabbedPane, PluginAdapter pluginAdapter);
 }
