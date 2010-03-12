@@ -38,6 +38,7 @@ import savant.controller.event.rangeselection.RangeSelectionChangedListener;
 import savant.format.DataFormatForm;
 import savant.model.Genome;
 import savant.plugin.AuxData;
+import savant.plugin.PluginAdapter;
 import savant.util.MiscUtils;
 import savant.util.Range;
 import savant.view.swing.util.ScreenShot;
@@ -831,19 +832,9 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
                 ClassLoader classLoader = pluginManager.getPluginClassLoader(descr);
                 Class pluginCls = classLoader.loadClass(ext.getParameter("class").valueAsString());
                 AuxData auxData = (AuxData) pluginCls.newInstance();
-                auxData.init(getAuxTabbedPane());
+                auxData.init(getAuxTabbedPane(), new PluginAdapter());
             }
 
-
-//            Iterator it = getPluginManager().getRegistry().getPluginDescriptors().iterator();
-//            while (it.hasNext()) {
-//                PluginDescriptor p = (PluginDescriptor) it.next();
-//                if (p.getExtensionPoint("AuxData") != null) {
-//
-//                    AuxData auxData = (AuxData) getPluginManager().getPlugin(p.getId());
-//                    auxData.init(getAuxTabbedPane());
-//                }
-//            }
         }
         catch (Exception e) {
             e.printStackTrace(); // TODO: handle properly
