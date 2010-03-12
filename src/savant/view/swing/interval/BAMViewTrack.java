@@ -58,7 +58,7 @@ public class BAMViewTrack extends ViewTrack {
         super(name, FileFormat.INTERVAL_BAM, bamTrack);
         setColorScheme(getDefaultColorScheme());
         setDrawModes(getDefaultDrawModes());
-        setDrawMode(STANDARD_MODE);
+        setDrawMode(VARIANTS_MODE);
     }
 
     private ColorScheme getDefaultColorScheme() {
@@ -226,7 +226,6 @@ public class BAMViewTrack extends ViewTrack {
 
     @Override
     public Mode getDefaultDrawMode() {
-        //return STANDARD_MODE;
-        return STANDARD_MODE;
+        return VARIANTS_MODE;
     }
 }
