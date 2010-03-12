@@ -18,6 +18,7 @@ package savant.data;
 import savant.controller.ViewTrackController;
 import savant.controller.event.viewtrack.ViewTrackListChangedEvent;
 import savant.controller.event.viewtrack.ViewTrackListChangedListener;
+import savant.plugin.PluginAdapter;
 import savant.view.swing.Savant;
 import savant.controller.event.range.RangeChangedEvent;
 import savant.controller.event.range.RangeChangedListener;
@@ -50,6 +51,8 @@ import javax.swing.event.ChangeListener;
  */
 public class DataSheet implements RangeChangedListener, ViewTrackListChangedListener {
 
+    private PluginAdapter pluginAdapter;
+
     private JComboBox trackList;
     private JTable table;
     private boolean autoUpdate = true;
@@ -58,8 +61,9 @@ public class DataSheet implements RangeChangedListener, ViewTrackListChangedList
     private ViewTrack currentViewTrack;
     private DataTableModel tableModel;
 
-    public DataSheet(JPanel panel) {
+    public DataSheet(JPanel panel, PluginAdapter pluginAdapter) {
 
+        this.pluginAdapter = pluginAdapter;
 
         // set the layout of the data sheet
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
@@ -152,7 +156,7 @@ public class DataSheet implements RangeChangedListener, ViewTrackListChangedList
 
     private void updateTrackList() {
         this.trackList.removeAllItems();
-        ViewTrackController tc = ViewTrackController.getInstance();
+        ViewTrackController tc = pluginAdapter.getViewTrackController();
         for (ViewTrack t : tc.getTracks()) {
             trackList.addItem(t);
         }
