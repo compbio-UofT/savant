@@ -25,6 +25,7 @@ import org.java.plugin.Plugin;
 import savant.controller.RangeController;
 import savant.controller.ViewTrackController;
 import savant.plugin.AuxData;
+import savant.plugin.PluginAdapter;
 import savant.view.swing.BrowserDefaults;
 import savant.data.DataSheet;
 
@@ -33,11 +34,11 @@ import java.awt.*;
 
 public class DataTab extends Plugin implements AuxData {
 
-    public void init(JTabbedPane tabbedPane) {
+    public void init(JTabbedPane tabbedPane, PluginAdapter pluginAdapter) {
         JPanel tablePanel = createTabPanel(tabbedPane, "Data View");
-        savant.data.DataSheet currentRangeDataSheet = new DataSheet(tablePanel);
-        RangeController.getInstance().addRangeChangedListener(currentRangeDataSheet);
-        ViewTrackController.getInstance().addTracksChangedListener(currentRangeDataSheet);
+        savant.data.DataSheet currentRangeDataSheet = new DataSheet(tablePanel, pluginAdapter);
+        pluginAdapter.getRangeController().addRangeChangedListener(currentRangeDataSheet);
+        pluginAdapter.getViewTrackController().addTracksChangedListener(currentRangeDataSheet);
     }
 
     private JPanel createTabPanel(JTabbedPane jtp, String name) {
