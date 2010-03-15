@@ -44,8 +44,8 @@ public class DataTableModel extends AbstractTableModel {
      protected Class[] intervalColumnClasses = { Integer.class, Integer.class, String.class };
      protected String[] intervalColumnNames = { "From", "To", "Description" };
 
-     protected Class[] bamColumnClasses = { String.class, String.class, Integer.class, Integer.class, String.class, Integer.class, Integer.class};
-     protected String[] bamColumnNames = { "Read Name", "Sequence", "Length", "Position", "Mapping Quality", "CIGAR", "Mate Position", "Inferred Insert Size" };
+     protected Class[] bamColumnClasses = { String.class, String.class, Integer.class, Integer.class, Boolean.class, Integer.class, String.class, Integer.class, Boolean.class, Integer.class};
+     protected String[] bamColumnNames = { "Read Name", "Sequence", "Length", "Position", "Mapped", "Mapping Quality", "CIGAR", "Mate Position", "Mate Mapped", "Inferred Insert Size" };
 
     protected Class[] bedColumnClasses = { String.class,  Integer.class, Integer.class, Integer.class};
     protected String[] bedColumnNames = {"Name", "Start", "End", "Block Count"};
@@ -174,12 +174,28 @@ public class DataTableModel extends AbstractTableModel {
                      case 3:
                          return ((BAMIntervalRecord) datum).getSamRecord().getAlignmentStart();
                      case 4:
-                         return ((BAMIntervalRecord) datum).getSamRecord().getMappingQuality();
+                         return !((BAMIntervalRecord) datum).getSamRecord().getReadUnmappedFlag();
                      case 5:
-                         return ((BAMIntervalRecord) datum).getSamRecord().getCigarString();
+                         return ((BAMIntervalRecord) datum).getSamRecord().getMappingQuality();
                      case 6:
-                         return ((BAMIntervalRecord) datum).getSamRecord().getMateReferenceIndex();
+                         return ((BAMIntervalRecord) datum).getSamRecord().getCigarString();
                      case 7:
+                         boolean mated = ((BAMIntervalRecord) datum).getSamRecord().getReadPairedFlag();
+                         if (mated) {
+                            return ((BAMIntervalRecord) datum).getSamRecord().getMateAlignmentStart();
+                         }
+                         else {
+                             return -1;
+                         }
+                     case 8:
+                         boolean paired = ((BAMIntervalRecord) datum).getSamRecord().getReadPairedFlag();
+                         if (paired) {
+                            return !((BAMIntervalRecord) datum).getSamRecord().getMateUnmappedFlag();
+                         }
+                         else {
+                             return false;
+                         }
+                     case 9:
                          return ((BAMIntervalRecord) datum).getSamRecord().getInferredInsertSize();
                  }
              case INTERVAL_BED:
