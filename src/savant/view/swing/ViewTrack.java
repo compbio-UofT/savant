@@ -93,9 +93,24 @@ public abstract class ViewTrack {
         if (fileType == FileType.INTERVAL_BAM) {
 
             // infer index file name from track filename
-            dataTrack = new BAMIntervalTrack(new File(trackFilename), new File(trackFilename + ".bai"));
-            viewTrack = new BAMViewTrack(name, (BAMIntervalTrack)dataTrack);
-            results.add(viewTrack);
+            String indexFilename=null;
+            if (new File(trackFilename + ".bai").exists()) {
+                indexFilename = trackFilename + ".bai";
+            }
+            else {
+                String nameWithoutExtension = trackFilename.substring(0, trackFilename.lastIndexOf(".bam"));
+                if (new File(nameWithoutExtension + ".bai").exists()) {
+                    indexFilename = nameWithoutExtension + ".bai";
+                }
+            }
+            if (indexFilename != null) {
+                dataTrack = new BAMIntervalTrack(new File(trackFilename), new File(indexFilename));
+                viewTrack = new BAMViewTrack(name, (BAMIntervalTrack)dataTrack);
+                results.add(viewTrack);
+            }
+            else {
+                log.error("Could not open BAM track because index could not be found; index file must be named filename.bam.bai or filename.bai");
+            }
 
             // FIXME: this is a hack; should be done with formatting (when that is fixed)?
             /*BAMToCoverage bamConverter = new BAMToCoverage(trackFilename, trackFilename + ".bai",
