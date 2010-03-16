@@ -438,18 +438,6 @@ public class BAMTrackRenderer extends TrackRenderer {
             SAMRecord samRecord = record.getSamRecord();
             Interval interval = record.getInterval();
 
-            if (samRecord.getReadUnmappedFlag() == true) { // this read is unmapped, don't visualize it
-                Savant.log("Read is unmapped; not drawing");
-                continue;
-            }
-            if (!samRecord.getReadPairedFlag()) {
-                // no mate
-                continue;
-            }
-            else if (samRecord.getMateUnmappedFlag()) {
-                // mate isn't mapped
-                continue;
-            }
             if (!samRecord.getFirstOfPairFlag()) {
                 // this is the second in the pair, don't draw anything
                 continue;
@@ -457,43 +445,78 @@ public class BAMTrackRenderer extends TrackRenderer {
 
             int arcLength;
             int intervalStart;
-
-            // FIXME: we really need the mate alignment end, which we can only get by querying the file, and interval.start
-            if (samRecord.getMateAlignmentStart() < interval.getEnd()) {
-                intervalStart = samRecord.getMateAlignmentStart();
-                arcLength = interval.getEnd() - intervalStart + 1;
-            }
-            else {
-                intervalStart = interval.getEnd();
-                arcLength = samRecord.getMateAlignmentStart() - interval.getEnd() + 1;
-            }
-            int arcHeight = (int)(Math.log((double)arcLength));
-
-            int rectWidth = (int)(gp.getWidth(arcLength));
-            int rectHeight = (int)(gp.getHeight(arcHeight)*2);
-
-            int xOrigin = (int)(gp.transformXPos(intervalStart));
-            int yOrigin = (int)(gp.transformYPos(arcHeight));
+            SAMRecord firstRecord;
+            SAMRecord secondRecord;
 
             BAMIntervalRecord.PairType type = record.getType();
+            int alignmentStart = samRecord.getAlignmentStart();
+            int alignmentEnd = samRecord.getAlignmentEnd();
+            int mateAlignmentStart = samRecord.getMateAlignmentStart();
             switch (type) {
                 case INVERTED_READ:
+                    if (alignmentStart < mateAlignmentStart) {
+                        intervalStart = alignmentStart;
+                        arcLength = mateAlignmentStart - intervalStart + 1;
+                    }
+                    else {
+                        intervalStart = mateAlignmentStart;
+                        arcLength = alignmentStart;
+                    }
                     g2.setColor(invertedReadColor);
                     g2.setStroke(new BasicStroke(2.0f));
                     break;
                 case INVERTED_MATE:
+                    if (alignmentStart < mateAlignmentStart) {
+                        firstRecord = samRecord;
+                        secondRecord = record.getMateRecord();
+                    }
+                    else {
+                        firstRecord = record.getMateRecord();
+                        secondRecord = samRecord;
+                    }
+                    intervalStart = firstRecord.getAlignmentEnd();
+                    arcLength = secondRecord.getAlignmentEnd() - intervalStart + 1;
                     g2.setColor(invertedMateColor);
-                     g2.setStroke(new BasicStroke(2.0f));
+                    g2.setStroke(new BasicStroke(2.0f));
                     break;
                 case EVERTED:
+                    if (alignmentStart < mateAlignmentStart) {
+                        firstRecord = samRecord;
+                        secondRecord = record.getMateRecord();
+                    }
+                    else {
+                        firstRecord = record.getMateRecord();
+                        secondRecord = samRecord;
+                    }
+                    intervalStart = firstRecord.getAlignmentStart();
+                    arcLength = secondRecord.getAlignmentEnd() - intervalStart + 1;
                     g2.setColor(evertedPairColor);
                     g2.setStroke(new BasicStroke(2.0f));
                     break;
                 default:
+                    if (alignmentStart < mateAlignmentStart) {
+                        intervalStart = alignmentEnd;
+                        arcLength = mateAlignmentStart - intervalStart + 1;
+                    }
+                    else {
+                        intervalStart = mateAlignmentStart;
+                        arcLength = alignmentStart - intervalStart + 1;
+                    }
                     g2.setColor(normalArcColor);
                     g2.setStroke(new BasicStroke(1.0f));
                     break;
             }
+            // DEBUG
+            if (arcLength > 100000) {
+                Savant.log("Super-long interval found: " + arcLength);
+            }
+            int arcHeight = (int)(Math.log((double)arcLength));
+
+            int rectWidth = (int)(gp.getWidth(arcLength));
+            int rectHeight = (int)(gp.getHeight(arcHeight*2));
+
+            int xOrigin = (int)(gp.transformXPos(intervalStart));
+            int yOrigin = (int)(gp.transformYPos(arcHeight));
 
             g2.drawArc(xOrigin, yOrigin, rectWidth, rectHeight, -180, -180);
 
