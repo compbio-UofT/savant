@@ -66,6 +66,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
     private boolean isYGridOn = true;
     private boolean isXGridOn = true;
 
+    private
     // Popup menu
     JPopupMenu menu;
 
@@ -86,20 +87,21 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
            case SHIFT:
                if (notches < 0) {
                    RangeController rc = RangeController.getInstance();
+                   rc.zoomIn();
+               } else {
+                   RangeController rc = RangeController.getInstance();
+                   rc.zoomOut();
+               }
+               break;
+           default:
+               if (notches < 0) {
+                   RangeController rc = RangeController.getInstance();
                    rc.shiftRangeLeft();
                } else {
                    RangeController rc = RangeController.getInstance();
                    rc.shiftRangeRight();
                }
                break;
-           default:
-               if (notches < 0) {
-                   RangeController rc = RangeController.getInstance();
-                   rc.zoomIn();
-               } else {
-                   RangeController rc = RangeController.getInstance();
-                   rc.zoomOut();
-               }
        }
     }
 
@@ -211,7 +213,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
     private enum mouseModifier { NONE, LEFT, MIDDLE, RIGHT };
     private mouseModifier mouseMod = mouseModifier.LEFT;
 
-    private enum keyModifier { DEFAULT, CTRL, SHIFT; };
+    private enum keyModifier { DEFAULT, CTRL, SHIFT, META, ALT; };
     private keyModifier keyMod = keyModifier.DEFAULT;
 
     public GraphPane() {
@@ -693,11 +695,11 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
     }
 
     private boolean isZooming() {
-        return this.isDragging && isLeftClick() && isNoKeyModifierPressed() || /** insert Mac specific combo here */ false;
+        return this.isDragging && isLeftClick() && isRightClick () || /** insert Mac specific combo here */ false;
     }
 
     private boolean isPanning() {
-        return this.isDragging && isRightClick();
+        return this.isDragging && isNoKeyModifierPressed();
         //return this.isDragging && isLeftClick() && isShiftKeyModifierPressed();
     }
 
@@ -728,6 +730,14 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         return keyMod == keyModifier.CTRL;
     }
 
+    private boolean isMetaModifierPressed() {
+        return keyMod == keyModifier.META;
+    }
+
+    private boolean isAltModifierPressed() {
+        return keyMod == keyModifier.ALT;
+    }
+
     private void setMouseModifier(MouseEvent e) {
         
         if ((e.getModifiers() & InputEvent.BUTTON1_MASK) == InputEvent.BUTTON1_MASK) {
@@ -752,6 +762,12 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         }
         else if (e.isShiftDown()) {
             keyMod = keyModifier.SHIFT;
+        }
+        else if (e.isMetaDown()) {
+            keyMod = keyModifier.META;
+        }
+        else if (e.isAltDown()) {
+            keyMod = keyModifier.ALT;
         }
         else {
             keyMod = keyModifier.DEFAULT;
