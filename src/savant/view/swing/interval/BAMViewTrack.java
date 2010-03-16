@@ -110,80 +110,82 @@ public class BAMViewTrack extends ViewTrack {
         for (Object o: data) {
             BAMIntervalRecord record = (BAMIntervalRecord)o;
             SAMRecord samRecord = record.getSamRecord();
-            if (samRecord.getReadUnmappedFlag()) {
-                // nothing to draw
-                continue;
-            }
-            if (!samRecord.getReadPairedFlag()) {
-                // not paired
-                continue;
-            }
-            else if (samRecord.getMateUnmappedFlag()) {
-                // mate isn't mapped
-                continue;
-            }
             Interval interval = record.getInterval();
             boolean firstOfPair = samRecord.getFirstOfPairFlag();
-            int startPos;
-            int endPos;
+            int startPos=0;
+            int endPos=0;
             if (firstOfPair) {
-                // FIXME: need mate end and interval start for reverse lengths
-                startPos = interval.getEnd();
-                endPos = samRecord.getMateAlignmentStart();
-
-                // while we're going through the data anyway, set the record's pair type
-                setPairType(interval.getStart(), samRecord.getMateAlignmentStart(), samRecord.getReadNegativeStrandFlag(), samRecord.getMateNegativeStrandFlag(), record);
+ 
+                SAMRecord firstRecord;
+                SAMRecord secondRecord;
+                if (samRecord.getAlignmentStart() < samRecord.getMateAlignmentStart()) {
+                    firstRecord = samRecord;
+                    secondRecord = record.getMateRecord();
+                }
+                else {
+                    firstRecord = record.getMateRecord();
+                    secondRecord = samRecord;
+                }
+                BAMIntervalRecord.PairType pairType = record.getType();
+                int alignmentStart = samRecord.getAlignmentStart();
+                int alignmentEnd = samRecord.getAlignmentEnd();
+                int mateAlignmentStart = samRecord.getMateAlignmentStart();
+                switch (pairType) {
+                    case NORMAL:
+                        if (alignmentStart < mateAlignmentStart) {
+                            startPos = alignmentEnd;
+                            endPos = mateAlignmentStart;
+                        }
+                        else {
+                            startPos = mateAlignmentStart;
+                            endPos = alignmentEnd;
+                        }
+                        break;
+                    case INVERTED_READ:
+                        if (alignmentStart < mateAlignmentStart) {
+                            startPos = alignmentStart;
+                            endPos = mateAlignmentStart;
+                        }
+                        else {
+                            startPos = mateAlignmentStart;
+                            endPos = alignmentStart;
+                        }
+                        break;
+                    case INVERTED_MATE:
+                        // we actually have a mate record to interrogate here.
+                        if (alignmentStart < mateAlignmentStart) {
+                            firstRecord = samRecord;
+                            secondRecord = record.getMateRecord();
+                        }
+                        else {
+                            firstRecord = record.getMateRecord();
+                            secondRecord = samRecord;
+                        }
+                        startPos = firstRecord.getAlignmentEnd();
+                        endPos = secondRecord.getAlignmentEnd();
+                        break;
+                    case EVERTED:
+                        // we actually have a mate record to interrogate here.
+                        if (alignmentStart < mateAlignmentStart) {
+                            firstRecord = samRecord;
+                            secondRecord = record.getMateRecord();
+                        }
+                        else {
+                            firstRecord = record.getMateRecord();
+                            secondRecord = samRecord;
+                        }
+                        startPos = firstRecord.getAlignmentStart();
+                        endPos = secondRecord.getAlignmentEnd();
+                        break;
+                }
             }
             else {
                 continue;
             }
-            double val;
-            if (endPos > startPos) {
-                val = endPos - startPos + 1;
-            }
-            else {
-                val = startPos - endPos + 1;
-            }
+            double val = endPos - startPos + 1;
             if (val > max) max = val;
         }
         return (int)Math.ceil(max);
-    }
-
-    private void setPairType(int readStart, int mateStart, boolean readNegative, boolean mateNegative, BAMIntervalRecord record) {
-
-        boolean readNegativeStrand, mateNegativeStrand;
-        // by switching the negative strand flags based on which read comes first, we can reduce 8 cases to 4
-        if (readStart < mateStart) {
-            readNegativeStrand = readNegative;
-            mateNegativeStrand = mateNegative;
-        }
-        else {
-            readNegativeStrand = mateNegative;
-            mateNegativeStrand = readNegative;
-        }
-        
-        // now is the first read pointing forward & mate pointing backward?
-        if (!readNegativeStrand && mateNegativeStrand) {
-            // congratulations, it's a normal pair!
-            record.setType(BAMIntervalRecord.PairType.NORMAL);
-        }
-        // or are both reversed?
-        else if (readNegativeStrand && mateNegativeStrand) {
-            // this is a case of the read being inverted
-            record.setType(BAMIntervalRecord.PairType.INVERTED_READ);
-        }
-        // or are both forward?
-        else if (!readNegativeStrand && !mateNegativeStrand) {
-            // this is a case of the mate being inverted
-            record.setType(BAMIntervalRecord.PairType.INVERTED_MATE);
-        }
-        // are the strands pointing away from each other?
-        else if (readNegativeStrand && !mateNegativeStrand) {
-            // the pair is everted
-            record.setType(BAMIntervalRecord.PairType.EVERTED);
-        }
-
-
     }
 
     private Range getDefaultYRange() {
