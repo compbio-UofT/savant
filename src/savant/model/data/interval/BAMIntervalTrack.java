@@ -57,17 +57,37 @@ public class BAMIntervalTrack implements RecordTrack<BAMIntervalRecord> {
 
         CloseableIterator<SAMRecord> recordIterator=null;
         List<BAMIntervalRecord> result = new ArrayList<BAMIntervalRecord>();
+        List<BAMIntervalRecord> invertedMateOrEverted = new ArrayList<BAMIntervalRecord>();
         try {
             recordIterator = samFileReader.query(sequenceName, range.getFrom(), range.getTo(), false);
             SAMRecord samRecord;
             BAMIntervalRecord bamRecord;
             while (recordIterator.hasNext()) {
                 samRecord = recordIterator.next();
+                // don't keep unmapped reads or their mates
+                if (samRecord.getReadUnmappedFlag() || !samRecord.getReadPairedFlag() || samRecord.getMateUnmappedFlag()) continue;
                 bamRecord = new BAMIntervalRecord(samRecord);
+
+                // find out the type of the pair
+                BAMIntervalRecord.PairType type = setPairType(samRecord.getAlignmentStart(), samRecord.getMateAlignmentStart(), samRecord.getReadNegativeStrandFlag(), samRecord.getMateNegativeStrandFlag(), bamRecord);
+
+                // if it's one of the types where we need to know the mate's alignmnent end, record it in a separate list
+                if (type == BAMIntervalRecord.PairType.INVERTED_MATE || type == BAMIntervalRecord.PairType.EVERTED) {
+                    invertedMateOrEverted.add(bamRecord);
+                }
                 result.add(bamRecord);
             }
         } finally {
             if (recordIterator != null) recordIterator.close();
+        }
+
+        // get the mate records too, as we'll need them
+        SAMRecord mateRecord;
+        for (BAMIntervalRecord bamRecord : invertedMateOrEverted) {
+            if (bamRecord.getSamRecord().getFirstOfPairFlag()) {
+                mateRecord = samFileReader.queryMate(bamRecord.getSamRecord());
+                bamRecord.setMateRecord(mateRecord);
+            }
         }
         return result;
     }
@@ -105,6 +125,42 @@ public class BAMIntervalTrack implements RecordTrack<BAMIntervalRecord> {
         if (closestSequenceIndex != Integer.MAX_VALUE) {
             this.sequenceName = sequenceDictionary.getSequence(closestSequenceIndex).getSequenceName();
         }
+    }
+
+    private BAMIntervalRecord.PairType setPairType(int readStart, int mateStart, boolean readNegative, boolean mateNegative, BAMIntervalRecord record) {
+
+        boolean readNegativeStrand, mateNegativeStrand;
+        // by switching the negative strand flags based on which read comes first, we can reduce 8 cases to 4
+        if (readStart < mateStart) {
+            readNegativeStrand = readNegative;
+            mateNegativeStrand = mateNegative;
+        }
+        else {
+            readNegativeStrand = mateNegative;
+            mateNegativeStrand = readNegative;
+        }
+
+        // now is the first read pointing forward & mate pointing backward?
+        if (!readNegativeStrand && mateNegativeStrand) {
+            // congratulations, it's a normal pair!
+            record.setType(BAMIntervalRecord.PairType.NORMAL);
+        }
+        // or are both reversed?
+        else if (readNegativeStrand && mateNegativeStrand) {
+            // this is a case of the read being inverted
+            record.setType(BAMIntervalRecord.PairType.INVERTED_READ);
+        }
+        // or are both forward?
+        else if (!readNegativeStrand && !mateNegativeStrand) {
+            // this is a case of the mate being inverted
+            record.setType(BAMIntervalRecord.PairType.INVERTED_MATE);
+        }
+        // are the strands pointing away from each other?
+        else if (readNegativeStrand && !mateNegativeStrand) {
+            // the pair is everted
+            record.setType(BAMIntervalRecord.PairType.EVERTED);
+        }
+        return record.getType();
     }
 
     public String getSequenceName() {
