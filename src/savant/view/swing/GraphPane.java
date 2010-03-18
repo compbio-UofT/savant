@@ -528,7 +528,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
             //this.getParent().dispatchEvent(event);
         //}
         //else
-        if (this.isRightClick()) {
+        if (mac && event.isControlDown() || this.isRightClick()) {
             Savant.log("MENU");
             menu.show(event.getComponent(), event.getX(), event.getY());
         }
@@ -652,21 +652,22 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
             this.getParent().dispatchEvent(event);
             return;
         }
+        
 
         this.x2 = event.getX();
         if (this.x2 < 0) { this.x2 = 0; }
         if (this.x2 > this.getWidth()) { this.x2 = this.getWidth(); }
         this.y2 = event.getY();
 
-        if (this.isPanning() && !this.isLocked()) {
+        if (this.isDragging && event.getModifiers()==0 && !this.isLocked()) {
             this.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        } else if (this.isZooming()) {
+        } else if (isZooming()) {
             this.setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
         }
 
         //this.mousePosition.setText( "Length : [" + Math.abs(this.x2 - this.x1) + "]" ); // call repaint which calls paint repaint();
-
         this.isDragging = true;
+
         repaint();
     }
 
@@ -698,7 +699,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
     }
 
     private boolean isZooming() {
-        return this.isDragging && isLeftClick() && isRightClick () || /** insert Mac specific combo here */ false;
+        return this.isDragging &&  isRightClick ();
     }
 
     private boolean isPanning() {
@@ -743,18 +744,21 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
 
     private void setMouseModifier(MouseEvent e) {
         
-        if ((e.getModifiers() & InputEvent.BUTTON1_MASK) == InputEvent.BUTTON1_MASK) {
-            mouseMod = mouseModifier.LEFT;
-        }
-        else if ((e.getModifiers() & InputEvent.BUTTON2_MASK) == InputEvent.BUTTON2_MASK) {
-            mouseMod = mouseModifier.MIDDLE;
-        }
-        else if ((e.getModifiers() & InputEvent.BUTTON3_MASK) == InputEvent.BUTTON3_MASK) {
-            mouseMod = mouseModifier.RIGHT;
-        } else {
-            mouseMod = mouseModifier.NONE;
-        }
+//        if ((e.getModifiers() & InputEvent.BUTTON1_MASK) == InputEvent.BUTTON1_MASK) {
+//            mouseMod = mouseModifier.LEFT;
+//        }
+//        else if ((e.getModifiers() & InputEvent.BUTTON2_MASK) == InputEvent.BUTTON2_MASK) {
+//            mouseMod = mouseModifier.MIDDLE;
+//        }
+//        else if ((e.getModifiers() & InputEvent.BUTTON3_MASK) == InputEvent.BUTTON3_MASK) {
+//            mouseMod = mouseModifier.RIGHT;
+//        } else {
+//            mouseMod = mouseModifier.NONE;
+//        }
 
+        if (e.getButton() == 1) mouseMod= mouseModifier.LEFT;
+        else if (e.getButton() == 2) mouseMod = mouseModifier.MIDDLE;
+        else if (e.getButton() == 3) mouseMod = mouseModifier.RIGHT;
         //Savant.log("Mouse modifier: " + mouseMod);
     }
 
