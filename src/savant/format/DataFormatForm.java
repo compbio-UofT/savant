@@ -19,12 +19,7 @@ import java.awt.FileDialog;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import javax.swing.DefaultListModel;
-import javax.swing.JDialog;
-import javax.swing.JFrame;
-import javax.swing.JList;
-import javax.swing.JOptionPane;
-import javax.swing.JTextArea;
+import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
@@ -238,15 +233,28 @@ public class DataFormatForm extends JDialog /* javax.swing.JFrame*/ {
 
     private void button_openInPathActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_openInPathActionPerformed
         JFrame jf = new JFrame();
-        FileDialog fd = new FileDialog(jf, "Input File", FileDialog.LOAD);
-        fd.setVisible(true);
-
-        // get the path (null if none selected)
-        String selectedFileName = fd.getFile();
+        String selectedFileName;
+        if (Savant.mac) {
+            FileDialog fd = new FileDialog(jf, "Input File", FileDialog.LOAD);
+            fd.setVisible(true);
+            jf.setAlwaysOnTop(true);
+            // get the path (null if none selected)
+            selectedFileName = fd.getFile();
+            if (selectedFileName != null) {
+                selectedFileName = fd.getDirectory() + selectedFileName;
+            }
+        }
+        else {
+            JFileChooser fd = new JFileChooser();
+            fd.setDialogTitle("Input File");
+            fd.setDialogType(JFileChooser.OPEN_DIALOG);
+            int result = fd.showOpenDialog(this);
+            if (result == JFileChooser.CANCEL_OPTION || result == JFileChooser.ERROR_OPTION ) return;
+            selectedFileName = fd.getSelectedFile().getPath();
+        }
 
         // set the genome
         if (selectedFileName != null) {
-            selectedFileName = fd.getDirectory() + selectedFileName;
             this.textfield_inPath.setText(selectedFileName);
             setOutputPath(selectedFileName);
         }
@@ -262,16 +270,28 @@ public class DataFormatForm extends JDialog /* javax.swing.JFrame*/ {
 
     private void button_openOutFileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_openOutFileActionPerformed
         JFrame jf = new JFrame();
-        FileDialog fd = new FileDialog(jf, "Output File", FileDialog.SAVE);
-        fd.setFile(this.textfield_outPath.getText());
-        fd.setVisible(true);
-
-        // get the path (null if none selected)
-        String selectedFileName = fd.getFile();
+        String selectedFileName;
+        if (Savant.mac) {
+            FileDialog fd = new FileDialog(jf, "Output File", FileDialog.SAVE);
+            fd.setVisible(true);
+            jf.setAlwaysOnTop(true);
+            // get the path (null if none selected)
+            selectedFileName = fd.getFile();
+            if (selectedFileName != null) {
+                selectedFileName = fd.getDirectory() + selectedFileName;
+            }
+        }
+        else {
+            JFileChooser fd = new JFileChooser();
+            fd.setDialogTitle("Output File");
+            fd.setDialogType(JFileChooser.SAVE_DIALOG);
+            int result = fd.showOpenDialog(jf);
+            if (result == JFileChooser.CANCEL_OPTION || result == JFileChooser.ERROR_OPTION ) return;
+            selectedFileName = fd.getSelectedFile().getPath();
+        }
 
         // set the genome
         if (selectedFileName != null) {
-            selectedFileName = fd.getDirectory() + selectedFileName;
             this.textfield_outPath.setText(selectedFileName);
         }
 
