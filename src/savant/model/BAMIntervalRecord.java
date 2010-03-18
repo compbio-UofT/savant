@@ -34,6 +34,7 @@ public class BAMIntervalRecord extends IntervalRecord {
     public enum PairType { NORMAL, INVERTED_MATE, INVERTED_READ, EVERTED };
 
     private SAMRecord samRecord;
+    private SAMRecord mateRecord;
     PairType type;
 
     public BAMIntervalRecord(SAMRecord samRecord) {
@@ -47,8 +48,6 @@ public class BAMIntervalRecord extends IntervalRecord {
     public void setInterval(Interval interval) {
         
         super.setInterval(interval);
-//        samRecord.setAlignmentStart(interval.getStart());
-//        samRecord.setAlignmentEnd(interval.getEnd());
     }
 
     public SAMRecord getSamRecord() {
@@ -57,6 +56,14 @@ public class BAMIntervalRecord extends IntervalRecord {
 
     public void setSamRecord(SAMRecord samRecord) {
         this.samRecord = samRecord;
+    }
+
+    public SAMRecord getMateRecord() {
+        return mateRecord;
+    }
+
+    public void setMateRecord(SAMRecord mateRecord) {
+        this.mateRecord = mateRecord;
     }
 
     public PairType getType() {
