@@ -79,29 +79,32 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
     int x, y, w, h;
     boolean isDragging = false;
 
+    // let's behave nicely for the appropriate platform
+    private static String os = System.getProperty("os.name").toLowerCase();
+    private static boolean mac = os.contains("mac");
+
     public void mouseWheelMoved(MouseWheelEvent e) {
 
        int notches = e.getWheelRotation();
 
-       switch(keyMod) {
-           case SHIFT:
-               if (notches < 0) {
-                   RangeController rc = RangeController.getInstance();
-                   rc.zoomIn();
-               } else {
-                   RangeController rc = RangeController.getInstance();
-                   rc.zoomOut();
-               }
-               break;
-           default:
-               if (notches < 0) {
-                   RangeController rc = RangeController.getInstance();
-                   rc.shiftRangeLeft();
-               } else {
-                   RangeController rc = RangeController.getInstance();
-                   rc.shiftRangeRight();
-               }
-               break;
+       if (mac && e.isMetaDown() || e.isControlDown()) {
+           if (notches < 0) {
+               RangeController rc = RangeController.getInstance();
+               rc.zoomIn();
+           } else {
+               RangeController rc = RangeController.getInstance();
+               rc.zoomOut();
+           }
+       }
+       else {
+
+           if (notches < 0) {
+               RangeController rc = RangeController.getInstance();
+               rc.shiftRangeLeft();
+           } else {
+               RangeController rc = RangeController.getInstance();
+               rc.shiftRangeRight();
+           }
        }
     }
 
@@ -222,7 +225,8 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         this.setDoubleBuffered(true);
         addMouseListener( this ); // listens for own mouse and
         addMouseMotionListener( this ); // mouse-motion events
-        addKeyListener( this );
+        //addKeyListener( this );
+        this.getInputMap().allKeys();
         addMouseWheelListener(this);
 
         initContextualMenu();
@@ -668,8 +672,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
 
     // handle event when user moves mouse
     public void mouseMoved( final MouseEvent event ) {
-        //this.mousePosition.setText( "At [" + event.getX() + "]" );
-        // repaint();
+        
     }
 
     public void keyTyped(KeyEvent e) {
