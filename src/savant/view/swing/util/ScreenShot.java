@@ -17,8 +17,7 @@ import java.io.File;
 
 import java.io.IOException;
 import javax.imageio.ImageIO;
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
+import javax.swing.*;
 
 public class ScreenShot
 {
@@ -50,16 +49,29 @@ public class ScreenShot
     private static void save(BufferedImage screen) {
 
         JFrame jf = new JFrame();
-        FileDialog fd = new FileDialog(jf, "Output File", FileDialog.SAVE);
-        fd.setVisible(true);
-
-        // get the path (null if none selected)
-        String selectedFileName = fd.getFile();
+        String selectedFileName;
+        if (Savant.mac) {
+            FileDialog fd = new FileDialog(jf, "Output File", FileDialog.SAVE);
+            fd.setVisible(true);
+            jf.setAlwaysOnTop(true);
+            // get the path (null if none selected)
+            selectedFileName = fd.getFile();
+            if (selectedFileName != null) {
+                selectedFileName = fd.getDirectory() + selectedFileName;
+            }
+        }
+        else {
+            JFileChooser fd = new JFileChooser();
+            fd.setDialogTitle("Output File");
+            fd.setDialogType(JFileChooser.SAVE_DIALOG);
+            int result = fd.showOpenDialog(jf);
+            if (result == JFileChooser.CANCEL_OPTION || result == JFileChooser.ERROR_OPTION ) return;
+            selectedFileName = fd.getSelectedFile().getPath();
+        }
 
         // set the genome
         if (selectedFileName != null) {
             try {
-                selectedFileName = fd.getDirectory() + selectedFileName;
                 ImageIO.write(screen, "PNG", new File(selectedFileName));
             } catch (IOException ex) {
                 String message = "Screenshot unsuccessful";

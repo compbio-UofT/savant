@@ -18,8 +18,7 @@ import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.DefaultListModel;
-import javax.swing.JFrame;
+import javax.swing.*;
 
 /**
  *
@@ -164,13 +163,25 @@ public class PluginDialog extends javax.swing.JFrame {
 
         // create a frame and place the dialog in it
         JFrame jf = new JFrame();
-        FileDialog fd = new FileDialog(jf, "Add Plugin", FileDialog.LOAD);
-
-        fd.setVisible(true);
-        jf.setAlwaysOnTop(true);
-
-        // get the path (null if none selected)
-        String selectedFileName = fd.getFile();
+        String selectedFileName;
+        if (Savant.mac) {
+            FileDialog fd = new FileDialog(jf, "Add Plugin", FileDialog.LOAD);
+            fd.setVisible(true);
+            jf.setAlwaysOnTop(true);
+            // get the path (null if none selected)
+            selectedFileName = fd.getFile();
+            if (selectedFileName != null) {
+                selectedFileName = fd.getDirectory() + selectedFileName;
+            }
+        }
+        else {
+            JFileChooser fd = new JFileChooser();
+            fd.setDialogTitle("Add Plugin");
+            fd.setDialogType(JFileChooser.OPEN_DIALOG);
+            int result = fd.showOpenDialog(this);
+            if (result == JFileChooser.CANCEL_OPTION || result == JFileChooser.ERROR_OPTION ) return;
+            selectedFileName = fd.getSelectedFile().getPath();
+        }
 
         // copy the plugin
         if (selectedFileName != null) {
@@ -178,7 +189,7 @@ public class PluginDialog extends javax.swing.JFrame {
                 int lastSlashIndex = selectedFileName.lastIndexOf(System.getProperty("file.separator"));
                 String name = selectedFileName.substring(lastSlashIndex + 1, selectedFileName.length());
 
-                copyFile(new File(fd.getDirectory() + System.getProperty("file.separator") + selectedFileName), new File(pluginDir + System.getProperty("file.separator") + name));
+                copyFile(new File(selectedFileName), new File(pluginDir + System.getProperty("file.separator") + name));
 
                 updatePluginList();
 

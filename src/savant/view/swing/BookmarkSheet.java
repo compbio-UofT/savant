@@ -41,16 +41,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
 import java.util.StringTokenizer;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
+import javax.swing.*;
+
+import static java.awt.FileDialog.*;
 
 /**
  *
@@ -257,19 +250,31 @@ public class BookmarkSheet implements BookmarksChangedListener, RangeChangedList
         }
 
         JFrame jf = new JFrame();
-        FileDialog fd = new FileDialog(jf, "Save Bookmarks", FileDialog.LOAD);
-        fd.setVisible(true);
-        jf.setAlwaysOnTop(true);
-
-        // get the path (null if none selected)
-        String selectedFileName = fd.getFile();
+        String selectedFileName;
+        if (Savant.mac) {
+            FileDialog fd = new FileDialog(jf, "Load Bookmarks", FileDialog.LOAD);
+            fd.setVisible(true);
+            jf.setAlwaysOnTop(true);
+            // get the path (null if none selected)
+            selectedFileName = fd.getFile();
+            if (selectedFileName != null) {
+                selectedFileName = fd.getDirectory() + selectedFileName;
+            }
+        }
+        else {
+            JFileChooser fd = new JFileChooser();
+            fd.setDialogTitle("Load Bookmards");
+            fd.setDialogType(JFileChooser.OPEN_DIALOG);
+            int result = fd.showOpenDialog(jf);
+            if (result == JFileChooser.CANCEL_OPTION || result == JFileChooser.ERROR_OPTION ) return;
+            selectedFileName = fd.getSelectedFile().getPath();
+        }
 
         Savant.log("load 0");
 
         // set the genome
         if (selectedFileName != null) {
             try {
-                selectedFileName = fd.getDirectory() + selectedFileName;
                 loadBookmarks(selectedFileName, bookmarks);
                 btm.fireTableDataChanged();
             } catch (IOException ex) {
@@ -286,7 +291,7 @@ public class BookmarkSheet implements BookmarksChangedListener, RangeChangedList
         List<Bookmark> bookmarks = btm.getData();
 
         JFrame jf = new JFrame();
-        FileDialog fd = new FileDialog(jf, "Save Bookmarks", FileDialog.SAVE);
+        FileDialog fd = new FileDialog(jf, "Save Bookmarks", SAVE);
         fd.setVisible(true);
         jf.setAlwaysOnTop(true);
 

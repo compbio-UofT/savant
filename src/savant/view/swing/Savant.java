@@ -77,9 +77,9 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
 
 
 
-    private static String os = System.getProperty("os.name").toLowerCase();
-    private static boolean mac = os.contains("mac");
-    private static int osSpecificModifier = (mac ? java.awt.event.InputEvent.META_MASK : java.awt.event.InputEvent.CTRL_MASK);
+    public static String os = System.getProperty("os.name").toLowerCase();
+    public static boolean mac = os.contains("mac");
+    public static int osSpecificModifier = (mac ? java.awt.event.InputEvent.META_MASK : java.awt.event.InputEvent.CTRL_MASK);
 
     private static void addTrackFromFile(String selectedFileName) {
 
@@ -1303,7 +1303,25 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
 
         // create a frame and place the dialog in it
         JFrame jf = new JFrame();
-        FileDialog fd = new FileDialog(jf, "Load Genome", FileDialog.LOAD);
+        String selectedFileName;
+        if (mac) {
+            FileDialog fd = new FileDialog(jf, "Load Genome", FileDialog.LOAD);
+            fd.setVisible(true);
+            jf.setAlwaysOnTop(true);
+            // get the path (null if none selected)
+            selectedFileName = fd.getFile();
+            if (selectedFileName != null) {
+                selectedFileName = fd.getDirectory() + selectedFileName;
+            }
+        }
+        else {
+            JFileChooser fd = new JFileChooser();
+            fd.setDialogTitle("Load Genome");
+            fd.setDialogType(JFileChooser.OPEN_DIALOG);
+            int result = fd.showOpenDialog(jf);
+            if (result == JFileChooser.CANCEL_OPTION || result == JFileChooser.ERROR_OPTION ) return;
+            selectedFileName = fd.getSelectedFile().getPath();
+        }
         /*
         fd.setFilenameFilter(new FilenameFilter() {
             public boolean accept(File dir, String name) {
@@ -1311,17 +1329,11 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
             }
         });
          */
-        fd.setVisible(true);
-        jf.setAlwaysOnTop(true);
 
-        // get the path (null if none selected)
-        String selectedFileName = fd.getFile();
 
         // set the genome
-        if (selectedFileName != null) {
-            selectedFileName = fd.getDirectory() + selectedFileName;
-            setGenome(selectedFileName);
-        }
+        if (selectedFileName != null) setGenome(selectedFileName);
+
     }
 
     /**
@@ -1338,22 +1350,33 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         }
         // create a frame and place the dialog in it
         JFrame jf = new JFrame();
-        FileDialog fd = new FileDialog(jf, "Open Tracks", FileDialog.LOAD);
-        fd.setVisible(true);
-        jf.setAlwaysOnTop(true);
-
-        // get the path (null if none selected)
-        String selectedFileName = fd.getFile();
-
-        // set the track
+        String selectedFileName;
+        if (mac) {
+            FileDialog fd = new FileDialog(jf, "Load Track", FileDialog.LOAD);
+            fd.setVisible(true);
+            jf.setAlwaysOnTop(true);
+            // get the path (null if none selected)
+            selectedFileName = fd.getFile();
+            if (selectedFileName != null) {
+                selectedFileName = fd.getDirectory() + selectedFileName;
+            }
+        }
+        else {
+            JFileChooser fd = new JFileChooser();
+            fd.setDialogTitle("Load Track");
+            fd.setDialogType(JFileChooser.OPEN_DIALOG);
+            int result = fd.showOpenDialog(jf);
+            if (result == JFileChooser.CANCEL_OPTION || result == JFileChooser.ERROR_OPTION ) return;
+            selectedFileName = fd.getSelectedFile().getPath();
+        }
         if (selectedFileName != null) {
-            selectedFileName = fd.getDirectory() + selectedFileName;
             try {
                 addTrackFromFile(selectedFileName);
             } catch (Exception e) {
                 promptUserToFormatFile(selectedFileName);
             }
         }
+        
     }
 
     private JPanel createDockedPanel(String name) {
@@ -1440,6 +1463,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
      * @param filename The name of the genome file containing file to be set
      */
     private void setGenome(String filename) {
+        if (filename == null) showOpenGenomeDialog();
         try {
             Genome g = new Genome(filename);
             setGenome(filename, g);

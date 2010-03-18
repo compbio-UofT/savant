@@ -32,16 +32,7 @@ import java.awt.event.ActionListener;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
+import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -181,17 +172,29 @@ public class DataSheet implements RangeChangedListener, ViewTrackListChangedList
     private static void exportTable(JTable table, ViewTrack track) {
 
         JFrame jf = new JFrame();
-        FileDialog fd = new FileDialog(jf, "Export Data", FileDialog.SAVE);
-        fd.setVisible(true);
-        jf.setAlwaysOnTop(true);
-
-        // get the path (null if none selected)
-        String selectedFileName = fd.getFile();
+        String selectedFileName;
+        if (Savant.mac) {
+            FileDialog fd = new FileDialog(jf, "Export Data", FileDialog.SAVE);
+            fd.setVisible(true);
+            jf.setAlwaysOnTop(true);
+            // get the path (null if none selected)
+            selectedFileName = fd.getFile();
+            if (selectedFileName != null) {
+                selectedFileName = fd.getDirectory() + selectedFileName;
+            }
+        }
+        else {
+            JFileChooser fd = new JFileChooser();
+            fd.setDialogTitle("Export Data");
+            fd.setDialogType(JFileChooser.SAVE_DIALOG);
+            int result = fd.showOpenDialog(jf);
+            if (result == JFileChooser.CANCEL_OPTION || result == JFileChooser.ERROR_OPTION ) return;
+            selectedFileName = fd.getSelectedFile().getPath();
+        }
 
         // set the genome
         if (selectedFileName != null) {
             try {
-                selectedFileName = fd.getDirectory() + selectedFileName;
                 exportTable(table, track, selectedFileName);
             } catch (IOException ex) {
                 String message = "Export unsuccessful";
