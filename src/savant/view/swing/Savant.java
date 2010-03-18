@@ -75,6 +75,12 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
     private static ToolWindowManager masterToolWindowManager;
     private static ToolWindowManager frameToolWindowManager;
 
+
+
+    private static String os = System.getProperty("os.name").toLowerCase();
+    private static boolean mac = os.contains("mac");
+    private static int osSpecificModifier = (mac ? java.awt.event.InputEvent.META_MASK : java.awt.event.InputEvent.CTRL_MASK);
+
     private static void addTrackFromFile(String selectedFileName) {
 
         // Some types of track actually create more than one track per frame, e.g. BAM
@@ -201,9 +207,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         contentUI.setTransparentMode(false);
         contentUI.setTransparentRatio(0.7f);
         contentUI.setTransparentDelay(1000);
-    }
-
-
+    }   
 
     static enum ViewMode {
         BROWSE, FORMAT
@@ -259,13 +263,14 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         }
 
         addComponentListener(this);
-
+        
         initComponents();
         init();
 
         loadPlugins();
         initPlugins();
     }
+    
 
 
     private void loadPlugins() {
@@ -413,7 +418,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
 
         menu_load.setText("Load...");
 
-        menuitem_genome.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_G, java.awt.event.InputEvent.CTRL_MASK));
+        menuitem_genome.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_G, osSpecificModifier));
         menuitem_genome.setText("Genome");
         menuitem_genome.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -422,7 +427,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         });
         menu_load.add(menuitem_genome);
 
-        menuitem_track.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_T, java.awt.event.InputEvent.CTRL_MASK));
+        menuitem_track.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_T, osSpecificModifier));
         menuitem_track.setText("Track");
         menuitem_track.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -433,7 +438,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
 
         menu_file.add(menu_load);
 
-        menuItemFormat.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F, java.awt.event.InputEvent.CTRL_MASK));
+        menuItemFormat.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F, osSpecificModifier));
         menuItemFormat.setText("Format");
         menuItemFormat.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -473,7 +478,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
             menu_file.add(jSeparator3);
         }
 
-        menuitem_screen.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_S, java.awt.event.InputEvent.CTRL_MASK));
+        menuitem_screen.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_S, osSpecificModifier));
         menuitem_screen.setText("Screenshot");
         menuitem_screen.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -483,7 +488,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         menu_file.add(menuitem_screen);
         menu_file.add(jSeparator4);
 
-        menuitem_exit.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F4, java.awt.event.InputEvent.ALT_MASK));
+        menuitem_exit.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Q, osSpecificModifier));
         menuitem_exit.setText("Exit");
         menuitem_exit.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -496,7 +501,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
 
         menu_edit.setText("Edit");
 
-        menuitem_undo.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Z, java.awt.event.InputEvent.CTRL_MASK));
+        menuitem_undo.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Z, osSpecificModifier));
         menuitem_undo.setText("Undo Range Change");
         menuitem_undo.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -505,7 +510,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         });
         menu_edit.add(menuitem_undo);
 
-        jMenuItem5.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Y, java.awt.event.InputEvent.CTRL_MASK));
+        jMenuItem5.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Y, osSpecificModifier));
         jMenuItem5.setText("Redo Range Change");
         jMenuItem5.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -515,7 +520,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         menu_edit.add(jMenuItem5);
         menu_edit.add(jSeparator2);
 
-        menuItemAddToFaves.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_D, java.awt.event.InputEvent.CTRL_MASK));
+        menuItemAddToFaves.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_D, osSpecificModifier));
         menuItemAddToFaves.setText("Bookmark");
         menuItemAddToFaves.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -528,7 +533,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
 
         menu_view.setText("View");
 
-        menuItem_viewRangeControls.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_R, java.awt.event.InputEvent.SHIFT_MASK | java.awt.event.InputEvent.CTRL_MASK));
+        menuItem_viewRangeControls.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_R, java.awt.event.InputEvent.SHIFT_MASK | osSpecificModifier));
         menuItem_viewRangeControls.setSelected(true);
         menuItem_viewRangeControls.setText("Range Control Menu");
         menuItem_viewRangeControls.addActionListener(new java.awt.event.ActionListener() {
@@ -539,7 +544,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         menu_view.add(menuItem_viewRangeControls);
         menu_view.add(jSeparator1);
 
-        menuItemPanLeft.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_LEFT, java.awt.event.InputEvent.SHIFT_MASK));
+        menuItemPanLeft.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_LEFT, osSpecificModifier));
         menuItemPanLeft.setText("Pan Left");
         menuItemPanLeft.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -548,7 +553,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         });
         menu_view.add(menuItemPanLeft);
 
-        menuItemPanRight.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_RIGHT, java.awt.event.InputEvent.SHIFT_MASK));
+        menuItemPanRight.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_RIGHT, osSpecificModifier));
         menuItemPanRight.setText("Pan Right");
         menuItemPanRight.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -557,7 +562,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         });
         menu_view.add(menuItemPanRight);
 
-        menuItemZoomIn.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_UP, java.awt.event.InputEvent.SHIFT_MASK));
+        menuItemZoomIn.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_UP, osSpecificModifier));
         menuItemZoomIn.setText("Zoom In");
         menuItemZoomIn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -566,7 +571,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         });
         menu_view.add(menuItemZoomIn);
 
-        menuItemZoomOut.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_DOWN, java.awt.event.InputEvent.SHIFT_MASK));
+        menuItemZoomOut.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_DOWN, osSpecificModifier));
         menuItemZoomOut.setText("Zoom Out");
         menuItemZoomOut.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
