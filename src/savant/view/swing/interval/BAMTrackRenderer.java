@@ -89,9 +89,9 @@ public class BAMTrackRenderer extends TrackRenderer {
             if (r == Resolution.VERY_HIGH || r == Resolution.HIGH) {
                 renderPackMode(g2, gp, r);
             }
-            else {
-                renderCoverageMode(g2, gp);
-            }
+//            else {
+//                renderCoverageMode(g2, gp);
+//            }
         }
         else if (modeName.equals("MATE_PAIRS")) {
             renderArcMode(g2, gp);
