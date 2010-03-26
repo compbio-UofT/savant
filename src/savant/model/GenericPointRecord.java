@@ -21,9 +21,6 @@
 
 package savant.model;
 
-import savant.model.Point;
-import savant.model.PointRecord;
-
 /**
  * TODO:
  * @author

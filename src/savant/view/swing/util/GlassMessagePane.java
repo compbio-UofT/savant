@@ -21,9 +21,10 @@
 
 package savant.view.swing.util;
 
+import savant.view.swing.BrowserDefaults;
+
 import java.awt.*;
 import java.awt.geom.Rectangle2D;
-import savant.view.swing.BrowserDefaults;
 
 public class GlassMessagePane {
 

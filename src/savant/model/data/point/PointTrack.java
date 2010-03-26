@@ -15,9 +15,9 @@
  */
 package savant.model.data.point;
 
+import savant.model.PointRecord;
 import savant.model.Resolution;
 import savant.model.data.RecordTrack;
-import savant.model.PointRecord;
 import savant.util.Range;
 
 import java.util.List;

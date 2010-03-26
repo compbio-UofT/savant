@@ -21,15 +21,15 @@
 
 package savant.model.data.point;
 
-import savant.format.DebutFile;
+import savant.format.SavantFile;
 import savant.model.GenericPointRecord;
 import savant.model.Point;
 import savant.model.PointRecord;
-import savant.view.swing.Savant;
 import savant.model.Resolution;
 import savant.model.data.RecordTrack;
-import savant.util.DataUtils;
+import savant.util.RAFUtils;
 import savant.util.Range;
+import savant.view.swing.Savant;
 
 import java.io.EOFException;
 import java.io.FileNotFoundException;
@@ -48,7 +48,7 @@ import java.util.logging.Logger;
     
 public class GenericPointTrack implements RecordTrack<GenericPointRecord> {
 
-    private DebutFile debutFile;
+    private SavantFile savantFile;
 
     private int numRecords;
     private int recordSize;
@@ -58,7 +58,7 @@ public class GenericPointTrack implements RecordTrack<GenericPointRecord> {
 
     public GenericPointTrack(String filename) throws FileNotFoundException, IOException {
 
-        this.debutFile = new DebutFile(filename);
+        this.savantFile = new SavantFile(filename);
         setRecordSize();
         setNumRecords();
     }
@@ -72,11 +72,11 @@ public class GenericPointTrack implements RecordTrack<GenericPointRecord> {
         List<GenericPointRecord> data = new ArrayList<GenericPointRecord>();
 
         try {
-            int indexOfStart = seekToStart(range.getFrom(), 0, getNumRecords(), debutFile);
+            int indexOfStart = seekToStart(range.getFrom(), 0, getNumRecords(), savantFile);
             
             while (true) {
-                debutFile.seek((indexOfStart++) * getRecordSize());
-                List<Object> record = DataUtils.readBinaryRecord(debutFile, debutFile.getFields());
+                savantFile.seek((indexOfStart++) * getRecordSize());
+                List<Object> record = RAFUtils.readBinaryRecord(savantFile, savantFile.getFields());
                 GenericPointRecord p = convertRecordToGenericPointRecord(record);
 
                 if (((PointRecord) p).getPoint().getPosition() > range.getTo()) {
@@ -99,28 +99,28 @@ public class GenericPointTrack implements RecordTrack<GenericPointRecord> {
 
     public void close() {
         try {
-            if (debutFile != null) debutFile.close();
+            if (savantFile != null) savantFile.close();
         } catch (IOException ignore) { }
     }
 
     private int getRecordSize() { return this.recordSize; }
 
     private void setRecordSize() throws IOException {
-        this.recordSize = DataUtils.getRecordSize(debutFile);
+        this.recordSize = RAFUtils.getRecordSize(savantFile);
     }
 
     private int getNumRecords() { return this.numRecords; }
 
     private void setNumRecords() {
         try {
-            int numbytes = (int) debutFile.length();
+            int numbytes = (int) savantFile.length();
             this.numRecords = numbytes / getRecordSize();
         } catch (IOException ex) {
             Savant.log("Error: setting number of records in point track");
         }
     }
 
-    private int seekToStart(int pos, int low, int high, DebutFile raf) throws IOException {
+    private int seekToStart(int pos, int low, int high, SavantFile raf) throws IOException {
 
         // System.out.println(pos + " " + low + " " + high + " ");
 
@@ -144,7 +144,7 @@ public class GenericPointTrack implements RecordTrack<GenericPointRecord> {
 
     }
 
-    private int getStartPosOfRecord(int record_num, DebutFile br) throws IOException {
+    private int getStartPosOfRecord(int record_num, SavantFile br) throws IOException {
         br.seek(record_num * getRecordSize());
         int start = br.readInt();
         br.seek(record_num * getRecordSize());

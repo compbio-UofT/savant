@@ -41,8 +41,8 @@ import savant.plugin.AuxData;
 import savant.plugin.PluginAdapter;
 import savant.util.MiscUtils;
 import savant.util.Range;
-import savant.view.swing.util.ScreenShot;
 import savant.view.swing.sequence.SequenceViewTrack;
+import savant.view.swing.util.ScreenShot;
 
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -58,7 +58,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import savant.view.swing.PluginDialog;
 
 /**
  * Main application Window (Frame).

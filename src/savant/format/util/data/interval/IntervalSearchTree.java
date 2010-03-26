@@ -4,9 +4,10 @@
  */
 package savant.format.util.data.interval;
 
-import savant.format.DebutFile;
+import savant.format.SavantFile;
 import savant.model.IntervalRecord;
 import savant.util.Range;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -165,7 +166,7 @@ public class IntervalSearchTree {
         return this.nodes;
     }
 
-    public static void printIntervalSearchTreeIndex(DebutFile dFile, IntervalSearchTree intervalBSTIndex) throws IOException {
+    public static void printIntervalSearchTreeIndex(SavantFile dFile, IntervalSearchTree intervalBSTIndex) throws IOException {
         for (IntervalTreeNode n : intervalBSTIndex.getNodes()) {
                 System.out.println(n.index + " " + n.size + " " +  n.startByte);
                 List<IntervalRecord> recs = IntervalRecordGetter.getRecordsInBin(dFile,n);

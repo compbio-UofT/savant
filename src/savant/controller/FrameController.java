@@ -25,24 +25,18 @@
  */
 package savant.controller;
 
-import savant.controller.event.frame.FrameChangedEvent;
-import savant.controller.event.frame.FrameChangedListener;
-import savant.controller.event.frame.FrameHiddenEvent;
-import savant.controller.event.frame.FrameHiddenListener;
-import savant.controller.event.frame.FrameShownEvent;
-import savant.controller.event.frame.FrameShownListener;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import savant.controller.event.frame.*;
 import savant.view.swing.Frame;
 import savant.view.swing.GraphPane;
 import savant.view.swing.Savant;
-import savant.view.swing.ViewTrack;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
+import javax.swing.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import javax.swing.JComponent;
 
 public class FrameController {
 

@@ -19,8 +19,8 @@ package savant.view.swing;
 import savant.model.FileFormat;
 import savant.model.view.DrawingInstructions;
 import savant.util.Range;
-import savant.view.swing.GraphPane;
-import java.awt.Graphics;
+
+import java.awt.*;
 import java.util.List;
 
 /**

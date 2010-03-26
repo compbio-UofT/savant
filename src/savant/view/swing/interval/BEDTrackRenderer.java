@@ -21,6 +21,8 @@
 
 package savant.view.swing.interval;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import savant.model.BEDIntervalRecord;
 import savant.model.Interval;
 import savant.model.IntervalRecord;
@@ -35,8 +37,6 @@ import savant.util.Range;
 import savant.util.Strand;
 import savant.view.swing.GraphPane;
 import savant.view.swing.TrackRenderer;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import savant.view.swing.util.GlassMessagePane;
 
 import java.awt.*;

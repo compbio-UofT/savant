@@ -21,6 +21,8 @@
 
 package savant.view.swing.interval;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import savant.model.FileFormat;
 import savant.model.Resolution;
 import savant.model.data.interval.BEDIntervalTrack;
@@ -31,9 +33,6 @@ import savant.model.view.Mode;
 import savant.util.Range;
 import savant.view.swing.TrackRenderer;
 import savant.view.swing.ViewTrack;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import java.awt.*;
 import java.util.ArrayList;

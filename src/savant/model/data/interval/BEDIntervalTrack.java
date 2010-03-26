@@ -21,9 +21,9 @@
 
 package savant.model.data.interval;
 
-import savant.format.util.data.interval.*;
 import savant.format.DataFormatter;
-import savant.format.DebutFile;
+import savant.format.SavantFile;
+import savant.format.util.data.interval.IntervalRecordGetter;
 import savant.format.util.data.interval.IntervalSearchTree;
 import savant.model.BEDIntervalRecord;
 import savant.model.IntervalRecord;
@@ -46,7 +46,7 @@ import java.util.logging.Logger;
 public class BEDIntervalTrack implements RecordTrack<BEDIntervalRecord> {
 
     // Track properties
-    DebutFile dFile;
+    SavantFile dFile;
     //RandomAccessFile raf;
 
     private int numRecords;
@@ -55,7 +55,7 @@ public class BEDIntervalTrack implements RecordTrack<BEDIntervalRecord> {
     private IntervalSearchTree intervalBSTIndex;
 
     public BEDIntervalTrack(String fileName) throws IOException {
-        this.dFile = new DebutFile(fileName);
+        this.dFile = new SavantFile(fileName);
         String indexFileName = fileName + DataFormatter.indexExtension;
 
         intervalBSTIndex = DataFormatter.readIntervalBST(indexFileName);

@@ -19,31 +19,20 @@ import savant.controller.BookmarkController;
 import savant.controller.RangeController;
 import savant.controller.event.bookmark.BookmarksChangedEvent;
 import savant.controller.event.bookmark.BookmarksChangedListener;
-import savant.util.Bookmark;
-import savant.view.swing.Savant;
 import savant.controller.event.range.RangeChangedEvent;
 import savant.controller.event.range.RangeChangedListener;
-
+import savant.util.Bookmark;
 import savant.util.Range;
 import savant.view.swing.model.BookmarksTableModel;
-import java.awt.Dimension;
-import java.awt.FileDialog;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.InputEvent;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.io.*;
 import java.util.List;
 import java.util.StringTokenizer;
-import javax.swing.*;
 
-import static java.awt.FileDialog.*;
+import static java.awt.FileDialog.SAVE;
 
 /**
  *

@@ -22,8 +22,8 @@
 package savant.view.swing.continuous;
 
 import savant.model.ContinuousRecord;
-import savant.model.Resolution;
 import savant.model.FileFormat;
+import savant.model.Resolution;
 import savant.model.data.continuous.GenericContinuousTrack;
 import savant.model.view.AxisRange;
 import savant.model.view.ColorScheme;

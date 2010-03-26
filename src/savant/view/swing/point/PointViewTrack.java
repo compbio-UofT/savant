@@ -15,16 +15,16 @@
  */
 package savant.view.swing.point;
 
-import savant.model.Resolution;
 import savant.model.FileFormat;
+import savant.model.Resolution;
 import savant.model.data.point.GenericPointTrack;
-import savant.view.swing.BrowserDefaults;
-import savant.model.view.DrawingInstructions;
-import savant.view.swing.TrackRenderer;
-import savant.util.Range;
 import savant.model.view.AxisRange;
-import savant.view.swing.ViewTrack;
 import savant.model.view.ColorScheme;
+import savant.model.view.DrawingInstructions;
+import savant.util.Range;
+import savant.view.swing.BrowserDefaults;
+import savant.view.swing.TrackRenderer;
+import savant.view.swing.ViewTrack;
 
 import java.util.ArrayList;
 import java.util.List;

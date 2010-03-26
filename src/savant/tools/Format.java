@@ -5,10 +5,11 @@
 
 package savant.tools;
 
-import savant.format.*;
-import savant.util.DataUtils;
-import savant.format.header.FileTypeHeader;
+import savant.format.DataFormatter;
 import savant.format.header.FileType;
+import savant.format.header.FileTypeHeader;
+import savant.util.RAFUtils;
+
 import java.io.RandomAccessFile;
 import java.util.HashMap;
 import java.util.logging.Level;
@@ -117,7 +118,7 @@ public class Format {
     private static void read() {
         try {
             RandomAccessFile raf = new RandomAccessFile("C:\\sandbox\\debut\\data\\genes.chr1.debut", "r");
-            FileTypeHeader fth = DataUtils.readFileTypeHeader(raf);
+            FileTypeHeader fth = RAFUtils.readFileTypeHeader(raf);
             System.out.println("File Type: " + fth.fileType + ", version: " + fth.version);
         } catch (Exception ex) {
             Logger.getLogger(Format.class.getName()).log(Level.SEVERE, null, ex);

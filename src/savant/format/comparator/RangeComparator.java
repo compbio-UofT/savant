@@ -6,6 +6,7 @@
 package savant.format.comparator;
 
 import savant.util.Range;
+
 import java.util.Comparator;
 
 /**

@@ -19,9 +19,9 @@ package savant.view.swing.model;
 import savant.util.Bookmark;
 import savant.util.Range;
 
+import javax.swing.table.AbstractTableModel;
 import java.util.ArrayList;
 import java.util.List;
-import javax.swing.table.AbstractTableModel;
 
 
 /**

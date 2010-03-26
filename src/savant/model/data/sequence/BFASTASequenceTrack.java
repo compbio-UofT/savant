@@ -21,8 +21,8 @@
 
 package savant.model.data.sequence;
 
-import savant.format.DebutFile;
-import savant.util.DataUtils;
+import savant.format.SavantFile;
+import savant.util.DataFormatUtils;
 import savant.util.Range;
 
 import java.io.FileNotFoundException;
@@ -35,10 +35,10 @@ import java.io.IOException;
 public class BFASTASequenceTrack implements SequenceTrack {
 
     private int length = -1;
-    DebutFile dFile;
+    SavantFile dFile;
 
     public BFASTASequenceTrack(String fileName) throws FileNotFoundException, IOException {
-        this.dFile = new DebutFile(fileName);
+        this.dFile = new SavantFile(fileName);
     }
 
     public int getLength() {
@@ -47,7 +47,7 @@ public class BFASTASequenceTrack implements SequenceTrack {
                 if (dFile == null) {
                     return -1;
                 }
-                this.length = ((int) dFile.length()) / DataUtils.BYTE_FIELD_SIZE;
+                this.length = ((int) dFile.length()) / DataFormatUtils.BYTE_FIELD_SIZE;
             } catch (IOException ex) {
                 return -1;
             }
@@ -60,7 +60,7 @@ public class BFASTASequenceTrack implements SequenceTrack {
         int rangeLength = range.getLength();
         byte[] sequence = new byte[rangeLength];
         try {
-            dFile.seek(DataUtils.BYTE_FIELD_SIZE*range.getFrom()-1);
+            dFile.seek(DataFormatUtils.BYTE_FIELD_SIZE*range.getFrom()-1);
             
             for (int i = 0; i < rangeLength; i++) {
                 try {

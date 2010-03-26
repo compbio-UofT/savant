@@ -16,23 +16,21 @@
 package savant.view.swing;
 
 import savant.controller.ViewTrackController;
-import savant.controller.event.viewtrack.ViewTrackListChangedEvent;
-import savant.controller.event.viewtrack.ViewTrackListChangedListener;
-import savant.view.swing.Savant;
 import savant.controller.event.range.RangeChangedEvent;
 import savant.controller.event.range.RangeChangedListener;
+import savant.controller.event.viewtrack.ViewTrackListChangedEvent;
+import savant.controller.event.viewtrack.ViewTrackListChangedListener;
 import savant.view.swing.model.DataTableModel;
 
-import java.awt.Dimension;
-import java.awt.FileDialog;
+import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
-import javax.swing.*;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
 /**
  *

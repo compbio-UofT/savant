@@ -510,7 +510,8 @@ public class BAMTrackRenderer extends TrackRenderer {
             if (arcLength > 100000) {
                 Savant.log("Super-long interval found: " + arcLength);
             }
-            int arcHeight = (int)(Math.log((double)arcLength));
+//            int arcHeight = (int)(Math.log((double)arcLength));
+            int arcHeight = arcLength;
 
             int rectWidth = (int)(gp.getWidth(arcLength));
             int rectHeight = (int)(gp.getHeight(arcHeight*2));

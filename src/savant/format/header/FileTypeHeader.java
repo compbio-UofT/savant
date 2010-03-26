@@ -5,8 +5,6 @@
 
 package savant.format.header;
 
-import savant.format.header.FileType;
-
 /**
  *
  * @author mfiume

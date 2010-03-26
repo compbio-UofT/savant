@@ -8,7 +8,8 @@ package savant.format;
 import savant.format.header.FileType;
 import savant.format.header.FileTypeHeader;
 import savant.format.util.data.FieldType;
-import savant.util.DataUtils;
+import savant.util.RAFUtils;
+
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -18,16 +19,16 @@ import java.util.List;
  *
  * @author mfiume
  */
-public class DebutFile extends RandomAccessFile {
+public class SavantFile extends RandomAccessFile {
 
     FileTypeHeader fileTypeHeader;
     List<FieldType> fields;
     long headerOffset;
 
-    public DebutFile(String filename) throws FileNotFoundException, IOException {
+    public SavantFile(String filename) throws FileNotFoundException, IOException {
         super(filename,"rw");
-        this.fileTypeHeader = DataUtils.readFileTypeHeader((RandomAccessFile) this);
-        this.fields = DataUtils.readFieldsHeader((RandomAccessFile) this);
+        this.fileTypeHeader = RAFUtils.readFileTypeHeader((RandomAccessFile) this);
+        this.fields = RAFUtils.readFieldsHeader((RandomAccessFile) this);
         this.headerOffset = super.getFilePointer();
     }
 
@@ -73,4 +74,5 @@ public class DebutFile extends RandomAccessFile {
     public int getFileTypeVersion() {
         return this.fileTypeHeader.version;
     }
+
 }

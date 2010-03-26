@@ -35,7 +35,7 @@ public class WIGToContinuous {
     private String inFile;
     private String outFile;
     private DataOutputStream out;
-    // stuff needed by IO; mandated by IOUtils and DataUtils which we're depending on
+    // stuff needed by IO; mandated by DataFormatUtils which we're depending on
     //private RandomAccessFile raf;
 
     private List<FieldType> fields;
@@ -212,7 +212,7 @@ public class WIGToContinuous {
 
             // write file type header
             FileTypeHeader fileTypeHeader = new FileTypeHeader(FileType.CONTINUOUS_GENERIC, 1);
-            out.writeInt(fileTypeHeader.fileType.ordinal());
+            out.writeInt(fileTypeHeader.fileType.getMagicNumber());
             out.writeInt(fileTypeHeader.version);
 
             // prepare and write fields header

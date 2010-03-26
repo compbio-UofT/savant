@@ -21,15 +21,15 @@
 
 package savant.model.data.interval;
 
+import net.sf.samtools.*;
+import net.sf.samtools.util.CloseableIterator;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import savant.controller.RangeController;
 import savant.model.BAMIntervalRecord;
 import savant.model.Resolution;
 import savant.model.data.RecordTrack;
 import savant.util.Range;
-import net.sf.samtools.*;
-import net.sf.samtools.util.CloseableIterator;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import java.io.File;
 import java.util.ArrayList;

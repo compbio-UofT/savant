@@ -25,7 +25,6 @@ import savant.view.swing.interval.IntervalTrackRenderer;
 import savant.view.swing.point.PointTrackRenderer;
 import savant.view.swing.sequence.SequenceTrackRenderer;
 
-
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;

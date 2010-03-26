@@ -15,8 +15,8 @@
  */
 package savant.view.swing;
 
-import java.awt.Color;
-import javax.swing.UIManager;
+import javax.swing.*;
+import java.awt.*;
 
 /**
  *

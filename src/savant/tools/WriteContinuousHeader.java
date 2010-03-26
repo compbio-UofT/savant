@@ -31,20 +31,19 @@ package savant.tools;
  * Please use command-line data formatting tools or in-Savant formatting tools.
  * </p>
  */
+
 import savant.format.header.FileType;
 import savant.format.header.FileTypeHeader;
 import savant.format.util.data.FieldType;
-import savant.util.DataUtils;
-import savant.util.IOUtils;
 
-import java.io.IOException;
-import java.io.RandomAccessFile;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class WriteContinuousHeader {
 
     private String outFile;
+    DataOutputStream out;
     private RandomAccessFile raf;
     private List<FieldType> fields;
     private List<Object> modifiers;
@@ -63,18 +62,24 @@ public class WriteContinuousHeader {
     private void initOutput() {
 
         try {
-            raf = IOUtils.openNewFile(outFile);
+            // open output stream
+            out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(outFile)));
 
-            DataUtils.writeFileTypeHeader(raf, new FileTypeHeader(FileType.CONTINUOUS_GENERIC, 1));
-            // that method just kindly closed our file for us, so... open it again:
-            raf = IOUtils.openFile(outFile);
+            // write file type header
+            FileTypeHeader fileTypeHeader = new FileTypeHeader(FileType.CONTINUOUS_GENERIC, 1);
+            out.writeInt(fileTypeHeader.fileType.getMagicNumber());
+            out.writeInt(fileTypeHeader.version);
+
+            // prepare and write fields header
             fields = new ArrayList<FieldType>();
             fields.add(FieldType.DOUBLE);
-
             modifiers = new ArrayList<Object>();
             modifiers.add(null);
+            out.writeInt(fields.size());
+            for (FieldType ft : fields) {
+                out.writeInt(ft.ordinal());
+            }
 
-            DataUtils.writeFieldsHeader(raf, fields);
 
         } catch (IOException e) {
             e.printStackTrace();  // TODO: log properly

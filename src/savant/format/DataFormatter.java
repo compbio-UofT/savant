@@ -4,30 +4,20 @@
  */
 package savant.format;
 
-import savant.format.util.data.interval.LinePlusRange;
-import savant.format.util.data.FieldType;
-import savant.util.DataUtils;
-import savant.format.header.FileType;
-import savant.format.comparator.LineRangeComparator;
-import savant.format.header.FileTypeHeader;
-import savant.format.util.data.interval.IntervalTreeNode;
-import savant.format.util.data.interval.IntervalSearchTree;
-import savant.util.IOUtils;
-import savant.util.Range;
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.RandomAccessFile;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.StringTokenizer;
 import savant.controller.RangeController;
+import savant.format.comparator.LineRangeComparator;
+import savant.format.header.FileType;
+import savant.format.header.FileTypeHeader;
+import savant.format.util.data.FieldType;
+import savant.format.util.data.interval.IntervalSearchTree;
+import savant.format.util.data.interval.IntervalTreeNode;
+import savant.format.util.data.interval.LinePlusRange;
 import savant.tools.BAMToCoverage;
 import savant.tools.WIGToContinuous;
+import savant.util.*;
+
+import java.io.*;
+import java.util.*;
 
 /**
  *
@@ -42,6 +32,7 @@ public class DataFormatter {
     static String tmpOutPath = "tmp";
     String inPath;
     String outPath;
+    DataOutputStream outFile;
     //BufferedReader inFile;
     //RandomAccessFile outFile;
     FileType fileType;
@@ -67,9 +58,8 @@ public class DataFormatter {
     public boolean format() {
 
         try {
-            RandomAccessFile outFile = this.openNewOutputFile();
-            DataUtils.writeFileTypeHeader(outFile, new FileTypeHeader(this.fileType,this.currentVersion));
-            outFile.close();
+            outFile = this.openNewOutputFile();
+            DataFormatUtils.writeFileTypeHeader(outFile, new FileTypeHeader(this.fileType,this.currentVersion));
 
             switch (fileType) {
                 case POINT_GENERIC:
@@ -122,10 +112,9 @@ public class DataFormatter {
     private void formatAsSequenceFasta() throws FileNotFoundException, IOException {
 
         BufferedReader inFile = this.openInputFile();
-        RandomAccessFile outFile = this.openOutputFile();
 
         List<FieldType> fields = new ArrayList<FieldType>();
-        DataUtils.writeFieldsHeader(outFile, fields);
+        DataFormatUtils.writeFieldsHeader(outFile, fields);
 
         String strLine;
         //Read File Line By Line
@@ -146,7 +135,6 @@ public class DataFormatter {
     private void formatAsContinuousGeneric() throws FileNotFoundException, IOException {
 
         BufferedReader inFile = this.openInputFile();
-        RandomAccessFile outFile = this.openOutputFile();
 
         List<FieldType> fields = new ArrayList<FieldType>();
         fields.add(FieldType.DOUBLE);
@@ -154,11 +142,11 @@ public class DataFormatter {
         List<Object> modifiers = new ArrayList<Object>();
         modifiers.add(null);
 
-        DataUtils.writeFieldsHeader(outFile, fields);
+        DataFormatUtils.writeFieldsHeader(outFile, fields);
 
         List<Object> line;
-        while((line = DataUtils.parseTxtLine(inFile, fields)) != null) {
-            DataUtils.writeBinaryRecord(outFile, line, fields, modifiers);
+        while((line = DataFormatUtils.parseTxtLine(inFile, fields)) != null) {
+            DataFormatUtils.writeBinaryRecord(outFile, line, fields, modifiers);
         }
 
         inFile.close();
@@ -169,7 +157,7 @@ public class DataFormatter {
      * CONTINUOUS : GENERIC
      * @return
      */
-    private void formatAsContinuousWIG() throws FileNotFoundException, IOException {
+    private void formatAsContinuousWIG() throws IOException {
 
         WIGToContinuous wtc = new WIGToContinuous(this.inPath, this.outPath);
         wtc.format();
@@ -183,18 +171,18 @@ public class DataFormatter {
         modifiers.add(null);
         modifiers.add(null);
 
-        DataUtils.writeFieldsHeader(outFile, fields);
+        DataFormatUtils.writeFieldsHeader(outFile, fields);
 
         List<Object> line;
-        while((line = DataUtils.parseTxtLine(inFile, fields)) != null) {
-            DataUtils.writeBinaryRecord(outFile, line, fields, modifiers);
+        while((line = DataFormatUtils.parseTxtLine(inFile, fields)) != null) {
+            DataFormatUtils.writeBinaryRecord(outFile, line, fields, modifiers);
         }
          * 
          */
     }
 
 
-    private void formatAsBAM() throws FileNotFoundException, IOException {
+    private void formatAsBAM() throws IOException {
 
         RangeController rc = RangeController.getInstance();
 
@@ -208,7 +196,7 @@ public class DataFormatter {
         List<Range> intervalIndex2IntervalRange = new ArrayList<Range>();
         List<Long> intevalIndex2StartByte = new ArrayList<Long>();
 
-        RandomAccessFile tmpOutFile = this.openNewTmpOutputFile();
+        DataOutputStream tmpOutFile = this.openNewTmpOutputFile();
 
         /**
          * STEP 1:
@@ -226,7 +214,7 @@ public class DataFormatter {
 
         BufferedReader inFile = this.openInputFile();
         List<Object> line;
-        while((line = DataUtils.parseTxtLine(inFile, fields)) != null) {
+        while((line = DataFormatUtils.parseTxtLine(inFile, fields)) != null) {
             line.set(0, ((Integer)line.get(0)) + this.baseOffset);
             line.set(1, ((Integer)line.get(1))  + this.baseOffset);
 
@@ -237,12 +225,12 @@ public class DataFormatter {
             maxRange = Math.max(maxRange, endInterval);
 
             intervalIndex2IntervalRange.add(new Range(startInterval, endInterval));
-            intevalIndex2StartByte.add(tmpOutFile.getFilePointer());
+            intevalIndex2StartByte.add((long)tmpOutFile.size());
 
             //System.out.println("Writing [" + startInterval + "," + endInterval + "," + description + "] to tmp file");
             //System.out.println("Saving pointer to [" + tmpOutFile.getFilePointer() + "]");
 
-            DataUtils.writeBinaryRecord(tmpOutFile, line, fields, modifiers);
+            DataFormatUtils.writeBinaryRecord(tmpOutFile, line, fields, modifiers);
         }
 
         /**
@@ -291,9 +279,10 @@ public class DataFormatter {
             Collections.sort(lineList, new LineRangeComparator());
         }
 
-        RandomAccessFile outFile = this.openOutputFile();
-        DataUtils.writeFieldsHeader(outFile, fields);
-        HashMap<Integer,Long> node2startByte = writeBinsToOutfile(outFile, tmpOutFile, ibst, nodeIndex2IntervalIndices, intevalIndex2StartByte, fields, modifiers );
+        DataFormatUtils.writeFieldsHeader(outFile, fields);
+        tmpOutFile.close();
+        RandomAccessFile indexFile = new RandomAccessFile(tmpOutPath, "r");
+        HashMap<Integer,Long> node2startByte = writeBinsToOutfile(outFile, indexFile, ibst, nodeIndex2IntervalIndices, intevalIndex2StartByte, fields, modifiers );
         outFile.close();
 
         /**
@@ -306,7 +295,9 @@ public class DataFormatter {
          * need a node --> start byte map first!
          */
         String indexPath = outPath + indexExtension;
-        RandomAccessFile indexOutFile = IOUtils.openNewFile(indexPath);
+        File f = new File(indexPath);
+        if (f.exists()) f.delete();
+        RandomAccessFile indexOutFile = RAFUtils.openFile(indexPath);
 
         System.out.println("=== STEP 4 ===");
         writeIntervalBSTIndex(indexOutFile, ibst, node2startByte);
@@ -386,13 +377,13 @@ public class DataFormatter {
         formatAsInterval(fields,modifiers);
     }
 
-     private HashMap<Integer,Long> writeBinsToOutfile(RandomAccessFile outFile, RandomAccessFile srcFile, IntervalSearchTree ibst, HashMap<Integer, List<LinePlusRange>> nodeIndex2IntervalIndices, List<Long> intevalIndex2StartByte, List<FieldType> fields, List<Object> modifiers) throws IOException {
+     private HashMap<Integer,Long> writeBinsToOutfile(DataOutputStream outFile, RandomAccessFile srcFile, IntervalSearchTree ibst, HashMap<Integer, List<LinePlusRange>> nodeIndex2IntervalIndices, List<Long> intevalIndex2StartByte, List<FieldType> fields, List<Object> modifiers) throws IOException {
          HashMap<Integer,Long> node2startByte = new HashMap<Integer, Long>();
          writeBinsToOutfile(node2startByte, outFile, srcFile, ibst.getRoot(), nodeIndex2IntervalIndices, intevalIndex2StartByte, fields, modifiers );
          return node2startByte;
      }
 
-    private void writeBinsToOutfile(HashMap<Integer, Long> node2startByte, RandomAccessFile outFile, RandomAccessFile srcFile, IntervalTreeNode n, HashMap<Integer, List<LinePlusRange>> nodeIndex2IntervalIndices, List<Long> intevalIndex2StartByte, List<FieldType> fields, List<Object> modifiers) throws IOException {
+    private void writeBinsToOutfile(HashMap<Integer, Long> node2startByte, DataOutputStream outFile, RandomAccessFile srcFile, IntervalTreeNode n, HashMap<Integer, List<LinePlusRange>> nodeIndex2IntervalIndices, List<Long> intevalIndex2StartByte, List<FieldType> fields, List<Object> modifiers) throws IOException {
         if (n == null) { return; }
 
         List<LinePlusRange> linesPlusRanges = nodeIndex2IntervalIndices.get(n.index);
@@ -400,7 +391,7 @@ public class DataFormatter {
         if (n.size == 0) {
             node2startByte.put(n.index, (long) -1);
         } else {
-            node2startByte.put(n.index, outFile.getFilePointer());
+            node2startByte.put(n.index, (long)outFile.size());
         }
 
         //System.out.println("Node " + " index: " + n.index + " range: " + n.range + " size: " + n.size + " startByte: " +  node2startByte.get(n.index));
@@ -412,8 +403,8 @@ public class DataFormatter {
                 long startByte = intevalIndex2StartByte.get(intervalIndex);
                 srcFile.seek(startByte);
 
-                List<Object> rec = DataUtils.readBinaryRecord(srcFile, fields);
-                DataUtils.writeBinaryRecord(outFile, rec, fields, modifiers);
+                List<Object> rec = RAFUtils.readBinaryRecord(srcFile, fields);
+                DataFormatUtils.writeBinaryRecord(outFile, rec, fields, modifiers);
             }
         }
 
@@ -434,7 +425,8 @@ public class DataFormatter {
          * other    All specified length (fixed length)
          * null  :  Actual length of string (not - fixed length) NOT allowed for point!
          */
-        int descriptionLength = pointGenericGetDescriptionLength();
+        BufferedReader inFile = this.openInputFile();
+
 
         List<FieldType> fields = new ArrayList<FieldType>();
         fields.add(FieldType.INTEGER);
@@ -442,25 +434,21 @@ public class DataFormatter {
 
         List<Object> modifiers = new ArrayList<Object>();
         modifiers.add(null);
+        int descriptionLength = pointGenericGetDescriptionLength();
         modifiers.add(descriptionLength);
 
-        RandomAccessFile outFile = this.openOutputFile();
-        DataUtils.writeFieldsHeader(outFile, fields);
-        outFile.close();
+        DataFormatUtils.writeFieldsHeader(outFile, fields);
 
         List<Object> line = null;
 
-        outFile = this.openOutputFile();
-        IOUtils.seekToEnd(outFile);
-
-        BufferedReader inFile = this.openInputFile();
-        while ((line = DataUtils.parseTxtLine(inFile, fields)) != null) {
+        while ((line = DataFormatUtils.parseTxtLine(inFile, fields)) != null) {
             line.set(0, ((Integer) line.get(0))+ this.baseOffset);
-            DataUtils.writeBinaryRecord(outFile, line, fields, modifiers);
+            DataFormatUtils.writeBinaryRecord(outFile, line, fields, modifiers);
         }
         inFile.close();
 
         outFile.close();
+                
     }
 
     private int pointGenericGetDescriptionLength() throws IOException {
@@ -494,7 +482,7 @@ public class DataFormatter {
     /** INTERVAL BST **/
     /**
      * Write the Interval BST Index
-     * @param outraf The output file to which to write
+     * @param indexOutFile The output file to which to write
      * @param ibst The BST to write
      * @throws IOException
      */
@@ -536,13 +524,13 @@ public class DataFormatter {
                 record.add(child.index); fields.add(FieldType.INTEGER); modifiers.add(null);
             }
 
-            DataUtils.writeBinaryRecord(indexOutFile, record, fields, modifiers);
+            RAFUtils.writeBinaryRecord(indexOutFile, record, fields, modifiers);
         }
     }
 
     public static IntervalSearchTree readIntervalBST(String indexFileName) throws IOException {
 
-        RandomAccessFile indexRaf = IOUtils.openFile(indexFileName, false);
+        RandomAccessFile indexRaf = RAFUtils.openFile(indexFileName, false);
 
         int numNodes = indexRaf.readInt();
 
@@ -560,7 +548,7 @@ public class DataFormatter {
 
         for (int i = 0; i < numNodes; i++) {
 
-            List<Object> r1 = DataUtils.readBinaryRecord(indexRaf, fields);
+            List<Object> r1 = RAFUtils.readBinaryRecord(indexRaf, fields);
 
             IntervalTreeNode n = new IntervalTreeNode((Range) r1.get(1), (Integer) r1.get(0));
             n.startByte = (Long) r1.get(2);
@@ -596,9 +584,8 @@ public class DataFormatter {
 
    /** FILE OPENING **/
 
-    private RandomAccessFile openNewOutputFile() throws FileNotFoundException, IOException {
-        deleteOutputFile();
-        return openOutputFile();
+    private DataOutputStream openNewOutputFile() throws IOException {
+        return new DataOutputStream(new BufferedOutputStream(new FileOutputStream(outPath)));
     }
 
 
@@ -607,12 +594,14 @@ public class DataFormatter {
      * @return
      * @throws FileNotFoundException
      */
-    private RandomAccessFile openOutputFile() throws FileNotFoundException, IOException {
-        return  IOUtils.openFile(outPath,true);
+    private RandomAccessFile openOutputRAFFile(String path) throws IOException {
+        RandomAccessFile f = new RandomAccessFile(path, "rw");
+        if (f != null) f.seek(f.length());
+        return f;
     }
 
 
-    private RandomAccessFile openNewTmpOutputFile() throws FileNotFoundException, IOException {
+    private DataOutputStream openNewTmpOutputFile() throws IOException {
         deleteTmpOutputFile();
         return openTmpOutputFile();
     }
@@ -622,16 +611,23 @@ public class DataFormatter {
      * @return
      * @throws FileNotFoundException
      */
-    private RandomAccessFile openTmpOutputFile() throws FileNotFoundException, IOException {
-        return IOUtils.openFile(tmpOutPath, true);
+    private DataOutputStream openTmpOutputFile() throws IOException {
+        return new DataOutputStream(new BufferedOutputStream(new FileOutputStream(tmpOutPath)));
     }
 
     private void deleteTmpOutputFile() {
-         IOUtils.deleteFile(tmpOutPath);
+        File f = new File(tmpOutPath);
+        if (f.exists()) {
+            f.delete();
+        }
     }
 
     private void deleteOutputFile() {
-        IOUtils.deleteFile(outPath);
+        File f = new File(outPath);
+        if (f.exists()) {
+            f.delete();
+        }
+
     }
 
     /**
@@ -647,4 +643,10 @@ public class DataFormatter {
         if (inputOneBased) { this.baseOffset = 1; }
         else { this.baseOffset = 0; }
     }
+
+
+
+
+
+
 }

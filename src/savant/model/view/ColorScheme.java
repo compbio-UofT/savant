@@ -16,7 +16,7 @@
 
 package savant.model.view;
 
-import java.awt.Color;
+import java.awt.*;
 import java.util.Dictionary;
 import java.util.Hashtable;
 

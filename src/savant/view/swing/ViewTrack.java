@@ -22,20 +22,20 @@ import savant.controller.TrackController;
 import savant.controller.ViewTrackController;
 import savant.format.header.FileType;
 import savant.format.header.FileTypeHeader;
-import savant.model.data.RecordTrack;
-import savant.model.data.interval.BEDIntervalTrack;
-import savant.util.IOUtils;
+import savant.model.FileFormat;
 import savant.model.Genome;
 import savant.model.Resolution;
-import savant.model.FileFormat;
+import savant.model.data.RecordTrack;
 import savant.model.data.Track;
 import savant.model.data.continuous.GenericContinuousTrack;
 import savant.model.data.interval.BAMIntervalTrack;
+import savant.model.data.interval.BEDIntervalTrack;
 import savant.model.data.interval.GenericIntervalTrack;
 import savant.model.data.point.GenericPointTrack;
 import savant.model.view.ColorScheme;
 import savant.model.view.Mode;
-import savant.util.DataUtils;
+import savant.util.DataFormatUtils;
+import savant.util.RAFUtils;
 import savant.util.Range;
 import savant.view.swing.continuous.ContinuousViewTrack;
 import savant.view.swing.interval.BAMCoverageViewTrack;
@@ -84,7 +84,7 @@ public abstract class ViewTrack {
         int lastSlashIndex = trackFilename.lastIndexOf(System.getProperty("file.separator"));
         String name = trackFilename.substring(lastSlashIndex+1, trackFilename.length());
 
-        FileType fileType = DataUtils.getTrackDataTypeFromPath(trackFilename);
+        FileType fileType = DataFormatUtils.getTrackDataTypeFromPath(trackFilename);
 
         ViewTrack viewTrack = null;
         Track dataTrack = null;
@@ -135,8 +135,8 @@ public abstract class ViewTrack {
             try {
 
                 // read file header
-                RandomAccessFile trkFile = IOUtils.openFile(trackFilename, false);
-                FileTypeHeader fth = DataUtils.readFileTypeHeader(trkFile);
+                RandomAccessFile trkFile = RAFUtils.openFile(trackFilename, false);
+                FileTypeHeader fth = RAFUtils.readFileTypeHeader(trkFile);
                 trkFile.close();
 
                 switch(fth.fileType) {

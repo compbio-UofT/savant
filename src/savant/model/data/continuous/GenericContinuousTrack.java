@@ -21,14 +21,14 @@
 
 package savant.model.data.continuous;
 
-import savant.format.DebutFile;
+import savant.format.SavantFile;
 import savant.model.Continuous;
 import savant.model.ContinuousRecord;
-import savant.view.swing.Savant;
 import savant.model.Resolution;
 import savant.model.data.point.PointTrack;
-import savant.util.DataUtils;
+import savant.util.RAFUtils;
 import savant.util.Range;
+import savant.view.swing.Savant;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -46,7 +46,7 @@ import java.util.logging.Logger;
  */
 public class GenericContinuousTrack extends ContinuousTrack {
 
-    private DebutFile debutFile;
+    private SavantFile savantFile;
 
     private int numRecords;
     private int recordSize;
@@ -55,7 +55,7 @@ public class GenericContinuousTrack extends ContinuousTrack {
 
     public GenericContinuousTrack(String filename) throws FileNotFoundException, IOException {
 
-        this.debutFile = new DebutFile(filename);
+        this.savantFile = new SavantFile(filename);
 
         setRecordSize();
 
@@ -77,14 +77,14 @@ public class GenericContinuousTrack extends ContinuousTrack {
             int lastIndex = range.getTo() + binSize;
             for  (int i = index; i <= lastIndex; i += binSize) {
 
-                debutFile.seek((i-1)*recordSize);
+                savantFile.seek((i-1)*recordSize);
 
                 double sum = 0.0;
                 int j;
                 try
                 {
                     for (j = 0; j < contiguousSamples; j++) {
-                        sum += debutFile.readDouble();
+                        sum += savantFile.readDouble();
                     }
                 } catch (Exception e) { break; }
                 int pos;
@@ -105,7 +105,7 @@ public class GenericContinuousTrack extends ContinuousTrack {
 
     public void close() {
         try {
-            if (debutFile != null) debutFile.close();
+            if (savantFile != null) savantFile.close();
         } catch (IOException ignore) { }
     }
 
@@ -116,7 +116,7 @@ public class GenericContinuousTrack extends ContinuousTrack {
     // TODO: make this a helper method, since it's used in all tracks. Pass File and recordSize. Get rid of Savant.log.
     public void setNumRecords() {
         try {
-            int numbytes = (int) debutFile.length();
+            int numbytes = (int) savantFile.length();
             this.numRecords = numbytes / getRecordSize();
         } catch (IOException ex) {
             Savant.log("Error: setting number of records in point track");
@@ -129,7 +129,7 @@ public class GenericContinuousTrack extends ContinuousTrack {
     }
 
     public void setRecordSize() throws IOException {
-        this.recordSize = DataUtils.getRecordSize(debutFile);
+        this.recordSize = RAFUtils.getRecordSize(savantFile);
     }
 
     private void setResolutionToFrequencyMap()

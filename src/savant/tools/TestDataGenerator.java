@@ -26,6 +26,7 @@ import java.io.IOException;
 
 /**
  * A tool to generate data needed by unit tests.
+ * @deprecated
  * @author vwilliams
  */
 public class TestDataGenerator {

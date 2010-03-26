@@ -22,17 +22,21 @@
 package savant.view.swing.interval;
 
 import net.sf.samtools.SAMRecord;
-import savant.model.BAMIntervalRecord;
-import savant.model.Interval;
-import savant.model.Resolution;
-import savant.model.FileFormat;
-import savant.model.data.interval.BAMIntervalTrack;
-import savant.model.view.*;
-import savant.util.Range;
-import savant.view.swing.TrackRenderer;
-import savant.view.swing.ViewTrack;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import savant.model.BAMIntervalRecord;
+import savant.model.FileFormat;
+import savant.model.Interval;
+import savant.model.Resolution;
+import savant.model.data.interval.BAMIntervalTrack;
+import savant.model.view.AxisRange;
+import savant.model.view.ColorScheme;
+import savant.model.view.DrawingInstructions;
+import savant.model.view.Mode;
+import savant.util.Range;
+import savant.view.swing.Savant;
+import savant.view.swing.TrackRenderer;
+import savant.view.swing.ViewTrack;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -96,8 +100,15 @@ public class BAMViewTrack extends ViewTrack {
             renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.RESOLUTION, r);
             renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.COLOR_SCHEME, this.getColorScheme());
             if (getDrawMode().getName() == "MATE_PAIRS") {
-                int maxDataValue = getMaxValue(data);
-                renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.AXIS_RANGE, new AxisRange(range, new Range(0,(int)Math.round(Math.log(maxDataValue)))));
+                int maxDataValue = 0;
+                // DEBUG:
+                try {
+                    maxDataValue = getMaxValue(data);
+                } catch (NullPointerException e) {
+                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                }
+//                renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.AXIS_RANGE, new AxisRange(range, new Range(0,(int)Math.round(Math.log(maxDataValue)))));
+                renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.AXIS_RANGE, new AxisRange(range, new Range(0,(int)Math.round(maxDataValue))));
             }
             else renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.AXIS_RANGE, new AxisRange(range, getDefaultYRange()));
             renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.MODE, getDrawMode());
@@ -119,6 +130,7 @@ public class BAMViewTrack extends ViewTrack {
                 SAMRecord firstRecord;
                 SAMRecord secondRecord;
                 if (samRecord.getAlignmentStart() < samRecord.getMateAlignmentStart()) {
+                    if (!samRecord.getFirstOfPairFlag()) Savant.log("Pairs unordered");
                     firstRecord = samRecord;
                     secondRecord = record.getMateRecord();
                 }
@@ -183,7 +195,10 @@ public class BAMViewTrack extends ViewTrack {
                 continue;
             }
             double val = endPos - startPos + 1;
-            if (val > max) max = val;
+            // TODO: see how well this works, i.e. eliminating arcs of length ~2*point of change to coverage map
+            if (val < 40000) {
+                if (val > max) max = val;
+            }
         }
         return (int)Math.ceil(max);
     }
@@ -216,7 +231,7 @@ public class BAMViewTrack extends ViewTrack {
 //        else if (length < 1000000) { return Resolution.MEDIUM; }
 //        else if (length < 10000000) { return Resolution.LOW; }
 //        else if (length >= 10000000) { return Resolution.VERY_LOW; }
-//        else { return Resolution.VERY_HIGH; }
+//        else { return Resolution.VERY_HIGH; }      
 
         if (length < 5000) { return Resolution.VERY_HIGH; }
         else if (length < 10000) { return Resolution.HIGH; }

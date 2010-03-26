@@ -11,17 +11,16 @@
 
 package savant.format;
 
-import java.awt.Dialog;
 import savant.format.header.FileType;
 import savant.view.swing.Savant;
 
-import java.awt.FileDialog;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import java.awt.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 /**
  *

@@ -21,8 +21,6 @@
 
 package savant.model;
 
-import savant.model.Interval;
-
 /**
  * TODO:
  * @author vwilliams

@@ -5,6 +5,7 @@
 package savant.format.util.data.interval;
 
 import savant.util.Range;
+
 import java.util.ArrayList;
 import java.util.List;
 

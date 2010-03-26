@@ -15,24 +15,24 @@
  */
 
 /*
- * DataUtils.java
+ * DataFormatUtils.java
  * Created on Jan 12, 2010
  */
 
 package savant.util;
 
-import savant.format.util.data.FieldType;
-import savant.format.*;
 import savant.format.header.FileType;
 import savant.format.header.FileTypeHeader;
+import savant.format.util.data.FieldType;
 import savant.model.BEDIntervalRecord;
 import savant.model.GenericIntervalRecord;
 import savant.model.Interval;
 import savant.model.IntervalRecord;
-import savant.util.Range;
+
 import java.io.BufferedReader;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
@@ -41,7 +41,7 @@ import java.util.StringTokenizer;
  * Utilities for manipulating data files.
  * @author vwilliams
  */
-public class DataUtils {
+public class DataFormatUtils {
 
     // Constants to use for size calculations on output fields.
     public static final int LONG_FIELD_SIZE     = 8;
@@ -62,9 +62,9 @@ public class DataUtils {
         if (extension.equals("BAM")) {
             return FileType.INTERVAL_BAM;
         }
-        if (extension.equals("DEBUT")) {
-            return FileType.DEBUT;
-        }
+//        if (extension.equals("SAVANT")) {
+//            return FileType.SAVANT;
+//        }
 
         return null;
     }
@@ -86,17 +86,16 @@ public class DataUtils {
 
 
 
-    public static FileTypeHeader readFileTypeHeader(RandomAccessFile raf) throws IOException {
-        raf.seek(0);
+    public static FileTypeHeader readFileTypeHeader(DataInputStream in) throws IOException {
         List<FieldType> fields = new ArrayList<FieldType>();
         fields.add(FieldType.INTEGER);
         fields.add(FieldType.INTEGER);
-        List<Object> record = readBinaryRecord(raf,fields);
-        FileTypeHeader fth = new FileTypeHeader( FileType.class.getEnumConstants()[((Integer) record.get(0))], (Integer) record.get(1));
+        List<Object> record = readBinaryRecord(in,fields);
+        FileTypeHeader fth = new FileTypeHeader( FileType.fromMagicNumber((Integer) record.get(0)), (Integer) record.get(1));
         return fth;
     }
 
-    public static List<Object> readBinaryRecord(RandomAccessFile file, List<FieldType> fields) throws IOException {
+    public static List<Object> readBinaryRecord(DataInputStream in, List<FieldType> fields) throws IOException {
 
         List<Object> record = new ArrayList<Object>(fields.size());
 
@@ -111,45 +110,45 @@ public class DataUtils {
 
             switch(ft) {
                 case INTEGER:
-                    record.add(file.readInt());
+                    record.add(in.readInt());
                     break;
                 case ITEMRGB:
-                    int r = file.readInt();
-                    int g = file.readInt();
-                    int b = file.readInt();
+                    int r = in.readInt();
+                    int g = in.readInt();
+                    int b = in.readInt();
                     record.add(new ItemRGB(r,g,b));
                     break;
                 case DOUBLE:
-                    record.add(file.readDouble());
+                    record.add(in.readDouble());
                     break;
                 case BLOCKS:
-                    int numBlocks = file.readInt();
+                    int numBlocks = in.readInt();
                     List<Block> blocks = new ArrayList<Block>(numBlocks);
                     for (int i = 0; i < numBlocks; i++) {
-                        int start = file.readInt();
-                        int size = file.readInt();
+                        int start = in.readInt();
+                        int size = in.readInt();
                         blocks.add(new Block(start,size));
                     }
                     record.add(blocks);
                     break;
                 case STRING:
-                    int len = file.readInt();
+                    int len = in.readInt();
                     String s = "";
                     for (int i = 0; i < len; i++) {
-                        s += (char) file.readByte();
+                        s += (char) in.readByte();
                     }
                     record.add(s);
                     break;
                 case CHAR:
-                    record.add((char) file.readByte());
+                    record.add((char) in.readByte());
                     break;
                 case RANGE:
-                    int start = file.readInt();
-                    int end = file.readInt();
+                    int start = in.readInt();
+                    int end = in.readInt();
                     record.add(new Range(start,end));
                     break;
                 case LONG:
-                    record.add(file.readLong());
+                    record.add(in.readLong());
                     break;
                 case IGNORE:
                     break;
@@ -172,7 +171,7 @@ public class DataUtils {
      * @param modifiers
      * @throws IOException
      */
-    public static void writeBinaryRecord(RandomAccessFile outFile, List<Object> line, List<FieldType> fields, List<Object> modifiers) throws IOException {
+    public static void writeBinaryRecord(DataOutputStream outFile, List<Object> line, List<FieldType> fields, List<Object> modifiers) throws IOException {
 
 //        FieldType fieldType = null;
         Object o = null;
@@ -200,7 +199,7 @@ public class DataUtils {
                     } else {
                         stringLength = (Integer) instruction;
                     }
-                    IOUtils.writeFixedLengthString(outFile, (String) o, stringLength);
+                    writeFixedLengthString(outFile, (String) o, stringLength);
                     break;
                 case CHAR:
                     outFile.writeByte((Character) o);
@@ -238,7 +237,7 @@ public class DataUtils {
                     outFile.writeInt(r.getTo());
                     break;
                 default:
-                    System.err.println("DataUtils.writeBinaryRecord: Not implemented for " + ft);
+                    System.err.println("DataFormatUtils.writeBinaryRecord: Not implemented for " + ft);
                     break;
             }
 
@@ -316,11 +315,10 @@ public class DataUtils {
      * FILE TYPE HEADER
      * @throws IOException
      */
-    public static void writeFileTypeHeader(RandomAccessFile outFile, FileTypeHeader fth) throws IOException {
-        IOUtils.seekToEnd(outFile);
-        outFile.writeInt(fth.fileType.ordinal());
+    public static void writeFileTypeHeader(DataOutputStream outFile, FileTypeHeader fth) throws IOException {
+        outFile.writeInt(fth.fileType.getMagicNumber());
         outFile.writeInt(fth.version);
-        outFile.close();
+
     }
 
     /**
@@ -328,9 +326,7 @@ public class DataUtils {
      * @param fields
      * @throws IOException
      */
-    public static void writeFieldsHeader(RandomAccessFile outFile, List<FieldType> fields) throws IOException {
-
-        IOUtils.seekToEnd(outFile);
+    public static void writeFieldsHeader(DataOutputStream outFile, List<FieldType> fields) throws IOException {
 
         outFile.writeInt(fields.size());
         
@@ -339,18 +335,6 @@ public class DataUtils {
         }
     }
 
-    public static List<FieldType> readFieldsHeader(RandomAccessFile src) throws IOException {
-
-        int numFields = src.readInt();
-
-        List<FieldType> fields = new ArrayList<FieldType>();
-        
-        for (int i = 0; i < numFields; i++) {
-            fields.add(FieldType.class.getEnumConstants()[src.readInt()]);
-        }
-
-        return fields;
-    }
 
     public static void printRecord(List<Object> record) {
         for (Object o : record) {
@@ -359,13 +343,6 @@ public class DataUtils {
         System.out.println();
     }
 
-    public static int getRecordSize(DebutFile file) throws IOException {
-        long currpos = file.getFilePointer();
-        file.seek(0);
-        List<Object> record = readBinaryRecord((RandomAccessFile) file, file.getFields());
-        file.seek(currpos);
-        return getRecordSize(record, file.getFields());
-    }
 
     public static int getRecordSize(List<Object> record, List<FieldType> fields) {
 
@@ -377,26 +354,26 @@ public class DataUtils {
 
             switch(ft) {
                 case STRING:
-                    recordSize += DataUtils.INT_FIELD_SIZE + ((String) record.get(recIndex)).length()*DataUtils.BYTE_FIELD_SIZE;
+                    recordSize += DataFormatUtils.INT_FIELD_SIZE + ((String) record.get(recIndex)).length()* DataFormatUtils.BYTE_FIELD_SIZE;
                     break;
                 case INTEGER:
-                    recordSize +=  DataUtils.INT_FIELD_SIZE;
+                    recordSize +=  DataFormatUtils.INT_FIELD_SIZE;
                     break;
                 case ITEMRGB:
-                    recordSize += DataUtils.INT_FIELD_SIZE*3;
+                    recordSize += DataFormatUtils.INT_FIELD_SIZE*3;
                     break;
                 case BLOCKS:
-                    recordSize += DataUtils.INT_FIELD_SIZE*((List<Block>) record.get(9)).size();
+                    recordSize += DataFormatUtils.INT_FIELD_SIZE*((List<Block>) record.get(9)).size();
                     break;
                 case CHAR:
-                    recordSize +=  DataUtils.BYTE_FIELD_SIZE;
+                    recordSize +=  DataFormatUtils.BYTE_FIELD_SIZE;
                     break;
                 case DOUBLE:
-                    recordSize += DataUtils.DOUBLE_FIELD_SIZE;
+                    recordSize += DataFormatUtils.DOUBLE_FIELD_SIZE;
                     break;
                 case BOOLEAN:
                     // TODO: change?!
-                    recordSize += DataUtils.INT_FIELD_SIZE;
+                    recordSize += DataFormatUtils.INT_FIELD_SIZE;
                     break;
                 default:
                     throw new UnsupportedOperationException("Data Utils.getRecordSize: Not implemented yet!");
@@ -436,7 +413,7 @@ public class DataUtils {
         Interval interval = new Interval((Integer) record.get(0), (Integer) record.get(1));
         String name = (String) record.get(2);
         Integer score = (Integer) record.get(3);
-        Strand strand = DataUtils.getStrand((String) record.get(4));
+        Strand strand = DataFormatUtils.getStrand((String) record.get(4));
         Integer thickStart = (Integer) record.get(5);
         Integer thickEnd = (Integer) record.get(6);
         ItemRGB rgb = (ItemRGB) record.get(7);
@@ -486,6 +463,20 @@ public class DataUtils {
     // TODO: actually parse
     private static ItemRGB parseItemRGB(String token) {
         return new ItemRGB(0,0,0);
+    }
+
+    private static void writeFixedLengthString(DataOutputStream out, String s, int len) throws IOException {
+
+        int pad = len - s.length();
+
+        out.writeInt(len);
+        if (!s.equals("")) { out.writeBytes(s.substring(0, Math.min(s.length(),len))); }
+        while (pad > 0) {
+            out.writeBytes(" ");
+            pad--;
+        }
+
+        //System.out.println("\tWriting " + len + " chars from [" + s + "] padded by " + (len - s.length()) + " = " + (after-before) + " bytes");
     }
 
 

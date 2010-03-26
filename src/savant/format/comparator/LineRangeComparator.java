@@ -7,6 +7,7 @@ package savant.format.comparator;
 
 import savant.format.util.data.interval.LinePlusRange;
 import savant.util.Range;
+
 import java.util.Comparator;
 
 /**

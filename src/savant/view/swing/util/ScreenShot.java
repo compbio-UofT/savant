@@ -7,17 +7,12 @@ package savant.view.swing.util;
 
 import savant.view.swing.Savant;
 
-import java.awt.AWTException;
-import java.awt.FileDialog;
-import java.awt.Rectangle;
-import java.awt.Robot;
-import java.awt.Toolkit;
-import java.awt.image.BufferedImage;
-import java.io.File;
-
-import java.io.IOException;
 import javax.imageio.ImageIO;
 import javax.swing.*;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 
 public class ScreenShot
 {
