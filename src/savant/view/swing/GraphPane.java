@@ -143,21 +143,21 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         
         menu.add ( lockMI );
 
-        JMenuItem copyMI = new JMenuItem("Copy to clipboard");
-        copyMI.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-            }
-        });
-
-        menu.add ( copyMI );
-
-        JMenuItem saveMI = new JMenuItem("Save image...");
-        saveMI.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-            }
-        });
-
-        menu.add ( saveMI );
+//        JMenuItem copyMI = new JMenuItem("Copy to clipboard");
+//        copyMI.addActionListener(new ActionListener() {
+//            public void actionPerformed(ActionEvent e) {
+//            }
+//        });
+//
+//        menu.add ( copyMI );
+//
+//        JMenuItem saveMI = new JMenuItem("Save image...");
+//        saveMI.addActionListener(new ActionListener() {
+//            public void actionPerformed(ActionEvent e) {
+//            }
+//        });
+//
+//        menu.add ( saveMI );
 
         /*
         JMenuItem screenMI = new JMenuItem("Screen Capture");
