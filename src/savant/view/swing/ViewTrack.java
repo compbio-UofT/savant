@@ -52,6 +52,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * Class to handle the preparation for rendering of a track. Handles colour schemes and
+ * drawing instructions, getting and filtering of data, setting of vertical axis, etc. The
+ * ranges associated with various resolutions are also handled here, and the drawing modes
+ * are defined.
  *
  * @author mfiume
  */
@@ -69,7 +73,7 @@ public abstract class ViewTrack {
     private RecordTrack track;
 
     /**
-     * Create one or more tracks based on the given file name.
+     * Create one or more tracks from the given file name.
      *
      * @param trackFilename
      * @return List of ViewTrack which can be added to a Fram
@@ -112,13 +116,6 @@ public abstract class ViewTrack {
                 log.error("Could not open BAM track because index could not be found; index file must be named filename.bam.bai or filename.bai");
             }
 
-            // FIXME: this is a hack; should be done with formatting (when that is fixed)?
-            /*BAMToCoverage bamConverter = new BAMToCoverage(trackFilename, trackFilename + ".bai",
-                    MiscUtils.getTemporaryDirectory() + name + ".cov.savant",
-                    null,
-                    RangeController.getInstance().getMaxRange().getTo());
-            bamConverter.format();
-            */
             try {
                 if (new File(trackFilename + ".cov").exists()) {
                     dataTrack = new GenericContinuousTrack(trackFilename + ".cov");
@@ -192,22 +189,47 @@ public abstract class ViewTrack {
         }
     }
 
+    /**
+     * Get the type of file this view track represents
+     *
+     * @return  FileFormat
+     */
     public FileFormat getDataType() {
         return this.dataType;
     }
 
+    /**
+     * Get the current colour scheme.
+     *
+     * @return ColorScheme
+     */
     public ColorScheme getColorScheme() {
         return this.colorScheme;
     }
 
+    /**
+     * Get the name of this track. Usually constructed from the file name.
+     *
+     * @return track name
+     */
     public String getName() {
         return name;
     }
 
+    /**
+     * Set the track name.
+     *
+     * @param name new name
+     */
     public void setName(String name) {
         this.name = name;
     }
 
+    /**
+     * Get the data currently being displayed (or ready to be displayed)
+     *
+     * @return List of data objects
+     */
     public List<Object> getDataInRange() {
         return this.dataInRange;
     }
@@ -218,18 +240,38 @@ public abstract class ViewTrack {
     }
      */
 
+    /**
+     * Get current draw mode
+     *
+     * @return draw mode as Mode
+     */
     public Mode getDrawMode() {
         return this.drawMode;
     }
 
+    /**
+     * Get all valid draw modes for this track.
+     *
+     * @return List of draw Modes
+     */
     public List<Mode> getDrawModes() {
         return this.drawModes;
     }
 
+    /**
+     * Set data type.
+     *
+     * @param kind
+     */
     public void setDataType(FileFormat kind) {
         this.dataType = kind;
     }
 
+    /**
+     * Set colour scheme.
+     *
+     * @param cs new colour scheme
+     */
     public void setColorScheme(ColorScheme cs) {
         this.colorScheme = cs;
     }
@@ -240,10 +282,20 @@ public abstract class ViewTrack {
     }
      */
 
+    /**
+     * Set the current draw mode.
+     *
+     * @param mode
+     */
     public void setDrawMode(Mode mode) {
         this.drawMode = mode;
     }
 
+    /**
+     * Set the current draw mode by its name
+     *
+     * @param modename
+     */
     public void setDrawMode(String modename) {
         for (Mode m : drawModes) {
             if (m.getName().equals(modename)) {
@@ -253,22 +305,47 @@ public abstract class ViewTrack {
         }
     }
 
-    public void setDrawMode(Object o) {
-        setDrawMode(o.toString());
-    }
+//    public void setDrawMode(Object o) {
+//        setDrawMode(o.toString());
+//    }
 
+    /**
+     * Set the list of valid draw modes
+     *
+     * @param modes
+     */
     public void setDrawModes(List<Mode> modes) {
         this.drawModes = modes;
     }
 
+    /**
+     * Get the record (data) track associated with this view track (if any.)
+     *
+     * @return Record Track or null (in the case of a genome.)
+     */
     public RecordTrack getTrack() {
         return this.track;
     }
     
     // TODO: don't just throw generic Exception
+
+    /**
+     * Prepare this view track to render the given range.
+     *
+     * @param range
+     * @throws Exception
+     */
     public abstract void prepareForRendering(Range range) throws Exception;
 
     // TODO: don't just throw generic Exception
+
+    /**
+     * Retrieve data from the underlying data track at the current resolution and save it.
+     *
+     * @param range The range within which to retrieve objects
+     * @return a list of data objects in the given range
+     * @throws Exception
+     */
     public List<Object> retrieveAndSaveData(Range range) throws Exception {
         Resolution resolution = getResolution(range);
         this.dataInRange = retrieveData(range, resolution);
@@ -276,17 +353,44 @@ public abstract class ViewTrack {
     }
     
     // TODO: don't just throw generic Exception
+
+    /**
+     * Retrive data from the underlying data track.
+     *
+     * @param range The range within which to retrieve objects
+     * @param resolution The resolution at which to get data
+     * @return a List of data objects from the given range and resolution
+     * @throws Exception
+     */
     public abstract List<Object> retrieveData(Range range, Resolution resolution) throws Exception;
 
+    /**
+     * Add a renderer to this view track
+     *
+     * @param renderer
+     */
     public void addTrackRenderer(TrackRenderer renderer) { this.trackRenderers.add(renderer); }
+
+    /**
+     * Get all renderers attached to this view track
+     *
+     * @return
+     */
     public List<TrackRenderer> getTrackRenderers() { return this.trackRenderers; }
 
+    /**
+     * Get the resoultion associated with the given range
+     *
+     * @param range
+     * @return resolution appropriate to the range
+     */
     public abstract Resolution getResolution(Range range);
 
-    private void addDrawMode(Mode mode) {
-        drawModes.add(mode);
-    }
-
+    /**
+     * Get the default draw mode.
+     *
+     * @return  the default draw mode
+     */
     public Mode getDefaultDrawMode() {
         return null;
     }
