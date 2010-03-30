@@ -21,13 +21,24 @@ import savant.util.Range;
 import java.util.List;
 
 /**
- * TODO:
+ * Interface to define a data track which returns records.
+ *
  * @author vwilliams
  * @param <E>
  */
 public interface RecordTrack<E> extends Track {
 
+    /**
+     * Get all records in the given range at the given resolution
+     *
+     * @param range
+     * @param resolution
+     * @return an ordered list of records
+     */
     public List<E> getRecords(Range range, Resolution resolution);
 
+    /**
+     * Close this track.
+     */
     public void close();
 }
