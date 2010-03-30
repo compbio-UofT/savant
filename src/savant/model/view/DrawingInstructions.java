@@ -20,65 +20,121 @@ import java.util.Dictionary;
 import java.util.Hashtable;
 
 /**
+ * Class to represent drawing instructions to be set on a renderer.
  *
  * @author mfiume
  */
 public class DrawingInstructions {
 
+    // TODO: just use strings instead of letting enums proliferate?
+
+    /**
+     * Enum representing instruction types
+     */
     public enum InstructionName {
-        TRACK_DATA_TYPE, MODE, AXIS_RANGE, RESOLUTION, RANGE, COLOR_SCHEME, GENOME }
+        TRACK_DATA_TYPE, MODE, AXIS_RANGE, RESOLUTION, RANGE, COLOR_SCHEME, GENOME, MEAN, STD_DEV }
 
         Dictionary<String, Object> instructions;
 
-        public DrawingInstructions()
-        {
-            instructions = new Hashtable<String, Object>();
-        }
+    /**
+     * Constructor
+     */
+    public DrawingInstructions()
+    {
+        instructions = new Hashtable<String, Object>();
+    }
 
-        public Dictionary<String, Object> getInstructions() { return this.instructions; }
-        public void setInstructions(Dictionary<String, Object> ins) { this.instructions = ins; }
+    /**
+     * Get all instructions.
+     *
+     * @return Dictionary of all instructions
+     */
+    public Dictionary<String, Object> getInstructions() { return this.instructions; }
 
-        public Object getInstruction(String key)
-        {
-            if (isInstruction(key))
-            {
-                return instructions.get(key);
-            }
-            else
-            {
-                return null;
-            }
-        }
+    /**
+     * Set all instructions.
+     *
+     * @param ins new instructions
+     */
+    public void setInstructions(Dictionary<String, Object> ins) { this.instructions = ins; }
 
-        public Object getInstruction(InstructionName name)
+    /**
+     * Get instruction keyed by name.
+     *
+     * @param key
+     * @return an instruction object
+     */
+    public Object getInstruction(String key)
+    {
+        if (isInstruction(key))
         {
-            if (isInstruction(name.toString()))
-            {
-                return instructions.get(name.toString());
-            }
-            else
-            {
-                return null;
-            }
+            return instructions.get(key);
         }
+        else
+        {
+            return null;
+        }
+    }
 
-        public void setInstruction(String key, Object value)
+    /**
+     * Get instruction keyed by enum
+     *
+     * @param name instruction name
+     * @return instruction object
+     */
+    public Object getInstruction(InstructionName name)
+    {
+        if (isInstruction(name.toString()))
         {
-            instructions.put(key, value);
+            return instructions.get(name.toString());
         }
+        else
+        {
+            return null;
+        }
+    }
 
-        public void addInstruction(String key, Object value)
-        {
-            setInstruction(key, value);
-        }
+    /**
+     * Set instruction.
+     *
+     * @param key String name
+     * @param value instruction value
+     */
+    public void setInstruction(String key, Object value)
+    {
+        instructions.put(key, value);
+    }
 
-        public void addInstruction(InstructionName key, Object value)
-        {
-            instructions.put(key.toString(), value);
-        }
-    
-        public boolean isInstruction(String instructionName)
-        {
-            return instructions.get(instructionName) != null;
-        }
+    /**
+     * Add instruction.
+     *
+     * @param key String name
+     * @param value instruction value
+     */
+    public void addInstruction(String key, Object value)
+    {
+        setInstruction(key, value);
+    }
+
+    /**
+     * Add instruction.
+     *
+     * @param key Instruction name as enum
+     * @param value instruction object
+     */
+    public void addInstruction(InstructionName key, Object value)
+    {
+        instructions.put(key.toString(), value);
+    }
+
+    /**
+     * Determine if given instruction exists.
+     *
+     * @param instructionName String name
+     * @return true if instruction exists; false otherwise
+     */
+    public boolean isInstruction(String instructionName)
+    {
+        return instructions.get(instructionName) != null;
+    }
 }
