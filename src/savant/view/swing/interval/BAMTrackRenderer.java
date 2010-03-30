@@ -28,6 +28,7 @@ import net.sf.samtools.SAMRecord;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import savant.model.*;
+import savant.model.data.interval.BAMIntervalTrack;
 import savant.model.view.AxisRange;
 import savant.model.view.ColorScheme;
 import savant.model.view.DrawingInstructions;
@@ -56,6 +57,10 @@ import java.util.Map;
 public class BAMTrackRenderer extends TrackRenderer {
     
     private static Log log = LogFactory.getLog(BAMTrackRenderer.class);
+
+    // The number of standard deviations from the mean an arclength has to be before it's
+    // considered discordant
+    private static int DISCORDANT_STD_DEV = 3;
 
     public enum Strand { FORWARD, REVERSE };
 
@@ -426,6 +431,12 @@ public class BAMTrackRenderer extends TrackRenderer {
         Color invertedReadColor = cs.getColor("INVERTED_READ");
         Color invertedMateColor = cs.getColor("INVERTED_MATE");
         Color evertedPairColor = cs.getColor("EVERTED_PAIR");
+        Color discordantLengthColor = cs.getColor("DISCORDANT_LENGTH");
+        Stroke oneStroke = new BasicStroke(1.0f);
+        Stroke twoStroke= new BasicStroke(2.0f);
+
+        float mean = (Float) getDrawingInstructions().getInstruction(DrawingInstructions.InstructionName.MEAN);
+        float stdDeviation = (Float) getDrawingInstructions().getInstruction(DrawingInstructions.InstructionName.STD_DEV);
 
         gp.setIsOrdinal(false);
         gp.setXRange(axisRange.getXRange());
@@ -436,81 +447,53 @@ public class BAMTrackRenderer extends TrackRenderer {
 
             BAMIntervalRecord record = (BAMIntervalRecord)data.get(i);
             SAMRecord samRecord = record.getSamRecord();
-            Interval interval = record.getInterval();
 
-            if (!samRecord.getFirstOfPairFlag()) {
+            int alignmentStart = samRecord.getAlignmentStart();
+            int mateAlignmentStart = samRecord.getMateAlignmentStart();
+            if (alignmentStart > mateAlignmentStart) {
                 // this is the second in the pair, don't draw anything
                 continue;
             }
+            int alignmentEnd = samRecord.getAlignmentEnd();
 
-            int arcLength;
-            int intervalStart;
-            SAMRecord firstRecord;
-            SAMRecord secondRecord;
 
             BAMIntervalRecord.PairType type = record.getType();
-            int alignmentStart = samRecord.getAlignmentStart();
-            int alignmentEnd = samRecord.getAlignmentEnd();
-            int mateAlignmentStart = samRecord.getMateAlignmentStart();
+            int arcLength = BAMIntervalTrack.inferInsertSize(samRecord, type);
+
+            if (arcLength > 40000) {
+                continue;
+            }
+
+            int intervalStart;
             switch (type) {
                 case INVERTED_READ:
-                    if (alignmentStart < mateAlignmentStart) {
-                        intervalStart = alignmentStart;
-                        arcLength = mateAlignmentStart - intervalStart + 1;
-                    }
-                    else {
-                        intervalStart = mateAlignmentStart;
-                        arcLength = alignmentStart;
-                    }
+                    intervalStart = alignmentStart;
                     g2.setColor(invertedReadColor);
-                    g2.setStroke(new BasicStroke(2.0f));
+                    g2.setStroke(twoStroke);
                     break;
                 case INVERTED_MATE:
-                    if (alignmentStart < mateAlignmentStart) {
-                        firstRecord = samRecord;
-                        secondRecord = record.getMateRecord();
-                    }
-                    else {
-                        firstRecord = record.getMateRecord();
-                        secondRecord = samRecord;
-                    }
-                    intervalStart = firstRecord.getAlignmentEnd();
-                    arcLength = secondRecord.getAlignmentEnd() - intervalStart + 1;
+                    intervalStart = alignmentEnd;
                     g2.setColor(invertedMateColor);
-                    g2.setStroke(new BasicStroke(2.0f));
+                    g2.setStroke(twoStroke);
                     break;
                 case EVERTED:
-                    if (alignmentStart < mateAlignmentStart) {
-                        firstRecord = samRecord;
-                        secondRecord = record.getMateRecord();
-                    }
-                    else {
-                        firstRecord = record.getMateRecord();
-                        secondRecord = samRecord;
-                    }
-                    intervalStart = firstRecord.getAlignmentStart();
-                    arcLength = secondRecord.getAlignmentEnd() - intervalStart + 1;
+                    intervalStart = alignmentStart;
                     g2.setColor(evertedPairColor);
-                    g2.setStroke(new BasicStroke(2.0f));
+                    g2.setStroke(twoStroke);
                     break;
                 default:
-                    if (alignmentStart < mateAlignmentStart) {
-                        intervalStart = alignmentEnd;
-                        arcLength = mateAlignmentStart - intervalStart + 1;
+                    intervalStart = alignmentEnd;
+                    float discordantVariance = DISCORDANT_STD_DEV*stdDeviation;
+                    if (arcLength > mean + discordantVariance || arcLength < mean - discordantVariance) {
+                        g2.setColor(discordantLengthColor);
+                        g2.setStroke(twoStroke);
                     }
                     else {
-                        intervalStart = mateAlignmentStart;
-                        arcLength = alignmentStart - intervalStart + 1;
+                        g2.setColor(normalArcColor);
+                        g2.setStroke(oneStroke);
                     }
-                    g2.setColor(normalArcColor);
-                    g2.setStroke(new BasicStroke(1.0f));
                     break;
             }
-            // DEBUG
-            if (arcLength > 100000) {
-                Savant.log("Super-long interval found: " + arcLength);
-            }
-//            int arcHeight = (int)(Math.log((double)arcLength));
             int arcHeight = arcLength;
 
             int rectWidth = (int)(gp.getWidth(arcLength));
