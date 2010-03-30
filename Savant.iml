@@ -22,6 +22,15 @@
     <orderEntry type="library" name="picard" level="project" />
     <orderEntry type="library" name="mydoggy" level="project" />
     <orderEntry type="library" name="jpf" level="project" />
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/extlib/log4j.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
   </component>
 </module>
 
