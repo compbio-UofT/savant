@@ -26,7 +26,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import savant.model.BAMIntervalRecord;
 import savant.model.FileFormat;
-import savant.model.Interval;
 import savant.model.Resolution;
 import savant.model.data.interval.BAMIntervalTrack;
 import savant.model.view.AxisRange;
@@ -34,7 +33,6 @@ import savant.model.view.ColorScheme;
 import savant.model.view.DrawingInstructions;
 import savant.model.view.Mode;
 import savant.util.Range;
-import savant.view.swing.Savant;
 import savant.view.swing.TrackRenderer;
 import savant.view.swing.ViewTrack;
 
@@ -42,6 +40,14 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Class to handle the preparation for rendering of a BAM track. Handles colour schemes and
+ * drawing instructions, getting and filtering of data, setting of vertical axis, etc. The
+ * ranges associated with various resolutions are also handled here, and the drawing modes
+ * are defined.
+ *
+ * @author vwilliams
+ */
 public class BAMViewTrack extends ViewTrack {
     
     private static Log log = LogFactory.getLog(BAMViewTrack.class);
@@ -57,7 +63,12 @@ public class BAMViewTrack extends ViewTrack {
     private static final Mode MATE_PAIRS_MODE = new Mode(DrawingMode.MATE_PAIRS, "Join mate pairs with arcs");
 
 
-
+    /**
+     * Constructor.
+     *
+     * @param name track name
+     * @param bamTrack data track which this view track represents
+     */
     public BAMViewTrack(String name, BAMIntervalTrack bamTrack) {
         super(name, FileFormat.INTERVAL_BAM, bamTrack);
         setColorScheme(getDefaultColorScheme());
@@ -74,12 +85,13 @@ public class BAMViewTrack extends ViewTrack {
         c.addColorSetting("INVERTED_READ", Color.yellow);
         c.addColorSetting("INVERTED_MATE", Color.magenta);
         c.addColorSetting("EVERTED_PAIR", Color.green);
+        c.addColorSetting("DISCORDANT_LENGTH", Color.blue);
         c.addColorSetting("LINE", new Color(128,128,128));
 
         return c;
     }
 
-    public List<Mode> getDefaultDrawModes()
+    private List<Mode> getDefaultDrawModes()
     {
         List<Mode> modes = new ArrayList<Mode>();
         modes.add(STANDARD_MODE);
@@ -100,15 +112,10 @@ public class BAMViewTrack extends ViewTrack {
             renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.RESOLUTION, r);
             renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.COLOR_SCHEME, this.getColorScheme());
             if (getDrawMode().getName() == "MATE_PAIRS") {
-                int maxDataValue = 0;
-                // DEBUG:
-                try {
-                    maxDataValue = getMaxValue(data);
-                } catch (NullPointerException e) {
-                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-                }
-//                renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.AXIS_RANGE, new AxisRange(range, new Range(0,(int)Math.round(Math.log(maxDataValue)))));
+                int maxDataValue = getMaxValue(data);
                 renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.AXIS_RANGE, new AxisRange(range, new Range(0,(int)Math.round(maxDataValue))));
+                renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.MEAN, ((BAMIntervalTrack)getTrack()).getMean());
+                renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.STD_DEV, ((BAMIntervalTrack)getTrack()).getStdDeviation());
             }
             else renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.AXIS_RANGE, new AxisRange(range, getDefaultYRange()));
             renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.MODE, getDrawMode());
@@ -116,87 +123,28 @@ public class BAMViewTrack extends ViewTrack {
         }
     }
 
+    /*
+    * Calculate the maximum (within reason) arc height to be used to set the Y axis for drawing.
+     */
     private int getMaxValue(List<Object>data) {
         double max = 0;
         for (Object o: data) {
+
             BAMIntervalRecord record = (BAMIntervalRecord)o;
             SAMRecord samRecord = record.getSamRecord();
-            Interval interval = record.getInterval();
-            boolean firstOfPair = samRecord.getFirstOfPairFlag();
-            int startPos=0;
-            int endPos=0;
-            if (firstOfPair) {
- 
-                SAMRecord firstRecord;
-                SAMRecord secondRecord;
-                if (samRecord.getAlignmentStart() < samRecord.getMateAlignmentStart()) {
-                    if (!samRecord.getFirstOfPairFlag()) Savant.log("Pairs unordered");
-                    firstRecord = samRecord;
-                    secondRecord = record.getMateRecord();
-                }
-                else {
-                    firstRecord = record.getMateRecord();
-                    secondRecord = samRecord;
-                }
+
+            double val;
+
+            if (samRecord.getAlignmentStart() < samRecord.getMateAlignmentStart()) {
+
                 BAMIntervalRecord.PairType pairType = record.getType();
-                int alignmentStart = samRecord.getAlignmentStart();
-                int alignmentEnd = samRecord.getAlignmentEnd();
-                int mateAlignmentStart = samRecord.getMateAlignmentStart();
-                switch (pairType) {
-                    case NORMAL:
-                        if (alignmentStart < mateAlignmentStart) {
-                            startPos = alignmentEnd;
-                            endPos = mateAlignmentStart;
-                        }
-                        else {
-                            startPos = mateAlignmentStart;
-                            endPos = alignmentEnd;
-                        }
-                        break;
-                    case INVERTED_READ:
-                        if (alignmentStart < mateAlignmentStart) {
-                            startPos = alignmentStart;
-                            endPos = mateAlignmentStart;
-                        }
-                        else {
-                            startPos = mateAlignmentStart;
-                            endPos = alignmentStart;
-                        }
-                        break;
-                    case INVERTED_MATE:
-                        // we actually have a mate record to interrogate here.
-                        if (alignmentStart < mateAlignmentStart) {
-                            firstRecord = samRecord;
-                            secondRecord = record.getMateRecord();
-                        }
-                        else {
-                            firstRecord = record.getMateRecord();
-                            secondRecord = samRecord;
-                        }
-                        startPos = firstRecord.getAlignmentEnd();
-                        endPos = secondRecord.getAlignmentEnd();
-                        break;
-                    case EVERTED:
-                        // we actually have a mate record to interrogate here.
-                        if (alignmentStart < mateAlignmentStart) {
-                            firstRecord = samRecord;
-                            secondRecord = record.getMateRecord();
-                        }
-                        else {
-                            firstRecord = record.getMateRecord();
-                            secondRecord = samRecord;
-                        }
-                        startPos = firstRecord.getAlignmentStart();
-                        endPos = secondRecord.getAlignmentEnd();
-                        break;
-                }
+                val = BAMIntervalTrack.inferInsertSize(samRecord, pairType);
             }
             else {
                 continue;
             }
-            double val = endPos - startPos + 1;
             // TODO: see how well this works, i.e. eliminating arcs of length ~2*point of change to coverage map
-            if (val < 40000) {
+            if (val > 0 && val < 40000) {
                 if (val > max) max = val;
             }
         }
@@ -217,12 +165,12 @@ public class BAMViewTrack extends ViewTrack {
         return getResolution(range, getDrawMode());
     }
 
-    public Resolution getResolution(Range range, Mode mode)
+    private Resolution getResolution(Range range, Mode mode)
     {
         return getDefaultModeResolution(range);       
     }
 
-    public Resolution getDefaultModeResolution(Range range)
+    private Resolution getDefaultModeResolution(Range range)
     {
         int length = range.getLength();
 
