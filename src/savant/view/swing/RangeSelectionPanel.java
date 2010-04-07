@@ -76,7 +76,6 @@ public class RangeSelectionPanel extends JPanel implements MouseListener, MouseM
 // MouseListener event handlers // handle event when mouse released immediately after press
     public void mouseClicked(final MouseEvent event) {
         //this.mousePosition.setText( "Clicked at [" + event.getX() + ", " + event.getY() + "]" );
-
         //repaint();
     }
 
@@ -120,7 +119,8 @@ public class RangeSelectionPanel extends JPanel implements MouseListener, MouseM
 
         repaint();
 
-        int st = this.x1; int end = this.x2;
+        int st = this.x1;
+        int end = this.x2;
         if (this.x1 > this.x2) {
             st = this.x2;
             end = this.x1;
@@ -171,20 +171,18 @@ public class RangeSelectionPanel extends JPanel implements MouseListener, MouseM
 
         Savant.log("Painting component");
 
-        int wid = getWidth( );
-        int hei = getHeight( );
+        int wid = getWidth();
+        int hei = getHeight();
 
-        Graphics2D g2d0 = (Graphics2D)g;
+        Graphics2D g2d0 = (Graphics2D) g;
 
-            // Paint a gradient from top to bottom
-            GradientPaint gp0 = new GradientPaint(
-                0, 0, new Color(240, 240,240),
-                0, h, new Color(220,220,220) );
+        // Paint a gradient from top to bottom
+        GradientPaint gp0 = new GradientPaint(
+                0, 0, new Color(240, 240, 240),
+                0, h, new Color(220, 220, 220));
 
-            g2d0.setPaint( gp0 );
-            g2d0.fillRect( 0, 0, wid, hei );
-
-        
+        g2d0.setPaint(gp0);
+        g2d0.fillRect(0, 0, wid, hei);
 
         int width = this.x1 - this.x2;
         int height = this.getHeight() - 4;// this.y1 - this.y2;
@@ -194,48 +192,62 @@ public class RangeSelectionPanel extends JPanel implements MouseListener, MouseM
         this.x = width < 0 ? this.x1 : this.x2;
         this.y = 1; //height < 0 ? this.y1 : this.y2;
 
-            g.setColor(new Color(100, 100, 100, 100));
-            g.drawRect(this.x, this.y, this.w, this.h);
+        g.setColor(new Color(100, 100, 100, 100));
+        g.drawRect(this.x, this.y, this.w, this.h);
 
-            Graphics2D g2d = (Graphics2D)g;
+        Graphics2D g2d = (Graphics2D) g;
 
-            // Paint a gradient from top to bottom
-            GradientPaint gp = new GradientPaint(
-                0, 0, new Color(95,161,241),
-                0, h, new Color(75,144,228) );
+        // Paint a gradient from top to bottom
+        GradientPaint gp = new GradientPaint(
+                0, 0, new Color(95, 161, 241),
+                0, h, new Color(75, 144, 228));
 
-            g2d.setPaint( gp );
-            g2d.fillRect( this.x, this.y, this.w, this.h );
+        g2d.setPaint(gp);
+        g2d.fillRect(this.x, this.y, this.w, this.h);
 
-            g.setColor(Color.black);
+        int numlines = 20;
+        double space = ((double) this.getWidth()) / numlines;
 
-            int fromX = this.x1 > this.x2 ? this.x2 : this.x1;
-            int toX = this.x1 > this.x2 ? this.x1 : this.x2;
-            String from,to;
-            int startFrom, startTo;
-            int ypos = this.getHeight()/2+4;
+        g.setColor(Color.lightGray);
+        for (int i = 1; i <= numlines; i++) {
+            g.drawLine((int) Math.round(i * space), 0, (int) Math.round(i * space), this.getHeight());
+        }
 
-            if (this.rangeChangedExternally) {
-                Range r = RangeController.getInstance().getRange();
-                from = MiscUtils.intToString(r.getFrom());
-                to = MiscUtils.intToString(r.getTo());
-            } else {
-                from = MiscUtils.intToString(translatePixelToPosition(fromX)+1);
-                to = MiscUtils.intToString(translatePixelToPosition(toX)+1);
+        g.setColor(Color.black);
+
+        int fromX = this.x1 > this.x2 ? this.x2 : this.x1;
+        int toX = this.x1 > this.x2 ? this.x1 : this.x2;
+        String from, to;
+        int startFrom, startTo;
+        int ypos = this.getHeight() / 2 + 4;
+
+        if (this.rangeChangedExternally) {
+            Range r = RangeController.getInstance().getRange();
+            from = MiscUtils.intToString(r.getFrom());
+            to = MiscUtils.intToString(r.getTo());
+        } else {
+            from = MiscUtils.intToString(translatePixelToPosition(fromX));
+            to = MiscUtils.intToString(translatePixelToPosition(toX));
+        }
+
+        FontMetrics metrics = g.getFontMetrics(g.getFont());
+        // get the advance of my text in this font and render context
+        int fromWidth = metrics.stringWidth(from);
+        int toWidth = metrics.stringWidth(to);
+
+        startFrom = fromX - 5 - fromWidth;
+        startTo = toX + 5;
+
+        if (startFrom + fromWidth + 5 < startTo) {
+            if (startFrom > 0) {
+                g.drawString(from, startFrom, ypos);
             }
-
-            FontMetrics metrics = g.getFontMetrics(g.getFont());
-            // get the advance of my text in this font and render context
-            int fromWidth = metrics.stringWidth(from);
-            int toWidth = metrics.stringWidth(to);
-
-            startFrom = fromX - 5 - fromWidth;
-            startTo = toX + 5;
-
-            if (startFrom + fromWidth + 5 < startTo) {
-                if (startFrom > 0) { g.drawString( from, startFrom, ypos ); }
-                if (startTo + toWidth < this.getWidth()) { g.drawString( to, startTo, ypos ); }
+            if (startTo + toWidth < this.getWidth()) {
+                g.drawString(to, startTo, ypos);
             }
+        }
+
+
     }
 
     public void setMaximum(int max) {
@@ -267,7 +279,7 @@ public class RangeSelectionPanel extends JPanel implements MouseListener, MouseM
     }
 
     private int translatePositionToPixel(int position) {
-        return (int) (((double) position * this.getWidth()-4) / this.maximum) + 1;
+        return (int) (((double) position * this.getWidth() - 4) / this.maximum) + 1;
     }
 
     public void rangeChangeReceived(RangeChangedEvent event) {
