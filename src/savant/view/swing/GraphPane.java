@@ -36,7 +36,7 @@ import java.util.List;
  *
  * @author mfiume
  */
-public class GraphPane extends JPanel implements MouseWheelListener, MouseListener, MouseMotionListener, KeyListener {
+public class GraphPane extends JPanel implements MouseWheelListener, MouseListener, MouseMotionListener {
 
     private static Log log = LogFactory.getLog(GraphPane.class);
 
@@ -390,15 +390,6 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         
         render(g);
 
-        if (this.x2 > this.x1) {
-            //g.drawString( "Start : " + translatePixelToPosition(this.x1), this.x1 + 5, this.getHeight()/2 + 4 );
-            //g.drawString( "End : " + translatePixelToPosition(this.x2), this.x2 + 5, this.getHeight()/2 + 4 );
-        } else {
-            //g.drawString( "End : " + translatePixelToPosition(this.x1), this.x1 + 5, this.getHeight()/2 + 4 );
-            //g.drawString( "Start : " + translatePixelToPosition(this.x2), this.x2 + 5, this.getHeight()/2 + 4 );
-        }
-        //g.drawString( "length: " + this.w, this.x2 + 2, this.getHeight()/2 + 3);
-
         int width = this.x1 - this.x2;
         int height = this.getHeight();// this.y1 - this.y2;
 
@@ -427,14 +418,10 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
               4f));
             g2d.draw (rectangle);
 
-            //g.setColor(new Color(255,200,200,255));
-            //g.drawRect( this.x, this.y, this.w, this.h );
-
             g.setColor(BrowserDefaults.colorGraphPaneSelectionFill);
             g.fillRect(this.x, this.y, this.w, this.h);
         }
         //this.cords.setText( "w = " + this.w);
-
 
         if (this.isLocked()) {
             GlassMessagePane.draw((Graphics2D) g, this, "Locked", 300);
@@ -641,21 +628,23 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
             this.getParent().dispatchEvent(event);
             return;
         }
-        
 
         this.x2 = event.getX();
         if (this.x2 < 0) { this.x2 = 0; }
         if (this.x2 > this.getWidth()) { this.x2 = this.getWidth(); }
         this.y2 = event.getY();
 
-        if (this.isDragging && event.getModifiers()==0 && !this.isLocked()) {
+        this.isDragging = true;
+
+        if (this.isPanning()) {
+            Savant.log("Setting hand cursor");
             this.setCursor(new Cursor(Cursor.HAND_CURSOR));
         } else if (isZooming()) {
+            Savant.log("Setting crosshair cursor");
             this.setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
+        } else {
+            Savant.log("Not chaning cursor");
         }
-
-        //this.mousePosition.setText( "Length : [" + Math.abs(this.x2 - this.x1) + "]" ); // call repaint which calls paint repaint();
-        this.isDragging = true;
 
         repaint();
     }
@@ -665,6 +654,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         
     }
 
+    /*
     public void keyTyped(KeyEvent e) {
         
 
@@ -680,6 +670,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         setKeyModifier(e);
         repaint();
     }
+     */
 
     /** Actions */
     private boolean isMovingPane() {
@@ -688,7 +679,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
     }
 
     private boolean isZooming() {
-        return this.isDragging &&  isRightClick ();
+        return this.isDragging &&  isLeftClick() && isCtrlKeyModifierPressed();
     }
 
     private boolean isPanning() {
@@ -710,7 +701,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         return mouseMod == mouseModifier.MIDDLE;
     }
 
-    /** Key modifiers */
+    // Key modifiers
     private boolean isNoKeyModifierPressed() {
         return keyMod == keyModifier.DEFAULT;
     }
@@ -732,25 +723,33 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
     }
 
     private void setMouseModifier(MouseEvent e) {
-        
-//        if ((e.getModifiers() & InputEvent.BUTTON1_MASK) == InputEvent.BUTTON1_MASK) {
-//            mouseMod = mouseModifier.LEFT;
-//        }
-//        else if ((e.getModifiers() & InputEvent.BUTTON2_MASK) == InputEvent.BUTTON2_MASK) {
-//            mouseMod = mouseModifier.MIDDLE;
-//        }
-//        else if ((e.getModifiers() & InputEvent.BUTTON3_MASK) == InputEvent.BUTTON3_MASK) {
-//            mouseMod = mouseModifier.RIGHT;
-//        } else {
-//            mouseMod = mouseModifier.NONE;
-//        }
 
         if (e.getButton() == 1) mouseMod= mouseModifier.LEFT;
         else if (e.getButton() == 2) mouseMod = mouseModifier.MIDDLE;
         else if (e.getButton() == 3) mouseMod = mouseModifier.RIGHT;
+
+        if (e.isControlDown()) {
+            keyMod = keyModifier.CTRL;
+        }
+        else if (e.isShiftDown()) {
+            keyMod = keyModifier.SHIFT;
+        }
+        else if (e.isMetaDown()) {
+            keyMod = keyModifier.META;
+        }
+        else if (e.isAltDown()) {
+            keyMod = keyModifier.ALT;
+        }
+        else {
+            keyMod = keyModifier.DEFAULT;
+        }
+
+        Savant.log("Button: " + mouseMod + " Key: " + keyMod);
+
         //Savant.log("Mouse modifier: " + mouseMod);
     }
 
+    /*
     private void setKeyModifier(KeyEvent e) {
 
         if (e.isControlDown()) {
@@ -769,6 +768,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
             keyMod = keyModifier.DEFAULT;
         }
     }
+     */
 
     public void lock() {
         setIsLocked(true);
