@@ -4,7 +4,6 @@
     <root id="root">
       <element id="directory" name="lib">
         <element id="library" level="project" name="commons-logging" />
-        <element id="library" level="project" name="flexdock" />
         <element id="library" level="project" name="picard" />
         <element id="library" level="project" name="jpf" />
         <element id="library" level="project" name="mydoggy" />

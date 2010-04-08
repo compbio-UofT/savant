@@ -1,6 +1,6 @@
 <component name="ArtifactManager">
   <artifact type="jar" name="SavantCore">
-    <output-path>$PROJECT_DIR$/plugins</output-path>
+    <output-path>$PROJECT_DIR$/plugins/</output-path>
     <root id="archive" name="SavantCore.jar">
       <element id="directory" name="META-INF">
         <element id="file-copy" path="$PROJECT_DIR$/savant.core/META-INF/MANIFEST.MF" />
