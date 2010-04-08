@@ -435,8 +435,8 @@ public class BAMTrackRenderer extends TrackRenderer {
         Stroke oneStroke = new BasicStroke(1.0f);
         Stroke twoStroke= new BasicStroke(2.0f);
 
-        float mean = (Float) getDrawingInstructions().getInstruction(DrawingInstructions.InstructionName.MEAN);
-        float stdDeviation = (Float) getDrawingInstructions().getInstruction(DrawingInstructions.InstructionName.STD_DEV);
+//        float mean = (Float) getDrawingInstructions().getInstruction(DrawingInstructions.InstructionName.MEAN);
+//        float stdDeviation = (Float) getDrawingInstructions().getInstruction(DrawingInstructions.InstructionName.STD_DEV);
 
         gp.setIsOrdinal(false);
         gp.setXRange(axisRange.getXRange());
@@ -483,15 +483,15 @@ public class BAMTrackRenderer extends TrackRenderer {
                     break;
                 default:
                     intervalStart = alignmentEnd;
-                    float discordantVariance = DISCORDANT_STD_DEV*stdDeviation;
-                    if (arcLength > mean + discordantVariance || arcLength < mean - discordantVariance) {
-                        g2.setColor(discordantLengthColor);
-                        g2.setStroke(twoStroke);
-                    }
-                    else {
+//                    float discordantVariance = DISCORDANT_STD_DEV*stdDeviation;
+//                    if (arcLength > mean + discordantVariance || arcLength < mean - discordantVariance) {
+//                        g2.setColor(discordantLengthColor);
+//                        g2.setStroke(twoStroke);
+//                    }
+//                    else {
                         g2.setColor(normalArcColor);
                         g2.setStroke(oneStroke);
-                    }
+//                    }
                     break;
             }
             int arcHeight = arcLength;
