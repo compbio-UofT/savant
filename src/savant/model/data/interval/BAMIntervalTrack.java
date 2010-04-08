@@ -32,7 +32,7 @@ import savant.model.data.RecordTrack;
 import savant.util.Range;
 import savant.view.swing.Savant;
 
-import java.io.File;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -56,7 +56,7 @@ public class BAMIntervalTrack implements RecordTrack<BAMIntervalRecord> {
     public BAMIntervalTrack(File path, File index) {
         setPath(path, index);
         guessSequence();
-        calculateStatistics();
+//        calculateStatistics();
     }
 
     /**
@@ -161,45 +161,97 @@ public class BAMIntervalTrack implements RecordTrack<BAMIntervalRecord> {
      * Calculate the mean and standard deviation of normal reads.
      */
     private void calculateStatistics() {
+
         CloseableIterator<SAMRecord> recordIterator=null;
+
+        int n = 0;
+        float mean = 0.0f;
+        float m2 = 0.0f;
+//        float total = 0.0f;
+        SAMRecord samRecord;
+        int samples = 10;
+        // DEBUG:
+//        PrintWriter writer = null;
+//        try {
+//            writer = new PrintWriter(new BufferedWriter(new FileWriter(new File("stats.txt"))));
+//        } catch (IOException e) {
+//            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+//        }
+        // END DEBUG
+
         try {
-            recordIterator = samFileReader.query(sequenceName, 2000, 4000, false);
-            SAMRecord samRecord;
 
-            int n = 0;
-            float mean = 0.0f;
-            float m2 = 0.0f;
-            
-            while (recordIterator.hasNext()) {
+            // take samples ranges from the genome
+            for (int i=0; i<samples; i++) {
+                
+                Range range = selectRandomGenomeRange();
+                
+                recordIterator = samFileReader.query(sequenceName, range.getFrom(), range.getTo(), false);
+                while (recordIterator.hasNext()) {
 
-                // get next record
-                samRecord = recordIterator.next();
+                    // get next record
+                    samRecord = recordIterator.next();
 
-                // throw out unmapped and unpaired reads
-                if (samRecord.getReadUnmappedFlag() || !samRecord.getReadPairedFlag() || samRecord.getMateUnmappedFlag()) continue;
+                    // throw out unmapped and unpaired reads
+                    if (samRecord.getReadUnmappedFlag() || !samRecord.getReadPairedFlag() || samRecord.getMateUnmappedFlag()) continue;
 
-                // only use the left-most of the pair
-                if (samRecord.getAlignmentStart() > samRecord.getMateAlignmentStart() ) continue;
+                    // only use the left-most of the pair so we don't count pairs twice
+                    if (samRecord.getAlignmentStart() > samRecord.getMateAlignmentStart() ) continue;
 
-                // only use NORMAL pair types
-                BAMIntervalRecord.PairType pairType = getPairType(samRecord.getAlignmentStart(), samRecord.getMateAlignmentStart(),
-                        samRecord.getReadNegativeStrandFlag(), samRecord.getMateNegativeStrandFlag());
-                if (pairType != BAMIntervalRecord.PairType.NORMAL) continue; // don't want crazy numbers blowing our statistics
+                    // only use NORMAL pair types
+                    BAMIntervalRecord.PairType pairType = getPairType(samRecord.getAlignmentStart(), samRecord.getMateAlignmentStart(),
+                            samRecord.getReadNegativeStrandFlag(), samRecord.getMateNegativeStrandFlag());
+                    if (pairType != BAMIntervalRecord.PairType.NORMAL) continue; // don't want crazy numbers blowing our statistics
 
-                n++;
-                int x = inferInsertSize(samRecord, pairType);
-                if (x > 2000) Savant.log("insert size > 2000 in statistics calculation");
-                float delta = x - mean;
-                mean = mean + delta/n;
-                m2 = m2 + delta*(x - mean);
+                    // estimate the insert size
+                    int x = inferInsertSize(samRecord, pairType);
+
+                    // throw out overlapping pairs (x < 0) and outlying insert sizes
+                    if (x < 0 || x > 500) continue; 
+
+                    // DEBUG:
+//                    writer.println(x);
+                    // END DEBUG:
+                    
+                    // We've thrown out everything we're going to, it's safe to update n now
+                    n++;
+                    float delta = x - mean;
+//                    total += x;
+                    mean = mean + delta/n;
+//                    Savant.log("Mean = " + mean);
+                    m2 = m2 + delta*(x - mean);
+                }
+                if (recordIterator != null) recordIterator.close();
             }
-            float variance = m2/(n-1);
-            this.mean = mean;
+
+            float variance = m2/n;
             this.stdDeviation = (float)Math.sqrt((double) variance);
-//            Savant.log("Mean and Standard Deviation are: " + this.mean + " , " + this.stdDeviation);
-        } finally {
-            if (recordIterator != null) recordIterator.close();
-        }
+            
+            this.mean = mean;
+//            float realMean = total/n;
+//            Savant.log("Properly calculated mean is: " + realMean);
+            Savant.log("Using n=" + n);
+            Savant.log("Mean and Standard Deviation are: " + this.mean + " , " + this.stdDeviation);
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+        } 
+    }
+
+    private static final int TAIL_FACTOR = 4;
+    private static final int MIN_SAMPLE_LENGTH = 10000;
+    private static final int MAX_SAMPLE_LENGTH = 30000;
+
+    private RangeController rc = RangeController.getInstance();
+
+    private Range selectRandomGenomeRange() {
+
+        int genomeLength = rc.getMaxRange().getLength();
+        int tailLength = genomeLength/TAIL_FACTOR;
+        int randomStart = tailLength + (int)(Math.random()*(genomeLength-(tailLength*2)));
+        int randomLength = MIN_SAMPLE_LENGTH+(int)(Math.random()*MAX_SAMPLE_LENGTH);
+        
+        return new Range(randomStart, randomStart+randomLength);
     }
 
     /**
