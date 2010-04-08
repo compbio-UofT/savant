@@ -114,8 +114,8 @@ public class BAMViewTrack extends ViewTrack {
             if (getDrawMode().getName() == "MATE_PAIRS") {
                 int maxDataValue = getMaxValue(data);
                 renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.AXIS_RANGE, new AxisRange(range, new Range(0,(int)Math.round(maxDataValue))));
-                renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.MEAN, ((BAMIntervalTrack)getTrack()).getMean());
-                renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.STD_DEV, ((BAMIntervalTrack)getTrack()).getStdDeviation());
+//                renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.MEAN, ((BAMIntervalTrack)getTrack()).getMean());
+//                renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.STD_DEV, ((BAMIntervalTrack)getTrack()).getStdDeviation());
             }
             else renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.AXIS_RANGE, new AxisRange(range, getDefaultYRange()));
             renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.MODE, getDrawMode());
