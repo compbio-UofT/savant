@@ -169,7 +169,7 @@ public class RangeSelectionPanel extends JPanel implements MouseListener, MouseM
     public void paintComponent(final Graphics g) {
         super.paintComponent(g);
 
-        Savant.log("Painting component");
+        //Savant.log("Painting component");
 
         int wid = getWidth();
         int hei = getHeight();
@@ -208,7 +208,7 @@ public class RangeSelectionPanel extends JPanel implements MouseListener, MouseM
         int numlines = 20;
         double space = ((double) this.getWidth()) / numlines;
 
-        g.setColor(Color.lightGray);
+        g.setColor(new Color(150,150,150,100));
         for (int i = 1; i <= numlines; i++) {
             g.drawLine((int) Math.round(i * space), 0, (int) Math.round(i * space), this.getHeight());
         }
