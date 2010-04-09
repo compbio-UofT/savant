@@ -43,6 +43,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import javax.swing.JComponent;
+import savant.model.data.Track;
 
 public class FrameController {
 
@@ -208,7 +209,7 @@ public class FrameController {
     public void closeFrame(Frame frame) {
         this.hideFrame(frame);
         TrackController tc = TrackController.getInstance();
-        for (ViewTrack track : tc.getTracks()) {
+        for (Track track : tc.getTracks()) {
             tc.removeTrack(track);
         }
         this.frames.remove(frame);
