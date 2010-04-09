@@ -4,6 +4,7 @@
  */
 package savant.format;
 
+import it.unipi.di.util.ExternalSort;
 import savant.controller.RangeController;
 import savant.format.comparator.LineRangeComparator;
 import savant.format.header.FileType;
@@ -33,8 +34,6 @@ public class DataFormatter {
     String inPath;
     String outPath;
     DataOutputStream outFile;
-    //BufferedReader inFile;
-    //RandomAccessFile outFile;
     FileType fileType;
     int currentVersion = 1;
 
@@ -161,24 +160,6 @@ public class DataFormatter {
 
         WIGToContinuous wtc = new WIGToContinuous(this.inPath, this.outPath);
         wtc.format();
-
-        /*
-        List<FieldType> fields = new ArrayList<FieldType>();
-        fields.add(FieldType.INTEGER);
-        fields.add(FieldType.DOUBLE);
-
-        List<Object> modifiers = new ArrayList<Object>();
-        modifiers.add(null);
-        modifiers.add(null);
-
-        DataFormatUtils.writeFieldsHeader(outFile, fields);
-
-        List<Object> line;
-        while((line = DataFormatUtils.parseTxtLine(inFile, fields)) != null) {
-            DataFormatUtils.writeBinaryRecord(outFile, line, fields, modifiers);
-        }
-         * 
-         */
     }
 
 
@@ -310,6 +291,19 @@ public class DataFormatter {
      * INTERVAL : GENERIC
      */
     private void formatAsIntervalGeneric() throws FileNotFoundException, IOException {
+
+        // pre-sort by start position
+        ExternalSort externalSort = new ExternalSort();
+        externalSort.setInFile(inPath);
+        String sortPath = inPath + ".sort";
+        externalSort.setOutFile(sortPath);
+        int[] columns = {0,1};
+        externalSort.setColumns(columns);
+        externalSort.setNumeric(true);
+        externalSort.setSeparator('\t');
+        externalSort.run();
+        inPath = sortPath;
+               
         List<FieldType> fields = new ArrayList<FieldType>();
         fields.add(FieldType.INTEGER);
         fields.add(FieldType.INTEGER);
@@ -324,6 +318,19 @@ public class DataFormatter {
     }
 
     private void formatAsIntervalGFF() throws FileNotFoundException, IOException {
+
+        // pre-sort by start position
+        ExternalSort externalSort = new ExternalSort();
+        externalSort.setInFile(inPath);
+        String sortPath = inPath + ".sort";
+        externalSort.setOutFile(sortPath);
+        int[] columns = {3,4};
+        externalSort.setColumns(columns);
+        externalSort.setNumeric(true);
+        externalSort.setSeparator('\t');
+        externalSort.run();
+        inPath = sortPath;
+        
         List<FieldType> fields = new ArrayList<FieldType>();
         fields.add(FieldType.IGNORE);
         fields.add(FieldType.IGNORE);
@@ -350,6 +357,19 @@ public class DataFormatter {
     }
 
     private void formatAsIntervalBED() throws FileNotFoundException, IOException {
+
+        // pre-sort by start position
+        ExternalSort externalSort = new ExternalSort();
+        externalSort.setInFile(inPath);
+        String sortPath = inPath + ".sort";
+        externalSort.setOutFile(sortPath);
+        int[] columns = {1,2};
+        externalSort.setColumns(columns);
+        externalSort.setNumeric(true);
+        externalSort.setSeparator('\t');
+        externalSort.run();
+        inPath = sortPath;
+
         List<FieldType> fields = new ArrayList<FieldType>();
         fields.add(FieldType.IGNORE);    // chrom
         fields.add(FieldType.INTEGER);  // start
