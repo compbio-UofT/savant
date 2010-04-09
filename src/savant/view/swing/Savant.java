@@ -519,7 +519,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         menu_edit.add(jMenuItem5);
         menu_edit.add(jSeparator2);
 
-        menuItemAddToFaves.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_D, osSpecificModifier));
+        menuItemAddToFaves.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_B, osSpecificModifier));
         menuItemAddToFaves.setText("Bookmark");
         menuItemAddToFaves.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -885,21 +885,24 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
     void initGUIFrame() {
         this.setTitle("Savant Genome Browser");
         this.setName("Savant Genome Browser");
-        this.setExtendedState(this.getExtendedState() | JFrame.MAXIMIZED_BOTH);
+//        this.setExtendedState(this.getExtendedState() | JFrame.MAXIMIZED_BOTH);
     }
 
     private void initMenu() {
+        menuitem_genome.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_G, osSpecificModifier));
+        menuitem_track.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_T, osSpecificModifier));
+        menuItemFormat.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F, osSpecificModifier));
+        menuitem_screen.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_S, osSpecificModifier));
+        menuitem_exit.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Q, osSpecificModifier));
+        menuitem_undo.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Z, osSpecificModifier));
+        jMenuItem5.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Y, osSpecificModifier));
+        menuItemAddToFaves.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_B, osSpecificModifier));
+        menuItem_viewRangeControls.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_R, java.awt.event.InputEvent.SHIFT_MASK | osSpecificModifier));
+        menuItemPanLeft.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_LEFT, osSpecificModifier));
+        menuItemPanRight.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_RIGHT, osSpecificModifier));
+        menuItemZoomIn.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_UP, osSpecificModifier));
+        menuItemZoomOut.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_DOWN, osSpecificModifier));
         initBrowseMenu();
-    }
-
-    /**
-     * Set up frame
-     */
-    void initFrame() {
-        this.setTitle("Savant Genome Browser");
-        this.setName("Savant Genome Browser");
-        this.setExtendedState(this.getExtendedState() | JFrame.MAXIMIZED_BOTH);
-        this.panel_main.setBackground(Color.lightGray);
     }
 
     /**
