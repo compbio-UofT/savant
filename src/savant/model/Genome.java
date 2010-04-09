@@ -40,6 +40,11 @@ public class Genome
         setLength(sequenceTrack.getLength());
     }
 
+    public Genome(String name, int length) throws IOException {
+        setName(name);
+        setLength(length);
+    }
+
     /*
     public Genome(String path) throws IOException {
         this(path, path, -1);
@@ -107,6 +112,7 @@ public class Genome
         return (sequenceTrack != null);
     }
 
+    @Override
     public String toString()
     {
         return getName();
