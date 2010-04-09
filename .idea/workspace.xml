@@ -3,17 +3,16 @@
   <component name="ChangeListManager" verified="true">
     <list id="4e1035e5-bd24-425a-b7b4-818e84efcc0a" name="Failed commit: Default" comment="Initial check-in." />
     <list default="true" readonly="true" id="7c69db67-9cad-43c9-9177-69e01c2156cb" name="Default" comment="Disabled coverage mode. Simplified and corrected mate pair mode.">
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/flexdock.xml" afterPath="" />
       <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/bin" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/smalltext.xml" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/flexdock.xml" afterPath="" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/nbproject/project.properties" afterPath="$PROJECT_DIR$/nbproject/project.properties" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/savant.data/nbproject/private/private.xml" afterPath="$PROJECT_DIR$/savant.data/nbproject/private/private.xml" />
       <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/balloon_tips.xml" afterPath="" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/bin/bam2cov.sh" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/dist/Savant.jar" afterPath="$PROJECT_DIR$/dist/Savant.jar" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/artifacts/Savant.xml" afterPath="$PROJECT_DIR$/.idea/artifacts/Savant.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Savant.iml" afterPath="$PROJECT_DIR$/Savant.iml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/artifacts/Savant.xml" afterPath="$PROJECT_DIR$/.idea/artifacts/Savant.xml" />
     </list>
     <list id="2b1e5a75-2b9e-481d-b9ec-9b6e2d0e4f04" name="Failed commit: Default (2)" comment="Changed package from debut to savant" />
     <ignored path="DebutBrowser.iws" />
@@ -370,6 +369,24 @@
             </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value=".idea" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Savant" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Savant" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value=".idea" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="libraries" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -929,7 +946,7 @@
     <option name="PERFORM_ROLLBACK_IN_BACKGROUND" value="false" />
     <option name="CHECK_LOCALLY_CHANGED_CONFLICTS_IN_BACKGROUND" value="true" />
     <option name="FORCE_NON_EMPTY_COMMENT" value="false" />
-    <option name="LAST_COMMIT_MESSAGE" value="Don't maximize. Set accelerator keys in non-generated method." />
+    <option name="LAST_COMMIT_MESSAGE" value="" />
     <option name="MAKE_NEW_CHANGELIST_ACTIVE" value="true" />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="false" />
     <option name="CHECK_FILES_UP_TO_DATE_BEFORE_COMMIT" value="false" />
