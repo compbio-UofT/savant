@@ -3,24 +3,17 @@
   <component name="ChangeListManager" verified="true">
     <list id="4e1035e5-bd24-425a-b7b4-818e84efcc0a" name="Failed commit: Default" comment="Initial check-in." />
     <list default="true" readonly="true" id="7c69db67-9cad-43c9-9177-69e01c2156cb" name="Default" comment="Disabled coverage mode. Simplified and corrected mate pair mode.">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/bin" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/dist/plugins/SavantCore.jar" afterPath="$PROJECT_DIR$/dist/plugins/SavantCore.jar" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/compiler.xml" afterPath="$PROJECT_DIR$/.idea/compiler.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/nbproject/build-impl.xml" afterPath="$PROJECT_DIR$/nbproject/build-impl.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/dist/Savant.jar" afterPath="$PROJECT_DIR$/dist/Savant.jar" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/plugins/SavantData.jar" afterPath="$PROJECT_DIR$/plugins/SavantData.jar" />
       <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/flexdock.xml" afterPath="" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/dist/plugins/SavantData.jar" afterPath="$PROJECT_DIR$/dist/plugins/SavantData.jar" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/artifacts/SavantCore.xml" afterPath="$PROJECT_DIR$/.idea/artifacts/SavantCore.xml" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/bin" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/smalltext.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/nbproject/project.properties" afterPath="$PROJECT_DIR$/nbproject/project.properties" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/savant.data/nbproject/private/private.xml" afterPath="$PROJECT_DIR$/savant.data/nbproject/private/private.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/plugins/SavantCore.jar" afterPath="$PROJECT_DIR$/plugins/SavantCore.jar" />
       <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/balloon_tips.xml" afterPath="" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/savant/model/data/interval/BAMIntervalTrack.java" afterPath="$PROJECT_DIR$/src/savant/model/data/interval/BAMIntervalTrack.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/misc.xml" afterPath="$PROJECT_DIR$/.idea/misc.xml" />
       <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/bin/bam2cov.sh" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/dist/Savant.jar" afterPath="$PROJECT_DIR$/dist/Savant.jar" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/artifacts/Savant.xml" afterPath="$PROJECT_DIR$/.idea/artifacts/Savant.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Savant.iml" afterPath="$PROJECT_DIR$/Savant.iml" />
     </list>
     <list id="2b1e5a75-2b9e-481d-b9ec-9b6e2d0e4f04" name="Failed commit: Default (2)" comment="Changed package from debut to savant" />
     <ignored path="DebutBrowser.iws" />
@@ -85,7 +78,7 @@
         <option name="CONDITION" value="" />
         <option name="LOG_MESSAGE" value="" />
       </breakpoint>
-      <breakpoint url="file://$PROJECT_DIR$/src/savant/view/swing/Savant.java" line="1364" class="savant.view.swing.Savant" package="savant.view.swing">
+      <breakpoint url="file://$PROJECT_DIR$/src/savant/view/swing/Savant.java" line="1367" class="savant.view.swing.Savant" package="savant.view.swing">
         <option name="ENABLED" value="true" />
         <option name="LOG_ENABLED" value="false" />
         <option name="LOG_EXPRESSION_ENABLED" value="false" />
@@ -157,57 +150,10 @@
   <component name="FileColors" enabled="true" enabledForTabs="true" />
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="DataFormatForm.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/savant/format/DataFormatForm.java">
+      <file leaf-file-name="Savant.java" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/savant/view/swing/Savant.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="453" column="105" selection-start="21426" selection-end="21426" vertical-scroll-proportion="0.0">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="GraphPane.java" pinned="false" current="true" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/savant/view/swing/GraphPane.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="278" column="0" selection-start="8615" selection-end="8615" vertical-scroll-proportion="5.687612">
-              <folding>
-                <element signature="imports" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="DataFormatter.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/savant/format/DataFormatter.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="325" column="17" selection-start="10190" selection-end="10190" vertical-scroll-proportion="0.0">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="SequenceViewTrack.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/savant/view/swing/sequence/SequenceViewTrack.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="112" column="0" selection-start="3511" selection-end="3511" vertical-scroll-proportion="0.0">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="ViewTrack.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/savant/view/swing/ViewTrack.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="159" column="0" selection-start="6478" selection-end="6478" vertical-scroll-proportion="0.0">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="DataFormatUtils.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/savant/util/DataFormatUtils.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="328" column="170" selection-start="10953" selection-end="10953" vertical-scroll-proportion="0.0">
+            <state line="898" column="105" selection-start="38776" selection-end="38776" vertical-scroll-proportion="0.611898">
               <folding />
             </state>
           </provider>
@@ -226,19 +172,19 @@
         <option value="$PROJECT_DIR$/src/savant/format/header/FileType.java" />
         <option value="$PROJECT_DIR$/src/savant/util/DataFormatUtils.java" />
         <option value="$PROJECT_DIR$/src/savant/tools/TestDataGenerator.java" />
-        <option value="$PROJECT_DIR$/src/savant/format/DataFormatter.java" />
         <option value="$PROJECT_DIR$/log4j.properties" />
         <option value="$PROJECT_DIR$/src/savant/view/swing/model/DataTableModel.java" />
         <option value="$PROJECT_DIR$/src/savant/model/data/interval/IntervalTrack.java" />
         <option value="$PROJECT_DIR$/src/savant/model/data/RecordTrack.java" />
         <option value="$PROJECT_DIR$/src/savant/model/view/DrawingInstructions.java" />
-        <option value="$PROJECT_DIR$/src/savant/view/swing/interval/BAMViewTrack.java" />
-        <option value="$PROJECT_DIR$/src/savant/view/swing/interval/BAMTrackRenderer.java" />
         <option value="$PROJECT_DIR$/src/savant/view/swing/GraphPane.java" />
-        <option value="$PROJECT_DIR$/src/savant/model/data/interval/BAMIntervalTrack.java" />
         <option value="$PROJECT_DIR$/src/savant/view/swing/ViewTrack.java" />
-        <option value="$PROJECT_DIR$/src/savant/view/swing/Savant.java" />
+        <option value="$PROJECT_DIR$/src/savant/model/data/interval/BAMIntervalTrack.java" />
+        <option value="$PROJECT_DIR$/src/savant/view/swing/interval/BAMTrackRenderer.java" />
+        <option value="$PROJECT_DIR$/src/savant/view/swing/interval/BAMViewTrack.java" />
         <option value="$PROJECT_DIR$/src/savant/format/DataFormatForm.java" />
+        <option value="$PROJECT_DIR$/src/savant/format/DataFormatter.java" />
+        <option value="$PROJECT_DIR$/src/savant/view/swing/Savant.java" />
       </list>
     </option>
   </component>
@@ -277,8 +223,8 @@
       <sortByType />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="Favorites" />
+      <pane id="PackagesPane" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -387,19 +333,55 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="savant" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="format" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Savant" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Savant" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="META-INF" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Savant" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Savant" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
               <option name="myItemId" value=".idea" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
         </subPane>
       </pane>
-      <pane id="PackagesPane" />
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
     <property name="project.structure.proportion" value="0.15" />
     <property name="MemberChooser.copyJavadoc" value="false" />
-    <property name="project.structure.last.edited" value="Modules" />
+    <property name="project.structure.last.edited" value="Artifacts" />
     <property name="options.splitter.main.proportions" value="0.3" />
     <property name="MemberChooser.sorted" value="false" />
     <property name="options.searchVisible" value="true" />
@@ -423,119 +405,6 @@
       <recent name="savant.view.swing" />
       <recent name="savant.core" />
     </key>
-  </component>
-  <component name="RestoreUpdateTree">
-    <UpdateInfo date="4/8/10 1:51 PM" ActionInfo="_Update">
-      <UpdatedFiles>
-        <FILE-GROUP>
-          <option name="myUpdateName" value="Updated from server" />
-          <option name="myStatusName" value="Changed on server" />
-          <option name="mySupportsDeletion" value="false" />
-          <option name="myCanBeAbsent" value="false" />
-          <option name="myId" value="CHANGED_ON_SERVER" />
-          <FILE-GROUP>
-            <option name="myUpdateName" value="Updated" />
-            <option name="myStatusName" value="Changed" />
-            <option name="mySupportsDeletion" value="false" />
-            <option name="myCanBeAbsent" value="false" />
-            <option name="myId" value="UPDATED" />
-            <PATH vcs="svn" revision="416">$PROJECT_DIR$/src/savant/view/swing/GraphPane.java</PATH>
-            <PATH vcs="svn" revision="416">$PROJECT_DIR$/src/savant/view/swing/RangeSelectionPanel.java</PATH>
-          </FILE-GROUP>
-          <FILE-GROUP>
-            <option name="myUpdateName" value="Created" />
-            <option name="myStatusName" value="Created" />
-            <option name="mySupportsDeletion" value="false" />
-            <option name="myCanBeAbsent" value="false" />
-            <option name="myId" value="CREATED" />
-          </FILE-GROUP>
-          <FILE-GROUP>
-            <option name="myUpdateName" value="Deleted" />
-            <option name="myStatusName" value="Deleted" />
-            <option name="mySupportsDeletion" value="false" />
-            <option name="myCanBeAbsent" value="true" />
-            <option name="myId" value="REMOVED_FROM_REPOSITORY" />
-          </FILE-GROUP>
-          <FILE-GROUP>
-            <option name="myUpdateName" value="Restored" />
-            <option name="myStatusName" value="Will be restored" />
-            <option name="mySupportsDeletion" value="false" />
-            <option name="myCanBeAbsent" value="false" />
-            <option name="myId" value="RESTORED" />
-          </FILE-GROUP>
-        </FILE-GROUP>
-        <FILE-GROUP>
-          <option name="myUpdateName" value="Modified" />
-          <option name="myStatusName" value="Modified" />
-          <option name="mySupportsDeletion" value="false" />
-          <option name="myCanBeAbsent" value="false" />
-          <option name="myId" value="MODIFIED" />
-        </FILE-GROUP>
-        <FILE-GROUP>
-          <option name="myUpdateName" value="Skipped" />
-          <option name="myStatusName" value="Skipped" />
-          <option name="mySupportsDeletion" value="false" />
-          <option name="myCanBeAbsent" value="false" />
-          <option name="myId" value="SKIPPED" />
-        </FILE-GROUP>
-        <FILE-GROUP>
-          <option name="myUpdateName" value="Merged with conflicts" />
-          <option name="myStatusName" value="Will be merged with conflicts" />
-          <option name="mySupportsDeletion" value="false" />
-          <option name="myCanBeAbsent" value="false" />
-          <option name="myId" value="MERGED_WITH_CONFLICTS" />
-        </FILE-GROUP>
-        <FILE-GROUP>
-          <option name="myUpdateName" value="Merged" />
-          <option name="myStatusName" value="Will be merged" />
-          <option name="mySupportsDeletion" value="false" />
-          <option name="myCanBeAbsent" value="false" />
-          <option name="myId" value="MERGED" />
-        </FILE-GROUP>
-        <FILE-GROUP>
-          <option name="myUpdateName" value="Not in repository" />
-          <option name="myStatusName" value="Not in repository" />
-          <option name="mySupportsDeletion" value="true" />
-          <option name="myCanBeAbsent" value="false" />
-          <option name="myId" value="UNKNOWN" />
-        </FILE-GROUP>
-        <FILE-GROUP>
-          <option name="myUpdateName" value="Locally added" />
-          <option name="myStatusName" value="Locally added" />
-          <option name="mySupportsDeletion" value="false" />
-          <option name="myCanBeAbsent" value="false" />
-          <option name="myId" value="LOCALLY_ADDED" />
-        </FILE-GROUP>
-        <FILE-GROUP>
-          <option name="myUpdateName" value="Locally removed" />
-          <option name="myStatusName" value="Locally removed" />
-          <option name="mySupportsDeletion" value="false" />
-          <option name="myCanBeAbsent" value="false" />
-          <option name="myId" value="LOCALLY_REMOVED" />
-        </FILE-GROUP>
-        <FILE-GROUP>
-          <option name="myUpdateName" value="Switched" />
-          <option name="myStatusName" value="Switched" />
-          <option name="mySupportsDeletion" value="false" />
-          <option name="myCanBeAbsent" value="false" />
-          <option name="myId" value="SWITCHED" />
-        </FILE-GROUP>
-        <FILE-GROUP>
-          <option name="myUpdateName" value="Merged with property conflicts" />
-          <option name="myStatusName" value="Will be merged with property conflicts" />
-          <option name="mySupportsDeletion" value="false" />
-          <option name="myCanBeAbsent" value="false" />
-          <option name="myId" value="MERGED_WITH_PROPERTY_CONFLICT" />
-        </FILE-GROUP>
-        <FILE-GROUP>
-          <option name="myUpdateName" value="Merged with tree conflicts" />
-          <option name="myStatusName" value="Will be merged with tree conflicts" />
-          <option name="mySupportsDeletion" value="false" />
-          <option name="myCanBeAbsent" value="false" />
-          <option name="myId" value="MERGED_WITH_TREE_CONFLICT" />
-        </FILE-GROUP>
-      </UpdatedFiles>
-    </UpdateInfo>
   </component>
   <component name="RunManager" selected="Application.Savant">
     <configuration default="false" name="GenerateTestData" type="Application" factoryName="Application" temporary="true">
@@ -1027,14 +896,14 @@
     <layout>
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32903227" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.21539284" sideWeight="0.31296295" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.21539284" sideWeight="0.22222222" order="2" side_tool="true" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.45185184" sideWeight="0.5" order="12" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.21325494" sideWeight="0.5046296" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.21325494" sideWeight="0.18240741" order="2" side_tool="true" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.45185184" sideWeight="0.5" order="12" side_tool="false" content_ui="tabs" />
       <window_info id="Dependency Viewer" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.24959914" sideWeight="0.6925926" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32948717" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.3" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.43055555" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.39971244" sideWeight="0.6628205" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32777777" sideWeight="0.5" order="11" side_tool="false" content_ui="tabs" />
@@ -1060,7 +929,7 @@
     <option name="PERFORM_ROLLBACK_IN_BACKGROUND" value="false" />
     <option name="CHECK_LOCALLY_CHANGED_CONFLICTS_IN_BACKGROUND" value="true" />
     <option name="FORCE_NON_EMPTY_COMMENT" value="false" />
-    <option name="LAST_COMMIT_MESSAGE" value="Display a progress bar in indeterminate mode and a wait cursor&#10;while formatting." />
+    <option name="LAST_COMMIT_MESSAGE" value="Don't maximize. Set accelerator keys in non-generated method." />
     <option name="MAKE_NEW_CHANGELIST_ACTIVE" value="true" />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="false" />
     <option name="CHECK_FILES_UP_TO_DATE_BEFORE_COMMIT" value="false" />
@@ -1073,12 +942,6 @@
     <option name="UPDATE_GROUP_BY_CHANGELIST" value="false" />
     <option name="SHOW_FILE_HISTORY_AS_TREE" value="false" />
     <option name="FILE_HISTORY_SPLITTER_PROPORTION" value="0.6" />
-    <MESSAGE value="Changed the fields displayed for debugging purposes." />
-    <MESSAGE value="Auto-detect BAM index." />
-    <MESSAGE value="Improvements to data fetching. Includes reads for inverted mates and everted pairs." />
-    <MESSAGE value="No longer does pair type setting (done in BAMIntervalTrack)&#10;but stil does some crazy case testing to get intervals right for&#10;the sake of maxValue." />
-    <MESSAGE value="More changes to figuring out which ends to draw arcs between." />
-    <MESSAGE value="Changed scrolling to pan. Shift scroll to zoom (although key strokes&#10;are currently lost, so there's no way to zoom by mouse.)" />
     <MESSAGE value="Fixed issue with modifier keys not affecting scrolling." />
     <MESSAGE value="Made mac use command key and windows/linux use ctrl key for keyboard accelerators." />
     <MESSAGE value="Fixed panning and zooming with the mouse wheel (now need command or control to zoom) and ctrl-click popup window for Mac. Now zooming using right click and drag is broken :(" />
@@ -1098,6 +961,12 @@
     <MESSAGE value="New JavaDoc." />
     <MESSAGE value="Disabled copy to clipboard and save image to file since&#10;they don't work." />
     <MESSAGE value="Display a progress bar in indeterminate mode and a wait cursor&#10;while formatting." />
+    <MESSAGE value="Take out rendering based on statistics." />
+    <MESSAGE value="Don't include statistics in drawing instructions." />
+    <MESSAGE value="Don't calculate statistics." />
+    <MESSAGE value="Pre-sort interval formats by position." />
+    <MESSAGE value="Added libraries needed for ExternalSort." />
+    <MESSAGE value="Don't maximize. Set accelerator keys in non-generated method." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager />
@@ -1107,24 +976,9 @@
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/savant/model/view/DrawingInstructions.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="133" column="58" selection-start="3238" selection-end="3238" vertical-scroll-proportion="0.7836338" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/savant/view/swing/interval/BAMViewTrack.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="113" column="58" selection-start="4154" selection-end="4154" vertical-scroll-proportion="-0.481276" />
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/savant/view/swing/model/DataTableModel.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="249" column="31" selection-start="10291" selection-end="10291" vertical-scroll-proportion="2.4135978" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/savant/view/swing/interval/BAMTrackRenderer.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="465" column="136" selection-start="17705" selection-end="17705" vertical-scroll-proportion="0.110957004" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/log4j.properties">
@@ -1137,11 +991,6 @@
         <state line="21" column="13" selection-start="439" selection-end="439" vertical-scroll-proportion="0.17216642" />
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/savant/model/data/interval/BAMIntervalTrack.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="213" column="0" selection-start="7653" selection-end="7694" vertical-scroll-proportion="0.41926345" />
-      </provider>
-    </entry>
     <entry file="jar:///System/Library/Frameworks/JavaVM.framework/Versions/1.6.0/Home/../Classes/classes.jar!/javax/swing/SwingWorker.class">
       <provider selected="true" editor-type-id="text-editor">
         <state line="34" column="169" selection-start="1464" selection-end="1464" vertical-scroll-proportion="0.47360703" />
@@ -1152,44 +1001,64 @@
         <state line="122" column="33" selection-start="4116" selection-end="4116" vertical-scroll-proportion="0.3328551" />
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/savant/view/swing/Savant.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="305" column="17" selection-start="11452" selection-end="11452" vertical-scroll-proportion="-4.749292" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/savant/format/DataFormatForm.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="453" column="105" selection-start="21426" selection-end="21426" vertical-scroll-proportion="0.0" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/savant/format/DataFormatter.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="325" column="17" selection-start="10190" selection-end="10190" vertical-scroll-proportion="0.0" />
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/savant/view/swing/sequence/SequenceViewTrack.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="112" column="0" selection-start="3511" selection-end="3511" vertical-scroll-proportion="0.0" />
+        <state line="112" column="0" selection-start="3511" selection-end="3511" vertical-scroll-proportion="0.5658466" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/savant/view/swing/ViewTrack.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="159" column="0" selection-start="6478" selection-end="6478" vertical-scroll-proportion="0.0" />
+        <state line="159" column="0" selection-start="6478" selection-end="6478" vertical-scroll-proportion="0.017366135" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/savant/util/DataFormatUtils.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="328" column="170" selection-start="10953" selection-end="10953" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
+        <state line="328" column="170" selection-start="10953" selection-end="10953" vertical-scroll-proportion="0.22575977" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/savant/view/swing/GraphPane.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="278" column="0" selection-start="8615" selection-end="8615" vertical-scroll-proportion="5.687612">
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
+        <state line="278" column="0" selection-start="8615" selection-end="8615" vertical-scroll-proportion="0.0" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/savant/view/swing/interval/BAMTrackRenderer.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="494" column="0" selection-start="18953" selection-end="18953" vertical-scroll-proportion="0.0" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/savant/view/swing/interval/BAMViewTrack.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="118" column="0" selection-start="4389" selection-end="4704" vertical-scroll-proportion="0.0" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/savant/model/data/interval/BAMIntervalTrack.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="54" column="0" selection-start="1570" selection-end="1626" vertical-scroll-proportion="0.35502958" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/savant/format/DataFormatForm.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="335" column="0" selection-start="15381" selection-end="15381" vertical-scroll-proportion="0.7000964" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/savant/format/DataFormatter.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="326" column="34" selection-start="10381" selection-end="10381" vertical-scroll-proportion="0.45892352">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/META-INF/MANIFEST.MF">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="7" column="0" selection-start="328" selection-end="328" vertical-scroll-proportion="0.116504855">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/savant/view/swing/Savant.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="898" column="105" selection-start="38776" selection-end="38776" vertical-scroll-proportion="0.611898">
+          <folding />
         </state>
       </provider>
     </entry>
@@ -1208,7 +1077,7 @@
               </option>
             </SplitterProportionsDataImpl>
           </splitter-proportions>
-          <last-edited>SavantCore</last-edited>
+          <last-edited>Savant</last-edited>
           <settings />
         </UIState>
       </state>
