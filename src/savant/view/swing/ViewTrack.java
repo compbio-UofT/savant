@@ -19,23 +19,21 @@ package savant.view.swing;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import savant.controller.TrackController;
-import savant.controller.ViewTrackController;
 import savant.format.header.FileType;
 import savant.format.header.FileTypeHeader;
-import savant.model.FileFormat;
+import savant.model.data.interval.BEDIntervalTrack;
+import savant.util.IOUtils;
 import savant.model.Genome;
 import savant.model.Resolution;
-import savant.model.data.RecordTrack;
+import savant.model.FileFormat;
 import savant.model.data.Track;
 import savant.model.data.continuous.GenericContinuousTrack;
 import savant.model.data.interval.BAMIntervalTrack;
-import savant.model.data.interval.BEDIntervalTrack;
 import savant.model.data.interval.GenericIntervalTrack;
 import savant.model.data.point.GenericPointTrack;
 import savant.model.view.ColorScheme;
 import savant.model.view.Mode;
-import savant.util.DataFormatUtils;
-import savant.util.RAFUtils;
+import savant.util.DataUtils;
 import savant.util.Range;
 import savant.view.swing.continuous.ContinuousViewTrack;
 import savant.view.swing.interval.BAMCoverageViewTrack;
@@ -46,16 +44,13 @@ import savant.view.swing.point.PointViewTrack;
 import savant.view.swing.sequence.SequenceViewTrack;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Class to handle the preparation for rendering of a track. Handles colour schemes and
- * drawing instructions, getting and filtering of data, setting of vertical axis, etc. The
- * ranges associated with various resolutions are also handled here, and the drawing modes
- * are defined.
  *
  * @author mfiume
  */
@@ -70,10 +65,9 @@ public abstract class ViewTrack {
     private List<Mode> drawModes;
     private Mode drawMode;
     private List<TrackRenderer> trackRenderers;
-    private RecordTrack track;
 
     /**
-     * Create one or more tracks from the given file name.
+     * Create one or more tracks based on the given file name.
      *
      * @param trackFilename
      * @return List of ViewTrack which can be added to a Fram
@@ -88,7 +82,7 @@ public abstract class ViewTrack {
         int lastSlashIndex = trackFilename.lastIndexOf(System.getProperty("file.separator"));
         String name = trackFilename.substring(lastSlashIndex+1, trackFilename.length());
 
-        FileType fileType = DataFormatUtils.getTrackDataTypeFromPath(trackFilename);
+        FileType fileType = DataUtils.getTrackDataTypeFromPath(trackFilename);
 
         ViewTrack viewTrack = null;
         Track dataTrack = null;
@@ -97,31 +91,21 @@ public abstract class ViewTrack {
         if (fileType == FileType.INTERVAL_BAM) {
 
             // infer index file name from track filename
-            String indexFilename=null;
-            if (new File(trackFilename + ".bai").exists()) {
-                indexFilename = trackFilename + ".bai";
-            }
-            else {
-                String nameWithoutExtension = trackFilename.substring(0, trackFilename.lastIndexOf(".bam"));
-                if (new File(nameWithoutExtension + ".bai").exists()) {
-                    indexFilename = nameWithoutExtension + ".bai";
-                }
-            }
-            if (indexFilename != null) {
-                dataTrack = new BAMIntervalTrack(new File(trackFilename), new File(indexFilename));
-                viewTrack = new BAMViewTrack(name, (BAMIntervalTrack)dataTrack);
-                results.add(viewTrack);
-            }
-            else {
-                log.error("Could not open BAM track because index could not be found; index file must be named filename.bam.bai or filename.bai");
-            }
+            dataTrack = new BAMIntervalTrack(new File(trackFilename), new File(trackFilename + ".bai"));
+            viewTrack = new BAMViewTrack(name, (BAMIntervalTrack)dataTrack);
+            results.add(viewTrack);
 
+            // FIXME: this is a hack; should be done with formatting (when that is fixed)?
+            /*BAMToCoverage bamConverter = new BAMToCoverage(trackFilename, trackFilename + ".bai",
+                    MiscUtils.getTemporaryDirectory() + name + ".cov.savant",
+                    null,
+                    RangeController.getInstance().getMaxRange().getTo());
+            bamConverter.format();
+            */
             try {
-                if (new File(trackFilename + ".cov").exists()) {
-                    dataTrack = new GenericContinuousTrack(trackFilename + ".cov");
-                    viewTrack = new BAMCoverageViewTrack(name + " coverage" , (GenericContinuousTrack)dataTrack);
-                    results.add(viewTrack);
-                }
+                dataTrack = new GenericContinuousTrack(trackFilename + ".cov");
+                viewTrack = new BAMCoverageViewTrack(name + " coverage" , (GenericContinuousTrack)dataTrack);
+                results.add(viewTrack);
             } catch (IOException e) {
                 log.error("Could not create coverage track", e);
             }
@@ -132,8 +116,8 @@ public abstract class ViewTrack {
             try {
 
                 // read file header
-                RandomAccessFile trkFile = RAFUtils.openFile(trackFilename, false);
-                FileTypeHeader fth = RAFUtils.readFileTypeHeader(trkFile);
+                RandomAccessFile trkFile = IOUtils.openFile(trackFilename, false);
+                FileTypeHeader fth = DataUtils.readFileTypeHeader(trkFile);
                 trkFile.close();
 
                 switch(fth.fileType) {
@@ -153,6 +137,10 @@ public abstract class ViewTrack {
                         dataTrack = new GenericIntervalTrack(trackFilename);
                         viewTrack = new IntervalViewTrack(name, (GenericIntervalTrack)dataTrack);
                         break;
+                    case INTERVAL_GFF:
+                        dataTrack = new GenericIntervalTrack(trackFilename);
+                        viewTrack = new IntervalViewTrack(name, (GenericIntervalTrack)dataTrack);
+                        break;
                     case INTERVAL_BED:
                         dataTrack = new BEDIntervalTrack(trackFilename);
                         viewTrack = new BEDViewTrack(name, (BEDIntervalTrack)dataTrack);
@@ -162,7 +150,8 @@ public abstract class ViewTrack {
                 }
                 if (viewTrack != null) results.add(viewTrack);
             } catch (Exception e) {
-                Savant.promptUserToFormatFile(trackFilename);
+
+                //Savant.promptUserToFormatFile(trackFilename);
             }
         }
 
@@ -174,62 +163,32 @@ public abstract class ViewTrack {
      * @param name track name (typically, the file name)
      * @param dataType FileFormat representing file type, e.g. INTERVAL_BED, CONTINUOUS_GENERIC
      */
-    public ViewTrack(String name, FileFormat dataType, RecordTrack track) {
+    public ViewTrack(String name, FileFormat dataType) {
         setName(name);
         setDataType(dataType);
         drawModes = new ArrayList<Mode>();
         trackRenderers = new ArrayList<TrackRenderer>();
-        this.track = track;
 
-        ViewTrackController tc = ViewTrackController.getInstance();
+        TrackController tc = TrackController.getInstance();
         tc.addTrack(this);
-
-        if (track != null) {
-            TrackController.getInstance().addTrack(track);
-        }
     }
 
-    /**
-     * Get the type of file this view track represents
-     *
-     * @return  FileFormat
-     */
     public FileFormat getDataType() {
         return this.dataType;
     }
 
-    /**
-     * Get the current colour scheme.
-     *
-     * @return ColorScheme
-     */
     public ColorScheme getColorScheme() {
         return this.colorScheme;
     }
 
-    /**
-     * Get the name of this track. Usually constructed from the file name.
-     *
-     * @return track name
-     */
     public String getName() {
         return name;
     }
 
-    /**
-     * Set the track name.
-     *
-     * @param name new name
-     */
     public void setName(String name) {
         this.name = name;
     }
 
-    /**
-     * Get the data currently being displayed (or ready to be displayed)
-     *
-     * @return List of data objects
-     */
     public List<Object> getDataInRange() {
         return this.dataInRange;
     }
@@ -240,38 +199,18 @@ public abstract class ViewTrack {
     }
      */
 
-    /**
-     * Get current draw mode
-     *
-     * @return draw mode as Mode
-     */
     public Mode getDrawMode() {
         return this.drawMode;
     }
 
-    /**
-     * Get all valid draw modes for this track.
-     *
-     * @return List of draw Modes
-     */
     public List<Mode> getDrawModes() {
         return this.drawModes;
     }
 
-    /**
-     * Set data type.
-     *
-     * @param kind
-     */
     public void setDataType(FileFormat kind) {
         this.dataType = kind;
     }
 
-    /**
-     * Set colour scheme.
-     *
-     * @param cs new colour scheme
-     */
     public void setColorScheme(ColorScheme cs) {
         this.colorScheme = cs;
     }
@@ -282,20 +221,10 @@ public abstract class ViewTrack {
     }
      */
 
-    /**
-     * Set the current draw mode.
-     *
-     * @param mode
-     */
     public void setDrawMode(Mode mode) {
         this.drawMode = mode;
     }
 
-    /**
-     * Set the current draw mode by its name
-     *
-     * @param modename
-     */
     public void setDrawMode(String modename) {
         for (Mode m : drawModes) {
             if (m.getName().equals(modename)) {
@@ -305,92 +234,36 @@ public abstract class ViewTrack {
         }
     }
 
-//    public void setDrawMode(Object o) {
-//        setDrawMode(o.toString());
-//    }
+    public void setDrawMode(Object o) {
+        setDrawMode(o.toString());
+    }
 
-    /**
-     * Set the list of valid draw modes
-     *
-     * @param modes
-     */
     public void setDrawModes(List<Mode> modes) {
         this.drawModes = modes;
     }
 
-    /**
-     * Get the record (data) track associated with this view track (if any.)
-     *
-     * @return Record Track or null (in the case of a genome.)
-     */
-    public RecordTrack getTrack() {
-        return this.track;
-    }
-    
     // TODO: don't just throw generic Exception
-
-    /**
-     * Prepare this view track to render the given range.
-     *
-     * @param range
-     * @throws Exception
-     */
     public abstract void prepareForRendering(Range range) throws Exception;
 
     // TODO: don't just throw generic Exception
-
-    /**
-     * Retrieve data from the underlying data track at the current resolution and save it.
-     *
-     * @param range The range within which to retrieve objects
-     * @return a list of data objects in the given range
-     * @throws Exception
-     */
     public List<Object> retrieveAndSaveData(Range range) throws Exception {
         Resolution resolution = getResolution(range);
         this.dataInRange = retrieveData(range, resolution);
         return this.dataInRange;
     }
-    
-    // TODO: don't just throw generic Exception
 
-    /**
-     * Retrive data from the underlying data track.
-     *
-     * @param range The range within which to retrieve objects
-     * @param resolution The resolution at which to get data
-     * @return a List of data objects from the given range and resolution
-     * @throws Exception
-     */
+    // TODO: don't just throw generic Exception
     public abstract List<Object> retrieveData(Range range, Resolution resolution) throws Exception;
 
-    /**
-     * Add a renderer to this view track
-     *
-     * @param renderer
-     */
     public void addTrackRenderer(TrackRenderer renderer) { this.trackRenderers.add(renderer); }
-
-    /**
-     * Get all renderers attached to this view track
-     *
-     * @return
-     */
     public List<TrackRenderer> getTrackRenderers() { return this.trackRenderers; }
 
-    /**
-     * Get the resoultion associated with the given range
-     *
-     * @param range
-     * @return resolution appropriate to the range
-     */
     public abstract Resolution getResolution(Range range);
 
-    /**
-     * Get the default draw mode.
-     *
-     * @return  the default draw mode
-     */
+    private void addDrawMode(Mode mode) {
+        drawModes.add(mode);
+    }
+
     public Mode getDefaultDrawMode() {
         return null;
     }
@@ -399,5 +272,5 @@ public abstract class ViewTrack {
     public String toString() {
         return this.name;
     }
-   
+
 }
