@@ -50,6 +50,7 @@ public class DataFormatForm extends JDialog implements PropertyChangeListener /*
 
 
     public DataFormatForm(String infile) {
+
         initComponents();
         initFormats();
         initListActionHandler();
@@ -65,9 +66,7 @@ public class DataFormatForm extends JDialog implements PropertyChangeListener /*
             this.setOutputPath(infile);
         }
 
-        //dialog.setModalityType(Dialog.ModalityType type)
         this.setModal(true);
-        //this.setModalityType(Dialog.DEFAULT_MODALITY_TYPE);
         this.setVisible(true);
     }
 
@@ -116,6 +115,11 @@ public class DataFormatForm extends JDialog implements PropertyChangeListener /*
 
         list_formats.setModel(new DefaultListModel());
         list_formats.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        list_formats.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
+            public void valueChanged(javax.swing.event.ListSelectionEvent evt) {
+                list_formatsValueChanged(evt);
+            }
+        });
         jScrollPane1.setViewportView(list_formats);
 
         button_openInPath.setText("...");
@@ -148,6 +152,11 @@ public class DataFormatForm extends JDialog implements PropertyChangeListener /*
 
         textfield_outPath.setEditable(false);
         textfield_outPath.setDisabledTextColor(new java.awt.Color(255, 255, 255));
+        textfield_outPath.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                textfield_outPathActionPerformed(evt);
+            }
+        });
 
         checkbox_tempOut.setSelected(true);
         checkbox_tempOut.setText("Store output temporarily");
@@ -179,25 +188,24 @@ public class DataFormatForm extends JDialog implements PropertyChangeListener /*
                         .addComponent(checkbox_tempOut)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(checkbox_chooseBase))
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 379, Short.MAX_VALUE)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 346, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(textfield_inPath, javax.swing.GroupLayout.PREFERRED_SIZE, 295, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(button_openInPath))
                     .addComponent(jLabel1)
                     .addComponent(jLabel2)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(formatProgressBar, javax.swing.GroupLayout.PREFERRED_SIZE, 275, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 346, Short.MAX_VALUE)
+                    .addComponent(jLabel4)
+                    .addComponent(jLabel3)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(textfield_outPath, javax.swing.GroupLayout.PREFERRED_SIZE, 295, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(button_format))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addGroup(layout.createSequentialGroup()
-                            .addComponent(textfield_outPath, javax.swing.GroupLayout.PREFERRED_SIZE, 295, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(button_openOutFile))
-                        .addComponent(jLabel3))
-                    .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 379, Short.MAX_VALUE)
-                    .addComponent(jLabel4))
+                        .addComponent(button_openOutFile))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(formatProgressBar, javax.swing.GroupLayout.DEFAULT_SIZE, 273, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(button_format)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -217,23 +225,20 @@ public class DataFormatForm extends JDialog implements PropertyChangeListener /*
                 .addComponent(jLabel4)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 64, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel3)
-                        .addGap(2, 2, 2))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(checkbox_tempOut)
-                            .addComponent(checkbox_chooseBase))
-                        .addGap(18, 18, 18)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(checkbox_tempOut)
+                    .addComponent(checkbox_chooseBase))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabel3)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(textfield_outPath, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(button_openOutFile))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGap(10, 10, 10)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(button_format)
-                    .addComponent(formatProgressBar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(formatProgressBar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(button_format))
                 .addContainerGap())
         );
 
@@ -307,6 +312,7 @@ public class DataFormatForm extends JDialog implements PropertyChangeListener /*
         validateReadyToFormat();
     }//GEN-LAST:event_button_openOutFileActionPerformed
 
+
     private void button_formatActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_formatActionPerformed
 
         String infile = this.textfield_inPath.getText();
@@ -314,14 +320,7 @@ public class DataFormatForm extends JDialog implements PropertyChangeListener /*
         this.outFilePath = outfile;
         FileType ft = formatTypeMap.get(formats.get(list_formats.getSelectedIndex()));
         boolean isInputOneBased = checkbox_chooseBase.isSelected();
-
-        if (ft == FileType.INTERVAL_BAM) {
-            JOptionPane.showMessageDialog(this, 
-                    "BAM files do not need to be formatted. " +
-                    "Use SAMTools to format SAM files.");
-            return;
-        }
-
+        
         DataFormatter df = new DataFormatter(infile, outfile, ft, isInputOneBased);
 
 //        progressMonitor = new ProgressMonitor(DataFormatForm.this,
@@ -350,6 +349,14 @@ public class DataFormatForm extends JDialog implements PropertyChangeListener /*
     private void checkbox_chooseBaseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkbox_chooseBaseActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_checkbox_chooseBaseActionPerformed
+
+    private void textfield_outPathActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_textfield_outPathActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_textfield_outPathActionPerformed
+
+    private void list_formatsValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_list_formatsValueChanged
+        this.setOutputPath(this.textfield_inPath.getText());
+    }//GEN-LAST:event_list_formatsValueChanged
 
     /**
     * @param args the command line arguments
@@ -411,7 +418,7 @@ public class DataFormatForm extends JDialog implements PropertyChangeListener /*
         addFormat("FASTA", true, false, FileType.SEQUENCE_FASTA ,  "FASTA format is a text-based format for representing either nucleotide sequences or peptide sequences, in which base pairs or amino acids are represented using single-letter codes.");
         addFormat("BED", false, false, FileType.INTERVAL_BED , "BED format is an alternative to GFF format for describing co-ordinates of localized features on genomes.");
         addFormat("GFF", true, false, FileType.INTERVAL_GFF , "GFF is a format for locating & describing genes and other localized features associated with DNA, RNA and Protein sequences.");
-        addFormat("SAM/BAM", true, false, FileType.INTERVAL_BAM , "SAM format (binary, for BAM) is a generic format for storing large nucleotide sequence alignments.");
+        addFormat("BAM Coverage", true, false, FileType.INTERVAL_BAM , "SAM format (binary, for BAM) is a generic format for storing large nucleotide sequence alignments.");
         addFormat("WIG", true, false, FileType.CONTINUOUS_WIG , "WIG format allows display of continuous-valued data in track format. This display type is useful for GC percent, probability scores, and transcriptome data.");
         addFormat("Generic Interval", true, true, FileType.INTERVAL_GENERIC , "Generic intervals can be used to display any number of from to pairs, each with an associated description.");
         addFormat("Generic Point", true, true, FileType.POINT_GENERIC ,"Generic intervals can be used to display any number of positional elements, each with an associated description.");
@@ -423,6 +430,10 @@ public class DataFormatForm extends JDialog implements PropertyChangeListener /*
         }
     }
 
+    public FileType getFileType() {
+        return formatTypeMap.get(formats.get(list_formats.getSelectedIndex()));
+    }
+
     private void addFormat(String fname, boolean defaultIsOneBase, boolean canChooseBase, FileType ft, String fdescription) {
         formats.add(fname);
         formatTypeMap.put(fname, ft);
@@ -432,12 +443,24 @@ public class DataFormatForm extends JDialog implements PropertyChangeListener /*
     }
 
     private void setOutputPath(String selectedFileName) {
+        FileType ft = null;
+        try { ft = formatTypeMap.get(formats.get(list_formats.getSelectedIndex())); }
+        catch (Exception e) {}
+
         if (this.checkbox_tempOut.isSelected()) {
             this.button_openOutFile.setEnabled(false);
-            this.textfield_outPath.setText(selectedFileName + ".tmp.savant");
+            if ((ft == null && this.textfield_inPath.getText().endsWith(".bam")) || ft == FileType.INTERVAL_BAM) {
+                 this.textfield_outPath.setText(selectedFileName + ".tmp.cov");
+             } else {
+                 this.textfield_outPath.setText(selectedFileName + ".tmp.savant");
+             }
         } else {
             this.button_openOutFile.setEnabled(true);
-            this.textfield_outPath.setText(selectedFileName + ".savant");
+             if ((ft == null && this.textfield_inPath.getText().endsWith(".bam")) || ft == FileType.INTERVAL_BAM) {
+                 this.textfield_outPath.setText(selectedFileName + ".cov");
+             } else {
+                this.textfield_outPath.setText(selectedFileName + ".savant");
+             }
         }
         validateReadyToFormat();
     }
