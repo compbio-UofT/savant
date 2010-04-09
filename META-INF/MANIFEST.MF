@@ -1,6 +1,7 @@
 Manifest-Version: 1.0
-Class-Path: . lib/commons-logging-1.1.1.jar lib/flexdock-0.5.1.jar lib
- /sam-1.12.jar lib/jpf.jar lib/mydoggy-api-1.4.2.jar lib/mydoggy
- -plaf-1.4.2.jar lib/mydoggy-res-1.4.2.jar lib/TableLayout-20050920.jar
+Class-Path: . lib/commons-logging-1.1.1.jar lib/sam-1.12.jar lib/jpf.j
+ ar lib/mydoggy-api-1.4.2.jar lib/mydoggy-plaf-1.4.2.jar lib/mydoggy-r
+ es-1.4.2.jar lib/TableLayout-20050920.jar lib/fastutil5-5.0.9.jar lib
+ /jargs.jar lib/mg4j-2.0.1.jar lib/smalltext-0.4.1.jar
 Main-Class: savant.view.swing.Savant
 
