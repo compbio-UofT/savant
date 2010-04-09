@@ -7,6 +7,7 @@
         <element id="library" level="project" name="picard" />
         <element id="library" level="project" name="jpf" />
         <element id="library" level="project" name="mydoggy" />
+        <element id="library" level="project" name="smalltext" />
       </element>
       <element id="archive" name="Savant.jar">
         <element id="directory" name="META-INF">
