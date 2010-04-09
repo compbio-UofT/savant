@@ -387,7 +387,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        
+
         render(g);
 
         int width = this.x1 - this.x2;
@@ -505,12 +505,10 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         //}
         //else
         if (mac && event.isControlDown() || this.isRightClick()) {
-            Savant.log("MENU");
             menu.show(event.getComponent(), event.getX(), event.getY());
         }
 
         //this.mousePosition.setText( "Clicked at [" + event.getX() + ", " + event.getY() + "]" );
-        Savant.log("Mouse clicked");
         //repaint();
     }
 
@@ -637,13 +635,9 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         this.isDragging = true;
 
         if (this.isPanning()) {
-            Savant.log("Setting hand cursor");
             this.setCursor(new Cursor(Cursor.HAND_CURSOR));
         } else if (isZooming()) {
-            Savant.log("Setting crosshair cursor");
             this.setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
-        } else {
-            Savant.log("Not chaning cursor");
         }
 
         repaint();
@@ -654,24 +648,6 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         
     }
 
-    /*
-    public void keyTyped(KeyEvent e) {
-        
-
-    }
-
-    public void keyPressed(KeyEvent e) {
-        setKeyModifier(e);
-
-        repaint();
-    }
-
-    public void keyReleased(KeyEvent e) {
-        setKeyModifier(e);
-        repaint();
-    }
-     */
-
     /** Actions */
     private boolean isMovingPane() {
         return false;
@@ -679,7 +655,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
     }
 
     private boolean isZooming() {
-        return this.isDragging &&  isLeftClick() && isCtrlKeyModifierPressed();
+        return this.isDragging &&  ((isLeftClick() && isCtrlKeyModifierPressed()) || (isRightClick() && isCtrlKeyModifierPressed()));
     }
 
     private boolean isPanning() {
@@ -735,7 +711,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
             keyMod = keyModifier.SHIFT;
         }
         else if (e.isMetaDown()) {
-            keyMod = keyModifier.META;
+            keyMod = keyModifier.DEFAULT;
         }
         else if (e.isAltDown()) {
             keyMod = keyModifier.ALT;
@@ -743,8 +719,6 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         else {
             keyMod = keyModifier.DEFAULT;
         }
-
-        Savant.log("Button: " + mouseMod + " Key: " + keyMod);
 
         //Savant.log("Mouse modifier: " + mouseMod);
     }
