@@ -15,17 +15,23 @@
  */
 package savant.view.swing;
 
-import info.clearthought.layout.TableLayout;
+import com.jidesoft.docking.DefaultDockingManager;
+import com.jidesoft.docking.DockContext;
+import com.jidesoft.docking.DockableFrame;
+import com.jidesoft.docking.DockingManager;
+import com.jidesoft.docking.DockingManagerGroup;
+import com.jidesoft.docking.event.DockableFrameEvent;
+import com.jidesoft.docking.event.DockableFrameListener;
+import com.jidesoft.plaf.LookAndFeelFactory;
+
+import com.jidesoft.swing.Contour;
+import com.jidesoft.swing.JideSplitPane;
 import org.java.plugin.ObjectFactory;
 import org.java.plugin.PluginManager;
 import org.java.plugin.registry.Extension;
 import org.java.plugin.registry.ExtensionPoint;
 import org.java.plugin.registry.PluginDescriptor;
 import org.java.plugin.standard.StandardPluginLocation;
-import org.noos.xing.mydoggy.*;
-import org.noos.xing.mydoggy.event.ContentManagerUIEvent;
-import org.noos.xing.mydoggy.plaf.MyDoggyToolWindowManager;
-import org.noos.xing.mydoggy.plaf.ui.content.MyDoggyMultiSplitContentManagerUI;
 import savant.analysis.BatchAnalysisForm;
 import savant.controller.BookmarkController;
 import savant.controller.FrameController;
@@ -37,12 +43,9 @@ import savant.controller.event.rangeselection.RangeSelectionChangedEvent;
 import savant.controller.event.rangeselection.RangeSelectionChangedListener;
 import savant.format.DataFormatForm;
 import savant.model.Genome;
-import savant.plugin.AuxData;
-import savant.plugin.PluginAdapter;
 import savant.util.MiscUtils;
 import savant.util.Range;
 import savant.view.swing.sequence.SequenceViewTrack;
-import savant.view.swing.util.ScreenShot;
 
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -54,45 +57,52 @@ import java.io.FileNotFoundException;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import savant.format.header.FileType;
+import savant.plugin.AuxData;
+import savant.plugin.PluginAdapter;
+import savant.view.swing.util.ScreenShot;
 
 /**
  * Main application Window (Frame).
- * 
+ *
  * @author mfiume
  */
 public class Savant extends javax.swing.JFrame implements ComponentListener, RangeSelectionChangedListener, RangeChangedListener {
 
+    private DockingManager auxDockingManager;
     private JPanel masterPlaceholderPanel;
-    private JPanel framePlaceholderPanel;
-    private JPanel frameContentPanel;
+    private DockingManager trackDockingManager;
+    private JPanel trackPanel;
     private JPanel menuPanel;
-
-    private static ToolWindowManager masterToolWindowManager;
-    private static ToolWindowManager frameToolWindowManager;
-
-
 
     public static String os = System.getProperty("os.name").toLowerCase();
     public static boolean mac = os.contains("mac");
     public static int osSpecificModifier = (mac ? java.awt.event.InputEvent.META_MASK : java.awt.event.InputEvent.CTRL_MASK);
 
-    private static void addTrackFromFile(String selectedFileName) {
+    private static int groupNum = 0;
+    private static Map<DockableFrame,Frame> dockFrameToFrameMap = new HashMap<DockableFrame,Frame>();
+
+    private void addTrackFromFile(String selectedFileName) {
 
         // Some types of track actually create more than one track per frame, e.g. BAM
-        
         List<ViewTrack> tracks = ViewTrack.create(selectedFileName);
 
         if (tracks != null  && tracks.size() > 0) {
             Frame frame = null;
-            JPanel panel = createDockedFramePanel(MiscUtils.getFilenameFromPath(selectedFileName));
+            DockableFrame df = DockableFrameFactory.createTrackFrame(MiscUtils.getFilenameFromPath(selectedFileName));
+            JPanel panel = (JPanel) df.getContentPane();
             if (!tracks.isEmpty()) {
                 frame = new Frame(panel, tracks);
+                dockFrameToFrameMap.put(df, frame);
             }
             FrameController.getInstance().addFrame(frame, panel);
+            this.getTrackDockingManager().addFrame(df);
         }
     }
 
@@ -103,114 +113,82 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
     private void initDocking() {
 
         masterPlaceholderPanel = new JPanel();
-        masterPlaceholderPanel.setLayout(new TableLayout(new double[][]{{0, -1, 0}, {0, -1, 0}}));
+        masterPlaceholderPanel.setLayout(new BorderLayout());
 
         this.panel_main.setLayout(new BorderLayout());
         this.panel_main.add(masterPlaceholderPanel,BorderLayout.CENTER);
 
+        auxDockingManager = new DefaultDockingManager(this,masterPlaceholderPanel);
+        auxDockingManager.setInitSplitPriority(DockingManager.SPLIT_EAST_SOUTH_WEST_NORTH);
+        auxDockingManager.loadLayoutData();
 
-        initToolWindowManager();
-    }
+        trackPanel = new JPanel();
+        trackPanel.setLayout(new BorderLayout());
 
-    protected void initToolWindowManager() {
-        // Create a new instance of MyDoggyToolWindowManager passing the frame.
-        MyDoggyToolWindowManager myDoggyToolWindowManager1 = new MyDoggyToolWindowManager();
-        this.masterToolWindowManager = myDoggyToolWindowManager1;
+        auxDockingManager.getWorkspace().add(trackPanel,BorderLayout.CENTER);
 
-        MyDoggyToolWindowManager myDoggyToolWindowManager2 = new MyDoggyToolWindowManager();
-        this.frameToolWindowManager = myDoggyToolWindowManager2;
+        trackDockingManager = new DefaultDockingManager(this,trackPanel);
+        trackDockingManager.getWorkspace().setBackground(Color.red);
+        trackDockingManager.setInitNorthSplit(JideSplitPane.VERTICAL_SPLIT);
+        trackDockingManager.loadLayoutData();
 
-        initContentManager();
+        JPanel p = new JPanel();
+        p.setBackground(Color.darkGray);
+        trackDockingManager.getWorkspace().add(p);
+        trackDockingManager.addDockableFrameListener(new DockableFrameListener(){
 
-        // Add myDoggyToolWindowManager to the frame. MyDoggyToolWindowManager is an extension of a JPanel
-        masterPlaceholderPanel.add(myDoggyToolWindowManager1, "1,1,");
-        framePlaceholderPanel.add(myDoggyToolWindowManager2, "1,1,");
-    }
-
-    protected void initContentManager() {
-        framePlaceholderPanel = new JPanel();
-        framePlaceholderPanel.setBackground(Color.red);
-        framePlaceholderPanel.setLayout(new TableLayout(new double[][]{{0, -1, 0}, {0, -1, 0}}));
-
-        frameContentPanel = new JPanel();
-        frameContentPanel.setBackground(BrowserDefaults.colorBrowseBackground);
-
-        ContentManager contentManager1 = masterToolWindowManager.getContentManager();
-        contentManager1.addContent("MasterKey",
-                                  "Master",
-                                  null,           // An icon
-                                  framePlaceholderPanel);
-
-        ContentManager contentManager2 = frameToolWindowManager.getContentManager();
-        contentManager2.addContent("FrameKey",
-                                  "Frames",
-                                  null,           // An icon
-                                  frameContentPanel);
-
-        setupMasterContentManagerUI();
-        setupFrameContentManagerUI();
-     }
-
-    protected void setupMasterContentManagerUI() {
-        ContentManager contentManager = masterToolWindowManager.getContentManager();
-        MultiSplitContentManagerUI contentManagerUI = new MyDoggyMultiSplitContentManagerUI();
-        contentManager.setContentManagerUI(contentManagerUI);
-
-        contentManagerUI.setShowAlwaysTab(false);
-        contentManagerUI.setTabPlacement(TabbedContentManagerUI.TabPlacement.BOTTOM);
-        contentManagerUI.addContentManagerUIListener(new ContentManagerUIListener() {
-            public boolean contentUIRemoving(ContentManagerUIEvent event) {
-                return true;
-                //return JOptionPane.showConfirmDialog(frame, "Are you sure?") == JOptionPane.OK_OPTION;
+            public void dockableFrameAdded(DockableFrameEvent arg0) {
             }
 
-            public void contentUIDetached(ContentManagerUIEvent event) {
-                //JOptionPane.showMessageDialog(frame, "Hello World!!!");
+            public void dockableFrameRemoved(DockableFrameEvent arg0) {
+                FrameController.getInstance().closeFrame(dockFrameToFrameMap.get(arg0.getDockableFrame()));
             }
+
+            public void dockableFrameShown(DockableFrameEvent arg0) {
+            }
+
+            public void dockableFrameHidden(DockableFrameEvent arg0) {
+            }
+
+            public void dockableFrameDocked(DockableFrameEvent arg0) {
+            }
+
+            public void dockableFrameFloating(DockableFrameEvent arg0) {
+            }
+
+            public void dockableFrameAutohidden(DockableFrameEvent arg0) {
+            }
+
+            public void dockableFrameAutohideShowing(DockableFrameEvent arg0) {
+            }
+
+            public void dockableFrameActivated(DockableFrameEvent arg0) {
+            }
+
+            public void dockableFrameDeactivated(DockableFrameEvent arg0) {
+            }
+
+            public void dockableFrameTabShown(DockableFrameEvent arg0) {
+            }
+
+            public void dockableFrameTabHidden(DockableFrameEvent arg0) {
+            }
+
+            public void dockableFrameMaximized(DockableFrameEvent arg0) {
+            }
+
+            public void dockableFrameRestored(DockableFrameEvent arg0) {
+            }
+
         });
+        trackDockingManager.setAllowedDockSides(DockContext.DOCK_SIDE_HORIZONTAL);
 
-        TabbedContentUI contentUI = contentManagerUI.getContentUI(masterToolWindowManager.getContentManager().getContent(0));
-
-        contentUI.setMinimizable(false);
-        contentUI.setCloseable(false);
-        contentUI.setDetachable(false);
-        contentUI.setTransparentMode(false);
-        contentUI.setTransparentRatio(0.7f);
-        contentUI.setTransparentDelay(1000);
+        // make sure only one active frame
+        DockingManagerGroup dmg = new DockingManagerGroup();
+        dmg.add(auxDockingManager);
+        dmg.add(trackDockingManager);
     }
 
-    protected void setupFrameContentManagerUI() {
-        
-        ContentManager contentManager = frameToolWindowManager.getContentManager();
-        MultiSplitContentManagerUI contentManagerUI = new MyDoggyMultiSplitContentManagerUI();
-        contentManager.setContentManagerUI(contentManagerUI);
-
-        contentManagerUI.setShowAlwaysTab(false);
-        contentManagerUI.setTabPlacement(TabbedContentManagerUI.TabPlacement.BOTTOM);
-        contentManagerUI.addContentManagerUIListener(new ContentManagerUIListener() {
-            public boolean contentUIRemoving(ContentManagerUIEvent event) {
-                return true;
-                //return JOptionPane.showConfirmDialog(frame, "Are you sure?") == JOptionPane.OK_OPTION;
-            }
-
-            public void contentUIDetached(ContentManagerUIEvent event) {
-                //JOptionPane.showMessageDialog(frame, "Hello World!!!");
-            }
-        });
-
-        TabbedContentUI contentUI = contentManagerUI.getContentUI(frameToolWindowManager.getContentManager().getContent(0));
-
-        contentUI.setMinimizable(false);
-        contentUI.setCloseable(false);
-        contentUI.setDetachable(false);
-        contentUI.setTransparentMode(false);
-        contentUI.setTransparentRatio(0.7f);
-        contentUI.setTransparentDelay(1000);
-    }   
-
-    static enum ViewMode {
-        BROWSE, FORMAT
-    };
     /** Minimum and maximum dimensions of the browser form */
     static int minimumFormWidth = 500;
     static int minimumFormHeight = 500;
@@ -251,7 +229,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         if (instance == null) instance = new Savant();
         return instance;
     }
-    
+
     /** Creates new form Savant */
     private Savant() {
         try {
@@ -262,15 +240,13 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         }
 
         addComponentListener(this);
-        
+
         initComponents();
         init();
 
         loadPlugins();
         initPlugins();
     }
-    
-
 
     private void loadPlugins() {
 
@@ -630,6 +606,9 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+
+
+
     /**
      * Shift the currentViewableRange all the way to the right
      * @param evt The mouse event which triggers the function
@@ -751,6 +730,8 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         java.awt.EventQueue.invokeLater(new Runnable() {
 
             public void run() {
+                com.jidesoft.utils.Lm.verifyLicense("Marc Fiume", "Savant Genome Browser", "1BimsQGmP.vjmoMbfkPdyh0gs3bl3932");
+                LookAndFeelFactory.installJideExtension(LookAndFeelFactory.OFFICE2007_STYLE);
                 Savant.getInstance().setVisible(true);
             }
         });
@@ -793,6 +774,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
     private javax.swing.JMenu submenu_download;
     // End of variables declaration//GEN-END:variables
 
+
         /**
      * Initialize the Browser
      */
@@ -802,7 +784,6 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
 
         initGUIFrame();
         initMenu();
-        initDocking();
         initPanelsAndDocking();
     }
 
@@ -816,16 +797,32 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         initAuxPanel2();
     }
 
+    private JPanel addDockableFrame(String key, int mode, int side) {
+        DockableFrame dockableFrame = new DockableFrame(key);
+
+        dockableFrame.getContext().setInitIndex(1);
+        dockableFrame.getContext().setInitMode(mode);
+        dockableFrame.getContext().setInitSide(side);
+
+        JPanel p = new JPanel();
+        dockableFrame.getContentPane().add(p);
+
+        this.auxDockingManager.addFrame(dockableFrame);
+
+        return p;
+    }
+
     private PluginManager getPluginManager() {
         return pluginManager;
     }
 
     private void initPlugins() {
         try{
-            // hide the plugin manager menu item
-            menu_plugins.setVisible(false);
+            this.menu_plugins.setVisible(false);
 
             // init the AuxData plugins
+
+
             PluginDescriptor core = pluginManager.getRegistry().getPluginDescriptor("savant.core");
             ExtensionPoint point = pluginManager.getRegistry().getExtensionPoint(core.getId(), "AuxData");
 
@@ -839,37 +836,59 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
                 auxData.init(getAuxTabbedPane(), new PluginAdapter());
             }
 
+
+//            Iterator it = getPluginManager().getRegistry().getPluginDescriptors().iterator();
+//            while (it.hasNext()) {
+//                PluginDescriptor p = (PluginDescriptor) it.next();
+//                if (p.getExtensionPoint("AuxData") != null) {
+//
+//                    AuxData auxData = (AuxData) getPluginManager().getPlugin(p.getId());
+//                    auxData.init(getAuxTabbedPane());
+//                }
+//            }
         }
         catch (Exception e) {
             e.printStackTrace(); // TODO: handle properly
         }
 
     }
+
+    public DockingManager getAuxDockingManager() {
+        return auxDockingManager;
+    }
+
+    public DockingManager getTrackDockingManager() {
+        return trackDockingManager;
+    }
+
     private void initAuxPanel1() {
 
-        JPanel auxPanel = this.createDockedPanel("Information & Analysis", ToolWindowAnchor.BOTTOM);
+        DockableFrame df = DockableFrameFactory.createFrame("Information & Analysis",DockContext.STATE_AUTOHIDE,DockContext.DOCK_SIDE_SOUTH);
+        df.setAvailableButtons(DockableFrame.BUTTON_AUTOHIDE | DockableFrame.BUTTON_FLOATING | DockableFrame.BUTTON_MAXIMIZE );
+        this.getAuxDockingManager().addFrame(df);
 
         auxTabbedPane = new JTabbedPane();
 
-        //initDataTab(auxTabbedPane);
-        initBatchAnalyzeTab(auxTabbedPane);
         initLogTab(auxTabbedPane);
+        initBatchAnalyzeTab(auxTabbedPane);
 
         auxTabbedPane.setSelectedIndex(0);
 
-        auxPanel.setLayout(new BorderLayout());
-        auxPanel.add(auxTabbedPane, BorderLayout.CENTER);
+        df.getContentPane().setLayout(new BorderLayout());
+        df.getContentPane().add(auxTabbedPane, BorderLayout.CENTER);
     }
 
     private void initAuxPanel2() {
 
-        JPanel p = this.createDockedPanel("Annotation");
+        DockableFrame df = DockableFrameFactory.createFrame("Annotation",DockContext.STATE_AUTOHIDE,DockContext.DOCK_SIDE_EAST);
+        df.setAvailableButtons(DockableFrame.BUTTON_AUTOHIDE | DockableFrame.BUTTON_FLOATING | DockableFrame.BUTTON_MAXIMIZE );
+        this.getAuxDockingManager().addFrame(df);
 
         JTabbedPane jtp = new JTabbedPane();
         initBookmarksTab(jtp);
 
-        p.setLayout(new BorderLayout());
-        p.add(jtp, BorderLayout.CENTER);
+        df.getContentPane().setLayout(new BorderLayout());
+        df.getContentPane().add(jtp, BorderLayout.CENTER);
     }
 
     /**
@@ -1303,39 +1322,65 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
      */
     void showOpenGenomeDialog() {
 
-        // create a frame and place the dialog in it
-        JFrame jf = new JFrame();
-        String selectedFileName;
-        if (mac) {
+        if (this.isGenomeLoaded()) {
+            int n = JOptionPane.showConfirmDialog(this,
+            "A genome is already loaded. Replace existing genome?",
+            "Replace genome",
+            JOptionPane.YES_NO_OPTION);
+
+            if (n != JOptionPane.YES_OPTION) {
+                return;
+            }
+            
+            this.loadedGenome = null;
+        }
+
+        //Custom button text
+        Object[] options = {"Load From File", "Specify length", "Cancel"};
+        int n = JOptionPane.showOptionDialog(this,
+            "How would you like to specify the genome?",
+            "Specify a Genome",
+            JOptionPane.YES_NO_CANCEL_OPTION,
+            JOptionPane.QUESTION_MESSAGE,
+            null,
+            options,
+            options[0]);
+
+        if (n == 1) {
+            GenomeLengthForm gf = new GenomeLengthForm();
+
+            if (gf.isLengthSet) {
+                System.out.println("Length: " + gf.length);
+                try {
+                    setGenome("", new Genome("", gf.length));
+                } catch (IOException ex) {}
+            } else {
+                System.out.println("Length not set");
+            }
+
+        } else if (n == 0) {
+            // create a frame and place the dialog in it
+            JFrame jf = new JFrame();
             FileDialog fd = new FileDialog(jf, "Load Genome", FileDialog.LOAD);
+            /*
+            fd.setFilenameFilter(new FilenameFilter() {
+                public boolean accept(File dir, String name) {
+                    return name.endsWith(DataFormatter.defaultExtension);
+                }
+            });
+             */
             fd.setVisible(true);
             jf.setAlwaysOnTop(true);
+
             // get the path (null if none selected)
-            selectedFileName = fd.getFile();
+            String selectedFileName = fd.getFile();
+
+            // set the genome
             if (selectedFileName != null) {
                 selectedFileName = fd.getDirectory() + selectedFileName;
+                setGenome(selectedFileName);
             }
         }
-        else {
-            JFileChooser fd = new JFileChooser();
-            fd.setDialogTitle("Load Genome");
-            fd.setDialogType(JFileChooser.OPEN_DIALOG);
-            int result = fd.showOpenDialog(jf);
-            if (result == JFileChooser.CANCEL_OPTION || result == JFileChooser.ERROR_OPTION ) return;
-            selectedFileName = fd.getSelectedFile().getPath();
-        }
-        /*
-        fd.setFilenameFilter(new FilenameFilter() {
-            public boolean accept(File dir, String name) {
-                return name.endsWith(DataFormatter.defaultExtension);
-            }
-        });
-         */
-
-
-        // set the genome
-        if (selectedFileName != null) setGenome(selectedFileName);
-
     }
 
     /**
@@ -1352,82 +1397,22 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         }
         // create a frame and place the dialog in it
         JFrame jf = new JFrame();
-        String selectedFileName;
-        if (mac) {
-            FileDialog fd = new FileDialog(jf, "Load Track", FileDialog.LOAD);
-            fd.setVisible(true);
-            jf.setAlwaysOnTop(true);
-            // get the path (null if none selected)
-            selectedFileName = fd.getFile();
-            if (selectedFileName != null) {
-                selectedFileName = fd.getDirectory() + selectedFileName;
-            }
-        }
-        else {
-            JFileChooser fd = new JFileChooser();
-            fd.setDialogTitle("Load Track");
-            fd.setDialogType(JFileChooser.OPEN_DIALOG);
-            int result = fd.showOpenDialog(jf);
-            if (result == JFileChooser.CANCEL_OPTION || result == JFileChooser.ERROR_OPTION ) return;
-            selectedFileName = fd.getSelectedFile().getPath();
-        }
+        FileDialog fd = new FileDialog(jf, "Open Tracks", FileDialog.LOAD);
+        fd.setVisible(true);
+        jf.setAlwaysOnTop(true);
+
+        // get the path (null if none selected)
+        String selectedFileName = fd.getFile();
+
+        // set the track
         if (selectedFileName != null) {
+            selectedFileName = fd.getDirectory() + selectedFileName;
             try {
                 addTrackFromFile(selectedFileName);
             } catch (Exception e) {
                 promptUserToFormatFile(selectedFileName);
             }
         }
-        
-    }
-
-    private JPanel createDockedPanel(String name) {
-        return createDockedPanel(name, ToolWindowAnchor.RIGHT);
-    }
-
-    private JPanel createDockedPanel(String name, ToolWindowAnchor where) {
-        JPanel p = new JPanel();
-        p.setLayout(new BorderLayout());
-        masterToolWindowManager.registerToolWindow(name,    // Id
-                                             "",            // Title
-                                             null,          // Icon
-                                             p,             // Component
-                                             where);       // Anchor
-        ToolWindow tw = masterToolWindowManager.getToolWindow(name);
-        tw.setIndex(-1);
-        SlidingTypeDescriptor slidingTypeDescriptor = (SlidingTypeDescriptor) tw.getTypeDescriptor(ToolWindowType.SLIDING);
-        slidingTypeDescriptor.setEnabled(false);
-        tw.setAvailable(true);
-        tw.setActive(false);
-        return p;
-    }
-
-    private static JPanel createDockedFramePanel(String name) {
-
-        System.out.println("CREATING DOCKED PANEL: " + name);
-
-        JPanel p = new JPanel();
-        p.setLayout(new BorderLayout());
-        frameToolWindowManager.registerToolWindow(name,                 // Id
-                                             "",                        // Title
-                                             null,                      // Icon
-                                             p,                         // Component
-                                             ToolWindowAnchor.TOP);     // Anchor
-        ToolWindow tw = frameToolWindowManager.getToolWindow(name);
-        tw.setIndex(-1);
-        SlidingTypeDescriptor slidingTypeDescriptor = (SlidingTypeDescriptor) tw.getTypeDescriptor(ToolWindowType.SLIDING);
-        slidingTypeDescriptor.setEnabled(false);
-        //tw.setAvailable(true);
-
-        AggregationPosition ap = AggregationPosition.BOTTOM;
-        if (FrameController.getInstance().getFrames().size() == 0) {
-            ap = AggregationPosition.TOP;
-        }
-
-        tw.aggregate(ap);
-        tw.setActive(true);
-
-        return p;
     }
 
     /** [[EVENTS]]**/
@@ -1459,31 +1444,22 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
     public Genome getGenome() {
         return this.loadedGenome;
     }
-
+    
     /**
      * Set the genome at specified path.
      * @param filename The name of the genome file containing file to be set
      */
     private void setGenome(String filename) {
-        if (filename == null) showOpenGenomeDialog();
         try {
             Genome g = new Genome(filename);
             setGenome(filename, g);
         } catch (FileNotFoundException ex) {
         } catch (Exception ex) {
             promptUserToFormatFile(filename);
-        /*
-         } catch (Exception e) {
-            JFrame frame = new JFrame();
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(frame, "Error: " + e.getLocalizedMessage());
-            frame.setVisible(true);
-         * 
-         */
         }
     }
 
-    public static void promptUserToFormatFile(String fileName) {
+    public void promptUserToFormatFile(String fileName) {
         String message = "This file does not appear to be formatted. Format now?";
         String title = "Unrecognized file";
         // display the JOptionPane showConfirmDialog
@@ -1494,7 +1470,11 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
 
            if (dff.didSuccessfullyFormat()) {
                String outfilepath = dff.getOutputFilePath();
-               addTrackFromFile(outfilepath);
+               if (dff.getFileType() == FileType.SEQUENCE_FASTA && !this.isGenomeLoaded()) {
+                   this.setGenome(outfilepath);
+               } else {
+                   addTrackFromFile(outfilepath);
+               }
            }
         }
     }
@@ -1516,11 +1496,13 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
 
         if (genome.isSequenceSet()) {
             try {
-                JPanel panel = createDockedFramePanel(MiscUtils.getFilenameFromPath(filename));
+                DockableFrame df = DockableFrameFactory.createGenomeFrame(MiscUtils.getFilenameFromPath(filename));
+                JPanel panel = (JPanel) df.getContentPane();
                 List<ViewTrack> tracks = new ArrayList<ViewTrack>();
                 tracks.add(new SequenceViewTrack(genome.getName(), genome));
                 Frame frame = new Frame(panel, tracks);
                 FrameController.getInstance().addFrame(frame, panel);
+                this.getTrackDockingManager().addFrame(df);
             } catch (FileNotFoundException ex) {
                 Logger.getLogger(Savant.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -1679,4 +1661,3 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         return getGenome() != null;
     }
 }
-
