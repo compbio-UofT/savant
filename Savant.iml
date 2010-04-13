@@ -20,7 +20,6 @@
       </library>
     </orderEntry>
     <orderEntry type="library" name="picard" level="project" />
-    <orderEntry type="library" name="mydoggy" level="project" />
     <orderEntry type="library" name="jpf" level="project" />
     <orderEntry type="module-library">
       <library>
@@ -32,6 +31,7 @@
       </library>
     </orderEntry>
     <orderEntry type="library" name="smalltext" level="project" />
+    <orderEntry type="library" name="jide" level="project" />
   </component>
 </module>
 
