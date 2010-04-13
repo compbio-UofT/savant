@@ -217,7 +217,6 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
     /**
      * Info
      */
-    private static DataSheet currentRangeDataSheet;
     private static BookmarkSheet favoriteSheet;
 
     private RangeController rangeController = RangeController.getInstance();
@@ -1258,13 +1257,6 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         JPanel tablePanel = createTabPanel(jtp, "Bookmarks");
         favoriteSheet = new BookmarkSheet(this, tablePanel);
         favoriteController.addFavoritesChangedListener(favoriteSheet);
-    }
-
-    private void initDataTab(JTabbedPane jtp) {
-        JPanel tablePanel = createTabPanel(jtp, "Table View");
-        currentRangeDataSheet = new DataSheet(this, tablePanel);
-        rangeController.addRangeChangedListener(currentRangeDataSheet);
-        ViewTrackController.getInstance().addTracksChangedListener(currentRangeDataSheet);
     }
 
     private void initBatchAnalyzeTab(JTabbedPane jtp) {
