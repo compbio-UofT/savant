@@ -23,7 +23,6 @@ import savant.view.swing.Savant;
 import savant.controller.event.range.RangeChangedEvent;
 import savant.controller.event.range.RangeChangedListener;
 import savant.view.swing.ViewTrack;
-import savant.view.swing.model.DataTableModel;
 
 import java.awt.Dimension;
 import java.awt.FileDialog;
