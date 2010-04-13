@@ -22,12 +22,9 @@
 package savant.data;
 
 import org.java.plugin.Plugin;
-import savant.controller.RangeController;
-import savant.controller.ViewTrackController;
 import savant.plugin.AuxData;
 import savant.plugin.PluginAdapter;
 import savant.view.swing.BrowserDefaults;
-import savant.data.DataSheet;
 
 import javax.swing.*;
 import java.awt.*;
