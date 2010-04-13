@@ -93,13 +93,14 @@ public class DataFormatter {
 
             e.printStackTrace();
 
-            //TODO: remove/delete the outFile (if created)
-            deleteTmpOutputFile();
 
             return false;
         }
+        finally {
 
-        deleteTmpOutputFile();
+            deleteTmpOutputFile();
+
+        }
 
         return true;
     }
@@ -315,6 +316,9 @@ public class DataFormatter {
         modifiers.add(null);
 
         formatAsInterval(fields,modifiers);
+
+        // delete sorted temp file
+        new File(sortPath).delete();
     }
 
     private void formatAsIntervalGFF() throws FileNotFoundException, IOException {
@@ -354,6 +358,10 @@ public class DataFormatter {
         modifiers.add(null);
 
         formatAsInterval(fields,modifiers);
+
+        // delete sorted temp file
+        new File(sortPath).delete();
+
     }
 
     private void formatAsIntervalBED() throws FileNotFoundException, IOException {
@@ -395,6 +403,10 @@ public class DataFormatter {
         modifiers.add(null);
 
         formatAsInterval(fields,modifiers);
+
+        // delete sorted temp file
+        new File(sortPath).delete();
+
     }
 
      private HashMap<Integer,Long> writeBinsToOutfile(DataOutputStream outFile, RandomAccessFile srcFile, IntervalSearchTree ibst, HashMap<Integer, List<LinePlusRange>> nodeIndex2IntervalIndices, List<Long> intevalIndex2StartByte, List<FieldType> fields, List<Object> modifiers) throws IOException {
