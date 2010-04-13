@@ -27,6 +27,7 @@ import net.sf.samtools.CigarOperator;
 import net.sf.samtools.SAMRecord;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import savant.controller.RangeController;
 import savant.model.*;
 import savant.model.data.interval.BAMIntervalTrack;
 import savant.model.view.AxisRange;
@@ -448,14 +449,26 @@ public class BAMTrackRenderer extends TrackRenderer {
             BAMIntervalRecord record = (BAMIntervalRecord)data.get(i);
             SAMRecord samRecord = record.getSamRecord();
 
-            int alignmentStart = samRecord.getAlignmentStart();
+            int alignmentStart;
+            int alignmentEnd;
             int mateAlignmentStart = samRecord.getMateAlignmentStart();
-            if (alignmentStart > mateAlignmentStart) {
-                // this is the second in the pair, don't draw anything
-                continue;
+            if (samRecord.getAlignmentStart() > mateAlignmentStart) {
+                if (!(mateAlignmentStart < RangeController.getInstance().getRangeStart())) {
+                    // this is the second in the pair, and it doesn't span the beginning of the range, so don't draw anything
+                    continue;
+                }
+                else {
+                    // switch the mate start/end for the read start/end to deal with reversed position
+                    alignmentStart = mateAlignmentStart;
+                    alignmentEnd = mateAlignmentStart + samRecord.getReadLength();
+                }
             }
-            int alignmentEnd = samRecord.getAlignmentEnd();
+            else {
+                alignmentStart = samRecord.getAlignmentStart();
+                alignmentEnd = samRecord.getAlignmentEnd();
 
+            }
+            // at this point alignmentStart/End refers the the start end of the first occurrence in the pair
 
             BAMIntervalRecord.PairType type = record.getType();
             int arcLength = BAMIntervalTrack.inferInsertSize(samRecord, type);
