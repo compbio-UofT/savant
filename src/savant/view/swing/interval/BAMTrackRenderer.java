@@ -436,9 +436,6 @@ public class BAMTrackRenderer extends TrackRenderer {
         Stroke oneStroke = new BasicStroke(1.0f);
         Stroke twoStroke= new BasicStroke(2.0f);
 
-//        float mean = (Float) getDrawingInstructions().getInstruction(DrawingInstructions.InstructionName.MEAN);
-//        float stdDeviation = (Float) getDrawingInstructions().getInstruction(DrawingInstructions.InstructionName.STD_DEV);
-
         gp.setIsOrdinal(false);
         gp.setXRange(axisRange.getXRange());
         // Y range is given to us by BAMViewTrack for this mode
@@ -471,11 +468,7 @@ public class BAMTrackRenderer extends TrackRenderer {
             // at this point alignmentStart/End refers the the start end of the first occurrence in the pair
 
             BAMIntervalRecord.PairType type = record.getType();
-            int arcLength = BAMIntervalTrack.inferInsertSize(samRecord, type);
-
-            if (arcLength > 40000) {
-                continue;
-            }
+            int arcLength = record.getInsertSize();
 
             int intervalStart;
             switch (type) {
