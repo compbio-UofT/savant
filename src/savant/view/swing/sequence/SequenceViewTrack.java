@@ -101,7 +101,7 @@ public class SequenceViewTrack extends ViewTrack {
         return Resolution.VERY_HIGH;
     }
 
-    public void prepareForRendering(Range range) throws Exception {
+    public void prepareForRendering(Range range) throws Throwable {
         Resolution r = getResolution(range);
         List<Object> data = null;
 
