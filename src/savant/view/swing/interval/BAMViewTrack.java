@@ -24,6 +24,7 @@ package savant.view.swing.interval;
 import net.sf.samtools.SAMRecord;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import savant.controller.RangeController;
 import savant.model.BAMIntervalRecord;
 import savant.model.FileFormat;
 import savant.model.Resolution;
@@ -101,10 +102,10 @@ public class BAMViewTrack extends ViewTrack {
     }
 
     @Override
-    public void prepareForRendering(Range range) throws Exception {
+    public void prepareForRendering(Range range) throws Throwable {
         Resolution r = getResolution(range);
         List<Object> data = null;
-        if (r == Resolution.VERY_HIGH || r == Resolution.HIGH) {
+        if ((getDrawMode().equals(MATE_PAIRS_MODE)) || (r == Resolution.VERY_HIGH || r == Resolution.HIGH)) {
             data = retrieveAndSaveData(range);
         }
         for (TrackRenderer renderer : getTrackRenderers()) {
@@ -127,26 +128,31 @@ public class BAMViewTrack extends ViewTrack {
     * Calculate the maximum (within reason) arc height to be used to set the Y axis for drawing.
      */
     private int getMaxValue(List<Object>data) {
+
         double max = 0;
+        Range displayedRange = RangeController.getInstance().getRange();
+
         for (Object o: data) {
 
             BAMIntervalRecord record = (BAMIntervalRecord)o;
             SAMRecord samRecord = record.getSamRecord();
 
             double val;
+            int alignmentStart = samRecord.getAlignmentStart();
+            int mateAlignmentStart = samRecord.getMateAlignmentStart();
+            if (alignmentStart < mateAlignmentStart) {
 
-            if (samRecord.getAlignmentStart() < samRecord.getMateAlignmentStart()) {
-
-                BAMIntervalRecord.PairType pairType = record.getType();
-                val = BAMIntervalTrack.inferInsertSize(samRecord, pairType);
+//                BAMIntervalRecord.PairType pairType = record.getType();
+//                val = BAMIntervalTrack.inferInsertSize(samRecord, pairType);
+                val = record.getInsertSize();
+                // throw away, for purposes of calculating the max y axis, any insert sizes larger than the displayed range.
+                if (val > displayedRange.getLength()) continue;
             }
             else {
                 continue;
             }
-            // TODO: see how well this works, i.e. eliminating arcs of length ~2*point of change to coverage map
-            if (val > 0 && val < 40000) {
-                if (val > max) max = val;
-            }
+            if (val > max) max = val;
+
         }
         return (int)Math.ceil(max);
     }
@@ -156,7 +162,7 @@ public class BAMViewTrack extends ViewTrack {
     }
 
     @Override
-    public List<Object> retrieveData(Range range, Resolution resolution) throws Exception {
+    public List<Object> retrieveData(Range range, Resolution resolution) throws Throwable {
         return new ArrayList<Object>(getTrack().getRecords(range, resolution));
     }
 
