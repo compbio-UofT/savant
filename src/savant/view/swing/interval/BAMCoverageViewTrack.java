@@ -45,7 +45,7 @@ public class BAMCoverageViewTrack extends ViewTrack {
     }
 
     @Override
-    public void prepareForRendering(Range range) throws Exception {
+    public void prepareForRendering(Range range) throws Throwable {
         Resolution r = getResolution(range);
         List<Object> data = null;
         if (r == Resolution.LOW || r == Resolution.VERY_LOW || r == Resolution.MEDIUM) {
@@ -62,7 +62,7 @@ public class BAMCoverageViewTrack extends ViewTrack {
     }
 
     @Override
-    public List<Object> retrieveData(Range range, Resolution resolution) throws Exception {
+    public List<Object> retrieveData(Range range, Resolution resolution) throws Throwable {
         return new ArrayList<Object>(getTrack().getRecords(range, resolution));
     }
 
