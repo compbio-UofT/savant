@@ -119,7 +119,7 @@ public class IntervalViewTrack extends ViewTrack {
         return new ArrayList<Object>(getTrack().getRecords(range, resolution));
     }
 
-    public void prepareForRendering(Range range) throws Exception {
+    public void prepareForRendering(Range range) throws Throwable {
 
         Resolution r = getResolution(range);
 
