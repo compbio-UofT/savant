@@ -335,9 +335,8 @@ public abstract class ViewTrack {
      * @param range
      * @throws Exception
      */
-    public abstract void prepareForRendering(Range range) throws Exception;
+    public abstract void prepareForRendering(Range range) throws Throwable;
 
-    // TODO: don't just throw generic Exception
 
     /**
      * Retrieve data from the underlying data track at the current resolution and save it.
@@ -346,13 +345,11 @@ public abstract class ViewTrack {
      * @return a list of data objects in the given range
      * @throws Exception
      */
-    public List<Object> retrieveAndSaveData(Range range) throws Exception {
+    public List<Object> retrieveAndSaveData(Range range) throws Throwable {
         Resolution resolution = getResolution(range);
         this.dataInRange = retrieveData(range, resolution);
         return this.dataInRange;
     }
-
-    // TODO: don't just throw generic Exception
 
     /**
      * Retrive data from the underlying data track.
@@ -362,7 +359,7 @@ public abstract class ViewTrack {
      * @return a List of data objects from the given range and resolution
      * @throws Exception
      */
-    public abstract List<Object> retrieveData(Range range, Resolution resolution) throws Exception;
+    public abstract List<Object> retrieveData(Range range, Resolution resolution) throws Throwable;
 
     /**
      * Add a renderer to this view track
