@@ -32,6 +32,7 @@ import savant.model.data.RecordTrack;
 import savant.util.Range;
 import savant.view.swing.Savant;
 
+import javax.swing.*;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -50,23 +51,19 @@ public class BAMIntervalTrack implements RecordTrack<BAMIntervalRecord> {
     private SAMFileReader samFileReader;
     private String sequenceName;
 
-    private float mean;
-    private float stdDeviation;
 
     public BAMIntervalTrack(File path, File index) {
         setPath(path, index);
         guessSequence();
-//        calculateStatistics();
     }
 
     /**
      * {@inheritDoc}
      */
-    public List<BAMIntervalRecord> getRecords(Range range, Resolution resolution) {
+    public List<BAMIntervalRecord> getRecords(Range range, Resolution resolution) throws OutOfMemoryError {
 
         CloseableIterator<SAMRecord> recordIterator=null;
         List<BAMIntervalRecord> result = new ArrayList<BAMIntervalRecord>();
-        List<BAMIntervalRecord> invertedMateOrEverted = new ArrayList<BAMIntervalRecord>();
         try {
             recordIterator = samFileReader.query(sequenceName, range.getFrom(), range.getTo(), false);
             SAMRecord samRecord;
@@ -80,9 +77,12 @@ public class BAMIntervalTrack implements RecordTrack<BAMIntervalRecord> {
                 // find out the type of the pair
                 BAMIntervalRecord.PairType type = getPairType(samRecord.getAlignmentStart(), samRecord.getMateAlignmentStart(), samRecord.getReadNegativeStrandFlag(), samRecord.getMateNegativeStrandFlag());
                 bamRecord.setType(type);
+                // pre-calculate the insert size in case it's needed
+                bamRecord.setInsertSize(inferInsertSize(samRecord, type));
 
                 result.add(bamRecord);
             }
+
         } finally {
             if (recordIterator != null) recordIterator.close();
         }
@@ -97,24 +97,6 @@ public class BAMIntervalTrack implements RecordTrack<BAMIntervalRecord> {
      */
     public File getPath() {
         return path;
-    }
-
-    /**
-     * Get mean of estimated insert sizes.
-     *
-     * @return mean of insert sizes
-     */
-    public float getMean() {
-        return mean;
-    }
-
-    /**
-     * Get standard deviation of estimated insert sizes.
-     *
-     * @return std dev of insert sizes
-     */
-    public float getStdDeviation() {
-        return stdDeviation;
     }
 
     private void setPath(File path, File index) {
@@ -157,102 +139,6 @@ public class BAMIntervalTrack implements RecordTrack<BAMIntervalRecord> {
 
     }
 
-    /*
-     * Calculate the mean and standard deviation of normal reads.
-     */
-    private void calculateStatistics() {
-
-        CloseableIterator<SAMRecord> recordIterator=null;
-
-        int n = 0;
-        float mean = 0.0f;
-        float m2 = 0.0f;
-//        float total = 0.0f;
-        SAMRecord samRecord;
-        int samples = 10;
-        // DEBUG:
-//        PrintWriter writer = null;
-//        try {
-//            writer = new PrintWriter(new BufferedWriter(new FileWriter(new File("stats.txt"))));
-//        } catch (IOException e) {
-//            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-//        }
-        // END DEBUG
-
-        try {
-
-            // take samples ranges from the genome
-            for (int i=0; i<samples; i++) {
-                
-                Range range = selectRandomGenomeRange();
-                
-                recordIterator = samFileReader.query(sequenceName, range.getFrom(), range.getTo(), false);
-                while (recordIterator.hasNext()) {
-
-                    // get next record
-                    samRecord = recordIterator.next();
-
-                    // throw out unmapped and unpaired reads
-                    if (samRecord.getReadUnmappedFlag() || !samRecord.getReadPairedFlag() || samRecord.getMateUnmappedFlag()) continue;
-
-                    // only use the left-most of the pair so we don't count pairs twice
-                    if (samRecord.getAlignmentStart() > samRecord.getMateAlignmentStart() ) continue;
-
-                    // only use NORMAL pair types
-                    BAMIntervalRecord.PairType pairType = getPairType(samRecord.getAlignmentStart(), samRecord.getMateAlignmentStart(),
-                            samRecord.getReadNegativeStrandFlag(), samRecord.getMateNegativeStrandFlag());
-                    if (pairType != BAMIntervalRecord.PairType.NORMAL) continue; // don't want crazy numbers blowing our statistics
-
-                    // estimate the insert size
-                    int x = inferInsertSize(samRecord, pairType);
-
-                    // throw out overlapping pairs (x < 0) and outlying insert sizes
-                    if (x < 0 || x > 500) continue; 
-
-                    // DEBUG:
-//                    writer.println(x);
-                    // END DEBUG:
-                    
-                    // We've thrown out everything we're going to, it's safe to update n now
-                    n++;
-                    float delta = x - mean;
-//                    total += x;
-                    mean = mean + delta/n;
-//                    Savant.log("Mean = " + mean);
-                    m2 = m2 + delta*(x - mean);
-                }
-                if (recordIterator != null) recordIterator.close();
-            }
-
-            float variance = m2/n;
-            this.stdDeviation = (float)Math.sqrt((double) variance);
-            
-            this.mean = mean;
-//            float realMean = total/n;
-//            Savant.log("Properly calculated mean is: " + realMean);
-            Savant.log("Using n=" + n);
-            Savant.log("Mean and Standard Deviation are: " + this.mean + " , " + this.stdDeviation);
-            
-        } catch (Exception e) {
-            e.printStackTrace();
-        } 
-    }
-
-    private static final int TAIL_FACTOR = 4;
-    private static final int MIN_SAMPLE_LENGTH = 10000;
-    private static final int MAX_SAMPLE_LENGTH = 30000;
-
-    private RangeController rc = RangeController.getInstance();
-
-    private Range selectRandomGenomeRange() {
-
-        int genomeLength = rc.getMaxRange().getLength();
-        int tailLength = genomeLength/TAIL_FACTOR;
-        int randomStart = tailLength + (int)(Math.random()*(genomeLength-(tailLength*2)));
-        int randomLength = MIN_SAMPLE_LENGTH+(int)(Math.random()*MAX_SAMPLE_LENGTH);
-        
-        return new Range(randomStart, randomStart+randomLength);
-    }
 
     /**
      * <p>Calculate approximate insert size for a given mated pair of reads. Some assumptions are
