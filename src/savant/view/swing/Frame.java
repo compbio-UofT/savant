@@ -140,11 +140,16 @@ public class Frame {
 
             this.graphPane.setXRange(currentRange);
 
-            for (ViewTrack track : tracks) {
-                track.prepareForRendering(range);
-            }
+            try {
+                
+                for (ViewTrack track : tracks) {
+                        track.prepareForRendering(range);
+                }
+                this.graphPane.repaint();
 
-            this.graphPane.repaint();
+            } catch (Throwable throwable) {
+                JOptionPane.showMessageDialog(graphPane, throwable.getMessage());
+            }
         }
     }
 
