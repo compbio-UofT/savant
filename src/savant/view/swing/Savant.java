@@ -207,6 +207,8 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
     private JTextField textboxFrom, textboxTo;
     /** Click and drag control for range selection */
     private RangeSelectionPanel rangeSelector;
+    /** Length being displayed */
+    private JLabel label_length;
 
     /** Information & Analysis Tabbed Pane (for plugin use) */
     private JTabbedPane auxTabbedPane;
@@ -977,7 +979,6 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
 
         p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
 
-
         Dimension buttonDimension = new Dimension(45,23);
 
         p.add(getRigidPadding());
@@ -1184,6 +1185,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
 
         p.add(getRigidPadding());
         int tfwidth = 100;
+        int labwidth = 70;
         int tfheight = 22;
         textboxFrom = addTextField(p, "from");
         textboxFrom.setHorizontalAlignment(JTextField.CENTER);
@@ -1211,7 +1213,29 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
             }
         });
 
+
+        p.add(this.getRigidPadding());
+
+        JLabel sepl = new JLabel();
+        sepl.setText("| ");
+        p.add(sepl);
+
+        label_length = new JLabel();
+        label_length.setText("length");
+        label_length.setHorizontalAlignment(JLabel.RIGHT);
+
+        label_length.setPreferredSize(new Dimension(labwidth, tfheight));
+        label_length.setMaximumSize(new Dimension(labwidth, tfheight));
+        label_length.setMinimumSize(new Dimension(labwidth, tfheight));
+        p.add(label_length);
+
+        JLabel sepr = new JLabel();
+        sepr.setText(" |");
+        p.add(sepr);
+
         rangeControls = new ArrayList<JComponent>();
+        rangeControls.add(sepl); rangeControls.add(sepr);
+        rangeControls.add(label_length);
         rangeControls.add(textboxFrom);
         rangeControls.add(textboxTo);
         rangeControls.add(shiftFarLeft);
@@ -1328,7 +1352,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         }
 
         //Custom button text
-        Object[] options = {"Load From File", "Specify length", "Cancel"};
+        Object[] options = {"From file", "By length", "Cancel"};
         int n = JOptionPane.showOptionDialog(this,
             "How would you like to specify the genome?",
             "Specify a Genome",
@@ -1516,6 +1540,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
     void setRangeDescription(Range range) {
         textboxFrom.setText(MiscUtils.intToString(range.getFrom()));
         textboxTo.setText(MiscUtils.intToString(range.getTo()));
+        label_length.setText(MiscUtils.intToString(range.getLength()));
         //label_rangeLength.setText(MiscUtils.intToString(getRange().getLength()));
     }
 
