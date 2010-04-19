@@ -18,6 +18,7 @@ package savant.view.swing;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import savant.controller.DrawModeController;
 import savant.controller.RangeController;
 import savant.model.view.AxisRange;
 import savant.model.view.DrawingInstructions;
@@ -771,7 +772,9 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
     }
 
     private void switchMode(final ViewTrack track, final Mode mode) {
-        track.setDrawMode(mode);
+
+        DrawModeController.getInstance().switchMode(track, mode);
+        
         try {
             // TODO: this needs to get done in a separate thread and then schedule the repaint for later
             track.prepareForRendering(RangeController.getInstance().getRange());
