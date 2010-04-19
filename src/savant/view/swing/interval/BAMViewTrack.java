@@ -63,6 +63,10 @@ public class BAMViewTrack extends ViewTrack {
     private static final Mode VARIANTS_MODE = new Mode(DrawingMode.VARIANTS, "Show indels and mismatches");
     private static final Mode MATE_PAIRS_MODE = new Mode(DrawingMode.MATE_PAIRS, "Join mate pairs with arcs");
 
+    // if > 1, treat as absolute size below which an arc will not be drawn
+    // if 0 < 1, treat as percentage of y range below which an arc will not be drawn
+    // if = 0, draw all arcs
+    private double arcSizeVisibilityThreshold=0.250d;
 
     /**
      * Constructor.
@@ -114,9 +118,8 @@ public class BAMViewTrack extends ViewTrack {
             renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.COLOR_SCHEME, this.getColorScheme());
             if (getDrawMode().getName() == "MATE_PAIRS") {
                 int maxDataValue = getMaxValue(data);
-                renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.AXIS_RANGE, new AxisRange(range, new Range(0,(int)Math.round(maxDataValue))));
-//                renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.MEAN, ((BAMIntervalTrack)getTrack()).getMean());
-//                renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.STD_DEV, ((BAMIntervalTrack)getTrack()).getStdDeviation());
+                renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.AXIS_RANGE, new AxisRange(range, new Range(0,Math.round(maxDataValue))));
+                renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.ARC_MIN, getArcSizeVisibilityThreshold());
             }
             else renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.AXIS_RANGE, new AxisRange(range, getDefaultYRange()));
             renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.MODE, getDrawMode());
@@ -199,4 +202,13 @@ public class BAMViewTrack extends ViewTrack {
     public Mode getDefaultDrawMode() {
         return VARIANTS_MODE;
     }
+
+    public double getArcSizeVisibilityThreshold() {
+        return arcSizeVisibilityThreshold;
+    }
+
+    public void setArcSizeVisibilityThreshold(double arcSizeVisibilityThreshold) {
+        this.arcSizeVisibilityThreshold = arcSizeVisibilityThreshold;
+    }
+
 }
