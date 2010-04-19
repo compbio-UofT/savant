@@ -12,6 +12,7 @@
 package savant.format;
 
 import savant.format.header.FileType;
+import savant.model.FileFormat;
 import savant.view.swing.Savant;
 
 import javax.swing.*;
@@ -368,13 +369,19 @@ public class DataFormatForm extends JDialog implements PropertyChangeListener /*
 
     private void list_formatsValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_list_formatsValueChanged
         this.setOutputPath(this.textfield_inPath.getText());
+
+//        String ff = (String) ((JList) evt.getSource()).getSelectedValue();
+//        System.out.println(ff);
+//        if (ff.equals("BAM Coverage")) {
+//            this.button_openOutFile.setEnabled(false);
+//        } else {
+//            this.button_openOutFile.setEnabled(true);
+//        }
     }//GEN-LAST:event_list_formatsValueChanged
 
     private void button_cancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_cancelActionPerformed
 
-        // TODO: cancel format thread
-        // if (thread running)
-        //          kill thread
+        if (formatTask != null) formatTask.cancel(true);
 
         this.dispose();
     }//GEN-LAST:event_button_cancelActionPerformed
