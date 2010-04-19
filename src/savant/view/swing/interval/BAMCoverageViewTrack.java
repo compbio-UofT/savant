@@ -21,9 +21,12 @@
 
 package savant.view.swing.interval;
 
+import savant.controller.event.drawmode.DrawModeChangedEvent;
+import savant.controller.event.drawmode.DrawModeChangedListener;
 import savant.model.ContinuousRecord;
 import savant.model.FileFormat;
 import savant.model.Resolution;
+import savant.model.data.RecordTrack;
 import savant.model.data.continuous.GenericContinuousTrack;
 import savant.model.view.AxisRange;
 import savant.model.view.ColorScheme;
@@ -37,7 +40,9 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BAMCoverageViewTrack extends ViewTrack {
+public class BAMCoverageViewTrack extends ViewTrack implements DrawModeChangedListener {
+
+    private boolean enabled;
 
     public BAMCoverageViewTrack(String name, GenericContinuousTrack track) {
         super(name, FileFormat.CONTINUOUS_GENERIC, track);
@@ -48,7 +53,7 @@ public class BAMCoverageViewTrack extends ViewTrack {
     public void prepareForRendering(Range range) throws Throwable {
         Resolution r = getResolution(range);
         List<Object> data = null;
-        if (r == Resolution.LOW || r == Resolution.VERY_LOW || r == Resolution.MEDIUM) {
+        if (isEnabled() && (r == Resolution.LOW || r == Resolution.VERY_LOW || r == Resolution.MEDIUM)) {
             data = retrieveAndSaveData(range);
         }
         for (TrackRenderer renderer : getTrackRenderers()) {
@@ -97,6 +102,19 @@ public class BAMCoverageViewTrack extends ViewTrack {
         else { return Resolution.VERY_HIGH; }
     }
 
+    // FIXME: this is a horrible kludge
+    public void drawModeChangeReceived(DrawModeChangedEvent evt) {
+        ViewTrack viewTrack = evt.getViewTrack();
+        RecordTrack track = viewTrack.getTrack();
+        if (track.equals(this.getTrack())) {
+            if (viewTrack.getDataType() == FileFormat.INTERVAL_BAM) {
+                if (evt.getMode().getName().equals("MATE_PAIRS")) {
+                    setEnabled(false);
+                }
+            }
+        }
+    }
+
     private Range getDefaultYRange() {
         return new Range(0, 1);
     }
@@ -114,4 +132,11 @@ public class BAMCoverageViewTrack extends ViewTrack {
         return (int)Math.ceil(max);
     }
 
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
 }
