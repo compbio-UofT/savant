@@ -428,19 +428,26 @@ public class BAMTrackRenderer extends TrackRenderer {
 
         AxisRange axisRange = (AxisRange) getDrawingInstructions().getInstruction(DrawingInstructions.InstructionName.AXIS_RANGE);
         ColorScheme cs = (ColorScheme) getDrawingInstructions().getInstruction(DrawingInstructions.InstructionName.COLOR_SCHEME.toString());
+        double threshold = (Double) getDrawingInstructions().getInstruction(DrawingInstructions.InstructionName.ARC_MIN);
+
+        // set up colors
         Color normalArcColor = cs.getColor("REVERSE_STRAND");
         Color invertedReadColor = cs.getColor("INVERTED_READ");
         Color invertedMateColor = cs.getColor("INVERTED_MATE");
         Color evertedPairColor = cs.getColor("EVERTED_PAIR");
         Color discordantLengthColor = cs.getColor("DISCORDANT_LENGTH");
+
+        // set up strokes
         Stroke oneStroke = new BasicStroke(1.0f);
         Stroke twoStroke= new BasicStroke(2.0f);
 
+        // set graph pane's range parameters
         gp.setIsOrdinal(false);
         gp.setXRange(axisRange.getXRange());
         // Y range is given to us by BAMViewTrack for this mode
         gp.setYRange(axisRange.getYRange());
 
+        // iterate through the data and draw
         for (int i = 0; i < numdata; i++) {
 
             BAMIntervalRecord record = (BAMIntervalRecord)data.get(i);
@@ -470,6 +477,7 @@ public class BAMTrackRenderer extends TrackRenderer {
             BAMIntervalRecord.PairType type = record.getType();
             int arcLength = record.getInsertSize();
 
+
             int intervalStart;
             switch (type) {
                 case INVERTED_READ:
@@ -488,6 +496,14 @@ public class BAMTrackRenderer extends TrackRenderer {
                     g2.setStroke(twoStroke);
                     break;
                 default:
+                    // make sure arclength is over our threshold
+                    if (threshold != 0.0d && threshold < 1.0d && arcLength < axisRange.getXRange().getLength()*threshold) {
+                        continue;
+                    }
+                    else if (threshold > 1.0d && arcLength < threshold) {
+                        continue;
+                    }
+                    
                     intervalStart = alignmentEnd;
 //                    float discordantVariance = DISCORDANT_STD_DEV*stdDeviation;
 //                    if (arcLength > mean + discordantVariance || arcLength < mean - discordantVariance) {
