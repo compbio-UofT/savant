@@ -49,9 +49,11 @@
                       <Component id="button_openOutFile" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <Group type="102" alignment="1" attributes="0">
-                      <Component id="formatProgressBar" pref="273" max="32767" attributes="1"/>
+                      <Component id="formatProgressBar" pref="202" max="32767" attributes="1"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="button_format" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="button_cancel" min="-2" max="-2" attributes="0"/>
                   </Group>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
@@ -90,8 +92,11 @@
               </Group>
               <EmptySpace min="-2" pref="10" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
+                  <Group type="103" groupAlignment="3" attributes="0">
+                      <Component id="button_cancel" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="button_format" alignment="3" min="-2" max="-2" attributes="0"/>
+                  </Group>
                   <Component id="formatProgressBar" min="-2" max="-2" attributes="0"/>
-                  <Component id="button_format" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
@@ -226,6 +231,14 @@
       </Events>
     </Component>
     <Component class="javax.swing.JProgressBar" name="formatProgressBar">
+    </Component>
+    <Component class="javax.swing.JButton" name="button_cancel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Cancel"/>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="button_cancelActionPerformed"/>
+      </Events>
     </Component>
   </SubComponents>
 </Form>

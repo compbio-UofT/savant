@@ -95,6 +95,7 @@ public class DataFormatForm extends JDialog implements PropertyChangeListener /*
         checkbox_tempOut = new javax.swing.JCheckBox();
         checkbox_chooseBase = new javax.swing.JCheckBox();
         formatProgressBar = new javax.swing.JProgressBar();
+        button_cancel = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Format");
@@ -177,6 +178,13 @@ public class DataFormatForm extends JDialog implements PropertyChangeListener /*
             }
         });
 
+        button_cancel.setText("Cancel");
+        button_cancel.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                button_cancelActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -203,9 +211,11 @@ public class DataFormatForm extends JDialog implements PropertyChangeListener /*
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(button_openOutFile))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(formatProgressBar, javax.swing.GroupLayout.DEFAULT_SIZE, 273, Short.MAX_VALUE)
+                        .addComponent(formatProgressBar, javax.swing.GroupLayout.DEFAULT_SIZE, 202, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(button_format)))
+                        .addComponent(button_format)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(button_cancel)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -237,8 +247,10 @@ public class DataFormatForm extends JDialog implements PropertyChangeListener /*
                     .addComponent(button_openOutFile))
                 .addGap(10, 10, 10)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(formatProgressBar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(button_format))
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(button_cancel)
+                        .addComponent(button_format))
+                    .addComponent(formatProgressBar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap())
         );
 
@@ -358,6 +370,15 @@ public class DataFormatForm extends JDialog implements PropertyChangeListener /*
         this.setOutputPath(this.textfield_inPath.getText());
     }//GEN-LAST:event_list_formatsValueChanged
 
+    private void button_cancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_cancelActionPerformed
+
+        // TODO: cancel format thread
+        // if (thread running)
+        //          kill thread
+
+        this.dispose();
+    }//GEN-LAST:event_button_cancelActionPerformed
+
     /**
     * @param args the command line arguments
     */
@@ -370,6 +391,7 @@ public class DataFormatForm extends JDialog implements PropertyChangeListener /*
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton button_cancel;
     private javax.swing.JButton button_format;
     private javax.swing.JButton button_openInPath;
     private javax.swing.JButton button_openOutFile;
