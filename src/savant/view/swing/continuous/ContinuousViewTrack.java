@@ -49,7 +49,7 @@ public class ContinuousViewTrack extends ViewTrack {
     }
 
     @Override
-    public void prepareForRendering(Range range) throws Exception {
+    public void prepareForRendering(Range range) throws Throwable {
         Resolution r = getResolution(range);
         List<Object> data = retrieveAndSaveData(range);
         for (TrackRenderer renderer : getTrackRenderers()) {
