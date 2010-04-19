@@ -82,9 +82,8 @@ public class BookmarkController {
      */
     private synchronized void fireFavoritesChangedEvent() {
         BookmarksChangedEvent evt = new BookmarksChangedEvent(this, this.bookmarks);
-        Iterator listeners = this.favoritesChangedListeners.iterator();
-        while (listeners.hasNext()) {
-            ((BookmarksChangedListener) listeners.next()).bookmarksChangeReceived(evt);
+        for (BookmarksChangedListener listener : this.favoritesChangedListeners) {
+            listener.bookmarksChangeReceived(evt);
         }
     }
 
