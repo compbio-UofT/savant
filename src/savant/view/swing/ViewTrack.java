@@ -72,6 +72,7 @@ public abstract class ViewTrack {
     private List<TrackRenderer> trackRenderers;
     private RecordTrack track;
 
+    // TODO: put all of this in a ViewTrackFactory class
     /**
      * Create one or more tracks from the given file name.
      *
@@ -110,7 +111,17 @@ public abstract class ViewTrack {
             if (indexFilename != null) {
                 dataTrack = new BAMIntervalTrack(new File(trackFilename), new File(indexFilename));
                 viewTrack = new BAMViewTrack(name, (BAMIntervalTrack)dataTrack);
+
+                // capture parameters needed to adjust display
+                BAMParametersDialog paramDialog = new BAMParametersDialog(Savant.getInstance(), true);
+                if (paramDialog.isAccepted()) {
+                    ((BAMViewTrack)viewTrack).setArcSizeVisibilityThreshold(paramDialog.getArcLengthThreshold());
+                    ((BAMViewTrack)viewTrack).setDiscordantMin(paramDialog.getDiscordantMin());
+                    ((BAMViewTrack)viewTrack).setDiscordantMax(paramDialog.getDiscordantMax());
+                }
+
                 results.add(viewTrack);
+
             }
             else {
                 log.error("Could not open BAM track because index could not be found; index file must be named filename.bam.bai or filename.bai");
@@ -125,7 +136,7 @@ public abstract class ViewTrack {
             } catch (IOException e) {
                 log.error("Could not create coverage track", e);
             }
-
+           
             // proprietary
         } else {
 
@@ -326,8 +337,6 @@ public abstract class ViewTrack {
     public RecordTrack getTrack() {
         return this.track;
     }
-
-    // TODO: don't just throw generic Exception
 
     /**
      * Prepare this view track to render the given range.
