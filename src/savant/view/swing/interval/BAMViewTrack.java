@@ -66,7 +66,11 @@ public class BAMViewTrack extends ViewTrack {
     // if > 1, treat as absolute size below which an arc will not be drawn
     // if 0 < 1, treat as percentage of y range below which an arc will not be drawn
     // if = 0, draw all arcs
-    private double arcSizeVisibilityThreshold=0.250d;
+    private double arcSizeVisibilityThreshold=0.0d;
+
+    // arcs below discordantMin or above discordantMax are coloured as discordant-by-length
+    private int discordantMin=Integer.MIN_VALUE;
+    private int discordantMax=Integer.MAX_VALUE;
 
     /**
      * Constructor.
@@ -118,8 +122,10 @@ public class BAMViewTrack extends ViewTrack {
             renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.COLOR_SCHEME, this.getColorScheme());
             if (getDrawMode().getName() == "MATE_PAIRS") {
                 int maxDataValue = getMaxValue(data);
-                renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.AXIS_RANGE, new AxisRange(range, new Range(0,Math.round(maxDataValue))));
+                renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.AXIS_RANGE, new AxisRange(range, new Range(0,(int)Math.round(maxDataValue+maxDataValue*0.1))));
                 renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.ARC_MIN, getArcSizeVisibilityThreshold());
+                renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.DISCORDANT_MIN, getDiscordantMin());
+                renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.DISCORDANT_MAX, getDiscordantMax());
             }
             else renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.AXIS_RANGE, new AxisRange(range, getDefaultYRange()));
             renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.MODE, getDrawMode());
@@ -211,4 +217,19 @@ public class BAMViewTrack extends ViewTrack {
         this.arcSizeVisibilityThreshold = arcSizeVisibilityThreshold;
     }
 
+    public int getDiscordantMin() {
+        return discordantMin;
+    }
+
+    public void setDiscordantMin(int discordantMin) {
+        this.discordantMin = discordantMin;
+    }
+
+    public int getDiscordantMax() {
+        return discordantMax;
+    }
+
+    public void setDiscordantMax(int discordantMax) {
+        this.discordantMax = discordantMax;
+    }
 }

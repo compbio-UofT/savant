@@ -429,6 +429,8 @@ public class BAMTrackRenderer extends TrackRenderer {
         AxisRange axisRange = (AxisRange) getDrawingInstructions().getInstruction(DrawingInstructions.InstructionName.AXIS_RANGE);
         ColorScheme cs = (ColorScheme) getDrawingInstructions().getInstruction(DrawingInstructions.InstructionName.COLOR_SCHEME.toString());
         double threshold = (Double) getDrawingInstructions().getInstruction(DrawingInstructions.InstructionName.ARC_MIN);
+        int discordantMin = (Integer) getDrawingInstructions().getInstruction(DrawingInstructions.InstructionName.DISCORDANT_MIN);
+        int discordantMax = (Integer) getDrawingInstructions().getInstruction(DrawingInstructions.InstructionName.DISCORDANT_MAX);
 
         // set up colors
         Color normalArcColor = cs.getColor("REVERSE_STRAND");
@@ -505,15 +507,15 @@ public class BAMTrackRenderer extends TrackRenderer {
                     }
                     
                     intervalStart = alignmentEnd;
-//                    float discordantVariance = DISCORDANT_STD_DEV*stdDeviation;
-//                    if (arcLength > mean + discordantVariance || arcLength < mean - discordantVariance) {
-//                        g2.setColor(discordantLengthColor);
-//                        g2.setStroke(twoStroke);
-//                    }
-//                    else {
+
+                    if (arcLength > discordantMax || arcLength < discordantMin) {
+                        g2.setColor(discordantLengthColor);
+                        g2.setStroke(twoStroke);
+                    }
+                    else {
                         g2.setColor(normalArcColor);
                         g2.setStroke(oneStroke);
-//                    }
+                    }
                     break;
             }
             int arcHeight = arcLength;
