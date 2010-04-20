@@ -32,7 +32,7 @@ public class DrawingInstructions {
      * Enum representing instruction types
      */
     public enum InstructionName {
-        TRACK_DATA_TYPE, MODE, AXIS_RANGE, RESOLUTION, RANGE, COLOR_SCHEME, GENOME, ARC_MIN }
+        TRACK_DATA_TYPE, MODE, AXIS_RANGE, RESOLUTION, RANGE, COLOR_SCHEME, GENOME, ARC_MIN, DISCORDANT_MIN, DISCORDANT_MAX }
 
         Dictionary<String, Object> instructions;
 
