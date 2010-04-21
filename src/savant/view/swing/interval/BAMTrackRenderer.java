@@ -59,6 +59,10 @@ public class BAMTrackRenderer extends TrackRenderer {
     
     private static Log log = LogFactory.getLog(BAMTrackRenderer.class);
 
+    private static Font smallFont = new Font("Sans-Serif", Font.PLAIN, 10);
+    private static Stroke oneStroke = new BasicStroke(1.0f);
+    private static Stroke twoStroke= new BasicStroke(2.0f);
+
     // The number of standard deviations from the mean an arclength has to be before it's
     // considered discordant
     private static int DISCORDANT_STD_DEV = 3;
@@ -107,15 +111,10 @@ public class BAMTrackRenderer extends TrackRenderer {
     private void renderPackMode(Graphics2D g2, GraphPane gp, Resolution r) {
 
         List<Object> data = this.getData();
-        // DEBUG: print out how many intervals we've got
-        Savant.log("BAM Intervals read is: " + data.size());
-
 
         AxisRange axisRange = (AxisRange) getDrawingInstructions().getInstruction(DrawingInstructions.InstructionName.AXIS_RANGE);
         ColorScheme cs = (ColorScheme) getDrawingInstructions().getInstruction(DrawingInstructions.InstructionName.COLOR_SCHEME.toString());
         Color linecolor = cs.getColor("LINE");
- 
-//        if (r == Resolution.VERY_HIGH || r == Resolution.HIGH) {
 
         IntervalPacker packer = new IntervalPacker(data);
         // TODO: when it becomes possible, choose an appropriate number for breathing room parameter
@@ -154,7 +153,6 @@ public class BAMTrackRenderer extends TrackRenderer {
                 SAMRecord samRecord = bamRecord.getSamRecord();
 
                 if (samRecord.getReadUnmappedFlag() == true) { // this read is unmapped, don't visualize it
-                    Savant.log("Read is unmapped; not drawing");
                     continue;
                 }
 
@@ -173,12 +171,6 @@ public class BAMTrackRenderer extends TrackRenderer {
 
             }
         }
-
-//        }
-//        else {
-//            // resolution is too low to draw intervals
-//            GlassMessagePane.draw(g2, gp, "Zoom in to see intervals", 300);
-//        }
 
     }
 
@@ -204,7 +196,6 @@ public class BAMTrackRenderer extends TrackRenderer {
         w = gp.getWidth(interval.getLength());
 
         if (w < 1) {
-            Savant.log("Read is too narrow; not drawing");
             return null; // don't draw intervals less than one pixel wide
         }
         if (w > arrowWidth) {
@@ -431,6 +422,7 @@ public class BAMTrackRenderer extends TrackRenderer {
         double threshold = (Double) getDrawingInstructions().getInstruction(DrawingInstructions.InstructionName.ARC_MIN);
         int discordantMin = (Integer) getDrawingInstructions().getInstruction(DrawingInstructions.InstructionName.DISCORDANT_MIN);
         int discordantMax = (Integer) getDrawingInstructions().getInstruction(DrawingInstructions.InstructionName.DISCORDANT_MAX);
+        Savant.log("discordantMin=" + discordantMin + " discordantMax=" + discordantMax);
 
         // set up colors
         Color normalArcColor = cs.getColor("REVERSE_STRAND");
@@ -438,10 +430,6 @@ public class BAMTrackRenderer extends TrackRenderer {
         Color invertedMateColor = cs.getColor("INVERTED_MATE");
         Color evertedPairColor = cs.getColor("EVERTED_PAIR");
         Color discordantLengthColor = cs.getColor("DISCORDANT_LENGTH");
-
-        // set up strokes
-        Stroke oneStroke = new BasicStroke(1.0f);
-        Stroke twoStroke= new BasicStroke(2.0f);
 
         // set graph pane's range parameters
         gp.setIsOrdinal(false);
@@ -530,6 +518,36 @@ public class BAMTrackRenderer extends TrackRenderer {
 
         }
 
+        // draw legend
+        String[] legendStrings = {"Discordant Length", "Inverted Read", "Inverted Mate", "Everted Pair"};
+        Color[] legendColors = {discordantLengthColor, invertedReadColor, invertedMateColor, evertedPairColor};
+        String sizingString = legendStrings[0];
+        Rectangle2D stringRect = smallFont.getStringBounds(sizingString, g2.getFontRenderContext());
+
+        drawLegend(g2, legendStrings, legendColors, (int)(gp.getWidth()-stringRect.getWidth()-5), (int)(2*stringRect.getHeight() + 5+2));
+
+    }
+
+    private void drawLegend(Graphics2D g2, String[] legendStrings, Color[] legendColors, int startx, int starty) {
+
+        g2.setFont(smallFont);
+
+        int x = startx;
+        int y = starty;
+        String legendString;
+        for (int i=0; i<legendStrings.length; i++) {
+            legendString = legendStrings[i];
+            g2.setColor(legendColors[i]);
+            g2.setStroke(twoStroke);
+            Rectangle2D stringRect = smallFont.getStringBounds(legendString, g2.getFontRenderContext());
+            g2.drawLine(x-25, y-(int)stringRect.getHeight()/2, x-5, y-(int)stringRect.getHeight()/2);
+            g2.setColor(BrowserDefaults.colorAccent);
+            g2.setStroke(oneStroke);
+            g2.drawString(legendString, x, y);
+
+            y += stringRect.getHeight()+2;
+
+        }
     }
 
     @Override
