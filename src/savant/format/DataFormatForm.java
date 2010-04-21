@@ -12,7 +12,6 @@
 package savant.format;
 
 import savant.format.header.FileType;
-import savant.model.FileFormat;
 import savant.view.swing.Savant;
 
 import javax.swing.*;
@@ -21,6 +20,7 @@ import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -38,19 +38,14 @@ public class DataFormatForm extends JDialog implements PropertyChangeListener /*
     private static HashMap<String,FileType> formatTypeMap;
 
     private static JTextArea formatDescriptionTextArea;
-    private boolean didSuccessfullyFormat = false;
+    private boolean success = false;
     private String outFilePath;
 
-    private ProgressMonitor progressMonitor;
     private FormatTask formatTask;
+
 
     /** Creates new form DataFormatForm */
     public DataFormatForm() {
-        this(null);
-    }
-
-
-    public DataFormatForm(String infile) {
 
         initComponents();
         initFormats();
@@ -62,15 +57,26 @@ public class DataFormatForm extends JDialog implements PropertyChangeListener /*
         formatDescriptionTextArea = this.textarea_formatDescription;
         validateReadyToFormat();
 
+
+        this.setModal(false);
+    }
+
+    public void setInFile(String infile) {
+
         if (infile != null) {
             this.textfield_inPath.setText(infile);
             this.setOutputPath(infile);
         }
 
-        this.setModal(true);
-        this.setVisible(true);
     }
 
+    public void clear() {
+        this.textfield_inPath.setText("");
+        this.textfield_outPath.setText("");
+        if (!this.list_formats.isSelectionEmpty())
+            this.list_formats.clearSelection();
+    }
+    
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -98,7 +104,7 @@ public class DataFormatForm extends JDialog implements PropertyChangeListener /*
         formatProgressBar = new javax.swing.JProgressBar();
         button_cancel = new javax.swing.JButton();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
         setTitle("Format");
         setResizable(false);
 
@@ -197,14 +203,14 @@ public class DataFormatForm extends JDialog implements PropertyChangeListener /*
                         .addComponent(checkbox_tempOut)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(checkbox_chooseBase))
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 346, Short.MAX_VALUE)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 389, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(textfield_inPath, javax.swing.GroupLayout.PREFERRED_SIZE, 295, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(button_openInPath))
                     .addComponent(jLabel1)
                     .addComponent(jLabel2)
-                    .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 346, Short.MAX_VALUE)
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 389, Short.MAX_VALUE)
                     .addComponent(jLabel4)
                     .addComponent(jLabel3)
                     .addGroup(layout.createSequentialGroup()
@@ -336,27 +342,16 @@ public class DataFormatForm extends JDialog implements PropertyChangeListener /*
         
         DataFormatter df = new DataFormatter(infile, outfile, ft, isInputOneBased);
 
-//        progressMonitor = new ProgressMonitor(DataFormatForm.this,
-//                                  "Formatting File",
-//                                  "formatting...", 0, 100);
-//        progressMonitor.setProgress(0);
-//        progressMonitor.setMillisToDecideToPopup(20);
         button_format.setEnabled(false);
         setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
         formatProgressBar.setIndeterminate(true);
         formatProgressBar.setVisible(true);
 
+        setSuccess(false);
         formatTask = new FormatTask(df);
         formatTask.addPropertyChangeListener(this);
         formatTask.execute();
 
-//        if (df.format()) {
-//            didSuccessfullyFormat = true;
-//            JOptionPane.showMessageDialog(this, "Formatting successful.");
-//            this.dispose();
-//        } else {
-//             JOptionPane.showMessageDialog(this, "Formatting unsuccessful.");
-//        }
     }//GEN-LAST:event_button_formatActionPerformed
 
     private void checkbox_chooseBaseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkbox_chooseBaseActionPerformed
@@ -382,8 +377,8 @@ public class DataFormatForm extends JDialog implements PropertyChangeListener /*
     private void button_cancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_cancelActionPerformed
 
         if (formatTask != null) formatTask.cancel(true);
-
-        this.dispose();
+        setVisible(false);
+        
     }//GEN-LAST:event_button_cancelActionPerformed
 
     /**
@@ -423,12 +418,14 @@ public class DataFormatForm extends JDialog implements PropertyChangeListener /*
             public void valueChanged(ListSelectionEvent e) {
                 if (!e.getValueIsAdjusting()) {
                     JList jl = (JList) e.getSource();
-                    int index = jl.getSelectedIndex();
-                    Savant.log(index + " picked");
-                    formatDescriptionTextArea.setText(formatDescriptionMap.get(formats.get(index)));
+                    if (!jl.isSelectionEmpty()) {
+                        int index = jl.getSelectedIndex();
+                        Savant.log(index + " picked");
+                        formatDescriptionTextArea.setText(formatDescriptionMap.get(formats.get(index)));
 
-                    checkbox_chooseBase.setSelected(defaultBases.get(index));
-                    checkbox_chooseBase.setEnabled(canChooseBaseStatus.get(index));
+                        checkbox_chooseBase.setSelected(defaultBases.get(index));
+                        checkbox_chooseBase.setEnabled(canChooseBaseStatus.get(index));
+                    }
                     //checkbox_chooseBase.setVisible(canChooseBaseStatus.get(index));
                     //Savant.log("List value changed to " + e.getFirstIndex() + " " + e.getLastIndex() + " " + minIndex + " " + maxIndex);
                 }
@@ -508,8 +505,15 @@ public class DataFormatForm extends JDialog implements PropertyChangeListener /*
 
     }
 
-    public boolean didSuccessfullyFormat() {
-        return this.didSuccessfullyFormat;
+    public boolean isSuccess() {
+        return success;
+    }
+
+    public void setSuccess(boolean success) {
+        boolean oldValue = this.success;
+        this.success = success;
+        if (oldValue != this.success)
+            firePropertyChange("success", oldValue, this.success);
     }
 
     public String getOutputFilePath() {
@@ -517,23 +521,11 @@ public class DataFormatForm extends JDialog implements PropertyChangeListener /*
     }
 
     public void propertyChange(PropertyChangeEvent evt) {
-//        if ("progress" == evt.getPropertyName() ) {
-//            int progress = (Integer) evt.getNewValue();
-//            progressMonitor.setProgress(progress);
-//            if (progressMonitor.isCanceled() || formatTask.isDone()) {
-//                progressMonitor.close();
-//                if (progressMonitor.isCanceled()) {
-//                    formatTask.cancel(true);
-//                }
-//                button_format.setEnabled(true);
-//                this.dispose();
-//            }
-//        }
         if ("state" == evt.getPropertyName()) {
             if (evt.getNewValue() == SwingWorker.StateValue.DONE) {
                 if (formatTask.isCancelled() || formatTask.isDone()) {
                     formatProgressBar.setVisible(false);
-                    this.dispose();
+                    setVisible(false);
                 }
             }
         }
@@ -550,7 +542,7 @@ public class DataFormatForm extends JDialog implements PropertyChangeListener /*
         @Override
         public Void doInBackground() throws Exception {
 //            setProgress(1);
-            didSuccessfullyFormat = df.format();
+            setSuccess(df.format());
 //            setProgress(100);
             
             return null; 

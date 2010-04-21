@@ -52,6 +52,8 @@ import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
 import java.awt.*;
 import java.awt.event.*;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FilenameFilter;
@@ -73,7 +75,8 @@ import savant.view.swing.util.ScreenShot;
  *
  * @author mfiume
  */
-public class Savant extends javax.swing.JFrame implements ComponentListener, RangeSelectionChangedListener, RangeChangedListener {
+public class Savant extends javax.swing.JFrame implements ComponentListener, RangeSelectionChangedListener,
+        RangeChangedListener, PropertyChangeListener {
 
     private DockingManager auxDockingManager;
     private JPanel masterPlaceholderPanel;
@@ -88,6 +91,9 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
     private static int groupNum = 0;
     private static Map<DockableFrame,Frame> dockFrameToFrameMap = new HashMap<DockableFrame,Frame>();
 
+    private DataFormatForm dff;
+    private boolean openAfterFormat;
+    
     private void addTrackFromFile(String selectedFileName) {
 
         // Some types of track actually create more than one track per frame, e.g. BAM
@@ -666,8 +672,12 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
     }//GEN-LAST:event_menuItemAddToFavesActionPerformed
 
     private void menuItemFormatActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuItemFormatActionPerformed
-        Savant.log("Showing format form...");
-        DataFormatForm ff = new DataFormatForm();
+        if (!dff.isVisible()) {
+            Savant.log("Showing format form...");
+            openAfterFormat = false;
+            dff.clear();
+            dff.setVisible(true);
+        }
     }//GEN-LAST:event_menuItemFormatActionPerformed
 
     private void menuitem_exitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuitem_exitActionPerformed
@@ -786,6 +796,11 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         initGUIFrame();
         initMenu();
         initPanelsAndDocking();
+
+        dff = new DataFormatForm();
+        // get async notification when DataFormatForm has finished its business
+        dff.addPropertyChangeListener("success", this);
+
     }
 
     private void initPanelsAndDocking() {
@@ -823,7 +838,6 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
 
             // init the AuxData plugins
 
-
             PluginDescriptor core = pluginManager.getRegistry().getPluginDescriptor("savant.core");
             ExtensionPoint point = pluginManager.getRegistry().getExtensionPoint(core.getId(), "AuxData");
 
@@ -837,16 +851,6 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
                 auxData.init(getAuxTabbedPane(), new PluginAdapter());
             }
 
-
-//            Iterator it = getPluginManager().getRegistry().getPluginDescriptors().iterator();
-//            while (it.hasNext()) {
-//                PluginDescriptor p = (PluginDescriptor) it.next();
-//                if (p.getExtensionPoint("AuxData") != null) {
-//
-//                    AuxData auxData = (AuxData) getPluginManager().getPlugin(p.getId());
-//                    auxData.init(getAuxTabbedPane());
-//                }
-//            }
         }
         catch (Exception e) {
             e.printStackTrace(); // TODO: handle properly
@@ -1482,16 +1486,12 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         int reply = JOptionPane.showConfirmDialog(null, message, title, JOptionPane.YES_NO_OPTION);
         if (reply == JOptionPane.YES_OPTION)
         {
-           DataFormatForm dff = new DataFormatForm(fileName);
+            if (!dff.isVisible()) {
+                openAfterFormat = true;
+                dff.setInFile(fileName);
+                dff.setVisible(true);
+            }
 
-           if (dff.didSuccessfullyFormat()) {
-               String outfilepath = dff.getOutputFilePath();
-               if (dff.getFileType() == FileType.SEQUENCE_FASTA && !this.isGenomeLoaded()) {
-                   this.setGenome(outfilepath);
-               } else {
-                   addTrackFromFile(outfilepath);
-               }
-           }
         }
     }
 
@@ -1534,14 +1534,12 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
     /**
      * Set range description.
      *  - Change the from and to textboxes.
-     *  - TODO: set the range length somewhere
      * @param range
      */
     void setRangeDescription(Range range) {
         textboxFrom.setText(MiscUtils.intToString(range.getFrom()));
         textboxTo.setText(MiscUtils.intToString(range.getTo()));
         label_length.setText(MiscUtils.intToString(range.getLength()));
-        //label_rangeLength.setText(MiscUtils.intToString(getRange().getLength()));
     }
 
     /**
@@ -1676,5 +1674,21 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
      */
     public boolean isGenomeLoaded() {
         return getGenome() != null;
+    }
+
+    public void propertyChange(PropertyChangeEvent propertyChangeEvent) {
+
+        if (propertyChangeEvent.getPropertyName().equals("success")) {
+            if (!openAfterFormat) return;
+            if ((Boolean)propertyChangeEvent.getNewValue() == true) {
+                String outfilepath = dff.getOutputFilePath();
+                if (dff.getFileType() == FileType.SEQUENCE_FASTA && !this.isGenomeLoaded()) {
+                   this.setGenome(outfilepath);
+                } else {
+                   addTrackFromFile(outfilepath);
+                }
+            }
+
+        }
     }
 }
