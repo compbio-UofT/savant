@@ -20,10 +20,12 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import savant.controller.DrawModeController;
 import savant.controller.RangeController;
+import savant.model.FileFormat;
 import savant.model.view.AxisRange;
 import savant.model.view.DrawingInstructions;
 import savant.model.view.Mode;
 import savant.util.Range;
+import savant.view.swing.interval.BAMViewTrack;
 import savant.view.swing.util.GlassMessagePane;
 
 import javax.swing.*;
@@ -255,6 +257,17 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
             }
         }
         trackMenu.add(modeMenu);
+        // if it's a BAM track, add a menu item to allow changing the display parameters
+        if (track.getDataType() == FileFormat.INTERVAL_BAM) {
+            JMenuItem bamParamChangeMI = new JMenuItem("Change Arc Parameters...");
+            final BAMViewTrack innerTrack = (BAMViewTrack)track;
+            bamParamChangeMI.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    getBAMParams(innerTrack);
+                }
+            });
+            trackMenu.add(bamParamChangeMI);
+        }
         menu.add(trackMenu);
     }
     
@@ -781,6 +794,24 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
             repaint();
         } catch (Throwable e) {
             log.error("Unexpected exception while preparing to render track " + e.getMessage());
+        }
+
+    }
+
+    private void getBAMParams(BAMViewTrack bamViewTrack) {
+        // capture parameters needed to adjust display
+        BAMParametersDialog paramDialog = new BAMParametersDialog(Savant.getInstance(), true);
+        if (paramDialog.isAccepted()) {
+            bamViewTrack.setArcSizeVisibilityThreshold(paramDialog.getArcLengthThreshold());
+            bamViewTrack.setDiscordantMin(paramDialog.getDiscordantMin());
+            bamViewTrack.setDiscordantMax(paramDialog.getDiscordantMax());
+            try {
+                // TODO: this needs to get done in a separate thread and then schedule the repaint for later
+                bamViewTrack.prepareForRendering(RangeController.getInstance().getRange());
+                repaint();
+            } catch (Throwable e) {
+                log.error("Unexpected exception while preparing to render track " + e.getMessage());
+            }
         }
 
     }
