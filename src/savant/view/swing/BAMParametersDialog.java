@@ -52,6 +52,7 @@ public class BAMParametersDialog extends javax.swing.JDialog {
         textArcThreshold = new javax.swing.JTextField();
         buttonCancel = new javax.swing.JButton();
         buttonOK = new javax.swing.JButton();
+        jLabel4 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
 
@@ -73,7 +74,6 @@ public class BAMParametersDialog extends javax.swing.JDialog {
             }
         });
 
-        textArcThreshold.setText("e.g. 100 or 10%");
         textArcThreshold.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 textArcThresholdActionPerformed(evt);
@@ -95,13 +95,19 @@ public class BAMParametersDialog extends javax.swing.JDialog {
             }
         });
 
+        jLabel4.setText("eg. 100 or 10%");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(buttonCancel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(buttonOK))
                     .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
@@ -109,18 +115,15 @@ public class BAMParametersDialog extends javax.swing.JDialog {
                                 .addGap(18, 18, 18))
                             .addComponent(jLabel2)
                             .addComponent(jLabel1))
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                .addGroup(layout.createSequentialGroup()
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                    .addComponent(textDiscordantMin, javax.swing.GroupLayout.DEFAULT_SIZE, 111, Short.MAX_VALUE))
-                                .addComponent(textDiscordantMax, javax.swing.GroupLayout.DEFAULT_SIZE, 111, Short.MAX_VALUE))
-                            .addComponent(textArcThreshold, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(buttonCancel)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(buttonOK)))
-                .addGap(32, 32, 32))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(textArcThreshold)
+                            .addComponent(textDiscordantMax)
+                            .addGroup(layout.createSequentialGroup()
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(textDiscordantMin, javax.swing.GroupLayout.DEFAULT_SIZE, 76, Short.MAX_VALUE)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jLabel4)))
+                .addContainerGap(32, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -136,7 +139,8 @@ public class BAMParametersDialog extends javax.swing.JDialog {
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel3)
-                    .addComponent(textArcThreshold, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(textArcThreshold, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel4))
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(buttonOK)
@@ -176,6 +180,7 @@ public class BAMParametersDialog extends javax.swing.JDialog {
         boolean result = false;
         String minStr = textDiscordantMin.getText();
         if (minStr == null || minStr.equals("")) {
+            setDiscordantMin(Integer.MIN_VALUE);
             result = true;
         }
         else {
@@ -196,6 +201,7 @@ public class BAMParametersDialog extends javax.swing.JDialog {
         boolean result = false;
         String maxStr = textDiscordantMax.getText();
         if (maxStr == null || maxStr.equals("")) {
+            setDiscordantMax(Integer.MAX_VALUE);
             result = true;
         }
         else {
@@ -216,6 +222,7 @@ public class BAMParametersDialog extends javax.swing.JDialog {
         boolean result = false;
         String threshStr = textArcThreshold.getText();
         if (threshStr == null || threshStr.equals("")) {
+            setArcLengthThreshold(Integer.MIN_VALUE);
             result = true;
         }
         else {
@@ -265,6 +272,7 @@ public class BAMParametersDialog extends javax.swing.JDialog {
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
     private javax.swing.JTextField textArcThreshold;
     private javax.swing.JTextField textDiscordantMax;
     private javax.swing.JTextField textDiscordantMin;
