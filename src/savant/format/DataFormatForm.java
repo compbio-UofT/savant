@@ -11,6 +11,8 @@
 
 package savant.format;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import savant.format.header.FileType;
 import savant.view.swing.Savant;
 
@@ -30,6 +32,8 @@ import java.util.List;
  * @author mfiume
  */
 public class DataFormatForm extends JDialog implements PropertyChangeListener /* javax.swing.JFrame*/ {
+
+    private static final Log log = LogFactory.getLog(DataFormatForm.class);
 
     private static List<Boolean> defaultBases;
     private static List<Boolean> canChooseBaseStatus;
@@ -344,12 +348,16 @@ public class DataFormatForm extends JDialog implements PropertyChangeListener /*
 
         button_format.setEnabled(false);
         setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-        formatProgressBar.setIndeterminate(true);
+        formatProgressBar.setIndeterminate(false);
+        formatProgressBar.setMinimum(0);
+        formatProgressBar.setMaximum(100);
+        formatProgressBar.setValue(0);
         formatProgressBar.setVisible(true);
 
         setSuccess(false);
         formatTask = new FormatTask(df);
         formatTask.addPropertyChangeListener(this);
+
         formatTask.execute();
 
     }//GEN-LAST:event_button_formatActionPerformed
@@ -521,7 +529,7 @@ public class DataFormatForm extends JDialog implements PropertyChangeListener /*
     }
 
     public void propertyChange(PropertyChangeEvent evt) {
-        if ("state" == evt.getPropertyName()) {
+        if ("state".equals(evt.getPropertyName())) {
             if (evt.getNewValue() == SwingWorker.StateValue.DONE) {
                 if (formatTask.isCancelled() || formatTask.isDone()) {
                     formatProgressBar.setVisible(false);
@@ -529,31 +537,51 @@ public class DataFormatForm extends JDialog implements PropertyChangeListener /*
                 }
             }
         }
-
+        else if ("progress".equals(evt.getPropertyName())) {
+            formatProgressBar.setValue((Integer)evt.getNewValue());
+        }
     }
-    class FormatTask extends SwingWorker<Void, Void> {
+
+    class FormatTask extends SwingWorker<Void, Void> implements /*PropertyChangeListener*/ FormatProgressListener {
 
         private DataFormatter df;
 
         public FormatTask(DataFormatter df) {
             this.df = df;
+//            this.df.addPropertyChangeListener("progress", this);
+            df.addProgressListener(this);
         }
 
         @Override
         public Void doInBackground() throws Exception {
-//            setProgress(1);
-            setSuccess(df.format());
-//            setProgress(100);
-            
-            return null; 
+            setProgress(0);
+            try {
+                setSuccess(df.format());
+                setProgress(100);
+            } catch (InterruptedException e) {
+                log.info("Format cancelled by user");
+            }
+            finally {
+                return null;
+            }
         }
 
         @Override
         public void done() {
             button_format.setEnabled(true);
             setCursor(Cursor.getDefaultCursor());
+//            this.df.removePropertyChangeListener("progress", this);
+        }
 
-//            progressMonitor.setProgress(100);
+//        public void propertyChange(PropertyChangeEvent propertyChangeEvent) {
+//            if ("progress".equals(propertyChangeEvent.getPropertyName())) {
+//                setProgress((Integer)propertyChangeEvent.getNewValue());
+//            }
+//        }
+
+
+        public void progressUpdate(int value) {
+            setProgress(value);
         }
     }
 }
