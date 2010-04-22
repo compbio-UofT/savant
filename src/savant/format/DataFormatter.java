@@ -1,10 +1,24 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ *    Copyright 2010 University of Toronto
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
  */
+
 package savant.format;
 
 import it.unipi.di.util.ExternalSort;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import savant.controller.RangeController;
 import savant.format.comparator.LineRangeComparator;
 import savant.format.header.FileType;
@@ -17,25 +31,45 @@ import savant.tools.BAMToCoverage;
 import savant.tools.WIGToContinuous;
 import savant.util.*;
 
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.io.*;
 import java.util.*;
 
+// TODO: make this a DataFormatterFactory, make things like WIGToContinuous inherit from an abstract class, implement all formats as classes.
 /**
+ * Class to perform formatting of biological data files (FASTA, BED, etc.) into Savant's binary formats.
+ * Sometimes a separate index file is created. Occasionally, auxiliary files are created, such as
+ * coverage files for BAM maps.
  *
  * @author mfiume
  */
-public class DataFormatter {
+public class DataFormatter implements FormatProgressListener {
 
-    public static String defaultExtension = ".savant";
-    public static String indexExtension = ".index";
+    private static final Log log = LogFactory.getLog(DataFormatter.class);
 
-    int byteCounter;
-    static String tmpOutPath = "tmp";
-    String inPath;
-    String outPath;
-    DataOutputStream outFile;
-    FileType fileType;
-    int currentVersion = 1;
+    public static final String indexExtension = ".index";
+
+    public static final int RECORDS_PER_INTERRUPT_CHECK = 100;
+
+    // variables to keep track of progress processing the input file(s)
+    private long totalBytes;
+    private long byteCount;
+    private int progress; // 0 to 100%
+    // property change support to make progress changes visible to UI
+    // FIXME: figure out why PropertyChangeSupport does not work. Then get rid of FormatProgressListener and related stuff.
+//    private PropertyChangeSupport propertyChangeSupport = new PropertyChangeSupport(this);
+    private List<FormatProgressListener> listeners = new ArrayList<FormatProgressListener>();
+
+
+    private static final String tmpOutPath = "tmp";
+    private String inPath;
+    private String outPath;
+    private DataOutputStream outFile;
+    private FileType fileType;
+
+    // TODO: this should be in a property file
+    private static final int currentVersion = 1;
 
     int baseOffset = 0; // 0 is 1-based; 1 if 0-based
 
@@ -43,6 +77,10 @@ public class DataFormatter {
         this.inPath = inPath;
         this.outPath = outPath;
         this.fileType = fileType;
+
+        // progress indication for UI
+        this.progress = 0;
+
         setInputOneBased(isInputOneBased);
     }
 
@@ -50,11 +88,11 @@ public class DataFormatter {
         this(inPath, outPath,fileType,true);
     }
 
-    /**
+    /*
      * Formats the file
      * @return
      */
-    public boolean format() {
+    public boolean format() throws InterruptedException {
 
         try {
             outFile = this.openNewOutputFile();
@@ -89,50 +127,77 @@ public class DataFormatter {
                     return false;
             }
 
-        } catch (Exception e) {
-
-            e.printStackTrace();
-
-
+        } catch (IOException e) {
+            log.error("Error formatting file " + inPath, e);
             return false;
         }
         finally {
 
             deleteTmpOutputFile();
-
         }
 
         return true;
     }
 
     /**
+     * {@inheritDoc}
+     */
+    public void progressUpdate(int value) {
+        setProgress(value);
+    }
+
+    /*
      * SEQUENCE : FASTA
      * @return
      */
-    private void formatAsSequenceFasta() throws FileNotFoundException, IOException {
+    private void formatAsSequenceFasta() throws IOException, InterruptedException {
+
+        // Initialize the total size of the input file, for purposes of tracking progress
+        this.totalBytes = new File(inPath).length();
 
         BufferedReader inFile = this.openInputFile();
 
         List<FieldType> fields = new ArrayList<FieldType>();
         DataFormatUtils.writeFieldsHeader(outFile, fields);
 
-        String strLine;
         //Read File Line By Line
-        while ((strLine = inFile.readLine()) != null) {
-            if (strLine.charAt(0) != '>') {
-                outFile.writeBytes(strLine);
+        try {
+            String strLine;
+            boolean done = false;
+            while (!done) {
+                for (int i=0; i<RECORDS_PER_INTERRUPT_CHECK; i++) {
+                    if ((strLine = inFile.readLine()) == null) {
+                        done = true;
+                        break;
+                    }
+                    // update bytes read from input
+                    this.byteCount += strLine.getBytes().length;
+                    // generate output
+                    if (strLine.charAt(0) != '>') {
+                        outFile.writeBytes(strLine);
+                    }
+                }
+                // check to see if format has been cancelled
+                if (Thread.interrupted()) throw new InterruptedException();
+                // update progress property for UI
+                updateProgress();
             }
         }
+        finally {
+            inFile.close();
+            outFile.close();
 
-        inFile.close();
-        outFile.close();
+        }
     }
 
-    /**
+    /*
      * CONTINUOUS : GENERIC
      * @return
      */
-    private void formatAsContinuousGeneric() throws FileNotFoundException, IOException {
+    private void formatAsContinuousGeneric() throws IOException, InterruptedException {
+
+        // Initialize the total size of the input file, for purposes of tracking progress
+        this.totalBytes = new File(inPath).length();
 
         BufferedReader inFile = this.openInputFile();
 
@@ -144,26 +209,49 @@ public class DataFormatter {
 
         DataFormatUtils.writeFieldsHeader(outFile, fields);
 
-        List<Object> line;
-        while((line = DataFormatUtils.parseTxtLine(inFile, fields)) != null) {
-            DataFormatUtils.writeBinaryRecord(outFile, line, fields, modifiers);
+        try {
+            String strLine;
+            List<Object> line;
+            boolean done = false;
+            while (!done) {
+                for (int i=0; i<RECORDS_PER_INTERRUPT_CHECK; i++) {
+                    if ((strLine = inFile.readLine()) == null) {
+                        done = true;
+                        break;
+                    }
+                    // update bytes read from input
+                    this.byteCount += strLine.getBytes().length;
+                    // parse input and write output
+                    if ((line = DataFormatUtils.parseTxtLine(strLine, fields)) != null) {
+                        DataFormatUtils.writeBinaryRecord(outFile, line, fields, modifiers);
+                    }
+                }
+                // check to see if format has been cancelled
+                if (Thread.interrupted()) throw new InterruptedException();
+                // update progress property for UI
+                updateProgress();
+            }
+        } finally {
+            inFile.close();
+            outFile.close();
         }
 
-        inFile.close();
-        outFile.close();
     }
 
-    /**
+    /*
      * CONTINUOUS : GENERIC
      * @return
      */
-    private void formatAsContinuousWIG() throws IOException {
+    private void formatAsContinuousWIG() throws IOException, InterruptedException {
 
         WIGToContinuous wtc = new WIGToContinuous(this.inPath, this.outPath);
+        wtc.addProgressListener(this);
         wtc.format();
+        wtc.removeProgressListener(this);
     }
 
 
+    // TODO: interrupts and progress
     private void formatAsBAM() throws IOException {
 
         RangeController rc = RangeController.getInstance();
@@ -173,6 +261,7 @@ public class DataFormatter {
 
     }
 
+    // TODO: interrupts and progress
     private void formatAsInterval(List<FieldType> fields, List<Object> modifiers) throws FileNotFoundException, IOException {
 
         List<Range> intervalIndex2IntervalRange = new ArrayList<Range>();
@@ -180,7 +269,7 @@ public class DataFormatter {
 
         DataOutputStream tmpOutFile = this.openNewTmpOutputFile();
 
-        /**
+        /*
          * STEP 1:
          * Go through inFile and...
          *  - get max range
@@ -195,8 +284,12 @@ public class DataFormatter {
         int maxRange = Integer.MIN_VALUE;
 
         BufferedReader inFile = this.openInputFile();
+        String strLine;
         List<Object> line;
-        while((line = DataFormatUtils.parseTxtLine(inFile, fields)) != null) {
+        while((strLine = inFile.readLine()) != null) {
+
+            line = DataFormatUtils.parseTxtLine(strLine, fields);
+
             line.set(0, ((Integer)line.get(0)) + this.baseOffset);
             line.set(1, ((Integer)line.get(1))  + this.baseOffset);
 
@@ -215,7 +308,7 @@ public class DataFormatter {
             DataFormatUtils.writeBinaryRecord(tmpOutFile, line, fields, modifiers);
         }
 
-        /**
+        /*
          * STEP 2:
          *  - create an interval BST
          *  - put each interval into appropriate bin
@@ -249,7 +342,7 @@ public class DataFormatter {
 
         //System.out.println("IBST created with: " + ibst.getNumNodes() + " nodes");
 
-        /**
+        /*
          * STEP 3:
          *  - sort each bin
          *  - write each bin to outfile
@@ -267,13 +360,12 @@ public class DataFormatter {
         HashMap<Integer,Long> node2startByte = writeBinsToOutfile(outFile, indexFile, ibst, nodeIndex2IntervalIndices, intevalIndex2StartByte, fields, modifiers );
         outFile.close();
 
-        /**
+        /*
          * STEP 4:
          *  - write index
          */
 
-        /**
-         * TODO: write the index to an INDEX file.
+        /*
          * need a node --> start byte map first!
          */
         String indexPath = outPath + indexExtension;
@@ -288,7 +380,7 @@ public class DataFormatter {
     }
 
 
-    /**
+    /*
      * INTERVAL : GENERIC
      */
     private void formatAsIntervalGeneric() throws FileNotFoundException, IOException {
@@ -450,15 +542,12 @@ public class DataFormatter {
      * @return
      * @throws IOException
      */
-    private void formatAsPointGeneric() throws IOException {
+    private void formatAsPointGeneric() throws IOException, InterruptedException {
 
-        /**
-         * -1       Get the largest one (fixed length)
-         * other    All specified length (fixed length)
-         * null  :  Actual length of string (not - fixed length) NOT allowed for point!
-         */
+        // Initialize the total size of the input file, for purposes of tracking progress
+        this.totalBytes = new File(inPath).length();
+
         BufferedReader inFile = this.openInputFile();
-
 
         List<FieldType> fields = new ArrayList<FieldType>();
         fields.add(FieldType.INTEGER);
@@ -471,15 +560,34 @@ public class DataFormatter {
 
         DataFormatUtils.writeFieldsHeader(outFile, fields);
 
-        List<Object> line = null;
-
-        while ((line = DataFormatUtils.parseTxtLine(inFile, fields)) != null) {
-            line.set(0, ((Integer) line.get(0))+ this.baseOffset);
-            DataFormatUtils.writeBinaryRecord(outFile, line, fields, modifiers);
+        try {
+            String strLine;
+            List<Object> line;
+            boolean done = false;
+            while (!done) {
+                for (int i=0; i<RECORDS_PER_INTERRUPT_CHECK; i++) {
+                    if ((strLine = inFile.readLine()) == null) {
+                        done = true;
+                        break;
+                    }
+                    // update bytes read from input
+                    this.byteCount += strLine.getBytes().length;
+                    // parse input and write output
+                    if ((line = DataFormatUtils.parseTxtLine(strLine, fields)) != null) {
+                        line.set(0, ((Integer) line.get(0))+ this.baseOffset);
+                        DataFormatUtils.writeBinaryRecord(outFile, line, fields, modifiers);
+                    }
+                }
+                // check to see if format has been cancelled
+                if (Thread.interrupted()) throw new InterruptedException();
+                // update progress property for UI
+                updateProgress();
+            }
         }
-        inFile.close();
-
-        outFile.close();
+        finally {
+            inFile.close();
+            outFile.close();
+        }
                 
     }
 
@@ -613,8 +721,18 @@ public class DataFormatter {
        return new IntervalSearchTree(nodes);
     }
 
+    public int getProgress() {
+        return progress;
+    }
 
-   /** FILE OPENING **/
+    public void setProgress(int progress) {
+        int oldValue = this.progress;
+        this.progress = progress;
+//        propertyChangeSupport.firePropertyChange("progress", oldValue, this.progress);
+        fireProgressUpdate(progress);
+    }
+
+    /** FILE OPENING **/
 
     private DataOutputStream openNewOutputFile() throws IOException {
         return new DataOutputStream(new BufferedOutputStream(new FileOutputStream(outPath)));
@@ -676,9 +794,44 @@ public class DataFormatter {
         else { this.baseOffset = 0; }
     }
 
+    private void updateProgress() {
+        float proportionDone = (float)this.byteCount/(float)this.totalBytes;
+        int percentDone = (int)Math.round(proportionDone * 100.0);
+        setProgress(percentDone);
+    }
 
+    /*
+     * Property change support methods.
+     * Delegate all calls to propertyChangeSupport object.
+     */
 
+//    public void addPropertyChangeListener(PropertyChangeListener listener) {
+//        this.propertyChangeSupport.addPropertyChangeListener(listener);
+//    }
+//
+//    public void addPropertyChangeListener(String propertyName, PropertyChangeListener listener) {
+//        this.propertyChangeSupport.addPropertyChangeListener(propertyName, listener);
+//    }
+//
+//    public void removePropertyChangeListener(PropertyChangeListener listener) {
+//        this.propertyChangeSupport.removePropertyChangeListener(listener);
+//    }
+//
+//    public void removePropertyChangeListener(String propertyName, PropertyChangeListener listener) {
+//        this.propertyChangeSupport.removePropertyChangeListener(propertyName, listener);
+//    }
 
+    private void fireProgressUpdate(int value) {
+        for (FormatProgressListener listener : listeners) {
+            listener.progressUpdate(value);
+        }
+    }
+    public void addProgressListener(FormatProgressListener listener) {
+        listeners.add(listener);
+    }
 
+    public void removeProgressListener(FormatProgressListener listener) {
+        listeners.remove(listener);
+    }
 
 }
