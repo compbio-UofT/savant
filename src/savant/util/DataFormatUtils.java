@@ -247,14 +247,13 @@ public class DataFormatUtils {
 
     /**
      * Parse next line in the inFile according to given field types
-     * @param inFile
+     * @param txtLine - String line of text
      * @param fields
      * @return
      * @throws IOException
      */
-    public static List<Object> parseTxtLine(BufferedReader inFile, List<FieldType> fields) throws IOException {
+    public static List<Object> parseTxtLine(String txtLine, List<FieldType> fields) throws IOException {
 
-        String txtLine = inFile.readLine();
         if (txtLine == null) {
             return null;
         }
