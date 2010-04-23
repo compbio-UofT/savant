@@ -797,7 +797,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         initMenu();
         initPanelsAndDocking();
 
-        dff = new DataFormatForm();
+        dff = new DataFormatForm(this, false);
         // get async notification when DataFormatForm has finished its business
         dff.addPropertyChangeListener("success", this);
 
@@ -1488,6 +1488,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         {
             if (!dff.isVisible()) {
                 openAfterFormat = true;
+                dff.clear();
                 dff.setInFile(fileName);
                 dff.setVisible(true);
             }

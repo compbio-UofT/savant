@@ -48,8 +48,9 @@ public class DataFormatForm extends JDialog implements PropertyChangeListener /*
     private FormatTask formatTask;
 
 
-    /** Creates new form DataFormatForm */
-    public DataFormatForm() {
+    /* Creates new form DataFormatForm */
+    public DataFormatForm(java.awt.Frame parent, boolean modal) {
+        super(parent, modal);
 
         initComponents();
         initFormats();
@@ -60,9 +61,6 @@ public class DataFormatForm extends JDialog implements PropertyChangeListener /*
 
         formatDescriptionTextArea = this.textarea_formatDescription;
         validateReadyToFormat();
-
-
-        this.setModal(false);
     }
 
     public void setInFile(String infile) {
@@ -386,6 +384,7 @@ public class DataFormatForm extends JDialog implements PropertyChangeListener /*
 
         if (formatTask != null) formatTask.cancel(true);
         setVisible(false);
+        DataFormatForm.this.getParent().requestFocus();
         
     }//GEN-LAST:event_button_cancelActionPerformed
 
@@ -395,7 +394,13 @@ public class DataFormatForm extends JDialog implements PropertyChangeListener /*
     public static void main(String args[]) {
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new DataFormatForm().setVisible(true);
+                DataFormatForm dialog = new DataFormatForm(new javax.swing.JFrame(), true);
+                dialog.addWindowListener(new java.awt.event.WindowAdapter() {
+                    public void windowClosing(java.awt.event.WindowEvent e) {
+                        System.exit(0);
+                    }
+                });
+                dialog.setVisible(true);
             }
         });
     }
@@ -534,6 +539,7 @@ public class DataFormatForm extends JDialog implements PropertyChangeListener /*
                 if (formatTask.isCancelled() || formatTask.isDone()) {
                     formatProgressBar.setVisible(false);
                     setVisible(false);
+                    DataFormatForm.this.getParent().requestFocus();                    
                 }
             }
         }
