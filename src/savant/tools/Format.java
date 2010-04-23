@@ -26,10 +26,14 @@ public class Format {
      */
     public static void main(String[] args) {
         //read();
-        format();
+        try {
+            format();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
     
-    private static void format() {
+    private static void format() throws InterruptedException {
         boolean success = true;
 
         //success &= formatContinuousWIG();
@@ -45,7 +49,7 @@ public class Format {
         else { System.out.println("Formatting unsuccessful"); }
     }
 
-    private static boolean formatGenericPoint() {
+    private static boolean formatGenericPoint() throws InterruptedException {
         String infile = "C:\\sandbox\\debut\\data\\samplepoint.txt";
         String outfile = "C:\\sandbox\\debut\\data\\samplepoint.debut";
         FileType fileType = FileType.POINT_GENERIC;
@@ -55,7 +59,7 @@ public class Format {
         return df.format();
     }
 
-    private static boolean formatSequence() {
+    private static boolean formatSequence() throws InterruptedException {
         String infile = "C:\\sandbox\\debut\\data\\chr1.fa";
         String outfile = "C:\\sandbox\\debut\\data\\chr1.debut";
         FileType fileType = FileType.SEQUENCE_FASTA;
@@ -63,7 +67,7 @@ public class Format {
         return df.format();
     }
 
-    private static boolean formatContinuousGeneric() {
+    private static boolean formatContinuousGeneric() throws InterruptedException {
         String infile = "C:\\sandbox\\debut\\data\\sample.continuous.txt";
         String outfile = "C:\\sandbox\\debut\\data\\sample.continuous.debut";
         FileType fileType = FileType.CONTINUOUS_GENERIC;
@@ -71,7 +75,7 @@ public class Format {
         return df.format();
     }
 
-    private static boolean formatContinuousWIG() {
+    private static boolean formatContinuousWIG() throws InterruptedException {
         String infile = "C:\\sandbox\\debut\\data\\sample.continuous.wig";
         String outfile = "C:\\sandbox\\debut\\data\\sample.continuous.wig.debut";
         FileType fileType = FileType.CONTINUOUS_WIG;
@@ -79,7 +83,7 @@ public class Format {
         return df.format();
     }
 
-    private static boolean formatIntervalGeneric() {
+    private static boolean formatIntervalGeneric() throws InterruptedException {
         //String infile = "C:\\sandbox\\debut\\data\\sampleintervalgeneric.txt";
         //String outfile = "C:\\sandbox\\debut\\data\\sampleintervalgeneric.debut";
         String infile = "C:\\sandbox\\debut\\data\\genes.chr1.txt";
@@ -91,7 +95,7 @@ public class Format {
         return df.format();
     }
 
-    private static boolean formatIntervalBED() {
+    private static boolean formatIntervalBED() throws InterruptedException {
         //String infile = "C:\\sandbox\\debut\\data\\sampleintervalgeneric.txt";
         //String outfile = "C:\\sandbox\\debut\\data\\sampleintervalgeneric.debut";
         String infile = "C:\\sandbox\\debut\\data\\genes.chr1.bed";
@@ -103,7 +107,7 @@ public class Format {
         return df.format();
     }
 
-    private static boolean formatIntervalGFF() {
+    private static boolean formatIntervalGFF() throws InterruptedException {
         //String infile = "C:\\sandbox\\debut\\data\\sampleintervalgeneric.txt";
         //String outfile = "C:\\sandbox\\debut\\data\\sampleintervalgeneric.debut";
         String infile = "C:\\sandbox\\debut\\data\\sample.gff";
