@@ -762,7 +762,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
     }
 
     private boolean isZooming() {
-        return this.isDragging &&  ((isLeftClick() && isCtrlKeyModifierPressed()) || (isRightClick() && isCtrlKeyModifierPressed()));
+        return this.isDragging &&  ((isLeftClick() && isZoomModifierPressed()) || (isRightClick() && isZoomModifierPressed()));
     }
 
     private boolean isPanning() {
@@ -805,6 +805,11 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         return keyMod == keyModifier.ALT;
     }
 
+    private boolean isZoomModifierPressed() {
+        if ((mac && isMetaModifierPressed()) || (!mac && isCtrlKeyModifierPressed())) return true;
+        else return false;
+    }
+    
     private void setMouseModifier(MouseEvent e) {
 
         if (e.getButton() == 1) mouseMod= mouseModifier.LEFT;
@@ -818,7 +823,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
             keyMod = keyModifier.SHIFT;
         }
         else if (e.isMetaDown()) {
-            keyMod = keyModifier.DEFAULT;
+            keyMod = keyModifier.META;
         }
         else if (e.isAltDown()) {
             keyMod = keyModifier.ALT;
