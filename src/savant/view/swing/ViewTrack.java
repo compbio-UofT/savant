@@ -72,6 +72,8 @@ public abstract class ViewTrack {
     private List<TrackRenderer> trackRenderers;
     private RecordTrack track;
 
+    private static BAMParametersDialog paramDialog = new BAMParametersDialog(Savant.getInstance(), true);
+
     // TODO: put all of this in a ViewTrackFactory class
     /**
      * Create one or more tracks from the given file name.
@@ -113,12 +115,7 @@ public abstract class ViewTrack {
                 viewTrack = new BAMViewTrack(name, (BAMIntervalTrack)dataTrack);
 
                 // capture parameters needed to adjust display
-                BAMParametersDialog paramDialog = new BAMParametersDialog(Savant.getInstance(), true);
-                if (paramDialog.isAccepted()) {
-                    ((BAMViewTrack)viewTrack).setArcSizeVisibilityThreshold(paramDialog.getArcLengthThreshold());
-                    ((BAMViewTrack)viewTrack).setDiscordantMin(paramDialog.getDiscordantMin());
-                    ((BAMViewTrack)viewTrack).setDiscordantMax(paramDialog.getDiscordantMax());
-                }
+                captureBAMDisplayParameters((BAMViewTrack) viewTrack);
 
                 results.add(viewTrack);
 
@@ -406,4 +403,13 @@ public abstract class ViewTrack {
         return this.name;
     }
 
+    public static void captureBAMDisplayParameters(BAMViewTrack viewTrack) {
+        paramDialog.setVisible(true);
+        if (paramDialog.isAccepted()) {
+            viewTrack.setArcSizeVisibilityThreshold(paramDialog.getArcLengthThreshold());
+            viewTrack.setDiscordantMin(paramDialog.getDiscordantMin());
+            viewTrack.setDiscordantMax(paramDialog.getDiscordantMax());
+        }
+
+    }
 }

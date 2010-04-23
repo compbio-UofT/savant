@@ -32,7 +32,6 @@ public class BAMParametersDialog extends javax.swing.JDialog {
         initComponents();
         
         this.setModal(true);
-        this.setVisible(true);
     }
 
     /** This method is called from within the constructor to
@@ -165,13 +164,13 @@ public class BAMParametersDialog extends javax.swing.JDialog {
 
     private void buttonCancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonCancelActionPerformed
         setCancelled(true);
-        this.dispose();
+        this.setVisible(false);
     }//GEN-LAST:event_buttonCancelActionPerformed
 
     private void buttonOKActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonOKActionPerformed
         if (parseDiscordantMin() && parseDiscordantMax() && parseArcThreshold()) {
             setAccepted(true);
-            this.dispose();
+            this.setVisible(false);
         }
     }//GEN-LAST:event_buttonOKActionPerformed
 

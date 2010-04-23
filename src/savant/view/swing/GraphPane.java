@@ -58,23 +58,25 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
     private boolean isYGridOn = true;
     private boolean isXGridOn = true;
 
-    private
     // Popup menu
-    JPopupMenu menu;
+    private JPopupMenu menu;
 
     // Locking
     private boolean isLocked = false;
     private Range lockedRange;
 
     /** Selection Variables */
-    int x1, x2, y1, y2;
-    int x, y, w, h;
-    boolean isDragging = false;
+    private int x1, x2, y1, y2;
+    private int x, y, w, h;
+    private boolean isDragging = false;
 
     // let's behave nicely for the appropriate platform
     private static String os = System.getProperty("os.name").toLowerCase();
     private static boolean mac = os.contains("mac");
 
+    /**
+     * {@inheritDoc}
+     */
     public void mouseWheelMoved(MouseWheelEvent e) {
 
        int notches = e.getWheelRotation();
@@ -201,7 +203,11 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
          */
     }
 
-    boolean isLocked() {
+    /**
+     *
+     * @return true if the track is locked, false o/w
+     */
+    public boolean isLocked() {
         return this.isLocked;
     }
 
@@ -211,6 +217,9 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
     private enum keyModifier { DEFAULT, CTRL, SHIFT, META, ALT; };
     private keyModifier keyMod = keyModifier.DEFAULT;
 
+    /**
+     * Constructor
+     */
     public GraphPane() {
         trackRenderers = new ArrayList<TrackRenderer>();
         tracks = new ArrayList<ViewTrack>();
@@ -224,12 +233,22 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         initContextualMenu();
     }
 
+    /**
+     * Add a track renderer to the GraphPane
+     *
+     * @param trackRenderer the renderer to add
+     */
     public void addTrackRenderer(TrackRenderer trackRenderer) {
         trackRenderers.add(trackRenderer);
         this.setIsOrdinal(trackRenderer.isOrdinal());
         setYRange(trackRenderer.getDefaultYRange());
     }
 
+    /**
+     * Add a view track to the graph pane
+     *
+     * @param track - the ViewTrack to add
+     */
     public void addTrack(ViewTrack track) {
         tracks.add(track);
         JMenu trackMenu = new JMenu(track.getName());
@@ -270,7 +289,13 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         }
         menu.add(trackMenu);
     }
-    
+
+    /**
+     * Render the contents of the graphpane. Includes drawing a common
+     * background for all tracks.
+     *
+     * @param g The Graphics object into which to draw.
+     */
     public void render(Graphics g) {
         render(g, new Range(xMin,xMax), null);
     }
@@ -316,6 +341,11 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
        
     }
 
+    /**
+     * Set the graph units for the horizontal axis
+     *
+     * @param r an X range
+     */
     public void setXRange(Range r) {
         if (r == null) {
             return;
@@ -328,6 +358,11 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         setUnitWidth();
     }
 
+    /**
+     * Set the graph units for the vertical axis
+     *
+     * @param r a Y range
+     */
     public void setYRange(Range r) {
 
         if (r == null) {
@@ -344,6 +379,11 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         setUnitHeight();
     }
 
+    /**
+     * Set the pane's vertical coordinate system to be 0-1
+     *
+     * @param b true for ordinal, false otherwise.
+     */
     public void setIsOrdinal(boolean b) {
         this.isOrdinal = b;
         if (this.isOrdinal) {
@@ -354,38 +394,77 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         }
     }
 
+    /**
+     *
+     * @return  the number of pixels equal to one graph unit of width.
+     */
     public double getUnitWidth() {
         return this.unitWidth;
     }
 
+    /**
+     * Transform a graph width into a pixel width
+     *
+     * @param len width in graph units
+     * @return corresponding number of pixels
+     */
     public double getWidth(int len) {
         return this.unitWidth * len;
     }
 
+    /**
+     *
+     * @return the number of pixels equal to one graph unit of height.
+     */
     public double getUnitHeight() {
         return this.unitHeight;
     }
 
+    /**
+     * Transform a graph height into a pixel height
+     *
+     * @param len height in graph units
+     * @return corresponding number of pixels
+     */
     public double getHeight(int len) {
         return this.unitHeight * len;
     }
 
+    // TODO: why does one of these take an int and the other a double?
+    /**
+     * Transform a horizontal position in terms of graph units into a drawing coordinate
+     *
+     * @param pos position in graph coordinates
+     * @return a corresponding drawing coordinate
+     */
     public double transformXPos(int pos) {
         pos = pos - this.xMin;
         return pos * getUnitWidth();
     }
 
+    /**
+     * Transform a vertical position in terms of graph units into a drawing coordinate
+     *
+     * @param pos position in graph coordinates
+     * @return a corresponding drawing coordinate
+     */
     public double transformYPos(double pos) {
         pos = pos - this.yMin;
         //Savant.log("Transforming pos 1: height" + this.getHeight() + " subtract " +  (pos*getUnitHeight()));
         return this.getHeight() - (pos * getUnitHeight());
     }
 
+    /**
+     * Set the number of pixels equal to one graph unit of width.
+     */
     public void setUnitWidth() {
         Dimension d = this.getSize();
         unitWidth = (double) d.width / (xMax - xMin + 1);
     }
 
+    /**
+     * Set the number of pixels equal to one graph unit of height.
+     */
     public void setUnitHeight() {
         Dimension d = this.getSize();
         //Savant.log("Frame height: " + d.height);
@@ -508,7 +587,9 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
 
     /** <SECTION> MOUSE EVENT LISTENER */
 
-    // MouseListener event handlers // handle event when mouse released immediately after press
+    /**
+     * {@inheritDoc}
+     */
     public void mouseClicked( final MouseEvent event ) {
 
         setMouseModifier(event);
@@ -526,7 +607,9 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         //repaint();
     }
 
-// handle event when mouse pressed
+    /**
+     * {@inheritDoc}
+     */
     public void mousePressed( final MouseEvent event ) {
 
         //Savant.log("Mouse pressed");
@@ -555,7 +638,9 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         repaint();
     }
 
-// handle event when mouse released after dragging
+    /**
+     * {@inheritDoc}
+     */
     public void mouseReleased( final MouseEvent event ) {
 
         setMouseModifier(event);
@@ -614,7 +699,9 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         repaint();
     }
 
-// handle event when mouse enters area
+    /**
+     * {@inheritDoc}
+     */
     public void mouseEntered( final MouseEvent event ) {
         
         setMouseModifier(event);
@@ -623,14 +710,18 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         //this.requestFocus();
     }
 
-// handle event when mouse exits area
+    /**
+     * {@inheritDoc}
+     */
     public void mouseExited( final MouseEvent event ) {
         setMouseModifier(event);
         //this.mousePosition.setText( "Mouse outside window" );
         // repaint();
     }
 
-// MouseMotionListener event handlers // handle event when user drags mouse with button pressed
+    /**
+     * {@inheritDoc}
+     */
     public void mouseDragged( final MouseEvent event ) {
 
         setMouseModifier(event);
@@ -657,7 +748,9 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         repaint();
     }
 
-    // handle event when user moves mouse
+    /**
+     * {@inheritDoc}
+     */
     public void mouseMoved( final MouseEvent event ) {
         
     }
@@ -764,15 +857,11 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
     public void unLock() {
         setIsLocked(false);
     }
+    
     public void switchLocked() {
         setIsLocked(!this.isLocked);
     }
-//    public void hideFrame() {
-//        FrameController.getInstance().hideFrame(this);
-//    }
-//    public void closeFrame() {
-//        FrameController.getInstance().closeFrame(this);
-//    }
+
     public void setIsLocked(boolean b) {
         this.isLocked = b;
         if (b) {
@@ -800,19 +889,15 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
 
     private void getBAMParams(BAMViewTrack bamViewTrack) {
         // capture parameters needed to adjust display
-        BAMParametersDialog paramDialog = new BAMParametersDialog(Savant.getInstance(), true);
-        if (paramDialog.isAccepted()) {
-            bamViewTrack.setArcSizeVisibilityThreshold(paramDialog.getArcLengthThreshold());
-            bamViewTrack.setDiscordantMin(paramDialog.getDiscordantMin());
-            bamViewTrack.setDiscordantMax(paramDialog.getDiscordantMax());
-            try {
-                // TODO: this needs to get done in a separate thread and then schedule the repaint for later
-                bamViewTrack.prepareForRendering(RangeController.getInstance().getRange());
-                repaint();
-            } catch (Throwable e) {
-                log.error("Unexpected exception while preparing to render track " + e.getMessage());
-            }
+        ViewTrack.captureBAMDisplayParameters(bamViewTrack);
+        try {
+            // TODO: this needs to get done in a separate thread and then schedule the repaint for later
+            bamViewTrack.prepareForRendering(RangeController.getInstance().getRange());
+            repaint();
+        } catch (Throwable e) {
+            log.error("Unexpected exception while preparing to render track " + e.getMessage());
         }
+
 
     }
 }
