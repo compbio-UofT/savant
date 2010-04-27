@@ -54,7 +54,8 @@ public class BAMIntervalTrack implements RecordTrack<BAMIntervalRecord> {
 
     public BAMIntervalTrack(File path, File index) {
         setPath(path, index);
-        guessSequence();
+        this.sequenceName = guessSequence(path, index);
+        samFileReader = new SAMFileReader(path, index);
     }
 
     /**
@@ -105,7 +106,6 @@ public class BAMIntervalTrack implements RecordTrack<BAMIntervalRecord> {
         if (index == null) throw new IllegalArgumentException("Index file must not be null");
         this.path = path;
         this.index = index;
-        samFileReader = new SAMFileReader(path, index);
 
     }
 
@@ -113,12 +113,14 @@ public class BAMIntervalTrack implements RecordTrack<BAMIntervalRecord> {
      * Use the length of the reference genome to guess which sequence from the dictionary
      * we should search for reads.
      */
-    private void guessSequence() {
+    public static String guessSequence(File path, File index) {
 
         // Find out what sequence we're using, by reading the header for sequences and lengths
         RangeController rangeController = RangeController.getInstance();
         int referenceSequenceLength = rangeController.getMaxRangeEnd() - rangeController.getMaxRangeStart();
 
+        String sequenceName = null;
+        SAMFileReader samFileReader = new SAMFileReader(path, index);
         SAMFileHeader fileHeader = samFileReader.getFileHeader();
         SAMSequenceDictionary sequenceDictionary = fileHeader.getSequenceDictionary();
         // find the first sequence with the smallest difference in length from our reference sequence
@@ -134,9 +136,10 @@ public class BAMIntervalTrack implements RecordTrack<BAMIntervalRecord> {
             i++;
         }
         if (closestSequenceIndex != Integer.MAX_VALUE) {
-            this.sequenceName = sequenceDictionary.getSequence(closestSequenceIndex).getSequenceName();
+            sequenceName = sequenceDictionary.getSequence(closestSequenceIndex).getSequenceName();
         }
-
+        samFileReader.close();
+        return sequenceName;
     }
 
 
