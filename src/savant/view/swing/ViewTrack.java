@@ -75,6 +75,7 @@ public abstract class ViewTrack {
     private static BAMParametersDialog paramDialog = new BAMParametersDialog(Savant.getInstance(), true);
 
     // TODO: put all of this in a ViewTrackFactory class
+    // TODO: inform the user when there is a problem
     /**
      * Create one or more tracks from the given file name.
      *
@@ -101,11 +102,11 @@ public abstract class ViewTrack {
 
             // infer index file name from track filename
             String indexFilename=null;
+            String nameWithoutExtension = trackFilename.substring(0, trackFilename.lastIndexOf(".bam"));
             if (new File(trackFilename + ".bai").exists()) {
                 indexFilename = trackFilename + ".bai";
             }
             else {
-                String nameWithoutExtension = trackFilename.substring(0, trackFilename.lastIndexOf(".bam"));
                 if (new File(nameWithoutExtension + ".bai").exists()) {
                     indexFilename = nameWithoutExtension + ".bai";
                 }
@@ -124,17 +125,26 @@ public abstract class ViewTrack {
                 log.error("Could not open BAM track because index could not be found; index file must be named filename.bam.bai or filename.bai");
             }
 
+            // create the coverage track
+            String sequenceName = BAMIntervalTrack.guessSequence(new File(trackFilename), new File(indexFilename));
             try {
-                if (new File(trackFilename + ".cov").exists()) {
-                    dataTrack = new GenericContinuousTrack(trackFilename + ".cov");
-                    viewTrack = new BAMCoverageViewTrack(name + " coverage" , (GenericContinuousTrack)dataTrack);
-                    results.add(viewTrack);
+                File coverageDir = new File(nameWithoutExtension + "_cov");
+                if (coverageDir.exists()) {
+                    String coverageFileName = coverageDir.getPath() + System.getProperty("file.separator") + sequenceName + ".cov.savant";
+                    dataTrack = new GenericContinuousTrack(coverageFileName);
+                    viewTrack = new BAMCoverageViewTrack(name + "_" + sequenceName + "coverage" , (GenericContinuousTrack)dataTrack);
+                }
+                else {
+                    log.info("No coverage track available");
+                    viewTrack = new BAMCoverageViewTrack(name + "_" + sequenceName + "coverage" , null);
                 }
             } catch (IOException e) {
-                log.error("Could not create coverage track", e);
+                log.warn("Could not load coverage track", e);
+                // create an empty ViewTrack that just displays an error message
+                viewTrack = new BAMCoverageViewTrack(name + "_" + sequenceName + "coverage" , null);
             }
-           
-            // proprietary
+            results.add(viewTrack);
+
         } else {
 
             try {
