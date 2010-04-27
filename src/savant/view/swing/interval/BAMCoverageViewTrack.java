@@ -42,7 +42,7 @@ import java.util.List;
 
 public class BAMCoverageViewTrack extends ViewTrack implements DrawModeChangedListener {
 
-    private boolean enabled;
+    private boolean enabled = true;
 
     public BAMCoverageViewTrack(String name, GenericContinuousTrack track) {
         super(name, FileFormat.CONTINUOUS_GENERIC, track);
@@ -51,17 +51,25 @@ public class BAMCoverageViewTrack extends ViewTrack implements DrawModeChangedLi
 
     @Override
     public void prepareForRendering(Range range) throws Throwable {
-        Resolution r = getResolution(range);
         List<Object> data = null;
-        if (isEnabled() && (r == Resolution.LOW || r == Resolution.VERY_LOW || r == Resolution.MEDIUM)) {
-            data = retrieveAndSaveData(range);
+        Resolution r = getResolution(range);
+        if (getTrack() != null) {
+            if (isEnabled() && (r == Resolution.LOW || r == Resolution.VERY_LOW || r == Resolution.MEDIUM)) {
+                data = retrieveAndSaveData(range);
+            }
         }
         for (TrackRenderer renderer : getTrackRenderers()) {
-            renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.RANGE, range);
-            renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.RESOLUTION, r);
-            renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.COLOR_SCHEME, this.getColorScheme());
-            int maxDataValue = getMaxValue(data);
-            renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.AXIS_RANGE, new AxisRange(range, new Range(0, maxDataValue)));
+            // FIXME: another nasty hack to accommodate coverage
+            if (getTrack() == null) {
+                renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.MESSAGE, "No coverage file available");
+            }
+            else {
+                renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.RANGE, range);
+                renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.RESOLUTION, r);
+                renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.COLOR_SCHEME, this.getColorScheme());
+                int maxDataValue = getMaxValue(data);
+                renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.AXIS_RANGE, new AxisRange(range, new Range(0, maxDataValue)));
+            }
             renderer.setData(data);
         }
     }
@@ -110,6 +118,8 @@ public class BAMCoverageViewTrack extends ViewTrack implements DrawModeChangedLi
             if (viewTrack.getDataType() == FileFormat.INTERVAL_BAM) {
                 if (evt.getMode().getName().equals("MATE_PAIRS")) {
                     setEnabled(false);
+                }else {
+                    setEnabled(true);
                 }
             }
         }
@@ -139,4 +149,5 @@ public class BAMCoverageViewTrack extends ViewTrack implements DrawModeChangedLi
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
     }
+
 }
