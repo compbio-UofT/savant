@@ -45,7 +45,7 @@ public class BookmarkController {
 
     private List<BookmarksChangedListener> favoritesChangedListeners;
 
-    public static BookmarkController getInstance() {
+    public static synchronized BookmarkController getInstance() {
         if (instance == null) {
             instance = new BookmarkController();
         }

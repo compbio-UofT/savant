@@ -61,7 +61,7 @@ public class FrameController {
     private List frameShownListeners;
     private List frameChangedListeners;
 
-    public static FrameController getInstance() {
+    public static synchronized FrameController getInstance() {
         if (instance == null) {
             instance = new FrameController();
         }

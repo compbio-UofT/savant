@@ -57,7 +57,7 @@ public class RangeController {
     // TODO: List of what?
     private List rangeChangedListeners;
 
-    public static RangeController getInstance() {
+    public static synchronized RangeController getInstance() {
         if (instance == null) {
             instance = new RangeController();
         }

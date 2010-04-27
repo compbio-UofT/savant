@@ -47,7 +47,7 @@ public class ViewTrackController {
     /** Tracks Changed Listeners */
     private List tracksChangedListeners;
 
-    public static ViewTrackController getInstance() {
+    public static synchronized ViewTrackController getInstance() {
         if (instance == null) {
             instance = new ViewTrackController();
         }

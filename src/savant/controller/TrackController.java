@@ -51,7 +51,7 @@ public class TrackController {
         this.listeners = new ArrayList<TrackListChangedListener>();
     }
 
-    public static TrackController getInstance() {
+    public static synchronized TrackController getInstance() {
         if (instance == null) instance = new TrackController();
         return instance;
     }

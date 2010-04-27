@@ -44,7 +44,7 @@ public class DrawModeController {
 
     private List<DrawModeChangedListener> listeners;
 
-    public static DrawModeController getInstance() {
+    public static synchronized DrawModeController getInstance() {
         if (instance == null) {
             instance = new DrawModeController();
         }
