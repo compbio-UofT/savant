@@ -28,6 +28,7 @@ import savant.model.view.DrawingInstructions;
 import savant.util.Range;
 import savant.view.swing.GraphPane;
 import savant.view.swing.TrackRenderer;
+import savant.view.swing.util.GlassMessagePane;
 
 import java.awt.*;
 import java.awt.geom.GeneralPath;
@@ -48,13 +49,20 @@ public class ContinuousTrackRenderer extends TrackRenderer {
     @Override
     public void render(Graphics g, GraphPane gp) {
 
+        DrawingInstructions di = this.getDrawingInstructions();
+        Graphics2D g2 = (Graphics2D) g;
+
+        // FIXME: a nasty hack to accommodate coverage; see BAMCoverageViewTrack
+        String message = (String) di.getInstruction(DrawingInstructions.InstructionName.MESSAGE);
+        if (message != null) {
+            GlassMessagePane.draw(g2, gp, message, 500);
+        }
+
         java.util.List<Object> data = this.getData();
         if (data == null) return;
         
-        Graphics2D g2 = (Graphics2D) g;
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         
-        DrawingInstructions di = this.getDrawingInstructions();
 
         ColorScheme cs = (ColorScheme) di.getInstruction(DrawingInstructions.InstructionName.COLOR_SCHEME.toString());
         Color linecolor = cs.getColor("LINE");
