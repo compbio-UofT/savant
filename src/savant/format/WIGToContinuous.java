@@ -19,11 +19,10 @@
  * Created on Mar 1, 2010
  */
 
-package savant.tools;
+package savant.format;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import savant.format.FormatProgressListener;
 import savant.format.header.FileType;
 import savant.format.header.FileTypeHeader;
 import savant.format.util.data.FieldType;
