@@ -19,5 +19,6 @@ public enum FieldType {
     LONG,
     RANGE,
     IGNORE,
-    ITEMRGB
+    ITEMRGB,
+    FLOAT
 }
