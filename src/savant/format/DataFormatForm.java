@@ -68,6 +68,7 @@ public class DataFormatForm extends JDialog implements PropertyChangeListener /*
         if (infile != null) {
             this.textfield_inPath.setText(infile);
             this.setOutputPath(infile);
+            validateReadyToFormat();
         }
 
     }
@@ -77,6 +78,7 @@ public class DataFormatForm extends JDialog implements PropertyChangeListener /*
         this.textfield_outPath.setText("");
         if (!this.list_formats.isSelectionEmpty())
             this.list_formats.clearSelection();
+        validateReadyToFormat();
     }
     
     /** This method is called from within the constructor to
@@ -370,6 +372,7 @@ public class DataFormatForm extends JDialog implements PropertyChangeListener /*
 
     private void list_formatsValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_list_formatsValueChanged
         this.setOutputPath(this.textfield_inPath.getText());
+        validateReadyToFormat();
 
 //        String ff = (String) ((JList) evt.getSource()).getSelectedValue();
 //        System.out.println(ff);
@@ -514,6 +517,7 @@ public class DataFormatForm extends JDialog implements PropertyChangeListener /*
             this.button_format.setEnabled(false);
         } else {
             this.button_format.setEnabled(true);
+            this.button_format.requestFocus();
         }
 
     }
