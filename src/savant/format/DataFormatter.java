@@ -19,7 +19,6 @@ package savant.format;
 import it.unipi.di.util.ExternalSort;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import savant.controller.RangeController;
 import savant.format.comparator.LineRangeComparator;
 import savant.format.header.FileType;
 import savant.format.header.FileTypeHeader;
@@ -27,12 +26,8 @@ import savant.format.util.data.FieldType;
 import savant.format.util.data.interval.IntervalSearchTree;
 import savant.format.util.data.interval.IntervalTreeNode;
 import savant.format.util.data.interval.LinePlusRange;
-import savant.tools.BAMToCoverage;
-import savant.tools.WIGToContinuous;
 import savant.util.*;
 
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
 import java.io.*;
 import java.util.*;
 
@@ -251,13 +246,15 @@ public class DataFormatter implements FormatProgressListener {
     }
 
 
-    // TODO: interrupts and progress
-    private void formatAsBAM() throws IOException {
+    private void formatAsBAM() throws IOException, InterruptedException {
 
-        RangeController rc = RangeController.getInstance();
+//        RangeController rc = RangeController.getInstance();
 
-        BAMToCoverage btc = new BAMToCoverage(this.inPath, this.inPath + ".bai", this.inPath + ".cov", null, rc.getMaxRange().getLength() );
+//        BAMToCoverage btc = new BAMToCoverage(this.inPath, this.inPath + ".bai", this.inPath + ".cov", null, rc.getMaxRange().getLength() );
+        BAMToCoverage btc = new BAMToCoverage(this.inPath);
+        btc.addProgressListener(this);
         btc.format();
+        btc.removeProgressListener(this);
 
     }
 
