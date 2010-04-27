@@ -232,8 +232,10 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
 
     private static Savant instance = null;
 
-    public static Savant getInstance() {
-        if (instance == null) instance = new Savant();
+    public static synchronized Savant getInstance() {
+        if (instance == null) {
+            instance = new Savant();
+        }
         return instance;
     }
 
@@ -251,8 +253,6 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         initComponents();
         init();
 
-        loadPlugins();
-        initPlugins();
     }
 
     private void loadPlugins() {
@@ -743,7 +743,11 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
             public void run() {
                 com.jidesoft.utils.Lm.verifyLicense("Marc Fiume", "Savant Genome Browser", "1BimsQGmP.vjmoMbfkPdyh0gs3bl3932");
                 LookAndFeelFactory.installJideExtension(LookAndFeelFactory.OFFICE2007_STYLE);
-                Savant.getInstance().setVisible(true);
+                Savant instance = Savant.getInstance();
+                instance.setVisible(true);
+                instance.loadPlugins();
+                instance.initPlugins();
+
             }
         });
     }
@@ -1688,6 +1692,10 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
                 } else {
                    addTrackFromFile(outfilepath);
                 }
+                JOptionPane.showMessageDialog(this, "Format complete", "Format File", JOptionPane.INFORMATION_MESSAGE);
+            }
+            else {
+                JOptionPane.showMessageDialog(this, "Format was not successful!", "Format File", JOptionPane.ERROR_MESSAGE);
             }
 
         }
