@@ -53,7 +53,7 @@ public class GenericContinuousTrack extends ContinuousTrack {
     
     private Hashtable<Resolution, int[]> resolutionToSamplingMap;
 
-    public GenericContinuousTrack(String filename) throws FileNotFoundException, IOException {
+    public GenericContinuousTrack(String filename) throws IOException {
 
         this.savantFile = new SavantFile(filename);
 
@@ -70,8 +70,10 @@ public class GenericContinuousTrack extends ContinuousTrack {
         List<ContinuousRecord> data = new ArrayList<ContinuousRecord>();
 
         try {
-            int binSize = getSamplingFrequency(resolution);
-            int contiguousSamples = getNumContinuousSamples(resolution);
+//            int binSize = getSamplingFrequency(resolution);
+//            int contiguousSamples = getNumContinuousSamples(resolution);
+            int binSize = getSamplingFrequency(range);
+            int contiguousSamples = getNumContinuousSamples(range);
 
             int index = range.getFrom();
             int lastIndex = range.getTo() + binSize;
@@ -90,7 +92,7 @@ public class GenericContinuousTrack extends ContinuousTrack {
                 int pos;
                 if (contiguousSamples > 1) pos = i+contiguousSamples/2;
                 else pos = i;
-                ContinuousRecord p = new ContinuousRecord(i+contiguousSamples/2, new Continuous( sum/j));
+                ContinuousRecord p = new ContinuousRecord(pos, new Continuous( sum/j));
                 data.add(p);
             }
 
@@ -152,6 +154,29 @@ public class GenericContinuousTrack extends ContinuousTrack {
     {
         int[] ar = resolutionToSamplingMap.get(r);
         return ar[1];
+    }
+
+    // FIXME: this is a nasty kludge to accommodate BAM coverage tracks
+    private int getSamplingFrequency(Range r)
+    {
+        int length = r.getLength();
+        if (length < 10000) { return 1; }
+        else if (length < 50000) { return 100; }
+        else if (length < 1000000) { return 5000; }
+        else if (length < 10000000) { return 50000; }
+        else if (length >= 10000000) { return 1000000; }
+        else { return 1; }
+    }
+
+    private int getNumContinuousSamples(Range r)
+    {
+        int length = r.getLength();
+        if (length < 10000) { return 1; }
+        else if (length < 50000) { return 100; }
+        else if (length < 1000000) { return 2500; }
+        else if (length < 10000000) { return 1000; }
+        else if (length >= 10000000) { return 1000; }
+        else { return 1; }
     }
 
 }
