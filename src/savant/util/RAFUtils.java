@@ -80,6 +80,9 @@ public class RAFUtils {
                 case DOUBLE:
                     record.add(file.readDouble());
                     break;
+                case FLOAT:
+                    record.add(file.readFloat());
+                    break;
                 case BLOCKS:
                     int numBlocks = file.readInt();
                     List<Block> blocks = new ArrayList<Block>(numBlocks);
@@ -196,6 +199,9 @@ public class RAFUtils {
                     break;
                 case DOUBLE:
                     raf.writeDouble((Double) o);
+                    break;
+                case FLOAT:
+                    raf.writeFloat((Float) o);
                     break;
                 case LONG:
                     raf.writeLong((Long) o);

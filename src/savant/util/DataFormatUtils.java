@@ -85,7 +85,7 @@ public class DataFormatUtils {
     }
 
 
-
+    // TODO: remove, not used
     public static FileTypeHeader readFileTypeHeader(DataInputStream in) throws IOException {
         List<FieldType> fields = new ArrayList<FieldType>();
         fields.add(FieldType.INTEGER);
@@ -95,6 +95,7 @@ public class DataFormatUtils {
         return fth;
     }
 
+    // TODO: remove, not used
     public static List<Object> readBinaryRecord(DataInputStream in, List<FieldType> fields) throws IOException {
 
         List<Object> record = new ArrayList<Object>(fields.size());
@@ -224,6 +225,9 @@ public class DataFormatUtils {
                 case DOUBLE:
                     outFile.writeDouble((Double) o);
                     break;
+                case FLOAT:
+                    outFile.writeFloat((Float) o);
+                    break;
                 case LONG:
                     outFile.writeLong((Long) o);
                     break;
@@ -283,6 +287,9 @@ public class DataFormatUtils {
                     break;
                 case DOUBLE:
                     line.add(Double.parseDouble(token));
+                    break;
+                case FLOAT:
+                    line.add(Float.parseFloat(token));
                     break;
                 case BOOLEAN:
                     line.add(Integer.parseInt(token));
@@ -370,6 +377,8 @@ public class DataFormatUtils {
                 case DOUBLE:
                     recordSize += DataFormatUtils.DOUBLE_FIELD_SIZE;
                     break;
+                case FLOAT:
+                    recordSize += DataFormatUtils.FLOAT_FIELD_SIZE;
                 case BOOLEAN:
                     // TODO: change?!
                     recordSize += DataFormatUtils.INT_FIELD_SIZE;
