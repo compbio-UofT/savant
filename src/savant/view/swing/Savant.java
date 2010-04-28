@@ -1684,13 +1684,14 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
     public void propertyChange(PropertyChangeEvent propertyChangeEvent) {
 
         if (propertyChangeEvent.getPropertyName().equals("success")) {
-            if (!openAfterFormat) return;
             if ((Boolean)propertyChangeEvent.getNewValue() == true) {
-                String outfilepath = dff.getOutputFilePath();
-                if (dff.getFileType() == FileType.SEQUENCE_FASTA && !this.isGenomeLoaded()) {
-                   this.setGenome(outfilepath);
-                } else {
-                   addTrackFromFile(outfilepath);
+                if (openAfterFormat) {
+                    String outfilepath = dff.getOutputFilePath();
+                    if (dff.getFileType() == FileType.SEQUENCE_FASTA && !this.isGenomeLoaded()) {
+                       this.setGenome(outfilepath);
+                    } else {
+                       addTrackFromFile(outfilepath);
+                    }
                 }
                 JOptionPane.showMessageDialog(this, "Format complete", "Format File", JOptionPane.INFORMATION_MESSAGE);
             }
