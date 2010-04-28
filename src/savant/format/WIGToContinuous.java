@@ -144,17 +144,17 @@ public class WIGToContinuous {
                         }
                         int dest = Integer.parseInt(tokens[0]);
                         this.fillWithZeros(nextWrite,dest,out);
-                        double val = Double.parseDouble(tokens[1]);
+                        float val = Float.parseFloat(tokens[1]);
                         for (int i = 0; i < span; i++){
-                            out.writeDouble(val);
+                            out.writeFloat(val);
                         }
                         nextWrite = dest + span;
 
                     } else if (mode.equals("fixed")){
                         this.fillWithZeros(nextWrite,start,out);
-                        double val = Double.parseDouble(tokens[0]);
+                        float val = Float.parseFloat(tokens[0]);
                         for (int i = 0; i < span; i++){
-                            out.writeDouble(val);
+                            out.writeFloat(val);
                         }
                         nextWrite = start+span;
                         start += step;
@@ -223,7 +223,7 @@ public class WIGToContinuous {
 
             // prepare and write fields header
             fields = new ArrayList<FieldType>();
-            fields.add(FieldType.DOUBLE);
+            fields.add(FieldType.FLOAT);
             modifiers = new ArrayList<Object>();
             modifiers.add(null);
             out.writeInt(fields.size());
@@ -247,7 +247,7 @@ public class WIGToContinuous {
     
     private void fillWithZeros(int curent, int dest,DataOutputStream out) throws IOException{
     	for (int i = curent; i < dest;i++){
-    		out.writeDouble(0.0);
+    		out.writeFloat(0.0f);
     	}
 
     }
