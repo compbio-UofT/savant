@@ -48,7 +48,7 @@ public class BAMToCoverage {
 
     private static String fileSeparator = System.getProperty("file.separator");
 
-    public static final int RECORDS_PER_INTERRUPT_CHECK = 100;
+    public static final int RECORDS_PER_INTERRUPT_CHECK = 5000;
 
     private String inFile;      // xx.bam file
     private String indexFile;   // xx.bai file
@@ -123,7 +123,7 @@ public class BAMToCoverage {
             recordIterator = samFileReader.iterator();
             SAMRecord samRecord = null;
 
-            HashMap<Integer,Double> m = new HashMap<Integer,Double>();
+            HashMap<Integer,Float> m = new HashMap<Integer,Float>();
             int toWrite = 1;
 
             processingSequenceName = null;
@@ -156,12 +156,12 @@ public class BAMToCoverage {
                     int alignmentEnd = samRecord.getAlignmentEnd();
 
                     for(int i = toWrite; i < alignmentStart; i++){
-                        Double x = m.remove(i);
+                        Float x = m.remove(i);
                         if (x == null){
-                            x = 0.0;
+                            x = 0.0f;
                         }
                         try {
-                            out.writeDouble(x);
+                            out.writeFloat(x);
                         } catch (IOException e) {
                             log.error("Problem writing data", e);
                         }
@@ -171,9 +171,9 @@ public class BAMToCoverage {
                     positionCount = previousSequencesCumulativeLength + toWrite;
 
                     for(int i = alignmentStart; i <= alignmentEnd; i++){
-                        Double count = m.get(i);
+                        Float count = m.get(i);
                         if(count == null){
-                            m.put(i,1.0);
+                            m.put(i,1.0f);
                         } else {
                             m.put(i,count + 1);
                         }
@@ -233,15 +233,15 @@ public class BAMToCoverage {
 
     }
 
-    private void advanceToNextSequence(int toWrite, HashMap<Integer,Double> m) {
+    private void advanceToNextSequence(int toWrite, HashMap<Integer,Float> m) {
         // write zeros to the end of the current sequence length
         for (int i = toWrite; i <= processingSequenceLength; i++){
-            Double x = m.remove(i);
+            Float x = m.remove(i);
             if (x == null){
-                x = 0.0;
+                x = 0.0f;
             }
             try {
-                out.writeDouble(x);
+                out.writeFloat(x);
             } catch (IOException e) {
                 log.error("Problem writing data", e);
             }
@@ -271,7 +271,7 @@ public class BAMToCoverage {
 
             // prepare and write fields header
             fields = new ArrayList<FieldType>();
-            fields.add(FieldType.DOUBLE);
+            fields.add(FieldType.FLOAT);
             modifiers = new ArrayList<Object>();
             modifiers.add(null);
             out.writeInt(fields.size());
