@@ -34,10 +34,10 @@ public class ContinuousRecordTest extends TestCase {
     public void setUp() {
 
 
-        a = new ContinuousRecord(1, new Continuous(10.5));
-        b = new ContinuousRecord(1, new Continuous(10.5));
-        c = new ContinuousRecord(1, new Continuous(10.5));
-        d = new ContinuousRecord(2, new Continuous(20.3));
+        a = new ContinuousRecord(1, new Continuous(10.5f));
+        b = new ContinuousRecord(1, new Continuous(10.5f));
+        c = new ContinuousRecord(1, new Continuous(10.5f));
+        d = new ContinuousRecord(2, new Continuous(20.3f));
 
     }
 
