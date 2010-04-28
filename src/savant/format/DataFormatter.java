@@ -197,7 +197,7 @@ public class DataFormatter implements FormatProgressListener {
         BufferedReader inFile = this.openInputFile();
 
         List<FieldType> fields = new ArrayList<FieldType>();
-        fields.add(FieldType.DOUBLE);
+        fields.add(FieldType.FLOAT);
 
         List<Object> modifiers = new ArrayList<Object>();
         modifiers.add(null);
