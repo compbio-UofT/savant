@@ -133,10 +133,10 @@ public class BAMCoverageViewTrack extends ViewTrack implements DrawModeChangedLi
         
         if (data == null) return 0;
 
-        double max = 0;
+        float max = 0;
         for (Object o: data) {
             ContinuousRecord record = (ContinuousRecord)o;
-            double val = record.getValue().getValue();
+            float val = record.getValue().getValue();
             if (val > max) max = val;
         }
         return (int)Math.ceil(max);
