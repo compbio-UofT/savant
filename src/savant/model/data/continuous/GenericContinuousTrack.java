@@ -81,12 +81,12 @@ public class GenericContinuousTrack extends ContinuousTrack {
 
                 savantFile.seek((i-1)*recordSize);
 
-                double sum = 0.0;
+                float sum = 0.0f;
                 int j;
                 try
                 {
                     for (j = 0; j < contiguousSamples; j++) {
-                        sum += savantFile.readDouble();
+                        sum += savantFile.readFloat();
                     }
                 } catch (Exception e) { break; }
                 int pos;
