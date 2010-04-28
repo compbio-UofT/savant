@@ -34,10 +34,10 @@ public class ContinuousTest extends TestCase {
 
     public void setUp() {
 
-        a = new Continuous(10.7);
-        b = new Continuous(10.7);
-        c = new Continuous(10.7);
-        d = new Continuous(20.3);
+        a = new Continuous(10.7f);
+        b = new Continuous(10.7f);
+        c = new Continuous(10.7f);
+        d = new Continuous(20.3f);
 
     }
 
