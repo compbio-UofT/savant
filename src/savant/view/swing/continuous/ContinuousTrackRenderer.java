@@ -52,14 +52,16 @@ public class ContinuousTrackRenderer extends TrackRenderer {
         DrawingInstructions di = this.getDrawingInstructions();
         Graphics2D g2 = (Graphics2D) g;
 
-        // FIXME: a nasty hack to accommodate coverage; see BAMCoverageViewTrack
-        String message = (String) di.getInstruction(DrawingInstructions.InstructionName.MESSAGE);
-        if (message != null) {
-            GlassMessagePane.draw(g2, gp, message, 500);
-        }
-
         java.util.List<Object> data = this.getData();
-        if (data == null) return;
+        if (data == null) {
+            // FIXME: a nasty hack to accommodate coverage; see BAMCoverageViewTrack
+            String message = (String) di.getInstruction(DrawingInstructions.InstructionName.MESSAGE);
+            if (message != null) {
+                GlassMessagePane.draw(g2, gp, message, 500);
+
+            }
+            return;
+        }
         
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         
