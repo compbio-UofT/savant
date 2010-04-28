@@ -60,16 +60,18 @@ public class BAMCoverageViewTrack extends ViewTrack implements DrawModeChangedLi
         }
         for (TrackRenderer renderer : getTrackRenderers()) {
             // FIXME: another nasty hack to accommodate coverage
-            if (getTrack() == null) {
+            if (getTrack() == null && isEnabled() && (r == Resolution.LOW || r == Resolution.VERY_LOW || r == Resolution.MEDIUM)) {
                 renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.MESSAGE, "No coverage file available");
+                renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.AXIS_RANGE, new AxisRange(range, getDefaultYRange()));
             }
             else {
-                renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.RANGE, range);
-                renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.RESOLUTION, r);
-                renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.COLOR_SCHEME, this.getColorScheme());
+                renderer.getDrawingInstructions().getInstructions().remove(DrawingInstructions.InstructionName.MESSAGE.toString());
                 int maxDataValue = getMaxValue(data);
                 renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.AXIS_RANGE, new AxisRange(range, new Range(0, maxDataValue)));
             }
+            renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.COLOR_SCHEME, this.getColorScheme());
+            renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.RANGE, range);
+            renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.RESOLUTION, r);
             renderer.setData(data);
         }
     }
