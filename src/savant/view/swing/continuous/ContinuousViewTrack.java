@@ -95,10 +95,10 @@ public class ContinuousViewTrack extends ViewTrack {
     }
 
     private int getMaxValue(List<Object>data) {
-        double max = 0;
+        float max = 0f;
         for (Object o: data) {
             ContinuousRecord record = (ContinuousRecord)o;
-            double val = record.getValue().getValue();
+            float val = record.getValue().getValue();
             if (val > max) max = val;
         }
         return (int)Math.ceil(max);
