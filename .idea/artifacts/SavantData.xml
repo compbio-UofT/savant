@@ -3,10 +3,11 @@
     <output-path>$PROJECT_DIR$/plugins/</output-path>
     <root id="archive" name="SavantData.jar">
       <element id="file-copy" path="$PROJECT_DIR$/savant.data/plugin.xml" />
-      <element id="module-output" name="savant.data" />
       <element id="directory" name="META-INF">
         <element id="file-copy" path="$PROJECT_DIR$/savant.data/META-INF/MANIFEST.MF" />
       </element>
+      <element id="file-copy" path="$PROJECT_DIR$/dist/Savant.jar" />
+      <element id="module-output" name="savant.data" />
     </root>
   </artifact>
 </component>

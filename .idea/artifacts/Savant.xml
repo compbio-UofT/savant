@@ -2,18 +2,16 @@
   <artifact name="Savant">
     <output-path>$PROJECT_DIR$/dist</output-path>
     <root id="root">
-      <element id="directory" name="lib">
-        <element id="library" level="project" name="commons-logging" />
-        <element id="library" level="project" name="picard" />
-        <element id="library" level="project" name="jpf" />
-        <element id="library" level="project" name="mydoggy" />
-        <element id="library" level="project" name="smalltext" />
-      </element>
       <element id="archive" name="Savant.jar">
         <element id="directory" name="META-INF">
           <element id="file-copy" path="$PROJECT_DIR$/META-INF/MANIFEST.MF" />
         </element>
         <element id="module-output" name="Savant" />
+        <element id="library" level="project" name="commons-logging" />
+        <element id="library" level="project" name="jide" />
+        <element id="library" level="project" name="jpf" />
+        <element id="library" level="project" name="picard" />
+        <element id="library" level="project" name="smalltext" />
       </element>
       <element id="directory" name="plugins">
         <element id="artifact" artifact-name="SavantCore" />
