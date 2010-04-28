@@ -27,17 +27,17 @@ package savant.model;
  */
 public class Continuous {
 
-    private double value;
+    private float value;
 
-    public Continuous(double value) {
+    public Continuous(float value) {
         this.value = value;
     }
 
-    public double getValue() {
+    public float getValue() {
         return value;
     }
 
-    public void setValue(double value) {
+    public void setValue(float value) {
         this.value = value;
     }
 
@@ -46,17 +46,16 @@ public class Continuous {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        Continuous continuous = (Continuous) o;
+        Continuous that = (Continuous) o;
 
-        if (Double.compare(continuous.value, value) != 0) return false;
+        if (Float.compare(that.value, value) != 0) return false;
 
         return true;
     }
 
     @Override
     public int hashCode() {
-        long temp = value != +0.0d ? Double.doubleToLongBits(value) : 0L;
-        return (int) (temp ^ (temp >>> 32));
+        return (value != +0.0f ? Float.floatToIntBits(value) : 0);
     }
 
     @Override
