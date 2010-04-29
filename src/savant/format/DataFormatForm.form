@@ -27,25 +27,25 @@
           <Group type="102" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="jScrollPane1" alignment="0" pref="283" max="32767" attributes="0"/>
+                  <Component id="jScrollPane1" alignment="0" pref="298" max="32767" attributes="0"/>
                   <Group type="102" alignment="1" attributes="0">
-                      <Component id="textfield_inPath" pref="232" max="32767" attributes="0"/>
+                      <Component id="textfield_inPath" pref="247" max="32767" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="button_openInPath" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <Component id="jLabel1" alignment="0" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel2" alignment="0" min="-2" max="-2" attributes="0"/>
-                  <Component id="jScrollPane2" alignment="0" pref="283" max="32767" attributes="0"/>
+                  <Component id="jScrollPane2" alignment="0" pref="298" max="32767" attributes="0"/>
                   <Component id="jLabel4" alignment="0" min="-2" max="-2" attributes="0"/>
                   <Group type="102" alignment="1" attributes="0">
-                      <Component id="formatProgressBar" pref="139" max="32767" attributes="1"/>
+                      <Component id="formatProgressBar" pref="154" max="32767" attributes="1"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="button_cancel" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="button_format" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <Group type="102" alignment="1" attributes="0">
-                      <Component id="textfield_outPath" pref="232" max="32767" attributes="0"/>
+                      <Component id="textfield_outPath" pref="247" max="32767" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="button_openOutFile" min="-2" max="-2" attributes="0"/>
                   </Group>
