@@ -56,14 +56,23 @@ public class IntervalSearchTree {
 
         this.nodes = new ArrayList<IntervalTreeNode>();
         // Construct the tree
-        root = createNode(r);
+        root = createNode(r, null);
         //constructSubtree(root, arity, minBinSize);
     }
     
     public IntervalSearchTree(List<IntervalTreeNode> nodes) {
-        this.nodes = nodes;
-        this.root = nodes.get(0);
+        this(nodes,0);
     }
+
+    public IntervalSearchTree(List<IntervalTreeNode> nodes, int indexOfRoot) {
+        this(nodes,nodes.get(indexOfRoot));
+    }
+
+    public IntervalSearchTree(List<IntervalTreeNode> nodes, IntervalTreeNode root) {
+        this.nodes = nodes;
+        this.root = root;
+    }
+
 
     public IntervalTreeNode insert(Range r) {
         return insertAtNode(r, this.root);
@@ -84,7 +93,7 @@ public class IntervalSearchTree {
         if (n.range.getLength() > this.minBinSize) {
             Range childRange = getRangeOfContainingChild(n,r);
             if (childRange != null) {
-                IntervalTreeNode child = createNode(childRange);
+                IntervalTreeNode child = createNode(childRange, n);
                 n.children.add(child);
 
                 return insertAtNode(r, child);
@@ -103,15 +112,18 @@ public class IntervalSearchTree {
      * @param r The range of the bin being represented by the new node
      * @return A node representing the bin with range r
      */
-    private IntervalTreeNode createNode(Range r) {
-        //System.out.println("IntervalTreeNode at index " + this.getNumNodes() + " has range " + r);
-        return createNode(r, this.getNumNodes());
+    private int numcreated = 0;
+    private IntervalTreeNode createNode(Range r, IntervalTreeNode p) {
+        return createNode(r, numcreated, p);
     }
 
-    private IntervalTreeNode createNode(Range r, int index) {
-        //System.out.println("IntervalTreeNode at index " + this.getNumNodes() + " has range " + r);
-        IntervalTreeNode n = new IntervalTreeNode(r, index);
+    private IntervalTreeNode createNode(Range r, int index, IntervalTreeNode parent) {
+        System.out.print("C " + index );
+        if (parent != null) { System.out.print(" < " + parent.index); } else { System.out.println(); }
+        System.out.println("\t" + r);
+        IntervalTreeNode n = new IntervalTreeNode(r, index, parent);
         this.nodes.add(n);
+        numcreated++;
         return n;
     }
 
@@ -128,7 +140,13 @@ public class IntervalSearchTree {
      * @return The number of nodes in this Interval BST
      */
     public int getNumNodes() {
-        return this.nodes.size();
+        int nonnullnodes = 0;
+        for (IntervalTreeNode n : this.nodes) {
+            if (n!=null) {
+                nonnullnodes++;
+            }
+        }
+        return nonnullnodes;
     }
 
     /**
@@ -143,7 +161,7 @@ public class IntervalSearchTree {
         return node.range.getFrom() <= r.getFrom() && node.range.getTo() >= r.getTo();
     }
 
-        private boolean contains(Range container, Range contained) {
+    private boolean contains(Range container, Range contained) {
         if (container.getFrom() <= contained.getFrom() && container.getTo() >= contained.getTo()) { return true; }
         return false;
     }
@@ -175,4 +193,48 @@ public class IntervalSearchTree {
                 }
             }
     }
+
+    public IntervalTreeNode getNodeWithSmallestMax() {
+        return getNodeWithSmallestMax(this.root);
+    }
+
+    private IntervalTreeNode getNodeWithSmallestMax(IntervalTreeNode node) {
+
+        if (node.isLeaf()) {
+
+            //System.out.println("[ " + node.index + " ]");
+            return node;
+        }
+
+        //System.out.print(node.index + " >> ");
+
+        int indexofsmallestmax = -1;
+        int smallestmax = Integer.MAX_VALUE;
+
+        for (int i = 0; i < node.children.size(); i++) {
+            IntervalTreeNode c = node.children.get(i);
+            if (c.range.getTo() < smallestmax) {
+                smallestmax = c.range.getTo();
+                indexofsmallestmax = i;
+            }
+        }
+        return getNodeWithSmallestMax(node.children.get(indexofsmallestmax));
+    }
+
+    public void removeNode(IntervalTreeNode node) {
+
+        //System.out.println("removing node that has: " + node.children.size() + " children");
+
+        this.nodes.set(node.index, null);
+
+        if (node.parent != null) {
+            node.parent.children.remove(node);
+        } else {
+            this.root = null;
+        }
+
+        
+        //System.gc();
+    }
+
 }
