@@ -100,8 +100,12 @@ public class DataFormatter implements FormatProgressListener {
     public boolean format() throws InterruptedException {
 
         try {
-            outFile = this.openNewOutputFile();
-            DataFormatUtils.writeFileTypeHeader(outFile, new FileTypeHeader(this.fileType,this.currentVersion));
+
+            // FIXME: another hack for coverage files
+            if (this.fileType != FileType.INTERVAL_BAM) {
+                outFile = this.openNewOutputFile();
+                DataFormatUtils.writeFileTypeHeader(outFile, new FileTypeHeader(this.fileType,this.currentVersion));
+            }
 
             switch (fileType) {
                 case POINT_GENERIC:
