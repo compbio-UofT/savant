@@ -47,6 +47,14 @@ public class DataFormatter implements FormatProgressListener {
 
     public static final int RECORDS_PER_INTERRUPT_CHECK = 100;
 
+    private static boolean intersects(Range r1, Range r2) {
+        if( r1.getFrom() >= r2.getTo() || r2.getFrom() >= r1.getTo()) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
     // variables to keep track of progress processing the input file(s)
     private long totalBytes;
     private long byteCount;
@@ -259,7 +267,7 @@ public class DataFormatter implements FormatProgressListener {
     }
 
     // TODO: interrupts and progress
-    private void formatAsInterval(List<FieldType> fields, List<Object> modifiers) throws FileNotFoundException, IOException {
+    private void formatAsInterval(List<FieldType> fields, List<Object> modifiers) throws FileNotFoundException, IOException, InterruptedException {
 
         List<Range> intervalIndex2IntervalRange = new ArrayList<Range>();
         List<Long> intevalIndex2StartByte = new ArrayList<Long>();
@@ -285,6 +293,10 @@ public class DataFormatter implements FormatProgressListener {
         List<Object> line;
         while((strLine = inFile.readLine()) != null) {
 
+            if (strLine.equals("")) { continue; }
+
+            System.out.println(strLine);
+
             line = DataFormatUtils.parseTxtLine(strLine, fields);
 
             line.set(0, ((Integer)line.get(0)) + this.baseOffset);
@@ -299,8 +311,8 @@ public class DataFormatter implements FormatProgressListener {
             intervalIndex2IntervalRange.add(new Range(startInterval, endInterval));
             intevalIndex2StartByte.add((long)tmpOutFile.size());
 
-            //System.out.println("Writing [" + startInterval + "," + endInterval + "," + description + "] to tmp file");
-            //System.out.println("Saving pointer to [" + tmpOutFile.getFilePointer() + "]");
+            //System.out.println("Writing [" + startInterval + "," + endInterval + "] to tmp file");
+            //System.out.println("Saving pointer to [" + tmpOutFile.size() + "]");
 
             DataFormatUtils.writeBinaryRecord(tmpOutFile, line, fields, modifiers);
         }
@@ -310,18 +322,60 @@ public class DataFormatter implements FormatProgressListener {
          *  - create an interval BST
          *  - put each interval into appropriate bin
          *  - create a bin -> List<line> map
+         *  - write each bin to outfile
          */
         System.out.println("=== STEP 2 ===");
+
+        DataFormatUtils.writeFieldsHeader(outFile, fields);
+        tmpOutFile.close();
+
+        String indexPath = outPath + indexExtension;
+        File f = new File(indexPath);
+        if (f.exists()) f.delete();
+        RandomAccessFile indexOutFile = RAFUtils.openFile(indexPath);
+
+        RandomAccessFile indexFile = new RandomAccessFile(tmpOutPath, "r");
 
         IntervalSearchTree ibst = new IntervalSearchTree(new Range(minRange, maxRange));
 
         HashMap<Integer,List<LinePlusRange>> nodeIndex2IntervalIndices = new HashMap<Integer,List<LinePlusRange>>();
 
+        IntervalTreeNode currentSmallestNode = ibst.getNodeWithSmallestMax();
+
+        //HashMap<Integer,Long> node2startByte = new HashMap<Integer,Long>();
+
         int lineNum = 0;
         for (Range r : intervalIndex2IntervalRange) {
+
+            //System.out.println("Adding :" + r);
+
+            currentSmallestNode = ibst.getNodeWithSmallestMax();
+            while (r.getFrom() > currentSmallestNode.range.getTo()) {
+                if (currentSmallestNode.size == 0) {
+                    currentSmallestNode.startByte = (long)-1;
+                    //node2startByte.put(currentSmallestNode.index, (long) -1);
+                } else {
+                    currentSmallestNode.startByte = (long)outFile.size();
+                    //node2startByte.put(currentSmallestNode.index, (long)outFile.size());
+                }
+                writeIntervalTreeNode(currentSmallestNode, indexOutFile);
+                writeBinToOutfile(currentSmallestNode, indexFile, outFile, nodeIndex2IntervalIndices, intevalIndex2StartByte, fields, modifiers);
+
+                ibst.removeNode(currentSmallestNode);
+                currentSmallestNode = ibst.getNodeWithSmallestMax();
+            }
+
             IntervalTreeNode n = ibst.insert(r);
 
-            //System.out.println("Interval: " + r + "\tNode: " + n.range + "\tIndex: " + n.index);
+            System.out.println("I " + n.index + "\t" + r);
+
+            if (n.range.getTo() < currentSmallestNode.range.getTo() || (n.range.getTo() == currentSmallestNode.range.getTo() && n.range.getFrom() > currentSmallestNode.range.getFrom()) )
+            {
+                currentSmallestNode = n;
+                //System.out.println("Smallest max:" + currentSmallestNode.range.getTo());
+            }
+
+            //System.out.println("Adding Interval: " + r + "\tNode: " + n.range + "\tIndex: " + n.index);
 
             List<LinePlusRange> lines;
             if (nodeIndex2IntervalIndices.containsKey(n.index)) {
@@ -335,52 +389,43 @@ public class DataFormatter implements FormatProgressListener {
             //System.out.println("Adding to node " + n.index);
 
             lineNum++;
+
+            if (lineNum % 500 == 0) {
+                //System.out.println("=========== " + ((lineNum *100) / intervalIndex2IntervalRange.size()) + "% done");
+                setProgress( (lineNum *100) / intervalIndex2IntervalRange.size());
+                if (Thread.interrupted()) throw new InterruptedException();
+            }
         }
 
         //System.out.println("IBST created with: " + ibst.getNumNodes() + " nodes");
 
-        /*
-         * STEP 3:
-         *  - sort each bin
-         *  - write each bin to outfile
-         */
-        System.out.println("=== STEP 3 ===");
+        System.out.println("No intervals left to see, dumping remaining " + ibst.getNumNodes() + " nodes");
 
-        Collection<List<LinePlusRange>> lineLists = (Collection<List<LinePlusRange>>) nodeIndex2IntervalIndices.values();
-        for (List<LinePlusRange> lineList : lineLists) {
-            Collections.sort(lineList, new LineRangeComparator());
+        while (ibst.getRoot() != null) {
+            currentSmallestNode = ibst.getNodeWithSmallestMax();
+
+            if (currentSmallestNode.size == 0) {
+                currentSmallestNode.startByte = (long)-1;
+            } else {
+                currentSmallestNode.startByte = (long)outFile.size();
+            }
+            writeIntervalTreeNode(currentSmallestNode, indexOutFile);
+            writeBinToOutfile(currentSmallestNode, indexFile, outFile, nodeIndex2IntervalIndices, intevalIndex2StartByte, fields, modifiers);
+
+            ibst.removeNode(currentSmallestNode);
         }
 
-        DataFormatUtils.writeFieldsHeader(outFile, fields);
-        tmpOutFile.close();
-        RandomAccessFile indexFile = new RandomAccessFile(tmpOutPath, "r");
-        HashMap<Integer,Long> node2startByte = writeBinsToOutfile(outFile, indexFile, ibst, nodeIndex2IntervalIndices, intevalIndex2StartByte, fields, modifiers );
         outFile.close();
-
-        /*
-         * STEP 4:
-         *  - write index
-         */
-
-        /*
-         * need a node --> start byte map first!
-         */
-        String indexPath = outPath + indexExtension;
-        File f = new File(indexPath);
-        if (f.exists()) f.delete();
-        RandomAccessFile indexOutFile = RAFUtils.openFile(indexPath);
-
-        System.out.println("=== STEP 4 ===");
-        writeIntervalBSTIndex(indexOutFile, ibst, node2startByte);
-
         indexOutFile.close();
+
+        System.out.println("Done formatting");
     }
 
 
     /*
      * INTERVAL : GENERIC
      */
-    private void formatAsIntervalGeneric() throws FileNotFoundException, IOException {
+    private void formatAsIntervalGeneric() throws FileNotFoundException, IOException, InterruptedException {
 
         // pre-sort by start position
         ExternalSort externalSort = new ExternalSort();
@@ -393,7 +438,7 @@ public class DataFormatter implements FormatProgressListener {
         externalSort.setSeparator('\t');
         externalSort.run();
         inPath = sortPath;
-               
+
         List<FieldType> fields = new ArrayList<FieldType>();
         fields.add(FieldType.INTEGER);
         fields.add(FieldType.INTEGER);
@@ -410,7 +455,7 @@ public class DataFormatter implements FormatProgressListener {
         new File(sortPath).delete();
     }
 
-    private void formatAsIntervalGFF() throws FileNotFoundException, IOException {
+    private void formatAsIntervalGFF() throws FileNotFoundException, IOException, InterruptedException {
 
         // pre-sort by start position
         ExternalSort externalSort = new ExternalSort();
@@ -423,7 +468,7 @@ public class DataFormatter implements FormatProgressListener {
         externalSort.setSeparator('\t');
         externalSort.run();
         inPath = sortPath;
-        
+
         List<FieldType> fields = new ArrayList<FieldType>();
         fields.add(FieldType.IGNORE);
         fields.add(FieldType.IGNORE);
@@ -453,7 +498,7 @@ public class DataFormatter implements FormatProgressListener {
 
     }
 
-    private void formatAsIntervalBED() throws FileNotFoundException, IOException {
+    private void formatAsIntervalBED() throws FileNotFoundException, IOException, InterruptedException {
 
         // pre-sort by start position
         ExternalSort externalSort = new ExternalSort();
@@ -496,6 +541,29 @@ public class DataFormatter implements FormatProgressListener {
         // delete sorted temp file
         new File(sortPath).delete();
 
+    }
+
+    private void writeBinToOutfile(IntervalTreeNode n, RandomAccessFile srcFile, DataOutputStream outFile, HashMap<Integer, List<LinePlusRange>> nodeIndex2IntervalIndices, List<Long> intevalIndex2StartByte, List<FieldType> fields, List<Object> modifiers) throws IOException {
+        if (n == null) { return; }
+
+        List<LinePlusRange> linesPlusRanges = nodeIndex2IntervalIndices.get(n.index);
+
+        System.out.println("D " + n.index + "\t" + n.range);
+
+        if (n.children.size() != 0) {
+            System.out.println("CANT DUMP!!!! Node " + n.index + " with parent " + n.parent.index + " has " + n.children.size() + " children!!");
+        }
+        //System.out.println(n.index + " " + n.size + " " +  node2startByte.get(n.index));
+
+        if (linesPlusRanges != null) {
+            for (LinePlusRange lr : linesPlusRanges) {
+                int intervalIndex = lr.lineNum;
+                long startByte = intevalIndex2StartByte.get(intervalIndex);
+                srcFile.seek(startByte);
+                List<Object> rec = RAFUtils.readBinaryRecord(srcFile, fields);
+                DataFormatUtils.writeBinaryRecord(outFile, rec, fields, modifiers);
+            }
+        }
     }
 
      private HashMap<Integer,Long> writeBinsToOutfile(DataOutputStream outFile, RandomAccessFile srcFile, IntervalSearchTree ibst, HashMap<Integer, List<LinePlusRange>> nodeIndex2IntervalIndices, List<Long> intevalIndex2StartByte, List<FieldType> fields, List<Object> modifiers) throws IOException {
@@ -585,7 +653,6 @@ public class DataFormatter implements FormatProgressListener {
             inFile.close();
             outFile.close();
         }
-                
     }
 
     private int pointGenericGetDescriptionLength() throws IOException {
@@ -622,56 +689,22 @@ public class DataFormatter implements FormatProgressListener {
      * @param indexOutFile The output file to which to write
      * @param ibst The BST to write
      * @throws IOException
-     */
+     *
     private void writeIntervalBSTIndex(RandomAccessFile indexOutFile, IntervalSearchTree ibst, HashMap<Integer, Long> node2startByte) throws IOException {
 
         indexOutFile.writeInt(ibst.getNumNodes());
 
-        List<Object> record;
-        List<FieldType> fields;
-        List<Object> modifiers;
-
         for (IntervalTreeNode n : ibst.getNodes()) {
-            record = new ArrayList<Object>();
-            fields = new ArrayList<FieldType>();
-            modifiers = new ArrayList<Object>();
-
-            //System.out.print(n.index + " " + n.range + " " + node2startByte.get(n.index) + " " + n.size + " " + n.subtreeSize + " ");
-
-            // the index
-            record.add(n.index); fields.add(FieldType.INTEGER); modifiers.add(null);
-
-            // range
-            record.add(n.range); fields.add(FieldType.RANGE); modifiers.add(null);
-
-            // byte pointer
-            record.add(node2startByte.get(n.index)); fields.add(FieldType.LONG); modifiers.add(null);
-
-            // size
-            record.add(n.size); fields.add(FieldType.INTEGER); modifiers.add(null);
-
-            // subtree size
-            record.add(n.subtreeSize); fields.add(FieldType.INTEGER); modifiers.add(null);
-
-            // numchildren
-            record.add(n.children.size()); fields.add(FieldType.INTEGER); modifiers.add(null);
-
-            // index of each child
-            for (IntervalTreeNode child : n.children) {
-                record.add(child.index); fields.add(FieldType.INTEGER); modifiers.add(null);
-            }
-
-            RAFUtils.writeBinaryRecord(indexOutFile, record, fields, modifiers);
+            writeIntervalTreeNode(n, indexOutFile);
         }
     }
+     */
 
     public static IntervalSearchTree readIntervalBST(String indexFileName) throws IOException {
 
         RandomAccessFile indexRaf = RAFUtils.openFile(indexFileName, false);
 
-        int numNodes = indexRaf.readInt();
-
-        List<IntervalTreeNode> nodes = new ArrayList<IntervalTreeNode>(numNodes);
+        List<IntervalTreeNode> nodes = new ArrayList<IntervalTreeNode>();
 
         List<FieldType> fields = new ArrayList<FieldType>();
         fields.add(FieldType.INTEGER);
@@ -681,38 +714,67 @@ public class DataFormatter implements FormatProgressListener {
         fields.add(FieldType.INTEGER);
         fields.add(FieldType.INTEGER);
 
-        HashMap<Integer,List<Integer>> nodeIndex2ChildIndices = new HashMap<Integer,List<Integer>>();
+        HashMap<Integer,Integer> nodeIndex2ParentIndices = new HashMap<Integer,Integer>();
 
-        for (int i = 0; i < numNodes; i++) {
+        int i = 0;
 
-            List<Object> r1 = RAFUtils.readBinaryRecord(indexRaf, fields);
+        while(true) {
+            
+            List<Object> r1;
+            try {
+                r1 = RAFUtils.readBinaryRecord(indexRaf, fields);
+            }
+            catch (EOFException e) {
+                break;
+            }
 
             IntervalTreeNode n = new IntervalTreeNode((Range) r1.get(1), (Integer) r1.get(0));
+
+            //System.out.println((++i) + ". Read node with range " + n.range + " and index " + n.index);
+
             n.startByte = (Long) r1.get(2);
             n.size = (Integer) r1.get(3);
             n.subtreeSize = (Integer) r1.get(4);
-
-            int numChildren = (Integer) r1.get(5);
-            List<Integer> childIndices = new ArrayList<Integer>(n.size);
-
-            for (int j = 0; j < numChildren; j++) {
-                childIndices.add(indexRaf.readInt());
-            }
-            nodeIndex2ChildIndices.put(n.index, childIndices);
+            nodeIndex2ParentIndices.put(n.index, (Integer) r1.get(5));
 
             nodes.add(n);
         }
 
+        System.out.println("Rearranging node list");
+
+       Collections.sort(nodes);
+
+       System.out.println("Finished parsing IBST");
+
        indexRaf.close();
 
+       HashMap<Integer,List<Integer>> nodeIndex2ChildIndices = new HashMap<Integer,List<Integer>>();
+
+       for (Integer key : nodeIndex2ParentIndices.keySet()) {
+           int parent = nodeIndex2ParentIndices.get(key);
+           if (!nodeIndex2ChildIndices.containsKey(parent)) {
+               nodeIndex2ChildIndices.put(parent, new ArrayList<Integer>());
+           }
+           List<Integer> children = nodeIndex2ChildIndices.get(parent);
+           children.add(key);
+           nodeIndex2ChildIndices.put(parent, children);
+       }
+
        for (Integer index : nodeIndex2ChildIndices.keySet()) {
+
+           if (index == -1) { continue; }
+           
            IntervalTreeNode n = nodes.get(index);
-           List<Integer> childIndices = nodeIndex2ChildIndices.get(index);
+           List<Integer> cis = nodeIndex2ChildIndices.get(index);
 
+           //System.out.print("Node " + n.index + " [ ");
 
-           for (Integer childIndex : childIndices) {
+           for (Integer childIndex : cis) {
+               //System.out.print(childIndex + " ");
                 n.children.add(nodes.get(childIndex));
            }
+
+           //System.out.println("]");
        }
 
        return new IntervalSearchTree(nodes);
@@ -829,6 +891,63 @@ public class DataFormatter implements FormatProgressListener {
 
     public void removeProgressListener(FormatProgressListener listener) {
         listeners.remove(listener);
+    }
+
+    private void writeIntervalTreeNode(IntervalTreeNode n, RandomAccessFile indexOutFile) throws IOException {
+
+        List<Object> record;
+        List<FieldType> fields;
+        List<Object> modifiers;
+
+        record = new ArrayList<Object>();
+        fields = new ArrayList<FieldType>();
+        modifiers = new ArrayList<Object>();
+        //System.out.print(n.index + " " + n.range + " " + node2startByte.get(n.index) + " " + n.size + " " + n.subtreeSize + " ");
+        // the index
+        record.add(n.index);
+        fields.add(FieldType.INTEGER);
+        modifiers.add(null);
+        // range
+        record.add(n.range);
+        fields.add(FieldType.RANGE);
+        modifiers.add(null);
+        // byte pointer
+        record.add(n.startByte);
+        fields.add(FieldType.LONG);
+        modifiers.add(null);
+        // size
+        record.add(n.size);
+        fields.add(FieldType.INTEGER);
+        modifiers.add(null);
+        // subtree size
+        record.add(n.subtreeSize);
+        fields.add(FieldType.INTEGER);
+        modifiers.add(null);
+        // parent index
+        if (n.parent == null) { // this is root
+            record.add(-1);
+            fields.add(FieldType.INTEGER);
+            modifiers.add(null);
+        } else {
+            record.add(n.parent.index);
+            fields.add(FieldType.INTEGER);
+            modifiers.add(null);
+        }
+
+        // now: children are implicit in order...
+        /*
+        // numchildren
+        record.add(n.children.size());
+        fields.add(FieldType.INTEGER);
+        modifiers.add(null);
+        // index of each child
+        for (IntervalTreeNode child : n.children) {
+            record.add(child.index);
+            fields.add(FieldType.INTEGER);
+            modifiers.add(null);
+        }
+         */
+        RAFUtils.writeBinaryRecord(indexOutFile, record, fields, modifiers);
     }
 
 }

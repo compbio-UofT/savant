@@ -48,9 +48,8 @@ public class DataFormatForm extends JDialog implements PropertyChangeListener /*
     private FormatTask formatTask;
 
 
-    /* Creates new form DataFormatForm */
-    public DataFormatForm(java.awt.Frame parent, boolean modal) {
-        super(parent, modal);
+    /** Creates new form DataFormatForm */
+    public DataFormatForm() {
 
         initComponents();
         initFormats();
@@ -61,6 +60,9 @@ public class DataFormatForm extends JDialog implements PropertyChangeListener /*
 
         formatDescriptionTextArea = this.textarea_formatDescription;
         validateReadyToFormat();
+
+
+        this.setModal(false);
     }
 
     public void setInFile(String infile) {
@@ -203,30 +205,30 @@ public class DataFormatForm extends JDialog implements PropertyChangeListener /*
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(checkbox_tempOut)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(checkbox_chooseBase))
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 389, Short.MAX_VALUE)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(textfield_inPath, javax.swing.GroupLayout.PREFERRED_SIZE, 295, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 283, Short.MAX_VALUE)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(textfield_inPath, javax.swing.GroupLayout.DEFAULT_SIZE, 232, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(button_openInPath))
                     .addComponent(jLabel1)
                     .addComponent(jLabel2)
-                    .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 389, Short.MAX_VALUE)
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 283, Short.MAX_VALUE)
                     .addComponent(jLabel4)
-                    .addComponent(jLabel3)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(textfield_outPath, javax.swing.GroupLayout.PREFERRED_SIZE, 295, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(formatProgressBar, javax.swing.GroupLayout.DEFAULT_SIZE, 139, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(button_cancel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(button_format))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(textfield_outPath, javax.swing.GroupLayout.DEFAULT_SIZE, 232, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(button_openOutFile))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(formatProgressBar, javax.swing.GroupLayout.DEFAULT_SIZE, 202, Short.MAX_VALUE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(button_format)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(button_cancel)))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(checkbox_tempOut)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(checkbox_chooseBase))
+                    .addComponent(jLabel3))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -259,8 +261,8 @@ public class DataFormatForm extends JDialog implements PropertyChangeListener /*
                 .addGap(10, 10, 10)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(button_cancel)
-                        .addComponent(button_format))
+                        .addComponent(button_format)
+                        .addComponent(button_cancel))
                     .addComponent(formatProgressBar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap())
         );
@@ -387,7 +389,6 @@ public class DataFormatForm extends JDialog implements PropertyChangeListener /*
 
         if (formatTask != null) formatTask.cancel(true);
         setVisible(false);
-        DataFormatForm.this.getParent().requestFocus();
         
     }//GEN-LAST:event_button_cancelActionPerformed
 
@@ -397,13 +398,7 @@ public class DataFormatForm extends JDialog implements PropertyChangeListener /*
     public static void main(String args[]) {
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                DataFormatForm dialog = new DataFormatForm(new javax.swing.JFrame(), true);
-                dialog.addWindowListener(new java.awt.event.WindowAdapter() {
-                    public void windowClosing(java.awt.event.WindowEvent e) {
-                        System.exit(0);
-                    }
-                });
-                dialog.setVisible(true);
+                new DataFormatForm().setVisible(true);
             }
         });
     }
@@ -543,7 +538,6 @@ public class DataFormatForm extends JDialog implements PropertyChangeListener /*
                 if (formatTask.isCancelled() || formatTask.isDone()) {
                     formatProgressBar.setVisible(false);
                     setVisible(false);
-                    DataFormatForm.this.getParent().requestFocus();                    
                 }
             }
         }
