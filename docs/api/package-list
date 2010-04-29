@@ -1,6 +1,7 @@
 savant.analysis
 savant.controller
 savant.controller.event.bookmark
+savant.controller.event.drawmode
 savant.controller.event.frame
 savant.controller.event.range
 savant.controller.event.rangeselection

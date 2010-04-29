@@ -1,27 +1,298 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="ArtifactsWorkspaceSettings">
+    <artifacts-to-build>
+      <artifact name="Savant" />
+    </artifacts-to-build>
+  </component>
   <component name="ChangeListManager">
     <list id="4e1035e5-bd24-425a-b7b4-818e84efcc0a" name="Failed commit: Default" comment="Initial check-in." />
     <list default="true" readonly="true" id="7c69db67-9cad-43c9-9177-69e01c2156cb" name="Default" comment="Moved from">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/tools/BAMToCoverage.html" afterPath="$PROJECT_DIR$/docs/api/savant/tools/BAMToCoverage.html" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/bin" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/savant.data/src/savant/data/DataTab.java" afterPath="$PROJECT_DIR$/savant.data/src/savant/data/DataTab.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/dist/plugins/SavantCore.jar" afterPath="$PROJECT_DIR$/dist/plugins/SavantCore.jar" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/savant.data/savant.data.iml" afterPath="$PROJECT_DIR$/savant.data/savant.data.iml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/index-files/index-9.html" afterPath="$PROJECT_DIR$/docs/api/index-files/index-9.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/controller/event/frame/package-summary.html" afterPath="$PROJECT_DIR$/docs/api/savant/controller/event/frame/package-summary.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/format/util/data/interval/IntervalSearchTree.html" afterPath="$PROJECT_DIR$/docs/api/savant/format/util/data/interval/IntervalSearchTree.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/view/swing/sequence/SequenceTrackRenderer.html" afterPath="$PROJECT_DIR$/docs/api/savant/view/swing/sequence/SequenceTrackRenderer.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/format/comparator/package-tree.html" afterPath="$PROJECT_DIR$/docs/api/savant/format/comparator/package-tree.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/model/data/point/package-summary.html" afterPath="$PROJECT_DIR$/docs/api/savant/model/data/point/package-summary.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/plugin/AuxData.html" afterPath="$PROJECT_DIR$/docs/api/savant/plugin/AuxData.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/view/swing/sequence/SequenceViewTrack.html" afterPath="$PROJECT_DIR$/docs/api/savant/view/swing/sequence/SequenceViewTrack.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/controller/event/range/RangeChangedListener.html" afterPath="$PROJECT_DIR$/docs/api/savant/controller/event/range/RangeChangedListener.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/format/util/data/package-summary.html" afterPath="$PROJECT_DIR$/docs/api/savant/format/util/data/package-summary.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/util/RangeTest.html" afterPath="$PROJECT_DIR$/docs/api/savant/util/RangeTest.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/view/swing/GraphPane.html" afterPath="$PROJECT_DIR$/docs/api/savant/view/swing/GraphPane.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/model/data/interval/BAMIntervalTrack.html" afterPath="$PROJECT_DIR$/docs/api/savant/model/data/interval/BAMIntervalTrack.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/index-files/index-8.html" afterPath="$PROJECT_DIR$/docs/api/index-files/index-8.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/index-files/index-3.html" afterPath="$PROJECT_DIR$/docs/api/index-files/index-3.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/core/package-summary.html" afterPath="$PROJECT_DIR$/docs/api/savant/core/package-summary.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/format/header/package-summary.html" afterPath="$PROJECT_DIR$/docs/api/savant/format/header/package-summary.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/controller/event/viewtrack/package-frame.html" afterPath="$PROJECT_DIR$/docs/api/savant/controller/event/viewtrack/package-frame.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/model/view/ColorScheme.html" afterPath="$PROJECT_DIR$/docs/api/savant/model/view/ColorScheme.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/index-files/index-1.html" afterPath="$PROJECT_DIR$/docs/api/index-files/index-1.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/controller/event/track/TrackListChangedListener.html" afterPath="$PROJECT_DIR$/docs/api/savant/controller/event/track/TrackListChangedListener.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/controller/event/track/package-tree.html" afterPath="$PROJECT_DIR$/docs/api/savant/controller/event/track/package-tree.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/view/swing/ImagePanel.html" afterPath="$PROJECT_DIR$/docs/api/savant/view/swing/ImagePanel.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/view/swing/util/package-frame.html" afterPath="$PROJECT_DIR$/docs/api/savant/view/swing/util/package-frame.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/index-files/index-6.html" afterPath="$PROJECT_DIR$/docs/api/index-files/index-6.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/index-files/index-11.html" afterPath="$PROJECT_DIR$/docs/api/index-files/index-11.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/model/data/point/GenericPointTrack.html" afterPath="$PROJECT_DIR$/docs/api/savant/model/data/point/GenericPointTrack.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/model/data/interval/BEDIntervalTrack.html" afterPath="$PROJECT_DIR$/docs/api/savant/model/data/interval/BEDIntervalTrack.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/view/swing/sequence/package-tree.html" afterPath="$PROJECT_DIR$/docs/api/savant/view/swing/sequence/package-tree.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/model/data/continuous/package-summary.html" afterPath="$PROJECT_DIR$/docs/api/savant/model/data/continuous/package-summary.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/format/comparator/RangeComparator.html" afterPath="$PROJECT_DIR$/docs/api/savant/format/comparator/RangeComparator.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/model/data/interval/package-frame.html" afterPath="$PROJECT_DIR$/docs/api/savant/model/data/interval/package-frame.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/view/swing/point/PointTrackRenderer.html" afterPath="$PROJECT_DIR$/docs/api/savant/view/swing/point/PointTrackRenderer.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/format/DataFormatForm.html" afterPath="$PROJECT_DIR$/docs/api/savant/format/DataFormatForm.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/model/data/sequence/package-summary.html" afterPath="$PROJECT_DIR$/docs/api/savant/model/data/sequence/package-summary.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/format/header/package-tree.html" afterPath="$PROJECT_DIR$/docs/api/savant/format/header/package-tree.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/model/data/sequence/package-tree.html" afterPath="$PROJECT_DIR$/docs/api/savant/model/data/sequence/package-tree.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/view/swing/BookmarkSheet.html" afterPath="$PROJECT_DIR$/docs/api/savant/view/swing/BookmarkSheet.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/tools/TestDataGenerator.html" afterPath="$PROJECT_DIR$/docs/api/savant/tools/TestDataGenerator.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/view/swing/interval/BAMViewTrack.html" afterPath="$PROJECT_DIR$/docs/api/savant/view/swing/interval/BAMViewTrack.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/view/swing/interval/BAMCoverageViewTrack.html" afterPath="$PROJECT_DIR$/docs/api/savant/view/swing/interval/BAMCoverageViewTrack.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/model/Resolution.html" afterPath="$PROJECT_DIR$/docs/api/savant/model/Resolution.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/model/Interval.html" afterPath="$PROJECT_DIR$/docs/api/savant/model/Interval.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/analysis/BatchAnalysis.html" afterPath="$PROJECT_DIR$/docs/api/savant/analysis/BatchAnalysis.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/view/swing/point/PointViewTrack.html" afterPath="$PROJECT_DIR$/docs/api/savant/view/swing/point/PointViewTrack.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/view/swing/interval/BAMViewTrack.DrawingMode.html" afterPath="$PROJECT_DIR$/docs/api/savant/view/swing/interval/BAMViewTrack.DrawingMode.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/tools/package-summary.html" afterPath="$PROJECT_DIR$/docs/api/savant/tools/package-summary.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/index-files/index-19.html" afterPath="$PROJECT_DIR$/docs/api/index-files/index-19.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/model/view/Mode.html" afterPath="$PROJECT_DIR$/docs/api/savant/model/view/Mode.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/view/swing/ViewTrack.html" afterPath="$PROJECT_DIR$/docs/api/savant/view/swing/ViewTrack.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/model/IntervalRecord.html" afterPath="$PROJECT_DIR$/docs/api/savant/model/IntervalRecord.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/analysis/Analysis.html" afterPath="$PROJECT_DIR$/docs/api/savant/analysis/Analysis.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/view/swing/util/ScreenShot.html" afterPath="$PROJECT_DIR$/docs/api/savant/view/swing/util/ScreenShot.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/model/package-tree.html" afterPath="$PROJECT_DIR$/docs/api/savant/model/package-tree.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/controller/event/viewtrack/package-tree.html" afterPath="$PROJECT_DIR$/docs/api/savant/controller/event/viewtrack/package-tree.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/view/swing/point/package-frame.html" afterPath="$PROJECT_DIR$/docs/api/savant/view/swing/point/package-frame.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/analysis/package-frame.html" afterPath="$PROJECT_DIR$/docs/api/savant/analysis/package-frame.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/controller/event/viewtrack/ViewTrackListChangedEvent.html" afterPath="$PROJECT_DIR$/docs/api/savant/controller/event/viewtrack/ViewTrackListChangedEvent.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/controller/event/rangeselection/RangeSelectionChangedListener.html" afterPath="$PROJECT_DIR$/docs/api/savant/controller/event/rangeselection/RangeSelectionChangedListener.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/model/Genome.html" afterPath="$PROJECT_DIR$/docs/api/savant/model/Genome.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/view/swing/model/BookmarksTableModel.html" afterPath="$PROJECT_DIR$/docs/api/savant/view/swing/model/BookmarksTableModel.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/model/view/DrawingInstructions.html" afterPath="$PROJECT_DIR$/docs/api/savant/model/view/DrawingInstructions.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/controller/RangeController.html" afterPath="$PROJECT_DIR$/docs/api/savant/controller/RangeController.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/model/PointTest.html" afterPath="$PROJECT_DIR$/docs/api/savant/model/PointTest.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/view/swing/interval/BEDViewTrack.DrawingMode.html" afterPath="$PROJECT_DIR$/docs/api/savant/view/swing/interval/BEDViewTrack.DrawingMode.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/index-files/index-17.html" afterPath="$PROJECT_DIR$/docs/api/index-files/index-17.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/view/swing/interval/IntervalTrackRenderer.html" afterPath="$PROJECT_DIR$/docs/api/savant/view/swing/interval/IntervalTrackRenderer.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/view/swing/model/package-summary.html" afterPath="$PROJECT_DIR$/docs/api/savant/view/swing/model/package-summary.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/model/Point.html" afterPath="$PROJECT_DIR$/docs/api/savant/model/Point.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/plugin/package-summary.html" afterPath="$PROJECT_DIR$/docs/api/savant/plugin/package-summary.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/index-files/index-14.html" afterPath="$PROJECT_DIR$/docs/api/index-files/index-14.html" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/META-INF/MANIFEST.MF" afterPath="$PROJECT_DIR$/META-INF/MANIFEST.MF" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/model/view/package-summary.html" afterPath="$PROJECT_DIR$/docs/api/savant/model/view/package-summary.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/util/MiscUtils.html" afterPath="$PROJECT_DIR$/docs/api/savant/util/MiscUtils.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/package-list" afterPath="$PROJECT_DIR$/docs/api/package-list" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/view/swing/interval/package-summary.html" afterPath="$PROJECT_DIR$/docs/api/savant/view/swing/interval/package-summary.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/controller/package-tree.html" afterPath="$PROJECT_DIR$/docs/api/savant/controller/package-tree.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/view/swing/TrackRenderer.html" afterPath="$PROJECT_DIR$/docs/api/savant/view/swing/TrackRenderer.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/view/swing/interval/BAMTrackRenderer.html" afterPath="$PROJECT_DIR$/docs/api/savant/view/swing/interval/BAMTrackRenderer.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/model/data/interval/GenericIntervalRecordTest.html" afterPath="$PROJECT_DIR$/docs/api/savant/model/data/interval/GenericIntervalRecordTest.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/help-doc.html" afterPath="$PROJECT_DIR$/docs/api/help-doc.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/controller/event/frame/FrameHiddenEvent.html" afterPath="$PROJECT_DIR$/docs/api/savant/controller/event/frame/FrameHiddenEvent.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/controller/event/bookmark/BookmarksChangedListener.html" afterPath="$PROJECT_DIR$/docs/api/savant/controller/event/bookmark/BookmarksChangedListener.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/controller/event/range/package-summary.html" afterPath="$PROJECT_DIR$/docs/api/savant/controller/event/range/package-summary.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/model/GenericPointRecordTest.html" afterPath="$PROJECT_DIR$/docs/api/savant/model/GenericPointRecordTest.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/savant.data/src/savant/data/DataTab.java" afterPath="$PROJECT_DIR$/savant.data/src/savant/data/DataTab.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/core/package-tree.html" afterPath="$PROJECT_DIR$/docs/api/savant/core/package-tree.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/controller/event/frame/FrameChangedListener.html" afterPath="$PROJECT_DIR$/docs/api/savant/controller/event/frame/FrameChangedListener.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/view/swing/BrowserDefaults.html" afterPath="$PROJECT_DIR$/docs/api/savant/view/swing/BrowserDefaults.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/controller/event/rangeselection/RangeSelectionChangedEvent.html" afterPath="$PROJECT_DIR$/docs/api/savant/controller/event/rangeselection/RangeSelectionChangedEvent.html" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/dist/Savant.jar" afterPath="$PROJECT_DIR$/dist/Savant.jar" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Savant.iml" afterPath="$PROJECT_DIR$/Savant.iml" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/flexdock.xml" afterPath="" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/jide.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/dist/plugins/SavantData.jar" afterPath="$PROJECT_DIR$/dist/plugins/SavantData.jar" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/nbproject/project.properties" afterPath="$PROJECT_DIR$/nbproject/project.properties" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/tools/WIGToContinuous.html" afterPath="$PROJECT_DIR$/docs/api/savant/tools/WIGToContinuous.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/controller/event/bookmark/package-summary.html" afterPath="$PROJECT_DIR$/docs/api/savant/controller/event/bookmark/package-summary.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/tools/BAMToTuples.html" afterPath="$PROJECT_DIR$/docs/api/savant/tools/BAMToTuples.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/model/view/AxisRange.html" afterPath="$PROJECT_DIR$/docs/api/savant/model/view/AxisRange.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/format/util/data/interval/package-frame.html" afterPath="$PROJECT_DIR$/docs/api/savant/format/util/data/interval/package-frame.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/core/SavantCore.html" afterPath="$PROJECT_DIR$/docs/api/savant/core/SavantCore.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/model/data/point/GenericPointTrackTest.html" afterPath="$PROJECT_DIR$/docs/api/savant/model/data/point/GenericPointTrackTest.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/plugins/SavantCore.jar" afterPath="$PROJECT_DIR$/plugins/SavantCore.jar" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/artifacts/SavantData.xml" afterPath="$PROJECT_DIR$/.idea/artifacts/SavantData.xml" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/balloon_tips.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/mydoggy.xml" afterPath="" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/view/swing/interval/BEDTrackRenderer.html" afterPath="$PROJECT_DIR$/docs/api/savant/view/swing/interval/BEDTrackRenderer.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/format/package-tree.html" afterPath="$PROJECT_DIR$/docs/api/savant/format/package-tree.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/analysis/ScreenShotAnalysis.html" afterPath="$PROJECT_DIR$/docs/api/savant/analysis/ScreenShotAnalysis.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/util/Bookmark.html" afterPath="$PROJECT_DIR$/docs/api/savant/util/Bookmark.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/util/IntervalPacker.html" afterPath="$PROJECT_DIR$/docs/api/savant/util/IntervalPacker.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/format/DataFormatter.html" afterPath="$PROJECT_DIR$/docs/api/savant/format/DataFormatter.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/model/ContinuousRecordTest.html" afterPath="$PROJECT_DIR$/docs/api/savant/model/ContinuousRecordTest.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/index-files/index-18.html" afterPath="$PROJECT_DIR$/docs/api/index-files/index-18.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/util/Block.html" afterPath="$PROJECT_DIR$/docs/api/savant/util/Block.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/controller/event/frame/FrameChangedEvent.html" afterPath="$PROJECT_DIR$/docs/api/savant/controller/event/frame/FrameChangedEvent.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/util/package-frame.html" afterPath="$PROJECT_DIR$/docs/api/savant/util/package-frame.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/model/data/interval/package-summary.html" afterPath="$PROJECT_DIR$/docs/api/savant/model/data/interval/package-summary.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/controller/event/range/RangeChangedEvent.html" afterPath="$PROJECT_DIR$/docs/api/savant/controller/event/range/RangeChangedEvent.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/nbproject/project.properties" afterPath="$PROJECT_DIR$/nbproject/project.properties" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/format/util/data/package-frame.html" afterPath="$PROJECT_DIR$/docs/api/savant/format/util/data/package-frame.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/model/Continuous.html" afterPath="$PROJECT_DIR$/docs/api/savant/model/Continuous.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/model/data/point/package-tree.html" afterPath="$PROJECT_DIR$/docs/api/savant/model/data/point/package-tree.html" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/bin" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/model/data/package-frame.html" afterPath="$PROJECT_DIR$/docs/api/savant/model/data/package-frame.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/controller/event/rangeselection/package-tree.html" afterPath="$PROJECT_DIR$/docs/api/savant/controller/event/rangeselection/package-tree.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/view/swing/RangeSelectionPanel.html" afterPath="$PROJECT_DIR$/docs/api/savant/view/swing/RangeSelectionPanel.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/model/view/package-tree.html" afterPath="$PROJECT_DIR$/docs/api/savant/model/view/package-tree.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/controller/FrameController.html" afterPath="$PROJECT_DIR$/docs/api/savant/controller/FrameController.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/controller/event/track/package-summary.html" afterPath="$PROJECT_DIR$/docs/api/savant/controller/event/track/package-summary.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/model/data/RecordTrack.html" afterPath="$PROJECT_DIR$/docs/api/savant/model/data/RecordTrack.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/format/comparator/LineRangeComparator.html" afterPath="$PROJECT_DIR$/docs/api/savant/format/comparator/LineRangeComparator.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/model/IntervalRecordTest.html" afterPath="$PROJECT_DIR$/docs/api/savant/model/IntervalRecordTest.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/index-files/index-7.html" afterPath="$PROJECT_DIR$/docs/api/index-files/index-7.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/controller/event/frame/FrameHiddenListener.html" afterPath="$PROJECT_DIR$/docs/api/savant/controller/event/frame/FrameHiddenListener.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/view/swing/sequence/package-frame.html" afterPath="$PROJECT_DIR$/docs/api/savant/view/swing/sequence/package-frame.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/plugin/PluginAdapter.html" afterPath="$PROJECT_DIR$/docs/api/savant/plugin/PluginAdapter.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/controller/event/viewtrack/package-summary.html" afterPath="$PROJECT_DIR$/docs/api/savant/controller/event/viewtrack/package-summary.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/analysis/package-tree.html" afterPath="$PROJECT_DIR$/docs/api/savant/analysis/package-tree.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/model/data/continuous/GenericContinuousTrackTest.html" afterPath="$PROJECT_DIR$/docs/api/savant/model/data/continuous/GenericContinuousTrackTest.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/controller/event/frame/FrameAddedEvent.html" afterPath="$PROJECT_DIR$/docs/api/savant/controller/event/frame/FrameAddedEvent.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/data/package-frame.html" afterPath="$PROJECT_DIR$/docs/api/savant/data/package-frame.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/view/swing/util/package-summary.html" afterPath="$PROJECT_DIR$/docs/api/savant/view/swing/util/package-summary.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/index-files/index-4.html" afterPath="$PROJECT_DIR$/docs/api/index-files/index-4.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/controller/event/range/package-frame.html" afterPath="$PROJECT_DIR$/docs/api/savant/controller/event/range/package-frame.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/model/FileFormat.html" afterPath="$PROJECT_DIR$/docs/api/savant/model/FileFormat.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/model/ContinuousTest.html" afterPath="$PROJECT_DIR$/docs/api/savant/model/ContinuousTest.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/model/GenericPointRecord.html" afterPath="$PROJECT_DIR$/docs/api/savant/model/GenericPointRecord.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/savant.data/savant.data.iml" afterPath="$PROJECT_DIR$/savant.data/savant.data.iml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/controller/BookmarkController.html" afterPath="$PROJECT_DIR$/docs/api/savant/controller/BookmarkController.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/model/data/continuous/package-tree.html" afterPath="$PROJECT_DIR$/docs/api/savant/model/data/continuous/package-tree.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/core/package-frame.html" afterPath="$PROJECT_DIR$/docs/api/savant/core/package-frame.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/serialized-form.html" afterPath="$PROJECT_DIR$/docs/api/serialized-form.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/index-files/index-2.html" afterPath="$PROJECT_DIR$/docs/api/index-files/index-2.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/view/swing/model/package-frame.html" afterPath="$PROJECT_DIR$/docs/api/savant/view/swing/model/package-frame.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/format/header/FileTypeHeader.html" afterPath="$PROJECT_DIR$/docs/api/savant/format/header/FileTypeHeader.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/format/comparator/package-frame.html" afterPath="$PROJECT_DIR$/docs/api/savant/format/comparator/package-frame.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/view/swing/continuous/package-frame.html" afterPath="$PROJECT_DIR$/docs/api/savant/view/swing/continuous/package-frame.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/view/swing/interval/BAMTrackRenderer.Strand.html" afterPath="$PROJECT_DIR$/docs/api/savant/view/swing/interval/BAMTrackRenderer.Strand.html" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/model/data/continuous/GenericContinuousTrack.html" afterPath="$PROJECT_DIR$/docs/api/savant/model/data/continuous/GenericContinuousTrack.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/view/swing/PluginDialog.html" afterPath="$PROJECT_DIR$/docs/api/savant/view/swing/PluginDialog.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/analysis/BatchAnalysis.FIREONEVENT.html" afterPath="$PROJECT_DIR$/docs/api/savant/analysis/BatchAnalysis.FIREONEVENT.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/analysis/AnalyzeEvent.html" afterPath="$PROJECT_DIR$/docs/api/savant/analysis/AnalyzeEvent.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/view/swing/Frame.html" afterPath="$PROJECT_DIR$/docs/api/savant/view/swing/Frame.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/model/data/Track.html" afterPath="$PROJECT_DIR$/docs/api/savant/model/data/Track.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/util/Range.html" afterPath="$PROJECT_DIR$/docs/api/savant/util/Range.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/controller/event/bookmark/BookmarksChangedEvent.html" afterPath="$PROJECT_DIR$/docs/api/savant/controller/event/bookmark/BookmarksChangedEvent.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/model/FileVersion.html" afterPath="$PROJECT_DIR$/docs/api/savant/model/FileVersion.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/model/data/interval/GenericIntervalTrack.html" afterPath="$PROJECT_DIR$/docs/api/savant/model/data/interval/GenericIntervalTrack.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/allclasses-noframe.html" afterPath="$PROJECT_DIR$/docs/api/allclasses-noframe.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/controller/event/track/TrackListChangedEvent.html" afterPath="$PROJECT_DIR$/docs/api/savant/controller/event/track/TrackListChangedEvent.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/controller/event/frame/FrameRemovedListener.html" afterPath="$PROJECT_DIR$/docs/api/savant/controller/event/frame/FrameRemovedListener.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/view/swing/interval/BEDViewTrack.html" afterPath="$PROJECT_DIR$/docs/api/savant/view/swing/interval/BEDViewTrack.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/model/package-summary.html" afterPath="$PROJECT_DIR$/docs/api/savant/model/package-summary.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/index-files/index-10.html" afterPath="$PROJECT_DIR$/docs/api/index-files/index-10.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/dist/plugins/SavantData.jar" afterPath="$PROJECT_DIR$/dist/plugins/SavantData.jar" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/util/comparator/package-summary.html" afterPath="$PROJECT_DIR$/docs/api/savant/util/comparator/package-summary.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/util/Strand.html" afterPath="$PROJECT_DIR$/docs/api/savant/util/Strand.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/tools/WIGToContinuous.html" afterPath="$PROJECT_DIR$/docs/api/savant/tools/WIGToContinuous.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/model/data/sequence/BFASTASequenceTrack.html" afterPath="$PROJECT_DIR$/docs/api/savant/model/data/sequence/BFASTASequenceTrack.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/overview-summary.html" afterPath="$PROJECT_DIR$/docs/api/overview-summary.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/model/data/sequence/SequenceTrack.html" afterPath="$PROJECT_DIR$/docs/api/savant/model/data/sequence/SequenceTrack.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/model/view/package-frame.html" afterPath="$PROJECT_DIR$/docs/api/savant/model/view/package-frame.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/index-files/index-16.html" afterPath="$PROJECT_DIR$/docs/api/index-files/index-16.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/controller/event/bookmark/package-tree.html" afterPath="$PROJECT_DIR$/docs/api/savant/controller/event/bookmark/package-tree.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/controller/event/track/package-frame.html" afterPath="$PROJECT_DIR$/docs/api/savant/controller/event/track/package-frame.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/format/util/data/interval/package-tree.html" afterPath="$PROJECT_DIR$/docs/api/savant/format/util/data/interval/package-tree.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/format/package-frame.html" afterPath="$PROJECT_DIR$/docs/api/savant/format/package-frame.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/view/swing/continuous/ContinuousTrackRenderer.html" afterPath="$PROJECT_DIR$/docs/api/savant/view/swing/continuous/ContinuousTrackRenderer.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/view/swing/package-summary.html" afterPath="$PROJECT_DIR$/docs/api/savant/view/swing/package-summary.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/analysis/AnalyzeEventListener.html" afterPath="$PROJECT_DIR$/docs/api/savant/analysis/AnalyzeEventListener.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/format/comparator/package-summary.html" afterPath="$PROJECT_DIR$/docs/api/savant/format/comparator/package-summary.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/controller/TrackController.html" afterPath="$PROJECT_DIR$/docs/api/savant/controller/TrackController.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/controller/event/rangeselection/package-frame.html" afterPath="$PROJECT_DIR$/docs/api/savant/controller/event/rangeselection/package-frame.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/model/data/continuous/ContinuousTrack.html" afterPath="$PROJECT_DIR$/docs/api/savant/model/data/continuous/ContinuousTrack.html" />
       <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/bin/bam2cov.sh" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/model/ContinuousRecord.html" afterPath="$PROJECT_DIR$/docs/api/savant/model/ContinuousRecord.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/tools/BAMToCoverage.html" afterPath="$PROJECT_DIR$/docs/api/savant/tools/BAMToCoverage.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/view/swing/util/GlassMessagePane.html" afterPath="$PROJECT_DIR$/docs/api/savant/view/swing/util/GlassMessagePane.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/model/data/package-summary.html" afterPath="$PROJECT_DIR$/docs/api/savant/model/data/package-summary.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/view/swing/continuous/package-tree.html" afterPath="$PROJECT_DIR$/docs/api/savant/view/swing/continuous/package-tree.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/view/swing/package-frame.html" afterPath="$PROJECT_DIR$/docs/api/savant/view/swing/package-frame.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/model/data/sequence/package-frame.html" afterPath="$PROJECT_DIR$/docs/api/savant/model/data/sequence/package-frame.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/view/swing/interval/IntervalViewTrack.html" afterPath="$PROJECT_DIR$/docs/api/savant/view/swing/interval/IntervalViewTrack.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/util/package-summary.html" afterPath="$PROJECT_DIR$/docs/api/savant/util/package-summary.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/savant.data/META-INF/MANIFEST.MF" afterPath="$PROJECT_DIR$/savant.data/META-INF/MANIFEST.MF" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/index-files/index-21.html" afterPath="$PROJECT_DIR$/docs/api/index-files/index-21.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/controller/event/viewtrack/ViewTrackListChangedListener.html" afterPath="$PROJECT_DIR$/docs/api/savant/controller/event/viewtrack/ViewTrackListChangedListener.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/format/header/package-frame.html" afterPath="$PROJECT_DIR$/docs/api/savant/format/header/package-frame.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/controller/event/frame/FrameRemovedEvent.html" afterPath="$PROJECT_DIR$/docs/api/savant/controller/event/frame/FrameRemovedEvent.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/util/package-tree.html" afterPath="$PROJECT_DIR$/docs/api/savant/util/package-tree.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/view/swing/model/package-tree.html" afterPath="$PROJECT_DIR$/docs/api/savant/view/swing/model/package-tree.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/format/header/FileType.html" afterPath="$PROJECT_DIR$/docs/api/savant/format/header/FileType.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/model/Record.html" afterPath="$PROJECT_DIR$/docs/api/savant/model/Record.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/analysis/BatchAnalysisForm.html" afterPath="$PROJECT_DIR$/docs/api/savant/analysis/BatchAnalysisForm.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/model/BAMIntervalRecord.html" afterPath="$PROJECT_DIR$/docs/api/savant/model/BAMIntervalRecord.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/format/util/data/interval/IntervalRecordGetter.html" afterPath="$PROJECT_DIR$/docs/api/savant/format/util/data/interval/IntervalRecordGetter.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/util/comparator/package-tree.html" afterPath="$PROJECT_DIR$/docs/api/savant/util/comparator/package-tree.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/view/swing/point/package-summary.html" afterPath="$PROJECT_DIR$/docs/api/savant/view/swing/point/package-summary.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/controller/event/rangeselection/package-summary.html" afterPath="$PROJECT_DIR$/docs/api/savant/controller/event/rangeselection/package-summary.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/constant-values.html" afterPath="$PROJECT_DIR$/docs/api/constant-values.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/index.html" afterPath="$PROJECT_DIR$/docs/api/index.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/controller/event/frame/FrameShownListener.html" afterPath="$PROJECT_DIR$/docs/api/savant/controller/event/frame/FrameShownListener.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/controller/event/frame/FrameShownEvent.html" afterPath="$PROJECT_DIR$/docs/api/savant/controller/event/frame/FrameShownEvent.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/index-files/index-13.html" afterPath="$PROJECT_DIR$/docs/api/index-files/index-13.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/format/util/data/package-tree.html" afterPath="$PROJECT_DIR$/docs/api/savant/format/util/data/package-tree.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/format/util/data/interval/package-summary.html" afterPath="$PROJECT_DIR$/docs/api/savant/format/util/data/interval/package-summary.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/allclasses-frame.html" afterPath="$PROJECT_DIR$/docs/api/allclasses-frame.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/model/IntervalTest.html" afterPath="$PROJECT_DIR$/docs/api/savant/model/IntervalTest.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/view/swing/continuous/ContinuousViewTrack.html" afterPath="$PROJECT_DIR$/docs/api/savant/view/swing/continuous/ContinuousViewTrack.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/tools/package-frame.html" afterPath="$PROJECT_DIR$/docs/api/savant/tools/package-frame.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/index-files/index-12.html" afterPath="$PROJECT_DIR$/docs/api/index-files/index-12.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/index-files/index-5.html" afterPath="$PROJECT_DIR$/docs/api/index-files/index-5.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/view/swing/Savant.html" afterPath="$PROJECT_DIR$/docs/api/savant/view/swing/Savant.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/data/DataSheet.html" afterPath="$PROJECT_DIR$/docs/api/savant/data/DataSheet.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/model/BEDIntervalRecord.html" afterPath="$PROJECT_DIR$/docs/api/savant/model/BEDIntervalRecord.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/model/BAMIntervalRecord.PairType.html" afterPath="$PROJECT_DIR$/docs/api/savant/model/BAMIntervalRecord.PairType.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/view/swing/interval/package-tree.html" afterPath="$PROJECT_DIR$/docs/api/savant/view/swing/interval/package-tree.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/view/swing/package-tree.html" afterPath="$PROJECT_DIR$/docs/api/savant/view/swing/package-tree.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/overview-tree.html" afterPath="$PROJECT_DIR$/docs/api/overview-tree.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/util/comparator/IntervalRecordComparator.html" afterPath="$PROJECT_DIR$/docs/api/savant/util/comparator/IntervalRecordComparator.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/plugin/package-frame.html" afterPath="$PROJECT_DIR$/docs/api/savant/plugin/package-frame.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/plugins/SavantData.jar" afterPath="$PROJECT_DIR$/plugins/SavantData.jar" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/overview-frame.html" afterPath="$PROJECT_DIR$/docs/api/overview-frame.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/model/PointRecord.html" afterPath="$PROJECT_DIR$/docs/api/savant/model/PointRecord.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/controller/event/frame/package-tree.html" afterPath="$PROJECT_DIR$/docs/api/savant/controller/event/frame/package-tree.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/format/package-summary.html" afterPath="$PROJECT_DIR$/docs/api/savant/format/package-summary.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/index-files/index-15.html" afterPath="$PROJECT_DIR$/docs/api/index-files/index-15.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/index-files/index-20.html" afterPath="$PROJECT_DIR$/docs/api/index-files/index-20.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/model/view/DrawingInstructions.InstructionName.html" afterPath="$PROJECT_DIR$/docs/api/savant/model/view/DrawingInstructions.InstructionName.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/format/util/data/FieldType.html" afterPath="$PROJECT_DIR$/docs/api/savant/format/util/data/FieldType.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/util/ItemRGB.html" afterPath="$PROJECT_DIR$/docs/api/savant/util/ItemRGB.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/controller/package-frame.html" afterPath="$PROJECT_DIR$/docs/api/savant/controller/package-frame.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/data/package-tree.html" afterPath="$PROJECT_DIR$/docs/api/savant/data/package-tree.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/model/data/continuous/package-frame.html" afterPath="$PROJECT_DIR$/docs/api/savant/model/data/continuous/package-frame.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/plugin/package-tree.html" afterPath="$PROJECT_DIR$/docs/api/savant/plugin/package-tree.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/controller/event/range/package-tree.html" afterPath="$PROJECT_DIR$/docs/api/savant/controller/event/range/package-tree.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/model/data/sequence/BFASTASequenceTrackTest.html" afterPath="$PROJECT_DIR$/docs/api/savant/model/data/sequence/BFASTASequenceTrackTest.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/view/swing/TreeDragAndDrop.html" afterPath="$PROJECT_DIR$/docs/api/savant/view/swing/TreeDragAndDrop.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/savant.core/META-INF/MANIFEST.MF" afterPath="$PROJECT_DIR$/savant.core/META-INF/MANIFEST.MF" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/model/data/package-tree.html" afterPath="$PROJECT_DIR$/docs/api/savant/model/data/package-tree.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/view/swing/interval/package-frame.html" afterPath="$PROJECT_DIR$/docs/api/savant/view/swing/interval/package-frame.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/analysis/package-summary.html" afterPath="$PROJECT_DIR$/docs/api/savant/analysis/package-summary.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/data/DataTab.html" afterPath="$PROJECT_DIR$/docs/api/savant/data/DataTab.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/view/swing/continuous/package-summary.html" afterPath="$PROJECT_DIR$/docs/api/savant/view/swing/continuous/package-summary.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/controller/event/frame/FrameAddedListener.html" afterPath="$PROJECT_DIR$/docs/api/savant/controller/event/frame/FrameAddedListener.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/util/comparator/package-frame.html" afterPath="$PROJECT_DIR$/docs/api/savant/util/comparator/package-frame.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/format/util/data/interval/IntervalTreeNode.html" afterPath="$PROJECT_DIR$/docs/api/savant/format/util/data/interval/IntervalTreeNode.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/tools/Format.html" afterPath="$PROJECT_DIR$/docs/api/savant/tools/Format.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/tools/package-tree.html" afterPath="$PROJECT_DIR$/docs/api/savant/tools/package-tree.html" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/artifacts/Savant.xml" afterPath="$PROJECT_DIR$/.idea/artifacts/Savant.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/tools/WriteContinuousHeader.html" afterPath="$PROJECT_DIR$/docs/api/savant/tools/WriteContinuousHeader.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/controller/event/frame/package-frame.html" afterPath="$PROJECT_DIR$/docs/api/savant/controller/event/frame/package-frame.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/dist/plugins/SavantCore.jar" afterPath="$PROJECT_DIR$/dist/plugins/SavantCore.jar" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/deprecated-list.html" afterPath="$PROJECT_DIR$/docs/api/deprecated-list.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/model/PointRecordTest.html" afterPath="$PROJECT_DIR$/docs/api/savant/model/PointRecordTest.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/model/package-frame.html" afterPath="$PROJECT_DIR$/docs/api/savant/model/package-frame.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/data/package-summary.html" afterPath="$PROJECT_DIR$/docs/api/savant/data/package-summary.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/controller/ViewTrackController.html" afterPath="$PROJECT_DIR$/docs/api/savant/controller/ViewTrackController.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/model/data/point/PointTrack.html" afterPath="$PROJECT_DIR$/docs/api/savant/model/data/point/PointTrack.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/view/swing/interval/IntervalViewTrack.DrawingMode.html" afterPath="$PROJECT_DIR$/docs/api/savant/view/swing/interval/IntervalViewTrack.DrawingMode.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/controller/package-summary.html" afterPath="$PROJECT_DIR$/docs/api/savant/controller/package-summary.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/tools/CovMapToContinuous.html" afterPath="$PROJECT_DIR$/docs/api/savant/tools/CovMapToContinuous.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/view/swing/util/package-tree.html" afterPath="$PROJECT_DIR$/docs/api/savant/view/swing/util/package-tree.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/format/util/data/interval/LinePlusRange.html" afterPath="$PROJECT_DIR$/docs/api/savant/format/util/data/interval/LinePlusRange.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/controller/event/bookmark/package-frame.html" afterPath="$PROJECT_DIR$/docs/api/savant/controller/event/bookmark/package-frame.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/model/GenericIntervalRecord.html" afterPath="$PROJECT_DIR$/docs/api/savant/model/GenericIntervalRecord.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/view/swing/sequence/package-summary.html" afterPath="$PROJECT_DIR$/docs/api/savant/view/swing/sequence/package-summary.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/model/data/interval/package-tree.html" afterPath="$PROJECT_DIR$/docs/api/savant/model/data/interval/package-tree.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/view/swing/point/package-tree.html" afterPath="$PROJECT_DIR$/docs/api/savant/view/swing/point/package-tree.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/model/data/point/package-frame.html" afterPath="$PROJECT_DIR$/docs/api/savant/model/data/point/package-frame.html" />
     </list>
     <list id="2b1e5a75-2b9e-481d-b9ec-9b6e2d0e4f04" name="Failed commit: Default (2)" comment="Changed package from debut to savant" />
     <ignored path="DebutBrowser.iws" />
@@ -131,17 +402,7 @@
   </component>
   <component name="FileColors" enabled="true" enabledForTabs="true" />
   <component name="FileEditorManager">
-    <leaf>
-      <file leaf-file-name="ContinuousTrackRenderer.java" pinned="false" current="true" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/savant/view/swing/continuous/ContinuousTrackRenderer.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="72" column="99" selection-start="2445" selection-end="2445" vertical-scroll-proportion="0.51863354">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-    </leaf>
+    <leaf />
   </component>
   <component name="FindManager">
     <FindUsagesManager>
@@ -151,7 +412,6 @@
   <component name="IdeDocumentHistory">
     <option name="changedFiles">
       <list>
-        <option value="$PROJECT_DIR$/src/savant/controller/FrameController.java" />
         <option value="$PROJECT_DIR$/src/savant/controller/RangeController.java" />
         <option value="$PROJECT_DIR$/src/savant/controller/TrackController.java" />
         <option value="$PROJECT_DIR$/src/savant/controller/ViewTrackController.java" />
@@ -167,6 +427,7 @@
         <option value="$PROJECT_DIR$/src/savant/view/swing/Savant.java" />
         <option value="$PROJECT_DIR$/src/savant/view/swing/continuous/ContinuousTrackRenderer.java" />
         <option value="$PROJECT_DIR$/src/savant/view/swing/interval/BAMCoverageViewTrack.java" />
+        <option value="$PROJECT_DIR$/src/savant/format/DataFormatForm.java" />
       </list>
     </option>
   </component>
@@ -205,8 +466,6 @@
       <sortByType />
     </navigator>
     <panes>
-      <pane id="PackagesPane" />
-      <pane id="Scope" />
       <pane id="Favorites" />
       <pane id="ProjectPane">
         <subPane>
@@ -226,252 +485,50 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="Savant" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="Savant" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="src" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="Savant" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="Savant" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="src" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="savant" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="view" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="Savant" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="Savant" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="src" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="savant" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="view" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="swing" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="Savant" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="Savant" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="src" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="savant" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="view" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="swing" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="interval" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="Savant" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="Savant" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="src" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="savant" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="view" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="swing" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="continuous" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="Savant" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="Savant" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="src" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="savant" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="Savant" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="Savant" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="src" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="savant" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="model" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="Savant" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="Savant" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="src" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="savant" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="model" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="view" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="Savant" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="Savant" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="src" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="savant" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="format" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="Savant" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="Savant" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value=".idea" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
         </subPane>
       </pane>
+      <pane id="PackagesPane" />
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
     <property name="project.structure.proportion" value="0.15" />
     <property name="MemberChooser.copyJavadoc" value="false" />
-    <property name="project.structure.last.edited" value="Modules" />
+    <property name="FileHistory.org.jetbrains.idea.svn.history.SvnHistoryProvider_treeOrder0" value="0" />
     <property name="options.splitter.main.proportions" value="0.3" />
-    <property name="MemberChooser.sorted" value="false" />
-    <property name="options.searchVisible" value="true" />
+    <property name="FileHistory.org.jetbrains.idea.svn.history.SvnHistoryProvider_treeWidth2" value="157" />
+    <property name="FileHistory.org.jetbrains.idea.svn.history.SvnHistoryProvider_flatWidth2" value="190" />
     <property name="GoToFile.includeJavaFiles" value="false" />
-    <property name="recentsLimit" value="5" />
+    <property name="FileHistory.org.jetbrains.idea.svn.history.SvnHistoryProvider_treeOrder2" value="2" />
     <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="FileHistory.org.jetbrains.idea.svn.history.SvnHistoryProvider_flatWidth3" value="35" />
+    <property name="FileHistory.org.jetbrains.idea.svn.history.SvnHistoryProvider_flatOrder4" value="4" />
     <property name="GoToClass.includeLibraries" value="false" />
     <property name="options.splitter.details.proportions" value="0.2" />
-    <property name="dynamic.classpath" value="false" />
     <property name="MemberChooser.showClasses" value="true" />
+    <property name="FileHistory.org.jetbrains.idea.svn.history.SvnHistoryProvider_flatWidth0" value="170" />
     <property name="project.structure.side.proportion" value="0.2" />
+    <property name="FileHistory.org.jetbrains.idea.svn.history.SvnHistoryProvider_treeWidth0" value="152" />
+    <property name="FileHistory.org.jetbrains.idea.svn.history.SvnHistoryProvider_flatWidth4" value="984" />
     <property name="options.lastSelected" value="editor.preferences.appearance" />
+    <property name="FileHistory.org.jetbrains.idea.svn.history.SvnHistoryProvider_flatOrder1" value="1" />
+    <property name="FileHistory.org.jetbrains.idea.svn.history.SvnHistoryProvider_treeOrder4" value="4" />
     <property name="GoToClass.toSaveIncludeLibraries" value="false" />
     <property name="OverrideImplement.combined" value="true" />
+    <property name="FileHistory.org.jetbrains.idea.svn.history.SvnHistoryProvider_flatOrder2" value="2" />
+    <property name="project.structure.last.edited" value="Modules" />
+    <property name="FileHistory.org.jetbrains.idea.svn.history.SvnHistoryProvider_flatWidth1" value="224" />
+    <property name="MemberChooser.sorted" value="false" />
+    <property name="options.searchVisible" value="true" />
+    <property name="FileHistory.org.jetbrains.idea.svn.history.SvnHistoryProvider_treeOrder3" value="3" />
+    <property name="FileHistory.org.jetbrains.idea.svn.history.SvnHistoryProvider_flatOrder3" value="3" />
+    <property name="recentsLimit" value="5" />
+    <property name="FileHistory.org.jetbrains.idea.svn.history.SvnHistoryProvider_treeWidth1" value="191" />
+    <property name="FileHistory.org.jetbrains.idea.svn.history.SvnHistoryProvider_treeWidth4" value="951" />
+    <property name="dynamic.classpath" value="false" />
+    <property name="FileHistory.org.jetbrains.idea.svn.history.SvnHistoryProvider_flatOrder0" value="0" />
+    <property name="FileHistory.org.jetbrains.idea.svn.history.SvnHistoryProvider_treeOrder1" value="1" />
+    <property name="FileHistory.org.jetbrains.idea.svn.history.SvnHistoryProvider_treeWidth3" value="152" />
   </component>
   <component name="RecentsManager">
     <key name="MoveClassesOrPackagesDialog.RECENTS_KEY">
@@ -481,6 +538,119 @@
       <recent name="savant.plugin" />
       <recent name="savant.view.swing" />
     </key>
+  </component>
+  <component name="RestoreUpdateTree">
+    <UpdateInfo date="4/29/10 10:53 AM" ActionInfo="_Update">
+      <UpdatedFiles>
+        <FILE-GROUP>
+          <option name="myUpdateName" value="Updated from server" />
+          <option name="myStatusName" value="Changed on server" />
+          <option name="mySupportsDeletion" value="false" />
+          <option name="myCanBeAbsent" value="false" />
+          <option name="myId" value="CHANGED_ON_SERVER" />
+          <FILE-GROUP>
+            <option name="myUpdateName" value="Updated" />
+            <option name="myStatusName" value="Changed" />
+            <option name="mySupportsDeletion" value="false" />
+            <option name="myCanBeAbsent" value="false" />
+            <option name="myId" value="UPDATED" />
+            <PATH vcs="svn" revision="548">$PROJECT_DIR$/src/savant/format/DataFormatForm.java</PATH>
+            <PATH vcs="svn" revision="548">$PROJECT_DIR$/src/savant/format/DataFormatForm.form</PATH>
+          </FILE-GROUP>
+          <FILE-GROUP>
+            <option name="myUpdateName" value="Created" />
+            <option name="myStatusName" value="Created" />
+            <option name="mySupportsDeletion" value="false" />
+            <option name="myCanBeAbsent" value="false" />
+            <option name="myId" value="CREATED" />
+          </FILE-GROUP>
+          <FILE-GROUP>
+            <option name="myUpdateName" value="Deleted" />
+            <option name="myStatusName" value="Deleted" />
+            <option name="mySupportsDeletion" value="false" />
+            <option name="myCanBeAbsent" value="true" />
+            <option name="myId" value="REMOVED_FROM_REPOSITORY" />
+          </FILE-GROUP>
+          <FILE-GROUP>
+            <option name="myUpdateName" value="Restored" />
+            <option name="myStatusName" value="Will be restored" />
+            <option name="mySupportsDeletion" value="false" />
+            <option name="myCanBeAbsent" value="false" />
+            <option name="myId" value="RESTORED" />
+          </FILE-GROUP>
+        </FILE-GROUP>
+        <FILE-GROUP>
+          <option name="myUpdateName" value="Modified" />
+          <option name="myStatusName" value="Modified" />
+          <option name="mySupportsDeletion" value="false" />
+          <option name="myCanBeAbsent" value="false" />
+          <option name="myId" value="MODIFIED" />
+        </FILE-GROUP>
+        <FILE-GROUP>
+          <option name="myUpdateName" value="Skipped" />
+          <option name="myStatusName" value="Skipped" />
+          <option name="mySupportsDeletion" value="false" />
+          <option name="myCanBeAbsent" value="false" />
+          <option name="myId" value="SKIPPED" />
+        </FILE-GROUP>
+        <FILE-GROUP>
+          <option name="myUpdateName" value="Merged with conflicts" />
+          <option name="myStatusName" value="Will be merged with conflicts" />
+          <option name="mySupportsDeletion" value="false" />
+          <option name="myCanBeAbsent" value="false" />
+          <option name="myId" value="MERGED_WITH_CONFLICTS" />
+        </FILE-GROUP>
+        <FILE-GROUP>
+          <option name="myUpdateName" value="Merged" />
+          <option name="myStatusName" value="Will be merged" />
+          <option name="mySupportsDeletion" value="false" />
+          <option name="myCanBeAbsent" value="false" />
+          <option name="myId" value="MERGED" />
+        </FILE-GROUP>
+        <FILE-GROUP>
+          <option name="myUpdateName" value="Not in repository" />
+          <option name="myStatusName" value="Not in repository" />
+          <option name="mySupportsDeletion" value="true" />
+          <option name="myCanBeAbsent" value="false" />
+          <option name="myId" value="UNKNOWN" />
+        </FILE-GROUP>
+        <FILE-GROUP>
+          <option name="myUpdateName" value="Locally added" />
+          <option name="myStatusName" value="Locally added" />
+          <option name="mySupportsDeletion" value="false" />
+          <option name="myCanBeAbsent" value="false" />
+          <option name="myId" value="LOCALLY_ADDED" />
+        </FILE-GROUP>
+        <FILE-GROUP>
+          <option name="myUpdateName" value="Locally removed" />
+          <option name="myStatusName" value="Locally removed" />
+          <option name="mySupportsDeletion" value="false" />
+          <option name="myCanBeAbsent" value="false" />
+          <option name="myId" value="LOCALLY_REMOVED" />
+        </FILE-GROUP>
+        <FILE-GROUP>
+          <option name="myUpdateName" value="Switched" />
+          <option name="myStatusName" value="Switched" />
+          <option name="mySupportsDeletion" value="false" />
+          <option name="myCanBeAbsent" value="false" />
+          <option name="myId" value="SWITCHED" />
+        </FILE-GROUP>
+        <FILE-GROUP>
+          <option name="myUpdateName" value="Merged with property conflicts" />
+          <option name="myStatusName" value="Will be merged with property conflicts" />
+          <option name="mySupportsDeletion" value="false" />
+          <option name="myCanBeAbsent" value="false" />
+          <option name="myId" value="MERGED_WITH_PROPERTY_CONFLICT" />
+        </FILE-GROUP>
+        <FILE-GROUP>
+          <option name="myUpdateName" value="Merged with tree conflicts" />
+          <option name="myStatusName" value="Will be merged with tree conflicts" />
+          <option name="mySupportsDeletion" value="false" />
+          <option name="myCanBeAbsent" value="false" />
+          <option name="myId" value="MERGED_WITH_TREE_CONFLICT" />
+        </FILE-GROUP>
+      </UpdatedFiles>
+    </UpdateInfo>
   </component>
   <component name="RunManager" selected="Application.Savant">
     <configuration default="false" name="GenerateTestData" type="Application" factoryName="Application" temporary="true">
@@ -844,13 +1014,13 @@
       <item index="0" class="java.lang.String" itemvalue="Application.GenerateTestData" />
       <item index="1" class="java.lang.String" itemvalue="Application.Savant" />
       <item index="2" class="java.lang.String" itemvalue="Application.WIGToContinuous" />
-      <item index="3" class="java.lang.String" itemvalue="Application.QuadToTest" />
-      <item index="4" class="java.lang.String" itemvalue="Application.Format" />
-      <item index="5" class="java.lang.String" itemvalue="Application.BAMToCoverage" />
-      <item index="6" class="java.lang.String" itemvalue="Application.BAMToTuples" />
-      <item index="7" class="java.lang.String" itemvalue="Application.CovMapToContinuous" />
-      <item index="8" class="java.lang.String" itemvalue="Application.WriteContinuousHeader" />
-      <item index="9" class="java.lang.String" itemvalue="JUnit.GenericPointTrackTest" />
+      <item index="3" class="java.lang.String" itemvalue="JUnit.GenericPointTrackTest" />
+      <item index="4" class="java.lang.String" itemvalue="Application.QuadToTest" />
+      <item index="5" class="java.lang.String" itemvalue="Application.Format" />
+      <item index="6" class="java.lang.String" itemvalue="Application.BAMToCoverage" />
+      <item index="7" class="java.lang.String" itemvalue="Application.BAMToTuples" />
+      <item index="8" class="java.lang.String" itemvalue="Application.CovMapToContinuous" />
+      <item index="9" class="java.lang.String" itemvalue="Application.WriteContinuousHeader" />
       <item index="10" class="java.lang.String" itemvalue="JUnit.AllTests" />
     </list>
     <configuration name="&lt;template&gt;" type="WebApp" default="true" selected="false">
@@ -932,22 +1102,22 @@
     <layout>
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32977018" sideWeight="0.56296295" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3268817" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.21213979" sideWeight="0.2516129" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.21213979" sideWeight="0.46451613" order="2" side_tool="true" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.45053762" sideWeight="0.5" order="12" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.21213979" sideWeight="0.26666668" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3204301" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.21213979" sideWeight="0.41935483" order="2" side_tool="true" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.13548388" sideWeight="0.5" order="12" side_tool="false" content_ui="tabs" />
       <window_info id="Dependency Viewer" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.24959914" sideWeight="0.6925926" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3287037" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.29892474" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.26881722" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.29892474" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.26881722" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.39971244" sideWeight="0.6628205" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32777777" sideWeight="0.5" order="11" side_tool="false" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3268817" sideWeight="0.5" order="11" side_tool="false" content_ui="tabs" />
       <window_info id="SVN Repositories" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.32962963" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="UI Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Web" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3204301" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="EJB" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
@@ -967,7 +1137,7 @@
     <option name="ENABLE_BACKGROUND_PROCESSES" value="false" />
     <option name="CHANGED_ON_SERVER_INTERVAL" value="60" />
     <option name="FORCE_NON_EMPTY_COMMENT" value="false" />
-    <option name="LAST_COMMIT_MESSAGE" value="Bug fix for missing coverage file message." />
+    <option name="LAST_COMMIT_MESSAGE" value="Deleted old libraries no longer used." />
     <option name="MAKE_NEW_CHANGELIST_ACTIVE" value="true" />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="false" />
     <option name="CHECK_FILES_UP_TO_DATE_BEFORE_COMMIT" value="false" />
@@ -980,11 +1150,6 @@
     <option name="UPDATE_GROUP_BY_CHANGELIST" value="false" />
     <option name="SHOW_FILE_HISTORY_AS_TREE" value="false" />
     <option name="FILE_HISTORY_SPLITTER_PROPORTION" value="0.6" />
-    <MESSAGE value="Track progress of formatting file and allow cancellation via&#10;interruption of thread." />
-    <MESSAGE value="Re-usable BAMParametersDialog. Get parameters only in one place." />
-    <MESSAGE value="Use ceiling of unitWidth to avoid white spaces in sequence&#10;rendering at lower resolutions." />
-    <MESSAGE value="Fixed problem with accelerator keys being disabled after&#10;showing Format dialog." />
-    <MESSAGE value="Fixed zooming on Mac." />
     <MESSAGE value="Fixed copyright notice." />
     <MESSAGE value="Made getInstance() methods synchronized." />
     <MESSAGE value="Added FLOAT type." />
@@ -1005,6 +1170,11 @@
     <MESSAGE value="Changed continuous format from doubles to floats." />
     <MESSAGE value="Show message dialog after formatting (successful or not.)" />
     <MESSAGE value="Bug fix for missing coverage file message." />
+    <MESSAGE value="Moved from" />
+    <MESSAGE value="Initial check-in" />
+    <MESSAGE value="Reverted unintended changes." />
+    <MESSAGE value="Initial check-in." />
+    <MESSAGE value="Deleted old libraries no longer used." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager />
@@ -1014,114 +1184,90 @@
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/savant/model/data/continuous/ContinuousTrack.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="34" column="22" selection-start="953" selection-end="953" vertical-scroll-proportion="0.13318536">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/savant/model/ContinuousRecord.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="27" column="13" selection-start="835" selection-end="835" vertical-scroll-proportion="0.10896708">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/savant/model/Continuous.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="44" column="37" selection-start="1061" selection-end="1061" vertical-scroll-proportion="0.5033557">
-          <folding />
-        </state>
+        <state line="44" column="37" selection-start="1061" selection-end="1061" vertical-scroll-proportion="0.5033557" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/savant/format/WIGToContinuous.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="226" column="113" selection-start="7762" selection-end="7762" vertical-scroll-proportion="0.39298245">
-          <folding />
-        </state>
+        <state line="226" column="113" selection-start="7762" selection-end="7762" vertical-scroll-proportion="0.39298245" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/savant/format/BAMToCoverage.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="175" column="40" selection-start="6247" selection-end="6247" vertical-scroll-proportion="0.4385965">
-          <folding />
-        </state>
+        <state line="175" column="40" selection-start="6247" selection-end="6247" vertical-scroll-proportion="0.4385965" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/savant/model/data/continuous/GenericContinuousTrack.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="88" column="51" selection-start="2677" selection-end="2677" vertical-scroll-proportion="0.3133117">
-          <folding />
-        </state>
+        <state line="88" column="51" selection-start="2677" selection-end="2677" vertical-scroll-proportion="0.3133117" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/savant/view/swing/continuous/ContinuousViewTrack.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="48" column="119" selection-start="1558" selection-end="1558" vertical-scroll-proportion="0.2159091">
-          <folding />
-        </state>
+        <state line="48" column="119" selection-start="1558" selection-end="1558" vertical-scroll-proportion="0.2159091" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/test/savant/model/ContinuousTest.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="39" column="32" selection-start="1069" selection-end="1069" vertical-scroll-proportion="0.31493506">
-          <folding />
-        </state>
+        <state line="39" column="32" selection-start="1069" selection-end="1069" vertical-scroll-proportion="0.31493506" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/test/savant/model/ContinuousRecordTest.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="39" column="56" selection-start="1201" selection-end="1201" vertical-scroll-proportion="0.30357143">
-          <folding />
-        </state>
+        <state line="39" column="56" selection-start="1201" selection-end="1201" vertical-scroll-proportion="0.30357143" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/savant/format/DataFormatter.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="199" column="34" selection-start="6686" selection-end="6686" vertical-scroll-proportion="0.29118136">
+        <state line="199" column="34" selection-start="6686" selection-end="6686" vertical-scroll-proportion="0.29118136" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/savant/view/swing/GraphPane.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="337" column="0" selection-start="10711" selection-end="10711" vertical-scroll-proportion="0.0" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/savant/model/view/DrawingInstructions.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="26" column="13" selection-start="837" selection-end="837" vertical-scroll-proportion="-1.0519481" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/savant/view/swing/interval/BAMCoverageViewTrack.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="67" column="0" selection-start="2675" selection-end="2675" vertical-scroll-proportion="0.3136646" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/savant/format/DataFormatForm.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="51" column="26" selection-start="1398" selection-end="1398" vertical-scroll-proportion="-4.4023905">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/savant/view/swing/Savant.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="1686" column="75" selection-start="62653" selection-end="62653" vertical-scroll-proportion="1.3179723">
+        <state line="803" column="14" selection-start="34245" selection-end="34245" vertical-scroll-proportion="0.33333334">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/savant/view/swing/GraphPane.java">
+    <entry file="file://$PROJECT_DIR$/META-INF/MANIFEST.MF">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="337" column="0" selection-start="10711" selection-end="10711" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
+        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0" />
       </provider>
     </entry>
-    <entry file="jar://$PROJECT_DIR$/dist/Savant.jar!/savant/view/swing/continuous/ContinuousTrackRenderer.class">
+    <entry file="file://$PROJECT_DIR$/nbproject/project.properties">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="18" column="0" selection-start="738" selection-end="738" vertical-scroll-proportion="-8.5">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/savant/model/view/DrawingInstructions.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="26" column="13" selection-start="837" selection-end="837" vertical-scroll-proportion="-1.0519481">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/savant/view/swing/interval/BAMCoverageViewTrack.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="67" column="0" selection-start="2675" selection-end="2675" vertical-scroll-proportion="0.3136646">
+        <state line="45" column="58" selection-start="1977" selection-end="1977" vertical-scroll-proportion="0.48863637">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/savant/view/swing/continuous/ContinuousTrackRenderer.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="72" column="99" selection-start="2445" selection-end="2445" vertical-scroll-proportion="0.51863354">
+        <state line="72" column="99" selection-start="2445" selection-end="2445" vertical-scroll-proportion="0.019480519">
           <folding />
         </state>
       </provider>

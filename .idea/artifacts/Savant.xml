@@ -7,15 +7,18 @@
           <element id="file-copy" path="$PROJECT_DIR$/META-INF/MANIFEST.MF" />
         </element>
         <element id="module-output" name="Savant" />
+        <element id="file-copy" path="$PROJECT_DIR$/log4j.properties" />
+      </element>
+      <element id="directory" name="plugins">
+        <element id="dir-copy" path="$PROJECT_DIR$/plugins" />
+      </element>
+      <element id="directory" name="lib">
         <element id="library" level="project" name="commons-logging" />
         <element id="library" level="project" name="jide" />
         <element id="library" level="project" name="jpf" />
+        <element id="file-copy" path="$PROJECT_DIR$/extlib/log4j.jar" />
         <element id="library" level="project" name="picard" />
         <element id="library" level="project" name="smalltext" />
-      </element>
-      <element id="directory" name="plugins">
-        <element id="artifact" artifact-name="SavantCore" />
-        <element id="artifact" artifact-name="SavantData" />
       </element>
     </root>
   </artifact>
