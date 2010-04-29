@@ -9,12 +9,13 @@
  * Created on Feb 11, 2010, 5:56:38 PM
  */
 
-package savant.format;
+package savant.view.swing;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import savant.format.DataFormatter;
+import savant.format.FormatProgressListener;
 import savant.format.header.FileType;
-import savant.view.swing.Savant;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
@@ -22,7 +23,6 @@ import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
