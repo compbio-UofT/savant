@@ -232,7 +232,7 @@ public class DataTableModel extends AbstractTableModel {
                          ((ContinuousRecord) datum).setPosition(Integer.parseInt((String) value));
                          break;
                      case 1:
-                         ((ContinuousRecord) datum).getValue().setValue(Double.parseDouble((String) value));
+                         ((ContinuousRecord) datum).getValue().setValue(Float.parseFloat((String) value));
                          break;
                  }
              case INTERVAL_GENERIC:

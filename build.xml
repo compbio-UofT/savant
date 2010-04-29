@@ -71,7 +71,17 @@
     nbproject/build-impl.xml file. 
 
     -->
+     <target name="-pre-jar">
+         <copy file="log4j.properties" todir="${build.classes.dir}">
+         </copy>
+     </target>
+
     <target  name="-post-jar">
+        <echo>Copying plugins...</echo>
+        <mkdir dir="${dist.dir}/plugins" />
+         <copy todir="${dist.dir}/plugins">
+            <fileset dir="plugins"/>
+        </copy>
     </target>
 
     <target  name="mac-bundle">
