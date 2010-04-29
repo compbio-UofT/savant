@@ -47,6 +47,8 @@ public class DataFormatter implements FormatProgressListener {
 
     public static final int RECORDS_PER_INTERRUPT_CHECK = 100;
 
+    private static final long DEFAULT_RUN_SIZE = (long)(25 * Math.pow(2, 20)); // 25MB
+
     private static boolean intersects(Range r1, Range r2) {
         if( r1.getFrom() >= r2.getTo() || r2.getFrom() >= r1.getTo()) {
             return false;
@@ -132,6 +134,9 @@ public class DataFormatter implements FormatProgressListener {
 
         } catch (IOException e) {
             log.error("Error formatting file " + inPath, e);
+            return false;
+        } catch (Throwable t) {
+            log.error("Unexpected error formatting file " + inPath, t);
             return false;
         }
         finally {
@@ -436,6 +441,7 @@ public class DataFormatter implements FormatProgressListener {
         externalSort.setColumns(columns);
         externalSort.setNumeric(true);
         externalSort.setSeparator('\t');
+        externalSort.setRunSize(DEFAULT_RUN_SIZE);
         externalSort.run();
         inPath = sortPath;
 
@@ -466,6 +472,7 @@ public class DataFormatter implements FormatProgressListener {
         externalSort.setColumns(columns);
         externalSort.setNumeric(true);
         externalSort.setSeparator('\t');
+        externalSort.setRunSize(DEFAULT_RUN_SIZE);
         externalSort.run();
         inPath = sortPath;
 
@@ -509,6 +516,7 @@ public class DataFormatter implements FormatProgressListener {
         externalSort.setColumns(columns);
         externalSort.setNumeric(true);
         externalSort.setSeparator('\t');
+        externalSort.setRunSize(DEFAULT_RUN_SIZE);
         externalSort.run();
         inPath = sortPath;
 
