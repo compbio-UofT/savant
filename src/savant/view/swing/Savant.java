@@ -787,7 +787,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
     // End of variables declaration//GEN-END:variables
 
 
-        /**
+    /**
      * Initialize the Browser
      */
     void init() {
@@ -1041,6 +1041,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         this.addEtchedBorder(rangeSelector);
         rangeController.addRangeChangedListener(rangeSelector);
         rangeSelector.addRangeChangedListener(this);
+        rangeSelector.setActive(false);
         //mt.setVisible(true);
         //mt.setBackground(Color.red);
         p.add(rangeSelector);
@@ -1190,7 +1191,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
 
         p.add(getRigidPadding());
         int tfwidth = 100;
-        int labwidth = 70;
+        int labwidth = 100;
         int tfheight = 22;
         textboxFrom = addTextField(p, "from");
         textboxFrom.setHorizontalAlignment(JTextField.CENTER);
@@ -1280,7 +1281,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
 
     private static void changeVisibility(List<JComponent> components, boolean isVisible) {
         for (JComponent j : components) {
-            j.setVisible(isVisible);
+            j.setEnabled(isVisible);
         }
     }
 
@@ -1530,6 +1531,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
 
         if (!someGenomeSetAlready) {
             rangeController.setRange(1, Math.min(1000,genome.getLength()));
+            rangeSelector.setActive(true);
         }
 
         this.showRangeControls();

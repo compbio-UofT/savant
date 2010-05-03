@@ -180,6 +180,8 @@ public abstract class ViewTrack {
                 }
                 if (viewTrack != null) results.add(viewTrack);
             } catch (Exception e) {
+                e.printStackTrace();
+//                /System.err.println(e);
                 //Savant.promptUserToFormatFile(trackFilename);
             }
         }

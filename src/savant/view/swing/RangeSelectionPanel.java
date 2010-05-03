@@ -38,6 +38,7 @@ import java.util.List;
  */
 public class RangeSelectionPanel extends JPanel implements MouseListener, MouseMotionListener, RangeChangedListener {
 
+    private boolean isActive = false;
     private int minimum = 0;
     private int maximum = 100;
     private static final long serialVersionUID = 1L;
@@ -142,6 +143,9 @@ public class RangeSelectionPanel extends JPanel implements MouseListener, MouseM
 
 // MouseMotionListener event handlers // handle event when user drags mouse with button pressed
     public void mouseDragged(final MouseEvent event) {
+
+        if (!this.isActive()) { return ; }
+
         this.x2 = event.getX();
         if (this.x2 < this.minimum) {
             this.x2 = this.minimum;
@@ -168,6 +172,8 @@ public class RangeSelectionPanel extends JPanel implements MouseListener, MouseM
     @Override
     public void paintComponent(final Graphics g) {
         super.paintComponent(g);
+
+        if (!this.isActive()) { return ; }
 
         //Savant.log("Painting component");
 
@@ -304,6 +310,14 @@ public class RangeSelectionPanel extends JPanel implements MouseListener, MouseM
         while (listeners.hasNext()) {
             ((RangeSelectionChangedListener) listeners.next()).rangeSelectionChangeReceived(evt);
         }
+    }
+
+    void setActive(boolean b) {
+        this.isActive = b;
+    }
+
+    private boolean isActive() {
+        return this.isActive;
     }
 } // end class MouseTracker
 
