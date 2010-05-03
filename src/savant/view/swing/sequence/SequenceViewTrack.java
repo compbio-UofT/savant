@@ -102,6 +102,9 @@ public class SequenceViewTrack extends ViewTrack {
     }
 
     public void prepareForRendering(Range range) throws Throwable {
+
+        if (range == null) { return; }
+
         Resolution r = getResolution(range);
         List<Object> data = null;
 
@@ -110,6 +113,7 @@ public class SequenceViewTrack extends ViewTrack {
         }
 
         for (TrackRenderer renderer: getTrackRenderers()) {
+
             renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.RESOLUTION, r);
             renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.AXIS_RANGE, new AxisRange(range, getDefaultYRange()));
 
@@ -119,8 +123,14 @@ public class SequenceViewTrack extends ViewTrack {
                 renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.COLOR_SCHEME, this.getColorScheme());
             }
 
+            System.out.println("L.B");
             renderer.setData(data);
+
+            System.out.println("L.C");
+
         }
+
+         System.out.println("Done preparing for rendering...");
     }
 
     private Range getDefaultYRange()
