@@ -29,6 +29,62 @@ public class GenomeLengthForm extends javax.swing.JDialog {
     private void initGenomeInformation() {
         genomeInformation = new ArrayList<SpeciesInfo>();
         genomeInformation.add(getHumanGenomeInformation());
+        genomeInformation.add(getMouseGenomeInformation());
+    }
+
+    private SpeciesInfo getMouseGenomeInformation() {
+        SpeciesInfo mouseInfo = new SpeciesInfo("Mouse");
+
+        BuildInfo build37 = new BuildInfo("Build 37");
+        mouseInfo.addBuildInfo(build37);
+        build37.addChromosomeInfo(new ChromosomeInfo("chr1",197195432));
+        build37.addChromosomeInfo(new ChromosomeInfo("chr2",181748087));
+        build37.addChromosomeInfo(new ChromosomeInfo("chr3",159599783));
+        build37.addChromosomeInfo(new ChromosomeInfo("chr4",155630120));
+        build37.addChromosomeInfo(new ChromosomeInfo("chr5",152537259));
+        build37.addChromosomeInfo(new ChromosomeInfo("chr6",149517037));
+        build37.addChromosomeInfo(new ChromosomeInfo("chr7",152524553));
+        build37.addChromosomeInfo(new ChromosomeInfo("chr8",131738871));
+        build37.addChromosomeInfo(new ChromosomeInfo("chr9",124076172));
+        build37.addChromosomeInfo(new ChromosomeInfo("chr10",129993255));
+        build37.addChromosomeInfo(new ChromosomeInfo("chr11",121843856));
+        build37.addChromosomeInfo(new ChromosomeInfo("chr12",121257530));
+        build37.addChromosomeInfo(new ChromosomeInfo("chr13",120284312));
+        build37.addChromosomeInfo(new ChromosomeInfo("chr14",125194864));
+        build37.addChromosomeInfo(new ChromosomeInfo("chr15",103494974));
+        build37.addChromosomeInfo(new ChromosomeInfo("chr16",98319150));
+        build37.addChromosomeInfo(new ChromosomeInfo("chr17",95272651));
+        build37.addChromosomeInfo(new ChromosomeInfo("chr18",90772031));
+        build37.addChromosomeInfo(new ChromosomeInfo("chr19",61342430));
+        build37.addChromosomeInfo(new ChromosomeInfo("chrX",166650296));
+        build37.addChromosomeInfo(new ChromosomeInfo("chrY",15902555));
+
+        BuildInfo build36 = new BuildInfo("Build 36");
+        mouseInfo.addBuildInfo(build36);
+        build36.addChromosomeInfo(new ChromosomeInfo("chr1",197069962));
+        build36.addChromosomeInfo(new ChromosomeInfo("chr2",181976762));
+        build36.addChromosomeInfo(new ChromosomeInfo("chr3",159872112));
+        build36.addChromosomeInfo(new ChromosomeInfo("chr4",155029701));
+        build36.addChromosomeInfo(new ChromosomeInfo("chr5",152003063));
+        build36.addChromosomeInfo(new ChromosomeInfo("chr6",149525685));
+        build36.addChromosomeInfo(new ChromosomeInfo("chr7",145134094));
+        build36.addChromosomeInfo(new ChromosomeInfo("chr8",132085098));
+        build36.addChromosomeInfo(new ChromosomeInfo("chr9",124000669));
+        build36.addChromosomeInfo(new ChromosomeInfo("chr10",129959148));
+        build36.addChromosomeInfo(new ChromosomeInfo("chr11",121798632));
+        build36.addChromosomeInfo(new ChromosomeInfo("chr12",120463159));
+        build36.addChromosomeInfo(new ChromosomeInfo("chr13",120614378));
+        build36.addChromosomeInfo(new ChromosomeInfo("chr14",123978870));
+        build36.addChromosomeInfo(new ChromosomeInfo("chr15",103492577));
+        build36.addChromosomeInfo(new ChromosomeInfo("chr16",98252459));
+        build36.addChromosomeInfo(new ChromosomeInfo("chr17",95177420));
+        build36.addChromosomeInfo(new ChromosomeInfo("chr18",90736837));
+        build36.addChromosomeInfo(new ChromosomeInfo("chr19",61321190));
+        build36.addChromosomeInfo(new ChromosomeInfo("chrX",165556469));
+        build36.addChromosomeInfo(new ChromosomeInfo("chrY",16029404));
+
+
+        return mouseInfo;
     }
 
     private SpeciesInfo getHumanGenomeInformation() {
@@ -36,13 +92,84 @@ public class GenomeLengthForm extends javax.swing.JDialog {
 
         BuildInfo hg19BuildInfo = new BuildInfo("hg19");
         humanInfo.addBuildInfo(hg19BuildInfo);
-        hg19BuildInfo.addChromosomeInfo(new ChromosomeInfo("chr1",245203898));
-        hg19BuildInfo.addChromosomeInfo(new ChromosomeInfo("chr2",245203898));
+        hg19BuildInfo.addChromosomeInfo(new ChromosomeInfo("chr1",249250621));
+        hg19BuildInfo.addChromosomeInfo(new ChromosomeInfo("chr2",243199373));
+        hg19BuildInfo.addChromosomeInfo(new ChromosomeInfo("chr3",198022430));
+        hg19BuildInfo.addChromosomeInfo(new ChromosomeInfo("chr4",191154276));
+        hg19BuildInfo.addChromosomeInfo(new ChromosomeInfo("chr5",180915260));
+        hg19BuildInfo.addChromosomeInfo(new ChromosomeInfo("chr6",171115067));
+        hg19BuildInfo.addChromosomeInfo(new ChromosomeInfo("chr7",159138663));
+        hg19BuildInfo.addChromosomeInfo(new ChromosomeInfo("chr8",146364022));
+        hg19BuildInfo.addChromosomeInfo(new ChromosomeInfo("chr9",141213431));
+        hg19BuildInfo.addChromosomeInfo(new ChromosomeInfo("chr10",135534747));
+        hg19BuildInfo.addChromosomeInfo(new ChromosomeInfo("chr11",135006516));
+        hg19BuildInfo.addChromosomeInfo(new ChromosomeInfo("chr12",133851895));
+        hg19BuildInfo.addChromosomeInfo(new ChromosomeInfo("chr13",115169878));
+        hg19BuildInfo.addChromosomeInfo(new ChromosomeInfo("chr14",107349540));
+        hg19BuildInfo.addChromosomeInfo(new ChromosomeInfo("chr15",102531392));
+        hg19BuildInfo.addChromosomeInfo(new ChromosomeInfo("chr16",90354753));
+        hg19BuildInfo.addChromosomeInfo(new ChromosomeInfo("chr17",81195210));
+        hg19BuildInfo.addChromosomeInfo(new ChromosomeInfo("chr18",78077248));
+        hg19BuildInfo.addChromosomeInfo(new ChromosomeInfo("chr19",59128983));
+        hg19BuildInfo.addChromosomeInfo(new ChromosomeInfo("chr20",63025520));
+        hg19BuildInfo.addChromosomeInfo(new ChromosomeInfo("chr21",48129895));
+        hg19BuildInfo.addChromosomeInfo(new ChromosomeInfo("chr22",51304566));
+        hg19BuildInfo.addChromosomeInfo(new ChromosomeInfo("chrX",155270560));
+        hg19BuildInfo.addChromosomeInfo(new ChromosomeInfo("chrY",59373566));
 
         BuildInfo hg18BuildInfo = new BuildInfo("hg18");
         humanInfo.addBuildInfo(hg18BuildInfo);
-        hg18BuildInfo.addChromosomeInfo(new ChromosomeInfo("chr1",245203898));
-        hg18BuildInfo.addChromosomeInfo(new ChromosomeInfo("chr2",245203898));
+        hg18BuildInfo.addChromosomeInfo(new ChromosomeInfo("chr1",247249719));
+        hg18BuildInfo.addChromosomeInfo(new ChromosomeInfo("chr2",242951149));
+        hg18BuildInfo.addChromosomeInfo(new ChromosomeInfo("chr3",199501827));
+        hg18BuildInfo.addChromosomeInfo(new ChromosomeInfo("chr4",191273063));
+        hg18BuildInfo.addChromosomeInfo(new ChromosomeInfo("chr5",180857866));
+        hg18BuildInfo.addChromosomeInfo(new ChromosomeInfo("chr6",170899992));
+        hg18BuildInfo.addChromosomeInfo(new ChromosomeInfo("chr7",158821424));
+        hg18BuildInfo.addChromosomeInfo(new ChromosomeInfo("chr8",146274826));
+        hg18BuildInfo.addChromosomeInfo(new ChromosomeInfo("chr9",140273252));
+        hg18BuildInfo.addChromosomeInfo(new ChromosomeInfo("chr10",135374737));
+        hg18BuildInfo.addChromosomeInfo(new ChromosomeInfo("chr11",134452384));
+        hg18BuildInfo.addChromosomeInfo(new ChromosomeInfo("chr12",132349534));
+        hg18BuildInfo.addChromosomeInfo(new ChromosomeInfo("chr13",114142980));
+        hg18BuildInfo.addChromosomeInfo(new ChromosomeInfo("chr14",106368585));
+        hg18BuildInfo.addChromosomeInfo(new ChromosomeInfo("chr15",100338915));
+        hg18BuildInfo.addChromosomeInfo(new ChromosomeInfo("chr16",88827254));
+        hg18BuildInfo.addChromosomeInfo(new ChromosomeInfo("chr17",78774742));
+        hg18BuildInfo.addChromosomeInfo(new ChromosomeInfo("chr18",76117153));
+        hg18BuildInfo.addChromosomeInfo(new ChromosomeInfo("chr19",63811651));
+        hg18BuildInfo.addChromosomeInfo(new ChromosomeInfo("chr20",62435964));
+        hg18BuildInfo.addChromosomeInfo(new ChromosomeInfo("chr21",46944323));
+        hg18BuildInfo.addChromosomeInfo(new ChromosomeInfo("chr22",49691432));
+        hg18BuildInfo.addChromosomeInfo(new ChromosomeInfo("chrX",154913754));
+        hg18BuildInfo.addChromosomeInfo(new ChromosomeInfo("chrY",57772954));
+
+        BuildInfo hg17BuildInfo = new BuildInfo("hg17");
+        humanInfo.addBuildInfo(hg17BuildInfo);
+        hg17BuildInfo.addChromosomeInfo(new ChromosomeInfo("chr1",245442847));
+        hg17BuildInfo.addChromosomeInfo(new ChromosomeInfo("chr2",242818229));
+        hg17BuildInfo.addChromosomeInfo(new ChromosomeInfo("chr3",199450740));
+        hg17BuildInfo.addChromosomeInfo(new ChromosomeInfo("chr4",191401218));
+        hg17BuildInfo.addChromosomeInfo(new ChromosomeInfo("chr5",180837866));
+        hg17BuildInfo.addChromosomeInfo(new ChromosomeInfo("chr6",170972699));
+        hg17BuildInfo.addChromosomeInfo(new ChromosomeInfo("chr7",158628139));
+        hg17BuildInfo.addChromosomeInfo(new ChromosomeInfo("chr8",146274826));
+        hg17BuildInfo.addChromosomeInfo(new ChromosomeInfo("chr9",138429268));
+        hg17BuildInfo.addChromosomeInfo(new ChromosomeInfo("chr10",135413628));
+        hg17BuildInfo.addChromosomeInfo(new ChromosomeInfo("chr11",134452384));
+        hg17BuildInfo.addChromosomeInfo(new ChromosomeInfo("chr12",132389811));
+        hg17BuildInfo.addChromosomeInfo(new ChromosomeInfo("chr13",114127980));
+        hg17BuildInfo.addChromosomeInfo(new ChromosomeInfo("chr14",106360585));
+        hg17BuildInfo.addChromosomeInfo(new ChromosomeInfo("chr15",100338915));
+        hg17BuildInfo.addChromosomeInfo(new ChromosomeInfo("chr16",88822254));
+        hg17BuildInfo.addChromosomeInfo(new ChromosomeInfo("chr17",78654742));
+        hg17BuildInfo.addChromosomeInfo(new ChromosomeInfo("chr18",76117153));
+        hg17BuildInfo.addChromosomeInfo(new ChromosomeInfo("chr19",63806651));
+        hg17BuildInfo.addChromosomeInfo(new ChromosomeInfo("chr20",62435964));
+        hg17BuildInfo.addChromosomeInfo(new ChromosomeInfo("chr21",46944323));
+        hg17BuildInfo.addChromosomeInfo(new ChromosomeInfo("chr22",49534710));
+        hg17BuildInfo.addChromosomeInfo(new ChromosomeInfo("chrX",154824264));
+        hg17BuildInfo.addChromosomeInfo(new ChromosomeInfo("chrY",57701691));
 
         return humanInfo;
     }
