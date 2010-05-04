@@ -47,7 +47,7 @@ public class DataFormatter implements FormatProgressListener {
 
     public static final int RECORDS_PER_INTERRUPT_CHECK = 100;
 
-    private static final long DEFAULT_RUN_SIZE = (long)(25 * Math.pow(2, 20)); // 25MB
+    private static final long DEFAULT_RUN_SIZE = (long)(12.5 * Math.pow(2, 20)); // 12.5MB
 
     private static boolean intersects(Range r1, Range r2) {
         if( r1.getFrom() >= r2.getTo() || r2.getFrom() >= r1.getTo()) {
@@ -70,6 +70,7 @@ public class DataFormatter implements FormatProgressListener {
     private static final String tmpOutPath = "tmp";
     private String inPath;
     private String outPath;
+    private String sortPath;
     private DataOutputStream outFile;
     private FileType fileType;
 
@@ -437,17 +438,8 @@ public class DataFormatter implements FormatProgressListener {
     private void formatAsIntervalGeneric() throws FileNotFoundException, IOException, InterruptedException {
 
         // pre-sort by start position
-        ExternalSort externalSort = new ExternalSort();
-        externalSort.setInFile(inPath);
-        String sortPath = inPath + ".sort";
-        externalSort.setOutFile(sortPath);
         int[] columns = {0,1};
-        externalSort.setColumns(columns);
-        externalSort.setNumeric(true);
-        externalSort.setSeparator('\t');
-        externalSort.setRunSize(DEFAULT_RUN_SIZE);
-        externalSort.run();
-        inPath = sortPath;
+        sortInput(columns);
 
         List<FieldType> fields = new ArrayList<FieldType>();
         fields.add(FieldType.INTEGER);
@@ -468,17 +460,8 @@ public class DataFormatter implements FormatProgressListener {
     private void formatAsIntervalGFF() throws FileNotFoundException, IOException, InterruptedException {
 
         // pre-sort by start position
-        ExternalSort externalSort = new ExternalSort();
-        externalSort.setInFile(inPath);
-        String sortPath = inPath + ".sort";
-        externalSort.setOutFile(sortPath);
         int[] columns = {3,4};
-        externalSort.setColumns(columns);
-        externalSort.setNumeric(true);
-        externalSort.setSeparator('\t');
-        externalSort.setRunSize(DEFAULT_RUN_SIZE);
-        externalSort.run();
-        inPath = sortPath;
+        sortInput(columns);
 
         List<FieldType> fields = new ArrayList<FieldType>();
         fields.add(FieldType.IGNORE);
@@ -512,17 +495,8 @@ public class DataFormatter implements FormatProgressListener {
     private void formatAsIntervalBED() throws FileNotFoundException, IOException, InterruptedException {
 
         // pre-sort by start position
-        ExternalSort externalSort = new ExternalSort();
-        externalSort.setInFile(inPath);
-        String sortPath = inPath + ".sort";
-        externalSort.setOutFile(sortPath);
         int[] columns = {1,2};
-        externalSort.setColumns(columns);
-        externalSort.setNumeric(true);
-        externalSort.setSeparator('\t');
-        externalSort.setRunSize(DEFAULT_RUN_SIZE);
-        externalSort.run();
-        inPath = sortPath;
+        sortInput(columns);
 
         List<FieldType> fields = new ArrayList<FieldType>();
         fields.add(FieldType.IGNORE);    // chrom
@@ -795,7 +769,20 @@ public class DataFormatter implements FormatProgressListener {
     public int getProgress() {
         return progress;
     }
+    private void sortInput(int[] columns) throws FileNotFoundException, IOException {
 
+        ExternalSort externalSort = new ExternalSort();
+        externalSort.setInFile(inPath);
+        String sortPath = inPath + ".sort";
+        externalSort.setOutFile(sortPath);
+        externalSort.setColumns(columns);
+        externalSort.setNumeric(true);
+        externalSort.setSeparator('\t');
+        externalSort.setRunSize(DEFAULT_RUN_SIZE);
+        externalSort.run();
+        inPath = sortPath;
+
+    }
     public void setProgress(int progress) {
         int oldValue = this.progress;
         this.progress = progress;
