@@ -56,6 +56,9 @@ public class DataFormatForm extends JDialog implements PropertyChangeListener /*
         initFormats();
         initListActionHandler();
 
+        // in the future
+        checkbox_tempOut.setVisible(false);
+
         formatProgressBar.setVisible(false);
         //checkbox_chooseBase.setVisible(false);
 
@@ -74,6 +77,12 @@ public class DataFormatForm extends JDialog implements PropertyChangeListener /*
     }
 
     public void clear() {
+        this.textfield_inPath.setEnabled(true);
+        this.textfield_outPath.setEnabled(true);
+        this.button_openInPath.setEnabled(true);
+        this.button_openOutFile.setEnabled(true);
+        this.list_formats.setEnabled(true);
+
         this.textfield_inPath.setText("");
         this.textfield_outPath.setText("");
         if (!this.list_formats.isSelectionEmpty())
@@ -170,7 +179,6 @@ public class DataFormatForm extends JDialog implements PropertyChangeListener /*
             }
         });
 
-        checkbox_tempOut.setSelected(true);
         checkbox_tempOut.setText("Store output temporarily");
         checkbox_tempOut.setToolTipText("Store the formatted file just for this session");
         checkbox_tempOut.addActionListener(new java.awt.event.ActionListener() {
@@ -203,30 +211,31 @@ public class DataFormatForm extends JDialog implements PropertyChangeListener /*
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 298, Short.MAX_VALUE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(checkbox_chooseBase)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(checkbox_tempOut))
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 278, Short.MAX_VALUE)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(textfield_inPath, javax.swing.GroupLayout.DEFAULT_SIZE, 247, Short.MAX_VALUE)
+                        .addComponent(textfield_inPath, javax.swing.GroupLayout.DEFAULT_SIZE, 227, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(button_openInPath))
                     .addComponent(jLabel1)
                     .addComponent(jLabel2)
-                    .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 298, Short.MAX_VALUE)
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 278, Short.MAX_VALUE)
                     .addComponent(jLabel4)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(formatProgressBar, javax.swing.GroupLayout.DEFAULT_SIZE, 154, Short.MAX_VALUE)
+                        .addComponent(formatProgressBar, javax.swing.GroupLayout.DEFAULT_SIZE, 134, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(button_cancel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(button_format))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(textfield_outPath, javax.swing.GroupLayout.DEFAULT_SIZE, 247, Short.MAX_VALUE)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jLabel3, javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(textfield_outPath, javax.swing.GroupLayout.DEFAULT_SIZE, 227, Short.MAX_VALUE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(button_openOutFile))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(checkbox_tempOut)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(checkbox_chooseBase))
-                    .addComponent(jLabel3))
+                        .addComponent(button_openOutFile)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -248,8 +257,8 @@ public class DataFormatForm extends JDialog implements PropertyChangeListener /*
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 64, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(checkbox_tempOut)
-                    .addComponent(checkbox_chooseBase))
+                    .addComponent(checkbox_chooseBase)
+                    .addComponent(checkbox_tempOut))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel3)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -357,6 +366,13 @@ public class DataFormatForm extends JDialog implements PropertyChangeListener /*
         setSuccess(false);
         formatTask = new FormatTask(df);
         formatTask.addPropertyChangeListener(this);
+
+        // make sure the user can't interact with anything while formatting
+        this.textfield_inPath.setEnabled(false);
+        this.textfield_outPath.setEnabled(false);
+        this.button_openInPath.setEnabled(false);
+        this.button_openOutFile.setEnabled(false);
+        this.list_formats.setEnabled(false);
 
         formatTask.execute();
 
@@ -492,17 +508,37 @@ public class DataFormatForm extends JDialog implements PropertyChangeListener /*
         if (this.checkbox_tempOut.isSelected()) {
             this.button_openOutFile.setEnabled(false);
             if ((ft == null && this.textfield_inPath.getText().endsWith(".bam")) || ft == FileType.INTERVAL_BAM) {
-                 this.textfield_outPath.setText(selectedFileName + ".tmp.cov");
+                 this.textfield_outPath.setEnabled(false);
+                 this.button_openOutFile.setEnabled(false);
+                 this.textfield_outPath.setText("Directory of BAM file");
              } else {
+                this.textfield_outPath.setEnabled(true);
+                 this.button_openOutFile.setEnabled(true);
                  this.textfield_outPath.setText(selectedFileName + ".tmp.savant");
              }
         } else {
             this.button_openOutFile.setEnabled(true);
-             if ((ft == null && this.textfield_inPath.getText().endsWith(".bam")) || ft == FileType.INTERVAL_BAM) {
-                 this.textfield_outPath.setText(selectedFileName + ".cov");
-             } else {
-                this.textfield_outPath.setText(selectedFileName + ".savant");
-             }
+            if (selectedFileName.equals("")) {
+                if ((ft == null && this.textfield_inPath.getText().endsWith(".bam")) || ft == FileType.INTERVAL_BAM) {
+                    this.textfield_outPath.setEnabled(false);
+                    this.button_openOutFile.setEnabled(false);
+                    this.textfield_outPath.setText("No input file selected");
+                 } else {
+                    this.textfield_outPath.setEnabled(true);
+                    this.button_openOutFile.setEnabled(true);
+                    this.textfield_outPath.setText("No input file selected");
+                 }
+            } else {
+                 if ((ft == null && this.textfield_inPath.getText().endsWith(".bam")) || ft == FileType.INTERVAL_BAM) {
+                    this.textfield_outPath.setEnabled(false);
+                    this.button_openOutFile.setEnabled(false);
+                    this.textfield_outPath.setText("Directory of BAM file");
+                 } else {
+                     this.textfield_outPath.setEnabled(true);
+                    this.button_openOutFile.setEnabled(true);
+                    this.textfield_outPath.setText(selectedFileName + ".savant");
+                 }
+            }
         }
         validateReadyToFormat();
     }
@@ -516,8 +552,9 @@ public class DataFormatForm extends JDialog implements PropertyChangeListener /*
         {
             this.button_format.setEnabled(false);
         } else {
-            this.button_format.setEnabled(true);
-            this.button_format.requestFocus();
+            this.getRootPane().setDefaultButton(this.button_format);
+            //this.button_format.setEnabled(true);
+            //this.button_format.requestFocus();
         }
 
     }
