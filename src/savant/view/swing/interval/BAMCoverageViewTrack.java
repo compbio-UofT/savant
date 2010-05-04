@@ -21,6 +21,7 @@
 
 package savant.view.swing.interval;
 
+import savant.controller.DrawModeController;
 import savant.controller.event.drawmode.DrawModeChangedEvent;
 import savant.controller.event.drawmode.DrawModeChangedListener;
 import savant.model.ContinuousRecord;
@@ -40,7 +41,7 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BAMCoverageViewTrack extends ViewTrack implements DrawModeChangedListener {
+public class BAMCoverageViewTrack extends ViewTrack {
 
     private boolean enabled = true;
 
@@ -64,10 +65,13 @@ public class BAMCoverageViewTrack extends ViewTrack implements DrawModeChangedLi
                 renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.MESSAGE, "No coverage file available");
                 renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.AXIS_RANGE, new AxisRange(range, getDefaultYRange()));
             }
-            else {
+            else if (isEnabled() && (r == Resolution.LOW || r == Resolution.VERY_LOW || r == Resolution.MEDIUM)) {
                 renderer.getDrawingInstructions().getInstructions().remove(DrawingInstructions.InstructionName.MESSAGE.toString());
                 int maxDataValue = getMaxValue(data);
                 renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.AXIS_RANGE, new AxisRange(range, new Range(0, maxDataValue)));
+            } else {
+                renderer.getDrawingInstructions().getInstructions().remove(DrawingInstructions.InstructionName.MESSAGE.toString());
+                renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.AXIS_RANGE, new AxisRange(range, getDefaultYRange()));            
             }
             renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.COLOR_SCHEME, this.getColorScheme());
             renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.RANGE, range);
@@ -112,21 +116,6 @@ public class BAMCoverageViewTrack extends ViewTrack implements DrawModeChangedLi
         else { return Resolution.VERY_HIGH; }
     }
 
-    // FIXME: this is a horrible kludge
-    public void drawModeChangeReceived(DrawModeChangedEvent evt) {
-        ViewTrack viewTrack = evt.getViewTrack();
-        RecordTrack track = viewTrack.getTrack();
-        if (track.equals(this.getTrack())) {
-            if (viewTrack.getDataType() == FileFormat.INTERVAL_BAM) {
-                if (evt.getMode().getName().equals("MATE_PAIRS")) {
-                    setEnabled(false);
-                }else {
-                    setEnabled(true);
-                }
-            }
-        }
-    }
-
     private Range getDefaultYRange() {
         return new Range(0, 1);
     }
@@ -144,6 +133,7 @@ public class BAMCoverageViewTrack extends ViewTrack implements DrawModeChangedLi
         return (int)Math.ceil(max);
     }
 
+    // TODO: pull this property up into ViewTrack
     public boolean isEnabled() {
         return enabled;
     }
