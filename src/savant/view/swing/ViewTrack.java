@@ -72,6 +72,9 @@ public abstract class ViewTrack {
     private List<TrackRenderer> trackRenderers;
     private RecordTrack track;
 
+    // FIXME:
+    private Frame frame;
+
     private static BAMParametersDialog paramDialog = new BAMParametersDialog(Savant.getInstance(), true);
 
     // TODO: put all of this in a ViewTrackFactory class
@@ -344,6 +347,16 @@ public abstract class ViewTrack {
      */
     public RecordTrack getTrack() {
         return this.track;
+    }
+
+    // FIXME:
+    public Frame getFrame() {
+        return frame;
+    }
+
+    // FIXME:
+    public void setFrame(Frame frame) {
+        this.frame = frame;
     }
 
     /**
