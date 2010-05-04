@@ -552,8 +552,8 @@ public class DataFormatForm extends JDialog implements PropertyChangeListener /*
         {
             this.button_format.setEnabled(false);
         } else {
+            this.button_format.setEnabled(true);
             this.getRootPane().setDefaultButton(this.button_format);
-            //this.button_format.setEnabled(true);
             //this.button_format.requestFocus();
         }
 
