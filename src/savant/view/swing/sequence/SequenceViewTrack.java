@@ -123,14 +123,10 @@ public class SequenceViewTrack extends ViewTrack {
                 renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.COLOR_SCHEME, this.getColorScheme());
             }
 
-            System.out.println("L.B");
             renderer.setData(data);
-
-            System.out.println("L.C");
 
         }
 
-         System.out.println("Done preparing for rendering...");
     }
 
     private Range getDefaultYRange()
