@@ -29,7 +29,7 @@ public class DockableFrameFactory {
     private static int numTracks = 0;
 
     public static DockableFrame createGenomeFrame(String name) {
-        return createTrackFrame(name, false);
+        return createTrackFrame(name, true);
     }
 
     public static DockableFrame createTrackFrame(String name) {
@@ -38,8 +38,10 @@ public class DockableFrameFactory {
 
     public static DockableFrame createTrackFrame(String name, boolean allowClose) {
 
-        final DockableFrame frame = new DockableFrame(name);
-        frame.setInitIndex(++numTracks);
+        numTracks++;
+        
+        final DockableFrame frame = new DockableFrame(numTracks + ". " + name);
+        frame.setInitIndex(numTracks);
         if (allowClose) {
             frame.setAvailableButtons(DockableFrame.BUTTON_AUTOHIDE | DockableFrame.BUTTON_FLOATING | DockableFrame.BUTTON_MAXIMIZE | DockableFrame.BUTTON_CLOSE );
         } else {

@@ -75,6 +75,7 @@ import savant.view.swing.util.ScreenShot;
 public class Savant extends javax.swing.JFrame implements ComponentListener, RangeSelectionChangedListener,
         RangeChangedListener, PropertyChangeListener {
 
+    private static boolean isDebugging = false;
     private DockingManager auxDockingManager;
     private JPanel masterPlaceholderPanel;
     private DockingManager trackDockingManager;
@@ -93,6 +94,8 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
     
     private void addTrackFromFile(String selectedFileName) {
 
+        Savant.log("Loading track " + selectedFileName, Savant.LOGMODE.NORMAL);
+
         // Some types of track actually create more than one track per frame, e.g. BAM
         List<ViewTrack> tracks = ViewTrack.create(selectedFileName);
 
@@ -106,6 +109,8 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
             }
             FrameController.getInstance().addFrame(frame, panel);
             this.getTrackDockingManager().addFrame(df);
+
+            Savant.log("Track loaded", Savant.LOGMODE.NORMAL);
         }
         
     }
@@ -871,13 +876,15 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
     private void initAuxPanel1() {
 
         DockableFrame df = DockableFrameFactory.createFrame("Information & Analysis",DockContext.STATE_AUTOHIDE,DockContext.DOCK_SIDE_SOUTH);
-        df.setAvailableButtons(DockableFrame.BUTTON_AUTOHIDE | DockableFrame.BUTTON_FLOATING | DockableFrame.BUTTON_MAXIMIZE );
+        df.setAvailableButtons(DockableFrame.BUTTON_AUTOHIDE | DockableFrame.BUTTON_FLOATING | DockableFrame.BUTTON_MAXIMIZE);
         this.getAuxDockingManager().addFrame(df);
 
         auxTabbedPane = new JTabbedPane();
 
         initLogTab(auxTabbedPane);
-        initBatchAnalyzeTab(auxTabbedPane);
+        
+        // TODO: relink once polished
+        //initBatchAnalyzeTab(auxTabbedPane);
 
         auxTabbedPane.setSelectedIndex(0);
 
@@ -1387,6 +1394,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
             // create a frame and place the dialog in it
             JFrame jf = new JFrame();
             FileDialog fd = new FileDialog(jf, "Load Genome", FileDialog.LOAD);
+            fd.setFilenameFilter(new SavantFileFilter());
             /*
             fd.setFilenameFilter(new FilenameFilter() {
                 public boolean accept(File dir, String name) {
@@ -1403,7 +1411,9 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
             // set the genome
             if (selectedFileName != null) {
                 selectedFileName = fd.getDirectory() + selectedFileName;
+                Savant.log("Loading genome " + fd.getDirectory(), Savant.LOGMODE.NORMAL);
                 setGenome(selectedFileName);
+                Savant.log("Genome loaded", Savant.LOGMODE.NORMAL);
             }
         }
     }
@@ -1423,6 +1433,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         // create a frame and place the dialog in it
         JFrame jf = new JFrame();
         FileDialog fd = new FileDialog(jf, "Open Tracks", FileDialog.LOAD);
+        fd.setFilenameFilter(new SavantFileFilter());
         fd.setVisible(true);
         jf.setAlwaysOnTop(true);
 
@@ -1441,7 +1452,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
     }
 
     /** [[EVENTS]]**/
-        public void rangeSelectionChangeReceived(RangeSelectionChangedEvent event) {
+    public void rangeSelectionChangeReceived(RangeSelectionChangedEvent event) {
         rangeController.setRange(event.range());
     }
 
@@ -1615,6 +1626,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         log = new JTextArea();
         log.setFont(new Font(BrowserDefaults.fontName, Font.PLAIN, 18));
         JScrollPane jsp = new JScrollPane(log);
+
         pan.add(jsp);
 
         log(log, "LOG STARTED");
@@ -1661,9 +1673,22 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
      * @param rtb The text area on which to post the message
      * @param msg The message to post
      */
+    public enum LOGMODE { NORMAL, DEBUG };
+
     public static void log(JTextArea rtb, String msg) {
-        rtb.append(logMessage(msg));
-        rtb.setCaretPosition(rtb.getText().length());
+        log(rtb,msg,LOGMODE.DEBUG);
+        //rtb.append(logMessage(msg));
+        //rtb.setCaretPosition(rtb.getText().length());
+    }
+
+    public static void log(JTextArea rtb, String msg, LOGMODE logmode) {
+        if (logmode == LOGMODE.DEBUG && isDebugging) {
+            rtb.append(logMessage(msg));
+            rtb.setCaretPosition(rtb.getText().length());
+        } else if (logmode != LOGMODE.DEBUG) {
+            rtb.append(logMessage(msg));
+            rtb.setCaretPosition(rtb.getText().length());
+        }
     }
 
     /**
@@ -1671,8 +1696,17 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
      * @param msg The message to post
      */
     public static void log(String msg) {
-        log.append(logMessage(msg));
-        log.setCaretPosition(log.getText().length());
+        log(msg,LOGMODE.DEBUG);
+    }
+    
+    public static void log(String msg, LOGMODE logmode) {
+        if (logmode == LOGMODE.DEBUG && isDebugging) {
+            log.append(logMessage(msg));
+            log.setCaretPosition(log.getText().length());
+        } else if (logmode != LOGMODE.DEBUG) {
+            log.append(logMessage(msg));
+            log.setCaretPosition(log.getText().length());
+        }
     }
 
     /**

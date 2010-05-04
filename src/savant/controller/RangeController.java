@@ -36,6 +36,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Stack;
+import savant.view.swing.Savant;
 
 public class RangeController {
 
@@ -118,6 +119,7 @@ public class RangeController {
      */
     public void setRange(Range r) {
         log.debug("Setting range to " + r);
+        Savant.log("Setting range to " + r, Savant.LOGMODE.NORMAL);
 
         if (shouldClearRedoStack && this.currentViewableRange != null) {
             redoStack.clear();

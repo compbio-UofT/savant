@@ -84,20 +84,19 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
        if (mac && e.isMetaDown() || e.isControlDown()) {
            if (notches < 0) {
                RangeController rc = RangeController.getInstance();
-               rc.zoomIn();
-           } else {
-               RangeController rc = RangeController.getInstance();
-               rc.zoomOut();
-           }
-       }
-       else {
-
-           if (notches < 0) {
-               RangeController rc = RangeController.getInstance();
                rc.shiftRangeLeft();
            } else {
                RangeController rc = RangeController.getInstance();
                rc.shiftRangeRight();
+           }
+       }
+       else {
+            if (notches < 0) {
+               RangeController rc = RangeController.getInstance();
+               rc.zoomIn();
+           } else {
+               RangeController rc = RangeController.getInstance();
+               rc.zoomOut();
            }
        }
     }
