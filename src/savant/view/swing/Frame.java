@@ -16,9 +16,16 @@
 
 package savant.view.swing;
 
+import savant.controller.DrawModeController;
+import savant.controller.RangeController;
+import savant.controller.event.drawmode.DrawModeChangedEvent;
+import savant.controller.event.drawmode.DrawModeChangedListener;
+import savant.model.FileFormat;
+import savant.model.data.RecordTrack;
 import savant.model.view.DrawingInstructions;
 import savant.util.Range;
 import savant.view.swing.continuous.ContinuousTrackRenderer;
+import savant.view.swing.interval.BAMCoverageViewTrack;
 import savant.view.swing.interval.BAMTrackRenderer;
 import savant.view.swing.interval.BEDTrackRenderer;
 import savant.view.swing.interval.IntervalTrackRenderer;
@@ -68,6 +75,8 @@ public class Frame {
             Iterator<ViewTrack> it = tracks.iterator();
             while ( it.hasNext()) {
                 ViewTrack track = it.next();
+                // FIXME:
+                track.setFrame(this);
                 TrackRenderer renderer=null;
                 if (!renderers.isEmpty()) {
                     renderer = renderers.get(i++);
@@ -77,6 +86,7 @@ public class Frame {
         }
         frameLandscape.setLayout(new BorderLayout());
         frameLandscape.add(getGraphPane());
+
     }
 
     /**
@@ -129,9 +139,8 @@ public class Frame {
     /**
      * // TODO: comment
      * @param range
-     * @throws Exception
      */
-    public void drawTracksInRange(Range range) throws Exception
+    public void drawTracksInRange(Range range)
     {
         if (!isLocked()) { currentRange = range; }
         if (this.graphPane.isLocked()) { return; }
@@ -176,4 +185,34 @@ public class Frame {
         graphPane.setBackground(BrowserDefaults.colorFrameBackground);
     }
 
+    // FIXME: this is a horrible kludge
+    public void drawModeChanged(DrawModeChangedEvent evt) {
+
+        ViewTrack viewTrack = evt.getViewTrack();
+
+//        if (getTracks().contains(viewTrack)) {
+        boolean reRender = false;
+        if (viewTrack.getDataType() == FileFormat.INTERVAL_BAM) {
+            if (evt.getMode().getName().equals("MATE_PAIRS")) {
+                reRender = true;
+                setCoverageEnabled(false);
+            }else {
+                setCoverageEnabled(true);
+                reRender = true;
+            }
+        }
+        if (reRender) {
+            drawTracksInRange(RangeController.getInstance().getRange());
+        }
+//        }
+    }
+
+    private void setCoverageEnabled(boolean enabled) {
+
+        for (ViewTrack track: getTracks()) {
+            if (track instanceof BAMCoverageViewTrack) {
+                ((BAMCoverageViewTrack) track).setEnabled(enabled);
+            }
+        }
+    }
 }
