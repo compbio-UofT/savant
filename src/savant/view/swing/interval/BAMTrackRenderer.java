@@ -134,11 +134,17 @@ public class BAMTrackRenderer extends TrackRenderer {
 
 
 
+        if (drawMode.getName().equals("VARIANTS") && !Savant.getInstance().getGenome().isSequenceSet()) {
+            GlassMessagePane.draw(g2, gp, "No reference sequence loaded. Switch to standard view", 500);
+            return;
+        }
+        
         // display only a message if intervals will not be visible at this resolution
         if (gp.getUnitHeight() < 1) {
             GlassMessagePane.draw(g2, gp, "Too many intervals to display.", 500);
             return;
         }
+
 
         // scan the map of intervals and draw the intervals for each level
         for (int level=0; level<intervals.size(); level++) {
@@ -158,7 +164,7 @@ public class BAMTrackRenderer extends TrackRenderer {
 
                 Polygon strand = renderStrand(g2, gp, cs, samRecord, interval, level);
 
-                if (drawMode.getName() == "VARIANTS") {
+                if (drawMode.getName().equals("VARIANTS")) {
                     // visualize variations (indels and mismatches)
                     renderVariants(g2, gp, samRecord, level);
                 }
