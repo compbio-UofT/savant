@@ -49,6 +49,7 @@ public class BAMToCoverage {
     private static String fileSeparator = System.getProperty("file.separator");
 
     public static final int RECORDS_PER_INTERRUPT_CHECK = 5000;
+    private static final int OUTPUT_BUFFER_SIZE = 1024 * 128; // 128K
 
     private String inFile;      // xx.bam file
     private String indexFile;   // xx.bai file
@@ -262,7 +263,7 @@ public class BAMToCoverage {
 
         try {
             // open output stream
-            out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(outFile)));
+            out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(outFile), OUTPUT_BUFFER_SIZE));
 
             // write file type header
             FileTypeHeader fileTypeHeader = new FileTypeHeader(FileType.CONTINUOUS_GENERIC, 1);
