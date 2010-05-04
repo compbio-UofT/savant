@@ -14,11 +14,14 @@ import java.io.FilenameFilter;
  */
 public class SavantFileFilter implements FilenameFilter {
     
-    String ext = "savant";
+    String[] ext = {"savant","bam"};
 
     @Override
     public boolean accept(File dir, String name) {
-        return name.endsWith(ext);
+        for (int i = 0; i < ext.length; i++) {
+            if (name.endsWith(ext[i])) { return true; }
+        }
+        return false;
     }
 
 }
