@@ -882,13 +882,13 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
 
         DrawModeController.getInstance().switchMode(track, mode);
         
-        try {
-            // TODO: this needs to get done in a separate thread and then schedule the repaint for later
-            track.prepareForRendering(RangeController.getInstance().getRange());
-            repaint();
-        } catch (Throwable e) {
-            log.error("Unexpected exception while preparing to render track " + e.getMessage());
-        }
+//        try {
+//            // TODO: this needs to get done in a separate thread and then schedule the repaint for later
+//            track.prepareForRendering(RangeController.getInstance().getRange());
+//            repaint();
+//        } catch (Throwable e) {
+//            log.error("Unexpected exception while preparing to render track " + e.getMessage());
+//        }
 
     }
 
