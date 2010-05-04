@@ -107,6 +107,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
             FrameController.getInstance().addFrame(frame, panel);
             this.getTrackDockingManager().addFrame(df);
         }
+        
     }
 
     /** == [[ DOCKING ]] ==
