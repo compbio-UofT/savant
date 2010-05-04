@@ -62,8 +62,9 @@ public class DrawModeController {
     public void switchMode(ViewTrack track, Mode mode) {
         track.setDrawMode(mode);
         DrawModeChangedEvent evt = new DrawModeChangedEvent(track, mode);
-        fireDrawModeChangedEvent(evt);
-
+//        fireDrawModeChangedEvent(evt);
+        // FIXME:
+        track.getFrame().drawModeChanged(evt);
     }
     
     private synchronized void fireDrawModeChangedEvent(DrawModeChangedEvent evt) {
