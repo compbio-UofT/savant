@@ -38,6 +38,7 @@ import java.util.List;
  */
 public class RangeSelectionPanel extends JPanel implements MouseListener, MouseMotionListener, RangeChangedListener {
 
+    private boolean isDragging = false;
     private boolean isActive = false;
     private int minimum = 0;
     private int maximum = 100;
@@ -103,7 +104,11 @@ public class RangeSelectionPanel extends JPanel implements MouseListener, MouseM
     }
 
 // handle event when mouse released after dragging
+    @Override
     public void mouseReleased(final MouseEvent event) {
+
+        isDragging = false;
+
         this.x2 = event.getX();
         if (this.x2 < this.minimum) {
             this.x2 = this.minimum;
@@ -146,6 +151,8 @@ public class RangeSelectionPanel extends JPanel implements MouseListener, MouseM
 
         if (!this.isActive()) { return ; }
 
+        isDragging = true;
+
         this.x2 = event.getX();
         if (this.x2 < this.minimum) {
             this.x2 = this.minimum;
@@ -180,6 +187,8 @@ public class RangeSelectionPanel extends JPanel implements MouseListener, MouseM
         int wid = getWidth();
         int hei = getHeight();
 
+        
+
         Graphics2D g2d0 = (Graphics2D) g;
 
         // Paint a gradient from top to bottom
@@ -191,27 +200,30 @@ public class RangeSelectionPanel extends JPanel implements MouseListener, MouseM
         g2d0.fillRect(0, 0, wid, hei);
 
         int width = this.x1 - this.x2;
-        int height = this.getHeight() - 4;// this.y1 - this.y2;
+        int height = this.getHeight();// this.y1 - this.y2;
 
-        this.w = Math.max(2, Math.abs(width));
+        this.w = Math.max(3, Math.abs(width));
         this.h = Math.abs(height);
         this.x = width < 0 ? this.x1 : this.x2;
-        this.y = 1; //height < 0 ? this.y1 : this.y2;
-
-        g.setColor(new Color(100, 100, 100, 100));
-        g.drawRect(this.x, this.y, this.w, this.h);
+        this.y = 0; //height < 0 ? this.y1 : this.y2;
 
         Graphics2D g2d = (Graphics2D) g;
 
+        g.setColor(new Color(100, 100, 100));
+        g.drawLine(0, hei-1, wid, hei-1);
+
         // Paint a gradient from top to bottom
         GradientPaint gp = new GradientPaint(
-                0, 0, new Color(95, 161, 241),
-                0, h, new Color(75, 144, 228));
+                0, 0, BrowserDefaults.colorRangeSelectionTop,
+                0, h, BrowserDefaults.colorRangeSelectionBottom);
 
         g2d.setPaint(gp);
         g2d.fillRect(this.x, this.y, this.w, this.h);
 
-        int numlines = 20;
+        g.setColor(new Color(100, 100, 100));
+        g.drawRect(this.x, this.y, this.w, this.h);
+
+        int numlines = 4;
         double space = ((double) this.getWidth()) / numlines;
 
         g.setColor(new Color(150,150,150,100));
@@ -219,40 +231,41 @@ public class RangeSelectionPanel extends JPanel implements MouseListener, MouseM
             g.drawLine((int) Math.round(i * space), 0, (int) Math.round(i * space), this.getHeight());
         }
 
-        g.setColor(Color.black);
+        if (isDragging) {
+            g.setColor(Color.black);
 
-        int fromX = this.x1 > this.x2 ? this.x2 : this.x1;
-        int toX = this.x1 > this.x2 ? this.x1 : this.x2;
-        String from, to;
-        int startFrom, startTo;
-        int ypos = this.getHeight() / 2 + 4;
+            int fromX = this.x1 > this.x2 ? this.x2 : this.x1;
+            int toX = this.x1 > this.x2 ? this.x1 : this.x2;
+            String from, to;
+            int startFrom, startTo;
+            int ypos = this.getHeight() / 2 + 4;
 
-        if (this.rangeChangedExternally) {
-            Range r = RangeController.getInstance().getRange();
-            from = MiscUtils.intToString(r.getFrom());
-            to = MiscUtils.intToString(r.getTo());
-        } else {
-            from = MiscUtils.intToString(translatePixelToPosition(fromX));
-            to = MiscUtils.intToString(translatePixelToPosition(toX));
-        }
-
-        FontMetrics metrics = g.getFontMetrics(g.getFont());
-        // get the advance of my text in this font and render context
-        int fromWidth = metrics.stringWidth(from);
-        int toWidth = metrics.stringWidth(to);
-
-        startFrom = fromX - 5 - fromWidth;
-        startTo = toX + 5;
-
-        if (startFrom + fromWidth + 5 < startTo) {
-            if (startFrom > 0) {
-                g.drawString(from, startFrom, ypos);
+            if (this.rangeChangedExternally) {
+                Range r = RangeController.getInstance().getRange();
+                from = MiscUtils.intToString(r.getFrom());
+                to = MiscUtils.intToString(r.getTo());
+            } else {
+                from = MiscUtils.intToString(translatePixelToPosition(fromX));
+                to = MiscUtils.intToString(translatePixelToPosition(toX));
             }
-            if (startTo + toWidth < this.getWidth()) {
-                g.drawString(to, startTo, ypos);
+
+            FontMetrics metrics = g.getFontMetrics(g.getFont());
+            // get the advance of my text in this font and render context
+            int fromWidth = metrics.stringWidth(from);
+            int toWidth = metrics.stringWidth(to);
+
+            startFrom = fromX - 5 - fromWidth;
+            startTo = toX + 5;
+
+            if (startFrom + fromWidth + 5 < startTo) {
+                if (startFrom > 0) {
+                    g.drawString(from, startFrom, ypos);
+                }
+                if (startTo + toWidth < this.getWidth()) {
+                    g.drawString(to, startTo, ypos);
+                }
             }
         }
-
 
     }
 

@@ -81,6 +81,8 @@ public class FrameController {
         frames.add(f);
         graphpane2dockable.put(f.getGraphPane(), panel);
         graphpane2frame.put(f.getGraphPane(), f);
+
+        System.out.println("Drawing Frames");
         this.drawFrames(); // crucially important, prepares initial renderer
         fireFrameChangedEvent(f);
     }

@@ -152,7 +152,7 @@ public class Frame {
             try {
                 
                 for (ViewTrack track : tracks) {
-                        track.prepareForRendering(range);
+                    track.prepareForRendering(range);
                 }
                 this.graphPane.repaint();
 
