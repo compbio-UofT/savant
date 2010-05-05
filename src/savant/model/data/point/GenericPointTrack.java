@@ -56,7 +56,7 @@ public class GenericPointTrack implements RecordTrack<GenericPointRecord> {
     /** FILE SPECIFIC VALUES */
     int descriptionLength;
 
-    public GenericPointTrack(String filename) throws FileNotFoundException, IOException {
+    public GenericPointTrack(String filename) throws IOException {
 
         this.savantFile = new SavantFile(filename);
         setRecordSize();
