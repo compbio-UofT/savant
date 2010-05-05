@@ -37,7 +37,7 @@ public class BFASTASequenceTrack implements SequenceTrack {
     private int length = -1;
     SavantFile dFile;
 
-    public BFASTASequenceTrack(String fileName) throws FileNotFoundException, IOException {
+    public BFASTASequenceTrack(String fileName) throws IOException {
         this.dFile = new SavantFile(fileName);
     }
 
