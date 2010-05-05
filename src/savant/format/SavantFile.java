@@ -25,10 +25,10 @@ public class SavantFile extends RandomAccessFile {
     List<FieldType> fields;
     long headerOffset;
 
-    public SavantFile(String filename) throws FileNotFoundException, IOException {
+    public SavantFile(String filename) throws IOException {
         super(filename,"rw");
-        this.fileTypeHeader = RAFUtils.readFileTypeHeader((RandomAccessFile) this);
-        this.fields = RAFUtils.readFieldsHeader((RandomAccessFile) this);
+        this.fileTypeHeader = RAFUtils.readFileTypeHeader(this);
+        this.fields = RAFUtils.readFieldsHeader(this);
         this.headerOffset = super.getFilePointer();
     }
 
