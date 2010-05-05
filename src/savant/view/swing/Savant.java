@@ -92,7 +92,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
     private DataFormatForm dff;
     private boolean openAfterFormat;
     
-    private void addTrackFromFile(String selectedFileName) {
+    private void addTrackFromFile(String selectedFileName) throws IOException {
 
         Savant.log("Loading track " + selectedFileName, Savant.LOGMODE.NORMAL);
 
@@ -1394,7 +1394,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
             // create a frame and place the dialog in it
             JFrame jf = new JFrame();
             FileDialog fd = new FileDialog(jf, "Load Genome", FileDialog.LOAD);
-            fd.setFilenameFilter(new SavantFileFilter());
+//            fd.setFilenameFilter(new SavantFileFilter());
             /*
             fd.setFilenameFilter(new FilenameFilter() {
                 public boolean accept(File dir, String name) {
@@ -1433,7 +1433,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         // create a frame and place the dialog in it
         JFrame jf = new JFrame();
         FileDialog fd = new FileDialog(jf, "Open Tracks", FileDialog.LOAD);
-        fd.setFilenameFilter(new SavantFileFilter());
+//        fd.setFilenameFilter(new SavantFileFilter());
         fd.setVisible(true);
         jf.setAlwaysOnTop(true);
 
@@ -1446,7 +1446,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
             try {
                 addTrackFromFile(selectedFileName);
             } catch (Exception e) {
-                promptUserToFormatFile(selectedFileName);
+                promptUserToFormatFile(selectedFileName, e.getMessage());
             }
         }
     }
@@ -1491,15 +1491,15 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
             setGenome(filename, g);
         } catch (FileNotFoundException ex) {
         } catch (Exception ex) {
-            promptUserToFormatFile(filename);
+            promptUserToFormatFile(filename, "This file does not appear to be formatted. Format now?");
         }
     }
 
-    public void promptUserToFormatFile(String fileName) {
-        String message = "This file does not appear to be formatted. Format now?";
+    public void promptUserToFormatFile(String fileName, String message) {
+
         String title = "Unrecognized file";
         // display the JOptionPane showConfirmDialog
-        int reply = JOptionPane.showConfirmDialog(null, message, title, JOptionPane.YES_NO_OPTION);
+        int reply = JOptionPane.showConfirmDialog(this, message, title, JOptionPane.YES_NO_OPTION);
         if (reply == JOptionPane.YES_OPTION)
         {
             if (!dff.isVisible()) {
@@ -1668,13 +1668,13 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         return "[" + MiscUtils.now() + "]\t" + s;
     }
 
+    public enum LOGMODE { NORMAL, DEBUG };
+
     /**
      * log a message on the given text area
      * @param rtb The text area on which to post the message
      * @param msg The message to post
      */
-    public enum LOGMODE { NORMAL, DEBUG };
-
     public static void log(JTextArea rtb, String msg) {
         log(rtb,msg,LOGMODE.DEBUG);
         //rtb.append(logMessage(msg));
@@ -1726,7 +1726,11 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
                     if (dff.getFileType() == FileType.SEQUENCE_FASTA && !this.isGenomeLoaded()) {
                        this.setGenome(outfilepath);
                     } else {
-                       addTrackFromFile(outfilepath);
+                        try{
+                            addTrackFromFile(outfilepath);
+                        } catch (Exception e) {
+                            promptUserToFormatFile(outfilepath, e.getMessage());
+                        }
                     }
                 }
                 JOptionPane.showMessageDialog(this, "Format complete", "Format File", JOptionPane.INFORMATION_MESSAGE);
