@@ -82,6 +82,8 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
     private JPanel trackPanel;
     private JPanel menuPanel;
 
+    private JButton button_genome;
+
     public static String os = System.getProperty("os.name").toLowerCase();
     public static boolean mac = os.contains("mac");
     public static int osSpecificModifier = (mac ? java.awt.event.InputEvent.META_MASK : java.awt.event.InputEvent.CTRL_MASK);
@@ -1000,12 +1002,12 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         Dimension buttonDimension = new Dimension(45,23);
 
         p.add(getRigidPadding());
-        JButton genomeButton = addButton(p, "Genome");
-        genomeButton.setToolTipText("Load a genome");
+        button_genome = addButton(p, "Genome");
+        button_genome.setToolTipText("Load a genome");
 
         // .createRoundedBalloonTip(Component attachedComponent, Alignment alignment, Color borderColor, Color fillColor, int borderWidth, int horizontalOffset, int verticalOffset, int arcWidth, int arcHeight, boolean useCloseButton)
 
-        genomeButton.addMouseListener(new MouseListener() {
+        button_genome.addMouseListener(new MouseListener() {
 
             public void mouseClicked(MouseEvent e) {
                 showOpenGenomeDialog();
@@ -1587,6 +1589,8 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         }
 
         this.showRangeControls();
+
+        button_genome.setEnabled(false);
     }
 
     /**
