@@ -98,12 +98,19 @@ public class DataFormatter implements FormatProgressListener {
      * Formats the file
      * @return
      */
-    public boolean format() throws InterruptedException {
+    public boolean format() throws InterruptedException, IOException {
 
-        try {
+        try{
 
             // FIXME: another hack for coverage files
             if (this.fileType != FileType.INTERVAL_BAM) {
+
+                // check that it really is a text file
+                if (!verifyTextFile(inPath)) {
+                    throw new IOException("Not a text file");
+                }
+
+                // create output file and write header
                 outFile = this.openNewOutputFile();
                 DataFormatUtils.writeFileTypeHeader(outFile, new FileTypeHeader(this.fileType,this.currentVersion));
             }
@@ -136,13 +143,6 @@ public class DataFormatter implements FormatProgressListener {
                 default:
                     return false;
             }
-
-        } catch (IOException e) {
-            log.error("Error formatting file " + inPath, e);
-            return false;
-        } catch (Throwable t) {
-            log.error("Unexpected error formatting file " + inPath, t);
-            return false;
         }
         finally {
 
@@ -209,6 +209,7 @@ public class DataFormatter implements FormatProgressListener {
      */
     private void formatAsContinuousGeneric() throws IOException, InterruptedException {
 
+
         // Initialize the total size of the input file, for purposes of tracking progress
         this.totalBytes = new File(inPath).length();
 
@@ -257,6 +258,7 @@ public class DataFormatter implements FormatProgressListener {
      */
     private void formatAsContinuousWIG() throws IOException, InterruptedException {
 
+
         WIGToContinuous wtc = new WIGToContinuous(this.inPath, this.outPath);
         wtc.addProgressListener(this);
         wtc.format();
@@ -279,6 +281,7 @@ public class DataFormatter implements FormatProgressListener {
     // TODO: interrupts and progress
     private void formatAsInterval(List<FieldType> fields, List<Object> modifiers) throws FileNotFoundException, IOException, InterruptedException {
 
+
         List<Range> intervalIndex2IntervalRange = new ArrayList<Range>();
         List<Long> intevalIndex2StartByte = new ArrayList<Long>();
 
@@ -293,7 +296,7 @@ public class DataFormatter implements FormatProgressListener {
          *  - create a line number -> <startbyte,endbyte> map (bytes correspond to tmpfile)
          *  - create a line number -> Range map
          */
-         System.out.println("=== STEP 1 ===");
+//         System.out.println("=== STEP 1 ===");
 
         int minRange = Integer.MAX_VALUE;
         int maxRange = Integer.MIN_VALUE;
@@ -305,7 +308,7 @@ public class DataFormatter implements FormatProgressListener {
 
             if (strLine.equals("")) { continue; }
 
-            System.out.println(strLine);
+//            System.out.println(strLine);
 
             line = DataFormatUtils.parseTxtLine(strLine, fields);
 
@@ -334,7 +337,7 @@ public class DataFormatter implements FormatProgressListener {
          *  - create a bin -> List<line> map
          *  - write each bin to outfile
          */
-        System.out.println("=== STEP 2 ===");
+//        System.out.println("=== STEP 2 ===");
 
         DataFormatUtils.writeFieldsHeader(outFile, fields);
         tmpOutFile.close();
@@ -377,7 +380,7 @@ public class DataFormatter implements FormatProgressListener {
 
             IntervalTreeNode n = ibst.insert(r);
 
-            System.out.println("I " + n.index + "\t" + r);
+//            System.out.println("I " + n.index + "\t" + r);
 
             if (n.range.getTo() < currentSmallestNode.range.getTo() || (n.range.getTo() == currentSmallestNode.range.getTo() && n.range.getFrom() > currentSmallestNode.range.getFrom()) )
             {
@@ -409,7 +412,7 @@ public class DataFormatter implements FormatProgressListener {
 
         //System.out.println("IBST created with: " + ibst.getNumNodes() + " nodes");
 
-        System.out.println("No intervals left to see, dumping remaining " + ibst.getNumNodes() + " nodes");
+//        System.out.println("No intervals left to see, dumping remaining " + ibst.getNumNodes() + " nodes");
 
         while (ibst.getRoot() != null) {
             currentSmallestNode = ibst.getNodeWithSmallestMax();
@@ -428,14 +431,14 @@ public class DataFormatter implements FormatProgressListener {
         outFile.close();
         indexOutFile.close();
 
-        System.out.println("Done formatting");
+//        System.out.println("Done formatting");
     }
 
 
     /*
      * INTERVAL : GENERIC
      */
-    private void formatAsIntervalGeneric() throws FileNotFoundException, IOException, InterruptedException {
+    private void formatAsIntervalGeneric() throws IOException, InterruptedException {
 
         // pre-sort by start position
         int[] columns = {0,1};
@@ -457,7 +460,7 @@ public class DataFormatter implements FormatProgressListener {
         new File(sortPath).delete();
     }
 
-    private void formatAsIntervalGFF() throws FileNotFoundException, IOException, InterruptedException {
+    private void formatAsIntervalGFF() throws IOException, InterruptedException {
 
         // pre-sort by start position
         int[] columns = {3,4};
@@ -492,7 +495,7 @@ public class DataFormatter implements FormatProgressListener {
 
     }
 
-    private void formatAsIntervalBED() throws FileNotFoundException, IOException, InterruptedException {
+    private void formatAsIntervalBED() throws IOException, InterruptedException {
 
         // pre-sort by start position
         int[] columns = {1,2};
@@ -838,6 +841,28 @@ public class DataFormatter implements FormatProgressListener {
 
     }
 
+    private boolean verifyTextFile(String fileName) {
+        boolean result = false;
+        BufferedReader reader=null;
+        try {
+            reader = new BufferedReader(new FileReader(fileName));
+            char[] readBuf = new char[1000];
+            int charsRead = reader.read(readBuf);
+            if (charsRead != -1) {
+                String readStr = new String(readBuf);
+                if (readStr.contains("\r") || readStr.contains("\n")) {
+                    // newline found in first 1000 characters, probably is a text file
+                    result = true;
+                }
+            }
+        } catch (IOException e) {
+            // result will be false
+        } finally {
+            try { if (reader != null) reader.close(); } catch (IOException ignore) {}
+        }
+        return result;
+    }
+    
     /**
      * Open the input file
      * @return
