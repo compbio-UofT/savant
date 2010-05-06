@@ -1282,6 +1282,13 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         rangeControls.add(ruler);
         rangeControls.add(trackButton);
         rangeControls.add(menuitem_track);
+        rangeControls.add(menuItemPanLeft);
+        rangeControls.add(menuItemPanRight);
+        rangeControls.add(menuItemZoomOut);
+        rangeControls.add(menuItemZoomIn);
+        rangeControls.add(menuItemAddToFaves);
+        rangeControls.add(menuitem_undo);
+        rangeControls.add(jMenuItem5);
 
         hideRangeControls();
     }
