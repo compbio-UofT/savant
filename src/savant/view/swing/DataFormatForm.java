@@ -46,6 +46,8 @@ public class DataFormatForm extends JDialog implements PropertyChangeListener /*
     private String outFilePath;
 
     private FormatTask formatTask;
+    // message set by format task during execution
+    private String message;
 
 
     /** Creates new form DataFormatForm */
@@ -363,7 +365,7 @@ public class DataFormatForm extends JDialog implements PropertyChangeListener /*
         formatProgressBar.setValue(0);
         formatProgressBar.setVisible(true);
 
-        setSuccess(false);
+        this.success = false; // don't use setSuccess because it fires an event
         formatTask = new FormatTask(df);
         formatTask.addPropertyChangeListener(this);
 
@@ -566,8 +568,9 @@ public class DataFormatForm extends JDialog implements PropertyChangeListener /*
     public void setSuccess(boolean success) {
         boolean oldValue = this.success;
         this.success = success;
-        if (oldValue != this.success)
-            firePropertyChange("success", oldValue, this.success);
+        // force property change support to fire the event, even if the property hasn't actually changed.
+        // this is the only way Savant has of knowing what has happened during formatting.
+        firePropertyChange("success", !this.success, this.success);
     }
 
     public String getOutputFilePath() {
@@ -589,9 +592,22 @@ public class DataFormatForm extends JDialog implements PropertyChangeListener /*
         }
     }
 
+    public FormatTask getFormatTask() {
+        return formatTask;
+    }
+    
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
     class FormatTask extends SwingWorker<Void, Void> implements /*PropertyChangeListener*/ FormatProgressListener {
 
         private DataFormatter df;
+
 
         public FormatTask(DataFormatter df) {
             this.df = df;
@@ -601,12 +617,19 @@ public class DataFormatForm extends JDialog implements PropertyChangeListener /*
 
         @Override
         public Void doInBackground() throws Exception {
+            setMessage(null);
             setProgress(0);
+            success = false; // don't use setSuccess because it fires an event
             try {
-                setSuccess(df.format());
+                df.format();
                 setProgress(100);
+                setSuccess(true);
             } catch (InterruptedException e) {
                 log.info("Format cancelled by user");
+            } catch (Throwable t) {
+                log.error("Error formatting file ", t);
+                setMessage(t.getMessage());
+                setSuccess(false);
             }
             finally {
                 return null;
@@ -630,5 +653,6 @@ public class DataFormatForm extends JDialog implements PropertyChangeListener /*
         public void progressUpdate(int value) {
             setProgress(value);
         }
+
     }
 }
