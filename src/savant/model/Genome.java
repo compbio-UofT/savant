@@ -16,6 +16,7 @@
 
 package savant.model;
 
+import savant.format.header.FileType;
 import savant.model.data.sequence.BFASTASequenceTrack;
 import savant.util.Range;
 
@@ -32,7 +33,7 @@ public class Genome
     private BFASTASequenceTrack sequenceTrack;
     private int length;
 
-    public Genome(String filename) throws FileNotFoundException, IOException {
+    public Genome(String filename) throws IOException {
         int lastSlashIndex = filename.lastIndexOf(System.getProperty("file.separator"));
         setName( filename.substring(lastSlashIndex+1, filename.length()));
         sequenceTrack = new BFASTASequenceTrack(filename);
