@@ -296,7 +296,7 @@ public class DataFormatter implements FormatProgressListener {
          *  - create a line number -> <startbyte,endbyte> map (bytes correspond to tmpfile)
          *  - create a line number -> Range map
          */
-//         System.out.println("=== STEP 1 ===");
+        log.debug("=== STEP 1 ===");
 
         int minRange = Integer.MAX_VALUE;
         int maxRange = Integer.MIN_VALUE;
@@ -308,7 +308,7 @@ public class DataFormatter implements FormatProgressListener {
 
             if (strLine.equals("")) { continue; }
 
-//            System.out.println(strLine);
+            log.debug(strLine);
 
             line = DataFormatUtils.parseTxtLine(strLine, fields);
 
@@ -324,8 +324,10 @@ public class DataFormatter implements FormatProgressListener {
             intervalIndex2IntervalRange.add(new Range(startInterval, endInterval));
             intevalIndex2StartByte.add((long)tmpOutFile.size());
 
-            //System.out.println("Writing [" + startInterval + "," + endInterval + "] to tmp file");
-            //System.out.println("Saving pointer to [" + tmpOutFile.size() + "]");
+            if (log.isDebugEnabled()) {
+                log.debug("Writing [" + startInterval + "," + endInterval + "] to tmp file");
+                log.debug("Saving pointer to [" + tmpOutFile.size() + "]");
+            }
 
             DataFormatUtils.writeBinaryRecord(tmpOutFile, line, fields, modifiers);
         }
@@ -337,7 +339,7 @@ public class DataFormatter implements FormatProgressListener {
          *  - create a bin -> List<line> map
          *  - write each bin to outfile
          */
-//        System.out.println("=== STEP 2 ===");
+        log.debug("=== STEP 2 ===");
 
         DataFormatUtils.writeFieldsHeader(outFile, fields);
         tmpOutFile.close();
@@ -360,7 +362,9 @@ public class DataFormatter implements FormatProgressListener {
         int lineNum = 0;
         for (Range r : intervalIndex2IntervalRange) {
 
-            //System.out.println("Adding :" + r);
+            if (log.isDebugEnabled()) {
+                log.debug("Adding :" + r);
+            }
 
             currentSmallestNode = ibst.getNodeWithSmallestMax();
             while (r.getFrom() > currentSmallestNode.range.getTo()) {
@@ -380,12 +384,16 @@ public class DataFormatter implements FormatProgressListener {
 
             IntervalTreeNode n = ibst.insert(r);
 
-//            System.out.println("I " + n.index + "\t" + r);
+            if (log.isDebugEnabled()) {
+                log.debug("I " + n.index + "\t" + r);
+            }
 
             if (n.range.getTo() < currentSmallestNode.range.getTo() || (n.range.getTo() == currentSmallestNode.range.getTo() && n.range.getFrom() > currentSmallestNode.range.getFrom()) )
             {
                 currentSmallestNode = n;
-                //System.out.println("Smallest max:" + currentSmallestNode.range.getTo());
+                if (log.isDebugEnabled()) {
+                    log.debug("Smallest max:" + currentSmallestNode.range.getTo());
+                }
             }
 
             //System.out.println("Adding Interval: " + r + "\tNode: " + n.range + "\tIndex: " + n.index);
@@ -399,20 +407,23 @@ public class DataFormatter implements FormatProgressListener {
             lines.add(new LinePlusRange(r,lineNum));
             nodeIndex2IntervalIndices.put(n.index, lines);
 
-            //System.out.println("Adding to node " + n.index);
+            log.debug("Adding to node " + n.index);
 
             lineNum++;
 
             if (lineNum % 500 == 0) {
-                //System.out.println("=========== " + ((lineNum *100) / intervalIndex2IntervalRange.size()) + "% done");
+                if (log.isDebugEnabled()) {
+                    log.debug("=========== " + ((lineNum *100) / intervalIndex2IntervalRange.size()) + "% done");
+                }
                 setProgress( (lineNum *100) / intervalIndex2IntervalRange.size());
                 if (Thread.interrupted()) throw new InterruptedException();
             }
         }
 
-        //System.out.println("IBST created with: " + ibst.getNumNodes() + " nodes");
-
-//        System.out.println("No intervals left to see, dumping remaining " + ibst.getNumNodes() + " nodes");
+        if (log.isDebugEnabled()) {
+            log.debug("IBST created with: " + ibst.getNumNodes() + " nodes");
+            log.debug("No intervals left to see, dumping remaining " + ibst.getNumNodes() + " nodes");
+        }
 
         while (ibst.getRoot() != null) {
             currentSmallestNode = ibst.getNodeWithSmallestMax();
@@ -431,7 +442,7 @@ public class DataFormatter implements FormatProgressListener {
         outFile.close();
         indexOutFile.close();
 
-//        System.out.println("Done formatting");
+        log.debug("Done formatting");
     }
 
 
@@ -772,11 +783,11 @@ public class DataFormatter implements FormatProgressListener {
     public int getProgress() {
         return progress;
     }
-    private void sortInput(int[] columns) throws FileNotFoundException, IOException {
+    private void sortInput(int[] columns) throws IOException {
 
         ExternalSort externalSort = new ExternalSort();
         externalSort.setInFile(inPath);
-        String sortPath = inPath + ".sort";
+        sortPath = inPath + ".sort";
         externalSort.setOutFile(sortPath);
         externalSort.setColumns(columns);
         externalSort.setNumeric(true);
