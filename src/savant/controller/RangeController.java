@@ -248,7 +248,7 @@ public class RangeController {
         if (!shiftRight) {
             direction = -1;
         }
-        int shift = (int) Math.round(direction * (percentwindow * length));
+        int shift = (int) Math.ceil(direction * (percentwindow * length)) - ( (direction == 1) ? 1 : 0);
         r = new Range(r.getFrom() + shift, r.getTo() + shift);
         setRange(r);
     }
