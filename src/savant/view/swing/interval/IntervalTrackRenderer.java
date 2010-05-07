@@ -187,7 +187,7 @@ public class IntervalTrackRenderer extends TrackRenderer {
 
             // display only a message if intervals will not be visible at this resolution
             if (unitHeight < 1) {
-                GlassMessagePane.draw(g2, gp, "Switch to 'Arc' mode to view Intervals in this range", 300);
+                GlassMessagePane.draw(g2, gp, "Increase height of window", 300);
                 return;
             }
 
