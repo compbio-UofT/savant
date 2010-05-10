@@ -397,11 +397,22 @@
     <Container class="javax.swing.JToolBar" name="jToolBar1">
       <Properties>
         <Property name="floatable" type="boolean" value="false"/>
-        <Property name="rollover" type="boolean" value="true"/>
       </Properties>
 
       <Layout class="org.netbeans.modules.form.compat2.layouts.DesignBoxLayout"/>
       <SubComponents>
+        <Component class="javax.swing.JLabel" name="label_status_title">
+          <Properties>
+            <Property name="text" type="java.lang.String" value=" Status: "/>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JLabel" name="label_status">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="load a genome"/>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JToolBar$Separator" name="jSeparator6">
+        </Component>
         <Component class="javax.swing.JLabel" name="label_mouseposition_title">
           <Properties>
             <Property name="text" type="java.lang.String" value=" Position: "/>

@@ -325,6 +325,9 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         panelExtendedMiddle = new javax.swing.JPanel();
         panel_main = new javax.swing.JPanel();
         jToolBar1 = new javax.swing.JToolBar();
+        label_status_title = new javax.swing.JLabel();
+        label_status = new javax.swing.JLabel();
+        jSeparator6 = new javax.swing.JToolBar.Separator();
         label_mouseposition_title = new javax.swing.JLabel();
         label_mouseposition = new javax.swing.JLabel();
         menuBar_top = new javax.swing.JMenuBar();
@@ -403,7 +406,13 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         );
 
         jToolBar1.setFloatable(false);
-        jToolBar1.setRollover(true);
+
+        label_status_title.setText(" Status: ");
+        jToolBar1.add(label_status_title);
+
+        label_status.setText("load a genome");
+        jToolBar1.add(label_status);
+        jToolBar1.add(jSeparator6);
 
         label_mouseposition_title.setText(" Position: ");
         jToolBar1.add(label_mouseposition_title);
@@ -799,9 +808,12 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
     private javax.swing.JSeparator jSeparator3;
     private javax.swing.JSeparator jSeparator4;
     private javax.swing.JSeparator jSeparator5;
+    private javax.swing.JToolBar.Separator jSeparator6;
     private javax.swing.JToolBar jToolBar1;
     private javax.swing.JLabel label_mouseposition;
     private javax.swing.JLabel label_mouseposition_title;
+    private javax.swing.JLabel label_status;
+    private javax.swing.JLabel label_status_title;
     private javax.swing.JMenuBar menuBar_top;
     private javax.swing.JMenuItem menuItemAddToFaves;
     private javax.swing.JMenuItem menuItemFormat;
@@ -1338,6 +1350,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         rangeControls.add(menuitem_view_plumbline);
         rangeControls.add(menuitem_view_spotlight);
         rangeControls.add(label_mouseposition); rangeControls.add(label_mouseposition_title);
+        //rangeControls.add(label_status); rangeControls.add(label_status_title);
 
         hideRangeControls();
     }
@@ -1545,7 +1558,20 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         // draw all frames
         FrameController fc = FrameController.getInstance();
 
+        // Get current time
+        long start = System.currentTimeMillis();
+
+        updateStatus("Redrawing...");
+
         fc.drawFrames();
+
+        // Get elapsed time in milliseconds
+        long elapsedTimeMillis = System.currentTimeMillis()-start;
+
+        // Get elapsed time in seconds
+        float elapsedTimeSec = elapsedTimeMillis/1000F;
+
+        updateStatus("Drawing took " + elapsedTimeSec + " seconds");
     }
 
     /** [[ GETTERS AND SETTERS ]] */
@@ -1754,6 +1780,14 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
      */
     private static String logMessageN(String s) {
         return "[" + MiscUtils.now() + "]\t" + s;
+    }
+
+    /**
+     * Update the status bar
+     * @param msg
+     */
+    private void updateStatus(String msg) {
+        this.label_status.setText(msg);
     }
 
     public enum LOGMODE { NORMAL, DEBUG };

@@ -119,7 +119,7 @@ public class RangeSelectionPanel extends JPanel implements MouseListener, MouseM
         this.y2 = event.getY();
         //this.mousePosition.setText( "Released at [" + ( this.x2 ) + ", " + ( this.y2 ) + "]" );
 
-        this.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+        //this.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
 
         //this.recStop.setText( "End:  [" + this.x2 + "]" );
 
@@ -151,12 +151,14 @@ public class RangeSelectionPanel extends JPanel implements MouseListener, MouseM
 
 // handle event when mouse enters area
     public void mouseEntered(final MouseEvent event) {
+         this.setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
         //this.mousePosition.setText( "Mouse entered at [" + event.getX() + ", " + event.getY() + "]" );
         //repaint();
     }
 
 // handle event when mouse exits area
     public void mouseExited(final MouseEvent event) {
+         this.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
         //this.mousePosition.setText( "Mouse outside window" );
         //repaint();
     }
@@ -177,7 +179,7 @@ public class RangeSelectionPanel extends JPanel implements MouseListener, MouseM
         }
         this.y2 = event.getY();
 
-        this.setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
+        //this.setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
 
         //this.mousePosition.setText( "Length : [" + Math.abs(this.x2 - this.x1) + "]" ); // call repaint which calls paint repaint();
 
