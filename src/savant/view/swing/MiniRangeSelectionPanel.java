@@ -177,7 +177,7 @@ public class MiniRangeSelectionPanel extends JPanel implements MouseListener, Mo
 // handle event when user moves mouse
     public void mouseMoved(final MouseEvent event) {
         //this.mousePosition.setText( "At [" + event.getX() + "]" );
-        repaint();
+        //repaint();
     }
 
     @Override
@@ -311,7 +311,7 @@ public class MiniRangeSelectionPanel extends JPanel implements MouseListener, Mo
 
             int minstringseparation = 200;
             int skipstring = (int) Math.round(minstringseparation / barseparation);
-            
+
             for (int i = 0; i <= numseparators; i++) {
                 g2.setColor(new Color(50,50,50,50)); //BrowserDefaults.colorAxisGrid);
                 int xOne = (int)Math.ceil(i*barseparation)+1;
@@ -320,9 +320,17 @@ public class MiniRangeSelectionPanel extends JPanel implements MouseListener, Mo
                 int yTwo = 0;
                 g2.drawLine(xOne,yOne,xTwo,yTwo);
 
-                if (i % skipstring == 0) {
-                   g2.setColor(Color.black);
-                   g2.drawString(MiscUtils.intToString(this.translatePixelToPosition(xOne-1)), (float) (xOne + 3), (float) ((this.getHeight()*0.5)+3));
+                // TODO: fix divide by zero
+                if (skipstring != 0) {
+                    if (i % skipstring == 0) {
+                        g2.setColor(Color.black);
+                        int a = MiscUtils.transformPixelToPosition(xOne, width, (RangeController.getInstance()).getRange());
+                        g2.drawString(MiscUtils.intToString(a), (float) (xOne + 3), (float) ((this.getHeight()*0.5)+3));
+                    }
+                } else {
+                    g2.setColor(Color.black);
+                    int a = MiscUtils.transformPixelToPosition(xOne, width, (RangeController.getInstance()).getRange());
+                    g2.drawString(MiscUtils.intToString(a), (float) (xOne + 3), (float) ((this.getHeight()*0.5)+3));
                 }
             }
         }

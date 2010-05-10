@@ -85,11 +85,11 @@ public class RangeSelectionPanel extends JPanel implements MouseListener, MouseM
     public void mousePressed(final MouseEvent event) {
 
         this.x1 = event.getX();
-        if (this.x1 < this.minimum) {
-            this.x1 = this.minimum;
+        if (this.x1 < 1) {
+            this.x1 = 1;
         }
-        if (this.x1 > this.maximum) {
-            this.x1 = this.maximum;
+        if (this.x1 > this.getWidth()) {
+            this.x1 = this.getWidth();
         }
         this.y1 = event.getY();
 
@@ -110,11 +110,11 @@ public class RangeSelectionPanel extends JPanel implements MouseListener, MouseM
         isDragging = false;
 
         this.x2 = event.getX();
-        if (this.x2 < this.minimum) {
-            this.x2 = this.minimum;
+        if (this.x2 < 1) {
+            this.x2 = 1;
         }
-        if (this.x2 > this.maximum) {
-            this.x2 = this.maximum;
+        if (this.x2 > this.getWidth()) {
+            this.x2 = this.getWidth();
         }
         this.y2 = event.getY();
         //this.mousePosition.setText( "Released at [" + ( this.x2 ) + ", " + ( this.y2 ) + "]" );
@@ -131,7 +131,22 @@ public class RangeSelectionPanel extends JPanel implements MouseListener, MouseM
             st = this.x2;
             end = this.x1;
         }
-        fireRangeSelectionChangedEvent(new Range(translatePixelToPosition(st), translatePixelToPosition(end)));
+
+        int startRange, endRange;
+        
+        if (st < 2) {
+            startRange = RangeController.getInstance().getMaxRangeStart();
+        } else {
+             startRange = translatePixelToPosition(st);
+        }
+
+        if (end > this.getWidth()-2) {
+            endRange = RangeController.getInstance().getMaxRangeEnd();
+        } else {
+            endRange = translatePixelToPosition(end);
+        }
+        
+        fireRangeSelectionChangedEvent(new Range(startRange, endRange));
     }
 
 // handle event when mouse enters area
@@ -154,11 +169,11 @@ public class RangeSelectionPanel extends JPanel implements MouseListener, MouseM
         isDragging = true;
 
         this.x2 = event.getX();
-        if (this.x2 < this.minimum) {
-            this.x2 = this.minimum;
+        if (this.x2 < 1) {
+            this.x2 = 1;
         }
-        if (this.x2 > this.maximum) {
-            this.x2 = this.maximum;
+        if (this.x2 > this.getWidth()) {
+            this.x2 = this.getWidth();
         }
         this.y2 = event.getY();
 
@@ -186,8 +201,6 @@ public class RangeSelectionPanel extends JPanel implements MouseListener, MouseM
 
         int wid = getWidth();
         int hei = getHeight();
-
-        
 
         Graphics2D g2d0 = (Graphics2D) g;
 
@@ -218,10 +231,10 @@ public class RangeSelectionPanel extends JPanel implements MouseListener, MouseM
                 0, h, BrowserDefaults.colorRangeSelectionBottom);
 
         g2d.setPaint(gp);
-        g2d.fillRect(this.x, this.y, this.w, this.h);
+        g2d.fillRect(this.x-1, this.y, this.w, this.h);
 
         g.setColor(new Color(100, 100, 100));
-        g.drawRect(this.x, this.y, this.w, this.h);
+        g.drawRect(this.x-1, this.y, this.w, this.h);
 
         int numlines = 4;
         double space = ((double) this.getWidth()) / numlines;
@@ -245,8 +258,8 @@ public class RangeSelectionPanel extends JPanel implements MouseListener, MouseM
                 from = MiscUtils.intToString(r.getFrom());
                 to = MiscUtils.intToString(r.getTo());
             } else {
-                from = MiscUtils.intToString(translatePixelToPosition(fromX));
-                to = MiscUtils.intToString(translatePixelToPosition(toX));
+                from = MiscUtils.intToString(MiscUtils.transformPixelToPosition(fromX, this.getWidth(), RangeController.getInstance().getMaxRange()));
+                to = MiscUtils.intToString(MiscUtils.transformPixelToPosition(toX, this.getWidth(), RangeController.getInstance().getMaxRange()));
             }
 
             FontMetrics metrics = g.getFontMetrics(g.getFont());

@@ -144,6 +144,8 @@ public class BAMToTuples {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         }
     }
+
+    
     private String guessSequence(int sequenceLength) {
 
         SAMFileHeader fileHeader = samFileReader.getFileHeader();

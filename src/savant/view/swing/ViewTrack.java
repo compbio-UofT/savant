@@ -129,7 +129,7 @@ public abstract class ViewTrack {
             }
 
             // create the coverage track
-            String sequenceName = BAMIntervalTrack.guessSequence(new File(trackFilename), new File(indexFilename));
+            String sequenceName = BAMParametersDialog.guessSequence(new File(trackFilename), new File(indexFilename));
             try {
                 File coverageDir = new File(nameWithoutExtension + "_cov");
                 if (coverageDir.exists()) {

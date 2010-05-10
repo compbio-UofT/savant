@@ -62,6 +62,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import savant.controller.GraphPaneController;
+import savant.controller.GraphPaneController;
 import savant.format.header.FileType;
 import savant.plugin.AuxData;
 import savant.plugin.PluginAdapter;
@@ -318,10 +320,13 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        view_buttongroup = new javax.swing.ButtonGroup();
         panel_top = new javax.swing.JPanel();
         panelExtendedMiddle = new javax.swing.JPanel();
         panel_main = new javax.swing.JPanel();
-        panel_bottom = new javax.swing.JPanel();
+        jToolBar1 = new javax.swing.JToolBar();
+        label_mouseposition_title = new javax.swing.JLabel();
+        label_mouseposition = new javax.swing.JLabel();
         menuBar_top = new javax.swing.JMenuBar();
         menu_file = new javax.swing.JMenu();
         menu_load = new javax.swing.JMenu();
@@ -348,6 +353,9 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         menuItemPanRight = new javax.swing.JMenuItem();
         menuItemZoomIn = new javax.swing.JMenuItem();
         menuItemZoomOut = new javax.swing.JMenuItem();
+        jSeparator5 = new javax.swing.JSeparator();
+        menuitem_view_plumbline = new javax.swing.JCheckBoxMenuItem();
+        menuitem_view_spotlight = new javax.swing.JCheckBoxMenuItem();
         menu_plugins = new javax.swing.JMenu();
         menuitem_pluginmanager = new javax.swing.JMenuItem();
         menu_help = new javax.swing.JMenu();
@@ -356,62 +364,58 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setBackground(new java.awt.Color(204, 204, 204));
 
-        panel_top.setMaximumSize(new java.awt.Dimension(1000, 50));
+        panel_top.setMaximumSize(new java.awt.Dimension(1000, 30));
         panel_top.setMinimumSize(new java.awt.Dimension(0, 0));
-        panel_top.setPreferredSize(new java.awt.Dimension(0, 50));
+        panel_top.setPreferredSize(new java.awt.Dimension(0, 30));
         panel_top.setLayout(new java.awt.BorderLayout());
 
-        panelExtendedMiddle.setBackground(new java.awt.Color(204, 204, 204));
+        panelExtendedMiddle.setBackground(new java.awt.Color(102, 102, 255));
         panelExtendedMiddle.setMinimumSize(new java.awt.Dimension(0, 0));
-        panelExtendedMiddle.setPreferredSize(new java.awt.Dimension(990, 30));
+        panelExtendedMiddle.setPreferredSize(new java.awt.Dimension(990, 25));
 
         javax.swing.GroupLayout panelExtendedMiddleLayout = new javax.swing.GroupLayout(panelExtendedMiddle);
         panelExtendedMiddle.setLayout(panelExtendedMiddleLayout);
         panelExtendedMiddleLayout.setHorizontalGroup(
             panelExtendedMiddleLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 1000, Short.MAX_VALUE)
+            .addGap(0, 808, Short.MAX_VALUE)
         );
         panelExtendedMiddleLayout.setVerticalGroup(
             panelExtendedMiddleLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 39, Short.MAX_VALUE)
+            .addGap(0, 30, Short.MAX_VALUE)
         );
 
         panel_top.add(panelExtendedMiddle, java.awt.BorderLayout.CENTER);
 
         panel_main.setBackground(new java.awt.Color(153, 153, 153));
+        panel_main.setMaximumSize(new java.awt.Dimension(99999, 99999));
         panel_main.setMinimumSize(new java.awt.Dimension(500, 500));
-        panel_main.setPreferredSize(new java.awt.Dimension(500, 300));
+        panel_main.setPreferredSize(new java.awt.Dimension(99999, 99999));
 
         javax.swing.GroupLayout panel_mainLayout = new javax.swing.GroupLayout(panel_main);
         panel_main.setLayout(panel_mainLayout);
         panel_mainLayout.setHorizontalGroup(
             panel_mainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 1000, Short.MAX_VALUE)
+            .addGap(0, 808, Short.MAX_VALUE)
         );
         panel_mainLayout.setVerticalGroup(
             panel_mainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 511, Short.MAX_VALUE)
+            .addGap(0, 531, Short.MAX_VALUE)
         );
 
-        panel_bottom.setMinimumSize(new java.awt.Dimension(520, 5));
-        panel_bottom.setPreferredSize(new java.awt.Dimension(100, 5));
+        jToolBar1.setFloatable(false);
+        jToolBar1.setRollover(true);
 
-        javax.swing.GroupLayout panel_bottomLayout = new javax.swing.GroupLayout(panel_bottom);
-        panel_bottom.setLayout(panel_bottomLayout);
-        panel_bottomLayout.setHorizontalGroup(
-            panel_bottomLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 1000, Short.MAX_VALUE)
-        );
-        panel_bottomLayout.setVerticalGroup(
-            panel_bottomLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 10, Short.MAX_VALUE)
-        );
+        label_mouseposition_title.setText(" Position: ");
+        jToolBar1.add(label_mouseposition_title);
+
+        label_mouseposition.setText("mouse over track");
+        jToolBar1.add(label_mouseposition);
 
         menu_file.setText("File");
 
         menu_load.setText("Load...");
 
-        menuitem_genome.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_G, osSpecificModifier));
+        menuitem_genome.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_G, java.awt.event.InputEvent.CTRL_MASK));
         menuitem_genome.setText("Genome");
         menuitem_genome.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -420,7 +424,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         });
         menu_load.add(menuitem_genome);
 
-        menuitem_track.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_T, osSpecificModifier));
+        menuitem_track.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_T, java.awt.event.InputEvent.CTRL_MASK));
         menuitem_track.setText("Track");
         menuitem_track.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -431,7 +435,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
 
         menu_file.add(menu_load);
 
-        menuItemFormat.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F, osSpecificModifier));
+        menuItemFormat.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F, java.awt.event.InputEvent.CTRL_MASK));
         menuItemFormat.setText("Format");
         menuItemFormat.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -439,7 +443,6 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
             }
         });
         menu_file.add(menuItemFormat);
-
 
         submenu_download.setText("Download");
 
@@ -470,8 +473,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         menu_file.add(submenu_download);
         menu_file.add(jSeparator3);
 
-
-        menuitem_screen.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_S, osSpecificModifier));
+        menuitem_screen.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_S, java.awt.event.InputEvent.CTRL_MASK));
         menuitem_screen.setText("Screenshot");
         menuitem_screen.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -481,7 +483,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         menu_file.add(menuitem_screen);
         menu_file.add(jSeparator4);
 
-        menuitem_exit.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Q, osSpecificModifier));
+        menuitem_exit.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F4, java.awt.event.InputEvent.ALT_MASK));
         menuitem_exit.setText("Exit");
         menuitem_exit.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -494,7 +496,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
 
         menu_edit.setText("Edit");
 
-        menuitem_undo.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Z, osSpecificModifier));
+        menuitem_undo.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Z, java.awt.event.InputEvent.CTRL_MASK));
         menuitem_undo.setText("Undo Range Change");
         menuitem_undo.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -503,7 +505,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         });
         menu_edit.add(menuitem_undo);
 
-        jMenuItem5.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Y, osSpecificModifier));
+        jMenuItem5.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Y, java.awt.event.InputEvent.CTRL_MASK));
         jMenuItem5.setText("Redo Range Change");
         jMenuItem5.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -513,7 +515,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         menu_edit.add(jMenuItem5);
         menu_edit.add(jSeparator2);
 
-        menuItemAddToFaves.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_B, osSpecificModifier));
+        menuItemAddToFaves.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_D, java.awt.event.InputEvent.CTRL_MASK));
         menuItemAddToFaves.setText("Bookmark");
         menuItemAddToFaves.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -526,7 +528,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
 
         menu_view.setText("View");
 
-        menuItem_viewRangeControls.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_R, java.awt.event.InputEvent.SHIFT_MASK | osSpecificModifier));
+        menuItem_viewRangeControls.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_R, java.awt.event.InputEvent.SHIFT_MASK | java.awt.event.InputEvent.CTRL_MASK));
         menuItem_viewRangeControls.setSelected(true);
         menuItem_viewRangeControls.setText("Range Control Menu");
         menuItem_viewRangeControls.addActionListener(new java.awt.event.ActionListener() {
@@ -537,7 +539,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         menu_view.add(menuItem_viewRangeControls);
         menu_view.add(jSeparator1);
 
-        menuItemPanLeft.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_LEFT, osSpecificModifier));
+        menuItemPanLeft.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_LEFT, java.awt.event.InputEvent.SHIFT_MASK));
         menuItemPanLeft.setText("Pan Left");
         menuItemPanLeft.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -546,7 +548,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         });
         menu_view.add(menuItemPanLeft);
 
-        menuItemPanRight.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_RIGHT, osSpecificModifier));
+        menuItemPanRight.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_RIGHT, java.awt.event.InputEvent.SHIFT_MASK));
         menuItemPanRight.setText("Pan Right");
         menuItemPanRight.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -555,7 +557,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         });
         menu_view.add(menuItemPanRight);
 
-        menuItemZoomIn.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_UP, osSpecificModifier));
+        menuItemZoomIn.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_UP, java.awt.event.InputEvent.SHIFT_MASK));
         menuItemZoomIn.setText("Zoom In");
         menuItemZoomIn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -564,7 +566,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         });
         menu_view.add(menuItemZoomIn);
 
-        menuItemZoomOut.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_DOWN, osSpecificModifier));
+        menuItemZoomOut.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_DOWN, java.awt.event.InputEvent.SHIFT_MASK));
         menuItemZoomOut.setText("Zoom Out");
         menuItemZoomOut.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -572,6 +574,25 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
             }
         });
         menu_view.add(menuItemZoomOut);
+        menu_view.add(jSeparator5);
+
+        menuitem_view_plumbline.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_K, java.awt.event.InputEvent.CTRL_MASK));
+        menuitem_view_plumbline.setText("Plumbline");
+        menuitem_view_plumbline.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                menuitem_view_plumblineActionPerformed(evt);
+            }
+        });
+        menu_view.add(menuitem_view_plumbline);
+
+        menuitem_view_spotlight.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_L, java.awt.event.InputEvent.CTRL_MASK));
+        menuitem_view_spotlight.setText("Spotlight");
+        menuitem_view_spotlight.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                menuitem_view_spotlightActionPerformed(evt);
+            }
+        });
+        menu_view.add(menuitem_view_spotlight);
 
         menuBar_top.add(menu_view);
 
@@ -589,7 +610,6 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
 
         menu_help.setText("Help");
 
-
         jMenuItem1.setText("Website");
         jMenuItem1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -597,7 +617,6 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
             }
         });
         menu_help.add(jMenuItem1);
-        
 
         menuBar_top.add(menu_help);
 
@@ -607,18 +626,18 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(panel_bottom, javax.swing.GroupLayout.DEFAULT_SIZE, 1000, Short.MAX_VALUE)
-            .addComponent(panel_top, javax.swing.GroupLayout.DEFAULT_SIZE, 1000, Short.MAX_VALUE)
-            .addComponent(panel_main, javax.swing.GroupLayout.DEFAULT_SIZE, 1000, Short.MAX_VALUE)
+            .addComponent(panel_top, javax.swing.GroupLayout.DEFAULT_SIZE, 808, Short.MAX_VALUE)
+            .addComponent(jToolBar1, javax.swing.GroupLayout.DEFAULT_SIZE, 808, Short.MAX_VALUE)
+            .addComponent(panel_main, javax.swing.GroupLayout.DEFAULT_SIZE, 808, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addComponent(panel_top, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(panel_top, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 0, 0)
-                .addComponent(panel_main, javax.swing.GroupLayout.DEFAULT_SIZE, 511, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(panel_bottom, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addComponent(panel_main, javax.swing.GroupLayout.DEFAULT_SIZE, 531, Short.MAX_VALUE)
+                .addGap(0, 0, 0)
+                .addComponent(jToolBar1, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
         pack();
@@ -744,6 +763,16 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         pd.setVisible(true);
     }//GEN-LAST:event_menuitem_pluginmanagerActionPerformed
 
+    private void menuitem_view_plumblineActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuitem_view_plumblineActionPerformed
+        GraphPaneController gpc = GraphPaneController.getInstance();
+        gpc.setPlumbing(this.menuitem_view_plumbline.isSelected());
+    }//GEN-LAST:event_menuitem_view_plumblineActionPerformed
+
+    private void menuitem_view_spotlightActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuitem_view_spotlightActionPerformed
+        GraphPaneController gpc = GraphPaneController.getInstance();
+        gpc.setSpotlight(this.menuitem_view_spotlight.isSelected());
+    }//GEN-LAST:event_menuitem_view_spotlightActionPerformed
+
     /**
      * Starts an instance of the Savant Browser
      * @param args the command line arguments
@@ -769,6 +798,10 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
     private javax.swing.JPopupMenu.Separator jSeparator2;
     private javax.swing.JSeparator jSeparator3;
     private javax.swing.JSeparator jSeparator4;
+    private javax.swing.JSeparator jSeparator5;
+    private javax.swing.JToolBar jToolBar1;
+    private javax.swing.JLabel label_mouseposition;
+    private javax.swing.JLabel label_mouseposition_title;
     private javax.swing.JMenuBar menuBar_top;
     private javax.swing.JMenuItem menuItemAddToFaves;
     private javax.swing.JMenuItem menuItemFormat;
@@ -792,11 +825,13 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
     private javax.swing.JMenuItem menuitem_track;
     private javax.swing.JMenuItem menuitem_ucsc;
     private javax.swing.JMenuItem menuitem_undo;
+    private javax.swing.JCheckBoxMenuItem menuitem_view_plumbline;
+    private javax.swing.JCheckBoxMenuItem menuitem_view_spotlight;
     private javax.swing.JPanel panelExtendedMiddle;
-    private javax.swing.JPanel panel_bottom;
     private javax.swing.JPanel panel_main;
     private javax.swing.JPanel panel_top;
     private javax.swing.JMenu submenu_download;
+    private javax.swing.ButtonGroup view_buttongroup;
     // End of variables declaration//GEN-END:variables
 
 
@@ -1300,6 +1335,9 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         rangeControls.add(menuItemAddToFaves);
         rangeControls.add(menuitem_undo);
         rangeControls.add(jMenuItem5);
+        rangeControls.add(menuitem_view_plumbline);
+        rangeControls.add(menuitem_view_spotlight);
+        rangeControls.add(label_mouseposition); rangeControls.add(label_mouseposition_title);
 
         hideRangeControls();
     }
@@ -1798,5 +1836,12 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
             }
 
         }
+    }
+
+    public void updateMousePosition() {
+        GraphPaneController gpc = GraphPaneController.getInstance();
+        int x = gpc.getMouseXPosition();
+        int y = gpc.getMouseYPosition();
+        this.label_mouseposition.setText("X: " + MiscUtils.intToString(x) + ((y == -1) ? "" : " Y: " +  MiscUtils.intToString(y)));
     }
 }

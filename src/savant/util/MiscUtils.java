@@ -99,4 +99,28 @@ public class MiscUtils {
             }
         }
     }
+
+    /**
+     * Translate a pixel to a (genome) position
+     * @param pixel The pixel to transform
+     * @param widthOfComponent The width of the component in which the pixel occurs
+     * @param positionalRange The (genome) range the componentn applies to
+     * @return The position represented by the pixel
+     */
+    public static int transformPixelToPosition(int pixel, int widthOfComponent, Range positionalRange) {
+        double positionsperpixel = ((double)positionalRange.getLength()) / widthOfComponent;
+        return positionalRange.getFrom() + (int) Math.round(positionsperpixel*pixel);
+    }
+
+    /**
+     * Translate a (genome) position to a pixel
+     * @param pixel The pixel to transform
+     * @param widthOfComponent The width of the component in which the pixel occurs
+     * @param positionalRange The (genome) range the componentn applies to
+     * @return The pixel represented by the position
+     */
+    public static int transformPositionToPixel(int position, int widthOfComponent, Range positionalRange) {
+         double pixelsperposition = ((double) widthOfComponent) / positionalRange.getLength();
+         return (int) Math.round((position - positionalRange.getFrom())*pixelsperposition);
+    }
 }
