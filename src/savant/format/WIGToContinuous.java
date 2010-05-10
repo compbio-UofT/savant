@@ -167,7 +167,9 @@ public class WIGToContinuous {
 
                     lineIn = reader.readLine();
                     // update bytes read from input
-                    this.byteCount += lineIn.getBytes().length;
+                    if (lineIn != null) {
+                        this.byteCount += lineIn.getBytes().length;
+                    }
 
                 }
                 // check to see if format has been cancelled

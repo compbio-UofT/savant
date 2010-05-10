@@ -379,6 +379,7 @@ public class DataFormatUtils {
                     break;
                 case FLOAT:
                     recordSize += DataFormatUtils.FLOAT_FIELD_SIZE;
+                    break;
                 case BOOLEAN:
                     // TODO: change?!
                     recordSize += DataFormatUtils.INT_FIELD_SIZE;

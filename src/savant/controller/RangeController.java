@@ -36,6 +36,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Stack;
+import savant.view.swing.Savant;
 
 public class RangeController {
 
@@ -118,6 +119,7 @@ public class RangeController {
      */
     public void setRange(Range r) {
         log.debug("Setting range to " + r);
+        Savant.log("Setting range to " + r, Savant.LOGMODE.NORMAL);
 
         if (shouldClearRedoStack && this.currentViewableRange != null) {
             redoStack.clear();
@@ -246,7 +248,7 @@ public class RangeController {
         if (!shiftRight) {
             direction = -1;
         }
-        int shift = (int) Math.round(direction * (percentwindow * length));
+        int shift = (int) Math.ceil(direction * (percentwindow * length)) - ( (direction == 1) ? 1 : 0);
         r = new Range(r.getFrom() + shift, r.getTo() + shift);
         setRange(r);
     }

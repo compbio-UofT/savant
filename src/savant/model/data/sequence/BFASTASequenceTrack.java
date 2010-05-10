@@ -22,6 +22,7 @@
 package savant.model.data.sequence;
 
 import savant.format.SavantFile;
+import savant.format.header.FileType;
 import savant.util.DataFormatUtils;
 import savant.util.Range;
 
@@ -37,8 +38,8 @@ public class BFASTASequenceTrack implements SequenceTrack {
     private int length = -1;
     SavantFile dFile;
 
-    public BFASTASequenceTrack(String fileName) throws FileNotFoundException, IOException {
-        this.dFile = new SavantFile(fileName);
+    public BFASTASequenceTrack(String fileName) throws IOException {
+        this.dFile = new SavantFile(fileName, FileType.SEQUENCE_FASTA);
     }
 
     public int getLength() {

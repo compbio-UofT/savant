@@ -34,6 +34,7 @@ import savant.util.Bookmark;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import savant.view.swing.Savant;
 
 public class BookmarkController {
 
@@ -58,6 +59,7 @@ public class BookmarkController {
     }
 
     public void addBookmark(Bookmark f) {
+        Savant.log("Bookmark added", Savant.LOGMODE.NORMAL);
         this.bookmarks.add(f);
         this.fireFavoritesChangedEvent();
     }
@@ -68,6 +70,7 @@ public class BookmarkController {
 
     public void removeBookmark(int index) {
         try {
+            Savant.log("Bookmark removed", Savant.LOGMODE.NORMAL);
             this.bookmarks.remove(index);
             this.fireFavoritesChangedEvent();
         } catch(Exception e) {}

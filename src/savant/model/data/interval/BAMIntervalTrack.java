@@ -72,14 +72,17 @@ public class BAMIntervalTrack implements RecordTrack<BAMIntervalRecord> {
             while (recordIterator.hasNext()) {
                 samRecord = recordIterator.next();
                 // don't keep unmapped reads or their mates
-                if (samRecord.getReadUnmappedFlag() || !samRecord.getReadPairedFlag() || samRecord.getMateUnmappedFlag()) continue;
+//                if (samRecord.getReadUnmappedFlag() || !samRecord.getReadPairedFlag() || samRecord.getMateUnmappedFlag()) continue;
+                if (samRecord.getReadUnmappedFlag()) continue;
                 bamRecord = new BAMIntervalRecord(samRecord);
 
                 // find out the type of the pair
-                BAMIntervalRecord.PairType type = getPairType(samRecord.getAlignmentStart(), samRecord.getMateAlignmentStart(), samRecord.getReadNegativeStrandFlag(), samRecord.getMateNegativeStrandFlag());
-                bamRecord.setType(type);
-                // pre-calculate the insert size in case it's needed
-                bamRecord.setInsertSize(inferInsertSize(samRecord, type));
+                if (samRecord.getReadPairedFlag()) {
+                    BAMIntervalRecord.PairType type = getPairType(samRecord.getAlignmentStart(), samRecord.getMateAlignmentStart(), samRecord.getReadNegativeStrandFlag(), samRecord.getMateNegativeStrandFlag());
+                    bamRecord.setType(type);
+                    // pre-calculate the insert size in case it's needed
+                    bamRecord.setInsertSize(inferInsertSize(samRecord, type));
+                }
 
                 result.add(bamRecord);
             }

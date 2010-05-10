@@ -98,12 +98,19 @@ public class DataFormatter implements FormatProgressListener {
      * Formats the file
      * @return
      */
-    public boolean format() throws InterruptedException {
+    public boolean format() throws InterruptedException, IOException {
 
-        try {
+        try{
 
             // FIXME: another hack for coverage files
             if (this.fileType != FileType.INTERVAL_BAM) {
+
+                // check that it really is a text file
+                if (!verifyTextFile(inPath)) {
+                    throw new IOException("Not a text file");
+                }
+
+                // create output file and write header
                 outFile = this.openNewOutputFile();
                 DataFormatUtils.writeFileTypeHeader(outFile, new FileTypeHeader(this.fileType,this.currentVersion));
             }
@@ -136,13 +143,6 @@ public class DataFormatter implements FormatProgressListener {
                 default:
                     return false;
             }
-
-        } catch (IOException e) {
-            log.error("Error formatting file " + inPath, e);
-            return false;
-        } catch (Throwable t) {
-            log.error("Unexpected error formatting file " + inPath, t);
-            return false;
         }
         finally {
 
@@ -209,6 +209,7 @@ public class DataFormatter implements FormatProgressListener {
      */
     private void formatAsContinuousGeneric() throws IOException, InterruptedException {
 
+
         // Initialize the total size of the input file, for purposes of tracking progress
         this.totalBytes = new File(inPath).length();
 
@@ -257,6 +258,7 @@ public class DataFormatter implements FormatProgressListener {
      */
     private void formatAsContinuousWIG() throws IOException, InterruptedException {
 
+
         WIGToContinuous wtc = new WIGToContinuous(this.inPath, this.outPath);
         wtc.addProgressListener(this);
         wtc.format();
@@ -279,6 +281,7 @@ public class DataFormatter implements FormatProgressListener {
     // TODO: interrupts and progress
     private void formatAsInterval(List<FieldType> fields, List<Object> modifiers) throws FileNotFoundException, IOException, InterruptedException {
 
+
         List<Range> intervalIndex2IntervalRange = new ArrayList<Range>();
         List<Long> intevalIndex2StartByte = new ArrayList<Long>();
 
@@ -293,7 +296,7 @@ public class DataFormatter implements FormatProgressListener {
          *  - create a line number -> <startbyte,endbyte> map (bytes correspond to tmpfile)
          *  - create a line number -> Range map
          */
-         System.out.println("=== STEP 1 ===");
+        log.debug("=== STEP 1 ===");
 
         int minRange = Integer.MAX_VALUE;
         int maxRange = Integer.MIN_VALUE;
@@ -305,7 +308,7 @@ public class DataFormatter implements FormatProgressListener {
 
             if (strLine.equals("")) { continue; }
 
-            System.out.println(strLine);
+            log.debug(strLine);
 
             line = DataFormatUtils.parseTxtLine(strLine, fields);
 
@@ -321,8 +324,10 @@ public class DataFormatter implements FormatProgressListener {
             intervalIndex2IntervalRange.add(new Range(startInterval, endInterval));
             intevalIndex2StartByte.add((long)tmpOutFile.size());
 
-            //System.out.println("Writing [" + startInterval + "," + endInterval + "] to tmp file");
-            //System.out.println("Saving pointer to [" + tmpOutFile.size() + "]");
+            if (log.isDebugEnabled()) {
+                log.debug("Writing [" + startInterval + "," + endInterval + "] to tmp file");
+                log.debug("Saving pointer to [" + tmpOutFile.size() + "]");
+            }
 
             DataFormatUtils.writeBinaryRecord(tmpOutFile, line, fields, modifiers);
         }
@@ -334,7 +339,7 @@ public class DataFormatter implements FormatProgressListener {
          *  - create a bin -> List<line> map
          *  - write each bin to outfile
          */
-        System.out.println("=== STEP 2 ===");
+        log.debug("=== STEP 2 ===");
 
         DataFormatUtils.writeFieldsHeader(outFile, fields);
         tmpOutFile.close();
@@ -357,7 +362,9 @@ public class DataFormatter implements FormatProgressListener {
         int lineNum = 0;
         for (Range r : intervalIndex2IntervalRange) {
 
-            //System.out.println("Adding :" + r);
+            if (log.isDebugEnabled()) {
+                log.debug("Adding :" + r);
+            }
 
             currentSmallestNode = ibst.getNodeWithSmallestMax();
             while (r.getFrom() > currentSmallestNode.range.getTo()) {
@@ -377,12 +384,16 @@ public class DataFormatter implements FormatProgressListener {
 
             IntervalTreeNode n = ibst.insert(r);
 
-            System.out.println("I " + n.index + "\t" + r);
+            if (log.isDebugEnabled()) {
+                log.debug("I " + n.index + "\t" + r);
+            }
 
             if (n.range.getTo() < currentSmallestNode.range.getTo() || (n.range.getTo() == currentSmallestNode.range.getTo() && n.range.getFrom() > currentSmallestNode.range.getFrom()) )
             {
                 currentSmallestNode = n;
-                //System.out.println("Smallest max:" + currentSmallestNode.range.getTo());
+                if (log.isDebugEnabled()) {
+                    log.debug("Smallest max:" + currentSmallestNode.range.getTo());
+                }
             }
 
             //System.out.println("Adding Interval: " + r + "\tNode: " + n.range + "\tIndex: " + n.index);
@@ -396,20 +407,23 @@ public class DataFormatter implements FormatProgressListener {
             lines.add(new LinePlusRange(r,lineNum));
             nodeIndex2IntervalIndices.put(n.index, lines);
 
-            //System.out.println("Adding to node " + n.index);
+            log.debug("Adding to node " + n.index);
 
             lineNum++;
 
             if (lineNum % 500 == 0) {
-                //System.out.println("=========== " + ((lineNum *100) / intervalIndex2IntervalRange.size()) + "% done");
+                if (log.isDebugEnabled()) {
+                    log.debug("=========== " + ((lineNum *100) / intervalIndex2IntervalRange.size()) + "% done");
+                }
                 setProgress( (lineNum *100) / intervalIndex2IntervalRange.size());
                 if (Thread.interrupted()) throw new InterruptedException();
             }
         }
 
-        //System.out.println("IBST created with: " + ibst.getNumNodes() + " nodes");
-
-        System.out.println("No intervals left to see, dumping remaining " + ibst.getNumNodes() + " nodes");
+        if (log.isDebugEnabled()) {
+            log.debug("IBST created with: " + ibst.getNumNodes() + " nodes");
+            log.debug("No intervals left to see, dumping remaining " + ibst.getNumNodes() + " nodes");
+        }
 
         while (ibst.getRoot() != null) {
             currentSmallestNode = ibst.getNodeWithSmallestMax();
@@ -428,14 +442,14 @@ public class DataFormatter implements FormatProgressListener {
         outFile.close();
         indexOutFile.close();
 
-        System.out.println("Done formatting");
+        log.debug("Done formatting");
     }
 
 
     /*
      * INTERVAL : GENERIC
      */
-    private void formatAsIntervalGeneric() throws FileNotFoundException, IOException, InterruptedException {
+    private void formatAsIntervalGeneric() throws IOException, InterruptedException {
 
         // pre-sort by start position
         int[] columns = {0,1};
@@ -457,7 +471,7 @@ public class DataFormatter implements FormatProgressListener {
         new File(sortPath).delete();
     }
 
-    private void formatAsIntervalGFF() throws FileNotFoundException, IOException, InterruptedException {
+    private void formatAsIntervalGFF() throws IOException, InterruptedException {
 
         // pre-sort by start position
         int[] columns = {3,4};
@@ -492,7 +506,7 @@ public class DataFormatter implements FormatProgressListener {
 
     }
 
-    private void formatAsIntervalBED() throws FileNotFoundException, IOException, InterruptedException {
+    private void formatAsIntervalBED() throws IOException, InterruptedException {
 
         // pre-sort by start position
         int[] columns = {1,2};
@@ -769,11 +783,11 @@ public class DataFormatter implements FormatProgressListener {
     public int getProgress() {
         return progress;
     }
-    private void sortInput(int[] columns) throws FileNotFoundException, IOException {
+    private void sortInput(int[] columns) throws IOException {
 
         ExternalSort externalSort = new ExternalSort();
         externalSort.setInFile(inPath);
-        String sortPath = inPath + ".sort";
+        sortPath = inPath + ".sort";
         externalSort.setOutFile(sortPath);
         externalSort.setColumns(columns);
         externalSort.setNumeric(true);
@@ -838,6 +852,28 @@ public class DataFormatter implements FormatProgressListener {
 
     }
 
+    private boolean verifyTextFile(String fileName) {
+        boolean result = false;
+        BufferedReader reader=null;
+        try {
+            reader = new BufferedReader(new FileReader(fileName));
+            char[] readBuf = new char[1000];
+            int charsRead = reader.read(readBuf);
+            if (charsRead != -1) {
+                String readStr = new String(readBuf);
+                if (readStr.contains("\r") || readStr.contains("\n")) {
+                    // newline found in first 1000 characters, probably is a text file
+                    result = true;
+                }
+            }
+        } catch (IOException e) {
+            // result will be false
+        } finally {
+            try { if (reader != null) reader.close(); } catch (IOException ignore) {}
+        }
+        return result;
+    }
+    
     /**
      * Open the input file
      * @return

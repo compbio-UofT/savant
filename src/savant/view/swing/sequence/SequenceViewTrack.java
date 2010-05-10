@@ -97,7 +97,7 @@ public class SequenceViewTrack extends ViewTrack {
     {
         int length = range.getLength();
 
-        if (length > 100000) { return Resolution.VERY_LOW; }
+        if (length > 50000) { return Resolution.VERY_LOW; }
         return Resolution.VERY_HIGH;
     }
 

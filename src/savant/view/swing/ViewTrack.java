@@ -85,7 +85,7 @@ public abstract class ViewTrack {
      * @param trackFilename
      * @return List of ViewTrack which can be added to a Fram
      */
-    public static List<ViewTrack> create(String trackFilename) {
+    public static List<ViewTrack> create(String trackFilename) throws IOException {
 
         System.out.println("Opening track " + trackFilename);
 
@@ -179,12 +179,13 @@ public abstract class ViewTrack {
                         viewTrack = new BEDViewTrack(name, (BEDIntervalTrack)dataTrack);
                         break;
                     default:
-                        throw new Exception("Unrecognized file format");
+                        Savant s = Savant.getInstance();
+                        s.promptUserToFormatFile(trackFilename, "This file does not appear to be formatted. Format now?");
                 }
                 if (viewTrack != null) results.add(viewTrack);
-            } catch (Exception e) {
+            } catch (IOException e) {
                 Savant s = Savant.getInstance();
-                s.promptUserToFormatFile(trackFilename);
+                s.promptUserToFormatFile(trackFilename, e.getMessage());
             }
         }
 

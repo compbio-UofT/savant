@@ -128,7 +128,13 @@ public class RAFUtils {
         fields.add(FieldType.INTEGER);
         fields.add(FieldType.INTEGER);
         List<Object> record = readBinaryRecord(raf,fields);
-        FileTypeHeader fth = new FileTypeHeader( FileType.fromMagicNumber((Integer) record.get(0)), (Integer) record.get(1));
+        Integer magicNumber = (Integer) record.get(0);
+        FileTypeHeader fth = new FileTypeHeader( FileType.fromMagicNumber(magicNumber), (Integer) record.get(1));
+        if (fth.fileType == null) {
+            if (littleEndian(magicNumber)) {
+                throw new IOException("File is LITTLE_ENDIAN.");
+            }
+        }
         return fth;
     }
 
@@ -257,5 +263,23 @@ public class RAFUtils {
      */
     public static void seekToEnd(RandomAccessFile f) throws IOException {
         f.seek(f.length());
+    }
+
+    private static boolean littleEndian(Integer magicNumber) {
+
+        boolean result = false;
+
+        Integer highOrderWord = magicNumber >> 16;
+        Integer highOrderWordLittleEndian = ((highOrderWord & 0x00FF) << 8) & (highOrderWord >> 8);
+
+        Integer lowOrderWord = magicNumber & 0xFFFF;
+        Integer lowOrderWordLittleEndian = ((lowOrderWord & 0x00FF) << 8) & (lowOrderWord >> 8);
+
+        Integer magicNumberLittleEndian = (highOrderWordLittleEndian << 16) & lowOrderWordLittleEndian;
+        
+        if (FileType.fromMagicNumber(magicNumberLittleEndian) != null) {
+            result = true;
+        }
+        return result;
     }
 }

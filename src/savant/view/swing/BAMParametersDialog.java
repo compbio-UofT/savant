@@ -32,6 +32,7 @@ public class BAMParametersDialog extends javax.swing.JDialog {
         initComponents();
         
         this.setModal(true);
+        this.getRootPane().setDefaultButton(buttonOK);
     }
 
     /** This method is called from within the constructor to
