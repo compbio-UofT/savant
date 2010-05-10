@@ -449,6 +449,8 @@ public class BAMTrackRenderer extends TrackRenderer {
             BAMIntervalRecord record = (BAMIntervalRecord)data.get(i);
             SAMRecord samRecord = record.getSamRecord();
 
+            if (!samRecord.getReadPairedFlag() || samRecord.getMateUnmappedFlag() || record.getType() == null) continue;
+
             int alignmentStart;
             int alignmentEnd;
             int mateAlignmentStart = samRecord.getMateAlignmentStart();
