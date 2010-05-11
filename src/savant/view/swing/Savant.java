@@ -24,6 +24,7 @@ import com.jidesoft.docking.event.DockableFrameEvent;
 import com.jidesoft.docking.event.DockableFrameListener;
 import com.jidesoft.plaf.LookAndFeelFactory;
 
+import com.jidesoft.status.MemoryStatusBarItem;
 import com.jidesoft.swing.JideSplitPane;
 import org.java.plugin.ObjectFactory;
 import org.java.plugin.PluginManager;
@@ -324,12 +325,13 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         panel_top = new javax.swing.JPanel();
         panelExtendedMiddle = new javax.swing.JPanel();
         panel_main = new javax.swing.JPanel();
-        jToolBar1 = new javax.swing.JToolBar();
-        label_status_title = new javax.swing.JLabel();
-        label_status = new javax.swing.JLabel();
-        jSeparator6 = new javax.swing.JToolBar.Separator();
+        toolbar_bottom = new javax.swing.JToolBar();
         label_mouseposition_title = new javax.swing.JLabel();
         label_mouseposition = new javax.swing.JLabel();
+        label_status_title = new javax.swing.JLabel();
+        progressbar_status = new javax.swing.JProgressBar();
+        jSeparator7 = new javax.swing.JToolBar.Separator();
+        label_memory = new javax.swing.JLabel();
         menuBar_top = new javax.swing.JMenuBar();
         menu_file = new javax.swing.JMenu();
         menu_load = new javax.swing.JMenu();
@@ -405,20 +407,27 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
             .addGap(0, 531, Short.MAX_VALUE)
         );
 
-        jToolBar1.setFloatable(false);
-
-        label_status_title.setText(" Status: ");
-        jToolBar1.add(label_status_title);
-
-        label_status.setText("load a genome");
-        jToolBar1.add(label_status);
-        jToolBar1.add(jSeparator6);
+        toolbar_bottom.setFloatable(false);
+        toolbar_bottom.setAlignmentX(1.0F);
+        toolbar_bottom.setAlignmentY(0.0F);
 
         label_mouseposition_title.setText(" Position: ");
-        jToolBar1.add(label_mouseposition_title);
+        toolbar_bottom.add(label_mouseposition_title);
 
         label_mouseposition.setText("mouse over track");
-        jToolBar1.add(label_mouseposition);
+        toolbar_bottom.add(label_mouseposition);
+
+        label_status_title.setText("Drawing: ");
+        toolbar_bottom.add(label_status_title);
+
+        progressbar_status.setMaximumSize(new java.awt.Dimension(80, 19));
+        progressbar_status.setString("load a genome");
+        progressbar_status.setStringPainted(true);
+        toolbar_bottom.add(progressbar_status);
+        toolbar_bottom.add(jSeparator7);
+
+        label_memory.setText(" Memory: ");
+        toolbar_bottom.add(label_memory);
 
         menu_file.setText("File");
 
@@ -636,7 +645,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(panel_top, javax.swing.GroupLayout.DEFAULT_SIZE, 808, Short.MAX_VALUE)
-            .addComponent(jToolBar1, javax.swing.GroupLayout.DEFAULT_SIZE, 808, Short.MAX_VALUE)
+            .addComponent(toolbar_bottom, javax.swing.GroupLayout.DEFAULT_SIZE, 808, Short.MAX_VALUE)
             .addComponent(panel_main, javax.swing.GroupLayout.DEFAULT_SIZE, 808, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
@@ -646,7 +655,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
                 .addGap(0, 0, 0)
                 .addComponent(panel_main, javax.swing.GroupLayout.DEFAULT_SIZE, 531, Short.MAX_VALUE)
                 .addGap(0, 0, 0)
-                .addComponent(jToolBar1, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addComponent(toolbar_bottom, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
         pack();
@@ -808,11 +817,10 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
     private javax.swing.JSeparator jSeparator3;
     private javax.swing.JSeparator jSeparator4;
     private javax.swing.JSeparator jSeparator5;
-    private javax.swing.JToolBar.Separator jSeparator6;
-    private javax.swing.JToolBar jToolBar1;
+    private javax.swing.JToolBar.Separator jSeparator7;
+    private javax.swing.JLabel label_memory;
     private javax.swing.JLabel label_mouseposition;
     private javax.swing.JLabel label_mouseposition_title;
-    private javax.swing.JLabel label_status;
     private javax.swing.JLabel label_status_title;
     private javax.swing.JMenuBar menuBar_top;
     private javax.swing.JMenuItem menuItemAddToFaves;
@@ -842,7 +850,9 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
     private javax.swing.JPanel panelExtendedMiddle;
     private javax.swing.JPanel panel_main;
     private javax.swing.JPanel panel_top;
+    private javax.swing.JProgressBar progressbar_status;
     private javax.swing.JMenu submenu_download;
+    private javax.swing.JToolBar toolbar_bottom;
     private javax.swing.ButtonGroup view_buttongroup;
     // End of variables declaration//GEN-END:variables
 
@@ -857,6 +867,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         initGUIFrame();
         initPanelsAndDocking();
         initMenu();
+        initStatusBar();
 
         dff = new DataFormatForm(this, false);
         // get async notification when DataFormatForm has finished its business
@@ -1561,9 +1572,12 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         // Get current time
         long start = System.currentTimeMillis();
 
-        updateStatus("Redrawing...");
+        updateProgress("Redrawing...");
+        spinProgress();
 
         fc.drawFrames();
+
+        stopSpinningProgress();
 
         // Get elapsed time in milliseconds
         long elapsedTimeMillis = System.currentTimeMillis()-start;
@@ -1571,7 +1585,8 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         // Get elapsed time in seconds
         float elapsedTimeSec = elapsedTimeMillis/1000F;
 
-        updateStatus("Drawing took " + elapsedTimeSec + " seconds");
+        updateProgress("Took " + elapsedTimeSec + " s");
+
     }
 
     /** [[ GETTERS AND SETTERS ]] */
@@ -1786,8 +1801,25 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
      * Update the status bar
      * @param msg
      */
-    private void updateStatus(String msg) {
-        this.label_status.setText(msg);
+    private void updateProgress(String msg) {
+        this.progressbar_status.setString(msg);
+    }
+    private void spinProgress() {
+        this.progressbar_status.setIndeterminate(true);
+    }
+    private void stopSpinningProgress() {
+        this.progressbar_status.setIndeterminate(false);
+    }
+
+    private void initStatusBar() {
+        toolbar_bottom.add(Box.createGlue(),2);
+
+        MemoryStatusBarItem gc = new MemoryStatusBarItem();
+        gc.setMaximumSize(new Dimension(100,30));
+        gc.setFillColor(Color.lightGray);
+        this.toolbar_bottom.add(gc);
+        //this
+        //statusBar.add(gc, JideBoxLayout.FLEXIBLE);
     }
 
     public enum LOGMODE { NORMAL, DEBUG };
