@@ -398,7 +398,6 @@
       <Properties>
         <Property name="floatable" type="boolean" value="false"/>
         <Property name="alignmentX" type="float" value="1.0"/>
-        <Property name="alignmentY" type="float" value="0.0"/>
       </Properties>
 
       <Layout class="org.netbeans.modules.form.compat2.layouts.DesignBoxLayout"/>

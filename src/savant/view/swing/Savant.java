@@ -285,6 +285,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
 
         initComponents();
         init();
+        disableExperimentalFeatures();
 
     }
 
@@ -1820,6 +1821,11 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         this.toolbar_bottom.add(gc);
         //this
         //statusBar.add(gc, JideBoxLayout.FLEXIBLE);
+    }
+
+    private void disableExperimentalFeatures() {
+        this.label_status_title.setVisible(false);
+        this.progressbar_status.setVisible(false);
     }
 
     public enum LOGMODE { NORMAL, DEBUG };
