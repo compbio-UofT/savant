@@ -116,6 +116,7 @@ public class GenericContinuousTrack extends ContinuousTrack {
     }
 
     // TODO: make this a helper method, since it's used in all tracks. Pass File and recordSize. Get rid of Savant.log.
+    // FIXME: this does not calculate numRecords correctly. Must skip header.
     public void setNumRecords() {
         try {
             int numbytes = (int) savantFile.length();
