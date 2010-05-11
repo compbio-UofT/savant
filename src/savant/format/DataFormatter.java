@@ -548,11 +548,8 @@ public class DataFormatter implements FormatProgressListener {
 
         List<LinePlusRange> linesPlusRanges = nodeIndex2IntervalIndices.get(n.index);
 
-        System.out.println("D " + n.index + "\t" + n.range);
+        //System.out.println("D " + n.index + "\t" + n.range);
 
-        if (n.children.size() != 0) {
-            System.out.println("CANT DUMP!!!! Node " + n.index + " with parent " + n.parent.index + " has " + n.children.size() + " children!!");
-        }
         //System.out.println(n.index + " " + n.size + " " +  node2startByte.get(n.index));
 
         if (linesPlusRanges != null) {

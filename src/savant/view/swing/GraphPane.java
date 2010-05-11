@@ -20,6 +20,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import savant.controller.DrawModeController;
 import savant.controller.RangeController;
+import savant.controller.event.graphpane.GraphPaneChangeEvent;
 import savant.model.FileFormat;
 import savant.model.view.AxisRange;
 import savant.model.view.DrawingInstructions;
@@ -34,12 +35,19 @@ import java.awt.event.*;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
+import savant.controller.GraphPaneController;
+import savant.controller.event.graphpane.GraphPaneChangeListener;
+import savant.util.MiscUtils;
 
 /**
  *
  * @author mfiume
  */
-public class GraphPane extends JPanel implements MouseWheelListener, MouseListener, MouseMotionListener {
+public class GraphPane extends JPanel implements MouseWheelListener, MouseListener, MouseMotionListener, GraphPaneChangeListener {
+
+    /**
+     * VARIABLES
+     */
 
     private static Log log = LogFactory.getLog(GraphPane.class);
 
@@ -66,77 +74,46 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
     private Range lockedRange;
 
     /** Selection Variables */
-    private int x1, x2, y1, y2;
+    //private int x1, x2;
+    private int y1, y2;
     private int x, y, w, h;
     private boolean isDragging = false;
+
+    // mouse and key modifiers
+    private enum mouseModifier { NONE, LEFT, MIDDLE, RIGHT };
+    private mouseModifier mouseMod = mouseModifier.LEFT;
+
+    private enum keyModifier { DEFAULT, CTRL, SHIFT, META, ALT; };
+    private keyModifier keyMod = keyModifier.DEFAULT;
 
     // let's behave nicely for the appropriate platform
     private static String os = System.getProperty("os.name").toLowerCase();
     private static boolean mac = os.contains("mac");
 
     /**
-     * {@inheritDoc}
+     * CONSTRUCTOR
      */
-    public void mouseWheelMoved(MouseWheelEvent e) {
+    public GraphPane() {
+        trackRenderers = new ArrayList<TrackRenderer>();
+        tracks = new ArrayList<ViewTrack>();
+        this.setDoubleBuffered(true);
+        addMouseListener( this ); // listens for own mouse and
+        addMouseMotionListener( this ); // mouse-motion events
+        //addKeyListener( this );
+        this.getInputMap().allKeys();
+        addMouseWheelListener(this);
 
-       int notches = e.getWheelRotation();
+        initContextualMenu();
 
-       if (mac && e.isMetaDown() || e.isControlDown()) {
-           if (notches < 0) {
-               RangeController rc = RangeController.getInstance();
-               rc.shiftRangeLeft();
-           } else {
-               RangeController rc = RangeController.getInstance();
-               rc.shiftRangeRight();
-           }
-       }
-       else {
-            if (notches < 0) {
-               RangeController rc = RangeController.getInstance();
-               rc.zoomIn();
-           } else {
-               RangeController rc = RangeController.getInstance();
-               rc.zoomOut();
-           }
-       }
+        ((GraphPaneController) GraphPaneController.getInstance()).addFavoritesChangedListener(this);
     }
+
+    /**
+     * CONTEXT MENU (WHEN USER RIGHT CLICKS GP)
+     */
 
     private void initContextualMenu() {
         menu = new JPopupMenu();
-
-        /*
-        JMenuItem undoMI = new JMenuItem("Undo Range Change");
-        undoMI.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                RangeController rc = RangeController.getInstance();
-                rc.undoRangeChange();
-            }
-        });
-
-        menu.add ( undoMI );
-        
-        JMenuItem redoMI = new JMenuItem("Redo Range Change");
-        redoMI.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                RangeController rc = RangeController.getInstance();
-                rc.redoRangeChange();
-            }
-        });
-
-        menu.add ( redoMI );
-
-        JMenuItem addMI = new JMenuItem("Bookmark");
-        addMI.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                BookmarkController fc = BookmarkController.getInstance();
-                fc.addCurrentRangeToBookmarks();
-            }
-        });
-
-        menu.add ( addMI );
-
-        menu.addSeparator();
-         */
 
         JMenuItem lockMI = new JCheckBoxMenuItem("Lock");
         lockMI.addActionListener(new ActionListener() {
@@ -144,7 +121,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
                 switchLocked();
             }
         });
-        
+
         menu.add ( lockMI );
 
 //        JMenuItem copyMI = new JMenuItem("Copy to clipboard");
@@ -178,59 +155,26 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         //menu.add ( new JMenuItem ("Save As...") );
 
         menu.addSeparator();
-
-        /*
-        JMenuItem hideMI = new JMenuItem("Hide");
-
-        hideMI.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                hideFrame();
-            }
-        });
-        menu.add(hideMI);
-
-        JMenuItem closeMI = new JMenuItem("Close");
-
-        closeMI.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                closeFrame();
-            }
-        });
-        menu.add(closeMI);
-
-        menu.addSeparator();
-         */
     }
 
     /**
-     *
-     * @return true if the track is locked, false o/w
+     * GRAPHPANE CHANGE LISTENER
      */
-    public boolean isLocked() {
-        return this.isLocked;
+
+    @Override
+    public void graphpaneChangeReceived(GraphPaneChangeEvent event) {
+        //System.out.println("Got request from controller to redraw");
+        //GraphPaneController gpc = (GraphPaneController) event.getSource();
+        //System.out.println("\tPanning: " + gpc.isPanning());
+        //System.out.println("\tZooming: " + gpc.isZooming());
+        //System.out.println("\tRange: " + gpc.getMouseDragRange());
+        repaint();
     }
-
-    private enum mouseModifier { NONE, LEFT, MIDDLE, RIGHT };
-    private mouseModifier mouseMod = mouseModifier.LEFT;
-
-    private enum keyModifier { DEFAULT, CTRL, SHIFT, META, ALT; };
-    private keyModifier keyMod = keyModifier.DEFAULT;
 
     /**
-     * Constructor
+     * TRACKS AND RENDERERS
      */
-    public GraphPane() {
-        trackRenderers = new ArrayList<TrackRenderer>();
-        tracks = new ArrayList<ViewTrack>();
-        this.setDoubleBuffered(true);
-        addMouseListener( this ); // listens for own mouse and
-        addMouseMotionListener( this ); // mouse-motion events
-        //addKeyListener( this );
-        this.getInputMap().allKeys();
-        addMouseWheelListener(this);
-
-        initContextualMenu();
-    }
+    
 
     /**
      * Add a track renderer to the GraphPane
@@ -290,6 +234,10 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
     }
 
     /**
+     * DRAWING
+     */
+
+    /**
      * Render the contents of the graphpane. Includes drawing a common
      * background for all tracks.
      *
@@ -305,7 +253,11 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
 
     public void render(Graphics g, Range xRange, Range yRange) {
 
-        if (isPanning() && !this.isLocked()) { g.translate(this.x2-this.x1, 0); }
+        GraphPaneController gpc = GraphPaneController.getInstance();
+        int x1 = MiscUtils.transformPositionToPixel(gpc.getMouseDragRange().getFrom(), this.getWidth(), new Range(this.xMin, this.xMax));
+        int x2 = MiscUtils.transformPositionToPixel(gpc.getMouseDragRange().getTo(), this.getWidth(), new Range(this.xMin, this.xMax));
+
+        if (gpc.isPanning() && !this.isLocked()) { g.translate(x2-x1, 0); }
 
         int minYRange = Integer.MAX_VALUE;
         int maxYRange = Integer.MIN_VALUE;
@@ -328,6 +280,8 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         Range consolidatedYRange = new Range(minYRange, maxYRange);
         setYRange(consolidatedYRange);
 
+        yMin = minYRange;
+        yMax = minYRange;
 
         renderBackground(g);
 
@@ -337,8 +291,164 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
             tr.render(g, this);
         }
 
+        renderSides(g);
        
     }
+
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+
+        render(g);
+
+        GraphPaneController gpc = GraphPaneController.getInstance();
+        int x1 = MiscUtils.transformPositionToPixel(gpc.getMouseDragRange().getFrom(), this.getWidth(), new Range(this.xMin, this.xMax));
+        int x2 = MiscUtils.transformPositionToPixel(gpc.getMouseDragRange().getTo(), this.getWidth(), new Range(this.xMin, this.xMax));
+
+        int width = x1 - x2;
+        int height = this.getHeight();// this.y1 - this.y2;
+
+        this.w = Math.max(2 ,Math.abs( width ));
+        this.h = Math.abs( height );
+        this.x = width < 0 ? x1 : x2;
+        this.y = 0; //height < 0 ? this.y1 : this.y2;
+
+        /** PANNING ADJUSTMENTS */
+        if (gpc.isPanning()) {}
+        
+        /** ZOOMING ADJUSTMENTS */
+        else if (gpc.isZooming()) {
+            Graphics2D g2d = (Graphics2D)g;
+
+            Rectangle2D rectangle =
+              new Rectangle2D.Double (
+              this.x, this.y, this.w, this.h);
+            g2d.setColor (Color.gray);
+            g2d.setStroke (new BasicStroke(
+              1f,
+              BasicStroke.CAP_ROUND,
+              BasicStroke.JOIN_ROUND,
+              3f,
+              new float[] {4f},
+              4f));
+            g2d.draw (rectangle);
+
+            g.setColor(BrowserDefaults.colorGraphPaneSelectionFill);
+            g.fillRect(this.x, this.y, this.w, this.h);
+        }
+
+        /** PLUMBING ADJUSTMENTS */
+        if (gpc.isPlumbing()) {
+            g.setColor(Color.BLACK);
+            int pos = MiscUtils.transformPositionToPixel(GraphPaneController.getInstance().getMouseXPosition(), this.getWidth(), this.getPositionalRange());
+            g.drawLine(pos, 0, pos, this.getHeight());
+        }
+
+        /** SPOTLIGHT */
+        if (gpc.isSpotlight() && !gpc.isZooming()) {
+            int center = gpc.getMouseXPosition();
+            int left = center - gpc.getSpotlightSize()/2;
+            int right = center + gpc.getSpotlightSize()/2;
+            
+            g.setColor(new Color(0,0,0,200));
+
+            // draw left of spotlight
+            if (left > this.getPositionalRange().getFrom()) {
+                g.fillRect(0, 0, MiscUtils.transformPositionToPixel(left, this.getWidth(), this.getPositionalRange()), this.getHeight());
+            }
+            // draw right of spotlight
+            if (right < this.getPositionalRange().getTo()) {
+                int pix = MiscUtils.transformPositionToPixel(right, this.getWidth(), this.getPositionalRange());
+                g.fillRect(pix, 0, this.getWidth()-pix, this.getHeight());
+            }
+        }
+        
+        if (this.isLocked()) {
+            GlassMessagePane.draw((Graphics2D) g, this, "Locked", 300);
+        }
+    }
+
+    /**
+     * Render the sides of this graphpane
+     * @param g The graphics object to use
+     */
+    private void renderSides(Graphics g) {
+        //Color c = Color.black;
+        //this.setBackground(c);
+        g.setColor(this.getBackground());
+        int w = this.getWidth();
+        int h = this.getHeight();
+        int mult = 1;
+        g.fillRect(w, 0, w*mult, h);
+        g.fillRect(-w*mult, 0, w*mult, h);
+    }
+
+    /**
+     * Render the background of this graphpane
+     * @param g The graphics object to use
+     */
+    private void renderBackground(Graphics g) {
+
+        Graphics2D g2 = (Graphics2D) g;
+        Font smallFont = new Font("Sans-Serif", Font.PLAIN, 10);
+
+        Graphics2D g2d0 = (Graphics2D)g;
+
+            // Paint a gradient from top to bottom
+            GradientPaint gp0 = new GradientPaint(
+                0, 0, BrowserDefaults.colorGraphPaneBackgroundTop,
+                0, this.getHeight(), BrowserDefaults.colorGraphPaneBackgroundBottom );
+
+            g2d0.setPaint( gp0 );
+            g2d0.fillRect( 0, 0, this.getWidth(), this.getHeight() );
+
+        if (this.isXGridOn) {
+
+            int numseparators = (int) Math.ceil(Math.log(xMax-xMin));
+
+            if (numseparators != 0) {
+                int width = this.getWidth();
+                double separation = width / numseparators;
+
+
+                g2.setColor(BrowserDefaults.colorAxisGrid);
+                for (int i = 0; i <= numseparators; i++) {
+                    g2.drawLine((int)Math.ceil(i*separation)+1, this.getHeight(), (int) Math.ceil(i*separation)+1, 0);
+                }
+            }
+        }
+
+        if (this.isYGridOn) {
+
+            int numseparators = (int) Math.ceil(Math.log(yMax-yMin));
+
+            if (numseparators != 0) {
+                int height = this.getHeight();
+                double separation = height / numseparators;
+
+                g2.setColor(BrowserDefaults.colorAxisGrid);
+                for (int i = 0; i <= numseparators; i++) {
+                    g2.drawLine(0, (int)Math.ceil(i*separation)+1, this.getWidth(), (int) Math.ceil(i*separation)+1);
+                }
+
+            }
+            // draw max Y plot value
+            g2.setColor(BrowserDefaults.colorAccent);
+            String maxPlotString = "ymax=" + Integer.toString(yMax);
+            g2.setFont(smallFont);
+            Rectangle2D stringRect = smallFont.getStringBounds(maxPlotString, g2.getFontRenderContext());
+            g2.drawString(maxPlotString, (int)(getWidth()-stringRect.getWidth()-5), (int)(stringRect.getHeight() + 5));
+
+        }
+    }
+
+    public List<TrackRenderer> getTrackRenderers() {
+        return this.trackRenderers;
+    }
+
+    /**
+     * FRAME DIMENSIONS AND X AND Y AXIS
+     */
 
     /**
      * Set the graph units for the horizontal axis
@@ -476,301 +586,39 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         return this.isOrdinal;
     }
 
-    @Override
-    protected void paintComponent(Graphics g) {
-        super.paintComponent(g);
-
-        render(g);
-
-        int width = this.x1 - this.x2;
-        int height = this.getHeight();// this.y1 - this.y2;
-
-        this.w = Math.max(2 ,Math.abs( width ));
-        this.h = Math.abs( height );
-        this.x = width < 0 ? this.x1
-                : this.x2;
-        this.y = 0; //height < 0 ? this.y1 : this.y2;
-
-
-        if (this.isMovingPane()) {}
-        else if (this.isPanning()) {}
-        else if (this.isZooming()) {
-            Graphics2D g2d = (Graphics2D)g;
-
-            Rectangle2D rectangle =
-              new Rectangle2D.Double (
-              this.x, this.y, this.w, this.h);
-            g2d.setColor (Color.gray);
-            g2d.setStroke (new BasicStroke(
-              1f,
-              BasicStroke.CAP_ROUND,
-              BasicStroke.JOIN_ROUND,
-              3f,
-              new float[] {4f},
-              4f));
-            g2d.draw (rectangle);
-
-            g.setColor(BrowserDefaults.colorGraphPaneSelectionFill);
-            g.fillRect(this.x, this.y, this.w, this.h);
-        }
-        //this.cords.setText( "w = " + this.w);
-
-        if (this.isLocked()) {
-            GlassMessagePane.draw((Graphics2D) g, this, "Locked", 300);
-        }
-    }
 
     /**
-     * Render the background of this graphpane
-     * @param g The graphics object to use
+     * MOUSE EVENT LISTENER
      */
-    private void renderBackground(Graphics g) {
-
-        Graphics2D g2 = (Graphics2D) g;
-        Font smallFont = new Font("Sans-Serif", Font.PLAIN, 10);
-
-        Graphics2D g2d0 = (Graphics2D)g;
-
-            // Paint a gradient from top to bottom
-            GradientPaint gp0 = new GradientPaint(
-                0, 0, BrowserDefaults.colorGraphPaneBackgroundTop,
-                0, this.getHeight(), BrowserDefaults.colorGraphPaneBackgroundBottom );
-
-            g2d0.setPaint( gp0 );
-            g2d0.fillRect( 0, 0, this.getWidth(), this.getHeight() );
-
-        if (this.isXGridOn) {
-
-            int numseparators = (int) Math.ceil(Math.log(xMax-xMin));
-
-            if (numseparators != 0) {
-                int width = this.getWidth();
-                double separation = width / numseparators;
-
-
-                g2.setColor(BrowserDefaults.colorAxisGrid);
-                for (int i = 0; i <= numseparators; i++) {
-                    g2.drawLine((int)Math.ceil(i*separation)+1, this.getHeight(), (int) Math.ceil(i*separation)+1, 0);
-                }
-            }
-        }
-
-        if (this.isYGridOn) {
-
-            int numseparators = (int) Math.ceil(Math.log(yMax-yMin));
-
-            if (numseparators != 0) {
-                int height = this.getHeight();
-                double separation = height / numseparators;
-
-                g2.setColor(BrowserDefaults.colorAxisGrid);
-                for (int i = 0; i <= numseparators; i++) {
-                    g2.drawLine(0, (int)Math.ceil(i*separation)+1, this.getWidth(), (int) Math.ceil(i*separation)+1);
-                }
-
-            }
-            // draw max Y plot value
-            g2.setColor(BrowserDefaults.colorAccent);
-            String maxPlotString = "ymax=" + Integer.toString(yMax);
-            g2.setFont(smallFont);
-            Rectangle2D stringRect = smallFont.getStringBounds(maxPlotString, g2.getFontRenderContext());
-            g2.drawString(maxPlotString, (int)(getWidth()-stringRect.getWidth()-5), (int)(stringRect.getHeight() + 5));
-
-        }
-    }
-
-    public List<TrackRenderer> getTrackRenderers() {
-        return this.trackRenderers;
-    }
-
-
-    /** <SECTION> MOUSE EVENT LISTENER */
 
     /**
      * {@inheritDoc}
      */
-    public void mouseClicked( final MouseEvent event ) {
+    public void mouseWheelMoved(MouseWheelEvent e) {
 
-        setMouseModifier(event);
+       int notches = e.getWheelRotation();
 
-        //if (isMovingPane()) {
-        //    Savant.log("MOVE");
-            //this.getParent().dispatchEvent(event);
-        //}
-        //else
-        if (mac && event.isControlDown() || this.isRightClick()) {
-            menu.show(event.getComponent(), event.getX(), event.getY());
-        }
-
-        //this.mousePosition.setText( "Clicked at [" + event.getX() + ", " + event.getY() + "]" );
-        //repaint();
+       if (mac && e.isMetaDown() || e.isControlDown()) {
+           if (notches < 0) {
+               RangeController rc = RangeController.getInstance();
+               rc.shiftRangeLeft();
+           } else {
+               RangeController rc = RangeController.getInstance();
+               rc.shiftRangeRight();
+           }
+       }
+       else {
+            if (notches < 0) {
+               RangeController rc = RangeController.getInstance();
+               rc.zoomIn();
+           } else {
+               RangeController rc = RangeController.getInstance();
+               rc.zoomOut();
+           }
+       }
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public void mousePressed( final MouseEvent event ) {
-
-        //Savant.log("Mouse pressed");
-
-        setMouseModifier(event);
-        
-        this.requestFocus();
-
-        /** Right clickt */
-        if (isMovingPane()) {
-            this.getParent().dispatchEvent(event);
-            return;
-        }
-        
-        this.x1 = event.getX();
-        if (this.x1 < 0) { this.x1 = 0; }
-        if (this.x1 > this.getWidth()) { this.x1 = this.getWidth(); }
-        this.y1 = event.getY();
-
-        //this.mousePosition.setText( "Pressed at [" + ( this.x1 ) + ", " + ( this.y1 ) + "]" );
-
-        //this.recStart.setText( "Start:  [" + this.x1 + "]");
-
-        //this.isNewRect = true;
-        //this.isNewRect = false;
-        repaint();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void mouseReleased( final MouseEvent event ) {
-
-        setMouseModifier(event);
-
-        //Savant.log("Mouse released");
-
-        if (isMovingPane()) {
-            this.getParent().dispatchEvent(event);
-            return;
-        }
-
-        this.x2 = event.getX();
-        if (this.x2 < 0) { this.x2 = 0; }
-        if (this.x2 > this.getWidth()) { this.x2 = this.getWidth(); }
-        this.y2 = event.getY();
-        //this.mousePosition.setText( "Released at [" + ( this.x2 ) + ", " + ( this.y2 ) + "]" );
-
-        this.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
-
-        //this.recStop.setText( "End:  [" + this.x2 + "]" );
-
-        if (this.isPanning()) {
-            Savant.log("SHOULD PAN");
-
-            RangeController rc = RangeController.getInstance();
-            Range r = rc.getRange();
-            int shiftVal = (int) (Math.round((this.x1-this.x2) / this.getUnitWidth()));
-
-            Savant.log("X1: " + this.x1 + " X2: " + this.x2 + " Shift: " + shiftVal);
-
-            Range newr = new Range(r.getFrom()+shiftVal,r.getTo()+shiftVal);
-            Savant.log("Panning to " + newr);
-            rc.setRange(newr);
-            //return;
-        } else if (this.isZooming()) {
-            Savant.log("SHOULD ZOOM");
-
-            RangeController rc = RangeController.getInstance();
-            Range r;
-            if (this.isLocked()) {
-                r = this.lockedRange;
-            } else {
-                r = rc.getRange();
-            }
-            int newMin = (int) Math.round(Math.min(this.x1, this.x2) / this.getUnitWidth());
-            // some weirdness here, but it's to get around an off by one
-            int newMax = (int) Math.max(Math.round(Math.max(this.x1, this.x2) / this.getUnitWidth())-1, newMin);
-            Range newr = new Range(r.getFrom()+newMin,r.getFrom()+newMax);
-            Savant.log("Zooming to " + newr);
-            rc.setRange(newr);
-            //return;
-        }
-
-        this.isDragging = false;
-
-        repaint();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void mouseEntered( final MouseEvent event ) {
-        
-        setMouseModifier(event);
-        
-        // uncomment this line to ensure useer can use key and mouse panning
-        //this.requestFocus();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void mouseExited( final MouseEvent event ) {
-        setMouseModifier(event);
-        //this.mousePosition.setText( "Mouse outside window" );
-        // repaint();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void mouseDragged( final MouseEvent event ) {
-
-        setMouseModifier(event);
-
-        if (isMovingPane()) { 
-            Savant.log("Moving");
-            this.getParent().dispatchEvent(event);
-            return;
-        }
-
-        this.x2 = event.getX();
-        if (this.x2 < 0) { this.x2 = 0; }
-        if (this.x2 > this.getWidth()) { this.x2 = this.getWidth(); }
-        this.y2 = event.getY();
-
-        this.isDragging = true;
-
-        if (this.isPanning()) {
-            this.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        } else if (isZooming()) {
-            this.setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
-        }
-
-        repaint();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void mouseMoved( final MouseEvent event ) {
-        
-    }
-
-    /** Actions */
-    private boolean isMovingPane() {
-        return false;
-        //return this.isDragging && ( ( isRightClick() && isNoKeyModifierPressed() ) || /** insert Mac specific combo here */ false );
-    }
-
-    private boolean isZooming() {
-        return this.isDragging &&  ((isLeftClick() && isZoomModifierPressed()) || (isRightClick() && isZoomModifierPressed()));
-    }
-
-    private boolean isPanning() {
-        return this.isDragging && isNoKeyModifierPressed();
-        //return this.isDragging && isLeftClick() && isShiftKeyModifierPressed();
-    }
-
-
-    /** Mouse modifiers */
+        /** Mouse modifiers */
     private boolean isRightClick() {
         return mouseMod == mouseModifier.RIGHT;
     }
@@ -808,7 +656,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         if ((mac && isMetaModifierPressed()) || (!mac && isCtrlKeyModifierPressed())) return true;
         else return false;
     }
-    
+
     private void setMouseModifier(MouseEvent e) {
 
         if (e.getButton() == 1) mouseMod= mouseModifier.LEFT;
@@ -831,29 +679,185 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
             keyMod = keyModifier.DEFAULT;
         }
 
-        //Savant.log("Mouse modifier: " + mouseMod);
+        tellModifiersToGraphPaneController();
     }
 
-    /*
-    private void setKeyModifier(KeyEvent e) {
 
-        if (e.isControlDown()) {
-            keyMod = keyModifier.CTRL;
-        }
-        else if (e.isShiftDown()) {
-            keyMod = keyModifier.SHIFT;
-        }
-        else if (e.isMetaDown()) {
-            keyMod = keyModifier.META;
-        }
-        else if (e.isAltDown()) {
-            keyMod = keyModifier.ALT;
-        }
-        else {
-            keyMod = keyModifier.DEFAULT;
-        }
-    }
+    /**
+     * {@inheritDoc}
      */
+    public void mouseClicked( final MouseEvent event ) {
+
+        setMouseModifier(event);
+
+        if (mac && event.isControlDown() || this.isRightClick()) {
+            menu.show(event.getComponent(), event.getX(), event.getY());
+        }
+
+        //repaint();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void mousePressed( final MouseEvent event ) {
+
+        setMouseModifier(event);
+        
+        this.requestFocus();
+        
+        int x1 = event.getX();
+        if (x1 < 0) { x1 = 0; }
+        if (x1 > this.getWidth()) { x1 = this.getWidth(); }
+        this.y1 = event.getY();
+
+        GraphPaneController gpc = GraphPaneController.getInstance();
+        gpc.setMouseClickPosition(MiscUtils.transformPixelToPosition(x1, this.getWidth(), this.getPositionalRange()));
+
+        //tellModifiersToGraphPaneController();
+        //repaint();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void mouseReleased( final MouseEvent event ) {
+
+        GraphPaneController gpc = GraphPaneController.getInstance();
+        
+        int x2 = event.getX();
+        if (x2 < 0) { x2 = 0; }
+        if (x2 > this.getWidth()) { x2 = this.getWidth(); }
+        this.y2 = event.getY();
+
+        this.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+
+        int x1 = MiscUtils.transformPositionToPixel(gpc.getMouseDragRange().getFrom(), this.getWidth(), this.getPositionalRange());
+
+        if (gpc.isPanning()) {
+            Savant.log("SHOULD PAN");
+
+            RangeController rc = RangeController.getInstance();
+            Range r = rc.getRange();
+            int shiftVal = (int) (Math.round((x1-x2) / this.getUnitWidth()));
+
+            Savant.log("X1: " + x1 + " X2: " + x2 + " Shift: " + shiftVal);
+
+            Range newr = new Range(r.getFrom()+shiftVal,r.getTo()+shiftVal);
+            Savant.log("Panning to " + newr);
+            rc.setRange(newr);
+
+        } else if (gpc.isZooming()) {
+            Savant.log("SHOULD ZOOM");
+
+            RangeController rc = RangeController.getInstance();
+            Range r;
+            if (this.isLocked()) {
+                r = this.lockedRange;
+            } else {
+                r = rc.getRange();
+            }
+            int newMin = (int) Math.round(Math.min(x1, x2) / this.getUnitWidth());
+            // some weirdness here, but it's to get around an off by one
+            int newMax = (int) Math.max(Math.round(Math.max(x1, x2) / this.getUnitWidth())-1, newMin);
+            Range newr = new Range(r.getFrom()+newMin,r.getFrom()+newMax);
+            Savant.log("Zooming to " + newr);
+            rc.setRange(newr);
+        }
+
+        this.isDragging = false;
+        setMouseModifier(event);
+
+        gpc.setMouseReleasePosition(MiscUtils.transformPixelToPosition(x2, this.getWidth(), this.getPositionalRange()));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void mouseEntered( final MouseEvent event ) {
+        setMouseModifier(event);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void mouseExited( final MouseEvent event ) {
+        setMouseModifier(event);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void mouseDragged( final MouseEvent event ) {
+
+        setMouseModifier(event);
+
+        GraphPaneController gpc = GraphPaneController.getInstance();
+
+
+        int x2 = event.getX();
+        if (x2 < 0) { x2 = 0; }
+        if (x2 > this.getWidth()) { x2 = this.getWidth(); }
+        this.y2 = event.getY();
+
+
+        this.isDragging = true;
+
+        if (gpc.isPanning()) {
+            this.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        } else if (gpc.isZooming()) {
+            this.setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
+        }
+
+        gpc.setMouseReleasePosition(MiscUtils.transformPixelToPosition(x2, this.getWidth(), this.getPositionalRange()));
+        
+        //tellModifiersToGraphPaneController();
+        //repaint();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void mouseMoved( final MouseEvent event ) {
+        //setMouseModifier(event);
+        GraphPaneController.getInstance().setMouseXPosition(MiscUtils.transformPixelToPosition(event.getX(), this.getWidth(), this.getPositionalRange()));
+        if (this.isOrdinal()) {
+            GraphPaneController.getInstance().setMouseYPosition(-1);
+        } else {
+            GraphPaneController.getInstance().setMouseYPosition(MiscUtils.transformPixelToPosition(this.getHeight() - event.getY(), this.getHeight(), new Range(this.yMin, this.yMax)));
+        }
+        GraphPaneController.getInstance().setSpotlightSize(this.getPositionalRange().getLength());
+    }
+
+    /**
+     * TALK TO GRAPHPANE CONTROLLER
+     */
+
+    private void tellModifiersToGraphPaneController() {
+        GraphPaneController gpc = GraphPaneController.getInstance();
+        setZooming(gpc);
+        setPanning(gpc);
+    }
+
+    private void setZooming(GraphPaneController gpc) {
+        gpc.setZooming(this.isDragging &&  ((isLeftClick() && isZoomModifierPressed()) || (isRightClick() && isZoomModifierPressed())));
+    }
+
+    private void setPanning(GraphPaneController gpc) {
+        gpc.setPanning(this.isDragging && isNoKeyModifierPressed());
+    }
+
+    /**
+     * TRACK LOCKING
+     */
+
+    /**
+     *
+     * @return true if the track is locked, false o/w
+     */
+    public boolean isLocked() {
+        return this.isLocked;
+    }
 
     public void lock() {
         setIsLocked(true);
@@ -876,6 +880,20 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         }
         this.repaint();
     }
+
+    /**
+     * RANGE
+     * @return
+     */
+
+    public Range getPositionalRange() {
+        return new Range(this.xMin, this.xMax);
+    }
+
+
+    /**
+     * MODE SWITCHING
+     */
 
     private void switchMode(final ViewTrack track, final Mode mode) {
 

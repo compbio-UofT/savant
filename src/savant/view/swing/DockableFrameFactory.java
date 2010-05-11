@@ -2,6 +2,7 @@ package savant.view.swing;
 
 import com.jidesoft.docking.DockContext;
 import com.jidesoft.docking.DockableFrame;
+import com.jidesoft.icons.JideIconsFactory;
 import com.jidesoft.swing.JideScrollPane;
 
 import java.awt.event.ActionEvent;
@@ -18,7 +19,7 @@ import java.util.Map;
 public class DockableFrameFactory {
 
     public static DockableFrame createFrame(String name, int mode, int side) {
-        DockableFrame frame = new DockableFrame(name);
+        DockableFrame frame = new DockableFrame(name, JideIconsFactory.getImageIcon(JideIconsFactory.FileType.TEXT));
         frame.getContext().setInitMode(mode);
         frame.getContext().setInitSide(side);
         frame.add(new JPanel());
@@ -40,13 +41,14 @@ public class DockableFrameFactory {
 
         numTracks++;
         
-        final DockableFrame frame = new DockableFrame(numTracks + ". " + name);
+        final DockableFrame frame = new DockableFrame(numTracks + ". " + name, JideIconsFactory.getImageIcon(JideIconsFactory.WindowMenu.NEW_HORIZONTAL_TAB));
         frame.setInitIndex(numTracks);
         if (allowClose) {
             frame.setAvailableButtons(DockableFrame.BUTTON_AUTOHIDE | DockableFrame.BUTTON_FLOATING | DockableFrame.BUTTON_MAXIMIZE | DockableFrame.BUTTON_CLOSE );
         } else {
             frame.setAvailableButtons(DockableFrame.BUTTON_AUTOHIDE | DockableFrame.BUTTON_FLOATING | DockableFrame.BUTTON_MAXIMIZE );
         }
+        
         frame.getContext().setInitMode(DockContext.STATE_FRAMEDOCKED);
         frame.getContext().setInitSide(DockContext.DOCK_SIDE_NORTH);
         frame.add(new JPanel());

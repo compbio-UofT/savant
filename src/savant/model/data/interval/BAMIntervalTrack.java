@@ -77,7 +77,7 @@ public class BAMIntervalTrack implements RecordTrack<BAMIntervalRecord> {
                 bamRecord = new BAMIntervalRecord(samRecord);
 
                 // find out the type of the pair
-                if (samRecord.getReadPairedFlag()) {
+                if (samRecord.getReadPairedFlag() && !samRecord.getMateUnmappedFlag()) {
                     BAMIntervalRecord.PairType type = getPairType(samRecord.getAlignmentStart(), samRecord.getMateAlignmentStart(), samRecord.getReadNegativeStrandFlag(), samRecord.getMateNegativeStrandFlag());
                     bamRecord.setType(type);
                     // pre-calculate the insert size in case it's needed
@@ -161,8 +161,9 @@ public class BAMIntervalTrack implements RecordTrack<BAMIntervalRecord> {
      */
     public static int inferInsertSize(SAMRecord samRecord, BAMIntervalRecord.PairType pairType) throws IllegalStateException {
 
-        if (samRecord.getReadUnmappedFlag() || !samRecord.getReadPairedFlag() || samRecord.getMateUnmappedFlag())
+        if (samRecord.getReadUnmappedFlag() || !samRecord.getReadPairedFlag() || samRecord.getMateUnmappedFlag()) {
             throw new IllegalStateException("Read is either not mapped, not paired, or its mate is unmapped; cannot calculate insert size.");
+        }
 
         int startPos = 0;
         int endPos = 0;
