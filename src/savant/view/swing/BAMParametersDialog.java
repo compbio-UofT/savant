@@ -12,12 +12,6 @@
 package savant.view.swing;
 
 import java.awt.*;
-import java.io.File;
-import net.sf.samtools.SAMFileHeader;
-import net.sf.samtools.SAMFileReader;
-import net.sf.samtools.SAMSequenceDictionary;
-import net.sf.samtools.SAMSequenceRecord;
-import savant.controller.RangeController;
 
 /**
  *
@@ -180,41 +174,6 @@ public class BAMParametersDialog extends javax.swing.JDialog {
             this.setVisible(false);
         }
     }//GEN-LAST:event_buttonOKActionPerformed
-
-
-    /*
-     * Use the length of the reference genome to guess which sequence from the dictionary
-     * we should search for reads.
-     */
-    public static String guessSequence(File path, File index) {
-
-        // Find out what sequence we're using, by reading the header for sequences and lengths
-        RangeController rangeController = RangeController.getInstance();
-        int referenceSequenceLength = rangeController.getMaxRangeEnd() - rangeController.getMaxRangeStart();
-
-        String sequenceName = null;
-        SAMFileReader samFileReader = new SAMFileReader(path, index);
-        SAMFileHeader fileHeader = samFileReader.getFileHeader();
-        SAMSequenceDictionary sequenceDictionary = fileHeader.getSequenceDictionary();
-        // find the first sequence with the smallest difference in length from our reference sequence
-        int leastDifferenceInSequenceLength = Integer.MAX_VALUE;
-        int closestSequenceIndex = Integer.MAX_VALUE;
-        int i = 0;
-        for (SAMSequenceRecord sequenceRecord : sequenceDictionary.getSequences()) {
-            int lengthDelta = Math.abs(sequenceRecord.getSequenceLength() - referenceSequenceLength);
-            if (lengthDelta < leastDifferenceInSequenceLength) {
-                leastDifferenceInSequenceLength = lengthDelta;
-                closestSequenceIndex = i;
-            }
-            i++;
-        }
-        if (closestSequenceIndex != Integer.MAX_VALUE) {
-            sequenceName = sequenceDictionary.getSequence(closestSequenceIndex).getSequenceName();
-        }
-        samFileReader.close();
-        return sequenceName;
-    }
-
 
     private boolean parseDiscordantMin() {
 

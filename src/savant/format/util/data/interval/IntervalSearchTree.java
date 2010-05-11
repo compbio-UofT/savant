@@ -118,9 +118,9 @@ public class IntervalSearchTree {
     }
 
     private IntervalTreeNode createNode(Range r, int index, IntervalTreeNode parent) {
-        System.out.print("C " + index );
-        if (parent != null) { System.out.print(" < " + parent.index); } else { System.out.println(); }
-        System.out.println("\t" + r);
+        //System.out.print("C " + index );
+        //if (parent != null) { System.out.print(" < " + parent.index); } else { System.out.println(); }
+        //System.out.println("\t" + r);
         IntervalTreeNode n = new IntervalTreeNode(r, index, parent);
         this.nodes.add(n);
         numcreated++;
