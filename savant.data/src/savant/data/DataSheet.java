@@ -32,9 +32,11 @@ import java.awt.event.ActionListener;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.List;
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import savant.util.MiscUtils;
 
 /**
  *
@@ -48,6 +50,7 @@ public class DataSheet implements RangeChangedListener, ViewTrackListChangedList
     private JTable table;
     private boolean autoUpdate = true;
     private JCheckBox autoUpdateCheckBox;
+    private JLabel label_num_items;
     private Savant parent;
     private ViewTrack currentViewTrack;
     private DataTableModel tableModel;
@@ -128,6 +131,13 @@ public class DataSheet implements RangeChangedListener, ViewTrackListChangedList
         panel.add(jsp);
 
         JToolBar jtb = new JToolBar();
+        JLabel label_num_items_title = new JLabel("Number of records: ");
+        jtb.add(label_num_items_title);
+        label_num_items = new JLabel("0");
+        jtb.add(label_num_items);
+
+        jtb.setVisible(true);
+        jtb.setFloatable(false);
         panel.add(jtb);
     }
 
@@ -164,8 +174,14 @@ public class DataSheet implements RangeChangedListener, ViewTrackListChangedList
 
     private void refreshData() {
         if (tableModel == null) { return; }
-        tableModel.setData(currentViewTrack.getDataInRange());
+        List<Object> data = currentViewTrack.getDataInRange();
+        tableModel.setData(data);
         tableModel.fireTableDataChanged();
+        if (data == null) {
+            label_num_items.setText(MiscUtils.intToString(0));
+        } else {
+            label_num_items.setText(MiscUtils.intToString(data.size()));
+        }
     }
 
     public void rangeChangeReceived(RangeChangedEvent event) {
