@@ -86,6 +86,8 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
 
     private JButton button_genome;
 
+    private static boolean showBookmarksChangedDialog = true;
+
     public static String os = System.getProperty("os.name").toLowerCase();
     public static boolean mac = os.contains("mac");
     public static int osSpecificModifier = (mac ? java.awt.event.InputEvent.META_MASK : java.awt.event.InputEvent.CTRL_MASK);
@@ -1837,7 +1839,23 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
 
     @Override
     public void bookmarksChangeReceived(BookmarksChangedEvent event) {
-        JOptionPane.showMessageDialog(this, event.message(), "Bookmarks changed", JOptionPane.INFORMATION_MESSAGE);
+        if (!showBookmarksChangedDialog) { return; }
+        //Custom button text
+        Object[] options = {"OK",
+                            "Don't show again"};
+        int n = JOptionPane.showOptionDialog(Savant.getInstance(),
+            event.message(),
+            "Bookmarks changed",
+            JOptionPane.YES_NO_CANCEL_OPTION,
+            JOptionPane.INFORMATION_MESSAGE,
+            null,
+            options,
+            options[0]);
+
+        if (n == 1) {
+            showBookmarksChangedDialog = false;
+        }
+        //JOptionPane.showMessageDialog(this, , , JOptionPane.INFORMATION_MESSAGE);
     }
 
     public enum LOGMODE { NORMAL, DEBUG };

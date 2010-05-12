@@ -19,6 +19,7 @@ import savant.util.DataFormatUtils;
 public class ScreenShot
 {
     private static int saveCount = 0;
+    private static boolean showCompletionDialog = true;
 
     public static BufferedImage take() {
         try {
@@ -127,8 +128,23 @@ public class ScreenShot
     }
 
     private static void showCompletionDialog(String name) {
-        if (name == null) { return; }
-        JOptionPane.showMessageDialog(Savant.getInstance(), "Saved to " + name, "Sreenshot Taken", JOptionPane.INFORMATION_MESSAGE);
+        if (name == null || !showCompletionDialog) { return; }
+        //Custom button text
+        Object[] options = {"OK",
+                            "Don't show again"};
+        int n = JOptionPane.showOptionDialog(Savant.getInstance(),
+            "Saved to " + name,
+            "Sreenshot Taken",
+            JOptionPane.YES_NO_CANCEL_OPTION,
+            JOptionPane.INFORMATION_MESSAGE,
+            null,
+            options,
+            options[0]);
+
+        if (n == 1) {
+            showCompletionDialog = false;
+        }
+        //JOptionPane.showMessageDialog(Savant.getInstance(), "Saved to " + name, "Sreenshot Taken", JOptionPane.INFORMATION_MESSAGE);
     }
 
 }
