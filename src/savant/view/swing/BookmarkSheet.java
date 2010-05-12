@@ -38,13 +38,13 @@ import static java.awt.FileDialog.SAVE;
  *
  * @author mfiume
  */
-public class BookmarkSheet implements BookmarksChangedListener, RangeChangedListener {
+public class BookmarkSheet implements BookmarksChangedListener /*,  RangeChangedListener*/ {
 
     private JTable table;
     private Savant parent;
 
-    static boolean isRecording = false;
-    static JButton recordButton;
+    // static boolean isRecording = false;
+    // static JButton recordButton;
     static JButton addButton;
 
     // Popup menu
@@ -98,6 +98,7 @@ public class BookmarkSheet implements BookmarksChangedListener, RangeChangedList
         });
         toolbar.add(addButton);
 
+        /*
         recordButton = new JButton("Record");
         recordButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -112,6 +113,7 @@ public class BookmarkSheet implements BookmarksChangedListener, RangeChangedList
             }
         });
         toolbar.add(recordButton);
+        */
 
         // create a table (the most important component)
         table = new JTable(new BookmarksTableModel());
@@ -178,7 +180,7 @@ public class BookmarkSheet implements BookmarksChangedListener, RangeChangedList
         subpanel.add(Box.createGlue());
 
         RangeController rc = RangeController.getInstance();
-        rc.addRangeChangedListener(this);
+        // rc.addRangeChangedListener(this);
 
         initContextualMenu();
     }
@@ -194,12 +196,14 @@ public class BookmarkSheet implements BookmarksChangedListener, RangeChangedList
         ((BookmarksTableModel) table.getModel()).fireTableDataChanged();
     }
 
+    /*
     public void rangeChangeReceived(RangeChangedEvent event) {
         if (isRecording) {
             BookmarkController bc = BookmarkController.getInstance();
             bc.addCurrentRangeToBookmarks();
         }
     }
+    */
 
     private void initContextualMenu() {
         tableMenu = new JPopupMenu();
