@@ -15,6 +15,7 @@
  */
 package savant.data;
 
+import java.awt.Color;
 import savant.controller.ViewTrackController;
 import savant.controller.event.viewtrack.ViewTrackListChangedEvent;
 import savant.controller.event.viewtrack.ViewTrackListChangedListener;
@@ -70,7 +71,7 @@ public class DataSheet implements RangeChangedListener, ViewTrackListChangedList
 
         // add a label to the toolbar
         JLabel l = new JLabel();
-        l.setText("Track: ");
+        l.setText(" Track: ");
         toolbar.add(l);
 
         // add a dropdown, populated with tracks
@@ -83,7 +84,13 @@ public class DataSheet implements RangeChangedListener, ViewTrackListChangedList
                 }
             }
         });
+        trackList.setMinimumSize(new Dimension(100,100));
+        trackList.setMaximumSize(new Dimension(500,500));
+        trackList.setPreferredSize(new Dimension(300,300));
+        trackList.setBackground(Color.lightGray);
         toolbar.add(trackList);
+
+        toolbar.add(Box.createHorizontalGlue());
 
         autoUpdateCheckBox = new JCheckBox();
         autoUpdateCheckBox.setText("Auto Update");
@@ -119,6 +126,9 @@ public class DataSheet implements RangeChangedListener, ViewTrackListChangedList
         JScrollPane jsp = new JScrollPane(tmp);
 
         panel.add(jsp);
+
+        JToolBar jtb = new JToolBar();
+        panel.add(jtb);
     }
 
     private void setAutoUpdate(boolean au) {
