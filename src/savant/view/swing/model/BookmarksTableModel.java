@@ -68,9 +68,9 @@ public class BookmarksTableModel extends AbstractTableModel {
 
          switch(column) {
              case 0:
-                 return fave.getRange().getFrom()+1;
+                 return fave.getRange().getFrom();
              case 1:
-                 return fave.getRange().getTo()+1;
+                 return fave.getRange().getTo();
              case 2:
                  return fave.getAnnotation();
              default:

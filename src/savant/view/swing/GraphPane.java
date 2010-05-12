@@ -610,10 +610,10 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
        else {
             if (notches < 0) {
                RangeController rc = RangeController.getInstance();
-               rc.zoomIn();
+               rc.zoomInOnMouse();
            } else {
                RangeController rc = RangeController.getInstance();
-               rc.zoomOut();
+               rc.zoomOutFromMouse();
            }
        }
     }
@@ -687,6 +687,11 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
      * {@inheritDoc}
      */
     public void mouseClicked( final MouseEvent event ) {
+
+        if (event.getClickCount() == 2) {
+            RangeController.getInstance().zoomInOnMouse();
+            return;
+        }
 
         setMouseModifier(event);
 

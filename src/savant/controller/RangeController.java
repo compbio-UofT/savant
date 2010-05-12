@@ -279,6 +279,10 @@ public class RangeController {
      * @param length The length to which to zoom
      */
     public void zoomToLength(int length) {
+        zoomToLength(length, (getRangeEnd() + getRangeStart()) / 2);
+    }
+    
+    public void zoomToLength(int length, int center) {
 
         length = Math.max(length, 1);
         log.debug("Zooming to length " + length);
@@ -286,17 +290,17 @@ public class RangeController {
         if (length > getMaxRangeEnd()) {
             return; // can't go any further out, stay at same range.
         }
-        int middle = (getRangeEnd() + getRangeStart()) / 2;
+        //int middle = (getRangeEnd() + getRangeStart()) / 2;
         int half = Math.max(length / 2, 1);
         Range r=null;
-        if (half <= middle) {
-            r = new Range(middle - half + 1, middle + half);
+        if (half <= center) {
+            r = new Range(center - half + 1, center + half);
         }
-        else if ((middle + half) > getMaxRangeEnd())
+        else if ((center + half) > getMaxRangeEnd())
         {
             return; // can't go any further out,stay at same range
         }
-        else if ( half > middle) {
+        else if ( half > center) {
             r = new Range(1, length);
         }
         setRange(r);
@@ -344,6 +348,16 @@ public class RangeController {
         }
 
         //printStacks();
+    }
+
+    public void zoomInOnMouse() {
+        int center = GraphPaneController.getInstance().getMouseXPosition();
+        zoomToLength(this.currentViewableRange.getLength() / BrowserDefaults.zoomAmount,center);
+    }
+
+    public void zoomOutFromMouse() {
+        int center = GraphPaneController.getInstance().getMouseXPosition();
+        zoomToLength(this.currentViewableRange.getLength() * BrowserDefaults.zoomAmount,center);
     }
 
     /*
