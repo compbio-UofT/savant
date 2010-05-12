@@ -36,6 +36,7 @@ import savant.analysis.BatchAnalysisForm;
 import savant.controller.BookmarkController;
 import savant.controller.FrameController;
 import savant.controller.RangeController;
+import savant.controller.event.bookmark.BookmarksChangedEvent;
 import savant.controller.event.range.RangeChangedEvent;
 import savant.controller.event.range.RangeChangedListener;
 import savant.controller.event.rangeselection.RangeSelectionChangedEvent;
@@ -46,8 +47,6 @@ import savant.util.Range;
 import savant.view.swing.sequence.SequenceViewTrack;
 
 import javax.swing.*;
-import javax.swing.border.Border;
-import javax.swing.border.EtchedBorder;
 import java.awt.*;
 import java.awt.event.*;
 import java.beans.PropertyChangeEvent;
@@ -64,7 +63,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import savant.controller.GraphPaneController;
-import savant.controller.GraphPaneController;
+import savant.controller.event.bookmark.BookmarksChangedListener;
 import savant.format.header.FileType;
 import savant.plugin.AuxData;
 import savant.plugin.PluginAdapter;
@@ -76,7 +75,7 @@ import savant.view.swing.util.ScreenShot;
  * @author mfiume
  */
 public class Savant extends javax.swing.JFrame implements ComponentListener, RangeSelectionChangedListener,
-        RangeChangedListener, PropertyChangeListener {
+        RangeChangedListener, PropertyChangeListener, BookmarksChangedListener {
 
     private static boolean isDebugging = false;
     private DockingManager auxDockingManager;
@@ -286,7 +285,6 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         initComponents();
         init();
         disableExperimentalFeatures();
-
     }
 
     private void loadPlugins() {
@@ -410,7 +408,6 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
 
         toolbar_bottom.setFloatable(false);
         toolbar_bottom.setAlignmentX(1.0F);
-        toolbar_bottom.setAlignmentY(0.0F);
 
         label_mouseposition_title.setText(" Position: ");
         toolbar_bottom.add(label_mouseposition_title);
@@ -492,7 +489,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         menu_file.add(submenu_download);
         menu_file.add(jSeparator3);
 
-        menuitem_screen.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_S, java.awt.event.InputEvent.CTRL_MASK));
+        menuitem_screen.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_T, java.awt.event.InputEvent.CTRL_MASK));
         menuitem_screen.setText("Screenshot");
         menuitem_screen.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -948,11 +945,12 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         auxTabbedPane = new JTabbedPane();
 
         initLogTab(auxTabbedPane);
+        //auxTabbedPane.setSelectedIndex(0);
+
         
         // TODO: relink once polished
         //initBatchAnalyzeTab(auxTabbedPane);
 
-        auxTabbedPane.setSelectedIndex(0);
 
         df.getContentPane().setLayout(new BorderLayout());
         df.getContentPane().add(auxTabbedPane, BorderLayout.CENTER);
@@ -964,11 +962,9 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         df.setAvailableButtons(DockableFrame.BUTTON_AUTOHIDE | DockableFrame.BUTTON_FLOATING | DockableFrame.BUTTON_MAXIMIZE );
         this.getAuxDockingManager().addFrame(df);
 
-        JTabbedPane jtp = new JTabbedPane();
-        initBookmarksTab(jtp);
-
         df.getContentPane().setLayout(new BorderLayout());
-        df.getContentPane().add(jtp, BorderLayout.CENTER);
+
+        initBookmarksTab(df.getContentPane());
     }
 
     /**
@@ -1086,6 +1082,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         });
 
         JButton trackButton = addButton(p, "  Track  ");
+        trackButton.setToolTipText("Load a track");
         trackButton.addMouseListener(new MouseListener() {
 
             public void mouseClicked(MouseEvent e) {
@@ -1123,11 +1120,10 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
          * 
          */
 
-        
-
         p.add(this.getRigidPadding());
         JLabel fromtext = new JLabel();
         fromtext.setText("From: ");
+        fromtext.setToolTipText("Start position of range");
         p.add(fromtext);
         //p.add(this.getRigidPadding());
 
@@ -1135,6 +1131,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         int labwidth = 100;
         int tfheight = 22;
         textboxFrom = addTextField(p, "from");
+        textboxFrom.setToolTipText("Start position of range");
         textboxFrom.setHorizontalAlignment(JTextField.CENTER);
         textboxFrom.setPreferredSize(new Dimension(tfwidth, tfheight));
         textboxFrom.setMaximumSize(new Dimension(tfwidth, tfheight));
@@ -1156,11 +1153,13 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
 
         p.add(this.getRigidPadding());
         JLabel totext = new JLabel();
+        totext.setToolTipText("End position of range");
         totext.setText("To: ");
         p.add(totext);
         //p.add(this.getRigidPadding());
 
         textboxTo = addTextField(p, "to");
+        textboxTo.setToolTipText("End position of range");
         textboxTo.setHorizontalAlignment(JTextField.CENTER);
         textboxTo.setPreferredSize(new Dimension(tfwidth, tfheight));
         textboxTo.setMaximumSize(new Dimension(tfwidth, tfheight));
@@ -1177,10 +1176,12 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         
         JLabel sepl = new JLabel();
         sepl.setText("Length: ");
+        sepl.setToolTipText("Length of the current range");
         p.add(sepl);
 
         label_length = new JLabel();
         label_length.setText("length");
+        label_length.setToolTipText("Length of the current range");
         //label_length.setHorizontalAlignment(JLabel.RIGHT);
 
         label_length.setPreferredSize(new Dimension(labwidth, tfheight));
@@ -1191,6 +1192,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         p.add(Box.createGlue());
 
         JButton zoomIn = addButton(p, "+");
+        zoomIn.setToolTipText("Zoom in");
         zoomIn.setPreferredSize(buttonDimension);
         zoomIn.setMinimumSize(buttonDimension);
         zoomIn.setMaximumSize(buttonDimension);
@@ -1214,6 +1216,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         });
 
         JButton zoomOut = addButton(p, "-");
+        zoomOut.setToolTipText("Zoom out");
         zoomOut.setPreferredSize(buttonDimension);
         zoomOut.setMinimumSize(buttonDimension);
         zoomOut.setMaximumSize(buttonDimension);
@@ -1239,7 +1242,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         p.add(getRigidPadding());
 
         JButton shiftFarLeft = addButton(p, "|<");
-
+        shiftFarLeft.setToolTipText("Move to the beginning of the genome");
         shiftFarLeft.setPreferredSize(buttonDimension);
         shiftFarLeft.setMinimumSize(buttonDimension);
         shiftFarLeft.setMaximumSize(buttonDimension);
@@ -1264,6 +1267,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         });
 
         JButton shiftLeft = addButton(p, "<");
+        shiftLeft.setToolTipText("Move left");
         shiftLeft.setPreferredSize(buttonDimension);
         shiftLeft.setMinimumSize(buttonDimension);
         shiftLeft.setMaximumSize(buttonDimension);
@@ -1287,6 +1291,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         });
 
         JButton shiftRight = addButton(p, ">");
+        shiftRight.setToolTipText("Move right");
         shiftRight.setPreferredSize(buttonDimension);
         shiftRight.setMinimumSize(buttonDimension);
         shiftRight.setMaximumSize(buttonDimension);
@@ -1310,6 +1315,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         });
 
         JButton shiftFarRight = addButton(p, ">|");
+        shiftFarRight.setToolTipText("Move to the end of the genome");
         shiftFarRight.setPreferredSize(buttonDimension);
         shiftFarRight.setMinimumSize(buttonDimension);
         shiftFarRight.setMaximumSize(buttonDimension);
@@ -1395,10 +1401,11 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         }
     }
 
-    private void initBookmarksTab(JTabbedPane jtp) {
-        JPanel tablePanel = createTabPanel(jtp, "Bookmarks");
-        favoriteSheet = new BookmarkSheet(this, tablePanel);
+    private void initBookmarksTab(Container c) {
+        //JPanel tablePanel = createTabPanel(jtp, "Bookmarks");
+        favoriteSheet = new BookmarkSheet(this, c);
         favoriteController.addFavoritesChangedListener(favoriteSheet);
+        favoriteController.addFavoritesChangedListener(this);
     }
 
     private void initBatchAnalyzeTab(JTabbedPane jtp) {
@@ -1421,8 +1428,10 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
     }
 
     private void initLogTab(JTabbedPane jtp) {
-        JPanel pan = createTabPanel(jtp, "Log");
-        this.initLog(pan);
+        //JPanel pan = createTabPanel(jtp, "Log");
+        //this.initLog(pan);
+
+        this.initLog(new JPanel());
     }
 
     private JPanel createTabPanel(JTabbedPane jtp, String name) {
@@ -1824,8 +1833,11 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
     }
 
     private void disableExperimentalFeatures() {
-        this.label_status_title.setVisible(false);
-        this.progressbar_status.setVisible(false);
+    }
+
+    @Override
+    public void bookmarksChangeReceived(BookmarksChangedEvent event) {
+        JOptionPane.showMessageDialog(this, event.message(), "Bookmarks changed", JOptionPane.INFORMATION_MESSAGE);
     }
 
     public enum LOGMODE { NORMAL, DEBUG };

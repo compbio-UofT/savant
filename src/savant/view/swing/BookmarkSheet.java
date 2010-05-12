@@ -32,30 +32,27 @@ import java.io.*;
 import java.util.List;
 import java.util.StringTokenizer;
 
+import savant.controller.event.range.RangeChangedListener;
 import static java.awt.FileDialog.SAVE;
 
 /**
  *
  * @author mfiume
  */
-public class BookmarkSheet implements BookmarksChangedListener /*,  RangeChangedListener*/ {
+public class BookmarkSheet implements BookmarksChangedListener /*, RangeChangedListener*/ {
 
     private JTable table;
-    private Savant parent;
 
-    // static boolean isRecording = false;
-    // static JButton recordButton;
+    static boolean isRecording = false;
+    static JButton recordButton;
     static JButton addButton;
 
-    public BookmarkSheet(Savant parent, JPanel panel) {
+    public BookmarkSheet(Savant parent, Container c) {
 
         JPanel subpanel = new JPanel();
 
-         // set the parent
-        this.parent = parent;
-
         // set the layout of the data sheet
-        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        c.setLayout(new BorderLayout());
         subpanel.setLayout(new BoxLayout(subpanel, BoxLayout.Y_AXIS));
 
         /**
@@ -66,7 +63,7 @@ public class BookmarkSheet implements BookmarksChangedListener /*,  RangeChanged
         toolbar.setMinimumSize(new Dimension(22,44));
         toolbar.setPreferredSize(new Dimension(22,44));
         toolbar.setMaximumSize(new Dimension(999999,44));
-        panel.add(toolbar);
+        c.add(toolbar, BorderLayout.NORTH);
 
         JPanel topToolRow = new JPanel();
         topToolRow.setLayout(new BoxLayout(topToolRow, BoxLayout.X_AXIS));
@@ -82,7 +79,7 @@ public class BookmarkSheet implements BookmarksChangedListener /*,  RangeChanged
         bottomToolRow.setMaximumSize(new Dimension(999999,22));
         toolbar.add(bottomToolRow);
         
-        Dimension buttonSize = new Dimension(60,22);
+        Dimension buttonSize = new Dimension(65,22);
 
         JButton goButton = new JButton("Go");
         goButton.setMinimumSize(buttonSize);
@@ -159,7 +156,6 @@ public class BookmarkSheet implements BookmarksChangedListener /*,  RangeChanged
         bottomToolRow.add(saveButton);
 
 
-        /*
         recordButton = new JButton("Record");
         recordButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -174,7 +170,6 @@ public class BookmarkSheet implements BookmarksChangedListener /*,  RangeChanged
             }
         });
         toolbar.add(recordButton);
-        */
 
         // create a table (the most important component)
         table = new JTable(new BookmarksTableModel());
@@ -197,7 +192,7 @@ public class BookmarkSheet implements BookmarksChangedListener /*,  RangeChanged
 
 
         // add the table and its header to the subpanel
-        panel.add(table.getTableHeader());
+        c.add(table.getTableHeader());
 
         subpanel.add(table);
 
@@ -205,13 +200,13 @@ public class BookmarkSheet implements BookmarksChangedListener /*,  RangeChanged
         JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
         JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 
-        panel.add(sp);
+        c.add(sp);
 
         // add glue to fill the remaining space
         subpanel.add(Box.createGlue());
 
-        RangeController rc = RangeController.getInstance();
-        // rc.addRangeChangedListener(this);
+        //RangeController rc = RangeController.getInstance();
+        //rc.addRangeChangedListener(this);
 
         // initContextualMenu();
     }
@@ -234,7 +229,7 @@ public class BookmarkSheet implements BookmarksChangedListener /*,  RangeChanged
             bc.addCurrentRangeToBookmarks();
         }
     }
-    */
+     */
 
     private static void loadBookmarks(JTable table) {
         BookmarksTableModel btm = (BookmarksTableModel) table.getModel();

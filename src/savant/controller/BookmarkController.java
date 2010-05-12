@@ -61,7 +61,7 @@ public class BookmarkController {
     public void addBookmark(Bookmark f) {
         Savant.log("Bookmark added", Savant.LOGMODE.NORMAL);
         this.bookmarks.add(f);
-        this.fireFavoritesChangedEvent();
+        this.fireBookmarksChangedEvent("Bookmark added at " + f.getRange());
     }
 
     public void removeBookmark() {
@@ -71,8 +71,9 @@ public class BookmarkController {
     public void removeBookmark(int index) {
         try {
             Savant.log("Bookmark removed", Savant.LOGMODE.NORMAL);
+            Bookmark b = this.bookmarks.get(index);
             this.bookmarks.remove(index);
-            this.fireFavoritesChangedEvent();
+            this.fireBookmarksChangedEvent("Bookmark removed at " + b.getRange());
         } catch(Exception e) {}
     }
 
@@ -83,8 +84,8 @@ public class BookmarkController {
     /**
      * Fire the RangeChangedEvent
      */
-    private synchronized void fireFavoritesChangedEvent() {
-        BookmarksChangedEvent evt = new BookmarksChangedEvent(this, this.bookmarks);
+    private synchronized void fireBookmarksChangedEvent(String message) {
+        BookmarksChangedEvent evt = new BookmarksChangedEvent(this, this.bookmarks, message);
         for (BookmarksChangedListener listener : this.favoritesChangedListeners) {
             listener.bookmarksChangeReceived(evt);
         }

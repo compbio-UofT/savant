@@ -27,13 +27,19 @@ import java.util.List;
 public class BookmarksChangedEvent extends EventObject {
 
     private List<Bookmark> bookmarks;
+    private String message;
 
-    public BookmarksChangedEvent(Object source, List<Bookmark> bms) {
+    public BookmarksChangedEvent(Object source, List<Bookmark> bms, String message) {
         super(source);
         this.bookmarks = bms;
+        this.message = message;
     }
 
     public List<Bookmark> favorites() {
         return bookmarks;
+    }
+
+    public String message() {
+        return this.message;
     }
 }
