@@ -61,7 +61,8 @@ public class BrowserDefaults {
     //public static Color ColorMain = new Color(0, 174, 255, 150);
     public static Color colorAccent = Color.black;
     public static Color colorAxisGrid = Color.lightGray;
-    public static Color colorGraphMain = Color.red;
+    //public static Color colorGraphMain = Color.red;
+    public static Color colorGraphMain = new Color(0, 174, 255, 150);
 
     public static Color A_COLOR = new Color(27, 97, 97);  // blue
     public static Color C_COLOR = new Color(162, 45, 45); // red
