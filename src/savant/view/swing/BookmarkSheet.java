@@ -19,8 +19,8 @@ import savant.controller.BookmarkController;
 import savant.controller.RangeController;
 import savant.controller.event.bookmark.BookmarksChangedEvent;
 import savant.controller.event.bookmark.BookmarksChangedListener;
-import savant.controller.event.range.RangeChangedEvent;
-import savant.controller.event.range.RangeChangedListener;
+//import savant.controller.event.range.RangeChangedEvent;
+//import savant.controller.event.range.RangeChangedListener;
 import savant.util.Bookmark;
 import savant.util.Range;
 import savant.view.swing.model.BookmarksTableModel;
@@ -47,9 +47,6 @@ public class BookmarkSheet implements BookmarksChangedListener /*,  RangeChanged
     // static JButton recordButton;
     static JButton addButton;
 
-    // Popup menu
-    JPopupMenu tableMenu;
-
     public BookmarkSheet(Savant parent, JPanel panel) {
 
         JPanel subpanel = new JPanel();
@@ -65,38 +62,96 @@ public class BookmarkSheet implements BookmarksChangedListener /*,  RangeChanged
          * Create a toolbar. 
          */
         JPanel toolbar = new JPanel();
-        toolbar.setLayout(new BoxLayout(toolbar, BoxLayout.X_AXIS));
-        toolbar.setMinimumSize(new Dimension(22,22));
-        toolbar.setPreferredSize(new Dimension(22,22));
-        toolbar.setMaximumSize(new Dimension(999999,22));
+        toolbar.setLayout(new BoxLayout(toolbar, BoxLayout.Y_AXIS));
+        toolbar.setMinimumSize(new Dimension(22,44));
+        toolbar.setPreferredSize(new Dimension(22,44));
+        toolbar.setMaximumSize(new Dimension(999999,44));
         panel.add(toolbar);
 
-        JButton loadButton = new JButton("Load");
-        loadButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                loadBookmarks(table);
-            }
-        });
-        toolbar.add(loadButton);
+        JPanel topToolRow = new JPanel();
+        topToolRow.setLayout(new BoxLayout(topToolRow, BoxLayout.X_AXIS));
+        topToolRow.setMinimumSize(new Dimension(22,22));
+        topToolRow.setPreferredSize(new Dimension(22,22));
+        topToolRow.setMaximumSize(new Dimension(999999,22));
+        toolbar.add(topToolRow);
 
-        JButton saveButton = new JButton("Save");
-        saveButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                saveBookmarks(table);
-            }
-        });
-        toolbar.add(saveButton);
+        JPanel bottomToolRow = new JPanel();
+        bottomToolRow.setLayout(new BoxLayout(bottomToolRow, BoxLayout.X_AXIS));
+        bottomToolRow.setMinimumSize(new Dimension(22,22));
+        bottomToolRow.setPreferredSize(new Dimension(22,22));
+        bottomToolRow.setMaximumSize(new Dimension(999999,22));
+        toolbar.add(bottomToolRow);
+        
+        Dimension buttonSize = new Dimension(60,22);
 
-        toolbar.add(Box.createGlue());
+        JButton goButton = new JButton("Go");
+        goButton.setMinimumSize(buttonSize);
+        goButton.setPreferredSize(buttonSize);
+        goButton.setMaximumSize(buttonSize);
+        goButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                int selectedRow = table.getSelectedRow();
+                if (selectedRow != -1) {
+                    RangeController rc = RangeController.getInstance();
+                    BookmarksTableModel tableModel = (BookmarksTableModel) table.getModel();
+                    Bookmark bookmark = tableModel.getData().get(selectedRow);
+                    rc.setRange(bookmark.getRange());
+                }
+            }
+
+        });
+        topToolRow.add(goButton);
+
+        topToolRow.add(Box.createGlue());
 
         addButton = new JButton("Add");
+        addButton.setMinimumSize(buttonSize);
+        addButton.setPreferredSize(buttonSize);
+        addButton.setMaximumSize(buttonSize);
         addButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 BookmarkController fc = BookmarkController.getInstance();
                 fc.addCurrentRangeToBookmarks();
             }
         });
-        toolbar.add(addButton);
+        topToolRow.add(addButton);
+
+        JButton deleteButton = new JButton("Delete");
+        deleteButton.setMinimumSize(buttonSize);
+        deleteButton.setPreferredSize(buttonSize);
+        deleteButton.setMaximumSize(buttonSize);
+        deleteButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                BookmarkController fc = BookmarkController.getInstance();
+                fc.removeBookmark(table.getSelectedRow());
+            }
+        });
+        topToolRow.add(deleteButton);
+
+        bottomToolRow.add(Box.createGlue());
+
+        JButton loadButton = new JButton("Load");
+        loadButton.setMinimumSize(buttonSize);
+        loadButton.setPreferredSize(buttonSize);
+        loadButton.setMaximumSize(buttonSize);
+        loadButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                loadBookmarks(table);
+            }
+        });
+        bottomToolRow.add(loadButton);
+
+        JButton saveButton = new JButton("Save");
+        saveButton.setMinimumSize(buttonSize);
+        saveButton.setPreferredSize(buttonSize);
+        saveButton.setMaximumSize(buttonSize);
+        saveButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                saveBookmarks(table);
+            }
+        });
+        bottomToolRow.add(saveButton);
+
 
         /*
         recordButton = new JButton("Record");
@@ -134,36 +189,6 @@ public class BookmarkSheet implements BookmarksChangedListener /*,  RangeChanged
          * 
          */
 
-        table.addMouseListener(new MouseListener() {
-
-            public void mouseClicked(MouseEvent e) {
-                if ((e.getModifiers() & InputEvent.BUTTON3_MASK) == InputEvent.BUTTON3_MASK) {
-                    showTableContextualMenu(e);
-                }
-                //throw new UnsupportedOperationException("Not supported yet.");
-            }
-
-            public void mousePressed(MouseEvent e) {
-                //throw new UnsupportedOperationException("Not supported yet.");
-            }
-
-            public void mouseReleased(MouseEvent e) {
-                //throw new UnsupportedOperationException("Not supported yet.");
-            }
-
-            public void mouseEntered(MouseEvent e) {
-                //throw new UnsupportedOperationException("Not supported yet.");
-            }
-
-            public void mouseExited(MouseEvent e) {
-                //throw new UnsupportedOperationException("Not supported yet.");
-            }
-
-            private void showTableContextualMenu(MouseEvent event) {
-                tableMenu.show(event.getComponent(), event.getX(), event.getY());
-            }
-
-        });
 
         // add the table and its header to the subpanel
         panel.add(table.getTableHeader());
@@ -182,7 +207,7 @@ public class BookmarkSheet implements BookmarksChangedListener /*,  RangeChanged
         RangeController rc = RangeController.getInstance();
         // rc.addRangeChangedListener(this);
 
-        initContextualMenu();
+        // initContextualMenu();
     }
 
     public void bookmarksChangeReceived(BookmarksChangedEvent event) {
@@ -204,30 +229,6 @@ public class BookmarkSheet implements BookmarksChangedListener /*,  RangeChanged
         }
     }
     */
-
-    private void initContextualMenu() {
-        tableMenu = new JPopupMenu();
-
-        JMenuItem goMI = new JMenuItem("Go");
-        goMI.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                RangeController rc = RangeController.getInstance();
-                rc.setRange(((Bookmark) ((BookmarksTableModel)table.getModel()).getData().get(table.getSelectedRow())).getRange());
-            }
-        });
-
-        tableMenu.add ( goMI );
-
-        JMenuItem deleteMI = new JMenuItem("Delete");
-        deleteMI.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                BookmarkController fc = BookmarkController.getInstance();
-                fc.removeBookmark(table.getSelectedRow());
-            }
-        });
-
-        tableMenu.add ( deleteMI );
-    }
 
     private static void loadBookmarks(JTable table) {
         BookmarksTableModel btm = (BookmarksTableModel) table.getModel();
