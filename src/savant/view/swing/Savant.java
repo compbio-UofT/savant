@@ -960,7 +960,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
 
     private void initAuxPanel2() {
 
-        DockableFrame df = DockableFrameFactory.createFrame("Annotation",DockContext.STATE_AUTOHIDE,DockContext.DOCK_SIDE_EAST);
+        DockableFrame df = DockableFrameFactory.createFrame("Bookmarks",DockContext.STATE_AUTOHIDE,DockContext.DOCK_SIDE_EAST);
         df.setAvailableButtons(DockableFrame.BUTTON_AUTOHIDE | DockableFrame.BUTTON_FLOATING | DockableFrame.BUTTON_MAXIMIZE );
         this.getAuxDockingManager().addFrame(df);
 
