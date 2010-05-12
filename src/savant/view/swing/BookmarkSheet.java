@@ -88,10 +88,11 @@ public class BookmarkSheet implements BookmarksChangedListener /*,  RangeChanged
         goButton.setMinimumSize(buttonSize);
         goButton.setPreferredSize(buttonSize);
         goButton.setMaximumSize(buttonSize);
+        goButton.setToolTipText("Go to selected bookmark");
         goButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 int selectedRow = table.getSelectedRow();
-                if (selectedRow != -1) {
+                if (selectedRow > -1) {
                     RangeController rc = RangeController.getInstance();
                     BookmarksTableModel tableModel = (BookmarksTableModel) table.getModel();
                     Bookmark bookmark = tableModel.getData().get(selectedRow);
@@ -108,6 +109,7 @@ public class BookmarkSheet implements BookmarksChangedListener /*,  RangeChanged
         addButton.setMinimumSize(buttonSize);
         addButton.setPreferredSize(buttonSize);
         addButton.setMaximumSize(buttonSize);
+        addButton.setToolTipText("Add bookmark for current range");
         addButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 BookmarkController fc = BookmarkController.getInstance();
@@ -120,10 +122,12 @@ public class BookmarkSheet implements BookmarksChangedListener /*,  RangeChanged
         deleteButton.setMinimumSize(buttonSize);
         deleteButton.setPreferredSize(buttonSize);
         deleteButton.setMaximumSize(buttonSize);
+        deleteButton.setToolTipText("Delete selected bookmarks");
         deleteButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 BookmarkController fc = BookmarkController.getInstance();
-                fc.removeBookmark(table.getSelectedRow());
+                int selectedRow = table.getSelectedRow();
+                if (selectedRow > -1) fc.removeBookmark(selectedRow);
             }
         });
         topToolRow.add(deleteButton);
@@ -134,6 +138,7 @@ public class BookmarkSheet implements BookmarksChangedListener /*,  RangeChanged
         loadButton.setMinimumSize(buttonSize);
         loadButton.setPreferredSize(buttonSize);
         loadButton.setMaximumSize(buttonSize);
+        loadButton.setToolTipText("Load bookmarks from file");
         loadButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 loadBookmarks(table);
@@ -145,6 +150,7 @@ public class BookmarkSheet implements BookmarksChangedListener /*,  RangeChanged
         saveButton.setMinimumSize(buttonSize);
         saveButton.setPreferredSize(buttonSize);
         saveButton.setMaximumSize(buttonSize);
+        saveButton.setToolTipText("Save bookmarks to file");
         saveButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 saveBookmarks(table);
