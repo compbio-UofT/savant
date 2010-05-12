@@ -24,6 +24,7 @@ import savant.model.view.DrawingInstructions;
 import savant.util.Range;
 import savant.view.swing.GraphPane;
 import savant.view.swing.TrackRenderer;
+import savant.view.swing.util.GlassMessagePane;
 
 import java.awt.*;
 import java.awt.geom.Point2D;
@@ -34,6 +35,9 @@ import java.util.List;
  * @author mfiume
  */
 public class PointTrackRenderer extends TrackRenderer {
+
+    private static final int GLASS_PANE_WIDTH = 300;
+    private static final String GLASS_PANE_MESSAGE = "zoom in to see points";
 
     public PointTrackRenderer() { this(new DrawingInstructions()); }
 
@@ -49,13 +53,23 @@ public class PointTrackRenderer extends TrackRenderer {
 
         gp.setIsOrdinal(true);
 
-        DrawingInstructions di = this.getDrawingInstructions();
+        double width = gp.getUnitWidth();
 
+        DrawingInstructions di = this.getDrawingInstructions();
 
         Resolution r = (Resolution) di.getInstruction(DrawingInstructions.InstructionName.RESOLUTION.toString());
 
         List<Object> data = this.getData();
+
         if (data == null) return;
+
+        // don't draw things which are too small to be seen: less than 1 pixel wide
+        if (width < 1) {
+            // display informational glass pane
+            GlassMessagePane.draw(g2, gp, GLASS_PANE_MESSAGE, GLASS_PANE_WIDTH);
+            return;
+
+        }
         int numdata = this.getData().size();
 
 
@@ -70,9 +84,6 @@ public class PointTrackRenderer extends TrackRenderer {
             for (int i = 0; i < numdata; i++) {
 
                 Polygon p = new Polygon();
-
-                double width = gp.getUnitWidth();
-                double height = gp.getUnitHeight();
 
                 PointRecord record = (PointRecord)data.get(i);
                 Point sp = record.getPoint();
