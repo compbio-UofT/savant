@@ -175,6 +175,7 @@ public class BookmarkSheet implements BookmarksChangedListener /*, RangeChangedL
         table = new JTable(new BookmarksTableModel());
         table.setAutoCreateRowSorter(true);
         table.setFillsViewportHeight(true);
+        table.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
 
         /*
         table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
