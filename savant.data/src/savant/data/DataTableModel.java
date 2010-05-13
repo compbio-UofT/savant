@@ -16,6 +16,7 @@
 
 package savant.data;
 
+import net.sf.samtools.SAMRecord;
 import savant.model.*;
 
 import javax.swing.table.AbstractTableModel;
@@ -164,35 +165,36 @@ public class DataTableModel extends AbstractTableModel {
                          return ((GenericIntervalRecord) datum).getDescription();
                  }
              case INTERVAL_BAM:
+                 SAMRecord samRecord = ((BAMIntervalRecord) datum).getSamRecord();
+                 boolean mated = samRecord.getReadPairedFlag();
                  switch (column) {
                      case 0:
-                         return ((BAMIntervalRecord) datum).getSamRecord().getReadName();
+                         return samRecord.getReadName();
                      case 1:
-                         return ((BAMIntervalRecord) datum).getSamRecord().getReadString();
+                         return samRecord.getReadString();
                      case 2:
-                         return ((BAMIntervalRecord) datum).getSamRecord().getReadLength();
+                         return samRecord.getReadLength();
                      case 3:
-                         return ((BAMIntervalRecord) datum).getSamRecord().getFirstOfPairFlag();
-                     case 4:
-                         return ((BAMIntervalRecord) datum).getSamRecord().getAlignmentStart();
-                     case 5:
-                         return !((BAMIntervalRecord) datum).getSamRecord().getReadNegativeStrandFlag();
-                     case 6:
-                         return ((BAMIntervalRecord) datum).getSamRecord().getMappingQuality();
-                     case 7:
-                         return ((BAMIntervalRecord) datum).getSamRecord().getCigarString();
-                     case 8:
-                         boolean mated = ((BAMIntervalRecord) datum).getSamRecord().getReadPairedFlag();
                          if (mated) {
-                            return ((BAMIntervalRecord) datum).getSamRecord().getMateAlignmentStart();
+                            return samRecord.getFirstOfPairFlag();
                          }
                          else {
-                             return -1;
+                             return false;
                          }
+                     case 4:
+                         return samRecord.getAlignmentStart();
+                     case 5:
+                         return samRecord.getReadNegativeStrandFlag();
+                     case 6:
+                         return samRecord.getMappingQuality();
+                     case 7:
+                         return samRecord.getCigarString();
+                     case 8:
+                         return mated ? samRecord.getMateAlignmentStart() : -1;
                      case 9:
-                         return !((BAMIntervalRecord) datum).getSamRecord().getMateNegativeStrandFlag();
+                         return mated ? !samRecord.getMateNegativeStrandFlag() : false;
                      case 10:
-                         return ((BAMIntervalRecord) datum).getSamRecord().getInferredInsertSize();
+                         return mated ? samRecord.getInferredInsertSize() : 0;
                  }
              case INTERVAL_BED:
                  switch (column) {
