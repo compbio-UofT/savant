@@ -1106,21 +1106,10 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
 
         p.add(Box.createGlue());
 
-        p.add(getRigidPadding());
+        
 
-        /*
-        rangeSelector = new RangeSelectionPanel();
-        rangeSelector.setPreferredSize(new Dimension(10000, 23));
-        rangeSelector.setMaximumSize(new Dimension(10000, 23));
-        this.addEtchedBorder(rangeSelector);
-        rangeController.addRangeChangedListener(rangeSelector);
-        rangeSelector.addRangeChangedListener(this);
-        rangeSelector.setActive(false);
-        //mt.setVisible(true);
-        //mt.setBackground(Color.red);
-        p.add(rangeSelector);
-         * 
-         */
+
+        p.add(getRigidPadding());
 
         p.add(this.getRigidPadding());
         JLabel fromtext = new JLabel();
@@ -1192,6 +1181,32 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         p.add(label_length);
 
         p.add(Box.createGlue());
+
+        JButton button_undo = new JButton("Undo");
+        button_undo.setToolTipText("Undo range change");
+        button_undo.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                RangeController.getInstance().undoRangeChange();
+            }
+
+        });
+        p.add(button_undo);
+
+        JButton button_redo = new JButton("Redo");
+        button_redo.setToolTipText("Redo range change");
+        button_redo.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                RangeController.getInstance().redoRangeChange();
+            }
+
+        });
+        p.add(button_redo);
+
+        p.add(this.getRigidPadding());
 
         JButton zoomIn = addButton(p, "+");
         zoomIn.setToolTipText("Zoom in");
@@ -1360,6 +1375,8 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         rangeControls.add(ruler);
         rangeControls.add(trackButton);
         rangeControls.add(menuitem_track);
+        rangeControls.add(button_undo);
+        rangeControls.add(button_redo);
         rangeControls.add(menuItemPanLeft);
         rangeControls.add(menuItemPanRight);
         rangeControls.add(menuItemZoomOut);
@@ -1710,8 +1727,30 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
      */
     void setRangeFromTextBoxes() {
 
-        int from = MiscUtils.stringToInt(MiscUtils.removeChar(textboxFrom.getText(), ','));
-        int to = MiscUtils.stringToInt(MiscUtils.removeChar(textboxTo.getText(), ','));
+        String fromtext = textboxFrom.getText().trim();
+        String totext = textboxTo.getText().trim();
+
+        int from, to;
+
+        if (fromtext.startsWith("-")) {
+            System.out.println("From is relative");
+            fromtext = MiscUtils.removeChar(fromtext,'-');
+            int diff = MiscUtils.stringToInt(MiscUtils.removeChar(fromtext, ','));
+            to = MiscUtils.stringToInt(MiscUtils.removeChar(textboxTo.getText(), ','));
+            System.out.println("It's " + diff + " less than " + to);
+            from = to - diff + 1;
+        } else if (totext.startsWith("+")) {
+            System.out.println("To is relative");
+            totext = MiscUtils.removeChar(totext,'+');
+            int diff = MiscUtils.stringToInt(MiscUtils.removeChar(totext, ','));
+            from = MiscUtils.stringToInt(MiscUtils.removeChar(textboxFrom.getText(), ','));
+            System.out.println("It's " + diff + " more than " + from);
+            to = from + diff - 1;
+        } else {
+            System.out.println("Neither is relative");
+            from = MiscUtils.stringToInt(MiscUtils.removeChar(textboxFrom.getText(), ','));
+            to = MiscUtils.stringToInt(MiscUtils.removeChar(textboxTo.getText(), ','));
+        }
 
         if (from <= 0) {
             JOptionPane.showMessageDialog(this, "Invalid start value.");
