@@ -1057,6 +1057,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
 
         Dimension buttonDimension = new Dimension(45,23);
+        Dimension buttonDimension1 = new Dimension(23,23);
 
         p.add(getRigidPadding());
         button_genome = addButton(p, "Genome");
@@ -1189,7 +1190,11 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         button_undo.setBorderPainted(false);
         button_undo.setContentAreaFilled(false);
         button_undo.setFocusPainted(false);
-        button_undo.setPreferredSize(buttonDimension);
+        button_undo.setPreferredSize(buttonDimension1);
+        button_undo.setMinimumSize(buttonDimension1);
+        button_undo.setMaximumSize(buttonDimension1);
+        button_undo.setPressedIcon(new javax.swing.ImageIcon(getClass().getResource("../../images/undo_down.png")));
+        button_undo.setRolloverIcon(new javax.swing.ImageIcon(getClass().getResource("../../images/undo_over.png")));
         /////////
         button_undo.setToolTipText("Undo range change");
         button_undo.addActionListener(new ActionListener() {
@@ -1201,6 +1206,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
 
         });
         p.add(button_undo);
+        p.add(this.getRigidPadding());
 
         JButton button_redo = new JButton("");
         /////////
@@ -1209,7 +1215,11 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         button_redo.setBorderPainted(false);
         button_redo.setContentAreaFilled(false);
         button_redo.setFocusPainted(false);
-        button_redo.setPreferredSize(buttonDimension);
+        button_redo.setPreferredSize(buttonDimension1);
+        button_redo.setMinimumSize(buttonDimension1);
+        button_redo.setMaximumSize(buttonDimension1);
+        button_redo.setPressedIcon(new javax.swing.ImageIcon(getClass().getResource("../../images/redo_down.png")));
+        button_redo.setRolloverIcon(new javax.swing.ImageIcon(getClass().getResource("../../images/redo_over.png")));
         /////////
         button_redo.setToolTipText("Redo range change");
         button_redo.addActionListener(new ActionListener() {
@@ -1223,19 +1233,22 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         p.add(button_redo);
 
         p.add(this.getRigidPadding());
+        p.add(this.getRigidPadding());
 
         JButton zoomIn = addButton(p, "");
         /////////
-        zoomIn.setIcon(new javax.swing.ImageIcon(getClass().getResource("../../images/zoom_in.png")));
+        zoomIn.setIcon(new javax.swing.ImageIcon(getClass().getResource("../../images/in.png")));
         zoomIn.setBorder(null);
         zoomIn.setBorderPainted(false);
         zoomIn.setContentAreaFilled(false);
         zoomIn.setFocusPainted(false);
+        zoomIn.setPressedIcon(new javax.swing.ImageIcon(getClass().getResource("../../images/in_down.png")));
+        zoomIn.setRolloverIcon(new javax.swing.ImageIcon(getClass().getResource("../../images/in_over.png")));
         /////////
         zoomIn.setToolTipText("Zoom in");
-        zoomIn.setPreferredSize(buttonDimension);
-        zoomIn.setMinimumSize(buttonDimension);
-        zoomIn.setMaximumSize(buttonDimension);
+        zoomIn.setPreferredSize(buttonDimension1);
+        zoomIn.setMinimumSize(buttonDimension1);
+        zoomIn.setMaximumSize(buttonDimension1);
         zoomIn.addMouseListener(new MouseListener() {
 
             public void mouseClicked(MouseEvent e) {
@@ -1254,19 +1267,22 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
             public void mouseExited(MouseEvent e) {
             }
         });
+        p.add(this.getRigidPadding());
 
         JButton zoomOut = addButton(p, "");
         /////////
-        zoomOut.setIcon(new javax.swing.ImageIcon(getClass().getResource("../../images/zoom_out.png")));
+        zoomOut.setIcon(new javax.swing.ImageIcon(getClass().getResource("../../images/out.png")));
         zoomOut.setBorder(null);
         zoomOut.setBorderPainted(false);
         zoomOut.setContentAreaFilled(false);
         zoomOut.setFocusPainted(false);
+        zoomOut.setPressedIcon(new javax.swing.ImageIcon(getClass().getResource("../../images/out_down.png")));
+        zoomOut.setRolloverIcon(new javax.swing.ImageIcon(getClass().getResource("../../images/out_over.png")));
         /////////
         zoomOut.setToolTipText("Zoom out");
-        zoomOut.setPreferredSize(buttonDimension);
-        zoomOut.setMinimumSize(buttonDimension);
-        zoomOut.setMaximumSize(buttonDimension);
+        zoomOut.setPreferredSize(buttonDimension1);
+        zoomOut.setMinimumSize(buttonDimension1);
+        zoomOut.setMaximumSize(buttonDimension1);
         zoomOut.addMouseListener(new MouseListener() {
 
             public void mouseClicked(MouseEvent e) {
@@ -1287,19 +1303,22 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         });
 
         p.add(getRigidPadding());
+        p.add(this.getRigidPadding());
 
         JButton shiftFarLeft = addButton(p, "");
         /////////
-        shiftFarLeft.setIcon(new javax.swing.ImageIcon(getClass().getResource("../../images/left_full.png")));
+        shiftFarLeft.setIcon(new javax.swing.ImageIcon(getClass().getResource("../../images/leftfull.png")));
         shiftFarLeft.setBorder(null);
         shiftFarLeft.setBorderPainted(false);
         shiftFarLeft.setContentAreaFilled(false);
         shiftFarLeft.setFocusPainted(false);
+        shiftFarLeft.setPressedIcon(new javax.swing.ImageIcon(getClass().getResource("../../images/leftfull_down.png")));
+        shiftFarLeft.setRolloverIcon(new javax.swing.ImageIcon(getClass().getResource("../../images/leftfull_over.png")));
         /////////
         shiftFarLeft.setToolTipText("Move to the beginning of the genome");
-        shiftFarLeft.setPreferredSize(buttonDimension);
-        shiftFarLeft.setMinimumSize(buttonDimension);
-        shiftFarLeft.setMaximumSize(buttonDimension);
+        shiftFarLeft.setPreferredSize(buttonDimension1);
+        shiftFarLeft.setMinimumSize(buttonDimension1);
+        shiftFarLeft.setMaximumSize(buttonDimension1);
 
         shiftFarLeft.addMouseListener(new MouseListener() {
 
@@ -1320,6 +1339,8 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
             }
         });
 
+        p.add(this.getRigidPadding());
+
         JButton shiftLeft = addButton(p, "");
         /////////
         shiftLeft.setIcon(new javax.swing.ImageIcon(getClass().getResource("../../images/left.png")));
@@ -1327,11 +1348,13 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         shiftLeft.setBorderPainted(false);
         shiftLeft.setContentAreaFilled(false);
         shiftLeft.setFocusPainted(false);
+        shiftLeft.setPressedIcon(new javax.swing.ImageIcon(getClass().getResource("../../images/left_down.png")));
+        shiftLeft.setRolloverIcon(new javax.swing.ImageIcon(getClass().getResource("../../images/left_over.png")));
         /////////
         shiftLeft.setToolTipText("Move left");
-        shiftLeft.setPreferredSize(buttonDimension);
-        shiftLeft.setMinimumSize(buttonDimension);
-        shiftLeft.setMaximumSize(buttonDimension);
+        shiftLeft.setPreferredSize(buttonDimension1);
+        shiftLeft.setMinimumSize(buttonDimension1);
+        shiftLeft.setMaximumSize(buttonDimension1);
         shiftLeft.addMouseListener(new MouseListener() {
 
             public void mouseClicked(MouseEvent e) {
@@ -1351,6 +1374,8 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
             }
         });
 
+        p.add(this.getRigidPadding());
+
         JButton shiftRight = addButton(p, "");
         /////////
         shiftRight.setIcon(new javax.swing.ImageIcon(getClass().getResource("../../images/right.png")));
@@ -1358,11 +1383,13 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         shiftRight.setBorderPainted(false);
         shiftRight.setContentAreaFilled(false);
         shiftRight.setFocusPainted(false);
+        shiftRight.setPressedIcon(new javax.swing.ImageIcon(getClass().getResource("../../images/right_down.png")));
+        shiftRight.setRolloverIcon(new javax.swing.ImageIcon(getClass().getResource("../../images/right_over.png")));
         /////////
         shiftRight.setToolTipText("Move right");
-        shiftRight.setPreferredSize(buttonDimension);
-        shiftRight.setMinimumSize(buttonDimension);
-        shiftRight.setMaximumSize(buttonDimension);
+        shiftRight.setPreferredSize(buttonDimension1);
+        shiftRight.setMinimumSize(buttonDimension1);
+        shiftRight.setMaximumSize(buttonDimension1);
         shiftRight.addMouseListener(new MouseListener() {
 
             public void mouseClicked(MouseEvent e) {
@@ -1382,18 +1409,22 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
             }
         });
 
+        p.add(this.getRigidPadding());
+
         JButton shiftFarRight = addButton(p, "");
         /////////
-        shiftFarRight.setIcon(new javax.swing.ImageIcon(getClass().getResource("../../images/right_full.png")));
+        shiftFarRight.setIcon(new javax.swing.ImageIcon(getClass().getResource("../../images/rightfull.png")));
         shiftFarRight.setBorder(null);
         shiftFarRight.setBorderPainted(false);
         shiftFarRight.setContentAreaFilled(false);
         shiftFarRight.setFocusPainted(false);
+        shiftFarRight.setPressedIcon(new javax.swing.ImageIcon(getClass().getResource("../../images/rightfull_down.png")));
+        shiftFarRight.setRolloverIcon(new javax.swing.ImageIcon(getClass().getResource("../../images/rightfull_over.png")));
         /////////
         shiftFarRight.setToolTipText("Move to the end of the genome");
-        shiftFarRight.setPreferredSize(buttonDimension);
-        shiftFarRight.setMinimumSize(buttonDimension);
-        shiftFarRight.setMaximumSize(buttonDimension);
+        shiftFarRight.setPreferredSize(buttonDimension1);
+        shiftFarRight.setMinimumSize(buttonDimension1);
+        shiftFarRight.setMaximumSize(buttonDimension1);
         shiftFarRight.addMouseListener(new MouseListener() {
 
             public void mouseClicked(MouseEvent e) {
