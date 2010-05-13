@@ -1182,7 +1182,15 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
 
         p.add(Box.createGlue());
 
-        JButton button_undo = new JButton("Undo");
+        JButton button_undo = new JButton("");
+        /////////
+        button_undo.setIcon(new javax.swing.ImageIcon(getClass().getResource("../../images/undo.png")));
+        button_undo.setBorder(null);
+        button_undo.setBorderPainted(false);
+        button_undo.setContentAreaFilled(false);
+        button_undo.setFocusPainted(false);
+        button_undo.setPreferredSize(buttonDimension);
+        /////////
         button_undo.setToolTipText("Undo range change");
         button_undo.addActionListener(new ActionListener() {
 
@@ -1194,7 +1202,15 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         });
         p.add(button_undo);
 
-        JButton button_redo = new JButton("Redo");
+        JButton button_redo = new JButton("");
+        /////////
+        button_redo.setIcon(new javax.swing.ImageIcon(getClass().getResource("../../images/redo.png")));
+        button_redo.setBorder(null);
+        button_redo.setBorderPainted(false);
+        button_redo.setContentAreaFilled(false);
+        button_redo.setFocusPainted(false);
+        button_redo.setPreferredSize(buttonDimension);
+        /////////
         button_redo.setToolTipText("Redo range change");
         button_redo.addActionListener(new ActionListener() {
 
@@ -1208,7 +1224,14 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
 
         p.add(this.getRigidPadding());
 
-        JButton zoomIn = addButton(p, "+");
+        JButton zoomIn = addButton(p, "");
+        /////////
+        zoomIn.setIcon(new javax.swing.ImageIcon(getClass().getResource("../../images/zoom_in.png")));
+        zoomIn.setBorder(null);
+        zoomIn.setBorderPainted(false);
+        zoomIn.setContentAreaFilled(false);
+        zoomIn.setFocusPainted(false);
+        /////////
         zoomIn.setToolTipText("Zoom in");
         zoomIn.setPreferredSize(buttonDimension);
         zoomIn.setMinimumSize(buttonDimension);
@@ -1232,7 +1255,14 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
             }
         });
 
-        JButton zoomOut = addButton(p, "-");
+        JButton zoomOut = addButton(p, "");
+        /////////
+        zoomOut.setIcon(new javax.swing.ImageIcon(getClass().getResource("../../images/zoom_out.png")));
+        zoomOut.setBorder(null);
+        zoomOut.setBorderPainted(false);
+        zoomOut.setContentAreaFilled(false);
+        zoomOut.setFocusPainted(false);
+        /////////
         zoomOut.setToolTipText("Zoom out");
         zoomOut.setPreferredSize(buttonDimension);
         zoomOut.setMinimumSize(buttonDimension);
@@ -1258,7 +1288,14 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
 
         p.add(getRigidPadding());
 
-        JButton shiftFarLeft = addButton(p, "|<");
+        JButton shiftFarLeft = addButton(p, "");
+        /////////
+        shiftFarLeft.setIcon(new javax.swing.ImageIcon(getClass().getResource("../../images/left_full.png")));
+        shiftFarLeft.setBorder(null);
+        shiftFarLeft.setBorderPainted(false);
+        shiftFarLeft.setContentAreaFilled(false);
+        shiftFarLeft.setFocusPainted(false);
+        /////////
         shiftFarLeft.setToolTipText("Move to the beginning of the genome");
         shiftFarLeft.setPreferredSize(buttonDimension);
         shiftFarLeft.setMinimumSize(buttonDimension);
@@ -1283,7 +1320,14 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
             }
         });
 
-        JButton shiftLeft = addButton(p, "<");
+        JButton shiftLeft = addButton(p, "");
+        /////////
+        shiftLeft.setIcon(new javax.swing.ImageIcon(getClass().getResource("../../images/left.png")));
+        shiftLeft.setBorder(null);
+        shiftLeft.setBorderPainted(false);
+        shiftLeft.setContentAreaFilled(false);
+        shiftLeft.setFocusPainted(false);
+        /////////
         shiftLeft.setToolTipText("Move left");
         shiftLeft.setPreferredSize(buttonDimension);
         shiftLeft.setMinimumSize(buttonDimension);
@@ -1307,7 +1351,14 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
             }
         });
 
-        JButton shiftRight = addButton(p, ">");
+        JButton shiftRight = addButton(p, "");
+        /////////
+        shiftRight.setIcon(new javax.swing.ImageIcon(getClass().getResource("../../images/right.png")));
+        shiftRight.setBorder(null);
+        shiftRight.setBorderPainted(false);
+        shiftRight.setContentAreaFilled(false);
+        shiftRight.setFocusPainted(false);
+        /////////
         shiftRight.setToolTipText("Move right");
         shiftRight.setPreferredSize(buttonDimension);
         shiftRight.setMinimumSize(buttonDimension);
@@ -1331,7 +1382,14 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
             }
         });
 
-        JButton shiftFarRight = addButton(p, ">|");
+        JButton shiftFarRight = addButton(p, "");
+        /////////
+        shiftFarRight.setIcon(new javax.swing.ImageIcon(getClass().getResource("../../images/right_full.png")));
+        shiftFarRight.setBorder(null);
+        shiftFarRight.setBorderPainted(false);
+        shiftFarRight.setContentAreaFilled(false);
+        shiftFarRight.setFocusPainted(false);
+        /////////
         shiftFarRight.setToolTipText("Move to the end of the genome");
         shiftFarRight.setPreferredSize(buttonDimension);
         shiftFarRight.setMinimumSize(buttonDimension);
