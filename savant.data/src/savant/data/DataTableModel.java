@@ -32,6 +32,9 @@ public class DataTableModel extends AbstractTableModel {
      private FileFormat dataType;
      private String[] columnNames;
 
+     private static boolean dontAllowMoreThanMaxNumRows = true;
+     private static int maxNumRows = 500;
+
      //public static final int SEQUENCE_INDEX = 0;
      /*
      public static final int ARTIST_INDEX = 1;
@@ -330,7 +333,12 @@ public class DataTableModel extends AbstractTableModel {
      }
 
     public void setData(List<Object> dataInRange) {
-        this.data = dataInRange;
+        if (dataInRange == null) { return; }
+        if (dontAllowMoreThanMaxNumRows && dataInRange.size() > maxNumRows) {
+            this.data = dataInRange.subList(0, maxNumRows);
+        } else {
+            this.data = dataInRange;
+        }
     }
 
     public boolean isData() { return this.data != null; }
@@ -338,5 +346,21 @@ public class DataTableModel extends AbstractTableModel {
     public void setDataType(FileFormat k) {
         this.dataType = k;
         this.fireTableChanged(null);
+    }
+
+    public void setMaxNumRows(int maxNumRows) {
+        this.maxNumRows = maxNumRows;
+    }
+
+    public int getMaxNumRows() {
+        return this.maxNumRows;
+    }
+
+    public void setIsNumRowsLimited(boolean isNumRowsLimited) {
+        dontAllowMoreThanMaxNumRows = isNumRowsLimited;
+    }
+
+    public boolean getIsNumRowsLimited() {
+        return dontAllowMoreThanMaxNumRows;
     }
 }

@@ -132,6 +132,7 @@ public class DataSheet implements RangeChangedListener, ViewTrackListChangedList
 
         JToolBar jtb = new JToolBar();
         JLabel label_num_items_title = new JLabel("Number of records: ");
+        label_num_items_title.setBackground(jtb.getBackground());
         jtb.add(label_num_items_title);
         label_num_items = new JLabel("0");
         jtb.add(label_num_items);
@@ -180,8 +181,20 @@ public class DataSheet implements RangeChangedListener, ViewTrackListChangedList
         if (data == null) {
             label_num_items.setText(MiscUtils.intToString(0));
         } else {
-            label_num_items.setText(MiscUtils.intToString(data.size()));
+            String s = "";
+
+            s += MiscUtils.intToString(data.size());
+
+            DataTableModel dtm = (DataTableModel) table.getModel();
+            if (dtm.getIsNumRowsLimited() && data.size() > dtm.getMaxNumRows()) {
+                s += " (showing first " + dtm.getMaxNumRows() + ")";
+            }
+
+            label_num_items.setText(s);
         }
+
+
+
     }
 
     public void rangeChangeReceived(RangeChangedEvent event) {
