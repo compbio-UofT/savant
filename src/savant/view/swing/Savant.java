@@ -1733,21 +1733,16 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         int from, to;
 
         if (fromtext.startsWith("-")) {
-            System.out.println("From is relative");
             fromtext = MiscUtils.removeChar(fromtext,'-');
             int diff = MiscUtils.stringToInt(MiscUtils.removeChar(fromtext, ','));
             to = MiscUtils.stringToInt(MiscUtils.removeChar(textboxTo.getText(), ','));
-            System.out.println("It's " + diff + " less than " + to);
             from = to - diff + 1;
         } else if (totext.startsWith("+")) {
-            System.out.println("To is relative");
             totext = MiscUtils.removeChar(totext,'+');
             int diff = MiscUtils.stringToInt(MiscUtils.removeChar(totext, ','));
             from = MiscUtils.stringToInt(MiscUtils.removeChar(textboxFrom.getText(), ','));
-            System.out.println("It's " + diff + " more than " + from);
             to = from + diff - 1;
         } else {
-            System.out.println("Neither is relative");
             from = MiscUtils.stringToInt(MiscUtils.removeChar(textboxFrom.getText(), ','));
             to = MiscUtils.stringToInt(MiscUtils.removeChar(textboxTo.getText(), ','));
         }
