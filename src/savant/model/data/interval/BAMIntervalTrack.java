@@ -56,7 +56,7 @@ public class BAMIntervalTrack implements RecordTrack<BAMIntervalRecord> {
         setPath(path, index);
         this.sequenceName = guessSequence(path, index);
         samFileReader = new SAMFileReader(path, index);
-        samFileReader.setValidationStringency(SAMFileReader.ValidationStringency.LENIENT);
+        samFileReader.setValidationStringency(SAMFileReader.ValidationStringency.SILENT);
     }
 
     /**
