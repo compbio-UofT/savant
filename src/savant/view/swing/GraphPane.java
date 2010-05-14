@@ -124,36 +124,6 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
 
         menu.add ( lockMI );
 
-//        JMenuItem copyMI = new JMenuItem("Copy to clipboard");
-//        copyMI.addActionListener(new ActionListener() {
-//            public void actionPerformed(ActionEvent e) {
-//            }
-//        });
-//
-//        menu.add ( copyMI );
-//
-//        JMenuItem saveMI = new JMenuItem("Save image...");
-//        saveMI.addActionListener(new ActionListener() {
-//            public void actionPerformed(ActionEvent e) {
-//            }
-//        });
-//
-//        menu.add ( saveMI );
-
-        /*
-        JMenuItem screenMI = new JMenuItem("Screen Capture");
-        screenMI.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                Savant.log("Taking screen...");
-                ScreenShot.takeAndSave();
-            }
-        });
-
-        menu.add ( screenMI );
-         */
-
-        //menu.add ( new JMenuItem ("Save As...") );
-
         menu.addSeparator();
     }
 
@@ -163,11 +133,6 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
 
     @Override
     public void graphpaneChangeReceived(GraphPaneChangeEvent event) {
-        //System.out.println("Got request from controller to redraw");
-        //GraphPaneController gpc = (GraphPaneController) event.getSource();
-        //System.out.println("\tPanning: " + gpc.isPanning());
-        //System.out.println("\tZooming: " + gpc.isZooming());
-        //System.out.println("\tRange: " + gpc.getMouseDragRange());
         repaint();
     }
 
@@ -559,7 +524,6 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
      */
     public double transformYPos(double pos) {
         pos = pos - this.yMin;
-        //Savant.log("Transforming pos 1: height" + this.getHeight() + " subtract " +  (pos*getUnitHeight()));
         return this.getHeight() - (pos * getUnitHeight());
     }
 
@@ -576,9 +540,6 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
      */
     public void setUnitHeight() {
         Dimension d = this.getSize();
-        //Savant.log("Frame height: " + d.height);
-        //Savant.log("Y Range " + (new Range(yMin, yMax)));
-        //Savant.log("Unit Hieght set to: " + this.unitHeight);
         unitHeight = (double) d.height / (yMax - yMin);
     }
 
@@ -686,6 +647,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
     /**
      * {@inheritDoc}
      */
+    @Override
     public void mouseClicked( final MouseEvent event ) {
 
         if (event.getClickCount() == 2) {
@@ -699,12 +661,12 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
             menu.show(event.getComponent(), event.getX(), event.getY());
         }
 
-        //repaint();
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public void mousePressed( final MouseEvent event ) {
 
         setMouseModifier(event);
@@ -718,14 +680,12 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
 
         GraphPaneController gpc = GraphPaneController.getInstance();
         gpc.setMouseClickPosition(MiscUtils.transformPixelToPosition(x1, this.getWidth(), this.getPositionalRange()));
-
-        //tellModifiersToGraphPaneController();
-        //repaint();
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public void mouseReleased( final MouseEvent event ) {
 
         GraphPaneController gpc = GraphPaneController.getInstance();
@@ -740,20 +700,15 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         int x1 = MiscUtils.transformPositionToPixel(gpc.getMouseDragRange().getFrom(), this.getWidth(), this.getPositionalRange());
 
         if (gpc.isPanning()) {
-            Savant.log("SHOULD PAN");
 
             RangeController rc = RangeController.getInstance();
             Range r = rc.getRange();
             int shiftVal = (int) (Math.round((x1-x2) / this.getUnitWidth()));
 
-            Savant.log("X1: " + x1 + " X2: " + x2 + " Shift: " + shiftVal);
-
             Range newr = new Range(r.getFrom()+shiftVal,r.getTo()+shiftVal);
-            Savant.log("Panning to " + newr);
             rc.setRange(newr);
 
         } else if (gpc.isZooming()) {
-            Savant.log("SHOULD ZOOM");
 
             RangeController rc = RangeController.getInstance();
             Range r;
@@ -766,7 +721,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
             // some weirdness here, but it's to get around an off by one
             int newMax = (int) Math.max(Math.round(Math.max(x1, x2) / this.getUnitWidth())-1, newMin);
             Range newr = new Range(r.getFrom()+newMin,r.getFrom()+newMax);
-            Savant.log("Zooming to " + newr);
+
             rc.setRange(newr);
         }
 
@@ -779,6 +734,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
     /**
      * {@inheritDoc}
      */
+    @Override
     public void mouseEntered( final MouseEvent event ) {
         setMouseModifier(event);
     }
@@ -786,6 +742,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
     /**
      * {@inheritDoc}
      */
+    @Override
     public void mouseExited( final MouseEvent event ) {
         setMouseModifier(event);
     }
@@ -793,18 +750,17 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
     /**
      * {@inheritDoc}
      */
+    @Override
     public void mouseDragged( final MouseEvent event ) {
 
         setMouseModifier(event);
 
         GraphPaneController gpc = GraphPaneController.getInstance();
 
-
         int x2 = event.getX();
         if (x2 < 0) { x2 = 0; }
         if (x2 > this.getWidth()) { x2 = this.getWidth(); }
         this.y2 = event.getY();
-
 
         this.isDragging = true;
 
@@ -815,16 +771,14 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         }
 
         gpc.setMouseReleasePosition(MiscUtils.transformPixelToPosition(x2, this.getWidth(), this.getPositionalRange()));
-        
-        //tellModifiersToGraphPaneController();
-        //repaint();
     }
 
     /**
      * {@inheritDoc}
      */
     public void mouseMoved( final MouseEvent event ) {
-        //setMouseModifier(event);
+
+        // update the GraphPaneController's record of the mouse position
         GraphPaneController.getInstance().setMouseXPosition(MiscUtils.transformPixelToPosition(event.getX(), this.getWidth(), this.getPositionalRange()));
         if (this.isOrdinal()) {
             GraphPaneController.getInstance().setMouseYPosition(-1);
