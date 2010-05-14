@@ -219,7 +219,7 @@ public class RangeSelectionPanel extends JPanel implements MouseListener, MouseM
         int width = this.x1 - this.x2;
         int height = this.getHeight();// this.y1 - this.y2;
 
-        this.w = Math.max(3, Math.abs(width));
+        this.w = Math.max(2, Math.abs(width));
         this.h = Math.abs(height);
         this.x = width < 0 ? this.x1 : this.x2;
         this.y = 0; //height < 0 ? this.y1 : this.y2;
@@ -255,19 +255,20 @@ public class RangeSelectionPanel extends JPanel implements MouseListener, MouseM
             int endrange = rc.getRangeEnd();
             int startx = MiscUtils.transformPositionToPixel(startrange, this.getWidth(), rc.getMaxRange());
             int endx = MiscUtils.transformPositionToPixel(endrange, this.getWidth(), rc.getMaxRange());
+            int widpixels = Math.max(2, endx-startx);
 
             g2d.setPaint(gp);
             g2d.fillRect(
                     startx,
                     this.y,
-                    endx-startx,
+                    widpixels,
                     this.h);
 
             g.setColor(new Color(100, 100, 100));
             g.drawRect(
                     startx,
                     this.y,
-                    endx-startx,
+                    widpixels,
                     this.h);
         }
 
