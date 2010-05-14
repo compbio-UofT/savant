@@ -15,6 +15,7 @@
  */
 package savant.view.swing;
 
+import java.awt.event.ComponentEvent;
 import savant.controller.RangeController;
 import savant.controller.event.range.RangeChangedEvent;
 import savant.controller.event.range.RangeChangedListener;
@@ -25,6 +26,7 @@ import savant.util.Range;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ComponentListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -217,7 +219,7 @@ public class RangeSelectionPanel extends JPanel implements MouseListener, MouseM
         int width = this.x1 - this.x2;
         int height = this.getHeight();// this.y1 - this.y2;
 
-        this.w = Math.max(3, Math.abs(width));
+        this.w = Math.max(2, Math.abs(width));
         this.h = Math.abs(height);
         this.x = width < 0 ? this.x1 : this.x2;
         this.y = 0; //height < 0 ? this.y1 : this.y2;
@@ -232,11 +234,43 @@ public class RangeSelectionPanel extends JPanel implements MouseListener, MouseM
                 0, 0, BrowserDefaults.colorRangeSelectionTop,
                 0, h, BrowserDefaults.colorRangeSelectionBottom);
 
-        g2d.setPaint(gp);
-        g2d.fillRect(this.x-1, this.y, this.w, this.h);
+        if (this.isDragging) {
 
-        g.setColor(new Color(100, 100, 100));
-        g.drawRect(this.x-1, this.y, this.w, this.h);
+            g2d.setPaint(gp);
+            g2d.fillRect(
+                    this.x,
+                    this.y,
+                    this.w,
+                    this.h);
+
+            g.setColor(new Color(100, 100, 100));
+            g.drawRect(
+                    this.x,
+                    this.y,
+                    this.w,
+                    this.h);
+        } else {
+            RangeController rc = RangeController.getInstance();
+            int startrange = rc.getRangeStart();
+            int endrange = rc.getRangeEnd();
+            int startx = MiscUtils.transformPositionToPixel(startrange, this.getWidth(), rc.getMaxRange());
+            int endx = MiscUtils.transformPositionToPixel(endrange, this.getWidth(), rc.getMaxRange());
+            int widpixels = Math.max(2, endx-startx);
+
+            g2d.setPaint(gp);
+            g2d.fillRect(
+                    startx,
+                    this.y,
+                    widpixels,
+                    this.h);
+
+            g.setColor(new Color(100, 100, 100));
+            g.drawRect(
+                    startx,
+                    this.y,
+                    widpixels,
+                    this.h);
+        }
 
         int numlines = 4;
         double space = ((double) this.getWidth()) / numlines;
@@ -347,5 +381,6 @@ public class RangeSelectionPanel extends JPanel implements MouseListener, MouseM
     private boolean isActive() {
         return this.isActive;
     }
+
 } // end class MouseTracker
 

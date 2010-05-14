@@ -1185,7 +1185,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
 
         JButton button_undo = new JButton("");
         /////////
-        button_undo.setIcon(new javax.swing.ImageIcon(getClass().getResource("../../images/undo.png")));
+        button_undo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/savant/images/undo.png")));
         button_undo.setBorder(null);
         button_undo.setBorderPainted(false);
         button_undo.setContentAreaFilled(false);
@@ -1193,8 +1193,8 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         button_undo.setPreferredSize(buttonDimension1);
         button_undo.setMinimumSize(buttonDimension1);
         button_undo.setMaximumSize(buttonDimension1);
-        button_undo.setPressedIcon(new javax.swing.ImageIcon(getClass().getResource("../../images/undo_down.png")));
-        button_undo.setRolloverIcon(new javax.swing.ImageIcon(getClass().getResource("../../images/undo_over.png")));
+        button_undo.setPressedIcon(new javax.swing.ImageIcon(getClass().getResource("/savant/images/undo_down.png")));
+        button_undo.setRolloverIcon(new javax.swing.ImageIcon(getClass().getResource("/savant/images/undo_over.png")));
         /////////
         button_undo.setToolTipText("Undo range change");
         button_undo.addActionListener(new ActionListener() {
@@ -1210,7 +1210,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
 
         JButton button_redo = new JButton("");
         /////////
-        button_redo.setIcon(new javax.swing.ImageIcon(getClass().getResource("../../images/redo.png")));
+        button_redo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/savant/images/redo.png")));
         button_redo.setBorder(null);
         button_redo.setBorderPainted(false);
         button_redo.setContentAreaFilled(false);
@@ -1218,8 +1218,8 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         button_redo.setPreferredSize(buttonDimension1);
         button_redo.setMinimumSize(buttonDimension1);
         button_redo.setMaximumSize(buttonDimension1);
-        button_redo.setPressedIcon(new javax.swing.ImageIcon(getClass().getResource("../../images/redo_down.png")));
-        button_redo.setRolloverIcon(new javax.swing.ImageIcon(getClass().getResource("../../images/redo_over.png")));
+        button_redo.setPressedIcon(new javax.swing.ImageIcon(getClass().getResource("/savant/images/redo_down.png")));
+        button_redo.setRolloverIcon(new javax.swing.ImageIcon(getClass().getResource("/savant/images/redo_over.png")));
         /////////
         button_redo.setToolTipText("Redo range change");
         button_redo.addActionListener(new ActionListener() {
@@ -1237,13 +1237,13 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
 
         JButton zoomIn = addButton(p, "");
         /////////
-        zoomIn.setIcon(new javax.swing.ImageIcon(getClass().getResource("../../images/in.png")));
+        zoomIn.setIcon(new javax.swing.ImageIcon(getClass().getResource("/savant/images/in.png")));
         zoomIn.setBorder(null);
         zoomIn.setBorderPainted(false);
         zoomIn.setContentAreaFilled(false);
         zoomIn.setFocusPainted(false);
-        zoomIn.setPressedIcon(new javax.swing.ImageIcon(getClass().getResource("../../images/in_down.png")));
-        zoomIn.setRolloverIcon(new javax.swing.ImageIcon(getClass().getResource("../../images/in_over.png")));
+        zoomIn.setPressedIcon(new javax.swing.ImageIcon(getClass().getResource("/savant/images/in_down.png")));
+        zoomIn.setRolloverIcon(new javax.swing.ImageIcon(getClass().getResource("/savant/images/in_over.png")));
         /////////
         zoomIn.setToolTipText("Zoom in");
         zoomIn.setPreferredSize(buttonDimension1);
@@ -1271,13 +1271,13 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
 
         JButton zoomOut = addButton(p, "");
         /////////
-        zoomOut.setIcon(new javax.swing.ImageIcon(getClass().getResource("../../images/out.png")));
+        zoomOut.setIcon(new javax.swing.ImageIcon(getClass().getResource("/savant/images/out.png")));
         zoomOut.setBorder(null);
         zoomOut.setBorderPainted(false);
         zoomOut.setContentAreaFilled(false);
         zoomOut.setFocusPainted(false);
-        zoomOut.setPressedIcon(new javax.swing.ImageIcon(getClass().getResource("../../images/out_down.png")));
-        zoomOut.setRolloverIcon(new javax.swing.ImageIcon(getClass().getResource("../../images/out_over.png")));
+        zoomOut.setPressedIcon(new javax.swing.ImageIcon(getClass().getResource("/savant/images/out_down.png")));
+        zoomOut.setRolloverIcon(new javax.swing.ImageIcon(getClass().getResource("/savant/images/out_over.png")));
         /////////
         zoomOut.setToolTipText("Zoom out");
         zoomOut.setPreferredSize(buttonDimension1);
@@ -1307,13 +1307,13 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
 
         JButton shiftFarLeft = addButton(p, "");
         /////////
-        shiftFarLeft.setIcon(new javax.swing.ImageIcon(getClass().getResource("../../images/leftfull.png")));
+        shiftFarLeft.setIcon(new javax.swing.ImageIcon(getClass().getResource("/savant/images/leftfull.png")));
         shiftFarLeft.setBorder(null);
         shiftFarLeft.setBorderPainted(false);
         shiftFarLeft.setContentAreaFilled(false);
         shiftFarLeft.setFocusPainted(false);
-        shiftFarLeft.setPressedIcon(new javax.swing.ImageIcon(getClass().getResource("../../images/leftfull_down.png")));
-        shiftFarLeft.setRolloverIcon(new javax.swing.ImageIcon(getClass().getResource("../../images/leftfull_over.png")));
+        shiftFarLeft.setPressedIcon(new javax.swing.ImageIcon(getClass().getResource("/savant/images/leftfull_down.png")));
+        shiftFarLeft.setRolloverIcon(new javax.swing.ImageIcon(getClass().getResource("/savant/images/leftfull_over.png")));
         /////////
         shiftFarLeft.setToolTipText("Move to the beginning of the genome");
         shiftFarLeft.setPreferredSize(buttonDimension1);
@@ -1343,13 +1343,13 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
 
         JButton shiftLeft = addButton(p, "");
         /////////
-        shiftLeft.setIcon(new javax.swing.ImageIcon(getClass().getResource("../../images/left.png")));
+        shiftLeft.setIcon(new javax.swing.ImageIcon(getClass().getResource("/savant/images/left.png")));
         shiftLeft.setBorder(null);
         shiftLeft.setBorderPainted(false);
         shiftLeft.setContentAreaFilled(false);
         shiftLeft.setFocusPainted(false);
-        shiftLeft.setPressedIcon(new javax.swing.ImageIcon(getClass().getResource("../../images/left_down.png")));
-        shiftLeft.setRolloverIcon(new javax.swing.ImageIcon(getClass().getResource("../../images/left_over.png")));
+        shiftLeft.setPressedIcon(new javax.swing.ImageIcon(getClass().getResource("/savant/images/left_down.png")));
+        shiftLeft.setRolloverIcon(new javax.swing.ImageIcon(getClass().getResource("/savant/images/left_over.png")));
         /////////
         shiftLeft.setToolTipText("Move left");
         shiftLeft.setPreferredSize(buttonDimension1);
@@ -1378,13 +1378,13 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
 
         JButton shiftRight = addButton(p, "");
         /////////
-        shiftRight.setIcon(new javax.swing.ImageIcon(getClass().getResource("../../images/right.png")));
+        shiftRight.setIcon(new javax.swing.ImageIcon(getClass().getResource("/savant/images/right.png")));
         shiftRight.setBorder(null);
         shiftRight.setBorderPainted(false);
         shiftRight.setContentAreaFilled(false);
         shiftRight.setFocusPainted(false);
-        shiftRight.setPressedIcon(new javax.swing.ImageIcon(getClass().getResource("../../images/right_down.png")));
-        shiftRight.setRolloverIcon(new javax.swing.ImageIcon(getClass().getResource("../../images/right_over.png")));
+        shiftRight.setPressedIcon(new javax.swing.ImageIcon(getClass().getResource("/savant/images/right_down.png")));
+        shiftRight.setRolloverIcon(new javax.swing.ImageIcon(getClass().getResource("/savant/images/right_over.png")));
         /////////
         shiftRight.setToolTipText("Move right");
         shiftRight.setPreferredSize(buttonDimension1);
@@ -1413,13 +1413,13 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
 
         JButton shiftFarRight = addButton(p, "");
         /////////
-        shiftFarRight.setIcon(new javax.swing.ImageIcon(getClass().getResource("../../images/rightfull.png")));
+        shiftFarRight.setIcon(new javax.swing.ImageIcon(getClass().getResource("/savant/images/rightfull.png")));
         shiftFarRight.setBorder(null);
         shiftFarRight.setBorderPainted(false);
         shiftFarRight.setContentAreaFilled(false);
         shiftFarRight.setFocusPainted(false);
-        shiftFarRight.setPressedIcon(new javax.swing.ImageIcon(getClass().getResource("../../images/rightfull_down.png")));
-        shiftFarRight.setRolloverIcon(new javax.swing.ImageIcon(getClass().getResource("../../images/rightfull_over.png")));
+        shiftFarRight.setPressedIcon(new javax.swing.ImageIcon(getClass().getResource("/savant/images/rightfull_down.png")));
+        shiftFarRight.setRolloverIcon(new javax.swing.ImageIcon(getClass().getResource("/savant/images/rightfull_over.png")));
         /////////
         shiftFarRight.setToolTipText("Move to the end of the genome");
         shiftFarRight.setPreferredSize(buttonDimension1);
