@@ -211,8 +211,9 @@ public class FrameController {
     public void closeFrame(Frame frame) {
         this.hideFrame(frame);
         TrackController tc = TrackController.getInstance();
-        for (Track track : tc.getTracks()) {
-            tc.removeTrack(track);
+        List<Track> tracks = tc.getTracks();
+        for(int i = 0; i<tracks.size(); i++){
+            tc.removeTrack(tracks.get(i));
         }
         this.frames.remove(frame);
     }
