@@ -131,7 +131,6 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
      * GRAPHPANE CHANGE LISTENER
      */
 
-    @Override
     public void graphpaneChangeReceived(GraphPaneChangeEvent event) {
         repaint();
     }
@@ -647,7 +646,6 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
     /**
      * {@inheritDoc}
      */
-    @Override
     public void mouseClicked( final MouseEvent event ) {
 
         if (event.getClickCount() == 2) {
@@ -666,7 +664,6 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
     /**
      * {@inheritDoc}
      */
-    @Override
     public void mousePressed( final MouseEvent event ) {
 
         setMouseModifier(event);
@@ -685,7 +682,6 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
     /**
      * {@inheritDoc}
      */
-    @Override
     public void mouseReleased( final MouseEvent event ) {
 
         GraphPaneController gpc = GraphPaneController.getInstance();
@@ -734,7 +730,6 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
     /**
      * {@inheritDoc}
      */
-    @Override
     public void mouseEntered( final MouseEvent event ) {
         setMouseModifier(event);
     }
@@ -742,7 +737,6 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
     /**
      * {@inheritDoc}
      */
-    @Override
     public void mouseExited( final MouseEvent event ) {
         setMouseModifier(event);
     }
@@ -750,7 +744,6 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
     /**
      * {@inheritDoc}
      */
-    @Override
     public void mouseDragged( final MouseEvent event ) {
 
         setMouseModifier(event);
