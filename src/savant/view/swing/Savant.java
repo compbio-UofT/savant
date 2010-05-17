@@ -1199,7 +1199,6 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         button_undo.setToolTipText("Undo range change");
         button_undo.addActionListener(new ActionListener() {
 
-            @Override
             public void actionPerformed(ActionEvent e) {
                 RangeController.getInstance().undoRangeChange();
             }
@@ -1224,7 +1223,6 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         button_redo.setToolTipText("Redo range change");
         button_redo.addActionListener(new ActionListener() {
 
-            @Override
             public void actionPerformed(ActionEvent e) {
                 RangeController.getInstance().redoRangeChange();
             }
@@ -1960,7 +1958,6 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
     private void disableExperimentalFeatures() {
     }
 
-    @Override
     public void bookmarksChangeReceived(BookmarksChangedEvent event) {
         if (!showBookmarksChangedDialog) { return; }
         //Custom button text
