@@ -100,6 +100,9 @@ public class DataFormatter implements FormatProgressListener {
      */
     public boolean format() throws InterruptedException, IOException {
 
+        // Get current time
+        long start = System.currentTimeMillis();
+
         try{
 
             // FIXME: another hack for coverage files
@@ -145,9 +148,16 @@ public class DataFormatter implements FormatProgressListener {
             }
         }
         finally {
-
             deleteTmpOutputFile();
         }
+
+        // Get elapsed time in milliseconds
+        long elapsedTimeMillis = System.currentTimeMillis()-start;
+
+        // Get elapsed time in seconds
+        float elapsedTimeSec = elapsedTimeMillis/1000F;
+
+        System.out.println("Formatting took " + elapsedTimeSec + " seconds");
 
         return true;
     }
