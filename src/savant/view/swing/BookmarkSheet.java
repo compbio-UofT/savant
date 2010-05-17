@@ -62,10 +62,18 @@ public class BookmarkSheet implements BookmarksChangedListener /*, RangeChangedL
          */
         JPanel toolbar = new JPanel();
         toolbar.setLayout(new BoxLayout(toolbar, BoxLayout.Y_AXIS));
-        toolbar.setMinimumSize(new Dimension(22,44));
-        toolbar.setPreferredSize(new Dimension(22,44));
-        toolbar.setMaximumSize(new Dimension(999999,44));
+        toolbar.setMinimumSize(new Dimension(22,22));
+        toolbar.setPreferredSize(new Dimension(22,22));
+        toolbar.setMaximumSize(new Dimension(999999,22));
         c.add(toolbar, BorderLayout.NORTH);
+
+        //bottom toolbar for load and save
+        JPanel toolbarBottom = new JPanel();
+        toolbarBottom.setLayout(new BoxLayout(toolbarBottom, BoxLayout.Y_AXIS));
+        toolbarBottom.setMinimumSize(new Dimension(22,22));
+        toolbarBottom.setPreferredSize(new Dimension(22,22));
+        toolbarBottom.setMaximumSize(new Dimension(999999,22));
+        c.add(toolbarBottom, BorderLayout.SOUTH);
 
         JPanel topToolRow = new JPanel();
         topToolRow.setLayout(new BoxLayout(topToolRow, BoxLayout.X_AXIS));
@@ -79,7 +87,7 @@ public class BookmarkSheet implements BookmarksChangedListener /*, RangeChangedL
         bottomToolRow.setMinimumSize(new Dimension(22,22));
         bottomToolRow.setPreferredSize(new Dimension(22,22));
         bottomToolRow.setMaximumSize(new Dimension(999999,22));
-        toolbar.add(bottomToolRow);
+        toolbarBottom.add(bottomToolRow);
         
         Dimension buttonSize = new Dimension(65,22);
 
