@@ -31,6 +31,7 @@ import java.awt.event.*;
 import java.io.*;
 import java.util.List;
 import java.util.StringTokenizer;
+import java.util.Arrays;
 
 import savant.controller.event.range.RangeChangedListener;
 import static java.awt.FileDialog.SAVE;
@@ -46,6 +47,7 @@ public class BookmarkSheet implements BookmarksChangedListener /*, RangeChangedL
     static boolean isRecording = false;
     static JButton recordButton;
     static JButton addButton;
+    static boolean confirmDelete = true;
 
     public BookmarkSheet(Savant parent, Container c) {
 
@@ -123,8 +125,38 @@ public class BookmarkSheet implements BookmarksChangedListener /*, RangeChangedL
         deleteButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 BookmarkController fc = BookmarkController.getInstance();
-                int selectedRow = table.getSelectedRow();
-                if (selectedRow > -1) fc.removeBookmark(selectedRow);
+                //int selectedRow = table.getSelectedRow();
+                int[] selectedRows = table.getSelectedRows();
+                Arrays.sort(selectedRows);
+                //if (selectedRow > -1) fc.removeBookmark(selectedRow);
+                if(selectedRows.length > 0 && confirmDelete){
+                    Object[] options = {"Yes",
+                                        "No",
+                                        "Yes, don't ask again"};
+                    int confirmDeleteDialog = JOptionPane.showOptionDialog(Savant.getInstance(),
+                        "Are you sure you want to delete " + selectedRows.length + " item(s)?",
+                        "Confirm Delete",
+                        JOptionPane.YES_NO_CANCEL_OPTION,
+                        JOptionPane.QUESTION_MESSAGE,
+                        null,
+                        options,
+                        options[0]);
+                    
+                    if(confirmDeleteDialog==0){
+                        for(int i = selectedRows.length -1; i >= 0; i--){
+                            fc.removeBookmark(selectedRows[i]);
+                        }
+                    } else if (confirmDeleteDialog==2){
+                        for(int i = selectedRows.length -1; i >= 0; i--){
+                            fc.removeBookmark(selectedRows[i]);
+                        }
+                        confirmDelete = false;
+                    }
+                } else if(selectedRows.length > 0 && !confirmDelete){
+                    for(int i = selectedRows.length -1; i >= 0; i--){
+                        fc.removeBookmark(selectedRows[i]);
+                    }
+                }
             }
         });
         topToolRow.add(deleteButton);
@@ -175,7 +207,7 @@ public class BookmarkSheet implements BookmarksChangedListener /*, RangeChangedL
         table = new JTable(new BookmarksTableModel());
         table.setAutoCreateRowSorter(true);
         table.setFillsViewportHeight(true);
-        table.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        //table.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
 
         /*
         table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
