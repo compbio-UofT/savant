@@ -125,10 +125,10 @@ public class BookmarkSheet implements BookmarksChangedListener /*, RangeChangedL
         deleteButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 BookmarkController fc = BookmarkController.getInstance();
-                //int selectedRow = table.getSelectedRow();
                 int[] selectedRows = table.getSelectedRows();
                 Arrays.sort(selectedRows);
-                //if (selectedRow > -1) fc.removeBookmark(selectedRow);
+                boolean delete = false;
+
                 if(selectedRows.length > 0 && confirmDelete){
                     Object[] options = {"Yes",
                                         "No",
@@ -143,16 +143,16 @@ public class BookmarkSheet implements BookmarksChangedListener /*, RangeChangedL
                         options[0]);
                     
                     if(confirmDeleteDialog==0){
-                        for(int i = selectedRows.length -1; i >= 0; i--){
-                            fc.removeBookmark(selectedRows[i]);
-                        }
+                        delete = true;
                     } else if (confirmDeleteDialog==2){
-                        for(int i = selectedRows.length -1; i >= 0; i--){
-                            fc.removeBookmark(selectedRows[i]);
-                        }
+                        delete = true;
                         confirmDelete = false;
                     }
                 } else if(selectedRows.length > 0 && !confirmDelete){
+                    delete = true;
+                }
+
+                if(delete){
                     for(int i = selectedRows.length -1; i >= 0; i--){
                         fc.removeBookmark(selectedRows[i]);
                     }
