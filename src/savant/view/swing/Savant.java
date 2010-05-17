@@ -1572,7 +1572,8 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
     void showOpenGenomeDialog() {
 
         if (this.isGenomeLoaded()) {
-            int n = JOptionPane.showConfirmDialog(this,
+            return;
+            /*int n = JOptionPane.showConfirmDialog(this,
             "A genome is already loaded. Replace existing genome?",
             "Replace genome",
             JOptionPane.YES_NO_OPTION);
@@ -1581,7 +1582,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
                 return;
             }
             
-            this.loadedGenome = null;
+            this.loadedGenome = null;*/
         }
 
         //Custom button text
@@ -1786,6 +1787,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         this.showRangeControls();
 
         button_genome.setEnabled(false);
+        menuitem_genome.setEnabled(false);
     }
 
     /**
