@@ -442,6 +442,9 @@ public class DataFormatter implements FormatProgressListener {
         outFile.close();
         indexOutFile.close();
 
+        // delete sorted temp file
+        new File(sortPath).delete();
+
         log.debug("Done formatting");
     }
 
@@ -466,9 +469,6 @@ public class DataFormatter implements FormatProgressListener {
         modifiers.add(null);
 
         formatAsInterval(fields,modifiers);
-
-        // delete sorted temp file
-        new File(sortPath).delete();
     }
 
     private void formatAsIntervalGFF() throws IOException, InterruptedException {
@@ -500,9 +500,6 @@ public class DataFormatter implements FormatProgressListener {
         modifiers.add(null);
 
         formatAsInterval(fields,modifiers);
-
-        // delete sorted temp file
-        new File(sortPath).delete();
 
     }
 
@@ -537,9 +534,6 @@ public class DataFormatter implements FormatProgressListener {
         modifiers.add(null);
 
         formatAsInterval(fields,modifiers);
-
-        // delete sorted temp file
-        new File(sortPath).delete();
 
     }
 
