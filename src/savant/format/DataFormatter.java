@@ -453,6 +453,7 @@ public class DataFormatter implements FormatProgressListener {
         indexOutFile.close();
 
         // delete sorted temp file
+        inFile.close();
         new File(sortPath).delete();
 
         log.debug("Done formatting");
