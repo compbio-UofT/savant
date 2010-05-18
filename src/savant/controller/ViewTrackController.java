@@ -121,6 +121,7 @@ public class ViewTrackController {
 
     void removeTrack(ViewTrack track) {
         this.tracks.remove(track);
+        fireTracksListChangedEvent();
     }
 
 }
