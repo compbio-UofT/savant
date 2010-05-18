@@ -251,11 +251,15 @@ public class BAMToCoverage {
         // update how much of the genome length we've already processed, for calculating progress
         previousSequencesCumulativeLength +=  processingSequenceLength;
 
-        // switch sequence and output file
-        processingSequenceName = readSequenceName;
-        processingSequenceLength = readSequenceLength;
-        closeOutput();
-        prepareOutputFile(processingSequenceName);
+        // switch sequence and output file, as long as we're not at the last one
+        if (!readSequenceName.equals(processingSequenceName)) {
+            closeOutput();
+
+            processingSequenceName = readSequenceName;
+            processingSequenceLength = readSequenceLength;
+
+            prepareOutputFile(processingSequenceName);
+        }
 
     }
 
