@@ -110,6 +110,8 @@ public class SequenceViewTrack extends ViewTrack {
 
         if (r == Resolution.VERY_HIGH) {
             data = this.retrieveAndSaveData(range);
+        } else {
+            this.saveNullData();
         }
 
         for (TrackRenderer renderer: getTrackRenderers()) {

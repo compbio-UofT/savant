@@ -179,7 +179,8 @@ public class DataSheet implements RangeChangedListener, ViewTrackListChangedList
         tableModel.setData(data);
         tableModel.fireTableDataChanged();
         if (data == null) {
-            label_num_items.setText(MiscUtils.intToString(0));
+            //label_num_items.setText(MiscUtils.intToString(0));
+            label_num_items.setText("(zoom in for records)");
         } else {
             String s = "";
 

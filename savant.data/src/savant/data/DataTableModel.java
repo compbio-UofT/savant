@@ -333,7 +333,10 @@ public class DataTableModel extends AbstractTableModel {
      }
 
     public void setData(List<Object> dataInRange) {
-        if (dataInRange == null) { return; }
+        if (dataInRange == null) { 
+            this.data = null;
+            return;
+        }
         if (dontAllowMoreThanMaxNumRows && dataInRange.size() > maxNumRows) {
             this.data = dataInRange.subList(0, maxNumRows);
         } else {

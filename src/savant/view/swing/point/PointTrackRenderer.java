@@ -37,7 +37,7 @@ import java.util.List;
 public class PointTrackRenderer extends TrackRenderer {
 
     private static final int GLASS_PANE_WIDTH = 300;
-    private static final String GLASS_PANE_MESSAGE = "zoom in to see points";
+    private static final String GLASS_PANE_MESSAGE = "Zoom in to see points";
 
     public PointTrackRenderer() { this(new DrawingInstructions()); }
 
@@ -61,10 +61,8 @@ public class PointTrackRenderer extends TrackRenderer {
 
         List<Object> data = this.getData();
 
-        if (data == null) return;
-
         // don't draw things which are too small to be seen: less than 1 pixel wide
-        if (width < 1) {
+        if (width < 1 || data == null) {
             // display informational glass pane
             GlassMessagePane.draw(g2, gp, GLASS_PANE_MESSAGE, GLASS_PANE_WIDTH);
             return;

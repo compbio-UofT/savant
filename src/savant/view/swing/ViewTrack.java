@@ -383,6 +383,15 @@ public abstract class ViewTrack {
     }
 
     /**
+     * Store null to dataInRange.
+     *
+     * @throws Exception
+     */
+    public void saveNullData() throws Throwable {
+        this.dataInRange = null;
+    }
+
+    /**
      * Retrive data from the underlying data track.
      *
      * @param range The range within which to retrieve objects

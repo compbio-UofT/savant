@@ -35,6 +35,8 @@ import java.util.List;
  */
 public class PointViewTrack extends ViewTrack {
 
+    public List<Object> savedList = null;
+
     public PointViewTrack(String name, GenericPointTrack pointTrack) {
         super(name, FileFormat.POINT, pointTrack);
         setColorScheme(getDefaultColorScheme());
@@ -74,6 +76,7 @@ public class PointViewTrack extends ViewTrack {
                 data = this.retrieveAndSaveData(range);
                 break;
             default:
+                this.saveNullData();
                 break;
         }
 
