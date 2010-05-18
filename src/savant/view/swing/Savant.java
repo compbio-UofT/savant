@@ -364,6 +364,9 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         menuitem_view_spotlight = new javax.swing.JCheckBoxMenuItem();
         menu_plugins = new javax.swing.JMenu();
         menuitem_pluginmanager = new javax.swing.JMenuItem();
+        menu_window = new javax.swing.JMenu();
+        menu_info = new javax.swing.JCheckBoxMenuItem();
+        menu_bookmarks = new javax.swing.JCheckBoxMenuItem();
         menu_help = new javax.swing.JMenu();
         jMenuItem1 = new javax.swing.JMenuItem();
 
@@ -626,6 +629,33 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
 
         menuBar_top.add(menu_plugins);
 
+        menu_window.setText("Window");
+        menu_window.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                menu_windowStateChanged(evt);
+            }
+        });
+
+        menu_info.setSelected(true);
+        menu_info.setText("Information & Analysis");
+        menu_info.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                menu_infoActionPerformed(evt);
+            }
+        });
+        menu_window.add(menu_info);
+
+        menu_bookmarks.setSelected(true);
+        menu_bookmarks.setText("Bookmarks");
+        menu_bookmarks.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                menu_bookmarksActionPerformed(evt);
+            }
+        });
+        menu_window.add(menu_bookmarks);
+
+        menuBar_top.add(menu_window);
+
         menu_help.setText("Help");
 
         jMenuItem1.setText("Website");
@@ -791,6 +821,31 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         gpc.setSpotlight(this.menuitem_view_spotlight.isSelected());
     }//GEN-LAST:event_menuitem_view_spotlightActionPerformed
 
+    private void menu_windowStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_menu_windowStateChanged
+        if(this.getAuxDockingManager().getFrame("Information & Analysis").isVisible() != this.menu_info.getState()){
+            this.menu_info.setState(!this.menu_info.getState());
+        }
+        if(this.getAuxDockingManager().getFrame("Bookmarks").isVisible() != this.menu_bookmarks.getState()){
+            this.menu_bookmarks.setState(!this.menu_bookmarks.getState());
+        }
+    }//GEN-LAST:event_menu_windowStateChanged
+
+    private void menu_infoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menu_infoActionPerformed
+        if(this.getAuxDockingManager().getFrame("Information & Analysis").isVisible()){
+            this.getAuxDockingManager().hideFrame("Information & Analysis");
+        } else {
+            this.getAuxDockingManager().showFrame("Information & Analysis");
+        }
+    }//GEN-LAST:event_menu_infoActionPerformed
+
+    private void menu_bookmarksActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menu_bookmarksActionPerformed
+        if(this.getAuxDockingManager().getFrame("Bookmarks").isVisible()){
+            this.getAuxDockingManager().hideFrame("Bookmarks");
+        } else {
+            this.getAuxDockingManager().showFrame("Bookmarks");
+        }
+    }//GEN-LAST:event_menu_bookmarksActionPerformed
+
     /**
      * Starts an instance of the Savant Browser
      * @param args the command line arguments
@@ -830,12 +885,15 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
     private javax.swing.JMenuItem menuItemZoomIn;
     private javax.swing.JMenuItem menuItemZoomOut;
     private javax.swing.JCheckBoxMenuItem menuItem_viewRangeControls;
+    private javax.swing.JCheckBoxMenuItem menu_bookmarks;
     private javax.swing.JMenu menu_edit;
     private javax.swing.JMenu menu_file;
     private javax.swing.JMenu menu_help;
+    private javax.swing.JCheckBoxMenuItem menu_info;
     private javax.swing.JMenu menu_load;
     private javax.swing.JMenu menu_plugins;
     private javax.swing.JMenu menu_view;
+    private javax.swing.JMenu menu_window;
     private javax.swing.JMenuItem menuitem_exit;
     private javax.swing.JMenuItem menuitem_genome;
     private javax.swing.JMenuItem menuitem_pluginmanager;
