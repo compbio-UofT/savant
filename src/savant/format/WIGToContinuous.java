@@ -28,6 +28,7 @@ import savant.format.header.FileTypeHeader;
 import savant.format.util.data.FieldType;
 
 import java.io.*;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -62,7 +63,7 @@ public class WIGToContinuous {
         initOutput();
     }
 
-    public void format() throws InterruptedException {
+    public void format() throws InterruptedException, ParseException {
 
         try {
             File inputFile = new File(inFile);
@@ -113,8 +114,10 @@ public class WIGToContinuous {
                     }
                     if (tokens[0].equals("variableStep")){
                         if(tokens.length < 2){
-                            log.fatal("Error parsing file (variableStep line)");
-                            System.exit(1);
+                            closeOutput();
+                            throw new ParseException("Error parsing file (variableStep line)", 0);
+                            //log.fatal("Error parsing file (variableStep line)");
+                            //System.exit(1);
                         }
                         mode = "variable";
                         if(tokens.length == 3){
@@ -124,8 +127,10 @@ public class WIGToContinuous {
                         }
                     } else if (tokens[0].equals("fixedStep")){
                         if(tokens.length < 4){
-                            log.fatal("Error parsing file (fixedStep line)");
-                            System.exit(1);
+                            closeOutput();
+                            throw new ParseException("Error parsing file (fixedStep line)", 0);
+                            //log.fatal("Error parsing file (fixedStep line)");
+                            //System.exit(1);
                         }
                         mode = "fixed";
 
@@ -139,8 +144,10 @@ public class WIGToContinuous {
                         }
                     } else if (mode.equals("variable")){
                         if (tokens.length < 2){
-                            log.fatal("Error parsing file (to few tokens on varialbe line)");
-                            System.exit(1);
+                            closeOutput();
+                            throw new ParseException("Error parsing file (to few tokens on varialbe line)", 0);
+                            //log.fatal("Error parsing file (to few tokens on varialbe line)");
+                            //System.exit(1);
                         }
                         int dest = Integer.parseInt(tokens[0]);
                         this.fillWithZeros(nextWrite,dest,out);
@@ -161,8 +168,11 @@ public class WIGToContinuous {
 
 
                     } else if (mode.equals("none")){
-                        log.fatal("Error parsing file (no format line)");
-                        System.exit(1);
+                        closeOutput();
+                        throw new ParseException("Error parsing file (no format line)", 0);
+                        //log.fatal("Error parsing file (no format line)");
+                        
+                        //System.exit(1);
                     }
 
                     lineIn = reader.readLine();
@@ -271,6 +281,8 @@ public class WIGToContinuous {
             instance.format();
         } catch (InterruptedException e) {
             System.out.println("Formatting interrupted.");
+        } catch (ParseException e) {
+            System.out.println(e.getMessage());
         }
         finally {
             System.out.println("End process: " + new Date().toString());

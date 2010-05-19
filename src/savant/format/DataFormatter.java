@@ -29,6 +29,7 @@ import savant.format.util.data.interval.LinePlusRange;
 import savant.util.*;
 
 import java.io.*;
+import java.text.ParseException;
 import java.util.*;
 
 // TODO: make this a DataFormatterFactory, make things like WIGToContinuous inherit from an abstract class, implement all formats as classes.
@@ -98,7 +99,7 @@ public class DataFormatter implements FormatProgressListener {
      * Formats the file
      * @return
      */
-    public boolean format() throws InterruptedException, IOException {
+    public boolean format() throws InterruptedException, IOException, ParseException {
 
         // Get current time
         long start = System.currentTimeMillis();
@@ -266,7 +267,7 @@ public class DataFormatter implements FormatProgressListener {
      * CONTINUOUS : GENERIC
      * @return
      */
-    private void formatAsContinuousWIG() throws IOException, InterruptedException {
+    private void formatAsContinuousWIG() throws IOException, InterruptedException, ParseException {
 
 
         WIGToContinuous wtc = new WIGToContinuous(this.inPath, this.outPath);
