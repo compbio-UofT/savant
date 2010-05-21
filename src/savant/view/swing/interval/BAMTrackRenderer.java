@@ -351,71 +351,6 @@ public class BAMTrackRenderer extends TrackRenderer {
 
     }
 
-    private void renderCoverageMode(Graphics2D g2, GraphPane gp) {
-
-        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-        ColorScheme cs = (ColorScheme) getDrawingInstructions().getInstruction(DrawingInstructions.InstructionName.COLOR_SCHEME.toString());
-        Color curveColor = cs.getColor("REVERSE_STRAND");
-
-        AxisRange axisRange = (AxisRange) getDrawingInstructions().getInstruction(DrawingInstructions.InstructionName.AXIS_RANGE);
-        Range xRange = axisRange.getXRange();
-        int xRangeStart = xRange.getFrom();
-        int xRangeEnd = xRange.getTo();
-        int xRangeLength = xRange.getLength();
-
-        gp.setIsOrdinal(false);
-        gp.setXRange(xRange);
-
-        int[] coverage = new int[xRange.getLength()];
-
-        int maxValue = 0;
-
-        // calculate the coverage for each position + the maximum value
-        List<Object> data = this.getData();
-        for (Object o : data) {
-            BAMIntervalRecord bamRecord = (BAMIntervalRecord) o;
-            SAMRecord samRecord = bamRecord.getSamRecord();
-            int samStartPos = samRecord.getAlignmentStart();
-            int samEndPos = samRecord.getAlignmentEnd();
-            for (int i=samStartPos; i<=samEndPos; i++) {
-                if (i>= xRangeStart && i<= xRangeEnd) {
-                    int adjustedCoverageIndex = i-xRangeStart;
-                    coverage[adjustedCoverageIndex] += 1;
-                    if (coverage[adjustedCoverageIndex] > maxValue) {
-                        maxValue = coverage[adjustedCoverageIndex];
-                    }
-                }
-
-            }
-        }
-
-        // now that we now the max value, set the Y range
-        gp.setYRange(new Range(0, maxValue));
-
-        // render the graph
-        int xPos=0;
-        int yPos=(int)gp.transformYPos(0);
-        double xFormXPos=0, xFormYPos;
-        GeneralPath path = new GeneralPath();
-        path.moveTo(xPos, yPos);
-        for (int i=0; i<xRangeLength; i++) {
-            xPos = i;
-            yPos = coverage[i];
-            xFormXPos = xPos+gp.getUnitWidth()/2;
-            xFormYPos = gp.transformYPos(yPos);
-            path.lineTo(xFormXPos, xFormYPos);
-        }
-        xFormYPos = gp.transformYPos(0);
-        path.lineTo(xFormXPos, xFormYPos);
-        path.closePath();
-
-        g2.setColor(curveColor);
-        g2.draw(path);
-        g2.fill(path);
-        
-    }
-
     private void renderArcMode(Graphics2D g2, GraphPane gp) {
 
         List<Object> data = this.getData();
@@ -449,7 +384,13 @@ public class BAMTrackRenderer extends TrackRenderer {
             BAMIntervalRecord record = (BAMIntervalRecord)data.get(i);
             SAMRecord samRecord = record.getSamRecord();
 
+            // skip reads with no mapped mate
             if (!samRecord.getReadPairedFlag() || samRecord.getMateUnmappedFlag() || record.getType() == null) continue;
+
+            int arcLength = Math.abs(samRecord.getInferredInsertSize());
+
+            // skip reads with a zero insert length--probably mapping errors
+            if (arcLength == 0) continue;
 
             int alignmentStart;
             int alignmentEnd;
@@ -473,7 +414,6 @@ public class BAMTrackRenderer extends TrackRenderer {
             // at this point alignmentStart/End refers the the start end of the first occurrence in the pair
 
             BAMIntervalRecord.PairType type = record.getType();
-            int arcLength = record.getInsertSize();
 
 
             int intervalStart;
