@@ -36,7 +36,6 @@ public class BAMIntervalRecord extends IntervalRecord {
     private SAMRecord samRecord;
     private SAMRecord mateRecord;
     PairType type;
-    int insertSize;
 
     public BAMIntervalRecord(SAMRecord samRecord) {
 
@@ -75,11 +74,4 @@ public class BAMIntervalRecord extends IntervalRecord {
         this.type = type;
     }
 
-    public int getInsertSize() {
-        return insertSize;
-    }
-
-    public void setInsertSize(int insertSize) {
-        this.insertSize = insertSize;
-    }
 }
