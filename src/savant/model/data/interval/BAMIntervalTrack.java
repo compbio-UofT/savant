@@ -72,8 +72,7 @@ public class BAMIntervalTrack implements RecordTrack<BAMIntervalRecord> {
             BAMIntervalRecord bamRecord;
             while (recordIterator.hasNext()) {
                 samRecord = recordIterator.next();
-                // don't keep unmapped reads or their mates
-//                if (samRecord.getReadUnmappedFlag() || !samRecord.getReadPairedFlag() || samRecord.getMateUnmappedFlag()) continue;
+                // don't keep unmapped reads
                 if (samRecord.getReadUnmappedFlag()) continue;
                 bamRecord = new BAMIntervalRecord(samRecord);
 
@@ -81,8 +80,6 @@ public class BAMIntervalTrack implements RecordTrack<BAMIntervalRecord> {
                 if (samRecord.getReadPairedFlag() && !samRecord.getMateUnmappedFlag()) {
                     BAMIntervalRecord.PairType type = getPairType(samRecord.getAlignmentStart(), samRecord.getMateAlignmentStart(), samRecord.getReadNegativeStrandFlag(), samRecord.getMateNegativeStrandFlag());
                     bamRecord.setType(type);
-                    // pre-calculate the insert size in case it's needed
-                    bamRecord.setInsertSize(inferInsertSize(samRecord, type));
                 }
 
                 result.add(bamRecord);
@@ -110,9 +107,12 @@ public class BAMIntervalTrack implements RecordTrack<BAMIntervalRecord> {
         if (index == null) throw new IllegalArgumentException("Index file must not be null");
         this.path = path;
         this.index = index;
-
     }
 
+    public File getIndex() {
+        return index;
+    }
+    
     /*
      * Use the length of the reference genome to guess which sequence from the dictionary
      * we should search for reads.
@@ -146,73 +146,6 @@ public class BAMIntervalTrack implements RecordTrack<BAMIntervalRecord> {
         return sequenceName;
     }
 
-
-    /**
-     * <p>Calculate approximate insert size for a given mated pair of reads. Some assumptions are
-     * made about the equivalence of read and mate lengths, since there is no other reasonable
-     * heuristic that works across sequencing technologies.<p>
-     * <p>Also note that here the insert size goes from the 3' end of the read to the 3' end of the mate.
-     * It does not include both read lengths in the normal pair type case. Only for everted reads (both
-     * pointing in the "wrong" direction, will the read lengths be included in the returned size.</p>
-     *
-     * @param samRecord a SAMRecord returned by SAMTools
-     * @param pairType the pair type: NORMAL, INVERTED_READ, INVERTED_MATE, EVERTED
-     * @return an approximate insert size
-     * @throws IllegalStateException if the read is unmapped, unpaired, or its mate is unmapped.
-     */
-    public static int inferInsertSize(SAMRecord samRecord, BAMIntervalRecord.PairType pairType) throws IllegalStateException {
-
-        if (samRecord.getReadUnmappedFlag() || !samRecord.getReadPairedFlag() || samRecord.getMateUnmappedFlag()) {
-            throw new IllegalStateException("Read is either not mapped, not paired, or its mate is unmapped; cannot calculate insert size.");
-        }
-
-        int startPos = 0;
-        int endPos = 0;
-
-        // deal with which read comes first, the read or the mate,
-        // and set alignmentStart/End to the 1st and mateAlignmentStart/End to the 2nd
-        int alignmentStart;
-        int alignmentEnd;
-        int mateAlignmentStart;
-        int mateAlignmentEnd;
-        if (samRecord.getAlignmentStart() < samRecord.getMateAlignmentStart()) {
-            alignmentStart = samRecord.getAlignmentStart();
-            alignmentEnd = samRecord.getAlignmentEnd();
-            mateAlignmentStart = samRecord.getMateAlignmentStart();
-            // this is an approximation
-            mateAlignmentEnd = samRecord.getMateAlignmentStart() + samRecord.getReadLength();
-        }
-        else {
-            alignmentStart = samRecord.getMateAlignmentStart();
-            // this is an approximation because mate length is not known
-            alignmentEnd = samRecord.getMateAlignmentStart() + samRecord.getReadLength();
-            mateAlignmentStart = samRecord.getAlignmentStart();
-            mateAlignmentEnd = samRecord.getAlignmentEnd();
-        }
-
-        // now use the pair type to determine start and end position of the arc to be drawn
-        // as the insert
-        switch (pairType) {
-            case NORMAL:
-                startPos = alignmentEnd;
-                endPos = mateAlignmentStart;
-                break;
-            case INVERTED_READ:
-                startPos = alignmentStart;
-                endPos = mateAlignmentStart;
-                break;
-            case INVERTED_MATE:
-                startPos = alignmentEnd;
-                endPos = mateAlignmentEnd;
-                break;
-            case EVERTED:
-                startPos = alignmentStart;
-                endPos = mateAlignmentEnd;
-                break;
-        }
-        // return the length of the arc.
-        return endPos - startPos + 1;
-    }
 
     /*
      * Determine the pair type: NORMAL, INVERTED_READ, INVERTED_MATE, EVERTED pair.
