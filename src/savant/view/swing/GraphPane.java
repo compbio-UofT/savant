@@ -245,7 +245,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         setYRange(consolidatedYRange);
 
         yMin = minYRange;
-        yMax = minYRange;
+        yMax = maxYRange;
 
         renderBackground(g);
 
