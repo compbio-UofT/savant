@@ -140,6 +140,7 @@ public class BAMViewTrack extends ViewTrack {
 
         double max = 0;
         Range displayedRange = RangeController.getInstance().getRange();
+        int displayedRangeLength = displayedRange.getLength();
 
         for (Object o: data) {
 
@@ -151,11 +152,9 @@ public class BAMViewTrack extends ViewTrack {
             int mateAlignmentStart = samRecord.getMateAlignmentStart();
             if (alignmentStart < mateAlignmentStart) {
 
-//                BAMIntervalRecord.PairType pairType = record.getType();
-//                val = BAMIntervalTrack.inferInsertSize(samRecord, pairType);
-                val = record.getInsertSize();
+                val = record.getSamRecord().getInferredInsertSize();
                 // throw away, for purposes of calculating the max y axis, any insert sizes larger than the displayed range.
-                if (val > displayedRange.getLength()) continue;
+                if (val > displayedRangeLength) continue;
             }
             else {
                 continue;
