@@ -14,49 +14,24 @@
  *    limitations under the License.
  */
 
-/*
- * WIGToContinuous.java
- * Created on Mar 1, 2010
- */
-
 package savant.format;
 
-import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import savant.format.header.FileType;
-import savant.format.header.FileTypeHeader;
-import savant.format.util.data.FieldType;
-
 import java.io.*;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
-/**
- * Class to convert a WIG file to a Savant continuous generic file.
- */
-public class WIGToContinuous {
-
-    private static final Log log = LogFactory.getLog(WIGToContinuous.class);
+public class WIGToContinuous extends GenericFormatter {
 
     public static final int RECORDS_PER_INTERRUPT_CHECK = 100;
 
-    private String inFile;
-    private String outFile;
-    private DataOutputStream out;
-    
-    // stuff needed by IO; mandated by DataFormatUtils which we're depending on
-    private List<FieldType> fields;
-    private List<Object> modifiers;
-    
     // variables to keep track of progress processing the input file(s)
     private long totalBytes;
     private long byteCount;
-    private int progress; // 0 to 100%
-    private List<FormatProgressListener> listeners = new ArrayList<FormatProgressListener>();
 
     public WIGToContinuous(String inFile, String outFile) {
+
+        log = LogFactory.getLog(WIGToContinuous.class);
+
         this.inFile = inFile;
         this.outFile = outFile;
 
@@ -67,7 +42,7 @@ public class WIGToContinuous {
 
         try {
             File inputFile = new File(inFile);
-            
+
             // Initialize the total size of the input file, for purposes of tracking progress
             this.totalBytes = inputFile.length();
 
@@ -115,6 +90,7 @@ public class WIGToContinuous {
                     if (tokens[0].equals("variableStep")){
                         if(tokens.length < 2){
                             closeOutput();
+                            deleteOutputFile();
                             throw new ParseException("Error parsing file (variableStep line)", 0);
                             //log.fatal("Error parsing file (variableStep line)");
                             //System.exit(1);
@@ -128,6 +104,7 @@ public class WIGToContinuous {
                     } else if (tokens[0].equals("fixedStep")){
                         if(tokens.length < 4){
                             closeOutput();
+                            deleteOutputFile();
                             throw new ParseException("Error parsing file (fixedStep line)", 0);
                             //log.fatal("Error parsing file (fixedStep line)");
                             //System.exit(1);
@@ -145,7 +122,8 @@ public class WIGToContinuous {
                     } else if (mode.equals("variable")){
                         if (tokens.length < 2){
                             closeOutput();
-                            throw new ParseException("Error parsing file (to few tokens on varialbe line)", 0);
+                            deleteOutputFile();
+                            throw new ParseException("Error parsing file (to few tokens on variable line)", 0);
                             //log.fatal("Error parsing file (to few tokens on varialbe line)");
                             //System.exit(1);
                         }
@@ -169,9 +147,10 @@ public class WIGToContinuous {
 
                     } else if (mode.equals("none")){
                         closeOutput();
+                        deleteOutputFile();
                         throw new ParseException("Error parsing file (no format line)", 0);
                         //log.fatal("Error parsing file (no format line)");
-                        
+
                         //System.exit(1);
                     }
 
@@ -198,94 +177,11 @@ public class WIGToContinuous {
         }
     }
 
-    public int getProgress() {
-        return progress;
-    }
-
-    public void setProgress(int progress) {
-        this.progress = progress;
-        fireProgressUpdate(progress);
-
-    }
-
-    public void addProgressListener(FormatProgressListener listener) {
-        listeners.add(listener);
-    }
-
-    public void removeProgressListener(FormatProgressListener listener) {
-        listeners.remove(listener);
-    }
-
-    private void fireProgressUpdate(int value) {
-        for (FormatProgressListener listener : listeners) {
-            listener.progressUpdate(value);
-        }
-    }
-
-    private void initOutput() {
-
-        try {
-            // open output stream
-            out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(outFile)));
-
-            // write file type header
-            FileTypeHeader fileTypeHeader = new FileTypeHeader(FileType.CONTINUOUS_GENERIC, 1);
-            out.writeInt(fileTypeHeader.fileType.getMagicNumber());
-            out.writeInt(fileTypeHeader.version);
-
-            // prepare and write fields header
-            fields = new ArrayList<FieldType>();
-            fields.add(FieldType.FLOAT);
-            modifiers = new ArrayList<Object>();
-            modifiers.add(null);
-            out.writeInt(fields.size());
-            for (FieldType ft : fields) {
-                out.writeInt(ft.ordinal());
-            }
-
-
-        } catch (IOException e) {
-            log.error("Error preparing output file", e);
-        }
-    }
-
-    private void closeOutput() {
-        try {
-            if (out != null) out.close();
-        } catch (IOException e) {
-            log.warn("Error closing output file", e);
-        }
-    }
-    
     private void fillWithZeros(int curent, int dest,DataOutputStream out) throws IOException{
     	for (int i = curent; i < dest;i++){
     		out.writeFloat(0.0f);
     	}
-
     }
 
-    private void updateProgress() {
-        float proportionDone = (float)this.byteCount/(float)this.totalBytes;
-        int percentDone = (int)Math.round(proportionDone * 100.0);
-        setProgress(percentDone);
-    }
 
-    public static void main(String[] args) {
-        if (args.length != 2) {
-            System.out.println("Missing argument: input file and output file required");
-            System.exit(1);
-        }
-        System.out.println("Start process: " + new Date().toString());
-        WIGToContinuous instance = new WIGToContinuous(args[0], args[1]);
-        try {
-            instance.format();
-        } catch (InterruptedException e) {
-            System.out.println("Formatting interrupted.");
-        } catch (ParseException e) {
-            System.out.println(e.getMessage());
-        }
-        finally {
-            System.out.println("End process: " + new Date().toString());
-        }
-    }
 }

@@ -14,48 +14,22 @@
  *    limitations under the License.
  */
 
-/*
- * BAMToCoverage.java
- * Created on Feb 28, 2010
- */
-
-//package savant.tools;
 package savant.format;
 
 import net.sf.samtools.*;
 import net.sf.samtools.util.CloseableIterator;
-import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import savant.format.header.FileType;
-import savant.format.header.FileTypeHeader;
-import savant.format.util.data.FieldType;
-
 import java.io.*;
 import java.util.*;
 
-/**
- * Tool to create a coverage file from a BAM file.
- *
- * Usage:
- * - first argument: input BAM file
- * - second argument: input BAM index file
- * - third argument: output coverage file
- * - fourth argument: sequence length
- */
-public class BAMToCoverage {
-
-    private static Log log = LogFactory.getLog(BAMToCoverage.class);
+public class BAMToCoverage extends GenericFormatter{
 
     private static String fileSeparator = System.getProperty("file.separator");
 
     public static final int RECORDS_PER_INTERRUPT_CHECK = 5000;
-    private static final int OUTPUT_BUFFER_SIZE = 1024 * 128; // 128K
 
-    private String inFile;      // xx.bam file
     private String indexFile;   // xx.bai file
     private String outDir;      // xx_cov directory
-    private String outFile;
-    private DataOutputStream out;
 
     private SAMFileReader samFileReader;
 
@@ -68,24 +42,12 @@ public class BAMToCoverage {
     private String readSequenceName;
     private int readSequenceLength;
 
-    // stuff needed by IO; mandated by DataFormatUtils which we're depending on
-    private List<FieldType> fields;
-    private List<Object> modifiers;
-
-    // variables to keep track of progress processing the input file(s)
     private long totalLength=0;
     private long previousSequencesCumulativeLength=0;
-    private long positionCount=0;
-    private int progress=0; // 0 to 100%
-    private List<FormatProgressListener> listeners = new ArrayList<FormatProgressListener>();
-
-
-//    private int sequenceLength;
-//    String sequence;
-//    boolean sequenceFound = false;
 
     public BAMToCoverage(String inFile) throws IOException {
 
+        log = LogFactory.getLog(BAMToCoverage.class);
         this.inFile = inFile;
         // determine index and output file names
         prepareFiles(inFile);
@@ -96,28 +58,12 @@ public class BAMToCoverage {
         calculateTotalLength();
     }
 
-//    public BAMToCoverage(String inFile, String indexFile, String outFile, String sequenceName, int sequenceLength) {
-//
-//        this.samFileReader = new SAMFileReader(new File(inFile), new File(indexFile));
-//        this.sequenceLength = sequenceLength;
-//        this.outFile = outFile;
-//
-//        if (sequenceName != null && ! sequenceName.equals("null")) {
-//            this.sequence = sequenceName;
-//        }
-//        else {
-//            this.sequence = guessSequence(sequenceLength);
-//        }
-//
-//
-//    }
-
     public void format() throws InterruptedException {
 
 //        initOutput();
         Date startTime = new Date();
         System.out.println("Started Processing at: " + startTime);
-        
+
         CloseableIterator<SAMRecord> recordIterator = null;
         try {
 
@@ -202,23 +148,6 @@ public class BAMToCoverage {
 
     }
 
-//    private SAMRecord readNextRecordInSequence(CloseableIterator<SAMRecord> recordIterator) {
-//        SAMRecord sam = null;
-//        if (recordIterator.hasNext()) {
-//            sam = recordIterator.next();
-//            // check for the right sequence
-//            if (sam.getReferenceName().equals(sequence)) {
-//                if (!sequenceFound) sequenceFound = true;
-//                return sam;
-//            }
-//            else {
-//                // we can bail now since we've gone past all entries in our sequence
-//                if (sequenceFound) return null;
-//            }
-//        }
-//        return null;
-//    }
-    
     private SAMRecord readNextRecord(CloseableIterator<SAMRecord> recordIterator) {
         SAMRecord sam = null;
         if (recordIterator.hasNext()) {
@@ -263,94 +192,6 @@ public class BAMToCoverage {
 
     }
 
-    private void initOutput() {
-
-        try {
-            // open output stream
-            out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(outFile), OUTPUT_BUFFER_SIZE));
-
-            // write file type header
-            FileTypeHeader fileTypeHeader = new FileTypeHeader(FileType.CONTINUOUS_GENERIC, 1);
-            out.writeInt(fileTypeHeader.fileType.getMagicNumber());
-            out.writeInt(fileTypeHeader.version);
-
-            // prepare and write fields header
-            fields = new ArrayList<FieldType>();
-            fields.add(FieldType.FLOAT);
-            modifiers = new ArrayList<Object>();
-            modifiers.add(null);
-            out.writeInt(fields.size());
-            for (FieldType ft : fields) {
-                out.writeInt(ft.ordinal());
-            }
-
-
-        } catch (IOException e) {
-            log.error("Error initializing output file " + outFile, e);
-        }
-    }
-
-    private void closeOutput() {
-        try {
-            if (out != null) out.close();
-        } catch (IOException e) {
-            log.warn("Error closing output file " + outFile, e);
-        }
-    }
-    
-    public int getProgress() {
-        return progress;
-    }
-
-    public void setProgress(int progress) {
-        this.progress = progress;
-        fireProgressUpdate(progress);
-
-    }
-
-    public void addProgressListener(FormatProgressListener listener) {
-        listeners.add(listener);
-    }
-
-    public void removeProgressListener(FormatProgressListener listener) {
-        listeners.remove(listener);
-    }
-
-    private void fireProgressUpdate(int value) {
-        for (FormatProgressListener listener : listeners) {
-            listener.progressUpdate(value);
-        }
-    }
-
-    private void updateProgress() {
-        float proportionDone = (float)this.positionCount/(float)this.totalLength;
-        int percentDone = (int)Math.round(proportionDone * 100.0);
-        setProgress(percentDone);
-    }
-
-//    private String guessSequence(int sequenceLength) {
-//
-//        SAMFileHeader fileHeader = samFileReader.getFileHeader();
-//        SAMSequenceDictionary sequenceDictionary = fileHeader.getSequenceDictionary();
-//        // find the first sequence with the smallest difference in length from our reference sequence
-//        int leastDifferenceInSequenceLength = Integer.MAX_VALUE;
-//        int closestSequenceIndex = Integer.MAX_VALUE;
-//        int i = 0;
-//        for (SAMSequenceRecord sequenceRecord : sequenceDictionary.getSequences()) {
-//            int lengthDelta = Math.abs(sequenceRecord.getSequenceLength() - sequenceLength);
-//            if (lengthDelta < leastDifferenceInSequenceLength) {
-//                leastDifferenceInSequenceLength = lengthDelta;
-//                closestSequenceIndex = i;
-//            }
-//            i++;
-//        }
-//        if (closestSequenceIndex != Integer.MAX_VALUE) {
-//            return sequenceDictionary.getSequence(closestSequenceIndex).getSequenceName();
-//        }
-//        return null;
-//
-//    }
-
     private void prepareFiles(String inFile) throws IOException {
 
         // determine default track name from filename
@@ -391,7 +232,7 @@ public class BAMToCoverage {
         for (SAMSequenceRecord sequence : sequences) {
             sequenceDictionary.put(sequence.getSequenceName(), sequence.getSequenceLength());
         }
-        
+
     }
 
     private void calculateTotalLength() {
@@ -400,23 +241,11 @@ public class BAMToCoverage {
         }
     }
 
-    public static void main(String args[]) {
-        if (args.length != 1) {
-//            System.out.println("Missing argument: BAM, index file, output file, reference sequence name (may be \"null\") and length required");
-            System.out.println("Missing argument: BAM file required");
-            System.exit(1);
-        }
-//        BAMToCoverage instance = new BAMToCoverage(args[0], args[1], args[2], args[3], Integer.parseInt(args[4]));
-        BAMToCoverage instance = null;
-        try {
-            instance = new BAMToCoverage(args[0]);
-        } catch (IOException e) {
-            log.error("Error formatting file " + args[0], e);
-        }
-        try {
-            instance.format();
-        } catch (InterruptedException e) {
-            log.info("Formatting interrupted");
-        }
+    @Override
+    protected void updateProgress() {
+        float proportionDone = (float)this.positionCount/(float)this.totalLength;
+        int percentDone = (int)Math.round(proportionDone * 100.0);
+        setProgress(percentDone);
     }
+
 }
