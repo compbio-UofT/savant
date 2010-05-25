@@ -85,6 +85,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
     private JPanel menuPanel;
 
     private JButton button_genome;
+    private JButton trackButton;
 
     private static boolean showBookmarksChangedDialog = true;
 
@@ -1133,6 +1134,9 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
             }
 
             public void mouseReleased(MouseEvent e) {
+                if(button_genome.contains(e.getPoint())){
+                    showOpenGenomeDialog();
+                }
             }
 
             public void mouseEntered(MouseEvent e) {
@@ -1142,7 +1146,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
             }
         });
 
-        JButton trackButton = addButton(p, "  Track  ");
+        trackButton = addButton(p, "  Track  ");
         trackButton.setToolTipText("Load a track");
         trackButton.addMouseListener(new MouseListener() {
 
@@ -1154,6 +1158,9 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
             }
 
             public void mouseReleased(MouseEvent e) {
+                if(trackButton.contains(e.getPoint())){
+                    showOpenTracksDialog();
+                }
             }
 
             public void mouseEntered(MouseEvent e) {
