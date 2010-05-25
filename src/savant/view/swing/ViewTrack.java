@@ -157,6 +157,12 @@ public abstract class ViewTrack {
                 FileTypeHeader fth = RAFUtils.readFileTypeHeader(trkFile);
                 trkFile.close();
 
+                if(fth.fileType == null){
+                    Savant s = Savant.getInstance();
+                    s.promptUserToFormatFile(trackFilename, "This file does not appear to be formatted. Format now?");
+                    return results;
+                }
+
                 switch(fth.fileType) {
                     case SEQUENCE_FASTA:
                         Genome g = new Genome(trackFilename);
