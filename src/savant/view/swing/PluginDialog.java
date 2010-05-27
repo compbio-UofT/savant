@@ -248,6 +248,8 @@ public class PluginDialog extends javax.swing.JFrame {
 
                 DefaultListModel model = (DefaultListModel) this.list_installedplugins.getModel();
 
+                System.out.println("trying to uninstall " + pluginDir + System.getProperty("file.separator") + pluginFileName);
+
                 File f = new File(pluginDir + System.getProperty("file.separator") + pluginFileName);
 
                 boolean success = f.delete();
@@ -255,10 +257,16 @@ public class PluginDialog extends javax.swing.JFrame {
                 if (success) {
                     model.removeElement(pluginFileName);
                     updatePluginList();
+                    JOptionPane.showMessageDialog(this, "Plugin successfully uninstalled. Restart Savant \n" +
+                     "for changes to take effect.");
                 } else {
                     f.deleteOnExit();
                     model.removeElement(pluginFileName);
                     updatePluginList();
+                    JOptionPane.showMessageDialog(this, "Plugin queued for uninstallation. Restart Savant \n" +
+                     "for changes to take effect. If the plugin remains \n" +
+                     "installed, you can manually remove it by deleting the \n" +
+                     "appropriate .jar file from the plugins directory.");
                 }
             } catch (Exception e) {
                 JOptionPane.showMessageDialog(this, "Error removing plugin." +
@@ -267,8 +275,7 @@ public class PluginDialog extends javax.swing.JFrame {
                 return;
             }
 
-             JOptionPane.showMessageDialog(this, "Plugin successfully uninstalled. Restart Savant \n" +
-                     "for changes to take effect.");
+             
         }
     }
 
@@ -312,7 +319,7 @@ public class PluginDialog extends javax.swing.JFrame {
             try
             {
                 String plname = MiscUtils.getFilenameFromPath(url);
-                out = new FileOutputStream("plugins" + System.getProperty("file.separator") + MiscUtils.getFilenameFromPath(url));
+                out = new FileOutputStream(pluginDir + System.getProperty("file.separator") + MiscUtils.getFilenameFromPath(url));
                 u = new URL(url);
                 //Serve the file
                 in = u.openStream();
