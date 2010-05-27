@@ -965,8 +965,6 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
 
     private void initPlugins() {
         try{
-            this.menu_plugins.setVisible(false);
-
             // init the AuxData plugins
 
             PluginDescriptor core = pluginManager.getRegistry().getPluginDescriptor("savant.core");

@@ -249,11 +249,22 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
 
         renderBackground(g);
 
+        // Get current time
+        long start = System.currentTimeMillis();
+
         for (TrackRenderer tr : trackRenderers) {
             // change renderers' drawing instructions to reflect consolidated YRange
             tr.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.AXIS_RANGE, new AxisRange(xRange, consolidatedYRange));
             tr.render(g, this);
         }
+
+        // Get elapsed time in milliseconds
+        long elapsedTimeMillis = System.currentTimeMillis()-start;
+
+        // Get elapsed time in seconds
+        float elapsedTimeSec = elapsedTimeMillis/1000F;
+
+        System.out.println("\tRendering of " + tracks.get(0).getName() + " took " + elapsedTimeSec + " seconds");
 
         renderSides(g);
        

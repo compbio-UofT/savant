@@ -71,6 +71,9 @@ public class MiscUtils {
 
     public static String getFilenameFromPath(String path) {
         int lastSlashIndex = path.lastIndexOf(System.getProperty("file.separator"));
+        if (lastSlashIndex == -1) {
+            lastSlashIndex = path.lastIndexOf("/");
+        }
         return path.substring(lastSlashIndex+1, path.length());
     }
 

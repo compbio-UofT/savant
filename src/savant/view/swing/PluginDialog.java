@@ -11,14 +11,23 @@
 
 package savant.view.swing;
 
+import java.io.FileNotFoundException;
 import javax.swing.*;
 import java.awt.*;
+import java.io.BufferedInputStream;
+import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import savant.util.MiscUtils;
 
 /**
  *
@@ -50,7 +59,8 @@ public class PluginDialog extends javax.swing.JFrame {
         jScrollPane1 = new javax.swing.JScrollPane();
         list_installedplugins = new javax.swing.JList(new DefaultListModel());
         button_remove = new javax.swing.JButton();
-        button_add = new javax.swing.JButton();
+        button_add_from_file = new javax.swing.JButton();
+        button_add_from_url = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -59,17 +69,24 @@ public class PluginDialog extends javax.swing.JFrame {
         list_installedplugins.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         jScrollPane1.setViewportView(list_installedplugins);
 
-        button_remove.setText("Remove");
+        button_remove.setText("Uninstall");
         button_remove.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 button_removeActionPerformed(evt);
             }
         });
 
-        button_add.setText("Add");
-        button_add.addActionListener(new java.awt.event.ActionListener() {
+        button_add_from_file.setText("Install from file");
+        button_add_from_file.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                button_addActionPerformed(evt);
+                button_add_from_fileActionPerformed(evt);
+            }
+        });
+
+        button_add_from_url.setText("Install from URL");
+        button_add_from_url.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                button_add_from_urlActionPerformed(evt);
             }
         });
 
@@ -77,17 +94,19 @@ public class PluginDialog extends javax.swing.JFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(button_add_from_file)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(button_add_from_url)
+                .addGap(6, 6, 6)
+                .addComponent(button_remove)
+                .addContainerGap())
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 270, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 297, Short.MAX_VALUE)
                     .addComponent(jLabel1))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(152, Short.MAX_VALUE)
-                .addComponent(button_add)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(button_remove)
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -100,20 +119,25 @@ public class PluginDialog extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(button_remove)
-                    .addComponent(button_add))
+                    .addComponent(button_add_from_file)
+                    .addComponent(button_add_from_url))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void button_addActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_addActionPerformed
+    private void button_add_from_fileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_add_from_fileActionPerformed
         addPlugin();
-    }//GEN-LAST:event_button_addActionPerformed
+    }//GEN-LAST:event_button_add_from_fileActionPerformed
 
     private void button_removeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_removeActionPerformed
         removePlugin();
     }//GEN-LAST:event_button_removeActionPerformed
+
+    private void button_add_from_urlActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_add_from_urlActionPerformed
+        addPluginFromURL();
+    }//GEN-LAST:event_button_add_from_urlActionPerformed
 
     /**
     * @param args the command line arguments
@@ -127,7 +151,8 @@ public class PluginDialog extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton button_add;
+    private javax.swing.JButton button_add_from_file;
+    private javax.swing.JButton button_add_from_url;
     private javax.swing.JButton button_remove;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JScrollPane jScrollPane1;
@@ -135,6 +160,8 @@ public class PluginDialog extends javax.swing.JFrame {
     // End of variables declaration//GEN-END:variables
 
     private void updatePluginList() {
+        System.out.println("Updating plugin list");
+        
         DefaultListModel model = (DefaultListModel) this.list_installedplugins.getModel();
         model.removeAllElements();
 
@@ -195,30 +222,54 @@ public class PluginDialog extends javax.swing.JFrame {
 
             // error copying file
             } catch (Exception ex) {
-                Logger.getLogger(PluginDialog.class.getName()).log(Level.SEVERE, null, ex);
+                JOptionPane.showMessageDialog(this, "Error installing plugin." +
+                        "\nYou can manually install it by adding the appropriate \n" +
+                        ".jar file to the plugins directory.");
             }
         }
+
+        JOptionPane.showMessageDialog(this, "Plugin successfully installed. Restart Savant \n" +
+                "for changes to take effect.");
     }
 
     private void removePlugin() {
 
-        try {
-            String pluginFileName = (String) this.list_installedplugins.getSelectedValue();
+        int reply = JOptionPane.showConfirmDialog(this, "Are you sure you want to remove \n" +
+                "this plugin?");
+        if (reply == JOptionPane.YES_OPTION) {
+            try {
+                String pluginFileName = (String) this.list_installedplugins.getSelectedValue();
 
-            if (pluginFileName.equals("SavantCore.jar") || pluginFileName.equals("SavantData.jar")) {
+                if (pluginFileName.equals("SavantCore.jar") || pluginFileName.equals("SavantData.jar")) {
+                    JOptionPane.showMessageDialog(this, "This plugin provides core functionality and \n" +
+                            "cannot be uninstalled.");
+                    return;
+                }
+
+                DefaultListModel model = (DefaultListModel) this.list_installedplugins.getModel();
+
+                File f = new File(pluginDir + System.getProperty("file.separator") + pluginFileName);
+
+                boolean success = f.delete();
+
+                if (success) {
+                    model.removeElement(pluginFileName);
+                    updatePluginList();
+                } else {
+                    f.deleteOnExit();
+                    model.removeElement(pluginFileName);
+                    updatePluginList();
+                }
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(this, "Error removing plugin." +
+                        "\nYou can manually remove it by deleting the appropriate \n" +
+                        ".jar file from the plugins directory.");
                 return;
             }
 
-            DefaultListModel model = (DefaultListModel) this.list_installedplugins.getModel();
-            
-            File f = new File(pluginDir + System.getProperty("file.separator") + pluginFileName);
-            boolean success = f.delete();
-
-            if (success) {
-                model.removeElement(pluginFileName);
-                updatePluginList();
-            }
-        } catch (Exception e) {}
+             JOptionPane.showMessageDialog(this, "Plugin successfully uninstalled. Restart Savant \n" +
+                     "for changes to take effect.");
+        }
     }
 
     public static void copyFile(File in, File out) throws Exception {
@@ -237,6 +288,69 @@ public class PluginDialog extends javax.swing.JFrame {
         finally {
             if (fis != null) fis.close();
             if (fos != null) fos.close();
+        }
+    }
+
+    private void addPluginFromURL() {
+        String s = (String)JOptionPane.showInputDialog(
+                    this,
+                    "Enter the URL of the plugin: ",
+                    "Install plugin from URL",
+                    JOptionPane.PLAIN_MESSAGE,
+                    null,
+                    null,
+                    "URL");
+
+        //If a string was returned, say so.
+        if ((s != null) && (s.length() > 0)) {
+
+            String url = s;
+
+            URL u;
+            OutputStream out = null;
+            InputStream in = null;
+            try
+            {
+                String plname = MiscUtils.getFilenameFromPath(url);
+                System.out.println("Plugin name: " + plname);
+                out = new FileOutputStream("plugins\\" + MiscUtils.getFilenameFromPath(url));
+                u = new URL(url);
+                //Serve the file
+                in = u.openStream();
+                byte[] buf = new byte[4 * 1024]; // 4K buffer
+                int bytesRead;
+                while ((bytesRead = in.read(buf)) != -1) {
+                    out.write(buf, 0, bytesRead);
+                }
+            }
+            catch (MalformedURLException mue)
+            {
+              JOptionPane.showMessageDialog(this, "Error installing plugin." +
+                        "\nThe URL appears to be incorrect.");
+              addPluginFromURL();
+              return;
+            }
+            catch (IOException ioe)
+            {
+              JOptionPane.showMessageDialog(this, "Error installing plugin." +
+                        "\nYou can manually install it by adding the appropriate \n" +
+                        ".jar file to the plugins directory.");
+              return;
+            }
+            finally
+            {
+              try
+              {
+                in.close();
+                out.close();
+              }
+              catch (IOException ioe) {}
+            }
+
+            updatePluginList();
+            JOptionPane.showMessageDialog(this, "Plugin successfully installed. Restart Savant \n" +
+                "for changes to take effect.");
+            return;
         }
     }
 }
