@@ -312,8 +312,7 @@ public class PluginDialog extends javax.swing.JFrame {
             try
             {
                 String plname = MiscUtils.getFilenameFromPath(url);
-                System.out.println("Plugin name: " + plname);
-                out = new FileOutputStream("plugins\\" + MiscUtils.getFilenameFromPath(url));
+                out = new FileOutputStream("plugins" + System.getProperty("file.separator") + MiscUtils.getFilenameFromPath(url));
                 u = new URL(url);
                 //Serve the file
                 in = u.openStream();
