@@ -16,6 +16,7 @@
 
 package savant.view.swing;
 
+import java.awt.Component;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import savant.controller.TrackController;
@@ -50,6 +51,7 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.List;
+import javax.swing.JOptionPane;
 
 /**
  * Class to handle the preparation for rendering of a track. Handles colour schemes and
@@ -125,7 +127,10 @@ public abstract class ViewTrack {
 
             }
             else {
-                log.error("Could not open BAM track because index could not be found; index file must be named filename.bam.bai or filename.bai");
+                String e = "Could not open BAM track because index could not be found; index file must be named filename.bam.bai or filename.bai";
+                log.error(e);
+                JOptionPane.showConfirmDialog((Component) Savant.getInstance(), (Object) e, "Unrecognized file", JOptionPane.DEFAULT_OPTION);
+                return null;
             }
 
             // create the coverage track
