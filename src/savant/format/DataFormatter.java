@@ -142,8 +142,6 @@ public class DataFormatter implements FormatProgressListener {
         // Get elapsed time in seconds
         float elapsedTimeSec = elapsedTimeMillis/1000F;
 
-        System.out.println("Formatting took " + elapsedTimeSec + " seconds");
-
         return true;
     }
 
