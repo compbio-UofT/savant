@@ -264,8 +264,6 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         // Get elapsed time in seconds
         float elapsedTimeSec = elapsedTimeMillis/1000F;
 
-        System.out.println("\tRendering of " + tracks.get(0).getName() + " took " + elapsedTimeSec + " seconds");
-
         renderSides(g);
        
     }
