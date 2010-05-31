@@ -401,8 +401,6 @@ public abstract class ViewTrack {
         // Get elapsed time in seconds
         float elapsedTimeSec = elapsedTimeMillis/1000F;
 
-        System.out.println("\tData retreival for " + this.getName() + " took " + elapsedTimeSec + " seconds");
-
         return this.dataInRange;
     }
 
