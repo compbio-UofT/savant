@@ -33,14 +33,14 @@
                       </Group>
                       <EmptySpace min="-2" pref="76" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="textDiscordantMin" pref="207" max="32767" attributes="1"/>
-                          <Component id="textDiscordantMax" alignment="0" pref="207" max="32767" attributes="1"/>
+                          <Component id="textDiscordantMin" pref="304" max="32767" attributes="1"/>
+                          <Component id="textDiscordantMax" alignment="0" pref="304" max="32767" attributes="1"/>
                       </Group>
                   </Group>
                   <Group type="102" alignment="1" attributes="0">
                       <Component id="jLabel3" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="textArcThreshold" pref="127" max="32767" attributes="1"/>
+                      <Component id="textArcThreshold" pref="169" max="32767" attributes="1"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="jLabel4" min="-2" max="-2" attributes="0"/>
                   </Group>
@@ -86,17 +86,17 @@
   <SubComponents>
     <Component class="javax.swing.JLabel" name="jLabel1">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Min normal mapped distance:"/>
+        <Property name="text" type="java.lang.String" value="Min normal insert size:"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel2">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Max normal mapped distance:"/>
+        <Property name="text" type="java.lang.String" value="Max normal insert size:"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel3">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Don&apos;t display mapped distances smaller than:"/>
+        <Property name="text" type="java.lang.String" value="Don&apos;t display insert sizes smaller than:"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JTextField" name="textDiscordantMin">
