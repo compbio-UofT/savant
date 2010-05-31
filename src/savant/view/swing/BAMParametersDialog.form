@@ -40,7 +40,7 @@
                   <Group type="102" alignment="1" attributes="0">
                       <Component id="jLabel3" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="textArcThreshold" pref="169" max="32767" attributes="1"/>
+                      <Component id="textArcThreshold" pref="224" max="32767" attributes="1"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="jLabel4" min="-2" max="-2" attributes="0"/>
                   </Group>
@@ -125,7 +125,6 @@
     <Component class="javax.swing.JButton" name="buttonOK">
       <Properties>
         <Property name="text" type="java.lang.String" value="OK"/>
-        <Property name="selected" type="boolean" value="true"/>
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="buttonOKActionPerformed"/>
