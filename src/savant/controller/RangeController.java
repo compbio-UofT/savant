@@ -284,6 +284,10 @@ public class RangeController {
     
     public void zoomToLength(int length, int center) {
 
+        if(length > this.maximumViewableRange.getLength()){
+            zoomToLength(this.maximumViewableRange.getLength());
+        }
+
         length = Math.max(length, 1);
         log.debug("Zooming to length " + length);
 
@@ -311,7 +315,9 @@ public class RangeController {
      */
     public void zoomOut() {
         //TRACKBAR_ZOOM.setValue(Math.max(0, TRACKBAR_ZOOM.getValue() - 1));
-        zoomToLength(this.currentViewableRange.getLength() * BrowserDefaults.zoomAmount);
+        int length = Math.min(this.maximumViewableRange.getLength(), this.currentViewableRange.getLength() * BrowserDefaults.zoomAmount);
+        zoomToLength(length);
+        //zoomToLength(this.currentViewableRange.getLength() * BrowserDefaults.zoomAmount);
     }
 
     /**
