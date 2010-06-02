@@ -159,7 +159,9 @@ public class RangeController {
         currentViewableRange = r;
 
         //printStacks();
-        
+
+        Savant.getInstance().updateRange();
+
         // TODO: invoke a range changed event
         fireRangeChangedEvent();
         // try { RangeChanged(getRange(), null); } catch {}

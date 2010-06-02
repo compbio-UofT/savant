@@ -285,23 +285,13 @@ public class MiniRangeSelectionPanel extends JPanel implements MouseListener, Mo
         Graphics2D g2 = (Graphics2D) g;
         Font smallFont = new Font("Sans-Serif", Font.PLAIN, 10);
 
-        Graphics2D g2d0 = (Graphics2D)g;
+        try {
 
-
-        GradientPaint gp0 = new GradientPaint(
-                0, 0, BrowserDefaults.colorRangeSelectionBottom,
-                0, h, BrowserDefaults.colorRangeSelectionTop);
-
-        /*
-        // Paint a gradient from top to bottom
-        GradientPaint gp0 = new GradientPaint(
-            0, 0, BrowserDefaults.colorGraphPaneBackgroundTop,
-            0, this.getHeight(), BrowserDefaults.colorGraphPaneBackgroundBottom );
-         * 
-         */
-
-        g2d0.setPaint( gp0 );
-        g2d0.fillRect( 0, 0, this.getWidth(), this.getHeight() );
+            Image image = javax.imageio.ImageIO.read(getClass().getResource("/savant/images/bar_selected_glossy.png"));
+            g.drawImage(image, 0,0,this.getWidth(),this.getHeight(),this);
+        } catch (Exception e) {
+            System.err.println("Error drawing image background");
+        }
 
         int numseparators = (int) Math.ceil(Math.log(this.maximum-this.minimum));
 

@@ -148,7 +148,6 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         trackDockingManager.setInitNorthSplit(JideSplitPane.VERTICAL_SPLIT);
         trackDockingManager.loadLayoutData();
 
-
         rangeSelector = new RangeSelectionPanel();
         rangeSelector.setPreferredSize(new Dimension(10000, 23));
         rangeSelector.setMaximumSize(new Dimension(10000, 23));
@@ -1711,19 +1710,40 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
             JOptionPane.showMessageDialog(this, "Load a genome first.");
             return;
         }
-        // create a frame and place the dialog in it
-        JFrame jf = new JFrame();
-        FileDialog fd = new FileDialog(jf, "Open Tracks", FileDialog.LOAD);
-//        fd.setFilenameFilter(new SavantFileFilter());
-        fd.setVisible(true);
-        jf.setAlwaysOnTop(true);
+        
+        List<String> filenames = new ArrayList<String>();
 
-        // get the path (null if none selected)
-        String selectedFileName = fd.getFile();
+        if (mac) {
+            // create a frame and place the dialog in it
+            JFrame jf = new JFrame();
+
+            FileDialog fd = new FileDialog(jf, "Open Tracks", FileDialog.LOAD);
+            //        fd.setFilenameFilter(new SavantFileFilter());
+            fd.setVisible(true);
+            jf.setAlwaysOnTop(true);
+
+            if (fd.getFile() == null) { return ;}
+
+            String selectedFileName = fd.getDirectory() + fd.getFile();
+
+            filenames.add(selectedFileName);
+            
+        } else {
+            JFileChooser fc = new JFileChooser();
+            fc.setMultiSelectionEnabled(true);
+            fc.setDialogTitle("Open Tracks");
+
+            int returnVal = fc.showOpenDialog(this);
+
+            File[] selectedFiles = fc.getSelectedFiles();
+
+            for (File f : selectedFiles) {
+                filenames.add(f.getAbsolutePath());
+            }
+        }
 
         // set the track
-        if (selectedFileName != null) {
-            selectedFileName = fd.getDirectory() + selectedFileName;
+        for (String selectedFileName : filenames) {
             try {
                 addTrackFromFile(selectedFileName);
             } catch (Exception e) {
@@ -1737,9 +1757,46 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         rangeController.setRange(event.range());
     }
 
+
+
     public void rangeChangeReceived(RangeChangedEvent event) {
+
+        /*
         // adjust descriptions
         setRangeDescription(event.range());
+
+        // adjust range controls
+        setRangeSelectorFromRange();
+
+        setRulerFromRange();
+
+        // draw all frames
+        FrameController fc = FrameController.getInstance();
+
+        // Get current time
+        long start = System.currentTimeMillis();
+
+        updateProgress("Redrawing...");
+        spinProgress();
+
+        fc.drawFrames();
+
+        stopSpinningProgress();
+
+        // Get elapsed time in milliseconds
+        long elapsedTimeMillis = System.currentTimeMillis()-start;
+
+        // Get elapsed time in seconds
+        float elapsedTimeSec = elapsedTimeMillis/1000F;
+
+        updateProgress("Took " + elapsedTimeSec + " s");
+         */
+
+    }
+
+    public void updateRange() {
+        // adjust descriptions
+        setRangeDescription(RangeController.getInstance().getRange());
 
         // adjust range controls
         setRangeSelectorFromRange();

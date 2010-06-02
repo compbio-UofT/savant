@@ -191,7 +191,7 @@ public class DataFormatter implements FormatProgressListener {
      * @return
      */
     private void formatAsBAM() throws IOException, InterruptedException {
-        outFile.close();
+        //outFile.close();
         BAMToCoverage btc = new BAMToCoverage(this.inPath);
         btc.addProgressListener(this);
         btc.format();

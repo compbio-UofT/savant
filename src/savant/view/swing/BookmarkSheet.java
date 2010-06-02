@@ -224,7 +224,7 @@ public class BookmarkSheet implements BookmarksChangedListener /*, RangeChangedL
                 BookmarkController fc = BookmarkController.getInstance();
                 int index = e.getFirstIndex();
                 RangeController rc = RangeController.getInstance();
-                rc.setRange(fc.getFavorite(index).getRange());
+                rc.setRange(fc.getBookmark(index).getRange());
             }
 
         });

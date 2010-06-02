@@ -390,16 +390,22 @@ public abstract class ViewTrack {
     public List<Object> retrieveAndSaveData(Range range) throws Throwable {
         Resolution resolution = getResolution(range);
 
+        /*
         // Get current time
         long start = System.currentTimeMillis();
+         */
 
         this.dataInRange = retrieveData(range, resolution);
 
+        /*
         // Get elapsed time in milliseconds
         long elapsedTimeMillis = System.currentTimeMillis()-start;
 
         // Get elapsed time in seconds
         float elapsedTimeSec = elapsedTimeMillis/1000F;
+
+        System.out.println("\tData retreival for " + this.getName() + " took " + elapsedTimeSec + " seconds");
+         */
 
         return this.dataInRange;
     }

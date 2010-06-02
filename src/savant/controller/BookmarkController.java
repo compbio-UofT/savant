@@ -58,6 +58,10 @@ public class BookmarkController {
         bookmarks = new ArrayList<Bookmark>();
     }
 
+    public List<Bookmark> getBookmarks() {
+        return this.bookmarks;
+    }
+
     public void addBookmark(Bookmark f) {
         Savant.log("Bookmark added", Savant.LOGMODE.NORMAL);
         this.bookmarks.add(f);
@@ -75,10 +79,6 @@ public class BookmarkController {
             this.bookmarks.remove(index);
             this.fireBookmarksChangedEvent("Bookmark removed at " + b.getRange());
         } catch(Exception e) {}
-    }
-
-    private List<Bookmark> getBookmarks() {
-        return this.bookmarks;
     }
 
     /**
@@ -106,7 +106,7 @@ public class BookmarkController {
         }
     }
 
-    public Bookmark getFavorite(int index) {
+    public Bookmark getBookmark(int index) {
         return this.bookmarks.get(index);
     }
 

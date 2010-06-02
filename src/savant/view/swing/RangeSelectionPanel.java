@@ -30,6 +30,7 @@ import java.awt.event.ComponentListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -206,15 +207,20 @@ public class RangeSelectionPanel extends JPanel implements MouseListener, MouseM
         int wid = getWidth();
         int hei = getHeight();
 
-        Graphics2D g2d0 = (Graphics2D) g;
+        Image image_bar_unselected_glossy = null;
+        Image image_bar_selected_glossy = null;
+        Image image_left_cap = null;
+        Image image_right_cap = null;
 
-        // Paint a gradient from top to bottom
-        GradientPaint gp0 = new GradientPaint(
-                0, 0, new Color(240, 240, 240),
-                0, h, new Color(220, 220, 220));
+        try {
+            image_bar_unselected_glossy = javax.imageio.ImageIO.read(getClass().getResource("/savant/images/bar_unselected_glossy.PNG"));
+            image_bar_selected_glossy = javax.imageio.ImageIO.read(getClass().getResource("/savant/images/bar_selected_glossy.png"));
+            image_left_cap = javax.imageio.ImageIO.read(getClass().getResource("/savant/images/round_cap_left_bordered.png"));
+            image_right_cap = javax.imageio.ImageIO.read(getClass().getResource("/savant/images/round_cap_right_bordered.png"));
+        } catch (IOException e) {}
 
-        g2d0.setPaint(gp0);
-        g2d0.fillRect(0, 0, wid, hei);
+        // draw background
+        g.drawImage(image_bar_unselected_glossy, 0,0,this.getWidth(),this.getHeight(),this);
 
         int width = this.x1 - this.x2;
         int height = this.getHeight();// this.y1 - this.y2;
@@ -224,24 +230,15 @@ public class RangeSelectionPanel extends JPanel implements MouseListener, MouseM
         this.x = width < 0 ? this.x1 : this.x2;
         this.y = 0; //height < 0 ? this.y1 : this.y2;
 
-        Graphics2D g2d = (Graphics2D) g;
-
+        // draw lines on top and bottom
         g.setColor(new Color(100, 100, 100));
+        g.drawLine(0, 0, wid, 0);
         g.drawLine(0, hei-1, wid, hei-1);
-
-        // Paint a gradient from top to bottom
-        GradientPaint gp = new GradientPaint(
-                0, 0, BrowserDefaults.colorRangeSelectionTop,
-                0, h, BrowserDefaults.colorRangeSelectionBottom);
 
         if (this.isDragging) {
 
-            g2d.setPaint(gp);
-            g2d.fillRect(
-                    this.x,
-                    this.y,
-                    this.w,
-                    this.h);
+            // draw selected region
+            g.drawImage(image_bar_selected_glossy, this.x,this.y,this.w,this.h,this);
 
             g.setColor(new Color(100, 100, 100));
             g.drawRect(
@@ -249,6 +246,7 @@ public class RangeSelectionPanel extends JPanel implements MouseListener, MouseM
                     this.y,
                     this.w,
                     this.h);
+            
         } else {
             RangeController rc = RangeController.getInstance();
             int startrange = rc.getRangeStart();
@@ -257,12 +255,7 @@ public class RangeSelectionPanel extends JPanel implements MouseListener, MouseM
             int endx = MiscUtils.transformPositionToPixel(endrange, this.getWidth(), rc.getMaxRange());
             int widpixels = Math.max(2, endx-startx);
 
-            g2d.setPaint(gp);
-            g2d.fillRect(
-                    startx,
-                    this.y,
-                    widpixels,
-                    this.h);
+            g.drawImage(image_bar_selected_glossy, startx,this.y,widpixels,this.h,this);
 
             g.setColor(new Color(100, 100, 100));
             g.drawRect(
@@ -271,6 +264,9 @@ public class RangeSelectionPanel extends JPanel implements MouseListener, MouseM
                     widpixels,
                     this.h);
         }
+
+                 g.drawImage(image_left_cap, 0,0,8,23,this);
+                 g.drawImage(image_right_cap, this.getWidth()-8,0,8,23,this);
 
         int numlines = 4;
         double space = ((double) this.getWidth()) / numlines;
