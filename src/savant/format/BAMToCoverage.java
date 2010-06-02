@@ -52,6 +52,7 @@ public class BAMToCoverage extends GenericFormatter{
         // determine index and output file names
         prepareFiles(inFile);
         this.samFileReader = new SAMFileReader(new File(inFile), new File(indexFile));
+        samFileReader.setValidationStringency(SAMFileReader.ValidationStringency.SILENT);
         // get name and length of all reference sequences in the file
         readSequenceDictionary();
         // calculate the total length of all sequences
