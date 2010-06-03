@@ -265,8 +265,9 @@ public class RangeSelectionPanel extends JPanel implements MouseListener, MouseM
                     this.h);
         }
 
-                 g.drawImage(image_left_cap, 0,0,8,23,this);
-                 g.drawImage(image_right_cap, this.getWidth()-8,0,8,23,this);
+        int capwidth = 20;
+        g.drawImage(image_left_cap, 0,0,capwidth,23,this);
+        g.drawImage(image_right_cap, this.getWidth()-capwidth,0,capwidth,23,this);
 
         int numlines = 4;
         double space = ((double) this.getWidth()) / numlines;
