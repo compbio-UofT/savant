@@ -41,6 +41,7 @@ import java.util.List;
  */
 public class RangeSelectionPanel extends JPanel implements MouseListener, MouseMotionListener, RangeChangedListener {
 
+    private boolean isMouseInside = false;
     private boolean isDragging = false;
     private boolean isActive = false;
     private int minimum = 0;
@@ -155,6 +156,7 @@ public class RangeSelectionPanel extends JPanel implements MouseListener, MouseM
 // handle event when mouse enters area
     public void mouseEntered(final MouseEvent event) {
          this.setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
+         this.isMouseInside = true;
         //this.mousePosition.setText( "Mouse entered at [" + event.getX() + ", " + event.getY() + "]" );
         //repaint();
     }
@@ -162,6 +164,8 @@ public class RangeSelectionPanel extends JPanel implements MouseListener, MouseM
 // handle event when mouse exits area
     public void mouseExited(final MouseEvent event) {
          this.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+         this.isMouseInside = false;
+         repaint();
         //this.mousePosition.setText( "Mouse outside window" );
         //repaint();
     }
@@ -311,8 +315,12 @@ public class RangeSelectionPanel extends JPanel implements MouseListener, MouseM
                     g.drawString(to, startTo, ypos);
                 }
             }
+        } else if (this.isMouseInside) {
+            g.setColor(Color.black);
+            String msg = "drag to select range";
+            FontMetrics metrics = g.getFontMetrics(g.getFont());
+            g.drawString(msg, this.getWidth()-(metrics.stringWidth(msg))-10, this.getHeight() / 2 + 4);
         }
-
     }
 
     public void setMaximum(int max) {
