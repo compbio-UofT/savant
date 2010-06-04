@@ -80,13 +80,16 @@ public class ContinuousTrackRenderer extends TrackRenderer {
         double yPos;
         GeneralPath path = new GeneralPath();
         double xFormXPos, xFormYPos;
+
         xFormXPos = 0;
         xFormYPos = gp.transformYPos(0.0);
         path.moveTo(xFormXPos, xFormYPos);
+
         
         ContinuousRecord continuousRecord;
         double maxData = 0;
-        for (int i=1; i<numdata; i++) {
+        boolean first = true;
+        for (int i=0; i<numdata; i++) {
             continuousRecord = (ContinuousRecord)data.get(i);
             xPos = continuousRecord.getPosition();
             yPos = continuousRecord.getValue().getValue();
