@@ -15,6 +15,9 @@
  */
 package savant.view.swing;
 
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import savant.controller.RangeController;
 import savant.controller.event.range.RangeChangedEvent;
 import savant.controller.event.range.RangeChangedListener;
@@ -327,6 +330,26 @@ public class MiniRangeSelectionPanel extends JPanel implements MouseListener, Mo
                     g2.setColor(Color.black);
                     int a = MiscUtils.transformPixelToPosition(xOne, width, (RangeController.getInstance()).getRange());
                     g2.drawString(MiscUtils.intToString(a), (float) (xOne + 3), (float) ((this.getHeight()*0.5)+3));
+                }
+            }
+
+            if (RangeController.getInstance().getRangeStart() == RangeController.getInstance().getMaxRangeStart()) {
+                try {
+                    Image image_left_cap = javax.imageio.ImageIO.read(getClass().getResource("/savant/images/round_cap_left_bordered.png"));
+                    int capwidth = 20;
+                    g.drawImage(image_left_cap, 0,0,capwidth,23,this);
+                } catch (IOException ex) {
+                    Logger.getLogger(MiniRangeSelectionPanel.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+
+            if (RangeController.getInstance().getRangeEnd() == RangeController.getInstance().getMaxRangeEnd()) {
+                try {
+                    Image image_right_cap = javax.imageio.ImageIO.read(getClass().getResource("/savant/images/round_cap_right_bordered.png"));
+                    int capwidth = 20;
+                    g.drawImage(image_right_cap, this.getWidth()-capwidth,0,capwidth,23,this);
+                } catch (IOException ex) {
+                    Logger.getLogger(MiniRangeSelectionPanel.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
         }
