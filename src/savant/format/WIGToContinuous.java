@@ -24,10 +24,6 @@ public class WIGToContinuous extends GenericFormatter {
 
     public static final int RECORDS_PER_INTERRUPT_CHECK = 100;
 
-    // variables to keep track of progress processing the input file(s)
-    private long totalBytes;
-    private long byteCount;
-
     public WIGToContinuous(String inFile, String outFile) {
 
         log = LogFactory.getLog(WIGToContinuous.class);

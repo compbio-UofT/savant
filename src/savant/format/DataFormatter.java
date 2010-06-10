@@ -179,7 +179,9 @@ public class DataFormatter implements FormatProgressListener {
      * @return
      */
     private void formatAsContinuousWIG() throws IOException, InterruptedException, ParseException {
-        outFile.close();
+        if(outFile != null){
+            outFile.close();
+        }
         WIGToContinuous wtc = new WIGToContinuous(this.inPath, this.outPath);
         wtc.addProgressListener(this);
         wtc.format();
@@ -191,7 +193,9 @@ public class DataFormatter implements FormatProgressListener {
      * @return
      */
     private void formatAsBAM() throws IOException, InterruptedException {
-        //outFile.close();
+        if(outFile != null){
+            outFile.close();
+        }
         BAMToCoverage btc = new BAMToCoverage(this.inPath);
         btc.addProgressListener(this);
         btc.format();
