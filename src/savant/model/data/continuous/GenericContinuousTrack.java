@@ -30,7 +30,6 @@ import savant.util.RAFUtils;
 import savant.util.Range;
 import savant.view.swing.Savant;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Hashtable;

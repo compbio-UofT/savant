@@ -22,6 +22,7 @@ public class GraphPaneController {
     private boolean isPlumbing;
     private boolean isZooming;
     private boolean isPanning;
+    private boolean isSelecting;
 
     private int mouseClickPosition;
     private int mouseReleasePosition;
@@ -69,6 +70,14 @@ public class GraphPaneController {
         for (GraphPaneChangeListener listener : this.graphpaneChangeListeners) {
             listener.graphpaneChangeReceived(evt);
         }
+    }
+
+    public boolean isSelecting() {
+        return this.isSelecting;
+    }
+
+    public void setSelecting(boolean selected) {
+        this.isSelecting = selected;
     }
 
     public boolean isPlumbing() {
@@ -159,5 +168,5 @@ public class GraphPaneController {
         return this.spotlightSize;
     }
 
-    
+
 }

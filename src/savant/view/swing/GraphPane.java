@@ -16,6 +16,7 @@
 
 package savant.view.swing;
 
+import java.awt.geom.Rectangle2D.Double;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import savant.controller.DrawModeController;
@@ -296,7 +297,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         if (gpc.isPanning()) {}
         
         /** ZOOMING ADJUSTMENTS */
-        else if (gpc.isZooming()) {
+        else if (gpc.isZooming() || gpc.isSelecting()) {
             Graphics2D g2d = (Graphics2D)g;
 
             Rectangle2D rectangle =
@@ -312,7 +313,11 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
               4f));
             g2d.draw (rectangle);
 
-            g.setColor(BrowserDefaults.colorGraphPaneSelectionFill);
+            if (gpc.isZooming()) {
+                g.setColor(BrowserDefaults.colorGraphPaneZoomFill);
+            } else if (gpc.isSelecting()) {
+                g.setColor(BrowserDefaults.colorGraphPaneSelectionFill);
+            }
             g.fillRect(this.x, this.y, this.w, this.h);
         }
 
@@ -632,6 +637,11 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         else return false;
     }
 
+    private boolean isSelectModifierPressed() {
+        if (isShiftKeyModifierPressed()) return true;
+        else return false;
+    }
+
     private void setMouseModifier(MouseEvent e) {
 
         if (e.getButton() == 1) mouseMod= mouseModifier.LEFT;
@@ -706,7 +716,11 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         if (x2 > this.getWidth()) { x2 = this.getWidth(); }
         this.y2 = event.getY();
 
-        this.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+        //if (gpc.isSelecting()) {
+         //   this.setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
+        //} else {
+            this.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        //}
 
         int x1 = MiscUtils.transformPositionToPixel(gpc.getMouseDragRange().getFrom(), this.getWidth(), this.getPositionalRange());
 
@@ -734,6 +748,8 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
             Range newr = new Range(r.getFrom()+newMin,r.getFrom()+newMax);
 
             rc.setRange(newr);
+        } else if (gpc.isSelecting()) {
+            selectElementsInRectangle(new Rectangle2D.Double(this.x, this.y, this.w, this.h));
         }
 
         this.isDragging = false;
@@ -746,6 +762,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
      * {@inheritDoc}
      */
     public void mouseEntered( final MouseEvent event ) {
+        this.setCursor(new Cursor(Cursor.HAND_CURSOR));
         setMouseModifier(event);
     }
 
@@ -774,7 +791,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
 
         if (gpc.isPanning()) {
             this.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        } else if (gpc.isZooming()) {
+        } else if (gpc.isZooming() || gpc.isSelecting()) {
             this.setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
         }
 
@@ -804,10 +821,15 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         GraphPaneController gpc = GraphPaneController.getInstance();
         setZooming(gpc);
         setPanning(gpc);
+        setSelecting(gpc);
     }
 
     private void setZooming(GraphPaneController gpc) {
         gpc.setZooming(this.isDragging &&  ((isLeftClick() && isZoomModifierPressed()) || (isRightClick() && isZoomModifierPressed())));
+    }
+
+    private void setSelecting(GraphPaneController gpc) {
+        gpc.setSelecting(this.isDragging &&  ((isLeftClick() && isSelectModifierPressed()) || (isRightClick() && isSelectModifierPressed())));
     }
 
     private void setPanning(GraphPaneController gpc) {
@@ -888,5 +910,10 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         }
 
 
+    }
+
+    private void selectElementsInRectangle(Rectangle2D r) {
+        System.out.println("Should select " + r);
+        // TODO: paste code in here
     }
 }

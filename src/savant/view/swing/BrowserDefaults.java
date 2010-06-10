@@ -44,7 +44,8 @@ public class BrowserDefaults {
     public static Color colorGlassPaneBackground = Color.darkGray;
     public static Color colorGraphPaneBackgroundTop = Color.white;
     public static Color colorGraphPaneBackgroundBottom = new Color(210,210,210);
-    public static Color colorGraphPaneSelectionFill = new Color(150,150,150,100);
+    public static Color colorGraphPaneZoomFill = new Color(0,0,255,100);
+    public static Color colorGraphPaneSelectionFill = new Color(120,70,10,100);
     public static Color colorGraphPaneSelectionBorder = new Color(30,30,30);
     public static Color colorRangeSelectionTop = new Color(95, 161, 241);
     public static Color colorRangeSelectionBottom = new Color(75, 144, 228);

@@ -350,7 +350,7 @@ public class MiniRangeSelectionPanel extends JPanel implements MouseListener, Mo
                     g.drawImage(image_right_cap, this.getWidth()-capwidth,0,capwidth,23,this);
                 } catch (IOException ex) {
                     Logger.getLogger(MiniRangeSelectionPanel.class.getName()).log(Level.SEVERE, null, ex);
-                }
+                } 
             }
         }
     }
