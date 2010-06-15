@@ -21,6 +21,9 @@
 
 package savant.refactor;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 /**
  * A factory class for creating Tracks. It is not advisable to
  * attempt to create Tracks directly unless you really know
@@ -29,4 +32,8 @@ package savant.refactor;
  * @author vwilliams
  */
 public class TrackFactory {
+
+    private static Log log = LogFactory.getLog(TrackFactory.class);
+
+    //TODO_REFACTOR:
 }
