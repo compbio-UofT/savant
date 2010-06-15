@@ -21,6 +21,9 @@
 
 package savant.refactor;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 /**
  * Helper class to manage the details of rendering a graph within a {@Track}
  *
@@ -28,4 +31,6 @@ package savant.refactor;
  * @author vwilliams
  */
 public class Grapher {
+
+    private static Log log = LogFactory.getLog(Grapher.class);
 }
