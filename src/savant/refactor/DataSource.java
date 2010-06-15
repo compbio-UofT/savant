@@ -31,7 +31,7 @@ import java.util.List;
  *
  * @author vwilliams
  */
-public interface DataSource {
+public interface DataSource<E> {
 
-    List<Object> getRange(RefSeq refSeq, Range range, Resolution resolution);
+    List<E> getRange(RefSeq refSeq, Range range, Resolution resolution);
 }
