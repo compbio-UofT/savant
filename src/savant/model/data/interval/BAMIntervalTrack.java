@@ -39,7 +39,7 @@ import java.util.List;
 
 /**
  * Class to represent a track of BAM intervals. Uses SAMTools to read data within a range.
- * 
+ * @deprecated
  * @author vwilliams
  */
 public class BAMIntervalTrack implements RecordTrack<BAMIntervalRecord> {
