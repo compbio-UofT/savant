@@ -40,7 +40,7 @@ import java.util.List;
  * @author vwilliams
  */
 
-public class BAMFileDataSource extends FileDataSource<BAMIntervalRecord> {
+public class BAMFileDataSource implements DataSource<BAMIntervalRecord> {
 
     private static Log log = LogFactory.getLog(BAMFileDataSource.class);
 
