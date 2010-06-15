@@ -28,7 +28,7 @@ import java.io.File;
  *
  * @author vwilliams
  */
-public abstract class FileDataSource implements DataSource {
+public abstract class FileDataSource<E> implements DataSource {
 
     private File dataFile;
 
