@@ -16,7 +16,7 @@
 package savant.model;
 
 /**
- * TODO:
+ * @deprecated
  * @author vwilliams
  */
 public interface Record {
