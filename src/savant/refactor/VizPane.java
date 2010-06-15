@@ -21,6 +21,9 @@
 
 package savant.refactor;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import javax.swing.*;
 
 /**
@@ -31,5 +34,7 @@ import javax.swing.*;
  */
 public class VizPane extends JPanel {
 
+    private static Log log = LogFactory.getLog(VizPane.class);
+    
     private Track track;
 }
