@@ -19,11 +19,10 @@ import savant.model.Resolution;
 import savant.util.Range;
 
 import java.util.List;
-import savant.controller.property.SampleProperty;
 
 /**
  * Interface to define a data track which returns records.
- *
+ * @deprecated
  * @author vwilliams
  * @param <E>
  */
