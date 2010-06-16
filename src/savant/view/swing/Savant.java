@@ -111,7 +111,18 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
             DockableFrame df = DockableFrameFactory.createTrackFrame(MiscUtils.getFilenameFromPath(selectedFileName));
             JPanel panel = (JPanel) df.getContentPane();
             if (!tracks.isEmpty()) {
-                frame = new Frame(panel, tracks);
+
+                //////////////////////////////////////////////////
+
+                panel.setLayout(new BorderLayout());
+                JLayeredPane layers = new JLayeredPane();
+                //layers.setLayout(new BorderLayout());
+                panel.add(layers);
+
+                //////////////////////////////////////////////////
+
+
+                frame = new Frame(layers, tracks);
                 dockFrameToFrameMap.put(df, frame);
             }
             FrameController.getInstance().addFrame(frame, panel);
@@ -1890,7 +1901,18 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
                 JPanel panel = (JPanel) df.getContentPane();
                 List<ViewTrack> tracks = new ArrayList<ViewTrack>();
                 tracks.add(new SequenceViewTrack(genome.getName(), genome));
-                Frame frame = new Frame(panel, tracks);
+
+                //////////////////////////////////////////////////
+
+                panel.setLayout(new BorderLayout());
+                JLayeredPane layers = new JLayeredPane();
+                layers.setLayout(new BorderLayout());
+                panel.add(layers);
+
+                //////////////////////////////////////////////////
+
+
+                Frame frame = new Frame(layers, tracks);
                 FrameController.getInstance().addFrame(frame, panel);
                 this.getTrackDockingManager().addFrame(df);
             } catch (FileNotFoundException ex) {
