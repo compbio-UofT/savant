@@ -68,7 +68,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
     private boolean isXGridOn = true;
 
     // Popup menu
-    private JPopupMenu menu;
+    //private JPopupMenu menu;
 
     // Locking
     private boolean isLocked = false;
@@ -104,7 +104,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         this.getInputMap().allKeys();
         addMouseWheelListener(this);
 
-        initContextualMenu();
+        //initContextualMenu();
 
         ((GraphPaneController) GraphPaneController.getInstance()).addFavoritesChangedListener(this);
     }
@@ -113,7 +113,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
      * CONTEXT MENU (WHEN USER RIGHT CLICKS GP)
      */
 
-    private void initContextualMenu() {
+    /*private void initContextualMenu() {
         menu = new JPopupMenu();
 
         JMenuItem lockMI = new JCheckBoxMenuItem("Lock");
@@ -126,7 +126,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         menu.add ( lockMI );
 
         menu.addSeparator();
-    }
+    }*/
 
     /**
      * GRAPHPANE CHANGE LISTENER
@@ -159,7 +159,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
      */
     public void addTrack(ViewTrack track) {
         tracks.add(track);
-        JMenu trackMenu = new JMenu(track.getName());
+        /*JMenu trackMenu = new JMenu(track.getName());
         JMenu modeMenu = new JMenu("Change Display Mode");
         List<Mode> viewModes = track.getDrawModes();
         if (viewModes.isEmpty()) {
@@ -195,7 +195,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
             });
             trackMenu.add(bamParamChangeMI);
         }
-        menu.add(trackMenu);
+        menu.add(trackMenu);*/
     }
 
     /**
@@ -681,9 +681,9 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
 
         setMouseModifier(event);
 
-        if (mac && event.isControlDown() || this.isRightClick()) {
+        /*if (mac && event.isControlDown() || this.isRightClick()) {
             menu.show(event.getComponent(), event.getX(), event.getY());
-        }
+        }*/
 
         resetFrameLayers();
     }
