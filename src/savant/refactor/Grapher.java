@@ -169,9 +169,24 @@ public class Grapher {
      * @return the range in the X direction spanned by this Grapher
      */
     public Range getRange() {
+        return getXRange();
+    }
+
+
+    /**
+     * @return the range in the X direction spanned by this Grapher
+     */
+    public Range getXRange() {
         return new Range(this.xMin, this.xMax);
     }
     
+    /**
+     * @return the range in the Y direction spanned by this Grapher
+     */
+    public Range getYRange() {
+        return new Range(this.yMin, this.yMax);
+    }
+
     /**
      * Transform a graph height into a pixel height
      *
