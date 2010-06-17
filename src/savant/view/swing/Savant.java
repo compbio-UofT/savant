@@ -86,6 +86,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
 
     private JButton button_genome;
     private JButton trackButton;
+    private JButton goButton;
 
     private static boolean showBookmarksChangedDialog = true;
 
@@ -1238,6 +1239,34 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         });
 
         p.add(this.getRigidPadding());
+
+
+        goButton = addButton(p, "  Go  ");
+        goButton.setToolTipText("Go to specified range");
+        goButton.addMouseListener(new MouseListener() {
+
+            public void mouseClicked(MouseEvent e) {
+            }
+
+            public void mousePressed(MouseEvent e) {
+            }
+
+            public void mouseReleased(MouseEvent e) {
+                if(goButton.contains(e.getPoint())){
+                    setRangeFromTextBoxes();
+                }
+            }
+
+            public void mouseEntered(MouseEvent e) {
+            }
+
+            public void mouseExited(MouseEvent e) {
+            }
+        });
+
+
+        p.add(this.getRigidPadding());
+
         
         JLabel sepl = new JLabel();
         sepl.setText("Length: ");
@@ -1547,6 +1576,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         rangeControls.add(menuitem_view_plumbline);
         rangeControls.add(menuitem_view_spotlight);
         rangeControls.add(label_mouseposition); rangeControls.add(label_mouseposition_title);
+        rangeControls.add(goButton);
         //rangeControls.add(label_status); rangeControls.add(label_status_title);
 
         hideRangeControls();
