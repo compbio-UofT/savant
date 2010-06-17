@@ -353,6 +353,7 @@ public class RangeController {
 
         if (redoStack.size() > 0) {
             shouldClearRedoStack = false;
+            undoStack.push(this.currentViewableRange);
             setRange((Range)redoStack.pop());
             shouldClearRedoStack = true;
         }
