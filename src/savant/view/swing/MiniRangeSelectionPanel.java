@@ -34,9 +34,6 @@ import java.awt.event.MouseMotionListener;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import javax.swing.border.Border;
-import javax.swing.border.EmptyBorder;
-import javax.swing.border.EtchedBorder;
 
 /**
  *
@@ -196,7 +193,7 @@ public class MiniRangeSelectionPanel extends JPanel implements MouseListener, Mo
 
         /*
         int wid = getWidth();
-        int hei = getHeight();
+        int hei = transformHeight();
 
         Graphics2D g2d0 = (Graphics2D) g;
 
@@ -209,7 +206,7 @@ public class MiniRangeSelectionPanel extends JPanel implements MouseListener, Mo
         g2d0.fillRect(0, 0, wid, hei);
 
         int width = this.x1 - this.x2;
-        int height = this.getHeight();// this.y1 - this.y2;
+        int height = this.transformHeight();// this.y1 - this.y2;
 
         this.w = Math.max(2, Math.abs(width));
         this.h = Math.abs(height);
@@ -237,7 +234,7 @@ public class MiniRangeSelectionPanel extends JPanel implements MouseListener, Mo
 
         g.setColor(new Color(70,70,70,100));
         for (int i = 1; i <= numlines; i++) {
-            g.drawLine((int) Math.round(i * space), 0, (int) Math.round(i * space), this.getHeight());
+            g.drawLine((int) Math.round(i * space), 0, (int) Math.round(i * space), this.transformHeight());
         }
 
         if (this.isDragging) {
@@ -247,7 +244,7 @@ public class MiniRangeSelectionPanel extends JPanel implements MouseListener, Mo
             int toX = this.x1 > this.x2 ? this.x1 : this.x2;
             String from, to;
             int startFrom, startTo;
-            int ypos = this.getHeight() / 2 + 4;
+            int ypos = this.transformHeight() / 2 + 4;
 
             if (this.rangeChangedExternally) {
                 Range r = RangeController.getInstance().getRange();

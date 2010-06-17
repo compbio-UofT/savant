@@ -1,0 +1,19 @@
+Savant V 1.2.1 Release Notes
+============================
+
+V 1.2.1, May 14, 2010
+
+- Log pane removed
+- Added buttons for bookmark actions
+- Fixed jump to bookmark behaviour
+- Added tooltips to navigation panel
+- Fixed screenshot save dialog
+- Provide feedback for saving a screenshot
+- Renamed "Annotation" panel to "Bookmarks"
+- Removed "Record" function from Bookmarks panel
+- Changed point visualization colour from red
+- Added "Zoom to see points" message to point track at low resolution
+- Zoom with scrollwheel from mouse, not center
+- Added an opration timer
+- Added icon buttons to navigation panel
+- Fixed errors in data table plugin when BAM reads are unpaired
