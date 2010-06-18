@@ -325,7 +325,8 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         if (gpc.isPlumbing()) {
             g.setColor(Color.BLACK);
             int pos = MiscUtils.transformPositionToPixel(GraphPaneController.getInstance().getMouseXPosition(), this.getWidth(), this.getPositionalRange());
-            g.drawLine(pos, 0, pos, this.getHeight());           
+            g.drawLine(pos, 0, pos, this.getHeight());
+            this.resetFrameLayers();
         }
 
         /** SPOTLIGHT */
@@ -345,12 +346,13 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
                 int pix = MiscUtils.transformPositionToPixel(right, this.getWidth(), this.getPositionalRange());
                 g.fillRect(pix, 0, this.getWidth()-pix, this.getHeight());
             }
+            this.resetFrameLayers();
         }
         
         if (this.isLocked()) {
             GlassMessagePane.draw((Graphics2D) g, this, "Locked", 300);
         }
-        this.resetFrameLayers();
+        //this.resetFrameLayers();
     }
 
     /**
@@ -597,6 +599,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
                rc.zoomOutFromMouse();
            }
        }
+       this.resetFrameLayers();
     }
 
         /** Mouse modifiers */
@@ -681,6 +684,8 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
 
         setMouseModifier(event);
 
+        this.resetFrameLayers();
+
         /*if (mac && event.isControlDown() || this.isRightClick()) {
             menu.show(event.getComponent(), event.getX(), event.getY());
         }*/
@@ -703,6 +708,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
 
         GraphPaneController gpc = GraphPaneController.getInstance();
         gpc.setMouseClickPosition(MiscUtils.transformPixelToPosition(x1, this.getWidth(), this.getPositionalRange()));
+        this.resetFrameLayers();
     }
 
     /**
@@ -757,6 +763,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         setMouseModifier(event);
 
         gpc.setMouseReleasePosition(MiscUtils.transformPixelToPosition(x2, this.getWidth(), this.getPositionalRange()));
+        this.resetFrameLayers();
     }
 
     /**
@@ -765,6 +772,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
     public void mouseEntered( final MouseEvent event ) {
         this.setCursor(new Cursor(Cursor.HAND_CURSOR));
         setMouseModifier(event);
+        this.resetFrameLayers();
     }
 
     /**
@@ -772,6 +780,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
      */
     public void mouseExited( final MouseEvent event ) {
         setMouseModifier(event);
+        this.resetFrameLayers();
     }
 
     /**
@@ -797,6 +806,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         }
 
         gpc.setMouseReleasePosition(MiscUtils.transformPixelToPosition(x2, this.getWidth(), this.getPositionalRange()));
+        this.resetFrameLayers();
     }
 
     /**
