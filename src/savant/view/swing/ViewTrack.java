@@ -121,7 +121,7 @@ public abstract class ViewTrack {
                 viewTrack = new BAMViewTrack(name, (BAMIntervalTrack)dataTrack);
 
                 // capture parameters needed to adjust display
-                captureBAMDisplayParameters((BAMViewTrack) viewTrack);
+                //captureBAMDisplayParameters((BAMViewTrack) viewTrack);
 
                 results.add(viewTrack);
 

@@ -67,6 +67,7 @@ public class Frame {
     private JPanel arcLegend;
     //private boolean legend = false;
     private List<JCheckBoxMenuItem> visItems;
+    private JideButton arcButton;
 
     public boolean isHidden() { return this.isHidden; }
     public void setHidden(boolean isHidden) { this.isHidden = isHidden; }
@@ -123,6 +124,11 @@ public class Frame {
         if(this.tracks.get(0).getDrawModes().size() > 0){
             JMenu displayMenu = createDisplayMenu();
             commandBar.add(displayMenu);
+        }
+         if (this.tracks.get(0).getDataType() == FileFormat.INTERVAL_BAM) {
+            arcButton = createArcButton();
+            commandBar.add(arcButton);
+            arcButton.setVisible(false);
         }
         commandBar.add(new JSeparator(SwingConstants.VERTICAL));
         commandBar.add(hideButton);
@@ -271,13 +277,33 @@ public class Frame {
     }
 
     /**
+     * Create the button to show the arc params dialog
+     */
+    private JideButton createArcButton() {
+        JideButton button = new JideButton("Arc Options");
+        button.setToolTipText("Change mate pair parameters");
+        button.addMouseListener(new MouseListener() {
+            public void mouseClicked(MouseEvent e) {
+                final BAMViewTrack innerTrack = (BAMViewTrack)tracks.get(0);
+                graphPane.getBAMParams(innerTrack);
+            }
+            public void mousePressed(MouseEvent e) {}
+            public void mouseReleased(MouseEvent e) {}
+            public void mouseEntered(MouseEvent e) {}
+            public void mouseExited(MouseEvent e) {}
+        });
+        button.setFocusPainted(false);
+        return button;
+    }
+
+    /**
      * Create display menu for commandBar
      */
     private JMenu createDisplayMenu() {
         JMenu menu = new JideMenu("Display Mode");
 
         //Arc params (if bam file)
-        if(this.tracks.get(0).getDataType() == FileFormat.INTERVAL_BAM){
+        /*if(this.tracks.get(0).getDataType() == FileFormat.INTERVAL_BAM){
             JMenuItem arcParam = new JMenuItem();
             arcParam.setText("Change Arc Parameters...");
             menu.add(arcParam);
@@ -289,7 +315,7 @@ public class Frame {
             });
             JSeparator jSeparator1 = new JSeparator();
             menu.add(jSeparator1);
-        }
+        }*/
 
         //display modes
         List<Mode> drawModes = this.tracks.get(0).getDrawModes();
@@ -426,9 +452,11 @@ public class Frame {
             if (evt.getMode().getName().equals("MATE_PAIRS")) {
                 reRender = true;
                 setCoverageEnabled(false);
+                this.arcButton.setVisible(true);
             }else {
                 setCoverageEnabled(true);
                 reRender = true;
+                this.arcButton.setVisible(false);
             }
         }
         if (reRender) {
