@@ -134,6 +134,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
 
     public void graphpaneChangeReceived(GraphPaneChangeEvent event) {
         repaint();
+        this.resetFrameLayers();
     }
 
     /**
@@ -326,7 +327,6 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
             g.setColor(Color.BLACK);
             int pos = MiscUtils.transformPositionToPixel(GraphPaneController.getInstance().getMouseXPosition(), this.getWidth(), this.getPositionalRange());
             g.drawLine(pos, 0, pos, this.getHeight());
-            this.resetFrameLayers();
         }
 
         /** SPOTLIGHT */
@@ -346,13 +346,11 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
                 int pix = MiscUtils.transformPositionToPixel(right, this.getWidth(), this.getPositionalRange());
                 g.fillRect(pix, 0, this.getWidth()-pix, this.getHeight());
             }
-            this.resetFrameLayers();
         }
         
         if (this.isLocked()) {
             GlassMessagePane.draw((Graphics2D) g, this, "Locked", 300);
         }
-        //this.resetFrameLayers();
     }
 
     /**
