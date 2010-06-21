@@ -190,15 +190,7 @@ public class Frame {
     }
 
     public void resetLayers(){
-        for(int i = 0; i < FrameController.getInstance().getFrames().size(); i++){
-            Frame f = FrameController.getInstance().getFrames().get(i);
-            //if(f.getTracks().get(0).getDrawModes().size() > 0 && f.getTracks().get(0).getDrawMode().getName().equals("MATE_PAIRS")){
-                //f.arcLegend.setVisible(true);
-            //} else {
-                //f.arcLegend.setVisible(false);
-            //}
-            ((JLayeredPane) f.getFrameLandscape()).moveToBack(f.getGraphPane());
-        }
+        ((JLayeredPane) this.getFrameLandscape()).moveToBack(this.getGraphPane());
     }
 
     /**
