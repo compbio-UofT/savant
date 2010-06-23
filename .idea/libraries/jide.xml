@@ -4,6 +4,7 @@
       <root url="jar://$PROJECT_DIR$/extlib/jide/jide-dock.jar!/" />
       <root url="jar://$PROJECT_DIR$/extlib/jide/jide-common.jar!/" />
       <root url="jar://$PROJECT_DIR$/extlib/jide/jide-components.jar!/" />
+      <root url="jar://$PROJECT_DIR$/extlib/jide/jide-action.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />
