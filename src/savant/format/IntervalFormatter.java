@@ -76,6 +76,7 @@ public class IntervalFormatter extends GenericFormatter {
         List<Object> line;
         while((strLine = inputFile.readLine()) != null) {
 
+            if(strLine.matches("\\s*")) continue;
             if (strLine.equals("")) { continue; }
 
             log.debug(strLine);

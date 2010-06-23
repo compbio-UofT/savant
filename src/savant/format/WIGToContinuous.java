@@ -79,8 +79,13 @@ public class WIGToContinuous extends GenericFormatter {
 
                     tokens = lineIn.split("\\s");
 
-                    if(tokens.length < 1){
-                        //skip blank lines
+                    //skip blank lines
+                    if(lineIn.matches("\\s*") || tokens.length < 1){
+                        lineIn = reader.readLine();
+                        // update bytes read from input
+                        if (lineIn != null) {
+                            this.byteCount += lineIn.getBytes().length;
+                        }
                         continue;
                     }
                     if (tokens[0].equals("variableStep")){

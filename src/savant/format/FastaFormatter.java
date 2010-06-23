@@ -53,7 +53,7 @@ public class FastaFormatter extends GenericFormatter{
                     // update bytes read from input
                     this.byteCount += strLine.getBytes().length;
                     // generate output
-                    if (strLine.charAt(0) != '>') {
+                    if (strLine.length() > 0 && !strLine.matches("\\s*") && strLine.charAt(0) != '>') {
                         out.writeBytes(strLine);
                     }
                 }

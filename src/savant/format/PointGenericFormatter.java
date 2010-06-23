@@ -65,7 +65,7 @@ public class PointGenericFormatter extends GenericFormatter {
                     // update bytes read from input
                     this.byteCount += strLine.getBytes().length;
                     // parse input and write output
-                    if ((line = DataFormatUtils.parseTxtLine(strLine, fields)) != null) {
+                    if ((line = DataFormatUtils.parseTxtLine(strLine, fields)) != null && line.size() > 0) {
                         line.set(0, ((Integer) line.get(0))+ this.baseOffset);
                         DataFormatUtils.writeBinaryRecord(out, line, fields, modifiers);
                     }
