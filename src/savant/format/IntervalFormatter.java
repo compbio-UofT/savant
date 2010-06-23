@@ -75,13 +75,14 @@ public class IntervalFormatter extends GenericFormatter {
         String strLine;
         List<Object> line;
         while((strLine = inputFile.readLine()) != null) {
-
-            if(strLine.matches("\\s*")) continue;
+            
             if (strLine.equals("")) { continue; }
 
             log.debug(strLine);
 
             line = DataFormatUtils.parseTxtLine(strLine, fields);
+
+            if(strLine.matches("\\s*") || line.size()==0) continue;
 
             line.set(0, ((Integer)line.get(0)) + this.baseOffset);
             line.set(1, ((Integer)line.get(1))  + this.baseOffset);
