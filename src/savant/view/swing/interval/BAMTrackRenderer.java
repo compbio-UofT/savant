@@ -249,6 +249,8 @@ public class BAMTrackRenderer extends TrackRenderer {
         int alignmentEnd = samRecord.getAlignmentEnd();
 
         byte[] readBases = samRecord.getReadBases();
+        boolean sequenceSaved = readBases.length > 0;
+
         Genome genome = Savant.getInstance().getGenome();
         try {
             byte[] refSeq = genome.getSequence(new Range(alignmentStart, alignmentEnd)).getBytes();
@@ -288,36 +290,39 @@ public class BAMTrackRenderer extends TrackRenderer {
                 // match or mismatch
                 else if (operator == CigarOperator.M) {
 
-                    // determine if there's a mismatch
-                    for (int i=0; i<operatorLength; i++) {
-                        int refIndex = sequenceCursor-alignmentStart+i;
-                        int readIndex = readCursor-alignmentStart+i;
-                        if (refSeq[refIndex] != readBases[readIndex]) {
-                            byte[] readBase = new byte[1];
-                            readBase[0] = readBases[readIndex];
-                            String base = new String(readBase);
-                            Color mismatchColor = null;
-                            if (base.equals("A")) {
-                                mismatchColor = BrowserDefaults.A_COLOR;
+                    // some SAM files do not contain the read bases
+                    if (sequenceSaved) {
+                        // determine if there's a mismatch
+                        for (int i=0; i<operatorLength; i++) {
+                            int refIndex = sequenceCursor-alignmentStart+i;
+                            int readIndex = readCursor-alignmentStart+i;
+                            if (refSeq[refIndex] != readBases[readIndex]) {
+                                byte[] readBase = new byte[1];
+                                readBase[0] = readBases[readIndex];
+                                String base = new String(readBase);
+                                Color mismatchColor = null;
+                                if (base.equals("A")) {
+                                    mismatchColor = BrowserDefaults.A_COLOR;
+                                }
+                                else if (base.equals("C")) {
+                                    mismatchColor = BrowserDefaults.C_COLOR;
+                                }
+                                else if (base.equals("G")) {
+                                    mismatchColor = BrowserDefaults.G_COLOR;
+                                }
+                                else if (base.equals("T")) {
+                                    mismatchColor = BrowserDefaults.T_COLOR;
+                                }
+                                double xCoordinate = gp.transformXPos(sequenceCursor+i);
+                                double width = gp.getUnitWidth();
+                                if (width < 1) width = 1;
+                                opRect = new Rectangle2D.Double(xCoordinate,
+                                        gp.transformYPos(level)-unitHeight,
+                                        unitWidth,
+                                        unitHeight);
+                                g2.setColor(mismatchColor);
+                                g2.fill(opRect);
                             }
-                            else if (base.equals("C")) {
-                                mismatchColor = BrowserDefaults.C_COLOR;
-                            }
-                            else if (base.equals("G")) {
-                                mismatchColor = BrowserDefaults.G_COLOR;
-                            }
-                            else if (base.equals("T")) {
-                                mismatchColor = BrowserDefaults.T_COLOR;
-                            }
-                            double xCoordinate = gp.transformXPos(sequenceCursor+i);
-                            double width = gp.getUnitWidth();
-                            if (width < 1) width = 1;
-                            opRect = new Rectangle2D.Double(xCoordinate,
-                                    gp.transformYPos(level)-unitHeight,
-                                    unitWidth,
-                                    unitHeight);
-                            g2.setColor(mismatchColor);
-                            g2.fill(opRect);
                         }
                     }
                 }
