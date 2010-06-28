@@ -16,11 +16,14 @@
 
 package savant.format;
 
+import java.awt.Component;
 import net.sf.samtools.*;
 import net.sf.samtools.util.CloseableIterator;
 import org.apache.commons.logging.LogFactory;
 import java.io.*;
 import java.util.*;
+import javax.swing.JOptionPane;
+import savant.view.swing.Savant;
 
 public class BAMToCoverage extends GenericFormatter{
 
@@ -200,7 +203,17 @@ public class BAMToCoverage extends GenericFormatter{
         String name = inFile.substring(lastSlashIndex+1, inFile.length());
 
         // infer index file name from track filename
-        String pathWithoutExtension = inFile.substring(0, inFile.lastIndexOf(".bam"));
+        String pathWithoutExtension;
+        int lastIndex = inFile.lastIndexOf(".bam");
+        if(lastIndex == -1){
+            String e = "BAM files should end with the \".bam\" file extension.";
+            log.error(e);
+            JOptionPane.showConfirmDialog((Component) Savant.getInstance(), (Object) e, "Unrecognized file", JOptionPane.DEFAULT_OPTION);
+            return;
+        } else {
+            pathWithoutExtension = inFile.substring(0, lastIndex);
+        }
+        //String pathWithoutExtension = inFile.substring(0, inFile.lastIndexOf(".bam"));
         if (new File(inFile + ".bai").exists()) {
             indexFile = inFile + ".bai";
         }
