@@ -187,7 +187,7 @@ public class DataTableModel extends AbstractTableModel {
                      case 4:
                          return samRecord.getAlignmentStart();
                      case 5:
-                         return samRecord.getReadNegativeStrandFlag();
+                         return !samRecord.getReadNegativeStrandFlag();
                      case 6:
                          return samRecord.getMappingQuality();
                      case 7:
