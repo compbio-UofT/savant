@@ -206,10 +206,7 @@ public class BAMToCoverage extends GenericFormatter{
         String pathWithoutExtension;
         int lastIndex = inFile.lastIndexOf(".bam");
         if(lastIndex == -1){
-            String e = "BAM files should end with the \".bam\" file extension.";
-            log.error(e);
-            JOptionPane.showConfirmDialog((Component) Savant.getInstance(), (Object) e, "Unrecognized file", JOptionPane.DEFAULT_OPTION);
-            return;
+            throw new IOException("BAM files should end with the \".bam\" file extension.");
         } else {
             pathWithoutExtension = inFile.substring(0, lastIndex);
         }
