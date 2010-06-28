@@ -206,6 +206,7 @@ public class BAMToCoverage extends GenericFormatter{
         String pathWithoutExtension;
         int lastIndex = inFile.lastIndexOf(".bam");
         if(lastIndex == -1){
+            log.error("BAM files should end with the \".bam\" file extension.");
             throw new IOException("BAM files should end with the \".bam\" file extension.");
         } else {
             pathWithoutExtension = inFile.substring(0, lastIndex);
@@ -222,6 +223,7 @@ public class BAMToCoverage extends GenericFormatter{
 
         // infer name and make output directory
         outDir = pathWithoutExtension + "_cov";
+        if (new File(outDir).exists()) return;
         File outputDirectory = new File(outDir);
         if (outputDirectory.exists()) outputDirectory.delete();
         boolean created = new File(outDir).mkdir();
