@@ -239,6 +239,9 @@ public class BAMTrackRenderer extends TrackRenderer {
 
     private void renderVariants(Graphics2D g2, GraphPane gp, SAMRecord samRecord, int level) {
 
+        ColorScheme cs = (ColorScheme) getDrawingInstructions().getInstruction(DrawingInstructions.InstructionName.COLOR_SCHEME.toString());
+        Color linecolor = cs.getColor("LINE");
+
         double unitHeight;
         double unitWidth;
         unitHeight = gp.getUnitHeight();
@@ -281,11 +284,29 @@ public class BAMTrackRenderer extends TrackRenderer {
                 }
                 // insert
                 else if (operator == CigarOperator.I) {
-
-                    g2.setColor(Color.white);
-                    int xCoordinate = (int)gp.transformXPos(sequenceCursor);
-                    int yCoordinate = (int)(gp.transformYPos(level)-unitHeight);
-                    g2.drawLine(xCoordinate, (int)yCoordinate, xCoordinate, (int)(yCoordinate+unitHeight));
+//                    g2.setColor(Color.white);
+//                    int xCoordinate = (int)gp.transformXPos(sequenceCursor);
+//                    int yCoordinate = (int)(gp.transformYPos(level)-unitHeight);
+//                    g2.drawLine(xCoordinate, (int)yCoordinate, xCoordinate, (int)(yCoordinate+unitHeight));
+                    g2.setColor(Color.black);
+                    if(unitHeight > 7 && unitWidth > 5){
+                        int xCoordinate = (int)gp.transformXPos(sequenceCursor);
+                        int yCoordinate = (int)(gp.transformYPos(level)-unitHeight);
+                        int[] xPoints = {xCoordinate, xCoordinate+(int)(unitWidth/3), xCoordinate, xCoordinate-(int)(unitWidth/3)};
+                        int[] yPoints = {yCoordinate, yCoordinate+(int)(unitHeight/2), yCoordinate+(int)unitHeight, yCoordinate+(int)(unitHeight/2)};
+                        g2.fillPolygon(xPoints, yPoints, 4);
+                        g2.setColor(linecolor);
+                        g2.drawPolygon(xPoints, yPoints, 4);
+                        g2.drawLine(xCoordinate, (int)yCoordinate, xCoordinate, (int)(yCoordinate+unitHeight));
+                    } else {
+                        int yCoordinate = (int)(gp.transformYPos(level)-unitHeight);
+                        int lineWidth = Math.max((int)(unitWidth * (2.0/3.0)), 1);
+                        int xCoordinate1 = (int)(gp.transformXPos(sequenceCursor) - Math.floor(lineWidth/2));
+                        int xCoordinate2 = (int)(gp.transformXPos(sequenceCursor) - Math.floor(lineWidth/2)) + lineWidth - 1;
+                        int[] xPoints = {xCoordinate1, xCoordinate2, xCoordinate2, xCoordinate1};
+                        int[] yPoints = {yCoordinate, yCoordinate, yCoordinate+(int)unitHeight, yCoordinate+(int)unitHeight};
+                        g2.fillPolygon(xPoints, yPoints, 4);
+                    }
                 }
                 // match or mismatch
                 else if (operator == CigarOperator.M) {
