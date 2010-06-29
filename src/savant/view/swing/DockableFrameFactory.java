@@ -22,6 +22,7 @@ public class DockableFrameFactory {
         DockableFrame frame = new DockableFrame(name, JideIconsFactory.getImageIcon(JideIconsFactory.FileType.TEXT));
         frame.getContext().setInitMode(mode);
         frame.getContext().setInitSide(side);
+        frame.setSlidingAutohide(false);
         frame.add(new JPanel());
         frame.setPreferredSize(new Dimension(200, 200));
         return frame;
@@ -51,6 +52,7 @@ public class DockableFrameFactory {
         
         frame.getContext().setInitMode(DockContext.STATE_FRAMEDOCKED);
         frame.getContext().setInitSide(DockContext.DOCK_SIDE_NORTH);
+        frame.setSlidingAutohide(false);
         frame.add(new JPanel());
         frame.setPreferredSize(new Dimension(200, 200));
 

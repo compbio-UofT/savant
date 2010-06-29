@@ -147,6 +147,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         this.panel_main.add(masterPlaceholderPanel,BorderLayout.CENTER);
 
         auxDockingManager = new DefaultDockingManager(this,masterPlaceholderPanel);
+        //auxDockingManager.setSidebarRollover(false);
         auxDockingManager.setInitSplitPriority(DockingManager.SPLIT_EAST_SOUTH_WEST_NORTH);
         auxDockingManager.loadLayoutData();
 
@@ -156,6 +157,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         auxDockingManager.getWorkspace().add(trackPanel,BorderLayout.CENTER);
 
         trackDockingManager = new DefaultDockingManager(this,trackPanel);
+        //trackDockingManager.setSidebarRollover(false);
         trackDockingManager.getWorkspace().setBackground(Color.red);
         trackDockingManager.setInitNorthSplit(JideSplitPane.VERTICAL_SPLIT);
         trackDockingManager.loadLayoutData();

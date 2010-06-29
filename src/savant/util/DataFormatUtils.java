@@ -262,7 +262,8 @@ public class DataFormatUtils {
             return null;
         }
 
-        StringTokenizer tok = new StringTokenizer(txtLine);
+        // TODO: delimit by any given character (or possibly sets of characters)
+        StringTokenizer tok = new StringTokenizer(txtLine,"\t");
 
         int tokenNum = 0;
         List<Object> line = new ArrayList<Object>(fields.size());
