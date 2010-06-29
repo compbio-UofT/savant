@@ -121,7 +121,6 @@ public class DataFormatForm extends JDialog implements PropertyChangeListener /*
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
         setTitle("Format");
-        setResizable(false);
 
         textfield_inPath.setEditable(false);
         textfield_inPath.setDisabledTextColor(new java.awt.Color(255, 255, 255));
