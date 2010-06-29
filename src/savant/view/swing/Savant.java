@@ -945,6 +945,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         // get async notification when DataFormatForm has finished its business
         dff.addPropertyChangeListener("success", this);
 
+        // disable plugin manager
         this.menu_plugins.setVisible(false);
     }
 
