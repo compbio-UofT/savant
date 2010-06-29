@@ -288,17 +288,21 @@ public class BAMTrackRenderer extends TrackRenderer {
 //                    int xCoordinate = (int)gp.transformXPos(sequenceCursor);
 //                    int yCoordinate = (int)(gp.transformYPos(level)-unitHeight);
 //                    g2.drawLine(xCoordinate, (int)yCoordinate, xCoordinate, (int)(yCoordinate+unitHeight));
-                    g2.setColor(Color.black);
+                    g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                     if(unitHeight > 7 && unitWidth > 5){
+                        g2.setColor(Color.white);
                         int xCoordinate = (int)gp.transformXPos(sequenceCursor);
                         int yCoordinate = (int)(gp.transformYPos(level)-unitHeight);
                         int[] xPoints = {xCoordinate, xCoordinate+(int)(unitWidth/3), xCoordinate, xCoordinate-(int)(unitWidth/3)};
                         int[] yPoints = {yCoordinate, yCoordinate+(int)(unitHeight/2), yCoordinate+(int)unitHeight, yCoordinate+(int)(unitHeight/2)};
                         g2.fillPolygon(xPoints, yPoints, 4);
-                        g2.setColor(linecolor);
-                        g2.drawPolygon(xPoints, yPoints, 4);
-                        g2.drawLine(xCoordinate, (int)yCoordinate, xCoordinate, (int)(yCoordinate+unitHeight));
+                        if(unitHeight > 10 && unitWidth > 9){
+                            g2.setColor(linecolor);
+                            //g2.drawPolygon(xPoints, yPoints, 4);
+                            g2.drawLine(xCoordinate, (int)yCoordinate, xCoordinate, (int)(yCoordinate+unitHeight));
+                        }                       
                     } else {
+                        g2.setColor(Color.white);
                         int yCoordinate = (int)(gp.transformYPos(level)-unitHeight);
                         int lineWidth = Math.max((int)(unitWidth * (2.0/3.0)), 1);
                         int xCoordinate1 = (int)(gp.transformXPos(sequenceCursor) - Math.floor(lineWidth/2));
@@ -307,6 +311,7 @@ public class BAMTrackRenderer extends TrackRenderer {
                         int[] yPoints = {yCoordinate, yCoordinate, yCoordinate+(int)unitHeight, yCoordinate+(int)unitHeight};
                         g2.fillPolygon(xPoints, yPoints, 4);
                     }
+                    g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
                 }
                 // match or mismatch
                 else if (operator == CigarOperator.M) {
