@@ -263,21 +263,23 @@ public class BAMTrackRenderer extends TrackRenderer {
             int readCursor = alignmentStart;
             CigarOperator operator;
             int operatorLength;
+
             for (CigarElement cigarElement : cigar.getCigarElements()) {
 
                 operatorLength = cigarElement.getLength();
                 operator = cigarElement.getOperator();
                 Rectangle2D.Double opRect = null;
 
+                double opStart = gp.transformXPos(sequenceCursor);
+                double opWidth = gp.getWidth(operatorLength);
+
                 // delete
                 if (operator == CigarOperator.D) {
 
-                    double width = gp.getWidth(operatorLength);
-                    if (width < 1) width = 1;
                     opRect = new Rectangle2D.Double(
-                            gp.transformXPos(sequenceCursor),
+                            opStart,
                             gp.transformYPos(level)-unitHeight,
-                            gp.getWidth(operatorLength),
+                            Math.max(opWidth, 1),
                             unitHeight);
                     g2.setColor(Color.black);
                     g2.fill(opRect);
@@ -291,22 +293,21 @@ public class BAMTrackRenderer extends TrackRenderer {
                     g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                     if(unitHeight > 7 && unitWidth > 5){
                         g2.setColor(Color.white);
-                        int xCoordinate = (int)gp.transformXPos(sequenceCursor);
                         int yCoordinate = (int)(gp.transformYPos(level)-unitHeight);
-                        int[] xPoints = {xCoordinate, xCoordinate+(int)(unitWidth/3), xCoordinate, xCoordinate-(int)(unitWidth/3)};
+                        int[] xPoints = {(int)opStart, (int)opStart+(int)(unitWidth/3), (int)opStart, (int)opStart-(int)(unitWidth/3)};
                         int[] yPoints = {yCoordinate, yCoordinate+(int)(unitHeight/2), yCoordinate+(int)unitHeight, yCoordinate+(int)(unitHeight/2)};
                         g2.fillPolygon(xPoints, yPoints, 4);
                         if(unitHeight > 10 && unitWidth > 9){
                             g2.setColor(linecolor);
                             //g2.drawPolygon(xPoints, yPoints, 4);
-                            g2.drawLine(xCoordinate, (int)yCoordinate, xCoordinate, (int)(yCoordinate+unitHeight));
+                            g2.drawLine((int)opStart, (int)yCoordinate, (int)opStart, (int)(yCoordinate+unitHeight));
                         }                       
                     } else {
                         g2.setColor(Color.white);
                         int yCoordinate = (int)(gp.transformYPos(level)-unitHeight);
                         int lineWidth = Math.max((int)(unitWidth * (2.0/3.0)), 1);
-                        int xCoordinate1 = (int)(gp.transformXPos(sequenceCursor) - Math.floor(lineWidth/2));
-                        int xCoordinate2 = (int)(gp.transformXPos(sequenceCursor) - Math.floor(lineWidth/2)) + lineWidth - 1;
+                        int xCoordinate1 = (int)(opStart - Math.floor(lineWidth/2));
+                        int xCoordinate2 = (int)(opStart - Math.floor(lineWidth/2)) + lineWidth - 1;
                         int[] xPoints = {xCoordinate1, xCoordinate2, xCoordinate2, xCoordinate1};
                         int[] yPoints = {yCoordinate, yCoordinate, yCoordinate+(int)unitHeight, yCoordinate+(int)unitHeight};
                         g2.fillPolygon(xPoints, yPoints, 4);
@@ -355,6 +356,13 @@ public class BAMTrackRenderer extends TrackRenderer {
                 // skipped
                 else if (operator == CigarOperator.N) {
                     // draw nothing
+
+                        opRect = new Rectangle2D.Double(opStart,
+                                                        gp.transformYPos(level)-unitHeight,
+                                                        opWidth,
+                                                        unitHeight);
+                        g2.setColor(Color.gray);
+                        g2.fill(opRect);
 
                 }
                 // padding
