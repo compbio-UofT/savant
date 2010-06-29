@@ -291,26 +291,26 @@ public class BAMTrackRenderer extends TrackRenderer {
 //                    int yCoordinate = (int)(gp.transformYPos(level)-unitHeight);
 //                    g2.drawLine(xCoordinate, (int)yCoordinate, xCoordinate, (int)(yCoordinate+unitHeight));
                     g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                    if(unitHeight > 7 && unitWidth > 5){
-                        g2.setColor(Color.white);
-                        int yCoordinate = (int)(gp.transformYPos(level)-unitHeight);
-                        int[] xPoints = {(int)opStart, (int)opStart+(int)(unitWidth/3), (int)opStart, (int)opStart-(int)(unitWidth/3)};
-                        int[] yPoints = {yCoordinate, yCoordinate+(int)(unitHeight/2), yCoordinate+(int)unitHeight, yCoordinate+(int)(unitHeight/2)};
-                        g2.fillPolygon(xPoints, yPoints, 4);
-                        if(unitHeight > 10 && unitWidth > 9){
-                            g2.setColor(linecolor);
-                            //g2.drawPolygon(xPoints, yPoints, 4);
-                            g2.drawLine((int)opStart, (int)yCoordinate, (int)opStart, (int)(yCoordinate+unitHeight));
-                        }                       
-                    } else {
-                        g2.setColor(Color.white);
-                        int yCoordinate = (int)(gp.transformYPos(level)-unitHeight);
+                    g2.setColor(Color.white);
+                    int xCoordinate = (int)gp.transformXPos(sequenceCursor);
+                    int yCoordinate = (int)(gp.transformYPos(level)-unitHeight) + 1;
+                    if((int)unitWidth/3 < 4 || (int)(unitHeight/2) < 6){
+                        yCoordinate = (int)(gp.transformYPos(level)-unitHeight);
                         int lineWidth = Math.max((int)(unitWidth * (2.0/3.0)), 1);
                         int xCoordinate1 = (int)(opStart - Math.floor(lineWidth/2));
                         int xCoordinate2 = (int)(opStart - Math.floor(lineWidth/2)) + lineWidth - 1;
+                        if(xCoordinate1 == xCoordinate2) xCoordinate2++;
                         int[] xPoints = {xCoordinate1, xCoordinate2, xCoordinate2, xCoordinate1};
                         int[] yPoints = {yCoordinate, yCoordinate, yCoordinate+(int)unitHeight, yCoordinate+(int)unitHeight};
                         g2.fillPolygon(xPoints, yPoints, 4);
+                    } else {
+                        int[] xPoints = {xCoordinate, xCoordinate+(int)(unitWidth/3), xCoordinate, xCoordinate-(int)(unitWidth/3)};
+                        int[] yPoints = {yCoordinate, yCoordinate+(int)(unitHeight/2), yCoordinate+(int)unitHeight-1, yCoordinate+(int)(unitHeight/2)};
+                        g2.fillPolygon(xPoints, yPoints, 4);
+                        if((int)unitWidth/3 >= 7 && (int)(unitHeight/2) >= 5){
+                            g2.setColor(linecolor);
+                            g2.drawLine(xCoordinate, (int)yCoordinate, xCoordinate, (int)(yCoordinate+unitHeight)-1);
+                        }
                     }
                     g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
                 }
