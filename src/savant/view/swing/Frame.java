@@ -132,10 +132,11 @@ public class Frame {
         }
         commandBar.add(new JSeparator(SwingConstants.VERTICAL));
         commandBar.add(hideButton);
+        commandBar.setVisible(false);
 
         //COMMAND BAR HIDDEN
         commandBarHidden = new CommandBar();
-        commandBarHidden.setVisible(false);
+        //commandBarHidden.setVisible(false);
         commandBarHidden.setOpaque(true);
         commandBarHidden.setChevronAlwaysVisible(false);
         JideButton showButton = createShowButton();
@@ -220,7 +221,7 @@ public class Frame {
      */
     private JideButton createShowButton() {
         JideButton button = new JideButton();
-        button.setIcon(new javax.swing.ImageIcon(getClass().getResource("/savant/images/arrow_right.png")));
+        button.setIcon(new javax.swing.ImageIcon(getClass().getResource("/savant/images/toolbar.png")));
         button.setToolTipText("Show the toolbar");
         button.addMouseListener(new MouseListener() {
             public void mouseClicked(MouseEvent e) {
