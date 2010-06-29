@@ -301,7 +301,10 @@ public class RangeController {
         //int middle = (getRangeEnd() + getRangeStart()) / 2;
         int half = Math.max(length / 2, 1);
         Range r=null;
-        if (half <= center) {
+        if (length == 1){
+            r = new Range(center, center);
+        }
+        else if (half <= center) {
             r = new Range(center - half + 1, center + half);
         }
         else if ((center + half) > getMaxRangeEnd())
