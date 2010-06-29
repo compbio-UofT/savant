@@ -320,6 +320,7 @@ public class BookmarkSheet implements BookmarksChangedListener /*, RangeChangedL
                 JOptionPane.showConfirmDialog(null, message, title, JOptionPane.ERROR_MESSAGE);
             }
         }
+        System.out.println(BookmarkController.getInstance().getBookmarks());
     }
 
     private static void saveBookmarks(JTable table) {
@@ -365,11 +366,14 @@ public class BookmarkSheet implements BookmarksChangedListener /*, RangeChangedL
 
         BufferedReader br = new BufferedReader(new FileReader(filename));
 
+        BookmarkController bmc = BookmarkController.getInstance();
+
         String line = "";
 
         while ((line = br.readLine()) != null) {
             Bookmark bm = parseBookmark(line);
             bookmarks.add(bm);
+            bmc.addBookmarkSilent(bm);
         }
 
         br.close();
