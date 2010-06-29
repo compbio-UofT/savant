@@ -133,8 +133,9 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
      */
 
     public void graphpaneChangeReceived(GraphPaneChangeEvent event) {
-        repaint();
-        this.resetFrameLayers();
+        //repaint();
+        GraphPaneController gpc = GraphPaneController.getInstance();
+        if(gpc.isChanged() || gpc.isPlumbing() || gpc.isSpotlight()) this.resetFrameLayers();
     }
 
     /**
@@ -770,7 +771,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
     public void mouseEntered( final MouseEvent event ) {
         this.setCursor(new Cursor(Cursor.HAND_CURSOR));
         setMouseModifier(event);
-        this.resetFrameLayers();
+       // this.resetFrameLayers();
     }
 
     /**
@@ -778,7 +779,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
      */
     public void mouseExited( final MouseEvent event ) {
         setMouseModifier(event);
-        this.resetFrameLayers();
+        //this.resetFrameLayers();
     }
 
     /**

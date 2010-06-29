@@ -36,6 +36,8 @@ public class GraphPaneController {
 
     private List<GraphPaneChangeListener> graphpaneChangeListeners;
 
+    private boolean changeMade = false;
+
     private GraphPaneController() {
         graphpaneChangeListeners = new ArrayList<GraphPaneChangeListener>();
     }
@@ -53,6 +55,10 @@ public class GraphPaneController {
 
     public synchronized void removeFavoritesChangedListener(GraphPaneChangeListener l) {
         graphpaneChangeListeners.remove(l);
+    }
+
+    public boolean isChanged(){
+        return changeMade;
     }
 
     public void askForRefresh() {
@@ -86,7 +92,9 @@ public class GraphPaneController {
 
     public void setPlumbing(boolean isPlumbing) {
         this.isPlumbing = isPlumbing;
+        changeMade = true;
         forceRefresh();
+        changeMade = false;
     }
 
     public boolean isSpotlight() {
@@ -95,7 +103,9 @@ public class GraphPaneController {
 
     public void setSpotlight(boolean isSpotlight) {
         this.isSpotlight = isSpotlight;
+        changeMade = true;
         forceRefresh();
+        changeMade = false;
     }
 
     public boolean isZooming() {
