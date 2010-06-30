@@ -300,6 +300,11 @@ public class RangeController {
         }
         //int middle = (getRangeEnd() + getRangeStart()) / 2;
         int half = Math.max(length / 2, 1);
+
+        Range rg = new Range(center-half,center-half+length-1);
+        setRange(rg);
+        
+        /*
         Range r=null;
         if (length == 1){
             r = new Range(center, center);
@@ -315,6 +320,8 @@ public class RangeController {
             r = new Range(1, length);
         }
         setRange(r);
+         *
+         */
     }
 
     /**
