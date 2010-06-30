@@ -160,8 +160,8 @@ public class Frame {
         c.fill = GridBagConstraints.HORIZONTAL;
         c.gridx = 0;
         c.gridy = 0;
-        frameLandscape.add(commandBar, c, 0);
-        frameLandscape.add(commandBarHidden, c, 1);
+        frameLandscape.add(commandBar, c, 5);
+        frameLandscape.add(commandBarHidden, c, 6);
         commandBarHidden.setVisible(true);
 
         //add filler to top middle
@@ -180,7 +180,7 @@ public class Frame {
         c.gridx = 2;
         c.gridy = 1;
         c.anchor = GridBagConstraints.NORTHEAST;
-        frameLandscape.add(arcLegend, c, 1);
+        frameLandscape.add(arcLegend, c, 6);
 
         //add graphPane to all cells
         c.fill = GridBagConstraints.BOTH;
@@ -518,6 +518,25 @@ public class Frame {
                 ((BAMCoverageViewTrack) track).setEnabled(enabled);
             }
         }
+    }
+
+    /**
+     * Create a new panel to draw on.  
+     */
+    public JPanel getLayerToDraw(){
+        JPanel p = new JPanel();
+        p.setOpaque(false);
+        GridBagConstraints c = new GridBagConstraints();
+        c.fill = GridBagConstraints.BOTH;
+        c.weightx = 1.0;
+        c.weighty = 1.0;
+        c.gridx = 0;
+        c.gridy = 0;
+        c.gridwidth = 3;
+        c.gridheight = 2;
+        frameLandscape.add(p, c, 2);
+        frameLandscape.setLayer(p, 50);
+        return p;
     }
 
     /**
