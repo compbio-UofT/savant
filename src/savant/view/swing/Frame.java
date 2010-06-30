@@ -233,9 +233,13 @@ public class Frame {
      * Create the button to show the commandBar
      */
     private JideButton createShowButton() {
-        JideButton button = new JideButton("Settings");
-        button.setIcon(new javax.swing.ImageIcon(getClass().getResource("/savant/images/arrow_right.png")));
-        button.setIconTextGap(-55);
+        JideButton button = new JideButton();
+        button.setLayout(new BorderLayout());
+        JLabel l1 = new JLabel("Settings");
+        l1.setOpaque(false);
+        button.add(l1, BorderLayout.WEST);
+        JLabel l2 = new JLabel(new javax.swing.ImageIcon(getClass().getResource("/savant/images/arrow_right.png")));
+        button.add(l2, BorderLayout.EAST);
         button.setToolTipText("Show the toolbar");
         button.addMouseListener(new MouseListener() {
             public void mouseClicked(MouseEvent e) {
