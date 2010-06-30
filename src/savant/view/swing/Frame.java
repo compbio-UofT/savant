@@ -42,6 +42,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -105,6 +106,11 @@ public class Frame {
                     renderer = renderers.get(i++);
                 }
                 addTrack(track, renderer);
+
+                //CREATE LEGEND PANEL
+                if(track.getDataType().toString().equals("INTERVAL_BAM")){
+                    arcLegend = track.getTrackRenderers().get(0).arcLegendPaint();
+                }
             }
         }
         //frameLandscape.setLayout(new BorderLayout());
@@ -116,11 +122,12 @@ public class Frame {
         commandBar.setPaintBackground(false);
         commandBar.setOpaque(true);
         commandBar.setChevronAlwaysVisible(false);
-        JMenu optionsMenu = createOptionsMenu();
+        //JMenu optionsMenu = createOptionsMenu();
         //JMenu infoMenu = createInfoMenu();
+        JideButton lockButton = createLockButton();
         JideButton hideButton = createHideButton();
         //commandBar.add(infoMenu);
-        commandBar.add(optionsMenu);
+        commandBar.add(lockButton);
         if(this.tracks.get(0).getDrawModes().size() > 0){
             JMenu displayMenu = createDisplayMenu();
             commandBar.add(displayMenu);
@@ -191,6 +198,12 @@ public class Frame {
     }
 
     public void resetLayers(){
+        Frame f = this;
+        if(f.getTracks().get(0).getDrawModes().size() > 0 && f.getTracks().get(0).getDrawMode().getName().equals("MATE_PAIRS")){
+            f.arcLegend.setVisible(true);
+        } else {
+            f.arcLegend.setVisible(false);
+        }
         ((JLayeredPane) this.getFrameLandscape()).moveToBack(this.getGraphPane());
     }
 
@@ -220,8 +233,9 @@ public class Frame {
      * Create the button to show the commandBar
      */
     private JideButton createShowButton() {
-        JideButton button = new JideButton();
-        button.setIcon(new javax.swing.ImageIcon(getClass().getResource("/savant/images/toolbar.png")));
+        JideButton button = new JideButton("Settings");
+        button.setIcon(new javax.swing.ImageIcon(getClass().getResource("/savant/images/arrow_right.png")));
+        button.setIconTextGap(-55);
         button.setToolTipText("Show the toolbar");
         button.addMouseListener(new MouseListener() {
             public void mouseClicked(MouseEvent e) {
@@ -251,6 +265,41 @@ public class Frame {
         });
         menu.add(item);
         return menu;
+    }
+
+    /**
+     * Create lock button for commandBar
+     */
+    private JideButton createLockButton() {
+        //TODO: This is temporary until there is an options menu
+        JideButton button = new JideButton("Lock Track");
+        button.setToolTipText("Prevent range changes on this track");
+        button.addMouseListener(new MouseListener() {
+            public void mouseClicked(MouseEvent e) {
+                JideButton button = new JideButton();
+                for(int i = 0; i < commandBar.getComponentCount(); i++){
+                    if(commandBar.getComponent(i).getClass() == JideButton.class){
+                        button = (JideButton)commandBar.getComponent(i);
+                        if(button.getText().equals("Lock Track") || button.getText().equals("Unlock Track")) break;
+                    }
+                }
+                if(button.getText().equals("Lock Track")){
+                    button.setText("Unlock Track");
+                    button.setToolTipText("Allow range changes on this track");
+                } else {
+                    button.setText("Lock Track");
+                    button.setToolTipText("Prevent range changes on this track");
+                }
+                graphPane.switchLocked();
+                resetLayers();
+            }
+            public void mousePressed(MouseEvent e) {}
+            public void mouseReleased(MouseEvent e) {}
+            public void mouseEntered(MouseEvent e) {}
+            public void mouseExited(MouseEvent e) {}
+        });
+        button.setFocusPainted(false);
+        return button;
     }
 
     /**
@@ -465,5 +514,18 @@ public class Frame {
                 ((BAMCoverageViewTrack) track).setEnabled(enabled);
             }
         }
+    }
+
+    /**
+     * Export this frame as an image.
+     */
+    public BufferedImage frameToImage(){
+        BufferedImage bufferedImage = new BufferedImage(getGraphPane().getWidth(), getGraphPane().getHeight(), BufferedImage.TYPE_INT_RGB);
+        Graphics2D g = bufferedImage.createGraphics();
+        this.getGraphPane().render(g);
+        g.setColor(Color.black);
+        g.setFont(new Font(null, Font.BOLD, 13));
+        g.drawString(this.getTracks().get(0).getName(), 2, 15);
+        return bufferedImage;
     }
 }

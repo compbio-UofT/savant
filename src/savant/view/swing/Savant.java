@@ -359,6 +359,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         menuitem_thousandgenomes = new javax.swing.JMenuItem();
         jSeparator3 = new javax.swing.JSeparator();
         menuitem_screen = new javax.swing.JMenuItem();
+        jMenuItem2 = new javax.swing.JMenuItem();
         jSeparator4 = new javax.swing.JSeparator();
         menuitem_exit = new javax.swing.JMenuItem();
         menu_edit = new javax.swing.JMenu();
@@ -516,6 +517,14 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
             }
         });
         menu_file.add(menuitem_screen);
+
+        jMenuItem2.setText("Export");
+        jMenuItem2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                menuitem_exportActionPerformed(evt);
+            }
+        });
+        menu_file.add(jMenuItem2);
         menu_file.add(jSeparator4);
 
         menuitem_exit.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F4, java.awt.event.InputEvent.ALT_MASK));
@@ -860,6 +869,11 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         }
     }//GEN-LAST:event_menu_bookmarksActionPerformed
 
+    private void menuitem_exportActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuitem_exportActionPerformed
+        ExportImageDialog export = new ExportImageDialog(Savant.getInstance(), true);
+        export.setVisible(true);
+    }//GEN-LAST:event_menuitem_exportActionPerformed
+
     /**
      * Starts an instance of the Savant Browser
      * @param args the command line arguments
@@ -880,6 +894,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JMenuItem jMenuItem1;
+    private javax.swing.JMenuItem jMenuItem2;
     private javax.swing.JMenuItem jMenuItem5;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JPopupMenu.Separator jSeparator2;
@@ -1067,10 +1082,10 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         jMenuItem5.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Y, osSpecificModifier));
         menuItemAddToFaves.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_B, osSpecificModifier));
         menuItem_viewRangeControls.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_R, java.awt.event.InputEvent.SHIFT_MASK | osSpecificModifier));
-        menuItemPanLeft.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_LEFT, osSpecificModifier));
-        menuItemPanRight.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_RIGHT, osSpecificModifier));
-        menuItemZoomIn.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_UP, osSpecificModifier));
-        menuItemZoomOut.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_DOWN, osSpecificModifier));
+        menuItemPanLeft.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_LEFT, java.awt.event.InputEvent.SHIFT_MASK));
+        menuItemPanRight.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_RIGHT, java.awt.event.InputEvent.SHIFT_MASK));
+        menuItemZoomIn.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_UP, java.awt.event.InputEvent.SHIFT_MASK));
+        menuItemZoomOut.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_DOWN, java.awt.event.InputEvent.SHIFT_MASK));
 
         if (!Desktop.isDesktopSupported() || !Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
             submenu_download.setEnabled(false);

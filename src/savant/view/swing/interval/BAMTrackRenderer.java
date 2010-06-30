@@ -43,12 +43,15 @@ import savant.view.swing.TrackRenderer;
 import savant.view.swing.util.GlassMessagePane;
 
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Rectangle2D;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import javax.swing.JPanel;
 
 /**
  * Class to perform all the rendering of a BAM Track in all its modes.
@@ -506,13 +509,13 @@ public class BAMTrackRenderer extends TrackRenderer {
         }
 
         // draw legend
-        String[] legendStrings = {"Discordant Length", "Inverted Read", "Inverted Mate", "Everted Pair"};
+        /*String[] legendStrings = {"Discordant Length", "Inverted Read", "Inverted Mate", "Everted Pair"};
         Color[] legendColors = {discordantLengthColor, invertedReadColor, invertedMateColor, evertedPairColor};
         String sizingString = legendStrings[0];
         Rectangle2D stringRect = smallFont.getStringBounds(sizingString, g2.getFontRenderContext());
 
         drawLegend(g2, legendStrings, legendColors, (int)(gp.getWidth()-stringRect.getWidth()-5), (int)(2*stringRect.getHeight() + 5+2));
-
+        */
     }
 
     private void drawLegend(Graphics2D g2, String[] legendStrings, Color[] legendColors, int startx, int starty) {
@@ -557,5 +560,121 @@ public class BAMTrackRenderer extends TrackRenderer {
     @Override
     public Range getDefaultYRange() {
         return new Range(0,1);
+    }
+
+    //THIS IS A BIT MESSY
+    @Override
+    public JPanel arcLegendPaint(){
+        JPanel panel = new LegendPanel();
+        panel.setPreferredSize(new Dimension(125,61));
+        return panel;
+    }
+
+
+    private class LegendPanel extends JPanel{
+        private boolean isHidden = false;
+
+        public LegendPanel(){
+            this.setToolTipText("Hide Legend");
+            addMouseListener(new MouseAdapter() {
+                @Override
+                public void mousePressed(MouseEvent me) {
+                    changeMode();
+                }
+            });
+        }
+
+        private void changeMode(){
+            isHidden = !isHidden;
+            if(isHidden){
+                this.setToolTipText("Show Legend");
+                this.setPreferredSize(new Dimension(22,23));
+            } else {
+                this.setToolTipText("Hide Legend");
+                this.setPreferredSize(new Dimension(125,61));
+            }
+            this.setVisible(false);
+            this.paint(this.getGraphics());
+            this.setVisible(true);
+
+        }
+
+        @Override
+        public void paint(Graphics g){
+
+            ColorScheme cs = (ColorScheme) getDrawingInstructions().getInstruction(DrawingInstructions.InstructionName.COLOR_SCHEME.toString());
+
+            // set up colors
+            Color normalArcColor = cs.getColor("REVERSE_STRAND");
+            Color invertedReadColor = cs.getColor("INVERTED_READ");
+            Color invertedMateColor = cs.getColor("INVERTED_MATE");
+            Color evertedPairColor = cs.getColor("EVERTED_PAIR");
+            Color discordantLengthColor = cs.getColor("DISCORDANT_LENGTH");
+
+            String[] legendStrings = {"Discordant Length", "Inverted Read", "Inverted Mate", "Everted Pair"};
+            Color[] legendColors = {discordantLengthColor, invertedReadColor, invertedMateColor, evertedPairColor};
+            String sizingString = legendStrings[0];
+
+            if(isHidden){
+                drawHidden(g);
+            }else{
+                drawLegend(g, legendStrings, legendColors);
+            }
+        }
+
+        private void drawLegend(Graphics g, String[] legendStrings, Color[] legendColors){
+
+            Graphics2D g2 = (Graphics2D) g;
+
+            g2.setFont(smallFont);
+
+            GradientPaint gp = new GradientPaint(0, 0,
+                Color.WHITE, 0, 60,
+                new Color(230,230,230));
+
+            g2.setPaint(gp);
+            g2.fillRect(0, 0, 125, 60);
+
+
+            g2.setColor(Color.BLACK);
+            g2.draw(new Rectangle2D.Double(0, 0, 125, 60));
+
+            int x = 30;
+            int y = 15;
+            String legendString;
+            for (int i=0; i<legendStrings.length; i++) {
+                legendString = legendStrings[i];
+                g2.setColor(legendColors[i]);
+                g2.setStroke(twoStroke);
+                Rectangle2D stringRect = smallFont.getStringBounds(legendString, g2.getFontRenderContext());
+                g2.drawLine(x-25, y-(int)stringRect.getHeight()/2, x-5, y-(int)stringRect.getHeight()/2);
+                g2.setColor(BrowserDefaults.colorAccent);
+                g2.setStroke(oneStroke);
+                g2.drawString(legendString, x, y);
+
+                y += stringRect.getHeight()+2;
+            }
+        }
+
+        private void drawHidden(Graphics g){
+
+            Graphics2D g2 = (Graphics2D) g;
+
+            g2.setFont(smallFont);
+
+            GradientPaint gp = new GradientPaint(0, 0,
+                Color.WHITE, 0, 22,
+                new Color(230,230,230));
+
+            g2.setPaint(gp);
+            g2.fillRect(0, 0, 125, 60);
+
+            g2.setColor(Color.BLACK);
+            g2.draw(new Rectangle2D.Double(0, 0, 22, 22));
+
+            int[] xp = {8,14,14};
+            int[] yp = {11,5,17};
+            g2.fillPolygon(new Polygon(xp,yp,3));
+        }
     }
 }

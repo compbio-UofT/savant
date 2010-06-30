@@ -22,6 +22,7 @@ import savant.util.Range;
 
 import java.awt.*;
 import java.util.List;
+import javax.swing.JPanel;
 
 /**
  *
@@ -53,5 +54,9 @@ public abstract class TrackRenderer {
 
     public boolean hasHorizontalGrid() {
         return false;
+    }
+
+    public JPanel arcLegendPaint(){
+        return null;
     }
 }
