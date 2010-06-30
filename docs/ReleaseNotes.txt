@@ -1,5 +1,39 @@
-Savant V 1.2.1 Release Notes
+Savant V 1.2.2 Release Notes
 ============================
+
+Known Issues:
+
+- Formatting BED files without optional fields crashes
+- Anomalous behaviour for slider modules, including hidden tracks
+
+V 1.2.2, May 30, 2010
+
+- Changed accelerator keys for zoom in/out and move left/right from ctrl/meta-arrow to shift-arrow
+- Fixed bug in range selection bar on window resize
+- Fixed bug with YMax indicator on continuous tracks (including coverage)
+- Provide UI feedback when creating a bookmark
+- Allow deletion of multiple selected bookmarks
+- Added "Go" button for jumping to a new location
+- Changed shortcut for screenshot
+- Added menu and accelerator keys for revealing closed panels
+- Fixed bug in Undo/Redo
+- Set BAM file reader leniency to silent
+- Remove tracks on track close
+- Update SNP number of records
+- Remove ability to replace genome (temporary)
+- Fixed sort file not being removed after interval formatting
+- Fixed bug where Savant crashed formatting WIG files
+- Moved Load/Save Bookmarks buttons to below bookmark table
+- Fixed bug where last coverage file was truncated
+- Allow entering relative coordinates using + and -
+- Minor bug fix to BAM Parameters Dialog
+- Fixed empty error message opening BAM file without index
+- Fixed bug where description fields could not have spaces
+- Use SAM inferred insert size for arc length in mate pair mode of BAM track
+- Replaced insertion indicator with more intuitive shape
+- Replaced contextual menus with toolbars on tracks
+- Fixed bug where BAM files with no stored sequence for reads would crash on variants view
+- Represent spliced mappings in variant mode
 
 V 1.2.1, May 14, 2010
 
