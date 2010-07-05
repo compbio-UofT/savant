@@ -135,7 +135,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
     public void graphpaneChangeReceived(GraphPaneChangeEvent event) {
         //repaint();
         GraphPaneController gpc = GraphPaneController.getInstance();
-        if(gpc.isChanged() || gpc.isPlumbing() || gpc.isSpotlight()) this.resetFrameLayers();
+        if(gpc.isPanning() || gpc.isChanged() || gpc.isPlumbing() || gpc.isSpotlight()) this.resetFrameLayers();
     }
 
     /**
