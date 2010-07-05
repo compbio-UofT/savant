@@ -263,6 +263,17 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
             tr.render(g, this);
         }
 
+        // draw max Y plot value
+        if (this.isYGridOn) {
+            Graphics2D g2 = (Graphics2D) g;
+            Font smallFont = new Font("Sans-Serif", Font.PLAIN, 10);
+            g2.setColor(BrowserDefaults.colorAccent);
+            String maxPlotString = "ymax=" + Integer.toString(yMax);
+            g2.setFont(smallFont);
+            Rectangle2D stringRect = smallFont.getStringBounds(maxPlotString, g2.getFontRenderContext());
+            g2.drawString(maxPlotString, (int)(getWidth()-stringRect.getWidth()-5), (int)(stringRect.getHeight() + 5));
+        }
+
         /*
         // Get elapsed time in milliseconds
         long elapsedTimeMillis = System.currentTimeMillis()-start;
@@ -422,11 +433,11 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
 
             }
             // draw max Y plot value
-            g2.setColor(BrowserDefaults.colorAccent);
+            /*g2.setColor(BrowserDefaults.colorAccent);
             String maxPlotString = "ymax=" + Integer.toString(yMax);
             g2.setFont(smallFont);
             Rectangle2D stringRect = smallFont.getStringBounds(maxPlotString, g2.getFontRenderContext());
-            g2.drawString(maxPlotString, (int)(getWidth()-stringRect.getWidth()-5), (int)(stringRect.getHeight() + 5));
+            g2.drawString(maxPlotString, (int)(getWidth()-stringRect.getWidth()-5), (int)(stringRect.getHeight() + 5));*/
 
         }
     }
