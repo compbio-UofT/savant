@@ -172,6 +172,7 @@ public class GraphPaneController {
     
     public void setSpotlightSize(int size) {
         this.spotlightSize = Math.max(2,(int) Math.round(size*spotlightproportion));
+        this.spotlightSize = 1;
     }
 
     public int getSpotlightSize() {

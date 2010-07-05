@@ -326,8 +326,10 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         /** PLUMBING ADJUSTMENTS */
         if (gpc.isPlumbing()) {
             g.setColor(Color.BLACK);
-            int pos = MiscUtils.transformPositionToPixel(GraphPaneController.getInstance().getMouseXPosition(), this.getWidth(), this.getPositionalRange());
-            g.drawLine(pos, 0, pos, this.getHeight());
+            int spos = MiscUtils.transformPositionToPixel(GraphPaneController.getInstance().getMouseXPosition(), this.getWidth(), this.getPositionalRange());
+            g.drawLine(spos, 0, spos, this.getHeight());
+            int rpos = MiscUtils.transformPositionToPixel(GraphPaneController.getInstance().getMouseXPosition()+1, this.getWidth(), this.getPositionalRange());
+            g.drawLine(rpos, 0, rpos, this.getHeight());
         }
 
         /** SPOTLIGHT */
@@ -335,6 +337,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
             int center = gpc.getMouseXPosition();
             int left = center - gpc.getSpotlightSize()/2;
             int right = center + gpc.getSpotlightSize()/2;
+            if (gpc.getSpotlightSize() == 1) { right = center + 1; }
             
             g.setColor(new Color(0,0,0,200));
 

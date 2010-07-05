@@ -124,6 +124,9 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
 
 
                 frame = new Frame(layers, tracks);
+                for (ViewTrack t : tracks) {
+                    t.setFrame(frame);
+                }
                 dockFrameToFrameMap.put(df, frame);
             }
             FrameController.getInstance().addFrame(frame, panel);

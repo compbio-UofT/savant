@@ -28,7 +28,7 @@ public class BrowserDefaults {
      * Website
      */
     public static String url = "http://compbio.cs.toronto.edu/savant";
-    public static String url_preformatteddata = "http://www.cs.toronto.edu/~mfiume/projects/savant/data.html";
+    public static String url_preformatteddata = "http://compbio.cs.toronto.edu/savant/data.html";
     public static String url_ucsctablebrowser = "http://genome.ucsc.edu/cgi-bin/hgTables?command=start";
     public static String url_thousandgenomes = "http://www.1000genomes.org/page.php?page=data";
 
