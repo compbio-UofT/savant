@@ -3,6 +3,7 @@ savant.controller
 savant.controller.event.bookmark
 savant.controller.event.drawmode
 savant.controller.event.frame
+savant.controller.event.graphpane
 savant.controller.event.range
 savant.controller.event.rangeselection
 savant.controller.event.track
