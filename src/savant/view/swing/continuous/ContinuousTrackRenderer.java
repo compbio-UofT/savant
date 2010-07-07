@@ -93,7 +93,7 @@ public class ContinuousTrackRenderer extends TrackRenderer {
             continuousRecord = (ContinuousRecord)data.get(i);
             xPos = continuousRecord.getPosition();
             yPos = continuousRecord.getValue().getValue();
-            xFormXPos = gp.transformXPos(xPos)+gp.getUnitWidth()/2;
+            xFormXPos = gp.transformXPos(xPos); //+gp.getUnitWidth()/2;
             xFormYPos = gp.transformYPos(yPos);
             if (yPos > maxData) maxData = yPos;
             path.lineTo(xFormXPos, xFormYPos);
