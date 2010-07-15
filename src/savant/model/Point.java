@@ -20,6 +20,7 @@ package savant.model;
  * 
  * @author mfiume
  */
+// FIXME: make this immutable!
 public class Point {
 
     private int position;
