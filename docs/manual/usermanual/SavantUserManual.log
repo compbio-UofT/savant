@@ -1,0 +1,265 @@
+This is pdfTeX, Version 3.1415926-1.40.10 (MiKTeX 2.8) (preloaded format=pdflatex 2010.2.25)  7 MAY 2010 16:02
+entering extended mode
+**Z:/SavantShare/manual/usermanual/SavantUserManual.tex
+(Z:/SavantShare/manual/usermanual/SavantUserManual.tex
+LaTeX2e <2009/09/24>
+Babel <v3.8l> and hyphenation patterns for english, dumylang, nohyphenation, ge
+rman, ngerman, german-x-2009-06-19, ngerman-x-2009-06-19, french, loaded.
+("C:\Program Files\MiKTeX 2.8\tex\latex\base\report.cls"
+Document Class: report 2007/10/19 v1.4h Standard LaTeX document class
+("C:\Program Files\MiKTeX 2.8\tex\latex\base\size10.clo"
+File: size10.clo 2007/10/19 v1.4h Standard LaTeX file (size option)
+)
+\c@part=\count79
+\c@chapter=\count80
+\c@section=\count81
+\c@subsection=\count82
+\c@subsubsection=\count83
+\c@paragraph=\count84
+\c@subparagraph=\count85
+\c@figure=\count86
+\c@table=\count87
+\abovecaptionskip=\skip41
+\belowcaptionskip=\skip42
+\bibindent=\dimen102
+)
+(Z:\SavantShare\manual\usermanual\fullpage.sty
+Style Option FULLPAGE Version 2 as of 15 Dec 1988
+) ("C:\Program Files\MiKTeX 2.8\tex\latex\graphics\graphicx.sty"
+Package: graphicx 1999/02/16 v1.0f Enhanced LaTeX Graphics (DPC,SPQR)
+
+("C:\Program Files\MiKTeX 2.8\tex\latex\graphics\keyval.sty"
+Package: keyval 1999/03/16 v1.13 key=value parser (DPC)
+\KV@toks@=\toks14
+)
+("C:\Program Files\MiKTeX 2.8\tex\latex\graphics\graphics.sty"
+Package: graphics 2009/02/05 v1.0o Standard LaTeX Graphics (DPC,SPQR)
+
+("C:\Program Files\MiKTeX 2.8\tex\latex\graphics\trig.sty"
+Package: trig 1999/03/16 v1.09 sin cos tan (DPC)
+)
+("C:\Program Files\MiKTeX 2.8\tex\latex\00miktex\graphics.cfg"
+File: graphics.cfg 2007/01/18 v1.5 graphics configuration of teTeX/TeXLive
+)
+Package graphics Info: Driver file: pdftex.def on input line 91.
+
+("C:\Program Files\MiKTeX 2.8\tex\latex\pdftex-def\pdftex.def"
+File: pdftex.def 2009/08/25 v0.04m Graphics/color for pdfTeX
+\Gread@gobject=\count88
+))
+\Gin@req@height=\dimen103
+\Gin@req@width=\dimen104
+)
+(Z:\SavantShare\manual\usermanual\SavantUserManual.aux
+
+LaTeX Warning: Label `rangecontrolpanel' multiply defined.
+
+
+LaTeX Warning: Label `rangecontrolpanel' multiply defined.
+
+
+LaTeX Warning: Label `rangecontrolpanel' multiply defined.
+
+
+LaTeX Warning: Label `rangecontrolpanel' multiply defined.
+
+)
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 4.
+LaTeX Font Info:    ... okay on input line 4.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 4.
+LaTeX Font Info:    ... okay on input line 4.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 4.
+LaTeX Font Info:    ... okay on input line 4.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 4.
+LaTeX Font Info:    ... okay on input line 4.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 4.
+LaTeX Font Info:    ... okay on input line 4.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 4.
+LaTeX Font Info:    ... okay on input line 4.
+ ("C:\Program Files\MiKTeX 2.8\tex\context\base\supp-pdf.tex"
+[Loading MPS to PDF converter (version 2006.09.02).]
+\scratchcounter=\count89
+\scratchdimen=\dimen105
+\scratchbox=\box26
+\nofMPsegments=\count90
+\nofMParguments=\count91
+\everyMPshowfont=\toks15
+\MPscratchCnt=\count92
+\MPscratchDim=\dimen106
+\MPnumerator=\count93
+\everyMPtoPDFconversion=\toks16
+)
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <12> on input line 6.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <8> on input line 6.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <6> on input line 6.
+
+
+LaTeX Warning: No \author given.
+
+[1
+
+{C:/Documents and Settings/All Users/Application Data/MiKTeX/2.8/pdftex/config/
+pdftex.map}]
+Underfull \hbox (badness 10000) in paragraph at lines 11--16
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 11--16
+
+ []
+
+[1] (Z:\SavantShare\manual\usermanual\SavantUserManual.toc
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <7> on input line 2.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <5> on input line 2.
+ [2
+
+])
+\tf@toc=\write3
+ [3]
+Chapter 1.
+[4
+
+]
+Chapter 2.
+
+Underfull \hbox (badness 10000) in alignment at lines 45--55
+[][]
+ []
+
+LaTeX Font Info:    Try loading font information for OMS+cmr on input line 65.
+("C:\Program Files\MiKTeX 2.8\tex\latex\base\omscmr.fd"
+File: omscmr.fd 1999/05/25 v2.5h Standard LaTeX font definitions
+)
+LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <10> not available
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 65.
+
+Underfull \hbox (badness 10000) in paragraph at lines 70--71
+
+ []
+
+[5
+
+]
+Underfull \hbox (badness 10000) in paragraph at lines 91--92
+
+ []
+
+LaTeX Font Info:    Try loading font information for OML+cmr on input line 93.
+("C:\Program Files\MiKTeX 2.8\tex\latex\base\omlcmr.fd"
+File: omlcmr.fd 1999/05/25 v2.5h Standard LaTeX font definitions
+)
+LaTeX Font Info:    Font shape `OML/cmr/m/n' in size <10> not available
+(Font)              Font shape `OML/cmm/m/it' tried instead on input line 93.
+
+Underfull \hbox (badness 10000) in paragraph at lines 93--94
+
+ []
+
+<images/formatdialog.png, id=26, 385.44pt x 457.71pt>
+File: images/formatdialog.png Graphic file (type png)
+
+<use images/formatdialog.png> [6 <Z:/SavantShare/manual/usermanual/images/forma
+tdialog.png (PNG copy)>] [7]
+Chapter 3.
+<images/rangecontrolpanel.png, id=35, 861.2175pt x 42.1575pt>
+File: images/rangecontrolpanel.png Graphic file (type png)
+
+<use images/rangecontrolpanel.png> [8
+
+ <Z:/SavantShare/manual/usermanual/images/rangecontrolpanel.png (PNG copy)>]
+Underfull \hbox (badness 10000) in alignment at lines 168--177
+[][]
+ []
+
+
+Underfull \hbox (badness 10000) in alignment at lines 182--191
+[][]
+ []
+
+
+Underfull \hbox (badness 10000) in alignment at lines 200--207
+[][]
+ []
+
+[9]
+Chapter 4.
+<images/changevizmode.png, id=42, 1107.13625pt x 303.1325pt>
+File: images/changevizmode.png Graphic file (type png)
+
+<use images/changevizmode.png> [10
+
+ <Z:/SavantShare/manual/usermanual/images/changevizmode.png (PNG copy)>]
+Chapter 5.
+<images/dockingcontrols.png, id=46, 803.0pt x 361.35pt>
+File: images/dockingcontrols.png Graphic file (type png)
+
+<use images/dockingcontrols.png> [11
+
+ <Z:/SavantShare/manual/usermanual/images/dockingcontrols.png (PNG copy)>]
+<images/hideshowmodules.png, id=51, 871.255pt x 228.855pt>
+File: images/hideshowmodules.png Graphic file (type png)
+
+<use images/hideshowmodules.png>
+<images/arrangemodules.png, id=52, 1292.83pt x 591.20876pt>
+File: images/arrangemodules.png Graphic file (type png)
+
+<use images/arrangemodules.png>
+
+LaTeX Warning: `!h' float specifier changed to `!ht'.
+
+[12 <Z:/SavantShare/manual/usermanual/images/hideshowmodules.png (PNG copy)>]
+[13 <Z:/SavantShare/manual/usermanual/images/arrangemodules.png (PNG copy)>]
+Chapter 6.
+<images/bookmarks.png, id=60, 280.04625pt x 225.84375pt>
+File: images/bookmarks.png Graphic file (type png)
+
+<use images/bookmarks.png> [14
+
+ <Z:/SavantShare/manual/usermanual/images/bookmarks.png (PNG copy)>] [15]
+Chapter 7.
+<images/tableview.png, id=67, 1109.14375pt x 319.1925pt>
+File: images/tableview.png Graphic file (type png)
+
+<use images/tableview.png> [16
+
+ <Z:/SavantShare/manual/usermanual/images/tableview.png (PNG copy)>] [17]
+Chapter 8.
+[18
+
+]
+Chapter 9.
+[19
+
+] (Z:\SavantShare\manual\usermanual\SavantUserManual.aux)
+
+LaTeX Warning: There were multiply-defined labels.
+
+ ) 
+Here is how much of TeX's memory you used:
+ 1012 strings out of 495285
+ 13695 string characters out of 3180337
+ 62668 words of memory out of 3000000
+ 4248 multiletter control sequences out of 15000+200000
+ 9453 words of font info for 33 fonts, out of 3000000 for 9000
+ 14 hyphenation exceptions out of 8191
+ 25i,7n,19p,952b,240s stack positions out of 5000i,500n,10000p,200000b,50000s
+<C:/Program Files/MiKTeX 2.8/fonts/type1/public/amsfonts/cm/cmbx10.pfb><C:/Pr
+ogram Files/MiKTeX 2.8/fonts/type1/public/amsfonts/cm/cmbx12.pfb><C:/Program Fi
+les/MiKTeX 2.8/fonts/type1/public/amsfonts/cm/cmmi10.pfb><C:/Program Files/MiKT
+eX 2.8/fonts/type1/public/amsfonts/cm/cmr10.pfb><C:/Program Files/MiKTeX 2.8/fo
+nts/type1/public/amsfonts/cm/cmr12.pfb><C:/Program Files/MiKTeX 2.8/fonts/type1
+/public/amsfonts/cm/cmr17.pfb><C:/Program Files/MiKTeX 2.8/fonts/type1/public/a
+msfonts/cm/cmsy10.pfb><C:/Program Files/MiKTeX 2.8/fonts/type1/public/amsfonts/
+cm/cmti10.pfb>
+Output written on SavantUserManual.pdf (20 pages, 428522 bytes).
+PDF statistics:
+ 107 PDF objects out of 1000 (max. 8388607)
+ 0 named destinations out of 1000 (max. 500000)
+ 41 words of extra memory for PDF output out of 10000 (max. 10000000)
+
