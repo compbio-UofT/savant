@@ -24,11 +24,17 @@ public class DockableFrameFactory {
         frame.getContext().setInitSide(side);
         frame.setSlidingAutohide(false);
         frame.add(new JPanel());
-        frame.setPreferredSize(new Dimension(200, 200));
+        frame.setPreferredSize(new Dimension(400, 400));
         return frame;
     }
 
     private static int numTracks = 0;
+
+    public static DockableFrame createGUIPluginFrame(String name) {
+        DockableFrame f = createFrame(name, DockContext.MODE_DOCKABLE, DockContext.DOCK_SIDE_SOUTH);
+        f.setAvailableButtons(DockableFrame.BUTTON_AUTOHIDE | DockableFrame.BUTTON_FLOATING | DockableFrame.BUTTON_MAXIMIZE );
+        return f;
+    }
 
     public static DockableFrame createGenomeFrame(String name) {
         return createTrackFrame(name, true);

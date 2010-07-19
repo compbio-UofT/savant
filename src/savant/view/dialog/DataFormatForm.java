@@ -27,6 +27,7 @@ import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import savant.util.MiscUtils;
 
 /**
  * @author mfiume
@@ -600,6 +601,11 @@ public class DataFormatForm extends JDialog implements PropertyChangeListener /*
         return message;
     }
 
+    public void addToMessage(String msg) {
+        if (message == null) { message = MiscUtils.now() + "\t" + msg; }
+        else { this.message = message + "\n" + MiscUtils.now() + "\t" + msg; }
+    }
+
     public void setMessage(String message) {
         this.message = message;
     }
@@ -621,6 +627,10 @@ public class DataFormatForm extends JDialog implements PropertyChangeListener /*
             setProgress(0);
             success = false; // don't use setSuccess because it fires an event
             try {
+                addToMessage("Beginning format");
+                addToMessage("Input file path: " + this.df.getInputFilePath());
+                addToMessage("Input file type: " + this.df.getInputFileType());
+                addToMessage("Output file path: " + this.df.getOutputFilePath());
                 df.format();
                 setProgress(100);
                 setSuccess(true);
@@ -628,7 +638,8 @@ public class DataFormatForm extends JDialog implements PropertyChangeListener /*
                 log.info("Format cancelled by user");
             } catch (Throwable t) {
                 log.error("Error formatting file ", t);
-                setMessage(t.getMessage());
+                addToMessage("Error, printing stack trace\n" + 
+                        MiscUtils.getStackTrace(t));
                 setSuccess(false);
             }
             finally {

@@ -15,6 +15,7 @@
  */
 package savant.view.swing;
 
+import com.jidesoft.dialog.JideOptionPane;
 import savant.controller.event.reference.ReferenceChangedEvent;
 import savant.controller.event.track.TrackListChangedEvent;
 import savant.view.dialog.GenomeLengthForm;
@@ -27,7 +28,10 @@ import com.jidesoft.docking.DockingManager;
 import com.jidesoft.docking.DockingManagerGroup;
 import com.jidesoft.docking.event.DockableFrameEvent;
 import com.jidesoft.docking.event.DockableFrameListener;
+import com.jidesoft.icons.JideIconsFactory;
 import com.jidesoft.plaf.LookAndFeelFactory;
+import com.jidesoft.plaf.UIDefaultsLookup;
+import com.jidesoft.plaf.basic.ThemePainter;
 
 import com.jidesoft.status.MemoryStatusBarItem;
 import com.jidesoft.swing.JideSplitPane;
@@ -73,7 +77,7 @@ import savant.controller.event.bookmark.BookmarksChangedListener;
 import savant.controller.event.reference.ReferenceChangedListener;
 import savant.controller.event.track.TrackListChangedListener;
 import savant.format.header.FileType;
-import savant.plugin.AuxData;
+import savant.plugin.GUIPlugin;
 import savant.plugin.PluginAdapter;
 import savant.view.swing.util.ScreenShot;
 
@@ -325,6 +329,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
 
         addComponentListener(this);
         initComponents();
+        customizeUI();
         init();
     }
 
@@ -409,7 +414,6 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         menuitem_statusbar = new javax.swing.JCheckBoxMenuItem();
         jSeparator1 = new javax.swing.JSeparator();
         menu_bookmarks = new javax.swing.JCheckBoxMenuItem();
-        menu_info = new javax.swing.JCheckBoxMenuItem();
         menu_plugins = new javax.swing.JMenu();
         menuitem_pluginmanager = new javax.swing.JMenuItem();
         menu_help = new javax.swing.JMenu();
@@ -734,15 +738,6 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         });
         menu_window.add(menu_bookmarks);
 
-        menu_info.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_I, java.awt.event.InputEvent.SHIFT_MASK | java.awt.event.InputEvent.CTRL_MASK));
-        menu_info.setText("Information & Analysis");
-        menu_info.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                menu_infoActionPerformed(evt);
-            }
-        });
-        menu_window.add(menu_info);
-
         menuBar_top.add(menu_window);
 
         menu_plugins.setText("Plugins");
@@ -950,15 +945,6 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
          */
     }//GEN-LAST:event_menu_windowStateChanged
 
-    private void menu_infoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menu_infoActionPerformed
-
-        String frameKey = "Information & Analysis";
-        DockingManager m = this.getAuxDockingManager();
-        boolean isVisible = m.getFrame(frameKey).isHidden();
-        setFrameVisibility(frameKey, isVisible, m);
-        this.menu_info.setSelected(isVisible);
-    }//GEN-LAST:event_menu_infoActionPerformed
-
     private void menu_bookmarksActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menu_bookmarksActionPerformed
 
         String frameKey = "Bookmarks";
@@ -1046,8 +1032,8 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
                 Savant instance = Savant.getInstance();
                 instance.loadPlugins();
                 instance.initPlugins();
-                instance.setVisible(true);
-                instance.showOpenGenomeDialog();
+                //instance.setVisible(true);
+                //instance.showOpenGenomeDialog();
             }
         });
     }
@@ -1080,7 +1066,6 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
     private javax.swing.JMenu menu_edit;
     private javax.swing.JMenu menu_file;
     private javax.swing.JMenu menu_help;
-    private javax.swing.JCheckBoxMenuItem menu_info;
     private javax.swing.JMenu menu_load;
     private javax.swing.JMenu menu_plugins;
     private javax.swing.JMenu menu_view;
@@ -1112,9 +1097,43 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
 
 
     /**
+     * Customize the UI
+     */
+    void customizeUI() {
+        LookAndFeelFactory.UIDefaultsCustomizer uiDefaultsCustomizer = new LookAndFeelFactory.UIDefaultsCustomizer() {
+            public void customize(UIDefaults defaults) {
+                ThemePainter painter = (ThemePainter) UIDefaultsLookup.get("Theme.painter");
+                defaults.put("OptionPaneUI", "com.jidesoft.plaf.basic.BasicJideOptionPaneUI");
+
+                defaults.put("OptionPane.showBanner", Boolean.TRUE); // show banner or not. default is true
+                //defaults.put("OptionPane.bannerIcon", JideIconsFactory.getImageIcon(JideIconsFactory.JIDE50));
+                defaults.put("OptionPane.bannerFontSize", 13);
+                defaults.put("OptionPane.bannerFontStyle", Font.BOLD);
+                defaults.put("OptionPane.bannerMaxCharsPerLine", 60);
+                defaults.put("OptionPane.bannerForeground", Color.BLACK); //painter != null ? painter.getOptionPaneBannerForeground() : null);  // you should adjust this if banner background is not the default gradient paint
+                defaults.put("OptionPane.bannerBorder", null); // use default border
+
+                // set both bannerBackgroundDk and // set both bannerBackgroundLt to null if you don't want gradient
+                //defaults.put("OptionPane.bannerBackgroundDk", painter != null ? painter.getOptionPaneBannerDk() : null);
+                //defaults.put("OptionPane.bannerBackgroundLt", painter != null ? painter.getOptionPaneBannerLt() : null);
+                //defaults.put("OptionPane.bannerBackgroundDirection", Boolean.TRUE); // default is true
+
+                // optionally, you can set a Paint object for BannerPanel. If so, the three UIDefaults related to banner background above will be ignored.
+                defaults.put("OptionPane.bannerBackgroundPaint", null);
+
+                defaults.put("OptionPane.buttonAreaBorder", BorderFactory.createEmptyBorder(6, 6, 6, 6));
+                defaults.put("OptionPane.buttonOrientation", SwingConstants.RIGHT);
+            }
+        };
+        uiDefaultsCustomizer.customize(UIManager.getDefaults());
+    }
+
+    /**
      * Initialize the Browser
      */
     void init() {
+        //this.setVisible(false);
+        //this.setExtendedState(this.getExtendedState() | JFrame.MAXIMIZED_BOTH);
 
         rangeController.addRangeChangedListener(this);
         ReferenceController.getInstance().addReferenceChangedListener(this);
@@ -1128,8 +1147,11 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         // get async notification when DataFormatForm has finished its business
         dff.addPropertyChangeListener("success", this);
 
-        // disable plugin manager
-        this.menu_plugins.setVisible(false);
+        // comment next line to disable plugin manager
+        //this.menu_plugins.setVisible(false);
+
+        this.setExtendedState(this.getExtendedState() | JFrame.MAXIMIZED_BOTH);
+        //this.setVisible(true);
     }
 
     private void initPanelsAndDocking() {
@@ -1139,7 +1161,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
     }
 
     private void initAuxilliaryPanels() {
-        initAuxPanel1();
+        //initAuxPanel1();
         initAuxPanel2();
     }
 
@@ -1175,15 +1197,43 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
                 pluginManager.activatePlugin(descr.getId());
                 ClassLoader classLoader = pluginManager.getPluginClassLoader(descr);
                 Class pluginCls = classLoader.loadClass(ext.getParameter("class").valueAsString());
-                AuxData auxData = (AuxData) pluginCls.newInstance();
-                auxData.init(getAuxTabbedPane(), new PluginAdapter());
+
+                Object plugininstance = pluginCls.newInstance();
+
+                if (plugininstance instanceof GUIPlugin) {
+                    GUIPlugin plugin = (GUIPlugin) plugininstance;
+                    final DockableFrame f = DockableFrameFactory.createGUIPluginFrame(plugin.getTitle());
+                    JPanel p = (JPanel) f.getContentPane();
+                    p.setLayout(new BorderLayout());
+                    JPanel canvas = new JPanel();
+                    p.add(canvas, BorderLayout.CENTER);
+                    canvas.setLayout(new BorderLayout());
+                    plugin.init(canvas, new PluginAdapter());
+                    this.getAuxDockingManager().addFrame(f);
+                    boolean isIntiallyVisible = false;
+                    setFrameVisibility(f.getTitle(), isIntiallyVisible, auxDockingManager);
+                    final JCheckBoxMenuItem cb = new JCheckBoxMenuItem(plugin.getTitle());
+                    cb.addActionListener(new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            DockingManager m = auxDockingManager;
+                            String frameKey = f.getTitle();
+                            boolean isVisible = m.getFrame(frameKey).isHidden();
+                            setFrameVisibility(frameKey, isVisible, m);
+                            cb.setSelected(isVisible);
+                        }
+                    });
+                    cb.setSelected(!auxDockingManager.getFrame(f.getTitle()).isHidden());
+                    menu_window.add(cb);
+                }
             }
+
+            // TODO: add provisions for runnable plugins
 
         }
         catch (Exception e) {
             e.printStackTrace(); // TODO: handle properly
         }
-
     }
 
     public DockingManager getAuxDockingManager() {
@@ -1194,6 +1244,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         return trackDockingManager;
     }
 
+    /*
     private void initAuxPanel1() {
 
         DockableFrame df = DockableFrameFactory.createFrame("Information & Analysis",DockContext.STATE_HIDDEN,DockContext.DOCK_SIDE_SOUTH);
@@ -1214,6 +1265,8 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         df.getContentPane().setLayout(new BorderLayout());
         df.getContentPane().add(auxTabbedPane, BorderLayout.CENTER);
     }
+     * 
+     */
 
     private void initAuxPanel2() {
 
@@ -1235,13 +1288,14 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
     public JTabbedPane getAuxTabbedPane() {
          return auxTabbedPane;
      }
+
     /**
      * Set up frame
      */
     void initGUIFrame() {
         this.setTitle("Savant Genome Browser");
         this.setName("Savant Genome Browser");
-//        this.setExtendedState(this.getExtendedState() | JFrame.MAXIMIZED_BOTH);
+        this.setExtendedState(this.getExtendedState() | JFrame.MAXIMIZED_BOTH);
     }
 
     private void initMenu() {
@@ -1858,6 +1912,8 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         rangeControls.add(menuItemPanRight);
         rangeControls.add(menuItemZoomOut);
         rangeControls.add(menuItemZoomIn);
+        rangeControls.add(menuItemShiftStart);
+        rangeControls.add(menuItemShiftEnd);
         rangeControls.add(menuItemAddToFaves);
         rangeControls.add(menuitem_undo);
         rangeControls.add(jMenuItem5);
@@ -2517,6 +2573,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
     }
     
     public static void log(String msg, LOGMODE logmode) {
+        /*
         if (logmode == LOGMODE.DEBUG && isDebugging) {
             log.append(logMessage(msg));
             log.setCaretPosition(log.getText().length());
@@ -2524,6 +2581,8 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
             log.append(logMessage(msg));
             log.setCaretPosition(log.getText().length());
         }
+         *
+         */
     }
 
     /**
@@ -2535,6 +2594,64 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
     }
      */
 
+    /*
+    public JButton createDetailsDialogButton() {
+
+        Action a = new AbstractAction("Show Details Dialog") {
+            public void actionPerformed(ActionEvent e) {
+                String details = ("java.lang.Exception: Stack trace\n" +
+                        "\tat java.awt.Component.processMouseEvent(Component.java:5957)\n" +
+                        "\tat javax.swing.JComponent.processMouseEvent(JComponent.java:3284)\n" +
+                        "\tat java.awt.Component.processEvent(Component.java:5722)\n" +
+                        "\tat java.awt.Container.processEvent(Container.java:1966)\n" +
+                        "\tat java.awt.Component.dispatchEventImpl(Component.java:4365)\n" +
+                        "\tat java.awt.Container.dispatchEventImpl(Container.java:2024)\n" +
+                        "\tat java.awt.Component.dispatchEvent(Component.java:4195)\n" +
+                        "\tat java.awt.LightweightDispatcher.retargetMouseEvent(Container.java:4228)\n" +
+                        "\tat java.awt.LightweightDispatcher.processMouseEvent(Container.java:3892)\n" +
+                        "\tat java.awt.LightweightDispatcher.dispatchEvent(Container.java:3822)\n" +
+                        "\tat java.awt.Container.dispatchEventImpl(Container.java:2010)\n" +
+                        "\tat java.awt.Window.dispatchEventImpl(Window.java:2299)\n" +
+                        "\tat java.awt.Component.dispatchEvent(Component.java:4195)\n" +
+                        "\tat java.awt.EventQueue.dispatchEvent(EventQueue.java:599)\n" +
+                        "\tat java.awt.EventDispatchThread.pumpOneEventForFilters(EventDispatchThread.java:273)\n" +
+                        "\tat java.awt.EventDispatchThread.pumpEventsForFilter(EventDispatchThread.java:183)\n" +
+                        "\tat java.awt.EventDispatchThread.pumpEventsForHierarchy(EventDispatchThread.java:173)\n" +
+                        "\tat java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:168)\n" +
+                        "\tat java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:160)\n" +
+                        "\tat java.awt.EventDispatchThread.run(EventDispatchThread.java:121)");
+                JideOptionPane optionPane = new JideOptionPane("Click \"Details\" button to see more information ... ", JOptionPane.ERROR_MESSAGE, JideOptionPane.CLOSE_OPTION);
+                optionPane.setTitle("An exception happened during file transfers - if the title is very long, it will wrap automatically.");
+                optionPane.setDetails(details);
+                JDialog dialog = optionPane.createDialog(Savant.getInstance(), "Warning");
+                dialog.setResizable(true);
+                dialog.pack();
+                dialog.setVisible(true);
+            }
+        };
+        return createButton(a);
+    }
+
+    public JButton createButton(Action a) {
+        JButton b = new JButton() {
+            @Override
+            public Dimension getMaximumSize() {
+                int width = Short.MAX_VALUE;
+                int height = super.getMaximumSize().height;
+                return new Dimension(width, height);
+            }
+        };
+        // setting the following client property informs the button to show
+        // the action text as it's name. The default is to not show the
+        // action text.
+        b.putClientProperty("displayActionText", Boolean.TRUE);
+        b.setAction(a);
+        // b.setAlignmentX(JButton.CENTER_ALIGNMENT);
+        return b;
+    }
+     * 
+     */
+    
     public void propertyChange(PropertyChangeEvent propertyChangeEvent) {
 
         if (propertyChangeEvent.getPropertyName().equals("success")) {
@@ -2551,9 +2668,24 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
                         }
                     }
                 }
-                JOptionPane.showMessageDialog(this, "Format complete", "Format File", JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Format successful", "Format File", JOptionPane.INFORMATION_MESSAGE);
             }
             else {
+
+                String details = (dff.getMessage());
+                JideOptionPane optionPane = new JideOptionPane("Click \"Details\" button to see more information ... \n\n"
+                        + "Problems formatting files? Please copy these details and email them to savant@cs.toronto.edu \n"
+                        + "along with the file you are trying to format (if it is under 10MB in size). The Savant Team will \n"
+                        + "be happy to help troubleshoot the issue with you.", JOptionPane.ERROR_MESSAGE, JideOptionPane.CLOSE_OPTION);
+                optionPane.setTitle("A problem was encountered while formatting.");
+                JDialog dialog = optionPane.createDialog(this,"Format unsuccessful");
+                dialog.setResizable(true);
+                optionPane.setDetails(details);
+                //optionPane.setDetailsVisible(true);
+                dialog.pack();
+                dialog.setVisible(true);
+
+                /*
                 String message = "Format was not successful! ";
                 String extraMessage = dff.getMessage();
                 String userMessage;
@@ -2563,6 +2695,8 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
                     userMessage = message;
                 }
                 JOptionPane.showMessageDialog(this, userMessage, "Format File", JOptionPane.ERROR_MESSAGE);
+                 * 
+                 */
             }
 
         }

@@ -46,6 +46,10 @@ public class DataFormatter implements FormatProgressListener {
     // output path
     private String outPath;
 
+    public String getInputFilePath() { return this.inPath; }
+    public String getOutputFilePath() { return this.outPath; }
+    public FileType getInputFileType() { return this.inputFileType; }
+
     // sorted file path (temporary)
     //private String sortPath;
 
