@@ -45,14 +45,16 @@ import savant.view.swing.util.GlassMessagePane;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.geom.GeneralPath;
 import java.awt.geom.Rectangle2D;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JPanel;
 import savant.controller.ReferenceController;
+import savant.view.swing.interval.Pileup.Nucleotide;
 
 /**
  * Class to perform all the rendering of a BAM Track in all its modes.
@@ -114,6 +116,9 @@ public class BAMTrackRenderer extends TrackRenderer {
         }
         else if (modeName.equals("MATE_PAIRS")) {
             renderArcMode(g2, gp);
+        }
+        else if (modeName.equals("SNP")){
+            renderSNPMode(g2, gp, r);
         }
     }
 
@@ -521,6 +526,194 @@ public class BAMTrackRenderer extends TrackRenderer {
 
         drawLegend(g2, legendStrings, legendColors, (int)(gp.getWidth()-stringRect.getWidth()-5), (int)(2*stringRect.getHeight() + 5+2));
 */
+    }
+
+    private void renderSNPMode(Graphics2D g2, GraphPane gp, Resolution r){
+
+        List<Object> data = this.getData();
+        Genome genome = ReferenceController.getInstance().getGenome();
+
+        AxisRange axisRange = (AxisRange) getDrawingInstructions().getInstruction(DrawingInstructions.InstructionName.AXIS_RANGE);
+        ColorScheme cs = (ColorScheme) getDrawingInstructions().getInstruction(DrawingInstructions.InstructionName.COLOR_SCHEME.toString());
+        Color linecolor = cs.getColor("LINE");
+
+        List<Pileup> pileups = new ArrayList<Pileup>();
+
+        // make the pileups
+        int length = axisRange.getXMax() - axisRange.getXMin() + 1;
+        int startPosition = axisRange.getXMin();
+        for (int j = 0; j < length; j++) {
+            pileups.add(new Pileup(startPosition + j));
+            //pileups.add(new Pileup(viewTrackName, startPosition + i, Pileup.getNucleotide(genome.getSequence(axisRange.getXRange()).charAt(i))));
+        }
+
+        // go through the samrecords and edit the pileups
+        for (int i = 0; i < data.size(); i++) {
+            BAMIntervalRecord bir = (BAMIntervalRecord) data.get(i);
+            SAMRecord sr = bir.getSamRecord();
+            try {
+                updatePileupsFromSAMRecord(pileups, genome, sr, startPosition);
+            } catch (IOException ex) {
+                Logger.getLogger(BAMTrackRenderer.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+
+        //UNCOMMENT AFTER ADDING VERT PAN
+        //resizeFrame(gp);
+
+
+
+        double maxHeight = 0;
+        for(Pileup p : pileups){
+            double current = p.getTotalCoverage();
+            if(current > maxHeight) maxHeight = current;
+        }
+
+        gp.setIsOrdinal(false);
+        gp.setXRange(axisRange.getXRange());
+        gp.setYRange(new Range(0,(int)Math.rint((double)maxHeight/0.9)));
+
+        double unitHeight = (Math.rint(gp.transformYPos(0) * 0.9)) / maxHeight;
+        double unitWidth =  gp.getUnitWidth();
+
+        for(Pileup p : pileups){
+
+            Nucleotide snpNuc = null;
+            int bottom = (int)gp.transformYPos(0);
+
+            Nucleotide genomeNuc = null;
+            if(genome.isSequenceSet()){
+                String genomeNucString = "A";
+                try {      
+                    genomeNucString = genome.getSequence(ReferenceController.getInstance().getReferenceName(), new Range((int) p.getPosition(), (int) p.getPosition()));
+                } catch (IOException ex) {
+                    Logger.getLogger(BAMTrackRenderer.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                genomeNuc = Pileup.stringToNuc(genomeNucString);
+                snpNuc = genomeNuc;
+            }
+
+
+            while((genome.isSequenceSet() && p.getCoverage(snpNuc) > 0) || (snpNuc = p.getLargestNucleotide()) != null){
+
+                double x = gp.transformXPos((int)p.getPosition());
+                double coverage = p.getCoverage(snpNuc);
+
+                Color subPileColor = null;
+                if(genome.isSequenceSet() && snpNuc.equals(genomeNuc)){
+                    subPileColor = cs.getColor("REVERSE_STRAND");
+                } else {
+                    if(snpNuc.equals(Nucleotide.A)) subPileColor = BrowserDefaults.A_COLOR;
+                    else if (snpNuc.equals(Nucleotide.C)) subPileColor = BrowserDefaults.C_COLOR;
+                    else if (snpNuc.equals(Nucleotide.G)) subPileColor = BrowserDefaults.G_COLOR;
+                    else if (snpNuc.equals(Nucleotide.T)) subPileColor = BrowserDefaults.T_COLOR;
+                    //FIXME: what do we do here?
+                    else if (snpNuc.equals(Nucleotide.OTHER)) subPileColor = Color.BLACK;
+                }
+
+                int h = (int)(unitHeight * coverage);
+                int y = bottom-h;
+
+                g2.setColor(subPileColor);
+                g2.fillRect((int)x, y, Math.max((int)Math.rint(unitWidth), 1), h);
+
+                bottom -= h;
+                p.clearNucleotide(snpNuc);
+            }
+        }
+    }
+
+    private void updatePileupsFromSAMRecord(List<Pileup> pileups, Genome genome, SAMRecord samRecord, long startPosition) throws IOException {
+
+        // the start and end of the alignment
+        int alignmentStart = samRecord.getAlignmentStart();
+        int alignmentEnd = samRecord.getAlignmentEnd();
+
+        // the read sequence
+        byte[] readBases = samRecord.getReadBases();
+        boolean sequenceSaved = readBases.length > 0; // true iff read sequence is set
+
+        // return if no bases (can't be used for SNP calling)
+        if (!sequenceSaved) {
+            return;
+        }
+
+        // the reference sequence
+        //byte[] refSeq = genome.getSequence(new Range(alignmentStart, alignmentEnd)).getBytes();
+
+        // get the cigar object for this alignment
+        Cigar cigar = samRecord.getCigar();
+
+        // set cursors for the reference and read
+        int sequenceCursor = alignmentStart;
+        int readCursor = alignmentStart;
+
+        int pileupcursor = (int) (alignmentStart - startPosition);
+
+        // cigar variables
+        CigarOperator operator;
+        int operatorLength;
+
+        // consider each cigar element
+        for (CigarElement cigarElement : cigar.getCigarElements()) {
+
+            operatorLength = cigarElement.getLength();
+            operator = cigarElement.getOperator();
+
+            // delete
+            if (operator == CigarOperator.D) {
+                // [ DRAW ]
+            } // insert
+            else if (operator == CigarOperator.I) {
+                // [ DRAW ]
+            } // match **or mismatch**
+            else if (operator == CigarOperator.M) {
+
+                // some SAM files do not contain the read bases
+                if (sequenceSaved) {
+                    // determine if there's a mismatch
+                    for (int i = 0; i < operatorLength; i++) {
+                        int refIndex = sequenceCursor - alignmentStart + i;
+                        int readIndex = readCursor - alignmentStart + i;
+
+                        byte[] readBase = new byte[1];
+                        readBase[0] = readBases[readIndex];
+
+                        Nucleotide readN = Pileup.getNucleotide((new String(readBase)).charAt(0));
+
+                        int j = i + (int) (alignmentStart - startPosition);
+                        //for (int j = pileupcursor; j < operatorLength; j++) {
+                        if (j >= 0 && j < pileups.size()) {
+                            Pileup p = pileups.get(j);
+                            p.pileOn(readN);
+//                            /System.out.println("(P) " + readN + "\t@\t" + p.getPosition());
+                        }
+                        //}
+                    }
+                }
+            } // skipped
+            else if (operator == CigarOperator.N) {
+                // draw nothing
+            } // padding
+            else if (operator == CigarOperator.P) {
+                // draw nothing
+            } // hard clip
+            else if (operator == CigarOperator.H) {
+                // draw nothing
+            } // soft clip
+            else if (operator == CigarOperator.S) {
+                // draw nothing
+            }
+
+
+            if (operator.consumesReadBases()) {
+                readCursor += operatorLength;
+            }
+            if (operator.consumesReferenceBases()) {
+                sequenceCursor += operatorLength;
+                pileupcursor += operatorLength;
+            }
+        }
     }
 
     private void drawLegend(Graphics2D g2, String[] legendStrings, Color[] legendColors, int startx, int starty) {

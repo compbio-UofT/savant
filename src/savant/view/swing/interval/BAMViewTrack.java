@@ -56,12 +56,14 @@ public class BAMViewTrack extends ViewTrack {
     public enum DrawingMode {
         STANDARD,
         VARIANTS,
-        MATE_PAIRS
+        MATE_PAIRS,
+        SNP
     };
 
     private static final Mode STANDARD_MODE = new Mode(DrawingMode.STANDARD, "Colour by strand");
     private static final Mode VARIANTS_MODE = new Mode(DrawingMode.VARIANTS, "Show indels and mismatches");
     private static final Mode MATE_PAIRS_MODE = new Mode(DrawingMode.MATE_PAIRS, "Join mate pairs with arcs");
+    private static final Mode SNP_MODE = new Mode(DrawingMode.SNP, "Show values per position");
 
     // if > 1, treat as absolute size below which an arc will not be drawn
     // if 0 < 1, treat as percentage of y range below which an arc will not be drawn
@@ -106,6 +108,7 @@ public class BAMViewTrack extends ViewTrack {
         modes.add(STANDARD_MODE);
         modes.add(VARIANTS_MODE);
         modes.add(MATE_PAIRS_MODE);
+        modes.add(SNP_MODE);
         return modes;
     }
 
