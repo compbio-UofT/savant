@@ -34,6 +34,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 import savant.controller.FrameController;
@@ -56,6 +57,7 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
 
     private List<TrackRenderer> trackRenderers;
     private List<ViewTrack> tracks;
+    private Frame parentFrame;
 
     /** min / max axis values */
     private int xMin;
@@ -81,6 +83,17 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
     private int y1, y2;
     private int x, y, w, h;
     private boolean isDragging = false;
+
+    //scrolling...
+    public BufferedImage bf;
+    private Range prevRange = null;
+    private Mode prevDrawMode = null;
+    private Dimension prevSize = null;
+    public boolean paneResize = false;
+    public int newHeight;
+    private int oldWidth = -1;
+    private int newScroll = 0;
+    private boolean renderRequired = false;
 
     @Override
     public void keyTyped(KeyEvent e) {
@@ -112,7 +125,9 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
     /**
      * CONSTRUCTOR
      */
-    public GraphPane() {
+    public GraphPane(Frame parent) {
+        this.parentFrame = parent;
+
         trackRenderers = new ArrayList<TrackRenderer>();
         tracks = new ArrayList<ViewTrack>();
         this.setDoubleBuffered(true);
@@ -238,6 +253,9 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
 
     public void render(Graphics g, Range xRange, Range yRange) {
 
+        double oldUnitHeight = unitHeight;
+        int oldYMax = yMax;
+
         GraphPaneController gpc = GraphPaneController.getInstance();
         int x1 = MiscUtils.transformPositionToPixel(gpc.getMouseDragRange().getFrom(), this.getWidth(), new Range(this.xMin, this.xMax));
         int x2 = MiscUtils.transformPositionToPixel(gpc.getMouseDragRange().getTo(), this.getWidth(), new Range(this.xMin, this.xMax));
@@ -268,7 +286,38 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
         yMin = minYRange;
         yMax = maxYRange;
 
-        renderBackground(g);
+        Graphics2D g3;
+        Mode currentMode = this.parentFrame.getTracks().get(0).getDrawMode();
+        BufferedImage bf1;
+
+        boolean sameRange = (prevRange != null && RangeController.getInstance().getRange().equals(prevRange));
+        boolean sameMode = ((currentMode == null && prevDrawMode == null) || (prevDrawMode != null && currentMode.equals(prevDrawMode)));
+        boolean sameSize = (prevSize != null && this.getSize().equals(prevSize) && this.parentFrame.getFrameLandscape().getWidth() == oldWidth);
+
+        //if nothing has changed draw buffered image
+        if(sameRange && sameMode && sameSize && !this.renderRequired){
+            g.drawImage(bf, 0, 0, this);
+
+            //force unitheight from last render
+            unitHeight = oldUnitHeight;
+            yMax = oldYMax;
+
+            this.parentFrame.commandBar.repaint();
+
+            return;
+
+
+        //otherwise prepare for new render
+        } else {
+            renderRequired = false;
+            bf1 = new BufferedImage(this.getWidth(), this.getHeight(), BufferedImage.TYPE_INT_RGB);
+            g3 = bf1.createGraphics();
+            prevRange = RangeController.getInstance().getRange();
+            prevSize = this.getSize();
+            prevDrawMode = this.parentFrame.getTracks().get(0).getDrawMode();
+        }
+
+        renderBackground(g3);
 
         /*
         // Get current time
@@ -278,19 +327,43 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
         for (TrackRenderer tr : trackRenderers) {
             // change renderers' drawing instructions to reflect consolidated YRange
             tr.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.AXIS_RANGE, new AxisRange(xRange, consolidatedYRange));
-            tr.render(g, this);
+            tr.render(g3, this);
         }
 
-        // draw max Y plot value
-        if (this.isYGridOn) {
-            Graphics2D g2 = (Graphics2D) g;
-            Font smallFont = new Font("Sans-Serif", Font.PLAIN, 10);
-            g2.setColor(BrowserDefaults.colorAccent);
-            String maxPlotString = "ymax=" + Integer.toString(yMax);
-            g2.setFont(smallFont);
-            Rectangle2D stringRect = smallFont.getStringBounds(maxPlotString, g2.getFontRenderContext());
-            g2.drawString(maxPlotString, (int)(getWidth()-stringRect.getWidth()-5), (int)(stringRect.getHeight() + 5));
+        drawMaxYPlotValue(g3);
+        renderSides(g3);
+
+        //if a change has occured that affects scrollbar...
+        if(this.paneResize){
+            paneResize = false;
+
+            //get old scroll position
+            int oldScroll = ((JScrollPane)this.getParent().getParent()).getVerticalScrollBar().getValue();
+            int oldHeight = this.getHeight();
+            int oldViewHeight = ((JViewport)this.getParent()).getHeight();
+            int oldBottomHeight = oldHeight - oldScroll - oldViewHeight;
+
+            //change size of current frame
+            Frame frame = this.getParentFrame();
+            frame.getFrameLandscape().setPreferredSize(new Dimension(this.getWidth(), newHeight));
+            this.setPreferredSize(new Dimension(frame.getFrameLandscape().getWidth()-2, newHeight));
+            frame.getFrameLandscape().setSize(new Dimension(frame.getFrameLandscape().getWidth(), newHeight));
+            this.setSize(new Dimension(frame.getFrameLandscape().getWidth(), newHeight));
+            this.revalidate();
+
+            //scroll so that bottom matches previous view
+            newScroll = newHeight - oldViewHeight - oldBottomHeight;
+            //((JScrollPane)this.getParent().getParent()).getVerticalScrollBar().setValue(newScroll);
+
+            return;
+
+        } else {
+            if(newScroll != -1){
+                ((JScrollPane)this.getParent().getParent()).getVerticalScrollBar().setValue(newScroll);
+                newScroll = -1;
+            }
         }
+        oldWidth = this.getParentFrame().getFrameLandscape().getWidth();
 
         /*
         // Get elapsed time in milliseconds
@@ -299,11 +372,35 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
         // Get elapsed time in seconds
         float elapsedTimeSec = elapsedTimeMillis/1000F;
 
-       // System.out.println("\tRendering of " + tracks.get(0).getName() + " took " + elapsedTimeSec + " seconds");
+        System.out.println("\tRendering of " + tracks.get(0).getName() + " took " + elapsedTimeSec + " seconds");
          */
 
-        renderSides(g);
-       
+        bf = bf1;
+        g.drawImage(bf, 0, 0, this);
+
+    }
+
+    /*
+     * Call before a repaint to override bufferedImage repainting
+     */
+    public void setRenderRequired(){
+        this.renderRequired = true;
+    }
+
+    private void drawMaxYPlotValue(Graphics g){
+        if (this.isYGridOn) {
+            Graphics2D g2 = (Graphics2D) g;
+            Font smallFont = new Font("Sans-Serif", Font.PLAIN, 10);
+            g2.setColor(BrowserDefaults.colorAccent);
+            String maxPlotString = "ymax=" + Integer.toString(yMax);
+            g2.setFont(smallFont);
+            Rectangle2D stringRect = smallFont.getStringBounds(maxPlotString, g2.getFontRenderContext());
+            g2.drawString(maxPlotString, (int)(getWidth()-stringRect.getWidth()-20), (int)(stringRect.getHeight() + 5));
+        }
+    }
+
+    public void setPaneResize(boolean resized){
+        this.paneResize = resized;
     }
 
     @Override
@@ -405,7 +502,7 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
      * Render the background of this graphpane
      * @param g The graphics object to use
      */
-    private void renderBackground(Graphics g) {
+    public void renderBackground(Graphics g) {
 
         Graphics2D g2 = (Graphics2D) g;
         Font smallFont = new Font("Sans-Serif", Font.PLAIN, 10);
@@ -594,6 +691,13 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
     public void setUnitHeight() {
         Dimension d = this.getSize();
         unitHeight = (double) d.height / (yMax - yMin);
+    }
+
+    /**
+     * Set the number of pixels equal to one graph unit of height.
+     */
+    public void setUnitHeight(int height) {
+        unitHeight = height;
     }
 
     public boolean isOrdinal() {
@@ -961,6 +1065,14 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
             this.tracks.get(i).getFrame().resetLayers();
         }
         //FrameController.getInstance().resetFrames();
+    }
+
+    public Frame getParentFrame(){
+        return this.parentFrame;
+    }
+
+    public void setIsYGridOn(boolean value){
+        this.isYGridOn = value;
     }
 
 }

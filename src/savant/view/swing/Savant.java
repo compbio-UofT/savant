@@ -130,14 +130,16 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
                 //////////////////////////////////////////////////
 
                 panel.setLayout(new BorderLayout());
-                JLayeredPane layers = new JLayeredPane();
+                //JLayeredPane layers = new JLayeredPane();
                 //layers.setLayout(new BorderLayout());
-                panel.add(layers);
+                //panel.add(layers);
 
                 //////////////////////////////////////////////////
 
                 
-                frame = new Frame(layers, tracks, df.getName());
+                frame = new Frame(tracks, df.getName());
+                JLayeredPane layers = (JLayeredPane) frame.getFrameLandscape();
+                panel.add(layers);
                 frame.setDockableFrame(df);
                 for (ViewTrack t : tracks) {
                     t.setFrame(frame);
@@ -2276,14 +2278,16 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
                 //////////////////////////////////////////////////
 
                 panel.setLayout(new BorderLayout());
-                JLayeredPane layers = new JLayeredPane();
-                layers.setLayout(new BorderLayout());
-                panel.add(layers);
+                //JLayeredPane layers = new JLayeredPane();
+                //layers.setLayout(new BorderLayout());
+                //panel.add(layers);
 
                 //////////////////////////////////////////////////
 
 
-                Frame frame = new Frame(layers, tracks, df.getName());
+                Frame frame = new Frame(tracks, df.getName());
+                JLayeredPane layers = (JLayeredPane) frame.getFrameLandscape();
+                panel.add(layers);
                 frame.setDockableFrame(df);
                 FrameController.getInstance().addFrame(frame, panel);
                 this.getTrackDockingManager().addFrame(df);

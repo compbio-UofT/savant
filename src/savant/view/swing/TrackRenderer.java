@@ -23,6 +23,7 @@ import savant.util.Range;
 import java.awt.*;
 import java.util.List;
 import javax.swing.JPanel;
+import javax.swing.JViewport;
 
 /**
  *
@@ -58,5 +59,16 @@ public abstract class TrackRenderer {
 
     public JPanel arcLegendPaint(){
         return null;
+    }
+
+    public void resizeFrame(GraphPane gp){
+        Frame frame = gp.getParentFrame();
+        int h1 = ((JViewport)gp.getParent()).getHeight();
+        int h2 = frame.getFrameLandscape().getHeight();
+        if(h1 != h2){
+            gp.revalidate();
+            gp.setPreferredSize(((JViewport)gp.getParent()).getSize());
+            frame.getFrameLandscape().setPreferredSize(((JViewport)gp.getParent()).getSize());
+        }
     }
 }

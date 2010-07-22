@@ -21,6 +21,9 @@ import com.jidesoft.action.CommandMenuBar;
 import com.jidesoft.docking.DockableFrame;
 import com.jidesoft.swing.JideButton;
 import com.jidesoft.swing.JideMenu;
+import java.beans.PropertyVetoException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import savant.controller.DrawModeController;
 import savant.controller.RangeController;
@@ -64,8 +67,8 @@ public class Frame {
     private boolean isLocked;
     private Range currentRange;
 
-    private CommandBar commandBar;
-    private CommandBar commandBarHidden;
+    public CommandBar commandBar;
+    public CommandBar commandBarHidden;
     private JPanel arcLegend;
     //private boolean legend = false;
     private List<JCheckBoxMenuItem> visItems;
@@ -74,6 +77,9 @@ public class Frame {
     private boolean commandBarActive = true;
     private DockableFrame parent;
     private String name;
+
+    public JScrollPane scrollPane;
+    //private boolean tempCommandBar = true;
 
     public boolean isHidden() { return this.isHidden; }
     public void setHidden(boolean isHidden) { this.isHidden = isHidden; }
@@ -84,11 +90,16 @@ public class Frame {
 
     public boolean isOpen() { return getGraphPane() != null; }
 
-    public Frame(JComponent frameLandscape) { this((JLayeredPane)frameLandscape, null, null); }
+    //public Frame(JComponent frameLandscape) { this((JLayeredPane)frameLandscape, null, null); }
 
-    public Frame(JComponent frameLandscape, List<ViewTrack> tracks, String name) { this((JLayeredPane)frameLandscape, tracks, new ArrayList<TrackRenderer>(), name); }
+    //public Frame(JComponent frameLandscape, List<ViewTrack> tracks, String name) { this((JLayeredPane)frameLandscape, tracks, new ArrayList<TrackRenderer>(), name); }
 
-    public Frame(JLayeredPane frameLandscape, List<ViewTrack> tracks, List<TrackRenderer> renderers, String name)
+    //public Frame(JLayeredPane frameLandscape, List<ViewTrack> tracks, List<TrackRenderer> renderers, String name)
+
+
+    public Frame(List<ViewTrack> tracks, String name) {this(tracks, new ArrayList<TrackRenderer>(), name); }
+
+    public Frame(List<ViewTrack> tracks, List<TrackRenderer> renderers, String name)
     {
 
         this.name = name;
@@ -99,8 +110,47 @@ public class Frame {
 
         isLocked = false;
         this.tracks = new ArrayList<ViewTrack>();
-        this.frameLandscape = frameLandscape;
+        this.frameLandscape = new JLayeredPane();
         initGraph();
+
+        //scrollpane
+        scrollPane = new JScrollPane();
+        scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        scrollPane.setWheelScrollingEnabled(false);
+
+        //hide commandBar while scrolling
+        MouseListener ml = new MouseListener(){
+            public void mouseClicked(MouseEvent e) {}
+            public void mousePressed(MouseEvent e) {
+                tempHideCommands();
+            }
+            public void mouseReleased(MouseEvent e) {
+                tempShowCommands();
+                if(!parent.isActive()){
+                    try {
+                        String active = Savant.getInstance().getTrackDockingManager().getActiveFrameKey();
+                        Savant.getInstance().getTrackDockingManager().getFrame(active).setActive(false);
+                        parent.setActive(true);
+                    } catch (PropertyVetoException ex) {
+                        Logger.getLogger(Frame.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+            }
+            public void mouseEntered(MouseEvent e) {}
+            public void mouseExited(MouseEvent e) {}
+        };
+        scrollPane.getVerticalScrollBar().addMouseListener(ml);
+        JScrollBar vsb = scrollPane.getVerticalScrollBar();
+        for(int i = 0; i < vsb.getComponentCount(); i++){
+            vsb.getComponent(i).addMouseListener(ml);
+        }
+
+        //add graphPane to scrollPane
+        scrollPane.getViewport().add(this.graphPane);
+
+
+
+
         if (!tracks.isEmpty()) {
             int i=0;
             Iterator<ViewTrack> it = tracks.iterator();
@@ -133,8 +183,10 @@ public class Frame {
         //JMenu infoMenu = createInfoMenu();
         JideButton lockButton = createLockButton();
         JideButton hideButton = createHideButton();
+        JideButton colorButton = createColorButton();
         //commandBar.add(infoMenu);
         commandBar.add(lockButton);
+        commandBar.add(colorButton);
         if(this.tracks.get(0).getDrawModes().size() > 0){
             JMenu displayMenu = createDisplayMenu();
             commandBar.add(displayMenu);
@@ -164,14 +216,34 @@ public class Frame {
         JLabel l;
         c.fill = GridBagConstraints.HORIZONTAL;
 
+        //force commandBars to be full size
+        JPanel contain1 = new JPanel();
+        contain1.setOpaque(false);
+        contain1.setLayout(new BorderLayout());
+        contain1.add(commandBar, BorderLayout.WEST);
+        JPanel contain2 = new JPanel();
+        contain2.setOpaque(false);
+        contain2.setLayout(new BorderLayout());
+        contain2.add(commandBarHidden, BorderLayout.WEST);
+
         //add commandBar/hidden to top left
         c.weightx = 0;
         c.fill = GridBagConstraints.HORIZONTAL;
         c.gridx = 0;
         c.gridy = 0;
-        frameLandscape.add(commandBar, c, 5);
-        frameLandscape.add(commandBarHidden, c, 6);
+        frameLandscape.add(contain1, c, 5);
+        frameLandscape.add(contain2, c, 6);
         //commandBarHidden.setVisible(true);
+
+        //filler to extend commandBars
+        JPanel a = new JPanel();
+        a.setMinimumSize(new Dimension(350,30));
+        a.setOpaque(false);
+        c.weightx = 0;
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.gridx = 0;
+        c.gridy = 1;
+        frameLandscape.add(a, c, 5);
 
         //add filler to top middle
         l = new JLabel();
@@ -199,11 +271,11 @@ public class Frame {
         c.gridy = 0;
         c.gridwidth = 3;
         c.gridheight = 2;
-        frameLandscape.add(getGraphPane(), c, 0);
+        frameLandscape.add(scrollPane, c, 0);
 
         frameLandscape.setLayer(commandBar, (Integer) JLayeredPane.PALETTE_LAYER);
-        frameLandscape.setLayer(getGraphPane(), (Integer) JLayeredPane.DEFAULT_LAYER);
-
+        //frameLandscape.setLayer(getGraphPane(), (Integer) JLayeredPane.DEFAULT_LAYER);
+        frameLandscape.setLayer(scrollPane, (Integer) JLayeredPane.DEFAULT_LAYER);
     }
 
     public void setActiveFrame(){
@@ -225,6 +297,21 @@ public class Frame {
         }
 
         ((JLayeredPane) this.getFrameLandscape()).moveToBack(this.getGraphPane());
+    }
+
+    private void tempHideCommands(){
+        commandBar.setVisible(false);
+        commandBarHidden.setVisible(false);
+    }
+
+    private void tempShowCommands(){
+        if(commandBarActive){
+            commandBar.setVisible(true);
+            commandBarHidden.setVisible(false);
+        } else {
+            commandBarHidden.setVisible(true);
+            commandBar.setVisible(false);
+        }
     }
 
     /**
@@ -278,6 +365,26 @@ public class Frame {
     }
 
     /**
+     * Create lock button for commandBar
+     */
+    private JideButton createColorButton() {
+        //TODO: This is temporary until there is an options menu
+        JideButton button = new JideButton("Colour Settings  ");
+        button.setToolTipText("Change the colour scheme for this track");
+        button.addMouseListener(new MouseListener() {
+            public void mouseClicked(MouseEvent e) {
+                tracks.get(0).captureColorParameters();
+            }
+            public void mousePressed(MouseEvent e) {}
+            public void mouseReleased(MouseEvent e) {}
+            public void mouseEntered(MouseEvent e) {}
+            public void mouseExited(MouseEvent e) {}
+        });
+        button.setFocusPainted(false);
+        return button;
+    }
+
+    /**
      * Create options menu for commandBar
      */
     private JMenu createOptionsMenu() {
@@ -298,7 +405,7 @@ public class Frame {
      */
     private JideButton createLockButton() {
         //TODO: This is temporary until there is an options menu
-        JideButton button = new JideButton("Lock Track");
+        JideButton button = new JideButton("Lock Track  ");
         button.setToolTipText("Prevent range changes on this track");
         button.addMouseListener(new MouseListener() {
             public void mouseClicked(MouseEvent e) {
@@ -306,14 +413,14 @@ public class Frame {
                 for(int i = 0; i < commandBar.getComponentCount(); i++){
                     if(commandBar.getComponent(i).getClass() == JideButton.class){
                         button = (JideButton)commandBar.getComponent(i);
-                        if(button.getText().equals("Lock Track") || button.getText().equals("Unlock Track")) break;
+                        if(button.getText().equals("Lock Track  ") || button.getText().equals("Unlock Track  ")) break;
                     }
                 }
-                if(button.getText().equals("Lock Track")){
-                    button.setText("Unlock Track");
+                if(button.getText().equals("Lock Track  ")){
+                    button.setText("Unlock Track  ");
                     button.setToolTipText("Allow range changes on this track");
                 } else {
-                    button.setText("Lock Track");
+                    button.setText("Lock Track  ");
                     button.setToolTipText("Prevent range changes on this track");
                 }
                 graphPane.switchLocked();
@@ -488,7 +595,7 @@ public class Frame {
     }
 
     private GraphPane getNewZedGraphControl() {
-        GraphPane zgc = new GraphPane();
+        GraphPane zgc = new GraphPane(this);
 
         // TODO: set properties
 

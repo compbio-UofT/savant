@@ -46,6 +46,7 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -53,6 +54,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JPanel;
+import javax.swing.JViewport;
 import savant.controller.ReferenceController;
 import savant.view.swing.interval.Pileup.Nucleotide;
 
@@ -97,6 +99,7 @@ public class BAMTrackRenderer extends TrackRenderer {
 
         if (!refexists) {
             //System.out.println("BAM");
+            resizeFrame(gp);
             GlassMessagePane.draw(g2, gp, "no data for reference", 500);
             return;
         // Don't display sequence if data is too high resolution to see.
@@ -109,6 +112,8 @@ public class BAMTrackRenderer extends TrackRenderer {
         if (modeName.equals("STANDARD") || modeName.equals("VARIANTS")) {
             if (r == Resolution.VERY_HIGH || r == Resolution.HIGH) {
                 renderPackMode(g2, gp, r);
+            } else {
+                this.resizeFrame(gp);
             }
 //            else {
 //                renderCoverageMode(g2, gp);
@@ -148,15 +153,31 @@ public class BAMTrackRenderer extends TrackRenderer {
 
         if (drawMode.getName().equals("VARIANTS") && 
                 !ReferenceController.getInstance().getGenome().isSequenceSet()) {
+            this.resizeFrame(gp);
             GlassMessagePane.draw(g2, gp, "No reference sequence loaded. Switch to standard view", 500);
             return;
         }
         
         // display only a message if intervals will not be visible at this resolution
-        if (gp.getUnitHeight() < 1) {
+        /*if (gp.getUnitHeight() < 1) {
             GlassMessagePane.draw(g2, gp, "Too many intervals to display.", 500);
             return;
+        }*/
+
+        int currentHeight = gp.getHeight();
+        int currentWidth = gp.getParentFrame().getFrameLandscape().getWidth()-2;
+        int currentHeight1 = ((JViewport)gp.getParent()).getHeight();
+        int expectedHeight = Math.max((int)((intervals.size() * 12) / 0.9), currentHeight1);
+        if(expectedHeight != currentHeight || currentWidth != gp.getWidth()){
+            gp.bf = new BufferedImage(currentWidth, expectedHeight, BufferedImage.TYPE_INT_RGB);
+            gp.newHeight = expectedHeight;
+            gp.setPaneResize(true);
+            g2 = gp.bf.createGraphics();
+            gp.renderBackground(g2);
+            return;
         }
+        gp.setUnitHeight(12);
+        gp.setYRange(new Range(0,(int)Math.ceil(expectedHeight/12.0)));
 
 
         // scan the map of intervals and draw the intervals for each level
@@ -206,12 +227,14 @@ public class BAMTrackRenderer extends TrackRenderer {
         double unitHeight;
         double unitWidth;
         unitHeight = gp.getUnitHeight();
+        unitHeight = 12;
         unitWidth = gp.getUnitWidth();
         double arrowHeight = unitHeight/2;
         double arrowWidth = unitHeight/4;
 
         boolean drawPoint = false;
         y = gp.transformYPos(level)-unitHeight;
+        y = gp.transformYPos(0) - level*unitHeight;
         w = gp.getWidth(interval.getLength());
 
         if (w < 1) {
@@ -259,6 +282,7 @@ public class BAMTrackRenderer extends TrackRenderer {
         double unitWidth;
         unitHeight = gp.getUnitHeight();
         unitWidth = gp.getUnitWidth();
+        unitHeight = 12;
 
         // visualize variations (indels and mismatches)
         int alignmentStart = samRecord.getAlignmentStart();
@@ -294,6 +318,11 @@ public class BAMTrackRenderer extends TrackRenderer {
                             gp.transformYPos(level)-unitHeight,
                             Math.max(opWidth, 1),
                             unitHeight);
+                    opRect = new Rectangle2D.Double(
+                            opStart,
+                            gp.transformYPos(0)-(level*unitHeight),
+                            Math.max(opWidth, 1),
+                            unitHeight);
                     g2.setColor(Color.black);
                     g2.fill(opRect);
                 }
@@ -307,8 +336,10 @@ public class BAMTrackRenderer extends TrackRenderer {
                     g2.setColor(Color.white);
                     int xCoordinate = (int)gp.transformXPos(sequenceCursor);
                     int yCoordinate = (int)(gp.transformYPos(level)-unitHeight) + 1;
+                    yCoordinate = (int)(gp.transformYPos(0)-(level*unitHeight)) + 1;
                     if((int)unitWidth/3 < 4 || (int)(unitHeight/2) < 6){
-                        yCoordinate = (int)(gp.transformYPos(level)-unitHeight);
+                        //yCoordinate = (int)(gp.transformYPos(level)-unitHeight);
+                        yCoordinate = yCoordinate - 1;
                         int lineWidth = Math.max((int)(unitWidth * (2.0/3.0)), 1);
                         int xCoordinate1 = (int)(opStart - Math.floor(lineWidth/2));
                         int xCoordinate2 = (int)(opStart - Math.floor(lineWidth/2)) + lineWidth - 1;
@@ -360,6 +391,10 @@ public class BAMTrackRenderer extends TrackRenderer {
                                         gp.transformYPos(level)-unitHeight,
                                         unitWidth,
                                         unitHeight);
+                                opRect = new Rectangle2D.Double(xCoordinate,
+                                        gp.transformYPos(0)-(level*unitHeight),
+                                        unitWidth,
+                                        unitHeight);
                                 g2.setColor(mismatchColor);
                                 g2.fill(opRect);
                             }
@@ -374,8 +409,12 @@ public class BAMTrackRenderer extends TrackRenderer {
                                                         gp.transformYPos(level)-unitHeight,
                                                         opWidth,
                                                         unitHeight);
-                        g2.setColor(Color.gray);
-                        g2.fill(opRect);
+                    opRect = new Rectangle2D.Double(opStart,
+                                                        gp.transformYPos(0)-(level*unitHeight),
+                                                        opWidth,
+                                                        unitHeight);
+                    g2.setColor(Color.gray);
+                    g2.fill(opRect);
 
                 }
                 // padding
@@ -423,6 +462,8 @@ public class BAMTrackRenderer extends TrackRenderer {
         Color invertedMateColor = cs.getColor("INVERTED_MATE");
         Color evertedPairColor = cs.getColor("EVERTED_PAIR");
         Color discordantLengthColor = cs.getColor("DISCORDANT_LENGTH");
+
+        resizeFrame(gp);
 
         // set graph pane's range parameters
         gp.setIsOrdinal(false);
@@ -558,10 +599,7 @@ public class BAMTrackRenderer extends TrackRenderer {
             }
         }
 
-        //UNCOMMENT AFTER ADDING VERT PAN
-        //resizeFrame(gp);
-
-
+        resizeFrame(gp);
 
         double maxHeight = 0;
         for(Pileup p : pileups){

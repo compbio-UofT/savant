@@ -16,6 +16,7 @@
 
 package savant.view.swing;
 
+import java.awt.Color;
 import savant.view.dialog.BAMParametersDialog;
 import java.awt.Component;
 import org.apache.commons.logging.Log;
@@ -75,6 +76,8 @@ public abstract class ViewTrack {
     private Mode drawMode;
     private List<TrackRenderer> trackRenderers;
     private RecordTrack track;
+
+    private ColorSchemeDialog colorDialog = new ColorSchemeDialog();
 
     // FIXME:
     private Frame frame;
@@ -270,6 +273,16 @@ public abstract class ViewTrack {
     }
 
     /**
+     * Set individual colour.
+     *
+     * @param name color name
+     * @param color new color
+     */
+    public void setColor(String name, Color color) {
+        this.colorScheme.addColorSetting(name, color);
+    }
+
+    /**
      * Get the name of this track. Usually constructed from the file name.
      *
      * @return track name
@@ -397,6 +410,7 @@ public abstract class ViewTrack {
     // FIXME:
     public void setFrame(Frame frame) {
         this.frame = frame;
+        colorDialog.setFrame(frame);
     }
 
     /**
@@ -501,5 +515,10 @@ public abstract class ViewTrack {
             viewTrack.setDiscordantMax(paramDialog.getDiscordantMax());
         }
 
+    }
+
+    public void captureColorParameters() {
+        colorDialog.update(this);
+        colorDialog.setVisible(true);
     }
 }
