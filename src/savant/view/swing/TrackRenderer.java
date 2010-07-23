@@ -71,4 +71,6 @@ public abstract class TrackRenderer {
             frame.getFrameLandscape().setPreferredSize(((JViewport)gp.getParent()).getSize());
         }
     }
+
+    public void setIntervalMode(String mode){};
 }

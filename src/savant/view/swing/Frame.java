@@ -73,6 +73,7 @@ public class Frame {
     //private boolean legend = false;
     private List<JCheckBoxMenuItem> visItems;
     private JideButton arcButton;
+    private JMenu intervalMenu;
 
     private boolean commandBarActive = true;
     private DockableFrame parent;
@@ -179,14 +180,15 @@ public class Frame {
         commandBar.setPaintBackground(false);
         commandBar.setOpaque(true);
         commandBar.setChevronAlwaysVisible(false);
-        //JMenu optionsMenu = createOptionsMenu();
+        JMenu optionsMenu = createOptionsMenu();
         //JMenu infoMenu = createInfoMenu();
-        JideButton lockButton = createLockButton();
+        //JideButton lockButton = createLockButton();
         JideButton hideButton = createHideButton();
-        JideButton colorButton = createColorButton();
+        //JideButton colorButton = createColorButton();
         //commandBar.add(infoMenu);
-        commandBar.add(lockButton);
-        commandBar.add(colorButton);
+        //commandBar.add(lockButton);
+        //commandBar.add(colorButton);
+        commandBar.add(optionsMenu);
         if(this.tracks.get(0).getDrawModes().size() > 0){
             JMenu displayMenu = createDisplayMenu();
             commandBar.add(displayMenu);
@@ -195,6 +197,14 @@ public class Frame {
             arcButton = createArcButton();
             commandBar.add(arcButton);
             arcButton.setVisible(false);
+
+            intervalMenu = createIntervalMenu();
+            commandBar.add(intervalMenu);
+            intervalMenu.setVisible(false);
+            String drawMode = this.getTracks().get(0).getDrawMode().getName();
+            if(drawMode.equals("STANDARD") || drawMode.equals("VARIANTS")){
+                intervalMenu.setVisible(true);
+            }
         }
         commandBar.add(new JSeparator(SwingConstants.VERTICAL));
         commandBar.add(hideButton);
@@ -237,7 +247,7 @@ public class Frame {
 
         //filler to extend commandBars
         JPanel a = new JPanel();
-        a.setMinimumSize(new Dimension(350,30));
+        a.setMinimumSize(new Dimension(400,30));
         a.setOpaque(false);
         c.weightx = 0;
         c.fill = GridBagConstraints.HORIZONTAL;
@@ -389,7 +399,7 @@ public class Frame {
      */
     private JMenu createOptionsMenu() {
         JCheckBoxMenuItem item;
-        JMenu menu = new JideMenu("Options");
+        JMenu menu = new JideMenu("Settings");
         item = new JCheckBoxMenuItem("Lock Track");
         item.addActionListener(new AbstractAction() {
             public void actionPerformed(ActionEvent e) {
@@ -397,6 +407,15 @@ public class Frame {
             }
         });
         menu.add(item);
+
+        JMenuItem item1;
+        item1 = new JMenuItem("Colour Settings...");
+        item1.addActionListener(new AbstractAction() {
+            public void actionPerformed(ActionEvent e) {
+                tracks.get(0).captureColorParameters();
+            }
+        });
+        menu.add(item1);
         return menu;
     }
 
@@ -469,6 +488,44 @@ public class Frame {
         });
         button.setFocusPainted(false);
         return button;
+    }
+
+    /**
+     * Create the menu for interval options
+     */
+    private JMenu createIntervalMenu() {
+        JMenu menu = new JideMenu("Interval Options");
+        final JCheckBoxMenuItem dynamic = new JCheckBoxMenuItem("Dynamic Height");
+        final JCheckBoxMenuItem fixed = new JCheckBoxMenuItem("Fixed Height");
+        
+        dynamic.addActionListener(new AbstractAction() {
+            public void actionPerformed(ActionEvent e) {
+                for(int i = 0; i < graphPane.getTrackRenderers().size(); i++){
+                    graphPane.getTrackRenderers().get(i).setIntervalMode("dynamic");
+                }
+                dynamic.setState(true);
+                fixed.setState(false);
+                graphPane.setRenderRequired();
+                graphPane.repaint();
+            }
+        });
+
+        fixed.addActionListener(new AbstractAction() {
+            public void actionPerformed(ActionEvent e) {
+                for(int i = 0; i < graphPane.getTrackRenderers().size(); i++){
+                    graphPane.getTrackRenderers().get(i).setIntervalMode("fixed");
+                }
+                fixed.setState(true);
+                dynamic.setState(false);
+                graphPane.setRenderRequired();
+                graphPane.repaint();
+            }
+        });
+
+        dynamic.setState(true);
+        menu.add(dynamic);
+        menu.add(fixed);
+        return menu;
     }
 
     /**
@@ -629,7 +686,13 @@ public class Frame {
                 reRender = true;
                 setCoverageEnabled(false);
                 this.arcButton.setVisible(true);
+                this.intervalMenu.setVisible(false);
             }else {
+                if(evt.getMode().getName().equals("STANDARD") || evt.getMode().getName().equals("VARIANTS")){
+                    this.intervalMenu.setVisible(true);
+                } else {
+                    this.intervalMenu.setVisible(false);
+                }
                 setCoverageEnabled(true);
                 reRender = true;
                 this.arcButton.setVisible(false);

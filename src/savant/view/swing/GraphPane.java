@@ -92,6 +92,7 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
     public boolean paneResize = false;
     public int newHeight;
     private int oldWidth = -1;
+    private int oldHeight = -1;
     private int newScroll = 0;
     private boolean renderRequired = false;
 
@@ -291,14 +292,17 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
         BufferedImage bf1;
 
         boolean sameRange = (prevRange != null && RangeController.getInstance().getRange().equals(prevRange));
-        boolean sameMode = ((currentMode == null && prevDrawMode == null) || (prevDrawMode != null && currentMode.equals(prevDrawMode)));
-        boolean sameSize = (prevSize != null && this.getSize().equals(prevSize) && this.parentFrame.getFrameLandscape().getWidth() == oldWidth);
+        boolean sameMode = ((currentMode == null && prevDrawMode == null) ||
+                (prevDrawMode != null && currentMode.equals(prevDrawMode)));
+        boolean sameSize = (prevSize != null && this.getSize().equals(prevSize) && 
+                this.parentFrame.getFrameLandscape().getWidth() == oldWidth &&
+                this.getParentFrame().getFrameLandscape().getHeight() == oldHeight);
 
         //if nothing has changed draw buffered image
         if(sameRange && sameMode && sameSize && !this.renderRequired){
             g.drawImage(bf, 0, 0, this);
 
-            //force unitheight from last render
+            //force unitHeight from last render
             unitHeight = oldUnitHeight;
             yMax = oldYMax;
 
@@ -364,6 +368,7 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
             }
         }
         oldWidth = this.getParentFrame().getFrameLandscape().getWidth();
+        oldHeight = this.getParentFrame().getFrameLandscape().getHeight();
 
         /*
         // Get elapsed time in milliseconds
@@ -377,6 +382,7 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
 
         bf = bf1;
         g.drawImage(bf, 0, 0, this);
+        this.parentFrame.commandBar.repaint();
 
     }
 

@@ -71,6 +71,12 @@ public class BAMTrackRenderer extends TrackRenderer {
     private static Stroke oneStroke = new BasicStroke(1.0f);
     private static Stroke twoStroke= new BasicStroke(2.0f);
 
+    //true -> dynamic, false -> fixed height
+    private boolean dynamicMode = true;
+    private int intervalHeight = 12;
+    private int minimumHeight = 4;
+    private boolean renderFixed = false;
+
     // The number of standard deviations from the mean an arclength has to be before it's
     // considered discordant
     private static int DISCORDANT_STD_DEV = 3;
@@ -164,22 +170,35 @@ public class BAMTrackRenderer extends TrackRenderer {
             return;
         }*/
 
-        int currentHeight = gp.getHeight();
-        int currentWidth = gp.getParentFrame().getFrameLandscape().getWidth()-2;
-        int currentHeight1 = ((JViewport)gp.getParent()).getHeight();
-        int expectedHeight = Math.max((int)((intervals.size() * 12) / 0.9), currentHeight1);
-        if(expectedHeight != currentHeight || currentWidth != gp.getWidth()){
-            gp.bf = new BufferedImage(currentWidth, expectedHeight, BufferedImage.TYPE_INT_RGB);
-            gp.newHeight = expectedHeight;
-            gp.setPaneResize(true);
-            g2 = gp.bf.createGraphics();
-            gp.renderBackground(g2);
-            return;
+        renderFixed = false;
+        renderFixed = gp.getUnitHeight() < minimumHeight;
+        if(dynamicMode && !renderFixed){
+            double unitHeight = (double) ((JViewport)gp.getParent()).getHeight() / (maxYRange);
+            if(unitHeight < minimumHeight) renderFixed = true;
         }
-        gp.setUnitHeight(12);
-        gp.setYRange(new Range(0,(int)Math.ceil(expectedHeight/12.0)));
 
+        if(!dynamicMode || renderFixed){
 
+            int currentHeight = gp.getHeight();
+            int currentWidth = gp.getParentFrame().getFrameLandscape().getWidth()-2;
+            int currentHeight1 = ((JViewport)gp.getParent()).getHeight();
+            int expectedHeight = Math.max((int)((intervals.size() * intervalHeight) / 0.9), currentHeight1);
+
+            if(expectedHeight != currentHeight || currentWidth != gp.getWidth()){
+                gp.bf = new BufferedImage(currentWidth, expectedHeight, BufferedImage.TYPE_INT_RGB);
+                gp.newHeight = expectedHeight;
+                gp.setPaneResize(true);
+                g2 = gp.bf.createGraphics();
+                gp.renderBackground(g2);
+                return;
+            }
+            gp.setUnitHeight(intervalHeight);
+            gp.setYRange(new Range(0,(int)Math.ceil(expectedHeight/intervalHeight)));
+        } else if (gp.getSize() != ((JViewport)gp.getParent()).getSize()){
+            this.resizeFrame(gp);
+        }
+
+        
         // scan the map of intervals and draw the intervals for each level
         for (int level=0; level<intervals.size(); level++) {
 
@@ -225,10 +244,8 @@ public class BAMTrackRenderer extends TrackRenderer {
         double h=0;
 
         double unitHeight;
-        double unitWidth;
         unitHeight = gp.getUnitHeight();
-        unitHeight = 12;
-        unitWidth = gp.getUnitWidth();
+        //unitHeight = intervalHeight;
         double arrowHeight = unitHeight/2;
         double arrowWidth = unitHeight/4;
 
@@ -282,7 +299,7 @@ public class BAMTrackRenderer extends TrackRenderer {
         double unitWidth;
         unitHeight = gp.getUnitHeight();
         unitWidth = gp.getUnitWidth();
-        unitHeight = 12;
+        //unitHeight = intervalHeight;
 
         // visualize variations (indels and mismatches)
         int alignmentStart = samRecord.getAlignmentStart();
@@ -806,6 +823,15 @@ public class BAMTrackRenderer extends TrackRenderer {
         return panel;
     }
 
+    @Override
+    public void setIntervalMode(String mode){
+        if(mode.equals("dynamic")){
+            this.dynamicMode = true;
+        } else {
+            this.dynamicMode = false;
+        }
+       // this.resizeRequired = true;
+    }
 
     private class LegendPanel extends JPanel{
         private boolean isHidden = false;
