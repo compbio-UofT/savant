@@ -28,15 +28,16 @@ import savant.view.swing.BrowserDefaults;
 
 import javax.swing.*;
 import java.awt.*;
+import savant.plugin.GUIPlugin;
 
-public class DataTab extends Plugin implements AuxData {
+public class DataTab extends Plugin implements GUIPlugin {
 
-    public void init(JTabbedPane tabbedPane, PluginAdapter pluginAdapter) {
-        JPanel tablePanel = createTabPanel(tabbedPane, "Data View");
+    public void init(JPanel tablePanel, PluginAdapter pluginAdapter) {
         savant.data.DataSheet currentRangeDataSheet = new DataSheet(tablePanel, pluginAdapter);
         pluginAdapter.getRangeController().addRangeChangedListener(currentRangeDataSheet);
         pluginAdapter.getViewTrackController().addTracksChangedListener(currentRangeDataSheet);
     }
+
 
     private JPanel createTabPanel(JTabbedPane jtp, String name) {
         JPanel pan = new JPanel();
@@ -55,4 +56,10 @@ public class DataTab extends Plugin implements AuxData {
     protected void doStop() throws Exception {
 
     }
+
+    @Override
+    public String getTitle() {
+        return "Table View";
+    }
+    
 }
