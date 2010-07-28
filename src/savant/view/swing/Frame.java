@@ -124,19 +124,12 @@ public class Frame {
         MouseListener ml = new MouseListener(){
             public void mouseClicked(MouseEvent e) {}
             public void mousePressed(MouseEvent e) {
-                tempHideCommands();
+                if(parent.isActive())
+                    tempHideCommands();
             }
             public void mouseReleased(MouseEvent e) {
-                tempShowCommands();
-                if(!parent.isActive()){
-                    try {
-                        String active = Savant.getInstance().getTrackDockingManager().getActiveFrameKey();
-                        Savant.getInstance().getTrackDockingManager().getFrame(active).setActive(false);
-                        parent.setActive(true);
-                    } catch (PropertyVetoException ex) {
-                        Logger.getLogger(Frame.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                }
+                if(parent.isActive())
+                    tempShowCommands();
             }
             public void mouseEntered(MouseEvent e) {}
             public void mouseExited(MouseEvent e) {}
