@@ -39,7 +39,7 @@ public class PointViewTrack extends ViewTrack {
     public List<Object> savedList = null;
 
     public PointViewTrack(String name, GenericPointTrack pointTrack) {
-        super(name, FileFormat.POINT, pointTrack);
+        super(name, FileFormat.POINT_GENERIC, pointTrack);
         setColorScheme(getDefaultColorScheme());
     }
 
