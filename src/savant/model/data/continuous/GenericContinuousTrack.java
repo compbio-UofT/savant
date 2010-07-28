@@ -74,13 +74,14 @@ public class GenericContinuousTrack extends ContinuousTrack {
             int binSize = getSamplingFrequency(range);
             int contiguousSamples = getNumContinuousSamples(range);
 
-            int index = range.getFrom();
+            // int index = range.getFrom();
+            int index = range.getFrom() - binSize; // to avoid missing a value at the start of the range, go back one bin
             int lastIndex = range.getTo() + binSize;
             for  (int i = index; i <= lastIndex; i += binSize) {
 
+                long seekpos = (i-1)*recordSize;
+                if (seekpos < 0) continue; // going back one bin may not be possible if we're near the start
                 long bytepos = savantFile.seek(reference, (i-1)*recordSize);
-                //long bytepos = savantFile.seek(reference, (i-1)*1);
-                if (bytepos < 0) { break; }
 
                 float sum = 0.0f;
                 int j;
@@ -103,7 +104,6 @@ public class GenericContinuousTrack extends ContinuousTrack {
             Logger.getLogger(PointTrack.class.getName()).log(Level.SEVERE, null, ex);
         }
 
-        // return result
         return data;
     }
 
@@ -173,7 +173,6 @@ public class GenericContinuousTrack extends ContinuousTrack {
         else { return 1; }
     }
 
-    @Override
     public Set<String> getReferenceNames() {
         return this.savantFile.getReferenceNames();
     }
