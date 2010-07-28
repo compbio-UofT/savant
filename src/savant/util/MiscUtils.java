@@ -174,4 +174,25 @@ public class MiscUtils {
         aThrowable.printStackTrace(printWriter);
         return result.toString();
    }
+
+
+    /*
+     * Return string without sequence title (chr, contig)
+     */
+    public static String homogenizeSequence(String s){
+        String result = s;
+        if(result.contains("chr")){
+            result = result.replaceAll("chr", "");
+        }
+        if(result.contains("Chr")){
+            result = result.replaceAll("Chr", "");
+        }
+        if(result.contains("contig")){
+            result = result.replaceAll("contig", "");
+        }
+        if(result.contains("Contig")){
+            result = result.replaceAll("Contig", "");
+        }
+        return result;
+    }
 }

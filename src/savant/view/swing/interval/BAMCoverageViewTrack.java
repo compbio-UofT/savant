@@ -40,6 +40,7 @@ import savant.view.swing.ViewTrack;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+import savant.util.MiscUtils;
 
 public class BAMCoverageViewTrack extends ViewTrack {
 
@@ -76,7 +77,7 @@ public class BAMCoverageViewTrack extends ViewTrack {
             }
             else if (isEnabled() && (r == Resolution.LOW || r == Resolution.VERY_LOW || r == Resolution.MEDIUM)) {
                 //FIXME: temporary fix for chrx != x issue
-                boolean contains = (this.getTrack().getReferenceNames().contains(reference) || this.getTrack().getReferenceNames().contains(reference.substring(reference.length()-1)));
+                boolean contains = (this.getTrack().getReferenceNames().contains(reference) || this.getTrack().getReferenceNames().contains(MiscUtils.homogenizeSequence(reference)));
                 renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.REFERENCE_EXISTS, contains);
                 renderer.getDrawingInstructions().getInstructions().remove(DrawingInstructions.InstructionName.MESSAGE.toString());
                 int maxDataValue = getMaxValue(data);

@@ -34,6 +34,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import savant.controller.ReferenceController;
+import savant.util.MiscUtils;
 
 /**
  *
@@ -119,7 +120,7 @@ public class SequenceViewTrack extends ViewTrack {
         }
 
         for (TrackRenderer renderer: getTrackRenderers()) {
-
+            boolean contains = (this.getGenome().getReferenceNames().contains(reference) || this.getGenome().getReferenceNames().contains(MiscUtils.homogenizeSequence(reference)));
             renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.RESOLUTION, r);
             renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.AXIS_RANGE, new AxisRange(range, getDefaultYRange()));
             renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.REFERENCE_EXISTS, this.getGenome().getReferenceNames().contains(reference));

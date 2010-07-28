@@ -20,6 +20,7 @@ import savant.format.header.FileType;
 import savant.format.header.FileTypeHeader;
 import savant.format.util.data.FieldType;
 import savant.util.RAFUtils;
+import savant.util.MiscUtils;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -95,7 +96,7 @@ public class SavantFile extends RandomAccessFile {
         //FIXME!!!
 
         if (!this.containsDataForReference(reference) && 
-                !this.containsDataForReference(reference.substring(reference.length()-1))) { //FIXME: temporary fix for chrx != x issue
+                !this.containsDataForReference(MiscUtils.homogenizeSequence(reference))) { //FIXME: temporary fix for chrx != x issue
             //System.out.println("No data for reference: " + reference);
             return -1;
         } else if (pos >= this.getReferenceLength(reference) &&
@@ -109,7 +110,7 @@ public class SavantFile extends RandomAccessFile {
 
             //FIXME: temporary fix for chrx != x issue
             if(refoffset == -1){
-                refoffset = getReferenceOffset(reference.substring(reference.length()-1));
+                refoffset = getReferenceOffset(MiscUtils.homogenizeSequence(reference));
             }
 
             /*

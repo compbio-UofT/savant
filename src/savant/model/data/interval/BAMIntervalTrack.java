@@ -72,9 +72,17 @@ public class BAMIntervalTrack implements RecordTrack<BAMIntervalRecord> {
         List<BAMIntervalRecord> result = new ArrayList<BAMIntervalRecord>();
         try {
             // todo: actually use the given reference
-            String refguess = guessSequence(this.path, this.index);
 
-            recordIterator = samFileReader.query(refguess, range.getFrom(), range.getTo(), false);
+            String ref;
+            if(this.getReferenceNames().contains(reference)){
+                ref = reference;
+            } else if(this.getReferenceNames().contains(MiscUtils.homogenizeSequence(reference))){
+                ref = MiscUtils.homogenizeSequence(reference);
+            } else {
+                ref = guessSequence(this.path, this.index);
+            }
+
+            recordIterator = samFileReader.query(ref, range.getFrom(), range.getTo(), false);
 
             SAMRecord samRecord;
             BAMIntervalRecord bamRecord;
