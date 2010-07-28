@@ -96,6 +96,14 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
     private int newScroll = 0;
     private boolean renderRequired = false;
 
+    //dragging
+    private int startX;
+    private int startY;
+    private int baseX;
+    private int initialScroll;
+    private boolean panVert = false;
+
+
     @Override
     public void keyTyped(KeyEvent e) {
     }
@@ -847,6 +855,16 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
         if (x1 > this.getWidth()) { x1 = this.getWidth(); }
         this.y1 = event.getY();
 
+        baseX = MiscUtils.transformPixelToPosition(x1, this.getWidth(), this.getPositionalRange());
+        initialScroll = ((JScrollPane)this.getParent().getParent()).getVerticalScrollBar().getValue();
+        
+        Point l = event.getLocationOnScreen();
+        startX = l.x;
+        startY = l.y;
+
+        //startX = event.getX();
+        //startY = event.getY();
+
         GraphPaneController gpc = GraphPaneController.getInstance();
         gpc.setMouseClickPosition(MiscUtils.transformPixelToPosition(x1, this.getWidth(), this.getPositionalRange()));
         this.resetFrameLayers();
@@ -869,13 +887,17 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
         int x1 = MiscUtils.transformPositionToPixel(gpc.getMouseDragRange().getFrom(), this.getWidth(), this.getPositionalRange());
 
         if (gpc.isPanning()) {
+            
+            if(!panVert){
+                RangeController rc = RangeController.getInstance();
+                Range r = rc.getRange();
+                int shiftVal = (int) (Math.round((x1-x2) / this.getUnitWidth()));
 
-            RangeController rc = RangeController.getInstance();
-            Range r = rc.getRange();
-            int shiftVal = (int) (Math.round((x1-x2) / this.getUnitWidth()));
+                Range newr = new Range(r.getFrom()+shiftVal,r.getTo()+shiftVal);
+                rc.setRange(newr);
+            }
 
-            Range newr = new Range(r.getFrom()+shiftVal,r.getTo()+shiftVal);
-            rc.setRange(newr);
+            this.getParentFrame().commandBar.setVisible(true);
 
         } else if (gpc.isZooming()) {
 
@@ -943,7 +965,39 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
             this.setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
         }
 
-        gpc.setMouseReleasePosition(MiscUtils.transformPixelToPosition(x2, this.getWidth(), this.getPositionalRange()));
+        this.getParentFrame().commandBar.setVisible(false);
+
+        //check if scrollbar is present (only vertical pan if present)
+        boolean scroll = ((JScrollPane)this.getParent().getParent()).getVerticalScrollBar().isVisible();
+
+        if(scroll){
+
+            //get new points
+            Point l = event.getLocationOnScreen();
+            int currX = l.x;
+            int currY = l.y;
+
+            //magnitude
+            int magX = Math.abs(currX - startX);
+            int magY = Math.abs(currY - startY);
+
+            if(magX >= magY){
+                //pan horizontally, reset vertical pan
+                panVert = false;
+                gpc.setMouseReleasePosition(MiscUtils.transformPixelToPosition(x2, this.getWidth(), this.getPositionalRange()));
+                ((JScrollPane)this.getParent().getParent()).getVerticalScrollBar().setValue(initialScroll);
+            } else {
+                //pan vertically, reset horizontal pan
+                panVert = true;
+                gpc.setMouseReleasePosition(baseX);
+                ((JScrollPane)this.getParent().getParent()).getVerticalScrollBar().setValue(initialScroll - (currY - startY));
+            }
+        } else {
+            //pan horizontally
+            panVert = true;
+            gpc.setMouseReleasePosition(MiscUtils.transformPixelToPosition(x2, this.getWidth(), this.getPositionalRange()));
+        }
+        
         this.resetFrameLayers();
     }
 
