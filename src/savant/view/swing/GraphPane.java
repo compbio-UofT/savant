@@ -994,7 +994,7 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
             }
         } else {
             //pan horizontally
-            panVert = true;
+            panVert = false;
             gpc.setMouseReleasePosition(MiscUtils.transformPixelToPosition(x2, this.getWidth(), this.getPositionalRange()));
         }
         
