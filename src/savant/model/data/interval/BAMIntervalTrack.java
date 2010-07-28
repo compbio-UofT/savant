@@ -217,7 +217,6 @@ public class BAMIntervalTrack implements RecordTrack<BAMIntervalRecord> {
 
     Set<String> referenceNames;
 
-    @Override
     public Set<String> getReferenceNames() {
 
         if (this.referenceNames == null) {
