@@ -104,17 +104,14 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
     private boolean panVert = false;
 
 
-    @Override
     public void keyTyped(KeyEvent e) {
     }
 
-    @Override
     public void keyPressed(KeyEvent e) {
         //System.out.println("Key pressed");
         this.setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
     }
 
-    @Override
     public void keyReleased(KeyEvent e) {
         //System.out.println("Key pressed");
         this.setCursor(new Cursor(Cursor.HAND_CURSOR));
