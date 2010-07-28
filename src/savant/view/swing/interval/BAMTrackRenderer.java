@@ -49,6 +49,7 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -141,6 +142,7 @@ public class BAMTrackRenderer extends TrackRenderer {
         AxisRange axisRange = (AxisRange) getDrawingInstructions().getInstruction(DrawingInstructions.InstructionName.AXIS_RANGE);
         ColorScheme cs = (ColorScheme) getDrawingInstructions().getInstruction(DrawingInstructions.InstructionName.COLOR_SCHEME.toString());
         Color linecolor = cs.getColor("LINE");
+        Range range = axisRange.getXRange();
 
         IntervalPacker packer = new IntervalPacker(data);
         // TODO: when it becomes possible, choose an appropriate number for breathing room parameter
@@ -158,11 +160,23 @@ public class BAMTrackRenderer extends TrackRenderer {
         else maxYRange = numIntervals;
         gp.setYRange(new Range(0,maxYRange));
 
-        if (drawMode.getName().equals("VARIANTS") && 
-                !ReferenceController.getInstance().getGenome().isSequenceSet()) {
-            this.resizeFrame(gp);
-            GlassMessagePane.draw(g2, gp, "No reference sequence loaded. Switch to standard view", 500);
-            return;
+        byte[] refSeq=null;
+        if (drawMode.getName().equals("VARIANTS")) {
+            Genome genome = ReferenceController.getInstance().getGenome();
+            if (!genome.isSequenceSet()) {
+                this.resizeFrame(gp);
+                GlassMessagePane.draw(g2, gp, "No reference sequence loaded. Switch to standard view", 500);
+                return;
+            }
+            // fetch reference sequence for comparison with cigar string
+
+            try {
+                refSeq = genome.getSequence(ReferenceController.getInstance().getReferenceName(), range).getBytes();
+            } catch (IOException e) {
+                // FIXME: this exception should be propagated to someone who can alert the user
+                log.warn("Unable to read reference sequence");
+                return;
+            }
         }
         
         // display only a message if intervals will not be visible at this resolution
@@ -214,7 +228,7 @@ public class BAMTrackRenderer extends TrackRenderer {
                 BAMIntervalRecord bamRecord = (BAMIntervalRecord) intervalRecord;
                 SAMRecord samRecord = bamRecord.getSamRecord();
 
-                if (samRecord.getReadUnmappedFlag() == true) { // this read is unmapped, don't visualize it
+                if (samRecord.getReadUnmappedFlag()) { // this read is unmapped, don't visualize it
                     continue;
                 }
 
@@ -222,7 +236,7 @@ public class BAMTrackRenderer extends TrackRenderer {
 
                 if (drawMode.getName().equals("VARIANTS")) {
                     // visualize variations (indels and mismatches)
-                    renderVariants(g2, gp, samRecord, level);
+                    renderVariants(g2, gp, samRecord, level, refSeq, range);
                 }
 
                 // draw outline, if there's room
@@ -293,10 +307,12 @@ public class BAMTrackRenderer extends TrackRenderer {
 
     }
 
-    private void renderVariants(Graphics2D g2, GraphPane gp, SAMRecord samRecord, int level) {
+    private void renderVariants(Graphics2D g2, GraphPane gp, SAMRecord samRecord, int level, byte[] refSeq, Range range) {
 
-        ColorScheme cs = (ColorScheme) getDrawingInstructions().getInstruction(DrawingInstructions.InstructionName.COLOR_SCHEME.toString());
+        DrawingInstructions di = getDrawingInstructions();
+        ColorScheme cs = (ColorScheme) di.getInstruction(DrawingInstructions.InstructionName.COLOR_SCHEME.toString());
         Color linecolor = cs.getColor("LINE");
+
 
         double unitHeight;
         double unitWidth;
@@ -310,154 +326,154 @@ public class BAMTrackRenderer extends TrackRenderer {
 
         byte[] readBases = samRecord.getReadBases();
         boolean sequenceSaved = readBases.length > 0;
-        Genome genome = ReferenceController.getInstance().getGenome();
-        try {
-            byte[] refSeq = genome.getSequence(ReferenceController.getInstance().getReferenceName(), new Range(alignmentStart, alignmentEnd)).getBytes();
+        Cigar cigar = samRecord.getCigar();
 
-            Cigar cigar = samRecord.getCigar();
-            int sequenceCursor = alignmentStart;
-            int readCursor = alignmentStart;
-            CigarOperator operator;
-            int operatorLength;
-            for (CigarElement cigarElement : cigar.getCigarElements()) {
+        // absolute positions in the reference sequence and the read bases, set after each cigar operator is processed
+        int sequenceCursor = alignmentStart;
+        int readCursor = alignmentStart;
 
-                operatorLength = cigarElement.getLength();
-                operator = cigarElement.getOperator();
-                Rectangle2D.Double opRect = null;
+        CigarOperator operator;
+        int operatorLength;
+        for (CigarElement cigarElement : cigar.getCigarElements()) {
 
-                double opStart = gp.transformXPos(sequenceCursor);
-                double opWidth = gp.getWidth(operatorLength);
+            operatorLength = cigarElement.getLength();
+            operator = cigarElement.getOperator();
+            Rectangle2D.Double opRect = null;
 
-                // delete
-                if (operator == CigarOperator.D) {
+            double opStart = gp.transformXPos(sequenceCursor);
+            double opWidth = gp.getWidth(operatorLength);
 
-                    double width = gp.getWidth(operatorLength);
-                    if (width < 1) width = 1;
-                    opRect = new Rectangle2D.Double(
-                            opStart,
-                            gp.transformYPos(level)-unitHeight,
-                            Math.max(opWidth, 1),
-                            unitHeight);
-                    opRect = new Rectangle2D.Double(
-                            opStart,
-                            gp.transformYPos(0)-(level*unitHeight),
-                            Math.max(opWidth, 1),
-                            unitHeight);
-                    g2.setColor(Color.black);
-                    g2.fill(opRect);
-                }
-                // insert
-                else if (operator == CigarOperator.I) {
+            // delete
+            if (operator == CigarOperator.D) {
+
+                double width = gp.getWidth(operatorLength);
+                if (width < 1) width = 1;
+//                opRect = new Rectangle2D.Double(
+//                        opStart,
+//                        gp.transformYPos(level)-unitHeight,
+//                        Math.max(opWidth, 1),
+//                        unitHeight);
+                opRect = new Rectangle2D.Double(
+                        opStart,
+                        gp.transformYPos(0)-(level*unitHeight),
+                        Math.max(opWidth, 1),
+                        unitHeight);
+                g2.setColor(Color.black);
+                g2.fill(opRect);
+            }
+            // insert
+            else if (operator == CigarOperator.I) {
 //                    g2.setColor(Color.white);
 //                    int xCoordinate = (int)gp.transformXPos(sequenceCursor);
 //                    int yCoordinate = (int)(gp.transformYPos(level)-unitHeight);
 //                    g2.drawLine(xCoordinate, (int)yCoordinate, xCoordinate, (int)(yCoordinate+unitHeight));
-                    g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                    g2.setColor(Color.white);
-                    int xCoordinate = (int)gp.transformXPos(sequenceCursor);
-                    int yCoordinate = (int)(gp.transformYPos(level)-unitHeight) + 1;
-                    yCoordinate = (int)(gp.transformYPos(0)-(level*unitHeight)) + 1;
-                    if((int)unitWidth/3 < 4 || (int)(unitHeight/2) < 6){
-                        //yCoordinate = (int)(gp.transformYPos(level)-unitHeight);
-                        yCoordinate = yCoordinate - 1;
-                        int lineWidth = Math.max((int)(unitWidth * (2.0/3.0)), 1);
-                        int xCoordinate1 = (int)(opStart - Math.floor(lineWidth/2));
-                        int xCoordinate2 = (int)(opStart - Math.floor(lineWidth/2)) + lineWidth - 1;
-                        if(xCoordinate1 == xCoordinate2) xCoordinate2++;
-                        int[] xPoints = {xCoordinate1, xCoordinate2, xCoordinate2, xCoordinate1};
-                        int[] yPoints = {yCoordinate, yCoordinate, yCoordinate+(int)unitHeight, yCoordinate+(int)unitHeight};
-                        g2.fillPolygon(xPoints, yPoints, 4);
-                    } else {
-                        int[] xPoints = {xCoordinate, xCoordinate+(int)(unitWidth/3), xCoordinate, xCoordinate-(int)(unitWidth/3)};
-                        int[] yPoints = {yCoordinate, yCoordinate+(int)(unitHeight/2), yCoordinate+(int)unitHeight-1, yCoordinate+(int)(unitHeight/2)};
-                        g2.fillPolygon(xPoints, yPoints, 4);
-                        if((int)unitWidth/3 >= 7 && (int)(unitHeight/2) >= 5){
-                            g2.setColor(linecolor);
-                            g2.drawLine(xCoordinate, (int)yCoordinate, xCoordinate, (int)(yCoordinate+unitHeight)-1);
-                        }
-                    }
-                    g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
-                }
-                // match or mismatch
-                else if (operator == CigarOperator.M) {
-
-                    // some SAM files do not contain the read bases
-                    if (sequenceSaved) {
-                        // determine if there's a mismatch
-                        for (int i=0; i<operatorLength; i++) {
-                            int refIndex = sequenceCursor-alignmentStart+i;
-                            int readIndex = readCursor-alignmentStart+i;
-                            if (refSeq[refIndex] != readBases[readIndex]) {
-                                byte[] readBase = new byte[1];
-                                readBase[0] = readBases[readIndex];
-                                String base = new String(readBase);
-                                Color mismatchColor = null;
-                                if (base.equals("A")) {
-                                    mismatchColor = BrowserDefaults.A_COLOR;
-                                }
-                                else if (base.equals("C")) {
-                                    mismatchColor = BrowserDefaults.C_COLOR;
-                                }
-                                else if (base.equals("G")) {
-                                    mismatchColor = BrowserDefaults.G_COLOR;
-                                }
-                                else if (base.equals("T")) {
-                                    mismatchColor = BrowserDefaults.T_COLOR;
-                                }
-                                double xCoordinate = gp.transformXPos(sequenceCursor+i);
-                                double width = gp.getUnitWidth();
-                                if (width < 1) width = 1;
-                                opRect = new Rectangle2D.Double(xCoordinate,
-                                        gp.transformYPos(level)-unitHeight,
-                                        unitWidth,
-                                        unitHeight);
-                                opRect = new Rectangle2D.Double(xCoordinate,
-                                        gp.transformYPos(0)-(level*unitHeight),
-                                        unitWidth,
-                                        unitHeight);
-                                g2.setColor(mismatchColor);
-                                g2.fill(opRect);
-                            }
-                        }
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(Color.white);
+                int xCoordinate = (int)gp.transformXPos(sequenceCursor);
+                int yCoordinate = (int)(gp.transformYPos(level)-unitHeight) + 1;
+                yCoordinate = (int)(gp.transformYPos(0)-(level*unitHeight)) + 1;
+                if((int)unitWidth/3 < 4 || (int)(unitHeight/2) < 6){
+                    //yCoordinate = (int)(gp.transformYPos(level)-unitHeight);
+                    yCoordinate = yCoordinate - 1;
+                    int lineWidth = Math.max((int)(unitWidth * (2.0/3.0)), 1);
+                    int xCoordinate1 = (int)(opStart - Math.floor(lineWidth/2));
+                    int xCoordinate2 = (int)(opStart - Math.floor(lineWidth/2)) + lineWidth - 1;
+                    if(xCoordinate1 == xCoordinate2) xCoordinate2++;
+                    int[] xPoints = {xCoordinate1, xCoordinate2, xCoordinate2, xCoordinate1};
+                    int[] yPoints = {yCoordinate, yCoordinate, yCoordinate+(int)unitHeight, yCoordinate+(int)unitHeight};
+                    g2.fillPolygon(xPoints, yPoints, 4);
+                } else {
+                    int[] xPoints = {xCoordinate, xCoordinate+(int)(unitWidth/3), xCoordinate, xCoordinate-(int)(unitWidth/3)};
+                    int[] yPoints = {yCoordinate, yCoordinate+(int)(unitHeight/2), yCoordinate+(int)unitHeight-1, yCoordinate+(int)(unitHeight/2)};
+                    g2.fillPolygon(xPoints, yPoints, 4);
+                    if((int)unitWidth/3 >= 7 && (int)(unitHeight/2) >= 5){
+                        g2.setColor(linecolor);
+                        g2.drawLine(xCoordinate, (int)yCoordinate, xCoordinate, (int)(yCoordinate+unitHeight)-1);
                     }
                 }
-                // skipped
-                else if (operator == CigarOperator.N) {
-                    // draw nothing
-
-                    opRect = new Rectangle2D.Double(opStart,
-                                                        gp.transformYPos(level)-unitHeight,
-                                                        opWidth,
-                                                        unitHeight);
-                    opRect = new Rectangle2D.Double(opStart,
-                                                        gp.transformYPos(0)-(level*unitHeight),
-                                                        opWidth,
-                                                        unitHeight);
-                    g2.setColor(Color.gray);
-                    g2.fill(opRect);
-
-                }
-                // padding
-                else if (operator == CigarOperator.P) {
-                    // draw nothing
-
-                }
-                // hard clip
-                else if (operator == CigarOperator.H) {
-                    // draw nothing
-
-                }
-                // soft clip
-                else if (operator == CigarOperator.S) {
-                    // draw nothing
-
-                }
-                if (operator.consumesReadBases()) readCursor += operatorLength;
-                if (operator.consumesReferenceBases()) sequenceCursor += operatorLength;
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
             }
-        } catch (IOException e) {
-            log.warn("Unable to read reference sequence");
-            Savant.log("Unable to read reference sequence");
+            // match or mismatch
+            else if (operator == CigarOperator.M) {
+
+                // some SAM files do not contain the read bases
+                if (sequenceSaved) {
+                    // determine if there's a mismatch
+                    for (int i=0; i<operatorLength; i++) {
+                        // indices into refSeq and readBases associated with this position in the cigar string
+                        int readIndex = readCursor-alignmentStart+i;
+                        int refIndex = sequenceCursor+i-range.getFrom();
+
+                        if (refIndex < 0) continue;  // outside sequence and drawing range
+                        if (refIndex > refSeq.length-1) continue;
+
+                        if (refSeq[refIndex] != readBases[readIndex]) {
+                            byte[] readBase = new byte[1];
+                            readBase[0] = readBases[readIndex];
+                            String base = new String(readBase);
+                            Color mismatchColor = null;
+                            if (base.equals("A")) {
+                                mismatchColor = BrowserDefaults.A_COLOR;
+                            }
+                            else if (base.equals("C")) {
+                                mismatchColor = BrowserDefaults.C_COLOR;
+                            }
+                            else if (base.equals("G")) {
+                                mismatchColor = BrowserDefaults.G_COLOR;
+                            }
+                            else if (base.equals("T")) {
+                                mismatchColor = BrowserDefaults.T_COLOR;
+                            }
+                            double xCoordinate = gp.transformXPos(sequenceCursor+i);
+                            double width = gp.getUnitWidth();
+                            if (width < 1) width = 1;
+//                            opRect = new Rectangle2D.Double(xCoordinate,
+//                                    gp.transformYPos(level)-unitHeight,
+//                                    unitWidth,
+//                                    unitHeight);
+                            opRect = new Rectangle2D.Double(xCoordinate,
+                                    gp.transformYPos(0)-(level*unitHeight),
+                                    unitWidth,
+                                    unitHeight);
+                            g2.setColor(mismatchColor);
+                            g2.fill(opRect);
+                        }
+                    }
+                }
+            }
+            // skipped
+            else if (operator == CigarOperator.N) {
+                // draw nothing
+
+//                opRect = new Rectangle2D.Double(opStart,
+//                                                    gp.transformYPos(level)-unitHeight,
+//                                                    opWidth,
+//                                                    unitHeight);
+                opRect = new Rectangle2D.Double(opStart,
+                                                    gp.transformYPos(0)-(level*unitHeight),
+                                                    opWidth,
+                                                    unitHeight);
+                g2.setColor(Color.gray);
+                g2.fill(opRect);
+
+            }
+            // padding
+            else if (operator == CigarOperator.P) {
+                // draw nothing
+
+            }
+            // hard clip
+            else if (operator == CigarOperator.H) {
+                // draw nothing
+
+            }
+            // soft clip
+            else if (operator == CigarOperator.S) {
+                // draw nothing
+
+            }
+            if (operator.consumesReadBases()) readCursor += operatorLength;
+            if (operator.consumesReferenceBases()) sequenceCursor += operatorLength;
         }
 
     }
