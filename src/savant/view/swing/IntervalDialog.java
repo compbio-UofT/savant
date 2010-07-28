@@ -230,9 +230,14 @@ public class IntervalDialog extends JDialog {
 
                 String name = this.getName();
 
+                if((Integer)value == null || (Integer)value < 0){
+                    return;
+                }
+
                 if(name.equals("Minimum Height")){
                     btr.setMinimumHeight((Integer)value);
                 } else if(name.equals("Fixed Height")){
+                    if((Integer)value < 1) return;
                     btr.setMaximumHeight((Integer)value);
                 }
 
