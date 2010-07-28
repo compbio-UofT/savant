@@ -608,7 +608,7 @@ public class Frame {
 
         if (renderer == null) {
             switch(track.getDataType()) {
-                case POINT:
+                case POINT_GENERIC:
                     renderer = new PointTrackRenderer();
                     break;
                 case INTERVAL_GENERIC:
