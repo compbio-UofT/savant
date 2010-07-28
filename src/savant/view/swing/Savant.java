@@ -257,7 +257,6 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
             public void dockableFrameRestored(DockableFrameEvent arg0) {
             }
 
-            @Override
             public void dockableFrameTransferred(DockableFrameEvent arg0) {
             }
 
@@ -1152,7 +1151,6 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         // comment next line to disable plugin manager
         //this.menu_plugins.setVisible(false);
 
-        this.setExtendedState(this.getExtendedState() | JFrame.MAXIMIZED_BOTH);
         //this.setVisible(true);
     }
 
@@ -1216,7 +1214,6 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
                     setFrameVisibility(f.getTitle(), isIntiallyVisible, auxDockingManager);
                     final JCheckBoxMenuItem cb = new JCheckBoxMenuItem(plugin.getTitle());
                     cb.addActionListener(new ActionListener() {
-                        @Override
                         public void actionPerformed(ActionEvent e) {
                             DockingManager m = auxDockingManager;
                             String frameKey = f.getTitle();
@@ -1457,7 +1454,6 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         referenceDropdown.setToolTipText("Reference sequence");
         referenceDropdown.addActionListener(new ActionListener() {
 
-            @Override
             public void actionPerformed(ActionEvent e) {
 
                 // the first item is a header and not allowed to be selected
@@ -2531,7 +2527,6 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         if (currref != null) { this.referenceDropdown.setSelectedItem(currref); }
     }
 
-    @Override
     public void referenceChangeReceived(ReferenceChangedEvent event) {
         this.referenceDropdown.setSelectedItem(event.getReferenceName());
         Genome loadedGenome = ReferenceController.getInstance().getGenome();
@@ -2540,7 +2535,6 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         rangeController.setRange(1, Math.min(1000,loadedGenome.getLength()));
     }
 
-    @Override
     public void trackListChangeReceived(TrackListChangedEvent evt) {
         updateReferenceNamesList();
     }
