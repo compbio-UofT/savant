@@ -73,7 +73,8 @@ public class Frame {
     //private boolean legend = false;
     private List<JCheckBoxMenuItem> visItems;
     private JideButton arcButton;
-    private JMenu intervalMenu;
+    //private JMenu intervalMenu;
+    private JideButton intervalButton;
 
     private boolean commandBarActive = true;
     private DockableFrame parent;
@@ -198,13 +199,21 @@ public class Frame {
             commandBar.add(arcButton);
             arcButton.setVisible(false);
 
-            intervalMenu = createIntervalMenu();
-            commandBar.add(intervalMenu);
-            intervalMenu.setVisible(false);
+            intervalButton = createIntervalButton();
+            commandBar.add(intervalButton);
+            intervalButton.setVisible(false);
             String drawMode = this.getTracks().get(0).getDrawMode().getName();
             if(drawMode.equals("STANDARD") || drawMode.equals("VARIANTS")){
-                intervalMenu.setVisible(true);
+                intervalButton.setVisible(true);
             }
+
+            //intervalMenu = createIntervalMenu();
+            //commandBar.add(intervalMenu);
+            //intervalMenu.setVisible(false);
+            //String drawMode = this.getTracks().get(0).getDrawMode().getName();
+            //if(drawMode.equals("STANDARD") || drawMode.equals("VARIANTS")){
+            //    intervalMenu.setVisible(true);
+            //}
         }
         commandBar.add(new JSeparator(SwingConstants.VERTICAL));
         commandBar.add(hideButton);
@@ -491,9 +500,28 @@ public class Frame {
     }
 
     /**
+     * Create interval button for commandBar
+     */
+    private JideButton createIntervalButton() {
+        JideButton button = new JideButton("Interval Options");
+        button.setToolTipText("Change interval display parameters");
+        button.addMouseListener(new MouseListener() {
+            public void mouseClicked(MouseEvent e) {
+                tracks.get(0).captureIntervalParameters();
+            }
+            public void mousePressed(MouseEvent e) {}
+            public void mouseReleased(MouseEvent e) {}
+            public void mouseEntered(MouseEvent e) {}
+            public void mouseExited(MouseEvent e) {}
+        });
+        button.setFocusPainted(false);
+        return button;
+    }
+
+    /**
      * Create the menu for interval options
      */
-    private JMenu createIntervalMenu() {
+    /*private JMenu createIntervalMenu() {
         JMenu menu = new JideMenu("Interval Options");
         final JCheckBoxMenuItem dynamic = new JCheckBoxMenuItem("Dynamic Height");
         final JCheckBoxMenuItem fixed = new JCheckBoxMenuItem("Fixed Height");
@@ -526,7 +554,7 @@ public class Frame {
         menu.add(dynamic);
         menu.add(fixed);
         return menu;
-    }
+    }*/
 
     /**
      * Create display menu for commandBar
@@ -686,12 +714,12 @@ public class Frame {
                 reRender = true;
                 setCoverageEnabled(false);
                 this.arcButton.setVisible(true);
-                this.intervalMenu.setVisible(false);
+                this.intervalButton.setVisible(false);
             }else {
                 if(evt.getMode().getName().equals("STANDARD") || evt.getMode().getName().equals("VARIANTS")){
-                    this.intervalMenu.setVisible(true);
+                    this.intervalButton.setVisible(true);
                 } else {
-                    this.intervalMenu.setVisible(false);
+                    this.intervalButton.setVisible(false);
                 }
                 setCoverageEnabled(true);
                 reRender = true;

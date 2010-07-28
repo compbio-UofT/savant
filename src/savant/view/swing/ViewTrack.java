@@ -78,6 +78,7 @@ public abstract class ViewTrack {
     private RecordTrack track;
 
     private ColorSchemeDialog colorDialog = new ColorSchemeDialog();
+    private IntervalDialog intervalDialog = new IntervalDialog();
 
     // FIXME:
     private Frame frame;
@@ -411,6 +412,7 @@ public abstract class ViewTrack {
     public void setFrame(Frame frame) {
         this.frame = frame;
         colorDialog.setFrame(frame);
+        intervalDialog.setFrame(frame);
     }
 
     /**
@@ -520,5 +522,10 @@ public abstract class ViewTrack {
     public void captureColorParameters() {
         colorDialog.update(this);
         colorDialog.setVisible(true);
+    }
+
+    public void captureIntervalParameters(){
+        intervalDialog.update(this);
+        intervalDialog.setVisible(true);
     }
 }

@@ -72,8 +72,9 @@ public class BAMTrackRenderer extends TrackRenderer {
     private static Stroke twoStroke= new BasicStroke(2.0f);
 
     //true -> dynamic, false -> fixed height
-    private boolean dynamicMode = true;
-    private int intervalHeight = 12;
+    //private boolean dynamicMode = true;
+    //private int intervalHeight = 12;
+    private int maximumHeight = 12;
     private int minimumHeight = 4;
     private boolean renderFixed = false;
 
@@ -172,17 +173,19 @@ public class BAMTrackRenderer extends TrackRenderer {
 
         renderFixed = false;
         renderFixed = gp.getUnitHeight() < minimumHeight;
-        if(dynamicMode && !renderFixed){
+        //if(dynamicMode && !renderFixed){
+        if(!renderFixed){
             double unitHeight = (double) ((JViewport)gp.getParent()).getHeight() / (maxYRange);
             if(unitHeight < minimumHeight) renderFixed = true;
         }
 
-        if(!dynamicMode || renderFixed){
+        //if(!dynamicMode || renderFixed){
+        if(renderFixed){
 
             int currentHeight = gp.getHeight();
             int currentWidth = gp.getParentFrame().getFrameLandscape().getWidth()-2;
             int currentHeight1 = ((JViewport)gp.getParent()).getHeight();
-            int expectedHeight = Math.max((int)((intervals.size() * intervalHeight) / 0.9), currentHeight1);
+            int expectedHeight = Math.max((int)((intervals.size() * maximumHeight) / 0.9), currentHeight1);
 
             if(expectedHeight != currentHeight || currentWidth != gp.getWidth()){
                 gp.bf = new BufferedImage(currentWidth, expectedHeight, BufferedImage.TYPE_INT_RGB);
@@ -192,8 +195,8 @@ public class BAMTrackRenderer extends TrackRenderer {
                 gp.renderBackground(g2);
                 return;
             }
-            gp.setUnitHeight(intervalHeight);
-            gp.setYRange(new Range(0,(int)Math.ceil(expectedHeight/intervalHeight)));
+            gp.setUnitHeight(maximumHeight);
+            gp.setYRange(new Range(0,(int)Math.ceil(expectedHeight/maximumHeight)));
         } else if (gp.getSize() != ((JViewport)gp.getParent()).getSize()){
             this.resizeFrame(gp);
         }
@@ -823,7 +826,7 @@ public class BAMTrackRenderer extends TrackRenderer {
         return panel;
     }
 
-    @Override
+    /*@Override
     public void setIntervalMode(String mode){
         if(mode.equals("dynamic")){
             this.dynamicMode = true;
@@ -831,6 +834,22 @@ public class BAMTrackRenderer extends TrackRenderer {
             this.dynamicMode = false;
         }
        // this.resizeRequired = true;
+    }*/
+
+    public int getMaximumHeight(){
+        return this.maximumHeight;
+    }
+
+    public int getMinimumHeight(){
+        return this.minimumHeight;
+    }
+
+    public void setMaximumHeight(int h){
+        this.maximumHeight = h;
+    }
+
+    public void setMinimumHeight(int h){
+        this.minimumHeight = h;
     }
 
     private class LegendPanel extends JPanel{

@@ -32,13 +32,13 @@ import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
+import savant.view.swing.interval.BAMTrackRenderer;
 
 /**
  *
  * @author AndrewBrook
  */
-public class ColorSchemeDialog extends JDialog {
-
+public class IntervalDialog extends JDialog {
 
     protected static final Color BACKGROUND1 = new Color(253, 253, 244);
     protected static final Color BACKGROUND2 = new Color(255, 255, 255);
@@ -58,14 +58,16 @@ public class ColorSchemeDialog extends JDialog {
     private static Frame frame;
     private static ViewTrack viewTrack;
 
+    private static BAMTrackRenderer btr;
+
    // private static Log log = LogFactory.getLog(BAMParametersDialog1.class);
 
 
-    public ColorSchemeDialog(){
+    public IntervalDialog(){
         this.setPreferredSize(new Dimension(300,500));
         this.setMinimumSize(new Dimension(300,500));
         this.setModal(true);
-        this.setTitle("Change Colour Scheme");
+        this.setTitle("Change Interval Parameters");
         Component panel = getDemoPanel();
         this.add(panel);
     }
@@ -153,7 +155,7 @@ public class ColorSchemeDialog extends JDialog {
             }
         };
 
-        _pane.setShowDescription(false);
+        //_pane.setShowDescription(false);
 
 
         /*JPanel quickSearchPanel = new JPanel(new FlowLayout(FlowLayout.LEADING));
@@ -165,7 +167,7 @@ public class ColorSchemeDialog extends JDialog {
 
         _table.setModel(filterField.getDisplayTableModel());
         panel.add(quickSearchPanel, BorderLayout.BEFORE_FIRST_LINE);*/
-        
+
         _pane.setBorder(new JideTitledBorder(new PartialEtchedBorder(PartialEtchedBorder.LOWERED, PartialSide.NORTH), "PropertyPane", JideTitledBorder.LEADING, JideTitledBorder.ABOVE_TOP));
         panel.add(_pane, BorderLayout.CENTER);
         return panel;
@@ -225,9 +227,15 @@ public class ColorSchemeDialog extends JDialog {
         public void setValue(Object value) {
             Object old = getValue();
             if (!JideSwingUtilities.equals(old, value)) {
+
                 String name = this.getName();
-                
-                viewTrack.setColor(name, (Color)value);
+
+                if(name.equals("Minimum Height")){
+                    btr.setMinimumHeight((Integer)value);
+                } else if(name.equals("Fixed Height")){
+                    btr.setMaximumHeight((Integer)value);
+                }
+
                 viewTrack.getFrame().getGraphPane().setRenderRequired();
                 viewTrack.getFrame().getGraphPane().repaint();
 
@@ -252,17 +260,14 @@ public class ColorSchemeDialog extends JDialog {
         viewTrack = vt;
         _pane.setBorder(new JideTitledBorder(new PartialEtchedBorder(PartialEtchedBorder.LOWERED, PartialSide.NORTH), vt.getName(), JideTitledBorder.LEADING, JideTitledBorder.ABOVE_TOP));
 
-        Dictionary<String, Color> dict = vt.getColorScheme().colorSettings;
-        Enumeration<String> keys = dict.keys();
-        List<String> keysList = new ArrayList<String>();
-        while(keys.hasMoreElements()){
-            keysList.add(keys.nextElement());            
-        }
-        Collections.sort(keysList);
-        for(int i = 0; i < keysList.size(); i++){
-            addProperty(keysList.get(i), "TODO", "Colour Settings", Color.class);
-            map.put(keysList.get(i), dict.get(keysList.get(i)));
-        }        
+        btr = ((BAMTrackRenderer)(viewTrack.getTrackRenderers().get(0)));
+
+        addProperty("Minimum Height", "When intervals cannot be displayed at/over the minimum height, they will switch to fixed height. ", "Interval Height Settings", Integer.class);
+        map.put("Minimum Height", btr.getMinimumHeight());
+
+        addProperty("Fixed Height", "When intervals cannot be displayed at/over the minimum height, they will switch to fixed height. ", "Interval Height Settings", Integer.class);
+        map.put("Fixed Height", btr.getMaximumHeight());
+
         model.expandAll();
     }
 
