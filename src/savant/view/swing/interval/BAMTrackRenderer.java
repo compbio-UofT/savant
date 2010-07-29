@@ -270,8 +270,9 @@ public class BAMTrackRenderer extends TrackRenderer {
         double arrowWidth = unitHeight/4;
 
         boolean drawPoint = false;
-        y = gp.transformYPos(level)-unitHeight;
-        y = gp.transformYPos(0) - level*unitHeight;
+        //y = gp.transformYPos(level)-unitHeight;
+        y = gp.transformYPos(0) - (level + 1)*unitHeight;
+        
         w = gp.getWidth(interval.getLength());
 
         if (w < 1) {
@@ -358,7 +359,7 @@ public class BAMTrackRenderer extends TrackRenderer {
 //                        unitHeight);
                 opRect = new Rectangle2D.Double(
                         opStart,
-                        gp.transformYPos(0)-(level*unitHeight),
+                        gp.transformYPos(0)-((level + 1)*unitHeight),
                         Math.max(opWidth, 1),
                         unitHeight);
                 g2.setColor(Color.black);
@@ -373,8 +374,8 @@ public class BAMTrackRenderer extends TrackRenderer {
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 g2.setColor(Color.white);
                 int xCoordinate = (int)gp.transformXPos(sequenceCursor);
-                int yCoordinate = (int)(gp.transformYPos(level)-unitHeight) + 1;
-                yCoordinate = (int)(gp.transformYPos(0)-(level*unitHeight)) + 1;
+                //int yCoordinate = (int)(gp.transformYPos(level)-unitHeight) + 1;
+                int yCoordinate = (int)(gp.transformYPos(0)-((level + 1)*unitHeight)) + 1;
                 if((int)unitWidth/3 < 4 || (int)(unitHeight/2) < 6){
                     //yCoordinate = (int)(gp.transformYPos(level)-unitHeight);
                     yCoordinate = yCoordinate - 1;
@@ -435,7 +436,7 @@ public class BAMTrackRenderer extends TrackRenderer {
 //                                    unitWidth,
 //                                    unitHeight);
                             opRect = new Rectangle2D.Double(xCoordinate,
-                                    gp.transformYPos(0)-(level*unitHeight),
+                                    gp.transformYPos(0)-((level + 1)*unitHeight),
                                     unitWidth,
                                     unitHeight);
                             g2.setColor(mismatchColor);
@@ -453,7 +454,7 @@ public class BAMTrackRenderer extends TrackRenderer {
 //                                                    opWidth,
 //                                                    unitHeight);
                 opRect = new Rectangle2D.Double(opStart,
-                                                    gp.transformYPos(0)-(level*unitHeight),
+                                                    gp.transformYPos(0)-((level+1)*unitHeight),
                                                     opWidth,
                                                     unitHeight);
                 g2.setColor(Color.gray);
