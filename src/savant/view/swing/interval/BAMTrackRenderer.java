@@ -289,8 +289,23 @@ public class BAMTrackRenderer extends TrackRenderer {
         x = gp.transformXPos(interval.getStart());
 
         // cut off x and w so no drawing happens off-screen
-        double x2 = Math.min(rightMostX, x+w);
-        x = Math.max(leftMostX, x);
+//        double x2 = Math.min(rightMostX, x+w);
+//        x = Math.max(leftMostX, x);
+//        w = x2 - x;
+        boolean cutoffLeft = false;
+        boolean cutoffRight = false;
+        double x2;
+        if (rightMostX < x+w) {
+            x2 = rightMostX;
+            cutoffRight = true;
+        }
+        else {
+            x2 = x+w;
+        }
+        if (leftMostX > x) {
+            x = leftMostX;
+            cutoffLeft = true;
+        }
         w = x2 - x;
 
         // find out which direction we're pointing
@@ -300,12 +315,12 @@ public class BAMTrackRenderer extends TrackRenderer {
         Polygon pointyBar = new Polygon();
         pointyBar.addPoint((int)x, (int)y);
         pointyBar.addPoint((int)(x+w), (int)y);
-        if (strand == Strand.FORWARD && drawPoint) {
+        if (strand == Strand.FORWARD && drawPoint && !cutoffRight) {
             pointyBar.addPoint((int)(x+w+arrowWidth), (int)(y+arrowHeight));
         }
         pointyBar.addPoint((int)(x+w), (int)(y+h));
         pointyBar.addPoint((int)x, (int)(y+h));
-        if (strand == Strand.REVERSE && drawPoint) {
+        if (strand == Strand.REVERSE && drawPoint && !cutoffLeft) {
             pointyBar.addPoint((int)(x-arrowWidth), (int)(y+arrowHeight));
         }
         if (strand == Strand.FORWARD) {
