@@ -123,6 +123,8 @@ public class Frame {
         scrollPane = new JScrollPane();
         scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         scrollPane.setWheelScrollingEnabled(false);
+        scrollPane.setBorder(BorderFactory.createEmptyBorder(0,0,0,0));
+        scrollPane.setViewportBorder(BorderFactory.createEmptyBorder(0,0,0,0));
 
         //hide commandBar while scrolling
         MouseListener ml = new MouseListener(){
