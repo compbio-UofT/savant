@@ -116,15 +116,21 @@ public class Frame {
 
         isLocked = false;
         this.tracks = new ArrayList<ViewTrack>();
-        this.frameLandscape = new JLayeredPane();
+        this.frameLandscape = new JLayeredPane(){
+            public void repaint(long tm, int x, int y, int width, int height) {
+                if(x==0 && y==0 && width==frameLandscape.getWidth()-2 && height==frameLandscape.getHeight()-2){
+                    super.repaint(tm, x, y, width+2, height+2);
+                } else {
+                    super.repaint(tm, x, y, width, height);
+                }
+            }
+        };
         initGraph();
 
         //scrollpane
         scrollPane = new JScrollPane();
         scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         scrollPane.setWheelScrollingEnabled(false);
-        scrollPane.setBorder(BorderFactory.createEmptyBorder(0,0,0,0));
-        scrollPane.setViewportBorder(BorderFactory.createEmptyBorder(0,0,0,0));
 
         //hide commandBar while scrolling
         MouseListener ml = new MouseListener(){
