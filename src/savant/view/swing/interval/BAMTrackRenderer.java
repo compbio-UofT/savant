@@ -85,7 +85,7 @@ public class BAMTrackRenderer extends TrackRenderer {
 
     public enum Strand { FORWARD, REVERSE };
 
-    Mode drawMode;
+    private Mode drawMode;
 
     public BAMTrackRenderer() { this(new DrawingInstructions()); }
 
@@ -106,7 +106,6 @@ public class BAMTrackRenderer extends TrackRenderer {
         Boolean refexists = (Boolean) di.getInstruction(DrawingInstructions.InstructionName.REFERENCE_EXISTS);
 
         if (!refexists) {
-            //System.out.println("BAM");
             resizeFrame(gp);
             GlassMessagePane.draw(g2, gp, "no data for reference", 500);
             return;
@@ -168,8 +167,8 @@ public class BAMTrackRenderer extends TrackRenderer {
                 GlassMessagePane.draw(g2, gp, "No reference sequence loaded. Switch to standard view", 500);
                 return;
             }
-            // fetch reference sequence for comparison with cigar string
 
+            // fetch reference sequence for comparison with cigar string
             try {
                 refSeq = genome.getSequence(ReferenceController.getInstance().getReferenceName(), range).getBytes();
             } catch (IOException e) {
@@ -235,7 +234,7 @@ public class BAMTrackRenderer extends TrackRenderer {
                     continue;
                 }
 
-                Polygon strand = renderStrand(g2, gp, cs, samRecord, interval, level);
+                Polygon strand = renderStrand(g2, gp, cs, samRecord, interval, level, range);
 
                 if (drawMode.getName().equals("VARIANTS")) {
                     // visualize variations (indels and mismatches)
@@ -253,7 +252,8 @@ public class BAMTrackRenderer extends TrackRenderer {
 
     }
 
-    private Polygon renderStrand(Graphics2D g2, GraphPane gp, ColorScheme cs, SAMRecord samRecord, Interval interval, int level) {
+    private Polygon renderStrand(Graphics2D g2, GraphPane gp, ColorScheme cs, SAMRecord samRecord, Interval interval,
+                                 int level, Range range) {
 
         Color forwardColor = cs.getColor("FORWARD_STRAND");
         Color reverseColor = cs.getColor("REVERSE_STRAND");
@@ -262,6 +262,10 @@ public class BAMTrackRenderer extends TrackRenderer {
         double y=0;
         double w=0;
         double h=0;
+
+        // cutoffs to determine when not to draw
+        double leftMostX = gp.transformXPos(range.getFrom());
+        double rightMostX = gp.transformXPos(range.getTo());
 
         double unitHeight;
         unitHeight = gp.getUnitHeight();
@@ -283,6 +287,11 @@ public class BAMTrackRenderer extends TrackRenderer {
         }
         h = unitHeight;
         x = gp.transformXPos(interval.getStart());
+
+        // cut off x and w so no drawing happens off-screen
+        double x2 = Math.min(rightMostX, x+w);
+        x = Math.max(leftMostX, x);
+        w = x2 - x;
 
         // find out which direction we're pointing
         boolean strandFlag = samRecord.getReadNegativeStrandFlag();
@@ -324,6 +333,10 @@ public class BAMTrackRenderer extends TrackRenderer {
         unitWidth = gp.getUnitWidth();
         //unitHeight = intervalHeight;
 
+        // cutoffs to determine when not to draw
+        double leftMostX = gp.transformXPos(range.getFrom());
+        double rightMostX = gp.transformXPos(range.getTo());
+
         // visualize variations (indels and mismatches)
         int alignmentStart = samRecord.getAlignmentStart();
         int alignmentEnd = samRecord.getAlignmentEnd();
@@ -346,6 +359,11 @@ public class BAMTrackRenderer extends TrackRenderer {
 
             double opStart = gp.transformXPos(sequenceCursor);
             double opWidth = gp.getWidth(operatorLength);
+
+            // cut off start and width so no drawing happens off-screen, must be done in the order w, then x, since w depends on first value of x
+            double x2 = Math.min(rightMostX, opStart+opWidth);
+            opStart = Math.max(leftMostX, opStart);
+            opWidth = x2 - opStart;
 
             // delete
             if (operator == CigarOperator.D) {
