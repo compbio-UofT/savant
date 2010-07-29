@@ -21,6 +21,7 @@ import com.jidesoft.action.CommandMenuBar;
 import com.jidesoft.docking.DockableFrame;
 import com.jidesoft.swing.JideButton;
 import com.jidesoft.swing.JideMenu;
+import java.awt.event.AdjustmentEvent;
 import java.beans.PropertyVetoException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -44,6 +45,7 @@ import savant.view.swing.sequence.SequenceTrackRenderer;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.AdjustmentListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
@@ -66,6 +68,8 @@ public class Frame {
     private List<ViewTrack> tracks;
     private boolean isLocked;
     private Range currentRange;
+
+    private JLayeredPane jlp;
 
     public CommandBar commandBar;
     public CommandBar commandBarHidden;
@@ -140,9 +144,21 @@ public class Frame {
             vsb.getComponent(i).addMouseListener(ml);
         }
 
-        //add graphPane to scrollPane
-        scrollPane.getViewport().add(this.graphPane);
 
+        //add graphPane -> jlp -> scrollPane
+        jlp = new JLayeredPane();
+        jlp.setLayout(new GridBagLayout());
+        GridBagConstraints gbc= new GridBagConstraints();
+        gbc.fill = GridBagConstraints.BOTH;
+        gbc.weightx = 1.0;
+        gbc.weighty = 1.0;
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        jlp.add(this.graphPane, gbc, 0);
+
+
+        //scrollPane.getViewport().add(this.graphPane);
+        scrollPane.getViewport().add(jlp);
 
 
 
@@ -748,8 +764,8 @@ public class Frame {
         c.gridy = 0;
         c.gridwidth = 3;
         c.gridheight = 2;
-        frameLandscape.add(p, c, 2);
-        frameLandscape.setLayer(p, 50);
+        jlp.add(p,c,2);
+        jlp.setLayer(p, 50);
         return p;
     }
 

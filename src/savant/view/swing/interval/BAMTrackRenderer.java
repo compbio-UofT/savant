@@ -189,7 +189,8 @@ public class BAMTrackRenderer extends TrackRenderer {
         renderFixed = gp.getUnitHeight() < minimumHeight;
         //if(dynamicMode && !renderFixed){
         if(!renderFixed){
-            double unitHeight = (double) ((JViewport)gp.getParent()).getHeight() / (maxYRange);
+            //double unitHeight = (double) ((JViewport)gp.getParent()).getHeight() / (maxYRange);
+            double unitHeight = (double) ((JViewport)gp.getParent().getParent()).getHeight() / (maxYRange);
             if(unitHeight < minimumHeight) renderFixed = true;
         }
 
@@ -198,7 +199,8 @@ public class BAMTrackRenderer extends TrackRenderer {
 
             int currentHeight = gp.getHeight();
             int currentWidth = gp.getParentFrame().getFrameLandscape().getWidth()-2;
-            int currentHeight1 = ((JViewport)gp.getParent()).getHeight();
+            //int currentHeight1 = ((JViewport)gp.getParent()).getHeight();
+            int currentHeight1 = ((JViewport)gp.getParent().getParent()).getHeight();
             int expectedHeight = Math.max((int)((intervals.size() * maximumHeight) / 0.9), currentHeight1);
 
             if(expectedHeight != currentHeight || currentWidth != gp.getWidth()){
@@ -211,7 +213,8 @@ public class BAMTrackRenderer extends TrackRenderer {
             }
             gp.setUnitHeight(maximumHeight);
             gp.setYRange(new Range(0,(int)Math.ceil(expectedHeight/maximumHeight)));
-        } else if (gp.getSize() != ((JViewport)gp.getParent()).getSize()){
+        //} else if (gp.getSize() != ((JViewport)gp.getParent()).getSize()){
+        } else if (gp.getSize() != ((JViewport)gp.getParent().getParent()).getSize()){
             this.resizeFrame(gp);
         }
 
