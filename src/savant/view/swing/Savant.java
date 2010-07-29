@@ -110,6 +110,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
 
     private static int groupNum = 0;
     private static Map<DockableFrame,Frame> dockFrameToFrameMap = new HashMap<DockableFrame,Frame>();
+    private DockableFrame genomeFrame = null;
 
     private DataFormatForm dff;
     private boolean openAfterFormat;
@@ -2259,6 +2260,11 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
 
         boolean someGenomeSetAlready = ReferenceController.getInstance().isGenomeLoaded();
 
+        if(someGenomeSetAlready && this.genomeFrame != null){
+            this.getTrackDockingManager().removeFrame(this.genomeFrame.getTitle());
+            this.genomeFrame = null;
+        }
+
         ReferenceController.getInstance().setGenome(genome);
 
         //rangeController.setMaxRange(new Range(1, genome.getLength()));
@@ -2289,6 +2295,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
                 this.getTrackDockingManager().addFrame(df);
 
                 dockFrameToFrameMap.put(df, frame);
+                this.genomeFrame = df;
                 
             } catch (FileNotFoundException ex) {
                 Logger.getLogger(Savant.class.getName()).log(Level.SEVERE, null, ex);
@@ -2656,7 +2663,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
             if ((Boolean)propertyChangeEvent.getNewValue() == true) {
                 if (openAfterFormat) {
                     String outfilepath = dff.getOutputFilePath();
-                    if (dff.getFileType() == FileType.SEQUENCE_FASTA && !ReferenceController.getInstance().isGenomeLoaded()) {
+                    if (dff.getFileType() == FileType.SEQUENCE_FASTA) {
                        this.setGenome(outfilepath);
                     } else {
                         try{
