@@ -65,4 +65,14 @@ public class Point {
         result = 31 * result + position;
         return result;
     }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder();
+        sb.append("Point");
+        sb.append("{reference='").append(reference).append('\'');
+        sb.append(", position=").append(position);
+        sb.append('}');
+        return sb.toString();
+    }
 }
