@@ -636,6 +636,11 @@ public class DataFormatForm extends JDialog implements PropertyChangeListener /*
                 setSuccess(true);
             } catch (InterruptedException e) {
                 log.info("Format cancelled by user");
+            } catch (Exception e){
+                log.error("Error formatting file ", e);
+                addToMessage("Error, printing stack trace\n" +
+                        MiscUtils.getStackTrace(e));
+                setSuccess(false);
             } catch (Throwable t) {
                 log.error("Error formatting file ", t);
                 addToMessage("Error, printing stack trace\n" + 

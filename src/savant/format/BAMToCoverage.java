@@ -52,11 +52,11 @@ public class BAMToCoverage extends SavantFileFormatter {
     private long totalLength=0;
     private long previousSequencesCumulativeLength=0;
 
-    public BAMToCoverage(String inFile) throws IOException {
+    public BAMToCoverage(String inFile) throws IOException, Exception {
         this(inFile, inFile + ".cov.savant");
     }
 
-    public BAMToCoverage(String inFile, String outFile) throws IOException {
+    public BAMToCoverage(String inFile, String outFile) throws IOException, Exception {
         super(inFile,outFile,FileType.CONTINUOUS_GENERIC);
 
         log = LogFactory.getLog(BAMToCoverage.class);
@@ -75,7 +75,7 @@ public class BAMToCoverage extends SavantFileFormatter {
         calculateTotalLength();
     }
 
-    public void format() throws InterruptedException, IOException {
+    public void format() throws InterruptedException, IOException, Exception {
 
         //DataOutputStream outfile = null;
 

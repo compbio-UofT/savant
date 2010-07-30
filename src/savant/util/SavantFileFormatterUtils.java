@@ -289,7 +289,7 @@ public class SavantFileFormatterUtils {
         String token = "";
 
         //NEW
-        for(int i = 0; i < Math.max(fields.size(), s.length); i++){
+        for(int i = 0; i < Math.min(fields.size(), s.length); i++){
 
             token = s[i];
             FieldType ft = fields.get(i);

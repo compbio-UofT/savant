@@ -133,7 +133,7 @@ public class DataFormatter implements FormatProgressListener {
      * @throws IOException
      * @throws ParseException
      */
-    public boolean format() throws InterruptedException, IOException, ParseException, SavantFileFormattingException {
+    public boolean format() throws InterruptedException, IOException, ParseException, SavantFileFormattingException, Exception {
 
         // start a timer
         long start = System.currentTimeMillis();
@@ -242,7 +242,7 @@ public class DataFormatter implements FormatProgressListener {
      * CONTINUOUS : BAM
      * @return
      */
-    private void formatAsBAM() throws IOException, InterruptedException {
+    private void formatAsBAM() throws IOException, InterruptedException, Exception {
         BAMToCoverage btc = new BAMToCoverage(this.inPath);
         btc.addProgressListener(this);
         btc.format();
