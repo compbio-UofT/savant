@@ -34,17 +34,17 @@ public class ContinuousRecordTest extends TestCase {
     public void setUp() {
 
 
-        a = new ContinuousRecord(1, new Continuous(10.5f));
-        b = new ContinuousRecord(1, new Continuous(10.5f));
-        c = new ContinuousRecord(1, new Continuous(10.5f));
-        d = new ContinuousRecord(2, new Continuous(20.3f));
+        a = new ContinuousRecord("chr1", 1, new Continuous(10.5f));
+        b = new ContinuousRecord("chr1", 1, new Continuous(10.5f));
+        c = new ContinuousRecord("chr1", 1, new Continuous(10.5f));
+        d = new ContinuousRecord("chr1", 2, new Continuous(20.3f));
 
     }
 
     public void testConstruct() {
         try {
             // This continuous item is invalid and should fail
-            ContinuousRecord e = new ContinuousRecord(1, null);
+            ContinuousRecord e = new ContinuousRecord("chr1", 1, null);
             fail("Expected IllegalArgumentException.");
         } catch (Exception success) {}
     }

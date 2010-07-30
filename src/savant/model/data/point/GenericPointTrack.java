@@ -56,11 +56,10 @@ public class GenericPointTrack implements RecordTrack<GenericPointRecord> {
     public GenericPointTrack(String filename) throws IOException {
         this.savantFile = new SavantFile(filename);
         setRecordSize();
-        //setNumRecords();
     }
 
     private GenericPointRecord convertRecordToGenericPointRecord(List<Object> record) {
-        return new GenericPointRecord(Point.valueOf((String) record.get(0), (Integer) record.get(1)), (String) record.get(2));
+        return GenericPointRecord.valueOf(Point.valueOf((String) record.get(0), (Integer) record.get(1)), (String) record.get(2));
     }
 
     public List<GenericPointRecord> getRecords(String reference, Range range, Resolution resolution) {

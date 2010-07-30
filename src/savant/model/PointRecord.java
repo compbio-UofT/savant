@@ -22,24 +22,25 @@
 package savant.model;
 
 /**
- * TODO:
+ * Immutable class implementing a Record which contains a Point
+ *
  * @author vwilliams
  */
 public class PointRecord implements Record {
 
-    private Point point;
+    private final Point point;
 
-    public PointRecord(Point point) {
-        setPoint(point);
+    protected PointRecord(Point point) {
+        if (point == null) throw new IllegalArgumentException("Invalid argument. Point may not be null.");
+        this.point = point;
+    }
+
+    public static PointRecord valueOf(Point point) {
+        return new PointRecord(point);
     }
 
     public Point getPoint() {
         return point;
-    }
-
-    public void setPoint(Point point) {
-        if (point == null) throw new IllegalArgumentException("Point may not be null");
-        this.point = point;
     }
 
     @Override

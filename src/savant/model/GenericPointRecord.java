@@ -22,24 +22,25 @@
 package savant.model;
 
 /**
- * TODO:
- * @author
+ * Immutable Record class to hold a generic point (point + optional description)
+ * 
+ * @author vwilliams
  */
 public class GenericPointRecord extends PointRecord {
 
-    private String description;
+    private final String description;
 
-    public GenericPointRecord(Point point, String description) {
+    protected GenericPointRecord(Point point, String description) {
         super(point);
         this.description = description;
     }
 
-    public String getDescription() {
-        return description;
+    public static GenericPointRecord valueOf(Point point, String description) {
+        return new GenericPointRecord(point, description);    
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public String getDescription() {
+        return description;
     }
 
     @Override
