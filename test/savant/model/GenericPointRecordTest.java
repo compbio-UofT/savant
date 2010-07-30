@@ -37,18 +37,18 @@ public class GenericPointRecordTest extends TestCase {
     public void setUp() {
 
 
-        a = new GenericPointRecord(Point.valueOf("chr1", 10), "description 10");
-        b = new GenericPointRecord(Point.valueOf("chr1", 10), "description 10");
-        c = new GenericPointRecord(Point.valueOf("chr1", 10), "description 10");
-        d = new GenericPointRecord(Point.valueOf("chr1", 20), "description 20");
-        e = new GenericPointRecord(Point.valueOf("chr1", 20), null);
+        a = GenericPointRecord.valueOf(Point.valueOf("chr1", 10), "description 10");
+        b = GenericPointRecord.valueOf(Point.valueOf("chr1", 10), "description 10");
+        c = GenericPointRecord.valueOf(Point.valueOf("chr1", 10), "description 10");
+        d = GenericPointRecord.valueOf(Point.valueOf("chr1", 20), "description 20");
+        e = GenericPointRecord.valueOf(Point.valueOf("chr1", 20), null);
 
     }
 
     public void testConstruct() {
         try {
             // This point item is invalid and should fail
-            GenericPointRecord e = new GenericPointRecord(null, "my description");
+            GenericPointRecord e = GenericPointRecord.valueOf(null, "my description");
             fail("Expected IllegalArgumentException.");
         } catch (Exception success) {}
     }

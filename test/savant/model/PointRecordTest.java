@@ -35,17 +35,17 @@ public class PointRecordTest extends TestCase {
     public void setUp() {
 
 
-        a = new PointRecord(Point.valueOf("chr1", 10));
-        b = new PointRecord(Point.valueOf("chr1", 10));
-        c = new PointRecord(Point.valueOf("chr1", 10));
-        d = new PointRecord(Point.valueOf("chr1", 20));
+        a = PointRecord.valueOf(Point.valueOf("chr1", 10));
+        b = PointRecord.valueOf(Point.valueOf("chr1", 10));
+        c = PointRecord.valueOf(Point.valueOf("chr1", 10));
+        d = PointRecord.valueOf(Point.valueOf("chr1", 20));
 
     }
 
     public void testConstruct() {
         try {
             // This point item is invalid and should fail
-            PointRecord e = new PointRecord(null);
+            PointRecord e = PointRecord.valueOf(null);
             fail("Expected IllegalArgumentException.");
         } catch (Exception success) {}
     }
