@@ -72,7 +72,7 @@ public class DataTableModel extends AbstractTableModel {
              case SEQUENCE_FASTA:
                  columnNames = sequenceColumnNames;
                  break;
-             case POINT:
+             case POINT_GENERIC:
                  columnNames = pointColumnNames;
                  break;
              case CONTINUOUS_GENERIC:
@@ -98,7 +98,7 @@ public class DataTableModel extends AbstractTableModel {
              switch(dataType) {
                  case SEQUENCE_FASTA:
                      return sequenceColumnNames[column];
-                 case POINT:
+                 case POINT_GENERIC:
                      return pointColumnNames[column];
                  case CONTINUOUS_GENERIC:
                      return continuousColumnNames[column];
@@ -124,7 +124,7 @@ public class DataTableModel extends AbstractTableModel {
              switch (dataType) {
                  case SEQUENCE_FASTA:
                      return sequenceColumnClasses[column];
-                 case POINT:
+                 case POINT_GENERIC:
                      return pointColumnClasses[column];
                  case CONTINUOUS_GENERIC:
                      return continuousColumnClasses[column];
@@ -145,7 +145,7 @@ public class DataTableModel extends AbstractTableModel {
          switch (dataType) {
              case SEQUENCE_FASTA:
                  return datum;
-             case POINT:
+             case POINT_GENERIC:
                  switch (column) {
                      case 0:
                          return ((GenericPointRecord) datum).getPoint().getReference();
@@ -231,16 +231,16 @@ public class DataTableModel extends AbstractTableModel {
              case SEQUENCE_FASTA:
                  datum = value;
                  break;
-             case POINT:
+             case POINT_GENERIC:
                  switch (column) {
                      case 0:
-                         ((GenericPointRecord) datum).getPoint().setReference((String) value);
+//                         ((GenericPointRecord) datum).getPoint().setReference((String) value);
                          break;
                      case 1:
-                        ((GenericPointRecord) datum).getPoint().setPosition(Integer.parseInt((String) value));
+//                        ((GenericPointRecord) datum).getPoint().setPosition(Integer.parseInt((String) value));
                          break;
                      case 2:
-                         ((GenericPointRecord) datum).setDescription((String) value);
+//                         ((GenericPointRecord) datum).setDescription((String) value);
                          break;
                  }
              case CONTINUOUS_GENERIC:
@@ -258,16 +258,16 @@ public class DataTableModel extends AbstractTableModel {
              case INTERVAL_GENERIC:
                  switch (column) {
                      case 0:
-                         ((GenericIntervalRecord) datum).setReference((String) value);
+//                         ((GenericIntervalRecord) datum).setReference((String) value);
                          break;
                      case 1:
-                        ((GenericIntervalRecord) datum).getInterval().setStart(Integer.parseInt((String) value));
+//                        ((GenericIntervalRecord) datum).getInterval().setStart(Integer.parseInt((String) value));
                          break;
                      case 2:
-                         ((GenericIntervalRecord) datum).getInterval().setEnd(Integer.parseInt((String) value));
+//                         ((GenericIntervalRecord) datum).getInterval().setEnd(Integer.parseInt((String) value));
                          break;
                      case 3:
-                         ((GenericIntervalRecord) datum).setDescription((String) value);
+//                         ((GenericIntervalRecord) datum).setDescription((String) value);
                          break;
                  }
              case INTERVAL_BAM:
@@ -307,16 +307,16 @@ public class DataTableModel extends AbstractTableModel {
              case INTERVAL_BED:
                  switch(column) {
                      case 0:
-                         ((BEDIntervalRecord) datum).setChrom((String) value);
+//                         ((BEDIntervalRecord) datum).setChrom((String) value);
                          break;
                      case 1:
-                         ((BEDIntervalRecord) datum).getInterval().setStart(Integer.parseInt((String) value));
+//                         ((BEDIntervalRecord) datum).getInterval().setStart(Integer.parseInt((String) value));
                          break;
                      case 2:
-                         ((BEDIntervalRecord) datum).getInterval().setEnd(Integer.parseInt((String) value));
+//                         ((BEDIntervalRecord) datum).getInterval().setEnd(Integer.parseInt((String) value));
                          break;
                      case 3:
-                         ((BEDIntervalRecord) datum).setName((String) value);
+//                         ((BEDIntervalRecord) datum).setName((String) value);
                          break;
                      case 4:
                          break;
