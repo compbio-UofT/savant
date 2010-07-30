@@ -21,26 +21,35 @@
 
 package savant.model;
 
-import savant.model.Point;
 import junit.framework.TestCase;
 
+/**
+ * A test to test the basic functions of Point, e.g. construction, equals, hashCode, and toString
+ *
+ * @author vwilliams
+ */
 public class PointTest extends TestCase {
 
     private Point a, b, c, d;
 
     public void setUp() {
 
-        a = new Point(10);
-        b = new Point(10);
-        c = new Point(10);
-        d = new Point(20);
+        a = Point.valueOf("chr1", 10);
+        b = Point.valueOf("chr1", 10);
+        c = Point.valueOf("chr1", 10);
+        d = Point.valueOf("chr1", 20);
 
     }
 
     public void testConstruct() {
         try {
             // This point is invalid and should fail
-            Point e = new Point(-1);
+            Point e = Point.valueOf("chr1", -1);
+            fail("Expected IllegalArgumentException.");
+        } catch (Exception success) {}
+        try {
+            // This point is invalid and should fail
+            Point e = Point.valueOf(null, 10);
             fail("Expected IllegalArgumentException.");
         } catch (Exception success) {}
     }

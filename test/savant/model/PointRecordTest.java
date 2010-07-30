@@ -21,12 +21,11 @@
 
 package savant.model;
 
-import savant.model.Point;
-import savant.model.PointRecord;
 import junit.framework.TestCase;
 
 /**
- * TODO:
+ * A test to test the basic functions of PointRecord, e.g. construction, equals, hashCode, and toString
+ * 
  * @author vwilliams
  */
 public class PointRecordTest extends TestCase {
@@ -36,10 +35,10 @@ public class PointRecordTest extends TestCase {
     public void setUp() {
 
 
-        a = new PointRecord(new Point(10));
-        b = new PointRecord(new Point(10));
-        c = new PointRecord(new Point(10));
-        d = new PointRecord(new Point(20));
+        a = new PointRecord(Point.valueOf("chr1", 10));
+        b = new PointRecord(Point.valueOf("chr1", 10));
+        c = new PointRecord(Point.valueOf("chr1", 10));
+        d = new PointRecord(Point.valueOf("chr1", 20));
 
     }
 

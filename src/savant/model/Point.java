@@ -16,29 +16,34 @@
 package savant.model;
 
 /**
- * Class to represent a single position of interest.
+ * Immutable class to represent a single position of interest.
  * 
  * @author mfiume
  */
 public class Point {
 
-    private String reference;
-    private int position;
+    private final String reference;
+    private final int position;
 
+    private Point(String reference, int position) {
 
-    public Point(String reference, int position) {
-        setReference(reference);
-        if (position < 0)
-            throw new IllegalArgumentException("Invalid argument. Points must be >= 0.");
-        setPosition(position);
+        if (reference == null) throw new IllegalArgumentException("Invalid argument. Reference may not be null.");
+        if (position < 0) throw new IllegalArgumentException("Invalid argument. Points must be >= 0.");
+
+        this.reference = reference;
+        this.position = position;
     }
 
-    public void setPosition(int position) {
-        this.position = position;
+    public static Point valueOf(String reference, int position) {
+        return new Point(reference, position);
     }
 
     public int getPosition() {
         return this.position;
+    }
+    
+    public String getReference() {
+        return this.reference;
     }
 
     @Override
@@ -48,28 +53,16 @@ public class Point {
 
         Point point = (Point) o;
 
-        if (position != point.position || !reference.equals(point.reference)) return false;
+        if (position != point.position) return false;
+        if (!reference.equals(point.reference)) return false;
 
         return true;
     }
 
     @Override
     public int hashCode() {
-        return position;
+        int result = reference.hashCode();
+        result = 31 * result + position;
+        return result;
     }
-
-    @Override
-    public String toString() {
-        return getReference() + ": " + getPosition();
-
-    }
-
-    public void setReference(String reference) {
-        this.reference = reference;
-    }
-
-    public String getReference() {
-        return this.reference;
-    }
-
 }

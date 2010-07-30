@@ -26,7 +26,8 @@ import savant.model.GenericPointRecord;
 import junit.framework.TestCase;
 
 /**
- * TODO:
+ * A test to test the basic functions of GenericPointRecord, e.g. construction, equals, hashCode, and toString.
+ * 
  * @author vwilliams
  */
 public class GenericPointRecordTest extends TestCase {
@@ -36,11 +37,11 @@ public class GenericPointRecordTest extends TestCase {
     public void setUp() {
 
 
-        a = new GenericPointRecord(new Point(10), "description 10");
-        b = new GenericPointRecord(new Point(10), "description 10");
-        c = new GenericPointRecord(new Point(10), "description 10");
-        d = new GenericPointRecord(new Point(20), "description 20");
-        e = new GenericPointRecord(new Point(20), null);
+        a = new GenericPointRecord(Point.valueOf("chr1", 10), "description 10");
+        b = new GenericPointRecord(Point.valueOf("chr1", 10), "description 10");
+        c = new GenericPointRecord(Point.valueOf("chr1", 10), "description 10");
+        d = new GenericPointRecord(Point.valueOf("chr1", 20), "description 20");
+        e = new GenericPointRecord(Point.valueOf("chr1", 20), null);
 
     }
 

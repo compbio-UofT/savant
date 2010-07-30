@@ -21,8 +21,6 @@
 
 package savant.model.data.point;
 
-import java.io.Console;
-import java.util.Set;
 import savant.format.SavantFile;
 import savant.model.GenericPointRecord;
 import savant.model.Point;
@@ -31,23 +29,20 @@ import savant.model.Resolution;
 import savant.model.data.RecordTrack;
 import savant.util.RAFUtils;
 import savant.util.Range;
-import savant.view.swing.Savant;
 
 import java.io.EOFException;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * TODO:
+ * Data access object for accessing generic point files.
  * 
  * @author mfiume, vwilliams
  */
-// TODO: Change logging from Savant.log
-    
 public class GenericPointTrack implements RecordTrack<GenericPointRecord> {
 
     private SavantFile savantFile;
@@ -56,7 +51,7 @@ public class GenericPointTrack implements RecordTrack<GenericPointRecord> {
     private int recordSize;
 
     /** FILE SPECIFIC VALUES */
-    int descriptionLength;
+    private int descriptionLength;
 
     public GenericPointTrack(String filename) throws IOException {
         this.savantFile = new SavantFile(filename);
@@ -65,7 +60,7 @@ public class GenericPointTrack implements RecordTrack<GenericPointRecord> {
     }
 
     private GenericPointRecord convertRecordToGenericPointRecord(List<Object> record) {
-        return new GenericPointRecord(new Point((String) record.get(0), (Integer) record.get(1)), (String) record.get(2));
+        return new GenericPointRecord(Point.valueOf((String) record.get(0), (Integer) record.get(1)), (String) record.get(2));
     }
 
     public List<GenericPointRecord> getRecords(String reference, Range range, Resolution resolution) {
@@ -75,7 +70,6 @@ public class GenericPointTrack implements RecordTrack<GenericPointRecord> {
         if (!this.savantFile.containsDataForReference(reference)) { return data; }
 
         try {
-            //System.out.println("\nSeeking to start");
             int indexOfStart = seekToStart(reference, range.getFrom(), 0, getNumRecords(reference), savantFile);
 
 
@@ -94,8 +88,7 @@ public class GenericPointTrack implements RecordTrack<GenericPointRecord> {
         }
         catch (EOFException ignore) {}
         catch (IOException ex) {
-            Savant.log("Warning: IO Exception when getting point data");
-            Logger.getLogger(PointTrack.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(PointTrack.class.getName()).log(Level.SEVERE, "IO Exception when getting point data", ex);
         }
 
         // return result
@@ -117,33 +110,17 @@ public class GenericPointTrack implements RecordTrack<GenericPointRecord> {
     private int getNumRecords(String reference) {
         if (!this.savantFile.containsDataForReference(reference)) { return -1; }
         return (int) (this.savantFile.getReferenceLength(reference) / getRecordSize());
-        //return this.numRecords;
     }
-
-    /*
-    private void setNumRecords() {
-        try {
-            int numbytes = (int) savantFile.length();
-            this.numRecords = numbytes / getRecordSize();
-        } catch (IOException ex) {
-            Savant.log("Error: setting number of records in point track");
-        }
-    }
-     */
 
     private int seekToStart(String reference, int pos, int low, int high, SavantFile raf) throws IOException {
 
         int mid = low + ((high - low) / 2);
 
         if (high < low) {
-            //System.out.println("Position: " + low);
             return low;
         }
 
         int posAtMid = getStartPosOfRecord(reference, mid, raf);
-
-        //System.out.println("Low " + low + "\tMid " + mid + "(" + posAtMid + ")\tHigh " + high + "\tPos " + pos);
-
         
         if (posAtMid > pos) {
             return seekToStart(reference, pos, low, mid - 1, raf);
@@ -162,7 +139,6 @@ public class GenericPointTrack implements RecordTrack<GenericPointRecord> {
         return (Integer) line.get(1);
     }
 
-    @Override
     public Set<String> getReferenceNames() {
         return this.savantFile.getReferenceNames();
     }
