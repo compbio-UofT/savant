@@ -50,6 +50,7 @@ public class IntervalFormatter extends SavantFileFormatter {
     private int refnameindex;
     private int startcoordindex;
     private int endcoordindex;
+    private boolean isGFF = false;
 
     List<FieldType> writeOrderFields;
     List<Object> writeOrderModifiers;
@@ -296,6 +297,8 @@ public class IntervalFormatter extends SavantFileFormatter {
 
     public void formatAsIntervalGFF() throws IOException, InterruptedException {
 
+        isGFF = true;
+
         // pre-sort by start position
         int[] columns = {3,4};
         sortInput(columns);
@@ -306,7 +309,7 @@ public class IntervalFormatter extends SavantFileFormatter {
         fields.add(FieldType.STRING);   // feature
         fields.add(FieldType.INTEGER);  // start
         fields.add(FieldType.INTEGER);  // end
-        fields.add(FieldType.INTEGER);  // score
+        fields.add(FieldType.DOUBLE);  // score
         fields.add(FieldType.STRING);   // strand
         fields.add(FieldType.STRING);   // frame
         fields.add(FieldType.STRING);   // group
@@ -483,7 +486,7 @@ public class IntervalFormatter extends SavantFileFormatter {
             if (strLine.equals("")) { continue; }
 
             // tokenize the line into the respective fields
-            line = SavantFileFormatterUtils.parseTxtLine(strLine, fields);
+            line = SavantFileFormatterUtils.parseTxtLine(strLine, fields, isGFF);
 
 
             //for (Object o : line) {

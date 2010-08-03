@@ -262,14 +262,28 @@ public class SavantFileFormatterUtils {
         }
     }
 
-    /**
-     * Parse next line in the inFile according to given field types
+   /**
+     * Parse next line in the inFile according to given field types.
+     * Assumes that you are not parsing a GFF file.
      * @param txtLine - String line of text
      * @param fields
      * @return
      * @throws IOException
      */
     public static List<Object> parseTxtLine(String txtLine, List<FieldType> fields) throws IOException {
+        return parseTxtLine(txtLine, fields, false);
+    }
+
+
+    /**
+     * Parse next line in the inFile according to given field types
+     * @param txtLine - String line of text
+     * @param fields
+     * @param isGFF - specific cases for GFF formatting
+     * @return
+     * @throws IOException
+     */
+    public static List<Object> parseTxtLine(String txtLine, List<FieldType> fields, boolean isGFF) throws IOException {
 
         if (txtLine == null) {
             return null;
@@ -305,6 +319,10 @@ public class SavantFileFormatterUtils {
                     line.add(Integer.parseInt(token));
                     break;
                 case DOUBLE:
+                    if(isGFF && token.contains(".") && token.length() == 1){
+                        line.add(-1.0);
+                        break;
+                    }
                     line.add(Double.parseDouble(token));
                     break;
                 case FLOAT:
