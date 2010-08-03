@@ -263,15 +263,17 @@ public class BAMTrackRenderer extends TrackRenderer {
         double w=0;
         double h=0;
 
-        // cutoffs to determine when not to draw
-        double leftMostX = gp.transformXPos(range.getFrom());
-        double rightMostX = gp.transformXPos(range.getTo());
 
-        double unitHeight;
-        unitHeight = gp.getUnitHeight();
+        double unitHeight = gp.getUnitHeight();
+        double unitWidth = gp.getUnitWidth();
+
         //unitHeight = intervalHeight;
         double arrowHeight = unitHeight/2;
         double arrowWidth = unitHeight/4;
+
+        // cutoffs to determine when not to draw
+        double leftMostX = gp.transformXPos(range.getFrom());
+        double rightMostX = gp.transformXPos(range.getTo()) + unitWidth;
 
         boolean drawPoint = false;
         //y = gp.transformYPos(level)-unitHeight;
@@ -350,7 +352,7 @@ public class BAMTrackRenderer extends TrackRenderer {
 
         // cutoffs to determine when not to draw
         double leftMostX = gp.transformXPos(range.getFrom());
-        double rightMostX = gp.transformXPos(range.getTo());
+        double rightMostX = gp.transformXPos(range.getTo()) + unitWidth;
 
         // visualize variations (indels and mismatches)
         int alignmentStart = samRecord.getAlignmentStart();
