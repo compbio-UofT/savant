@@ -90,13 +90,13 @@ public class BAMIntervalTrack implements RecordTrack<BAMIntervalRecord> {
                 samRecord = recordIterator.next();
                 // don't keep unmapped reads
                 if (samRecord.getReadUnmappedFlag()) continue;
-                bamRecord = new BAMIntervalRecord(samRecord);
-
-                // find out the type of the pair
-                if (samRecord.getReadPairedFlag() && !samRecord.getMateUnmappedFlag()) {
-                    BAMIntervalRecord.PairType type = getPairType(samRecord.getAlignmentStart(), samRecord.getMateAlignmentStart(), samRecord.getReadNegativeStrandFlag(), samRecord.getMateNegativeStrandFlag());
-                    bamRecord.setType(type);
-                }
+                
+               // find out the type of the pair
+               BAMIntervalRecord.PairType type = null;
+               if (samRecord.getReadPairedFlag() && !samRecord.getMateUnmappedFlag()) {
+                   type = getPairType(samRecord.getAlignmentStart(), samRecord.getMateAlignmentStart(), samRecord.getReadNegativeStrandFlag(), samRecord.getMateNegativeStrandFlag());
+               }
+               bamRecord = BAMIntervalRecord.valueOf(samRecord, type);
 
                 result.add(bamRecord);
             }
