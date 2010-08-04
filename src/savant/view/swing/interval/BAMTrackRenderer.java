@@ -36,7 +36,7 @@ import savant.model.view.DrawingInstructions;
 import savant.model.view.Mode;
 import savant.util.IntervalPacker;
 import savant.util.Range;
-import savant.settings.BrowserDefaults;
+import savant.settings.BrowserSettings;
 import savant.view.swing.GraphPane;
 import savant.view.swing.Savant;
 import savant.view.swing.TrackRenderer;
@@ -186,33 +186,27 @@ public class BAMTrackRenderer extends TrackRenderer {
 
         renderFixed = false;
         renderFixed = gp.getUnitHeight() < minimumHeight;
-        //if(dynamicMode && !renderFixed){
         if(!renderFixed){
-            //double unitHeight = (double) ((JViewport)gp.getParent()).getHeight() / (maxYRange);
             double unitHeight = (double) ((JViewport)gp.getParent().getParent()).getHeight() / (maxYRange);
             if(unitHeight < minimumHeight) renderFixed = true;
         }
 
-        //if(!dynamicMode || renderFixed){
         if(renderFixed){
-
             int currentHeight = gp.getHeight();
             int currentWidth = gp.getParentFrame().getFrameLandscape().getWidth()-2;
-            //int currentHeight1 = ((JViewport)gp.getParent()).getHeight();
             int currentHeight1 = ((JViewport)gp.getParent().getParent()).getHeight();
             int expectedHeight = Math.max((int)((intervals.size() * maximumHeight) / 0.9), currentHeight1);
 
             if(expectedHeight != currentHeight || currentWidth != gp.getWidth()){
-                gp.bf = new BufferedImage(currentWidth, expectedHeight, BufferedImage.TYPE_INT_RGB);
+                gp.setBufferedImage(new BufferedImage(currentWidth, expectedHeight, BufferedImage.TYPE_INT_RGB));
                 gp.newHeight = expectedHeight;
                 gp.setPaneResize(true);
-                g2 = gp.bf.createGraphics();
-                gp.renderBackground(g2);
+                //g2 = gp.bf.createGraphics();
+                //gp.renderBackground(g2);
                 return;
             }
             gp.setUnitHeight(maximumHeight);
             gp.setYRange(new Range(0,(int)Math.ceil(expectedHeight/maximumHeight)));
-        //} else if (gp.getSize() != ((JViewport)gp.getParent()).getSize()){
         } else if (gp.getSize() != ((JViewport)gp.getParent().getParent()).getSize()){
             this.resizeFrame(gp);
         }
@@ -452,16 +446,16 @@ public class BAMTrackRenderer extends TrackRenderer {
                             String base = new String(readBase);
                             Color mismatchColor = null;
                             if (base.equals("A")) {
-                                mismatchColor = BrowserDefaults.A_COLOR;
+                                mismatchColor = BrowserSettings.A_COLOR;
                             }
                             else if (base.equals("C")) {
-                                mismatchColor = BrowserDefaults.C_COLOR;
+                                mismatchColor = BrowserSettings.C_COLOR;
                             }
                             else if (base.equals("G")) {
-                                mismatchColor = BrowserDefaults.G_COLOR;
+                                mismatchColor = BrowserSettings.G_COLOR;
                             }
                             else if (base.equals("T")) {
-                                mismatchColor = BrowserDefaults.T_COLOR;
+                                mismatchColor = BrowserSettings.T_COLOR;
                             }
                             double xCoordinate = gp.transformXPos(sequenceCursor+i);
                             double width = gp.getUnitWidth();
@@ -716,10 +710,10 @@ public class BAMTrackRenderer extends TrackRenderer {
                 if(genome.isSequenceSet() && snpNuc.equals(genomeNuc)){
                     subPileColor = cs.getColor("REVERSE_STRAND");
                 } else {
-                    if(snpNuc.equals(Nucleotide.A)) subPileColor = BrowserDefaults.A_COLOR;
-                    else if (snpNuc.equals(Nucleotide.C)) subPileColor = BrowserDefaults.C_COLOR;
-                    else if (snpNuc.equals(Nucleotide.G)) subPileColor = BrowserDefaults.G_COLOR;
-                    else if (snpNuc.equals(Nucleotide.T)) subPileColor = BrowserDefaults.T_COLOR;
+                    if(snpNuc.equals(Nucleotide.A)) subPileColor = BrowserSettings.A_COLOR;
+                    else if (snpNuc.equals(Nucleotide.C)) subPileColor = BrowserSettings.C_COLOR;
+                    else if (snpNuc.equals(Nucleotide.G)) subPileColor = BrowserSettings.G_COLOR;
+                    else if (snpNuc.equals(Nucleotide.T)) subPileColor = BrowserSettings.T_COLOR;
                     //FIXME: what do we do here?
                     else if (snpNuc.equals(Nucleotide.OTHER)) subPileColor = Color.BLACK;
                 }
@@ -842,7 +836,7 @@ public class BAMTrackRenderer extends TrackRenderer {
             g2.setStroke(twoStroke);
             Rectangle2D stringRect = smallFont.getStringBounds(legendString, g2.getFontRenderContext());
             g2.drawLine(x-25, y-(int)stringRect.getHeight()/2, x-5, y-(int)stringRect.getHeight()/2);
-            g2.setColor(BrowserDefaults.colorAccent);
+            g2.setColor(BrowserSettings.colorAccent);
             g2.setStroke(oneStroke);
             g2.drawString(legendString, x, y);
 
@@ -984,7 +978,7 @@ public class BAMTrackRenderer extends TrackRenderer {
                 g2.setStroke(twoStroke);
                 Rectangle2D stringRect = smallFont.getStringBounds(legendString, g2.getFontRenderContext());
                 g2.drawLine(x-25, y-(int)stringRect.getHeight()/2, x-5, y-(int)stringRect.getHeight()/2);
-                g2.setColor(BrowserDefaults.colorAccent);
+                g2.setColor(BrowserSettings.colorAccent);
                 g2.setStroke(oneStroke);
                 g2.drawString(legendString, x, y);
 

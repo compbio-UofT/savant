@@ -15,7 +15,7 @@
  */
 package savant.view.swing;
 
-import savant.settings.BrowserDefaults;
+import savant.settings.BrowserSettings;
 import com.jidesoft.dialog.JideOptionPane;
 import savant.controller.event.reference.ReferenceChangedEvent;
 import savant.controller.event.track.TrackListChangedEvent;
@@ -174,9 +174,9 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         this.panel_main.add(masterPlaceholderPanel,BorderLayout.CENTER);
 
         auxDockingManager = new DefaultDockingManager(this,masterPlaceholderPanel);
-        masterPlaceholderPanel.setBackground(BrowserDefaults.colorSplitter);
+        masterPlaceholderPanel.setBackground(BrowserSettings.colorSplitter);
         //auxDockingManager.setSidebarRollover(false);
-        auxDockingManager.getWorkspace().setBackground(BrowserDefaults.colorSplitter);
+        auxDockingManager.getWorkspace().setBackground(BrowserSettings.colorSplitter);
         auxDockingManager.setInitSplitPriority(DockingManager.SPLIT_EAST_SOUTH_WEST_NORTH);
         auxDockingManager.loadLayoutData();
 
@@ -186,8 +186,8 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         auxDockingManager.getWorkspace().add(trackPanel,BorderLayout.CENTER);
 
         trackDockingManager = new DefaultDockingManager(this,trackPanel);
-        trackPanel.setBackground(BrowserDefaults.colorSplitter);
-        trackDockingManager.getWorkspace().setBackground(BrowserDefaults.colorSplitter);
+        trackPanel.setBackground(BrowserSettings.colorSplitter);
+        trackDockingManager.getWorkspace().setBackground(BrowserSettings.colorSplitter);
         //trackDockingManager.setSidebarRollover(false);
         trackDockingManager.getWorkspace().setBackground(Color.red);
         trackDockingManager.setInitNorthSplit(JideSplitPane.VERTICAL_SPLIT);
@@ -353,7 +353,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         addComponentListener(this);
         initComponents();
         customizeUI();
-        init();
+        init();    
     }
 
     private void loadPlugins() {
@@ -932,7 +932,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
 
     private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
         try {
-            java.awt.Desktop.getDesktop().browse(java.net.URI.create(BrowserDefaults.url));
+            java.awt.Desktop.getDesktop().browse(java.net.URI.create(BrowserSettings.url));
         } catch (IOException ex) {
             Logger.getLogger(Savant.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -940,7 +940,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
 
     private void menuitem_preformattedActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuitem_preformattedActionPerformed
         try {
-            java.awt.Desktop.getDesktop().browse(java.net.URI.create(BrowserDefaults.url_preformatteddata));
+            java.awt.Desktop.getDesktop().browse(java.net.URI.create(BrowserSettings.url_preformatteddata));
         } catch (IOException ex) {
             Logger.getLogger(Savant.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -948,7 +948,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
 
     private void menuitem_ucscActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuitem_ucscActionPerformed
         try {
-            java.awt.Desktop.getDesktop().browse(java.net.URI.create(BrowserDefaults.url_ucsctablebrowser));
+            java.awt.Desktop.getDesktop().browse(java.net.URI.create(BrowserSettings.url_ucsctablebrowser));
         } catch (IOException ex) {
             Logger.getLogger(Savant.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -956,7 +956,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
 
     private void menuitem_thousandgenomesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuitem_thousandgenomesActionPerformed
         try {
-            java.awt.Desktop.getDesktop().browse(java.net.URI.create(BrowserDefaults.url_thousandgenomes));
+            java.awt.Desktop.getDesktop().browse(java.net.URI.create(BrowserSettings.url_thousandgenomes));
         } catch (IOException ex) {
             Logger.getLogger(Savant.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -999,7 +999,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
 
     private void menuitem_tutorialsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuitem_tutorialsActionPerformed
         try {
-            java.awt.Desktop.getDesktop().browse(java.net.URI.create(BrowserDefaults.url_tutorials));
+            java.awt.Desktop.getDesktop().browse(java.net.URI.create(BrowserSettings.url_tutorials));
         } catch (IOException ex) {
             Logger.getLogger(Savant.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -1007,7 +1007,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
 
     private void menuitem_usermanualActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuitem_usermanualActionPerformed
         try {
-            java.awt.Desktop.getDesktop().browse(java.net.URI.create(BrowserDefaults.url_manuals));
+            java.awt.Desktop.getDesktop().browse(java.net.URI.create(BrowserSettings.url_manuals));
         } catch (IOException ex) {
             Logger.getLogger(Savant.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -1224,7 +1224,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
     }
 
     private void disableExperimentalFeatures() {
-        this.menuitem_preferences.setVisible(false);
+        //this.menuitem_preferences.setVisible(false);
         this.menu_tools.setVisible(false);
     }
 
@@ -2067,13 +2067,13 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
     private JPanel createTabPanel(JTabbedPane jtp, String name) {
         JPanel pan = new JPanel();
         pan.setLayout(new BorderLayout());
-        pan.setBackground(BrowserDefaults.colorTabBackground);
+        pan.setBackground(BrowserSettings.colorTabBackground);
         jtp.addTab(name, pan);
         return pan;
     }
 
     private Component getRigidPadding() {
-        return Box.createRigidArea(new Dimension(BrowserDefaults.padding, BrowserDefaults.padding));
+        return Box.createRigidArea(new Dimension(BrowserSettings.padding, BrowserSettings.padding));
     }
 
     private JButton addButton(JPanel p, String label) {
@@ -2501,7 +2501,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         }
 
         log = new JTextArea();
-        log.setFont(new Font(BrowserDefaults.fontName, Font.PLAIN, 18));
+        log.setFont(new Font(BrowserSettings.fontName, Font.PLAIN, 18));
         JScrollPane jsp = new JScrollPane(log);
 
         pan.add(jsp);

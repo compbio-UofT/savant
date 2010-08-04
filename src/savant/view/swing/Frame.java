@@ -16,7 +16,7 @@
 
 package savant.view.swing;
 
-import savant.settings.BrowserDefaults;
+import savant.settings.BrowserSettings;
 import com.jidesoft.action.CommandBar;
 import com.jidesoft.docking.DockableFrame;
 import com.jidesoft.swing.JideButton;
@@ -714,7 +714,7 @@ public class Frame {
 
     private void initGraph() {
         graphPane = getNewZedGraphControl();
-        graphPane.setBackground(BrowserDefaults.colorFrameBackground);
+        graphPane.setBackground(BrowserSettings.colorFrameBackground);
     }
 
     // FIXME: this is a horrible kludge

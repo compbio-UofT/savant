@@ -299,7 +299,7 @@ public class ColorSchemeDialog extends JDialog {
     private int findProperty(String name){
         int result = -1;
         for(int j = 0; j < model.getOriginalProperties().size(); j++){
-            if(((SampleProperty) model.getOriginalProperties().get(j)).getName() == name){
+            if(((SampleProperty) model.getOriginalProperties().get(j)).getName().equals(name)){
                 result = j;
                 break;
             }

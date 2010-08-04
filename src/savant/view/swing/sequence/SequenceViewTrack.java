@@ -23,7 +23,7 @@ import savant.model.view.AxisRange;
 import savant.model.view.ColorScheme;
 import savant.model.view.DrawingInstructions;
 import savant.util.Range;
-import savant.settings.BrowserDefaults;
+import savant.settings.BrowserSettings;
 import savant.view.swing.Savant;
 import savant.view.swing.TrackRenderer;
 import savant.view.swing.ViewTrack;
@@ -61,10 +61,10 @@ public class SequenceViewTrack extends ViewTrack {
 //        c.addColorSetting("C_BACKGROUND", new Color(131,255,0));
 //        c.addColorSetting("G_BACKGROUND", new Color(255,255,0));
 //        c.addColorSetting("T_BACKGROUND", new Color(255,192,0));
-        c.addColorSetting("A_BACKGROUND", BrowserDefaults.A_COLOR);
-        c.addColorSetting("C_BACKGROUND", BrowserDefaults.C_COLOR);
-        c.addColorSetting("G_BACKGROUND", BrowserDefaults.G_COLOR);
-        c.addColorSetting("T_BACKGROUND", BrowserDefaults.T_COLOR); 
+        c.addColorSetting("A_BACKGROUND", BrowserSettings.A_COLOR);
+        c.addColorSetting("C_BACKGROUND", BrowserSettings.C_COLOR);
+        c.addColorSetting("G_BACKGROUND", BrowserSettings.G_COLOR);
+        c.addColorSetting("T_BACKGROUND", BrowserSettings.T_COLOR);
         c.addColorSetting("LINE_COLOR", Color.black);
         c.addColorSetting("BACKGROUND", new Color(100,100,100,220));
 

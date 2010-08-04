@@ -22,7 +22,7 @@ import savant.model.view.AxisRange;
 import savant.model.view.ColorScheme;
 import savant.model.view.DrawingInstructions;
 import savant.util.Range;
-import savant.settings.BrowserDefaults;
+import savant.settings.BrowserSettings;
 import savant.view.swing.TrackRenderer;
 import savant.view.swing.ViewTrack;
 
@@ -47,8 +47,8 @@ public class PointViewTrack extends ViewTrack {
         ColorScheme c = new ColorScheme();
 
         /* add settings here */
-        c.addColorSetting("BACKGROUND", BrowserDefaults.colorGraphMain);
-        c.addColorSetting("LINE", BrowserDefaults.colorAccent);
+        c.addColorSetting("BACKGROUND", BrowserSettings.colorGraphMain);
+        c.addColorSetting("LINE", BrowserSettings.colorAccent);
 
         return c; 
     }

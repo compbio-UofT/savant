@@ -22,7 +22,7 @@ import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.text.DefaultCaret;
-import savant.settings.BrowserDefaults;
+import savant.settings.BrowserSettings;
 
 /**
  *

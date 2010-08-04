@@ -16,7 +16,7 @@
 
 package savant.view.swing;
 
-import savant.settings.BrowserDefaults;
+import savant.settings.BrowserSettings;
 import java.awt.geom.Rectangle2D.Double;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -86,7 +86,7 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
     private boolean isDragging = false;
 
     //scrolling...
-    public BufferedImage bf;
+    private BufferedImage bufferedImage;
     private Range prevRange = null;
     private Mode prevDrawMode = null;
     private Dimension prevSize = null;
@@ -304,9 +304,14 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
                 this.parentFrame.getFrameLandscape().getWidth() == oldWidth &&
                 this.getParentFrame().getFrameLandscape().getHeight() == oldHeight);
 
+        //bufferedImage stores the current graphic for future use. If nothing
+        //has changed in the track since the last render, bufferedImage will
+        //be used to redraw the current view. This method allows for fast repaints
+        //on tracks where nothing has changed (panning, selection, plumbline,...)
+
         //if nothing has changed draw buffered image
         if(sameRange && sameMode && sameSize && !this.renderRequired){
-            g.drawImage(bf, 0, 0, this);
+            g.drawImage(bufferedImage, 0, 0, this);
 
             //force unitHeight from last render
             unitHeight = oldUnitHeight;
@@ -348,10 +353,8 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
             paneResize = false;
 
             //get old scroll position
-            //int oldScroll = ((JScrollPane)this.getParent().getParent()).getVerticalScrollBar().getValue();
             int oldScroll = ((JScrollPane)this.getParent().getParent().getParent()).getVerticalScrollBar().getValue();
             int oldHeight = this.getHeight();
-            //int oldViewHeight = ((JViewport)this.getParent()).getHeight();
             int oldViewHeight = ((JViewport)this.getParent().getParent()).getHeight();
             int oldBottomHeight = oldHeight - oldScroll - oldViewHeight;
 
@@ -365,13 +368,11 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
 
             //scroll so that bottom matches previous view
             newScroll = newHeight - oldViewHeight - oldBottomHeight;
-            //((JScrollPane)this.getParent().getParent()).getVerticalScrollBar().setValue(newScroll);
 
             return;
 
         } else {
             if(newScroll != -1){
-                //((JScrollPane)this.getParent().getParent()).getVerticalScrollBar().setValue(newScroll);
                 ((JScrollPane)this.getParent().getParent().getParent()).getVerticalScrollBar().setValue(newScroll);
                 newScroll = -1;
             }
@@ -389,8 +390,8 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
         System.out.println("\tRendering of " + tracks.get(0).getName() + " took " + elapsedTimeSec + " seconds");
          */
 
-        bf = bf1;
-        g.drawImage(bf, 0, 0, this);
+        bufferedImage = bf1;
+        g.drawImage(bufferedImage, 0, 0, this);
         this.parentFrame.commandBar.repaint();
 
     }
@@ -406,7 +407,7 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
         if (this.isYGridOn) {
             Graphics2D g2 = (Graphics2D) g;
             Font smallFont = new Font("Sans-Serif", Font.PLAIN, 10);
-            g2.setColor(BrowserDefaults.colorAccent);
+            g2.setColor(BrowserSettings.colorAccent);
             String maxPlotString = "ymax=" + Integer.toString(yMax);
             g2.setFont(smallFont);
             Rectangle2D stringRect = smallFont.getStringBounds(maxPlotString, g2.getFontRenderContext());
@@ -457,9 +458,9 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
             g2d.draw(rectangle);
 
             if (gpc.isZooming()) {
-                g.setColor(BrowserDefaults.colorGraphPaneZoomFill);
+                g.setColor(BrowserSettings.colorGraphPaneZoomFill);
             } else if (gpc.isSelecting()) {
-                g.setColor(BrowserDefaults.colorGraphPaneSelectionFill);
+                g.setColor(BrowserSettings.colorGraphPaneSelectionFill);
             }
             g.fillRect(this.x, this.y, this.w, this.h);
         }
@@ -526,8 +527,8 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
 
             // Paint a gradient from top to bottom
             GradientPaint gp0 = new GradientPaint(
-                0, 0, BrowserDefaults.colorGraphPaneBackgroundTop,
-                0, this.getHeight(), BrowserDefaults.colorGraphPaneBackgroundBottom );
+                0, 0, BrowserSettings.colorGraphPaneBackgroundTop,
+                0, this.getHeight(), BrowserSettings.colorGraphPaneBackgroundBottom );
 
             g2d0.setPaint( gp0 );
             g2d0.fillRect( 0, 0, this.getWidth(), this.getHeight() );
@@ -541,7 +542,7 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
                 double separation = width / numseparators;
 
 
-                g2.setColor(BrowserDefaults.colorAxisGrid);
+                g2.setColor(BrowserSettings.colorAxisGrid);
                 for (int i = 0; i <= numseparators; i++) {
                     g2.drawLine((int)Math.ceil(i*separation)+1, this.getHeight(), (int) Math.ceil(i*separation)+1, 0);
                 }
@@ -556,7 +557,7 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
                 int height = this.getHeight();
                 double separation = height / numseparators;
 
-                g2.setColor(BrowserDefaults.colorAxisGrid);
+                g2.setColor(BrowserSettings.colorAxisGrid);
                 for (int i = 0; i <= numseparators; i++) {
                     g2.drawLine(0, (int)Math.ceil(i*separation)+1, this.getWidth(), (int) Math.ceil(i*separation)+1);
                 }
@@ -1138,6 +1139,10 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
 
     public void setIsYGridOn(boolean value){
         this.isYGridOn = value;
+    }
+
+    public void setBufferedImage(BufferedImage bi){
+        this.bufferedImage = bi;
     }
 
 }

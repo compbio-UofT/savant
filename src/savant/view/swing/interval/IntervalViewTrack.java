@@ -27,7 +27,7 @@ import savant.model.view.ColorScheme;
 import savant.model.view.DrawingInstructions;
 import savant.model.view.Mode;
 import savant.util.Range;
-import savant.settings.BrowserDefaults;
+import savant.settings.BrowserSettings;
 import savant.view.swing.TrackRenderer;
 import savant.view.swing.ViewTrack;
 
@@ -65,7 +65,7 @@ public class IntervalViewTrack extends ViewTrack {
         //c.addColorSetting("BACKGROUND", BrowserDefaults.colorGraphMain);
         c.addColorSetting("TRANSLUCENT_GRAPH", new Color(0, 174, 255, 100));
         c.addColorSetting("OPAQUE_GRAPH", new Color(0,174,255));
-        c.addColorSetting("LINE", BrowserDefaults.colorAccent);
+        c.addColorSetting("LINE", BrowserSettings.colorAccent);
 
         return c;
     }

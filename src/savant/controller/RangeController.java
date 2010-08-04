@@ -30,7 +30,7 @@ import org.apache.commons.logging.LogFactory;
 import savant.controller.event.range.RangeChangedEvent;
 import savant.controller.event.range.RangeChangedListener;
 import savant.util.Range;
-import savant.settings.BrowserDefaults;
+import savant.settings.BrowserSettings;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -329,7 +329,7 @@ public class RangeController {
      */
     public void zoomOut() {
         //TRACKBAR_ZOOM.setValue(Math.max(0, TRACKBAR_ZOOM.getValue() - 1));
-        int length = Math.min(this.maximumViewableRange.getLength(), this.currentViewableRange.getLength() * BrowserDefaults.zoomAmount);
+        int length = Math.min(this.maximumViewableRange.getLength(), this.currentViewableRange.getLength() * BrowserSettings.zoomAmount);
         zoomToLength(length);
         //zoomToLength(this.currentViewableRange.getLength() * BrowserDefaults.zoomAmount);
     }
@@ -339,7 +339,7 @@ public class RangeController {
      */
     public void zoomIn() {
         //TRACKBAR_ZOOM.setValue(Math.min(TRACKBAR_ZOOM.getMaximum(), TRACKBAR_ZOOM.getValue() + 1));
-        zoomToLength(this.currentViewableRange.getLength() / BrowserDefaults.zoomAmount);
+        zoomToLength(this.currentViewableRange.getLength() / BrowserSettings.zoomAmount);
     }
 
     /**
@@ -373,12 +373,12 @@ public class RangeController {
 
     public void zoomInOnMouse() {
         int center = GraphPaneController.getInstance().getMouseXPosition();
-        zoomToLength(this.currentViewableRange.getLength() / BrowserDefaults.zoomAmount,center);
+        zoomToLength(this.currentViewableRange.getLength() / BrowserSettings.zoomAmount,center);
     }
 
     public void zoomOutFromMouse() {
         int center = GraphPaneController.getInstance().getMouseXPosition();
-        zoomToLength(this.currentViewableRange.getLength() * BrowserDefaults.zoomAmount,center);
+        zoomToLength(this.currentViewableRange.getLength() * BrowserSettings.zoomAmount,center);
     }
 
     public void setRange(String reference, Range range) {
