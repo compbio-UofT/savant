@@ -22,13 +22,12 @@
 package savant.data;
 
 import org.java.plugin.Plugin;
-import savant.plugin.AuxData;
 import savant.plugin.PluginAdapter;
-import savant.view.swing.BrowserDefaults;
 
 import javax.swing.*;
 import java.awt.*;
 import savant.plugin.GUIPlugin;
+import savant.settings.BrowserDefaults;
 
 public class DataTab extends Plugin implements GUIPlugin {
 
