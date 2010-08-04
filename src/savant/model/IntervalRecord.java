@@ -22,22 +22,24 @@
 package savant.model;
 
 /**
- * TODO:
+ * Immutable value class to represent an interval
+ *
  * @author vwilliams
  */
 public class IntervalRecord {
 
-    private Interval interval;
+    private final Interval interval;
 
-    public IntervalRecord(Interval interval) {
-        setInterval(interval);
+    protected IntervalRecord(Interval interval) {
+        if (interval == null) throw new IllegalArgumentException("Invalid argument. Interval must not be null");
+        this.interval = interval;
+    }
+
+    public static IntervalRecord valueOf(Interval interval) {
+        return new IntervalRecord(interval);
     }
 
     public Interval getInterval() { return this.interval; }
-    public void setInterval(Interval interval) {
-        if (interval == null) throw new IllegalArgumentException("Interval must not be null.");
-        this.interval = interval;
-    }
 
     @Override
     public boolean equals(Object o) {

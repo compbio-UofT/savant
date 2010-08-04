@@ -18,27 +18,24 @@ package savant.model;
 import savant.util.Range;
 
 /**
- * Value class to represent an abstract interval.
+ * Immutable value class to represent an abstract interval.
  *
- * @author mfiume
+ * @author mfiume, vwilliams
  */
 public class Interval {
 
-    private int start;
-    private int end;
+    private final int start;
+    private final int end;
 
 
-    public Interval(int start, int end)
+    protected Interval(int start, int end)
     {
-        setStart(start);
-        setEnd(end);
+        this.start = start;
+        this.end = end;
     }
 
-    public void setStart(int start) {
-        this.start = start;
-    }
-    public void setEnd(int end) {
-        this.end = end;
+    public static Interval valueOf(int start, int end) {
+        return new Interval(start, end);
     }
 
     public int getStart() { return this.start; }

@@ -88,7 +88,7 @@ public class TestDataGenerator {
 //            textFileWriter.newLine();
 //        }
 //        textFileWriter.close();
-//        DataFormatter formatter = new DataFormatter(FileFormat.POINT, GENERIC_POINT_TXT_FILE_NAME, GENERIC_POINT_BIN_FILE_NAME);
+//        DataFormatter formatter = new DataFormatter(FileFormat.POINT_GENERIC, GENERIC_POINT_TXT_FILE_NAME, GENERIC_POINT_BIN_FILE_NAME);
 //        //formatter.format();
 //        temporaryTextFile.delete();
     }

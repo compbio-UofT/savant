@@ -22,49 +22,34 @@
 package savant.model;
 
 /**
- * Class to represent an interval + a description.
+ * Immutable class to represent an interval + a description.
  * 
  * @author vwilliams
  */
 public class GenericIntervalRecord extends IntervalRecord {
 
-    private String reference;
-    private String description;
-    private int descriptionLength;
+    private final String reference;
+    private final String description;
 
-    public GenericIntervalRecord(String reference, Interval interval, String description) {
+    protected GenericIntervalRecord(String reference, Interval interval, String description) {
         super(interval);
+        if (reference == null) throw new IllegalArgumentException("Invalid argument. Reference may not be null.");
         this.reference = reference;
         this.description = description;
-        //this.descriptionLength = descriptionLength;
     }
 
-    /*
-    public GenericIntervalRecord(String reference, Interval interval, String description) {
-        this(reference, interval, description);
+
+    public static GenericIntervalRecord valueOf(String reference, Interval interval, String description) {
+        return new GenericIntervalRecord(reference, interval, description);
     }
-     */
+
 
     public String getReference() {
         return reference;
     }
 
-    public void setReference(String reference) {
-        this.reference = reference;
-    }
-
     public String getDescription() {
         return description;
-    }
-
-    /*
-    public int getDescriptionLength() {
-        return this.descriptionLength;
-    }
-     */
-
-    public void setDescription(String description) {
-        this.description = description;
     }
 
     @Override
@@ -75,7 +60,7 @@ public class GenericIntervalRecord extends IntervalRecord {
 
         GenericIntervalRecord that = (GenericIntervalRecord) o;
 
-        if (description != null ? !description.equals(that.description) : that.description != null) return false;
+        if (!reference.equals(that.reference)) return false;
 
         return true;
     }
@@ -83,7 +68,7 @@ public class GenericIntervalRecord extends IntervalRecord {
     @Override
     public int hashCode() {
         int result = super.hashCode();
-        result = 31 * result + (description != null ? description.hashCode() : 0);
+        result = 31 * result + reference.hashCode();
         return result;
     }
 
@@ -91,7 +76,8 @@ public class GenericIntervalRecord extends IntervalRecord {
     public String toString() {
         final StringBuilder sb = new StringBuilder();
         sb.append("GenericIntervalRecord");
-        sb.append("{description='").append(description).append('\'');
+        sb.append("{reference='").append(reference).append('\'');
+        sb.append(", description='").append(description).append('\'');
         sb.append('}');
         return sb.toString();
     }

@@ -28,25 +28,40 @@ import savant.util.Strand;
 import java.util.List;
 
 /**
- * Class to represent one line of a BED file and all the fields therein.
+ * Immutable class to represent one line of a BED file and all the fields therein.
  * 
- * @author mfiume
+ * @author mfiume, vwilliams
  */
 public class BEDIntervalRecord extends IntervalRecord {
 
-    private List<Block> blocks;
-    private String chrom;
-    private String name;
-    private int chromStart;
-    private int chromEnd;
-    private int score;
-    private Strand strand;
-    private int thickStart;
-    private int thickEnd;
-    private ItemRGB itemRGB;
+    private final List<Block> blocks;
+    private final String chrom;
+    private final String name;
+    private final int score;
+    private final Strand strand;
+    private final int thickStart;
+    private final int thickEnd;
+    private final ItemRGB itemRGB;
 
-    public BEDIntervalRecord(String chrom, Interval interval, String name, int score, Strand strand, int thickStart, int thickEnd, ItemRGB rgb,  List<Block> blocks) {
+    /**
+     * Constructor. Clients should use static factory method valueOf() instead.
+     *
+     * @param chrom chromosome; may not be null
+     * @param interval interval including chromStart and chromEnd; may not be null
+     * @param name
+     * @param score
+     * @param strand
+     * @param thickStart
+     * @param thickEnd
+     * @param rgb
+     * @param blocks
+     */
+    protected BEDIntervalRecord(String chrom, Interval interval, String name, int score, Strand strand, int thickStart, int thickEnd, ItemRGB rgb,  List<Block> blocks) {
+
         super(interval);
+
+        if (chrom == null) throw new IllegalArgumentException("Invalid argument: chrom may not be null");
+
         this.chrom = chrom;
         this.name = name;
         this.score = score;
@@ -57,84 +72,62 @@ public class BEDIntervalRecord extends IntervalRecord {
         this.blocks = blocks;
     }
 
-    public List<Block> getBlocks() {
-        return blocks;
+    /**
+     * Static factory method to construct a BEDIntervalRecord
+     *
+     * @param chrom chrom chromosome; may not be null
+     * @param interval interval interval including chromStart and chromEnd; may not be null
+     * @param name
+     * @param score
+     * @param strand
+     * @param thickStart
+     * @param thickEnd
+     * @param rgb
+     * @param blocks
+     * @return
+     */
+    public static BEDIntervalRecord valueOf(String chrom, Interval interval, String name, int score, Strand strand, int thickStart, int thickEnd, ItemRGB rgb,  List<Block> blocks) {
+        return new BEDIntervalRecord(chrom, interval, name, score, strand, thickStart, thickEnd, rgb, blocks);
     }
 
-    public void setBlocks(List<Block> blocks) {
-        this.blocks = blocks;
+    public List<Block> getBlocks() {
+        return blocks;
     }
 
     public String getChrom() {
         return chrom;
     }
 
-    public void setChrom(String chrom) {
-        this.chrom = chrom;
-    }
-
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
     public int getChromStart() {
-        return chromStart;
-    }
-
-    public void setChromStart(int chromStart) {
-        this.chromStart = chromStart;
+        return getInterval().getStart();
     }
 
     public int getChromEnd() {
-        return chromEnd;
-    }
-
-    public void setChromEnd(int chromEnd) {
-        this.chromEnd = chromEnd;
+        return getInterval().getEnd();
     }
 
     public int getScore() {
         return score;
     }
 
-    public void setScore(int score) {
-        this.score = score;
-    }
-
     public Strand getStrand() {
         return strand;
-    }
-
-    public void setStrand(Strand strand) {
-        this.strand = strand;
     }
 
     public int getThickStart() {
         return thickStart;
     }
 
-    public void setThickStart(int thickStart) {
-        this.thickStart = thickStart;
-    }
-
     public int getThickEnd() {
         return thickEnd;
     }
 
-    public void setThickEnd(int thickEnd) {
-        this.thickEnd = thickEnd;
-    }
-
     public ItemRGB getItemRGB() {
         return itemRGB;
-    }
-
-    public void setItemRGB(ItemRGB itemRGB) {
-        this.itemRGB = itemRGB;
     }
 
     @Override
@@ -145,13 +138,11 @@ public class BEDIntervalRecord extends IntervalRecord {
 
         BEDIntervalRecord that = (BEDIntervalRecord) o;
 
-        if (chromEnd != that.chromEnd) return false;
-        if (chromStart != that.chromStart) return false;
         if (score != that.score) return false;
         if (thickEnd != that.thickEnd) return false;
         if (thickStart != that.thickStart) return false;
         if (blocks != null ? !blocks.equals(that.blocks) : that.blocks != null) return false;
-        if (chrom != null ? !chrom.equals(that.chrom) : that.chrom != null) return false;
+        if (!chrom.equals(that.chrom)) return false;
         if (itemRGB != null ? !itemRGB.equals(that.itemRGB) : that.itemRGB != null) return false;
         if (name != null ? !name.equals(that.name) : that.name != null) return false;
         if (strand != that.strand) return false;
@@ -163,10 +154,8 @@ public class BEDIntervalRecord extends IntervalRecord {
     public int hashCode() {
         int result = super.hashCode();
         result = 31 * result + (blocks != null ? blocks.hashCode() : 0);
-        result = 31 * result + (chrom != null ? chrom.hashCode() : 0);
+        result = 31 * result + chrom.hashCode();
         result = 31 * result + (name != null ? name.hashCode() : 0);
-        result = 31 * result + chromStart;
-        result = 31 * result + chromEnd;
         result = 31 * result + score;
         result = 31 * result + (strand != null ? strand.hashCode() : 0);
         result = 31 * result + thickStart;
@@ -182,8 +171,6 @@ public class BEDIntervalRecord extends IntervalRecord {
         sb.append("{blocks=").append(blocks);
         sb.append(", chrom='").append(chrom).append('\'');
         sb.append(", name='").append(name).append('\'');
-        sb.append(", chromStart=").append(chromStart);
-        sb.append(", chromEnd=").append(chromEnd);
         sb.append(", score=").append(score);
         sb.append(", strand=").append(strand);
         sb.append(", thickStart=").append(thickStart);
