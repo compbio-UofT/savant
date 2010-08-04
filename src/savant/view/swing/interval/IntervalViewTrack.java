@@ -35,6 +35,7 @@ import java.awt.*;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
+import savant.settings.ColourSettings;
 import savant.util.MiscUtils;
 
 /**
@@ -62,12 +63,17 @@ public class IntervalViewTrack extends ViewTrack {
         ColorScheme c = new ColorScheme();
 
         /* add settings here */
-        //c.addColorSetting("BACKGROUND", BrowserDefaults.colorGraphMain);
-        c.addColorSetting("TRANSLUCENT_GRAPH", new Color(0, 174, 255, 100));
-        c.addColorSetting("OPAQUE_GRAPH", new Color(0,174,255));
-        c.addColorSetting("LINE", BrowserSettings.colorAccent);
+        //c.addColorSetting("Background", BrowserDefaults.colorGraphMain);
+        c.addColorSetting("Translucent Graph", ColourSettings.translucentGraph);
+        c.addColorSetting("Opaque Graph", ColourSettings.opaqueGraph);
+        c.addColorSetting("Line", ColourSettings.colorAccent);
 
         return c;
+    }
+
+    @Override
+    public void resetColorScheme() {
+        setColorScheme(getDefaultColorScheme());
     }
 
     public Resolution getResolution(Range range) { return getResolution(range, getDrawMode()); }

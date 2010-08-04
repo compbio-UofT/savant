@@ -25,6 +25,7 @@ import savant.settings.BrowserSettings;
 
 import java.awt.*;
 import java.awt.geom.Rectangle2D;
+import savant.settings.ColourSettings;
 
 public class GlassMessagePane {
 
@@ -71,7 +72,7 @@ public class GlassMessagePane {
         //g2.setColor(vColor);
         //g2.fillRoundRect(x, y, w, h, arc, arc);
 
-        g2.setColor(BrowserSettings.colorGlassPaneBackground);
+        g2.setColor(ColourSettings.colorGlassPaneBackground);
         x = (gp.getSize().width - (int)stringBounds.getWidth()) / 2;
         y = (gp.getSize().height / 2) + ((metrics.getAscent()- metrics.getDescent()) / 2);
 

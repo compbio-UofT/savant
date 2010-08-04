@@ -82,8 +82,8 @@ public class IntervalTrackRenderer extends TrackRenderer {
         int numdata = this.getData().size();
 
         ColorScheme cs = (ColorScheme) getDrawingInstructions().getInstruction(DrawingInstructions.InstructionName.COLOR_SCHEME.toString());
-        Color bgcolor = cs.getColor("TRANSLUCENT_GRAPH");
-        Color linecolor = cs.getColor("LINE");
+        Color bgcolor = cs.getColor("Translucent Graph");
+        Color linecolor = cs.getColor("Line");
 
         AxisRange axisRange = (AxisRange) getDrawingInstructions().getInstruction(DrawingInstructions.InstructionName.AXIS_RANGE);
         
@@ -129,7 +129,7 @@ public class IntervalTrackRenderer extends TrackRenderer {
         int numdata = this.getData().size();
 
         ColorScheme cs = (ColorScheme) getDrawingInstructions().getInstruction(DrawingInstructions.InstructionName.COLOR_SCHEME.toString());
-        Color bgcolor = cs.getColor("OPAQUE_GRAPH");
+        Color bgcolor = cs.getColor("Opaque Graph");
 
         AxisRange axisRange = (AxisRange) getDrawingInstructions().getInstruction(DrawingInstructions.InstructionName.AXIS_RANGE);
 
@@ -167,8 +167,8 @@ public class IntervalTrackRenderer extends TrackRenderer {
         List<Object> data = this.getData();
 
         ColorScheme cs = (ColorScheme) getDrawingInstructions().getInstruction(DrawingInstructions.InstructionName.COLOR_SCHEME.toString());
-        Color bgcolor = cs.getColor("OPAQUE_GRAPH");
-        Color linecolor = cs.getColor("LINE");
+        Color bgcolor = cs.getColor("Opaque Graph");
+        Color linecolor = cs.getColor("Line");
 
         AxisRange axisRange = (AxisRange) getDrawingInstructions().getInstruction(DrawingInstructions.InstructionName.AXIS_RANGE);
 

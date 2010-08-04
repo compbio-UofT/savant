@@ -96,20 +96,20 @@ public class SequenceTrackRenderer extends TrackRenderer {
             Rectangle2D.Double rect = new Rectangle2D.Double(x, y, w, h);
 
             ColorScheme colorScheme = (ColorScheme)getDrawingInstructions().getInstruction(DrawingInstructions.InstructionName.COLOR_SCHEME);
-            Color c = colorScheme.getColor("BACKGROUND");
+            Color c = colorScheme.getColor("Background");
             switch(sequence.charAt(i)) {
 
                 case 'A':
-                    c = colorScheme.getColor("A_BACKGROUND");
+                    c = colorScheme.getColor("A");
                     break;
                 case 'T':
-                    c = colorScheme.getColor("T_BACKGROUND");
+                    c = colorScheme.getColor("T");
                     break;
                 case 'G':
-                    c = colorScheme.getColor("G_BACKGROUND");
+                    c = colorScheme.getColor("G");
                     break;
                 case 'C':
-                    c = colorScheme.getColor("C_BACKGROUND");
+                    c = colorScheme.getColor("C");
                     break;
                 default:
                     break;

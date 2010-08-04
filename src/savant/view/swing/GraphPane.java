@@ -42,6 +42,7 @@ import savant.controller.FrameController;
 import savant.controller.GraphPaneController;
 import savant.controller.ReferenceController;
 import savant.controller.event.graphpane.GraphPaneChangeListener;
+import savant.settings.ColourSettings;
 import savant.util.MiscUtils;
 
 /**
@@ -407,7 +408,7 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
         if (this.isYGridOn) {
             Graphics2D g2 = (Graphics2D) g;
             Font smallFont = new Font("Sans-Serif", Font.PLAIN, 10);
-            g2.setColor(BrowserSettings.colorAccent);
+            g2.setColor(ColourSettings.colorAccent);
             String maxPlotString = "ymax=" + Integer.toString(yMax);
             g2.setFont(smallFont);
             Rectangle2D stringRect = smallFont.getStringBounds(maxPlotString, g2.getFontRenderContext());
@@ -458,9 +459,9 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
             g2d.draw(rectangle);
 
             if (gpc.isZooming()) {
-                g.setColor(BrowserSettings.colorGraphPaneZoomFill);
+                g.setColor(ColourSettings.colorGraphPaneZoomFill);
             } else if (gpc.isSelecting()) {
-                g.setColor(BrowserSettings.colorGraphPaneSelectionFill);
+                g.setColor(ColourSettings.colorGraphPaneSelectionFill);
             }
             g.fillRect(this.x, this.y, this.w, this.h);
         }
@@ -527,8 +528,8 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
 
             // Paint a gradient from top to bottom
             GradientPaint gp0 = new GradientPaint(
-                0, 0, BrowserSettings.colorGraphPaneBackgroundTop,
-                0, this.getHeight(), BrowserSettings.colorGraphPaneBackgroundBottom );
+                0, 0, ColourSettings.colorGraphPaneBackgroundTop,
+                0, this.getHeight(), ColourSettings.colorGraphPaneBackgroundBottom );
 
             g2d0.setPaint( gp0 );
             g2d0.fillRect( 0, 0, this.getWidth(), this.getHeight() );
@@ -542,7 +543,7 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
                 double separation = width / numseparators;
 
 
-                g2.setColor(BrowserSettings.colorAxisGrid);
+                g2.setColor(ColourSettings.colorAxisGrid);
                 for (int i = 0; i <= numseparators; i++) {
                     g2.drawLine((int)Math.ceil(i*separation)+1, this.getHeight(), (int) Math.ceil(i*separation)+1, 0);
                 }
@@ -557,7 +558,7 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
                 int height = this.getHeight();
                 double separation = height / numseparators;
 
-                g2.setColor(BrowserSettings.colorAxisGrid);
+                g2.setColor(ColourSettings.colorAxisGrid);
                 for (int i = 0; i <= numseparators; i++) {
                     g2.drawLine(0, (int)Math.ceil(i*separation)+1, this.getWidth(), (int) Math.ceil(i*separation)+1);
                 }

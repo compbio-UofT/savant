@@ -52,6 +52,7 @@ import java.util.Iterator;
 import java.util.List;
 import savant.controller.ReferenceController;
 import savant.model.view.Mode;
+import savant.settings.ColourSettings;
 import savant.view.swing.interval.BAMViewTrack;
 
 /**
@@ -714,7 +715,7 @@ public class Frame {
 
     private void initGraph() {
         graphPane = getNewZedGraphControl();
-        graphPane.setBackground(BrowserSettings.colorFrameBackground);
+        graphPane.setBackground(ColourSettings.colorFrameBackground);
     }
 
     // FIXME: this is a horrible kludge

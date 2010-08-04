@@ -7,15 +7,17 @@ import com.jidesoft.plaf.UIDefaultsLookup;
 import com.jidesoft.swing.JideSwingUtilities;
 
 import com.jidesoft.swing.PartialEtchedBorder;
+import java.awt.event.MouseEvent;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.MouseListener;
 import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
 
 public class SettingsDialog extends MultiplePageDialog {
 
-    private static PageList model = new PageList();;
+    private static PageList model = new PageList();
 
     public SettingsDialog(Frame owner, String title) throws HeadlessException {
         super(owner, title);
@@ -82,10 +84,39 @@ public class SettingsDialog extends MultiplePageDialog {
         final MultiplePageDialog dialog = new SettingsDialog(null, "Preferences");
         dialog.setStyle(MultiplePageDialog.LIST_STYLE);
         dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-
-        dialog.setPageList(model);
-
+        
+        dialog.setPageList(model);      
         dialog.pack();
+
+        for(int i = 0; i < dialog.getPageList().getPageCount(); i++){
+            ((Section)dialog.getPageList().getPage(i)).populate();
+        }
+
+        dialog.getOkButton().addMouseListener(new MouseListener() {
+            public void mouseClicked(MouseEvent e) {}
+            public void mousePressed(MouseEvent e) {}
+            public void mouseReleased(MouseEvent e) {
+                if(dialog.getApplyButton().isEnabled()){
+                    for(int i = 0; i < model.getPageCount(); i++){
+                        ((Section)dialog.getPageList().getPage(i)).applyChanges();
+                    }
+                }               
+            }
+            public void mouseEntered(MouseEvent e) {}
+            public void mouseExited(MouseEvent e) {}
+        });
+        dialog.getApplyButton().addMouseListener(new MouseListener() {
+            public void mouseClicked(MouseEvent e) {}
+            public void mousePressed(MouseEvent e) {}
+            public void mouseReleased(MouseEvent e) {
+                for(int i = 0; i < model.getPageCount(); i++){
+                    ((Section)dialog.getPageList().getPage(i)).applyChanges();
+                }
+            }
+            public void mouseEntered(MouseEvent e) {}
+            public void mouseExited(MouseEvent e) {}
+        });
+
         JideSwingUtilities.globalCenterWindow(dialog);
         dialog.setVisible(true);
     }

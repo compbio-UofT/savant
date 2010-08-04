@@ -37,6 +37,7 @@ import savant.view.swing.ViewTrack;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+import savant.settings.ColourSettings;
 import savant.util.MiscUtils;
 
 /**
@@ -115,9 +116,9 @@ public class BEDViewTrack extends ViewTrack {
         ColorScheme c = new ColorScheme();
 
         /* add settings here */
-        c.addColorSetting("FORWARD_STRAND", new Color(0,131,192));
-        c.addColorSetting("REVERSE_STRAND", new Color(0,174,255));
-        c.addColorSetting("LINE", new Color(128,128,128));
+        c.addColorSetting("Forward Strand", ColourSettings.forwardStrand);
+        c.addColorSetting("Reverse Strand", ColourSettings.reverseStrand);
+        c.addColorSetting("Line", ColourSettings.line);
 
         return c;
     }
@@ -127,6 +128,11 @@ public class BEDViewTrack extends ViewTrack {
         List<Mode> modes = new ArrayList<Mode>();
         modes.add(STANDARD_MODE);
         return modes;
+    }
+
+    @Override
+    public void resetColorScheme() {
+        setColorScheme(getDefaultColorScheme());
     }
     
     private Range getDefaultYRange() {

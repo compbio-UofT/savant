@@ -174,9 +174,9 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         this.panel_main.add(masterPlaceholderPanel,BorderLayout.CENTER);
 
         auxDockingManager = new DefaultDockingManager(this,masterPlaceholderPanel);
-        masterPlaceholderPanel.setBackground(BrowserSettings.colorSplitter);
+        masterPlaceholderPanel.setBackground(ColourSettings.colorSplitter);
         //auxDockingManager.setSidebarRollover(false);
-        auxDockingManager.getWorkspace().setBackground(BrowserSettings.colorSplitter);
+        auxDockingManager.getWorkspace().setBackground(ColourSettings.colorSplitter);
         auxDockingManager.setInitSplitPriority(DockingManager.SPLIT_EAST_SOUTH_WEST_NORTH);
         auxDockingManager.loadLayoutData();
 
@@ -186,8 +186,8 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         auxDockingManager.getWorkspace().add(trackPanel,BorderLayout.CENTER);
 
         trackDockingManager = new DefaultDockingManager(this,trackPanel);
-        trackPanel.setBackground(BrowserSettings.colorSplitter);
-        trackDockingManager.getWorkspace().setBackground(BrowserSettings.colorSplitter);
+        trackPanel.setBackground(ColourSettings.colorSplitter);
+        trackDockingManager.getWorkspace().setBackground(ColourSettings.colorSplitter);
         //trackDockingManager.setSidebarRollover(false);
         trackDockingManager.getWorkspace().setBackground(Color.red);
         trackDockingManager.setInitNorthSplit(JideSplitPane.VERTICAL_SPLIT);
@@ -1076,8 +1076,8 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
 
         if (!arePreferencesIntialized) {
             SettingsDialog.addSection(new ColourSchemeSettingsSection());
-            SettingsDialog.addSection(new TemporaryFilesSettingsSection());
-            SettingsDialog.addSection(new ResolutionSettingsSection());
+            //SettingsDialog.addSection(new TemporaryFilesSettingsSection());
+            //SettingsDialog.addSection(new ResolutionSettingsSection());
             arePreferencesIntialized = true;
         }
         
@@ -2067,7 +2067,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
     private JPanel createTabPanel(JTabbedPane jtp, String name) {
         JPanel pan = new JPanel();
         pan.setLayout(new BorderLayout());
-        pan.setBackground(BrowserSettings.colorTabBackground);
+        pan.setBackground(ColourSettings.colorTabBackground);
         jtp.addTab(name, pan);
         return pan;
     }

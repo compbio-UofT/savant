@@ -74,7 +74,7 @@ public class ContinuousTrackRenderer extends TrackRenderer {
         
 
         ColorScheme cs = (ColorScheme) di.getInstruction(DrawingInstructions.InstructionName.COLOR_SCHEME.toString());
-        Color linecolor = cs.getColor("LINE");
+        Color linecolor = cs.getColor("Line");
         AxisRange axisRange = (AxisRange) di.getInstruction(DrawingInstructions.InstructionName.AXIS_RANGE);
 
         gp.setIsOrdinal(false);

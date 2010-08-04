@@ -101,7 +101,7 @@ public class BEDTrackRenderer extends TrackRenderer {
 
         AxisRange axisRange = (AxisRange) getDrawingInstructions().getInstruction(DrawingInstructions.InstructionName.AXIS_RANGE);
         ColorScheme cs = (ColorScheme) getDrawingInstructions().getInstruction(DrawingInstructions.InstructionName.COLOR_SCHEME.toString());
-        Color linecolor = cs.getColor("LINE");
+        Color linecolor = cs.getColor("Line");
 
         IntervalPacker packer = new IntervalPacker(data);
         // TODO: when it becomes possible, choose an appropriate number for breathing room parameter
@@ -153,12 +153,12 @@ public class BEDTrackRenderer extends TrackRenderer {
         // chose the color for the strand
         Color fillColor;
         if (bedRecord.getStrand() == Strand.FORWARD) {
-            fillColor = cs.getColor("FORWARD_STRAND");
+            fillColor = cs.getColor("Forward Strand");
         }
         else {
-            fillColor = cs.getColor("REVERSE_STRAND");
+            fillColor = cs.getColor("Reverse Strand");
         }
-        Color lineColor = cs.getColor("LINE");
+        Color lineColor = cs.getColor("Line");
 
         int startXPos = (int)gp.transformXPos(interval.getStart());
 

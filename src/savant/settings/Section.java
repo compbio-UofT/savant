@@ -33,4 +33,6 @@ public abstract class Section extends AbstractDialogPage {
         fireButtonEvent(com.jidesoft.dialog.ButtonEvent.DISABLE_BUTTON, com.jidesoft.dialog.MultiplePageDialog.APPLY);
     }
 
+    public void populate(){};
+
 }

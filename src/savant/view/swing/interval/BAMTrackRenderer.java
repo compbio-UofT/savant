@@ -57,6 +57,7 @@ import java.util.logging.Logger;
 import javax.swing.JPanel;
 import javax.swing.JViewport;
 import savant.controller.ReferenceController;
+import savant.settings.ColourSettings;
 import savant.view.swing.interval.Pileup.Nucleotide;
 
 /**
@@ -140,7 +141,7 @@ public class BAMTrackRenderer extends TrackRenderer {
 
         AxisRange axisRange = (AxisRange) getDrawingInstructions().getInstruction(DrawingInstructions.InstructionName.AXIS_RANGE);
         ColorScheme cs = (ColorScheme) getDrawingInstructions().getInstruction(DrawingInstructions.InstructionName.COLOR_SCHEME.toString());
-        Color linecolor = cs.getColor("LINE");
+        Color linecolor = cs.getColor("Line");
         Range range = axisRange.getXRange();
 
         IntervalPacker packer = new IntervalPacker(data);
@@ -249,8 +250,8 @@ public class BAMTrackRenderer extends TrackRenderer {
     private Polygon renderStrand(Graphics2D g2, GraphPane gp, ColorScheme cs, SAMRecord samRecord, Interval interval,
                                  int level, Range range) {
 
-        Color forwardColor = cs.getColor("FORWARD_STRAND");
-        Color reverseColor = cs.getColor("REVERSE_STRAND");
+        Color forwardColor = cs.getColor("Forward Strand");
+        Color reverseColor = cs.getColor("Reverse Strand");
 
         double x=0;
         double y=0;
@@ -335,7 +336,7 @@ public class BAMTrackRenderer extends TrackRenderer {
 
         DrawingInstructions di = getDrawingInstructions();
         ColorScheme cs = (ColorScheme) di.getInstruction(DrawingInstructions.InstructionName.COLOR_SCHEME.toString());
-        Color linecolor = cs.getColor("LINE");
+        Color linecolor = cs.getColor("Line");
 
 
         double unitHeight;
@@ -446,16 +447,16 @@ public class BAMTrackRenderer extends TrackRenderer {
                             String base = new String(readBase);
                             Color mismatchColor = null;
                             if (base.equals("A")) {
-                                mismatchColor = BrowserSettings.A_COLOR;
+                                mismatchColor = ColourSettings.A_COLOR;
                             }
                             else if (base.equals("C")) {
-                                mismatchColor = BrowserSettings.C_COLOR;
+                                mismatchColor = ColourSettings.C_COLOR;
                             }
                             else if (base.equals("G")) {
-                                mismatchColor = BrowserSettings.G_COLOR;
+                                mismatchColor = ColourSettings.G_COLOR;
                             }
                             else if (base.equals("T")) {
-                                mismatchColor = BrowserSettings.T_COLOR;
+                                mismatchColor = ColourSettings.T_COLOR;
                             }
                             double xCoordinate = gp.transformXPos(sequenceCursor+i);
                             double width = gp.getUnitWidth();
@@ -526,11 +527,11 @@ public class BAMTrackRenderer extends TrackRenderer {
         Savant.log("discordantMin=" + discordantMin + " discordantMax=" + discordantMax);
 
         // set up colors
-        Color normalArcColor = cs.getColor("REVERSE_STRAND");
-        Color invertedReadColor = cs.getColor("INVERTED_READ");
-        Color invertedMateColor = cs.getColor("INVERTED_MATE");
-        Color evertedPairColor = cs.getColor("EVERTED_PAIR");
-        Color discordantLengthColor = cs.getColor("DISCORDANT_LENGTH");
+        Color normalArcColor = cs.getColor("Reverse Strand");
+        Color invertedReadColor = cs.getColor("Inverted Read");
+        Color invertedMateColor = cs.getColor("Inverted Mate");
+        Color evertedPairColor = cs.getColor("Everted Pair");
+        Color discordantLengthColor = cs.getColor("Discordant Length");
 
         resizeFrame(gp);
 
@@ -645,7 +646,7 @@ public class BAMTrackRenderer extends TrackRenderer {
 
         AxisRange axisRange = (AxisRange) getDrawingInstructions().getInstruction(DrawingInstructions.InstructionName.AXIS_RANGE);
         ColorScheme cs = (ColorScheme) getDrawingInstructions().getInstruction(DrawingInstructions.InstructionName.COLOR_SCHEME.toString());
-        Color linecolor = cs.getColor("LINE");
+        Color linecolor = cs.getColor("Line");
 
         List<Pileup> pileups = new ArrayList<Pileup>();
 
@@ -708,12 +709,12 @@ public class BAMTrackRenderer extends TrackRenderer {
 
                 Color subPileColor = null;
                 if(genome.isSequenceSet() && snpNuc.equals(genomeNuc)){
-                    subPileColor = cs.getColor("REVERSE_STRAND");
+                    subPileColor = cs.getColor("Reverse Strand");
                 } else {
-                    if(snpNuc.equals(Nucleotide.A)) subPileColor = BrowserSettings.A_COLOR;
-                    else if (snpNuc.equals(Nucleotide.C)) subPileColor = BrowserSettings.C_COLOR;
-                    else if (snpNuc.equals(Nucleotide.G)) subPileColor = BrowserSettings.G_COLOR;
-                    else if (snpNuc.equals(Nucleotide.T)) subPileColor = BrowserSettings.T_COLOR;
+                    if(snpNuc.equals(Nucleotide.A)) subPileColor = ColourSettings.A_COLOR;
+                    else if (snpNuc.equals(Nucleotide.C)) subPileColor = ColourSettings.C_COLOR;
+                    else if (snpNuc.equals(Nucleotide.G)) subPileColor = ColourSettings.G_COLOR;
+                    else if (snpNuc.equals(Nucleotide.T)) subPileColor = ColourSettings.T_COLOR;
                     //FIXME: what do we do here?
                     else if (snpNuc.equals(Nucleotide.OTHER)) subPileColor = Color.BLACK;
                 }
@@ -836,7 +837,7 @@ public class BAMTrackRenderer extends TrackRenderer {
             g2.setStroke(twoStroke);
             Rectangle2D stringRect = smallFont.getStringBounds(legendString, g2.getFontRenderContext());
             g2.drawLine(x-25, y-(int)stringRect.getHeight()/2, x-5, y-(int)stringRect.getHeight()/2);
-            g2.setColor(BrowserSettings.colorAccent);
+            g2.setColor(ColourSettings.colorAccent);
             g2.setStroke(oneStroke);
             g2.drawString(legendString, x, y);
 
@@ -935,11 +936,11 @@ public class BAMTrackRenderer extends TrackRenderer {
             ColorScheme cs = (ColorScheme) getDrawingInstructions().getInstruction(DrawingInstructions.InstructionName.COLOR_SCHEME.toString());
 
             // set up colors
-            Color normalArcColor = cs.getColor("REVERSE_STRAND");
-            Color invertedReadColor = cs.getColor("INVERTED_READ");
-            Color invertedMateColor = cs.getColor("INVERTED_MATE");
-            Color evertedPairColor = cs.getColor("EVERTED_PAIR");
-            Color discordantLengthColor = cs.getColor("DISCORDANT_LENGTH");
+            Color normalArcColor = cs.getColor("Reverse Strand");
+            Color invertedReadColor = cs.getColor("Inverted Read");
+            Color invertedMateColor = cs.getColor("Inverted Mate");
+            Color evertedPairColor = cs.getColor("Everted Pair");
+            Color discordantLengthColor = cs.getColor("Discordant Length");
 
             String[] legendStrings = {"Discordant Length", "Inverted Read", "Inverted Mate", "Everted Pair"};
             Color[] legendColors = {discordantLengthColor, invertedReadColor, invertedMateColor, evertedPairColor};
@@ -978,7 +979,7 @@ public class BAMTrackRenderer extends TrackRenderer {
                 g2.setStroke(twoStroke);
                 Rectangle2D stringRect = smallFont.getStringBounds(legendString, g2.getFontRenderContext());
                 g2.drawLine(x-25, y-(int)stringRect.getHeight()/2, x-5, y-(int)stringRect.getHeight()/2);
-                g2.setColor(BrowserSettings.colorAccent);
+                g2.setColor(ColourSettings.colorAccent);
                 g2.setStroke(oneStroke);
                 g2.drawString(legendString, x, y);
 

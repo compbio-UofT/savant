@@ -74,6 +74,7 @@ import savant.util.MiscUtils;
 import savant.view.dialog.DataFormatForm;
 import savant.view.icon.SavantIconFactory;
 import savant.settings.BrowserSettings;
+import savant.settings.ColourSettings;
 import savant.view.swing.DockableFrameFactory;
 import savant.view.swing.Savant;
 import savant.view.tools.ToolRunInformation.TerminationStatus;
@@ -291,7 +292,7 @@ public class ToolsModule implements BookmarksChangedListener, RangeChangedListen
     private void initDocking(JPanel canvas) {
 
         DefaultDockingManager toolsDockingManager = new DefaultDockingManager(Savant.getInstance(),canvas);
-        canvas.setBackground(BrowserSettings.colorSplitter);
+        canvas.setBackground(ColourSettings.colorSplitter);
 
         toolsDockingManager.setInitSplitPriority(DockingManager.SPLIT_EAST_SOUTH_WEST_NORTH);
         toolsDockingManager.loadLayoutData();
@@ -310,7 +311,7 @@ public class ToolsModule implements BookmarksChangedListener, RangeChangedListen
 
 
         toolCanvas = new JPanel();
-        toolCanvas.setBackground(BrowserSettings.colorToolsBackground);
+        toolCanvas.setBackground(ColourSettings.colorToolsBackground);
         //toolCanvas.setPreferredSize(new Dimension(2000, 2000));
         JComponent workspace = toolsDockingManager.getWorkspace();
         workspace.setLayout(new BorderLayout());
@@ -328,7 +329,7 @@ public class ToolsModule implements BookmarksChangedListener, RangeChangedListen
         toolsListCanvas = new JPanel();
 
         Container tlworkspace = toolsListBar.getContentPane();
-        tlworkspace.setBackground(BrowserSettings.colorToolsParameterMarginsBackground);
+        tlworkspace.setBackground(ColourSettings.colorToolsParameterMarginsBackground);
         pad(toolsListCanvas,tlworkspace,0);
 
         toolsDockingManager.addFrame(toolsListBar);
@@ -584,7 +585,7 @@ public class ToolsModule implements BookmarksChangedListener, RangeChangedListen
         _container.add(createPanel("Range Change", toolsSubscribedToRangeChangeEvent,true));
         _container.add(createPanel("Track List Change", toolsSubscribedToTrackListChangeEvent,true));
 
-        _container.setBackground(BrowserSettings.colorToolsListBackground);
+        _container.setBackground(ColourSettings.colorToolsListBackground);
         _container.setGap(0);
         //_container.setBorder(new LineBorder(Color.lightGray, 1));
 
@@ -609,7 +610,7 @@ public class ToolsModule implements BookmarksChangedListener, RangeChangedListen
             _container.add(pane);
         }
 
-        _container.setBackground(BrowserSettings.colorToolsListBackground);
+        _container.setBackground(ColourSettings.colorToolsListBackground);
         _container.setGap(0);
         //_container.setBorder(new LineBorder(Color.lightGray, 1));
 
@@ -637,7 +638,7 @@ public class ToolsModule implements BookmarksChangedListener, RangeChangedListen
             _container.add(pane);
         }
 
-        _container.setBackground(BrowserSettings.colorToolsListBackground);
+        _container.setBackground(ColourSettings.colorToolsListBackground);
         _container.setGap(0);
         //_container.setBorder(new LineBorder(Color.lightGray, 1));
 
@@ -787,7 +788,7 @@ public class ToolsModule implements BookmarksChangedListener, RangeChangedListen
         if (pan != null) { _container.add(createPanel("Settings",pan, true)); }
         _container.add(createPanel("Event Subscriptions", getEventSubscriptionCanvas(p), true));
 
-        _container.setBackground(BrowserSettings.colorToolsListBackground);
+        _container.setBackground(ColourSettings.colorToolsListBackground);
         _container.setGap(0);
         _container.setBorder(new LineBorder(Color.lightGray, 1));
 
@@ -797,7 +798,7 @@ public class ToolsModule implements BookmarksChangedListener, RangeChangedListen
         toolCanvas.repaint();
         toolCanvas.setLayout(new BorderLayout());
         //toolCanvas.setLayout(new BoxLayout(toolCanvas, BoxLayout.PAGE_AXIS));
-        toolCanvas.setBackground(BrowserSettings.colorToolsListBackground);
+        toolCanvas.setBackground(ColourSettings.colorToolsListBackground);
 
         JLabel title = new JLabel(" " + p.getToolInformation().getName());
         title.setFont(new Font("Arial", Font.BOLD, 20));

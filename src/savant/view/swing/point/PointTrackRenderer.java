@@ -79,8 +79,8 @@ public class PointTrackRenderer extends TrackRenderer {
         if (r == Resolution.VERY_HIGH) {
             
             ColorScheme cs = (ColorScheme) di.getInstruction(DrawingInstructions.InstructionName.COLOR_SCHEME.toString());
-            Color bgcolor = cs.getColor("BACKGROUND");
-            Color linecolor = cs.getColor("LINE");
+            Color bgcolor = cs.getColor("Background");
+            Color linecolor = cs.getColor("Line");
 
             float pointiness = 0.1F;
 

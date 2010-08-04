@@ -352,6 +352,12 @@ public abstract class ViewTrack {
         this.colorScheme = cs;
     }
 
+    /**
+     * Reset colour scheme.
+     *
+     */
+    public abstract void resetColorScheme();
+
     /*
     public void setDrawingInstructions(DrawingInstructions di) {
         this.DRAWING_INSTRUCTIONS = di;

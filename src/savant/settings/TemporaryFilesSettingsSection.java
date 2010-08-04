@@ -35,6 +35,6 @@ public class TemporaryFilesSettingsSection extends Section {
 
     @Override
     public void applyChanges() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        System.out.println("TemporaryFilesSettingsSection: unsupported");
     }
 }

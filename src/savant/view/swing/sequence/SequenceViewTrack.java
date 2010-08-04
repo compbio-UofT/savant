@@ -34,6 +34,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import savant.controller.ReferenceController;
+import savant.settings.ColourSettings;
 import savant.util.MiscUtils;
 
 /**
@@ -57,18 +58,23 @@ public class SequenceViewTrack extends ViewTrack {
         ColorScheme c = new ColorScheme();
 
         /* add settings here */
-//        c.addColorSetting("A_BACKGROUND", new Color(160,93,153));
-//        c.addColorSetting("C_BACKGROUND", new Color(131,255,0));
-//        c.addColorSetting("G_BACKGROUND", new Color(255,255,0));
-//        c.addColorSetting("T_BACKGROUND", new Color(255,192,0));
-        c.addColorSetting("A_BACKGROUND", BrowserSettings.A_COLOR);
-        c.addColorSetting("C_BACKGROUND", BrowserSettings.C_COLOR);
-        c.addColorSetting("G_BACKGROUND", BrowserSettings.G_COLOR);
-        c.addColorSetting("T_BACKGROUND", BrowserSettings.T_COLOR);
-        c.addColorSetting("LINE_COLOR", Color.black);
-        c.addColorSetting("BACKGROUND", new Color(100,100,100,220));
+//        c.addColorSetting("A", new Color(160,93,153));
+//        c.addColorSetting("C", new Color(131,255,0));
+//        c.addColorSetting("G", new Color(255,255,0));
+//        c.addColorSetting("T", new Color(255,192,0));
+        c.addColorSetting("A", ColourSettings.A_COLOR);
+        c.addColorSetting("C", ColourSettings.C_COLOR);
+        c.addColorSetting("G", ColourSettings.G_COLOR);
+        c.addColorSetting("T", ColourSettings.T_COLOR);
+        c.addColorSetting("Line", Color.black);
+        c.addColorSetting("Background", new Color(100,100,100,220));
 
         return c;
+    }
+
+    @Override
+    public void resetColorScheme() {
+        setColorScheme(getDefaultColorScheme());
     }
 
     private void setGenome(Genome genome) { this.genome = genome; }

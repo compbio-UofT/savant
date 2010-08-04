@@ -28,6 +28,7 @@ import savant.view.swing.ViewTrack;
 
 import java.util.ArrayList;
 import java.util.List;
+import savant.settings.ColourSettings;
 import savant.util.MiscUtils;
 
 /**
@@ -47,10 +48,15 @@ public class PointViewTrack extends ViewTrack {
         ColorScheme c = new ColorScheme();
 
         /* add settings here */
-        c.addColorSetting("BACKGROUND", BrowserSettings.colorGraphMain);
-        c.addColorSetting("LINE", BrowserSettings.colorAccent);
+        c.addColorSetting("Background", ColourSettings.colorGraphMain);
+        c.addColorSetting("Line", ColourSettings.colorAccent);
 
         return c; 
+    }
+
+    @Override
+    public void resetColorScheme() {
+        setColorScheme(getDefaultColorScheme());
     }
 
     public Resolution getResolution(Range range)

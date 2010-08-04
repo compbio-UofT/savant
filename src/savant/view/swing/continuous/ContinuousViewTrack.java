@@ -36,6 +36,7 @@ import savant.view.swing.ViewTrack;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+import savant.settings.ColourSettings;
 import savant.util.MiscUtils;
 
 /**
@@ -91,9 +92,14 @@ public class ContinuousViewTrack extends ViewTrack {
         ColorScheme c = new ColorScheme();
 
         /* add settings here */
-        c.addColorSetting("LINE", new Color(0, 174, 255, 200));
+        c.addColorSetting("Line", ColourSettings.continuousLine);
 
         return c;
+    }
+
+    @Override
+    public void resetColorScheme() {
+        setColorScheme(getDefaultColorScheme());
     }
 
     private Range getDefaultYRange() {

@@ -40,6 +40,7 @@ import savant.view.swing.ViewTrack;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+import savant.settings.ColourSettings;
 import savant.util.MiscUtils;
 
 /**
@@ -90,17 +91,21 @@ public class BAMViewTrack extends ViewTrack {
 
     private ColorScheme getDefaultColorScheme() {
         ColorScheme c = new ColorScheme();
-
-        /* add settings here */
-        c.addColorSetting("FORWARD_STRAND", new Color(0,131,192));
-        c.addColorSetting("REVERSE_STRAND", new Color(0,174,255));
-        c.addColorSetting("INVERTED_READ", Color.yellow);
-        c.addColorSetting("INVERTED_MATE", Color.magenta);
-        c.addColorSetting("EVERTED_PAIR", Color.green);
-        c.addColorSetting("DISCORDANT_LENGTH", Color.blue);
-        c.addColorSetting("LINE", new Color(128,128,128));
+        
+        c.addColorSetting("Forward Strand", ColourSettings.forwardStrand);
+        c.addColorSetting("Reverse Strand", ColourSettings.reverseStrand);
+        c.addColorSetting("Inverted Read", ColourSettings.invertedRead);
+        c.addColorSetting("Inverted Mate", ColourSettings.invertedMate);
+        c.addColorSetting("Everted Pair", ColourSettings.evertedPair);
+        c.addColorSetting("Discordant Length", ColourSettings.discordantLength);
+        c.addColorSetting("Line", ColourSettings.line);
 
         return c;
+    }
+
+    @Override
+    public void resetColorScheme() {
+        setColorScheme(getDefaultColorScheme());
     }
 
     private List<Mode> getDefaultDrawModes()
