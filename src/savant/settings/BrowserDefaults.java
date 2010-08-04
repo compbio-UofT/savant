@@ -13,7 +13,7 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package savant.view.swing;
+package savant.settings;
 
 import javax.swing.*;
 import java.awt.*;
@@ -43,6 +43,8 @@ public class BrowserDefaults {
      * Colors
      */
 
+    public static Color colorSplitter = new Color(210,210,210);//Color.lightGray;
+
     public static Color colorGlassPaneBackground = Color.darkGray;
     public static Color colorGraphPaneBackgroundTop = Color.white;
     public static Color colorGraphPaneBackgroundBottom = new Color(210,210,210);
@@ -60,7 +62,10 @@ public class BrowserDefaults {
 //    public static Color colorBrowseBackground = /*new Color(0, 174, 255, 150);*/ new Color(171, 207, 59);
     public static Color colorBrowseAuxiliaryBackground = new Color(160,160,160);
     public static Color colorTabBackground = new Color(240,240,240);
-    public static Color colorFormatBackground = new Color(123, 185, 233);
+    public static Color colorToolsParameterMarginsBackground = Color.white; //new Color(230,230,230);
+    public static Color colorToolsParametersBackground = Color.white;
+    public static Color colorToolsListBackground = Color.white; //new Color(255,255,255); //new Color(245,250,255);
+    public static Color colorToolsBackground = Color.white; //new Color(200,200,200);
     //public static Color ColorMain = new Color(0, 174, 255, 150);
     public static Color colorAccent = Color.black;
     public static Color colorAxisGrid = Color.lightGray;

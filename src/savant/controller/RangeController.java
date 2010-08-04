@@ -30,7 +30,7 @@ import org.apache.commons.logging.LogFactory;
 import savant.controller.event.range.RangeChangedEvent;
 import savant.controller.event.range.RangeChangedListener;
 import savant.util.Range;
-import savant.view.swing.BrowserDefaults;
+import savant.settings.BrowserDefaults;
 
 import java.util.ArrayList;
 import java.util.Iterator;

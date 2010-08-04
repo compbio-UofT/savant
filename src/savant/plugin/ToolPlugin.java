@@ -19,15 +19,12 @@ package savant.plugin;/*
  * Created on Feb 23, 2010
  */
 
-import javax.swing.*;
-
-public interface AuxData {
+public abstract class ToolPlugin extends Tool {
 
     /**
      * This method is called once during application life cycle to allow
      * auxiliary data plugin to initialize and show itself.
      * @param tabbedPane parent tabbedpane for auxiliary data components
      */
-
-    public void init(JTabbedPane tabbedPane, PluginAdapter pluginAdapter);
+    public abstract void init(PluginAdapter pluginAdapter);
 }

@@ -21,7 +21,7 @@
 
 package savant.view.swing.util;
 
-import savant.view.swing.BrowserDefaults;
+import savant.settings.BrowserDefaults;
 
 import java.awt.*;
 import java.awt.geom.Rectangle2D;

@@ -23,7 +23,7 @@ import savant.model.view.AxisRange;
 import savant.model.view.ColorScheme;
 import savant.model.view.DrawingInstructions;
 import savant.util.Range;
-import savant.view.swing.BrowserDefaults;
+import savant.settings.BrowserDefaults;
 import savant.view.swing.Savant;
 import savant.view.swing.TrackRenderer;
 import savant.view.swing.ViewTrack;

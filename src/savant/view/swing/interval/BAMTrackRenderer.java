@@ -36,7 +36,7 @@ import savant.model.view.DrawingInstructions;
 import savant.model.view.Mode;
 import savant.util.IntervalPacker;
 import savant.util.Range;
-import savant.view.swing.BrowserDefaults;
+import savant.settings.BrowserDefaults;
 import savant.view.swing.GraphPane;
 import savant.view.swing.Savant;
 import savant.view.swing.TrackRenderer;

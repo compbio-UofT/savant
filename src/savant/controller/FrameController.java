@@ -25,6 +25,8 @@
  */
 package savant.controller;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import savant.controller.event.frame.FrameChangedEvent;
 import savant.controller.event.frame.FrameChangedListener;
 import savant.controller.event.frame.FrameHiddenEvent;
@@ -42,6 +44,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import javax.swing.JComponent;
 import savant.model.data.Track;
 
@@ -147,6 +151,7 @@ public class FrameController {
      */
     public void drawFrames() {
         RangeController rc = RangeController.getInstance();
+
         for (Frame frame : frames) {
             try {
                 frame.drawTracksInRange(ReferenceController.getInstance().getReferenceName(), rc.getRange());

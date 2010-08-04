@@ -27,7 +27,7 @@ import savant.model.view.ColorScheme;
 import savant.model.view.DrawingInstructions;
 import savant.model.view.Mode;
 import savant.util.Range;
-import savant.view.swing.BrowserDefaults;
+import savant.settings.BrowserDefaults;
 import savant.view.swing.TrackRenderer;
 import savant.view.swing.ViewTrack;
 

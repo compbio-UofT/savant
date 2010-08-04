@@ -16,8 +16,8 @@
 
 package savant.view.swing;
 
+import savant.settings.BrowserDefaults;
 import com.jidesoft.action.CommandBar;
-import com.jidesoft.action.CommandMenuBar;
 import com.jidesoft.docking.DockableFrame;
 import com.jidesoft.swing.JideButton;
 import com.jidesoft.swing.JideMenu;
@@ -29,9 +29,7 @@ import java.util.logging.Logger;
 import savant.controller.DrawModeController;
 import savant.controller.RangeController;
 import savant.controller.event.drawmode.DrawModeChangedEvent;
-import savant.controller.event.drawmode.DrawModeChangedListener;
 import savant.model.FileFormat;
-import savant.model.data.RecordTrack;
 import savant.model.view.DrawingInstructions;
 import savant.util.Range;
 import savant.view.swing.continuous.ContinuousTrackRenderer;
@@ -542,7 +540,7 @@ public class Frame {
         JMenu menu = new JideMenu("Interval Options");
         final JCheckBoxMenuItem dynamic = new JCheckBoxMenuItem("Dynamic Height");
         final JCheckBoxMenuItem fixed = new JCheckBoxMenuItem("Fixed Height");
-        
+
         dynamic.addActionListener(new AbstractAction() {
             public void actionPerformed(ActionEvent e) {
                 for(int i = 0; i < graphPane.getTrackRenderers().size(); i++){
@@ -682,7 +680,7 @@ public class Frame {
             this.graphPane.setXRange(currentRange);
 
             try {
-                
+
                 for (ViewTrack track : tracks) {
                     track.prepareForRendering(reference, range);
                 }
@@ -759,7 +757,7 @@ public class Frame {
     }
 
     /**
-     * Create a new panel to draw on.  
+     * Create a new panel to draw on.
      */
     public JPanel getLayerToDraw(){
         JPanel p = new JPanel();

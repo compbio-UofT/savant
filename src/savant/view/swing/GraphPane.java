@@ -16,6 +16,7 @@
 
 package savant.view.swing;
 
+import savant.settings.BrowserDefaults;
 import java.awt.geom.Rectangle2D.Double;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

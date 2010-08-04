@@ -56,7 +56,7 @@ public class MiscUtils {
      */
     public static String now() {
         Calendar cal = Calendar.getInstance();
-        return cal.getTime().toGMTString();
+        return cal.getTime().toLocaleString();
     }
 
 
