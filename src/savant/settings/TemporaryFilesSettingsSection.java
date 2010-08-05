@@ -14,12 +14,10 @@ import javax.swing.JLabel;
  */
 public class TemporaryFilesSettingsSection extends Section {
 
-    @Override
     public String getSectionName() {
         return "Temporary Files";
     }
 
-    @Override
     public Icon getSectionIcon() {
         return null;
     }
@@ -32,7 +30,6 @@ public class TemporaryFilesSettingsSection extends Section {
         //this.add(new JLabel("empty section"));
     }
 
-    @Override
     public void applyChanges() {
         System.out.println("TemporaryFilesSettingsSection: unsupported");
     }
