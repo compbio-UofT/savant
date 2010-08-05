@@ -27,7 +27,7 @@ import savant.plugin.PluginAdapter;
 import javax.swing.*;
 import java.awt.*;
 import savant.plugin.GUIPlugin;
-import savant.settings.BrowserDefaults;
+import savant.settings.ColourSettings;
 
 public class DataTab extends Plugin implements GUIPlugin {
 
@@ -41,7 +41,7 @@ public class DataTab extends Plugin implements GUIPlugin {
     private JPanel createTabPanel(JTabbedPane jtp, String name) {
         JPanel pan = new JPanel();
         pan.setLayout(new BorderLayout());
-        pan.setBackground(BrowserDefaults.colorTabBackground);
+        pan.setBackground(ColourSettings.colorTabBackground);
         jtp.addTab(name, pan);
         return pan;
     }
