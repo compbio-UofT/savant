@@ -21,6 +21,10 @@
 
 package savant.model.data.interval;
 
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.Set;
 import net.sf.samtools.*;
 import net.sf.samtools.util.CloseableIterator;
@@ -50,16 +54,65 @@ public class BAMIntervalTrack implements RecordTrack<BAMIntervalRecord> {
 
     private static Log log = LogFactory.getLog(BAMIntervalTrack.class);
     
-    private File path;
-    private File index;
     private SAMFileReader samFileReader;
+    private SAMFileHeader samFileHeader;
     //private String sequenceName;
 
+    public static BAMIntervalTrack fromfileNameOrURL(String fileNameOrURL) throws IOException {
+
+        if (fileNameOrURL == null) throw new IllegalArgumentException("Invalid argument; file name or URL must be non-null");
+
+        URL fileURL = null;
+        File indexFile = null;
+        try {
+            fileURL = new URI(fileNameOrURL).toURL();
+            // if no exception is thrown, this is an absolute URL
+            if (fileURL.getProtocol().equalsIgnoreCase("http")) {
+                // for now, we can deal with http URLs only
+                indexFile = getIndexFileCached(fileURL);
+                if (indexFile != null) {
+                    return new BAMIntervalTrack(fileURL, indexFile);
+                }
+            }
+            
+        } catch (MalformedURLException e) {
+            // not a URL, try as a filename
+        } catch (URISyntaxException e) {
+            // not a URI, try as a filename
+        }
+
+        if (fileURL == null) {
+            
+            // infer index file name from track filename
+            indexFile = getIndexFileLocal(fileNameOrURL);
+            if (indexFile != null) {
+                return new BAMIntervalTrack(new File(fileNameOrURL), indexFile);
+            }
+        }
+
+        // no success
+        return null;
+    }
+
     public BAMIntervalTrack(File path, File index) {
-        setPath(path, index);
+
+        if (path == null) throw new IllegalArgumentException("File must not be null.");
+        if (index == null) throw new IllegalArgumentException("Index file must not be null");
+        
         //this.sequenceName = guessSequence(path, index);
         samFileReader = new SAMFileReader(path, index);
-        samFileReader.setValidationStringency(SAMFileReader.ValidationStringency.SILENT);
+        samFileReader.setValidationStringency(SAMFileReader.ValidationStringency.LENIENT);
+        samFileHeader = samFileReader.getFileHeader();
+    }
+
+    public BAMIntervalTrack(URL url, File index) {
+
+        if (url == null) throw new IllegalArgumentException("URL must not be null");
+        if (index == null) throw new IllegalArgumentException("Index file must not be null");
+
+        samFileReader = new SAMFileReader(url, index, false);
+        samFileReader.setValidationStringency(SAMFileReader.ValidationStringency.LENIENT);
+        samFileHeader = samFileReader.getFileHeader();
     }
 
     /**
@@ -79,7 +132,7 @@ public class BAMIntervalTrack implements RecordTrack<BAMIntervalRecord> {
             } else if(this.getReferenceNames().contains(MiscUtils.homogenizeSequence(reference))){
                 ref = MiscUtils.homogenizeSequence(reference);
             } else {
-                ref = guessSequence(this.path, this.index);
+                ref = guessSequence();
             }
 
             recordIterator = samFileReader.query(ref, range.getFrom(), range.getTo(), false);
@@ -90,13 +143,13 @@ public class BAMIntervalTrack implements RecordTrack<BAMIntervalRecord> {
                 samRecord = recordIterator.next();
                 // don't keep unmapped reads
                 if (samRecord.getReadUnmappedFlag()) continue;
-                
-               // find out the type of the pair
-               BAMIntervalRecord.PairType type = null;
-               if (samRecord.getReadPairedFlag() && !samRecord.getMateUnmappedFlag()) {
-                   type = getPairType(samRecord.getAlignmentStart(), samRecord.getMateAlignmentStart(), samRecord.getReadNegativeStrandFlag(), samRecord.getMateNegativeStrandFlag());
-               }
-               bamRecord = BAMIntervalRecord.valueOf(samRecord, type);
+
+                // find out the type of the pair
+                BAMIntervalRecord.PairType type = null;
+                if (samRecord.getReadPairedFlag() && !samRecord.getMateUnmappedFlag()) {
+                    type = getPairType(samRecord.getAlignmentStart(), samRecord.getMateAlignmentStart(), samRecord.getReadNegativeStrandFlag(), samRecord.getMateNegativeStrandFlag());
+                }
+                bamRecord = BAMIntervalRecord.valueOf(samRecord, type);
 
                 result.add(bamRecord);
             }
@@ -107,42 +160,19 @@ public class BAMIntervalTrack implements RecordTrack<BAMIntervalRecord> {
 
         return result;
     }
-
-    /**
-     * Get the path file of this data track
-     *
-     * @return path
-     */
-    public File getPath() {
-        return path;
-    }
-
-    private void setPath(File path, File index) {
-
-        if (path == null) throw new IllegalArgumentException("File must not be null.");
-        if (index == null) throw new IllegalArgumentException("Index file must not be null");
-        this.path = path;
-        this.index = index;
-    }
-
-    public File getIndex() {
-        return index;
-    }
     
     /*
      * Use the length of the reference genome to guess which sequence from the dictionary
      * we should search for reads.
      */
-    public static String guessSequence(File path, File index) {
+    private String guessSequence() {
 
         // Find out what sequence we're using, by reading the header for sequences and lengths
         RangeController rangeController = RangeController.getInstance();
         int referenceSequenceLength = rangeController.getMaxRangeEnd() - rangeController.getMaxRangeStart();
 
         String sequenceName = null;
-        SAMFileReader samFileReader = new SAMFileReader(path, index);
-        SAMFileHeader fileHeader = samFileReader.getFileHeader();
-        SAMSequenceDictionary sequenceDictionary = fileHeader.getSequenceDictionary();
+        SAMSequenceDictionary sequenceDictionary = samFileHeader.getSequenceDictionary();
         // find the first sequence with the smallest difference in length from our reference sequence
         int leastDifferenceInSequenceLength = Integer.MAX_VALUE;
         int closestSequenceIndex = Integer.MAX_VALUE;
@@ -158,7 +188,6 @@ public class BAMIntervalTrack implements RecordTrack<BAMIntervalRecord> {
         if (closestSequenceIndex != Integer.MAX_VALUE) {
             sequenceName = sequenceDictionary.getSequence(closestSequenceIndex).getSequenceName();
         }
-        samFileReader.close();
         return sequenceName;
     }
 
@@ -230,7 +259,7 @@ public class BAMIntervalTrack implements RecordTrack<BAMIntervalRecord> {
         if (this.referenceNames == null) {
             String prefix = MiscUtils.removeNumbersFromString(ReferenceController.getInstance().getReferenceName());
 
-            SAMSequenceDictionary ssd = this.samFileReader.getFileHeader().getSequenceDictionary();
+            SAMSequenceDictionary ssd = samFileHeader.getSequenceDictionary();
 
             List<SAMSequenceRecord> seqs = ssd.getSequences();
 
@@ -242,5 +271,25 @@ public class BAMIntervalTrack implements RecordTrack<BAMIntervalRecord> {
             }
         }
         return referenceNames;
+    }
+
+    private static File getIndexFileLocal(String bamFileName) {
+        
+        File indexFile = new File(bamFileName + ".bai");
+        if (indexFile.exists()) {
+            return indexFile;
+        }
+        else {
+            // try alternate index file name
+            indexFile = new File(bamFileName.replace(".bam", ".bai"));
+            if (indexFile.exists()) {
+                return indexFile;
+            }
+        }
+        return null;
+    }
+
+    private static File getIndexFileCached(URL bamURL) throws IOException {
+        return BAMIndexCache.getInstance().getBAMIndex(bamURL);
     }
 }

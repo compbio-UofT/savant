@@ -23,8 +23,8 @@ package savant.model.data.interval;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import savant.settings.BrowserSettings;
 import savant.util.HttpUtils;
-import savant.view.swing.BrowserDefaults;
 import savant.view.swing.util.DialogUtils;
 
 import java.io.*;
@@ -136,7 +136,7 @@ public class BAMIndexCache {
     
     private File getCacheDir() {
         if (cacheDir == null) {
-            cacheDir = new File(BrowserDefaults.getSavantDirectory(), "bam");
+            cacheDir = new File(BrowserSettings.getSavantDirectory(), "bam");
             if (!cacheDir.exists()) {
                 cacheDir.mkdir();
             }

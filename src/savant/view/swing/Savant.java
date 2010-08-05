@@ -20,6 +20,7 @@ import com.jidesoft.dialog.JideOptionPane;
 import savant.controller.event.reference.ReferenceChangedEvent;
 import savant.controller.event.track.TrackListChangedEvent;
 import savant.view.dialog.GenomeLengthForm;
+import savant.view.dialog.OpenURLDialog;
 import savant.view.dialog.PluginDialog;
 import savant.view.dialog.DataFormatForm;
 import savant.settings.*;
@@ -65,6 +66,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -120,6 +123,9 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
 
     private DataFormatForm dff;
     private boolean openAfterFormat;
+
+    private OpenURLDialog urlDialog;
+
     
     private void addTrackFromFile(String selectedFileName) throws IOException {
 
@@ -1147,6 +1153,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
     private javax.swing.JCheckBoxMenuItem menuitem_statusbar;
     private javax.swing.JMenuItem menuitem_thousandgenomes;
     private javax.swing.JMenuItem menuitem_track;
+    private javax.swing.JMenuItem menuitem_trackURL;
     private javax.swing.JMenuItem menuitem_tutorials;
     private javax.swing.JMenuItem menuitem_ucsc;
     private javax.swing.JMenuItem menuitem_undo;
@@ -1215,6 +1222,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         // get async notification when DataFormatForm has finished its business
         dff.addPropertyChangeListener("success", this);
 
+        urlDialog = new OpenURLDialog(this, true);
         // comment next line to disable plugin manager
         //this.menu_plugins.setVisible(false);
 
