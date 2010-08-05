@@ -5,6 +5,7 @@
 
 package savant.util;
 
+import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
@@ -124,7 +125,7 @@ public class MiscUtils {
 
     /**
      * Translate a (genome) position to a pixel
-     * @param pixel The pixel to transform
+     * @param position genome position, first base is 1
      * @param widthOfComponent The width of the component in which the pixel occurs
      * @param positionalRange The (genome) range the componentn applies to
      * @return The pixel represented by the position
@@ -195,4 +196,20 @@ public class MiscUtils {
         }
         return result;
     }
+
+    static public boolean deleteDirectory(File path) {
+        if( path.exists() ) {
+            File[] files = path.listFiles();
+            for(int i=0; i<files.length; i++) {
+               if(files[i].isDirectory()) {
+                 deleteDirectory(files[i]);
+               }
+               else {
+                 files[i].delete();
+               }
+            }
+        }
+        return( path.delete() );
+    }
+
 }

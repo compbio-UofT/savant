@@ -25,6 +25,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import savant.settings.BrowserSettings;
 import savant.util.HttpUtils;
+import savant.util.MiscUtils;
 import savant.view.swing.util.DialogUtils;
 
 import java.io.*;
@@ -90,7 +91,7 @@ public class BAMIndexCache {
             return null;
         }
 
-        String indexFilename = getIndexFileName(indexURLString);
+        String indexFilename = getIndexFileName(URL.toString(), indexURLString);
         File indexFile = new File(getCacheDir(), indexFilename);
         if (indexFile.exists()) {
             String cachedTag = getETagForURL(URL.toString());
@@ -103,6 +104,11 @@ public class BAMIndexCache {
             setETagForURL(eTag, indexURLString);
         }
         return indexFile;
+    }
+
+    public void clearCache() {
+        File cacheDir = getCacheDir();
+        MiscUtils.deleteDirectory(cacheDir);
     }
 
     private synchronized Properties getETags() {
@@ -144,11 +150,11 @@ public class BAMIndexCache {
         return cacheDir;
     }
 
-    private synchronized String getIndexFileName(String URL) {
+    private synchronized String getIndexFileName(String URL, String indexURL) {
         String indexFilename = getIndexForURL(URL);
         if (indexFilename == null) {
-            int offset = URL.lastIndexOf("/");
-            String name = URL.substring(offset+1);
+            int offset = indexURL.lastIndexOf("/");
+            String name = indexURL.substring(offset+1);
             offset = name.lastIndexOf(".bai");
             name = (offset > 0) ? name.substring(0,offset)+"_" : name+"_";
             indexFilename = name + System.currentTimeMillis() + ".bai";
