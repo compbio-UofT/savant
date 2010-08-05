@@ -61,7 +61,7 @@ public class IntervalPacker {
             int intervalStart = inter.getStart();
 
             // check for bogus intervals here
-            if (!(intervalEnd > intervalStart) || intervalEnd < 0 || intervalStart < 0)  continue;
+            if (!(intervalEnd >= intervalStart) || intervalEnd < 0 || intervalStart < 0)  continue;
 
             boolean fitsInExistingLevel = false;
 

@@ -41,7 +41,7 @@ public class Interval {
     public int getStart() { return this.start; }
     public int getEnd() { return this.end; }
 
-    public int getLength() { return getEnd() - getStart() + 1;}
+    public int getLength() { return getEnd() - getStart();}
 
 
     @Override

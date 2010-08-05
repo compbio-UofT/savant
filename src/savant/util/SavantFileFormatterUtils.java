@@ -567,7 +567,7 @@ public class SavantFileFormatterUtils {
 
             while(numBlocks-- > 0) {
                 int nextPos = Integer.parseInt(posTokenizer.nextToken());
-                int nextSize = Integer.parseInt(sizeTokenizer.nextToken());
+                int nextSize = Integer.parseInt(sizeTokenizer.nextToken()) -1;
                 blocks.add(new Block(nextPos,nextSize));
             }
         }

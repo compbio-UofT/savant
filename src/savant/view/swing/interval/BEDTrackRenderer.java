@@ -89,7 +89,7 @@ public class BEDTrackRenderer extends TrackRenderer {
         resolution = (Resolution) drawingInstructions.getInstruction(DrawingInstructions.InstructionName.RESOLUTION.toString());
 
         String modeName = drawMode.getName();
-        if (modeName == "STANDARD") {
+        if (modeName.equals("STANDARD")) {
             renderPackMode(g2, gp, resolution);
         }
 
@@ -162,6 +162,42 @@ public class BEDTrackRenderer extends TrackRenderer {
 
         int startXPos = (int)gp.transformXPos(interval.getStart());
 
+
+        boolean isInsertion = false;
+
+        //If length is 0, draw insertion rhombus.  It is drawn here so that the
+        //name can be drawn on top of it
+        if(interval.getLength() == 0){
+
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2.setColor(Color.white);
+            int xCoordinate = (int)gp.transformXPos(interval.getStart());
+            int yCoordinate = (int)(gp.transformYPos(0)-((level + 1)*unitHeight)) + 1;
+            if((int)unitWidth/3 < 4 || (int)(unitHeight/2) < 6){
+                yCoordinate = yCoordinate - 1;
+                int lineWidth = Math.max((int)(unitWidth * (2.0/3.0)), 1);
+                int xCoordinate1 = (int)(xCoordinate - Math.floor(lineWidth/2));
+                int xCoordinate2 = (int)(xCoordinate - Math.floor(lineWidth/2)) + lineWidth - 1;
+                if(xCoordinate1 == xCoordinate2) xCoordinate2++;
+                int[] xPoints = {xCoordinate1, xCoordinate2, xCoordinate2, xCoordinate1};
+                int[] yPoints = {yCoordinate, yCoordinate, yCoordinate+(int)unitHeight, yCoordinate+(int)unitHeight};
+                g2.fillPolygon(xPoints, yPoints, 4);
+            } else {
+                int[] xPoints = {xCoordinate, xCoordinate+(int)(unitWidth/3), xCoordinate, xCoordinate-(int)(unitWidth/3)};
+                int[] yPoints = {yCoordinate, yCoordinate+(int)(unitHeight/2), yCoordinate+(int)unitHeight-1, yCoordinate+(int)(unitHeight/2)};
+                g2.fillPolygon(xPoints, yPoints, 4);
+                if((int)unitWidth/3 >= 7 && (int)(unitHeight/2) >= 5){
+                    g2.setColor(Color.BLACK);
+                    g2.drawLine(xCoordinate, (int)yCoordinate, xCoordinate, (int)(yCoordinate+unitHeight)-1);
+                }
+            }
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
+
+            isInsertion = true;
+        }
+
+
+
         // draw the gene name, if possible
         String geneName = bedRecord.getName();
         boolean drawName = true;
@@ -186,6 +222,8 @@ public class BEDTrackRenderer extends TrackRenderer {
             g2.setColor(lineColor);
             g2.drawString(geneName, (int)(startXPos - nameRect.getWidth() - 5), (int)(gp.transformYPos(level) - topMargin));
         }
+
+        if(isInsertion) return;
 
         // draw a line in the middle, the full length of the interval
         int yPos = (int) (gp.transformYPos(level)-unitHeight/2);
