@@ -670,7 +670,6 @@ public class DataFormatForm extends JDialog implements PropertyChangeListener /*
             setProgress(value);
         }
 
-        @Override
         public void progressUpdate(int progress, String status) {
             this.setProgress(progress);
         }
