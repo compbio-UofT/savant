@@ -34,16 +34,16 @@ public class IntervalRecordTest extends TestCase {
     private IntervalRecord a, b, c, d;
 
     public void setUp() {
-        a = new IntervalRecord(new Interval(4,57));
-        b = new IntervalRecord(new Interval(4,57));
-        c = new IntervalRecord(new Interval(4,57));
-        d = new IntervalRecord(new Interval(1,82));
+        a = IntervalRecord.valueOf(Interval.valueOf(4,57));
+        b = IntervalRecord.valueOf(Interval.valueOf(4,57));
+        c = IntervalRecord.valueOf(Interval.valueOf(4,57));
+        d = IntervalRecord.valueOf(Interval.valueOf(1,82));
     }
 
     public void testConstruct() {
         try {
             // this is an invalid Interval item and should fail
-            IntervalRecord e = new IntervalRecord(null);
+            IntervalRecord e = IntervalRecord.valueOf(null);
             fail("Expected IllegalArgumentException");
         } catch (Exception success) {}
     }

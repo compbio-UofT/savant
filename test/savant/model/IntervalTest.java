@@ -33,17 +33,21 @@ public class IntervalTest extends TestCase {
     private Interval a, b, c, d;
 
     public void setUp() {
-        a = new Interval(4,57);
-        b = new Interval(4,57);
-        c = new Interval(4,57);
-        d = new Interval(1,82);
+        a = Interval.valueOf(4,57);
+        b = Interval.valueOf(4,57);
+        c = Interval.valueOf(4,57);
+        d = Interval.valueOf(1,82);
     }
 
     public void testConstruct() {
         try {
             // these are invalid ranges and should fail
-            Interval e = new Interval(-1, 9);
-            Interval f = new Interval(10, 1);
+            Interval e = Interval.valueOf(-1, 9);
+            fail("Expected IllegalArgumentException");
+        } catch (Exception success) {}
+        try {
+            // these are invalid ranges and should fail
+            Interval f = Interval.valueOf(10, 1);
             fail("Expected IllegalArgumentException");
         } catch (Exception success) {}
     }
