@@ -15,26 +15,13 @@
  */
 package savant.view.swing;
 
-import savant.settings.BrowserSettings;
 import com.jidesoft.dialog.JideOptionPane;
-import savant.controller.event.reference.ReferenceChangedEvent;
-import savant.controller.event.track.TrackListChangedEvent;
-import savant.view.dialog.GenomeLengthForm;
-import savant.view.dialog.OpenURLDialog;
-import savant.view.dialog.PluginDialog;
-import savant.view.dialog.DataFormatForm;
-import savant.settings.*;
-import com.jidesoft.docking.DefaultDockingManager;
-import com.jidesoft.docking.DockContext;
-import com.jidesoft.docking.DockableFrame;
-import com.jidesoft.docking.DockingManager;
-import com.jidesoft.docking.DockingManagerGroup;
+import com.jidesoft.docking.*;
 import com.jidesoft.docking.event.DockableFrameEvent;
 import com.jidesoft.docking.event.DockableFrameListener;
 import com.jidesoft.plaf.LookAndFeelFactory;
 import com.jidesoft.plaf.UIDefaultsLookup;
 import com.jidesoft.plaf.basic.ThemePainter;
-
 import com.jidesoft.status.MemoryStatusBarItem;
 import com.jidesoft.swing.JideSplitPane;
 import org.java.plugin.ObjectFactory;
@@ -44,18 +31,35 @@ import org.java.plugin.registry.ExtensionPoint;
 import org.java.plugin.registry.PluginDescriptor;
 import org.java.plugin.standard.StandardPluginLocation;
 import savant.analysis.BatchAnalysisForm;
-import savant.controller.BookmarkController;
-import savant.controller.FrameController;
-import savant.controller.RangeController;
+import savant.controller.*;
 import savant.controller.event.bookmark.BookmarksChangedEvent;
+import savant.controller.event.bookmark.BookmarksChangedListener;
 import savant.controller.event.range.RangeChangedEvent;
 import savant.controller.event.range.RangeChangedListener;
 import savant.controller.event.rangeselection.RangeSelectionChangedEvent;
 import savant.controller.event.rangeselection.RangeSelectionChangedListener;
+import savant.controller.event.reference.ReferenceChangedEvent;
+import savant.controller.event.reference.ReferenceChangedListener;
+import savant.controller.event.track.TrackListChangedEvent;
+import savant.controller.event.track.TrackListChangedListener;
+import savant.format.header.FileType;
 import savant.model.Genome;
+import savant.plugin.GUIPlugin;
+import savant.plugin.PluginAdapter;
+import savant.settings.BrowserSettings;
+import savant.settings.ColourSchemeSettingsSection;
+import savant.settings.ColourSettings;
+import savant.settings.SettingsDialog;
 import savant.util.MiscUtils;
 import savant.util.Range;
+import savant.view.dialog.DataFormatForm;
+import savant.view.dialog.GenomeLengthForm;
+import savant.view.dialog.OpenURLDialog;
+import savant.view.dialog.PluginDialog;
 import savant.view.swing.sequence.SequenceViewTrack;
+import savant.view.swing.util.DialogUtils;
+import savant.view.swing.util.ScreenShot;
+import savant.view.tools.ToolsModule;
 
 import javax.swing.*;
 import java.awt.*;
@@ -68,25 +72,10 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.CountDownLatch;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import savant.controller.GraphPaneController;
-import savant.controller.ReferenceController;
-import savant.controller.event.bookmark.BookmarksChangedListener;
-import savant.controller.event.reference.ReferenceChangedListener;
-import savant.controller.event.track.TrackListChangedListener;
-import savant.format.header.FileType;
-import savant.plugin.GUIPlugin;
-import savant.plugin.PluginAdapter;
-import savant.settings.SettingsDialog;
-import savant.view.swing.util.ScreenShot;
-import savant.view.tools.ToolsModule;
 
 /**
  * Main application Window (Frame).
@@ -411,6 +400,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         menu_load = new javax.swing.JMenu();
         menuitem_genome = new javax.swing.JMenuItem();
         menuitem_track = new javax.swing.JMenuItem();
+        menuitem_trackURL = new javax.swing.JMenuItem();
         menuItemFormat = new javax.swing.JMenuItem();
         submenu_download = new javax.swing.JMenu();
         menuitem_preformatted = new javax.swing.JMenuItem();
@@ -529,13 +519,22 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         menu_load.add(menuitem_genome);
 
         menuitem_track.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_T, java.awt.event.InputEvent.CTRL_MASK));
-        menuitem_track.setText("Track");
+        menuitem_track.setText("Track from File");
         menuitem_track.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 menuitem_trackActionPerformed(evt);
             }
         });
         menu_load.add(menuitem_track);
+
+        menuitem_trackURL.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_U, java.awt.event.InputEvent.CTRL_MASK));
+        menuitem_trackURL.setText("Track from URL");
+        menuitem_trackURL.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                menuitem_trackURLActionPerformed(evt);
+            }
+        });
+        menu_load.add(menuitem_trackURL);
 
         menu_file.add(menu_load);
 
@@ -930,6 +929,10 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
 
     private void menuitem_trackActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuitem_trackActionPerformed
         this.showOpenTracksDialog();
+    }//GEN-LAST:event_menuitem_trackActionPerformed
+
+    private void menuitem_trackURLActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuitem_trackActionPerformed
+        this.showOpenURLDialog();
     }//GEN-LAST:event_menuitem_trackActionPerformed
 
     private void menuitem_screenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuitem_screenActionPerformed
@@ -1386,6 +1389,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
     private void initMenu() {
         menuitem_genome.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_G, osSpecificModifier));
         menuitem_track.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_T, osSpecificModifier));
+        menuitem_trackURL.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_U, osSpecificModifier));
         menuItemFormat.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F, osSpecificModifier));
         menuitem_screen.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_S, osSpecificModifier));
         menuitem_exit.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Q, osSpecificModifier));
@@ -2802,5 +2806,26 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         TrackChooser tc = new TrackChooser(Savant.getInstance(), multiple, title);
         String[] tracks = tc.getSelectedTracks();
         return tracks;
+    }
+
+    private void showOpenURLDialog() {
+        urlDialog.setVisible(true);
+
+        if (urlDialog.isAccepted()) {
+            String urlString = urlDialog.getUrlAsString();
+            try {
+                URL url = new URL(urlString);
+                if (!url.getProtocol().equalsIgnoreCase("http") || !urlString.endsWith(".bam")) {
+                    DialogUtils.displayMessage("Only BAM files accessible via HTTP can be opened via URL.");
+                }
+            } catch (MalformedURLException e) {
+                // ignore, since it was already caught by the dialog and should never happen here
+            }
+            try {
+                addTrackFromFile(urlDialog.getUrlAsString());
+            } catch (IOException e) {
+                DialogUtils.displayException("Load Track from URL", "Error opening remote BAM file", e);
+            }
+        }
     }
 }
