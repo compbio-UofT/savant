@@ -57,17 +57,14 @@ public class ColourSchemeSettingsSection extends Section {
         panel.add(_pane, BorderLayout.CENTER);
     }
 
-    @Override
     public String getSectionName() {
         return "Colour Schemes";
     }
 
-    @Override
     public Icon getSectionIcon() {
         return null;
     }
 
-    @Override
     public void applyChanges() {
 
         //TODO: ISSUE A WARNING THAT CHANGES WILL BE OVERWRITTEN
@@ -116,7 +113,6 @@ public class ColourSchemeSettingsSection extends Section {
         }
     }
 
-    @Override
     public void lazyInitialize() {
         setLayout(new BorderLayout());
         add(SettingsDialog.getHeader(getTitle()), BorderLayout.BEFORE_FIRST_LINE);
@@ -234,7 +230,6 @@ public class ColourSchemeSettingsSection extends Section {
             super(name);
         }
 
-        @Override
         public void setValue(Object value) {
             Object old = getValue();
             if (!JideSwingUtilities.equals(old, value)) {
@@ -243,7 +238,6 @@ public class ColourSchemeSettingsSection extends Section {
             }
         }
 
-        @Override
         public Object getValue() {
             return map.get(getFullName());
         }
