@@ -24,7 +24,6 @@ public class TemporaryFilesSettingsSection extends Section {
         return null;
     }
 
-    @Override
     public void lazyInitialize() {
 
         setLayout(new BorderLayout());
