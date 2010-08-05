@@ -31,6 +31,7 @@ import savant.view.swing.util.DialogUtils;
 import java.io.*;
 import java.net.URL;
 import java.util.Properties;
+import savant.settings.DirectorySettings;
 
 /**
  * Singleton class to manage a cache of indices for remote BAM files.
@@ -142,7 +143,7 @@ public class BAMIndexCache {
     
     private File getCacheDir() {
         if (cacheDir == null) {
-            cacheDir = new File(BrowserSettings.getSavantDirectory(), "bam");
+            cacheDir = new File(DirectorySettings.getSavantDirectory(), "bam");
             if (!cacheDir.exists()) {
                 cacheDir.mkdir();
             }

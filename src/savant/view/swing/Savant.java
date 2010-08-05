@@ -76,6 +76,7 @@ import java.util.*;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import savant.settings.TemporaryFilesSettingsSection;
 
 /**
  * Main application Window (Frame).
@@ -927,9 +928,9 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         this.showOpenGenomeDialog();
     }//GEN-LAST:event_menuitem_genomeActionPerformed
 
-    private void menuitem_trackActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuitem_trackActionPerformed
+    private void menuitem_trackActionPerformed(java.awt.event.ActionEvent evt) {                                               
         this.showOpenTracksDialog();
-    }//GEN-LAST:event_menuitem_trackActionPerformed
+    }                                              
 
     private void menuitem_trackURLActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuitem_trackActionPerformed
         this.showOpenURLDialog();
@@ -1085,7 +1086,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
 
         if (!arePreferencesIntialized) {
             SettingsDialog.addSection(new ColourSchemeSettingsSection());
-            //SettingsDialog.addSection(new TemporaryFilesSettingsSection());
+            SettingsDialog.addSection(new TemporaryFilesSettingsSection());
             //SettingsDialog.addSection(new ResolutionSettingsSection());
             arePreferencesIntialized = true;
         }
