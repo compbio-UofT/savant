@@ -20,6 +20,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.FileDialog;
 import java.awt.Font;
 import java.awt.GridLayout;
@@ -73,11 +74,9 @@ import savant.plugin.ToolPlugin;
 import savant.util.MiscUtils;
 import savant.view.dialog.DataFormatForm;
 import savant.view.icon.SavantIconFactory;
-import savant.settings.BrowserSettings;
 import savant.settings.ColourSettings;
 import savant.view.swing.DockableFrameFactory;
 import savant.view.swing.Savant;
-import savant.view.tools.ToolRunInformation.TerminationStatus;
 
 /**
  *
@@ -288,13 +287,14 @@ public class ToolsModule implements BookmarksChangedListener, RangeChangedListen
 
         String tlname = "Toolbox";
         DockableFrame toolsListBar = DockableFrameFactory.createFrame(tlname,DockContext.STATE_FRAMEDOCKED,DockContext.DOCK_SIDE_WEST);
+        toolsListBar.setPreferredSize(new Dimension(250,500));
         toolsListBar.setAvailableButtons(DockableFrame.BUTTON_HIDE_AUTOHIDE);
         toolsListBar.setFloatable(false);
 
         toolsListCanvas = new JPanel();
 
         Container tlworkspace = toolsListBar.getContentPane();
-        tlworkspace.setBackground(ColourSettings.colorToolsParameterMarginsBackground);
+        tlworkspace.setBackground(ColourSettings.colorToolsBackground);
         pad(toolsListCanvas,tlworkspace,0);
 
         toolsDockingManager.addFrame(toolsListBar);
@@ -303,6 +303,7 @@ public class ToolsModule implements BookmarksChangedListener, RangeChangedListen
         String esname = "Event Subscriptions";
 
         DockableFrame eventSubscriptionBar = DockableFrameFactory.createFrame(esname,DockContext.STATE_FRAMEDOCKED,DockContext.DOCK_SIDE_EAST);
+        eventSubscriptionBar.setPreferredSize(new Dimension(250,500));
         eventSubscriptionBar.setAvailableButtons(DockableFrame.BUTTON_HIDE_AUTOHIDE);
         eventSubscriptionBar.setFloatable(false);
 
@@ -316,6 +317,7 @@ public class ToolsModule implements BookmarksChangedListener, RangeChangedListen
         String thname = "History";
 
         DockableFrame threadsBar = DockableFrameFactory.createFrame(thname,DockContext.STATE_FRAMEDOCKED,DockContext.DOCK_SIDE_EAST);
+        threadsBar.setPreferredSize(new Dimension(250,500));
         threadsBar.setAvailableButtons(DockableFrame.BUTTON_HIDE_AUTOHIDE);
         threadsBar.setFloatable(false);
 
@@ -328,22 +330,23 @@ public class ToolsModule implements BookmarksChangedListener, RangeChangedListen
 
         String outputname = "Output";
 
-        DockableFrame outputSubscriptionBar = DockableFrameFactory.createFrame(outputname,DockContext.STATE_AUTOHIDE,DockContext.DOCK_SIDE_SOUTH);
-        outputSubscriptionBar.setAvailableButtons(DockableFrame.BUTTON_AUTOHIDE);
-        outputSubscriptionBar.setFloatable(false);
+        DockableFrame outputBar = DockableFrameFactory.createFrame(outputname,DockContext.STATE_AUTOHIDE,DockContext.DOCK_SIDE_SOUTH);
+        outputBar.setAutohideHeight(500);
+        outputBar.setAvailableButtons(DockableFrame.BUTTON_AUTOHIDE);
+        outputBar.setFloatable(false);
 
         outputCanvas = new JPanel();
-        Container outputworkspace = outputSubscriptionBar.getContentPane();
+        Container outputworkspace = outputBar.getContentPane();
         pad(outputCanvas,outputworkspace,10);
 
-        toolsDockingManager.addFrame(outputSubscriptionBar);
+        toolsDockingManager.addFrame(outputBar);
         setFrameVisibility(outputname, true, toolsDockingManager);
 
         try {
             toolsListBar.setActive(false);
             eventSubscriptionBar.setActive(false);
             threadsBar.setActive(false);
-            outputSubscriptionBar.setActive(false);
+            outputBar.setActive(false);
         } catch (PropertyVetoException ex) {
         }
     }
@@ -550,7 +553,7 @@ public class ToolsModule implements BookmarksChangedListener, RangeChangedListen
         _container.add(createPanel("Range Change", toolsSubscribedToRangeChangeEvent,true));
         _container.add(createPanel("Track List Change", toolsSubscribedToTrackListChangeEvent,true));
 
-        _container.setBackground(ColourSettings.colorToolsListBackground);
+        _container.setBackground(ColourSettings.colorToolsMarginBackground);
         _container.setGap(0);
         //_container.setBorder(new LineBorder(Color.lightGray, 1));
 
@@ -575,7 +578,7 @@ public class ToolsModule implements BookmarksChangedListener, RangeChangedListen
             _container.add(pane);
         }
 
-        _container.setBackground(ColourSettings.colorToolsListBackground);
+        _container.setBackground(ColourSettings.colorToolsMarginBackground);
         _container.setGap(0);
         //_container.setBorder(new LineBorder(Color.lightGray, 1));
 
@@ -599,11 +602,11 @@ public class ToolsModule implements BookmarksChangedListener, RangeChangedListen
         for (int i = threads.size()-1; i >= 0; i--) {
             InformativeThread t = threads.get(i);
             CollapsiblePane pane = createPanel(t);
-            wash(pane,Color.white);
+            //wash(pane,Color.white);
             _container.add(pane);
         }
 
-        _container.setBackground(ColourSettings.colorToolsListBackground);
+        _container.setBackground(ColourSettings.colorToolsMarginBackground);
         _container.setGap(0);
         //_container.setBorder(new LineBorder(Color.lightGray, 1));
 
@@ -680,6 +683,9 @@ public class ToolsModule implements BookmarksChangedListener, RangeChangedListen
                 }));
                 break;
         }
+
+        panel.setBackground(ColourSettings.colorToolsMarginBackground);
+
 
         pane.setStyle(CollapsiblePane.PLAIN_STYLE);
         pane.setContentPane(JideSwingUtilities.createTopPanel(panel));
@@ -761,7 +767,7 @@ public class ToolsModule implements BookmarksChangedListener, RangeChangedListen
             _container.add(createPanel("Event Subscriptions", getEventSubscriptionCanvas(p), true));
         }
 
-        _container.setBackground(ColourSettings.colorToolsListBackground);
+        _container.setBackground(ColourSettings.colorToolsBackground);
         _container.setGap(0);
         _container.setBorder(new LineBorder(Color.lightGray, 1));
 
@@ -771,7 +777,7 @@ public class ToolsModule implements BookmarksChangedListener, RangeChangedListen
         toolCanvas.repaint();
         toolCanvas.setLayout(new BorderLayout());
         //toolCanvas.setLayout(new BoxLayout(toolCanvas, BoxLayout.PAGE_AXIS));
-        toolCanvas.setBackground(ColourSettings.colorToolsListBackground);
+        toolCanvas.setBackground(ColourSettings.colorToolsBackground);
 
         JLabel title = new JLabel(" " + p.getToolInformation().getName());
         title.setFont(new Font("Arial", Font.BOLD, 20));

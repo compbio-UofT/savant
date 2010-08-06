@@ -65,9 +65,7 @@ public class ColourSettings {
     public static Color colorBrowseBackground = new Color(60,60,60,100);
     public static Color colorBrowseAuxiliaryBackground = new Color(160,160,160);
     public static Color colorTabBackground = new Color(240,240,240);
-    public static Color colorToolsParameterMarginsBackground = Color.white; //new Color(230,230,230);
-    public static Color colorToolsParametersBackground = Color.white;
-    public static Color colorToolsListBackground = Color.white; //new Color(255,255,255); //new Color(245,250,255);
+    public static Color colorToolsMarginBackground = new Color(215,219,229); //new Color(255,255,255); //new Color(245,250,255);
     public static Color colorToolsBackground = Color.white; //new Color(200,200,200);   
     public static Color colorAccent = Color.black;
     public static Color colorAxisGrid = Color.lightGray;    
