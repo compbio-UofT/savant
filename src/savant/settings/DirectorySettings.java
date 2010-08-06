@@ -55,7 +55,7 @@ public class DirectorySettings {
             formatDir = home + fileSeparator + "savant_files";
             File dir = new File(formatDir);
             if (!dir.exists()) {
-                dir.mkdir();
+                dir.mkdirs();
             }
         }
         return formatDir;
@@ -64,9 +64,9 @@ public class DirectorySettings {
     public static void setFormatDirectory(String dir) {
         File f = new File(dir);
         if (!f.exists()) {
-            f.mkdirs();
-        }
-        formatDir = dir;
+            boolean ret = f.mkdirs();
+            if(ret) formatDir = dir;
+        }      
     }
 
     public static String getPluginsDirectory() {
@@ -76,7 +76,7 @@ public class DirectorySettings {
             pluginsDir = home + fileSeparator + "savant_plugins";
             File dir = new File(pluginsDir);
             if (!dir.exists()) {
-                dir.mkdir();
+                dir.mkdirs();
             }
         }
         return pluginsDir;
@@ -85,9 +85,9 @@ public class DirectorySettings {
     public static void setPluginsDirectory(String dir) {
         File f = new File(dir);
         if (!f.exists()) {
-            f.mkdirs();
+            boolean ret = f.mkdirs();
+            if(ret) pluginsDir = dir;
         }
-        pluginsDir = dir;
     }
 
 }
