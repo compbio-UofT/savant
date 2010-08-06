@@ -91,6 +91,7 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
     private Range prevRange = null;
     private Mode prevDrawMode = null;
     private Dimension prevSize = null;
+    private String prevRef = null;
     public boolean paneResize = false;
     public int newHeight;
     private int oldWidth = -1;
@@ -304,6 +305,7 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
         boolean sameSize = (prevSize != null && this.getSize().equals(prevSize) && 
                 this.parentFrame.getFrameLandscape().getWidth() == oldWidth &&
                 this.getParentFrame().getFrameLandscape().getHeight() == oldHeight);
+        boolean sameRef = prevRef != null && ReferenceController.getInstance().getReferenceName().equals(prevRef);
 
         //bufferedImage stores the current graphic for future use. If nothing
         //has changed in the track since the last render, bufferedImage will
@@ -311,7 +313,7 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
         //on tracks where nothing has changed (panning, selection, plumbline,...)
 
         //if nothing has changed draw buffered image
-        if(sameRange && sameMode && sameSize && !this.renderRequired){
+        if(sameRange && sameMode && sameSize && sameRef && !this.renderRequired){
             g.drawImage(bufferedImage, 0, 0, this);
 
             //force unitHeight from last render
@@ -331,6 +333,7 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
             prevRange = RangeController.getInstance().getRange();
             prevSize = this.getSize();
             prevDrawMode = this.parentFrame.getTracks().get(0).getDrawMode();
+            prevRef = ReferenceController.getInstance().getReferenceName();
         }
 
         renderBackground(g3);
