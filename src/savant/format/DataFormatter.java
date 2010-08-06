@@ -302,10 +302,12 @@ public class DataFormatter implements FormatProgressListener {
         // change the offset
         dFile.headerOffset = dFile.getFilePointerSuper();
 
+        /*
         for (String s : refMap.keySet()) {
             Long[] vals = refMap.get(s);
             //System.out.println("Reference " + s + " at " + vals[0] + " of length " + vals[1]);
         }
+         */
 
         Map<String,IntervalSearchTree> trees = new HashMap<String,IntervalSearchTree>();
 

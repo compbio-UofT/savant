@@ -54,7 +54,6 @@ import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JOptionPane;
-import savant.controller.ReferenceController;
 
 /**
  * Class to handle the preparation for rendering of a track. Handles colour schemes and
@@ -125,56 +124,15 @@ public abstract class ViewTrack {
                 return null;
             }
 
-//            // infer index file name from track filename
-//            String indexFilename=null;
-//            String nameWithoutExtension = trackFilename.substring(0, trackFilename.lastIndexOf(".bam"));
-//            if (new File(trackFilename + ".bai").exists()) {
-//                indexFilename = trackFilename + ".bai";
-//            }
-//            else {
-//                if (new File(nameWithoutExtension + ".bai").exists()) {
-//                    indexFilename = nameWithoutExtension + ".bai";
-//                }
-//            }
-//            if (indexFilename != null) {
-//                dataTrack = new BAMIntervalTrack(new File(trackFilename), new File(indexFilename));
-//                viewTrack = new BAMViewTrack(name, (BAMIntervalTrack)dataTrack);
-//
-//                // capture parameters needed to adjust display
-//                //captureBAMDisplayParameters((BAMViewTrack) viewTrack);
-//
-//                results.add(viewTrack);
-//            }
-//            else {
-//                String e = "Could not open BAM track because index could not be found; index file must be named filename.bam.bai or filename.bai";
-//                log.error(e);
-//                JOptionPane.showConfirmDialog((Component) Savant.getInstance(), (Object) e, "Unrecognized file", JOptionPane.DEFAULT_OPTION);
-//                return null;
-//            }
-
-            // create the coverage track
-            //String sequenceName = ReferenceController.getInstance().getReferenceName();
-            //String sequenceName = BAMIntervalTrack.guessSequence(new File(trackFilename), new File(indexFilename));
-            
-            //System.out.println("refname: " + sequenceName);
-
             // TODO: test BAM to coverage (with v2 formatting) then re-enable adding coverage file
-            /* RE-ENABLE STARTING FROM HERE */
+            /* RE-ENABLE STARTING */
             try {
                 String coverageFileName = trackFilename + ".cov.savant";
 
-                //File coverageDir = new File(nameWithoutExtension + "_cov");
-                //if (coverageDir.exists()) {
-                //    String coverageFifleName = coverageDir.getPath() + System.getProperty("file.separator") + sequenceName + ".cov.savant";
                 if ((new File(coverageFileName)).exists()) {
                     dataTrack = new GenericContinuousTrack(coverageFileName);
                     viewTrack = new BAMCoverageViewTrack(name + " (coverage)" , (GenericContinuousTrack)dataTrack);
                 }
-                //}
-                //else {
-                //    log.info("No coverage track available");
-                //    viewTrack = new BAMCoverageViewTrack(name + "_" + sequenceName + "coverage" , null);
-                //}
                 else {
                     log.info("No coverage track available");
                     viewTrack = new BAMCoverageViewTrack(name + " (coverage)" , null);

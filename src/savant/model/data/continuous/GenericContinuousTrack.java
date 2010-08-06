@@ -26,7 +26,6 @@ import savant.format.SavantFile;
 import savant.model.Continuous;
 import savant.model.ContinuousRecord;
 import savant.model.Resolution;
-import savant.model.data.point.PointTrack;
 import savant.util.RAFUtils;
 import savant.util.Range;
 import savant.view.swing.Savant;
@@ -35,9 +34,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import savant.format.util.data.FieldType;
+import java.util.Map;
+import savant.format.ContinuousFormatterHelper;
+import savant.format.ContinuousFormatterHelper.Level;
 
 /**
  * A data track containing ContinuousRecords. Data is sampled differently depending on
@@ -51,12 +50,17 @@ public class GenericContinuousTrack extends ContinuousTrack {
 
     private int numRecords;
     private int recordSize;
+
+    private Map<String,List<Level>> refnameToLevelsIndex;
     
     private Hashtable<Resolution, int[]> resolutionToSamplingMap;
 
     public GenericContinuousTrack(String filename) throws IOException {
 
         this.savantFile = new SavantFile(filename);
+        this.refnameToLevelsIndex = ContinuousFormatterHelper.readLevelHeadersFromBinaryFile(savantFile);
+
+        //printLevelsMap(refnameToLevelsIndex);
 
         setRecordSize();
 
@@ -101,7 +105,6 @@ public class GenericContinuousTrack extends ContinuousTrack {
 
         } catch (IOException ex) {
             Savant.log("Warning: IO Exception when getting continuous data");
-            Logger.getLogger(PointTrack.class.getName()).log(Level.SEVERE, null, ex);
         }
 
         return data;
@@ -175,5 +178,19 @@ public class GenericContinuousTrack extends ContinuousTrack {
 
     public Set<String> getReferenceNames() {
         return this.savantFile.getReferenceNames();
+    }
+
+    private void printLevelsMap(Map<String, List<Level>> refnameToLevelsIndex) {
+        for (String refname : refnameToLevelsIndex.keySet()) {
+            System.out.println("Level header for reference " + refname);
+            System.out.println("Levels list " + refnameToLevelsIndex.get(refname));
+            System.out.println("Number of levels " + refnameToLevelsIndex.get(refname).size());
+            for (Level l : refnameToLevelsIndex.get(refname)) {
+                System.out.println("Offset: " + l.offset);
+                System.out.println("Size: " + l.size);
+                System.out.println("Record size: " + l.recordSize);
+                System.out.println("Type: " + l.mode.type);
+            }
+        }
     }
 }

@@ -76,6 +76,7 @@ import java.util.*;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import savant.plugin.ToolPlugin;
 import savant.settings.TemporaryFilesSettingsSection;
 
 /**
@@ -349,7 +350,14 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         addComponentListener(this);
         initComponents();
         customizeUI();
-        init();    
+        init();
+
+        /*
+        DocumentViewer v = new DocumentViewer();
+        v.addDocument("C:\\Documents and Settings\\mfiume\\DataFormatter.html");
+        v.addDocument("C:\\test.txt");
+        v.setVisible(true);
+         */
     }
 
     private void loadPlugins() {
@@ -1237,7 +1245,8 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
 
     private void disableExperimentalFeatures() {
         //this.menuitem_preferences.setVisible(false);
-        this.menu_tools.setVisible(false);
+        //this.menu_tools.setVisible(false);
+        //this.menu_plugins.setVisible(false);
     }
 
     private void initPanelsAndDocking() {
@@ -1278,6 +1287,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
             ExtensionPoint point = pluginManager.getRegistry().getExtensionPoint(core.getId(), "AuxData");
 
             for (Iterator it = point.getConnectedExtensions().iterator(); it.hasNext();) {
+
                 Extension ext = (Extension) it.next();
                 PluginDescriptor descr = ext.getDeclaringPluginDescriptor();
                 pluginManager.activatePlugin(descr.getId());
@@ -1287,7 +1297,11 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
                 Object plugininstance = pluginCls.newInstance();
 
                 if (plugininstance instanceof GUIPlugin) {
+
                     GUIPlugin plugin = (GUIPlugin) plugininstance;
+
+                    System.out.println("Loading GUI Plugin : " + plugin.getTitle());
+
                     final DockableFrame f = DockableFrameFactory.createGUIPluginFrame(plugin.getTitle());
                     JPanel p = (JPanel) f.getContentPane();
                     p.setLayout(new BorderLayout());
@@ -1310,6 +1324,16 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
                     });
                     cb.setSelected(!auxDockingManager.getFrame(f.getTitle()).isHidden());
                     menu_window.add(cb);
+                } else if (plugininstance instanceof ToolPlugin) {
+
+                    ToolPlugin p = (ToolPlugin) plugininstance;
+
+                    System.out.println("Loading Tool Plugin : " + p.getToolInformation().getName());
+
+                    p.init(new PluginAdapter());
+                    ToolsModule.addTool(p);
+                } else {
+                    System.out.println("Unknown plugin type");
                 }
             }
 

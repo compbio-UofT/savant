@@ -1,4 +1,6 @@
-package savant.plugin;/*
+package savant.plugin;
+
+/*
  *    Copyright 2010 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,11 +24,12 @@ package savant.plugin;/*
 
 import java.io.PrintStream;
 import javax.swing.*;
+import org.java.plugin.Plugin;
 import savant.controller.event.thread.ThreadActivityChangedEvent;
 import savant.view.tools.ToolRunInformation;
 import savant.controller.ThreadController;
 
-public abstract class Tool implements Runnable {
+public abstract class Tool extends Plugin implements Runnable {
 
     private JTextArea outputTextArea;
 
@@ -85,4 +88,40 @@ public abstract class Tool implements Runnable {
 
     public abstract void runTool() throws InterruptedException;
 
+    private boolean isEventSubscriptionEnabled = true;
+    private boolean isInformationEnabled = true;
+    private boolean isWorkspaceEnabled = true;
+    private boolean isRunnableEnabled = true;
+
+    public boolean getEventSubscriptionsEnabled() {
+        return isEventSubscriptionEnabled;
+    }
+
+    public boolean getInformationEnabled() {
+        return isInformationEnabled;
+    }
+
+    public boolean getWorkspaceEnabled() {
+        return isWorkspaceEnabled;
+    }
+
+    public boolean getRunnableEnabled() {
+        return isRunnableEnabled;
+    }
+
+    public void setEventSubscriptionEnabled(boolean b) {
+        this.isEventSubscriptionEnabled = b;
+    }
+
+    public void setInformationEnabled(boolean b) {
+        this.isInformationEnabled = b;
+    }
+
+    public void setWorkspaceEnabled(boolean b) {
+        this.isWorkspaceEnabled = b;
+    }
+
+    public void setRunnableEnabled(boolean b) {
+        this.isRunnableEnabled = b;
+    }
 }

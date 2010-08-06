@@ -85,7 +85,7 @@ import savant.view.tools.ToolRunInformation.TerminationStatus;
  */
 public class ToolsModule implements BookmarksChangedListener, RangeChangedListener, ViewTrackListChangedListener, ThreadActivityChangedListener {
 
-    private Map<String, List<ToolPlugin>> organizeToolsByCategory(List<ToolPlugin> tools) {
+    private static Map<String, List<ToolPlugin>> organizeToolsByCategory(List<ToolPlugin> tools) {
 
         Map<String, List<ToolPlugin>> map = new HashMap<String,List<ToolPlugin>>();
 
@@ -104,52 +104,7 @@ public class ToolsModule implements BookmarksChangedListener, RangeChangedListen
     }
 
     private void addBogusTools() {
-        ToolPlugin tp = new ToolPlugin() {
-
-            @Override
-            public void init(PluginAdapter pluginAdapter) {
-            }
-
-            @Override
-            public ToolInformation getToolInformation() {
-                return new ToolInformation(
-                        "VARiD",
-                        "Genetic Variation Discovery",
-                        "VARiD is a Hidden Markov Model for SNP and indel identification with AB-SOLiD color-space as well as regular letter-space reads. VARiD combines both types of data in a single framework which allows for accurate predictions. VARiD was developed at the University of Toronto Computational Biology Lab.",
-                        "1.0",
-                        "Adrian Dalca",
-                        "http://compbio.cs.utoronto.ca/varid/");
-            }
-
-            @Override
-            public JComponent getCanvas() {
-                JPanel p = new JPanel();
-                return p;
-            }
-
-            @Override
-            public void runTool() throws InterruptedException {
-
-                ToolRunInformation runInfo = this.getRunInformation();
-
-                System.out.println("Running VARID");
-                int maxCount = 1000000;
-
-                for (int i = 1; i <= maxCount; i++) {
-
-                    if (i % 10000 == 0) {
-                        getOutputStream().println(i);
-                    }
-
-                    runInfo.setProgress(i*100/maxCount);
-                    runInfo.setStatus("on " + i + " of " + maxCount);
-
-                    //System.out.println(i);
-                    terminateIfInterruped();
-                }
-            }
-        };
-
+        
         ToolPlugin tp2 = new ToolPlugin() {
 
             @Override
@@ -181,9 +136,17 @@ public class ToolsModule implements BookmarksChangedListener, RangeChangedListen
                 DataFormatForm dff = new DataFormatForm(Savant.getInstance(), false);
                 dff.setVisible(true);
             }
+
+            @Override
+            protected void doStart() throws Exception {
+            }
+
+            @Override
+            protected void doStop() throws Exception {
+            }
         };
 
-        this.addTool(tp);
+        tp2.init(null);
         this.addTool(tp2);
     }
 
@@ -220,14 +183,14 @@ public class ToolsModule implements BookmarksChangedListener, RangeChangedListen
 
     Set<String> categories;
 
-    JPanel toolsListCanvas;
+    static JPanel toolsListCanvas;
     static JPanel toolCanvas;
     static JPanel eventSubscriptionCanvas;
     static JPanel outputCanvas;
     static JPanel threadsCanvas;
     static JToolBar runToolbar;
 
-    List<ToolPlugin> tools;
+    static List<ToolPlugin> tools;
     static ToolPlugin currentTool;
 
     // subscriptions
@@ -275,12 +238,14 @@ public class ToolsModule implements BookmarksChangedListener, RangeChangedListen
         ThreadController.getInstance().addThreadActivityListener(this);
     }
 
-    public void addTool(ToolPlugin plugin) {
+    public static void addTool(ToolPlugin plugin) {
         tools.add(plugin);
+        updateToolsList();
     }
 
-    public void removeTool(ToolPlugin plugin) {
+    public static void removeTool(ToolPlugin plugin) {
         tools.remove(plugin);
+        updateToolsList();
     }
 
     private void setFrameVisibility(String frameKey, boolean isVisible, DefaultDockingManager m) {
@@ -306,7 +271,7 @@ public class ToolsModule implements BookmarksChangedListener, RangeChangedListen
                 arg0.setBoldActiveTab(true);
                 arg0.setTabShape(JideTabbedPane.SHAPE_FLAT);
             }
-            
+
         });
 
 
@@ -317,7 +282,7 @@ public class ToolsModule implements BookmarksChangedListener, RangeChangedListen
         workspace.setLayout(new BorderLayout());
         JPanel c = new JPanel();
         c.setBackground(Color.white);
-        
+
         workspace.add(c, BorderLayout.CENTER);
         pad(toolCanvas,c,10);
 
@@ -373,7 +338,7 @@ public class ToolsModule implements BookmarksChangedListener, RangeChangedListen
 
         toolsDockingManager.addFrame(outputSubscriptionBar);
         setFrameVisibility(outputname, true, toolsDockingManager);
-        
+
         try {
             toolsListBar.setActive(false);
             eventSubscriptionBar.setActive(false);
@@ -430,7 +395,7 @@ public class ToolsModule implements BookmarksChangedListener, RangeChangedListen
         JPanel p = new JPanel();
         JLabel l = new JLabel(t.getName());
         p.add(l);
-        
+
         final Component c = outputTabs.getComponentAt(outputTabs.getTabCount()-1);
         JComponent button_close = createHyperlinkButton("x", new ActionListener() {
                 @Override
@@ -443,7 +408,7 @@ public class ToolsModule implements BookmarksChangedListener, RangeChangedListen
         outputTabs.setTabComponentAt(outputTabs.getTabCount()-1, p);
 
         p.setBackground(Color.white);
-         * 
+         *
          */
 
         outputTabs.setSelectedIndex(outputTabs.getTabCount()-1);
@@ -453,7 +418,7 @@ public class ToolsModule implements BookmarksChangedListener, RangeChangedListen
 
     /*
     private static void updateOutput() {
-        
+
         outputCanvas.removeAll();
 
         outputCanvas.setLayout(new BorderLayout());
@@ -476,7 +441,7 @@ public class ToolsModule implements BookmarksChangedListener, RangeChangedListen
         outputCanvas.revalidate();
 
     }
-     * 
+     *
      */
 
     public static JToolBar getStatusToolbar(final InformativeThread t) {
@@ -599,7 +564,7 @@ public class ToolsModule implements BookmarksChangedListener, RangeChangedListen
         eventSubscriptionCanvas.revalidate();
     }
 
-    private void updateToolsList() {
+    private static void updateToolsList() {
 
         CollapsiblePanes _container = new CollapsiblePanes();
 
@@ -615,13 +580,13 @@ public class ToolsModule implements BookmarksChangedListener, RangeChangedListen
         //_container.setBorder(new LineBorder(Color.lightGray, 1));
 
         _container.addExpansion();
-        
+
         toolsListCanvas.removeAll();
         toolsListCanvas.setLayout(new BorderLayout());
         JScrollPane jsp = new JScrollPane(_container);
         jsp.setBorder(new LineBorder(toolsListCanvas.getBackground(),0));
         toolsListCanvas.add(jsp, BorderLayout.CENTER);
-        
+
         toolsListCanvas.revalidate();
     }
 
@@ -751,7 +716,7 @@ public class ToolsModule implements BookmarksChangedListener, RangeChangedListen
         labelPanel.setLayout(new GridLayout(tools.size(), 1, 1, 0));
 
         // TODO: does this (making p final) work?
-        
+
         for (final ToolPlugin p : tools) {
             JComponent button = createHyperlinkButton(p.getToolInformation().getName(), new ActionListener() {
                 @Override
@@ -770,7 +735,7 @@ public class ToolsModule implements BookmarksChangedListener, RangeChangedListen
         pane.setContentPane(JideSwingUtilities.createTopPanel(labelPanel));
         return pane;
     }
-    
+
     private static void setCurrentTool(ToolPlugin p) {
         currentTool = p;
     }
@@ -783,10 +748,18 @@ public class ToolsModule implements BookmarksChangedListener, RangeChangedListen
 
         CollapsiblePanes _container = new CollapsiblePanes();
 
-        _container.add(createPanel("Information", getToolInformation(p), true));
-        JPanel pan = getToolCanvas(p);
-        if (pan != null) { _container.add(createPanel("Settings",pan, true)); }
-        _container.add(createPanel("Event Subscriptions", getEventSubscriptionCanvas(p), true));
+        if (p.getInformationEnabled()) {
+            _container.add(createPanel("Information", getToolInformation(p), false));
+        }
+
+        if (p.getWorkspaceEnabled()) {
+            JPanel pan = getToolCanvas(p);
+            if (pan != null) { _container.add(createPanel("Workspace",pan, true)); }
+        }
+
+        if (p.getEventSubscriptionsEnabled()) {
+            _container.add(createPanel("Event Subscriptions", getEventSubscriptionCanvas(p), true));
+        }
 
         _container.setBackground(ColourSettings.colorToolsListBackground);
         _container.setGap(0);
@@ -806,24 +779,26 @@ public class ToolsModule implements BookmarksChangedListener, RangeChangedListen
         toolCanvas.add(title, BorderLayout.NORTH);
         toolCanvas.add(_container, BorderLayout.CENTER);
 
-        JToolBar runtoolbar = new JToolBar();
-        runtoolbar.setFloatable(false);
-        runtoolbar.setBorder(new LineBorder(Color.lightGray, 1));
-        JButton button_run = new JButton();
-        button_run.setToolTipText("Run tool now");
-        button_run.setIcon(SavantIconFactory.getInstance().getIcon(SavantIconFactory.StandardIcon.RUN));
-        button_run.addActionListener(new ActionListener() {
+        if (p.getRunnableEnabled()) {
+            JToolBar runtoolbar = new JToolBar();
+            runtoolbar.setFloatable(false);
+            runtoolbar.setBorder(new LineBorder(Color.lightGray, 1));
+            JButton button_run = new JButton();
+            button_run.setToolTipText("Run tool now");
+            button_run.setIcon(SavantIconFactory.getInstance().getIcon(SavantIconFactory.StandardIcon.RUN));
+            button_run.addActionListener(new ActionListener() {
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (currentTool != null) {
-                    runToolInNewThread(currentTool);
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    if (currentTool != null) {
+                        runToolInNewThread(currentTool);
+                    }
                 }
-            }
-        });
+            });
 
-        runtoolbar.add(button_run);
-        toolCanvas.add(runtoolbar, BorderLayout.SOUTH);
+            runtoolbar.add(button_run);
+            toolCanvas.add(runtoolbar, BorderLayout.SOUTH);
+        }
     }
 
     private static void runToolInNewThread(ToolPlugin tool) {
@@ -877,7 +852,7 @@ public class ToolsModule implements BookmarksChangedListener, RangeChangedListen
     private static JPanel getToolInformation(final ToolPlugin p) {
 
         JPanel toolInformationCanvas = new JPanel();
-        
+
         toolInformationCanvas.setLayout(new GridLayout(1, 1, 1, 0));
         //toolInformationCanvas.setBorder(new LineBorder(Color.lightGray, 1));
 

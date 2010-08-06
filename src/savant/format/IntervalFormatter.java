@@ -219,7 +219,7 @@ public class IntervalFormatter extends SavantFileFormatter {
 
         // analogous to writeOutputFile(), but this also concatenates the indicies
         // in the file header
-        writeOutputFile(refnames, refnameToIndexFileNameMap, refnameToDataFileNameMap);
+        writeIntervalOutputFile(refnames, refnameToIndexFileNameMap, refnameToDataFileNameMap);
     }
 
 

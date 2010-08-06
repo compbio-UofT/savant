@@ -1,4 +1,6 @@
-package savant.plugin;/*
+package savant.plugin;
+
+/*
  *    Copyright 2010 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
@@ -27,4 +29,5 @@ public abstract class ToolPlugin extends Tool {
      * @param tabbedPane parent tabbedpane for auxiliary data components
      */
     public abstract void init(PluginAdapter pluginAdapter);
+
 }

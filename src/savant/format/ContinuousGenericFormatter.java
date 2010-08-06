@@ -19,8 +19,10 @@ package savant.format;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import savant.format.header.FileType;
 import savant.format.util.data.FieldType;
+import savant.util.MiscUtils;
 import savant.util.SavantFileFormatterUtils;
 
 public class ContinuousGenericFormatter extends SavantFileFormatter {
@@ -84,8 +86,11 @@ public class ContinuousGenericFormatter extends SavantFileFormatter {
             // VERY IMPORTANT THAT THIS HAPPENS BEFORE COPY!
             closeOutputStreams();
 
-            // write the output file
-            this.writeOutputFile();
+            // map of reference name -> multiresolution *index* filename
+            Map<String,String> refnameToIndexFileNameMap = ContinuousFormatterHelper.makeMultiResolutionContinuousFiles(referenceName2FilenameMap);
+
+            List<String> refnames = MiscUtils.set2List(this.referenceName2FilenameMap.keySet());
+            this.writeContinuousOutputFile(refnames, refnameToIndexFileNameMap, this.referenceName2FilenameMap);
 
         } finally {
             inFileReader.close();

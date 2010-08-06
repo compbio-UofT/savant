@@ -294,135 +294,82 @@ public class SavantFileFormatter {
         }
     }
 
-    /*
-    protected void writeReferenceMapAndConcatenateFiles(DataOutputStream f) throws IOException {
-        long refOffset = 0;
-
-        f.writeInt(this.referenceName2FileMap.size());
-
-        List<String> filenames = new ArrayList<String>();
-
-        for (String refname : this.referenceName2FileMap.keySet()) {
-
-            String fn = this.referenceName2FilenameMap.get(refname);
-            filenames.add(fn);
-            File reffile = new File(fn);
-
-            SavantFileFormatterUtils.writeString(f, refname);
-            f.writeLong(refOffset);
-
-            f.writeInt((int) reffile.length());
-
-            refOffset += reffile.length();
-        }
-
-        // 10MB buffer
-        byte[] buffer = new byte[1024*10000];
-        int bytesRead = 0;
-        int currreference = 0;
-        int numreferences = this.referenceName2FileMap.keySet().size();
-
-        System.out.println("Concatenating files...");
-
-        for (String fn : filenames) {
-
-            currreference++;
-
-            System.out.println("on file " + fn + " (" + currreference + " of " + numreferences + ")");
-            
-            this.setProgress(currreference*100/numreferences);
-
-            File tmp = new File(fn);
-            System.out.println("Bytes in file: " + tmp.length());
-            tmp = null;
-
-            int br = 0;
-
-            BufferedInputStream is = new BufferedInputStream(new FileInputStream(fn));
-
-            while((bytesRead = is.read(buffer)) > 0) {
-                br += bytesRead;
-                //System.out.println("Read " + bytesRead + " bytes");
-                f.write(buffer, 0, bytesRead);
-            }
-
-            System.out.println("Copied " + br + " bytes from file");
-
-            is.close();
-
-            deleteFile(fn);
-        }
-
-        f.flush();
-        f.close();
-
-
-        this.setProgress(100);
-    }
-     */
-
-    /*
     protected void writeOutputFile() throws FileNotFoundException, IOException {
+        // get a list of reference names (TODO: possibly sort them in some order)
+        List<String> refnames = MiscUtils.set2List(this.referenceName2FileMap.keySet());
 
+        writeOutputFile(refnames, this.referenceName2FilenameMap);
+    }
+
+    protected void writeSavantHeader(List<String> refnames, Map<String,String> refToDataFileNameMap) throws FileNotFoundException, IOException {
         closeOutputStreams();
 
         // open the output file
         outFileStream = this.openOutputFile();
 
+        // ALL SAVANT FILES HAVE 1-3
+        // ONLY INTERVAL FILES CURRENTLY HAVE 4
+
         // 1. WRITE FILE TYPE HEADER (MAGIC NUMBER AND VERSION)
+        //System.out.println("Writing file type header");
         FileTypeHeader fileTypeHeader = new FileTypeHeader(this.fileType, 2);
         SavantFileFormatterUtils.writeFileTypeHeader(outFileStream,fileTypeHeader);
+        outFileStream.flush();
 
         // 2. WRITE FIELD HEADER
+        //System.out.println("Writing fields header");
         SavantFileFormatterUtils.writeFieldsHeader(outFileStream, fields);
+        outFileStream.flush();
 
         // 3. WRITE REFERENCE MAP
-        //SavantFileFormatterUtils.
-        writeReferenceMapAndConcatenateFiles(outFileStream);
+        //System.out.println("Writing reference<->data map");
+        writeReferenceMap(outFileStream,refnames,refToDataFileNameMap);
+        outFileStream.flush();
+    }
+
+    protected void writeAdditionallIndices(List<String> refnames, Map<String,String> refToIndexFileNameMap) throws FileNotFoundException, IOException {
+        // 4. WRITE INDEX
+        if (refToIndexFileNameMap != null) {
+            //System.out.println("Writing reference<->index map");
+            writeReferenceMap(outFileStream,refnames,refToIndexFileNameMap);
+            List<String> indexfiles = this.getMapValuesInOrder(refnames, refToIndexFileNameMap);
+            concatenateFiles(outFileStream,indexfiles);
+            deleteFiles(indexfiles);
+            outFileStream.flush();
+        }
+    }
+
+    protected void writeData(List<String> refnames, Map<String,String> refToDataFileNameMap) throws IOException {
+        List<String> outfiles = this.getMapValuesInOrder(refnames, refToDataFileNameMap);
+        concatenateFiles(outFileStream,outfiles);
+        deleteFiles(outfiles);
+        outFileStream.flush();
 
         // close the output file
         outFileStream.close();
     }
-     */
+
+    protected void writeOutputFile(List<String> refnames, Map<String,String> refToDataFileNameMap) throws FileNotFoundException, IOException {
+        writeSavantHeader(refnames,refToDataFileNameMap);
+        writeData(refnames,refToDataFileNameMap);
+    }
+
+    protected void writeIntervalOutputFile(List<String> refnames, Map<String,String> refToIndexFileNameMap, Map<String,String> refToDataFileNameMap) throws FileNotFoundException, IOException {
+        writeSavantHeader(refnames,refToDataFileNameMap);
+        writeAdditionallIndices(refnames,refToIndexFileNameMap);
+        writeData(refnames,refToDataFileNameMap);
+    }
+
+    protected void writeContinuousOutputFile(List<String> refnames, Map<String,String> refToIndexFileNameMap, Map<String,String> refToDataFileNameMap) throws FileNotFoundException, IOException {
+        writeSavantHeader(refnames,refToDataFileNameMap);
+        writeAdditionallIndices(refnames,refToIndexFileNameMap);
+        writeData(refnames,refToDataFileNameMap);
+    }
 
     /*
-    protected void writeOutputFile() throws FileNotFoundException, IOException {
-
-        closeOutputStreams();
-
-        // open the output file
-        outFileStream = this.openOutputFile();
-
-        // 1. WRITE FILE TYPE HEADER (MAGIC NUMBER AND VERSION)
-        FileTypeHeader fileTypeHeader = new FileTypeHeader(this.fileType, 2);
-        SavantFileFormatterUtils.writeFileTypeHeader(outFileStream,fileTypeHeader);
-
-        // 2. WRITE FIELD HEADER
-        SavantFileFormatterUtils.writeFieldsHeader(outFileStream, fields);
-
-        // get a list of reference names (TODO: possibly sort them in some order)
-        List<String> refnames = MiscUtils.set2List(this.referenceName2FileMap.keySet());
-
-        writeReferenceMap(outFileStream,refnames,this.referenceName2FilenameMap);
-
-        // write output files
-        List<String> outfiles = this.getMapValuesInOrder(refnames, this.referenceName2FilenameMap);
-        concatenateFiles(outFileStream,outfiles);
-
-        // close the output file
-        outFileStream.close();
-    }
-     */
-
-    protected void writeOutputFile() throws FileNotFoundException, IOException {
-        // get a list of reference names (TODO: possibly sort them in some order)
-        List<String> refnames = MiscUtils.set2List(this.referenceName2FileMap.keySet());
-
-        writeOutputFile(refnames, null, this.referenceName2FilenameMap);
-    }
-
     protected void writeOutputFile(List<String> refnames, Map<String,String> refToIndexFileNameMap, Map<String,String> refToDataFileNameMap) throws FileNotFoundException, IOException {
 
+        /*
         closeOutputStreams();
 
         // open the output file
@@ -447,6 +394,7 @@ public class SavantFileFormatter {
         writeReferenceMap(outFileStream,refnames,refToDataFileNameMap);
         outFileStream.flush();
 
+
         // 4. WRITE INDEX
         if (refToIndexFileNameMap != null) {
             //System.out.println("Writing reference<->index map");
@@ -457,45 +405,12 @@ public class SavantFileFormatter {
             outFileStream.flush();
         }
 
-        /*
-        System.out.println(
-                "<<O" + "\t"
-                + "headeroffset" + "\t"
-                + outFileStream.size()
-                );
-         */
-
         // 5. WRITE DATA FILES
         //System.out.println("Writing data files");
         List<String> outfiles = this.getMapValuesInOrder(refnames, refToDataFileNameMap);
         concatenateFiles(outFileStream,outfiles);
         deleteFiles(outfiles);
         outFileStream.flush();
-
-        // close the output file
-        outFileStream.close();
-    }
-
-        // analogous to writeOutputFile(), but we need to also
-    // concatenate the indicies...
-    /*
-    protected void writeOutputFile(List<String> indexFiles, List<String> outputFiles) throws IOException {
-
-        closeOutputStreams();
-
-        // open the output file
-        outFileStream = this.openOutputFile();
-
-        // 1. WRITE FILE TYPE HEADER (MAGIC NUMBER AND VERSION)
-        FileTypeHeader fileTypeHeader = new FileTypeHeader(this.fileType, 2);
-        SavantFileFormatterUtils.writeFileTypeHeader(outFileStream,fileTypeHeader);
-
-        // 2. WRITE FIELD HEADER
-        SavantFileFormatterUtils.writeFieldsHeader(outFileStream, fields);
-
-        // 3. WRITE REFERENCE MAP
-        //SavantFileFormatterUtils.
-        writeReferenceMapIndexAndOutputFiles(outFileStream, indexFiles, outputFiles);
 
         // close the output file
         outFileStream.close();

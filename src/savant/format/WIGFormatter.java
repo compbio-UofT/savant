@@ -19,8 +19,12 @@ package savant.format;
 import java.io.*;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import savant.format.header.FileType;
 import savant.format.util.data.FieldType;
+import savant.util.MiscUtils;
 
 public class WIGFormatter extends SavantFileFormatter {
 
@@ -96,6 +100,10 @@ public class WIGFormatter extends SavantFileFormatter {
                         break;
                     }
 
+                    while (strLine.charAt(0) == '#') {
+                        strLine = inFileReader.readLine();
+                    }
+
                     // split line up into tokens
                     tokens = strLine.split("\\s");
 
@@ -148,7 +156,7 @@ public class WIGFormatter extends SavantFileFormatter {
                         if (tokens.length < 2){
                             this.closeOutputStreams();
                             this.deleteOutputStreams();
-                            throw new ParseException("Error parsing file (to few tokens on variable line)", 0);
+                            throw new ParseException("Error parsing file (too few tokens on variable line)", 0);
                         }
 
                         int dest = Integer.parseInt(tokens[0]);
@@ -189,7 +197,6 @@ public class WIGFormatter extends SavantFileFormatter {
                 updateProgress();
             }
 
-
         } catch (FileNotFoundException e) {
             log.error("File not found " + inFilePath);
         } catch (IOException io) {
@@ -198,7 +205,11 @@ public class WIGFormatter extends SavantFileFormatter {
             this.closeOutputStreams();
         }
 
-        this.writeOutputFile();
+        // map of reference name -> multiresolution *index* filename
+        Map<String,String> refnameToIndexFileNameMap = ContinuousFormatterHelper.makeMultiResolutionContinuousFiles(referenceName2FilenameMap);
+
+        List<String> refnames = MiscUtils.set2List(this.referenceName2FilenameMap.keySet());
+        this.writeContinuousOutputFile(refnames, refnameToIndexFileNameMap, this.referenceName2FilenameMap);
     }
 
     private void fillWithZeros(int curent, int dest,DataOutputStream out) throws IOException{
