@@ -80,6 +80,8 @@ public class BAMTrackRenderer extends TrackRenderer {
     private int minimumHeight = 4;
     private boolean renderFixed = false;
 
+    private byte[] refSeq=null;
+
     // The number of standard deviations from the mean an arclength has to be before it's
     // considered discordant
     private static int DISCORDANT_STD_DEV = 3;
@@ -117,6 +119,21 @@ public class BAMTrackRenderer extends TrackRenderer {
         Resolution r = (Resolution) di.getInstruction(DrawingInstructions.InstructionName.RESOLUTION.toString());
 
         String modeName = drawMode.getName();
+
+        if(modeName.equals("VARIANTS") || modeName.equals("SNP")){
+            // fetch reference sequence for comparison with cigar string
+            Genome genome = ReferenceController.getInstance().getGenome();
+            AxisRange axisRange = (AxisRange) getDrawingInstructions().getInstruction(DrawingInstructions.InstructionName.AXIS_RANGE);
+            Range range = axisRange.getXRange();
+            try {
+                refSeq = genome.getSequence(ReferenceController.getInstance().getReferenceName(), range).getBytes();
+            } catch (IOException e) {
+                // FIXME: this exception should be propagated to someone who can alert the user
+                log.warn("Unable to read reference sequence");
+                return;
+            }
+        }
+
         if (modeName.equals("STANDARD") || modeName.equals("VARIANTS")) {
             if (r == Resolution.VERY_HIGH || r == Resolution.HIGH) {
                 renderPackMode(g2, gp, r);
@@ -159,22 +176,12 @@ public class BAMTrackRenderer extends TrackRenderer {
         else if (numIntervals <= 100) maxYRange = 100;
         else maxYRange = numIntervals;
         gp.setYRange(new Range(0,maxYRange));
-
-        byte[] refSeq=null;
+       
         if (drawMode.getName().equals("VARIANTS")) {
             Genome genome = ReferenceController.getInstance().getGenome();
             if (!genome.isSequenceSet()) {
                 this.resizeFrame(gp);
                 GlassMessagePane.draw(g2, gp, "No reference sequence loaded. Switch to standard view", 500);
-                return;
-            }
-
-            // fetch reference sequence for comparison with cigar string
-            try {
-                refSeq = genome.getSequence(ReferenceController.getInstance().getReferenceName(), range).getBytes();
-            } catch (IOException e) {
-                // FIXME: this exception should be propagated to someone who can alert the user
-                log.warn("Unable to read reference sequence");
                 return;
             }
         }
@@ -692,11 +699,10 @@ public class BAMTrackRenderer extends TrackRenderer {
             Nucleotide genomeNuc = null;
             if(genome.isSequenceSet()){
                 String genomeNucString = "A";
-                try {      
-                    genomeNucString = genome.getSequence(ReferenceController.getInstance().getReferenceName(), new Range((int) p.getPosition(), (int) p.getPosition()));
-                } catch (IOException ex) {
-                    Logger.getLogger(BAMTrackRenderer.class.getName()).log(Level.SEVERE, null, ex);
-                }
+                byte[] readBase = new byte[1];
+                readBase[0] = refSeq[(int)p.getPosition() - startPosition];
+                genomeNucString = new String(readBase);
+                //genomeNucString = genome.getSequence(ReferenceController.getInstance().getReferenceName(), new Range((int) p.getPosition(), (int) p.getPosition()));
                 genomeNuc = Pileup.stringToNuc(genomeNucString);
                 snpNuc = genomeNuc;
             }
@@ -723,7 +729,7 @@ public class BAMTrackRenderer extends TrackRenderer {
                 int y = bottom-h;
 
                 g2.setColor(subPileColor);
-                g2.fillRect((int)x, y, Math.max((int)Math.rint(unitWidth), 1), h);
+                g2.fillRect((int)x, y, Math.max((int)Math.ceil(unitWidth), 1), h);
 
                 bottom -= h;
                 p.clearNucleotide(snpNuc);
