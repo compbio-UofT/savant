@@ -46,17 +46,14 @@ public class DataTab extends Plugin implements GUIPlugin {
         return pan;
     }
 
-    @Override
     protected void doStart() throws Exception {
 
     }
 
-    @Override
     protected void doStop() throws Exception {
 
     }
 
-    @Override
     public String getTitle() {
         return "Table View";
     }
