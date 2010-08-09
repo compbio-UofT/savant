@@ -81,7 +81,6 @@ public class DocumentViewer extends JFrame {
         textNumLines.setMaximumSize(new Dimension(100,20));
         textNumLines.addActionListener(new ActionListener(){
 
-            @Override
             public void actionPerformed(ActionEvent e) {
                 try {
                     int newNum = Integer.parseInt(textNumLines.getText().trim());
@@ -94,11 +93,9 @@ public class DocumentViewer extends JFrame {
         });
         textNumLines.addFocusListener(new FocusListener() {
 
-            @Override
             public void focusGained(FocusEvent e) {
             }
 
-            @Override
             public void focusLost(FocusEvent e) {
 
                 try {
@@ -118,7 +115,6 @@ public class DocumentViewer extends JFrame {
         upButt.setIcon(SavantIconFactory.getInstance().getIcon(SavantIconFactory.StandardIcon.UP));
         upButt.addActionListener(new ActionListener() {
 
-            @Override
             public void actionPerformed(ActionEvent e) {
                 decreaseMaximumNumberOfLines();
             }
@@ -130,7 +126,6 @@ public class DocumentViewer extends JFrame {
         downButt.setIcon(SavantIconFactory.getInstance().getIcon(SavantIconFactory.StandardIcon.DOWN));
         downButt.addActionListener(new ActionListener() {
 
-            @Override
             public void actionPerformed(ActionEvent e) {
                 increaseMaximumNumberOfLines();
             }
