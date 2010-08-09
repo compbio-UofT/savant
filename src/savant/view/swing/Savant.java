@@ -440,7 +440,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         menuitem_ruler = new javax.swing.JCheckBoxMenuItem();
         menuitem_statusbar = new javax.swing.JCheckBoxMenuItem();
         jSeparator1 = new javax.swing.JSeparator();
-        menuitem_tools = new javax.swing.JMenuItem();
+        menuitem_tools = new javax.swing.JCheckBoxMenuItem();
         menu_bookmarks = new javax.swing.JCheckBoxMenuItem();
         menu_plugins = new javax.swing.JMenu();
         menuitem_pluginmanager = new javax.swing.JMenuItem();
@@ -1070,20 +1070,6 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         rangeController.shiftRangeFarRight();
     }//GEN-LAST:event_menuItemShiftEndActionPerformed
 
-    private void menuitem_toolsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuitem_toolsActionPerformed
-
-        System.out.println("A");
-        String frameKey = "Tools";
-        DockingManager m = this.getAuxDockingManager();
-        boolean isVisible = m.getFrame(frameKey).isHidden();
-        setFrameVisibility(frameKey, isVisible, m);
-        this.menuitem_tools.setSelected(isVisible);
-        System.out.println("B");
-
-        this.menuitem_tools.setSelected(true);
-
-    }//GEN-LAST:event_menuitem_toolsActionPerformed
-
     static boolean arePreferencesIntialized = false;
 
     private void menuitem_preferencesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuitem_preferencesActionPerformed
@@ -1097,6 +1083,14 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         
         SettingsDialog.showOptionsDialog();
     }//GEN-LAST:event_menuitem_preferencesActionPerformed
+
+    private void menuitem_toolsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuitem_toolsActionPerformed
+        String frameKey = "Tools";
+        DockingManager m = this.getAuxDockingManager();
+        boolean isVisible = m.getFrame(frameKey).isHidden();
+        setFrameVisibility(frameKey, isVisible, m);
+        this.menuitem_tools.setSelected(isVisible);
+    }//GEN-LAST:event_menuitem_toolsActionPerformed
 
     /**
      * Starts an instance of the Savant Browser
@@ -1158,7 +1152,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
     private javax.swing.JMenuItem menuitem_screen;
     private javax.swing.JCheckBoxMenuItem menuitem_statusbar;
     private javax.swing.JMenuItem menuitem_thousandgenomes;
-    private javax.swing.JMenuItem menuitem_tools;
+    private javax.swing.JCheckBoxMenuItem menuitem_tools;
     private javax.swing.JMenuItem menuitem_track;
     private javax.swing.JMenuItem menuitem_trackURL;
     private javax.swing.JMenuItem menuitem_tutorials;
