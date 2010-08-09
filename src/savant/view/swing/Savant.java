@@ -24,6 +24,7 @@ import com.jidesoft.plaf.UIDefaultsLookup;
 import com.jidesoft.plaf.basic.ThemePainter;
 import com.jidesoft.status.MemoryStatusBarItem;
 import com.jidesoft.swing.JideSplitPane;
+import java.beans.PropertyVetoException;
 import org.java.plugin.ObjectFactory;
 import org.java.plugin.PluginManager;
 import org.java.plugin.registry.Extension;
@@ -171,6 +172,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         this.panel_main.add(masterPlaceholderPanel,BorderLayout.CENTER);
 
         auxDockingManager = new DefaultDockingManager(this,masterPlaceholderPanel);
+        auxDockingManager.setSidebarRollover(false);
         masterPlaceholderPanel.setBackground(ColourSettings.colorSplitter);
         //auxDockingManager.setSidebarRollover(false);
         auxDockingManager.getWorkspace().setBackground(ColourSettings.colorSplitter);
