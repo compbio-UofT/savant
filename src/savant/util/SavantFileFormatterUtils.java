@@ -506,7 +506,15 @@ public class SavantFileFormatterUtils {
     }
 
     private static IntervalRecord convertRecordToGenericInterval(List<Object> record, List<FieldType> fields) {
-        GenericIntervalRecord ir = GenericIntervalRecord.valueOf((String) record.get(0), Interval.valueOf((Integer) record.get(1),(Integer) record.get(2)), (String) record.get(3));
+        GenericIntervalRecord ir;
+        
+        //TODO: Is this the best place for this?
+        if(record.size() > 3){
+            ir = GenericIntervalRecord.valueOf((String) record.get(0), Interval.valueOf((Integer) record.get(1),(Integer) record.get(2)), (String) record.get(3));
+        } else {
+            ir = GenericIntervalRecord.valueOf((String) record.get(0), Interval.valueOf((Integer) record.get(1),(Integer) record.get(2)), "");
+        }
+        
         return (IntervalRecord) ir;
     }
 
