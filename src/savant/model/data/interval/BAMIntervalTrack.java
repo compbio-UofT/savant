@@ -79,6 +79,8 @@ public class BAMIntervalTrack implements RecordTrack<BAMIntervalRecord> {
             // not a URL, try as a filename
         } catch (URISyntaxException e) {
             // not a URI, try as a filename
+        } catch (IllegalArgumentException e) {
+            // not an absolute URI, try a filename
         }
 
         if (fileURL == null) {
