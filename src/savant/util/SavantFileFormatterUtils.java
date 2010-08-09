@@ -622,7 +622,7 @@ public class SavantFileFormatterUtils {
 
             try {
                 if (line.substring(0, 2).equals("##")) {
-                    break;
+                    continue;
                 }
             } catch (IndexOutOfBoundsException e) {}
 

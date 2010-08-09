@@ -52,6 +52,15 @@ public class DocumentViewer extends JFrame {
     private int maxLineCount;
     JTextField textNumLines;
 
+    static DocumentViewer instance;
+
+    public static DocumentViewer getInstance() {
+        if (instance == null) {
+            instance = new DocumentViewer();
+        }
+        return instance;
+    }
+
     public DocumentViewer() {
         this("Document Viewer",500);
     }
@@ -68,9 +77,9 @@ public class DocumentViewer extends JFrame {
 
     public void init() {
 
-        this.setMinimumSize(new Dimension(500,500));
-        this.setPreferredSize(new Dimension(500,500));
-        this.setMaximumSize(new Dimension(500,500));
+        this.setMinimumSize(new Dimension(700,500));
+        this.setPreferredSize(new Dimension(700,500));
+        this.setMaximumSize(new Dimension(700,500));
 
         pane = new DocumentPane();
         list = new ArrayList<DocumentComponent>();
@@ -167,6 +176,8 @@ public class DocumentViewer extends JFrame {
         list.add(txtDocument);
 
         pane.setOpenedDocuments(list);
+        System.out.println("Opening " + txtDocument.getName());
+        pane.setActiveDocument(txtDocument.getName());
         pane.getLayoutPersistence().setProfileKey("documents");
         pane.getLayoutPersistence().loadLayoutData();
 
