@@ -620,6 +620,8 @@ public class SavantFileFormatterUtils {
 
         while((line = br.readLine()) != null) {
 
+            // TODO: this should be specific to Generic Interval files
+            // currently all file types are affected
             try {
                 if (line.substring(0, 2).equals("##")) {
                     continue;
