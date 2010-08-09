@@ -25,6 +25,7 @@ import java.util.*;
 import savant.format.header.FileType;
 import javax.swing.JOptionPane;
 import savant.format.util.data.FieldType;
+import savant.util.MiscUtils;
 import savant.view.swing.Savant;
 
 public class BAMToCoverage extends SavantFileFormatter {
@@ -184,7 +185,13 @@ public class BAMToCoverage extends SavantFileFormatter {
             if (recordIterator != null) recordIterator.close();
 
             this.closeOutputStreams();
-            this.writeOutputFile();
+            //this.writeOutputFile();
+
+            // map of reference name -> multiresolution *index* filename
+            Map<String,String> refnameToIndexFileNameMap = ContinuousFormatterHelper.makeMultiResolutionContinuousFiles(referenceName2FilenameMap);
+
+            List<String> refnames = MiscUtils.set2List(this.referenceName2FilenameMap.keySet());
+            this.writeContinuousOutputFile(refnames, refnameToIndexFileNameMap, this.referenceName2FilenameMap);
 
             // cleanup output
             //closeOutput();
