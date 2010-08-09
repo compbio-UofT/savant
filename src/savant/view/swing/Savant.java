@@ -440,7 +440,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         menuitem_ruler = new javax.swing.JCheckBoxMenuItem();
         menuitem_statusbar = new javax.swing.JCheckBoxMenuItem();
         jSeparator1 = new javax.swing.JSeparator();
-        menu_tools = new javax.swing.JMenuItem();
+        menuitem_tools = new javax.swing.JMenuItem();
         menu_bookmarks = new javax.swing.JCheckBoxMenuItem();
         menu_plugins = new javax.swing.JMenu();
         menuitem_pluginmanager = new javax.swing.JMenuItem();
@@ -767,14 +767,14 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         menu_window.add(menuitem_statusbar);
         menu_window.add(jSeparator1);
 
-        menu_tools.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_T, java.awt.event.InputEvent.SHIFT_MASK | java.awt.event.InputEvent.CTRL_MASK));
-        menu_tools.setText("Tools");
-        menu_tools.addActionListener(new java.awt.event.ActionListener() {
+        menuitem_tools.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_T, java.awt.event.InputEvent.SHIFT_MASK | java.awt.event.InputEvent.CTRL_MASK));
+        menuitem_tools.setText("Tools");
+        menuitem_tools.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                menu_toolsActionPerformed(evt);
+                menuitem_toolsActionPerformed(evt);
             }
         });
-        menu_window.add(menu_tools);
+        menu_window.add(menuitem_tools);
 
         menu_bookmarks.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_B, java.awt.event.InputEvent.SHIFT_MASK | java.awt.event.InputEvent.CTRL_MASK));
         menu_bookmarks.setText("Bookmarks");
@@ -1070,13 +1070,19 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         rangeController.shiftRangeFarRight();
     }//GEN-LAST:event_menuItemShiftEndActionPerformed
 
-    private void menu_toolsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menu_toolsActionPerformed
+    private void menuitem_toolsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuitem_toolsActionPerformed
+
+        System.out.println("A");
         String frameKey = "Tools";
         DockingManager m = this.getAuxDockingManager();
         boolean isVisible = m.getFrame(frameKey).isHidden();
         setFrameVisibility(frameKey, isVisible, m);
-        this.menu_tools.setSelected(isVisible);
-    }//GEN-LAST:event_menu_toolsActionPerformed
+        this.menuitem_tools.setSelected(isVisible);
+        System.out.println("B");
+
+        this.menuitem_tools.setSelected(true);
+
+    }//GEN-LAST:event_menuitem_toolsActionPerformed
 
     static boolean arePreferencesIntialized = false;
 
@@ -1140,7 +1146,6 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
     private javax.swing.JMenu menu_help;
     private javax.swing.JMenu menu_load;
     private javax.swing.JMenu menu_plugins;
-    private javax.swing.JMenuItem menu_tools;
     private javax.swing.JMenu menu_view;
     private javax.swing.JMenu menu_window;
     private javax.swing.JMenuItem menuitem_exit;
@@ -1153,6 +1158,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
     private javax.swing.JMenuItem menuitem_screen;
     private javax.swing.JCheckBoxMenuItem menuitem_statusbar;
     private javax.swing.JMenuItem menuitem_thousandgenomes;
+    private javax.swing.JMenuItem menuitem_tools;
     private javax.swing.JMenuItem menuitem_track;
     private javax.swing.JMenuItem menuitem_trackURL;
     private javax.swing.JMenuItem menuitem_tutorials;
