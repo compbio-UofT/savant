@@ -173,11 +173,8 @@ public class DocumentViewer extends JFrame {
                 path, path,
                 JideIconsFactory.getImageIcon(JideIconsFactory.FileType.TEXT));
         txtDocument.setDefaultFocusComponent(editor);
-        list.add(txtDocument);
-
+        list.add(0,txtDocument);
         pane.setOpenedDocuments(list);
-        System.out.println("Opening " + txtDocument.getName());
-        pane.setActiveDocument(txtDocument.getName());
         pane.getLayoutPersistence().setProfileKey("documents");
         pane.getLayoutPersistence().loadLayoutData();
 

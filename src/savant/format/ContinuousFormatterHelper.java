@@ -130,7 +130,9 @@ public class ContinuousFormatterHelper {
         long maxend = Long.MIN_VALUE;
         for (String refname : refMap.keySet()) {
             Long[] v = refMap.get(refname);
-            
+
+            System.out.println("Getting header for refname: " + refname);
+
             //System.out.println("========== Reading header for reference " + refname + " ==========");
             savantFile.seek(v[0]);
 
