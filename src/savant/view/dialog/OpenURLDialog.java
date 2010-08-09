@@ -21,8 +21,7 @@ import java.net.URL;
  */
 public class OpenURLDialog extends javax.swing.JDialog {
 
-    private boolean cancelled = false;
-    private boolean accepted  = true;
+    private boolean accepted  = false;
 
     private URL url;
 
@@ -108,7 +107,7 @@ public class OpenURLDialog extends javax.swing.JDialog {
     }// </editor-fold>//GEN-END:initComponents
 
     private void button_cancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_cancelActionPerformed
-        setCancelled(true);
+        setAccepted(false);
         this.setVisible(false);
     }//GEN-LAST:event_button_cancelActionPerformed
 
@@ -157,14 +156,6 @@ public class OpenURLDialog extends javax.swing.JDialog {
             textField_url.grabFocus();
         }
         return result;
-    }
-
-    public boolean isCancelled() {
-        return cancelled;
-    }
-
-    public void setCancelled(boolean cancelled) {
-        this.cancelled = cancelled;
     }
 
     public boolean isAccepted() {

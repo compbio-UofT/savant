@@ -88,7 +88,6 @@ public class BAMIndexCache {
 
         if (eTag == null) {
             // no index file found
-            DialogUtils.displayMessage("No index file found; BAM index file must exist in same remote directory with extension .bai or .bam.bai");
             return null;
         }
 
