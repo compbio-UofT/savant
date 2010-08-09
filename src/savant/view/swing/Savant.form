@@ -547,20 +547,6 @@
             <Property name="text" type="java.lang.String" value="mouse over track"/>
           </Properties>
         </Component>
-        <Component class="javax.swing.JLabel" name="label_status_title">
-          <Properties>
-            <Property name="text" type="java.lang.String" value="Drawing: "/>
-          </Properties>
-        </Component>
-        <Component class="javax.swing.JProgressBar" name="progressbar_status">
-          <Properties>
-            <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-              <Dimension value="[80, 19]"/>
-            </Property>
-            <Property name="string" type="java.lang.String" value="load a genome"/>
-            <Property name="stringPainted" type="boolean" value="true"/>
-          </Properties>
-        </Component>
         <Component class="javax.swing.JToolBar$Separator" name="jSeparator7">
         </Component>
         <Component class="javax.swing.JLabel" name="label_memory">

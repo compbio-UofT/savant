@@ -400,8 +400,6 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         toolbar_bottom = new javax.swing.JToolBar();
         label_mouseposition_title = new javax.swing.JLabel();
         label_mouseposition = new javax.swing.JLabel();
-        label_status_title = new javax.swing.JLabel();
-        progressbar_status = new javax.swing.JProgressBar();
         jSeparator7 = new javax.swing.JToolBar.Separator();
         label_memory = new javax.swing.JLabel();
         menuBar_top = new javax.swing.JMenuBar();
@@ -501,14 +499,6 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
 
         label_mouseposition.setText("mouse over track");
         toolbar_bottom.add(label_mouseposition);
-
-        label_status_title.setText("Drawing: ");
-        toolbar_bottom.add(label_status_title);
-
-        progressbar_status.setMaximumSize(new java.awt.Dimension(80, 19));
-        progressbar_status.setString("load a genome");
-        progressbar_status.setStringPainted(true);
-        toolbar_bottom.add(progressbar_status);
         toolbar_bottom.add(jSeparator7);
 
         label_memory.setText(" Memory: ");
@@ -1134,7 +1124,6 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
     private javax.swing.JLabel label_memory;
     private javax.swing.JLabel label_mouseposition;
     private javax.swing.JLabel label_mouseposition_title;
-    private javax.swing.JLabel label_status_title;
     private javax.swing.JMenuBar menuBar_top;
     private javax.swing.JMenuItem menuItemAddToFaves;
     private javax.swing.JMenuItem menuItemFormat;
@@ -1175,7 +1164,6 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
     private javax.swing.JPanel panelExtendedMiddle;
     private javax.swing.JPanel panel_main;
     private javax.swing.JPanel panel_top;
-    private javax.swing.JProgressBar progressbar_status;
     private javax.swing.JMenu submenu_download;
     private javax.swing.JToolBar toolbar_bottom;
     private javax.swing.ButtonGroup view_buttongroup;
@@ -2590,7 +2578,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
     /**
      * Update the status bar
      * @param msg
-     */
+     *
     private void updateProgress(String msg) {
         this.progressbar_status.setString(msg);
     }
@@ -2600,6 +2588,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
     private void stopSpinningProgress() {
         this.progressbar_status.setIndeterminate(false);
     }
+     */
 
     private void initStatusBar() {
         toolbar_bottom.add(Box.createGlue(),2);
@@ -2609,6 +2598,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         gc.setFillColor(Color.lightGray);
         this.toolbar_bottom.add(gc);
     }
+     
 
     public void bookmarksChangeReceived(BookmarksChangedEvent event) {
         if (!showBookmarksChangedDialog) { return; }
