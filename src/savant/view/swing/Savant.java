@@ -1233,13 +1233,12 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
 
     private void disableExperimentalFeatures() {
         //this.menuitem_preferences.setVisible(false);
-        this.menuitem_tools.setVisible(false);
+        //this.menuitem_tools.setVisible(false);
     }
 
     private void initPanelsAndDocking() {
         initDocking();
         initAuxilliaryPanels();
-
     }
 
     private void initAuxilliaryPanels() {

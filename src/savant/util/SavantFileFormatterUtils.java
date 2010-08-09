@@ -617,7 +617,15 @@ public class SavantFileFormatterUtils {
         BufferedWriter bw;
 
         String line = "";
+
         while((line = br.readLine()) != null) {
+
+            try {
+                if (line.substring(0, 2).equals("##")) {
+                    break;
+                }
+            } catch (IndexOutOfBoundsException e) {}
+
             StringTokenizer st = new StringTokenizer(line,"\t");
             for (int i = 0; i < columnNumber; i++) {
                 st.nextToken();

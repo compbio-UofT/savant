@@ -68,6 +68,10 @@ public class DocumentViewer extends JFrame {
 
     public void init() {
 
+        this.setMinimumSize(new Dimension(500,500));
+        this.setPreferredSize(new Dimension(500,500));
+        this.setMaximumSize(new Dimension(500,500));
+
         pane = new DocumentPane();
         list = new ArrayList<DocumentComponent>();
 
