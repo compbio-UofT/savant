@@ -131,16 +131,16 @@ public class ContinuousFormatterHelper {
         for (String refname : refMap.keySet()) {
             Long[] v = refMap.get(refname);
 
-            System.out.println("Getting header for refname: " + refname);
+            //System.out.println("Getting header for refname: " + refname);
 
-            System.out.println("========== Reading header for reference " + refname + " ==========");
+            //System.out.println("========== Reading header for reference " + refname + " ==========");
             savantFile.seek(v[0]);
 
-            System.out.println("Starting header at (super): " + savantFile.getFilePointerSuper());
+            //System.out.println("Starting header at (super): " + savantFile.getFilePointerSuper());
 
             List<Level> header = readLevelHeaderFromBinaryFile(savantFile);
 
-            System.out.println("Finished header at (super): " + savantFile.getFilePointerSuper());
+            //System.out.println("Finished header at (super): " + savantFile.getFilePointerSuper());
 
             maxend = Math.max(maxend,savantFile.getFilePointerSuper());
 
