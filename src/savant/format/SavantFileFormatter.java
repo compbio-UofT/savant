@@ -419,7 +419,7 @@ public class SavantFileFormatter {
 
     protected void writeReferenceMap(DataOutputStream f, List<String> refnames, Map<String, String> refnameToOutputFileMap) throws IOException {
 
-        int refOffset = 0;
+        long refOffset = 0;
 
         f.writeInt(refnames.size());
 

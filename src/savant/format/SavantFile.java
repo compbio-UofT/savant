@@ -61,19 +61,13 @@ public class SavantFile extends RandomAccessFile {
         this.fields = RAFUtils.readFieldsHeader(this);
         //System.out.println(fields);
 
-        int i = 1;
-        for (FieldType f : fields) {
-            //System.out.println(i + ". " + f);
-            i++;
-        }
+        System.out.println("Number of fields: " + fields.size());
 
-        //System.out.println("Number of fields: " + fields.size());
-
-        //SavantLogger.logln("Reading reference<-> data map");
+        System.out.println("Reading reference<-> data map");
         this.referenceMap = RAFUtils.readReferenceMap(this);
         for (String refname : this.referenceMap.keySet()) {
             Long[] vals = this.referenceMap.get(refname);
-            //System.out.println("Reference " + refname + " at " + vals[0] + " of length " + vals[1]);
+            System.out.println("Reference " + refname + " at " + vals[0] + " of length " + vals[1]);
         }
 
         //System.out.println("Making note of offset: " + super.getFilePointer());
