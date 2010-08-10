@@ -66,7 +66,9 @@ public abstract class TrackRenderer {
         //int h1 = ((JViewport)gp.getParent()).getHeight();
         int h1 = ((JViewport)gp.getParent().getParent()).getHeight();
         int h2 = frame.getFrameLandscape().getHeight();
-        if(h1 != h2){
+        int h3 = gp.getHeight();
+        if(h1 != h3){
+            System.out.println("needed");
             gp.revalidate();
             //gp.setPreferredSize(((JViewport)gp.getParent()).getSize());
             gp.setPreferredSize(((JViewport)gp.getParent().getParent()).getSize());
