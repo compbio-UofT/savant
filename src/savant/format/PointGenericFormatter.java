@@ -94,6 +94,7 @@ public class PointGenericFormatter extends SavantFileFormatter {
                     if ((line = SavantFileFormatterUtils.parseTxtLine(strLine, fields)) != null) {
                         line.set(1, ((Integer) line.get(1))+ this.baseOffset);
                         outfile = this.getFileForReference((String) line.get(0));
+                        
                         SavantFileFormatterUtils.writeBinaryRecord(outfile, line, fields, modifiers);
                     }
                 }

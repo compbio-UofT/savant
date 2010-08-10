@@ -107,6 +107,7 @@ public class SavantFile extends RandomAccessFile {
                 refoffset = getReferenceOffset(MiscUtils.homogenizeSequence(reference));
             }
 
+            // KEEP FOR DEBUGGING PURPOSES
             /*
             System.out.println("Seeking to " + (pos + refoffset + this.getHeaderOffset())
                     + " pos=" + pos
@@ -115,17 +116,6 @@ public class SavantFile extends RandomAccessFile {
                     + " headeroffset="+this.getHeaderOffset()
                     + " file="+this.filename);
              */
-
-            //this.headerOffset = 44;
-            //REMOVE ALL OF THIS!!!!
-            //refoffset = 0;
-            /*System.out.println("pos: " + pos);
-            System.out.println("refoffset: " + refoffset);
-            System.out.println("headerOffset: " + this.getHeaderOffset());
-            System.out.println(pos + refoffset + this.getHeaderOffset());
-            System.out.println();*/
-            
-
 
             super.seek(pos + refoffset + this.getHeaderOffset());
             return super.getFilePointer();

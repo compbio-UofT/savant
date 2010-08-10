@@ -1630,7 +1630,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
                     }
                 }
 
-                System.out.println("Actually changing reference to " + ref);
+                //System.out.println("Actually changing reference to " + ref);
                 ReferenceController.getInstance().setReference(ref);
             }
 

@@ -69,15 +69,16 @@ public class GenericPointTrack implements RecordTrack<GenericPointRecord> {
         if (!this.savantFile.containsDataForReference(reference)) { return data; }
 
         try {
-            int indexOfStart = seekToStart(reference, range.getFrom(), 0, getNumRecords(reference), savantFile);
-
+            long indexOfStart = seekToStart(reference, range.getFrom(), 0, getNumRecords(reference), savantFile);
 
             while (true) {
                 savantFile.seek(reference, (indexOfStart++) * getRecordSize());
                 List<Object> record = RAFUtils.readBinaryRecord(savantFile, savantFile.getFields());
                 GenericPointRecord p = convertRecordToGenericPointRecord(record);
                 Point pnt = ((PointRecord) p).getPoint();
-                if (pnt.getPosition() > range.getTo() || !pnt.getReference().equals(reference)) {
+
+                // TODO: remove the necessity to trim ... this is a problem with the delimiter in formatting
+                if (pnt.getPosition() > range.getTo() || !pnt.getReference().trim().equals(reference)) {
                     break;
                 }
                 
@@ -111,9 +112,9 @@ public class GenericPointTrack implements RecordTrack<GenericPointRecord> {
         return (int) (this.savantFile.getReferenceLength(reference) / getRecordSize());
     }
 
-    private int seekToStart(String reference, int pos, int low, int high, SavantFile raf) throws IOException {
+    private long seekToStart(String reference, long pos, long low, long high, SavantFile raf) throws IOException {
 
-        int mid = low + ((high - low) / 2);
+        long mid = low + ((high - low) / 2);
 
         if (high < low) {
             return low;
@@ -131,7 +132,7 @@ public class GenericPointTrack implements RecordTrack<GenericPointRecord> {
 
     }
 
-    private int getStartPosOfRecord(String reference, int record_num, SavantFile br) throws IOException {
+    private int getStartPosOfRecord(String reference, long record_num, SavantFile br) throws IOException {
         br.seek(reference, record_num * getRecordSize());
         List<Object> line = RAFUtils.readBinaryRecord(savantFile, savantFile.getFields());
         br.seek(reference, record_num * getRecordSize());
