@@ -172,7 +172,6 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         this.panel_main.add(masterPlaceholderPanel,BorderLayout.CENTER);
 
         auxDockingManager = new DefaultDockingManager(this,masterPlaceholderPanel);
-        auxDockingManager.setSidebarRollover(false);
         masterPlaceholderPanel.setBackground(ColourSettings.colorSplitter);
         //auxDockingManager.setSidebarRollover(false);
         auxDockingManager.getWorkspace().setBackground(ColourSettings.colorSplitter);
@@ -1107,6 +1106,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
                 Savant instance = Savant.getInstance();
                 instance.loadPlugins();
                 instance.initPlugins();
+                instance.displayAuxPanels();
                 //instance.setVisible(true);
                 //instance.showOpenGenomeDialog();
             }
@@ -1235,7 +1235,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
 
     private void disableExperimentalFeatures() {
         //this.menuitem_preferences.setVisible(false);
-        //this.menuitem_tools.setVisible(false);
+        this.menuitem_tools.setVisible(false);
     }
 
     private void initPanelsAndDocking() {
@@ -1311,6 +1311,10 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
                         }
                     });
                     cb.setSelected(!auxDockingManager.getFrame(f.getTitle()).isHidden());
+                    //FIXME: this is not ideal...
+                    if(plugin.getTitle().equals("Table View")){
+                        cb.setSelected(true);
+                    }
                     menu_window.add(cb);
                 } else if (plugininstance instanceof ToolPlugin) {
 
@@ -2851,5 +2855,17 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
                 DialogUtils.displayException("Load Track from URL", "Error opening remote BAM file", e);
             }
         }
+    }
+
+    private void displayAuxPanels(){
+        setFrameVisibility("Bookmarks", true, this.getAuxDockingManager());
+        setFrameVisibility("Table View", true, this.getAuxDockingManager());
+
+        List<String> names = this.getAuxDockingManager().getAllFrameNames();
+        for(int i = 0; i < names.size(); i++){
+            this.getAuxDockingManager().toggleAutohideState(names.get(i));
+        }
+
+        menu_bookmarks.setState(true);
     }
 }
