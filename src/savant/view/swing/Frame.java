@@ -50,6 +50,7 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import javax.swing.border.Border;
 import savant.controller.ReferenceController;
 import savant.model.view.Mode;
 import savant.settings.ColourSettings;
@@ -115,21 +116,14 @@ public class Frame {
 
         isLocked = false;
         this.tracks = new ArrayList<ViewTrack>();
-        this.frameLandscape = new JLayeredPane(){
-            public void repaint(long tm, int x, int y, int width, int height) {
-                if(x==0 && y==0 && width==frameLandscape.getWidth()-2 && height==frameLandscape.getHeight()-2){
-                    super.repaint(tm, x, y, width+2, height+2);
-                } else {
-                    super.repaint(tm, x, y, width, height);
-                }
-            }
-        };
+        this.frameLandscape = new JLayeredPane();
         initGraph();
 
         //scrollpane
         scrollPane = new JScrollPane();
         scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         scrollPane.setWheelScrollingEnabled(false);
+        scrollPane.setBorder(null);
 
         //hide commandBar while scrolling
         MouseListener ml = new MouseListener(){
