@@ -18,6 +18,7 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.beans.PropertyChangeListener;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -32,6 +33,7 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
@@ -168,6 +170,12 @@ public class DocumentViewer extends JFrame {
     }
 
     public void addDocument(String path) {
+
+        if (!(new File(path)).exists()) {
+            JOptionPane.showMessageDialog(this, "Error opening file: \"" + path + "\"");
+            return;
+        }
+
         JComponent editor = createTextArea(path);
         final DocumentComponent txtDocument = new DocumentComponent(new JScrollPane(editor),
                 path, path,
@@ -179,6 +187,7 @@ public class DocumentViewer extends JFrame {
         pane.getLayoutPersistence().loadLayoutData();
 
         this.pack();
+        this.setVisible(true);
     }
 
     private Map<String,Document> fileNameToDocumentMap = new HashMap<String, Document>();

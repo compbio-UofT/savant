@@ -49,7 +49,7 @@ public class RAFUtils {
     }
 
     public static int getRecordSize(SavantFile file) throws IOException {
-        long currpos = file.getFilePointer();
+        long currpos = file.getFilePointerSuper();
         file.seek(MiscUtils.set2List(file.getReferenceMap().keySet()).get(0), 0);
         List<Object> record = readBinaryRecord((RandomAccessFile) file, file.getFields());
         file.seekSuper(currpos);
