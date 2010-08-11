@@ -6,10 +6,13 @@ savant.controller.event.frame
 savant.controller.event.graphpane
 savant.controller.event.range
 savant.controller.event.rangeselection
+savant.controller.event.reference
+savant.controller.event.thread
 savant.controller.event.track
 savant.controller.event.viewtrack
 savant.core
 savant.data
+savant.debug
 savant.format
 savant.format.comparator
 savant.format.header
@@ -23,9 +26,13 @@ savant.model.data.point
 savant.model.data.sequence
 savant.model.view
 savant.plugin
+savant.settings
 savant.tools
+savant.tools.script
 savant.util
 savant.util.comparator
+savant.view.dialog
+savant.view.icon
 savant.view.swing
 savant.view.swing.continuous
 savant.view.swing.interval
@@ -33,3 +40,4 @@ savant.view.swing.model
 savant.view.swing.point
 savant.view.swing.sequence
 savant.view.swing.util
+savant.view.tools
