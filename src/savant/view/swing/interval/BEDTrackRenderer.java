@@ -278,28 +278,35 @@ public class BEDTrackRenderer extends TrackRenderer {
         }
         for (int i=startPos; i<end; i+=interval) {
             Polygon arrow = new Polygon();
-            if (strand == Strand.FORWARD) {
-                if (height > SCALE_FACTOR) {
-                    g2.drawLine((int)i, (int)y, (int)(i-height/4), (int)(y+height/4));
-                    g2.drawLine((int)i,(int)y, (int)(i-height/4), (int)(y-height/4));
+            int arrowWidth = (int)(height/4);
+            if ((end - start) > arrowWidth) {
+                if (strand == Strand.FORWARD) {
+                    if ((i-arrowWidth) > start) {
+                        if (height > SCALE_FACTOR) {
+                            g2.drawLine(i, (int)y, i-arrowWidth, (int)(y+arrowWidth));
+                            g2.drawLine(i,(int)y, i-arrowWidth, (int)(y-arrowWidth));
+                        }
+                        else {
+                            arrow.addPoint(i, (int)y);
+                            arrow.addPoint(i-arrowWidth, (int)(y+arrowWidth));
+                            arrow.addPoint(i-arrowWidth, (int)(y-arrowWidth));
+                            g2.fill(arrow);
+                        }
+                    }
                 }
                 else {
-                    arrow.addPoint((int)i, (int)y);
-                    arrow.addPoint((int)(i-height/4), (int)(y+height/4));
-                    arrow.addPoint((int)(i-height/4), (int)(y-height/4));
-                    g2.fill(arrow);
-                }
-            }
-            else {
-                if (height > SCALE_FACTOR) {
-                    g2.drawLine((int)i, (int)y, (int)(i+height/4), (int)(y+height/4));
-                    g2.drawLine((int)i,(int)y, (int)(i+height/4), (int)(y-height/4));
-                }
-                else {
-                    arrow.addPoint((int)i, (int)y);
-                    arrow.addPoint((int)(i+height/4), (int)(y+height/4));
-                    arrow.addPoint((int)(i+height/4), (int)(y-height/4));
-                    g2.fill(arrow);
+                    if ((i+arrowWidth) < end) {
+                        if (height > SCALE_FACTOR) {
+                            g2.drawLine(i, (int)y, i+arrowWidth, (int)(y+arrowWidth));
+                            g2.drawLine(i,(int)y, i+arrowWidth, (int)(y-arrowWidth));
+                        }
+                        else {
+                            arrow.addPoint(i, (int)y);
+                            arrow.addPoint(i+arrowWidth, (int)(y+arrowWidth));
+                            arrow.addPoint(i+arrowWidth, (int)(y-arrowWidth));
+                            g2.fill(arrow);
+                        }
+                    }
                 }
             }
 
@@ -486,7 +493,6 @@ public class BEDTrackRenderer extends TrackRenderer {
             w = gp.getWidth(block.getLength());
             h = gp.getUnitHeight();
 
-//            if (w >= 1) {
                 Rectangle2D.Double blockRect = new Rectangle2D.Double(x,y,w,h);
 
                 g2.setColor(fillColor);
@@ -495,8 +501,6 @@ public class BEDTrackRenderer extends TrackRenderer {
                     g2.setColor(lineColor);
                     g2.draw(blockRect);
                 }
-//            }
-
         }
 
     }
