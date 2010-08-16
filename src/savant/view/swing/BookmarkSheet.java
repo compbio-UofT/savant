@@ -281,8 +281,10 @@ public class BookmarkSheet implements BookmarksChangedListener /*, RangeChangedL
             String title = "Clear Bookmarks";
                 // display the JOptionPane showConfirmDialog
             int reply = JOptionPane.showConfirmDialog(null, message, title, JOptionPane.YES_NO_OPTION);
-            if (reply == JOptionPane.YES_OPTION)
-                bookmarks.clear();
+            if (reply == JOptionPane.YES_OPTION){
+                btm.clearData();
+                BookmarkController.getInstance().clearBookmarks();
+            }
         }
 
         JFrame jf = new JFrame();

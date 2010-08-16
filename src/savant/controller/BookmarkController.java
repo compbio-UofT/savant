@@ -117,4 +117,8 @@ public class BookmarkController {
         return this.bookmarks.get(index);
     }
 
+    public void clearBookmarks() {
+        this.bookmarks.clear();
+    }
+
 }

@@ -142,4 +142,8 @@ public class BookmarksTableModel extends AbstractTableModel {
     }
 
     public List<Bookmark> getData() { return this.data; }
+
+    public void clearData(){
+        this.data.clear();
+    }
 }
