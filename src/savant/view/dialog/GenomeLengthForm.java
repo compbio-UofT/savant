@@ -20,6 +20,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import savant.model.Genome;
+import savant.view.swing.Savant;
 
 /**
  *
@@ -290,6 +291,7 @@ public class GenomeLengthForm extends javax.swing.JDialog {
     /** Creates new form GenomeLengthForm */
     public GenomeLengthForm(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
+        this.setTitle("Load genome by length");
         initComponents();
         initGenomeInformation();
         initDropDowns();
@@ -557,7 +559,7 @@ public class GenomeLengthForm extends javax.swing.JDialog {
     }//GEN-LAST:event_textfield_refnameFocusLost
 
     public GenomeLengthForm() {
-        this(new javax.swing.JFrame(), true);
+        this(Savant.getInstance(), true);
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

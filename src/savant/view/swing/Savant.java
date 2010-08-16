@@ -1224,7 +1224,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         // get async notification when DataFormatForm has finished its business
         dff.addPropertyChangeListener("success", this);
 
-        urlDialog = new OpenURLDialog(this, true);
+        urlDialog = new OpenURLDialog(Savant.getInstance(), true);
         // comment next line to disable plugin manager
         //this.menu_plugins.setVisible(false);
 
@@ -1235,7 +1235,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
 
     private void disableExperimentalFeatures() {
         //this.menuitem_preferences.setVisible(false);
-        this.menuitem_tools.setVisible(false);
+        //this.menuitem_tools.setVisible(false);
     }
 
     private void initPanelsAndDocking() {

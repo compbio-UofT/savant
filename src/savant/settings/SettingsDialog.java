@@ -31,6 +31,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.MouseListener;
 import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
+import savant.view.swing.Savant;
 
 public class SettingsDialog extends MultiplePageDialog {
 
@@ -98,7 +99,7 @@ public class SettingsDialog extends MultiplePageDialog {
 
     public static void showOptionsDialog() {
 
-        final MultiplePageDialog dialog = new SettingsDialog(null, "Preferences");
+        final MultiplePageDialog dialog = new SettingsDialog(Savant.getInstance(), "Preferences");
         dialog.setStyle(MultiplePageDialog.LIST_STYLE);
         dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         
