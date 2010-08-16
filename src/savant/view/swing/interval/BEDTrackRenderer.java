@@ -308,13 +308,14 @@ public class BEDTrackRenderer extends TrackRenderer {
 
     private void renderSquishMode(Graphics2D g2, GraphPane gp, Resolution resolution) {
 
+        // ranges, width, and height
+        AxisRange axisRange = (AxisRange) getDrawingInstructions().getInstruction(DrawingInstructions.InstructionName.AXIS_RANGE);
+        gp.setIsOrdinal(false);
+        gp.setXRange(axisRange.getXRange());
+        // y range is set where levels are sorted out, after block merging pass
+
         if (resolution == Resolution.VERY_HIGH || resolution == Resolution.HIGH) {
 
-            // ranges, width, and height
-            AxisRange axisRange = (AxisRange) getDrawingInstructions().getInstruction(DrawingInstructions.InstructionName.AXIS_RANGE);
-            gp.setIsOrdinal(false);
-            gp.setXRange(axisRange.getXRange());
-            // y range is set where levels are sorted out, after block merging pass
 
             // colours
             ColorScheme cs = (ColorScheme) getDrawingInstructions().getInstruction(DrawingInstructions.InstructionName.COLOR_SCHEME.toString());
@@ -404,8 +405,11 @@ public class BEDTrackRenderer extends TrackRenderer {
                 // draw a line in the middle, the full length of the interval
                 int yPos = (int) (gp.transformYPos(level)-unitHeight/2);
                 g2.setColor(lineColor);
-                g2.drawLine(startXPos, yPos, startXPos + (int)gp.getWidth(interval.getLength()), yPos);
-                drawChevrons(g2, startXPos, startXPos + (int)gp.getWidth(interval.getLength()),  yPos, unitHeight, lineColor, strand);
+                int lineWidth = (int)gp.getWidth(interval.getLength());
+                if (lineWidth > 4) {
+                    g2.drawLine(startXPos, yPos, startXPos + lineWidth, yPos);
+                    drawChevrons(g2, startXPos, startXPos + lineWidth,  yPos, unitHeight, lineColor, strand);
+                }
 
             }
 
@@ -444,21 +448,27 @@ public class BEDTrackRenderer extends TrackRenderer {
         if (intervals.isEmpty()) {
             for (Block block: blocks) {
                 int blockStart = gene.getStart() + block.position;
-                Interval blockInterval = Interval.valueOf(blockStart, blockStart+block.size+1);
+                Interval blockInterval = Interval.valueOf(blockStart, blockStart+block.size);
                 intervals.add(blockInterval);
             }
         }
         else {
-            ListIterator<Interval> intervalIt = intervals.listIterator();
-            while (intervalIt.hasNext()) {
-                Interval interval = intervalIt.next();
-                for (Block block: blocks) {
-                    // merging only works on intervals, so convert block to interval
-                    int blockStart = gene.getStart() + block.position;
-                    Interval blockInterval = Interval.valueOf(blockStart, blockStart+block.size+1);
+
+            for (Block block: blocks) {
+                // merging only works on intervals, so convert block to interval
+                int blockStart = gene.getStart() + block.position;
+                Interval blockInterval = Interval.valueOf(blockStart, blockStart+block.size);
+                ListIterator<Interval> intervalIt = intervals.listIterator();
+                boolean merged = false;
+                while (intervalIt.hasNext() && !merged) {
+                    Interval interval = intervalIt.next();
                     if (blockInterval.intersects(interval)) {
                         intervalIt.set(blockInterval.merge(interval));
+                        merged = true;
                     }
+                }
+                if (!merged) {
+                    intervals.add(blockInterval);
                 }
             }
         }
@@ -470,19 +480,22 @@ public class BEDTrackRenderer extends TrackRenderer {
 
         double x, y, w, h;
         for (Interval block: blocks) {
+            if (block.getLength() == 0) continue;
             x = gp.transformXPos(block.getStart());
             y = gp.transformYPos(level)-gp.getUnitHeight();
             w = gp.getWidth(block.getLength());
             h = gp.getUnitHeight();
 
-            Rectangle2D.Double blockRect = new Rectangle2D.Double(x,y,w,h);
+//            if (w >= 1) {
+                Rectangle2D.Double blockRect = new Rectangle2D.Double(x,y,w,h);
 
-            g2.setColor(fillColor);
-            g2.fill(blockRect);
-            if (h > 4 && w > 4) {
-                g2.setColor(lineColor);
-                g2.draw(blockRect);
-            }
+                g2.setColor(fillColor);
+                g2.fill(blockRect);
+                if (h > 4 && w > 4) {
+                    g2.setColor(lineColor);
+                    g2.draw(blockRect);
+                }
+//            }
 
         }
 
