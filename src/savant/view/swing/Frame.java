@@ -718,7 +718,7 @@ public class Frame {
         ViewTrack viewTrack = evt.getViewTrack();
 
 //        if (getTracks().contains(viewTrack)) {
-        boolean reRender = false;
+        boolean reRender = true;
         if (viewTrack.getDataType() == FileFormat.INTERVAL_BAM) {
             if (evt.getMode().getName().equals("MATE_PAIRS")) {
                 reRender = true;

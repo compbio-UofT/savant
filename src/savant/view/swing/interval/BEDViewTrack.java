@@ -47,13 +47,15 @@ import savant.util.MiscUtils;
  */
 public class BEDViewTrack extends ViewTrack {
 
-    private static Log log = LogFactory.getLog(BEDViewTrack.class);
+    private static Log log = LogFactory.getLog(BEDViewTrack.class);   
 
     public enum DrawingMode {
-        STANDARD
+        STANDARD,
+        SQUISH
     };
 
     private static final Mode STANDARD_MODE = new Mode(DrawingMode.STANDARD, "Standard Gene View");
+    private static final Mode SQUISH_MODE = new Mode(DrawingMode.SQUISH, "All on one line");
 
     public BEDViewTrack(String name, BEDIntervalTrack bedTrack) {
         super(name, FileFormat.INTERVAL_BED, bedTrack);
@@ -118,6 +120,7 @@ public class BEDViewTrack extends ViewTrack {
         /* add settings here */
         c.addColorSetting("Forward Strand", ColourSettings.forwardStrand);
         c.addColorSetting("Reverse Strand", ColourSettings.reverseStrand);
+        c.addColorSetting("Translucent Graph", ColourSettings.translucentGraph);        
         c.addColorSetting("Line", ColourSettings.line);
 
         return c;
@@ -127,6 +130,7 @@ public class BEDViewTrack extends ViewTrack {
     {
         List<Mode> modes = new ArrayList<Mode>();
         modes.add(STANDARD_MODE);
+        modes.add(SQUISH_MODE);
         return modes;
     }
 
@@ -138,6 +142,5 @@ public class BEDViewTrack extends ViewTrack {
     private Range getDefaultYRange() {
         return new Range(0, 1);
     }
-
-
+ 
 }

@@ -44,7 +44,7 @@ import savant.util.MiscUtils;
  */
 public class IntervalViewTrack extends ViewTrack {
 
-    private static Log log = LogFactory.getLog(IntervalViewTrack.class);
+    private static Log log = LogFactory.getLog(IntervalViewTrack.class); 
 
     public enum DrawingMode { SQUISH, PACK, ARC };
 

@@ -105,6 +105,7 @@ public class IntervalPacker {
     }
 
     public boolean intersects(Interval i1, Interval i2) {
+        // FIXME: i think this should be i1.getStart() < i2.getEnd()-1 && i2.getStart() < i1.getEnd()-1;
         return i1.getStart() < i2.getEnd() && i2.getStart() < i1.getEnd();
     }
 

@@ -43,6 +43,18 @@ public class Interval {
 
     public int getLength() { return getEnd() - getStart();}
 
+    public boolean intersects(Interval interval) {
+        boolean result = false;
+        return this.start < interval.getEnd()-1 && interval.getStart() < this.end-1;
+    }
+
+    public Interval merge(Interval interval) {
+        if (interval.intersects(this)) {
+            return Interval.valueOf(this.start < interval.getStart() ? this.start : interval.getStart(),
+                                    this.end > interval.getEnd() ? this.end : interval.getEnd());
+        }
+        return this;
+    }
 
     @Override
     public boolean equals(Object o) {

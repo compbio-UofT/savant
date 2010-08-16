@@ -43,6 +43,7 @@ import java.awt.*;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 
 /**
@@ -91,6 +92,9 @@ public class BEDTrackRenderer extends TrackRenderer {
         String modeName = drawMode.getName();
         if (modeName.equals("STANDARD")) {
             renderPackMode(g2, gp, resolution);
+        }
+        else if (modeName.equals("SQUISH")) {
+            renderSquishMode(g2, gp, resolution);
         }
 
     }
@@ -169,7 +173,6 @@ public class BEDTrackRenderer extends TrackRenderer {
         //name can be drawn on top of it
         if(interval.getLength() == 0){
 
-            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             g2.setColor(Color.white);
             int xCoordinate = (int)gp.transformXPos(interval.getStart());
             int yCoordinate = (int)(gp.transformYPos(0)-((level + 1)*unitHeight)) + 1;
@@ -191,7 +194,6 @@ public class BEDTrackRenderer extends TrackRenderer {
                     g2.drawLine(xCoordinate, (int)yCoordinate, xCoordinate, (int)(yCoordinate+unitHeight)-1);
                 }
             }
-            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
 
             isInsertion = true;
         }
@@ -200,21 +202,23 @@ public class BEDTrackRenderer extends TrackRenderer {
 
         // draw the gene name, if possible
         String geneName = bedRecord.getName();
-        boolean drawName = true;
-        if (fontFits(geneName, LARGE_FONT, unitHeight, g2)) {
-            g2.setFont(LARGE_FONT);
-        }
-        else if (fontFits(geneName, SMALL_FONT, unitHeight, g2)) {
-            g2.setFont(SMALL_FONT);
-        }
-        else if (fontFits(geneName, VERY_SMALL_FONT, unitHeight, g2)) {
-            g2.setFont(VERY_SMALL_FONT);
-        }
-        else if (fontFits(geneName, TINY_FONT, unitHeight, g2)) {
-            g2.setFont(TINY_FONT);
-        }
-        else {
-            drawName = false;
+        boolean drawName = (geneName != null);
+        if (drawName) {
+            if (fontFits(geneName, LARGE_FONT, unitHeight, g2)) {
+                g2.setFont(LARGE_FONT);
+            }
+            else if (fontFits(geneName, SMALL_FONT, unitHeight, g2)) {
+                g2.setFont(SMALL_FONT);
+            }
+            else if (fontFits(geneName, VERY_SMALL_FONT, unitHeight, g2)) {
+                g2.setFont(VERY_SMALL_FONT);
+            }
+            else if (fontFits(geneName, TINY_FONT, unitHeight, g2)) {
+                g2.setFont(TINY_FONT);
+            }
+            else {
+                drawName = false;
+            }
         }
         if (drawName) {
             Rectangle2D nameRect = g2.getFont().getStringBounds(geneName, g2.getFontRenderContext());
@@ -261,26 +265,159 @@ public class BEDTrackRenderer extends TrackRenderer {
 
     private void drawChevrons(Graphics2D g2, double start, double end, double y, double height, Color color, Strand strand) {
 
-        final double interval = 40;
+        final int SCALE_FACTOR = 40;
+        final int interval = ((int)height/SCALE_FACTOR+1) * SCALE_FACTOR;
         g2.setColor(color);
-        for (double i=start+interval/2; i<end-interval/2; i+=interval) {
+        // start the drawing on the next multiple of interval
+        int startPos;
+        if (start != interval) {
+            startPos = (int)start + interval - ((int)start % interval);
+        }
+        else {
+            startPos = interval;
+        }
+        for (int i=startPos; i<end; i+=interval) {
             Polygon arrow = new Polygon();
             if (strand == Strand.FORWARD) {
-                //g2.drawLine((int)i, (int)y, (int)(i-height/4), (int)(y+height/4));
-                //g2.drawLine((int)i,(int)y, (int)(i-height/4), (int)(y-height/4));
-                arrow.addPoint((int)i, (int)y);
-                arrow.addPoint((int)(i-height/4), (int)(y+height/4));
-                arrow.addPoint((int)(i-height/4), (int)(y-height/4));
+                if (height > SCALE_FACTOR) {
+                    g2.drawLine((int)i, (int)y, (int)(i-height/4), (int)(y+height/4));
+                    g2.drawLine((int)i,(int)y, (int)(i-height/4), (int)(y-height/4));
+                }
+                else {
+                    arrow.addPoint((int)i, (int)y);
+                    arrow.addPoint((int)(i-height/4), (int)(y+height/4));
+                    arrow.addPoint((int)(i-height/4), (int)(y-height/4));
+                    g2.fill(arrow);
+                }
             }
             else {
-                //g2.drawLine((int)i, (int)y, (int)(i+height/4), (int)(y+height/4));
-                //g2.drawLine((int)i,(int)y, (int)(i+height/4), (int)(y-height/4));
-                arrow.addPoint((int)i, (int)y);
-                arrow.addPoint((int)(i+height/4), (int)(y+height/4));
-                arrow.addPoint((int)(i+height/4), (int)(y-height/4));
+                if (height > SCALE_FACTOR) {
+                    g2.drawLine((int)i, (int)y, (int)(i+height/4), (int)(y+height/4));
+                    g2.drawLine((int)i,(int)y, (int)(i+height/4), (int)(y-height/4));
+                }
+                else {
+                    arrow.addPoint((int)i, (int)y);
+                    arrow.addPoint((int)(i+height/4), (int)(y+height/4));
+                    arrow.addPoint((int)(i+height/4), (int)(y-height/4));
+                    g2.fill(arrow);
+                }
             }
-            g2.fill(arrow);
+
         }
+    }
+
+    private void renderSquishMode(Graphics2D g2, GraphPane gp, Resolution resolution) {
+
+        if (resolution == Resolution.VERY_HIGH || resolution == Resolution.HIGH) {
+
+            // ranges, width, and height
+            AxisRange axisRange = (AxisRange) getDrawingInstructions().getInstruction(DrawingInstructions.InstructionName.AXIS_RANGE);
+            gp.setIsOrdinal(false);
+            gp.setXRange(axisRange.getXRange());
+            // y range is set where levels are sorted out, after block merging pass
+
+            // colours
+            ColorScheme cs = (ColorScheme) getDrawingInstructions().getInstruction(DrawingInstructions.InstructionName.COLOR_SCHEME.toString());
+            Color fillColor = cs.getColor("Forward Strand");
+            Color lineColor = cs.getColor("Line");
+
+            // antialising, for the chevrons
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+            // data
+            java.util.List<Object> data = this.getData();
+            int numdata = this.getData().size();
+
+            // first pass through the data, merging Blocks
+            List<Interval> posStrandBlocks = new ArrayList<Interval>();
+            List<Interval> negStrandBlocks = new ArrayList<Interval>();
+            List<Interval> noStrandBlocks = new ArrayList<Interval>();
+            for (int i = 0; i < numdata; i++) {
+                BEDIntervalRecord bedRecord = (BEDIntervalRecord) data.get(i);
+                Interval interval = bedRecord.getInterval();
+                Strand strand =  bedRecord.getStrand();
+
+                if (strand == Strand.FORWARD) {
+                    mergeBlocks(posStrandBlocks, bedRecord);
+                }
+                else if (strand == Strand.REVERSE) {
+                    mergeBlocks(negStrandBlocks, bedRecord);
+                }
+                else if (strand == null) {
+                    mergeBlocks(noStrandBlocks, bedRecord);
+                }
+
+            }
+
+            // allocate levels to strands, using 1, 2, or 3 depending on which strands are present in the data
+            int posStrandLevel = -1;
+            int negStrandLevel = -1;
+            int noStrandLevel = -1;
+            int signedStrandCount = posStrandBlocks.size() + negStrandBlocks.size();
+            int noStrandCount = noStrandBlocks.size();
+            if (signedStrandCount > 0 && noStrandCount > 0) {
+                // assign three levels
+                posStrandLevel = 0;
+                negStrandLevel = 1;
+                noStrandLevel = 2;
+                gp.setYRange(new Range(0,3));
+            }
+            else if (signedStrandCount > 0 && noStrandCount == 0) {
+                posStrandLevel = 0;
+                negStrandLevel = 1;
+                gp.setYRange(new Range(0,2));
+            }
+            else if (signedStrandCount == 0 && noStrandCount > 0) {
+                noStrandLevel = 0;
+                gp.setIsOrdinal(true);
+            }
+            double unitHeight = gp.getUnitHeight();
+            // display only a message if intervals will not be visible at this resolution
+            if (unitHeight < 1) {
+                GlassMessagePane.draw(g2, gp, "Increase vertical pane size", 300);
+                return;
+            }            
+
+            for (int i = 0; i < numdata; i++) {
+
+                BEDIntervalRecord bedRecord = (BEDIntervalRecord) data.get(i);
+
+                // we'll display different strands at different y positions
+                Strand strand =  bedRecord.getStrand();
+                int level;
+                if (strand == Strand.FORWARD) level = posStrandLevel;
+                else if (strand == Strand.REVERSE) level = negStrandLevel;
+                else level = noStrandLevel;
+
+                Interval interval = bedRecord.getInterval();
+
+                int startXPos = (int)gp.transformXPos(interval.getStart());
+
+                //If length is 0, draw insertion rhombus.
+                if(interval.getLength() == 0){
+
+                    drawInsertion(interval, level, gp, g2);
+                    // draw nothing else for this interval
+                    continue;
+                }
+
+                // draw a line in the middle, the full length of the interval
+                int yPos = (int) (gp.transformYPos(level)-unitHeight/2);
+                g2.setColor(lineColor);
+                g2.drawLine(startXPos, yPos, startXPos + (int)gp.getWidth(interval.getLength()), yPos);
+                drawChevrons(g2, startXPos, startXPos + (int)gp.getWidth(interval.getLength()),  yPos, unitHeight, lineColor, strand);
+
+            }
+
+            // Now draw all blocks
+            drawBlocks(posStrandBlocks, posStrandLevel, gp, fillColor, lineColor, g2);
+            drawBlocks(negStrandBlocks, negStrandLevel, gp, fillColor, lineColor, g2);
+            drawBlocks(noStrandBlocks, noStrandLevel, gp, fillColor, lineColor, g2);
+        }
+        else {
+            GlassMessagePane.draw(g2, gp, "Zoom in to see genes/intervals", 300);
+        }
+
     }
 
     private boolean fontFits(String string, Font font, double height, Graphics2D g2) {
@@ -298,5 +435,85 @@ public class BEDTrackRenderer extends TrackRenderer {
     @Override
     public Range getDefaultYRange() {
         return new Range(0,1);
+    }
+
+    private void mergeBlocks(List<Interval> intervals, BEDIntervalRecord bedRecord) {
+
+        List<Block> blocks = bedRecord.getBlocks();
+        Interval gene = bedRecord.getInterval();
+        if (intervals.isEmpty()) {
+            for (Block block: blocks) {
+                int blockStart = gene.getStart() + block.position;
+                Interval blockInterval = Interval.valueOf(blockStart, blockStart+block.size+1);
+                intervals.add(blockInterval);
+            }
+        }
+        else {
+            ListIterator<Interval> intervalIt = intervals.listIterator();
+            while (intervalIt.hasNext()) {
+                Interval interval = intervalIt.next();
+                for (Block block: blocks) {
+                    // merging only works on intervals, so convert block to interval
+                    int blockStart = gene.getStart() + block.position;
+                    Interval blockInterval = Interval.valueOf(blockStart, blockStart+block.size+1);
+                    if (blockInterval.intersects(interval)) {
+                        intervalIt.set(blockInterval.merge(interval));
+                    }
+                }
+            }
+        }
+    }
+
+    private void drawBlocks(List<Interval> blocks, int level, GraphPane gp, Color fillColor, Color lineColor, Graphics2D g2) {
+
+        if (blocks.isEmpty()) return;
+
+        double x, y, w, h;
+        for (Interval block: blocks) {
+            x = gp.transformXPos(block.getStart());
+            y = gp.transformYPos(level)-gp.getUnitHeight();
+            w = gp.getWidth(block.getLength());
+            h = gp.getUnitHeight();
+
+            Rectangle2D.Double blockRect = new Rectangle2D.Double(x,y,w,h);
+
+            g2.setColor(fillColor);
+            g2.fill(blockRect);
+            if (h > 4 && w > 4) {
+                g2.setColor(lineColor);
+                g2.draw(blockRect);
+            }
+
+        }
+
+    }
+
+    private void drawInsertion(Interval interval, int level, GraphPane gp, Graphics2D g2) {
+
+        double unitHeight = gp.getUnitHeight();
+        double unitWidth = gp.getUnitWidth();
+
+        g2.setColor(Color.white);
+        int xCoordinate = (int)gp.transformXPos(interval.getStart());
+        int yCoordinate = (int)(gp.transformYPos(0)-((level + 1)*unitHeight)) + 1;
+        if((int)unitWidth/3 < 4 || (int)(unitHeight/2) < 6){
+            yCoordinate = yCoordinate - 1;
+            int lineWidth = Math.max((int)(unitWidth * (2.0/3.0)), 1);
+            int xCoordinate1 = (int)(xCoordinate - Math.floor(lineWidth/2));
+            int xCoordinate2 = (int)(xCoordinate - Math.floor(lineWidth/2)) + lineWidth - 1;
+            if(xCoordinate1 == xCoordinate2) xCoordinate2++;
+            int[] xPoints = {xCoordinate1, xCoordinate2, xCoordinate2, xCoordinate1};
+            int[] yPoints = {yCoordinate, yCoordinate, yCoordinate+(int)unitHeight, yCoordinate+(int)unitHeight};
+            g2.fillPolygon(xPoints, yPoints, 4);
+        } else {
+            int[] xPoints = {xCoordinate, xCoordinate+(int)(unitWidth/3), xCoordinate, xCoordinate-(int)(unitWidth/3)};
+            int[] yPoints = {yCoordinate, yCoordinate+(int)(unitHeight/2), yCoordinate+(int)unitHeight-1, yCoordinate+(int)(unitHeight/2)};
+            g2.fillPolygon(xPoints, yPoints, 4);
+            if((int)unitWidth/3 >= 7 && (int)(unitHeight/2) >= 5){
+                g2.setColor(Color.BLACK);
+                g2.drawLine(xCoordinate, (int)yCoordinate, xCoordinate, (int)(yCoordinate+unitHeight)-1);
+            }
+        }
+
     }
 }

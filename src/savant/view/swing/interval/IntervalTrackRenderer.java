@@ -87,7 +87,7 @@ public class IntervalTrackRenderer extends TrackRenderer {
 
         AxisRange axisRange = (AxisRange) getDrawingInstructions().getInstruction(DrawingInstructions.InstructionName.AXIS_RANGE);
         
-        if (r == Resolution.VERY_HIGH) {
+        if (r == Resolution.VERY_HIGH || r == Resolution.HIGH) {
 
             gp.setIsOrdinal(true);
             gp.setXRange(axisRange.getXRange());
@@ -120,6 +120,10 @@ public class IntervalTrackRenderer extends TrackRenderer {
                 }
             }
         }
+        else {
+            GlassMessagePane.draw(g2, gp, "Zoom in to see intervals", 300);
+        }
+
     }
 
     private void renderArcMode(Graphics2D g2, GraphPane gp, Resolution r) {
@@ -133,7 +137,7 @@ public class IntervalTrackRenderer extends TrackRenderer {
 
         AxisRange axisRange = (AxisRange) getDrawingInstructions().getInstruction(DrawingInstructions.InstructionName.AXIS_RANGE);
 
-        if (r == Resolution.VERY_HIGH) {
+        if (r == Resolution.VERY_HIGH || r == Resolution.HIGH) {
 
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
@@ -172,7 +176,7 @@ public class IntervalTrackRenderer extends TrackRenderer {
 
         AxisRange axisRange = (AxisRange) getDrawingInstructions().getInstruction(DrawingInstructions.InstructionName.AXIS_RANGE);
 
-        if (r == Resolution.VERY_HIGH) {
+        if (r == Resolution.VERY_HIGH || r == Resolution.HIGH) {
 
             IntervalPacker packer = new IntervalPacker(data);
             Map<Integer, ArrayList<IntervalRecord>> intervals = packer.pack(2);
