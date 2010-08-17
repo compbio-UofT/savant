@@ -53,7 +53,7 @@ public class FastaFormatter extends SavantFileFormatter{
                     this.byteCount += strLine.getBytes().length;
 
                     // set the correct output stream
-                    if (strLine.charAt(0) == '>') {
+                    if (strLine.length() > 0 && strLine.charAt(0) == '>') {
                         String refname = MiscUtils.removeChar(strLine, '>');
                         refname = refname.replace(' ', '_');
                         outfile = this.getFileForReference(refname);
