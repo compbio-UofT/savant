@@ -45,7 +45,7 @@ public class BAMIntervalRecord extends IntervalRecord {
      * @param type type the pair type; may be null if read is unpaired or mate is unmapped
      */
     protected BAMIntervalRecord(SAMRecord samRecord, PairType type) {
-        super(Interval.valueOf(samRecord.getAlignmentStart(), samRecord.getAlignmentEnd()));
+        super(Interval.valueOf(samRecord.getAlignmentStart(), samRecord.getAlignmentEnd()+1));
         this.samRecord = samRecord;
         this.type = type;
 
