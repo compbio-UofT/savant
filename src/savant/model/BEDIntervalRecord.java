@@ -32,7 +32,7 @@ import java.util.List;
  * 
  * @author mfiume, vwilliams
  */
-public class BEDIntervalRecord extends IntervalRecord {
+public class BEDIntervalRecord extends IntervalRecord implements Comparable {
 
     private final List<Block> blocks;
     private final String chrom;
@@ -150,6 +150,41 @@ public class BEDIntervalRecord extends IntervalRecord {
         return true;
     }
 
+    @Override
+    public int compareTo(Object o) {
+
+        BEDIntervalRecord other = (BEDIntervalRecord) o;
+
+        //compare ref
+        if (!this.getChrom().equals(other.getChrom())){
+            String a1 = this.getChrom();
+            String a2 = other.getChrom();
+            for(int i = 0; i < Math.min(a1.length(), a2.length()); i++){
+                if((int)a1.charAt(i) < (int)a2.charAt(i)) return -1;
+                else if ((int)a1.charAt(i) > (int)a2.charAt(i)) return 1;
+            }
+            if(a1.length() < a2.length()) return -1;
+            if(a1.length() > a2.length()) return 1;
+        }
+
+        //compare point
+        int a = this.getChromStart();
+        int b = other.getChromStart();
+
+        if(a == b){
+            String a1 = this.getName();
+            String a2 = other.getName();
+            for(int i = 0; i < Math.min(a1.length(), a2.length()); i++){
+                if((int)a1.charAt(i) < (int)a2.charAt(i)) return -1;
+                else if ((int)a1.charAt(i) > (int)a2.charAt(i)) return 1;
+            }
+            if(a1.length() < a2.length()) return -1;
+            if(a1.length() > a2.length()) return 1;
+            return 0;
+        } else if(a < b) return -1;
+        else return 1;
+    }
+    
     @Override
     public int hashCode() {
         int result = super.hashCode();

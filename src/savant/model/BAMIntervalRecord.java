@@ -31,7 +31,7 @@ import net.sf.samtools.SAMRecord;
  * @see net.sf.samtools.SAMRecord
  * @author vwilliams
  */
-public class BAMIntervalRecord extends IntervalRecord {
+public class BAMIntervalRecord extends IntervalRecord implements Comparable {
 
     public enum PairType { NORMAL, INVERTED_MATE, INVERTED_READ, EVERTED };
 
@@ -97,5 +97,46 @@ public class BAMIntervalRecord extends IntervalRecord {
         sb.append("{samRecord=").append(samRecord);
         sb.append('}');
         return sb.toString();
+    }
+
+    @Override
+    public int compareTo(Object o) {
+
+        SAMRecord otherSam = ((BAMIntervalRecord) o).getSamRecord();
+        SAMRecord thisSam = this.getSamRecord();
+
+        //compare ref
+        if (!thisSam.getReferenceName().equals(otherSam.getReferenceName())){
+            String a1 = thisSam.getReferenceName();
+            String a2 = otherSam.getReferenceName();
+            for(int i = 0; i < Math.min(a1.length(), a2.length()); i++){
+                if((int)a1.charAt(i) < (int)a2.charAt(i)) return -1;
+                else if ((int)a1.charAt(i) > (int)a2.charAt(i)) return 1;
+            }
+            if(a1.length() < a2.length()) return -1;
+            if(a1.length() > a2.length()) return 1;
+        }
+
+        //compare position
+        int a = thisSam.getAlignmentStart();
+        int b = otherSam.getAlignmentStart();
+
+        if (a == b){
+            String a1 = thisSam.getReadName();
+            String a2 = otherSam.getReadName();
+            for(int i = 0; i < Math.min(a1.length(), a2.length()); i++){
+                if((int)a1.charAt(i) < (int)a2.charAt(i)) return -1;
+                else if ((int)a1.charAt(i) > (int)a2.charAt(i)) return 1;
+            }
+            if(a1.length() < a2.length()) return -1;
+            if(a1.length() > a2.length()) return 1;
+
+            if(thisSam.getReadNegativeStrandFlag() == otherSam.getReadNegativeStrandFlag()) return 0;
+            if(thisSam.getReadNegativeStrandFlag()) return 1;
+            else return -1;
+
+
+        } else if(a < b) return -1;
+          else return 1;
     }
 }

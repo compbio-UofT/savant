@@ -26,7 +26,7 @@ package savant.model;
  * 
  * @author vwilliams
  */
-public class GenericIntervalRecord extends IntervalRecord {
+public class GenericIntervalRecord extends IntervalRecord implements Comparable {
 
     private final String reference;
     private final String description;
@@ -80,5 +80,40 @@ public class GenericIntervalRecord extends IntervalRecord {
         sb.append(", description='").append(description).append('\'');
         sb.append('}');
         return sb.toString();
+    }
+
+    @Override
+    public int compareTo(Object o) {
+
+        GenericIntervalRecord other = (GenericIntervalRecord) o;
+
+        //compare ref
+        if (!this.getReference().equals(other.getReference())){
+            String a1 = this.getReference();
+            String a2 = other.getReference();
+            for(int i = 0; i < Math.min(a1.length(), a2.length()); i++){
+                if((int)a1.charAt(i) < (int)a2.charAt(i)) return -1;
+                else if ((int)a1.charAt(i) > (int)a2.charAt(i)) return 1;
+            }
+            if(a1.length() < a2.length()) return -1;
+            if(a1.length() > a2.length()) return 1;
+        }
+
+        //compare point
+        int a = this.getInterval().getStart();
+        int b = other.getInterval().getStart();
+
+        if(a == b){
+            String a1 = this.getDescription();
+            String a2 = other.getDescription();
+            for(int i = 0; i < Math.min(a1.length(), a2.length()); i++){
+                if((int)a1.charAt(i) < (int)a2.charAt(i)) return -1;
+                else if ((int)a1.charAt(i) > (int)a2.charAt(i)) return 1;
+            }
+            if(a1.length() < a2.length()) return -1;
+            if(a1.length() > a2.length()) return 1;
+            return 0;
+        } else if(a < b) return -1;
+        else return 1;
     }
 }

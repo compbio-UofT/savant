@@ -26,7 +26,7 @@ package savant.model;
  * 
  * @author vwilliams
  */
-public class GenericPointRecord extends PointRecord {
+public class GenericPointRecord extends PointRecord implements Comparable  {
 
     private final String description;
 
@@ -51,6 +51,7 @@ public class GenericPointRecord extends PointRecord {
         GenericPointRecord that = (GenericPointRecord) o;
 
         if (description != null ? !description.equals(that.description) : that.description != null) return false;
+        if(this.getPoint().getPosition() != that.getPoint().getPosition()) return false;
 
         return true;
     }
@@ -67,5 +68,31 @@ public class GenericPointRecord extends PointRecord {
         sb.append("{description='").append(description).append('\'');
         sb.append('}');
         return sb.toString();
+    }
+
+    @Override
+    public int compareTo(Object o) {
+        GenericPointRecord that = (GenericPointRecord) o;
+
+        //compare ref
+        if (!this.getPoint().getReference().equals(that.getPoint().getReference())){
+            String a1 = this.getPoint().getReference();
+            String a2 = that.getPoint().getReference();
+            for(int i = 0; i < Math.min(a1.length(), a2.length()); i++){
+                if((int)a1.charAt(i) < (int)a2.charAt(i)) return -1;
+                else if ((int)a1.charAt(i) > (int)a2.charAt(i)) return 1;
+            }
+            if(a1.length() < a2.length()) return -1;
+            if(a1.length() > a2.length()) return 1;
+        }
+
+        //compare position
+        if (this.getPoint().getPosition() == that.getPoint().getPosition()){
+            return 0;
+        } else if(this.getPoint().getPosition() < that.getPoint().getPosition()){
+            return -1;
+        } else {
+            return 1;
+        }
     }
 }
