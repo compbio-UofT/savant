@@ -16,6 +16,7 @@
 
 package savant.model;
 
+import savant.format.SavantUnsupportedVersionException;
 import savant.model.data.sequence.BFASTASequenceTrack;
 import savant.util.Range;
 
@@ -44,7 +45,7 @@ public class Genome
     // if not associated with track
     private Map<String,Integer> referenceMap;
 
-    public Genome(String filename) throws IOException {
+    public Genome(String filename) throws IOException, SavantUnsupportedVersionException {
         isAssociatedWithTrack = true;
         int lastSlashIndex = filename.lastIndexOf(System.getProperty("file.separator"));
         setName( filename.substring(lastSlashIndex+1, filename.length()));
