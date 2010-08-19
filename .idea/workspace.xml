@@ -2,23 +2,14 @@
 <project version="4">
   <component name="ArtifactsWorkspaceSettings">
     <artifacts-to-build>
-      <artifact name="SavantSDK" />
+      <artifact name="Savant" />
     </artifacts-to-build>
   </component>
   <component name="ChangeListManager">
     <list default="true" readonly="true" id="7c69db67-9cad-43c9-9177-69e01c2156cb" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/savant/model/data/interval/BEDIntervalTrack.java" afterPath="$PROJECT_DIR$/src/savant/model/data/interval/BEDIntervalTrack.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/dist/plugins/SavantData.jar" afterPath="$PROJECT_DIR$/dist/plugins/SavantData.jar" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/dist/plugins/SavantCore.jar" afterPath="$PROJECT_DIR$/dist/plugins/SavantCore.jar" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/savant/format/SavantUnsupportedVersionException.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/savant/view/swing/ViewTrack.java" afterPath="$PROJECT_DIR$/src/savant/view/swing/ViewTrack.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/savant/model/data/sequence/BFASTASequenceTrack.java" afterPath="$PROJECT_DIR$/src/savant/model/data/sequence/BFASTASequenceTrack.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/savant/format/SavantFileFormatter.java" afterPath="$PROJECT_DIR$/src/savant/format/SavantFileFormatter.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/savant/model/data/interval/GenericIntervalTrack.java" afterPath="$PROJECT_DIR$/src/savant/model/data/interval/GenericIntervalTrack.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/savant/model/data/point/GenericPointTrack.java" afterPath="$PROJECT_DIR$/src/savant/model/data/point/GenericPointTrack.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/savant/model/data/continuous/GenericContinuousTrack.java" afterPath="$PROJECT_DIR$/src/savant/model/data/continuous/GenericContinuousTrack.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/savant/format/SavantFile.java" afterPath="$PROJECT_DIR$/src/savant/format/SavantFile.java" />
     </list>
     <list id="4e1035e5-bd24-425a-b7b4-818e84efcc0a" name="Failed commit: Default" comment="Initial check-in." />
     <list id="2b1e5a75-2b9e-481d-b9ec-9b6e2d0e4f04" name="Failed commit: Default (2)" comment="Changed package from debut to savant" />
@@ -156,15 +147,6 @@
   <component name="FileColors" enabled="true" enabledForTabs="true" />
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="SavantFileFormatter.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/savant/format/SavantFileFormatter.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="314" column="105" selection-start="9775" selection-end="9775" vertical-scroll-proportion="0.0">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="SavantFile.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/savant/format/SavantFile.java">
           <provider selected="true" editor-type-id="text-editor">
@@ -219,10 +201,19 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Savant.java" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="Savant.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/savant/view/swing/Savant.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="1281" column="114" selection-start="57282" selection-end="57282" vertical-scroll-proportion="0.40346822">
+            <state line="1264" column="83" selection-start="56533" selection-end="56533" vertical-scroll-proportion="0.0">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Genome.java" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/savant/model/Genome.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="46" column="0" selection-start="1375" selection-end="1375" vertical-scroll-proportion="0.32474226">
               <folding />
             </state>
           </provider>
@@ -261,7 +252,6 @@
     <option name="changedFiles">
       <list>
         <option value="$PROJECT_DIR$/src/savant/format/DataFormatter.java" />
-        <option value="$PROJECT_DIR$/src/savant/model/Genome.java" />
         <option value="$PROJECT_DIR$/src/savant/format/WIGToContinuous.java" />
         <option value="$PROJECT_DIR$/src/savant/util/DataFormatUtils.java" />
         <option value="$PROJECT_DIR$/savant.data/src/savant/data/DataTableModel.java" />
@@ -276,6 +266,7 @@
         <option value="$PROJECT_DIR$/src/savant/model/data/interval/BEDIntervalTrack.java" />
         <option value="$PROJECT_DIR$/src/savant/view/swing/ViewTrack.java" />
         <option value="$PROJECT_DIR$/src/savant/model/data/sequence/BFASTASequenceTrack.java" />
+        <option value="$PROJECT_DIR$/src/savant/model/Genome.java" />
       </list>
     </option>
   </component>
@@ -420,28 +411,6 @@
             </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value="model" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="trunk" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="trunk" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="src" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="savant" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="format" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -974,14 +943,14 @@
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.31851852" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.26666668" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.2212963" sideWeight="0.5" order="11" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.13333334" sideWeight="0.5" order="12" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.13333334" sideWeight="0.5" order="12" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3268817" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.20096205" sideWeight="0.5222222" order="2" side_tool="true" content_ui="tabs" />
+      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.20096205" sideWeight="0.46296296" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32977018" sideWeight="0.56296295" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.39971244" sideWeight="0.6628205" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.20096205" sideWeight="0.3314815" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.20096205" sideWeight="0.29444444" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Dependency Viewer" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.22962964" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.22962964" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="UI Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
@@ -1052,11 +1021,6 @@
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/test/savant/model/ContinuousRecordTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="36" column="12" selection-start="977" selection-end="977" vertical-scroll-proportion="0.0" />
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/META-INF/MANIFEST.MF">
       <provider selected="true" editor-type-id="text-editor">
         <state line="7" column="0" selection-start="335" selection-end="335" vertical-scroll-proportion="0.0">
@@ -1127,13 +1091,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/savant/format/SavantUnsupportedVersionException.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="23" column="52" selection-start="756" selection-end="789" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/test/savant/model/ContinuousTest.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="23" column="19" selection-start="736" selection-end="736" vertical-scroll-proportion="0.054545455">
@@ -1157,7 +1114,21 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/savant/view/swing/Savant.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="1281" column="114" selection-start="57282" selection-end="57282" vertical-scroll-proportion="0.40346822">
+        <state line="1264" column="83" selection-start="56533" selection-end="56533" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/savant/format/SavantUnsupportedVersionException.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="23" column="52" selection-start="756" selection-end="789" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/savant/model/Genome.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="46" column="0" selection-start="1375" selection-end="1375" vertical-scroll-proportion="0.32474226">
           <folding />
         </state>
       </provider>
