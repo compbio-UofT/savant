@@ -17,6 +17,8 @@
 package savant.view.swing;
 
 import java.awt.Color;
+
+import savant.format.SavantUnsupportedVersionException;
 import savant.view.dialog.BAMParametersDialog;
 import java.awt.Component;
 import org.apache.commons.logging.Log;
@@ -47,6 +49,7 @@ import savant.view.swing.interval.BEDViewTrack;
 import savant.view.swing.interval.IntervalViewTrack;
 import savant.view.swing.point.PointViewTrack;
 import savant.view.swing.sequence.SequenceViewTrack;
+import savant.view.swing.util.DialogUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -141,7 +144,10 @@ public abstract class ViewTrack {
                 log.warn("Could not load coverage track", e);
                 // create an empty ViewTrack that just displays an error message
                 viewTrack = new BAMCoverageViewTrack(name + " (coverage)"  , null);
+            } catch (SavantUnsupportedVersionException e) {
+                DialogUtils.displayMessage("This file was created using an older version of Savant. Please re-format the source.");
             }
+
               //RE-ENABLE ENDING HERE
 
             results.add(viewTrack);
@@ -200,6 +206,8 @@ public abstract class ViewTrack {
             } catch (IOException e) {
                 Savant s = Savant.getInstance();
                 s.promptUserToFormatFile(trackFilename, e.getMessage());
+            } catch (SavantUnsupportedVersionException e) {
+                DialogUtils.displayMessage("This file was created using an older version of Savant. Please re-format the source.");
             }
         }
 

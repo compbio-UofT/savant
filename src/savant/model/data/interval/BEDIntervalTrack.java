@@ -24,6 +24,7 @@ package savant.model.data.interval;
 import java.util.Set;
 import savant.format.DataFormatter;
 import savant.format.SavantFile;
+import savant.format.SavantUnsupportedVersionException;
 import savant.format.util.data.interval.IntervalRecordGetter;
 import savant.format.util.data.interval.IntervalSearchTree;
 import savant.model.BEDIntervalRecord;
@@ -58,7 +59,7 @@ public class BEDIntervalTrack implements RecordTrack<BEDIntervalRecord> {
     private Map<String,IntervalSearchTree> refnameToIntervalBSTIndex;
     //private IntervalSearchTree intervalBSTIndex;
 
-    public BEDIntervalTrack(String fileName) throws IOException {
+    public BEDIntervalTrack(String fileName) throws IOException, SavantUnsupportedVersionException {
         this.dFile = new SavantFile(fileName);
         String indexFileName = fileName + SavantFileFormatter.indexExtension;
         this.refnameToIntervalBSTIndex = DataFormatter.readIntervalBSTs(this.dFile);
@@ -98,7 +99,6 @@ public class BEDIntervalTrack implements RecordTrack<BEDIntervalRecord> {
         }
     }
 
-    @Override
     public Set<String> getReferenceNames() {
         return dFile.getReferenceNames();
     }

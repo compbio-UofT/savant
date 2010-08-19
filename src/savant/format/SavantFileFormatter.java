@@ -312,7 +312,7 @@ public class SavantFileFormatter {
 
         // 1. WRITE FILE TYPE HEADER (MAGIC NUMBER AND VERSION)
         //System.out.println("Writing file type header");
-        FileTypeHeader fileTypeHeader = new FileTypeHeader(this.fileType, 2);
+        FileTypeHeader fileTypeHeader = new FileTypeHeader(this.fileType, SavantFile.CURRENT_FILE_VERSION);
         SavantFileFormatterUtils.writeFileTypeHeader(outFileStream,fileTypeHeader);
         outFileStream.flush();
 

@@ -23,6 +23,7 @@ package savant.model.data.continuous;
 
 import java.util.Set;
 import savant.format.SavantFile;
+import savant.format.SavantUnsupportedVersionException;
 import savant.model.Continuous;
 import savant.model.ContinuousRecord;
 import savant.model.Resolution;
@@ -55,7 +56,7 @@ public class GenericContinuousTrack extends ContinuousTrack {
     
     private Hashtable<Resolution, int[]> resolutionToSamplingMap;
 
-    public GenericContinuousTrack(String filename) throws IOException {
+    public GenericContinuousTrack(String filename) throws IOException, SavantUnsupportedVersionException {
 
         this.savantFile = new SavantFile(filename);
         this.refnameToLevelsIndex = ContinuousFormatterHelper.readLevelHeadersFromBinaryFile(savantFile);

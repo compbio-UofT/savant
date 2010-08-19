@@ -23,6 +23,7 @@ package savant.model.data.sequence;
 
 import java.util.List;
 import savant.format.SavantFile;
+import savant.format.SavantUnsupportedVersionException;
 import savant.format.header.FileType;
 import savant.util.SavantFileFormatterUtils;
 import savant.util.Range;
@@ -41,7 +42,7 @@ public class BFASTASequenceTrack implements SequenceTrack {
     private int length = -1;
     SavantFile dFile;
 
-    public BFASTASequenceTrack(String fileName) throws IOException {
+    public BFASTASequenceTrack(String fileName) throws IOException, SavantUnsupportedVersionException {
         this.dFile = new SavantFile(fileName, FileType.SEQUENCE_FASTA);
     }
 

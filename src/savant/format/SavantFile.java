@@ -25,6 +25,7 @@ import savant.util.MiscUtils;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -41,17 +42,22 @@ public class SavantFile extends RandomAccessFile {
     long headerOffset;
     String filename;
 
+    public static final int CURRENT_FILE_VERSION = 2;
+    public static final List<Integer> SUPPORTED_FILE_VERSIONS = Arrays.asList(2);
+    
     public void printOffset() throws IOException {
         System.out.println(super.getFilePointer());
     }
 
-    public SavantFile(String filename) throws IOException {
+    public SavantFile(String filename) throws IOException, SavantUnsupportedVersionException {
         super(filename,"rw");
 
         this.filename = filename;
 
         //System.out.println("Reading file type");
         this.fileTypeHeader = RAFUtils.readFileTypeHeader(this);
+
+        if (!isSupportedVersion(fileTypeHeader.version)) { throw new SavantUnsupportedVersionException(fileTypeHeader.version, getSupportedVersions()); }
 
         //System.out.println("File type: " + this.fileTypeHeader.fileType);
 
@@ -74,7 +80,7 @@ public class SavantFile extends RandomAccessFile {
         this.headerOffset = super.getFilePointer();
     }
 
-    public SavantFile(String filename, FileType ft) throws IOException {
+    public SavantFile(String filename, FileType ft) throws IOException, SavantUnsupportedVersionException {
         this(filename);
         if (!fileTypeHeader.fileType.equals(ft)) {
             throw new IOException("Wrong file type");
@@ -185,4 +191,15 @@ public class SavantFile extends RandomAccessFile {
         return this.referenceMap.containsKey(reference);
     }
 
+    public boolean isSupportedVersion(int version) {
+        return SUPPORTED_FILE_VERSIONS.contains(version);
+    }
+
+    public String getSupportedVersions() {
+        StringBuilder sb = new StringBuilder();
+        for (Integer version: SUPPORTED_FILE_VERSIONS) {
+            sb.append(version + " ");
+        }
+        return sb.toString().trim();
+    }
 }

@@ -22,6 +22,7 @@
 package savant.model.data.point;
 
 import savant.format.SavantFile;
+import savant.format.SavantUnsupportedVersionException;
 import savant.model.GenericPointRecord;
 import savant.model.Point;
 import savant.model.PointRecord;
@@ -53,7 +54,7 @@ public class GenericPointTrack implements RecordTrack<GenericPointRecord> {
     /** FILE SPECIFIC VALUES */
     private int descriptionLength;
 
-    public GenericPointTrack(String filename) throws IOException {
+    public GenericPointTrack(String filename) throws IOException, SavantUnsupportedVersionException {
         this.savantFile = new SavantFile(filename);
         setRecordSize();
     }
