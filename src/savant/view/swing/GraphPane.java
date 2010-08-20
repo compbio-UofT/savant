@@ -160,48 +160,6 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
         popupThread = new Thread(new PopupThread(this));
         popupThread.start();
 
-        this.jp = new JidePopup();
-        jp.setBackground(Color.WHITE);
-        jp.getContentPane().setBackground(Color.WHITE);
-        jp.getRootPane().setBackground(Color.WHITE);
-        jp.getLayeredPane().setBackground(Color.WHITE);
-        jp.setLayout(new BorderLayout());
-        JPanel fill1 = new JPanel();
-        fill1.setBackground(Color.WHITE);
-        fill1.setPreferredSize(new Dimension(5,5));
-        JPanel fill2 = new JPanel();
-        fill2.setBackground(Color.WHITE);
-        fill2.setPreferredSize(new Dimension(5,5));
-        JPanel fill3 = new JPanel();
-        fill3.setBackground(Color.WHITE);
-        fill3.setPreferredSize(new Dimension(5,5));
-        JPanel fill4 = new JPanel();
-        fill4.setBackground(Color.WHITE);
-        fill4.setPreferredSize(new Dimension(15,5));
-        jp.add(fill1, BorderLayout.NORTH);
-        jp.add(fill2, BorderLayout.SOUTH);
-        jp.add(fill3, BorderLayout.EAST);
-        jp.add(fill4, BorderLayout.WEST);
-
-        jp.addMouseListener(new MouseListener() {
-            public void mouseClicked(MouseEvent e) {}
-            public void mousePressed(MouseEvent e) {}
-            public void mouseReleased(MouseEvent e) {}
-            public void mouseEntered(MouseEvent e) {}
-            public void mouseExited(MouseEvent e) {
-                Rectangle rec = jp.getPopupBounds();
-                Point p = e.getLocationOnScreen();
-                if(p.x < rec.x + 2 || p.y < rec.y + 2 || p.x > rec.x + rec.width - 3 || p.y > rec.y + rec.height - 3){
-                    hidePopup();
-                }
-            }
-        });
-
-
-        popPanel = new JPanel(new BorderLayout());
-        popPanel.setBackground(Color.WHITE);
-        jp.add(popPanel);
-
         //initContextualMenu();
 
         ((GraphPaneController) GraphPaneController.getInstance()).addFavoritesChangedListener(this);
@@ -1355,7 +1313,8 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
             currentOverShape = TrackRenderer.continuousObjectToEllipse(this, currentOverObject);
         }
 
-        popPanel.removeAll();
+        //popPanel.removeAll();
+        this.createJidePopup();
         //PopupPanel pp = new PopupPanel(this, this.tracks.get(0).getDrawMode(), this.tracks.get(0).getDataType(), currentOverObject);
         PopupPanel pp = PopupPanel.create(this, this.tracks.get(0).getDrawMode(), this.tracks.get(trackNum).getDataType(), currentOverObject);
         if(pp != null){
@@ -1411,6 +1370,49 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
         
         this.repaint();
 
+    }
+
+    private void createJidePopup(){
+        this.jp = new JidePopup();
+        jp.setBackground(Color.WHITE);
+        jp.getContentPane().setBackground(Color.WHITE);
+        jp.getRootPane().setBackground(Color.WHITE);
+        jp.getLayeredPane().setBackground(Color.WHITE);
+        jp.setLayout(new BorderLayout());
+        JPanel fill1 = new JPanel();
+        fill1.setBackground(Color.WHITE);
+        fill1.setPreferredSize(new Dimension(5,5));
+        JPanel fill2 = new JPanel();
+        fill2.setBackground(Color.WHITE);
+        fill2.setPreferredSize(new Dimension(5,5));
+        JPanel fill3 = new JPanel();
+        fill3.setBackground(Color.WHITE);
+        fill3.setPreferredSize(new Dimension(5,5));
+        JPanel fill4 = new JPanel();
+        fill4.setBackground(Color.WHITE);
+        fill4.setPreferredSize(new Dimension(15,5));
+        jp.add(fill1, BorderLayout.NORTH);
+        jp.add(fill2, BorderLayout.SOUTH);
+        jp.add(fill3, BorderLayout.EAST);
+        jp.add(fill4, BorderLayout.WEST);
+
+        jp.addMouseListener(new MouseListener() {
+            public void mouseClicked(MouseEvent e) {}
+            public void mousePressed(MouseEvent e) {}
+            public void mouseReleased(MouseEvent e) {}
+            public void mouseEntered(MouseEvent e) {}
+            public void mouseExited(MouseEvent e) {
+                Rectangle rec = jp.getPopupBounds();
+                Point p = e.getLocationOnScreen();
+                if(p.x < rec.x + 2 || p.y < rec.y + 2 || p.x > rec.x + rec.width - 3 || p.y > rec.y + rec.height - 3){
+                    hidePopup();
+                }
+            }
+        });
+
+        popPanel = new JPanel(new BorderLayout());
+        popPanel.setBackground(Color.WHITE);
+        jp.add(popPanel);
     }
 
 }
