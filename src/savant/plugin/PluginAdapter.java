@@ -45,5 +45,8 @@ public class PluginAdapter {
         return ViewTrackController.getInstance();
     }
 
+    public SelectionController getSelectionController() {
+        return SelectionController.getInstance();
+    }
 
 }

@@ -32,6 +32,8 @@ import savant.view.swing.util.GlassMessagePane;
 
 import java.awt.*;
 import java.awt.geom.GeneralPath;
+import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 
 /**
  * Class to render continuous tracks.
@@ -51,6 +53,7 @@ public class ContinuousTrackRenderer extends TrackRenderer {
 
         DrawingInstructions di = this.getDrawingInstructions();
         Graphics2D g2 = (Graphics2D) g;
+        this.clearShapes();
 
         Boolean refexists = (Boolean) di.getInstruction(DrawingInstructions.InstructionName.REFERENCE_EXISTS);
 
@@ -103,8 +106,12 @@ public class ContinuousTrackRenderer extends TrackRenderer {
             xFormXPos = gp.transformXPos(xPos)+gp.getUnitWidth()/2;
             xFormYPos = gp.transformYPos(yPos);
             if (yPos > maxData) maxData = yPos;
-            path.lineTo(xFormXPos, xFormYPos);
-        };
+            //Rectangle2D rec = new Rectangle2D.Double(xFormXPos - (gp.getUnitWidth()/2),0,Math.max(gp.getUnitWidth(), 1),gp.getHeight());
+            //Rectangle2D rec = new Rectangle2D.Double(xFormXPos - (gp.getUnitWidth()/2),0,Math.max(xFormXPos-path.getCurrentPoint().getX(), 1),gp.getHeight());
+            Rectangle2D rec = new Rectangle2D.Double(xFormXPos - ((xFormXPos-path.getCurrentPoint().getX())/2),0,Math.max(xFormXPos-path.getCurrentPoint().getX(), 1),gp.getHeight());
+            this.objectToShapeMap.put(continuousRecord, rec);
+            path.lineTo(xFormXPos, xFormYPos);            
+        }
         xFormYPos = gp.transformYPos(0.0);
         path.lineTo(xFormXPos, xFormYPos);
         path.closePath();

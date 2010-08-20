@@ -141,6 +141,7 @@ public class BAMViewTrack extends ViewTrack {
                 renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.DISCORDANT_MAX, getDiscordantMax());
             }
             else renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.AXIS_RANGE, new AxisRange(range, getDefaultYRange()));
+            renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.SELECTION_ALLOWED, true);
             renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.MODE, getDrawMode());
             renderer.setData(data);
         }

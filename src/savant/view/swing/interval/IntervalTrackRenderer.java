@@ -53,6 +53,7 @@ public class IntervalTrackRenderer extends TrackRenderer {
 
         Graphics2D g2 = (Graphics2D) g;
         gp.setIsOrdinal(true);
+        this.clearShapes();
 
         DrawingInstructions di = this.getDrawingInstructions();
 
@@ -219,6 +220,7 @@ public class IntervalTrackRenderer extends TrackRenderer {
 
                     g2.setColor(bgcolor);
                     g2.fill(intervalRect);
+                    this.objectToShapeMap.put(intervalRecord, intervalRect);
 
                     if (w > 5) {
                         g2.setColor(linecolor);

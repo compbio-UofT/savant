@@ -53,8 +53,12 @@ import savant.view.swing.util.DialogUtils;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 
 /**
@@ -77,6 +81,7 @@ public abstract class ViewTrack {
     private Mode drawMode;
     private List<TrackRenderer> trackRenderers;
     private RecordTrack track;
+    private URI fileURI;
 
     private ColorSchemeDialog colorDialog = new ColorSchemeDialog();
     private IntervalDialog intervalDialog = new IntervalDialog();
@@ -118,6 +123,7 @@ public abstract class ViewTrack {
             dataTrack = BAMIntervalTrack.fromfileNameOrURL(trackFilename);
             if (dataTrack != null) {
                 viewTrack = new BAMViewTrack(name, (BAMIntervalTrack)dataTrack);
+                if(viewTrack != null) viewTrack.setURI(trackFilename);
                 results.add(viewTrack);
             }
             else {
@@ -148,7 +154,7 @@ public abstract class ViewTrack {
             }
 
               //RE-ENABLE ENDING HERE
-
+            if(viewTrack != null) viewTrack.setURI( trackFilename + ".cov.savant");
             results.add(viewTrack);
 
         } else {
@@ -208,6 +214,7 @@ public abstract class ViewTrack {
             } catch (SavantUnsupportedVersionException e) {
                 DialogUtils.displayMessage("This file was created using an older version of Savant. Please re-format the source.");
             }
+            if(viewTrack != null) viewTrack.setURI(trackFilename);
         }
 
         return results;
@@ -511,5 +518,21 @@ public abstract class ViewTrack {
     public void captureIntervalParameters(){
         intervalDialog.update(this);
         intervalDialog.setVisible(true);
+    }
+
+    public void setURI(String name){
+
+        //TODO: are there other cases where this will fail? Maybe URI isnt best option?
+        name = name.replace("\\", "/");
+        name = name.replace(" ", "_");
+        try {
+            this.fileURI = new URI(name);
+        } catch (URISyntaxException ex) {
+            Logger.getLogger(ViewTrack.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    public URI getURI(){
+        return this.fileURI;
     }
 }

@@ -40,6 +40,8 @@ import savant.view.swing.TrackRenderer;
 import savant.view.swing.util.GlassMessagePane;
 
 import java.awt.*;
+import java.awt.geom.Area;
+import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
@@ -76,6 +78,7 @@ public class BEDTrackRenderer extends TrackRenderer {
     public void render(Graphics g, GraphPane gp) {
         Graphics2D g2 = (Graphics2D) g;
         gp.setIsOrdinal(true);
+        this.clearShapes();
 
         drawingInstructions = this.getDrawingInstructions();
 
@@ -234,6 +237,8 @@ public class BEDTrackRenderer extends TrackRenderer {
         g2.setColor(lineColor);
         g2.drawLine(startXPos, yPos, startXPos + (int)gp.getWidth(interval.getLength()), yPos);
 
+        Area area = new Area(new Line2D.Double(startXPos, yPos, startXPos + (int)gp.getWidth(interval.getLength()), yPos));
+
         // for each block, draw a rectangle
         List<Block> blocks = bedRecord.getBlocks();
         double chevronIntervalStart = gp.transformXPos(interval.getStart());
@@ -244,7 +249,7 @@ public class BEDTrackRenderer extends TrackRenderer {
 
             double chevronIntervalEnd = x;
             // draw chevrons in interval
-            drawChevrons(g2, chevronIntervalStart, chevronIntervalEnd,  yPos, unitHeight, lineColor, bedRecord.getStrand());
+            drawChevrons(g2, chevronIntervalStart, chevronIntervalEnd,  yPos, unitHeight, lineColor, bedRecord.getStrand(), area);
 
             double w = gp.getWidth(block.getSize());
             double h = unitHeight;
@@ -256,14 +261,16 @@ public class BEDTrackRenderer extends TrackRenderer {
                 g2.setColor(lineColor);
                 g2.draw(blockRect);
             }
+            area.add(new Area(blockRect));
 
             chevronIntervalStart = x + w;
 
         }
+        this.objectToShapeMap.put(bedRecord, area);
 
     }
 
-    private void drawChevrons(Graphics2D g2, double start, double end, double y, double height, Color color, Strand strand) {
+    private void drawChevrons(Graphics2D g2, double start, double end, double y, double height, Color color, Strand strand, Area area) {
 
         final int SCALE_FACTOR = 40;
         final int interval = ((int)height/SCALE_FACTOR+1) * SCALE_FACTOR;
@@ -308,6 +315,7 @@ public class BEDTrackRenderer extends TrackRenderer {
                         }
                     }
                 }
+                if(area != null)area.add(new Area(arrow));
             }
 
         }
@@ -415,7 +423,7 @@ public class BEDTrackRenderer extends TrackRenderer {
                 int lineWidth = (int)gp.getWidth(interval.getLength());
                 if (lineWidth > 4) {
                     g2.drawLine(startXPos, yPos, startXPos + lineWidth, yPos);
-                    drawChevrons(g2, startXPos, startXPos + lineWidth,  yPos, unitHeight, lineColor, strand);
+                    drawChevrons(g2, startXPos, startXPos + lineWidth,  yPos, unitHeight, lineColor, strand, null);
                 }
 
             }

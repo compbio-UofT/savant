@@ -249,10 +249,12 @@ public class Frame {
         JPanel contain1 = new JPanel();
         contain1.setOpaque(false);
         contain1.setLayout(new BorderLayout());
+        contain1.setCursor(new Cursor(Cursor.HAND_CURSOR));
         contain1.add(commandBar, BorderLayout.WEST);
         JPanel contain2 = new JPanel();
         contain2.setOpaque(false);
         contain2.setLayout(new BorderLayout());
+        contain2.setCursor(new Cursor(Cursor.HAND_CURSOR));
         contain2.add(commandBarHidden, BorderLayout.WEST);
 
         //add commandBar/hidden to top left
@@ -266,6 +268,7 @@ public class Frame {
 
         //filler to extend commandBars
         JPanel a = new JPanel();
+        a.setCursor(new Cursor(Cursor.HAND_CURSOR));
         a.setMinimumSize(new Dimension(400,30));
         a.setOpaque(false);
         c.weightx = 0;
@@ -645,6 +648,7 @@ public class Frame {
                     break;
             }
         }
+        renderer.setURI(track.getURI());
         renderer.getDrawingInstructions().addInstruction(
                 DrawingInstructions.InstructionName.TRACK_DATA_TYPE, track.getDataType());
         track.addTrackRenderer(renderer);

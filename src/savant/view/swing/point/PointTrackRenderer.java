@@ -50,6 +50,7 @@ public class PointTrackRenderer extends TrackRenderer {
 
         Graphics2D g2 = (Graphics2D) g;
         gp.setIsOrdinal(true);
+        this.clearShapes();
 
         double width = gp.getUnitWidth();
 
@@ -102,6 +103,10 @@ public class PointTrackRenderer extends TrackRenderer {
 
                 g2.setColor(bgcolor);
                 g2.fillPolygon(p);
+
+                //add shape and info to list
+                //this.dataShapes.add(p);
+                this.objectToShapeMap.put(record, p);
 
                 if (width > 5) {
                     g2.setColor(linecolor);

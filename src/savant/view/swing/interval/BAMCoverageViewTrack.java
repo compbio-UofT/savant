@@ -85,6 +85,7 @@ public class BAMCoverageViewTrack extends ViewTrack {
             renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.COLOR_SCHEME, this.getColorScheme());
             renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.RANGE, range);
             renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.RESOLUTION, r);
+            renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.SELECTION_ALLOWED, true);
             renderer.setData(data);
         }
     }

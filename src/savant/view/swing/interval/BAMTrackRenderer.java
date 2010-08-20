@@ -47,6 +47,7 @@ import savant.view.swing.util.GlassMessagePane;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.geom.Arc2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -104,6 +105,7 @@ public class BAMTrackRenderer extends TrackRenderer {
         Graphics2D g2 = (Graphics2D) g;
 
         gp.setIsOrdinal(true);
+        this.clearShapes();
         
         DrawingInstructions di = this.getDrawingInstructions();
 
@@ -221,7 +223,6 @@ public class BAMTrackRenderer extends TrackRenderer {
         } else if (gp.getSize() != ((JViewport)gp.getParent().getParent()).getSize()){
             this.resizeFrame(gp);
         }
-
         
         // scan the map of intervals and draw the intervals for each level
         for (int level=0; level<intervals.size(); level++) {
@@ -236,10 +237,15 @@ public class BAMTrackRenderer extends TrackRenderer {
                 SAMRecord samRecord = bamRecord.getSamRecord();
 
                 if (samRecord.getReadUnmappedFlag()) { // this read is unmapped, don't visualize it
+
+                    this.objectToShapeMap.put(intervalRecord, null);
+
                     continue;
                 }
 
                 Polygon strand = renderStrand(g2, gp, cs, samRecord, interval, level, range);
+
+                this.objectToShapeMap.put(intervalRecord, strand);
 
                 if (drawMode.getName().equals("VARIANTS")) {
                     // visualize variations (indels and mismatches)
@@ -551,6 +557,8 @@ public class BAMTrackRenderer extends TrackRenderer {
         // Y range is given to us by BAMViewTrack for this mode
         gp.setYRange(axisRange.getYRange());
 
+        this.clearShapes();
+
         // iterate through the data and draw
         for (int i = 0; i < numdata; i++) {
 
@@ -635,7 +643,11 @@ public class BAMTrackRenderer extends TrackRenderer {
             int xOrigin = (int)(gp.transformXPos(intervalStart));
             int yOrigin = (int)(gp.transformYPos(arcHeight));
 
-            g2.drawArc(xOrigin, yOrigin, rectWidth, rectHeight, -180, -180);
+            Arc2D.Double arc = new Arc2D.Double(xOrigin, yOrigin, rectWidth, rectHeight, -180, -180, Arc2D.OPEN);
+            g2.draw(arc);
+
+            //this.dataShapes.set(i, arc);
+            this.objectToShapeMap.put(record, arc);
 
         }
 

@@ -16,14 +16,14 @@
 
 package savant.view.swing;
 
-import savant.settings.BrowserSettings;
-import java.awt.geom.Rectangle2D.Double;
+import savant.selection.PopupThread;
+import savant.selection.PopupPanel;
+import com.jidesoft.popup.JidePopup;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import savant.controller.DrawModeController;
 import savant.controller.RangeController;
 import savant.controller.event.graphpane.GraphPaneChangeEvent;
-import savant.model.FileFormat;
 import savant.model.view.AxisRange;
 import savant.model.view.DrawingInstructions;
 import savant.model.view.Mode;
@@ -34,14 +34,17 @@ import savant.view.swing.util.GlassMessagePane;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.geom.Ellipse2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
-import savant.controller.FrameController;
+import java.util.Map;
 import savant.controller.GraphPaneController;
 import savant.controller.ReferenceController;
 import savant.controller.event.graphpane.GraphPaneChangeListener;
+import savant.data.types.ContinuousRecord;
+import savant.data.types.GenericContinuousRecord;
 import savant.settings.ColourSettings;
 import savant.util.MiscUtils;
 
@@ -106,6 +109,14 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
     private int initialScroll;
     private boolean panVert = false;
 
+    //popup
+    public Thread popupThread;
+    public JidePopup jp = new JidePopup();
+    //private int currentOver = -1;
+    private Object currentOverObject = null;
+    private Shape currentOverShape = null;
+    private boolean popupVisible = false;
+    private JPanel popPanel;
 
     public void keyTyped(KeyEvent e) {
     }
@@ -145,6 +156,51 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
         //addKeyListener( this );
         this.getInputMap().allKeys();
         addMouseWheelListener(this);
+
+        popupThread = new Thread(new PopupThread(this));
+        popupThread.start();
+
+        this.jp = new JidePopup();
+        jp.setBackground(Color.WHITE);
+        jp.getContentPane().setBackground(Color.WHITE);
+        jp.getRootPane().setBackground(Color.WHITE);
+        jp.getLayeredPane().setBackground(Color.WHITE);
+        jp.setLayout(new BorderLayout());
+        JPanel fill1 = new JPanel();
+        fill1.setBackground(Color.WHITE);
+        fill1.setPreferredSize(new Dimension(5,5));
+        JPanel fill2 = new JPanel();
+        fill2.setBackground(Color.WHITE);
+        fill2.setPreferredSize(new Dimension(5,5));
+        JPanel fill3 = new JPanel();
+        fill3.setBackground(Color.WHITE);
+        fill3.setPreferredSize(new Dimension(5,5));
+        JPanel fill4 = new JPanel();
+        fill4.setBackground(Color.WHITE);
+        fill4.setPreferredSize(new Dimension(15,5));
+        jp.add(fill1, BorderLayout.NORTH);
+        jp.add(fill2, BorderLayout.SOUTH);
+        jp.add(fill3, BorderLayout.EAST);
+        jp.add(fill4, BorderLayout.WEST);
+
+        jp.addMouseListener(new MouseListener() {
+            public void mouseClicked(MouseEvent e) {}
+            public void mousePressed(MouseEvent e) {}
+            public void mouseReleased(MouseEvent e) {}
+            public void mouseEntered(MouseEvent e) {}
+            public void mouseExited(MouseEvent e) {
+                Rectangle rec = jp.getPopupBounds();
+                Point p = e.getLocationOnScreen();
+                if(p.x < rec.x + 2 || p.y < rec.y + 2 || p.x > rec.x + rec.width - 3 || p.y > rec.y + rec.height - 3){
+                    hidePopup();
+                }
+            }
+        });
+
+
+        popPanel = new JPanel(new BorderLayout());
+        popPanel.setBackground(Color.WHITE);
+        jp.add(popPanel);
 
         //initContextualMenu();
 
@@ -316,6 +372,27 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
         if(sameRange && sameMode && sameSize && sameRef && !this.renderRequired){
             g.drawImage(bufferedImage, 0, 0, this);
 
+            
+            if(this.currentOverShape != null){
+                if(currentMode != null && currentMode.getName().equals("MATE_PAIRS")){
+                    g.setColor(Color.red);
+                    ((Graphics2D)g).draw(currentOverShape);
+                } else {
+                    //g.setColor(Color.red);
+                    g.setColor(new Color(255,0,0,200));
+                    ((Graphics2D) g).fill(currentOverShape);
+                    if(currentOverShape.getBounds() != null &&
+                            currentOverShape.getBounds().getWidth() > 5 &&
+                            currentOverShape.getBounds().getHeight() > 3){
+                        g.setColor(Color.BLACK);
+                        ((Graphics2D)g).draw(currentOverShape);
+                    }
+                }
+            }
+            renderCurrentSelected(g);
+            //renderTempSelected(g);
+            
+
             //force unitHeight from last render
             unitHeight = oldUnitHeight;
             yMax = oldYMax;
@@ -396,9 +473,101 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
 
         bufferedImage = bf1;
         g.drawImage(bufferedImage, 0, 0, this);
+        renderCurrentSelected(g);
         this.parentFrame.commandBar.repaint();
 
     }
+
+    private void renderCurrentSelected(Graphics g){
+        TrackRenderer tr = null;
+        for(int i = 0; i < this.trackRenderers.size(); i++){
+            tr = this.trackRenderers.get(i);
+            if(tr.hasMappedValues()){
+                break;
+            }
+        }
+        if(!tr.hasMappedValues())return;
+        List<Shape> currentSelected = tr.getCurrentSelectedShapes(this);
+        if(!currentSelected.isEmpty()){
+            Graphics2D g2 = (Graphics2D) g;
+            boolean arcMode = false;
+            if(this.parentFrame.getTracks().get(0).getDrawMode() != null){
+                arcMode = this.parentFrame.getTracks().get(0).getDrawMode().getName().equals("MATE_PAIRS");
+            }
+            for(int i = 0; i < currentSelected.size(); i++){
+                Shape selectedShape = currentSelected.get(i);
+                if(arcMode){
+                    g2.setColor(Color.GREEN);
+                    g2.draw(selectedShape);
+                } else {
+                    //g2.setColor(Color.GREEN);
+                    g2.setColor(new Color(0,255,0,150));
+                    g2.fill(selectedShape);
+                    if(selectedShape.getBounds().getWidth() > 5){
+                        g2.setColor(Color.BLACK);
+                        g2.draw(selectedShape);
+                    }
+                }
+            }
+        }
+    }
+
+    /*private void renderCurrentSelected(Graphics g){
+        TrackRenderer tr = this.trackRenderers.get(0);
+        if(!tr.hasMappedValues()) return;
+        if(tr.hasCurrentSelected()){
+            Graphics2D g2 = (Graphics2D) g;
+            boolean arcMode = false;
+            if(this.parentFrame.getTracks().get(0).getDrawMode() != null){
+                arcMode = this.parentFrame.getTracks().get(0).getDrawMode().getName().equals("MATE_PAIRS");
+            }
+
+            List<Shape> currentSelected = tr.getCurrentSelectedShapes();
+            for(int i = 0; i < currentSelected.size(); i++){
+                Shape selectedShape = currentSelected.get(i);
+                if(arcMode){
+                    g2.setColor(Color.GREEN);
+                    g2.draw(selectedShape);
+                } else {
+                    g2.setColor(Color.GREEN);
+                    g2.fill(selectedShape);
+                    if(selectedShape.getBounds().getWidth() > 5){
+                        g2.setColor(Color.BLACK);
+                        g2.draw(selectedShape);
+                    }
+                }
+            }
+        }
+    }*/
+
+    /*private void renderTempSelected(Graphics g){
+        TrackRenderer tr = this.trackRenderers.get(0);
+        if(!tr.hasMappedValues()) return;
+        if(tr.hasTempSelected()){
+            Graphics2D g2 = (Graphics2D) g;
+            boolean arcMode = false;
+            if(this.parentFrame.getTracks().get(0).getDrawMode() != null){
+                arcMode = this.parentFrame.getTracks().get(0).getDrawMode().getName().equals("MATE_PAIRS");
+            }
+
+            List<Shape> currentSelected = tr.getTempSelectedShapes();
+            for(int i = 0; i < currentSelected.size(); i++){
+                Shape selectedShape = currentSelected.get(i);
+                if(arcMode){
+                    g2.setColor(Color.ORANGE);
+                    g2.draw(selectedShape);
+                } else {
+                    g2.setColor(Color.ORANGE);
+                    g2.fill(selectedShape);
+                    if(selectedShape.getBounds().getWidth() > 5){
+                        g2.setColor(Color.BLACK);
+                        g2.draw(selectedShape);
+                    }
+                }
+            }
+        }
+        tr.clearTempSelected();
+    }*/
 
     /*
      * Call before a repaint to override bufferedImage repainting
@@ -837,6 +1006,8 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
             return;
         }
 
+        this.trySelect(event.getPoint());
+
         setMouseModifier(event);
 
         this.resetFrameLayers();
@@ -922,7 +1093,17 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
 
             rc.setRange(newr);
         } else if (gpc.isSelecting()) {
-            selectElementsInRectangle(new Rectangle2D.Double(this.x, this.y, this.w, this.h));
+            TrackRenderer tr = null;
+            for(int i = 0; i < this.trackRenderers.size(); i++){
+                tr = this.trackRenderers.get(i);
+                if(tr.hasMappedValues()){
+                    break;
+                }
+            }
+            if(tr.hasMappedValues()){
+                boolean repaintNeeded = tr.rectangleSelect(new Rectangle2D.Double(this.x, this.y, this.w, this.h));
+                if(repaintNeeded) this.repaint();
+            }
         }
 
         this.isDragging = false;
@@ -938,6 +1119,7 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
     public void mouseEntered( final MouseEvent event ) {
         this.setCursor(new Cursor(Cursor.HAND_CURSOR));
         setMouseModifier(event);
+        hidePopup();
        // this.resetFrameLayers();
     }
 
@@ -1125,11 +1307,6 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
 
     }
 
-    private void selectElementsInRectangle(Rectangle2D r) {
-        //System.out.println("Should select " + r);
-        // TODO: paste code in here
-    }
-
     private void resetFrameLayers(){
         for(int i = 0; i < this.tracks.size(); i++){
             this.tracks.get(i).getFrame().resetLayers();
@@ -1147,6 +1324,93 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
 
     public void setBufferedImage(BufferedImage bi){
         this.bufferedImage = bi;
+    }
+
+    //POPUP
+    public void tryPopup(Point p){
+
+        //FIXME: is this a reasonable test? maybe use size of data or something
+        //if range is too big, do nothing
+        //if(prevRange.getLength() > 8000) return;
+
+        //get shape
+        int trackNum = 0;
+        Map<Object, Shape> map = null;
+        for(int i = 0; i < this.trackRenderers.size(); i++){
+            map = this.trackRenderers.get(i).searchPoint(p);
+            if(map!=null){
+                trackNum = i;
+                break;
+            }
+        }
+        if(map==null){
+            currentOverShape = null;
+            currentOverObject = null;
+            return;
+        }
+
+        currentOverObject = map.keySet().toArray()[0];
+        currentOverShape = map.get(currentOverObject);
+        if(currentOverObject.getClass().equals(GenericContinuousRecord.class)){
+            currentOverShape = TrackRenderer.continuousObjectToEllipse(this, currentOverObject);
+        }
+
+        popPanel.removeAll();
+        //PopupPanel pp = new PopupPanel(this, this.tracks.get(0).getDrawMode(), this.tracks.get(0).getDataType(), currentOverObject);
+        PopupPanel pp = PopupPanel.create(this, this.tracks.get(0).getDrawMode(), this.tracks.get(trackNum).getDataType(), currentOverObject);
+        if(pp != null){
+            popPanel.add(pp, BorderLayout.CENTER);
+            Point p1 = (Point)p.clone();
+            SwingUtilities.convertPointToScreen(p1, this);
+            this.jp.showPopup(p1.x, p1.y);
+            popupVisible = true;
+        }
+        this.repaint();
+        
+
+    }
+
+    public void hidePopup(){
+        if(this.popupVisible){
+            popupVisible = false;
+            //jp.hidePopup();
+            jp.hidePopupImmediately();
+            currentOverShape = null;
+            currentOverObject = null;
+            this.repaint();
+        }
+    }
+
+    public void trySelect(Point p){
+
+        //if range is too big, do nothing
+        //if(prevRange.getLength() > 8000) return;
+
+        //get shape
+        //Map<Object, Shape> map = this.trackRenderers.get(0).searchPoint(p);
+        //if(map==null){
+        //    return;
+        //}
+
+
+        int trackNum = 0;
+        Map<Object, Shape> map = null;
+        for(int i = 0; i < this.trackRenderers.size(); i++){
+            map = this.trackRenderers.get(i).searchPoint(p);
+            if(map!=null){
+                trackNum = i;
+                break;
+            }
+        }
+        if(map==null){
+            return;
+        }
+
+        Object o = map.keySet().toArray()[0];
+        this.trackRenderers.get(trackNum).addToSelected(o);
+        
+        this.repaint();
+
     }
 
 }
