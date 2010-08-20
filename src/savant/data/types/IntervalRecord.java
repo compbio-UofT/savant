@@ -1,5 +1,5 @@
 /*
- *    Copyright 2009-2010 University of Toronto
+ *    Copyright 2010 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -13,26 +13,28 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package savant.model.data.point;
 
-import savant.model.PointRecord;
-import savant.model.Resolution;
-import savant.model.data.RecordTrack;
-import savant.util.Range;
+/*
+ * IntervalRecord.java
+ * Created on Jan 8, 2010
+ */
 
-import java.util.List;
+package savant.data.types;
+
+import savant.data.types.Interval;
+import savant.data.types.Record;
 
 /**
- * TODO:
+ * Interface to represent a record which contains an interval
+ *
  * @author vwilliams
  */
-public abstract class PointTrack implements RecordTrack<PointRecord> {
+public interface IntervalRecord extends Record {
 
     /**
-     * Get all point items in a given range and resolution
-     * @param range a Range
-     * @param resolution a Resolution
-     * @return a List of all point items in the range
+     *
+     * @return the interval contained by this object
      */
-    public abstract List<PointRecord> getRecords(Range range, Resolution resolution);
+    public Interval getInterval();
+
 }

@@ -16,9 +16,19 @@
 
 package savant.model.data;
 
+import java.util.Set;
+
 /**
- * TODO:
+ * Superclass for all tracks.
+ * 
  * @author vwilliams
  */
 public interface Track {
+    /**
+     * Get the list of references for which this RecordTrack contains data
+     * @return A set of reference names
+     */
+    public Set<String> getReferenceNames();
+
+    void close();
 }

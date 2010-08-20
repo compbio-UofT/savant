@@ -17,7 +17,6 @@
 
 package savant.format;
 
-import it.unipi.di.util.ExternalSort;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
@@ -28,11 +27,10 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.StringTokenizer;
+
 import savant.debug.SavantDebugger;
 import savant.format.header.FileType;
 import savant.format.util.data.FieldType;
@@ -526,7 +524,7 @@ public class IntervalFormatter extends SavantFileFormatter {
          */
         log.debug("=== STEP 2 ===");
 
-        // re-open the tmp data file (this time we need random access to seek to specific records)
+        // re-open the tmp data file (this time we need random sources to seek to specific records)
         RandomAccessFile tmpDataFile = new RandomAccessFile(tmpfilename,"r");
 
         // create an empty IST

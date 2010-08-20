@@ -19,33 +19,31 @@
  * Created on Jan 8, 2010
  */
 
-package savant.model;
+package savant.data.types;
 
 /**
  * Immutable class to represent an interval + a description.
  * 
  * @author vwilliams
  */
-public class GenericIntervalRecord extends IntervalRecord implements Comparable {
+public class GenericIntervalRecord implements IntervalRecord, Comparable {
 
-    private final String reference;
+    private final Interval interval;
     private final String description;
 
-    protected GenericIntervalRecord(String reference, Interval interval, String description) {
-        super(interval);
-        if (reference == null) throw new IllegalArgumentException("Invalid argument. Reference may not be null.");
-        this.reference = reference;
+    GenericIntervalRecord(Interval interval, String description) {
+        if (interval == null) throw new IllegalArgumentException("Invalid argument. Interval must not be null");
+        this.interval = interval;
         this.description = description;
     }
 
 
-    public static GenericIntervalRecord valueOf(String reference, Interval interval, String description) {
-        return new GenericIntervalRecord(reference, interval, description);
+    public static GenericIntervalRecord valueOf(Interval interval, String description) {
+        return new GenericIntervalRecord(interval, description);
     }
 
-
-    public String getReference() {
-        return reference;
+    public Interval getInterval() {
+        return this.interval;
     }
 
     public String getDescription() {
@@ -56,19 +54,19 @@ public class GenericIntervalRecord extends IntervalRecord implements Comparable 
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
 
         GenericIntervalRecord that = (GenericIntervalRecord) o;
 
-        if (!reference.equals(that.reference)) return false;
+        if (description != null ? !description.equals(that.description) : that.description != null) return false;
+        if (!interval.equals(that.interval)) return false;
 
         return true;
     }
 
     @Override
     public int hashCode() {
-        int result = super.hashCode();
-        result = 31 * result + reference.hashCode();
+        int result = interval.hashCode();
+        result = 31 * result + (description != null ? description.hashCode() : 0);
         return result;
     }
 
@@ -76,28 +74,15 @@ public class GenericIntervalRecord extends IntervalRecord implements Comparable 
     public String toString() {
         final StringBuilder sb = new StringBuilder();
         sb.append("GenericIntervalRecord");
-        sb.append("{reference='").append(reference).append('\'');
+        sb.append("{interval=").append(interval);
         sb.append(", description='").append(description).append('\'');
         sb.append('}');
         return sb.toString();
     }
 
-    @Override
     public int compareTo(Object o) {
 
         GenericIntervalRecord other = (GenericIntervalRecord) o;
-
-        //compare ref
-        if (!this.getReference().equals(other.getReference())){
-            String a1 = this.getReference();
-            String a2 = other.getReference();
-            for(int i = 0; i < Math.min(a1.length(), a2.length()); i++){
-                if((int)a1.charAt(i) < (int)a2.charAt(i)) return -1;
-                else if ((int)a1.charAt(i) > (int)a2.charAt(i)) return 1;
-            }
-            if(a1.length() < a2.length()) return -1;
-            if(a1.length() > a2.length()) return 1;
-        }
 
         //compare point
         int a = this.getInterval().getStart();

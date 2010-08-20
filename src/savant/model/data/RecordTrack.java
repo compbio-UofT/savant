@@ -39,12 +39,6 @@ public interface RecordTrack<E> extends Track {
     public List<E> getRecords(String reference, Range range, Resolution resolution);
 
     /**
-     * Get the list of references for which this RecordTrack contains data
-     * @return A set of reference names
-     */
-    public Set<String> getReferenceNames();
-
-    /**
      * Close this track.
      */
     public void close();

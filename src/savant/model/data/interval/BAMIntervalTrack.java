@@ -31,13 +31,11 @@ import net.sf.samtools.util.CloseableIterator;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import savant.controller.RangeController;
-import savant.model.BAMIntervalRecord;
+import savant.data.types.BAMIntervalRecord;
 import savant.model.Resolution;
 import savant.model.data.RecordTrack;
 import savant.util.Range;
-import savant.view.swing.Savant;
 
-import javax.swing.*;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.HashSet;

@@ -13,7 +13,7 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package savant.model;
+package savant.data.types;
 
 /**
  * Immutable class to represent a single position of interest.

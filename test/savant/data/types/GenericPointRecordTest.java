@@ -19,10 +19,10 @@
  * Created on Jan 11, 2010
  */
 
-package savant.model;
+package savant.data.types;
 
-import savant.model.Point;
-import savant.model.GenericPointRecord;
+import savant.data.types.GenericPointRecord;
+import savant.data.types.Point;
 import junit.framework.TestCase;
 
 /**

@@ -19,27 +19,29 @@
  * Created on Jan 11, 2010
  */
 
-package savant.model;
+package savant.data.types;
 
 /**
- * TODO:
+ * Immutable class to hold a single floating point value
+ *
  * @author vwilliams
  */
 public class Continuous {
 
-    private float value;
+    private final float value;
 
-    public Continuous(float value) {
+    protected Continuous(float value) {
         this.value = value;
+    }
+
+    public static Continuous valueOf(float value) {
+        return new Continuous(value);
     }
 
     public float getValue() {
         return value;
     }
 
-    public void setValue(float value) {
-        this.value = value;
-    }
 
     @Override
     public boolean equals(Object o) {

@@ -21,7 +21,7 @@
 
 package savant.view.swing.continuous;
 
-import savant.model.ContinuousRecord;
+import savant.data.types.GenericContinuousRecord;
 import savant.model.view.AxisRange;
 import savant.model.view.ColorScheme;
 import savant.model.view.DrawingInstructions;
@@ -93,11 +93,11 @@ public class ContinuousTrackRenderer extends TrackRenderer {
         path.moveTo(xFormXPos, xFormYPos);
 
         
-        ContinuousRecord continuousRecord;
+        GenericContinuousRecord continuousRecord;
         double maxData = 0;
         boolean first = true;
         for (int i=0; i<numdata; i++) {
-            continuousRecord = (ContinuousRecord)data.get(i);
+            continuousRecord = (GenericContinuousRecord)data.get(i);
             xPos = continuousRecord.getPosition();
             yPos = continuousRecord.getValue().getValue();
             xFormXPos = gp.transformXPos(xPos)+gp.getUnitWidth()/2;

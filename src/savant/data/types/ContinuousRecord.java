@@ -15,24 +15,22 @@
  */
 
 /*
- * ContinuousTrack.java
+ * ContinuousRecord.java
  * Created on Jan 11, 2010
  */
 
-package savant.model.data.continuous;
+package savant.data.types;
 
-import savant.model.ContinuousRecord;
-import savant.model.Resolution;
-import savant.model.data.RecordTrack;
-import savant.util.Range;
-
-import java.util.List;
+import savant.data.types.Continuous;
+import savant.data.types.Record;
 
 /**
- * TODO:
+ * Interface to represent an object containing a Continuous value.
+ *
  * @author vwilliams
  */
-public abstract class ContinuousTrack implements RecordTrack<ContinuousRecord> {
+public interface ContinuousRecord extends Record {
 
-    public abstract List<ContinuousRecord> getRecords(String reference, Range range, Resolution resolution);
+    public Continuous getValue();
+
 }

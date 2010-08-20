@@ -5,7 +5,7 @@
 
 package savant.util.comparator;
 
-import savant.model.IntervalRecord;
+import savant.data.types.IntervalRecord;
 import savant.util.Range;
 
 import java.util.Comparator;

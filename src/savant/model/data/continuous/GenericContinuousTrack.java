@@ -22,11 +22,13 @@
 package savant.model.data.continuous;
 
 import java.util.Set;
+
+import savant.data.types.Continuous;
+import savant.data.types.GenericContinuousRecord;
 import savant.format.SavantFile;
 import savant.format.SavantUnsupportedVersionException;
-import savant.model.Continuous;
-import savant.model.ContinuousRecord;
 import savant.model.Resolution;
+import savant.model.data.RecordTrack;
 import savant.util.RAFUtils;
 import savant.util.Range;
 import savant.view.swing.Savant;
@@ -45,7 +47,7 @@ import savant.format.ContinuousFormatterHelper.Level;
  * 
  * @author vwilliams
  */
-public class GenericContinuousTrack extends ContinuousTrack {
+public class GenericContinuousTrack implements RecordTrack<GenericContinuousRecord> {
 
     private SavantFile savantFile;
 
@@ -68,10 +70,9 @@ public class GenericContinuousTrack extends ContinuousTrack {
         setResolutionToFrequencyMap();
     }
 
-    @Override
-    public List<ContinuousRecord> getRecords(String reference, Range range, Resolution resolution) {
+    public List<GenericContinuousRecord> getRecords(String reference, Range range, Resolution resolution) {
 
-        List<ContinuousRecord> data = new ArrayList<ContinuousRecord>();
+        List<GenericContinuousRecord> data = new ArrayList<GenericContinuousRecord>();
 
         try {
 //            int binSize = getSamplingFrequency(resolution);
@@ -99,7 +100,7 @@ public class GenericContinuousTrack extends ContinuousTrack {
                 int pos;
                 if (contiguousSamples > 1) pos = i+contiguousSamples/2;
                 else pos = i;
-                ContinuousRecord p = new ContinuousRecord(reference, pos, new Continuous( sum/j));
+                GenericContinuousRecord p = GenericContinuousRecord.valueOf(pos, Continuous.valueOf( sum/j));
 
                 data.add(p);
             }

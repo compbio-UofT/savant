@@ -16,14 +16,13 @@
 
 package savant.view.swing.sequence;
 
+import savant.data.types.Genome;
 import savant.model.FileFormat;
-import savant.model.Genome;
 import savant.model.Resolution;
 import savant.model.view.AxisRange;
 import savant.model.view.ColorScheme;
 import savant.model.view.DrawingInstructions;
 import savant.util.Range;
-import savant.settings.BrowserSettings;
 import savant.view.swing.Savant;
 import savant.view.swing.TrackRenderer;
 import savant.view.swing.ViewTrack;
@@ -33,7 +32,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import savant.controller.ReferenceController;
+
 import savant.settings.ColourSettings;
 import savant.util.MiscUtils;
 

@@ -15,36 +15,39 @@
  */
 
 /*
- * ContinuousRecordTest.java
+ * PointRecordTest.java
  * Created on Jan 11, 2010
  */
 
-package savant.model;
+package savant.data.types;
 
 import junit.framework.TestCase;
+import savant.data.types.Point;
+import savant.data.types.PointRecord;
 
 /**
- * A test case to exercies the ContinuousRecord class.
+ * A test to test the basic functions of PointRecord, e.g. construction, equals, hashCode, and toString
+ * 
  * @author vwilliams
  */
-public class ContinuousRecordTest extends TestCase {
+public class PointRecordTest extends TestCase {
 
-    private ContinuousRecord a, b, c, d;
+    private PointRecord a, b, c, d;
 
     public void setUp() {
 
 
-        a = new ContinuousRecord("chr1", 1, new Continuous(10.5f));
-        b = new ContinuousRecord("chr1", 1, new Continuous(10.5f));
-        c = new ContinuousRecord("chr1", 1, new Continuous(10.5f));
-        d = new ContinuousRecord("chr1", 2, new Continuous(20.3f));
+        a = PointRecord.valueOf(Point.valueOf("chr1", 10));
+        b = PointRecord.valueOf(Point.valueOf("chr1", 10));
+        c = PointRecord.valueOf(Point.valueOf("chr1", 10));
+        d = PointRecord.valueOf(Point.valueOf("chr1", 20));
 
     }
 
     public void testConstruct() {
         try {
-            // This continuous item is invalid and should fail
-            ContinuousRecord e = new ContinuousRecord("chr1", 1, null);
+            // This point item is invalid and should fail
+            PointRecord e = PointRecord.valueOf(null);
             fail("Expected IllegalArgumentException.");
         } catch (Exception success) {}
     }

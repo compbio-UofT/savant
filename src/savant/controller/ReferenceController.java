@@ -36,12 +36,9 @@ import java.util.Set;
 import javax.swing.JOptionPane;
 import savant.controller.event.reference.ReferenceChangedEvent;
 import savant.controller.event.reference.ReferenceChangedListener;
-import savant.model.Genome;
-import savant.model.data.RecordTrack;
-import savant.model.data.Track;
+import savant.data.types.Genome;
 import savant.util.MiscUtils;
 import savant.view.swing.Savant;
-import savant.view.swing.ViewTrack;
 
 public class ReferenceController {
 

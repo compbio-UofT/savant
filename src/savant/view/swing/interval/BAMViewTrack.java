@@ -25,7 +25,7 @@ import net.sf.samtools.SAMRecord;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import savant.controller.RangeController;
-import savant.model.BAMIntervalRecord;
+import savant.data.types.BAMIntervalRecord;
 import savant.model.FileFormat;
 import savant.model.Resolution;
 import savant.model.data.interval.BAMIntervalTrack;
@@ -37,7 +37,6 @@ import savant.util.Range;
 import savant.view.swing.TrackRenderer;
 import savant.view.swing.ViewTrack;
 
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import savant.settings.ColourSettings;

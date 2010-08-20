@@ -21,8 +21,8 @@
 
 package savant.model.data.interval;
 
-import savant.model.GenericIntervalRecord;
-import savant.model.Interval;
+import savant.data.types.GenericIntervalRecord;
+import savant.data.types.Interval;
 import junit.framework.TestCase;
 
 public class GenericIntervalRecordTest extends TestCase {
@@ -30,16 +30,22 @@ public class GenericIntervalRecordTest extends TestCase {
     private GenericIntervalRecord a, b, c, d;
 
     public void setUp() {
-        a = new GenericIntervalRecord(new Interval(4,57), "abcde");
-        b = new GenericIntervalRecord(new Interval(4,57), "abcde");
-        c = new GenericIntervalRecord(new Interval(4,57), "abcde");
-        d = new GenericIntervalRecord(new Interval(1,82), "fghij");
+        a = GenericIntervalRecord.valueOf(Interval.valueOf(4,57), "abcde");
+        b = GenericIntervalRecord.valueOf(Interval.valueOf(4,57), "abcde");
+        c = GenericIntervalRecord.valueOf(Interval.valueOf(4,57), "abcde");
+        d = GenericIntervalRecord.valueOf(Interval.valueOf(1,82), "fghij");
     }
 
     public void testConstruct() {
         try {
             // this is an invalid Interval item and should fail
-            GenericIntervalRecord e = new GenericIntervalRecord(null, "abcde");
+            GenericIntervalRecord e = GenericIntervalRecord.valueOf(null, "abcde");
+            fail("Expected IllegalArgumentException");
+        } catch (Exception success) {}
+
+        try {
+            // this is an invalid Interval item and should fail
+            GenericIntervalRecord e = GenericIntervalRecord.valueOf(Interval.valueOf(4,57), "abcde");
             fail("Expected IllegalArgumentException");
         } catch (Exception success) {}
     }

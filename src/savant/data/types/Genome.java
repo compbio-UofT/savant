@@ -14,7 +14,7 @@
  *    limitations under the License.
  */
 
-package savant.model;
+package savant.data.types;
 
 import savant.format.SavantUnsupportedVersionException;
 import savant.model.data.sequence.BFASTASequenceTrack;
@@ -22,7 +22,6 @@ import savant.util.Range;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import savant.controller.ReferenceController;
@@ -52,7 +51,7 @@ public class Genome
         sequenceTrack = new BFASTASequenceTrack(filename);
         setSequenceTrack(sequenceTrack);
         // get the first reference (in alphanumeric sorted order)
-        //String refname = MiscUtils.set2List(sequenceTrack.getReferenceSequenceNames()).get(0);
+        //String refname = MiscUtils.set2List(sequenceTrack.getReferenceNames()).get(0);
         //setReferenceName(refname);
     }
 
@@ -107,7 +106,7 @@ public class Genome
 
     public Set<String> getReferenceNames() {
         if (this.isAssociatedWithTrack) {
-            return this.sequenceTrack.getReferenceSequenceNames();
+            return this.sequenceTrack.getReferenceNames();
         } else {
             return this.referenceMap.keySet();
         }

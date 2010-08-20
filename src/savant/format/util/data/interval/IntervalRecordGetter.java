@@ -5,8 +5,8 @@
 
 package savant.format.util.data.interval;
 
+import savant.data.types.IntervalRecord;
 import savant.format.SavantFile;
-import savant.model.IntervalRecord;
 import savant.util.SavantFileFormatterUtils;
 import savant.util.RAFUtils;
 import savant.util.Range;
@@ -16,7 +16,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import savant.format.util.data.FieldType;
 
 /**
  *

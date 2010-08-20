@@ -17,9 +17,9 @@ package savant.view.swing.interval;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import savant.data.types.GenericIntervalRecord;
+import savant.data.types.Interval;
 import savant.model.FileFormat;
-import savant.model.GenericIntervalRecord;
-import savant.model.Interval;
 import savant.model.Resolution;
 import savant.model.data.interval.GenericIntervalTrack;
 import savant.model.view.AxisRange;
@@ -27,11 +27,9 @@ import savant.model.view.ColorScheme;
 import savant.model.view.DrawingInstructions;
 import savant.model.view.Mode;
 import savant.util.Range;
-import savant.settings.BrowserSettings;
 import savant.view.swing.TrackRenderer;
 import savant.view.swing.ViewTrack;
 
-import java.awt.*;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;

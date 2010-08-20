@@ -19,10 +19,8 @@
  * Created on Jan 8, 2010
  */
 
-package savant.model;
+package savant.data.types;
 
-import savant.util.Block;
-import savant.util.ItemRGB;
 import savant.util.Strand;
 
 import java.util.List;
@@ -32,8 +30,9 @@ import java.util.List;
  * 
  * @author mfiume, vwilliams
  */
-public class BEDIntervalRecord extends IntervalRecord implements Comparable {
+public class BEDIntervalRecord implements IntervalRecord, Comparable {
 
+    private final Interval interval;
     private final List<Block> blocks;
     private final String chrom;
     private final String name;
@@ -56,12 +55,12 @@ public class BEDIntervalRecord extends IntervalRecord implements Comparable {
      * @param rgb
      * @param blocks
      */
-    protected BEDIntervalRecord(String chrom, Interval interval, String name, int score, Strand strand, int thickStart, int thickEnd, ItemRGB rgb,  List<Block> blocks) {
-
-        super(interval);
+    BEDIntervalRecord(String chrom, Interval interval, String name, int score, Strand strand, int thickStart, int thickEnd, ItemRGB rgb,  List<Block> blocks) {
 
         if (chrom == null) throw new IllegalArgumentException("Invalid argument: chrom may not be null");
-
+        if (interval == null) throw new IllegalArgumentException("Invalid argument. Interval must not be null");
+ 
+        this.interval = interval;
         this.chrom = chrom;
         this.name = name;
         this.score = score;
@@ -88,6 +87,10 @@ public class BEDIntervalRecord extends IntervalRecord implements Comparable {
      */
     public static BEDIntervalRecord valueOf(String chrom, Interval interval, String name, int score, Strand strand, int thickStart, int thickEnd, ItemRGB rgb,  List<Block> blocks) {
         return new BEDIntervalRecord(chrom, interval, name, score, strand, thickStart, thickEnd, rgb, blocks);
+    }
+
+    public Interval getInterval() {
+        return this.interval;
     }
 
     public List<Block> getBlocks() {
@@ -134,7 +137,6 @@ public class BEDIntervalRecord extends IntervalRecord implements Comparable {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
 
         BEDIntervalRecord that = (BEDIntervalRecord) o;
 
@@ -143,6 +145,7 @@ public class BEDIntervalRecord extends IntervalRecord implements Comparable {
         if (thickStart != that.thickStart) return false;
         if (blocks != null ? !blocks.equals(that.blocks) : that.blocks != null) return false;
         if (!chrom.equals(that.chrom)) return false;
+        if (!interval.equals(that.interval)) return false;
         if (itemRGB != null ? !itemRGB.equals(that.itemRGB) : that.itemRGB != null) return false;
         if (name != null ? !name.equals(that.name) : that.name != null) return false;
         if (strand != that.strand) return false;
@@ -150,7 +153,6 @@ public class BEDIntervalRecord extends IntervalRecord implements Comparable {
         return true;
     }
 
-    @Override
     public int compareTo(Object o) {
 
         BEDIntervalRecord other = (BEDIntervalRecord) o;
@@ -187,7 +189,7 @@ public class BEDIntervalRecord extends IntervalRecord implements Comparable {
     
     @Override
     public int hashCode() {
-        int result = super.hashCode();
+        int result = interval.hashCode();
         result = 31 * result + (blocks != null ? blocks.hashCode() : 0);
         result = 31 * result + chrom.hashCode();
         result = 31 * result + (name != null ? name.hashCode() : 0);
@@ -203,7 +205,8 @@ public class BEDIntervalRecord extends IntervalRecord implements Comparable {
     public String toString() {
         final StringBuilder sb = new StringBuilder();
         sb.append("BEDIntervalRecord");
-        sb.append("{blocks=").append(blocks);
+        sb.append("{interval=").append(interval);
+        sb.append(", blocks=").append(blocks);
         sb.append(", chrom='").append(chrom).append('\'');
         sb.append(", name='").append(name).append('\'');
         sb.append(", score=").append(score);

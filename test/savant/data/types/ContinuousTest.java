@@ -19,9 +19,9 @@
  * Created on Jan 11, 2010
  */
 
-package savant.model;
+package savant.data.types;
 
-import savant.model.Continuous;
+import savant.data.types.Continuous;
 import junit.framework.TestCase;
 
 /**

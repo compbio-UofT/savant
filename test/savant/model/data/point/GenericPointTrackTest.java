@@ -21,7 +21,7 @@
 
 package savant.model.data.point;
 
-//import savant.model.GenericPointRecord;
+//import savant.data.types.GenericPointRecord;
 import junit.framework.TestCase;
 
 public class GenericPointTrackTest extends TestCase {

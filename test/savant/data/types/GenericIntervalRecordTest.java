@@ -15,35 +15,36 @@
  */
 
 /*
- * IntervalRecordTest.java
+ * GenericIntervalRecordTest.java
  * Created on Jan 11, 2010
  */
 
-package savant.model;
+package savant.data.types;
 
-import savant.model.Interval;
-import savant.model.IntervalRecord;
 import junit.framework.TestCase;
+import savant.data.types.GenericIntervalRecord;
+import savant.data.types.Interval;
+import savant.data.types.IntervalRecord;
 
 /**
  * TODO:
  * @author vwilliams
  */
-public class IntervalRecordTest extends TestCase {
+public class GenericIntervalRecordTest extends TestCase {
 
     private IntervalRecord a, b, c, d;
 
     public void setUp() {
-        a = IntervalRecord.valueOf(Interval.valueOf(4,57));
-        b = IntervalRecord.valueOf(Interval.valueOf(4,57));
-        c = IntervalRecord.valueOf(Interval.valueOf(4,57));
-        d = IntervalRecord.valueOf(Interval.valueOf(1,82));
+        a = GenericIntervalRecord.valueOf(Interval.valueOf(4,57), "absd");
+        b = GenericIntervalRecord.valueOf(Interval.valueOf(4,57), "absd");
+        c = GenericIntervalRecord.valueOf(Interval.valueOf(4,57), "absd");
+        d = GenericIntervalRecord.valueOf(Interval.valueOf(1,82), "absd");
     }
 
     public void testConstruct() {
         try {
             // this is an invalid Interval item and should fail
-            IntervalRecord e = IntervalRecord.valueOf(null);
+            IntervalRecord e = GenericIntervalRecord.valueOf(null, "absd");
             fail("Expected IllegalArgumentException");
         } catch (Exception success) {}
     }

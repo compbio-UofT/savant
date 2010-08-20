@@ -21,11 +21,11 @@
 
 package savant.model.data.point;
 
+import savant.data.types.GenericPointRecord;
+import savant.data.types.Point;
+import savant.data.types.PointRecord;
 import savant.format.SavantFile;
 import savant.format.SavantUnsupportedVersionException;
-import savant.model.GenericPointRecord;
-import savant.model.Point;
-import savant.model.PointRecord;
 import savant.model.Resolution;
 import savant.model.data.RecordTrack;
 import savant.util.RAFUtils;
@@ -89,7 +89,7 @@ public class GenericPointTrack implements RecordTrack<GenericPointRecord> {
         }
         catch (EOFException ignore) {}
         catch (IOException ex) {
-            Logger.getLogger(PointTrack.class.getName()).log(Level.SEVERE, "IO Exception when getting point data", ex);
+            Logger.getLogger(GenericPointTrack.class.getName()).log(Level.SEVERE, "IO Exception when getting point data", ex);
         }
 
         // return result

@@ -23,15 +23,15 @@ package savant.view.swing.interval;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import savant.model.BEDIntervalRecord;
-import savant.model.Interval;
-import savant.model.IntervalRecord;
+import savant.data.types.BEDIntervalRecord;
+import savant.data.types.Block;
+import savant.data.types.Interval;
+import savant.data.types.IntervalRecord;
 import savant.model.Resolution;
 import savant.model.view.AxisRange;
 import savant.model.view.ColorScheme;
 import savant.model.view.DrawingInstructions;
 import savant.model.view.Mode;
-import savant.util.Block;
 import savant.util.IntervalPacker;
 import savant.util.Range;
 import savant.util.Strand;
@@ -239,14 +239,14 @@ public class BEDTrackRenderer extends TrackRenderer {
         double chevronIntervalStart = gp.transformXPos(interval.getStart());
         for (Block block : blocks) {
 
-            double x = gp.transformXPos(interval.getStart() + block.position);
+            double x = gp.transformXPos(interval.getStart() + block.getPosition());
             double y = gp.transformYPos(level)-unitHeight;
 
             double chevronIntervalEnd = x;
             // draw chevrons in interval
             drawChevrons(g2, chevronIntervalStart, chevronIntervalEnd,  yPos, unitHeight, lineColor, bedRecord.getStrand());
 
-            double w = gp.getWidth(block.size);
+            double w = gp.getWidth(block.getSize());
             double h = unitHeight;
 
             Rectangle2D.Double blockRect = new Rectangle2D.Double(x,y,w,h);
@@ -454,8 +454,8 @@ public class BEDTrackRenderer extends TrackRenderer {
         Interval gene = bedRecord.getInterval();
         if (intervals.isEmpty()) {
             for (Block block: blocks) {
-                int blockStart = gene.getStart() + block.position;
-                Interval blockInterval = Interval.valueOf(blockStart, blockStart+block.size);
+                int blockStart = gene.getStart() + block.getPosition();
+                Interval blockInterval = Interval.valueOf(blockStart, blockStart+block.getSize());
                 intervals.add(blockInterval);
             }
         }
@@ -463,8 +463,8 @@ public class BEDTrackRenderer extends TrackRenderer {
 
             for (Block block: blocks) {
                 // merging only works on intervals, so convert block to interval
-                int blockStart = gene.getStart() + block.position;
-                Interval blockInterval = Interval.valueOf(blockStart, blockStart+block.size);
+                int blockStart = gene.getStart() + block.getPosition();
+                Interval blockInterval = Interval.valueOf(blockStart, blockStart+block.getSize());
                 ListIterator<Interval> intervalIt = intervals.listIterator();
                 boolean merged = false;
                 while (intervalIt.hasNext() && !merged) {

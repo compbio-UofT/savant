@@ -15,52 +15,36 @@
  */
 
 /*
- * ContinuousRecord.java
- * Created on Jan 11, 2010
+ * GenericContinuousRecord.java
+ * Created on Aug 18, 2010
  */
 
-package savant.model;
+package savant.data.types;
 
 /**
- * Class to contain a value and the position at which that value obtains.
- * @author vwilliams
+ * Immutable class to contain a value and the position at which that value obtains.
  */
-public class ContinuousRecord implements Record, Comparable {
+public class GenericContinuousRecord implements ContinuousRecord, Comparable {
 
-    private String reference;
-    private Continuous value;
-    private int position;
+    private final Continuous value;
+    private final int position;
 
-    public ContinuousRecord(String reference, int position, Continuous value) {
-        setReference(reference);
-        setPosition(position);
-        setValue(value);
+    GenericContinuousRecord(int position, Continuous value) {
+        if (value == null) throw new IllegalArgumentException("Value may not be null.");
+        this.position = position;
+        this.value = value;
+    }
+
+    public static GenericContinuousRecord valueOf(int position, Continuous value) {
+        return new GenericContinuousRecord(position, value);
     }
 
     public Continuous getValue() {
         return value;
     }
 
-    public void setValue(Continuous value) {
-        if (value == null) throw new IllegalArgumentException("Continuous value must not be null.");
-        this.value = value;
-    }
-
-    public void setReference(String reference) {
-        this.reference = reference;
-    }
-    
-    public String getReference() {
-        return this.reference;
-    }
-
-
     public int getPosition() {
         return position;
-    }
-
-    public void setPosition(int position) {
-        this.position = position;
     }
 
     @Override
@@ -68,7 +52,7 @@ public class ContinuousRecord implements Record, Comparable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        ContinuousRecord that = (ContinuousRecord) o;
+        GenericContinuousRecord that = (GenericContinuousRecord) o;
 
         if (position != that.position) return false;
         if (!value.equals(that.value)) return false;
@@ -86,28 +70,15 @@ public class ContinuousRecord implements Record, Comparable {
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder();
-        sb.append("ContinuousRecord");
+        sb.append("GenericContinuousRecord");
         sb.append("{value=").append(value);
         sb.append(", position=").append(position);
         sb.append('}');
         return sb.toString();
     }
 
-    @Override
     public int compareTo(Object o) {
-        ContinuousRecord that = (ContinuousRecord) o;
-
-        //compare ref
-        if(!this.getReference().equals(that.getReference())){
-            String a1 = this.getReference();
-            String a2 = that.getReference();
-            for(int i = 0; i < Math.min(a1.length(), a2.length()); i++){
-                if((int)a1.charAt(i) < (int)a2.charAt(i)) return -1;
-                else if ((int)a1.charAt(i) > (int)a2.charAt(i)) return 1;
-            }
-            if(a1.length() < a2.length()) return -1;
-            if(a1.length() > a2.length()) return 1;
-        }
+        GenericContinuousRecord that = (GenericContinuousRecord) o;
 
         //compare position
         if(this.getPosition() == that.getPosition()){
@@ -117,7 +88,6 @@ public class ContinuousRecord implements Record, Comparable {
         } else {
             return 1;
         }
-        
-    }
 
+    }
 }

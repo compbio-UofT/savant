@@ -21,22 +21,20 @@
 
 package savant.model.data.interval;
 
-import java.util.Set;
+import java.util.*;
+
+import savant.data.types.BEDIntervalRecord;
+import savant.data.types.IntervalRecord;
 import savant.format.DataFormatter;
 import savant.format.SavantFile;
 import savant.format.SavantUnsupportedVersionException;
 import savant.format.util.data.interval.IntervalRecordGetter;
 import savant.format.util.data.interval.IntervalSearchTree;
-import savant.model.BEDIntervalRecord;
-import savant.model.IntervalRecord;
 import savant.model.Resolution;
 import savant.model.data.RecordTrack;
 import savant.util.Range;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import savant.format.SavantFileFormatter;
@@ -46,7 +44,6 @@ import savant.format.SavantFileFormatter;
  *
  * @author vwilliams
  */
-//TODO: remove Debut.log
 public class BEDIntervalTrack implements RecordTrack<BEDIntervalRecord> {
 
     // Track properties
@@ -65,20 +62,22 @@ public class BEDIntervalTrack implements RecordTrack<BEDIntervalRecord> {
         this.refnameToIntervalBSTIndex = DataFormatter.readIntervalBSTs(this.dFile);
     }
 
-    public IntervalSearchTree getIntervalSearchTreeForReference(String refname) {
+    public IntervalSearchTree getIntervalSearchTreeForReference(String refname){
         return refnameToIntervalBSTIndex.get(refname);
-    }
+     }
 
     public List<BEDIntervalRecord> getRecords(String reference, Range range, Resolution resolution) {
         List<IntervalRecord> data = null;
 
+
         IntervalSearchTree ist = getIntervalSearchTreeForReference(reference);
 
         if (ist == null) { return new ArrayList<BEDIntervalRecord>(); }
-        
+
         try {
             data = IntervalRecordGetter.getData(this.dFile, reference, range, ist.getRoot());
         } catch (IOException ex) {
+            // FIXME: this method should throw IOExceptions to the caller
             Logger.getLogger(BEDIntervalTrack.class.getName()).log(Level.SEVERE, null, ex);
         }
 

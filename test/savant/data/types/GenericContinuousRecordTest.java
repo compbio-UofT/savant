@@ -15,37 +15,38 @@
  */
 
 /*
- * PointRecordTest.java
+ * GenericContinuousRecordTest.java
  * Created on Jan 11, 2010
  */
 
-package savant.model;
+package savant.data.types;
 
 import junit.framework.TestCase;
+import savant.data.types.Continuous;
+import savant.data.types.GenericContinuousRecord;
 
 /**
- * A test to test the basic functions of PointRecord, e.g. construction, equals, hashCode, and toString
- * 
+ * A test case to exercies the ContinuousRecord class.
  * @author vwilliams
  */
-public class PointRecordTest extends TestCase {
+public class GenericContinuousRecordTest extends TestCase {
 
-    private PointRecord a, b, c, d;
+    private GenericContinuousRecord a, b, c, d;
 
     public void setUp() {
 
 
-        a = PointRecord.valueOf(Point.valueOf("chr1", 10));
-        b = PointRecord.valueOf(Point.valueOf("chr1", 10));
-        c = PointRecord.valueOf(Point.valueOf("chr1", 10));
-        d = PointRecord.valueOf(Point.valueOf("chr1", 20));
+        a = GenericContinuousRecord.valueOf(1, new Continuous(10.5f));
+        b = GenericContinuousRecord.valueOf(1, new Continuous(10.5f));
+        c = GenericContinuousRecord.valueOf(1, new Continuous(10.5f));
+        d = GenericContinuousRecord.valueOf(2, new Continuous(20.3f));
 
     }
 
     public void testConstruct() {
         try {
-            // This point item is invalid and should fail
-            PointRecord e = PointRecord.valueOf(null);
+            // This continuous item is invalid and should fail
+            GenericContinuousRecord e = GenericContinuousRecord.valueOf(1, null);
             fail("Expected IllegalArgumentException.");
         } catch (Exception success) {}
     }

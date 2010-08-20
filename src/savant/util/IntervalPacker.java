@@ -21,8 +21,8 @@
 
 package savant.util;
 
-import savant.model.Interval;
-import savant.model.IntervalRecord;
+import savant.data.types.Interval;
+import savant.data.types.IntervalRecord;
 
 import java.util.ArrayList;
 import java.util.HashMap;

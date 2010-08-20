@@ -23,17 +23,14 @@ package savant.util;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+
+import savant.data.types.*;
 import savant.format.header.FileType;
 import savant.format.header.FileTypeHeader;
 import savant.format.util.data.FieldType;
-import savant.model.BEDIntervalRecord;
-import savant.model.GenericIntervalRecord;
-import savant.model.Interval;
-import savant.model.IntervalRecord;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -125,7 +122,7 @@ public class SavantFileFormatterUtils {
                     int r = in.readInt();
                     int g = in.readInt();
                     int b = in.readInt();
-                    record.add(new ItemRGB(r,g,b));
+                    record.add(ItemRGB.valueOf(r,g,b));
                     break;
                 case DOUBLE:
                     record.add(in.readDouble());
@@ -136,7 +133,7 @@ public class SavantFileFormatterUtils {
                     for (int i = 0; i < numBlocks; i++) {
                         int start = in.readInt();
                         int size = in.readInt();
-                        blocks.add(new Block(start,size));
+                        blocks.add(Block.valueOf(start,size));
                     }
                     record.add(blocks);
                     break;
@@ -222,15 +219,15 @@ public class SavantFileFormatterUtils {
                     List<Block> blocks = (List<Block>) o;
                     outFile.writeInt(blocks.size());
                     for (Block b : blocks) {
-                        outFile.writeInt(b.position);
-                        outFile.writeInt(b.size);
+                        outFile.writeInt(b.getPosition());
+                        outFile.writeInt(b.getSize());
                     }
                     break;
                 case ITEMRGB:
                     ItemRGB rgb = (ItemRGB) o;
-                    outFile.writeInt(rgb.red);
-                    outFile.writeInt(rgb.blue);
-                    outFile.writeInt(rgb.green);
+                    outFile.writeInt(rgb.getRed());
+                    outFile.writeInt(rgb.getBlue());
+                    outFile.writeInt(rgb.getGreen());
                     break;
                 case INTEGER:
                     outFile.writeInt((Integer) o);
@@ -510,9 +507,9 @@ public class SavantFileFormatterUtils {
         
         //TODO: Is this the best place for this?
         if(record.size() > 3){
-            ir = GenericIntervalRecord.valueOf((String) record.get(0), Interval.valueOf((Integer) record.get(1),(Integer) record.get(2)), (String) record.get(3));
+            ir = GenericIntervalRecord.valueOf(Interval.valueOf((Integer) record.get(1),(Integer) record.get(2)), (String) record.get(3));
         } else {
-            ir = GenericIntervalRecord.valueOf((String) record.get(0), Interval.valueOf((Integer) record.get(1),(Integer) record.get(2)), "");
+            ir = GenericIntervalRecord.valueOf(Interval.valueOf((Integer) record.get(1),(Integer) record.get(2)), "");
         }
         
         return (IntervalRecord) ir;
@@ -520,7 +517,7 @@ public class SavantFileFormatterUtils {
 
     // TODO: make it actually return a GFF IntervalRecord
     private static IntervalRecord convertRecordToGFFInterval(List<Object> record, List<FieldType> fields) {
-        GenericIntervalRecord ir = GenericIntervalRecord.valueOf((String) record.get(0), Interval.valueOf((Integer) record.get(3),(Integer) record.get(4)), (String) record.get(1));
+        GenericIntervalRecord ir = GenericIntervalRecord.valueOf(Interval.valueOf((Integer) record.get(3),(Integer) record.get(4)), (String) record.get(1));
         return (IntervalRecord) ir;
     }
 
@@ -536,7 +533,7 @@ public class SavantFileFormatterUtils {
         Strand strand = SavantFileFormatterUtils.getStrand("+");
         Integer thickStart = 0;
         Integer thickEnd = 0;
-        ItemRGB rgb = new ItemRGB(0,0,0);
+        ItemRGB rgb = ItemRGB.valueOf(0,0,0);
         List<Block> blocks = null;
         
         if (numFields > 3) { name = (String) record.get(3); }
@@ -547,7 +544,7 @@ public class SavantFileFormatterUtils {
         if (numFields > 8) { rgb = (ItemRGB) record.get(8); }
         if (numFields > 9) { blocks = (List<Block>) record.get(9); } else {
             blocks = new ArrayList<Block>();
-            blocks.add(new Block(0,interval.getLength()));
+            blocks.add(Block.valueOf(0,interval.getLength()));
         }
 
         BEDIntervalRecord ir = BEDIntervalRecord.valueOf(
@@ -576,7 +573,7 @@ public class SavantFileFormatterUtils {
             while(numBlocks-- > 0) {
                 int nextPos = Integer.parseInt(posTokenizer.nextToken());
                 int nextSize = Integer.parseInt(sizeTokenizer.nextToken()) -1;
-                blocks.add(new Block(nextPos,nextSize));
+                blocks.add(Block.valueOf(nextPos,nextSize));
             }
         }
 
@@ -594,7 +591,7 @@ public class SavantFileFormatterUtils {
 
     // TODO: actually parse
     private static ItemRGB parseItemRGB(String token) {
-        return new ItemRGB(0,0,0);
+        return ItemRGB.valueOf(0,0,0);
     }
 
     public static void writeString(DataOutputStream out, String s) throws IOException {

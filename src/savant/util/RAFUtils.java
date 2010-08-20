@@ -21,6 +21,8 @@
 
 package savant.util;
 
+import savant.data.types.Block;
+import savant.data.types.ItemRGB;
 import savant.format.SavantFile;
 import savant.format.header.FileType;
 import savant.format.header.FileTypeHeader;
@@ -77,7 +79,7 @@ public class RAFUtils {
                     int r = file.readInt();
                     int g = file.readInt();
                     int b = file.readInt();
-                    record.add(new ItemRGB(r,g,b));
+                    record.add(ItemRGB.valueOf(r,g,b));
                     break;
                 case DOUBLE:
                     record.add(file.readDouble());
@@ -91,7 +93,7 @@ public class RAFUtils {
                     for (int i = 0; i < numBlocks; i++) {
                         int start = file.readInt();
                         int size = file.readInt();
-                        blocks.add(new Block(start,size));
+                        blocks.add(Block.valueOf(start,size));
                     }
                     record.add(blocks);
                     break;
@@ -225,8 +227,8 @@ public class RAFUtils {
                     List<Block> blocks = (List<Block>) o;
                     raf.writeInt(blocks.size());
                     for (Block b : blocks) {
-                        raf.writeInt(b.position);
-                        raf.writeInt(b.size);
+                        raf.writeInt(b.getPosition());
+                        raf.writeInt(b.getSize());
                     }
                     break;
                 case ITEMRGB:

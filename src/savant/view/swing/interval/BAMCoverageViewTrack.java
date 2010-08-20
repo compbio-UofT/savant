@@ -21,13 +21,9 @@
 
 package savant.view.swing.interval;
 
-import savant.controller.DrawModeController;
-import savant.controller.event.drawmode.DrawModeChangedEvent;
-import savant.controller.event.drawmode.DrawModeChangedListener;
-import savant.model.ContinuousRecord;
+import savant.data.types.ContinuousRecord;
 import savant.model.FileFormat;
 import savant.model.Resolution;
-import savant.model.data.RecordTrack;
 import savant.model.data.continuous.GenericContinuousTrack;
 import savant.model.view.AxisRange;
 import savant.model.view.ColorScheme;
@@ -37,7 +33,6 @@ import savant.util.Range;
 import savant.view.swing.TrackRenderer;
 import savant.view.swing.ViewTrack;
 
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import savant.settings.ColourSettings;

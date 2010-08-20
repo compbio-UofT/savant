@@ -19,24 +19,30 @@
  * Created on Jan 8, 2010
  */
 
-package savant.model;
+package savant.data.types;
 
 /**
  * Immutable Record class to hold a generic point (point + optional description)
  * 
  * @author vwilliams
  */
-public class GenericPointRecord extends PointRecord implements Comparable  {
+public class GenericPointRecord implements PointRecord, Comparable {
 
+    private final Point point;
     private final String description;
 
-    protected GenericPointRecord(Point point, String description) {
-        super(point);
+    GenericPointRecord(Point point, String description) {
+        if (point == null) throw new IllegalArgumentException("point must not be null");
+        this.point = point;
         this.description = description;
     }
 
     public static GenericPointRecord valueOf(Point point, String description) {
         return new GenericPointRecord(point, description);    
+    }
+
+    public Point getPoint() {
+        return point;
     }
 
     public String getDescription() {
@@ -51,26 +57,28 @@ public class GenericPointRecord extends PointRecord implements Comparable  {
         GenericPointRecord that = (GenericPointRecord) o;
 
         if (description != null ? !description.equals(that.description) : that.description != null) return false;
-        if(this.getPoint().getPosition() != that.getPoint().getPosition()) return false;
+        if (!point.equals(that.point)) return false;
 
         return true;
     }
 
     @Override
     public int hashCode() {
-        return description != null ? description.hashCode() : 0;
+        int result = point.hashCode();
+        result = 31 * result + (description != null ? description.hashCode() : 0);
+        return result;
     }
 
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder();
         sb.append("GenericPointRecord");
-        sb.append("{description='").append(description).append('\'');
+        sb.append("{point=").append(point);
+        sb.append(", description='").append(description).append('\'');
         sb.append('}');
         return sb.toString();
     }
 
-    @Override
     public int compareTo(Object o) {
         GenericPointRecord that = (GenericPointRecord) o;
 
@@ -81,7 +89,7 @@ public class GenericPointRecord extends PointRecord implements Comparable  {
             for(int i = 0; i < Math.min(a1.length(), a2.length()); i++){
                 if((int)a1.charAt(i) < (int)a2.charAt(i)) return -1;
                 else if ((int)a1.charAt(i) > (int)a2.charAt(i)) return 1;
-            }
+}
             if(a1.length() < a2.length()) return -1;
             if(a1.length() > a2.length()) return 1;
         }

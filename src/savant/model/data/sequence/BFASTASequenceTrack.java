@@ -91,7 +91,7 @@ public class BFASTASequenceTrack implements SequenceTrack {
         }
     }
 
-    public Set<String> getReferenceSequenceNames() {
+    public Set<String> getReferenceNames() {
         return this.getReferenceMap().keySet();
     }
 

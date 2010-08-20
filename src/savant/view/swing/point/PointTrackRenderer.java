@@ -16,8 +16,7 @@
 
 package savant.view.swing.point;
 
-import savant.model.Point;
-import savant.model.PointRecord;
+import savant.data.types.PointRecord;
 import savant.model.Resolution;
 import savant.model.view.ColorScheme;
 import savant.model.view.DrawingInstructions;
@@ -89,7 +88,7 @@ public class PointTrackRenderer extends TrackRenderer {
                 Polygon p = new Polygon();
 
                 PointRecord record = (PointRecord)data.get(i);
-                Point sp = record.getPoint();
+                savant.data.types.Point sp = record.getPoint();
 
                 Point2D.Double p1 = new Point2D.Double(gp.transformXPos(sp.getPosition()),0);
                 Point2D.Double p2 = new Point2D.Double(gp.transformXPos(sp.getPosition()+1),0);

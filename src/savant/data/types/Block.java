@@ -14,33 +14,33 @@
  *    limitations under the License.
  */
 
-/*
- * PointRecord.java
- * Created on Jan 8, 2010
- */
-
-package savant.model;
+package savant.data.types;
 
 /**
- * Immutable class implementing a Record which contains a Point
- *
- * @author vwilliams
+ * Immutable class to represent a block, e.g. an exome
+ * FIXME: this class is redundant; use Interval with a different static factory instead.
+ * @author mfiume
  */
-public class PointRecord implements Record {
+public class Block {
 
-    private final Point point;
+    private final int position;
+    private final int size;
 
-    protected PointRecord(Point point) {
-        if (point == null) throw new IllegalArgumentException("Invalid argument. Point may not be null.");
-        this.point = point;
+    Block(int pos, int size) {
+        this.position = pos;
+        this.size = size;
     }
 
-    public static PointRecord valueOf(Point point) {
-        return new PointRecord(point);
+    public static Block valueOf(int pos, int size) {
+        return new Block(pos, size);
     }
 
-    public Point getPoint() {
-        return point;
+    public int getPosition() {
+        return position;
+    }
+
+    public int getSize() {
+        return size;
     }
 
     @Override
@@ -48,23 +48,27 @@ public class PointRecord implements Record {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        PointRecord pointRecord = (PointRecord) o;
+        Block block = (Block) o;
 
-        if (!point.equals(pointRecord.point)) return false;
+        if (position != block.position) return false;
+        if (size != block.size) return false;
 
         return true;
     }
 
     @Override
     public int hashCode() {
-        return point.hashCode();
+        int result = position;
+        result = 31 * result + size;
+        return result;
     }
 
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder();
-        sb.append("PointRecord");
-        sb.append("{point=").append(point);
+        sb.append("Block");
+        sb.append("{position=").append(position);
+        sb.append(", size=").append(size);
         sb.append('}');
         return sb.toString();
     }

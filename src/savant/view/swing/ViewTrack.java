@@ -18,9 +18,9 @@ package savant.view.swing;
 
 import java.awt.Color;
 
+import savant.data.types.Genome;
 import savant.format.SavantUnsupportedVersionException;
 import savant.view.dialog.BAMParametersDialog;
-import java.awt.Component;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import savant.controller.TrackController;
@@ -28,7 +28,6 @@ import savant.controller.ViewTrackController;
 import savant.format.header.FileType;
 import savant.format.header.FileTypeHeader;
 import savant.model.FileFormat;
-import savant.model.Genome;
 import savant.model.Resolution;
 import savant.model.data.RecordTrack;
 import savant.model.data.Track;

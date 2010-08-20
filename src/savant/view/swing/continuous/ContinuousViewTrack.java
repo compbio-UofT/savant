@@ -21,7 +21,7 @@
 
 package savant.view.swing.continuous;
 
-import savant.model.ContinuousRecord;
+import savant.data.types.ContinuousRecord;
 import savant.model.FileFormat;
 import savant.model.Resolution;
 import savant.model.data.continuous.GenericContinuousTrack;
@@ -33,7 +33,6 @@ import savant.view.swing.Savant;
 import savant.view.swing.TrackRenderer;
 import savant.view.swing.ViewTrack;
 
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import savant.settings.ColourSettings;

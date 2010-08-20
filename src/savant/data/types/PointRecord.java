@@ -15,19 +15,22 @@
  */
 
 /*
- * SequenceViewTrack.java
- * Created on Jan 12, 2010
+ * PointRecord.java
+ * Created on Jan 8, 2010
  */
 
-package savant.model.data.sequence;
+package savant.data.types;
 
-import savant.model.data.Track;
-import savant.util.Range;
+import savant.data.types.Point;
+import savant.data.types.Record;
 
-public interface SequenceTrack extends Track {
+/**
+ * Immutable class implementing a Record which contains a Point
+ *
+ * @author vwilliams
+ */
+public interface PointRecord extends Record {
 
-    public String getSequence(String reference, Range range);
-
-    public int getLength(String refname);
+    public Point getPoint();
 
 }

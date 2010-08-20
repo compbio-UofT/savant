@@ -157,17 +157,13 @@ public class DataTableModel extends AbstractTableModel {
              case CONTINUOUS_GENERIC:
                  switch (column) {
                      case 0:
-                         return ((ContinuousRecord) datum).getReference();
+                         return ((GenericContinuousRecord) datum).getPosition();
                      case 1:
-                         return ((ContinuousRecord) datum).getPosition();
-                     case 2:
-                         return ((ContinuousRecord) datum).getValue().getValue();
+                         return ((GenericContinuousRecord) datum).getValue().getValue();
                  }
              case INTERVAL_GENERIC:
                  switch (column) {
                      case 0:
-                         return ((GenericIntervalRecord) datum).getReference();
-                     case 1:
                         return ((GenericIntervalRecord) datum).getInterval().getStart();
                      case 2:
                          return ((GenericIntervalRecord) datum).getInterval().getEnd();
@@ -234,25 +230,22 @@ public class DataTableModel extends AbstractTableModel {
              case POINT_GENERIC:
                  switch (column) {
                      case 0:
-//                         ((GenericPointRecord) datum).getPoint().setReference((String) value);
-                         break;
-                     case 1:
 //                        ((GenericPointRecord) datum).getPoint().setPosition(Integer.parseInt((String) value));
                          break;
-                     case 2:
+                     case 1:
 //                         ((GenericPointRecord) datum).setDescription((String) value);
                          break;
                  }
              case CONTINUOUS_GENERIC:
                  switch (column) {
                      case 0:
-                         ((ContinuousRecord) datum).setReference((String) value);
+//                         ((ContinuousRecord) datum).setReference((String) value);
                          break;
                      case 1:
-                         ((ContinuousRecord) datum).setPosition(Integer.parseInt((String) value));
+//                         ((ContinuousRecord) datum).setPosition(Integer.parseInt((String) value));
                          break;
                      case 2:
-                         ((ContinuousRecord) datum).getValue().setValue(Float.parseFloat((String) value));
+//                         ((ContinuousRecord) datum).getValue().setValue(Float.parseFloat((String) value));
                          break;
                  }
              case INTERVAL_GENERIC:

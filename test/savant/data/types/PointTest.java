@@ -15,42 +15,46 @@
  */
 
 /*
- * IntervalTest.java
- * Created on Jan 11, 2010
+ * PointTest.java
+ * Created on Jan 7, 2010
  */
 
-package savant.model;
+package savant.data.types;
 
-import savant.model.Interval;
 import junit.framework.TestCase;
+import savant.data.types.Point;
 
 /**
- * TODO:
+ * A test to test the basic functions of Point, e.g. construction, equals, hashCode, and toString
+ *
  * @author vwilliams
  */
-public class IntervalTest extends TestCase {
+public class PointTest extends TestCase {
 
-    private Interval a, b, c, d;
+    private Point a, b, c, d;
 
     public void setUp() {
-        a = Interval.valueOf(4,57);
-        b = Interval.valueOf(4,57);
-        c = Interval.valueOf(4,57);
-        d = Interval.valueOf(1,82);
+
+        a = Point.valueOf("chr1", 10);
+        b = Point.valueOf("chr1", 10);
+        c = Point.valueOf("chr1", 10);
+        d = Point.valueOf("chr1", 20);
+
     }
 
     public void testConstruct() {
         try {
-            // these are invalid ranges and should fail
-            Interval e = Interval.valueOf(-1, 9);
-            fail("Expected IllegalArgumentException");
+            // This point is invalid and should fail
+            Point e = Point.valueOf("chr1", -1);
+            fail("Expected IllegalArgumentException.");
         } catch (Exception success) {}
         try {
-            // these are invalid ranges and should fail
-            Interval f = Interval.valueOf(10, 1);
-            fail("Expected IllegalArgumentException");
+            // This point is invalid and should fail
+            Point e = Point.valueOf(null, 10);
+            fail("Expected IllegalArgumentException.");
         } catch (Exception success) {}
     }
+    
     public void testEquals() {
 
         try {
@@ -77,6 +81,7 @@ public class IntervalTest extends TestCase {
         } catch (Exception e) {
             fail("Unexpected exception " + e.getMessage());
         }
+
     }
 
     public void testHashCode() {
@@ -92,13 +97,6 @@ public class IntervalTest extends TestCase {
         }
     }
 
-    public void testLength() {
-        try {
-            assertEquals(a.getLength(), 54);
-        } catch (Exception e) {
-            fail("Unexpected exception " + e.getMessage());
-        }
-    }
     public void testToString() {
 
         // make sure no null pointers are thrown

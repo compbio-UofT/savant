@@ -19,22 +19,23 @@
  * Created on Jan 28, 2010
  */
 
-package savant.model;
+package savant.data.types;
 
 import net.sf.samtools.SAMRecord;
 
 /**
  * Class to represent an inverval from a BAM file. Wraps a SAMRecord. Almost, but not quite immutable.
- * The SAMRecord's internals are mutable and since it is not easy to make a defensive copy of it,
+ * The SAMRecord's internals are mutable and since it is too expensive to make a defensive copy of it,
  * be careful not to modify the SAMRecord after construction of a BAMIntervalRecord.
  * 
  * @see net.sf.samtools.SAMRecord
  * @author vwilliams
  */
-public class BAMIntervalRecord extends IntervalRecord implements Comparable {
+public class BAMIntervalRecord implements IntervalRecord, Comparable {
 
     public enum PairType { NORMAL, INVERTED_MATE, INVERTED_READ, EVERTED };
 
+    private final Interval interval;
     private final SAMRecord samRecord;
     private final PairType type;
 
@@ -44,8 +45,11 @@ public class BAMIntervalRecord extends IntervalRecord implements Comparable {
      * @param samRecord samRecord the SAMRecord associated with the read; may not be null
      * @param type type the pair type; may be null if read is unpaired or mate is unmapped
      */
-    protected BAMIntervalRecord(SAMRecord samRecord, PairType type) {
-        super(Interval.valueOf(samRecord.getAlignmentStart(), samRecord.getAlignmentEnd()+1));
+    BAMIntervalRecord(SAMRecord samRecord, PairType type) {
+
+        if (samRecord == null) throw new IllegalArgumentException("samRecord must not be null");
+
+        this.interval = Interval.valueOf(samRecord.getAlignmentStart(), samRecord.getAlignmentEnd()+1);
         this.samRecord = samRecord;
         this.type = type;
 
@@ -62,6 +66,10 @@ public class BAMIntervalRecord extends IntervalRecord implements Comparable {
         return new BAMIntervalRecord(samRecord, type);
     }
 
+    public Interval getInterval() {
+        return this.interval;
+    }
+
     public SAMRecord getSamRecord() {
         return samRecord;
     }
@@ -74,10 +82,10 @@ public class BAMIntervalRecord extends IntervalRecord implements Comparable {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
 
         BAMIntervalRecord that = (BAMIntervalRecord) o;
 
+        if (!interval.equals(that.interval)) return false;
         if (!samRecord.equals(that.samRecord)) return false;
 
         return true;
@@ -85,7 +93,7 @@ public class BAMIntervalRecord extends IntervalRecord implements Comparable {
 
     @Override
     public int hashCode() {
-        int result = super.hashCode();
+        int result = interval.hashCode();
         result = 31 * result + samRecord.hashCode();
         return result;
     }
@@ -94,12 +102,13 @@ public class BAMIntervalRecord extends IntervalRecord implements Comparable {
     public String toString() {
         final StringBuilder sb = new StringBuilder();
         sb.append("BAMIntervalRecord");
-        sb.append("{samRecord=").append(samRecord);
+        sb.append("{interval=").append(interval);
+        sb.append(", samRecord=").append(samRecord);
+        sb.append(", type=").append(type);
         sb.append('}');
         return sb.toString();
     }
 
-    @Override
     public int compareTo(Object o) {
 
         SAMRecord otherSam = ((BAMIntervalRecord) o).getSamRecord();

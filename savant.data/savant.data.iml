@@ -18,6 +18,7 @@
     </orderEntry>
     <orderEntry type="library" name="jpf" level="project" />
     <orderEntry type="library" name="picard" level="project" />
+    <orderEntry type="library" name="Savant" level="project" />
   </component>
 </module>
 

@@ -4,11 +4,8 @@
  */
 package savant.format.util.data.interval;
 
-import savant.format.SavantFile;
-import savant.model.IntervalRecord;
 import savant.util.Range;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
