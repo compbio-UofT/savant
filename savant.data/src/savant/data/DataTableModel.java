@@ -17,10 +17,15 @@
 package savant.data;
 
 import net.sf.samtools.SAMRecord;
-import savant.model.*;
+import savant.model.FileFormat;
 
 import javax.swing.table.AbstractTableModel;
 import java.util.List;
+import savant.data.types.BAMIntervalRecord;
+import savant.data.types.BEDIntervalRecord;
+import savant.data.types.GenericContinuousRecord;
+import savant.data.types.GenericIntervalRecord;
+import savant.data.types.GenericPointRecord;
 
 
 /**
@@ -45,8 +50,8 @@ public class DataTableModel extends AbstractTableModel {
      protected String[] sequenceColumnNames = { "Sequence" };
      protected Class[] pointColumnClasses = { String.class, Integer.class, String.class };
      protected String[] pointColumnNames = { "Reference", "Position", "Description" };
-     protected Class[] intervalColumnClasses = { String.class, Integer.class, Integer.class, String.class };
-     protected String[] intervalColumnNames = { "Reference", "From", "To", "Description" };
+     protected Class[] intervalColumnClasses = { Integer.class, Integer.class, String.class };
+     protected String[] intervalColumnNames = { "From", "To", "Description" };
 
 
      protected Class[] bamColumnClasses = { String.class, String.class, Integer.class, Boolean.class, Integer.class, Boolean.class, Integer.class, String.class, Integer.class, Boolean.class, Integer.class};
@@ -55,8 +60,8 @@ public class DataTableModel extends AbstractTableModel {
     protected Class[] bedColumnClasses = { String.class, Integer.class, Integer.class, String.class, Integer.class};
     protected String[] bedColumnNames = {"Reference", "Start", "End", "Name", "Block Count"};
 
-    protected Class[] continuousColumnClasses = { String.class, Integer.class, Double.class };
-    protected String[] continuousColumnNames = { "Reference", "Position", "Value" };
+    protected Class[] continuousColumnClasses = { Integer.class, Double.class };
+    protected String[] continuousColumnNames = { "Position", "Value" };
 
 
      //protected Vector dataVector;
@@ -165,9 +170,9 @@ public class DataTableModel extends AbstractTableModel {
                  switch (column) {
                      case 0:
                         return ((GenericIntervalRecord) datum).getInterval().getStart();
-                     case 2:
+                     case 1:
                          return ((GenericIntervalRecord) datum).getInterval().getEnd();
-                     case 3:
+                     case 2:
                          return ((GenericIntervalRecord) datum).getDescription();
                  }
              case INTERVAL_BAM:

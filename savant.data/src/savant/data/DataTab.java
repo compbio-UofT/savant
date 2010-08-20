@@ -35,6 +35,7 @@ public class DataTab extends Plugin implements GUIPlugin {
         savant.data.DataSheet currentRangeDataSheet = new DataSheet(tablePanel, pluginAdapter);
         pluginAdapter.getRangeController().addRangeChangedListener(currentRangeDataSheet);
         pluginAdapter.getViewTrackController().addTracksChangedListener(currentRangeDataSheet);
+        pluginAdapter.getSelectionController().addSelectionChangedListener(currentRangeDataSheet);
     }
 
 

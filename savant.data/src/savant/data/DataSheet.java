@@ -15,8 +15,11 @@
  */
 package savant.data;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.event.MouseEvent;
 import savant.controller.ViewTrackController;
+import savant.controller.event.selection.SelectionChangedEvent;
 import savant.controller.event.viewtrack.ViewTrackListChangedEvent;
 import savant.controller.event.viewtrack.ViewTrackListChangedListener;
 import savant.plugin.PluginAdapter;
@@ -29,20 +32,27 @@ import java.awt.Dimension;
 import java.awt.FileDialog;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseListener;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.table.TableCellRenderer;
+import savant.controller.RangeController;
+import savant.controller.SelectionController;
+import savant.controller.event.selection.SelectionChangedListener;
 import savant.util.MiscUtils;
+import savant.view.swing.GraphPane;
 
 /**
  *
  * @author mfiume
  */
-public class DataSheet implements RangeChangedListener, ViewTrackListChangedListener {
+public class DataSheet implements RangeChangedListener, ViewTrackListChangedListener, SelectionChangedListener {
 
     private PluginAdapter pluginAdapter;
 
@@ -51,9 +61,9 @@ public class DataSheet implements RangeChangedListener, ViewTrackListChangedList
     private boolean autoUpdate = true;
     private JCheckBox autoUpdateCheckBox;
     private JLabel label_num_items;
-    private Savant parent;
     private ViewTrack currentViewTrack;
     private DataTableModel tableModel;
+    private List<Object> data;
 
     public DataSheet(JPanel panel, PluginAdapter pluginAdapter) {
 
@@ -117,7 +127,8 @@ public class DataSheet implements RangeChangedListener, ViewTrackListChangedList
         toolbar.add(exportButton);
 
         // create a table (the most important component)
-        table = new JTable();
+        //table = new JTable();
+        table = new ExtendedTable();
         table.setAutoCreateRowSorter(true);
         table.setFillsViewportHeight(true);
 
@@ -125,6 +136,24 @@ public class DataSheet implements RangeChangedListener, ViewTrackListChangedList
         tmp.setLayout(new BoxLayout(tmp,BoxLayout.Y_AXIS));
         tmp.add(table.getTableHeader());
         tmp.add(table);
+
+        table.addMouseListener(new MouseListener() {
+            public void mouseClicked(MouseEvent e) {
+                if (e.getClickCount() == 2) {
+                    if(!currentViewTrack.getTrackRenderers().get(0).selectionAllowed()) return;
+                    JTable table = (JTable)e.getSource();
+                    int row = table.getSelectedRow();
+                    GraphPane gp = currentViewTrack.getFrame().getGraphPane();
+                    Object o = data.get(table.getRowSorter().convertRowIndexToModel(row));
+                    SelectionController.getInstance().toggleSelection(currentViewTrack.getURI(), (Comparable) o);
+                    gp.repaint();
+                }
+            }
+            public void mousePressed(MouseEvent e) {}
+            public void mouseReleased(MouseEvent e) {}
+            public void mouseEntered(MouseEvent e) {}
+            public void mouseExited(MouseEvent e) {}
+        });
 
         JScrollPane jsp = new JScrollPane(tmp);
 
@@ -158,6 +187,7 @@ public class DataSheet implements RangeChangedListener, ViewTrackListChangedList
         table.setModel(tableModel);
         table.setSurrendersFocusOnKeystroke(true);
         refreshData();
+        refreshSelection();
         /*
         if (!tableModel.hasEmptyRow()) {
              tableModel.addEmptyRow();
@@ -175,7 +205,8 @@ public class DataSheet implements RangeChangedListener, ViewTrackListChangedList
 
     private void refreshData() {
         if (tableModel == null) { return; }
-        List<Object> data = currentViewTrack.getDataInRange();
+        data = currentViewTrack.getDataInRange();
+
         tableModel.setData(data);
         tableModel.fireTableDataChanged();
         if (data == null) {
@@ -201,6 +232,7 @@ public class DataSheet implements RangeChangedListener, ViewTrackListChangedList
     public void rangeChangeReceived(RangeChangedEvent event) {
         if (this.autoUpdate) {
             refreshData();
+            refreshSelection();
         }
     }
 
@@ -209,6 +241,14 @@ public class DataSheet implements RangeChangedListener, ViewTrackListChangedList
     }
 
     private static void exportTable(JTable table, ViewTrack track) {
+
+        String[] choices = { "All data in view", "All selected data in view", "All selected data"};
+        String input = (String) JOptionPane.showInputDialog(null, "Export: ",
+            "Export", JOptionPane.QUESTION_MESSAGE, null,
+            choices, // Array of choices
+            choices[0]); // Initial choice
+
+        if(input == null) return;
 
         JFrame jf = new JFrame();
         String selectedFileName;
@@ -234,7 +274,13 @@ public class DataSheet implements RangeChangedListener, ViewTrackListChangedList
         // set the genome
         if (selectedFileName != null) {
             try {
-                exportTable(table, track, selectedFileName);
+                if(input.equals("All data in view")){
+                    exportAllInView(table, track, selectedFileName);
+                } else if(input.equals("All selected data in view")){
+                    exportSelectedInView(table, track, selectedFileName);
+                } else if(input.equals("All selected data")){
+                    exportAllSelected(table, track, selectedFileName);
+                }                
             } catch (IOException ex) {
                 String message = "Export unsuccessful";
                 String title = "Uh oh...";
@@ -244,7 +290,7 @@ public class DataSheet implements RangeChangedListener, ViewTrackListChangedList
         }
     }
 
-    private static void exportTable(JTable table, ViewTrack track, String selectedFileName) throws IOException {
+    private static void exportAllInView(JTable table, ViewTrack track, String selectedFileName) throws IOException {
         BufferedWriter bw = new BufferedWriter(new FileWriter(selectedFileName));
 
         DataTableModel dtm = (DataTableModel) table.getModel();
@@ -261,4 +307,93 @@ public class DataSheet implements RangeChangedListener, ViewTrackListChangedList
         bw.close();
     }
 
+    private static void exportSelectedInView(JTable table, ViewTrack track, String selectedFileName) throws IOException {
+        BufferedWriter bw = new BufferedWriter(new FileWriter(selectedFileName));
+
+        DataTableModel dtm = (DataTableModel) table.getModel();
+        int numRows = dtm.getRowCount();
+        int numCols = dtm.getColumnCount();
+
+        List<Integer> selectedRows = ((ExtendedTable)table).getRowsSelected();
+        for (int i = 0; i < numRows; i++) {
+            if(!selectedRows.contains(i)){
+                continue;
+            }
+            for (int j = 0; j < numCols; j++) {
+                bw.write(dtm.getValueAt(i, j) + "\t");
+            }
+            bw.write("\n");
+        }
+
+        bw.close();
+    }
+
+    private static void exportAllSelected(JTable table, ViewTrack track, String selectedFileName) throws IOException {
+        BufferedWriter bw = new BufferedWriter(new FileWriter(selectedFileName));
+        
+        List dataInRange = SelectionController.getInstance().getSelections(track.getURI());
+        DataTableModel dtm = new DataTableModel(track.getDataType(), dataInRange);
+
+        int numRows = dtm.getRowCount();
+        int numCols = dtm.getColumnCount();
+
+        for (int i = 0; i < numRows; i++) {
+            for (int j = 0; j < numCols; j++) {
+                bw.write(dtm.getValueAt(i, j) + "\t");
+            }
+            bw.write("\n");
+        }
+
+        bw.close();        
+    }
+
+    @Override
+    public void selectionChangeReceived(SelectionChangedEvent event) {
+        if (this.autoUpdate) {
+            refreshSelection();
+        }
+    }
+
+    public void refreshSelection(){
+        if(currentViewTrack == null || table == null || data == null) return;
+        ((ExtendedTable) table).clearSelectedRows();
+        //List<Comparable> selected = SelectionController.getInstance().getSelections(currentViewTrack.getURI());
+        List<Comparable> selected = SelectionController.getInstance().getSelectedInRange(currentViewTrack.getURI(), RangeController.getInstance().getRange(), this.data);
+        if(selected == null) return;
+        for(int i = 0; i < selected.size(); i++){
+            Object o = (Object)selected.get(i);
+            int index = data.indexOf(o);
+            ((ExtendedTable) table).addSelectedRow(index);
+        }
+        table.updateUI();
+    }
+
+    private class ExtendedTable extends JTable {
+
+        private List<Integer> selectedRows = new ArrayList<Integer>();
+
+        public void clearSelectedRows(){
+            selectedRows.clear();
+        }
+
+        public void addSelectedRow(Integer i){
+            selectedRows.add(i);
+        }
+
+        public List<Integer> getRowsSelected(){
+            return this.selectedRows;
+        }
+
+        @Override
+        public TableCellRenderer getCellRenderer (int row, int column){
+            int modRow = table.getRowSorter().convertRowIndexToModel(row);
+            if(selectedRows.contains(modRow)){
+                super.getCellRenderer(row, column).getTableCellRendererComponent(this, null, false, false, row, column).setBackground(Color.GREEN);
+            } else {
+                super.getCellRenderer(row, column).getTableCellRendererComponent(this, null, false, false, row, column).setBackground(Color.WHITE);
+            }
+            return super.getCellRenderer(row, column);
+        }
+
+    }
 }
