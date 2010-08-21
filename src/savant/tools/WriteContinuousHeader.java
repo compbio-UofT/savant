@@ -32,9 +32,9 @@ package savant.tools;
  * </p>
  */
 
-import savant.format.header.FileType;
-import savant.format.header.FileTypeHeader;
-import savant.format.util.data.FieldType;
+import savant.file.FieldType;
+import savant.file.FileType;
+import savant.file.FileTypeHeader;
 
 import java.io.*;
 import java.util.ArrayList;
