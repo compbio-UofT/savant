@@ -17,7 +17,7 @@
 package savant.view.swing;
 
 import java.net.URI;
-import savant.model.FileFormat;
+import savant.file.FileFormat;
 import savant.model.view.DrawingInstructions;
 import savant.util.Range;
 

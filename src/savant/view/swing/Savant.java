@@ -43,7 +43,7 @@ import savant.controller.event.reference.ReferenceChangedListener;
 import savant.controller.event.track.TrackListChangedEvent;
 import savant.controller.event.track.TrackListChangedListener;
 import savant.data.types.Genome;
-import savant.format.header.FileType;
+import savant.file.FileType;
 import savant.plugin.GUIPlugin;
 import savant.plugin.PluginAdapter;
 import savant.settings.BrowserSettings;

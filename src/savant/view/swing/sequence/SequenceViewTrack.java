@@ -17,9 +17,9 @@
 package savant.view.swing.sequence;
 
 import savant.data.types.Genome;
-import savant.model.FileFormat;
-import savant.model.Resolution;
-import savant.model.view.AxisRange;
+import savant.file.FileFormat;
+import savant.util.Resolution;
+import savant.util.AxisRange;
 import savant.model.view.ColorScheme;
 import savant.model.view.DrawingInstructions;
 import savant.util.Range;
@@ -127,7 +127,7 @@ public class SequenceViewTrack extends ViewTrack {
         for (TrackRenderer renderer: getTrackRenderers()) {
             boolean contains = (this.getGenome().getReferenceNames().contains(reference) || this.getGenome().getReferenceNames().contains(MiscUtils.homogenizeSequence(reference)));
             renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.RESOLUTION, r);
-            renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.AXIS_RANGE, new AxisRange(range, getDefaultYRange()));
+            renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.AXIS_RANGE, AxisRange.initWithRanges(range, getDefaultYRange()));
             renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.REFERENCE_EXISTS, this.getGenome().getReferenceNames().contains(reference));
             renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.SELECTION_ALLOWED, false);
 

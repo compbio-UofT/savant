@@ -22,10 +22,10 @@
 package savant.view.swing.continuous;
 
 import savant.data.types.ContinuousRecord;
-import savant.model.FileFormat;
-import savant.model.Resolution;
+import savant.file.FileFormat;
+import savant.util.Resolution;
 import savant.model.data.continuous.GenericContinuousTrack;
-import savant.model.view.AxisRange;
+import savant.util.AxisRange;
 import savant.model.view.ColorScheme;
 import savant.model.view.DrawingInstructions;
 import savant.util.Range;
@@ -64,7 +64,7 @@ public class ContinuousViewTrack extends ViewTrack {
             renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.SELECTION_ALLOWED, true);
 
             int maxDataValue = getMaxValue(data);
-            renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.AXIS_RANGE, new AxisRange(range, new Range(0, maxDataValue)));
+            renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.AXIS_RANGE, AxisRange.initWithRanges(range, new Range(0, maxDataValue)));
 
             Savant.log("Max Data Value is " + maxDataValue);
             renderer.setData(data);

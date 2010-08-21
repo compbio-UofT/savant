@@ -16,7 +16,6 @@
 package savant.view.swing;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
@@ -35,7 +34,7 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import savant.controller.FrameController;
-import savant.model.FileFormat;
+import savant.file.FileFormat;
 
 /**
  *

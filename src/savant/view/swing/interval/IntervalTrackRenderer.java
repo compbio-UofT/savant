@@ -18,8 +18,8 @@ package savant.view.swing.interval;
 
 import savant.data.types.Interval;
 import savant.data.types.IntervalRecord;
-import savant.model.Resolution;
-import savant.model.view.AxisRange;
+import savant.util.Resolution;
+import savant.util.AxisRange;
 import savant.model.view.ColorScheme;
 import savant.model.view.DrawingInstructions;
 import savant.model.view.Mode;

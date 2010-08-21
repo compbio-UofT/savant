@@ -23,10 +23,10 @@ package savant.view.swing.interval;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import savant.model.FileFormat;
-import savant.model.Resolution;
+import savant.file.FileFormat;
+import savant.util.Resolution;
 import savant.model.data.interval.BEDIntervalTrack;
-import savant.model.view.AxisRange;
+import savant.util.AxisRange;
 import savant.model.view.ColorScheme;
 import savant.model.view.DrawingInstructions;
 import savant.model.view.Mode;
@@ -34,7 +34,6 @@ import savant.util.Range;
 import savant.view.swing.TrackRenderer;
 import savant.view.swing.ViewTrack;
 
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import savant.settings.ColourSettings;
@@ -74,7 +73,7 @@ public class BEDViewTrack extends ViewTrack {
             renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.RANGE, range);
             renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.RESOLUTION, r);
             renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.COLOR_SCHEME, this.getColorScheme());
-            renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.AXIS_RANGE, new AxisRange(range, getDefaultYRange()));
+            renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.AXIS_RANGE, AxisRange.initWithRanges(range, getDefaultYRange()));
             renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.REFERENCE_EXISTS, contains);
             renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.MODE, getDrawMode());
             renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.SELECTION_ALLOWED, true);

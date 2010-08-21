@@ -16,20 +16,15 @@
 
 package savant.view.swing;
 
-import savant.settings.BrowserSettings;
+import savant.file.FileFormat;
 import com.jidesoft.action.CommandBar;
 import com.jidesoft.docking.DockableFrame;
 import com.jidesoft.swing.JideButton;
 import com.jidesoft.swing.JideMenu;
-import java.awt.event.AdjustmentEvent;
-import java.beans.PropertyVetoException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import savant.controller.DrawModeController;
 import savant.controller.RangeController;
 import savant.controller.event.drawmode.DrawModeChangedEvent;
-import savant.model.FileFormat;
 import savant.model.view.DrawingInstructions;
 import savant.util.Range;
 import savant.view.swing.continuous.ContinuousTrackRenderer;
@@ -43,14 +38,13 @@ import savant.view.swing.sequence.SequenceTrackRenderer;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.awt.event.AdjustmentListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import javax.swing.border.Border;
+
 import savant.controller.ReferenceController;
 import savant.model.view.Mode;
 import savant.settings.ColourSettings;

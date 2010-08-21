@@ -22,7 +22,7 @@
 package savant.view.swing.continuous;
 
 import savant.data.types.GenericContinuousRecord;
-import savant.model.view.AxisRange;
+import savant.util.AxisRange;
 import savant.model.view.ColorScheme;
 import savant.model.view.DrawingInstructions;
 import savant.util.Range;

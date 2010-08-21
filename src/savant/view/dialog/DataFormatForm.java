@@ -11,12 +11,12 @@
 
 package savant.view.dialog;
 
+import savant.file.FileType;
 import savant.view.swing.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import savant.format.DataFormatter;
 import savant.format.FormatProgressListener;
-import savant.format.header.FileType;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;

@@ -5,6 +5,7 @@
 
 package savant.view.swing.util;
 
+import savant.format.SavantFileFormatterUtils;
 import savant.view.swing.Savant;
 
 import javax.imageio.ImageIO;
@@ -14,7 +15,6 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import javax.swing.filechooser.FileFilter;
-import savant.util.SavantFileFormatterUtils;
 
 public class ScreenShot
 {

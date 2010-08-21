@@ -17,7 +17,7 @@
 package savant.view.swing.point;
 
 import savant.data.types.PointRecord;
-import savant.model.Resolution;
+import savant.util.Resolution;
 import savant.model.view.ColorScheme;
 import savant.model.view.DrawingInstructions;
 import savant.util.Range;

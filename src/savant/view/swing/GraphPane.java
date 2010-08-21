@@ -24,7 +24,7 @@ import org.apache.commons.logging.LogFactory;
 import savant.controller.DrawModeController;
 import savant.controller.RangeController;
 import savant.controller.event.graphpane.GraphPaneChangeEvent;
-import savant.model.view.AxisRange;
+import savant.util.AxisRange;
 import savant.model.view.DrawingInstructions;
 import savant.model.view.Mode;
 import savant.util.Range;
@@ -40,6 +40,7 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
 import savant.controller.GraphPaneController;
 import savant.controller.ReferenceController;
 import savant.controller.event.graphpane.GraphPaneChangeListener;
@@ -380,7 +381,7 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
 
         for (TrackRenderer tr : trackRenderers) {
             // change renderers' drawing instructions to reflect consolidated YRange
-            tr.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.AXIS_RANGE, new AxisRange(xRange, consolidatedYRange));
+            tr.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.AXIS_RANGE, AxisRange.initWithRanges(xRange, consolidatedYRange));
             tr.render(g3, this);
         }
 
