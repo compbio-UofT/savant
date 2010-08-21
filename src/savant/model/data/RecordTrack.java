@@ -15,11 +15,10 @@
  */
 package savant.model.data;
 
-import savant.model.Resolution;
+import savant.util.Resolution;
 import savant.util.Range;
 
 import java.util.List;
-import java.util.Set;
 
 /**
  * Interface to define a data track which returns records.

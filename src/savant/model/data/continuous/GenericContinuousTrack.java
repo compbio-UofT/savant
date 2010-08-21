@@ -25,9 +25,9 @@ import java.util.Set;
 
 import savant.data.types.Continuous;
 import savant.data.types.GenericContinuousRecord;
-import savant.format.SavantFile;
-import savant.format.SavantUnsupportedVersionException;
-import savant.model.Resolution;
+import savant.file.SavantFile;
+import savant.file.SavantUnsupportedVersionException;
+import savant.util.Resolution;
 import savant.model.data.RecordTrack;
 import savant.util.RAFUtils;
 import savant.util.Range;

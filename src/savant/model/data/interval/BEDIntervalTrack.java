@@ -25,12 +25,12 @@ import java.util.*;
 
 import savant.data.types.BEDIntervalRecord;
 import savant.data.types.IntervalRecord;
+import savant.file.SavantUnsupportedVersionException;
 import savant.format.DataFormatter;
-import savant.format.SavantFile;
-import savant.format.SavantUnsupportedVersionException;
-import savant.format.util.data.interval.IntervalRecordGetter;
-import savant.format.util.data.interval.IntervalSearchTree;
-import savant.model.Resolution;
+import savant.file.SavantFile;
+import savant.format.IntervalRecordGetter;
+import savant.format.IntervalSearchTree;
+import savant.util.Resolution;
 import savant.model.data.RecordTrack;
 import savant.util.Range;
 
@@ -53,7 +53,7 @@ public class BEDIntervalTrack implements RecordTrack<BEDIntervalRecord> {
     private int numRecords;
     private int recordSize;
 
-    private Map<String,IntervalSearchTree> refnameToIntervalBSTIndex;
+    private Map<String, IntervalSearchTree> refnameToIntervalBSTIndex;
     //private IntervalSearchTree intervalBSTIndex;
 
     public BEDIntervalTrack(String fileName) throws IOException, SavantUnsupportedVersionException {

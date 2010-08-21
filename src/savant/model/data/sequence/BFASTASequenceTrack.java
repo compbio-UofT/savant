@@ -21,17 +21,15 @@
 
 package savant.model.data.sequence;
 
-import java.util.List;
-import savant.format.SavantFile;
-import savant.format.SavantUnsupportedVersionException;
-import savant.format.header.FileType;
-import savant.util.SavantFileFormatterUtils;
+import savant.file.FileType;
+import savant.file.SavantFile;
+import savant.file.SavantUnsupportedVersionException;
+import savant.format.SavantFileFormatterUtils;
 import savant.util.Range;
 
 import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
-import savant.format.SavantFileFormatter;
 
 /**
  * TODO:

@@ -25,12 +25,12 @@ import java.util.Set;
 
 import savant.data.types.GenericIntervalRecord;
 import savant.data.types.IntervalRecord;
+import savant.file.SavantUnsupportedVersionException;
 import savant.format.DataFormatter;
-import savant.format.SavantFile;
-import savant.format.SavantUnsupportedVersionException;
-import savant.format.util.data.interval.IntervalRecordGetter;
-import savant.format.util.data.interval.IntervalSearchTree;
-import savant.model.Resolution;
+import savant.file.SavantFile;
+import savant.format.IntervalRecordGetter;
+import savant.format.IntervalSearchTree;
+import savant.util.Resolution;
 import savant.model.data.RecordTrack;
 import savant.util.Range;
 

@@ -32,7 +32,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import savant.controller.RangeController;
 import savant.data.types.BAMIntervalRecord;
-import savant.model.Resolution;
+import savant.util.Resolution;
 import savant.model.data.RecordTrack;
 import savant.util.Range;
 
