@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 
-package savant.format.header;
+package savant.file;
 
 /**
  *

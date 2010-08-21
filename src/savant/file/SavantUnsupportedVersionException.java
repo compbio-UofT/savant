@@ -19,7 +19,7 @@
  * Created on Aug 19, 2010
  */
 
-package savant.format;
+package savant.file;
 
 public final class SavantUnsupportedVersionException extends Exception {
 

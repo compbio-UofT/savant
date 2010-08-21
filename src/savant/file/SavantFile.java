@@ -14,15 +14,11 @@
  *    limitations under the License.
  */
 
-package savant.format;
+package savant.file;
 
-import savant.format.header.FileType;
-import savant.format.header.FileTypeHeader;
-import savant.format.util.data.FieldType;
 import savant.util.RAFUtils;
 import savant.util.MiscUtils;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.Arrays;
@@ -161,6 +157,10 @@ public class SavantFile extends RandomAccessFile {
         return this.headerOffset;
     }
 
+    public void setHeaderOffset(long headerOffset) {
+        this.headerOffset = headerOffset;
+    }
+
     public FileType getFileType() {
         return this.fileTypeHeader.fileType;
     }
@@ -202,4 +202,6 @@ public class SavantFile extends RandomAccessFile {
         }
         return sb.toString().trim();
     }
+
+
 }

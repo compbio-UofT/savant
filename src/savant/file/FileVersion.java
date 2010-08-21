@@ -1,4 +1,4 @@
-package savant.model;
+package savant.file;
 
 public enum FileVersion {
 
