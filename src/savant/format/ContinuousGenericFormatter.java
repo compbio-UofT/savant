@@ -20,10 +20,10 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import savant.format.header.FileType;
-import savant.format.util.data.FieldType;
+
+import savant.file.FileType;
+import savant.file.FieldType;
 import savant.util.MiscUtils;
-import savant.util.SavantFileFormatterUtils;
 
 public class ContinuousGenericFormatter extends SavantFileFormatter {
 

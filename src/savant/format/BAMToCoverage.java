@@ -16,17 +16,14 @@
 
 package savant.format;
 
-import java.awt.Component;
 import net.sf.samtools.*;
 import net.sf.samtools.util.CloseableIterator;
 import org.apache.commons.logging.LogFactory;
 import java.io.*;
 import java.util.*;
-import savant.format.header.FileType;
-import javax.swing.JOptionPane;
-import savant.format.util.data.FieldType;
+import savant.file.FileType;
+import savant.file.FieldType;
 import savant.util.MiscUtils;
-import savant.view.swing.Savant;
 
 public class BAMToCoverage extends SavantFileFormatter {
 

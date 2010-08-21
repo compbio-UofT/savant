@@ -3,9 +3,8 @@
  * and open the template in the editor.
  */
 
-package savant.format.comparator;
+package savant.format;
 
-import savant.format.util.data.interval.LinePlusRange;
 import savant.util.Range;
 
 import java.util.Comparator;

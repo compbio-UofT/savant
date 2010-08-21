@@ -20,11 +20,11 @@ import java.io.*;
 import java.util.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import savant.format.header.FileType;
-import savant.format.header.FileTypeHeader;
-import savant.format.util.data.FieldType;
+import savant.file.FileType;
+import savant.file.FileTypeHeader;
+import savant.file.FieldType;
+import savant.file.SavantFile;
 import savant.util.MiscUtils;
-import savant.util.SavantFileFormatterUtils;
 
 public class SavantFileFormatter {
 

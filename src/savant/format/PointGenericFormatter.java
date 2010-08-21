@@ -23,9 +23,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
-import savant.format.header.FileType;
-import savant.format.util.data.FieldType;
-import savant.util.SavantFileFormatterUtils;
+
+import savant.file.FieldType;
+import savant.file.FileType;
 
 public class PointGenericFormatter extends SavantFileFormatter {
 

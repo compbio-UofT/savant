@@ -16,10 +16,9 @@
 
 package savant.format;
 
-import savant.format.header.FileType;
-import savant.format.util.data.FieldType;
-import savant.format.util.data.interval.IntervalSearchTree;
-import savant.format.util.data.interval.IntervalTreeNode;
+import savant.file.FieldType;
+import savant.file.FileType;
+import savant.file.SavantFile;
 import savant.util.*;
 import java.io.*;
 import java.text.ParseException;
@@ -114,9 +113,6 @@ public class DataFormatter implements FormatProgressListener {
      * @param inPath input file path
      * @param outPath output file path (should not already exist)
      * @param fileType type of the input file (e.g. interval, point, etc)
-     * @param isInputOneBased whether or not the file is one-based (i.e.
-     * annotation of 10 refers to the 10th position in the genome, not the 9th
-     * as in zero-based scheme)
      */
     public DataFormatter(String inPath, String outPath, FileType fileType) {
         this(inPath, outPath,fileType,true);
@@ -300,7 +296,7 @@ public class DataFormatter implements FormatProgressListener {
         //System.out.println();
 
         // change the offset
-        dFile.headerOffset = dFile.getFilePointerSuper();
+        dFile.setHeaderOffset(dFile.getFilePointerSuper());
 
         /*
         for (String s : refMap.keySet()) {
@@ -343,7 +339,7 @@ public class DataFormatter implements FormatProgressListener {
          */
 
         // set the header offset appropriately
-        dFile.headerOffset = maxend;
+        dFile.setHeaderOffset(maxend);
 
         return trees;
     }

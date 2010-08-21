@@ -32,12 +32,8 @@ import java.util.List;
 import java.util.Map;
 
 import savant.debug.SavantDebugger;
-import savant.format.header.FileType;
-import savant.format.util.data.FieldType;
-import savant.format.util.data.interval.IntervalSearchTree;
-import savant.format.util.data.interval.IntervalTreeNode;
-import savant.format.util.data.interval.LinePlusRange;
-import savant.util.SavantFileFormatterUtils;
+import savant.file.FieldType;
+import savant.file.FileType;
 import savant.util.RAFUtils;
 import savant.util.Range;
 

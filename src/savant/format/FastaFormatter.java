@@ -17,7 +17,7 @@
 package savant.format;
 
 import java.io.*;
-import savant.format.header.FileType;
+import savant.file.FileType;
 import savant.util.MiscUtils;
 
 public class FastaFormatter extends SavantFileFormatter{

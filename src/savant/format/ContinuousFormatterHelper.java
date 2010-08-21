@@ -14,8 +14,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import savant.file.SavantFile;
 import savant.util.RAFUtils;
-import savant.util.SavantFileFormatterUtils;
 
 /**
  *
@@ -110,7 +111,7 @@ public class ContinuousFormatterHelper {
         //System.out.println();
 
         // change the offset
-        savantFile.headerOffset = savantFile.getFilePointerSuper();
+        savantFile.setHeaderOffset(savantFile.getFilePointerSuper());
 
         /*
         for (String s : refMap.keySet()) {
@@ -156,7 +157,7 @@ public class ContinuousFormatterHelper {
          */
 
         // set the header offset appropriately
-        savantFile.headerOffset = maxend;
+        savantFile.setHeaderOffset(maxend);
 
         return headers;
     }
