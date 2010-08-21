@@ -29,7 +29,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import savant.controller.event.viewtrack.ViewTrackListChangedEvent;
 import savant.controller.event.viewtrack.ViewTrackListChangedListener;
-import savant.model.FileFormat;
+import savant.file.FileFormat;
 import savant.view.swing.ViewTrack;
 
 import java.util.ArrayList;
