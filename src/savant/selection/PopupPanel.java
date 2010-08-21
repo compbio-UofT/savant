@@ -28,7 +28,7 @@ import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import savant.controller.BookmarkController;
 import savant.controller.ReferenceController;
-import savant.model.FileFormat;
+import savant.file.FileFormat;
 import savant.model.view.Mode;
 import savant.util.Bookmark;
 import savant.util.MiscUtils;
