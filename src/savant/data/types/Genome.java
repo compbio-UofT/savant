@@ -16,7 +16,7 @@
 
 package savant.data.types;
 
-import savant.format.SavantUnsupportedVersionException;
+import savant.file.SavantUnsupportedVersionException;
 import savant.model.data.sequence.BFASTASequenceTrack;
 import savant.util.Range;
 
