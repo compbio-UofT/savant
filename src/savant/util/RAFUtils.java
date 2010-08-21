@@ -23,10 +23,11 @@ package savant.util;
 
 import savant.data.types.Block;
 import savant.data.types.ItemRGB;
-import savant.format.SavantFile;
-import savant.format.header.FileType;
-import savant.format.header.FileTypeHeader;
-import savant.format.util.data.FieldType;
+import savant.file.FieldType;
+import savant.file.FileType;
+import savant.file.FileTypeHeader;
+import savant.file.SavantFile;
+import savant.format.SavantFileFormatterUtils;
 
 import java.io.IOException;
 import java.io.RandomAccessFile;
