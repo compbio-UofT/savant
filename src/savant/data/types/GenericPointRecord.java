@@ -28,17 +28,24 @@ package savant.data.types;
  */
 public class GenericPointRecord implements PointRecord, Comparable {
 
+    private final String reference;
     private final Point point;
     private final String description;
 
-    GenericPointRecord(Point point, String description) {
+    GenericPointRecord(String reference, Point point, String description) {
+        if (reference == null) throw new IllegalArgumentException("reference must not be null");
         if (point == null) throw new IllegalArgumentException("point must not be null");
+        this.reference = reference;
         this.point = point;
         this.description = description;
     }
 
-    public static GenericPointRecord valueOf(Point point, String description) {
-        return new GenericPointRecord(point, description);    
+    public static GenericPointRecord valueOf(String reference, Point point, String description) {
+        return new GenericPointRecord(reference, point, description);
+    }
+
+    public String getReference() {
+        return reference;
     }
 
     public Point getPoint() {
@@ -58,13 +65,15 @@ public class GenericPointRecord implements PointRecord, Comparable {
 
         if (description != null ? !description.equals(that.description) : that.description != null) return false;
         if (!point.equals(that.point)) return false;
+        if (!reference.equals(that.reference)) return false;
 
         return true;
     }
 
     @Override
     public int hashCode() {
-        int result = point.hashCode();
+        int result = reference.hashCode();
+        result = 31 * result + point.hashCode();
         result = 31 * result + (description != null ? description.hashCode() : 0);
         return result;
     }
@@ -73,7 +82,8 @@ public class GenericPointRecord implements PointRecord, Comparable {
     public String toString() {
         final StringBuilder sb = new StringBuilder();
         sb.append("GenericPointRecord");
-        sb.append("{point=").append(point);
+        sb.append("{reference='").append(reference).append('\'');
+        sb.append(", point=").append(point);
         sb.append(", description='").append(description).append('\'');
         sb.append('}');
         return sb.toString();
@@ -83,13 +93,13 @@ public class GenericPointRecord implements PointRecord, Comparable {
         GenericPointRecord that = (GenericPointRecord) o;
 
         //compare ref
-        if (!this.getPoint().getReference().equals(that.getPoint().getReference())){
-            String a1 = this.getPoint().getReference();
-            String a2 = that.getPoint().getReference();
+        if (!this.reference.equals(that.getReference())){
+            String a1 = this.reference;
+            String a2 = that.getReference();
             for(int i = 0; i < Math.min(a1.length(), a2.length()); i++){
                 if((int)a1.charAt(i) < (int)a2.charAt(i)) return -1;
                 else if ((int)a1.charAt(i) > (int)a2.charAt(i)) return 1;
-}
+            }
             if(a1.length() < a2.length()) return -1;
             if(a1.length() > a2.length()) return 1;
         }

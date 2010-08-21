@@ -102,6 +102,10 @@ public class BEDIntervalRecord implements IntervalRecord, Comparable {
         return chrom;
     }
 
+    public String getReference() {
+        return getChrom();
+    }
+    
     public String getName() {
         return name;
     }

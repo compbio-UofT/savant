@@ -36,17 +36,17 @@ public class GenericContinuousRecordTest extends TestCase {
     public void setUp() {
 
 
-        a = GenericContinuousRecord.valueOf(1, new Continuous(10.5f));
-        b = GenericContinuousRecord.valueOf(1, new Continuous(10.5f));
-        c = GenericContinuousRecord.valueOf(1, new Continuous(10.5f));
-        d = GenericContinuousRecord.valueOf(2, new Continuous(20.3f));
+        a = GenericContinuousRecord.valueOf("chr1", 1, new Continuous(10.5f));
+        b = GenericContinuousRecord.valueOf("chr1", 1, new Continuous(10.5f));
+        c = GenericContinuousRecord.valueOf("chr1", 1, new Continuous(10.5f));
+        d = GenericContinuousRecord.valueOf("chr1", 2, new Continuous(20.3f));
 
     }
 
     public void testConstruct() {
         try {
             // This continuous item is invalid and should fail
-            GenericContinuousRecord e = GenericContinuousRecord.valueOf(1, null);
+            GenericContinuousRecord e = GenericContinuousRecord.valueOf("chr1", 1, null);
             fail("Expected IllegalArgumentException.");
         } catch (Exception success) {}
     }

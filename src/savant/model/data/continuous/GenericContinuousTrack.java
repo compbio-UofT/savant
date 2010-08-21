@@ -100,7 +100,7 @@ public class GenericContinuousTrack implements RecordTrack<GenericContinuousReco
                 int pos;
                 if (contiguousSamples > 1) pos = i+contiguousSamples/2;
                 else pos = i;
-                GenericContinuousRecord p = GenericContinuousRecord.valueOf(pos, Continuous.valueOf( sum/j));
+                GenericContinuousRecord p = GenericContinuousRecord.valueOf(reference, pos, Continuous.valueOf( sum/j));
 
                 data.add(p);
             }

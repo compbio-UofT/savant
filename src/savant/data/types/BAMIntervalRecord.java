@@ -78,6 +78,10 @@ public class BAMIntervalRecord implements IntervalRecord, Comparable {
         return type;
     }
 
+    public String getReference() {
+        return samRecord.getReferenceName();
+    }
+    
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

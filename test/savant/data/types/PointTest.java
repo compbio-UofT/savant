@@ -35,22 +35,22 @@ public class PointTest extends TestCase {
 
     public void setUp() {
 
-        a = Point.valueOf("chr1", 10);
-        b = Point.valueOf("chr1", 10);
-        c = Point.valueOf("chr1", 10);
-        d = Point.valueOf("chr1", 20);
+        a = Point.valueOf(10);
+        b = Point.valueOf(10);
+        c = Point.valueOf(10);
+        d = Point.valueOf(20);
 
     }
 
     public void testConstruct() {
         try {
             // This point is invalid and should fail
-            Point e = Point.valueOf("chr1", -1);
+            Point e = Point.valueOf(-1);
             fail("Expected IllegalArgumentException.");
         } catch (Exception success) {}
         try {
             // This point is invalid and should fail
-            Point e = Point.valueOf(null, 10);
+            Point e = Point.valueOf(10);
             fail("Expected IllegalArgumentException.");
         } catch (Exception success) {}
     }

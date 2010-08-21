@@ -509,19 +509,19 @@ public class SavantFileFormatterUtils {
         
         //TODO: Is this the best place for this?
         if(record.size() > 3){
-            ir = GenericIntervalRecord.valueOf(Interval.valueOf((Integer) record.get(1),(Integer) record.get(2)), (String) record.get(3));
+            ir = GenericIntervalRecord.valueOf((String)record.get(0), Interval.valueOf((Integer) record.get(1),(Integer) record.get(2)), (String) record.get(3));
         } else {
-            ir = GenericIntervalRecord.valueOf(Interval.valueOf((Integer) record.get(1),(Integer) record.get(2)), "");
+            ir = GenericIntervalRecord.valueOf((String)record.get(0), Interval.valueOf((Integer) record.get(1),(Integer) record.get(2)), "");
         }
         
         return (IntervalRecord) ir;
     }
 
-    // TODO: make it actually return a GFF IntervalRecord
-    private static IntervalRecord convertRecordToGFFInterval(List<Object> record, List<FieldType> fields) {
-        GenericIntervalRecord ir = GenericIntervalRecord.valueOf(Interval.valueOf((Integer) record.get(3),(Integer) record.get(4)), (String) record.get(1));
-        return (IntervalRecord) ir;
-    }
+//    // TODO: make it actually return a GFF IntervalRecord
+//    private static IntervalRecord convertRecordToGFFInterval(List<Object> record, List<FieldType> fields) {
+//        GenericIntervalRecord ir = GenericIntervalRecord.valueOf(Interval.valueOf((Integer) record.get(3),(Integer) record.get(4)), (String) record.get(1));
+//        return (IntervalRecord) ir;
+//    }
 
     private static IntervalRecord convertRecordToBEDInterval(List<Object> record, List<FieldType> fields) {
 

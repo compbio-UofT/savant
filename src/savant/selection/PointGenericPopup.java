@@ -30,7 +30,7 @@ public class PointGenericPopup extends PopupPanel {
     @Override
     protected void calculateInfo() {
         rec = (PointRecord) this.o;
-        ref = rec.getPoint().getReference();
+        ref = rec.getReference();
         start = rec.getPoint().getPosition();
         end = start;
         name = rec.getPoint().toString();

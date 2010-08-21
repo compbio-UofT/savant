@@ -22,28 +22,21 @@ package savant.data.types;
  */
 public class Point {
 
-    private final String reference;
     private final int position;
 
-    private Point(String reference, int position) {
+    private Point(int position) {
 
-        if (reference == null) throw new IllegalArgumentException("Invalid argument. Reference may not be null.");
         if (position < 0) throw new IllegalArgumentException("Invalid argument. Points must be >= 0.");
 
-        this.reference = reference;
         this.position = position;
     }
 
-    public static Point valueOf(String reference, int position) {
-        return new Point(reference, position);
+    public static Point valueOf(int position) {
+        return new Point(position);
     }
 
     public int getPosition() {
         return this.position;
-    }
-    
-    public String getReference() {
-        return this.reference;
     }
 
     @Override
@@ -54,24 +47,20 @@ public class Point {
         Point point = (Point) o;
 
         if (position != point.position) return false;
-        if (!reference.equals(point.reference)) return false;
 
         return true;
     }
 
     @Override
     public int hashCode() {
-        int result = reference.hashCode();
-        result = 31 * result + position;
-        return result;
+        return position;
     }
 
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder();
         sb.append("Point");
-        sb.append("{reference='").append(reference).append('\'');
-        sb.append(", position=").append(position);
+        sb.append("{position=").append(position);
         sb.append('}');
         return sb.toString();
     }

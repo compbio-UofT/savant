@@ -28,18 +28,25 @@ package savant.data.types;
  */
 public class GenericIntervalRecord implements IntervalRecord, Comparable {
 
+    private final String reference;
     private final Interval interval;
     private final String description;
 
-    GenericIntervalRecord(Interval interval, String description) {
+    GenericIntervalRecord(String reference, Interval interval, String description) {
+        if (reference == null) throw new IllegalArgumentException("reference must not be null");
         if (interval == null) throw new IllegalArgumentException("Invalid argument. Interval must not be null");
+        this.reference = reference;
         this.interval = interval;
         this.description = description;
     }
 
 
-    public static GenericIntervalRecord valueOf(Interval interval, String description) {
-        return new GenericIntervalRecord(interval, description);
+    public static GenericIntervalRecord valueOf(String reference, Interval interval, String description) {
+        return new GenericIntervalRecord(reference, interval, description);
+    }
+
+    public String getReference() {
+        return reference;
     }
 
     public Interval getInterval() {
@@ -59,13 +66,15 @@ public class GenericIntervalRecord implements IntervalRecord, Comparable {
 
         if (description != null ? !description.equals(that.description) : that.description != null) return false;
         if (!interval.equals(that.interval)) return false;
+        if (!reference.equals(that.reference)) return false;
 
         return true;
     }
 
     @Override
     public int hashCode() {
-        int result = interval.hashCode();
+        int result = reference.hashCode();
+        result = 31 * result + interval.hashCode();
         result = 31 * result + (description != null ? description.hashCode() : 0);
         return result;
     }
@@ -74,7 +83,8 @@ public class GenericIntervalRecord implements IntervalRecord, Comparable {
     public String toString() {
         final StringBuilder sb = new StringBuilder();
         sb.append("GenericIntervalRecord");
-        sb.append("{interval=").append(interval);
+        sb.append("{reference='").append(reference).append('\'');
+        sb.append(", interval=").append(interval);
         sb.append(", description='").append(description).append('\'');
         sb.append('}');
         return sb.toString();
@@ -84,7 +94,18 @@ public class GenericIntervalRecord implements IntervalRecord, Comparable {
 
         GenericIntervalRecord other = (GenericIntervalRecord) o;
 
-        //compare point
+        //compare ref
+        if (!this.reference.equals(other.getReference())){
+            String a1 = this.reference;
+            String a2 = other.getReference();
+            for(int i = 0; i < Math.min(a1.length(), a2.length()); i++){
+                if((int)a1.charAt(i) < (int)a2.charAt(i)) return -1;
+                else if ((int)a1.charAt(i) > (int)a2.charAt(i)) return 1;
+            }
+            if(a1.length() < a2.length()) return -1;
+            if(a1.length() > a2.length()) return 1;
+        }
+        //compare interval
         int a = this.getInterval().getStart();
         int b = other.getInterval().getStart();
 

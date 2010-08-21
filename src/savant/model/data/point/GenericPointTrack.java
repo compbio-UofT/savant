@@ -60,7 +60,7 @@ public class GenericPointTrack implements RecordTrack<GenericPointRecord> {
     }
 
     private GenericPointRecord convertRecordToGenericPointRecord(List<Object> record) {
-        return GenericPointRecord.valueOf(Point.valueOf((String) record.get(0), (Integer) record.get(1)), (String) record.get(2));
+        return GenericPointRecord.valueOf((String) record.get(0), Point.valueOf((Integer) record.get(1)), (String) record.get(2));
     }
 
     public List<GenericPointRecord> getRecords(String reference, Range range, Resolution resolution) {
@@ -79,7 +79,7 @@ public class GenericPointTrack implements RecordTrack<GenericPointRecord> {
                 Point pnt = ((PointRecord) p).getPoint();
 
                 // TODO: remove the necessity to trim ... this is a problem with the delimiter in formatting
-                if (pnt.getPosition() > range.getTo() || !pnt.getReference().trim().equals(reference)) {
+                if (pnt.getPosition() > range.getTo() || !p.getReference().trim().equals(reference)) {
                     break;
                 }
                 

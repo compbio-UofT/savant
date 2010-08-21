@@ -16,8 +16,15 @@
 package savant.data.types;
 
 /**
- * TODO:
+ * Type interface for records in Savant files. Each is associated with a reference sequence.
+ *
  * @author vwilliams
  */
 public interface Record {
+
+    /**
+     * @return the reference sequence to which this record applies
+     */
+    public String getReference();
+
 }

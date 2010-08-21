@@ -30,22 +30,22 @@ public class GenericIntervalRecordTest extends TestCase {
     private GenericIntervalRecord a, b, c, d;
 
     public void setUp() {
-        a = GenericIntervalRecord.valueOf(Interval.valueOf(4,57), "abcde");
-        b = GenericIntervalRecord.valueOf(Interval.valueOf(4,57), "abcde");
-        c = GenericIntervalRecord.valueOf(Interval.valueOf(4,57), "abcde");
-        d = GenericIntervalRecord.valueOf(Interval.valueOf(1,82), "fghij");
+        a = GenericIntervalRecord.valueOf("chr1", Interval.valueOf(4,57), "abcde");
+        b = GenericIntervalRecord.valueOf("chr1", Interval.valueOf(4,57), "abcde");
+        c = GenericIntervalRecord.valueOf("chr1", Interval.valueOf(4,57), "abcde");
+        d = GenericIntervalRecord.valueOf("chr1", Interval.valueOf(1,82), "fghij");
     }
 
     public void testConstruct() {
         try {
             // this is an invalid Interval item and should fail
-            GenericIntervalRecord e = GenericIntervalRecord.valueOf(null, "abcde");
+            GenericIntervalRecord e = GenericIntervalRecord.valueOf("chr1", null, "abcde");
             fail("Expected IllegalArgumentException");
         } catch (Exception success) {}
 
         try {
             // this is an invalid Interval item and should fail
-            GenericIntervalRecord e = GenericIntervalRecord.valueOf(Interval.valueOf(4,57), "abcde");
+            GenericIntervalRecord e = GenericIntervalRecord.valueOf("chr1", Interval.valueOf(4,57), "abcde");
             fail("Expected IllegalArgumentException");
         } catch (Exception success) {}
     }

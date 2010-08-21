@@ -26,17 +26,24 @@ package savant.data.types;
  */
 public class GenericContinuousRecord implements ContinuousRecord, Comparable {
 
+    private final String reference;
     private final Continuous value;
     private final int position;
 
-    GenericContinuousRecord(int position, Continuous value) {
+    GenericContinuousRecord(String reference, int position, Continuous value) {
+        if (reference == null) throw new IllegalArgumentException("reference must not be null");
         if (value == null) throw new IllegalArgumentException("Value may not be null.");
+        this.reference = reference;
         this.position = position;
         this.value = value;
     }
 
-    public static GenericContinuousRecord valueOf(int position, Continuous value) {
-        return new GenericContinuousRecord(position, value);
+    public static GenericContinuousRecord valueOf(String reference, int position, Continuous value) {
+        return new GenericContinuousRecord(reference, position, value);
+    }
+
+    public String getReference() {
+        return reference;
     }
 
     public Continuous getValue() {
@@ -55,6 +62,7 @@ public class GenericContinuousRecord implements ContinuousRecord, Comparable {
         GenericContinuousRecord that = (GenericContinuousRecord) o;
 
         if (position != that.position) return false;
+        if (!reference.equals(that.reference)) return false;
         if (!value.equals(that.value)) return false;
 
         return true;
@@ -62,7 +70,8 @@ public class GenericContinuousRecord implements ContinuousRecord, Comparable {
 
     @Override
     public int hashCode() {
-        int result = value.hashCode();
+        int result = reference.hashCode();
+        result = 31 * result + value.hashCode();
         result = 31 * result + position;
         return result;
     }
@@ -71,7 +80,8 @@ public class GenericContinuousRecord implements ContinuousRecord, Comparable {
     public String toString() {
         final StringBuilder sb = new StringBuilder();
         sb.append("GenericContinuousRecord");
-        sb.append("{value=").append(value);
+        sb.append("{reference='").append(reference).append('\'');
+        sb.append(", value=").append(value);
         sb.append(", position=").append(position);
         sb.append('}');
         return sb.toString();
@@ -79,6 +89,18 @@ public class GenericContinuousRecord implements ContinuousRecord, Comparable {
 
     public int compareTo(Object o) {
         GenericContinuousRecord that = (GenericContinuousRecord) o;
+
+        //compare ref
+        if (!this.reference.equals(that.getReference())){
+            String a1 = this.reference;
+            String a2 = that.getReference();
+            for(int i = 0; i < Math.min(a1.length(), a2.length()); i++){
+                if((int)a1.charAt(i) < (int)a2.charAt(i)) return -1;
+                else if ((int)a1.charAt(i) > (int)a2.charAt(i)) return 1;
+            }
+            if(a1.length() < a2.length()) return -1;
+            if(a1.length() > a2.length()) return 1;
+        }
 
         //compare position
         if(this.getPosition() == that.getPosition()){
