@@ -1397,7 +1397,7 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
             public void mouseExited(MouseEvent e) {
                 Rectangle rec = jp.getPopupBounds();
                 Point p = e.getLocationOnScreen();
-                if(p.x < rec.x + 2 || p.y < rec.y + 2 || p.x > rec.x + rec.width - 3 || p.y > rec.y + rec.height - 3){
+                if(rec == null || p == null || p.x < rec.x + 2 || p.y < rec.y + 2 || p.x > rec.x + rec.width - 3 || p.y > rec.y + rec.height - 3){
                     hidePopup();
                 }
             }
