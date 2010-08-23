@@ -17,9 +17,7 @@
 package savant.data;
 
 import net.sf.samtools.SAMRecord;
-import savant.data.types.*;
 import savant.file.FileFormat;
-
 import javax.swing.table.AbstractTableModel;
 import java.util.List;
 import savant.data.types.BAMIntervalRecord;
@@ -47,16 +45,17 @@ public class DataTableModel extends AbstractTableModel {
      public static final int ALBUM_INDEX = 2;
      public static final int HIDDEN_INDEX = 3;
       */
-     protected Class[] sequenceColumnClasses = { String.class };
-     protected String[] sequenceColumnNames = { "Sequence" };
-     protected Class[] pointColumnClasses = { String.class, Integer.class, String.class };
-     protected String[] pointColumnNames = { "Reference", "Position", "Description" };
-     protected Class[] intervalColumnClasses = { String.class, Integer.class, Integer.class, String.class };
-     protected String[] intervalColumnNames = { "Reference", "From", "To", "Description" };
+    protected Class[] sequenceColumnClasses = { String.class };
+    protected String[] sequenceColumnNames = { "Sequence" };
 
+    protected Class[] pointColumnClasses = { String.class, Integer.class, String.class };
+    protected String[] pointColumnNames = { "Reference", "Position", "Description" };
 
-     protected Class[] bamColumnClasses = { String.class, String.class, Integer.class, Boolean.class, Integer.class, Boolean.class, Integer.class, String.class, Integer.class, Boolean.class, Integer.class};
-     protected String[] bamColumnNames = { "Read Name", "Sequence", "Length", "First of Pair", "Position", "Strand +", "Mapping Quality", "CIGAR", "Mate Position", "Strand +", "Inferred Insert Size" };
+    protected Class[] intervalColumnClasses = { String.class, Integer.class, Integer.class, String.class };
+    protected String[] intervalColumnNames = { "Reference", "From", "To", "Description" };
+
+    protected Class[] bamColumnClasses = { String.class, String.class, Integer.class, Boolean.class, Integer.class, Boolean.class, Integer.class, String.class, Integer.class, Boolean.class, Integer.class};
+    protected String[] bamColumnNames = { "Read Name", "Sequence", "Length", "First of Pair", "Position", "Strand +", "Mapping Quality", "CIGAR", "Mate Position", "Strand +", "Inferred Insert Size" };
 
     protected Class[] bedColumnClasses = { String.class, Integer.class, Integer.class, String.class, Integer.class};
     protected String[] bedColumnNames = {"Reference", "Start", "End", "Name", "Block Count"};
@@ -154,7 +153,7 @@ public class DataTableModel extends AbstractTableModel {
              case POINT_GENERIC:
                  switch (column) {
                      case 0:
-                         return ((GenericPointRecord) datum).getPoint().getReference();
+                         return ((GenericPointRecord) datum).getReference();
                      case 1:
                         return ((GenericPointRecord) datum).getPoint().getPosition();
                      case 2:
