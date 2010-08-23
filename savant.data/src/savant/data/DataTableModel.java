@@ -162,13 +162,17 @@ public class DataTableModel extends AbstractTableModel {
              case CONTINUOUS_GENERIC:
                  switch (column) {
                      case 0:
-                         return ((GenericContinuousRecord) datum).getPosition();
+                         return ((GenericContinuousRecord) datum).getReference();
                      case 1:
+                         return ((GenericContinuousRecord) datum).getPosition();
+                     case 2:
                          return ((GenericContinuousRecord) datum).getValue().getValue();
                  }
              case INTERVAL_GENERIC:
                  switch (column) {
                      case 0:
+                         return ((GenericIntervalRecord) datum).getReference();
+                     case 1:
                         return ((GenericIntervalRecord) datum).getInterval().getStart();
                      case 2:
                          return ((GenericIntervalRecord) datum).getInterval().getEnd();
