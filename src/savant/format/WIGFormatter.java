@@ -39,7 +39,7 @@ public class WIGFormatter extends SavantFileFormatter {
     }
 
     private void updateByteCount(String s) {
-        byteCount += s.getBytes().length;
+        if (s != null) byteCount += s.getBytes().length;
     }
 
     public void format() throws InterruptedException, ParseException, IOException {
@@ -74,13 +74,6 @@ public class WIGFormatter extends SavantFileFormatter {
 
             tokens = strLine.split("\\s");
 
-            // skip the track definition line, if it exists
-            if (tokens.length > 0 && tokens[0].equals("track")){
-            	strLine = inFileReader.readLine();
-                // update bytes read from input
-                updateByteCount(strLine);
-            }
-
             //Read the rest of the file
             String mode = "none";
             int span = 1;
@@ -100,27 +93,30 @@ public class WIGFormatter extends SavantFileFormatter {
                         break;
                     }
 
-                    while (strLine.charAt(0) == '#') {
-                        strLine = inFileReader.readLine();
-                    }
-
                     // split line up into tokens
                     tokens = strLine.split("\\s");
 
                     //skip blank lines
                     if(tokens.length < 1){ continue; }
 
-                    // variable step
-                    if (tokens[0].equals("variableStep")){
+                    if (tokens.length > 0 && (tokens[0].equals("track") || tokens[0].equals("#"))){
+                        // skip the track definition lines and comment lines
+                        strLine = inFileReader.readLine();
+                        // update bytes read from input
+                        updateByteCount(strLine);
+                        continue;
+                    }
+                    else if (tokens[0].equals("variableStep")){
+                     // variable step
                         if(tokens.length < 2){
                             this.closeOutputStreams();
                             this.deleteOutputStreams();
                             throw new ParseException("Error parsing file (variableStep line)", 0);
                         }
 
-                        String sectok = (String) tokens[1];
+                        String sectok = tokens[1];
                         int splitIndex = sectok.indexOf("=") + 1;
-                        String refname = ((String) tokens[1]).substring(splitIndex);
+                        String refname = tokens[1].substring(splitIndex);
 
                         outfile = this.getFileForReference(refname);
 
@@ -138,9 +134,9 @@ public class WIGFormatter extends SavantFileFormatter {
                         }
                         mode = "fixed";
                         
-                        String sectok = (String) tokens[1];
+                        String sectok = tokens[1];
                         int splitIndex = sectok.indexOf("=") + 1;
-                        String refname = ((String) tokens[1]).substring(splitIndex);
+                        String refname = tokens[1].substring(splitIndex);
 
                         outfile = this.getFileForReference(refname);
 
@@ -152,6 +148,23 @@ public class WIGFormatter extends SavantFileFormatter {
                         } else {
                             span = 1;
                         }
+                    } else if (tokens.length == 4 || mode.equals("bedGraph")) {
+
+                        mode = "bedGraph";
+
+                        String refName = tokens[0];
+                        outfile = this.getFileForReference(refName);
+
+                        int dest = Integer.parseInt(tokens[1]);
+                        this.fillWithZeros(nextWrite,dest,outfile);
+                        
+                        float val = Float.parseFloat(tokens[3]);
+                        int end = Integer.parseInt(tokens[2]);
+                        for (int i=dest; i<end; i++) {
+                            outfile.writeFloat(val);
+                        }
+                        nextWrite = end;
+
                     } else if (mode.equals("variable")){
                         if (tokens.length < 2){
                             this.closeOutputStreams();
@@ -186,9 +199,7 @@ public class WIGFormatter extends SavantFileFormatter {
 
                     strLine = inFileReader.readLine();
                     // update bytes read from input
-                    if (strLine != null) {
-                        this.byteCount += strLine.getBytes().length;
-                    }
+                    updateByteCount(strLine);
 
                 }
                 // check to see if format has been cancelled
