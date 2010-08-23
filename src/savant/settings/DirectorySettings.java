@@ -50,7 +50,8 @@ public class DirectorySettings {
 
     public static String getFormatDirectory() {
         if(formatDir == null){
-            String home = System.getProperty("user.home");
+            //String home = System.getProperty("user.home");
+            String home = getSavantDirectory();
             String fileSeparator = System.getProperty("file.separator");
             formatDir = home + fileSeparator + "savant_files";
             File dir = new File(formatDir);
@@ -71,7 +72,8 @@ public class DirectorySettings {
 
     public static String getPluginsDirectory() {
         if(pluginsDir == null){
-            String home = System.getProperty("user.home");
+            //String home = System.getProperty("user.home");
+            String home = getSavantDirectory();
             String fileSeparator = System.getProperty("file.separator");
             pluginsDir = home + fileSeparator + "savant_plugins";
             File dir = new File(pluginsDir);
