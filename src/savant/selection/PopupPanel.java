@@ -28,6 +28,7 @@ import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import savant.controller.BookmarkController;
 import savant.controller.ReferenceController;
+import savant.data.types.*;
 import savant.file.FileFormat;
 import savant.model.view.Mode;
 import savant.util.Bookmark;
@@ -44,7 +45,7 @@ public class PopupPanel extends JPanel {
     protected GraphPane gp;
     protected Mode mode;
     protected FileFormat fileFormat;
-    protected Object o;
+    protected Record record;
 
     //info
     protected String name;
@@ -52,43 +53,43 @@ public class PopupPanel extends JPanel {
     protected int start;
     protected int end;
 
-    public static PopupPanel create(GraphPane parent, Mode mode, FileFormat ff, Object obj){
+    public static PopupPanel create(GraphPane parent, Mode mode, FileFormat ff, Record rec){
 
         PopupPanel p = null;
         switch(ff){
             case POINT_GENERIC:
-                p = new PointGenericPopup();
+                p = new PointGenericPopup((PointRecord) rec);
                 break;
             case INTERVAL_BAM:
                 if(!mode.getName().equals("SNP")){
-                    p = new IntervalBamPopup();
+                    p = new IntervalBamPopup((BAMIntervalRecord)rec);
                 }
                 break;
             case INTERVAL_BED:
                 if(!mode.getName().equals("SQUISH")){
-                    p = new IntervalBedPopup();
+                    p = new IntervalBedPopup((BEDIntervalRecord)rec);
                 }
                 break;
             case INTERVAL_GENERIC:
-                p = new IntervalGenericPopup();
+                p = new IntervalGenericPopup((GenericIntervalRecord)rec);
                 break;
             case CONTINUOUS_GENERIC:
-                p = new ContinuousPopup();
+                p = new ContinuousPopup((GenericContinuousRecord)rec);
                 break;
             default:
                 break;
         }
 
-        if(p != null) p.init(parent, mode, ff, obj);
+        if(p != null) p.init(parent, mode, ff, rec);
         return p;
     }
 
-    protected void init(GraphPane parent, Mode mode, FileFormat ff, Object obj){
+    protected void init(GraphPane parent, Mode mode, FileFormat ff, Record rec){
 
         this.fileFormat = ff;
         this.mode = mode;
         this.gp = parent;
-        this.o = obj;
+        this.record = rec;
 
         this.setBackground(Color.WHITE);
         this.setLayout(new GridLayout(0,1));
@@ -116,8 +117,7 @@ public class PopupPanel extends JPanel {
         select.setCursor(new Cursor(Cursor.HAND_CURSOR));
         select.addMouseListener(new MouseListener() {
             public void mouseClicked(MouseEvent e) {
-                gp.getTrackRenderers().get(0).addToSelected(o);
-                //gp.getTrackRenderers().get(0).addToCurrentSelected(o);
+                gp.getTrackRenderers().get(0).addToSelected(record);
                 gp.repaint();
             }
             public void mousePressed(MouseEvent e) {}

@@ -220,7 +220,7 @@ public class IntervalTrackRenderer extends TrackRenderer {
 
                     g2.setColor(bgcolor);
                     g2.fill(intervalRect);
-                    this.objectToShapeMap.put(intervalRecord, intervalRect);
+                    this.recordToShapeMap.put(intervalRecord, intervalRect);
 
                     if (w > 5) {
                         g2.setColor(linecolor);

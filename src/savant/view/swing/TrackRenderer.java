@@ -36,6 +36,7 @@ import savant.controller.RangeController;
 import savant.controller.SelectionController;
 import savant.data.types.ContinuousRecord;
 import savant.data.types.GenericContinuousRecord;
+import savant.data.types.Record;
 import savant.model.view.Mode;
 import savant.view.swing.continuous.ContinuousTrackRenderer;
 
@@ -52,9 +53,7 @@ public abstract class TrackRenderer {
 
     private Color overlayColor = Color.RED;
     private Color selectedColor = Color.GREEN;
-    //private List<Object> currentSelected = new ArrayList<Object>();
-    //private List<Object> tempSelected = new ArrayList<Object>();
-    protected Map<Object, Shape> objectToShapeMap = new HashMap<Object, Shape>();
+    protected Map<Record, Shape> recordToShapeMap = new HashMap<Record, Shape>();
 
     public TrackRenderer(DrawingInstructions instructions) {
         this.instructions = instructions;
@@ -119,14 +118,14 @@ public abstract class TrackRenderer {
     // access shapes for current view
 
     public void clearShapes(){
-        this.objectToShapeMap.clear();
+        this.recordToShapeMap.clear();
     }
 
     public boolean hasMappedValues(){
-        return !this.objectToShapeMap.isEmpty();
+        return !this.recordToShapeMap.isEmpty();
     }
 
-    public Map<Object, Shape> searchPoint(Point p){
+    public Map<Record, Shape> searchPoint(Point p){
 
         if(!selectionAllowed() || !hasMappedValues() || data == null) return null;
         
@@ -139,15 +138,15 @@ public abstract class TrackRenderer {
         
         for(int i = 0; i < data.size(); i++){
             if(data.get(i) == null) continue;
-            Shape s = this.objectToShapeMap.get(data.get(i));
+            Shape s = this.recordToShapeMap.get((Record)data.get(i));
             if(s == null) continue;
             //if(contains AND (notArc OR (isEdge...))
             if(s.contains(p.x, p.y) &&
                 (!isArc || (!s.contains(p.x-1, p.y) ||
                     !s.contains(p.x+1, p.y) ||
                     !s.contains(p.x, p.y-1)))){
-                Map<Object, Shape> map = new HashMap<Object, Shape>();
-                map.put(data.get(i), s);
+                Map<Record, Shape> map = new HashMap<Record, Shape>();
+                map.put((Record)data.get(i), s);
                 return map;
             }
         }
@@ -160,10 +159,10 @@ public abstract class TrackRenderer {
 
         boolean repaint = false;
 
-        Iterator it = this.objectToShapeMap.keySet().iterator();
+        Iterator<Record> it = this.recordToShapeMap.keySet().iterator();
         while(it.hasNext()){
-            Object o = it.next();
-            Shape s = this.objectToShapeMap.get(o);
+            Record o = it.next();
+            Shape s = this.recordToShapeMap.get(o);
             if(s == null) continue;
             if(s.intersects(rect)){
                 this.addMultipleToSelected(o);
@@ -180,13 +179,13 @@ public abstract class TrackRenderer {
     // GLOBAL SELECTED
     // comparisons for globally selected objects
 
-    public void addToSelected(Object i){
+    public void addToSelected(Record i){
         if(selectionAllowed()){
             SelectionController.getInstance().toggleSelection(fileURI, (Comparable)i);
         }
     }
 
-    public void addMultipleToSelected(Object i){
+    public void addMultipleToSelected(Record i){
         if(selectionAllowed()){
             SelectionController.getInstance().addSelection(fileURI, (Comparable)i);
         }
@@ -198,12 +197,12 @@ public abstract class TrackRenderer {
 
     public List<Shape> getCurrentSelectedShapes(GraphPane gp){
         List<Shape> shapes = new ArrayList<Shape>();
-        List<Object> currentSelected = SelectionController.getInstance().getSelectedInRange(fileURI, RangeController.getInstance().getRange(), data);
+        List<Record> currentSelected = SelectionController.getInstance().getSelectedInRange(fileURI, RangeController.getInstance().getRange(), data);
         for(int i = 0; i < currentSelected.size(); i++){
             if(this.getClass().equals(ContinuousTrackRenderer.class)){
-                shapes.add(continuousObjectToEllipse(gp, currentSelected.get(i)));
+                shapes.add(continuousRecordToEllipse(gp, currentSelected.get(i)));
             } else {
-                Shape s = this.objectToShapeMap.get(currentSelected.get(i));
+                Shape s = this.recordToShapeMap.get(currentSelected.get(i));
                 if(s != null){
                     shapes.add(s);
                 }
@@ -212,7 +211,7 @@ public abstract class TrackRenderer {
         return shapes;
     }
 
-    public static Shape continuousObjectToEllipse(GraphPane gp, Object o){
+    public static Shape continuousRecordToEllipse(GraphPane gp, Record o){
         GenericContinuousRecord rec = (GenericContinuousRecord) o;
         Double x = gp.transformXPos(rec.getPosition()) + (gp.getUnitWidth()/2) -4;
         Double y = gp.transformYPos(rec.getValue().getValue()) -4;// + (this.getUnitWidth()/2);

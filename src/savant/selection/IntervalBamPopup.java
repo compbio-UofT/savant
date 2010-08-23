@@ -27,15 +27,16 @@ import savant.data.types.BAMIntervalRecord;
  */
 public class IntervalBamPopup extends PopupPanel {
 
-    BAMIntervalRecord rec;
-    SAMRecord samRec;
-    String homogenizedRef;
+    private BAMIntervalRecord rec;
+    private SAMRecord samRec;
+    private String homogenizedRef;
 
-    public IntervalBamPopup(){}
+    public IntervalBamPopup(BAMIntervalRecord rec){
+        this.rec = rec;
+    }
 
     @Override
     protected void calculateInfo() {
-        rec = (BAMIntervalRecord) o;
         samRec = rec.getSamRecord();
         name = samRec.getReadName();
         ref = samRec.getReferenceName();

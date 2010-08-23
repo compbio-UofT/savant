@@ -106,7 +106,7 @@ public class PointTrackRenderer extends TrackRenderer {
 
                 //add shape and info to list
                 //this.dataShapes.add(p);
-                this.objectToShapeMap.put(record, p);
+                this.recordToShapeMap.put(record, p);
 
                 if (width > 5) {
                     g2.setColor(linecolor);

@@ -26,13 +26,14 @@ import savant.data.types.BEDIntervalRecord;
  */
 public class IntervalBedPopup extends PopupPanel {
 
-    BEDIntervalRecord rec;
+    private BEDIntervalRecord rec;
 
-    public IntervalBedPopup(){}
+    public IntervalBedPopup(BEDIntervalRecord rec){
+        this.rec = rec;
+    }
 
     @Override
     protected void calculateInfo() {
-        rec = (BEDIntervalRecord) o;
         name = rec.getName();
         ref = rec.getChrom();
         start = rec.getChromStart();

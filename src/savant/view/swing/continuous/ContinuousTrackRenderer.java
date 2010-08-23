@@ -109,7 +109,7 @@ public class ContinuousTrackRenderer extends TrackRenderer {
             //Rectangle2D rec = new Rectangle2D.Double(xFormXPos - (gp.getUnitWidth()/2),0,Math.max(gp.getUnitWidth(), 1),gp.getHeight());
             //Rectangle2D rec = new Rectangle2D.Double(xFormXPos - (gp.getUnitWidth()/2),0,Math.max(xFormXPos-path.getCurrentPoint().getX(), 1),gp.getHeight());
             Rectangle2D rec = new Rectangle2D.Double(xFormXPos - ((xFormXPos-path.getCurrentPoint().getX())/2),0,Math.max(xFormXPos-path.getCurrentPoint().getX(), 1),gp.getHeight());
-            this.objectToShapeMap.put(continuousRecord, rec);
+            this.recordToShapeMap.put(continuousRecord, rec);
             path.lineTo(xFormXPos, xFormYPos);            
         }
         xFormYPos = gp.transformYPos(0.0);

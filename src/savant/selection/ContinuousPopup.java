@@ -26,14 +26,15 @@ import savant.data.types.GenericContinuousRecord;
  */
 public class ContinuousPopup extends PopupPanel {
 
-    GenericContinuousRecord rec;
+    private GenericContinuousRecord rec;
 
-    public ContinuousPopup(){}
+    public ContinuousPopup(GenericContinuousRecord rec){
+        this.rec = rec;
+    }
 
     @Override
     protected void calculateInfo() {
-        rec = (GenericContinuousRecord) o;
-        //ref = rec.getReference();
+        ref = rec.getReference();
         start = rec.getPosition();
         end = rec.getPosition();
         name = "Value: " + rec.getValue().getValue(); //for bookmarking annotation

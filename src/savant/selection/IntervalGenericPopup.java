@@ -26,15 +26,16 @@ import savant.data.types.GenericIntervalRecord;
  */
 public class IntervalGenericPopup extends PopupPanel {
 
-    GenericIntervalRecord rec;
+    private GenericIntervalRecord rec;
 
-    public IntervalGenericPopup(){}
+    public IntervalGenericPopup(GenericIntervalRecord rec){
+        this.rec = rec;
+    }
 
     @Override
     protected void calculateInfo() {
-        rec = (GenericIntervalRecord) o;
         name = rec.getDescription();
-        //ref = rec.getReference();
+        ref = rec.getReference();
         start = rec.getInterval().getStart();
         end = rec.getInterval().getEnd();
     }

@@ -266,7 +266,7 @@ public class BEDTrackRenderer extends TrackRenderer {
             chevronIntervalStart = x + w;
 
         }
-        this.objectToShapeMap.put(bedRecord, area);
+        this.recordToShapeMap.put(bedRecord, area);
 
     }
 

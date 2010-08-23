@@ -46,6 +46,7 @@ import savant.controller.ReferenceController;
 import savant.controller.event.graphpane.GraphPaneChangeListener;
 import savant.data.types.ContinuousRecord;
 import savant.data.types.GenericContinuousRecord;
+import savant.data.types.Record;
 import savant.settings.ColourSettings;
 import savant.util.MiscUtils;
 
@@ -114,7 +115,7 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
     public Thread popupThread;
     public JidePopup jp = new JidePopup();
     //private int currentOver = -1;
-    private Object currentOverObject = null;
+    private Record currentOverRecord = null;
     private Shape currentOverShape = null;
     private boolean popupVisible = false;
     private JPanel popPanel;
@@ -1294,7 +1295,7 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
 
         //get shape
         int trackNum = 0;
-        Map<Object, Shape> map = null;
+        Map<Record, Shape> map = null;
         for(int i = 0; i < this.trackRenderers.size(); i++){
             map = this.trackRenderers.get(i).searchPoint(p);
             if(map!=null){
@@ -1304,20 +1305,18 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
         }
         if(map==null){
             currentOverShape = null;
-            currentOverObject = null;
+            currentOverRecord = null;
             return;
         }
 
-        currentOverObject = map.keySet().toArray()[0];
-        currentOverShape = map.get(currentOverObject);
-        if(currentOverObject.getClass().equals(GenericContinuousRecord.class)){
-            currentOverShape = TrackRenderer.continuousObjectToEllipse(this, currentOverObject);
+        currentOverRecord = (Record)map.keySet().toArray()[0];
+        currentOverShape = map.get(currentOverRecord);
+        if(currentOverRecord.getClass().equals(GenericContinuousRecord.class)){
+            currentOverShape = TrackRenderer.continuousRecordToEllipse(this, currentOverRecord);
         }
 
-        //popPanel.removeAll();
         this.createJidePopup();
-        //PopupPanel pp = new PopupPanel(this, this.tracks.get(0).getDrawMode(), this.tracks.get(0).getDataType(), currentOverObject);
-        PopupPanel pp = PopupPanel.create(this, this.tracks.get(0).getDrawMode(), this.tracks.get(trackNum).getDataType(), currentOverObject);
+        PopupPanel pp = PopupPanel.create(this, this.tracks.get(0).getDrawMode(), this.tracks.get(trackNum).getDataType(), currentOverRecord);
         if(pp != null){
             popPanel.add(pp, BorderLayout.CENTER);
             Point p1 = (Point)p.clone();
@@ -1333,10 +1332,9 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
     public void hidePopup(){
         if(this.popupVisible){
             popupVisible = false;
-            //jp.hidePopup();
             jp.hidePopupImmediately();
             currentOverShape = null;
-            currentOverObject = null;
+            currentOverRecord = null;
             this.repaint();
         }
     }
@@ -1346,15 +1344,9 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
         //if range is too big, do nothing
         //if(prevRange.getLength() > 8000) return;
 
-        //get shape
-        //Map<Object, Shape> map = this.trackRenderers.get(0).searchPoint(p);
-        //if(map==null){
-        //    return;
-        //}
-
 
         int trackNum = 0;
-        Map<Object, Shape> map = null;
+        Map<Record, Shape> map = null;
         for(int i = 0; i < this.trackRenderers.size(); i++){
             map = this.trackRenderers.get(i).searchPoint(p);
             if(map!=null){
@@ -1366,7 +1358,7 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
             return;
         }
 
-        Object o = map.keySet().toArray()[0];
+        Record o = (Record)map.keySet().toArray()[0];
         this.trackRenderers.get(trackNum).addToSelected(o);
         
         this.repaint();

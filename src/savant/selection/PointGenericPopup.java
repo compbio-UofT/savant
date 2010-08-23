@@ -18,6 +18,7 @@ package savant.selection;
 
 import javax.swing.JLabel;
 import savant.data.types.PointRecord;
+import savant.data.types.Record;
 
 /**
  *
@@ -25,11 +26,15 @@ import savant.data.types.PointRecord;
  */
 public class PointGenericPopup extends PopupPanel {
 
-    PointRecord rec;
+    private PointRecord rec;
+
+    public PointGenericPopup(PointRecord rec){
+        this.rec = rec;
+    }
 
     @Override
     protected void calculateInfo() {
-        rec = (PointRecord) this.o;
+        //rec = (PointRecord) this.o;
         ref = rec.getReference();
         start = rec.getPoint().getPosition();
         end = start;

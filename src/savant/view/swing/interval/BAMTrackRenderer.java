@@ -238,14 +238,14 @@ public class BAMTrackRenderer extends TrackRenderer {
 
                 if (samRecord.getReadUnmappedFlag()) { // this read is unmapped, don't visualize it
 
-                    this.objectToShapeMap.put(intervalRecord, null);
+                    this.recordToShapeMap.put(intervalRecord, null);
 
                     continue;
                 }
 
                 Polygon strand = renderStrand(g2, gp, cs, samRecord, interval, level, range);
 
-                this.objectToShapeMap.put(intervalRecord, strand);
+                this.recordToShapeMap.put(intervalRecord, strand);
 
                 if (drawMode.getName().equals("VARIANTS")) {
                     // visualize variations (indels and mismatches)
@@ -647,7 +647,7 @@ public class BAMTrackRenderer extends TrackRenderer {
             g2.draw(arc);
 
             //this.dataShapes.set(i, arc);
-            this.objectToShapeMap.put(record, arc);
+            this.recordToShapeMap.put(record, arc);
 
         }
 
