@@ -4,11 +4,19 @@
  */
 package savant.tool.varid;
 
+import java.awt.BorderLayout;
+import java.util.ArrayList;
+import java.util.List;
+import javax.swing.BoxLayout;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import savant.plugin.PluginAdapter;
 import savant.plugin.ToolInformation;
 import savant.plugin.ToolPlugin;
+import savant.swing.component.AlignedComponent;
+import savant.swing.component.ArgumentField;
+import savant.swing.component.StringArgumentField;
+import savant.swing.component.TrackField;
 import savant.view.tools.ToolRunInformation;
 
 /**
@@ -17,8 +25,12 @@ import savant.view.tools.ToolRunInformation;
  */
 public class Varid extends ToolPlugin {
 
+    List<ArgumentField> argumentFields;
+
     @Override
     public void init(PluginAdapter pluginAdapter) {
+        argumentFields = new ArrayList<ArgumentField>();
+        argumentFields.add(new StringArgumentField("Alignment file", "--alignments", "Some decription", true, true, "default value"));
     }
 
     @Override
@@ -35,6 +47,16 @@ public class Varid extends ToolPlugin {
     @Override
     public JComponent getCanvas() {
         JPanel p = new JPanel();
+        p.setLayout(new BoxLayout(p,BoxLayout.Y_AXIS));
+
+        TrackField tf = new TrackField(true);
+        
+        p.add(new AlignedComponent(tf, BorderLayout.WEST.toString()));
+
+        for (ArgumentField f : argumentFields) {
+            p.add(new AlignedComponent(f, BorderLayout.WEST.toString()));
+        }
+
         return p;
     }
 
@@ -44,6 +66,13 @@ public class Varid extends ToolPlugin {
         ToolRunInformation runInfo = this.getRunInformation();
 
         System.out.println("Running VARID");
+
+        for (ArgumentField a : argumentFields) {
+            System.out.println(a.getArgumentName() + " " + a.getValue());
+
+        }
+
+        /*
         int maxCount = 1000000;
 
         for (int i = 1; i <= maxCount; i++) {
@@ -58,6 +87,8 @@ public class Varid extends ToolPlugin {
             //System.out.println(i);
             terminateIfInterruped();
         }
+         *
+         */
     }
 
     @Override
