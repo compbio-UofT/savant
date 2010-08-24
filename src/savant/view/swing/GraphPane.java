@@ -268,15 +268,15 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
      *
      * @param g The Graphics object into which to draw.
      */
-    public void render(Graphics g) {
-        render(g, new Range(xMin,xMax), null);
+    public Dimension render(Graphics g) {
+        return render(g, new Range(xMin,xMax), null);
     }
 
-    public void render(Graphics g, Range xRange) {
-        render(g, xRange, null);
+    public Dimension render(Graphics g, Range xRange) {
+        return render(g, xRange, null);
     }
 
-    public void render(Graphics g, Range xRange, Range yRange) {
+    public Dimension render(Graphics g, Range xRange, Range yRange) {
 
         double oldUnitHeight = unitHeight;
         int oldYMax = yMax;
@@ -315,7 +315,8 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
         Mode currentMode = this.parentFrame.getTracks().get(0).getDrawMode();
         BufferedImage bf1;
 
-        boolean sameRange = (prevRange != null && RangeController.getInstance().getRange().equals(prevRange));
+        //boolean sameRange = (prevRange != null && RangeController.getInstance().getRange().equals(prevRange));
+        boolean sameRange = (prevRange != null && xRange.equals(prevRange));
         boolean sameMode = ((currentMode == null && prevDrawMode == null) ||
                 (prevDrawMode != null && currentMode.equals(prevDrawMode)));
         boolean sameSize = (prevSize != null && this.getSize().equals(prevSize) && 
@@ -359,7 +360,7 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
 
             this.parentFrame.commandBar.repaint();
 
-            return;
+            return this.getSize();
 
 
         //otherwise prepare for new render
@@ -410,7 +411,7 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
             //scroll so that bottom matches previous view
             newScroll = newHeight - oldViewHeight - oldBottomHeight;
 
-            return;
+            return new Dimension(new Dimension(frame.getFrameLandscape().getWidth()-2, newHeight));
 
         } else {
             if(newScroll != -1){
@@ -435,6 +436,7 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
         g.drawImage(bufferedImage, 0, 0, this);
         renderCurrentSelected(g);
         this.parentFrame.commandBar.repaint();
+        return this.getSize();
 
     }
 
@@ -1321,7 +1323,7 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
             popPanel.add(pp, BorderLayout.CENTER);
             Point p1 = (Point)p.clone();
             SwingUtilities.convertPointToScreen(p1, this);
-            this.jp.showPopup(p1.x, p1.y);
+            this.jp.showPopup(p1.x -1, p1.y -1);
             popupVisible = true;
         }
         this.repaint();
