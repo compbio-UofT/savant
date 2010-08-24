@@ -1323,7 +1323,7 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
             popPanel.add(pp, BorderLayout.CENTER);
             Point p1 = (Point)p.clone();
             SwingUtilities.convertPointToScreen(p1, this);
-            this.jp.showPopup(p1.x -1, p1.y -1);
+            this.jp.showPopup(p1.x -2, p1.y -2);
             popupVisible = true;
         }
         this.repaint();
@@ -1395,11 +1395,14 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
             public void mouseClicked(MouseEvent e) {}
             public void mousePressed(MouseEvent e) {}
             public void mouseReleased(MouseEvent e) {}
-            public void mouseEntered(MouseEvent e) {}
+            public void mouseEntered(MouseEvent e) {
+                System.out.println("enter");
+            }
             public void mouseExited(MouseEvent e) {
-                Rectangle rec = jp.getPopupBounds();
-                Point p = e.getLocationOnScreen();
-                if(rec == null || p == null || p.x < rec.x + 2 || p.y < rec.y + 2 || p.x > rec.x + rec.width - 3 || p.y > rec.y + rec.height - 3){
+                System.out.println("exit");
+
+                if(e.getX() < 0 || e.getY() < 0 || e.getX() >= e.getComponent().getWidth() || e.getY() >= e.getComponent().getHeight()){
+                    System.out.println("hide");
                     hidePopup();
                 }
             }
@@ -1408,6 +1411,7 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
         popPanel = new JPanel(new BorderLayout());
         popPanel.setBackground(Color.WHITE);
         jp.add(popPanel);
+        jp.packPopup();
     }
 
 }
