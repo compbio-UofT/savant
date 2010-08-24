@@ -15,6 +15,7 @@
  */
 package savant.view.swing;
 
+import savant.swing.component.TrackChooser;
 import com.jidesoft.dialog.JideOptionPane;
 import com.jidesoft.docking.*;
 import com.jidesoft.docking.event.DockableFrameEvent;
@@ -1252,7 +1253,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
 
     private void disableExperimentalFeatures() {
         //this.menuitem_preferences.setVisible(false);
-        this.menuitem_tools.setVisible(false);
+        //this.menuitem_tools.setVisible(false);
     }
 
     private void initPanelsAndDocking() {
@@ -2848,6 +2849,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
 
     public String[] getSelectedTracks(boolean multiple, String title){
         TrackChooser tc = new TrackChooser(Savant.getInstance(), multiple, title);
+        tc.setVisible(true);
         String[] tracks = tc.getSelectedTracks();
         return tracks;
     }

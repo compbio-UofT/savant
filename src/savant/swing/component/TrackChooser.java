@@ -13,7 +13,7 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package savant.view.swing;
+package savant.swing.component;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -35,6 +35,8 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import savant.controller.FrameController;
 import savant.file.FileFormat;
+import savant.view.swing.Frame;
+import savant.view.swing.Savant;
 
 /**
  *
@@ -64,6 +66,14 @@ public class TrackChooser extends javax.swing.JDialog {
     private JComboBox filterCombo;
     private String[] filteredTracks = null;
 
+    @Override
+    public void setVisible(boolean isVisible) {
+        if (isVisible) {
+            initLists();
+        }
+        super.setVisible(isVisible);
+    }
+
     public TrackChooser(Savant parent, boolean multiple, String title){
         super(parent, true);
 
@@ -72,40 +82,9 @@ public class TrackChooser extends javax.swing.JDialog {
         this.multiple = multiple;
         this.setTitle(title);
 
-        createMoveRight();
-        createMoveLeft();
-        createAllLeft();
-        createAllRight();
-        createOkButton();
-        createCancelButton();
-        createFilter();
-        initLayout();
-
-        leftList.setModel(new TrackListModel());
-        rightList.setModel(new TrackListModel());
-
-        List<Frame> frames = FrameController.getInstance().getFrames();
-        String[] tracks = new String[frames.size()];
-        List<FileFormat> fileFormats = new ArrayList<FileFormat>();
-        for(int i = 0; i <frames.size(); i++){
-            //tracks[i] = frames.get(i).getTracks().get(0).getName();
-            tracks[i] = frames.get(i).getName();
-            FileFormat ff = frames.get(i).getTracks().get(0).getDataType();
-            if(!fileFormats.contains(ff)) fileFormats.add(ff);
-        }
-        filterCombo.addItem("ALL");
-        for(int i = 0; i < fileFormats.size(); i++){
-            filterCombo.addItem(fileFormats.get(i));
-        }
-        filterCombo.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                filter();
-            }
-        });
-
-        ((TrackListModel)leftList.getModel()).init(tracks);
-
-        this.setVisible(true);
+        init();
+        initLists();
+        
     }
 
     public String[] getSelectedTracks(){
@@ -446,6 +425,45 @@ public class TrackChooser extends javax.swing.JDialog {
             public void mouseEntered(MouseEvent e) {}
             public void mouseExited(MouseEvent e) {}
         });
+    }
+
+    private void init() {
+        createMoveRight();
+        createMoveLeft();
+        createAllLeft();
+        createAllRight();
+        createOkButton();
+        createCancelButton();
+        createFilter();
+        initLayout();
+    }
+
+    private void initLists() {
+        
+
+        leftList.setModel(new TrackListModel());
+        rightList.setModel(new TrackListModel());
+
+        List<Frame> frames = FrameController.getInstance().getFrames();
+        String[] tracks = new String[frames.size()];
+        List<FileFormat> fileFormats = new ArrayList<FileFormat>();
+        for(int i = 0; i <frames.size(); i++){
+            //tracks[i] = frames.get(i).getTracks().get(0).getName();
+            tracks[i] = frames.get(i).getName();
+            FileFormat ff = frames.get(i).getTracks().get(0).getDataType();
+            if(!fileFormats.contains(ff)) fileFormats.add(ff);
+        }
+        filterCombo.addItem("ALL");
+        for(int i = 0; i < fileFormats.size(); i++){
+            filterCombo.addItem(fileFormats.get(i));
+        }
+        filterCombo.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                filter();
+            }
+        });
+
+        ((TrackListModel)leftList.getModel()).init(tracks);
     }
 
     private class TrackListModel extends DefaultListModel{

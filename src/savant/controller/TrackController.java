@@ -27,6 +27,7 @@ import savant.model.data.Track;
 
 import java.util.ArrayList;
 import java.util.List;
+import savant.view.swing.ViewTrack;
 
 /**
  * Singleton controller class to manage data tracks.

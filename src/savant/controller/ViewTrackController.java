@@ -124,4 +124,12 @@ public class ViewTrackController {
         fireTracksListChangedEvent();
     }
 
+    public ViewTrack getTrack(String tname) {
+        for (ViewTrack t : this.tracks) {
+            if (t.getName().equals(tname)) {
+                return t;
+            }
+        }
+        return null;
+    }
 }
