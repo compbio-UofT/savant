@@ -26,10 +26,10 @@ public class PathField extends JPanel {
     JFileChooser fc;
 
      public PathField(final int JFileChooserDialogType) {
-         this(JFileChooserDialogType,false);
+         this(JFileChooserDialogType,false,false);
      }
 
-    public PathField(final int JFileChooserDialogType, boolean showFileButton) {
+    public PathField(final int JFileChooserDialogType, boolean showFileButton, boolean directoriesOnly) {
         f = new JTextField();
         b = new JButton("...");
         fc = new JFileChooser();
@@ -42,6 +42,9 @@ public class PathField extends JPanel {
             fc.setDialogTitle("Open File");
             f.setToolTipText("Path to input file");
             b.setToolTipText("Choose input file");
+        }
+        if(directoriesOnly){
+            fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         }
         this.setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
         this.add(f);
