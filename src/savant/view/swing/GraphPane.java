@@ -1311,6 +1311,13 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
             return;
         }
 
+        /** XXX: This line is here to get around what looks like a bug in the 1.6.0_20 JVM for Snow Leopard
+         * which causes the mouseExited events not to be triggered sometimes. We hide the popup before
+         * showing another. This needs to be done exactly here: after we know we have a new popup to show
+         * and before we set currentOverRecord. Otherwise, it won't work.
+         */
+        hidePopup();
+
         currentOverRecord = (Record)map.keySet().toArray()[0];
         currentOverShape = map.get(currentOverRecord);
         if(currentOverRecord.getClass().equals(GenericContinuousRecord.class)){
