@@ -1395,14 +1395,9 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
             public void mouseClicked(MouseEvent e) {}
             public void mousePressed(MouseEvent e) {}
             public void mouseReleased(MouseEvent e) {}
-            public void mouseEntered(MouseEvent e) {
-                System.out.println("enter");
-            }
+            public void mouseEntered(MouseEvent e) {}
             public void mouseExited(MouseEvent e) {
-                System.out.println("exit");
-
                 if(e.getX() < 0 || e.getY() < 0 || e.getX() >= e.getComponent().getWidth() || e.getY() >= e.getComponent().getHeight()){
-                    System.out.println("hide");
                     hidePopup();
                 }
             }
