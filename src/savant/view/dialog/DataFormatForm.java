@@ -499,7 +499,7 @@ public class DataFormatForm extends JDialog implements PropertyChangeListener /*
         addFormat("BED", false, false, FileType.INTERVAL_BED , "BED format is an alternative to GFF format for describing co-ordinates of localized features on genomes.");
         addFormat("GFF", true, false, FileType.INTERVAL_GFF , "GFF is a format for locating & describing genes and other localized features associated with DNA, RNA and Protein sequences.");
         addFormat("BAM Coverage", true, false, FileType.INTERVAL_BAM , "SAM format (binary, for BAM) is a generic format for storing large nucleotide sequence alignments.");
-        addFormat("WIG", true, false, FileType.CONTINUOUS_WIG , "WIG format allows display of continuous-valued data in track format. This display type is useful for GC percent, probability scores, and transcriptome data.");
+        addFormat("WIG/BedGraph", true, false, FileType.CONTINUOUS_WIG , "WIG format allows display of continuous-valued data in track format. This display type is useful for GC percent, probability scores, and transcriptome data.");
         addFormat("Generic Interval", true, true, FileType.INTERVAL_GENERIC , "Generic intervals can be used to display any number of from to pairs, each with an associated description.");
         addFormat("Generic Point", true, true, FileType.POINT_GENERIC ,"Generic intervals can be used to display any number of positional elements, each with an associated description.");
         addFormat("Generic Continuous", true, true, FileType.CONTINUOUS_GENERIC ,"Generic intervals can be used to display continuous values.");

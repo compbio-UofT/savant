@@ -96,11 +96,8 @@ public class WIGFormatter extends SavantFileFormatter {
                     // split line up into tokens
                     tokens = strLine.split("\\s");
 
-                    //skip blank lines
-                    if(tokens.length < 1){ continue; }
-
-                    if (tokens.length > 0 && (tokens[0].equals("track") || tokens[0].equals("#"))){
-                        // skip the track definition lines and comment lines
+                    if (tokens.length < 1 || (tokens.length > 0 && (tokens[0].equals("track") || tokens[0].equals("#")))){
+                        // skip the track definition lines and comment lines and blank lines
                         strLine = inFileReader.readLine();
                         // update bytes read from input
                         updateByteCount(strLine);
@@ -148,7 +145,7 @@ public class WIGFormatter extends SavantFileFormatter {
                         } else {
                             span = 1;
                         }
-                    } else if (tokens.length == 4 || mode.equals("bedGraph")) {
+                    } else if (tokens.length == 4) {
 
                         mode = "bedGraph";
 
