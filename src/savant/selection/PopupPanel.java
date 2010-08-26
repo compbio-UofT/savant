@@ -165,10 +165,6 @@ public class PopupPanel extends JPanel {
 
     protected void initInfo(){};
 
-    protected void hidePanel(){
-        this.gp.hidePopup();
-    }
-
     protected String homogenizeRef(String orig){
         if(!ReferenceController.getInstance().getAllReferenceNames().contains(orig)){
             Iterator<String> it = ReferenceController.getInstance().getAllReferenceNames().iterator();

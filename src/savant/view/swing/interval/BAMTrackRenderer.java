@@ -190,12 +190,6 @@ public class BAMTrackRenderer extends TrackRenderer {
                 return;
             }
         }
-        
-        // display only a message if intervals will not be visible at this resolution
-        /*if (gp.getUnitHeight() < 1) {
-            GlassMessagePane.draw(g2, gp, "Too many intervals to display.", 500);
-            return;
-        }*/
 
         renderFixed = false;
         renderFixed = gp.getUnitHeight() < minimumHeight;
@@ -214,8 +208,6 @@ public class BAMTrackRenderer extends TrackRenderer {
                 gp.setBufferedImage(new BufferedImage(currentWidth, expectedHeight, BufferedImage.TYPE_INT_RGB));
                 gp.newHeight = expectedHeight;
                 gp.setPaneResize(true);
-                //g2 = gp.bf.createGraphics();
-                //gp.renderBackground(g2);
                 return;
             }
             gp.setUnitHeight(maximumHeight);
@@ -398,11 +390,6 @@ public class BAMTrackRenderer extends TrackRenderer {
 
                 double width = gp.getWidth(operatorLength);
                 if (width < 1) width = 1;
-//                opRect = new Rectangle2D.Double(
-//                        opStart,
-//                        gp.transformYPos(level)-unitHeight,
-//                        Math.max(opWidth, 1),
-//                        unitHeight);
                 opRect = new Rectangle2D.Double(
                         opStart,
                         gp.transformYPos(0)-((level + 1)*unitHeight),
@@ -413,17 +400,11 @@ public class BAMTrackRenderer extends TrackRenderer {
             }
             // insert
             else if (operator == CigarOperator.I) {
-//                    g2.setColor(Color.white);
-//                    int xCoordinate = (int)gp.transformXPos(sequenceCursor);
-//                    int yCoordinate = (int)(gp.transformYPos(level)-unitHeight);
-//                    g2.drawLine(xCoordinate, (int)yCoordinate, xCoordinate, (int)(yCoordinate+unitHeight));
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 g2.setColor(Color.white);
                 int xCoordinate = (int)gp.transformXPos(sequenceCursor);
-                //int yCoordinate = (int)(gp.transformYPos(level)-unitHeight) + 1;
                 int yCoordinate = (int)(gp.transformYPos(0)-((level + 1)*unitHeight)) + 1;
                 if((int)unitWidth/3 < 4 || (int)(unitHeight/2) < 6){
-                    //yCoordinate = (int)(gp.transformYPos(level)-unitHeight);
                     yCoordinate = yCoordinate - 1;
                     int lineWidth = Math.max((int)(unitWidth * (2.0/3.0)), 1);
                     int xCoordinate1 = (int)(opStart - Math.floor(lineWidth/2));
@@ -477,10 +458,6 @@ public class BAMTrackRenderer extends TrackRenderer {
                             double xCoordinate = gp.transformXPos(sequenceCursor+i);
                             double width = gp.getUnitWidth();
                             if (width < 1) width = 1;
-//                            opRect = new Rectangle2D.Double(xCoordinate,
-//                                    gp.transformYPos(level)-unitHeight,
-//                                    unitWidth,
-//                                    unitHeight);
                             opRect = new Rectangle2D.Double(xCoordinate,
                                     gp.transformYPos(0)-((level + 1)*unitHeight),
                                     unitWidth,
@@ -494,11 +471,6 @@ public class BAMTrackRenderer extends TrackRenderer {
             // skipped
             else if (operator == CigarOperator.N) {
                 // draw nothing
-
-//                opRect = new Rectangle2D.Double(opStart,
-//                                                    gp.transformYPos(level)-unitHeight,
-//                                                    opWidth,
-//                                                    unitHeight);
                 opRect = new Rectangle2D.Double(opStart,
                                                     gp.transformYPos(0)-((level+1)*unitHeight),
                                                     opWidth,
@@ -651,14 +623,6 @@ public class BAMTrackRenderer extends TrackRenderer {
 
         }
 
-        // draw legend
-        /*String[] legendStrings = {"Discordant Length", "Inverted Read", "Inverted Mate", "Everted Pair"};
-        Color[] legendColors = {discordantLengthColor, invertedReadColor, invertedMateColor, evertedPairColor};
-        String sizingString = legendStrings[0];
-        Rectangle2D stringRect = smallFont.getStringBounds(sizingString, g2.getFontRenderContext());
-
-        drawLegend(g2, legendStrings, legendColors, (int)(gp.getWidth()-stringRect.getWidth()-5), (int)(2*stringRect.getHeight() + 5+2));
-*/
     }
 
     private void renderSNPMode(Graphics2D g2, GraphPane gp, Resolution r){
@@ -896,16 +860,6 @@ public class BAMTrackRenderer extends TrackRenderer {
         panel.setPreferredSize(new Dimension(125,61));
         return panel;
     }
-
-    /*@Override
-    public void setIntervalMode(String mode){
-        if(mode.equals("dynamic")){
-            this.dynamicMode = true;
-        } else {
-            this.dynamicMode = false;
-        }
-       // this.resizeRequired = true;
-    }*/
 
     public int getMaximumHeight(){
         return this.maximumHeight;

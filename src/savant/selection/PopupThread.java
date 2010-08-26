@@ -19,8 +19,6 @@ package savant.selection;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import savant.view.swing.GraphPane;
 
 /**
@@ -51,7 +49,6 @@ public class PopupThread implements Runnable {
             } catch (InterruptedException ex) {
                 //sleep has been interrupted
                 retry = true;
-                //gp.hidePopup();
                 while(retry){
                     retry = false;
                     Point p1 = gp.getMousePosition();                 
