@@ -30,21 +30,17 @@ import savant.model.view.Mode;
 import savant.util.Range;
 import savant.view.swing.interval.BAMViewTrack;
 import savant.view.swing.util.GlassMessagePane;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.awt.geom.Ellipse2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
 import savant.controller.GraphPaneController;
 import savant.controller.ReferenceController;
 import savant.controller.event.graphpane.GraphPaneChangeListener;
-import savant.data.types.ContinuousRecord;
 import savant.data.types.GenericContinuousRecord;
 import savant.data.types.Record;
 import savant.settings.ColourSettings;
@@ -78,15 +74,11 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
     private boolean isYGridOn = true;
     private boolean isXGridOn = true;
 
-    // Popup menu
-    //private JPopupMenu menu;
-
     // Locking
     private boolean isLocked = false;
     private Range lockedRange;
 
     /** Selection Variables */
-    //private int x1, x2;
     private int y1, y2;
     private int x, y, w, h;
     private boolean isDragging = false;
@@ -114,7 +106,6 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
     //popup
     public Thread popupThread;
     public JidePopup jp = new JidePopup();
-    //private int currentOver = -1;
     private Record currentOverRecord = null;
     private Shape currentOverShape = null;
     private boolean popupVisible = false;
@@ -168,25 +159,6 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
     }
 
     /**
-     * CONTEXT MENU (WHEN USER RIGHT CLICKS GP)
-     */
-
-    /*private void initContextualMenu() {
-        menu = new JPopupMenu();
-
-        JMenuItem lockMI = new JCheckBoxMenuItem("Lock");
-        lockMI.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                switchLocked();
-            }
-        });
-
-        menu.add ( lockMI );
-
-        menu.addSeparator();
-    }*/
-
-    /**
      * GRAPHPANE CHANGE LISTENER
      */
 
@@ -219,43 +191,6 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
      */
     public void addTrack(ViewTrack track) {
         tracks.add(track);
-        /*JMenu trackMenu = new JMenu(track.getName());
-        JMenu modeMenu = new JMenu("Change Display Mode");
-        List<Mode> viewModes = track.getDrawModes();
-        if (viewModes.isEmpty()) {
-            modeMenu.setEnabled(false);
-        }
-        else {
-            ButtonGroup modeGroup = new ButtonGroup();
-            for (Mode mode: viewModes) {
-                JMenuItem changeModeMI = new JRadioButtonMenuItem(mode.getName());
-                if (mode == track.getDefaultDrawMode()) {
-                    changeModeMI.setSelected(true);
-                }
-                final ViewTrack innerTrack = track;
-                final Mode innerMode = mode;
-                changeModeMI.addActionListener(new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        switchMode(innerTrack, innerMode);
-                    }
-                });
-                modeGroup.add(changeModeMI);
-                modeMenu.add(changeModeMI);
-            }
-        }
-        trackMenu.add(modeMenu);
-        // if it's a BAM track, add a menu item to allow changing the display parameters
-        if (track.getDataType() == FileFormat.INTERVAL_BAM) {
-            JMenuItem bamParamChangeMI = new JMenuItem("Change Arc Parameters...");
-            final BAMViewTrack innerTrack = (BAMViewTrack)track;
-            bamParamChangeMI.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    getBAMParams(innerTrack);
-                }
-            });
-            trackMenu.add(bamParamChangeMI);
-        }
-        menu.add(trackMenu);*/
     }
 
     /**
@@ -351,8 +286,6 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
                 }
             }
             renderCurrentSelected(g);
-            //renderTempSelected(g);
-            
 
             //force unitHeight from last render
             unitHeight = oldUnitHeight;
@@ -396,7 +329,6 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
 
             //get old scroll position
             int oldScroll = ((JScrollPane)this.getParent().getParent().getParent()).getVerticalScrollBar().getValue();
-            int oldHeight = this.getHeight();
             int oldViewHeight = ((JViewport)this.getParent().getParent()).getHeight();
             int oldBottomHeight = oldHeight - oldScroll - oldViewHeight;
 
@@ -473,63 +405,6 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
             }
         }
     }
-
-    /*private void renderCurrentSelected(Graphics g){
-        TrackRenderer tr = this.trackRenderers.get(0);
-        if(!tr.hasMappedValues()) return;
-        if(tr.hasCurrentSelected()){
-            Graphics2D g2 = (Graphics2D) g;
-            boolean arcMode = false;
-            if(this.parentFrame.getTracks().get(0).getDrawMode() != null){
-                arcMode = this.parentFrame.getTracks().get(0).getDrawMode().getName().equals("MATE_PAIRS");
-            }
-
-            List<Shape> currentSelected = tr.getCurrentSelectedShapes();
-            for(int i = 0; i < currentSelected.size(); i++){
-                Shape selectedShape = currentSelected.get(i);
-                if(arcMode){
-                    g2.setColor(Color.GREEN);
-                    g2.draw(selectedShape);
-                } else {
-                    g2.setColor(Color.GREEN);
-                    g2.fill(selectedShape);
-                    if(selectedShape.getBounds().getWidth() > 5){
-                        g2.setColor(Color.BLACK);
-                        g2.draw(selectedShape);
-                    }
-                }
-            }
-        }
-    }*/
-
-    /*private void renderTempSelected(Graphics g){
-        TrackRenderer tr = this.trackRenderers.get(0);
-        if(!tr.hasMappedValues()) return;
-        if(tr.hasTempSelected()){
-            Graphics2D g2 = (Graphics2D) g;
-            boolean arcMode = false;
-            if(this.parentFrame.getTracks().get(0).getDrawMode() != null){
-                arcMode = this.parentFrame.getTracks().get(0).getDrawMode().getName().equals("MATE_PAIRS");
-            }
-
-            List<Shape> currentSelected = tr.getTempSelectedShapes();
-            for(int i = 0; i < currentSelected.size(); i++){
-                Shape selectedShape = currentSelected.get(i);
-                if(arcMode){
-                    g2.setColor(Color.ORANGE);
-                    g2.draw(selectedShape);
-                } else {
-                    g2.setColor(Color.ORANGE);
-                    g2.fill(selectedShape);
-                    if(selectedShape.getBounds().getWidth() > 5){
-                        g2.setColor(Color.BLACK);
-                        g2.draw(selectedShape);
-                    }
-                }
-            }
-        }
-        tr.clearTempSelected();
-    }*/
 
     /*
      * Call before a repaint to override bufferedImage repainting
@@ -1273,7 +1148,6 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
         for(int i = 0; i < this.tracks.size(); i++){
             this.tracks.get(i).getFrame().resetLayers();
         }
-        //FrameController.getInstance().resetFrames();
     }
 
     public Frame getParentFrame(){
@@ -1290,10 +1164,6 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
 
     //POPUP
     public void tryPopup(Point p){
-
-        //FIXME: is this a reasonable test? maybe use size of data or something
-        //if range is too big, do nothing
-        //if(prevRange.getLength() > 8000) return;
 
         //get shape
         int trackNum = 0;
@@ -1349,10 +1219,6 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
     }
 
     public void trySelect(Point p){
-
-        //if range is too big, do nothing
-        //if(prevRange.getLength() > 8000) return;
-
 
         int trackNum = 0;
         Map<Record, Shape> map = null;
