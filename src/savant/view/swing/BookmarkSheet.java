@@ -141,8 +141,10 @@ public class BookmarkSheet implements BookmarksChangedListener /*, RangeChangedL
                     Object[] options = {"Yes",
                                         "No",
                                         "Yes, don't ask again"};
+                    JLabel message = new JLabel("Are you sure you want to delete " + selectedRows.length + " item(s)?");
+                    message.setPreferredSize(new Dimension(300,20));
                     int confirmDeleteDialog = JOptionPane.showOptionDialog(Savant.getInstance(),
-                        "Are you sure you want to delete " + selectedRows.length + " item(s)?",
+                        message,
                         "Confirm Delete",
                         JOptionPane.YES_NO_CANCEL_OPTION,
                         JOptionPane.QUESTION_MESSAGE,
