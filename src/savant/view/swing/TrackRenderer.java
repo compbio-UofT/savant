@@ -20,7 +20,6 @@ import java.net.URI;
 import savant.file.FileFormat;
 import savant.model.view.DrawingInstructions;
 import savant.util.Range;
-
 import java.awt.*;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Rectangle2D;
@@ -34,7 +33,6 @@ import javax.swing.JPanel;
 import javax.swing.JViewport;
 import savant.controller.RangeController;
 import savant.controller.SelectionController;
-import savant.data.types.ContinuousRecord;
 import savant.data.types.GenericContinuousRecord;
 import savant.data.types.Record;
 import savant.model.view.Mode;
@@ -42,7 +40,7 @@ import savant.view.swing.continuous.ContinuousTrackRenderer;
 
 /**
  *
- * @author mfiume
+ * @author mfiume, AndrewBrook
  */
 public abstract class TrackRenderer {
 
@@ -50,9 +48,6 @@ public abstract class TrackRenderer {
     private DrawingInstructions instructions;
     private FileFormat dataType;
     private URI fileURI;
-
-    private Color overlayColor = Color.RED;
-    private Color selectedColor = Color.GREEN;
     protected Map<Record, Shape> recordToShapeMap = new HashMap<Record, Shape>();
 
     public TrackRenderer(DrawingInstructions instructions) {
@@ -101,9 +96,8 @@ public abstract class TrackRenderer {
     public void resizeFrame(GraphPane gp){
         Frame frame = gp.getParentFrame();
         int h1 = ((JViewport)gp.getParent().getParent()).getHeight();
-        int h2 = frame.getFrameLandscape().getHeight();
-        int h3 = gp.getHeight();
-        if(h1 != h3){
+        int h2 = gp.getHeight();
+        if(h1 != h2){
             gp.revalidate();
             gp.setPreferredSize(((JViewport)gp.getParent().getParent()).getSize());
             frame.getFrameLandscape().setPreferredSize(((JViewport)gp.getParent().getParent()).getSize());
@@ -177,7 +171,6 @@ public abstract class TrackRenderer {
     
 
     // GLOBAL SELECTED
-    // comparisons for globally selected objects
 
     public void addToSelected(Record i){
         if(selectionAllowed()){
@@ -193,7 +186,6 @@ public abstract class TrackRenderer {
 
 
     // CURRENT SELECTED
-    // controls selections in current view
 
     public List<Shape> getCurrentSelectedShapes(GraphPane gp){
         List<Shape> shapes = new ArrayList<Shape>();
@@ -218,38 +210,5 @@ public abstract class TrackRenderer {
         Shape s = new Ellipse2D.Double(x, y, 8, 8);
         return s;
     }
-
-
-    // TEMP SELECTED
-    // controls shapes for temporary selection, ie. selecting rows in Table View
-
-    /*public void addMultipleToTempSelected(Object i){
-        if(this.selectionAllowed() && !this.tempSelected.contains(i)){
-            this.tempSelected.add(i);
-        }
-    }
-
-    public boolean hasTempSelected(){
-        return !this.tempSelected.isEmpty();
-    }
-
-    public void clearTempSelected(){
-        this.tempSelected.clear();
-    }
-
-    public List<Object> getTempSelected(){
-        return this.tempSelected;
-    }
-
-    public List<Shape> getTempSelectedShapes(){
-        List<Shape> shapes = new ArrayList<Shape>();
-        for(int i = 0; i < this.tempSelected.size(); i++){
-            Shape s = this.objectToShapeMap.get(tempSelected.get(i));
-            if(s != null){
-                shapes.add(s);
-            }
-        }
-        return shapes;
-    }*/
 
 }
