@@ -149,58 +149,11 @@ public class SelectionController {
         return -1;    // Failed to find key
     }
 
-    private int binarySearchList(List<Object> data, Comparable o){
-        int start = 0;
-        int end = data.size();
-
-        while (start < end){
-            int mid = (start + end) / 2;
-            int compare = o.compareTo((Comparable)data.get(mid));
-            if (compare < 0) end = mid;
-            else if (compare > 0) start = mid + 1;
-            else return mid;
-        }
-        return -1; //failed to find key
-    }
-
    private List<Comparable> getSelectedFromList(URI uri, List<Object> data){
 
-       /*List<Comparable> list = new ArrayList<Comparable>();
-       List<Comparable> selected = map.get(uri);
-       if(selected == null || selected.isEmpty() || data.isEmpty()) return list;
-
-       //find largest list
-       List a;
-       List b;
-
-       //Collections.sort((List<Comparable>)data);
-       List<Comparable> data1 = new ArrayList<Comparable>();
-       for(int i = 0; i < data.size(); i++){
-           data1.add((Comparable) data.get(i));
-       }
-       Collections.sort(data1);
-
-
-       b = selected;
-       a = data1;
-
-       if(selected.size() > data.size()){
-           a = selected;
-           b = data;
-       } else {
-           a = data;
-           b = selected;
-       }
-
-       //find all objects in BOTH lists
-       //takes b log a time, where b<=a
-       for(int i = 0; i < b.size(); i++){
-           Comparable o = (Comparable)b.get(i);
-           int pos = binarySearchList(a, o);
-           if(pos != -1) list.add(o);
-       }
-
-       return list;*/
+       //TODO: change so that we perform binary search of
+       //larger list for each element of smaller list. Cannot do this currently
+       //because data may not be sorted as Comparable expects.
 
        List<Comparable> list = new ArrayList<Comparable>();
        if(map.get(uri) == null || map.get(uri).isEmpty()) return list;
