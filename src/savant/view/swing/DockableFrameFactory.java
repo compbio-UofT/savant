@@ -13,13 +13,14 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.HashMap;
 import java.util.Map;
+import savant.view.icon.SavantIconFactory;
 
 /**
  */
 public class DockableFrameFactory {
 
     public static DockableFrame createFrame(String name, int mode, int side) {
-        DockableFrame frame = new DockableFrame(name, JideIconsFactory.getImageIcon(JideIconsFactory.FileType.TEXT));
+        DockableFrame frame = new DockableFrame(name, null);
         frame.getContext().setInitMode(mode);
         frame.getContext().setInitSide(side);
         frame.setSlidingAutohide(false);
@@ -48,7 +49,7 @@ public class DockableFrameFactory {
 
         numTracks++;
         
-        final DockableFrame frame = new DockableFrame(numTracks + ". " + name, JideIconsFactory.getImageIcon(JideIconsFactory.WindowMenu.NEW_HORIZONTAL_TAB));
+        final DockableFrame frame = new DockableFrame(numTracks + ". " + name, SavantIconFactory.getInstance().getIcon(SavantIconFactory.StandardIcon.TRACK));
         frame.setInitIndex(numTracks);
         if (allowClose) {
             frame.setAvailableButtons(DockableFrame.BUTTON_AUTOHIDE | DockableFrame.BUTTON_FLOATING | DockableFrame.BUTTON_MAXIMIZE | DockableFrame.BUTTON_CLOSE );

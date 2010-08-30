@@ -30,7 +30,7 @@ import savant.settings.BrowserSettings;
  */
 public class ToolRunInformation {
 
-    public enum TerminationStatus { INCOMPLETE, COMPLETE, INTERRUPT };
+    public enum TerminationStatus { INCOMPLETE, COMPLETE, ERROR, INTERRUPT };
 
     private TerminationStatus terminationStatus = TerminationStatus.INCOMPLETE;
     private Date startTime, endTime;

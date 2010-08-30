@@ -28,12 +28,13 @@ import org.java.plugin.Plugin;
 import savant.controller.event.thread.ThreadActivityChangedEvent;
 import savant.view.tools.ToolRunInformation;
 import savant.controller.ThreadController;
+import savant.view.tools.ToolRunInformation.TerminationStatus;
 
 public abstract class Tool extends Plugin implements Runnable {
 
     private JTextArea outputTextArea;
 
-    public abstract ToolInformation getToolInformation();
+    public abstract ProgramInformation getToolInformation();
 
     public abstract JComponent getCanvas();
 
@@ -49,13 +50,16 @@ public abstract class Tool extends Plugin implements Runnable {
         try {
             runTool();
             runInformation.setEndTimeAsNow();
-            tb.setValue(100);
-            tb.setString("complete");
-            runInformation.setTerminationStatus(ToolRunInformation.TerminationStatus.COMPLETE);
+            if (runInformation.getTerminationStatus() == TerminationStatus.INCOMPLETE) {
+                runInformation.setTerminationStatus(ToolRunInformation.TerminationStatus.COMPLETE);
+                tb.setValue(100);
+                tb.setString("complete");
+            }
         } catch (InterruptedException e) {
             tb.setString("cancelled");
             runInformation.setTerminationStatus(ToolRunInformation.TerminationStatus.INTERRUPT);
         } finally {
+            getOutputStream().flush();
             runInformation.setEndTimeAsNow();
             if (tb.isIndeterminate()) { tb.setIndeterminate(false); }
             switch(runInformation.getTerminationStatus()) {

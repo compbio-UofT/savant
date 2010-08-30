@@ -31,6 +31,7 @@ import org.java.plugin.registry.Extension;
 import org.java.plugin.registry.ExtensionPoint;
 import org.java.plugin.registry.PluginDescriptor;
 import org.java.plugin.standard.StandardPluginLocation;
+import org.jdom.JDOMException;
 import savant.analysis.BatchAnalysisForm;
 import savant.controller.*;
 import savant.controller.event.bookmark.BookmarksChangedEvent;
@@ -77,8 +78,10 @@ import java.util.*;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import savant.plugin.ToolPlugin;
+import savant.plugin.PluginTool;
 import savant.settings.TemporaryFilesSettingsSection;
+import savant.tools.program.ProgramXMLFileReader;
+import savant.view.icon.SavantIconFactory;
 
 /**
  * Main application Window (Frame).
@@ -341,8 +344,8 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
             // Set System L&F
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 
-            //LookAndFeelFactory.installJideExtension(LookAndFeelFactory.VSNET_STYLE);
-            LookAndFeelFactory.installJideExtension(LookAndFeelFactory.VSNET_STYLE);
+            LookAndFeelFactory.installJideExtension(LookAndFeelFactory.XERTO_STYLE_WITHOUT_MENU);
+            // LookAndFeelFactory.installJideExtension(LookAndFeelFactory.OFFICE2003_STYLE);
 
         } catch (Exception e) {
             // handle exception
@@ -353,13 +356,16 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         initComponents();
         customizeUI();
         init();
+        
+        try {
+            new ProgramXMLFileReader("C:\\Users\\mfiume\\Desktop\\samplexml.xml");
 
-        /*
-        DocumentViewer v = new DocumentViewer();
-        v.addDocument("C:\\Documents and Settings\\mfiume\\DataFormatter.html");
-        v.addDocument("C:\\test.txt");
-        v.setVisible(true);
-         */
+        } catch (IOException ex) {
+            Logger.getLogger(Savant.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (JDOMException ex) {
+            Logger.getLogger(Savant.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
     }
 
     private void loadPlugins() {
@@ -812,6 +818,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
 
         menuBar_top.add(menu_plugins);
 
+        menu_help.setBackground(new java.awt.Color(255, 0, 51));
         menu_help.setText("Help");
 
         menuitem_usermanual.setText("Manuals");
@@ -1334,9 +1341,9 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
                         cb.setSelected(true);
                     }
                     menu_window.add(cb);
-                } else if (plugininstance instanceof ToolPlugin) {
+                } else if (plugininstance instanceof PluginTool) {
 
-                    ToolPlugin p = (ToolPlugin) plugininstance;
+                    PluginTool p = (PluginTool) plugininstance;
 
                     System.out.println("Loading Tool Plugin : " + p.getToolInformation().getName());
 
