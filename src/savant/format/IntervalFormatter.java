@@ -477,7 +477,7 @@ public class IntervalFormatter extends SavantFileFormatter {
         while((strLine = inFileReader.readLine()) != null) {
 
             // skip blank lines
-            if (strLine.equals("")) { continue; }
+            if (strLine.equals("") || strLine.startsWith("track") || strLine.startsWith("#")) { continue; }
 
             // tokenize the line into the respective fields
             line = SavantFileFormatterUtils.parseTxtLine(strLine, fields, isGFF);
