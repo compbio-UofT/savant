@@ -37,7 +37,7 @@ public class BEDIntervalRecord implements IntervalRecord, Comparable {
     private final List<Block> blocks;
     private final String chrom;
     private final String name;
-    private final int score;
+    private final float score;
     private final Strand strand;
     private final int thickStart;
     private final int thickEnd;
@@ -56,7 +56,7 @@ public class BEDIntervalRecord implements IntervalRecord, Comparable {
      * @param rgb
      * @param blocks
      */
-    BEDIntervalRecord(String chrom, Interval interval, String name, int score, Strand strand, int thickStart, int thickEnd, ItemRGB rgb,  List<Block> blocks) {
+    BEDIntervalRecord(String chrom, Interval interval, String name, float score, Strand strand, int thickStart, int thickEnd, ItemRGB rgb,  List<Block> blocks) {
 
         if (chrom == null) throw new IllegalArgumentException("Invalid argument: chrom may not be null");
         if (interval == null) throw new IllegalArgumentException("Invalid argument. Interval must not be null");
@@ -86,7 +86,7 @@ public class BEDIntervalRecord implements IntervalRecord, Comparable {
      * @param blocks
      * @return
      */
-    public static BEDIntervalRecord valueOf(String chrom, Interval interval, String name, int score, Strand strand, int thickStart, int thickEnd, ItemRGB rgb,  List<Block> blocks) {
+    public static BEDIntervalRecord valueOf(String chrom, Interval interval, String name, float score, Strand strand, int thickStart, int thickEnd, ItemRGB rgb,  List<Block> blocks) {
         return new BEDIntervalRecord(chrom, interval, name, score, strand, thickStart, thickEnd, rgb, blocks);
     }
 
@@ -118,7 +118,7 @@ public class BEDIntervalRecord implements IntervalRecord, Comparable {
         return getInterval().getEnd();
     }
 
-    public int getScore() {
+    public float getScore() {
         return score;
     }
 
@@ -191,14 +191,14 @@ public class BEDIntervalRecord implements IntervalRecord, Comparable {
         } else if(a < b) return -1;
         else return 1;
     }
-    
+
     @Override
     public int hashCode() {
-        int result = interval.hashCode();
+        int result = interval != null ? interval.hashCode() : 0;
         result = 31 * result + (blocks != null ? blocks.hashCode() : 0);
-        result = 31 * result + chrom.hashCode();
+        result = 31 * result + (chrom != null ? chrom.hashCode() : 0);
         result = 31 * result + (name != null ? name.hashCode() : 0);
-        result = 31 * result + score;
+        result = 31 * result + (score != +0.0f ? Float.floatToIntBits(score) : 0);
         result = 31 * result + (strand != null ? strand.hashCode() : 0);
         result = 31 * result + thickStart;
         result = 31 * result + thickEnd;

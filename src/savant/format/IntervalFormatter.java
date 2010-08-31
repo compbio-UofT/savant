@@ -251,7 +251,7 @@ public class IntervalFormatter extends SavantFileFormatter {
         fields.add(FieldType.INTEGER);  // start
         fields.add(FieldType.INTEGER);  // end
         fields.add(FieldType.STRING);   // name
-        fields.add(FieldType.INTEGER);  // score
+        fields.add(FieldType.FLOAT);  // score
         fields.add(FieldType.STRING);   // strand
         fields.add(FieldType.INTEGER);  // thickstart
         fields.add(FieldType.INTEGER);  // thickend
