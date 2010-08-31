@@ -539,7 +539,14 @@ public class SavantFileFormatterUtils {
         List<Block> blocks = null;
         
         if (numFields > 3) { name = (String) record.get(3); }
-        if (numFields > 4) { score = (Float) record.get(4); }
+        if (numFields > 4) {
+            Object o = record.get(4);
+            if (o instanceof Integer) {
+                score = ((Integer)o).floatValue();
+            } else if (o instanceof Float) {
+                score = (Float) record.get(4);
+            }
+        }
         if (numFields > 5) { strand = SavantFileFormatterUtils.getStrand((String) record.get(5)); }
         if (numFields > 6) { thickStart = (Integer) record.get(6); } else { thickStart = 0; }
         if (numFields > 7) { thickEnd = (Integer) record.get(7); } else { thickEnd = interval.getLength(); }
