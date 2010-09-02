@@ -13,7 +13,6 @@ import org.jdom.input.*;
 import savant.plugin.ProgramInformation;
 import savant.tools.program.ProgramArgument.IOType;
 import savant.tools.program.ProgramArgument.Requirement;
-import savant.tools.program.ProgramInputOutput.Direction;
 
 /**
  *
@@ -137,11 +136,14 @@ public class ProgramXMLFileReader {
         switch (type) {
             case String:
                 return t;
+            case Boolean:
+                return t.equals("Yes");
             default:
                 throw new UnsupportedOperationException("Not yet supporting type " + type);
         }
     }
 
+    /*
     private List<ProgramInputOutput> parseProgramInputOutputs(Element root, Direction direction) {
         List<ProgramInputOutput> puts = new ArrayList<ProgramInputOutput>();
         String s = (direction == Direction.INPUT) ? "input" : "output";
@@ -151,7 +153,7 @@ public class ProgramXMLFileReader {
         }
         return puts;
     }
-    
+
     private ProgramInputOutput parseProgramInputOutput(Element put, Direction direction) {
 
         return new ProgramInputOutput(
@@ -184,4 +186,6 @@ public class ProgramXMLFileReader {
             return null;
         }
     }
+     * 
+     */
 }
