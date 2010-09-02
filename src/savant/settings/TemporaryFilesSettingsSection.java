@@ -44,8 +44,10 @@ public class TemporaryFilesSettingsSection extends Section {
 
     private JTextField formatInput;
     private JTextField pluginsInput;
+    private JTextField xmlToolsInput;
     private String formatPath;
     private String pluginsPath;
+    private String xmlToolsPath;
 
     @Override
     public String getSectionName() {
@@ -208,13 +210,82 @@ public class TemporaryFilesSettingsSection extends Section {
             public void mouseExited(MouseEvent e) {}
         });
 
+        //XMLTOOLS/////////////////////////////////////
+
+        JLabel xmlToolsLabel = new JLabel("Select the folder to store XML tool descriptions: ");
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.gridx = 0;
+        c.gridy = 6;
+        c.gridwidth = 2;
+        c.gridheight = 1;
+        c.weightx = 1.0;
+        c.weighty = 0;
+        panel.add(xmlToolsLabel, c);
+
+        xmlToolsInput = new JTextField();
+        xmlToolsInput.setPreferredSize(new Dimension(20, 20));
+        xmlToolsInput.setSize(new Dimension(20, 20));
+        c.gridx = 0;
+        c.gridy = 7;
+        c.gridwidth = 1;
+        c.weightx = 1.0;
+        panel.add(xmlToolsInput, c);
+
+        JButton xmlToolsBrowse = new JButton("Browse...");
+        c.gridx = 1;
+        c.gridy = 7;
+        c.weightx = 0;
+        panel.add(xmlToolsBrowse, c);
+
+        JPanel spacer3 = new JPanel();
+        spacer3.setPreferredSize(new Dimension(20,20));
+        c.fill = GridBagConstraints.VERTICAL;
+        c.gridx = 0;
+        c.gridy = 8;
+        c.gridwidth = 2;
+        c.gridheight = 1;
+        c.weightx = 1.0;
+        c.weighty = 0;
+        panel.add(spacer3, c);
+
+        //initial directory
+        xmlToolsPath = DirectorySettings.getXMLToolDescriptionsDirectory();
+        xmlToolsInput.setText(xmlToolsPath);
+
+        //enable apply button if text changed
+        xmlToolsInput.addKeyListener(new KeyListener() {
+            public void keyTyped(KeyEvent e) {
+                enableApplyButton();
+            }
+            public void keyPressed(KeyEvent e) {}
+            public void keyReleased(KeyEvent e) {}
+        });
+
+        //browse action
+        pluginsBrowse.addMouseListener(new MouseListener() {
+            public void mouseClicked(MouseEvent e) {}
+            public void mousePressed(MouseEvent e) {}
+            public void mouseReleased(MouseEvent e) {
+                final JFileChooser fc = new JFileChooser();
+                fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+                int returnVal = fc.showOpenDialog(getThis());
+                if(returnVal == -1){
+                    return;
+                }
+                pluginsInput.setText(fc.getSelectedFile().getAbsolutePath());
+                enableApplyButton();
+            }
+            public void mouseEntered(MouseEvent e) {}
+            public void mouseExited(MouseEvent e) {}
+        });
+
         //CLEAR CACHE///////////////////////////////////
 
         JButton clearButton = new JButton("Clear remote BAM index cache");
         c.fill = GridBagConstraints.NONE;
         c.anchor = GridBagConstraints.WEST;
         c.gridx = 0;
-        c.gridy = 6;
+        c.gridy = 9;
         c.gridwidth = 1;
         c.gridheight = 1;
         c.weightx = 1.0;
@@ -242,6 +313,9 @@ public class TemporaryFilesSettingsSection extends Section {
 
         pluginsPath = pluginsInput.getText();
         DirectorySettings.setPluginsDirectory(pluginsPath);
+
+        xmlToolsPath = xmlToolsInput.getText();
+        DirectorySettings.setPluginsDirectory(xmlToolsPath);
 
     }
 }

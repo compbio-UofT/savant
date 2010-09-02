@@ -57,7 +57,7 @@ public class ProgramArgumentGrid extends JPanel {
                 return super.getCellRenderer(row, column);
             }
         };
-        table.setPreferredScrollableViewportSize(new Dimension(400, 300));
+        table.setPreferredScrollableViewportSize(new Dimension(300, 300));
         table.setRowAutoResizes(true);
         PropertyTableSearchable searchable = new PropertyTableSearchable(table);
         searchable.setRecursive(true);
@@ -65,13 +65,25 @@ public class ProgramArgumentGrid extends JPanel {
         return table;
     }
 
-    private void addProperty(String name, String description, String category, String type, boolean isEditable) {
+     public void addProperty(String name, String description, String category, String type, boolean isEditable, int pos) {
+        if  (findProperty(name) == -1) {
+            ArgumentProperty property = new ArgumentProperty(name, description, type.toString(), category, isEditable);
+            model.getOriginalProperties().add(pos,property);
+            model.refresh();
+        }
+    }
+
+    public void addProperty(String name, String description, String category, String type, boolean isEditable) {
+        addProperty(name, description, category, type, isEditable, model.getOriginalProperties().size());
+        /*
         int pos = findProperty(name);
         if (pos == -1) {
             ArgumentProperty property = new ArgumentProperty(name, description, type.toString(), category, isEditable);
             model.getOriginalProperties().add(property);
             model.refresh();
         }
+         * 
+         */
     }
 
     public ArgumentProperty getProperty(String name) {

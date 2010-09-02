@@ -30,10 +30,12 @@ public class SavantIconFactory {
         return new ImageIcon(getClass().getResource(resourcePath));
     }
 
-    public enum StandardIcon { SAVE, COPY, CLOSE, DELETE, RUN, STOP, REFRESH, UP, DOWN, VIEW, SAVANT, TRACK };
+    public enum StandardIcon { ADD, SAVE, COPY, CLOSE, DELETE, RUN, STOP, REFRESH, UP, DOWN, VIEW, SAVANT, TRACK };
 
     public ImageIcon getIcon(StandardIcon icon) {
         switch(icon) {
+            case ADD:
+                return getIcon("/savant/images/icon/add.png");
             case SAVE:
                 return getIcon("/savant/images/icon/save2.png");
             case COPY:

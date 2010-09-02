@@ -79,6 +79,8 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import savant.plugin.PluginTool;
+import savant.plugin.XMLTool;
+import savant.settings.DirectorySettings;
 import savant.settings.TemporaryFilesSettingsSection;
 import savant.tools.program.ProgramXMLFileReader;
 import savant.view.icon.SavantIconFactory;
@@ -356,16 +358,20 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         initComponents();
         customizeUI();
         init();
-        
+    }
+
+
+    private void initXMLTools() {
         try {
-            new ProgramXMLFileReader("C:\\Users\\mfiume\\Desktop\\samplexml.xml");
-
+            String dir = DirectorySettings.getXMLToolDescriptionsDirectory();
+            for (String fn : (new File(dir)).list()) {
+                if (fn.toLowerCase().endsWith(".xml")) {
+                    ToolsModule.addTool(new XMLTool(dir + System.getProperty("file.separator") + fn));
+                }
+            }
         } catch (IOException ex) {
-            Logger.getLogger(Savant.class.getName()).log(Level.SEVERE, null, ex);
         } catch (JDOMException ex) {
-            Logger.getLogger(Savant.class.getName()).log(Level.SEVERE, null, ex);
         }
-
     }
 
     private void loadPlugins() {
@@ -991,7 +997,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
     }//GEN-LAST:event_menuitem_thousandgenomesActionPerformed
 
     private void menuitem_pluginmanagerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuitem_pluginmanagerActionPerformed
-        PluginDialog pd = new PluginDialog();
+        PluginDialog pd = new PluginDialog(this);
         pd.setVisible(true);
     }//GEN-LAST:event_menuitem_pluginmanagerActionPerformed
 
@@ -1128,6 +1134,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
                 LookAndFeelFactory.installJideExtension(LookAndFeelFactory.OFFICE2007_STYLE);
                 Savant instance = Savant.getInstance();
                 instance.loadPlugins();
+                instance.initXMLTools();
                 instance.initPlugins();
                 instance.displayAuxPanels();
                 //instance.setVisible(true);
@@ -2685,6 +2692,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
     public void trackListChangeReceived(TrackListChangedEvent evt) {
         updateReferenceNamesList();
     }
+
 
     public enum LOGMODE { NORMAL, DEBUG };
 

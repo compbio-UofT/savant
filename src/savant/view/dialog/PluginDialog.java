@@ -12,11 +12,8 @@
 package savant.view.dialog;
 
 import savant.view.swing.*;
-import java.io.FileNotFoundException;
 import javax.swing.*;
 import java.awt.*;
-import java.io.BufferedInputStream;
-import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -26,22 +23,20 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import savant.util.MiscUtils;
 
 /**
  *
  * @author mfiume
  */
-public class PluginDialog extends javax.swing.JFrame {
+public class PluginDialog extends javax.swing.JDialog {
 
     public static String pluginDir = "plugins";
 
     /** Creates new form PluginManager */
-    public PluginDialog() {
+    public PluginDialog(java.awt.Frame parent) {
+        super(parent,"Plugin Manager");
         initComponents();
-        this.setTitle("Plugin Manager");
         this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         this.setResizable(false);
         updatePluginList();
@@ -63,7 +58,7 @@ public class PluginDialog extends javax.swing.JFrame {
         button_add_from_file = new javax.swing.JButton();
         button_add_from_url = new javax.swing.JButton();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
         jLabel1.setText("Installed Plugins");
 
@@ -95,17 +90,15 @@ public class PluginDialog extends javax.swing.JFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(button_add_from_file)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(button_add_from_url)
-                .addGap(6, 6, 6)
-                .addComponent(button_remove)
-                .addContainerGap())
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(button_add_from_file)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(button_add_from_url)
+                        .addGap(6, 6, 6)
+                        .addComponent(button_remove))
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 297, Short.MAX_VALUE)
                     .addComponent(jLabel1))
                 .addContainerGap())
@@ -139,17 +132,6 @@ public class PluginDialog extends javax.swing.JFrame {
     private void button_add_from_urlActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_add_from_urlActionPerformed
         addPluginFromURL();
     }//GEN-LAST:event_button_add_from_urlActionPerformed
-
-    /**
-    * @param args the command line arguments
-    */
-    public static void main(String args[]) {
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new PluginDialog().setVisible(true);
-            }
-        });
-    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton button_add_from_file;

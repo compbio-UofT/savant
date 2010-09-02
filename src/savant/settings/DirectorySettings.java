@@ -28,6 +28,7 @@ public class DirectorySettings {
     private static String SAVANT_DIR;
     private static String formatDir;
     private static String pluginsDir;
+    private static String XMLToolsDir;
 
     public static String getSavantDirectory() {
         if (SAVANT_DIR == null) {
@@ -68,6 +69,28 @@ public class DirectorySettings {
             boolean ret = f.mkdirs();
             if(ret) formatDir = dir;
         }      
+    }
+
+    public static String getXMLToolDescriptionsDirectory() {
+        if(XMLToolsDir == null){
+            //String home = System.getProperty("user.home");
+            String home = getSavantDirectory();
+            String fileSeparator = System.getProperty("file.separator");
+            XMLToolsDir = home + fileSeparator + "savant_xmltools";
+            File dir = new File(XMLToolsDir);
+            if (!dir.exists()) {
+                dir.mkdirs();
+            }
+        }
+        return XMLToolsDir;
+    }
+
+    public static void setXMLToolDescriptionsDirectory(String dir) {
+        File f = new File(dir);
+        if (!f.exists()) {
+            boolean ret = f.mkdirs();
+            if(ret) XMLToolsDir = dir;
+        }
     }
 
     public static String getPluginsDirectory() {

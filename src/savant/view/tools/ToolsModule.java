@@ -32,6 +32,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyVetoException;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -56,6 +57,7 @@ import javax.swing.JToolBar;
 import javax.swing.SpringLayout;
 import javax.swing.SwingConstants;
 import javax.swing.border.LineBorder;
+import javax.swing.filechooser.FileFilter;
 import savant.controller.BookmarkController;
 import savant.controller.RangeController;
 import savant.controller.InformativeThread;
@@ -68,13 +70,16 @@ import savant.controller.event.thread.ThreadActivityChangedEvent;
 import savant.controller.event.thread.ThreadActivityChangedListener;
 import savant.controller.event.viewtrack.ViewTrackListChangedEvent;
 import savant.controller.event.viewtrack.ViewTrackListChangedListener;
-import savant.plugin.PluginAdapter;
-import savant.plugin.ProgramInformation;
 import savant.plugin.PluginTool;
+import savant.plugin.Tool;
+import savant.plugin.XMLTool;
 import savant.util.MiscUtils;
-import savant.view.dialog.DataFormatForm;
 import savant.view.icon.SavantIconFactory;
 import savant.settings.ColourSettings;
+import savant.settings.DirectorySettings;
+import savant.util.CopyFile;
+import savant.view.dialog.NewXMLToolDialog;
+import savant.view.dialog.PluginDialog;
 import savant.view.swing.DockableFrameFactory;
 import savant.view.swing.Savant;
 
@@ -84,17 +89,17 @@ import savant.view.swing.Savant;
  */
 public class ToolsModule implements BookmarksChangedListener, RangeChangedListener, ViewTrackListChangedListener, ThreadActivityChangedListener {
 
-    private static Map<String, List<PluginTool>> organizeToolsByCategory(List<PluginTool> tools) {
+    private static Map<String, List<Tool>> organizeToolsByCategory(List<Tool> tools) {
 
-        Map<String, List<PluginTool>> map = new HashMap<String,List<PluginTool>>();
+        Map<String, List<Tool>> map = new HashMap<String,List<Tool>>();
 
-        for (PluginTool p : tools) {
+        for (Tool p : tools) {
             String category = p.getToolInformation().getCategory();
-            List<PluginTool> list = null;
+            List<Tool> list = null;
             if (map.containsKey(category)) {
                 list = map.get(category);
             } else {
-                list = new ArrayList<PluginTool>();
+                list = new ArrayList<Tool>();
             }
             list.add(p);
             map.put(category, list);
@@ -102,55 +107,8 @@ public class ToolsModule implements BookmarksChangedListener, RangeChangedListen
         return map;
     }
 
-    private void addBogusTools() {
-        
-        PluginTool tp2 = new PluginTool() {
-
-            @Override
-            public void init(PluginAdapter pluginAdapter) {
-
-            }
-
-            @Override
-            public ProgramInformation getToolInformation() {
-                return new ProgramInformation(
-                        "Savant Formatter",
-                        STANDARD_CATEGORIES.Convert.name(),
-                        "Some other tool",
-                        "1.0",
-                        "Marc Fiume",
-                        "http://www.cs.toronto.edu/~mfiume");
-            }
-
-            @Override
-            public JComponent getCanvas() {
-                return null;
-                //JPanel p = new JPanel();
-                //return p;
-            }
-
-            @Override
-            public void runTool() {
-                System.out.println("Running some other tool");
-                DataFormatForm dff = new DataFormatForm(Savant.getInstance(), false);
-                dff.setVisible(true);
-            }
-
-            @Override
-            protected void doStart() throws Exception {
-            }
-
-            @Override
-            protected void doStop() throws Exception {
-            }
-        };
-
-        tp2.init(null);
-        this.addTool(tp2);
-    }
-
-    private void runTools(List<PluginTool> tools) {
-        for (PluginTool t : tools) {
+    private void runTools(List<Tool> tools) {
+        for (Tool t : tools) {
             ThreadController.getInstance().runInNewThread(t, t.getToolInformation().getName());
         }
         //updateThreadsList();
@@ -189,22 +147,22 @@ public class ToolsModule implements BookmarksChangedListener, RangeChangedListen
     static JPanel threadsCanvas;
     static JToolBar runToolbar;
 
-    static List<PluginTool> tools;
-    static PluginTool currentTool;
+    static List<Tool> tools;
+    static Tool currentTool;
 
     // subscriptions
-    static List<PluginTool> toolsSubscribedToBookmarksChangeEvent;
-    static List<PluginTool> toolsSubscribedToRangeChangeEvent;
-    static List<PluginTool> toolsSubscribedToTrackListChangeEvent;
+    static List<Tool> toolsSubscribedToBookmarksChangeEvent;
+    static List<Tool> toolsSubscribedToRangeChangeEvent;
+    static List<Tool> toolsSubscribedToTrackListChangeEvent;
 
-    private static void subscribeToList(PluginTool tool, List<PluginTool> tools) {
+    private static void subscribeToList(Tool tool, List<Tool> tools) {
         if (!tools.contains(tool)) {
             tools.add(tool);
             updateEventSubscriptions();
         }
     }
 
-    private static void unsubscribeFromList(PluginTool tool, List<PluginTool> tools) {
+    private static void unsubscribeFromList(Tool tool, List<Tool> tools) {
         if (tools.contains(tool)) {
             tools.remove(tool);
             updateEventSubscriptions();
@@ -213,15 +171,13 @@ public class ToolsModule implements BookmarksChangedListener, RangeChangedListen
 
     public ToolsModule(JPanel canvas) {
 
-        tools = new ArrayList<PluginTool>();
-        toolsSubscribedToBookmarksChangeEvent = new ArrayList<PluginTool>();
-        toolsSubscribedToRangeChangeEvent = new ArrayList<PluginTool>();
-        toolsSubscribedToTrackListChangeEvent = new ArrayList<PluginTool>();
+        tools = new ArrayList<Tool>();
+        toolsSubscribedToBookmarksChangeEvent = new ArrayList<Tool>();
+        toolsSubscribedToRangeChangeEvent = new ArrayList<Tool>();
+        toolsSubscribedToTrackListChangeEvent = new ArrayList<Tool>();
 
         subscribeToEvents();
         initDocking(canvas);
-
-        addBogusTools();
 
         updateToolsList();
         updateEventSubscriptions();
@@ -237,12 +193,12 @@ public class ToolsModule implements BookmarksChangedListener, RangeChangedListen
         ThreadController.getInstance().addThreadActivityListener(this);
     }
 
-    public static void addTool(PluginTool plugin) {
+    public static void addTool(Tool plugin) {
         tools.add(plugin);
         updateToolsList();
     }
 
-    public static void removeTool(PluginTool plugin) {
+    public static void removeTool(Tool plugin) {
         tools.remove(plugin);
         updateToolsList();
     }
@@ -571,7 +527,7 @@ public class ToolsModule implements BookmarksChangedListener, RangeChangedListen
 
         CollapsiblePanes _container = new CollapsiblePanes();
 
-        Map<String, List<PluginTool>> category2ToolMap = organizeToolsByCategory(tools);
+        Map<String, List<Tool>> category2ToolMap = organizeToolsByCategory(tools);
 
         for (String category : category2ToolMap.keySet()) {
             CollapsiblePane pane = createPanel(category, category2ToolMap.get(category),true);
@@ -590,7 +546,74 @@ public class ToolsModule implements BookmarksChangedListener, RangeChangedListen
         jsp.setBorder(new LineBorder(toolsListCanvas.getBackground(),0));
         toolsListCanvas.add(jsp, BorderLayout.CENTER);
 
+        JToolBar topbar = new JToolBar();
+        topbar.setFloatable(false);
+        JButton add_button = new JButton();
+        add_button.setIcon(SavantIconFactory.getInstance().getIcon(SavantIconFactory.StandardIcon.ADD));
+        add_button.setToolTipText("Add Tool");
+        add_button.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                showAddToolDialog();
+            }
+           
+        });
+        topbar.add(add_button);
+        toolsListCanvas.add(topbar, BorderLayout.NORTH);
+
         toolsListCanvas.revalidate();
+    }
+
+    private static void showAddToolDialog() {
+        //Custom button text
+        Object[] options = {
+                    "Add from Jar",
+                    "Add from XML",
+                    "Create new"};
+        int n = JOptionPane.showOptionDialog(Savant.getInstance(),
+            "How would you like to add a new tool?",
+            "Add a tool",
+            JOptionPane.YES_NO_CANCEL_OPTION,
+            JOptionPane.QUESTION_MESSAGE,
+            null,
+            options,
+            options[2]);
+
+        switch(n) {
+            case 0:
+                PluginDialog pd = new PluginDialog(Savant.getInstance());
+                pd.setVisible(true);
+                break;
+            case 1:
+                JFileChooser fd = new JFileChooser();
+                 fd.setDialogTitle("Add Plugin");
+                fd.setDialogType(JFileChooser.OPEN_DIALOG);
+                fd.setFileFilter(new FileFilter() {
+                    @Override
+                    public boolean accept(File f) {
+                        return f.isDirectory() || (f.isFile() && f.getAbsolutePath().toLowerCase().endsWith(".xml"));
+                    }
+                    @Override
+                    public String getDescription() {
+                        return "XML files (*.xml)";
+                    }
+                });
+                int result = fd.showOpenDialog(Savant.getInstance());
+                if (result == JFileChooser.CANCEL_OPTION || result == JFileChooser.ERROR_OPTION || (fd.getSelectedFile() == null) ) showAddToolDialog();
+                String fromFile = fd.getSelectedFile().getPath();
+                String todir = DirectorySettings.getXMLToolDescriptionsDirectory();
+                CopyFile.copyfile(fromFile, todir + System.getProperty("file.separator") +
+                        MiscUtils.getFilenameFromPath(fromFile));
+                JOptionPane.showMessageDialog(Savant.getInstance(), "Installation of tool complete. Please restart Savant.");
+                break;
+            case 2:
+                NewXMLToolDialog d = new NewXMLToolDialog(Savant.getInstance(), true);
+                d.setVisible(true);
+                break;
+        }
+
+        System.out.println("You chose option: " + n);
     }
 
     private static void updateThreadsList() {
@@ -711,7 +734,7 @@ public class ToolsModule implements BookmarksChangedListener, RangeChangedListen
         return pane;
     }
 
-    private static CollapsiblePane createPanel(String title, List<PluginTool> tools, boolean isExpanded) {
+    private static CollapsiblePane createPanel(String title, List<Tool> tools, boolean isExpanded) {
 
         title += " (" + tools.size() + ")";
         CollapsiblePane pane = new CollapsiblePane(title);
@@ -728,7 +751,7 @@ public class ToolsModule implements BookmarksChangedListener, RangeChangedListen
 
         // TODO: does this (making p final) work?
 
-        for (final PluginTool p : tools) {
+        for (final Tool p : tools) {
             JComponent button = createHyperlinkButton(p.getToolInformation().getName(), new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -747,7 +770,7 @@ public class ToolsModule implements BookmarksChangedListener, RangeChangedListen
         return pane;
     }
 
-    private static void setCurrentTool(PluginTool p) {
+    private static void setCurrentTool(Tool p) {
         currentTool = p;
     }
 
@@ -755,7 +778,7 @@ public class ToolsModule implements BookmarksChangedListener, RangeChangedListen
         showTool(currentTool);
     }
 
-    private static void showTool(PluginTool p) {
+    private static void showTool(Tool p) {
 
         CollapsiblePanes _container = new CollapsiblePanes();
 
@@ -784,10 +807,27 @@ public class ToolsModule implements BookmarksChangedListener, RangeChangedListen
         //toolCanvas.setLayout(new BoxLayout(toolCanvas, BoxLayout.PAGE_AXIS));
         toolCanvas.setBackground(ColourSettings.colorToolsBackground);
 
-        JLabel title = new JLabel(" " + p.getToolInformation().getName());
+        JPanel toppan = new JPanel();
+        toppan.setLayout(new BoxLayout(toppan,BoxLayout.Y_AXIS));
+
+        JLabel title = new JLabel(p.getToolInformation().getName());
         title.setFont(new Font("Arial", Font.BOLD, 20));
 
-        toolCanvas.add(title, BorderLayout.NORTH);
+        toppan.add(title);
+
+        if (p instanceof XMLTool) {
+            JLabel xml = new JLabel("XML Tool");
+            toppan.add(xml);
+        } else if (p instanceof PluginTool) {
+            JLabel plugin = new JLabel("Plugin Tool");
+            toppan.add(plugin);
+        }
+
+
+
+        toppan.setBackground(ColourSettings.colorToolsBackground);
+
+        toolCanvas.add(toppan, BorderLayout.NORTH);
         toolCanvas.add(_container, BorderLayout.CENTER);
 
         if (p.getRunnableEnabled()) {
@@ -812,13 +852,13 @@ public class ToolsModule implements BookmarksChangedListener, RangeChangedListen
         }
     }
 
-    private static void runToolInNewThread(PluginTool tool) {
+    private static void runToolInNewThread(Tool tool) {
         InformativeThread t = ThreadController.getInstance().runInNewThread(tool, tool.getToolInformation().getName());
         updateThreadsList();
         addOutputTabForThread(t);
     }
 
-    private static JPanel getEventSubscriptionCanvas(final PluginTool p) {
+    private static JPanel getEventSubscriptionCanvas(final Tool p) {
         JPanel panel = new JPanel();
 
         panel.add(new JLabel("Run this tool when: "));
@@ -841,7 +881,7 @@ public class ToolsModule implements BookmarksChangedListener, RangeChangedListen
         }
     }
 
-    private static JCheckBox makeEventSubscriptionCheckBox(final PluginTool p, String cbText, final List<PluginTool> subscribedTools) {
+    private static JCheckBox makeEventSubscriptionCheckBox(final Tool p, String cbText, final List<Tool> subscribedTools) {
 
         final JCheckBox cb = new JCheckBox();
         cb.setText(cbText);
@@ -860,7 +900,7 @@ public class ToolsModule implements BookmarksChangedListener, RangeChangedListen
         return cb;
     }
 
-    private static JPanel getToolInformation(final PluginTool p) {
+    private static JPanel getToolInformation(final Tool p) {
 
         JPanel toolInformationCanvas = new JPanel();
 
@@ -897,7 +937,7 @@ public class ToolsModule implements BookmarksChangedListener, RangeChangedListen
         return toolInformationCanvas;
     }
 
-    private static JPanel getToolCanvas(PluginTool p) {
+    private static JPanel getToolCanvas(Tool p) {
 
         JPanel toolParameterCanvas = new JPanel();
 
