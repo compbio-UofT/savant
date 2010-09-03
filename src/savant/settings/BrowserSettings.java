@@ -16,8 +16,6 @@
 package savant.settings;
 
 import javax.swing.*;
-import java.awt.*;
-import java.io.File;
 
 /**
  *
@@ -29,12 +27,14 @@ public class BrowserSettings {
      * Website
      */
     public static String url = "http://compbio.cs.toronto.edu/savant";
+    public static String url_version = "http://compbio.cs.toronto.edu/savant/serve/version/version.xml";
     public static String url_tutorials = "http://compbio.cs.toronto.edu/savant/media.html";
     public static String url_manuals = "http://compbio.cs.toronto.edu/savant/documentation.html";
     public static String url_preformatteddata = "http://compbio.cs.toronto.edu/savant/data.html";
     public static String url_ucsctablebrowser = "http://genome.ucsc.edu/cgi-bin/hgTables?command=start";
     public static String url_thousandgenomes = "http://www.1000genomes.org/page.php?page=data";
 
+    public static String version = "1.3.1";
 
     /**
      * Look and Feel

@@ -14,7 +14,7 @@ import org.jdom.JDOMException;
 import savant.tools.program.Program;
 import savant.tools.program.ProgramArgument;
 import savant.tools.program.ProgramArgumentGrid;
-import savant.tools.program.ProgramXMLFileReader;
+import savant.xml.ProgramXMLFileReader;
 
 /**
  *
