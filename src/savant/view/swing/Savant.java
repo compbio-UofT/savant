@@ -78,15 +78,17 @@ import java.util.*;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import savant.controller.recent.RecentTracksController;
 import savant.plugin.PluginTool;
 import savant.plugin.XMLTool;
 import savant.settings.DirectorySettings;
 import savant.settings.TemporaryFilesSettingsSection;
-import savant.xml.ProgramXMLFileReader;
+import savant.xml.XMLProgram;
 import savant.util.DownloadFile;
 import savant.view.icon.SavantIconFactory;
-import savant.xml.VersionXMLFileReader;
-import savant.xml.VersionXMLFileReader.Version;
+import savant.model.session.Session;
+import savant.xml.XMLVersion;
+import savant.xml.XMLVersion.Version;
 
 /**
  * Main application Window (Frame).
@@ -119,7 +121,15 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
     private boolean openAfterFormat;
     private OpenURLDialog urlDialog;
 
-    private void addTrackFromFile(String selectedFileName) throws IOException {
+    public void addTrackFromFile(String selectedFileName) throws IOException {
+
+        if (!ReferenceController.getInstance().isGenomeLoaded()) {
+            int result = JOptionPane.showConfirmDialog(this, "No genome is loaded yet. Load file as genome?");
+            if (result == JOptionPane.YES_OPTION) {
+                this.setGenome(selectedFileName);
+            }
+            return;
+        }
 
         Savant.log("Loading track " + selectedFileName, Savant.LOGMODE.NORMAL);
 
@@ -400,18 +410,20 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         jSeparator7 = new javax.swing.JToolBar.Separator();
         label_memory = new javax.swing.JLabel();
         menuBar_top = new javax.swing.JMenuBar();
-        menu_file = new javax.swing.JMenu();
+        menuitem_file = new javax.swing.JMenu();
         menu_load = new javax.swing.JMenu();
         menuitem_genome = new javax.swing.JMenuItem();
         menuitem_track = new javax.swing.JMenuItem();
         menuitem_trackURL = new javax.swing.JMenuItem();
         menuItemFormat = new javax.swing.JMenuItem();
+        menuitem_session = new javax.swing.JMenuItem();
+        jMenuItem3 = new javax.swing.JMenuItem();
+        jSeparator3 = new javax.swing.JSeparator();
+        menuitem_screen = new javax.swing.JMenuItem();
         submenu_download = new javax.swing.JMenu();
         menuitem_preformatted = new javax.swing.JMenuItem();
         menuitem_ucsc = new javax.swing.JMenuItem();
         menuitem_thousandgenomes = new javax.swing.JMenuItem();
-        jSeparator3 = new javax.swing.JSeparator();
-        menuitem_screen = new javax.swing.JMenuItem();
         jMenuItem2 = new javax.swing.JMenuItem();
         jSeparator4 = new javax.swing.JSeparator();
         menuitem_exit = new javax.swing.JMenuItem();
@@ -503,9 +515,9 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         label_memory.setText(" Memory: ");
         toolbar_bottom.add(label_memory);
 
-        menu_file.setText("File");
+        menuitem_file.setText("File");
 
-        menu_load.setText("Load...");
+        menu_load.setText("Load");
 
         menuitem_genome.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_G, java.awt.event.InputEvent.CTRL_MASK));
         menuitem_genome.setText("Genome");
@@ -534,7 +546,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         });
         menu_load.add(menuitem_trackURL);
 
-        menu_file.add(menu_load);
+        menuitem_file.add(menu_load);
 
         menuItemFormat.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F, java.awt.event.InputEvent.CTRL_MASK));
         menuItemFormat.setText("Format");
@@ -543,9 +555,30 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
                 menuItemFormatActionPerformed(evt);
             }
         });
-        menu_file.add(menuItemFormat);
+        menuitem_file.add(menuItemFormat);
 
-        submenu_download.setText("Download");
+        menuitem_session.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_S, java.awt.event.InputEvent.CTRL_MASK));
+        menuitem_session.setText("Save Session");
+        menuitem_session.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                menuitem_sessionActionPerformed(evt);
+            }
+        });
+        menuitem_file.add(menuitem_session);
+
+        jMenuItem3.setText("Load Session");
+        menuitem_file.add(jMenuItem3);
+        menuitem_file.add(jSeparator3);
+
+        menuitem_screen.setText("Screenshot");
+        menuitem_screen.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                menuitem_screenActionPerformed(evt);
+            }
+        });
+        menuitem_file.add(menuitem_screen);
+
+        submenu_download.setText("Download...");
 
         menuitem_preformatted.setText("Preformatted");
         menuitem_preformatted.addActionListener(new java.awt.event.ActionListener() {
@@ -571,17 +604,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         });
         submenu_download.add(menuitem_thousandgenomes);
 
-        menu_file.add(submenu_download);
-        menu_file.add(jSeparator3);
-
-        menuitem_screen.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_T, java.awt.event.InputEvent.CTRL_MASK));
-        menuitem_screen.setText("Screenshot");
-        menuitem_screen.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                menuitem_screenActionPerformed(evt);
-            }
-        });
-        menu_file.add(menuitem_screen);
+        menuitem_file.add(submenu_download);
 
         jMenuItem2.setText("Export");
         jMenuItem2.addActionListener(new java.awt.event.ActionListener() {
@@ -589,8 +612,8 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
                 menuitem_exportActionPerformed(evt);
             }
         });
-        menu_file.add(jMenuItem2);
-        menu_file.add(jSeparator4);
+        menuitem_file.add(jMenuItem2);
+        menuitem_file.add(jSeparator4);
 
         menuitem_exit.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F4, java.awt.event.InputEvent.ALT_MASK));
         menuitem_exit.setText("Exit");
@@ -599,9 +622,9 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
                 menuitem_exitActionPerformed(evt);
             }
         });
-        menu_file.add(menuitem_exit);
+        menuitem_file.add(menuitem_exit);
 
-        menuBar_top.add(menu_file);
+        menuBar_top.add(menuitem_file);
 
         menu_edit.setText("Edit");
 
@@ -1104,6 +1127,10 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         SelectionController.getInstance().removeAll();
     }//GEN-LAST:event_menuitem_deselectActionPerformed
 
+    private void menuitem_sessionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuitem_sessionActionPerformed
+        Session.SaveSession(this);
+    }//GEN-LAST:event_menuitem_sessionActionPerformed
+
     /**
      * Starts an instance of the Savant Browser
      * @param args the command line arguments
@@ -1135,10 +1162,10 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
             File versionFile = DownloadFile.downloadFile(new URL(BrowserSettings.url_version), DirectorySettings.getSavantDirectory());
             if (versionFile != null) {
                 System.out.println("Saved version file to: " + versionFile.getAbsolutePath());
-                Version currentversion = (new VersionXMLFileReader(versionFile)).getVersion();
+                Version currentversion = (new XMLVersion(versionFile)).getVersion();
                 Version thisversion  = new Version(BrowserSettings.version);
                 if (currentversion.compareTo(thisversion) > 0) {
-                    JOptionPane.showMessageDialog(null, "This version of Savant is out of date. "
+                    JOptionPane.showMessageDialog(null, "A new version of Savant is available. "
                             + "Please visit " + BrowserSettings.url + " to get the latest version");
                 }
             } else {
@@ -1148,12 +1175,13 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
 
         } catch (IOException ex) {
         } catch (JDOMException ex) {
-        }
+        } catch (NullPointerException ex) {}
 
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JMenuItem jMenuItem2;
+    private javax.swing.JMenuItem jMenuItem3;
     private javax.swing.JMenuItem jMenuItem5;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JPopupMenu.Separator jSeparator2;
@@ -1178,13 +1206,13 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
     private javax.swing.JCheckBoxMenuItem menuItem_viewRangeControls;
     private javax.swing.JCheckBoxMenuItem menu_bookmarks;
     private javax.swing.JMenu menu_edit;
-    private javax.swing.JMenu menu_file;
     private javax.swing.JMenu menu_help;
     private javax.swing.JMenu menu_load;
     private javax.swing.JMenu menu_plugins;
     private javax.swing.JMenu menu_view;
     private javax.swing.JMenu menu_window;
     private javax.swing.JMenuItem menuitem_exit;
+    private javax.swing.JMenu menuitem_file;
     private javax.swing.JMenuItem menuitem_genome;
     private javax.swing.JCheckBoxMenuItem menuitem_genomeview;
     private javax.swing.JMenuItem menuitem_pluginmanager;
@@ -1193,6 +1221,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
     private javax.swing.JMenuItem menuitem_preformatted;
     private javax.swing.JCheckBoxMenuItem menuitem_ruler;
     private javax.swing.JMenuItem menuitem_screen;
+    private javax.swing.JMenuItem menuitem_session;
     private javax.swing.JCheckBoxMenuItem menuitem_statusbar;
     private javax.swing.JMenuItem menuitem_thousandgenomes;
     private javax.swing.JCheckBoxMenuItem menuitem_tools;
@@ -1478,6 +1507,13 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
             jMenuItem1.setEnabled(false);
         }
         initBrowseMenu();
+        try {
+            JMenu recentsMenu = RecentTracksController.getInstance().getMenu();
+            this.menuitem_file.add(recentsMenu, 1);
+        } catch (IOException ex) {
+            Logger.getLogger(Savant.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
     }
 
     /**
@@ -2424,7 +2460,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
                 DockableFrame df = DockableFrameFactory.createGenomeFrame(MiscUtils.getFilenameFromPath(filename));
                 JPanel panel = (JPanel) df.getContentPane();
                 List<ViewTrack> tracks = new ArrayList<ViewTrack>();
-                tracks.add(new SequenceViewTrack(genome.getName(), genome));
+                tracks.add(new SequenceViewTrack(genome.getName(), genome, filename));
 
                 //////////////////////////////////////////////////
 

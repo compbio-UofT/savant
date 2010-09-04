@@ -81,8 +81,8 @@ public class BAMViewTrack extends ViewTrack {
      * @param name track name
      * @param bamTrack data track which this view track represents
      */
-    public BAMViewTrack(String name, BAMIntervalTrack bamTrack) {
-        super(name, FileFormat.INTERVAL_BAM, bamTrack);
+    public BAMViewTrack(String name, BAMIntervalTrack bamTrack, String fn) {
+        super(name, FileFormat.INTERVAL_BAM, bamTrack, fn);
         setColorScheme(getDefaultColorScheme());
         setDrawModes(getDefaultDrawModes());
         setDrawMode(VARIANTS_MODE);

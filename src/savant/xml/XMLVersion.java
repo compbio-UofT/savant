@@ -13,7 +13,7 @@ import org.jdom.input.*;
  *
  * @author mfiume
  */
-public class VersionXMLFileReader {
+public class XMLVersion {
 
     public static class Version implements Comparable {
         int major;
@@ -72,11 +72,11 @@ public class VersionXMLFileReader {
 
     Version version;
 
-    public VersionXMLFileReader(String path) throws IOException, JDOMException {
+    public XMLVersion(String path) throws IOException, JDOMException {
         this(new File(path));
     }
 
-    public VersionXMLFileReader(File f) throws IOException, JDOMException {
+    public XMLVersion(File f) throws IOException, JDOMException {
         Document d = new SAXBuilder().build(f);
 
         Element root = d.getRootElement();

@@ -45,9 +45,9 @@ public class SequenceViewTrack extends ViewTrack {
     Genome genome;
 
 
-    public SequenceViewTrack(String name, Genome g) throws FileNotFoundException
+    public SequenceViewTrack(String name, Genome g, String fn) throws FileNotFoundException
     {
-        super(name, FileFormat.SEQUENCE_FASTA, null);
+        super(name, FileFormat.SEQUENCE_FASTA, null, fn);
         setGenome(g);
         setColorScheme(getDefaultColorScheme());
     }

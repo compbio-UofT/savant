@@ -14,7 +14,7 @@ import org.jdom.JDOMException;
 import savant.tools.program.Program;
 import savant.tools.program.ProgramArgument;
 import savant.tools.program.ProgramArgumentGrid;
-import savant.xml.ProgramXMLFileReader;
+import savant.xml.XMLProgram;
 
 /**
  *
@@ -33,7 +33,7 @@ public class XMLTool extends Tool {
     private Program p;
 
     public XMLTool(String pathToXML) throws IOException, JDOMException {
-        p = (new ProgramXMLFileReader(pathToXML)).getProgram();
+        p = (new XMLProgram(pathToXML)).getProgram();
     }
 
     @Override

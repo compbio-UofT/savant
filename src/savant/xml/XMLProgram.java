@@ -20,15 +20,15 @@ import savant.tools.program.ProgramArgument.Requirement;
  *
  * @author mfiume
  */
-public class ProgramXMLFileReader {
+public class XMLProgram {
 
     Program p;
 
-    public ProgramXMLFileReader(String path) throws IOException, JDOMException {
+    public XMLProgram(String path) throws IOException, JDOMException {
         this(new File(path));
     }
 
-    public ProgramXMLFileReader(File f) throws IOException, JDOMException {
+    public XMLProgram(File f) throws IOException, JDOMException {
         Document d = new SAXBuilder().build(f);
 
         Element programRoot = d.getRootElement();

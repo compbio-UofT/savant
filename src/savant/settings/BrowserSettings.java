@@ -34,7 +34,7 @@ public class BrowserSettings {
     public static String url_ucsctablebrowser = "http://genome.ucsc.edu/cgi-bin/hgTables?command=start";
     public static String url_thousandgenomes = "http://www.1000genomes.org/page.php?page=data";
 
-    public static String version = "1.3.1";
+    public static String version = "1.3.2";
 
     /**
      * Look and Feel

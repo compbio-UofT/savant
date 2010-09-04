@@ -203,5 +203,9 @@ public class SavantFile extends RandomAccessFile {
         return sb.toString().trim();
     }
 
+    public String getPath() {
+        return this.filename;
+    }
+
 
 }

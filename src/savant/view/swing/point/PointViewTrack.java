@@ -38,8 +38,8 @@ public class PointViewTrack extends ViewTrack {
 
     public List<Object> savedList = null;
 
-    public PointViewTrack(String name, GenericPointTrack pointTrack) {
-        super(name, FileFormat.POINT_GENERIC, pointTrack);
+    public PointViewTrack(String name, GenericPointTrack pointTrack, String fn) {
+        super(name, FileFormat.POINT_GENERIC, pointTrack, fn);
         setColorScheme(getDefaultColorScheme());
     }
 

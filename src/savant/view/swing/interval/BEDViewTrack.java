@@ -56,8 +56,8 @@ public class BEDViewTrack extends ViewTrack {
     private static final Mode STANDARD_MODE = new Mode(DrawingMode.STANDARD, "Standard Gene View");
     private static final Mode SQUISH_MODE = new Mode(DrawingMode.SQUISH, "All on one line");
 
-    public BEDViewTrack(String name, BEDIntervalTrack bedTrack) {
-        super(name, FileFormat.INTERVAL_BED, bedTrack);
+    public BEDViewTrack(String name, BEDIntervalTrack bedTrack, String fn) {
+        super(name, FileFormat.INTERVAL_BED, bedTrack, fn);
         setColorScheme(getDefaultColorScheme());
         setDrawModes(getDefaultDrawModes());
         setDrawMode(STANDARD_MODE);
