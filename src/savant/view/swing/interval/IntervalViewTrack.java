@@ -50,8 +50,8 @@ public class IntervalViewTrack extends ViewTrack {
     private static final Mode PACK_MODE = new Mode(DrawingMode.PACK, "Minimum number of lines");
     private static final Mode ARC_MODE = new Mode(DrawingMode.ARC, "Arcs");
 
-    public IntervalViewTrack(String name, GenericIntervalTrack intervalTrack, String fn) throws FileNotFoundException {
-        super(name, FileFormat.INTERVAL_GENERIC, intervalTrack, fn);
+    public IntervalViewTrack(String name, GenericIntervalTrack intervalTrack) throws FileNotFoundException {
+        super(name, FileFormat.INTERVAL_GENERIC, intervalTrack);
         setColorScheme(getDefaultColorScheme());
         setDrawModes(getDefaultDrawModes());
         setDrawMode(PACK_MODE);

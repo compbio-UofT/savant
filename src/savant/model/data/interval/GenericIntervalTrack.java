@@ -113,4 +113,9 @@ public class GenericIntervalTrack implements RecordTrack<GenericIntervalRecord> 
     public Set<String> getReferenceNames() {
         return this.dFile.getReferenceNames();
     }
+
+    @Override
+    public String getPath() {
+        return dFile.getPath();
+    }
 }

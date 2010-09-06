@@ -324,12 +324,12 @@ public class MiniRangeSelectionPanel extends JPanel implements MouseListener, Mo
                         } else {
                             a = MiscUtils.transformPixelToPosition(xOne, width, (RangeController.getInstance()).getRange());
                         }
-                        g2.drawString(MiscUtils.intToString(a), (float) (xOne + 3), (float) ((this.getHeight()*0.5)+3));
+                        g2.drawString(MiscUtils.numToString(a), (float) (xOne + 3), (float) ((this.getHeight()*0.5)+3));
                     }
                 } else {
                     g2.setColor(Color.black);
                     int a = MiscUtils.transformPixelToPosition(xOne, width, (RangeController.getInstance()).getRange());
-                    g2.drawString(MiscUtils.intToString(a), (float) (xOne + 3), (float) ((this.getHeight()*0.5)+3));
+                    g2.drawString(MiscUtils.numToString(a), (float) (xOne + 3), (float) ((this.getHeight()*0.5)+3));
                 }
             }
 

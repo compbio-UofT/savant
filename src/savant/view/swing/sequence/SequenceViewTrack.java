@@ -43,13 +43,19 @@ import savant.util.MiscUtils;
 public class SequenceViewTrack extends ViewTrack {
 
     Genome genome;
+    String path;
 
-
-    public SequenceViewTrack(String name, Genome g, String fn) throws FileNotFoundException
+    public SequenceViewTrack(String name, Genome g) throws FileNotFoundException
     {
-        super(name, FileFormat.SEQUENCE_FASTA, null, fn);
+        super(name, FileFormat.SEQUENCE_FASTA, null);
         setGenome(g);
+        path = g.getFilename();
         setColorScheme(getDefaultColorScheme());
+    }
+
+    @Override
+    public String getPath() {
+        return path;
     }
 
     private ColorScheme getDefaultColorScheme()

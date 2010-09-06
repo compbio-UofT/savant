@@ -56,6 +56,8 @@ public class BAMIntervalTrack implements RecordTrack<BAMIntervalRecord> {
     private SAMFileHeader samFileHeader;
     //private String sequenceName;
 
+    String fileNameOrURL;
+
     public static BAMIntervalTrack fromfileNameOrURL(String fileNameOrURL) throws IOException {
 
         if (fileNameOrURL == null) throw new IllegalArgumentException("Invalid argument; file name or URL must be non-null");
@@ -98,6 +100,8 @@ public class BAMIntervalTrack implements RecordTrack<BAMIntervalRecord> {
 
         if (path == null) throw new IllegalArgumentException("File must not be null.");
         if (index == null) throw new IllegalArgumentException("Index file must not be null");
+
+        this.fileNameOrURL = path.getAbsolutePath();
         
         //this.sequenceName = guessSequence(path, index);
         samFileReader = new SAMFileReader(path, index);
@@ -110,6 +114,8 @@ public class BAMIntervalTrack implements RecordTrack<BAMIntervalRecord> {
         if (url == null) throw new IllegalArgumentException("URL must not be null");
         if (index == null) throw new IllegalArgumentException("Index file must not be null");
 
+        this.fileNameOrURL = url.getFile();
+        
         samFileReader = new SAMFileReader(url, index, false);
         samFileReader.setValidationStringency(SAMFileReader.ValidationStringency.LENIENT);
         samFileHeader = samFileReader.getFileHeader();
@@ -291,5 +297,10 @@ public class BAMIntervalTrack implements RecordTrack<BAMIntervalRecord> {
 
     private static File getIndexFileCached(URL bamURL) throws IOException {
         return BAMIndexCache.getInstance().getBAMIndex(bamURL);
+    }
+
+    @Override
+    public String getPath() {
+        return this.fileNameOrURL;
     }
 }

@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 
-package savant.controller.recent;
+package savant.controller;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -14,8 +14,6 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.LinkedList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
@@ -46,10 +44,9 @@ public class RecentTracksController implements ViewTrackListChangedListener {
         if (!f.exists()) { f.createNewFile(); }
         queue = new LinkedList<String>();
         menu = new JMenu();
-        menu.setText("Recent Tracks");
+        menu.setText("Tracks ...");
         loadRecents(f);
         updateMenuList();
-        ViewTrackController.getInstance().addTracksChangedListener(this);
     }
 
     public static RecentTracksController getInstance() throws IOException {
@@ -62,10 +59,10 @@ public class RecentTracksController implements ViewTrackListChangedListener {
     @Override
     public void viewTrackListChangeReceived(ViewTrackListChangedEvent event) {
         ViewTrack t = event.getTracks().get(event.getTracks().size()-1);
-        if (t.getFilename() == null) { return; }
-        queue.remove(t.getFilename());
+        if (t.getPath() == null) { return; }
+        queue.remove(t.getPath());
         resizeQueue(queue, NUM_RECENTS_TO_SAVE);
-        queue.add(0,t.getFilename());
+        queue.add(0,t.getPath());
         updateMenuList();
         try { saveRecents(queue); } catch (IOException ex) {}
     }

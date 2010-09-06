@@ -144,4 +144,9 @@ public class GenericPointTrack implements RecordTrack<GenericPointRecord> {
         return this.savantFile.getReferenceNames();
     }
 
+
+    @Override
+    public String getPath() {
+        return savantFile.getPath();
+    }
 }

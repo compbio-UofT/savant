@@ -101,4 +101,9 @@ public class BEDIntervalTrack implements RecordTrack<BEDIntervalRecord> {
     public Set<String> getReferenceNames() {
         return dFile.getReferenceNames();
     }
+
+    @Override
+    public String getPath() {
+        return dFile.getPath();
+    }
 }

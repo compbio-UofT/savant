@@ -42,8 +42,8 @@ public class BAMCoverageViewTrack extends ViewTrack {
 
     private boolean enabled = true;
 
-    public BAMCoverageViewTrack(String name, GenericContinuousTrack track, String fn) {
-        super(name, FileFormat.CONTINUOUS_GENERIC, track, fn);
+    public BAMCoverageViewTrack(String name, GenericContinuousTrack track) {
+        super(name, FileFormat.CONTINUOUS_GENERIC, track);
         setColorScheme(getDefaultColorScheme());
     }
 

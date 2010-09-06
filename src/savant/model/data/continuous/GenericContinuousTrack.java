@@ -195,4 +195,9 @@ public class GenericContinuousTrack implements RecordTrack<GenericContinuousReco
             }
         }
     }
+
+    @Override
+    public String getPath() {
+        return savantFile.getPath();
+    }
 }

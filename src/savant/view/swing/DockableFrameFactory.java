@@ -13,6 +13,8 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.HashMap;
 import java.util.Map;
+import savant.controller.DockableFrameController;
+import savant.controller.FrameController;
 import savant.view.icon.SavantIconFactory;
 
 /**
@@ -70,12 +72,7 @@ public class DockableFrameFactory {
 
             public void actionPerformed(ActionEvent e)
             {
-                int response = JOptionPane.showConfirmDialog(null, "Are you sure you want to close this track?", "Confirm",
-                    JOptionPane.YES_NO_OPTION, JOptionPane.OK_CANCEL_OPTION);
-                if (response == JOptionPane.YES_OPTION) {
-                  System.out.println("Removing " + frame.getName());
-                  frame.getDockingManager().removeFrame(frame.getName());
-                }
+                DockableFrameController.getInstance().closeDockableFrame(frame,true);
             }
 
             public Object getValue(String key) {

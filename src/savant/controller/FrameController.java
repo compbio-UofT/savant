@@ -18,13 +18,13 @@
  * RangeController.java
  * Created on Jan 19, 2010
  */
-
 /**
  * Controller object to manage changes to viewed range.
  * @author vwilliams
  */
 package savant.controller;
 
+import com.jidesoft.docking.DockableFrame;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import savant.controller.event.frame.FrameChangedEvent;
@@ -44,23 +44,17 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 import javax.swing.JComponent;
-import savant.model.data.Track;
+import javax.swing.JOptionPane;
 
 public class FrameController {
 
     private static FrameController instance;
-
     private static Log log = LogFactory.getLog(FrameController.class);
-
     /** The maximum and current viewable range */
-    private HashMap<GraphPane,JComponent> graphpane2dockable;
-    private HashMap<GraphPane,Frame> graphpane2frame;
-
+    private HashMap<GraphPane, JComponent> graphpane2dockable;
+    private HashMap<GraphPane, Frame> graphpane2frame;
     List<Frame> frames;
-
     private List frameHiddenListeners;
     private List frameShownListeners;
     private List frameChangedListeners;
@@ -77,8 +71,8 @@ public class FrameController {
         frameHiddenListeners = new ArrayList();
         frameShownListeners = new ArrayList();
         frameChangedListeners = new ArrayList();
-        graphpane2dockable = new HashMap<GraphPane,JComponent>();
-        graphpane2frame = new HashMap<GraphPane,Frame>();
+        graphpane2dockable = new HashMap<GraphPane, JComponent>();
+        graphpane2frame = new HashMap<GraphPane, Frame>();
     }
 
     public void addFrame(Frame f, JComponent panel) {
@@ -145,7 +139,6 @@ public class FrameController {
         frameChangedListeners.remove(l);
     }
 
-
     /**
      * Draw the frames in the current viewable range
      */
@@ -165,7 +158,6 @@ public class FrameController {
             }
         }
     }
-
 
     public void hideFrame(Frame frame) {
         JComponent jc = this.graphpane2dockable.get(frame.getGraphPane());
@@ -193,35 +185,37 @@ public class FrameController {
 
     /**
     public void closeTrack(String trackname) {
-        Frame frameTrackIsIn = null;
-        ViewTrack track = null;
-        for (Frame f : this.getFrames()) {
-            for (ViewTrack t : f.getTracks()) {
-                if (t.getName().equals(trackname)) {
-                    frameTrackIsIn = f;
-                    track = t;
-                    break;
-                }
-            }
-            if (frameTrackIsIn != null) { break; }
-        }
+    Frame frameTrackIsIn = null;
+    ViewTrack track = null;
+    for (Frame f : this.getFrames()) {
+    for (ViewTrack t : f.getTracks()) {
+    if (t.getName().equals(trackname)) {
+    frameTrackIsIn = f;
+    track = t;
+    break;
+    }
+    }
+    if (frameTrackIsIn != null) { break; }
+    }
 
-        frameTrackIsIn.getTracks().remove(track);
-        if (frameTrackIsIn.getTracks().size() == 0) {
-            closeFrame(frameTrackIsIn);
-        }
+    frameTrackIsIn.getTracks().remove(track);
+    if (frameTrackIsIn.getTracks().size() == 0) {
+    closeFrame(frameTrackIsIn);
+    }
     }
      */
-
     public void closeFrame(Frame frame) {
         this.hideFrame(frame);
         ViewTrackController vtc = ViewTrackController.getInstance();
-        for(int i = 0; i < vtc.getTracks().size(); i++){
+        for (int i = 0; i < vtc.getTracks().size(); i++) {
             vtc.removeTrack(vtc.getTrack(i));
         }
         this.frames.remove(frame);
     }
 
-    public List<Frame> getFrames() { return this.frames; }
+    public List<Frame> getFrames() {
+        return this.frames;
+    }
 
+    
 }

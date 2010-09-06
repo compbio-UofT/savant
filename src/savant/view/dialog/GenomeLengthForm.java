@@ -34,12 +34,17 @@ public class GenomeLengthForm extends javax.swing.JDialog {
     //public int length;
 
     private void initGenomeInformation() {
-        genomeInformation = new ArrayList<SpeciesInfo>();
-        genomeInformation.add(getHumanGenomeInformation());
-        genomeInformation.add(getMouseGenomeInformation());
+        genomeInformation = getGenomeInformation();
     }
 
-    private SpeciesInfo getMouseGenomeInformation() {
+    public static List<SpeciesInfo> getGenomeInformation() {
+        List<SpeciesInfo> inf = new ArrayList<SpeciesInfo>();
+        inf.add(getHumanGenomeInformation());
+        inf.add(getMouseGenomeInformation());
+        return inf;
+    }
+
+    private static SpeciesInfo getMouseGenomeInformation() {
         SpeciesInfo mouseInfo = new SpeciesInfo("Mouse");
 
         BuildInfo build37 = new BuildInfo("Build 37");
@@ -94,7 +99,7 @@ public class GenomeLengthForm extends javax.swing.JDialog {
         return mouseInfo;
     }
 
-    private SpeciesInfo getHumanGenomeInformation() {
+    private static SpeciesInfo getHumanGenomeInformation() {
         SpeciesInfo humanInfo = new SpeciesInfo("Human");
 
         BuildInfo hg19BuildInfo = new BuildInfo("hg19");
@@ -231,7 +236,7 @@ public class GenomeLengthForm extends javax.swing.JDialog {
     }
      */
 
-    public class SpeciesInfo {
+    public static class SpeciesInfo {
         public String name;
         public List<BuildInfo> builds;
         public SpeciesInfo(String name) {
@@ -251,7 +256,7 @@ public class GenomeLengthForm extends javax.swing.JDialog {
         }
     }
 
-    public class BuildInfo {
+    public static class BuildInfo {
         public String name;
         public List<ReferenceInfo> chromosomes;
         public BuildInfo(String name) {
@@ -271,9 +276,9 @@ public class GenomeLengthForm extends javax.swing.JDialog {
         }
     }
 
-    public class ReferenceInfo {
+    public static class ReferenceInfo {
         public String name;
-        public int length;
+        public long length;
         public ReferenceInfo (String name, int length) {
             this.name = name;
             this.length = length;

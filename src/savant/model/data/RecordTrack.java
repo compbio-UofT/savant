@@ -37,6 +37,8 @@ public interface RecordTrack<E> extends Track {
      */
     public List<E> getRecords(String reference, Range range, Resolution resolution);
 
+    public String getPath();
+
     /**
      * Close this track.
      */

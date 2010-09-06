@@ -38,7 +38,7 @@ public class Range
     @Override
     public String toString()
     {
-        return MiscUtils.intToString(from) + " - " + MiscUtils.intToString(to);
+        return MiscUtils.numToString(from) + " - " + MiscUtils.numToString(to);
     }
 
     @Override
@@ -56,8 +56,8 @@ public class Range
 
     @Override
     public int hashCode() {
-        int result = from;
-        result = 31 * result + to;
+        int result = (int) from;
+        result = (int) (31 * result + to);
         return result;
     }
 

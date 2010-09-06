@@ -35,6 +35,7 @@ import savant.view.dialog.GenomeLengthForm.ReferenceInfo;
 public class Genome
 {
     private String name;
+    private String filename; // set, if any
     
     private boolean isAssociatedWithTrack;
 
@@ -42,10 +43,11 @@ public class Genome
     private BFASTASequenceTrack sequenceTrack;
 
     // if not associated with track
-    private Map<String,Integer> referenceMap;
+    private Map<String,Long> referenceMap;
 
     public Genome(String filename) throws IOException, SavantUnsupportedVersionException {
         isAssociatedWithTrack = true;
+        this.filename = filename;
         int lastSlashIndex = filename.lastIndexOf(System.getProperty("file.separator"));
         setName( filename.substring(lastSlashIndex+1, filename.length()));
         sequenceTrack = new BFASTASequenceTrack(filename);
@@ -57,8 +59,8 @@ public class Genome
 
     public Genome(BuildInfo bi) throws IOException {
         isAssociatedWithTrack = false;
-        setName("user defined");
-        referenceMap = new HashMap<String,Integer>();
+        setName(bi.name);
+        referenceMap = new HashMap<String,Long>();
 
         for (ReferenceInfo c : bi.chromosomes) {
             referenceMap.put(c.name, c.length);
@@ -66,43 +68,13 @@ public class Genome
         //setLength(length);
     }
 
-    public Genome(String name, int length) throws IOException {
+    public Genome(String name, long length) throws IOException {
         isAssociatedWithTrack = false;
         setName("user defined");
-        referenceMap = new HashMap<String,Integer>();
+        referenceMap = new HashMap<String,Long>();
         referenceMap.put(name, length);
         //setLength(length);
     }
-
-    /*
-    public Genome(String path) throws IOException {
-        this(path, path, -1);
-    }
-
-    public Genome(String name, int length) throws IOException {
-        this(name, null, length);
-    }
-
-    public Genome(int length) throws IOException {
-        this("user", null, length);
-    }
-
-    public Genome() throws IOException {
-        this(null, null, -1);
-    }
-    
-    public Genome(String name, String path, int length) throws IOException
-    {
-        setName(name);
-        if (path != null) {
-            BFASTASequenceTrack sequenceTrack = new BFASTASequenceTrack(new File(path));
-            setSequenceTrack(sequenceTrack);
-            setLength(sequenceTrack.getLength());
-        }
-        else { setLength(length-1); }
-    }
-     *
-     */
 
     public Set<String> getReferenceNames() {
         if (this.isAssociatedWithTrack) {
@@ -123,13 +95,6 @@ public class Genome
 
     public String getName() { return this.name; }
 
-    /*
-    public void setLength(int length)
-    {
-        this.length = length;
-    }
-     */
-
     public String getSequence(String reference, Range range) throws IOException
     {
         if (!isSequenceSet()) { return null; }
@@ -146,7 +111,8 @@ public class Genome
         if (this.isAssociatedWithTrack) {
             return this.sequenceTrack.getLength(reference);
         } else {
-            return this.referenceMap.get(reference);
+            //TODO: loss of precision here?
+            return this.referenceMap.get(reference).intValue();
         }
     }
 
@@ -163,14 +129,7 @@ public class Genome
         return getName();
     }
 
-    /*
-    public void setReferenceName(String refname) {
-        this.referenceName = refname;
-        setLength(sequenceTrack.getLength(refname));
+    public String getFilename() {
+        return this.filename;
     }
-
-    public String getReference() {
-        return this.referenceName;
-    }
-     */
 }

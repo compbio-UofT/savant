@@ -86,24 +86,4 @@ public class Program {
     public void removeArgument(ProgramArgument arg) {
         this.arguments.remove(arg);
     }
-
-    /*
-    public void addInput(ProgramInputOutput input) {
-        this.inputs.add(input);
-    }
-
-    public void addOutput(ProgramInputOutput output) {
-        this.outputs.add(output);
-    }
-
-    public void removeInput(ProgramInputOutput input) {
-        this.inputs.remove(input);
-    }
-
-    public void removeOutput(ProgramInputOutput output) {
-        this.outputs.remove(output);
-    }
-     * 
-     */
-
 }

@@ -35,6 +35,7 @@ import savant.view.swing.ViewTrack;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import savant.view.swing.Savant;
 
 public class ViewTrackController {
 
@@ -131,5 +132,10 @@ public class ViewTrackController {
             }
         }
         return null;
+    }
+
+    public void closeTracks() {
+        DockableFrameController.getInstance().closeAllDockableFrames(
+                Savant.getInstance().getTrackDockingManager(),false);
     }
 }

@@ -30,7 +30,7 @@ public class MiscUtils {
      * @param num The number to format
      * @return A formatted string
      */
-    public static String intToString(int num) {
+    public static String numToString(long num) {
         //TODO: implement formatter
         DecimalFormat df = new DecimalFormat("###,###");
         return df.format(num);
@@ -120,7 +120,7 @@ public class MiscUtils {
      */
     public static int transformPixelToPosition(int pixel, int widthOfComponent, Range positionalRange) {
         double positionsperpixel = ((double)positionalRange.getLength()) / widthOfComponent;
-        return positionalRange.getFrom() + (int) Math.round(positionsperpixel*pixel);
+        return (int) (positionalRange.getFrom() + (int) Math.round(positionsperpixel*pixel));
     }
 
     /**
@@ -130,7 +130,7 @@ public class MiscUtils {
      * @param positionalRange The (genome) range the componentn applies to
      * @return The pixel represented by the position
      */
-    public static int transformPositionToPixel(int position, int widthOfComponent, Range positionalRange) {
+    public static int transformPositionToPixel(long position, int widthOfComponent, Range positionalRange) {
          double pixelsperposition = ((double) widthOfComponent) / positionalRange.getLength();
          return (int) Math.round((position - positionalRange.getFrom())*pixelsperposition);
     }
@@ -149,11 +149,11 @@ public class MiscUtils {
 
         int quotient;
         if ((quotient = genomepos / 1000000) > 1) {
-            mousePos = MiscUtils.intToString(quotient) + " M";
+            mousePos = MiscUtils.numToString(quotient) + " M";
         } else if ((quotient = genomepos / 100) > 1) {
-            mousePos = MiscUtils.intToString(quotient) + " K";
+            mousePos = MiscUtils.numToString(quotient) + " K";
         } else {
-            mousePos = MiscUtils.intToString(genomepos) + "";
+            mousePos = MiscUtils.numToString(genomepos) + "";
         }
 
         return mousePos;

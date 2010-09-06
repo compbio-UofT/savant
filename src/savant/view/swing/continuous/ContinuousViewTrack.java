@@ -44,8 +44,8 @@ import savant.util.MiscUtils;
  */
 public class ContinuousViewTrack extends ViewTrack {
 
-    public ContinuousViewTrack(String name, GenericContinuousTrack track, String fn) {
-        super(name, FileFormat.CONTINUOUS_GENERIC, track, fn);
+    public ContinuousViewTrack(String name, GenericContinuousTrack track) {
+        super(name, FileFormat.CONTINUOUS_GENERIC, track);
         setColorScheme(getDefaultColorScheme());
     }
 

@@ -13,7 +13,7 @@
           <SubComponents>
             <Menu class="javax.swing.JMenu" name="menu_load">
               <Properties>
-                <Property name="text" type="java.lang.String" value="Load"/>
+                <Property name="text" type="java.lang.String" value="Open ..."/>
               </Properties>
               <SubComponents>
                 <MenuItem class="javax.swing.JMenuItem" name="menuitem_genome">
@@ -62,7 +62,18 @@
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="menuItemFormatActionPerformed"/>
               </Events>
             </MenuItem>
-            <MenuItem class="javax.swing.JMenuItem" name="menuitem_session">
+            <MenuItem class="javax.swing.JMenuItem" name="menuitem_loadsession">
+              <Properties>
+                <Property name="accelerator" type="javax.swing.KeyStroke" editor="org.netbeans.modules.form.editors.KeyStrokeEditor">
+                  <KeyStroke key="Ctrl+O"/>
+                </Property>
+                <Property name="text" type="java.lang.String" value="Load Session"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="menuitem_loadsessionActionPerformed"/>
+              </Events>
+            </MenuItem>
+            <MenuItem class="javax.swing.JMenuItem" name="menuitem_savesession">
               <Properties>
                 <Property name="accelerator" type="javax.swing.KeyStroke" editor="org.netbeans.modules.form.editors.KeyStrokeEditor">
                   <KeyStroke key="Ctrl+S"/>
@@ -70,14 +81,14 @@
                 <Property name="text" type="java.lang.String" value="Save Session"/>
               </Properties>
               <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="menuitem_sessionActionPerformed"/>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="menuitem_savesessionActionPerformed"/>
               </Events>
             </MenuItem>
-            <MenuItem class="javax.swing.JMenuItem" name="jMenuItem3">
+            <Menu class="javax.swing.JMenu" name="menu_recent">
               <Properties>
-                <Property name="text" type="java.lang.String" value="Load Session"/>
+                <Property name="text" type="java.lang.String" value="Recent ..."/>
               </Properties>
-            </MenuItem>
+            </Menu>
             <MenuItem class="javax.swing.JSeparator" name="jSeparator3">
             </MenuItem>
             <MenuItem class="javax.swing.JMenuItem" name="menuitem_screen">
@@ -88,9 +99,19 @@
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="menuitem_screenActionPerformed"/>
               </Events>
             </MenuItem>
+            <MenuItem class="javax.swing.JMenuItem" name="jMenuItem2">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Export"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="menuitem_exportActionPerformed"/>
+              </Events>
+            </MenuItem>
+            <MenuItem class="javax.swing.JSeparator" name="jSeparator4">
+            </MenuItem>
             <Menu class="javax.swing.JMenu" name="submenu_download">
               <Properties>
-                <Property name="text" type="java.lang.String" value="Download..."/>
+                <Property name="text" type="java.lang.String" value="Download ..."/>
               </Properties>
               <SubComponents>
                 <MenuItem class="javax.swing.JMenuItem" name="menuitem_preformatted">
@@ -119,21 +140,10 @@
                 </MenuItem>
               </SubComponents>
             </Menu>
-            <MenuItem class="javax.swing.JMenuItem" name="jMenuItem2">
-              <Properties>
-                <Property name="text" type="java.lang.String" value="Export"/>
-              </Properties>
-              <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="menuitem_exportActionPerformed"/>
-              </Events>
-            </MenuItem>
-            <MenuItem class="javax.swing.JSeparator" name="jSeparator4">
+            <MenuItem class="javax.swing.JPopupMenu$Separator" name="jSeparator9">
             </MenuItem>
             <MenuItem class="javax.swing.JMenuItem" name="menuitem_exit">
               <Properties>
-                <Property name="accelerator" type="javax.swing.KeyStroke" editor="org.netbeans.modules.form.editors.KeyStrokeEditor">
-                  <KeyStroke key="Alt+F4"/>
-                </Property>
                 <Property name="text" type="java.lang.String" value="Exit"/>
               </Properties>
               <Events>
