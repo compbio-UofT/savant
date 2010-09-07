@@ -40,13 +40,9 @@ public class DockableFrameController {
 
         List<String> frameNames = dm.getAllFrameNames();//getAllFrames();
         for (String frameName : frameNames) {
-            System.out.println("Closing frame " + frameName);
             DockableFrame f = dm.getFrame(frameName);
             closeDockableFrame(f,false);
-            System.out.println("Done closing frame");
         }
-
-        System.out.println("Done closing all dockable frames");
     }
 
     public void closeDockableFrame(DockableFrame frame, boolean askFirst) {

@@ -59,6 +59,8 @@ public class PluginDialog extends javax.swing.JDialog {
         button_add_from_url = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setIconImage(null);
+        setIconImages(null);
 
         jLabel1.setText("Installed Plugins");
 

@@ -49,10 +49,8 @@ public class SequenceViewTrack extends ViewTrack {
     public SequenceViewTrack(String name, Genome g) throws FileNotFoundException
     {
         super(name, FileFormat.SEQUENCE_FASTA, null);
-        System.out.println("Creating Sequence ViewTrack");
         setGenome(g);
         path = g.getFilename();
-        System.out.println("Setting path to: " + g.getFilename());
         setColorScheme(getDefaultColorScheme());
         this.notifyViewTrackControllerOfCreation();
     }

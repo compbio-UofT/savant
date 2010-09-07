@@ -30,7 +30,7 @@ public class SavantIconFactory {
         return new ImageIcon(getClass().getResource(resourcePath));
     }
 
-    public enum StandardIcon { ADD, SAVE, COPY, CLOSE, DELETE, RUN, STOP, REFRESH, UP, DOWN, VIEW, SAVANT, TRACK };
+    public enum StandardIcon { ADD, SAVE, COPY, CLOSE, DELETE, RUN, STOP, REFRESH, UP, DOWN, VIEW, LOGO, TRACK };
 
     public ImageIcon getIcon(StandardIcon icon) {
         switch(icon) {
@@ -56,8 +56,8 @@ public class SavantIconFactory {
                 return getIcon("/savant/images/icon/down.png");
             case VIEW:
                 return getIcon("/savant/images/icon/view.png");
-            case SAVANT:
-                return getIcon("/savant/images/icon/savant.png");
+            case LOGO:
+                return getIcon("/savant/images/icon/logo.png");
             case TRACK:
                 return getIcon("/savant/images/icon/track.png");
             default:
