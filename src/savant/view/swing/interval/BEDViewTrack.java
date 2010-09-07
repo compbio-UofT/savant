@@ -61,6 +61,7 @@ public class BEDViewTrack extends ViewTrack {
         setColorScheme(getDefaultColorScheme());
         setDrawModes(getDefaultDrawModes());
         setDrawMode(STANDARD_MODE);
+        this.notifyViewTrackControllerOfCreation();
     }
 
 

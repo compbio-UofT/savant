@@ -86,6 +86,7 @@ public class BAMViewTrack extends ViewTrack {
         setColorScheme(getDefaultColorScheme());
         setDrawModes(getDefaultDrawModes());
         setDrawMode(VARIANTS_MODE);
+        this.notifyViewTrackControllerOfCreation();
     }
 
     private ColorScheme getDefaultColorScheme() {

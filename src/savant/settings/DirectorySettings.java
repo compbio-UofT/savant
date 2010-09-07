@@ -29,6 +29,7 @@ public class DirectorySettings {
     private static String formatDir;
     private static String pluginsDir;
     private static String XMLToolsDir;
+    private static String sessionsDir;
 
     public static String getSavantDirectory() {
         if (SAVANT_DIR == null) {
@@ -54,13 +55,27 @@ public class DirectorySettings {
             //String home = System.getProperty("user.home");
             String home = getSavantDirectory();
             String fileSeparator = System.getProperty("file.separator");
-            formatDir = home + fileSeparator + "savant_files";
+            formatDir = home + fileSeparator + "formatted_files";
             File dir = new File(formatDir);
             if (!dir.exists()) {
                 dir.mkdirs();
             }
         }
         return formatDir;
+    }
+
+    public static String getSessionsDirectory() {
+        if(sessionsDir == null){
+            //String home = System.getProperty("user.home");
+            String home = getSavantDirectory();
+            String fileSeparator = System.getProperty("file.separator");
+            sessionsDir = home + fileSeparator + "sessions";
+            File dir = new File(sessionsDir);
+            if (!dir.exists()) {
+                dir.mkdirs();
+            }
+        }
+        return sessionsDir;
     }
 
     public static void setFormatDirectory(String dir) {
@@ -76,7 +91,7 @@ public class DirectorySettings {
             //String home = System.getProperty("user.home");
             String home = getSavantDirectory();
             String fileSeparator = System.getProperty("file.separator");
-            XMLToolsDir = home + fileSeparator + "savant_xmltools";
+            XMLToolsDir = home + fileSeparator + "xmltools";
             File dir = new File(XMLToolsDir);
             if (!dir.exists()) {
                 dir.mkdirs();
@@ -98,7 +113,7 @@ public class DirectorySettings {
             //String home = System.getProperty("user.home");
             String home = getSavantDirectory();
             String fileSeparator = System.getProperty("file.separator");
-            pluginsDir = home + fileSeparator + "savant_plugins";
+            pluginsDir = home + fileSeparator + "plugins";
             File dir = new File(pluginsDir);
             if (!dir.exists()) {
                 dir.mkdirs();

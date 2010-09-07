@@ -96,7 +96,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         RangeChangedListener, PropertyChangeListener, BookmarksChangedListener,
         ReferenceChangedListener, TrackListChangedListener {
 
-    private static boolean turnExperimentalFeaturesOff = true;
+    private static boolean turnExperimentalFeaturesOff = false;
     private static boolean isDebugging = false;
     private DockingManager auxDockingManager;
     private JPanel masterPlaceholderPanel;
@@ -413,18 +413,18 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         menuitem_genome = new javax.swing.JMenuItem();
         menuitem_track = new javax.swing.JMenuItem();
         menuitem_trackURL = new javax.swing.JMenuItem();
-        menuItemFormat = new javax.swing.JMenuItem();
+        menu_recent = new javax.swing.JMenu();
         menuitem_loadsession = new javax.swing.JMenuItem();
         menuitem_savesession = new javax.swing.JMenuItem();
-        menu_recent = new javax.swing.JMenu();
         jSeparator3 = new javax.swing.JSeparator();
-        menuitem_screen = new javax.swing.JMenuItem();
-        jMenuItem2 = new javax.swing.JMenuItem();
-        jSeparator4 = new javax.swing.JSeparator();
+        menuItemFormat = new javax.swing.JMenuItem();
         submenu_download = new javax.swing.JMenu();
         menuitem_preformatted = new javax.swing.JMenuItem();
         menuitem_ucsc = new javax.swing.JMenuItem();
         menuitem_thousandgenomes = new javax.swing.JMenuItem();
+        jSeparator4 = new javax.swing.JSeparator();
+        menuitem_screen = new javax.swing.JMenuItem();
+        jMenuItem2 = new javax.swing.JMenuItem();
         jSeparator9 = new javax.swing.JPopupMenu.Separator();
         menuitem_exit = new javax.swing.JMenuItem();
         menu_edit = new javax.swing.JMenu();
@@ -548,14 +548,8 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
 
         menuitem_file.add(menu_load);
 
-        menuItemFormat.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F, java.awt.event.InputEvent.CTRL_MASK));
-        menuItemFormat.setText("Format");
-        menuItemFormat.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                menuItemFormatActionPerformed(evt);
-            }
-        });
-        menuitem_file.add(menuItemFormat);
+        menu_recent.setText("Open Recent ...");
+        menuitem_file.add(menu_recent);
 
         menuitem_loadsession.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_O, java.awt.event.InputEvent.CTRL_MASK));
         menuitem_loadsession.setText("Load Session");
@@ -574,27 +568,16 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
             }
         });
         menuitem_file.add(menuitem_savesession);
-
-        menu_recent.setText("Recent ...");
-        menuitem_file.add(menu_recent);
         menuitem_file.add(jSeparator3);
 
-        menuitem_screen.setText("Screenshot");
-        menuitem_screen.addActionListener(new java.awt.event.ActionListener() {
+        menuItemFormat.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F, java.awt.event.InputEvent.CTRL_MASK));
+        menuItemFormat.setText("Format");
+        menuItemFormat.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                menuitem_screenActionPerformed(evt);
+                menuItemFormatActionPerformed(evt);
             }
         });
-        menuitem_file.add(menuitem_screen);
-
-        jMenuItem2.setText("Export");
-        jMenuItem2.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                menuitem_exportActionPerformed(evt);
-            }
-        });
-        menuitem_file.add(jMenuItem2);
-        menuitem_file.add(jSeparator4);
+        menuitem_file.add(menuItemFormat);
 
         submenu_download.setText("Download ...");
 
@@ -623,6 +606,23 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         submenu_download.add(menuitem_thousandgenomes);
 
         menuitem_file.add(submenu_download);
+        menuitem_file.add(jSeparator4);
+
+        menuitem_screen.setText("Screenshot");
+        menuitem_screen.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                menuitem_screenActionPerformed(evt);
+            }
+        });
+        menuitem_file.add(menuitem_screen);
+
+        jMenuItem2.setText("Export");
+        jMenuItem2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                menuitem_exportActionPerformed(evt);
+            }
+        });
+        menuitem_file.add(jMenuItem2);
         menuitem_file.add(jSeparator9);
 
         menuitem_exit.setText("Exit");
@@ -2682,8 +2682,6 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
     }
 
     private void updateReferenceNamesList() {
-
-        System.out.println("Updating reference names list");
 
         String currref = (String) this.referenceDropdown.getSelectedItem();
 

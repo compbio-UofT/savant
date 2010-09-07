@@ -55,6 +55,7 @@ public class IntervalViewTrack extends ViewTrack {
         setColorScheme(getDefaultColorScheme());
         setDrawModes(getDefaultDrawModes());
         setDrawMode(PACK_MODE);
+        this.notifyViewTrackControllerOfCreation();
     }
 
     private ColorScheme getDefaultColorScheme() {

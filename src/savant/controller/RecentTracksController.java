@@ -17,7 +17,6 @@ import java.util.LinkedList;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
-import savant.controller.ViewTrackController;
 import savant.controller.event.viewtrack.ViewTrackListChangedEvent;
 import savant.controller.event.viewtrack.ViewTrackListChangedListener;
 import savant.view.swing.Savant;
@@ -40,6 +39,7 @@ public class RecentTracksController implements ViewTrackListChangedListener {
     private File f;
 
     public RecentTracksController() throws IOException {
+        ViewTrackController.getInstance().addTracksChangedListener(this);
         f = new File(FILENAME);
         if (!f.exists()) { f.createNewFile(); }
         queue = new LinkedList<String>();
@@ -60,11 +60,16 @@ public class RecentTracksController implements ViewTrackListChangedListener {
     public void viewTrackListChangeReceived(ViewTrackListChangedEvent event) {
         ViewTrack t = event.getTracks().get(event.getTracks().size()-1);
         if (t.getPath() == null) { return; }
+        System.out.println("Adding " + t.getPath() + " to recents");
         queue.remove(t.getPath());
         resizeQueue(queue, NUM_RECENTS_TO_SAVE);
         queue.add(0,t.getPath());
         updateMenuList();
-        try { saveRecents(queue); } catch (IOException ex) {}
+        
+        try { saveRecents(queue); } catch (IOException ex) {
+            System.err.println("Could not save recents to file");
+            ex.printStackTrace();
+        }
     }
 
     private void resizeQueue(LinkedList queue, int size) {

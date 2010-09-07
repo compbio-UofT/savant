@@ -45,6 +45,7 @@ public class BAMCoverageViewTrack extends ViewTrack {
     public BAMCoverageViewTrack(String name, GenericContinuousTrack track) {
         super(name, FileFormat.CONTINUOUS_GENERIC, track);
         setColorScheme(getDefaultColorScheme());
+        this.notifyViewTrackControllerOfCreation();
     }
 
     @Override

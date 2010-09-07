@@ -32,6 +32,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import savant.controller.ViewTrackController;
 
 import savant.settings.ColourSettings;
 import savant.util.MiscUtils;
@@ -48,9 +49,12 @@ public class SequenceViewTrack extends ViewTrack {
     public SequenceViewTrack(String name, Genome g) throws FileNotFoundException
     {
         super(name, FileFormat.SEQUENCE_FASTA, null);
+        System.out.println("Creating Sequence ViewTrack");
         setGenome(g);
         path = g.getFilename();
+        System.out.println("Setting path to: " + g.getFilename());
         setColorScheme(getDefaultColorScheme());
+        this.notifyViewTrackControllerOfCreation();
     }
 
     @Override
@@ -63,10 +67,6 @@ public class SequenceViewTrack extends ViewTrack {
         ColorScheme c = new ColorScheme();
 
         /* add settings here */
-//        c.addColorSetting("A", new Color(160,93,153));
-//        c.addColorSetting("C", new Color(131,255,0));
-//        c.addColorSetting("G", new Color(255,255,0));
-//        c.addColorSetting("T", new Color(255,192,0));
         c.addColorSetting("A", ColourSettings.A_COLOR);
         c.addColorSetting("C", ColourSettings.C_COLOR);
         c.addColorSetting("G", ColourSettings.G_COLOR);

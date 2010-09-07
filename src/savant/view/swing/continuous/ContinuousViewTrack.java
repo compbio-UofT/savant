@@ -47,6 +47,7 @@ public class ContinuousViewTrack extends ViewTrack {
     public ContinuousViewTrack(String name, GenericContinuousTrack track) {
         super(name, FileFormat.CONTINUOUS_GENERIC, track);
         setColorScheme(getDefaultColorScheme());
+        this.notifyViewTrackControllerOfCreation();
     }
 
     @Override

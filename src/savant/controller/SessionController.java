@@ -66,7 +66,6 @@ public class SessionController implements
     }
 
     private void setSessionSaved(boolean arg) {
-        System.out.println("Session " + ((arg) ? " saved" : " unsaved"));
         saved = arg;
     }
 
@@ -87,6 +86,7 @@ public class SessionController implements
 
     public void saveCurrentSession() {
         if (!isSessionSaved()) {
+            System.out.println("Saving current session");
             int result = JOptionPane.showConfirmDialog(Savant.getInstance(), "Save current session?");
             if (result == JOptionPane.YES_OPTION) {
                 saveSession(Savant.getInstance());
@@ -95,6 +95,8 @@ public class SessionController implements
     }
 
     private void clearExistingSession() {
+
+        System.out.println("Clearing existin session");
 
         // close tracks, clear bookmarks
         ViewTrackController.getInstance().closeTracks();
@@ -107,8 +109,10 @@ public class SessionController implements
             saveCurrentSession();
         }
 
+        System.out.println("Loading session");
+
         JFileChooser jfc = new JFileChooser();
-        jfc.setCurrentDirectory(new File(DirectorySettings.getSavantDirectory()));
+        jfc.setCurrentDirectory(new File(DirectorySettings.getSessionsDirectory()));
         int result = jfc.showOpenDialog(c);
         if (result == JFileChooser.APPROVE_OPTION) {
             String filename = jfc.getSelectedFile().getAbsolutePath();
@@ -117,6 +121,9 @@ public class SessionController implements
     }
 
     public void setSession(Session s) {
+
+        System.out.println("Setting session");
+        
         Savant.getInstance().setGenome(s.genomeName, s.genome);
         ReferenceController.getInstance().setReference(s.reference);
         RangeController.getInstance().setRange(s.range);
@@ -199,7 +206,7 @@ public class SessionController implements
         jfc.setDialogTitle("Save Session");
         jfc.setDialogType(JFileChooser.SAVE_DIALOG);
         if (this.currentSessionPath == null) {
-            jfc.setSelectedFile(new File("NewSession.svts"));
+            jfc.setSelectedFile(new File(DirectorySettings.getSessionsDirectory() + System.getProperty("file.separator") + "NewSession.ssn"));
         } else {
             jfc.setSelectedFile(new File(currentSessionPath));
         }

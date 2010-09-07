@@ -118,8 +118,6 @@ public abstract class ViewTrack {
         // BAM
         if (fileType == FileType.INTERVAL_BAM) {
 
-            System.out.println("Opening BAM file");
-
             dataTrack = BAMIntervalTrack.fromfileNameOrURL(trackFilename);
             if (dataTrack != null) {
                 viewTrack = new BAMViewTrack(name, (BAMIntervalTrack)dataTrack);
@@ -233,8 +231,10 @@ public abstract class ViewTrack {
         setDataType(dataType);
         drawModes = new ArrayList<Mode>();
         trackRenderers = new ArrayList<TrackRenderer>();
-        this.track = track;
+        this.track = track;     
+    }
 
+    public void notifyViewTrackControllerOfCreation() {
         ViewTrackController tc = ViewTrackController.getInstance();
         tc.addTrack(this);
 

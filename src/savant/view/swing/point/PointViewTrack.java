@@ -41,6 +41,7 @@ public class PointViewTrack extends ViewTrack {
     public PointViewTrack(String name, GenericPointTrack pointTrack) {
         super(name, FileFormat.POINT_GENERIC, pointTrack);
         setColorScheme(getDefaultColorScheme());
+        this.notifyViewTrackControllerOfCreation();
     }
 
     private ColorScheme getDefaultColorScheme() {
