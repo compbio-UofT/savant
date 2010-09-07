@@ -10,6 +10,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JFileChooser;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -46,6 +48,7 @@ public class SessionController implements
     private boolean saved;
     private String currentSessionPath;
     private static SessionController instance;
+    private final String UNSAVEDINDICATOR = "(unsaved)";
 
     public SessionController() {
         saved = true;
@@ -67,6 +70,9 @@ public class SessionController implements
 
     private void setSessionSaved(boolean arg) {
         saved = arg;
+        if (!saved && !Savant.getInstance().getTitle().contains(UNSAVEDINDICATOR) && currentSessionPath != null) {
+            Savant.getInstance().setTitle(Savant.getInstance().getTitle() + " " + UNSAVEDINDICATOR);
+        }
     }
 
     @Override
@@ -89,7 +95,7 @@ public class SessionController implements
             System.out.println("Saving current session");
             int result = JOptionPane.showConfirmDialog(Savant.getInstance(), "Save current session?");
             if (result == JOptionPane.YES_OPTION) {
-                saveSession(Savant.getInstance());
+                saveSessionAs(Savant.getInstance());
             }
         }
     }
@@ -181,7 +187,7 @@ public class SessionController implements
                 }
             }
             setSession(new Session(genomeName, genome, trackFiles, reference, new Range(start, end), null));
-            this.currentSessionPath = filename;
+            this.setCurrentSessionPath(filename);
             this.setSessionSaved(true);
 
         } catch (SavantUnsupportedVersionException ex) {
@@ -193,7 +199,7 @@ public class SessionController implements
         }
     }
 
-    public void saveSession(Component parent) {
+    public void saveSessionAs(Component parent) {
 
         if (!ReferenceController.getInstance().isGenomeLoaded()
                 || ViewTrackController.getInstance().getTracks().isEmpty()) {
@@ -210,24 +216,67 @@ public class SessionController implements
         } else {
             jfc.setSelectedFile(new File(currentSessionPath));
         }
+
+        boolean breakConditionMet = false;
+
+        while (!breakConditionMet) {
         if (jfc.showSaveDialog(parent) == JFileChooser.APPROVE_OPTION) {
+                try {
+                    File selectedFile = jfc.getSelectedFile();
+                    int result = -1;
+                    if (selectedFile.exists()) {
+                        result = JOptionPane.showConfirmDialog(parent, "Overwrite existing file?");
+                    }
+                    if (result == -1 || result == JOptionPane.OK_OPTION) {
+                        saveSessionAs(selectedFile);
+                        breakConditionMet = true;
+                    } else if (result == JOptionPane.CANCEL_OPTION || result == JOptionPane.CLOSED_OPTION) {
+                        breakConditionMet = true;
+                    }
+                } catch (IOException ex) {
+                    if (JOptionPane.showInternalConfirmDialog(parent,
+                            "Error saving session to "
+                            + jfc.getSelectedFile().getAbsolutePath()
+                            + ". Try another location?") == JOptionPane.YES_OPTION) {
+                        saveSessionAs(parent);
+                        breakConditionMet = true;
+                    }
+
+                } catch (Exception e) {
+                    JOptionPane.showMessageDialog(parent, "Error saving session.");
+                    breakConditionMet = true;
+                }
+            }
+        }
+    }
+
+    private void setCurrentSessionPath(String arg) {
+        Savant.getInstance().setTitle("Savant Genome Browser - " + arg);
+        this.currentSessionPath = arg;
+    }
+
+     public boolean saveSession(Component parent) {
+         if (this.currentSessionPath != null) {
             try {
-                saveSession(jfc.getSelectedFile());
+                return saveSessionAs(new File(currentSessionPath));
             } catch (IOException ex) {
                 if (JOptionPane.showInternalConfirmDialog(parent,
                         "Error saving session to "
-                        + jfc.getSelectedFile().getAbsolutePath()
+                        + currentSessionPath
                         + ". Try another location?") == JOptionPane.YES_OPTION) {
-                    saveSession(parent);
+                    saveSessionAs(parent);
                 }
 
             } catch (Exception e) {
                 JOptionPane.showMessageDialog(parent, "Error saving session.");
             }
-        }
-    }
+         } else {
+             saveSessionAs(parent);
+         }
+         return false;
+     }
 
-    public boolean saveSession(File f) throws IOException {
+    public boolean saveSessionAs(File f) throws IOException {
 
         if (!ReferenceController.getInstance().isGenomeLoaded()) {
             return false;
@@ -304,7 +353,7 @@ public class SessionController implements
         serializer.output(d, fout);
         fout.close();
 
-        this.currentSessionPath = f.getAbsolutePath();
+        this.setCurrentSessionPath(f.getAbsolutePath());
         this.setSessionSaved(true);
         RecentSessionController.getInstance().addSessionFile(f.getAbsolutePath());
 

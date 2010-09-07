@@ -13,7 +13,7 @@
           <SubComponents>
             <Menu class="javax.swing.JMenu" name="menu_load">
               <Properties>
-                <Property name="text" type="java.lang.String" value="Open ..."/>
+                <Property name="text" type="java.lang.String" value="Open"/>
               </Properties>
               <SubComponents>
                 <MenuItem class="javax.swing.JMenuItem" name="menuitem_genome">
@@ -53,7 +53,7 @@
             </Menu>
             <Menu class="javax.swing.JMenu" name="menu_recent">
               <Properties>
-                <Property name="text" type="java.lang.String" value="Open Recent ..."/>
+                <Property name="text" type="java.lang.String" value="Open Recent"/>
               </Properties>
             </Menu>
             <MenuItem class="javax.swing.JMenuItem" name="menuitem_loadsession">
@@ -76,6 +76,17 @@
               </Properties>
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="menuitem_savesessionActionPerformed"/>
+              </Events>
+            </MenuItem>
+            <MenuItem class="javax.swing.JMenuItem" name="menuitem_savesessionas">
+              <Properties>
+                <Property name="accelerator" type="javax.swing.KeyStroke" editor="org.netbeans.modules.form.editors.KeyStrokeEditor">
+                  <KeyStroke key="Shift+Ctrl+S"/>
+                </Property>
+                <Property name="text" type="java.lang.String" value="Save Session As ..."/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="menuitem_savesessionasActionPerformed"/>
               </Events>
             </MenuItem>
             <MenuItem class="javax.swing.JSeparator" name="jSeparator3">
