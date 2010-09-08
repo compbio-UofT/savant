@@ -140,7 +140,7 @@ public class ProgramArgumentGrid extends JPanel {
             this.setDescription(description);
             this.setCategory(category);
 
-            System.out.println("Setting type to " + type);
+            //System.out.println("Setting type to " + type);
 
             // standard type
             if (type.equals("String")) {

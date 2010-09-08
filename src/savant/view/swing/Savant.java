@@ -324,7 +324,6 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         if (instance == null) {
             instance = new Savant();
         }
-
         return instance;
     }
 
@@ -1008,9 +1007,25 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
 
     private void menuitem_preformattedActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuitem_preformattedActionPerformed
         try {
-            java.awt.Desktop.getDesktop().browse(java.net.URI.create(BrowserSettings.url_preformatteddata));
+            if (turnExperimentalFeaturesOff) {
+                try {
+                    java.awt.Desktop.getDesktop().browse(java.net.URI.create(BrowserSettings.url_preformatteddata));
+                } catch (IOException ex) {
+                    Logger.getLogger(Savant.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            } else {
+                File file = DownloadFile.downloadFile(new URL(BrowserSettings.url_data), System.getProperty("java.io.tmpdir"));
+                if (file == null) {
+                    JOptionPane.showMessageDialog(this, "Problem downloading file: " + BrowserSettings.url_data);
+                    return;
+                }
+                DownloadTreeList d = new DownloadTreeList(this, false, "Download Pre-formatted Data",  file, DirectorySettings.getFormatDirectory());
+                d.setVisible(true);
+            }
+        } catch (JDOMException ex) {
+            JOptionPane.showMessageDialog(this, "Problem downloading file: " + BrowserSettings.url_data);
         } catch (IOException ex) {
-            Logger.getLogger(Savant.class.getName()).log(Level.SEVERE, null, ex);
+            JOptionPane.showMessageDialog(this, "Problem downloading file: " + BrowserSettings.url_data);
         }
     }//GEN-LAST:event_menuitem_preformattedActionPerformed
 
@@ -1373,8 +1388,6 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
 
         if (turnExperimentalFeaturesOff) {
             disableExperimentalFeatures();
-        } else {
-            new DownloadTreeList();
         }
     }
 

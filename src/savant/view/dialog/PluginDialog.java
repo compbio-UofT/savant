@@ -11,6 +11,9 @@
 
 package savant.view.dialog;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.jdom.JDOMException;
 import savant.view.swing.*;
 import javax.swing.*;
 import java.awt.*;
@@ -23,6 +26,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import savant.net.DownloadTreeList;
+import savant.settings.BrowserSettings;
+import savant.settings.DirectorySettings;
+import savant.util.DownloadFile;
 import savant.util.MiscUtils;
 
 /**
@@ -81,7 +88,7 @@ public class PluginDialog extends javax.swing.JDialog {
             }
         });
 
-        button_add_from_url.setText("Install from URL");
+        button_add_from_url.setText("Install from server");
         button_add_from_url.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 button_add_from_urlActionPerformed(evt);
@@ -95,14 +102,15 @@ public class PluginDialog extends javax.swing.JDialog {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(button_add_from_file)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(button_add_from_url)
-                        .addGap(6, 6, 6)
-                        .addComponent(button_remove))
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 297, Short.MAX_VALUE)
-                    .addComponent(jLabel1))
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 470, Short.MAX_VALUE)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addComponent(jLabel1)
+                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                            .addComponent(button_add_from_url)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addComponent(button_add_from_file)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addComponent(button_remove))))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -111,13 +119,13 @@ public class PluginDialog extends javax.swing.JDialog {
                 .addContainerGap()
                 .addComponent(jLabel1)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 227, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(button_remove)
                     .addComponent(button_add_from_file)
                     .addComponent(button_add_from_url))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
         );
 
         pack();
@@ -132,7 +140,21 @@ public class PluginDialog extends javax.swing.JDialog {
     }//GEN-LAST:event_button_removeActionPerformed
 
     private void button_add_from_urlActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_add_from_urlActionPerformed
-        addPluginFromURL();
+        try {
+            File file = DownloadFile.downloadFile(new URL(BrowserSettings.url_plugin), System.getProperty("java.io.tmpdir"));
+            if (file == null) {
+                JOptionPane.showMessageDialog(this, "Problem downloading file: " + BrowserSettings.url_plugin);
+                return;
+            }
+            DownloadTreeList d = new DownloadTreeList(Savant.getInstance(), true, "Download Plugins", file, pluginDir);
+            d.setVisible(true);
+            this.updatePluginList();
+            //addPluginFromURL();
+        } catch (JDOMException ex) {
+            JOptionPane.showMessageDialog(this, "Problem downloading file: " + BrowserSettings.url_plugin);
+        } catch (IOException ex) {
+            JOptionPane.showMessageDialog(this, "Problem downloading file: " + BrowserSettings.url_plugin);
+        }
     }//GEN-LAST:event_button_add_from_urlActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

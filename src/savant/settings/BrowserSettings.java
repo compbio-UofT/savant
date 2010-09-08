@@ -28,6 +28,8 @@ public class BrowserSettings {
      */
     public static String url = "http://compbio.cs.toronto.edu/savant";
     public static String url_version = "http://compbio.cs.toronto.edu/savant/serve/version/version.xml";
+    public static String url_data = "http://compbio.cs.toronto.edu/savant/serve/data/data.xml";
+    public static String url_plugin = "http://compbio.cs.toronto.edu/savant/serve/plugin/plugin.xml";
     public static String url_tutorials = "http://compbio.cs.toronto.edu/savant/media.html";
     public static String url_manuals = "http://compbio.cs.toronto.edu/savant/documentation.html";
     public static String url_preformatteddata = "http://compbio.cs.toronto.edu/savant/data.html";

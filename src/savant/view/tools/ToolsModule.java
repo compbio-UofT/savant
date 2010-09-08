@@ -780,26 +780,38 @@ public class ToolsModule implements BookmarksChangedListener, RangeChangedListen
 
     private static void showTool(Tool p) {
 
-        CollapsiblePanes _container = new CollapsiblePanes();
+        JTabbedPane jtp = new JTabbedPane();
+        //CollapsiblePanes _container = new CollapsiblePanes();
 
         if (p.getInformationEnabled()) {
-            _container.add(createPanel("Information", getToolInformation(p), false));
+            jtp.addTab("Information", null, getToolInformation(p));
+            //_container.add(createPanel("Information", getToolInformation(p), false));
         }
 
         if (p.getWorkspaceEnabled()) {
             JPanel pan = getToolCanvas(p);
-            if (pan != null) { _container.add(createPanel("Workspace",pan, true)); }
+            if (pan != null) { 
+                jtp.addTab("Workspace", null, pan);
+                //_container.add(createPanel("Workspace",pan, true));
+            }
         }
 
         if (p.getEventSubscriptionsEnabled()) {
-            _container.add(createPanel("Event Subscriptions", getEventSubscriptionCanvas(p), true));
+            jtp.addTab("Event Subscriptions", null, getEventSubscriptionCanvas(p));
+            //_container.add(createPanel("Event Subscriptions", getEventSubscriptionCanvas(p), true));
         }
 
+        jtp.setBackground(ColourSettings.colorToolsBackground);
+        jtp.setBorder(new LineBorder(Color.lightGray, 1));
+
+        /*
         _container.setBackground(ColourSettings.colorToolsBackground);
         _container.setGap(0);
         _container.setBorder(new LineBorder(Color.lightGray, 1));
 
         _container.addExpansion();
+         * 
+         */
 
         toolCanvas.removeAll();
         toolCanvas.repaint();
@@ -823,12 +835,12 @@ public class ToolsModule implements BookmarksChangedListener, RangeChangedListen
             toppan.add(plugin);
         }
 
-
-
         toppan.setBackground(ColourSettings.colorToolsBackground);
 
         toolCanvas.add(toppan, BorderLayout.NORTH);
-        toolCanvas.add(_container, BorderLayout.CENTER);
+        toolCanvas.add(jtp, BorderLayout.CENTER);
+        jtp.revalidate();
+        //toolCanvas.add(_container, BorderLayout.CENTER);
 
         if (p.getRunnableEnabled()) {
             JToolBar runtoolbar = new JToolBar();
