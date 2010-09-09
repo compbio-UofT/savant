@@ -34,9 +34,9 @@ public class GenericPointTrackTest extends TestCase {
 
     public void testGetRecords() {
 
-//        GenericPointTrack pointTrack = null;
+//        GenericPointDataSource pointTrack = null;
 //        try {
-//            pointTrack = new GenericPointTrack(new File(POINT_SEQUENCE_BIN_FILE_NAME));
+//            pointTrack = new GenericPointDataSource(new File(POINT_SEQUENCE_BIN_FILE_NAME));
 //
 //            List<GenericPointRecord> items = pointTrack.getRecords(new Range(0,217), Resolution.VERY_HIGH);
 //            for (GenericPointRecord item : items) {

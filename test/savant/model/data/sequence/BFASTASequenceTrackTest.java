@@ -37,8 +37,8 @@ public class BFASTASequenceTrackTest extends TestCase {
 
     public void testGetRecords() {
 //        try {
-//            BFASTASequenceTrack track = new BFASTASequenceTrack(new File(FASTA_BIN_FILE_NAME));
-//            String sequence = track.getSequence(new Range(0,199));
+//            FASTAFileDataSource track = new FASTAFileDataSource(new File(FASTA_BIN_FILE_NAME));
+//            String sequence = track.getRecords(new Range(0,199));
 //            assertNotNull(sequence);
 //            /System.out.println(sequence);
 //

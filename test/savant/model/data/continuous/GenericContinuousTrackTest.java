@@ -37,7 +37,7 @@ public class GenericContinuousTrackTest extends TestCase {
 
     public void testGetRecords() {
 //        try {
-//            GenericContinuousTrack track = new GenericContinuousTrack(new File(GENERIC_CONTINUOUS_BIN_FILE_NAME));
+//            GenericContinuousDataSource track = new GenericContinuousDataSource(new File(GENERIC_CONTINUOUS_BIN_FILE_NAME));
 //            List<ContinuousRecord> records = track.getRecords(new Range(0,99), Resolution.VERY_HIGH);
 //            for (ContinuousRecord record : records) {
 //                assertNotNull(record.getValue());
