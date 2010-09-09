@@ -23,21 +23,18 @@ package savant.view.swing.interval;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import savant.data.sources.BEDFileDataSource;
 import savant.file.FileFormat;
-import savant.util.Resolution;
-import savant.model.data.interval.BEDIntervalTrack;
-import savant.util.AxisRange;
-import savant.model.view.ColorScheme;
-import savant.model.view.DrawingInstructions;
-import savant.model.view.Mode;
-import savant.util.Range;
+import savant.util.*;
+import savant.util.ColorScheme;
+import savant.util.DrawingInstructions;
+import savant.util.Mode;
 import savant.view.swing.TrackRenderer;
 import savant.view.swing.ViewTrack;
 
 import java.util.ArrayList;
 import java.util.List;
 import savant.settings.ColourSettings;
-import savant.util.MiscUtils;
 
 /**
  * View track for a BED interval file (containing BED Interval Records)
@@ -53,10 +50,10 @@ public class BEDViewTrack extends ViewTrack {
         SQUISH
     };
 
-    private static final Mode STANDARD_MODE = new Mode(DrawingMode.STANDARD, "Standard Gene View");
-    private static final Mode SQUISH_MODE = new Mode(DrawingMode.SQUISH, "All on one line");
+    private static final Mode STANDARD_MODE = Mode.fromObject(DrawingMode.STANDARD, "Standard Gene View");
+    private static final Mode SQUISH_MODE = Mode.fromObject(DrawingMode.SQUISH, "All on one line");
 
-    public BEDViewTrack(String name, BEDIntervalTrack bedTrack) {
+    public BEDViewTrack(String name, BEDFileDataSource bedTrack) {
         super(name, FileFormat.INTERVAL_BED, bedTrack);
         setColorScheme(getDefaultColorScheme());
         setDrawModes(getDefaultDrawModes());
@@ -70,7 +67,7 @@ public class BEDViewTrack extends ViewTrack {
         Resolution r = getResolution(range);
         List<Object> data = retrieveAndSaveData(reference, range);
         for (TrackRenderer renderer : getTrackRenderers()) {
-            boolean contains = (this.getTrack().getReferenceNames().contains(reference) || this.getTrack().getReferenceNames().contains(MiscUtils.homogenizeSequence(reference)));
+            boolean contains = (this.getDataSource().getReferenceNames().contains(reference) || this.getDataSource().getReferenceNames().contains(MiscUtils.homogenizeSequence(reference)));
             renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.RANGE, range);
             renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.RESOLUTION, r);
             renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.COLOR_SCHEME, this.getColorScheme());
@@ -85,7 +82,7 @@ public class BEDViewTrack extends ViewTrack {
 
     @Override
     public List<Object> retrieveData(String reference, Range range, Resolution resolution) throws Exception {
-        return new ArrayList<Object>(getTrack().getRecords(reference, range, resolution));
+        return new ArrayList<Object>(getDataSource().getRecords(reference, range, resolution));
     }
 
     @Override

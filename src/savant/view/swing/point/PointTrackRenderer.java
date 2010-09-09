@@ -17,9 +17,9 @@
 package savant.view.swing.point;
 
 import savant.data.types.PointRecord;
+import savant.util.DrawingInstructions;
 import savant.util.Resolution;
-import savant.model.view.ColorScheme;
-import savant.model.view.DrawingInstructions;
+import savant.util.ColorScheme;
 import savant.util.Range;
 import savant.view.swing.GraphPane;
 import savant.view.swing.TrackRenderer;

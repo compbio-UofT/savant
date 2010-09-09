@@ -15,50 +15,45 @@
  */
 
 /*
- * GenericIntervalTrack.java
+ * GenericIntervalDataSource.java
  * Created on Jan 12, 2010
  */
 
-package savant.model.data.interval;
-
-import java.util.*;
+package savant.data.sources;
 
 import savant.data.types.BEDIntervalRecord;
 import savant.data.types.IntervalRecord;
+import savant.file.FileType;
+import savant.file.SavantFileNotFormattedException;
+import savant.file.SavantROFile;
 import savant.file.SavantUnsupportedVersionException;
 import savant.format.DataFormatter;
-import savant.file.SavantFile;
 import savant.format.IntervalRecordGetter;
 import savant.format.IntervalSearchTree;
-import savant.util.Resolution;
-import savant.model.data.RecordTrack;
 import savant.util.Range;
+import savant.util.Resolution;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import savant.format.SavantFileFormatter;
 
 /**
  * Class to represent an track of generic intervals. Responsible for reading records within a given range.
  *
  * @author vwilliams
  */
-public class BEDIntervalTrack implements RecordTrack<BEDIntervalRecord> {
+public class BEDFileDataSource implements DataSource<BEDIntervalRecord> {
 
-    // Track properties
-    SavantFile dFile;
-    //RandomAccessFile raf;
-
-    private int numRecords;
-    private int recordSize;
+    private SavantROFile dFile;
 
     private Map<String, IntervalSearchTree> refnameToIntervalBSTIndex;
-    //private IntervalSearchTree intervalBSTIndex;
 
-    public BEDIntervalTrack(String fileName) throws IOException, SavantUnsupportedVersionException {
-        this.dFile = new SavantFile(fileName);
-        String indexFileName = fileName + SavantFileFormatter.indexExtension;
+    public BEDFileDataSource(String fileName) throws IOException, SavantFileNotFormattedException, SavantUnsupportedVersionException {
+        this.dFile = new SavantROFile(fileName, FileType.INTERVAL_BED);
         this.refnameToIntervalBSTIndex = DataFormatter.readIntervalBSTs(this.dFile);
     }
 
@@ -66,7 +61,7 @@ public class BEDIntervalTrack implements RecordTrack<BEDIntervalRecord> {
         return refnameToIntervalBSTIndex.get(refname);
      }
 
-    public List<BEDIntervalRecord> getRecords(String reference, Range range, Resolution resolution) {
+    public List<BEDIntervalRecord> getRecords(String reference, Range range, Resolution resolution) throws IOException {
         List<IntervalRecord> data = null;
 
 
@@ -74,12 +69,7 @@ public class BEDIntervalTrack implements RecordTrack<BEDIntervalRecord> {
 
         if (ist == null) { return new ArrayList<BEDIntervalRecord>(); }
 
-        try {
-            data = IntervalRecordGetter.getData(this.dFile, reference, range, ist.getRoot());
-        } catch (IOException ex) {
-            // FIXME: this method should throw IOExceptions to the caller
-            Logger.getLogger(BEDIntervalTrack.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        data = IntervalRecordGetter.getData(this.dFile, reference, range, ist.getRoot());
 
         //TODO: fix me
         List<BEDIntervalRecord> girList = new ArrayList<BEDIntervalRecord>(data.size());
@@ -94,15 +84,15 @@ public class BEDIntervalTrack implements RecordTrack<BEDIntervalRecord> {
         try {
             this.dFile.close();
         } catch (IOException ex) {
-            Logger.getLogger(GenericIntervalTrack.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(GenericIntervalDataSource.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
     public Set<String> getReferenceNames() {
-        return dFile.getReferenceNames();
+        Map<String, Long[]> refMap = dFile.getReferenceMap();
+        return refMap.keySet();
     }
 
-    @Override
     public String getPath() {
         return dFile.getPath();
     }

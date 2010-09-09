@@ -16,16 +16,16 @@
 
 package savant.format;
 
-import savant.file.FieldType;
-import savant.file.FileType;
-import savant.file.SavantFile;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import savant.file.*;
 import savant.util.*;
 import java.io.*;
 import java.text.ParseException;
 import java.util.*;
 import savant.debug.SavantDebugger;
 
-// TODO: make this a DataFormatterFactory, make things like WIGFormatter inherit from an abstract class, implement all formats as classes.
+
 /**
  * Class to perform formatting of biological data files (FASTA, BED, etc.) into Savant's binary formats.
  * Sometimes a separate index file is created. Occasionally, auxiliary files are created, such as
@@ -34,6 +34,8 @@ import savant.debug.SavantDebugger;
  * @author mfiume
  */
 public class DataFormatter implements FormatProgressListener {
+
+    private static Log log = LogFactory.getLog(DataFormatter.class);
 
     /**
      * VARIABLES
@@ -248,7 +250,7 @@ public class DataFormatter implements FormatProgressListener {
     /*
      * INTERVAL
      */
-    private void formatAsInterval(String type) throws IOException, InterruptedException {
+    private void formatAsInterval(String type) throws IOException, InterruptedException, SavantUnsupportedVersionException {
         IntervalFormatter inf;
 
         if(type.equals("GEN")){
@@ -266,11 +268,11 @@ public class DataFormatter implements FormatProgressListener {
 
         inf.addProgressListener(this);
 
-        SavantDebugger.debugln("Beginning formatting");
+        log.info("Beginning formatting");
 
         inf.format();
 
-        SavantDebugger.debugln("Formatting complete");
+        log.info("Formatting complete");
 
         inf.removeProgressListener(this);
     }
@@ -287,16 +289,16 @@ public class DataFormatter implements FormatProgressListener {
         pgf.removeProgressListener(this);
     }
 
-    public static Map<String,IntervalSearchTree> readIntervalBSTs(SavantFile dFile) throws IOException {
+    public static Map<String,IntervalSearchTree> readIntervalBSTs(SavantROFile dFile) throws IOException {
 
         // read the refname -> index position map
-        Map<String,Long[]> refMap = RAFUtils.readReferenceMap(dFile);
+        Map<String,Long[]> refMap = SavantFileUtils.readReferenceMap(dFile);
 
         //System.out.println("\n=== DONE PARSING REF<->DATA MAP ===");
         //System.out.println();
 
         // change the offset
-        dFile.setHeaderOffset(dFile.getFilePointerSuper());
+        dFile.setHeaderOffset(dFile.getFilePointer());
 
         /*
         for (String s : refMap.keySet()) {
@@ -317,15 +319,15 @@ public class DataFormatter implements FormatProgressListener {
         for (String refname : refMap.keySet()) {
             Long[] v = refMap.get(refname);
             //System.out.println("========== Reading tree for reference " + refname + " ==========");
-            dFile.seek(v[0]);
+            dFile.seek(v[0] + dFile.getHeaderOffset());
 
-            //System.out.println("Starting tree at (super): " + dFile.getFilePointerSuper());
+            //System.out.println("Starting tree at: " + dFile.getFilePointer());
 
             IntervalSearchTree t = readIntervalBST(dFile);
 
-            //System.out.println("Finished tree at (super): " + dFile.getFilePointerSuper());
+            //System.out.println("Finished tree at: " + dFile.getFilePointer());
 
-            maxend = Math.max(maxend,dFile.getFilePointerSuper());
+            maxend = Math.max(maxend,dFile.getFilePointer());
 
             trees.put(refname, t);
             treenum++;
@@ -351,9 +353,9 @@ public class DataFormatter implements FormatProgressListener {
      * @return An IntervalSearchTree which was represented in the file
      * @throws IOException
      */
-    private static IntervalSearchTree readIntervalBST(SavantFile file) throws IOException {
+    private static IntervalSearchTree readIntervalBST(SavantROFile file) throws IOException {
 
-        //RandomAccessFile file = RAFUtils.openFile(indexFileName, false);
+        //RandomAccessFile file = SavantFileUtils.openFile(indexFileName, false);
 
         // the node list
         List<IntervalTreeNode> nodes = new ArrayList<IntervalTreeNode>();
@@ -379,7 +381,7 @@ public class DataFormatter implements FormatProgressListener {
 
             // read in the node fields
             List<Object> r1;
-            try { r1 = RAFUtils.readBinaryRecord(file, fields); }
+            try { r1 = SavantFileUtils.readBinaryRecord(file, fields); }
             catch (EOFException e) {
                 System.err.println("error: hit EOF while trying to parse IntervalSearchTree from file");
                 break;
@@ -455,7 +457,7 @@ public class DataFormatter implements FormatProgressListener {
     /*
     public static IntervalSearchTree readIntervalBST(String indexFileName) throws IOException {
 
-        RandomAccessFile file = RAFUtils.openFile(indexFileName, false);
+        RandomAccessFile file = SavantFileUtils.openFile(indexFileName, false);
 
         List<IntervalTreeNode> nodes = new ArrayList<IntervalTreeNode>();
 
@@ -475,7 +477,7 @@ public class DataFormatter implements FormatProgressListener {
 
             List<Object> r1;
             try {
-                r1 = RAFUtils.readBinaryRecord(file, fields);
+                r1 = SavantFileUtils.readBinaryRecord(file, fields);
             }
             catch (EOFException e) {
                 break;

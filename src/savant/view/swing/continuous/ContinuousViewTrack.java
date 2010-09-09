@@ -23,12 +23,10 @@ package savant.view.swing.continuous;
 
 import savant.data.types.ContinuousRecord;
 import savant.file.FileFormat;
-import savant.util.Resolution;
-import savant.model.data.continuous.GenericContinuousTrack;
-import savant.util.AxisRange;
-import savant.model.view.ColorScheme;
-import savant.model.view.DrawingInstructions;
-import savant.util.Range;
+import savant.util.*;
+import savant.data.sources.GenericContinuousDataSource;
+import savant.util.ColorScheme;
+import savant.util.DrawingInstructions;
 import savant.view.swing.Savant;
 import savant.view.swing.TrackRenderer;
 import savant.view.swing.ViewTrack;
@@ -36,7 +34,6 @@ import savant.view.swing.ViewTrack;
 import java.util.ArrayList;
 import java.util.List;
 import savant.settings.ColourSettings;
-import savant.util.MiscUtils;
 
 /**
  * A helper class to set up rendering of a ContinuousTrack
@@ -44,7 +41,7 @@ import savant.util.MiscUtils;
  */
 public class ContinuousViewTrack extends ViewTrack {
 
-    public ContinuousViewTrack(String name, GenericContinuousTrack track) {
+    public ContinuousViewTrack(String name, GenericContinuousDataSource track) {
         super(name, FileFormat.CONTINUOUS_GENERIC, track);
         setColorScheme(getDefaultColorScheme());
         this.notifyViewTrackControllerOfCreation();
@@ -57,7 +54,7 @@ public class ContinuousViewTrack extends ViewTrack {
         List<Object> data = retrieveAndSaveData(reference, range);
         //System.out.println("contin data: " + data);
         for (TrackRenderer renderer : getTrackRenderers()) {
-            boolean contains = (this.getTrack().getReferenceNames().contains(reference) || this.getTrack().getReferenceNames().contains(MiscUtils.homogenizeSequence(reference)));
+            boolean contains = (this.getDataSource().getReferenceNames().contains(reference) || this.getDataSource().getReferenceNames().contains(MiscUtils.homogenizeSequence(reference)));
             renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.RANGE, range);
             renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.RESOLUTION, r);
             renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.COLOR_SCHEME, this.getColorScheme());
@@ -74,7 +71,7 @@ public class ContinuousViewTrack extends ViewTrack {
 
     @Override
     public List<Object> retrieveData(String reference, Range range, Resolution resolution) throws Exception {
-        return new ArrayList<Object>(getTrack().getRecords(reference, range, resolution));
+        return new ArrayList<Object>(getDataSource().getRecords(reference, range, resolution));
     }
 
     @Override

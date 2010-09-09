@@ -32,13 +32,7 @@ import savant.data.types.BAMIntervalRecord;
 import savant.data.types.Genome;
 import savant.data.types.Interval;
 import savant.data.types.IntervalRecord;
-import savant.util.AxisRange;
-import savant.model.view.ColorScheme;
-import savant.model.view.DrawingInstructions;
-import savant.model.view.Mode;
-import savant.util.IntervalPacker;
-import savant.util.Range;
-import savant.util.Resolution;
+import savant.util.*;
 import savant.view.swing.GraphPane;
 import savant.view.swing.Savant;
 import savant.view.swing.TrackRenderer;
@@ -623,6 +617,14 @@ public class BAMTrackRenderer extends TrackRenderer {
 
         }
 
+        // draw legend
+        /*String[] legendStrings = {"Discordant Length", "Inverted Read", "Inverted Mate", "Everted Pair"};
+        Color[] legendColors = {discordantLengthColor, invertedReadColor, invertedMateColor, evertedPairColor};
+        String sizingString = legendStrings[0];
+        Rectangle2D stringRect = smallFont.getStringBounds(sizingString, g2.getFontRenderContext());
+
+        drawLegend(g2, legendStrings, legendColors, (int)(gp.getWidth()-stringRect.getWidth()-5), (int)(2*stringRect.getHeight() + 5+2));
+*/
     }
 
     private void renderSNPMode(Graphics2D g2, GraphPane gp, Resolution r){
@@ -641,7 +643,7 @@ public class BAMTrackRenderer extends TrackRenderer {
         int startPosition = axisRange.getXMin();
         for (int j = 0; j < length; j++) {
             pileups.add(new Pileup(startPosition + j));
-            //pileups.add(new Pileup(viewTrackName, startPosition + i, Pileup.getNucleotide(genome.getSequence(axisRange.getXRange()).charAt(i))));
+            //pileups.add(new Pileup(viewTrackName, startPosition + i, Pileup.getNucleotide(genome.getRecords(axisRange.getXRange()).charAt(i))));
         }
 
         // go through the samrecords and edit the pileups
@@ -681,7 +683,7 @@ public class BAMTrackRenderer extends TrackRenderer {
                 byte[] readBase = new byte[1];
                 readBase[0] = refSeq[(int)p.getPosition() - startPosition];
                 genomeNucString = new String(readBase);
-                //genomeNucString = genome.getSequence(ReferenceController.getInstance().getReferenceName(), new Range((int) p.getPosition(), (int) p.getPosition()));
+                //genomeNucString = genome.getRecords(ReferenceController.getInstance().getReferenceName(), new Range((int) p.getPosition(), (int) p.getPosition()));
                 genomeNuc = Pileup.stringToNuc(genomeNucString);
                 snpNuc = genomeNuc;
             }
@@ -732,7 +734,7 @@ public class BAMTrackRenderer extends TrackRenderer {
         }
 
         // the reference sequence
-        //byte[] refSeq = genome.getSequence(new Range(alignmentStart, alignmentEnd)).getBytes();
+        //byte[] refSeq = genome.getRecords(new Range(alignmentStart, alignmentEnd)).getBytes();
 
         // get the cigar object for this alignment
         Cigar cigar = samRecord.getCigar();

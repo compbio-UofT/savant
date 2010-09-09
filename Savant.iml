@@ -31,6 +31,8 @@
     </orderEntry>
     <orderEntry type="library" name="smalltext" level="project" />
     <orderEntry type="library" name="jide" level="project" />
+    <orderEntry type="library" name="apache-ftp" level="project" />
+    <orderEntry type="library" name="jdom" level="project" />
   </component>
 </module>
 

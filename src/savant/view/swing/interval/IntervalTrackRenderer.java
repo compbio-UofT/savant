@@ -18,13 +18,10 @@ package savant.view.swing.interval;
 
 import savant.data.types.Interval;
 import savant.data.types.IntervalRecord;
-import savant.util.Resolution;
-import savant.util.AxisRange;
-import savant.model.view.ColorScheme;
-import savant.model.view.DrawingInstructions;
-import savant.model.view.Mode;
-import savant.util.IntervalPacker;
-import savant.util.Range;
+import savant.util.*;
+import savant.util.ColorScheme;
+import savant.util.DrawingInstructions;
+import savant.util.Mode;
 import savant.view.swing.GraphPane;
 import savant.view.swing.TrackRenderer;
 import savant.view.swing.util.GlassMessagePane;

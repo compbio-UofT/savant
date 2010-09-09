@@ -4,19 +4,16 @@
  */
 package savant.format;
 
-import java.io.BufferedOutputStream;
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import savant.file.SavantROFile;
+import savant.util.SavantFileUtils;
+
+import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import savant.file.SavantFile;
-import savant.util.RAFUtils;
 
 /**
  *
@@ -24,6 +21,8 @@ import savant.util.RAFUtils;
  */
 public class ContinuousFormatterHelper {
 
+    private static Log log = LogFactory.getLog(ContinuousFormatterHelper.class);
+    
     // size of the output buffer
     protected static final int OUTPUT_BUFFER_SIZE = 1024 * 128; // 128K
 
@@ -102,16 +101,16 @@ public class ContinuousFormatterHelper {
         }
     }
 
-    public static Map<String,List<Level>> readLevelHeadersFromBinaryFile(SavantFile savantFile) throws IOException {
+    public static Map<String,List<Level>> readLevelHeadersFromBinaryFile(SavantROFile savantFile) throws IOException {
 
         // read the refname -> index position map
-        Map<String,Long[]> refMap = RAFUtils.readReferenceMap(savantFile);
+        Map<String,Long[]> refMap = SavantFileUtils.readReferenceMap(savantFile);
 
         //System.out.println("\n=== DONE PARSING REF<->DATA MAP ===");
         //System.out.println();
 
         // change the offset
-        savantFile.setHeaderOffset(savantFile.getFilePointerSuper());
+        savantFile.setHeaderOffset(savantFile.getFilePointer());
 
         /*
         for (String s : refMap.keySet()) {
@@ -124,7 +123,7 @@ public class ContinuousFormatterHelper {
 
         int headerNum = 0;
 
-       System.out.println("Number of headers to get: " + refMap.keySet().size());
+       if (log.isDebugEnabled()) log.debug("Number of headers to get: " + refMap.keySet().size());
 
         // keep track of the maximum end of tree position
         // (IMPORTANT NOTE: order of elements returned by keySet() is not gauranteed!!!)
@@ -135,15 +134,15 @@ public class ContinuousFormatterHelper {
             //System.out.println("Getting header for refname: " + refname);
 
             //System.out.println("========== Reading header for reference " + refname + " ==========");
-            savantFile.seek(v[0]);
+            savantFile.seek(v[0]+savantFile.getHeaderOffset());
 
-            //System.out.println("Starting header at (super): " + savantFile.getFilePointerSuper());
+            //System.out.println("Starting header at: " + savantFile.getFilePointer());
 
             List<Level> header = readLevelHeaderFromBinaryFile(savantFile);
 
-            //System.out.println("Finished header at (super): " + savantFile.getFilePointerSuper());
+            //System.out.println("Finished header at : " + savantFile.getFilePointer());
 
-            maxend = Math.max(maxend,savantFile.getFilePointerSuper());
+            maxend = Math.max(maxend,savantFile.getFilePointer());
 
             headers.put(refname, header);
             headerNum++;
@@ -162,7 +161,7 @@ public class ContinuousFormatterHelper {
         return headers;
     }
 
-    public static List<Level> readLevelHeaderFromBinaryFile(SavantFile savantFile) throws IOException {
+    public static List<Level> readLevelHeaderFromBinaryFile(SavantROFile savantFile) throws IOException {
 
         List<Level> header = new ArrayList<Level>();
 
@@ -178,7 +177,7 @@ public class ContinuousFormatterHelper {
         return header;
     }
 
-    private static Level readLevelFromBinaryFile(SavantFile savantFile) throws IOException {
+    private static Level readLevelFromBinaryFile(SavantROFile savantFile) throws IOException {
 
         // need to use readBinaryRecord!
         long offset = savantFile.readLong();

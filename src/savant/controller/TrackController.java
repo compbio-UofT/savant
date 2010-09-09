@@ -23,7 +23,7 @@ package savant.controller;
 
 import savant.controller.event.track.TrackListChangedEvent;
 import savant.controller.event.track.TrackListChangedListener;
-import savant.model.data.Track;
+import savant.data.sources.DataSource;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,7 +40,7 @@ public class TrackController {
     private static TrackController instance;
 
     // list of currently managed tracks
-    private List<Track> tracks;
+    private List<DataSource> tracks;
 
     private List<TrackListChangedListener> listeners;
 
@@ -48,7 +48,7 @@ public class TrackController {
      * Constructor. Private access, use getInstance() instead.
      */
     private TrackController() {
-        this.tracks = new ArrayList<Track>();
+        this.tracks = new ArrayList<DataSource>();
         this.listeners = new ArrayList<TrackListChangedListener>();
     }
 
@@ -57,21 +57,21 @@ public class TrackController {
         return instance;
     }
 
-    public void addTrack(Track track) {
+    public void addTrack(DataSource track) {
         tracks.add(track);
         fireTracksChangedEvent();
     }
 
-    public void removeTrack(Track track) {
-        tracks.remove(track);
+    public void removeDataSource(DataSource dataSource) {
+        tracks.remove(dataSource);
         fireTracksChangedEvent();
     }
 
-    public List<Track> getTracks() {
+    public List<DataSource> getDataSources() {
         return this.tracks;
     }
 
-    public Track getTrack(int index) {
+    public DataSource getTrack(int index) {
         return tracks.get(index);
     }
     

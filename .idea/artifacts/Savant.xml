@@ -19,6 +19,7 @@
         <element id="file-copy" path="$PROJECT_DIR$/extlib/log4j.jar" />
         <element id="library" level="project" name="picard" />
         <element id="library" level="project" name="smalltext" />
+        <element id="library" level="project" name="apache-ftp" />
       </element>
     </root>
   </artifact>

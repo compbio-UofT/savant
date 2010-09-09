@@ -14,7 +14,7 @@
  *    limitations under the License.
  */
 
-package savant.model.view;
+package savant.util;
 
 import java.util.Dictionary;
 import java.util.Hashtable;
@@ -34,7 +34,7 @@ public class DrawingInstructions {
     public enum InstructionName {
         TRACK_DATA_TYPE, MODE, AXIS_RANGE, RESOLUTION, RANGE, COLOR_SCHEME, GENOME, ARC_MIN, DISCORDANT_MIN, DISCORDANT_MAX, MESSAGE, REFERENCE_EXISTS, SELECTION_ALLOWED }
 
-        Dictionary<String, Object> instructions;
+    private Dictionary<String, Object> instructions;
 
     /**
      * Constructor

@@ -15,30 +15,33 @@
  */
 
 /*
- * RAFUtils.java
+ * SavantFileUtils.java
  * Created on Mar 23, 2010
  */
 
 package savant.util;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import savant.data.types.Block;
 import savant.data.types.ItemRGB;
 import savant.file.FieldType;
 import savant.file.FileType;
 import savant.file.FileTypeHeader;
-import savant.file.SavantFile;
+import savant.file.ROFile;
 import savant.format.SavantFileFormatterUtils;
 
 import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class RAFUtils {
+public class SavantFileUtils {
 
-    public static List<FieldType> readFieldsHeader(RandomAccessFile src) throws IOException {
+    private static Log log = LogFactory.getLog(SavantFileUtils.class);
+
+    public static List<FieldType> readFieldsHeader(ROFile src) throws IOException {
 
         int numFields = src.readInt();
 
@@ -51,23 +54,27 @@ public class RAFUtils {
         return fields;
     }
 
-    public static int getRecordSize(SavantFile file) throws IOException {
-        long currpos = file.getFilePointerSuper();
+    public static int getRecordSize(ROFile file) throws IOException {
+//        long currpos = file.getFilePointerSuper();
+        long currpos = file.getFilePointer();
         file.seek(MiscUtils.set2List(file.getReferenceMap().keySet()).get(0), 0);
-        List<Object> record = readBinaryRecord((RandomAccessFile) file, file.getFields());
-        file.seekSuper(currpos);
+        List<Object> record = readBinaryRecord(file, file.getFields());
+//        file.seekSuper(currpos);
+        file.seek(currpos);
         return SavantFileFormatterUtils.getRecordSize(record, file.getFields());
     }
 
-    public static List<Object> readBinaryRecord(RandomAccessFile file, List<FieldType> fields) throws IOException {
+    public static List<Object> readBinaryRecord(ROFile file, List<FieldType> fields) throws IOException {
 
         List<Object> record = new ArrayList<Object>(fields.size());
 
-        //System.out.println("Reading binary record");
-        //System.out.println("Fields");
-        //for (FieldType ft : fields) {
-        //    System.out.println("\t" + ft);
-        // }
+        if (log.isDebugEnabled()) {
+            log.debug("Reading binary record");
+            log.debug("Fields");
+            for (FieldType ft : fields) {
+                log.debug("\t" + ft);
+            }
+        }
 
         for (FieldType ft : fields) {
             if (ft == FieldType.IGNORE) { continue; }
@@ -132,11 +139,11 @@ public class RAFUtils {
         return record;
     }
 
-    public static FileTypeHeader readFileTypeHeader(RandomAccessFile raf) throws IOException {
+    public static FileTypeHeader readFileTypeHeader(ROFile rof) throws IOException {
         List<FieldType> fields = new ArrayList<FieldType>();
         fields.add(FieldType.INTEGER);
         fields.add(FieldType.INTEGER);
-        List<Object> record = readBinaryRecord(raf,fields);
+        List<Object> record = readBinaryRecord(rof,fields);
         Integer magicNumber = (Integer) record.get(0);
         FileTypeHeader fth = new FileTypeHeader( FileType.fromMagicNumber(magicNumber), (Integer) record.get(1));
         if (fth.fileType == null) {
@@ -147,9 +154,9 @@ public class RAFUtils {
         return fth;
     }
 
-    public static Map<String,Long[]> readReferenceMap(RandomAccessFile raf) throws IOException {
+    public static Map<String,Long[]> readReferenceMap(ROFile rof) throws IOException {
 
-        int numreferences = raf.readInt();
+        int numreferences = rof.readInt();
 
         Map<String,Long[]> referenceMap = new HashMap<String, Long[]>();
 
@@ -164,7 +171,7 @@ public class RAFUtils {
 
             //System.out.println("Reading reference #" + (i+1));
 
-            List<Object> record = readBinaryRecord(raf,fields);
+            List<Object> record = readBinaryRecord(rof,fields);
             Long[] vals = new Long[2];
 
             vals[0] = (Long) record.get(1);
@@ -176,132 +183,132 @@ public class RAFUtils {
         return referenceMap;
     }
 
-    public static void writeFileTypeHeader(RandomAccessFile raf, FileTypeHeader fth) throws IOException {
-        raf.writeInt(fth.fileType.getMagicNumber());
-        raf.writeInt(fth.version);
+//    public static void writeFileTypeHeader(RWFile rwf, FileTypeHeader fth) throws IOException {
+//        rwf.writeInt(fth.fileType.getMagicNumber());
+//        rwf.writeInt(fth.version);
+//
+//    }
+//
+//    public static void writeFieldsHeader(RWFile rwf, List<FieldType> fields) throws IOException {
+//
+//        rwf.writeInt(fields.size());
+//
+//        for (FieldType ft : fields) {
+//            rwf.writeInt(ft.ordinal());
+//        }
+//    }
 
-    }
+//    public static void writeBinaryRecord(RWFile rwf, List<Object> line, List<FieldType> fields, List<Object> modifiers) throws IOException {
+//
+////        FieldType fieldType = null;
+//        Object o = null;
+//        Object instruction = null;
+//
+//        int entryNum = 0;
+//        int numIgnores = 0;
+//
+//        for (FieldType ft : fields) {
+//            if (ft == FieldType.IGNORE) {
+//                numIgnores++;
+//                continue;
+//            }
+//
+//            o = line.get(entryNum);
+//            instruction = modifiers.get(entryNum + numIgnores);
+//
+//            //System.out.println("Writing " + o + " as " + ft + " with instruction " + instruction);
+//
+//            switch (ft) {
+//                case STRING:
+//                    int stringLength;
+//                    if (modifiers.get(entryNum) == null) {
+//                        stringLength = ((String) o).length();
+//                    } else {
+//                        stringLength = (Integer) instruction;
+//                    }
+//                    writeFixedLengthString(rwf, (String) o, stringLength);
+//                    break;
+//                case CHAR:
+//                    rwf.writeByte((Character) o);
+//                    break;
+//                case BLOCKS:
+//                    List<Block> blocks = (List<Block>) o;
+//                    rwf.writeInt(blocks.size());
+//                    for (Block b : blocks) {
+//                        rwf.writeInt(b.getPosition());
+//                        rwf.writeInt(b.getSize());
+//                    }
+//                    break;
+//                case ITEMRGB:
+//                    ItemRGB rgb = (ItemRGB) o;
+//                    rwf.writeInt(rgb.getRed());
+//                    rwf.writeInt(rgb.getBlue());
+//                    rwf.writeInt(rgb.getGreen());
+//                    break;
+//                case INTEGER:
+//                    rwf.writeInt((Integer) o);
+//                    break;
+//                case DOUBLE:
+//                    rwf.writeDouble((Double) o);
+//                    break;
+//                case FLOAT:
+//                    rwf.writeFloat((Float) o);
+//                    break;
+//                case LONG:
+//                    rwf.writeLong((Long) o);
+//                    break;
+//                case BOOLEAN:
+//                    int bool = Integer.parseInt((String) o);
+//                    rwf.writeInt(bool);
+//                    break;
+//                case RANGE:
+//                    Range r = (Range) o;
+//                    rwf.writeInt(r.getFrom());
+//                    rwf.writeInt(r.getTo());
+//                    break;
+//                default:
+//                    System.err.println("DataFormatUtils.writeBinaryRecord: Not implemented for " + ft);
+//                    break;
+//            }
+//
+//            entryNum++;
+//        }
+//    }
 
-    public static void writeFieldsHeader(RandomAccessFile raf, List<FieldType> fields) throws IOException {
+//    public static void writeFixedLengthString(RWFile rwf, String s, int len) throws IOException {
+//
+//        int pad = len - s.length();
+//
+//        rwf.writeInt(len);
+//        if (!s.equals("")) { rwf.writeBytes(s.substring(0, Math.min(s.length(),len))); }
+//        while (pad > 0) {
+//            rwf.writeBytes(" ");
+//            pad--;
+//        }
+//
+//        //System.out.println("\tWriting " + len + " chars from [" + s + "] padded by " + (len - s.length()) + " = " + (after-before) + " bytes");
+//    }
 
-        raf.writeInt(fields.size());
+//    public static RWFile openFile(String path) throws IOException, SavantUnsupportedVersionException {
+//        return openFile(path,true);
+//    }
 
-        for (FieldType ft : fields) {
-            raf.writeInt(ft.ordinal());
-        }
-    }
-
-    public static void writeBinaryRecord(RandomAccessFile raf, List<Object> line, List<FieldType> fields, List<Object> modifiers) throws IOException {
-
-//        FieldType fieldType = null;
-        Object o = null;
-        Object instruction = null;
-
-        int entryNum = 0;
-        int numIgnores = 0;
-
-        for (FieldType ft : fields) {
-            if (ft == FieldType.IGNORE) {
-                numIgnores++;
-                continue;
-            }
-
-            o = line.get(entryNum);
-            instruction = modifiers.get(entryNum + numIgnores);
-
-            //System.out.println("Writing " + o + " as " + ft + " with instruction " + instruction);
-
-            switch (ft) {
-                case STRING:
-                    int stringLength;
-                    if (modifiers.get(entryNum) == null) {
-                        stringLength = ((String) o).length();
-                    } else {
-                        stringLength = (Integer) instruction;
-                    }
-                    writeFixedLengthString(raf, (String) o, stringLength);
-                    break;
-                case CHAR:
-                    raf.writeByte((Character) o);
-                    break;
-                case BLOCKS:
-                    List<Block> blocks = (List<Block>) o;
-                    raf.writeInt(blocks.size());
-                    for (Block b : blocks) {
-                        raf.writeInt(b.getPosition());
-                        raf.writeInt(b.getSize());
-                    }
-                    break;
-                case ITEMRGB:
-                    ItemRGB rgb = (ItemRGB) o;
-                    raf.writeInt(rgb.getRed());
-                    raf.writeInt(rgb.getBlue());
-                    raf.writeInt(rgb.getGreen());
-                    break;
-                case INTEGER:
-                    raf.writeInt((Integer) o);
-                    break;
-                case DOUBLE:
-                    raf.writeDouble((Double) o);
-                    break;
-                case FLOAT:
-                    raf.writeFloat((Float) o);
-                    break;
-                case LONG:
-                    raf.writeLong((Long) o);
-                    break;
-                case BOOLEAN:
-                    int bool = Integer.parseInt((String) o);
-                    raf.writeInt(bool);
-                    break;
-                case RANGE:
-                    Range r = (Range) o;
-                    raf.writeInt(r.getFrom());
-                    raf.writeInt(r.getTo());
-                    break;
-                default:
-                    System.err.println("DataFormatUtils.writeBinaryRecord: Not implemented for " + ft);
-                    break;
-            }
-
-            entryNum++;
-        }
-    }
-
-    public static void writeFixedLengthString(RandomAccessFile raf, String s, int len) throws IOException {
-
-        int pad = len - s.length();
-
-        raf.writeInt(len);
-        if (!s.equals("")) { raf.writeBytes(s.substring(0, Math.min(s.length(),len))); }
-        while (pad > 0) {
-            raf.writeBytes(" ");
-            pad--;
-        }
-
-        //System.out.println("\tWriting " + len + " chars from [" + s + "] padded by " + (len - s.length()) + " = " + (after-before) + " bytes");
-    }
-
-    public static RandomAccessFile openFile(String path) throws IOException {
-        return openFile(path,true);
-    }
-
-    public static RandomAccessFile openFile(String path, boolean seekToEnd) throws IOException {
-        RandomAccessFile f = new RandomAccessFile(path, "rw");
-        if (seekToEnd) {
-            seekToEnd(f);
-        }
-        return f;
-    }
+//    public static SavantRWFile openFile(String path, boolean seekToEnd) throws IOException, SavantUnsupportedVersionException {
+//        SavantRWFile f = new SavantRWFile(path);
+//        if (seekToEnd) {
+//            seekToEnd(f);
+//        }
+//        return f;
+//    }
 
     /**
      * Seek to the end of the given RandomAccessFile
      * @param f
      * @throws IOException
      */
-    public static void seekToEnd(RandomAccessFile f) throws IOException {
-        f.seek(f.length());
-    }
+//    public static void seekToEnd(RWFile f) throws IOException {
+//        f.seek(f.length());
+//    }
 
     private static boolean littleEndian(Integer magicNumber) {
 

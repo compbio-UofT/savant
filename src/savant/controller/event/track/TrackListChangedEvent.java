@@ -21,21 +21,21 @@
 
 package savant.controller.event.track;
 
-import savant.model.data.Track;
+import savant.data.sources.DataSource;
 
 import java.util.EventObject;
 import java.util.List;
 
 public class TrackListChangedEvent extends EventObject {
 
-    private List<Track> tracks;
+    private List<DataSource> dataSources;
 
-    public TrackListChangedEvent(Object source, List<Track> tracks) {
+    public TrackListChangedEvent(Object source, List<DataSource> dataSources) {
         super(source);
-        this.tracks = tracks;
+        this.dataSources = dataSources;
     }
 
-    public List<Track> getTracks() {
-        return this.tracks;
+    public List<DataSource> getDataSources() {
+        return this.dataSources;
     }
 }

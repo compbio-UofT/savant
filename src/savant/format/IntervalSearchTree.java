@@ -187,7 +187,7 @@ public class IntervalSearchTree {
     }
 
     /*
-    public static void printIntervalSearchTreeIndex(SavantFile dFile, IntervalSearchTree intervalBSTIndex) throws IOException {
+    public static void printIntervalSearchTreeIndex(SavantRWFile dFile, IntervalSearchTree intervalBSTIndex) throws IOException {
         for (IntervalTreeNode n : intervalBSTIndex.getNodes()) {
                 System.out.println(n.index + " " + n.size + " " +  n.startByte);
                 List<IntervalRecord> recs = IntervalRecordGetter.getRecordsInBin(dFile,n);

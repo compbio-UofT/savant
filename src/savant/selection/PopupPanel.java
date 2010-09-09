@@ -30,7 +30,7 @@ import savant.controller.BookmarkController;
 import savant.controller.ReferenceController;
 import savant.data.types.*;
 import savant.file.FileFormat;
-import savant.model.view.Mode;
+import savant.util.Mode;
 import savant.util.Bookmark;
 import savant.util.MiscUtils;
 import savant.util.Range;

@@ -8,6 +8,7 @@ package savant.debug;
 /**
  *
  * @author mfiume
+ * @deprecated
  */
 public class SavantDebugger {
 

@@ -13,34 +13,50 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package savant.model.data;
 
-import savant.util.Resolution;
+/*
+ * DataSource.java
+ * Created on Aug 23, 2010
+ */
+
+package savant.data.sources;
+
+import savant.data.types.Record;
 import savant.util.Range;
+import savant.util.Resolution;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.Set;
 
 /**
- * Interface to define a data track which returns records.
+ * Interface for a data source which contains records associated with a reference sequence.
  *
- * @author vwilliams
- * @param <E>
+ * @param <E> record type
  */
-public interface RecordTrack<E> extends Track {
+public interface DataSource<E extends Record> {
+
+    /**
+     * Get the list of references for which this RecordTrack contains data
+     * @return A set of reference names
+     */
+    public Set<String> getReferenceNames();
 
     /**
      * Get all records in the given range at the given resolution
      *
+     * @param reference the reference sequence name for which to fetch records
      * @param range
      * @param resolution
      * @return an ordered list of records
      */
-    public List<E> getRecords(String reference, Range range, Resolution resolution);
+    public List<E> getRecords(String reference, Range range, Resolution resolution) throws IOException;
 
     public String getPath();
-
+    
     /**
-     * Close this track.
+     * Close the source
      */
     public void close();
+
 }

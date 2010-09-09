@@ -15,85 +15,76 @@
  */
 
 /*
- * GenericIntervalTrack.java
+ * GenericIntervalDataSource.java
  * Created on Jan 12, 2010
  */
 
-package savant.model.data.interval;
+package savant.data.sources;
 
-import java.util.Set;
-
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import savant.data.types.GenericIntervalRecord;
 import savant.data.types.IntervalRecord;
+import savant.file.FileType;
+import savant.file.SavantFileNotFormattedException;
+import savant.file.SavantROFile;
 import savant.file.SavantUnsupportedVersionException;
 import savant.format.DataFormatter;
-import savant.file.SavantFile;
 import savant.format.IntervalRecordGetter;
 import savant.format.IntervalSearchTree;
-import savant.util.Resolution;
-import savant.model.data.RecordTrack;
 import savant.util.Range;
+import savant.util.Resolution;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import savant.format.SavantFileFormatter;
 
 /**
  * Class to represent an track of generic intervals. Responsible for reading records within a given range.
  * 
  * @author vwilliams
  */
-//TODO: remove Savant.log
-public class GenericIntervalTrack implements RecordTrack<GenericIntervalRecord> {
+public class GenericIntervalDataSource implements DataSource<GenericIntervalRecord> {
 
-    // Track properties
-    SavantFile dFile;
-    //RandomAccessFile raf;
+    private static Log log = LogFactory.getLog(GenericIntervalDataSource.class);
 
-    private int numRecords;
-    private int recordSize;
+    private SavantROFile dFile;
 
     private Map<String,IntervalSearchTree> refnameToIntervalBSTIndex;
-    //private IntervalSearchTree intervalBSTIndex;
 
-    public GenericIntervalTrack(String fileName) throws IOException, SavantUnsupportedVersionException {
-        this.dFile = new SavantFile(fileName);
-        String indexFileName = fileName + SavantFileFormatter.indexExtension;
+    public GenericIntervalDataSource(String fileName) throws IOException, SavantFileNotFormattedException, SavantUnsupportedVersionException {
+        this.dFile = new SavantROFile(fileName, FileType.INTERVAL_GENERIC);
         this.refnameToIntervalBSTIndex = DataFormatter.readIntervalBSTs(this.dFile);
 
-        //SavantLogger.logln("HEADER SIZE && : "+  dFile.getFilePointerSuper());
+        if (log.isDebugEnabled()) {
+            log.debug("HEADER SIZE && : "+  dFile.getFilePointer());
 
-        //System.out.println("Found indicies for:");
-        //for (String refname : refnameToIntervalBSTIndex.keySet()) {
-        //    System.out.println(refname);
-        //}
+            log.debug("Found indicies for:");
+            for (String refname : refnameToIntervalBSTIndex.keySet()) {
+                log.debug(refname);
+            }
+        }
 
-        //intervalBSTIndex = DataFormatter.readIntervalBST(indexFileName);
-        //this.numRecords = intervalBSTIndex.getRoot().subtreeSize;
     }
 
     public IntervalSearchTree getIntervalSearchTreeForReference(String refname) {
         return refnameToIntervalBSTIndex.get(refname);
     }
 
-    public List<GenericIntervalRecord> getRecords(String reference, Range range, Resolution resolution) {
+    public List<GenericIntervalRecord> getRecords(String reference, Range range, Resolution resolution) throws IOException {
         List<IntervalRecord> data = null;
 
         IntervalSearchTree ist = getIntervalSearchTreeForReference(reference);
 
         if (ist == null) { return new ArrayList<GenericIntervalRecord>(); }
         
-        try {
-            data = IntervalRecordGetter.getData(this.dFile, reference, range, ist.getRoot());
-        } catch (IOException ex) {
-            Logger.getLogger(GenericIntervalTrack.class.getName()).log(Level.SEVERE, null, ex);
-        }
 
-        //TODO: fix me
+        data = IntervalRecordGetter.getData(this.dFile, reference, range, ist.getRoot());
+
         List<GenericIntervalRecord> girList = new ArrayList<GenericIntervalRecord>(data.size());
         for (int i = 0; i < data.size(); i++) {
             girList.add((GenericIntervalRecord) data.get(i));
@@ -106,15 +97,15 @@ public class GenericIntervalTrack implements RecordTrack<GenericIntervalRecord> 
         try {
             this.dFile.close();
         } catch (IOException ex) {
-            Logger.getLogger(GenericIntervalTrack.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(GenericIntervalDataSource.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
     public Set<String> getReferenceNames() {
-        return this.dFile.getReferenceNames();
+        Map<String, Long[]> refMap = dFile.getReferenceMap();
+        return refMap.keySet();
     }
 
-    @Override
     public String getPath() {
         return dFile.getPath();
     }

@@ -14,7 +14,7 @@
  *    limitations under the License.
  */
 
-package savant.model.view;
+package savant.util;
 
 import java.awt.*;
 import java.util.Dictionary;
@@ -26,9 +26,8 @@ import java.util.Hashtable;
  */
 public class ColorScheme {
 
-    // TODO: use this class somewhere?
     private Color defaultColor = Color.PINK;
-    public Dictionary<String, Color> colorSettings;
+    private Dictionary<String, Color> colorSettings;
 
     public ColorScheme()
     {
@@ -52,6 +51,6 @@ public class ColorScheme {
         }
     }
 
-    private void setColorSettings(Dictionary<String, Color> cs) { colorSettings = cs; }
-    private Dictionary<String, Color> getColorSettings() { return this.colorSettings; }
+    public void setColorSettings(Dictionary<String, Color> cs) { colorSettings = cs; }
+    public Dictionary<String, Color> getColorSettings() { return this.colorSettings; }
 }

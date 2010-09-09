@@ -21,28 +21,24 @@
 
 package savant.view.swing.interval;
 
+import savant.data.sources.GenericContinuousDataSource;
 import savant.data.types.ContinuousRecord;
 import savant.file.FileFormat;
-import savant.util.Resolution;
-import savant.model.data.continuous.GenericContinuousTrack;
-import savant.util.AxisRange;
-import savant.model.view.ColorScheme;
-import savant.model.view.DrawingInstructions;
-import savant.model.view.Mode;
-import savant.util.Range;
+import savant.util.*;
+import savant.util.ColorScheme;
+import savant.util.DrawingInstructions;
 import savant.view.swing.TrackRenderer;
 import savant.view.swing.ViewTrack;
 
 import java.util.ArrayList;
 import java.util.List;
 import savant.settings.ColourSettings;
-import savant.util.MiscUtils;
 
 public class BAMCoverageViewTrack extends ViewTrack {
 
     private boolean enabled = true;
 
-    public BAMCoverageViewTrack(String name, GenericContinuousTrack track) {
+    public BAMCoverageViewTrack(String name, GenericContinuousDataSource track) {
         super(name, FileFormat.CONTINUOUS_GENERIC, track);
         setColorScheme(getDefaultColorScheme());
         this.notifyViewTrackControllerOfCreation();
@@ -53,7 +49,7 @@ public class BAMCoverageViewTrack extends ViewTrack {
 
         List<Object> data = null;
         Resolution r = getResolution(range);
-        if (getTrack() != null) {
+        if (getDataSource() != null) {
             if (isEnabled() && (r == Resolution.LOW || r == Resolution.VERY_LOW || r == Resolution.MEDIUM)) {
                 data = retrieveAndSaveData(reference, range);
                 //System.out.println("BAM data: " + data);
@@ -68,13 +64,13 @@ public class BAMCoverageViewTrack extends ViewTrack {
             //reference = "1";
 
             // FIXME: another nasty hack to accommodate coverage
-            if (getTrack() == null && isEnabled() && (r == Resolution.LOW || r == Resolution.VERY_LOW || r == Resolution.MEDIUM)) {
+            if (getDataSource() == null && isEnabled() && (r == Resolution.LOW || r == Resolution.VERY_LOW || r == Resolution.MEDIUM)) {
                 renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.MESSAGE, "No coverage file available");
                 renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.AXIS_RANGE, AxisRange.initWithRanges(range, getDefaultYRange()));
             }
             else if (isEnabled() && (r == Resolution.LOW || r == Resolution.VERY_LOW || r == Resolution.MEDIUM)) {
                 //FIXME: temporary fix for chrx != x issue
-                boolean contains = (this.getTrack().getReferenceNames().contains(reference) || this.getTrack().getReferenceNames().contains(MiscUtils.homogenizeSequence(reference)));
+                boolean contains = (this.getDataSource().getReferenceNames().contains(reference) || this.getDataSource().getReferenceNames().contains(MiscUtils.homogenizeSequence(reference)));
                 renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.REFERENCE_EXISTS, contains);
                 renderer.getDrawingInstructions().getInstructions().remove(DrawingInstructions.InstructionName.MESSAGE.toString());
                 int maxDataValue = getMaxValue(data);
@@ -93,7 +89,7 @@ public class BAMCoverageViewTrack extends ViewTrack {
 
     @Override
     public List<Object> retrieveData(String reference, Range range, Resolution resolution) throws Throwable {
-        return new ArrayList<Object>(getTrack().getRecords(reference, range, resolution));
+        return new ArrayList<Object>(getDataSource().getRecords(reference, range, resolution));
     }
 
     private ColorScheme getDefaultColorScheme() {

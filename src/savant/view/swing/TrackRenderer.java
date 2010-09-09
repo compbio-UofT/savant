@@ -18,7 +18,8 @@ package savant.view.swing;
 
 import java.net.URI;
 import savant.file.FileFormat;
-import savant.model.view.DrawingInstructions;
+import savant.util.DrawingInstructions;
+import savant.util.Mode;
 import savant.util.Range;
 import java.awt.*;
 import java.awt.geom.Ellipse2D;
@@ -35,7 +36,6 @@ import savant.controller.RangeController;
 import savant.controller.SelectionController;
 import savant.data.types.GenericContinuousRecord;
 import savant.data.types.Record;
-import savant.model.view.Mode;
 import savant.view.swing.continuous.ContinuousTrackRenderer;
 
 /**

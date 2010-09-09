@@ -15,50 +15,50 @@
  */
 
 /*
- * BAMIntervalTrack.java
+ * BAMDataSource.java
  * Created on Jan 28, 2010
  */
 
-package savant.model.data.interval;
+package savant.data.sources;
 
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.util.Set;
 import net.sf.samtools.*;
 import net.sf.samtools.util.CloseableIterator;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import savant.controller.RangeController;
+import savant.controller.ReferenceController;
 import savant.data.types.BAMIntervalRecord;
-import savant.util.Resolution;
-import savant.model.data.RecordTrack;
+import savant.util.MiscUtils;
 import savant.util.Range;
+import savant.util.Resolution;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import savant.controller.ReferenceController;
-import savant.util.MiscUtils;
+import java.util.Set;
 
 /**
  * Class to represent a track of BAM intervals. Uses SAMTools to read data within a range.
  * 
  * @author vwilliams
  */
-public class BAMIntervalTrack implements RecordTrack<BAMIntervalRecord> {
+public class BAMDataSource implements DataSource<BAMIntervalRecord> {
 
-    private static Log log = LogFactory.getLog(BAMIntervalTrack.class);
+    private static Log log = LogFactory.getLog(BAMDataSource.class);
     
     private SAMFileReader samFileReader;
     private SAMFileHeader samFileHeader;
     //private String sequenceName;
 
-    String fileNameOrURL;
+    private String fileNameOrURL;
 
-    public static BAMIntervalTrack fromfileNameOrURL(String fileNameOrURL) throws IOException {
+    public static BAMDataSource fromfileNameOrURL(String fileNameOrURL) throws IOException {
 
         if (fileNameOrURL == null) throw new IllegalArgumentException("Invalid argument; file name or URL must be non-null");
 
@@ -71,7 +71,7 @@ public class BAMIntervalTrack implements RecordTrack<BAMIntervalRecord> {
                 // for now, we can deal with http URLs only
                 indexFile = getIndexFileCached(fileURL);
                 if (indexFile != null) {
-                    return new BAMIntervalTrack(fileURL, indexFile);
+                    return new BAMDataSource(fileURL, indexFile);
                 }
             }
             
@@ -88,7 +88,7 @@ public class BAMIntervalTrack implements RecordTrack<BAMIntervalRecord> {
             // infer index file name from track filename
             indexFile = getIndexFileLocal(fileNameOrURL);
             if (indexFile != null) {
-                return new BAMIntervalTrack(new File(fileNameOrURL), indexFile);
+                return new BAMDataSource(new File(fileNameOrURL), indexFile);
             }
         }
 
@@ -96,7 +96,7 @@ public class BAMIntervalTrack implements RecordTrack<BAMIntervalRecord> {
         return null;
     }
 
-    public BAMIntervalTrack(File path, File index) {
+    public BAMDataSource(File path, File index) {
 
         if (path == null) throw new IllegalArgumentException("File must not be null.");
         if (index == null) throw new IllegalArgumentException("Index file must not be null");
@@ -109,13 +109,13 @@ public class BAMIntervalTrack implements RecordTrack<BAMIntervalRecord> {
         samFileHeader = samFileReader.getFileHeader();
     }
 
-    public BAMIntervalTrack(URL url, File index) {
+    public BAMDataSource(URL url, File index) {
 
         if (url == null) throw new IllegalArgumentException("URL must not be null");
         if (index == null) throw new IllegalArgumentException("Index file must not be null");
 
         this.fileNameOrURL = url.getFile();
-        
+
         samFileReader = new SAMFileReader(url, index, false);
         samFileReader.setValidationStringency(SAMFileReader.ValidationStringency.LENIENT);
         samFileHeader = samFileReader.getFileHeader();
@@ -299,8 +299,7 @@ public class BAMIntervalTrack implements RecordTrack<BAMIntervalRecord> {
         return BAMIndexCache.getInstance().getBAMIndex(bamURL);
     }
 
-    @Override
     public String getPath() {
-        return this.fileNameOrURL;
+        return fileNameOrURL;
     }
 }

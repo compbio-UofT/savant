@@ -24,10 +24,8 @@ import org.apache.commons.logging.LogFactory;
 import savant.controller.DrawModeController;
 import savant.controller.RangeController;
 import savant.controller.event.graphpane.GraphPaneChangeEvent;
-import savant.util.AxisRange;
-import savant.model.view.DrawingInstructions;
-import savant.model.view.Mode;
-import savant.util.Range;
+import savant.util.*;
+import savant.util.DrawingInstructions;
 import savant.view.swing.interval.BAMViewTrack;
 import savant.view.swing.util.GlassMessagePane;
 import javax.swing.*;
@@ -44,7 +42,6 @@ import savant.controller.event.graphpane.GraphPaneChangeListener;
 import savant.data.types.GenericContinuousRecord;
 import savant.data.types.Record;
 import savant.settings.ColourSettings;
-import savant.util.MiscUtils;
 
 /**
  *

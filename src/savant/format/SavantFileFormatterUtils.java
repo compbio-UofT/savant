@@ -21,8 +21,7 @@
 
 package savant.format;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
+import java.io.*;
 
 import savant.data.types.*;
 import savant.file.FieldType;
@@ -31,11 +30,6 @@ import savant.file.FileTypeHeader;
 import savant.util.Range;
 import savant.util.Strand;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -90,20 +84,8 @@ public class SavantFileFormatterUtils {
     }
 
 
-    // TODO: remove, not used
-    public static FileTypeHeader readFileTypeHeader(DataInputStream in) throws IOException {
-        List<FieldType> fields = new ArrayList<FieldType>();
-        fields.add(FieldType.INTEGER);
-        fields.add(FieldType.INTEGER);
-        List<Object> record = readBinaryRecord(in,fields);
-        FileTypeHeader fth = new FileTypeHeader( FileType.fromMagicNumber((Integer) record.get(0)), (Integer) record.get(1));
-        return fth;
-    }
 
-
-
-    // TODO: remove, not used
-    public static List<Object> readBinaryRecord(DataInputStream in, List<FieldType> fields) throws IOException {
+    public static List<Object> readBinaryRecord(RandomAccessFile in, List<FieldType> fields) throws IOException {
 
         List<Object> record = new ArrayList<Object>(fields.size());
 

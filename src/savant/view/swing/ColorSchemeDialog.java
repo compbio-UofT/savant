@@ -252,7 +252,7 @@ public class ColorSchemeDialog extends JDialog {
         viewTrack = vt;
         _pane.setBorder(new JideTitledBorder(new PartialEtchedBorder(PartialEtchedBorder.LOWERED, PartialSide.NORTH), vt.getName(), JideTitledBorder.LEADING, JideTitledBorder.ABOVE_TOP));
 
-        Dictionary<String, Color> dict = vt.getColorScheme().colorSettings;
+        Dictionary<String, Color> dict = vt.getColorScheme().getColorSettings();
         Enumeration<String> keys = dict.keys();
         List<String> keysList = new ArrayList<String>();
         while(keys.hasMoreElements()){

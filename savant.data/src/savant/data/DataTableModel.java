@@ -17,14 +17,11 @@
 package savant.data;
 
 import net.sf.samtools.SAMRecord;
+import savant.data.types.*;
 import savant.file.FileFormat;
 import javax.swing.table.AbstractTableModel;
 import java.util.List;
-import savant.data.types.BAMIntervalRecord;
-import savant.data.types.BEDIntervalRecord;
-import savant.data.types.GenericContinuousRecord;
-import savant.data.types.GenericIntervalRecord;
-import savant.data.types.GenericPointRecord;
+
 
 
 /**

@@ -19,14 +19,12 @@
  * Created on Aug 4, 2010
  */
 
-package savant.model.data.interval;
+package savant.data.sources;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import savant.settings.BrowserSettings;
 import savant.util.HttpUtils;
 import savant.util.MiscUtils;
-import savant.view.swing.util.DialogUtils;
 
 import java.io.*;
 import java.net.URL;

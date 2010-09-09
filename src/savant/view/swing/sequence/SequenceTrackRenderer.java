@@ -16,8 +16,8 @@
 
 package savant.view.swing.sequence;
 
-import savant.model.view.ColorScheme;
-import savant.model.view.DrawingInstructions;
+import savant.util.ColorScheme;
+import savant.util.DrawingInstructions;
 import savant.util.Range;
 import savant.view.swing.GraphPane;
 import savant.view.swing.TrackRenderer;
@@ -26,7 +26,6 @@ import savant.view.swing.util.GlassMessagePane;
 import java.awt.*;
 import java.awt.geom.Rectangle2D;
 import java.util.List;
-import savant.controller.ReferenceController;
 
 /**
  * Class to draw a sequence track as alternating bars of colour with base letters in the center.

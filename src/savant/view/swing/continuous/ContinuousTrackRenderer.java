@@ -23,8 +23,8 @@ package savant.view.swing.continuous;
 
 import savant.data.types.GenericContinuousRecord;
 import savant.util.AxisRange;
-import savant.model.view.ColorScheme;
-import savant.model.view.DrawingInstructions;
+import savant.util.ColorScheme;
+import savant.util.DrawingInstructions;
 import savant.util.Range;
 import savant.view.swing.GraphPane;
 import savant.view.swing.TrackRenderer;
@@ -32,7 +32,6 @@ import savant.view.swing.util.GlassMessagePane;
 
 import java.awt.*;
 import java.awt.geom.GeneralPath;
-import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
 /**

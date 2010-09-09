@@ -15,31 +15,26 @@
  */
 
 /*
- * GenericContinuousTrack.java
+ * GenericContinuousDataSource.java
  * Created on Jan 11, 2010
  */
 
-package savant.model.data.continuous;
+package savant.data.sources;
 
-import java.util.Set;
-
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import savant.data.types.Continuous;
 import savant.data.types.GenericContinuousRecord;
-import savant.file.SavantFile;
-import savant.file.SavantUnsupportedVersionException;
-import savant.util.Resolution;
-import savant.model.data.RecordTrack;
-import savant.util.RAFUtils;
+import savant.file.*;
+import savant.format.ContinuousFormatterHelper;
+import savant.format.ContinuousFormatterHelper.Level;
 import savant.util.Range;
+import savant.util.Resolution;
+import savant.util.SavantFileUtils;
 import savant.view.swing.Savant;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Map;
-import savant.format.ContinuousFormatterHelper;
-import savant.format.ContinuousFormatterHelper.Level;
+import java.util.*;
 
 /**
  * A data track containing ContinuousRecords. Data is sampled differently depending on
@@ -47,9 +42,11 @@ import savant.format.ContinuousFormatterHelper.Level;
  * 
  * @author vwilliams
  */
-public class GenericContinuousTrack implements RecordTrack<GenericContinuousRecord> {
+public class GenericContinuousDataSource implements DataSource<GenericContinuousRecord> {
 
-    private SavantFile savantFile;
+    private static Log log = LogFactory.getLog(GenericContinuousDataSource.class);
+
+    private SavantROFile savantFile;
 
     private int numRecords;
     private int recordSize;
@@ -58,55 +55,51 @@ public class GenericContinuousTrack implements RecordTrack<GenericContinuousReco
     
     private Hashtable<Resolution, int[]> resolutionToSamplingMap;
 
-    public GenericContinuousTrack(String filename) throws IOException, SavantUnsupportedVersionException {
+    public GenericContinuousDataSource(String filename) throws IOException, SavantFileNotFormattedException, SavantUnsupportedVersionException {
 
-        this.savantFile = new SavantFile(filename);
+        this.savantFile = new SavantROFile(filename, FileType.CONTINUOUS_GENERIC);
         this.refnameToLevelsIndex = ContinuousFormatterHelper.readLevelHeadersFromBinaryFile(savantFile);
 
-        //printLevelsMap(refnameToLevelsIndex);
+        printLevelsMap(refnameToLevelsIndex);
 
         setRecordSize();
 
         setResolutionToFrequencyMap();
     }
 
-    public List<GenericContinuousRecord> getRecords(String reference, Range range, Resolution resolution) {
+    public List<GenericContinuousRecord> getRecords(String reference, Range range, Resolution resolution) throws IOException {
 
         List<GenericContinuousRecord> data = new ArrayList<GenericContinuousRecord>();
 
-        try {
+
 //            int binSize = getSamplingFrequency(resolution);
 //            int contiguousSamples = getNumContinuousSamples(resolution);
-            int binSize = getSamplingFrequency(range);
-            int contiguousSamples = getNumContinuousSamples(range);
+        int binSize = getSamplingFrequency(range);
+        int contiguousSamples = getNumContinuousSamples(range);
 
-            // int index = range.getFrom();
-            int index = range.getFrom() - binSize; // to avoid missing a value at the start of the range, go back one bin
-            int lastIndex = range.getTo() + binSize;
-            for  (int i = index; i <= lastIndex; i += binSize) {
+        // int index = range.getFrom();
+        int index = range.getFrom() - binSize; // to avoid missing a value at the start of the range, go back one bin
+        int lastIndex = range.getTo() + binSize;
+        for  (int i = index; i <= lastIndex; i += binSize) {
 
-                long seekpos = (i-1)*recordSize;
-                if (seekpos < 0) continue; // going back one bin may not be possible if we're near the start
-                long bytepos = savantFile.seek(reference, (i-1)*recordSize);
+            long seekpos = (i-1)*recordSize;
+            if (seekpos < 0) continue; // going back one bin may not be possible if we're near the start
+            long bytepos = savantFile.seek(reference, (i-1)*recordSize);
 
-                float sum = 0.0f;
-                int j;
-                try
-                {
-                    for (j = 0; j < contiguousSamples; j++) {
-                        sum += savantFile.readFloat();
-                    }
-                } catch (Exception e) { break; }
-                int pos;
-                if (contiguousSamples > 1) pos = i+contiguousSamples/2;
-                else pos = i;
-                GenericContinuousRecord p = GenericContinuousRecord.valueOf(reference, pos, Continuous.valueOf( sum/j));
+            float sum = 0.0f;
+            int j;
+            try
+            {
+                for (j = 0; j < contiguousSamples; j++) {
+                    sum += savantFile.readFloat();
+                }
+            } catch (Exception e) { break; }
+            int pos;
+            if (contiguousSamples > 1) pos = i+contiguousSamples/2;
+            else pos = i;
+            GenericContinuousRecord p = GenericContinuousRecord.valueOf(reference, pos, Continuous.valueOf( sum/j));
 
-                data.add(p);
-            }
-
-        } catch (IOException ex) {
-            Savant.log("Warning: IO Exception when getting continuous data");
+            data.add(p);
         }
 
         return data;
@@ -129,8 +122,8 @@ public class GenericContinuousTrack implements RecordTrack<GenericContinuousReco
     }
 
     public void setRecordSize() throws IOException {
-        this.recordSize = RAFUtils.getRecordSize(savantFile);
-        //System.out.println("Setting record size to " + this.recordSize);
+        this.recordSize = SavantFileUtils.getRecordSize(savantFile);
+        if (log.isDebugEnabled()) log.debug("Setting record size to " + this.recordSize);
     }
 
     private void setResolutionToFrequencyMap()
@@ -179,24 +172,26 @@ public class GenericContinuousTrack implements RecordTrack<GenericContinuousReco
     }
 
     public Set<String> getReferenceNames() {
-        return this.savantFile.getReferenceNames();
+        Map<String, Long[]> refMap = savantFile.getReferenceMap();
+        return refMap.keySet();
     }
 
     private void printLevelsMap(Map<String, List<Level>> refnameToLevelsIndex) {
-        for (String refname : refnameToLevelsIndex.keySet()) {
-            System.out.println("Level header for reference " + refname);
-            System.out.println("Levels list " + refnameToLevelsIndex.get(refname));
-            System.out.println("Number of levels " + refnameToLevelsIndex.get(refname).size());
-            for (Level l : refnameToLevelsIndex.get(refname)) {
-                System.out.println("Offset: " + l.offset);
-                System.out.println("Size: " + l.size);
-                System.out.println("Record size: " + l.recordSize);
-                System.out.println("Type: " + l.mode.type);
+        if (log.isDebugEnabled()) {
+            for (String refname : refnameToLevelsIndex.keySet()) {
+                log.debug("Level header for reference " + refname);
+                log.debug("Levels list " + refnameToLevelsIndex.get(refname));
+                log.debug("Number of levels " + refnameToLevelsIndex.get(refname).size());
+                for (Level l : refnameToLevelsIndex.get(refname)) {
+                    log.debug("Offset: " + l.offset);
+                    log.debug("Size: " + l.size);
+                    log.debug("Record size: " + l.recordSize);
+                    log.debug("Type: " + l.mode.type);
+                }
             }
         }
     }
 
-    @Override
     public String getPath() {
         return savantFile.getPath();
     }

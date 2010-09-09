@@ -215,7 +215,7 @@ public class DataSheet implements RangeChangedListener, ViewTrackListChangedList
         } else {
             String s = "";
 
-            s += MiscUtils.intToString(data.size());
+            s += MiscUtils.numToString(data.size());
 
             DataTableModel dtm = (DataTableModel) table.getModel();
             if (dtm.getIsNumRowsLimited() && data.size() > dtm.getMaxNumRows()) {
@@ -347,7 +347,6 @@ public class DataSheet implements RangeChangedListener, ViewTrackListChangedList
         bw.close();        
     }
 
-    @Override
     public void selectionChangeReceived(SelectionChangedEvent event) {
         if (this.autoUpdate) {
             refreshSelection();

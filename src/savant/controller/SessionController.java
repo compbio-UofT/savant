@@ -19,6 +19,7 @@ import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.XMLOutputter;
 import savant.data.types.Genome;
+import savant.file.SavantFileNotFormattedException;
 import savant.file.SavantUnsupportedVersionException;
 import savant.settings.DirectorySettings;
 import savant.util.Range;
@@ -75,17 +76,14 @@ public class SessionController implements
         }
     }
 
-    @Override
     public void rangeChangeReceived(RangeChangedEvent event) {
         setSessionSaved(false);
     }
 
-    @Override
     public void viewTrackListChangeReceived(ViewTrackListChangedEvent event) {
         setSessionSaved(false);
     }
 
-    @Override
     public void bookmarksChangeReceived(BookmarksChangedEvent event) {
         setSessionSaved(false);
     }
@@ -192,6 +190,8 @@ public class SessionController implements
 
         } catch (SavantUnsupportedVersionException ex) {
             JOptionPane.showMessageDialog(Savant.getInstance(), "Problem loading session");
+        } catch (SavantFileNotFormattedException e) {
+            JOptionPane.showMessageDialog(Savant.getInstance(), "Problem loading session, file not formatted" + e.getMessage());
         } catch (JDOMException ex) {
             JOptionPane.showMessageDialog(Savant.getInstance(), "Problem loading session");
         } catch (IOException ex) {

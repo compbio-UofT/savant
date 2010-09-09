@@ -15,19 +15,26 @@
  */
 
 /*
- * BFASTASequenceTrack.java
+ * FASTAFileDataSource.java
  * Created on Jan 12, 2010
  */
 
-package savant.model.data.sequence;
+package savant.data.sources;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import savant.data.types.SequenceRecord;
 import savant.file.FileType;
-import savant.file.SavantFile;
+import savant.file.SavantFileNotFormattedException;
+import savant.file.SavantROFile;
 import savant.file.SavantUnsupportedVersionException;
 import savant.format.SavantFileFormatterUtils;
 import savant.util.Range;
+import savant.util.Resolution;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -35,13 +42,15 @@ import java.util.Set;
  * TODO:
  * @author vwilliams
  */
-public class BFASTASequenceTrack implements SequenceTrack {
+public class FASTAFileDataSource implements DataSource<SequenceRecord> {
+
+    private static Log log = LogFactory.getLog(FASTAFileDataSource.class);
 
     private int length = -1;
-    SavantFile dFile;
+    private SavantROFile dFile;
 
-    public BFASTASequenceTrack(String fileName) throws IOException, SavantUnsupportedVersionException {
-        this.dFile = new SavantFile(fileName, FileType.SEQUENCE_FASTA);
+    public FASTAFileDataSource(String fileName) throws IOException, SavantFileNotFormattedException, SavantUnsupportedVersionException {
+        this.dFile = new SavantROFile(fileName, FileType.SEQUENCE_FASTA);
     }
 
     public int getLength(String refname) {
@@ -54,31 +63,28 @@ public class BFASTASequenceTrack implements SequenceTrack {
         return this.length;
     }
 
-    public String getSequence(String reference, Range range) {
+    public List<SequenceRecord> getRecords(String reference, Range range, Resolution resolution) throws IOException {
         
         int rangeLength = range.getLength();
         byte[] sequence = new byte[rangeLength];
-        try {
-            if (this.getReferenceMap().containsKey(reference)) {
-                dFile.seek(reference, SavantFileFormatterUtils.BYTE_FIELD_SIZE*range.getFrom()-1);
+        if (this.getReferenceMap().containsKey(reference)) {
+            dFile.seek(reference, SavantFileFormatterUtils.BYTE_FIELD_SIZE*range.getFrom()-1);
 
-                for (int i = 0; i < rangeLength; i++) {
-                    try {
-                        sequence[i] = dFile.readByte();
-                    } catch (IOException e) { break; }
-                }
-            } else {
-                return null;
+            for (int i = 0; i < rangeLength; i++) {
+                try {
+                    sequence[i] = dFile.readByte();
+                } catch (IOException e) { break; }
             }
-        } catch (IOException e) {
-            // TODO: log this properly
-            System.err.print(e);
+        } else {
+            return null;
         }
 
         String s = new String(sequence);
         s = s.toUpperCase();
 
-        return s;
+        ArrayList<SequenceRecord> result = new ArrayList<SequenceRecord>();
+        result.add(SequenceRecord.valueOf(reference, s));
+        return result;
     }
 
     public void close() {
@@ -97,4 +103,7 @@ public class BFASTASequenceTrack implements SequenceTrack {
         return this.dFile.getReferenceMap();
     }
 
+    public String getPath() {
+        return dFile.getPath();
+    }
 }

@@ -16,17 +16,19 @@
 
 package savant.data.types;
 
+import savant.controller.ReferenceController;
+import savant.data.sources.FASTAFileDataSource;
+import savant.file.SavantFileNotFormattedException;
 import savant.file.SavantUnsupportedVersionException;
-import savant.model.data.sequence.BFASTASequenceTrack;
 import savant.util.Range;
+import savant.util.Resolution;
+import savant.view.dialog.GenomeLengthForm.BuildInfo;
+import savant.view.dialog.GenomeLengthForm.ReferenceInfo;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import savant.controller.ReferenceController;
-import savant.view.dialog.GenomeLengthForm.BuildInfo;
-import savant.view.dialog.GenomeLengthForm.ReferenceInfo;
 
 /**
  *
@@ -40,17 +42,17 @@ public class Genome
     private boolean isAssociatedWithTrack;
 
     // if associated with track
-    private BFASTASequenceTrack sequenceTrack;
+    private FASTAFileDataSource sequenceTrack;
 
     // if not associated with track
     private Map<String,Long> referenceMap;
 
-    public Genome(String filename) throws IOException, SavantUnsupportedVersionException {
+    public Genome(String filename) throws IOException, SavantFileNotFormattedException, SavantUnsupportedVersionException {
         isAssociatedWithTrack = true;
         this.filename = filename;
         int lastSlashIndex = filename.lastIndexOf(System.getProperty("file.separator"));
         setName( filename.substring(lastSlashIndex+1, filename.length()));
-        sequenceTrack = new BFASTASequenceTrack(filename);
+        sequenceTrack = new FASTAFileDataSource(filename);
         setSequenceTrack(sequenceTrack);
         // get the first reference (in alphanumeric sorted order)
         //String refname = MiscUtils.set2List(sequenceTrack.getReferenceNames()).get(0);
@@ -84,7 +86,7 @@ public class Genome
         }
     }
 
-    private void setSequenceTrack(BFASTASequenceTrack sequenceTrack) {
+    private void setSequenceTrack(FASTAFileDataSource sequenceTrack) {
         this.sequenceTrack = sequenceTrack;
     }
 
@@ -98,7 +100,7 @@ public class Genome
     public String getSequence(String reference, Range range) throws IOException
     {
         if (!isSequenceSet()) { return null; }
-        else { return sequenceTrack.getSequence(reference,range); }
+        else { return sequenceTrack.getRecords(reference, range, Resolution.VERY_HIGH).get(0).getSequence(); }
     }
 
     public int getLength()
@@ -116,7 +118,7 @@ public class Genome
         }
     }
 
-    public BFASTASequenceTrack getTrack() { return this.sequenceTrack; }
+    public FASTAFileDataSource getTrack() { return this.sequenceTrack; }
 
     public boolean isSequenceSet()
     {

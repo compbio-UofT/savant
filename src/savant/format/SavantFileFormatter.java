@@ -23,7 +23,7 @@ import org.apache.commons.logging.LogFactory;
 import savant.file.FileType;
 import savant.file.FileTypeHeader;
 import savant.file.FieldType;
-import savant.file.SavantFile;
+import savant.file.SavantROFile;
 import savant.util.MiscUtils;
 
 public class SavantFileFormatter {
@@ -312,7 +312,7 @@ public class SavantFileFormatter {
 
         // 1. WRITE FILE TYPE HEADER (MAGIC NUMBER AND VERSION)
         //System.out.println("Writing file type header");
-        FileTypeHeader fileTypeHeader = new FileTypeHeader(this.fileType, SavantFile.CURRENT_FILE_VERSION);
+        FileTypeHeader fileTypeHeader = new FileTypeHeader(this.fileType, SavantROFile.CURRENT_FILE_VERSION);
         SavantFileFormatterUtils.writeFileTypeHeader(outFileStream,fileTypeHeader);
         outFileStream.flush();
 

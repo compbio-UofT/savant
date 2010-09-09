@@ -21,7 +21,7 @@
 
 package savant.controller.event.drawmode;
 
-import savant.model.view.Mode;
+import savant.util.Mode;
 import savant.view.swing.ViewTrack;
 
 /**

@@ -6,10 +6,10 @@
 package savant.format;
 
 import savant.data.types.IntervalRecord;
-import savant.file.SavantFile;
+import savant.file.SavantROFile;
 import savant.util.IntervalRecordComparator;
-import savant.util.RAFUtils;
 import savant.util.Range;
+import savant.util.SavantFileUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -22,14 +22,14 @@ import java.util.List;
  */
 public class IntervalRecordGetter {
 
-    public static List<IntervalRecord> getData(SavantFile dFile, String reference, Range r, IntervalTreeNode n) throws IOException {
+    public static List<IntervalRecord> getData(SavantROFile dFile, String reference, Range r, IntervalTreeNode n) throws IOException {
         List<IntervalRecord> result = new ArrayList<IntervalRecord>();
         getData(dFile, result, reference, r, n);
         Collections.sort(result, new IntervalRecordComparator());
         return result;
     }
 
-    private static void getData(SavantFile dFile, List<IntervalRecord> data, String reference, Range r, IntervalTreeNode n) throws IOException {
+    private static void getData(SavantROFile dFile, List<IntervalRecord> data, String reference, Range r, IntervalTreeNode n) throws IOException {
 
         if (intersects(r, n.range)) {
             //System.out.println("\tBin : " + n.range + " overlaps range " + r);
@@ -47,7 +47,7 @@ public class IntervalRecordGetter {
         return (r1.getFrom() <= r2.getTo() && r1.getTo() >= r2.getFrom());
     }
 
-    private static List<IntervalRecord> getIntersectingIntervals(SavantFile dFile, String reference, Range r, IntervalTreeNode n) throws IOException {
+    private static List<IntervalRecord> getIntersectingIntervals(SavantROFile dFile, String reference, Range r, IntervalTreeNode n) throws IOException {
 
         //System.out.println("\t\tGetting intersecting intervals");
         //System.out.println("Node range: " + n.range + " size: " + n.size);
@@ -75,7 +75,7 @@ public class IntervalRecordGetter {
                 }
                  */
 
-                List<Object> record = RAFUtils.readBinaryRecord(dFile, dFile.getFields());
+                List<Object> record = SavantFileUtils.readBinaryRecord(dFile, dFile.getFields());
 
                 //System.out.println("Interval:");
                 //for (Object o : record) { System.out.println("\t" + o); }
@@ -90,13 +90,13 @@ public class IntervalRecordGetter {
         return data;
     }
 
-    public static List<IntervalRecord> getRecordsInBin(SavantFile dFile, String reference, IntervalTreeNode n) throws IOException {
+    public static List<IntervalRecord> getRecordsInBin(SavantROFile dFile, String reference, IntervalTreeNode n) throws IOException {
 
         List<IntervalRecord> recs = new ArrayList<IntervalRecord>(n.size);
         if (n.size > 0) {
             dFile.seek(reference, n.startByte);
             for (int i = 0; i < n.size; i++) {
-                List<Object> record = RAFUtils.readBinaryRecord(dFile, dFile.getFields());
+                List<Object> record = SavantFileUtils.readBinaryRecord(dFile, dFile.getFields());
                 IntervalRecord ir = SavantFileFormatterUtils.convertRecordToInterval(record, dFile.getFileType(), dFile.getFields());
                 recs.add(ir);
             }

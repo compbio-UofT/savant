@@ -18,11 +18,9 @@ package savant.view.swing.sequence;
 
 import savant.data.types.Genome;
 import savant.file.FileFormat;
-import savant.util.Resolution;
-import savant.util.AxisRange;
-import savant.model.view.ColorScheme;
-import savant.model.view.DrawingInstructions;
-import savant.util.Range;
+import savant.util.*;
+import savant.util.ColorScheme;
+import savant.util.DrawingInstructions;
 import savant.view.swing.Savant;
 import savant.view.swing.TrackRenderer;
 import savant.view.swing.ViewTrack;
@@ -35,7 +33,6 @@ import java.util.List;
 import savant.controller.ViewTrackController;
 
 import savant.settings.ColourSettings;
-import savant.util.MiscUtils;
 
 /**
  *

@@ -25,22 +25,19 @@ import net.sf.samtools.SAMRecord;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import savant.controller.RangeController;
+import savant.data.sources.BAMDataSource;
 import savant.data.types.BAMIntervalRecord;
 import savant.file.FileFormat;
-import savant.util.Resolution;
-import savant.model.data.interval.BAMIntervalTrack;
-import savant.util.AxisRange;
-import savant.model.view.ColorScheme;
-import savant.model.view.DrawingInstructions;
-import savant.model.view.Mode;
-import savant.util.Range;
+import savant.util.*;
+import savant.util.ColorScheme;
+import savant.util.DrawingInstructions;
+import savant.util.Mode;
 import savant.view.swing.TrackRenderer;
 import savant.view.swing.ViewTrack;
 
 import java.util.ArrayList;
 import java.util.List;
 import savant.settings.ColourSettings;
-import savant.util.MiscUtils;
 
 /**
  * Class to handle the preparation for rendering of a BAM track. Handles colour schemes and
@@ -61,10 +58,10 @@ public class BAMViewTrack extends ViewTrack {
         SNP
     };
 
-    private static final Mode STANDARD_MODE = new Mode(DrawingMode.STANDARD, "Colour by strand");
-    private static final Mode VARIANTS_MODE = new Mode(DrawingMode.VARIANTS, "Show indels and mismatches");
-    private static final Mode MATE_PAIRS_MODE = new Mode(DrawingMode.MATE_PAIRS, "Join mate pairs with arcs");
-    private static final Mode SNP_MODE = new Mode(DrawingMode.SNP, "Show values per position");
+    private static final Mode STANDARD_MODE = Mode.fromObject(DrawingMode.STANDARD, "Colour by strand");
+    private static final Mode VARIANTS_MODE = Mode.fromObject(DrawingMode.VARIANTS, "Show indels and mismatches");
+    private static final Mode MATE_PAIRS_MODE = Mode.fromObject(DrawingMode.MATE_PAIRS, "Join mate pairs with arcs");
+    private static final Mode SNP_MODE = Mode.fromObject(DrawingMode.SNP, "Show values per position");
 
     // if > 1, treat as absolute size below which an arc will not be drawn
     // if 0 < 1, treat as percentage of y range below which an arc will not be drawn
@@ -81,7 +78,7 @@ public class BAMViewTrack extends ViewTrack {
      * @param name track name
      * @param bamTrack data track which this view track represents
      */
-    public BAMViewTrack(String name, BAMIntervalTrack bamTrack) {
+    public BAMViewTrack(String name, BAMDataSource bamTrack) {
         super(name, FileFormat.INTERVAL_BAM, bamTrack);
         setColorScheme(getDefaultColorScheme());
         setDrawModes(getDefaultDrawModes());
@@ -127,7 +124,7 @@ public class BAMViewTrack extends ViewTrack {
             data = retrieveAndSaveData(reference, range);
         }
         for (TrackRenderer renderer : getTrackRenderers()) {
-            boolean contains = (this.getTrack().getReferenceNames().contains(reference) || this.getTrack().getReferenceNames().contains(MiscUtils.homogenizeSequence(reference)));
+            boolean contains = (this.getDataSource().getReferenceNames().contains(reference) || this.getDataSource().getReferenceNames().contains(MiscUtils.homogenizeSequence(reference)));
             renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.RANGE, range);
             renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.RESOLUTION, r);
             renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.COLOR_SCHEME, this.getColorScheme());
@@ -186,7 +183,7 @@ public class BAMViewTrack extends ViewTrack {
 
     @Override
     public List<Object> retrieveData(String reference, Range range, Resolution resolution) throws Throwable {
-        return new ArrayList<Object>(getTrack().getRecords(reference, range, resolution));
+        return new ArrayList<Object>(getDataSource().getRecords(reference, range, resolution));
     }
 
     @Override

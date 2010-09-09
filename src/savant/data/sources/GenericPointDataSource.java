@@ -15,55 +15,50 @@
  */
 
 /*
- * GenericPointTrack.java
+ * GenericPointDataSource.java
  * Created on Jan 7, 2010
  */
 
-package savant.model.data.point;
+package savant.data.sources;
 
 import savant.data.types.GenericPointRecord;
 import savant.data.types.Point;
-import savant.data.types.PointRecord;
-import savant.file.SavantFile;
+import savant.file.FileType;
+import savant.file.SavantFileNotFormattedException;
+import savant.file.SavantROFile;
 import savant.file.SavantUnsupportedVersionException;
-import savant.util.Resolution;
-import savant.model.data.RecordTrack;
-import savant.util.RAFUtils;
 import savant.util.Range;
+import savant.util.Resolution;
+import savant.util.SavantFileUtils;
 
 import java.io.EOFException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Data access object for accessing generic point files.
  * 
  * @author mfiume, vwilliams
  */
-public class GenericPointTrack implements RecordTrack<GenericPointRecord> {
+public class GenericPointDataSource implements DataSource<GenericPointRecord> {
 
-    private SavantFile savantFile;
+    private SavantROFile savantFile;
 
-    private int numRecords;
     private int recordSize;
 
-    /** FILE SPECIFIC VALUES */
-    private int descriptionLength;
-
-    public GenericPointTrack(String filename) throws IOException, SavantUnsupportedVersionException {
-        this.savantFile = new SavantFile(filename);
-        setRecordSize();
+    public GenericPointDataSource(String filename) throws IOException, SavantFileNotFormattedException, SavantUnsupportedVersionException {
+        this.savantFile = new SavantROFile(filename, FileType.POINT_GENERIC);
+        this.recordSize = SavantFileUtils.getRecordSize(savantFile);
     }
 
     private GenericPointRecord convertRecordToGenericPointRecord(List<Object> record) {
         return GenericPointRecord.valueOf((String) record.get(0), Point.valueOf((Integer) record.get(1)), (String) record.get(2));
     }
 
-    public List<GenericPointRecord> getRecords(String reference, Range range, Resolution resolution) {
+    public List<GenericPointRecord> getRecords(String reference, Range range, Resolution resolution) throws IOException {
         
         List<GenericPointRecord> data = new ArrayList<GenericPointRecord>();
 
@@ -74,9 +69,9 @@ public class GenericPointTrack implements RecordTrack<GenericPointRecord> {
 
             while (true) {
                 savantFile.seek(reference, (indexOfStart++) * getRecordSize());
-                List<Object> record = RAFUtils.readBinaryRecord(savantFile, savantFile.getFields());
+                List<Object> record = SavantFileUtils.readBinaryRecord(savantFile, savantFile.getFields());
                 GenericPointRecord p = convertRecordToGenericPointRecord(record);
-                Point pnt = ((PointRecord) p).getPoint();
+                Point pnt = p.getPoint();
 
                 // TODO: remove the necessity to trim ... this is a problem with the delimiter in formatting
                 if (pnt.getPosition() > range.getTo() || !p.getReference().trim().equals(reference)) {
@@ -88,9 +83,6 @@ public class GenericPointTrack implements RecordTrack<GenericPointRecord> {
 
         }
         catch (EOFException ignore) {}
-        catch (IOException ex) {
-            Logger.getLogger(GenericPointTrack.class.getName()).log(Level.SEVERE, "IO Exception when getting point data", ex);
-        }
 
         // return result
         return data;
@@ -104,16 +96,13 @@ public class GenericPointTrack implements RecordTrack<GenericPointRecord> {
 
     private int getRecordSize() { return this.recordSize; }
 
-    private void setRecordSize() throws IOException {
-        this.recordSize = RAFUtils.getRecordSize(savantFile);
-    }
 
     private int getNumRecords(String reference) {
         if (!this.savantFile.containsDataForReference(reference)) { return -1; }
         return (int) (this.savantFile.getReferenceLength(reference) / getRecordSize());
     }
 
-    private long seekToStart(String reference, long pos, long low, long high, SavantFile raf) throws IOException {
+    private long seekToStart(String reference, long pos, long low, long high, SavantROFile rof) throws IOException {
 
         long mid = low + ((high - low) / 2);
 
@@ -121,31 +110,31 @@ public class GenericPointTrack implements RecordTrack<GenericPointRecord> {
             return low;
         }
 
-        int posAtMid = getStartPosOfRecord(reference, mid, raf);
+        int posAtMid = getStartPosOfRecord(reference, mid, rof);
         
         if (posAtMid > pos) {
-            return seekToStart(reference, pos, low, mid - 1, raf);
+            return seekToStart(reference, pos, low, mid - 1, rof);
         } else if (posAtMid < pos) {
-            return seekToStart(reference, pos, mid + 1, high, raf);
+            return seekToStart(reference, pos, mid + 1, high, rof);
         } else {
             return low;
         }
 
     }
 
-    private int getStartPosOfRecord(String reference, long record_num, SavantFile br) throws IOException {
+    private int getStartPosOfRecord(String reference, long record_num, SavantROFile br) throws IOException {
         br.seek(reference, record_num * getRecordSize());
-        List<Object> line = RAFUtils.readBinaryRecord(savantFile, savantFile.getFields());
+        List<Object> line = SavantFileUtils.readBinaryRecord(savantFile, savantFile.getFields());
         br.seek(reference, record_num * getRecordSize());
         return (Integer) line.get(1);
     }
 
     public Set<String> getReferenceNames() {
-        return this.savantFile.getReferenceNames();
+        Map<String, Long[]> refMap = savantFile.getReferenceMap();
+        return refMap.keySet();
+
     }
-
-
-    @Override
+    
     public String getPath() {
         return savantFile.getPath();
     }

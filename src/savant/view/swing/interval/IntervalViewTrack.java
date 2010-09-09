@@ -20,21 +20,19 @@ import org.apache.commons.logging.LogFactory;
 import savant.data.types.GenericIntervalRecord;
 import savant.data.types.Interval;
 import savant.file.FileFormat;
-import savant.util.Resolution;
-import savant.model.data.interval.GenericIntervalTrack;
-import savant.util.AxisRange;
-import savant.model.view.ColorScheme;
-import savant.model.view.DrawingInstructions;
-import savant.model.view.Mode;
-import savant.util.Range;
+import savant.util.*;
+import savant.data.sources.GenericIntervalDataSource;
+import savant.util.ColorScheme;
+import savant.util.DrawingInstructions;
+import savant.util.Mode;
 import savant.view.swing.TrackRenderer;
 import savant.view.swing.ViewTrack;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import savant.settings.ColourSettings;
-import savant.util.MiscUtils;
 
 /**
  *
@@ -46,11 +44,11 @@ public class IntervalViewTrack extends ViewTrack {
 
     public enum DrawingMode { SQUISH, PACK, ARC };
 
-    private static final Mode SQUISH_MODE = new Mode(DrawingMode.SQUISH, "All on one line");
-    private static final Mode PACK_MODE = new Mode(DrawingMode.PACK, "Minimum number of lines");
-    private static final Mode ARC_MODE = new Mode(DrawingMode.ARC, "Arcs");
+    private static final Mode SQUISH_MODE = Mode.fromObject(DrawingMode.SQUISH, "All on one line");
+    private static final Mode PACK_MODE = Mode.fromObject(DrawingMode.PACK, "Minimum number of lines");
+    private static final Mode ARC_MODE = Mode.fromObject(DrawingMode.ARC, "Arcs");
 
-    public IntervalViewTrack(String name, GenericIntervalTrack intervalTrack) throws FileNotFoundException {
+    public IntervalViewTrack(String name, GenericIntervalDataSource intervalTrack) throws FileNotFoundException {
         super(name, FileFormat.INTERVAL_GENERIC, intervalTrack);
         setColorScheme(getDefaultColorScheme());
         setDrawModes(getDefaultDrawModes());
@@ -121,8 +119,8 @@ public class IntervalViewTrack extends ViewTrack {
      * getData
      *     Get data in the specified range at the specified resolution
      */
-    public List<Object> retrieveData(String reference, Range range, Resolution resolution) {
-        return new ArrayList<Object>(getTrack().getRecords(reference, range, resolution));
+    public List<Object> retrieveData(String reference, Range range, Resolution resolution) throws IOException {
+        return new ArrayList<Object>(getDataSource().getRecords(reference, range, resolution));
     }
 
     public void prepareForRendering(String reference, Range range) throws Throwable {
@@ -140,7 +138,7 @@ public class IntervalViewTrack extends ViewTrack {
         }
 
         for (TrackRenderer renderer : getTrackRenderers()) {
-            boolean contains = (this.getTrack().getReferenceNames().contains(reference) || this.getTrack().getReferenceNames().contains(MiscUtils.homogenizeSequence(reference)));
+            boolean contains = (this.getDataSource().getReferenceNames().contains(reference) || this.getDataSource().getReferenceNames().contains(MiscUtils.homogenizeSequence(reference)));
             renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.RESOLUTION, r);
             renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.COLOR_SCHEME, this.getColorScheme());
             renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.REFERENCE_EXISTS, contains);

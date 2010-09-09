@@ -25,7 +25,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import savant.controller.event.drawmode.DrawModeChangedEvent;
 import savant.controller.event.drawmode.DrawModeChangedListener;
-import savant.model.view.Mode;
+import savant.util.Mode;
 import savant.view.swing.ViewTrack;
 
 import java.util.ArrayList;

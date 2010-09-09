@@ -75,7 +75,7 @@ public class ReferenceController {
                 fireReferenceChangedEvent();
             }
         } else {
-            if (TrackController.getInstance().getTracks().size() > 0) {
+            if (TrackController.getInstance().getDataSources().size() > 0) {
                 JOptionPane.showMessageDialog(
                         Savant.getInstance(),
                         "Reference " + reference + " not found in loaded tracks");

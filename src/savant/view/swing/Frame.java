@@ -25,7 +25,8 @@ import com.jidesoft.swing.JideMenu;
 import savant.controller.DrawModeController;
 import savant.controller.RangeController;
 import savant.controller.event.drawmode.DrawModeChangedEvent;
-import savant.model.view.DrawingInstructions;
+import savant.util.DrawingInstructions;
+import savant.util.Mode;
 import savant.util.Range;
 import savant.view.swing.continuous.ContinuousTrackRenderer;
 import savant.view.swing.interval.BAMCoverageViewTrack;
@@ -46,7 +47,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import savant.controller.ReferenceController;
-import savant.model.view.Mode;
 import savant.settings.ColourSettings;
 import savant.view.swing.interval.BAMViewTrack;
 
@@ -588,13 +588,13 @@ public class Frame {
         List<Mode> drawModes = this.tracks.get(0).getDrawModes();
         visItems = new ArrayList<JCheckBoxMenuItem>();
         for(int i = 0; i < drawModes.size(); i++){
-            final JCheckBoxMenuItem item = new JCheckBoxMenuItem(drawModes.get(i).toString());
+            final JCheckBoxMenuItem item = new JCheckBoxMenuItem(drawModes.get(i).getName());
             item.addActionListener(new AbstractAction() {
                 public void actionPerformed(ActionEvent e) {
                     if(item.getState()){
                         for(int j = 0; j < visItems.size(); j++){
                             visItems.get(j).setState(false);
-                            if(item.getText().equals(tracks.get(0).getDrawModes().get(j).toString())){
+                            if(item.getText().equals(tracks.get(0).getDrawModes().get(j).getName())){
                                 DrawModeController.getInstance().switchMode(tracks.get(0), tracks.get(0).getDrawModes().get(j));
                             }
                         }

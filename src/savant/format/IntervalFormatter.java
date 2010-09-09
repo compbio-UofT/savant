@@ -17,25 +17,17 @@
 
 package savant.format;
 
-import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.RandomAccessFile;
+import savant.debug.SavantDebugger;
+import savant.file.FieldType;
+import savant.file.FileType;
+import savant.file.SavantUnsupportedVersionException;
+import savant.util.Range;
+
+import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import savant.debug.SavantDebugger;
-import savant.file.FieldType;
-import savant.file.FileType;
-import savant.util.RAFUtils;
-import savant.util.Range;
 
 public class IntervalFormatter extends SavantFileFormatter {
 
@@ -133,7 +125,7 @@ public class IntervalFormatter extends SavantFileFormatter {
      * @throws IOException
      * @throws InterruptedException
      */
-    public void format() throws IOException, InterruptedException{
+    public void format() throws IOException, InterruptedException, SavantUnsupportedVersionException {
 
         int numFields = countFields(this.inFilePath);
 
@@ -195,8 +187,12 @@ public class IntervalFormatter extends SavantFileFormatter {
             // make the output and index files
             outfile = new DataOutputStream(
                 new BufferedOutputStream(
-                new FileOutputStream(outPath), OUTPUT_BUFFER_SIZE));
-            RandomAccessFile indexOutFile = RAFUtils.openFile(indexPath);
+                    new FileOutputStream(outPath),
+                    OUTPUT_BUFFER_SIZE));
+            DataOutputStream indexOutFile = new DataOutputStream(
+                    new BufferedOutputStream(
+                            new FileOutputStream(indexPath),
+                            OUTPUT_BUFFER_SIZE));
 
             //System.out.println("Index file " + indexPath + " opened at byte position " + indexOutFile.getFilePointer());
 
@@ -244,7 +240,7 @@ public class IntervalFormatter extends SavantFileFormatter {
         int[] columns = {1,2};
         sortInput(columns);
 
-        SavantDebugger.debugln("Formatting as BED");
+        log.info("Formatting as BED");
 
         fields = new ArrayList<FieldType>();
         fields.add(FieldType.STRING);   // reference
@@ -357,7 +353,7 @@ public class IntervalFormatter extends SavantFileFormatter {
                 //System.out.println(">> DATA : range=" + lr.range + " pos=" + outFile.size());
 
                 srcFile.seek(startByte);
-                List<Object> rec = RAFUtils.readBinaryRecord(srcFile, fields);
+                List<Object> rec = SavantFileFormatterUtils.readBinaryRecord(srcFile, fields);
                 SavantFileFormatterUtils.writeBinaryRecord(outFile, rearrangeList(rec), writeOrderFields, writeOrderModifiers);
             }
         }
@@ -365,7 +361,7 @@ public class IntervalFormatter extends SavantFileFormatter {
 
     //String currrefname = "";
 
-    protected void writeIntervalTreeNode(IntervalTreeNode n, RandomAccessFile indexOutFile) throws IOException {
+    protected void writeIntervalTreeNode(IntervalTreeNode n, DataOutputStream indexOutFile) throws IOException {
 
         /*
         System.out.println("<<I" + "\t"
@@ -418,7 +414,7 @@ public class IntervalFormatter extends SavantFileFormatter {
             indexNodeModifiers.add(null);
         }
 
-        RAFUtils.writeBinaryRecord(indexOutFile, record, indexNodeFields, indexNodeModifiers);
+        SavantFileFormatterUtils.writeBinaryRecord(indexOutFile, record, indexNodeFields, indexNodeModifiers);
     }
 
     private void setInputOneBased(boolean inputOneBased) {
@@ -434,7 +430,7 @@ public class IntervalFormatter extends SavantFileFormatter {
      * @throws IOException
      * @throws InterruptedException
      */
-    private void formatFile(String path, DataOutputStream outFile, RandomAccessFile indexOutFile) throws IOException, InterruptedException {
+    private void formatFile(String path, DataOutputStream outFile, DataOutputStream indexOutFile) throws IOException, InterruptedException {
 
         //System.out.println("Formatting split file: " + path);
 
