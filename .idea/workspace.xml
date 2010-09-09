@@ -8,24 +8,26 @@
   <component name="ChangeListManager">
     <list default="true" readonly="true" id="7c69db67-9cad-43c9-9177-69e01c2156cb" name="Default" comment="Made data types immutable, moved into data.types package.">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/format/SavantFile.html" afterPath="$PROJECT_DIR$/docs/api/savant/format/SavantFile.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/model/data/interval/GenericIntervalTrack.html" afterPath="$PROJECT_DIR$/docs/api/savant/model/data/interval/GenericIntervalTrack.html" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/util/DataUtils.html" afterPath="$PROJECT_DIR$/docs/api/savant/util/DataUtils.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/model/data/interval/GenericIntervalTrack.html" afterPath="$PROJECT_DIR$/docs/api/savant/model/data/interval/GenericIntervalTrack.html" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/model/data/interval/BAMIntervalTrack.html" afterPath="$PROJECT_DIR$/docs/api/savant/model/data/interval/BAMIntervalTrack.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/format/util/data/interval/IntervalSearchTree.html" afterPath="$PROJECT_DIR$/docs/api/savant/format/util/data/interval/IntervalSearchTree.html" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/util/DataFormatUtils.html" afterPath="$PROJECT_DIR$/docs/api/savant/util/DataFormatUtils.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/format/util/data/interval/IntervalSearchTree.html" afterPath="$PROJECT_DIR$/docs/api/savant/format/util/data/interval/IntervalSearchTree.html" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/model/PointRecord.html" afterPath="$PROJECT_DIR$/docs/api/savant/model/PointRecord.html" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/dist/lib/jide-common.jar" afterPath="$PROJECT_DIR$/dist/lib/jide-common.jar" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/model/data/sequence/BFASTASequenceTrack.html" afterPath="$PROJECT_DIR$/docs/api/savant/model/data/sequence/BFASTASequenceTrack.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/model/IntervalTest.html" afterPath="$PROJECT_DIR$/docs/api/savant/model/IntervalTest.html" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/format/util/data/interval/LinePlusRange.html" afterPath="$PROJECT_DIR$/docs/api/savant/format/util/data/interval/LinePlusRange.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/model/IntervalTest.html" afterPath="$PROJECT_DIR$/docs/api/savant/model/IntervalTest.html" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/model/view/Mode.html" afterPath="$PROJECT_DIR$/docs/api/savant/model/view/Mode.html" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/model/view/DrawingInstructions.html" afterPath="$PROJECT_DIR$/docs/api/savant/model/view/DrawingInstructions.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/view/swing/model/SequenceTableModel.html" afterPath="$PROJECT_DIR$/docs/api/savant/view/swing/model/SequenceTableModel.html" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/dist/plugins/SavantCore.jar" afterPath="$PROJECT_DIR$/dist/plugins/SavantCore.jar" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/view/swing/model/SequenceTableModel.html" afterPath="$PROJECT_DIR$/docs/api/savant/view/swing/model/SequenceTableModel.html" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/dist/lib/jide-action.jar" afterPath="$PROJECT_DIR$/dist/lib/jide-action.jar" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/model/data/point/GenericPointTrack.html" afterPath="$PROJECT_DIR$/docs/api/savant/model/data/point/GenericPointTrack.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/model/PointRecordTest.html" afterPath="$PROJECT_DIR$/docs/api/savant/model/PointRecordTest.html" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/view/swing/model/DataTableModel.html" afterPath="$PROJECT_DIR$/docs/api/savant/view/swing/model/DataTableModel.html" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/test/debut" afterPath="" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/format/header/FileType.html" afterPath="$PROJECT_DIR$/docs/api/savant/format/header/FileType.html" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/model/Resolution.html" afterPath="$PROJECT_DIR$/docs/api/savant/model/Resolution.html" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/model/view/AxisRange.html" afterPath="$PROJECT_DIR$/docs/api/savant/model/view/AxisRange.html" />
@@ -33,19 +35,19 @@
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/model/view/ColorScheme.html" afterPath="$PROJECT_DIR$/docs/api/savant/model/view/ColorScheme.html" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/format/header/FileTypeHeader.html" afterPath="$PROJECT_DIR$/docs/api/savant/format/header/FileTypeHeader.html" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/format/util/data/FieldType.html" afterPath="$PROJECT_DIR$/docs/api/savant/format/util/data/FieldType.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/model/IntervalRecordTest.html" afterPath="$PROJECT_DIR$/docs/api/savant/model/IntervalRecordTest.html" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/model/data/interval/BEDIntervalTrack.html" afterPath="$PROJECT_DIR$/docs/api/savant/model/data/interval/BEDIntervalTrack.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/model/ContinuousRecord.html" afterPath="$PROJECT_DIR$/docs/api/savant/model/ContinuousRecord.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/model/IntervalRecordTest.html" afterPath="$PROJECT_DIR$/docs/api/savant/model/IntervalRecordTest.html" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/model/data/continuous/GenericContinuousTrack.html" afterPath="$PROJECT_DIR$/docs/api/savant/model/data/continuous/GenericContinuousTrack.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/model/ContinuousRecord.html" afterPath="$PROJECT_DIR$/docs/api/savant/model/ContinuousRecord.html" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/model/FileFormat.html" afterPath="$PROJECT_DIR$/docs/api/savant/model/FileFormat.html" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/format/util/data/interval/IntervalTreeNode.html" afterPath="$PROJECT_DIR$/docs/api/savant/format/util/data/interval/IntervalTreeNode.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/view/swing/ViewTrack.html" afterPath="$PROJECT_DIR$/docs/api/savant/view/swing/ViewTrack.html" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/dist/plugins/SavantData.jar" afterPath="$PROJECT_DIR$/dist/plugins/SavantData.jar" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/model/ContinuousTest.html" afterPath="$PROJECT_DIR$/docs/api/savant/model/ContinuousTest.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/view/swing/ViewTrack.html" afterPath="$PROJECT_DIR$/docs/api/savant/view/swing/ViewTrack.html" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/model/view/DrawingInstructions.InstructionName.html" afterPath="$PROJECT_DIR$/docs/api/savant/model/view/DrawingInstructions.InstructionName.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/model/ContinuousTest.html" afterPath="$PROJECT_DIR$/docs/api/savant/model/ContinuousTest.html" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/format/util/data/interval/IntervalRecordGetter.html" afterPath="$PROJECT_DIR$/docs/api/savant/format/util/data/interval/IntervalRecordGetter.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/model/BAMIntervalRecord.PairType.html" afterPath="$PROJECT_DIR$/docs/api/savant/model/BAMIntervalRecord.PairType.html" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/model/GenericPointRecord.html" afterPath="$PROJECT_DIR$/docs/api/savant/model/GenericPointRecord.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/model/BAMIntervalRecord.PairType.html" afterPath="$PROJECT_DIR$/docs/api/savant/model/BAMIntervalRecord.PairType.html" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/format/DataFormatter.html" afterPath="$PROJECT_DIR$/docs/api/savant/format/DataFormatter.html" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/model/ContinuousRecordTest.html" afterPath="$PROJECT_DIR$/docs/api/savant/model/ContinuousRecordTest.html" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/format/comparator/LineRangeComparator.html" afterPath="$PROJECT_DIR$/docs/api/savant/format/comparator/LineRangeComparator.html" />
@@ -63,97 +65,23 @@
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/model/PointTest.html" afterPath="$PROJECT_DIR$/docs/api/savant/model/PointTest.html" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/model/BAMIntervalRecord.html" afterPath="$PROJECT_DIR$/docs/api/savant/model/BAMIntervalRecord.html" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/format/comparator/RangeComparator.html" afterPath="$PROJECT_DIR$/docs/api/savant/format/comparator/RangeComparator.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/model/FileVersion.html" afterPath="$PROJECT_DIR$/docs/api/savant/model/FileVersion.html" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/util/RAFUtils.html" afterPath="$PROJECT_DIR$/docs/api/savant/util/RAFUtils.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/model/FileVersion.html" afterPath="$PROJECT_DIR$/docs/api/savant/model/FileVersion.html" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/data/DataTableModel.html" afterPath="$PROJECT_DIR$/docs/api/savant/data/DataTableModel.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/model/Point.html" afterPath="$PROJECT_DIR$/docs/api/savant/model/Point.html" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/util/ItemRGB.html" afterPath="$PROJECT_DIR$/docs/api/savant/util/ItemRGB.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/docs/api/savant/model/Point.html" afterPath="$PROJECT_DIR$/docs/api/savant/model/Point.html" />
     </list>
     <list id="30e03c93-88b8-4710-84ec-f6ce55fc1159" name="Failed commit: Default (3)" comment="Many refactoring changes to file handling.">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/savant/file/SavantROFile.java" />
       <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/savant/file/SavantFileNotFormattedException.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/savant/file/SavantROFile.java" />
       <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/savant/file/RWFile.java" />
       <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/savant/file/ROFile.java" />
     </list>
     <list id="fb9db2af-f2b8-41e9-a9c1-8e6dbfd3dffd" name="Failed commit: Default (5)" comment="Re-factoring." />
-    <list id="c422a37c-4437-4bd3-8b7f-606fc602de27" name="Failed commit: Default (4)" comment="Refactoring of data sources and formatting.">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/savant/view/swing/continuous/ContinuousTrackRenderer.java" afterPath="$PROJECT_DIR$/src/savant/view/swing/continuous/ContinuousTrackRenderer.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/savant/controller/SessionController.java" afterPath="$PROJECT_DIR$/src/savant/controller/SessionController.java" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/savant/model/data/sequence/SequenceTrack.java" afterPath="" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/savant/model/view/DrawingInstructions.java" afterPath="$PROJECT_DIR$/src/savant/util/DrawingInstructions.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/savant/controller/event/drawmode/DrawModeChangedEvent.java" afterPath="$PROJECT_DIR$/src/savant/controller/event/drawmode/DrawModeChangedEvent.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/savant.data/src/savant/data/DataTableModel.java" afterPath="$PROJECT_DIR$/savant.data/src/savant/data/DataTableModel.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/savant/format/IntervalFormatter.java" afterPath="$PROJECT_DIR$/src/savant/format/IntervalFormatter.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/savant/view/swing/Savant.java" afterPath="$PROJECT_DIR$/src/savant/view/swing/Savant.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/artifacts/Savant.xml" afterPath="$PROJECT_DIR$/.idea/artifacts/Savant.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Savant.iml" afterPath="$PROJECT_DIR$/Savant.iml" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/savant/file/SavantFile.java" afterPath="" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/savant/model/data/interval/BAMIntervalTrack.java" afterPath="$PROJECT_DIR$/src/savant/data/sources/BAMDataSource.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/savant/debug/SavantDebugger.java" afterPath="$PROJECT_DIR$/src/savant/debug/SavantDebugger.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/savant/format/SavantFileFormatterUtils.java" afterPath="$PROJECT_DIR$/src/savant/format/SavantFileFormatterUtils.java" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/savant/model/data/RecordTrack.java" afterPath="" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/savant/view/swing/TrackRenderer.java" afterPath="$PROJECT_DIR$/src/savant/view/swing/TrackRenderer.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/savant/controller/DrawModeController.java" afterPath="$PROJECT_DIR$/src/savant/controller/DrawModeController.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/savant/controller/ReferenceController.java" afterPath="$PROJECT_DIR$/src/savant/controller/ReferenceController.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/savant/data/types/Genome.java" afterPath="$PROJECT_DIR$/src/savant/data/types/Genome.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/savant/selection/PopupPanel.java" afterPath="$PROJECT_DIR$/src/savant/selection/PopupPanel.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/savant/model/data/interval/BAMIndexCache.java" afterPath="$PROJECT_DIR$/src/savant/data/sources/BAMIndexCache.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/savant/model/data/continuous/GenericContinuousTrack.java" afterPath="$PROJECT_DIR$/src/savant/data/sources/GenericContinuousDataSource.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/savant/view/swing/interval/BEDTrackRenderer.java" afterPath="$PROJECT_DIR$/src/savant/view/swing/interval/BEDTrackRenderer.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/savant/model/view/Mode.java" afterPath="$PROJECT_DIR$/src/savant/util/Mode.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/savant/util/RAFUtils.java" afterPath="$PROJECT_DIR$/src/savant/util/SavantFileUtils.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/savant/view/swing/sequence/SequenceTrackRenderer.java" afterPath="$PROJECT_DIR$/src/savant/view/swing/sequence/SequenceTrackRenderer.java" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/savant/model/view" afterPath="" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/savant/view/swing/continuous/ContinuousViewTrack.java" afterPath="$PROJECT_DIR$/src/savant/view/swing/continuous/ContinuousViewTrack.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/savant/view/swing/interval/BEDViewTrack.java" afterPath="$PROJECT_DIR$/src/savant/view/swing/interval/BEDViewTrack.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/savant/format/IntervalSearchTree.java" afterPath="$PROJECT_DIR$/src/savant/format/IntervalSearchTree.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/savant/settings/TemporaryFilesSettingsSection.java" afterPath="$PROJECT_DIR$/src/savant/settings/TemporaryFilesSettingsSection.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/savant/file/SavantRWFile.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/savant/view/swing/interval/IntervalViewTrack.java" afterPath="$PROJECT_DIR$/src/savant/view/swing/interval/IntervalViewTrack.java" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/savant/model/data/interval" afterPath="" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/savant/model/data/interval/GenericIntervalTrack.java" afterPath="$PROJECT_DIR$/src/savant/data/sources/GenericIntervalDataSource.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/savant/model/data/interval/BEDIntervalTrack.java" afterPath="$PROJECT_DIR$/src/savant/data/sources/BEDFileDataSource.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/savant/view/swing/GraphPane.java" afterPath="$PROJECT_DIR$/src/savant/view/swing/GraphPane.java" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/savant/model/data/point" afterPath="" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/savant/view/swing/ColorSchemeDialog.java" afterPath="$PROJECT_DIR$/src/savant/view/swing/ColorSchemeDialog.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/savant/view/swing/ViewTrack.java" afterPath="$PROJECT_DIR$/src/savant/view/swing/ViewTrack.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/savant/format/ContinuousFormatterHelper.java" afterPath="$PROJECT_DIR$/src/savant/format/ContinuousFormatterHelper.java" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/savant/model" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/savant/model/data/Track.java" afterPath="" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/savant/view/swing/interval/IntervalTrackRenderer.java" afterPath="$PROJECT_DIR$/src/savant/view/swing/interval/IntervalTrackRenderer.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/savant/data/sources/DataSource.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/savant/controller/TrackController.java" afterPath="$PROJECT_DIR$/src/savant/controller/TrackController.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/savant/model/data/sequence/BFASTASequenceTrack.java" afterPath="$PROJECT_DIR$/src/savant/data/sources/FASTAFileDataSource.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/savant/view/swing/sequence/SequenceViewTrack.java" afterPath="$PROJECT_DIR$/src/savant/view/swing/sequence/SequenceViewTrack.java" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/savant/model/data/continuous" afterPath="" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/savant/model/view/ColorScheme.java" afterPath="$PROJECT_DIR$/src/savant/util/ColorScheme.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/jdom.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/savant/data/sources" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/savant/view/swing/point/PointViewTrack.java" afterPath="$PROJECT_DIR$/src/savant/view/swing/point/PointViewTrack.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/savant/controller/FrameController.java" afterPath="$PROJECT_DIR$/src/savant/controller/FrameController.java" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/savant/model/data/sequence" afterPath="" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/savant/format/SavantFileFormatter.java" afterPath="$PROJECT_DIR$/src/savant/format/SavantFileFormatter.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/savant/view/swing/interval/BAMViewTrack.java" afterPath="$PROJECT_DIR$/src/savant/view/swing/interval/BAMViewTrack.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/savant/view/swing/Frame.java" afterPath="$PROJECT_DIR$/src/savant/view/swing/Frame.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/savant/model/data/point/GenericPointTrack.java" afterPath="$PROJECT_DIR$/src/savant/data/sources/GenericPointDataSource.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/savant/view/swing/interval/BAMTrackRenderer.java" afterPath="$PROJECT_DIR$/src/savant/view/swing/interval/BAMTrackRenderer.java" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/savant/model/data" afterPath="" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/savant/format/DataFormatter.java" afterPath="$PROJECT_DIR$/src/savant/format/DataFormatter.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/savant/format/IntervalRecordGetter.java" afterPath="$PROJECT_DIR$/src/savant/format/IntervalRecordGetter.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/savant/controller/event/track/TrackListChangedEvent.java" afterPath="$PROJECT_DIR$/src/savant/controller/event/track/TrackListChangedEvent.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/savant/data/types/SequenceRecord.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/savant/view/swing/interval/BAMCoverageViewTrack.java" afterPath="$PROJECT_DIR$/src/savant/view/swing/interval/BAMCoverageViewTrack.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/savant.data/src/savant/data/DataSheet.java" afterPath="$PROJECT_DIR$/savant.data/src/savant/data/DataSheet.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/savant/view/swing/point/PointTrackRenderer.java" afterPath="$PROJECT_DIR$/src/savant/view/swing/point/PointTrackRenderer.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/apache_ftp.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/savant/util/SeekableFTPStream.java" />
-    </list>
     <list id="4e1035e5-bd24-425a-b7b4-818e84efcc0a" name="Failed commit: Default" comment="Initial check-in." />
     <list id="2b1e5a75-2b9e-481d-b9ec-9b6e2d0e4f04" name="Failed commit: Default (2)" comment="Changed package from debut to savant" />
     <ignored path="DebutBrowser.iws" />
     <ignored path=".idea/workspace.xml" />
-    <file path="$PROJECT_DIR$/.idea/workspace.xml" changelist="7c69db67-9cad-43c9-9177-69e01c2156cb" time="1284050434472" ignored="false" />
     <option name="TRACKING_ENABLED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -247,28 +175,46 @@
   <component name="FileColors" enabled="true" enabledForTabs="true" />
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="DataSheet.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/savant.data/src/savant/data/DataSheet.java">
+      <file leaf-file-name="BEDFileDataSource.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/savant/data/sources/BEDFileDataSource.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="348" column="0" selection-start="12601" selection-end="12601" vertical-scroll-proportion="0.0">
+            <state line="48" column="13" selection-start="1507" selection-end="1507" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="BAMIndexCache.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/savant/data/sources/BAMIndexCache.java">
+      <file leaf-file-name="SavantROFile.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/savant/file/SavantROFile.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="41" column="1" selection-start="1111" selection-end="1180" vertical-scroll-proportion="0.0">
+            <state line="36" column="13" selection-start="1091" selection-end="1091" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="ContinuousFormatterHelper.java" pinned="false" current="true" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/savant/format/ContinuousFormatterHelper.java">
+      <file leaf-file-name="DataSource.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/savant/data/sources/DataSource.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="24" column="4" selection-start="553" selection-end="553" vertical-scroll-proportion="0.14754099">
+            <state line="54" column="21" selection-start="1617" selection-end="1624" vertical-scroll-proportion="0.0">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="ViewTrack.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/savant/view/swing/ViewTrack.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="245" column="21" selection-start="10226" selection-end="10233" vertical-scroll-proportion="0.0">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="SessionController.java" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/savant/controller/SessionController.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="185" column="35" selection-start="6636" selection-end="6636" vertical-scroll-proportion="1.3217012">
               <folding />
             </state>
           </provider>
@@ -410,7 +356,7 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-              <option name="myItemId" value="format" />
+              <option name="myItemId" value="file" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -466,42 +412,6 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="Savant" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="Savant" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="savant.data" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="Savant" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="Savant" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="savant.data" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="src" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="data" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
         </subPane>
       </pane>
       <pane id="PackagesPane" />
@@ -537,7 +447,7 @@
     <property name="GoToClass.includeLibraries" value="false" />
     <property name="options.splitter.details.proportions" value="0.2" />
     <property name="GoToFile.includeJavaFiles" value="false" />
-    <property name="options.lastSelected" value="editor.preferences.appearance" />
+    <property name="options.lastSelected" value="preferences.pluginManager" />
     <property name="FileHistory.org.jetbrains.idea.svn.history.SvnHistoryProvider_treeOrder3" value="3" />
     <property name="FileHistory.org.jetbrains.idea.svn.history.SvnHistoryProvider_treeOrder4" value="4" />
     <property name="FileHistory.org.jetbrains.idea.svn.history.SvnHistoryProvider_treeOrder1" value="1" />
@@ -1115,16 +1025,16 @@
     <layout>
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32795697" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.17631806" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.17631806" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.24959914" sideWeight="0.6925926" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3820513" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.21607606" sideWeight="0.5" order="11" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.12532412" sideWeight="0.5" order="12" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.12532412" sideWeight="0.5" order="12" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3268817" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.16346627" sideWeight="0.52117544" order="2" side_tool="true" content_ui="tabs" />
+      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.16346627" sideWeight="0.4909248" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32977018" sideWeight="0.56296295" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.39971244" sideWeight="0.6628205" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.16346627" sideWeight="0.34140018" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.16346627" sideWeight="0.32065687" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Dependency Viewer" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.44079515" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="UI Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
@@ -1197,31 +1107,6 @@
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/savant/view/swing/interval/IntervalViewTrack.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="40" column="13" selection-start="1320" selection-end="1320" vertical-scroll-proportion="0.19285715" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/savant/view/swing/point/PointTrackRenderer.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="35" column="13" selection-start="1077" selection-end="1077" vertical-scroll-proportion="0.20869565" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/savant/view/swing/point/PointViewTrack.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="33" column="13" selection-start="1055" selection-end="1055" vertical-scroll-proportion="0.19285715" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/savant/view/swing/sequence/SequenceTrackRenderer.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="33" column="13" selection-start="1109" selection-end="1109" vertical-scroll-proportion="0.20869565" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/savant/view/swing/sequence/SequenceViewTrack.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="92" column="0" selection-start="2632" selection-end="2632" vertical-scroll-proportion="1.3285714" />
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/savant/view/swing/ColorSchemeDialog.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="39" column="13" selection-start="1239" selection-end="1239" vertical-scroll-proportion="0.21428572" />
@@ -1235,13 +1120,6 @@
     <entry file="file://$PROJECT_DIR$/src/savant/view/swing/GraphPane.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="46" column="13" selection-start="1664" selection-end="1664" vertical-scroll-proportion="0.15" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/savant/controller/SessionController.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="85" column="0" selection-start="2622" selection-end="2622" vertical-scroll-proportion="0.41905737">
-          <folding />
-        </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/savant/view/swing/Savant.java">
@@ -1288,9 +1166,51 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/.recent">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/savant/format/ContinuousFormatterHelper.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="24" column="4" selection-start="553" selection-end="553" vertical-scroll-proportion="0.14754099">
+        <state line="55" column="73" selection-start="1675" selection-end="1675" vertical-scroll-proportion="0.38114753">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/savant/file/SavantROFile.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="36" column="13" selection-start="1091" selection-end="1091" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/savant/data/sources/BEDFileDataSource.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="48" column="13" selection-start="1507" selection-end="1507" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/savant/data/sources/DataSource.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="54" column="21" selection-start="1617" selection-end="1624" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/savant/view/swing/ViewTrack.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="245" column="21" selection-start="10226" selection-end="10233" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/savant/controller/SessionController.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="185" column="35" selection-start="6636" selection-end="6636" vertical-scroll-proportion="1.3217012">
           <folding />
         </state>
       </provider>
