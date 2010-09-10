@@ -117,18 +117,20 @@ public class BAMTrackRenderer extends TrackRenderer {
 
         String modeName = drawMode.getName();
 
-        if(modeName.equals("VARIANTS") || modeName.equals("SNP")){
-            // fetch reference sequence for comparison with cigar string
-            Genome genome = ReferenceController.getInstance().getGenome();
-            if(genome.isSequenceSet()){
-               AxisRange axisRange = (AxisRange) getDrawingInstructions().getInstruction(DrawingInstructions.InstructionName.AXIS_RANGE);
-                Range range = axisRange.getXRange();
-                try {
-                    refSeq = genome.getSequence(ReferenceController.getInstance().getReferenceName(), range).getBytes();
-                } catch (IOException e) {
-                    // FIXME: this exception should be propagated to someone who can alert the user
-                    log.warn("Unable to read reference sequence");
-                    return;
+        if (r == Resolution.VERY_HIGH || r == Resolution.HIGH) {
+            if(modeName.equals("VARIANTS") || modeName.equals("SNP")){
+                // fetch reference sequence for comparison with cigar string
+                Genome genome = ReferenceController.getInstance().getGenome();
+                if(genome.isSequenceSet()){
+                   AxisRange axisRange = (AxisRange) getDrawingInstructions().getInstruction(DrawingInstructions.InstructionName.AXIS_RANGE);
+                    Range range = axisRange.getXRange();
+                    try {
+                        refSeq = genome.getSequence(ReferenceController.getInstance().getReferenceName(), range).getBytes();
+                    } catch (IOException e) {
+                        // FIXME: this exception should be propagated to someone who can alert the user
+                        log.warn("Unable to read reference sequence");
+                        return;
+                    }
                 }
             }
         }
