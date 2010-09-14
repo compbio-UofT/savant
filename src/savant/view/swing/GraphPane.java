@@ -152,7 +152,7 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
 
         //initContextualMenu();
 
-        ((GraphPaneController) GraphPaneController.getInstance()).addFavoritesChangedListener(this);
+        ((GraphPaneController) GraphPaneController.getInstance()).addBookmarksChangedListener(this);
     }
 
     /**
@@ -223,6 +223,7 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
         int maxYRange = Integer.MIN_VALUE;
         isYGridOn = false;
         for (TrackRenderer tr: trackRenderers) {
+
             // ask renderers for extra info on range; consolidate to maximum Y range
             AxisRange axisRange = (AxisRange)tr.getDrawingInstructions().getInstruction(DrawingInstructions.InstructionName.AXIS_RANGE);
 
@@ -236,6 +237,7 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
                 isYGridOn = true;
             }
         }
+
         setXRange(xRange);
         Range consolidatedYRange = new Range(minYRange, maxYRange);
         setYRange(consolidatedYRange);
@@ -263,8 +265,8 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
 
         //if nothing has changed draw buffered image
         if(sameRange && sameMode && sameSize && sameRef && !this.renderRequired){
-            g.drawImage(bufferedImage, 0, 0, this);
 
+            g.drawImage(bufferedImage, 0, 0, this);
             
             if(this.currentOverShape != null){
                 if(currentMode != null && currentMode.getName().equals("MATE_PAIRS")){
@@ -295,6 +297,7 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
 
         //otherwise prepare for new render
         } else {
+
             renderRequired = false;
             bf1 = new BufferedImage(this.getWidth(), this.getHeight(), BufferedImage.TYPE_INT_RGB);
             g3 = bf1.createGraphics();
@@ -312,9 +315,14 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
          */
 
         for (TrackRenderer tr : trackRenderers) {
+
+
             // change renderers' drawing instructions to reflect consolidated YRange
             tr.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.AXIS_RANGE, AxisRange.initWithRanges(xRange, consolidatedYRange));
+
+            //System.out.println("\tRendering : " + tr.getClass());
             tr.render(g3, this);
+            //System.out.println("\tDone");
         }
 
         drawMaxYPlotValue(g3);
@@ -322,6 +330,7 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
 
         //if a change has occured that affects scrollbar...
         if(this.paneResize){
+
             paneResize = false;
 
             //get old scroll position
@@ -343,11 +352,13 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
             return new Dimension(new Dimension(frame.getFrameLandscape().getWidth()-2, newHeight));
 
         } else {
+
             if(newScroll != -1){
                 ((JScrollPane)this.getParent().getParent().getParent()).getVerticalScrollBar().setValue(newScroll);
                 newScroll = -1;
             }
         }
+
         oldWidth = this.getParentFrame().getFrameLandscape().getWidth();
         oldHeight = this.getParentFrame().getFrameLandscape().getHeight();
 
@@ -365,6 +376,7 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
         g.drawImage(bufferedImage, 0, 0, this);
         renderCurrentSelected(g);
         this.parentFrame.commandBar.repaint();
+
         return this.getSize();
 
     }
@@ -449,6 +461,7 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
         
         /** ZOOMING ADJUSTMENTS */
         else if (gpc.isZooming() || gpc.isSelecting()) {
+
             Graphics2D g2d = (Graphics2D)g;
 
             Rectangle2D rectangle =
@@ -483,6 +496,7 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
 
         /** SPOTLIGHT */
         if (gpc.isSpotlight() && !gpc.isZooming()) {
+
             int center = gpc.getMouseXPosition();
             int left = center - gpc.getSpotlightSize()/2;
             int right = center + gpc.getSpotlightSize()/2;
@@ -504,6 +518,8 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
         if (this.isLocked()) {
             GlassMessagePane.draw((Graphics2D) g, this, "Locked", 300);
         }
+
+        GraphPaneController.getInstance().delistRenderingGraphpane(this);
     }
 
     /**

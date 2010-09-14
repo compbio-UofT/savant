@@ -9,7 +9,9 @@ import java.util.ArrayList;
 import java.util.List;
 import savant.controller.event.graphpane.GraphPaneChangeEvent;
 import savant.controller.event.graphpane.GraphPaneChangeListener;
+import savant.util.MiscUtils;
 import savant.util.Range;
+import savant.view.swing.GraphPane;
 import savant.view.swing.Savant;
 
 /**
@@ -29,6 +31,8 @@ public class GraphPaneController {
     private int mouseXPosition;
     private int mouseYPosition;
 
+    private List<GraphPane> graphpanesQueuedForRendering;
+
     private int spotlightSize;
     private double spotlightproportion = 0.25;
 
@@ -38,8 +42,51 @@ public class GraphPaneController {
 
     private boolean changeMade = false;
 
+    public void clearRenderingList() {
+        graphpanesQueuedForRendering.clear();
+    }
+
+    // Get current time
+    long start;
+
+    public void enlistRenderingGraphpane(GraphPane p) {
+        //System.out.println("Enlisting gp " + p.getTrackRenderers().get(0).toString());
+        graphpanesQueuedForRendering.add(p);
+        if (graphpanesQueuedForRendering.size() == 1) {
+            Savant.getInstance().updateStatus("rendering ...");
+            start = System.currentTimeMillis();
+            //System.out.println("Range change started at " + MiscUtils.now());
+        }
+    }
+
+    public void delistRenderingGraphpane(GraphPane p) {
+        //System.out.println("Delisting gp " + p.getTrackRenderers().get(0).toString());
+
+        if (!graphpanesQueuedForRendering.contains(p)) {
+            //System.err.println("Warning: attempting to delist a "
+            //        + "graphpane which is not enlisted");
+            return;
+        }
+
+        if (graphpanesQueuedForRendering.isEmpty()) {
+            //System.err.println("Warning: attempting to delist a "
+            //        + "graphpane when non are enlisted");
+            return;
+        }
+        graphpanesQueuedForRendering.remove(p);
+        if (graphpanesQueuedForRendering.isEmpty()) {
+            long elapsedTimeMillis = System.currentTimeMillis()-start;
+            // Get elapsed time in seconds
+            float elapsedTimeSec = elapsedTimeMillis/1000F;
+            Savant.getInstance().updateStatus("ready (took " + elapsedTimeSec + " s)");
+            //System.out.println("Range change started at " + MiscUtils.now());
+            RangeController.getInstance().fireRangeChangeCompletedEvent();
+        }
+    }
+
     private GraphPaneController() {
         graphpaneChangeListeners = new ArrayList<GraphPaneChangeListener>();
+        graphpanesQueuedForRendering = new ArrayList<GraphPane>();
     }
 
     public static synchronized GraphPaneController getInstance() {
@@ -49,11 +96,11 @@ public class GraphPaneController {
         return instance;
     }
 
-    public synchronized void addFavoritesChangedListener(GraphPaneChangeListener l) {
+    public synchronized void addBookmarksChangedListener(GraphPaneChangeListener l) {
         graphpaneChangeListeners.add(l);
     }
 
-    public synchronized void removeFavoritesChangedListener(GraphPaneChangeListener l) {
+    public synchronized void removeBookmarksChangedListener(GraphPaneChangeListener l) {
         graphpaneChangeListeners.remove(l);
     }
 

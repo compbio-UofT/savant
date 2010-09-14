@@ -140,8 +140,13 @@ public class FrameController {
     public void drawFrames() {
         RangeController rc = RangeController.getInstance();
 
+        GraphPaneController.getInstance().clearRenderingList();
+
         for (Frame frame : frames) {
             try {
+                // added to detect when rendering has completed
+                GraphPaneController.getInstance().enlistRenderingGraphpane(frame.getGraphPane());
+
                 frame.drawTracksInRange(ReferenceController.getInstance().getReferenceName(), rc.getRange());
             } catch (Exception e) {
                 Savant.log("Error: could not draw frames (" + e.getMessage() + ")");

@@ -36,6 +36,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Stack;
+import savant.controller.event.range.RangeChangeCompletedListener;
+import savant.util.MiscUtils;
 import savant.view.swing.Savant;
 
 public class RangeController {
@@ -57,6 +59,7 @@ public class RangeController {
     /** Range Changed Listeners */
     // TODO: List of what?
     private List rangeChangedListeners;
+    private List rangeChangeCompletedListeners;
 
     public static synchronized RangeController getInstance() {
         if (instance == null) {
@@ -67,6 +70,7 @@ public class RangeController {
 
     private RangeController() {
         rangeChangedListeners = new ArrayList();
+        rangeChangeCompletedListeners = new ArrayList();
         undoStack = new Stack();
         redoStack = new Stack();
     }
@@ -120,7 +124,7 @@ public class RangeController {
     public void setRange(Range r) {
         log.debug("Setting range to " + r);
         Savant.log("Setting range to " + r, Savant.LOGMODE.NORMAL);
-
+        //System.out.println("[ Setting range to " + r + " ]");
         if (shouldClearRedoStack && this.currentViewableRange != null) {
             redoStack.clear();
             undoStack.push(currentViewableRange);
@@ -167,6 +171,15 @@ public class RangeController {
         // try { RangeChanged(getRange(), null); } catch {}
     }
 
+    public synchronized void fireRangeChangeCompletedEvent() {
+        //System.out.println("Range change completed at " + MiscUtils.now());
+        RangeChangedEvent evt = new RangeChangedEvent(this, this.currentViewableRange);
+        Iterator listeners = this.rangeChangeCompletedListeners.iterator();
+        while (listeners.hasNext()) {
+            ((RangeChangeCompletedListener) listeners.next()).rangeChangeCompletedReceived(evt);
+        }
+    }
+
     /**
      * Fire the RangeChangedEvent
      */
@@ -177,6 +190,15 @@ public class RangeController {
             ((RangeChangedListener) listeners.next()).rangeChangeReceived(evt);
         }
     }
+    
+     public synchronized void addRangeChangeCompletedListener(RangeChangeCompletedListener l) {
+        rangeChangeCompletedListeners.add(l);
+    }
+
+    public synchronized void removeRangeChangeCompletedListener(RangeChangeCompletedListener l) {
+        rangeChangeCompletedListeners.remove(l);
+    }
+
 
     public synchronized void addRangeChangedListener(RangeChangedListener l) {
         rangeChangedListeners.add(l);
@@ -385,6 +407,7 @@ public class RangeController {
         ReferenceController.getInstance().setReference(reference);
         this.setRange(range);
     }
+
 
     /*
      *

@@ -64,8 +64,8 @@ import savant.controller.InformativeThread;
 import savant.controller.ViewTrackController;
 import savant.controller.event.bookmark.BookmarksChangedEvent;
 import savant.controller.event.bookmark.BookmarksChangedListener;
+import savant.controller.event.range.RangeChangeCompletedListener;
 import savant.controller.event.range.RangeChangedEvent;
-import savant.controller.event.range.RangeChangedListener;
 import savant.controller.event.thread.ThreadActivityChangedEvent;
 import savant.controller.event.thread.ThreadActivityChangedListener;
 import savant.controller.event.viewtrack.ViewTrackListChangedEvent;
@@ -87,7 +87,7 @@ import savant.view.swing.Savant;
  *
  * @author mfiume
  */
-public class ToolsModule implements BookmarksChangedListener, RangeChangedListener, ViewTrackListChangedListener, ThreadActivityChangedListener {
+public class ToolsModule implements BookmarksChangedListener, RangeChangeCompletedListener, ViewTrackListChangedListener, ThreadActivityChangedListener {
 
     private static Map<String, List<Tool>> organizeToolsByCategory(List<Tool> tools) {
 
@@ -120,10 +120,13 @@ public class ToolsModule implements BookmarksChangedListener, RangeChangedListen
     }
 
 
+    /*
     @Override
     public void rangeChangeReceived(RangeChangedEvent event) {
         runTools(toolsSubscribedToRangeChangeEvent);
     }
+     * 
+     */
 
     @Override
     public void viewTrackListChangeReceived(ViewTrackListChangedEvent event) {
@@ -132,8 +135,13 @@ public class ToolsModule implements BookmarksChangedListener, RangeChangedListen
 
     @Override
     public void threadActivityChangedReceived(ThreadActivityChangedEvent event) {
-        System.out.println("Tools module was notified of thread status change to " + event.getActivity());
+        //System.out.println("Tools module was notified of thread status change to " + event.getActivity());
         updateThreadsList();
+    }
+
+    @Override
+    public void rangeChangeCompletedReceived(RangeChangedEvent event) {
+        runTools(toolsSubscribedToRangeChangeEvent);
     }
 
     public enum STANDARD_CATEGORIES { Analyze, Convert, Format };
@@ -188,7 +196,8 @@ public class ToolsModule implements BookmarksChangedListener, RangeChangedListen
 
     private void subscribeToEvents() {
         BookmarkController.getInstance().addFavoritesChangedListener(this);
-        RangeController.getInstance().addRangeChangedListener(this);
+        //RangeController.getInstance().addRangeChangedListener(this);
+        RangeController.getInstance().addRangeChangeCompletedListener(this);
         ViewTrackController.getInstance().addTracksChangedListener(this);
         ThreadController.getInstance().addThreadActivityListener(this);
     }

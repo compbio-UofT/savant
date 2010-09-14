@@ -47,6 +47,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import savant.controller.RangeController;
 
 /**
  * Renderer for BED gene tracks.
@@ -76,6 +77,7 @@ public class BEDTrackRenderer extends TrackRenderer {
     
     @Override
     public void render(Graphics g, GraphPane gp) {
+
         Graphics2D g2 = (Graphics2D) g;
         gp.setIsOrdinal(true);
         this.clearShapes();
@@ -88,18 +90,18 @@ public class BEDTrackRenderer extends TrackRenderer {
             return;
         }
 
-
         drawMode = (Mode) drawingInstructions.getInstruction(DrawingInstructions.InstructionName.MODE);
         resolution = (Resolution) drawingInstructions.getInstruction(DrawingInstructions.InstructionName.RESOLUTION.toString());
 
         String modeName = drawMode.getName();
         if (modeName.equals("STANDARD")) {
+
             renderPackMode(g2, gp, resolution);
         }
         else if (modeName.equals("SQUISH")) {
+
             renderSquishMode(g2, gp, resolution);
         }
-
     }
 
     private void renderPackMode(Graphics2D g2, GraphPane gp, Resolution resolution) {
@@ -128,6 +130,7 @@ public class BEDTrackRenderer extends TrackRenderer {
 
         // display only a message if intervals will not be visible at this resolution
         if (gp.getUnitHeight() < 1) {
+
             GlassMessagePane.draw(g2, gp, "Too many intervals to display.\nIncrease vertical pane size", 300);
             return;
         }
@@ -169,7 +172,6 @@ public class BEDTrackRenderer extends TrackRenderer {
 
         int startXPos = (int)gp.transformXPos(interval.getStart());
 
-
         boolean isInsertion = false;
 
         //If length is 0, draw insertion rhombus.  It is drawn here so that the
@@ -201,8 +203,6 @@ public class BEDTrackRenderer extends TrackRenderer {
             isInsertion = true;
         }
 
-
-
         // draw the gene name, if possible
         String geneName = bedRecord.getName();
         boolean drawName = (geneName != null);
@@ -223,6 +223,7 @@ public class BEDTrackRenderer extends TrackRenderer {
                 drawName = false;
             }
         }
+
         if (drawName) {
             Rectangle2D nameRect = g2.getFont().getStringBounds(geneName, g2.getFontRenderContext());
             double topMargin = (unitHeight - nameRect.getHeight());
@@ -242,14 +243,21 @@ public class BEDTrackRenderer extends TrackRenderer {
         // for each block, draw a rectangle
         List<Block> blocks = bedRecord.getBlocks();
         double chevronIntervalStart = gp.transformXPos(interval.getStart());
+
         for (Block block : blocks) {
+
+            chevronIntervalStart = Math.max(chevronIntervalStart, 0);
 
             double x = gp.transformXPos(interval.getStart() + block.getPosition());
             double y = gp.transformYPos(level)-unitHeight;
 
             double chevronIntervalEnd = x;
-            // draw chevrons in interval
-            drawChevrons(g2, chevronIntervalStart, chevronIntervalEnd,  yPos, unitHeight, lineColor, bedRecord.getStrand(), area);
+
+            chevronIntervalEnd = Math.min(chevronIntervalEnd, gp.getWidth());
+
+            if (chevronIntervalEnd >= 0 && chevronIntervalStart <= gp.getWidth()) {
+                drawChevrons(g2, chevronIntervalStart, chevronIntervalEnd,  yPos, unitHeight, lineColor, bedRecord.getStrand(), area);
+            }
 
             double w = gp.getWidth(block.getSize());
             double h = unitHeight;
@@ -264,13 +272,13 @@ public class BEDTrackRenderer extends TrackRenderer {
             area.add(new Area(blockRect));
 
             chevronIntervalStart = x + w;
-
         }
-        this.recordToShapeMap.put(bedRecord, area);
 
+        this.recordToShapeMap.put(bedRecord, area);
     }
 
     private void drawChevrons(Graphics2D g2, double start, double end, double y, double height, Color color, Strand strand, Area area) {
+
 
         final int SCALE_FACTOR = 40;
         final int interval = ((int)height/SCALE_FACTOR+1) * SCALE_FACTOR;
@@ -283,7 +291,12 @@ public class BEDTrackRenderer extends TrackRenderer {
         else {
             startPos = interval;
         }
+
+        //System.out.println("Start " + start);
+        //System.out.println("End " + end);
+
         for (int i=startPos; i<end; i+=interval) {
+
             Polygon arrow = new Polygon();
             int arrowWidth = (int)(height/4);
             if ((end - start) > arrowWidth) {

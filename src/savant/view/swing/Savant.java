@@ -124,7 +124,32 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
     private DataFormatForm dff;
     private boolean openAfterFormat;
     private OpenURLDialog urlDialog;
+    private MemoryStatusBarItem memorystatusbar;
 
+    public void addToolBar(JToolBar b) {
+        this.panel_toolbar.setLayout(new BoxLayout(this.panel_toolbar, BoxLayout.X_AXIS));
+        this.panel_toolbar.add(b);
+        updateToolBarVisibility();
+    }
+
+    public void removeToolBar(JToolBar b) {
+        this.panel_toolbar.remove(b);
+        updateToolBarVisibility();
+    }
+
+    private void updateToolBarVisibility() {
+        if (this.panel_toolbar.getComponentCount() == 0) {
+            setToolBarVisibility(false);
+        } else {
+            setToolBarVisibility(true);
+        }
+    }
+
+    private void setToolBarVisibility(boolean isVisible) {
+        this.panel_toolbar.setVisible(isVisible);
+        this.menuItem_viewtoolbar.setSelected(isVisible);
+    }
+    
     public void addTrackFromFile(String selectedFileName) throws IOException {
 
         if (!ReferenceController.getInstance().isGenomeLoaded()) {
@@ -424,8 +449,11 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         toolbar_bottom = new javax.swing.JToolBar();
         label_mouseposition_title = new javax.swing.JLabel();
         label_mouseposition = new javax.swing.JLabel();
-        jSeparator7 = new javax.swing.JToolBar.Separator();
+        jLabel1 = new javax.swing.JLabel();
+        label_status = new javax.swing.JLabel();
+        s_e_sep = new javax.swing.JToolBar.Separator();
         label_memory = new javax.swing.JLabel();
+        panel_toolbar = new javax.swing.JPanel();
         menuBar_top = new javax.swing.JMenuBar();
         menuitem_file = new javax.swing.JMenu();
         menu_load = new javax.swing.JMenu();
@@ -467,12 +495,15 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         menuitem_view_spotlight = new javax.swing.JCheckBoxMenuItem();
         menu_window = new javax.swing.JMenu();
         menuItem_viewRangeControls = new javax.swing.JCheckBoxMenuItem();
+        menuItem_viewtoolbar = new javax.swing.JCheckBoxMenuItem();
         menuitem_genomeview = new javax.swing.JCheckBoxMenuItem();
         menuitem_ruler = new javax.swing.JCheckBoxMenuItem();
         menuitem_statusbar = new javax.swing.JCheckBoxMenuItem();
         jSeparator1 = new javax.swing.JSeparator();
         menuitem_tools = new javax.swing.JCheckBoxMenuItem();
         menu_bookmarks = new javax.swing.JCheckBoxMenuItem();
+        jSeparator10 = new javax.swing.JPopupMenu.Separator();
+        jMenuItem4 = new javax.swing.JCheckBoxMenuItem();
         menu_plugins = new javax.swing.JMenu();
         menuitem_pluginmanager = new javax.swing.JMenuItem();
         menu_help = new javax.swing.JMenu();
@@ -490,7 +521,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         panel_top.setPreferredSize(new java.awt.Dimension(0, 30));
         panel_top.setLayout(new java.awt.BorderLayout());
 
-        panelExtendedMiddle.setBackground(new java.awt.Color(102, 102, 255));
+        panelExtendedMiddle.setBackground(new java.awt.Color(51, 51, 51));
         panelExtendedMiddle.setMinimumSize(new java.awt.Dimension(0, 0));
         panelExtendedMiddle.setPreferredSize(new java.awt.Dimension(990, 25));
 
@@ -498,7 +529,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         panelExtendedMiddle.setLayout(panelExtendedMiddleLayout);
         panelExtendedMiddleLayout.setHorizontalGroup(
             panelExtendedMiddleLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 808, Short.MAX_VALUE)
+            .addGap(0, 856, Short.MAX_VALUE)
         );
         panelExtendedMiddleLayout.setVerticalGroup(
             panelExtendedMiddleLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -516,11 +547,11 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         panel_main.setLayout(panel_mainLayout);
         panel_mainLayout.setHorizontalGroup(
             panel_mainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 808, Short.MAX_VALUE)
+            .addGap(0, 856, Short.MAX_VALUE)
         );
         panel_mainLayout.setVerticalGroup(
             panel_mainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 531, Short.MAX_VALUE)
+            .addGap(0, 526, Short.MAX_VALUE)
         );
 
         toolbar_bottom.setFloatable(false);
@@ -531,10 +562,32 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
 
         label_mouseposition.setText("mouse over track");
         toolbar_bottom.add(label_mouseposition);
-        toolbar_bottom.add(jSeparator7);
+
+        jLabel1.setText("Status: ");
+        toolbar_bottom.add(jLabel1);
+
+        label_status.setMaximumSize(new java.awt.Dimension(300, 14));
+        label_status.setMinimumSize(new java.awt.Dimension(100, 14));
+        label_status.setPreferredSize(new java.awt.Dimension(100, 14));
+        toolbar_bottom.add(label_status);
+        toolbar_bottom.add(s_e_sep);
 
         label_memory.setText(" Memory: ");
         toolbar_bottom.add(label_memory);
+
+        panel_toolbar.setVisible(false);
+        panel_toolbar.setPreferredSize(new java.awt.Dimension(856, 24));
+
+        javax.swing.GroupLayout panel_toolbarLayout = new javax.swing.GroupLayout(panel_toolbar);
+        panel_toolbar.setLayout(panel_toolbarLayout);
+        panel_toolbarLayout.setHorizontalGroup(
+            panel_toolbarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 856, Short.MAX_VALUE)
+        );
+        panel_toolbarLayout.setVerticalGroup(
+            panel_toolbarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 24, Short.MAX_VALUE)
+        );
 
         menuitem_file.setText("File");
 
@@ -808,6 +861,15 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         });
         menu_window.add(menuItem_viewRangeControls);
 
+        menuItem_viewtoolbar.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_T, java.awt.event.InputEvent.SHIFT_MASK | java.awt.event.InputEvent.CTRL_MASK));
+        menuItem_viewtoolbar.setText("Toolbar");
+        menuItem_viewtoolbar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                menuItem_viewtoolbarActionPerformed(evt);
+            }
+        });
+        menu_window.add(menuItem_viewtoolbar);
+
         menuitem_genomeview.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_C, java.awt.event.InputEvent.SHIFT_MASK | java.awt.event.InputEvent.CTRL_MASK));
         menuitem_genomeview.setText("Genome Context");
         menuitem_genomeview.addActionListener(new java.awt.event.ActionListener() {
@@ -837,7 +899,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         menu_window.add(menuitem_statusbar);
         menu_window.add(jSeparator1);
 
-        menuitem_tools.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_T, java.awt.event.InputEvent.SHIFT_MASK | java.awt.event.InputEvent.CTRL_MASK));
+        menuitem_tools.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Z, java.awt.event.InputEvent.SHIFT_MASK | java.awt.event.InputEvent.CTRL_MASK));
         menuitem_tools.setText("Tools");
         menuitem_tools.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -854,6 +916,17 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
             }
         });
         menu_window.add(menu_bookmarks);
+        menu_window.add(jSeparator10);
+
+        jMenuItem4.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_D, java.awt.event.InputEvent.SHIFT_MASK | java.awt.event.InputEvent.CTRL_MASK));
+        jMenuItem4.setSelected(true);
+        jMenuItem4.setText("Speed & Efficiency");
+        jMenuItem4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem4ActionPerformed(evt);
+            }
+        });
+        menu_window.add(jMenuItem4);
 
         menuBar_top.add(menu_window);
 
@@ -913,16 +986,21 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(panel_top, javax.swing.GroupLayout.DEFAULT_SIZE, 808, Short.MAX_VALUE)
-            .addComponent(toolbar_bottom, javax.swing.GroupLayout.DEFAULT_SIZE, 808, Short.MAX_VALUE)
-            .addComponent(panel_main, javax.swing.GroupLayout.DEFAULT_SIZE, 808, Short.MAX_VALUE)
+            .addComponent(panel_top, javax.swing.GroupLayout.DEFAULT_SIZE, 856, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(toolbar_bottom, javax.swing.GroupLayout.DEFAULT_SIZE, 846, Short.MAX_VALUE)
+                .addContainerGap())
+            .addComponent(panel_toolbar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(panel_main, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 856, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addComponent(panel_top, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 0, 0)
-                .addComponent(panel_main, javax.swing.GroupLayout.DEFAULT_SIZE, 531, Short.MAX_VALUE)
+                .addComponent(panel_toolbar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, 0)
+                .addComponent(panel_main, javax.swing.GroupLayout.DEFAULT_SIZE, 526, Short.MAX_VALUE)
                 .addGap(0, 0, 0)
                 .addComponent(toolbar_bottom, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
@@ -1205,6 +1283,15 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         SessionController.getInstance().saveSession(this);
     }//GEN-LAST:event_menuitem_savesessionActionPerformed
 
+    private void menuItem_viewtoolbarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuItem_viewtoolbarActionPerformed
+        this.setToolBarVisibility(menuItem_viewtoolbar.isSelected());
+    }//GEN-LAST:event_menuItem_viewtoolbarActionPerformed
+
+    private void jMenuItem4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem4ActionPerformed
+         boolean b = this.jMenuItem4.isSelected();
+        setSpeedAndEfficiencyIndicatorsVisible(b);
+    }//GEN-LAST:event_jMenuItem4ActionPerformed
+
     /*
     public static boolean debugModeOn = false;
 
@@ -1256,11 +1343,11 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
                 Version currentversion = (new XMLVersion(versionFile)).getVersion();
                 Version thisversion = new Version(BrowserSettings.version);
                 if (currentversion.compareTo(thisversion) > 0) {
-                    JOptionPane.showMessageDialog(Savant.getInstance(), "A new version of Savant (" + thisversion.toString() + ") is available. "
+                    JOptionPane.showMessageDialog(Savant.getInstance(), "A new version of Savant (" + currentversion.toString() + ") is available. "
                             + "Please visit " + BrowserSettings.url + " to get the latest version.");
                 } else {
                     if (verbose) {
-                        JOptionPane.showMessageDialog(Savant.getInstance(), "This version of Savant (" + currentversion.toString() + ") is up to date.");
+                        JOptionPane.showMessageDialog(Savant.getInstance(), "This version of Savant (" + thisversion.toString() + ") is up to date.");
                     }
                 }
             } else {
@@ -1278,22 +1365,25 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
 
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JMenuItem jMenuItem2;
     private javax.swing.JMenuItem jMenuItem3;
+    private javax.swing.JCheckBoxMenuItem jMenuItem4;
     private javax.swing.JMenuItem jMenuItem5;
     private javax.swing.JSeparator jSeparator1;
+    private javax.swing.JPopupMenu.Separator jSeparator10;
     private javax.swing.JPopupMenu.Separator jSeparator2;
     private javax.swing.JSeparator jSeparator3;
     private javax.swing.JSeparator jSeparator4;
     private javax.swing.JSeparator jSeparator5;
     private javax.swing.JSeparator jSeparator6;
-    private javax.swing.JToolBar.Separator jSeparator7;
     private javax.swing.JPopupMenu.Separator jSeparator8;
     private javax.swing.JPopupMenu.Separator jSeparator9;
     private javax.swing.JLabel label_memory;
     private javax.swing.JLabel label_mouseposition;
     private javax.swing.JLabel label_mouseposition_title;
+    private javax.swing.JLabel label_status;
     private javax.swing.JMenuBar menuBar_top;
     private javax.swing.JMenuItem menuItemAddToFaves;
     private javax.swing.JMenuItem menuItemFormat;
@@ -1304,6 +1394,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
     private javax.swing.JMenuItem menuItemZoomIn;
     private javax.swing.JMenuItem menuItemZoomOut;
     private javax.swing.JCheckBoxMenuItem menuItem_viewRangeControls;
+    private javax.swing.JCheckBoxMenuItem menuItem_viewtoolbar;
     private javax.swing.JCheckBoxMenuItem menu_bookmarks;
     private javax.swing.JMenu menu_edit;
     private javax.swing.JMenu menu_help;
@@ -1338,7 +1429,9 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
     private javax.swing.JCheckBoxMenuItem menuitem_view_spotlight;
     private javax.swing.JPanel panelExtendedMiddle;
     private javax.swing.JPanel panel_main;
+    private javax.swing.JPanel panel_toolbar;
     private javax.swing.JPanel panel_top;
+    private javax.swing.JToolBar.Separator s_e_sep;
     private javax.swing.JMenu submenu_download;
     private javax.swing.JToolBar toolbar_bottom;
     private javax.swing.ButtonGroup view_buttongroup;
@@ -2738,24 +2831,34 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
      * Update the status bar
      * 
      *
-    private void updateProgress(String msg) {
-    this.progressbar_status.setString(msg);
+    public void updateProgress(int p) {
+        this.progressbar_status.setIndeterminate(false);
+        this.progressbar_status.setValue(p);
     }
-    private void spinProgress() {
-    this.progressbar_status.setIndeterminate(true);
+    public void updateProgress(String msg) {
+        this.progressbar_status.setString(msg);
     }
-    private void stopSpinningProgress() {
-    this.progressbar_status.setIndeterminate(false);
+    public void spinProgress() {
+        this.progressbar_status.setIndeterminate(true);
+    }
+    public void stopSpinningProgress() {
+        this.progressbar_status.setIndeterminate(false);
     }
      */
 
+    public void updateStatus(String msg) {
+        this.label_status.setText(msg);
+        this.label_status.revalidate();
+    }
+
     private void initStatusBar() {
         toolbar_bottom.add(Box.createGlue(),2);
+        memorystatusbar = new MemoryStatusBarItem();
+        memorystatusbar.setMaximumSize(new Dimension(100, 30));
+        memorystatusbar.setFillColor(Color.lightGray);
+        this.toolbar_bottom.add(memorystatusbar);
 
-        MemoryStatusBarItem gc = new MemoryStatusBarItem();
-        gc.setMaximumSize(new Dimension(100,30));
-        gc.setFillColor(Color.lightGray);
-        this.toolbar_bottom.add(gc);
+        setSpeedAndEfficiencyIndicatorsVisible(false);
     }
      
 
@@ -2813,6 +2916,15 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         updateReferenceNamesList();
     }
 
+    private void setSpeedAndEfficiencyIndicatorsVisible(boolean b) {
+        this.jMenuItem4.setSelected(b);
+        this.jLabel1.setVisible(b);
+        this.label_memory.setVisible(b);
+        this.label_status.setVisible(b);
+        this.s_e_sep.setVisible(b);
+        this.memorystatusbar.setVisible(b);
+    }
+
     public enum LOGMODE { NORMAL, DEBUG };
 
     /**
@@ -2843,7 +2955,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
     public static void log(String msg) {
         log(msg,LOGMODE.DEBUG);
     }
-    
+
     public static void log(String msg, LOGMODE logmode) {
         /*
         if (logmode == LOGMODE.DEBUG && isDebugging) {

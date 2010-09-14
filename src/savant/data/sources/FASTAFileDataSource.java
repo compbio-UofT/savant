@@ -64,7 +64,7 @@ public class FASTAFileDataSource implements DataSource<SequenceRecord> {
     }
 
     public List<SequenceRecord> getRecords(String reference, Range range, Resolution resolution) throws IOException {
-        
+
         int rangeLength = range.getLength();
         byte[] sequence = new byte[rangeLength];
         if (this.getReferenceMap().containsKey(reference)) {

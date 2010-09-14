@@ -156,8 +156,6 @@ public abstract class ViewTrack {
 
             try {
 
-                log.info("Opening Savant file");
-
                 // read file header
                 SavantROFile trkFile = new SavantROFile(trackFilename);
 
@@ -213,6 +211,8 @@ public abstract class ViewTrack {
             }
             if(viewTrack != null) viewTrack.setURI(trackFilename);
         }
+
+        System.out.println("Done opening track");
 
         return results;
     }
