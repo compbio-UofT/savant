@@ -23,6 +23,8 @@ package savant.format;
 
 import java.io.*;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import savant.data.types.*;
 import savant.file.FieldType;
 import savant.file.FileType;
@@ -42,6 +44,8 @@ import java.util.StringTokenizer;
  */
 public class SavantFileFormatterUtils {
 
+    private static Log log = LogFactory.getLog(SavantFileFormatterUtils.class);
+    
     // Constants to use for size calculations on output fields.
     public static final int LONG_FIELD_SIZE     = 8;
     public static final int INT_FIELD_SIZE      = 4;
@@ -89,11 +93,13 @@ public class SavantFileFormatterUtils {
 
         List<Object> record = new ArrayList<Object>(fields.size());
 
-        //System.out.println("Reading binary record");
-        //System.out.println("Fields");
-        //for (FieldType ft : fields) {
-        //    System.out.println("\t" + ft);
-        // }
+        if (log.isDebugEnabled()) {
+            log.debug("Reading binary record");
+            log.debug("Fields");
+            for (FieldType ft : fields) {
+                log.debug("\t" + ft);
+            }
+        }
 
         for (FieldType ft : fields) {
             if (ft == FieldType.IGNORE) { continue; }
@@ -111,6 +117,9 @@ public class SavantFileFormatterUtils {
                 case DOUBLE:
                     record.add(in.readDouble());
                     break;
+                case FLOAT:
+                    record.add(in.readFloat());
+                    break;
                 case BLOCKS:
                     int numBlocks = in.readInt();
                     List<Block> blocks = new ArrayList<Block>(numBlocks);
@@ -123,6 +132,9 @@ public class SavantFileFormatterUtils {
                     break;
                 case STRING:
                     int len = in.readInt();
+                    if (len > 10000) {
+                        throw new IOException("Tried to read binary string of length " + len + " characters");
+                    }
                     String s = "";
                     for (int i = 0; i < len; i++) {
                         s += (char) in.readByte();
