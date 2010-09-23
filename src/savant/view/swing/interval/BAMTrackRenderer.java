@@ -201,7 +201,6 @@ public class BAMTrackRenderer extends TrackRenderer {
             int expectedHeight = Math.max((int)((intervals.size() * maximumHeight) / 0.9), currentHeight1);
 
             if(expectedHeight != currentHeight || currentWidth != gp.getWidth()){
-                gp.setBufferedImage(new BufferedImage(currentWidth, expectedHeight, BufferedImage.TYPE_INT_RGB));
                 gp.newHeight = expectedHeight;
                 gp.setPaneResize(true);
                 return;
