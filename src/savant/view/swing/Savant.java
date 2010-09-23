@@ -90,6 +90,7 @@ import savant.util.DownloadFile;
 import savant.view.icon.SavantIconFactory;
 import savant.xml.XMLVersion;
 import savant.xml.XMLVersion.Version;
+import savant.startpage.StartPage;
 
 /**
  * Main application Window (Frame).
@@ -125,6 +126,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
     private boolean openAfterFormat;
     private OpenURLDialog urlDialog;
     private MemoryStatusBarItem memorystatusbar;
+    private StartPage sp;
 
     public void addToolBar(JToolBar b) {
         this.panel_toolbar.setLayout(new BoxLayout(this.panel_toolbar, BoxLayout.X_AXIS));
@@ -1496,6 +1498,8 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
 
         //this.setVisible(true);
 
+        initStartPage();
+
         if (turnExperimentalFeaturesOff) {
             disableExperimentalFeatures();
         }
@@ -1508,6 +1512,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         this.menuitem_loadsession.setVisible(false);
         this.menuitem_savesession.setVisible(false);
         this.menuitem_savesessionas.setVisible(false);
+        this.sp.setVisible(false);
     }
 
     private void initPanelsAndDocking() {
@@ -3137,5 +3142,19 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
 
     public SelectionController getSelectionController() {
         return this.selectionController;
+    }
+
+    private void initStartPage(){
+
+        try {
+            sp = new StartPage();
+            sp.setMaximumSize(new java.awt.Dimension(99999, 99999));
+            sp.setMinimumSize(new java.awt.Dimension(500, 500));
+            sp.setPreferredSize(new java.awt.Dimension(99999, 99999));
+            this.panel_main.add(sp, BorderLayout.NORTH);
+        } catch (IOException ex) {
+            System.out.println("FAILED TO INIT START PAGE PROPERLY");
+            Logger.getLogger(Savant.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 }
