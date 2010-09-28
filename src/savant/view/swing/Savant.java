@@ -3096,7 +3096,11 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         GraphPaneController gpc = GraphPaneController.getInstance();
         int x = gpc.getMouseXPosition();
         int y = gpc.getMouseYPosition();
-        this.label_mouseposition.setText("X: " + MiscUtils.numToString(x) + ((y == -1) ? "" : " Y: " + MiscUtils.numToString(y)));
+        if (x == -1 && y == -1) {
+            this.label_mouseposition.setText("mouse not over track");
+        } else {
+            this.label_mouseposition.setText(((x == -1) ? "" : "X: " + MiscUtils.numToString(x)) + ((y == -1) ? "" : " Y: " + MiscUtils.numToString(y)));
+        }
     }
 
     public String[] getSelectedTracks(boolean multiple, String title){

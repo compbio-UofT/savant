@@ -979,6 +979,9 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
     public void mouseExited( final MouseEvent event ) {
         this.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
         setMouseModifier(event);
+
+        GraphPaneController.getInstance().setMouseXPosition(-1);
+        GraphPaneController.getInstance().setMouseYPosition(-1);
         //this.resetFrameLayers();
     }
 
