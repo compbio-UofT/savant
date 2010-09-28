@@ -501,11 +501,11 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         menuitem_genomeview = new javax.swing.JCheckBoxMenuItem();
         menuitem_ruler = new javax.swing.JCheckBoxMenuItem();
         menuitem_statusbar = new javax.swing.JCheckBoxMenuItem();
+        jMenuItem4 = new javax.swing.JCheckBoxMenuItem();
         jSeparator1 = new javax.swing.JSeparator();
         menuitem_tools = new javax.swing.JCheckBoxMenuItem();
         menu_bookmarks = new javax.swing.JCheckBoxMenuItem();
         jSeparator10 = new javax.swing.JPopupMenu.Separator();
-        jMenuItem4 = new javax.swing.JCheckBoxMenuItem();
         menu_plugins = new javax.swing.JMenu();
         menuitem_pluginmanager = new javax.swing.JMenuItem();
         menu_help = new javax.swing.JMenu();
@@ -694,11 +694,6 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         menuitem_file.add(jSeparator4);
 
         menuitem_screen.setText("Screenshot");
-        menuitem_screen.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                menuitem_screenActionPerformed(evt);
-            }
-        });
         menuitem_file.add(menuitem_screen);
 
         jMenuItem2.setText("Export");
@@ -899,6 +894,15 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
             }
         });
         menu_window.add(menuitem_statusbar);
+
+        jMenuItem4.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_D, java.awt.event.InputEvent.SHIFT_MASK | java.awt.event.InputEvent.CTRL_MASK));
+        jMenuItem4.setText("Speed & Efficiency Toolbar");
+        jMenuItem4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem4ActionPerformed(evt);
+            }
+        });
+        menu_window.add(jMenuItem4);
         menu_window.add(jSeparator1);
 
         menuitem_tools.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Z, java.awt.event.InputEvent.SHIFT_MASK | java.awt.event.InputEvent.CTRL_MASK));
@@ -919,16 +923,6 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         });
         menu_window.add(menu_bookmarks);
         menu_window.add(jSeparator10);
-
-        jMenuItem4.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_D, java.awt.event.InputEvent.SHIFT_MASK | java.awt.event.InputEvent.CTRL_MASK));
-        jMenuItem4.setSelected(true);
-        jMenuItem4.setText("Speed & Efficiency");
-        jMenuItem4.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jMenuItem4ActionPerformed(evt);
-            }
-        });
-        menu_window.add(jMenuItem4);
 
         menuBar_top.add(menu_window);
 
@@ -1508,7 +1502,6 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
     private void disableExperimentalFeatures() {
         this.menuitem_preferences.setVisible(false);
         this.menuitem_tools.setVisible(false);
-        this.menu_recent.setVisible(false);
         this.menuitem_loadsession.setVisible(false);
         this.menuitem_savesession.setVisible(false);
         this.menuitem_savesessionas.setVisible(false);
@@ -1746,10 +1739,12 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         initBrowseMenu();
         try {
             JMenu recentsMenu = RecentTracksController.getInstance().getMenu();
-            JMenu recentSessiosnMenu = RecentSessionController.getInstance().getMenu();
-
             this.menu_recent.add(recentsMenu);
-            this.menu_recent.add(recentSessiosnMenu);
+
+            if (!turnExperimentalFeaturesOff) {
+                JMenu recentSessiosnMenu = RecentSessionController.getInstance().getMenu();
+                this.menu_recent.add(recentSessiosnMenu);
+            }
         } catch (IOException ex) {
             Logger.getLogger(Savant.class.getName()).log(Level.SEVERE, null, ex);
         }

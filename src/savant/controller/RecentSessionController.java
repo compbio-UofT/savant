@@ -23,7 +23,7 @@ import javax.swing.JMenuItem;
  */
 public class RecentSessionController {
 
-    private final String FILENAME = ".sessions";
+    private final String FILENAME = ".recent_tracks";
     private final int NUM_RECENTS_TO_SAVE = 10;
 
     JMenu menu;
@@ -44,7 +44,7 @@ public class RecentSessionController {
         if (!f.exists()) { f.createNewFile(); }
         queue = new LinkedList<String>();
         menu = new JMenu();
-        menu.setText("Sessions ...");
+        menu.setText("Session ...");
         loadRecents(f);
         updateMenuList();
     }

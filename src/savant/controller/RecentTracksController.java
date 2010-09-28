@@ -30,7 +30,7 @@ public class RecentTracksController implements ViewTrackListChangedListener {
 
     private static RecentTracksController instance;
 
-    private final String FILENAME = ".recent";
+    private final String FILENAME = ".recent_tracks";
     private final int NUM_RECENTS_TO_SAVE = 10;
 
     JMenu menu;
@@ -44,7 +44,7 @@ public class RecentTracksController implements ViewTrackListChangedListener {
         if (!f.exists()) { f.createNewFile(); }
         queue = new LinkedList<String>();
         menu = new JMenu();
-        menu.setText("Tracks ...");
+        menu.setText("Track ...");
         loadRecents(f);
         updateMenuList();
     }
