@@ -33,6 +33,8 @@ import savant.util.SavantFileUtils;
 
 import java.io.EOFException;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -49,8 +51,8 @@ public class GenericPointDataSource implements DataSource<GenericPointRecord> {
 
     private int recordSize;
 
-    public GenericPointDataSource(String filename) throws IOException, SavantFileNotFormattedException, SavantUnsupportedVersionException {
-        this.savantFile = new SavantROFile(filename, FileType.POINT_GENERIC);
+    public GenericPointDataSource(String filename) throws URISyntaxException, IOException, SavantFileNotFormattedException, SavantUnsupportedVersionException {
+        this.savantFile = SavantROFile.fromStringAndType(filename, FileType.POINT_GENERIC);
         this.recordSize = SavantFileUtils.getRecordSize(savantFile);
     }
 
@@ -135,7 +137,7 @@ public class GenericPointDataSource implements DataSource<GenericPointRecord> {
 
     }
     
-    public String getPath() {
-        return savantFile.getPath();
+    public URI getURI() {
+        return savantFile.getURI();
     }
 }

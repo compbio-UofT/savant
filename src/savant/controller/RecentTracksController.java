@@ -56,7 +56,6 @@ public class RecentTracksController implements ViewTrackListChangedListener {
         return instance;
     }
 
-    @Override
     public void viewTrackListChangeReceived(ViewTrackListChangedEvent event) {
         ViewTrack t = event.getTracks().get(event.getTracks().size()-1);
         if (t.getPath() == null) { return; }
@@ -87,7 +86,6 @@ public class RecentTracksController implements ViewTrackListChangedListener {
             JMenuItem item = new JMenuItem();
             item.addActionListener(new ActionListener() {
 
-                @Override
                 public void actionPerformed(ActionEvent e) {
                     try {
                         Savant.getInstance().addTrackFromFile(s);

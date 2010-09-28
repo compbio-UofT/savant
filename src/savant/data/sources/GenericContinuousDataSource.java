@@ -31,9 +31,10 @@ import savant.format.ContinuousFormatterHelper.Level;
 import savant.util.Range;
 import savant.util.Resolution;
 import savant.util.SavantFileUtils;
-import savant.view.swing.Savant;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.*;
 
 /**
@@ -55,9 +56,9 @@ public class GenericContinuousDataSource implements DataSource<GenericContinuous
     
     private Hashtable<Resolution, int[]> resolutionToSamplingMap;
 
-    public GenericContinuousDataSource(String filename) throws IOException, SavantFileNotFormattedException, SavantUnsupportedVersionException {
+    public GenericContinuousDataSource(String filename) throws URISyntaxException, IOException, SavantFileNotFormattedException, SavantUnsupportedVersionException {
 
-        this.savantFile = new SavantROFile(filename, FileType.CONTINUOUS_GENERIC);
+        this.savantFile = SavantROFile.fromStringAndType(filename, FileType.CONTINUOUS_GENERIC);
         this.refnameToLevelsIndex = ContinuousFormatterHelper.readLevelHeadersFromBinaryFile(savantFile);
 
         printLevelsMap(refnameToLevelsIndex);
@@ -192,7 +193,7 @@ public class GenericContinuousDataSource implements DataSource<GenericContinuous
         }
     }
 
-    public String getPath() {
-        return savantFile.getPath();
+    public URI getURI() {
+        return savantFile.getURI();
     }
 }

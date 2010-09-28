@@ -33,6 +33,8 @@ import savant.util.Range;
 import savant.util.Resolution;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -49,8 +51,8 @@ public class FASTAFileDataSource implements DataSource<SequenceRecord> {
     private int length = -1;
     private SavantROFile dFile;
 
-    public FASTAFileDataSource(String fileName) throws IOException, SavantFileNotFormattedException, SavantUnsupportedVersionException {
-        this.dFile = new SavantROFile(fileName, FileType.SEQUENCE_FASTA);
+    public FASTAFileDataSource(String fileName) throws URISyntaxException, IOException, SavantFileNotFormattedException, SavantUnsupportedVersionException {
+        this.dFile = SavantROFile.fromStringAndType(fileName, FileType.SEQUENCE_FASTA);
     }
 
     public int getLength(String refname) {
@@ -103,7 +105,7 @@ public class FASTAFileDataSource implements DataSource<SequenceRecord> {
         return this.dFile.getReferenceMap();
     }
 
-    public String getPath() {
-        return dFile.getPath();
+    public URI getURI() {
+        return dFile.getURI();
     }
 }

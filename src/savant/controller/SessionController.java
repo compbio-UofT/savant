@@ -8,6 +8,7 @@ import java.awt.Component;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JFileChooser;
@@ -34,6 +35,7 @@ import savant.controller.event.viewtrack.ViewTrackListChangedEvent;
 import savant.controller.event.viewtrack.ViewTrackListChangedListener;
 import savant.util.Session;
 import savant.view.swing.Savant;
+import savant.view.swing.util.DialogUtils;
 
 /**
  *
@@ -194,6 +196,8 @@ public class SessionController implements
             JOptionPane.showMessageDialog(Savant.getInstance(), "Problem loading session");
         } catch (IOException ex) {
             JOptionPane.showMessageDialog(Savant.getInstance(), "Problem loading session");
+        } catch (URISyntaxException e) {
+            DialogUtils.displayMessage("Syntax error on URI; file URI is not valid");
         }
     }
 

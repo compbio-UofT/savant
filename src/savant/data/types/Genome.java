@@ -26,6 +26,7 @@ import savant.view.dialog.GenomeLengthForm.BuildInfo;
 import savant.view.dialog.GenomeLengthForm.ReferenceInfo;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -47,7 +48,7 @@ public class Genome
     // if not associated with track
     private Map<String,Long> referenceMap;
 
-    public Genome(String filename) throws IOException, SavantFileNotFormattedException, SavantUnsupportedVersionException {
+    public Genome(String filename) throws URISyntaxException, IOException, SavantFileNotFormattedException, SavantUnsupportedVersionException {
         isAssociatedWithTrack = true;
         this.filename = filename;
         int lastSlashIndex = filename.lastIndexOf(System.getProperty("file.separator"));

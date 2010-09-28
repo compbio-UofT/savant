@@ -27,6 +27,8 @@ import java.util.Map;
 
 public interface ROFile {
 
+//    public void getURI();
+    
     public void close() throws IOException;
 
     public long getFilePointer() throws IOException;

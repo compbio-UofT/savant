@@ -28,11 +28,8 @@ import org.apache.commons.logging.LogFactory;
 import savant.controller.TrackController;
 import savant.controller.ViewTrackController;
 import savant.data.sources.*;
-import savant.data.types.Genome;
 import savant.file.*;
-import savant.format.SavantFileFormatterUtils;
 import savant.util.*;
-import savant.view.dialog.BAMParametersDialog;
 import savant.view.swing.continuous.ContinuousViewTrack;
 import savant.view.swing.interval.BAMCoverageViewTrack;
 import savant.view.swing.interval.BAMViewTrack;
@@ -44,7 +41,6 @@ import savant.view.swing.util.DialogUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -89,7 +85,7 @@ public abstract class ViewTrack {
      * Create one or more tracks from the given file name.
      *
      * @param trackFilename
-     * @return List of ViewTrack which can be added to a Fram
+     * @return List of ViewTrack which can be added to a Frame
      * @throws IOException
      */
     public static List<ViewTrack> create(String trackFilename) throws IOException {
@@ -112,21 +108,22 @@ public abstract class ViewTrack {
 
             log.info("Opening BAM file");
 
-            dataTrack = BAMDataSource.fromfileNameOrURL(trackFilename);
-            if (dataTrack != null) {
-                viewTrack = new BAMViewTrack(name, (BAMDataSource)dataTrack);
-                if(viewTrack != null) viewTrack.setURI(trackFilename);
-                results.add(viewTrack);
-            }
-            else {
-                String e = "Could not create BAM track; check that index file exists and is named  filename.bam.bai or filename.bai";
-                JOptionPane.showConfirmDialog(Savant.getInstance(), e, "Error loading track", JOptionPane.DEFAULT_OPTION);
-                return null;
-            }
+            try {
+                dataTrack = BAMDataSource.fromfileNameOrURL(trackFilename);
+                if (dataTrack != null) {
+                    viewTrack = new BAMViewTrack(name, (BAMDataSource)dataTrack);
+                    // FIXME: this is a bad place to set the URI
+                    if(viewTrack != null) viewTrack.setURI(trackFilename);
+                    results.add(viewTrack);
+                }
+                else {
+                    String e = "Could not create BAM track; check that index file exists and is named  filename.bam.bai or filename.bai";
+                    JOptionPane.showConfirmDialog(Savant.getInstance(), e, "Error loading track", JOptionPane.DEFAULT_OPTION);
+                    return null;
+                }
 
             // TODO: test BAM to coverage (with v2 formatting) then re-enable adding coverage file
             /* RE-ENABLE STARTING */
-            try {
                 String coverageFileName = trackFilename + ".cov.savant";
 
                 if ((new File(coverageFileName)).exists()) {
@@ -146,6 +143,8 @@ public abstract class ViewTrack {
                 viewTrack = new BAMCoverageViewTrack(name + " (coverage)" , null);
             } catch (SavantUnsupportedVersionException e) {
                 DialogUtils.displayMessage("This file was created using an older version of Savant. Please re-format the source.");
+            } catch (URISyntaxException e) {
+                DialogUtils.displayMessage("Syntax error on URI; file URI is not valid");
             }
 
               //RE-ENABLE ENDING HERE
@@ -157,7 +156,7 @@ public abstract class ViewTrack {
             try {
 
                 // read file header
-                SavantROFile trkFile = new SavantROFile(trackFilename);
+                SavantROFile trkFile = SavantROFile.fromString(trackFilename);
 
                 if (log.isDebugEnabled()) log.debug("Reading file type header");
 //                FileTypeHeader fth = SavantFileUtils.readFileTypeHeader(trkFile);
@@ -208,6 +207,8 @@ public abstract class ViewTrack {
                 DialogUtils.displayMessage("This file was created using an older version of Savant. Please re-format the source.");
             } catch (IOException e) {
                 DialogUtils.displayException("Error opening track", "There was a problem opening this file.", e);
+            } catch (URISyntaxException e) {
+                DialogUtils.displayMessage("Syntax error on URI; file URI is not valid");
             }
             if(viewTrack != null) viewTrack.setURI(trackFilename);
         }
@@ -243,9 +244,10 @@ public abstract class ViewTrack {
     //    this.filename = fn;
     //}
 
+    // FIXME: this shouldn't be a URI
     public String getPath() {
         if (this.getDataSource() == null) { return null; }
-        return this.getDataSource().getPath();
+        return this.getDataSource().getURI().toString();
     }
 
     /**
@@ -528,18 +530,20 @@ public abstract class ViewTrack {
         intervalDialog.setVisible(true);
     }
 
+    // FIXME: URI is not appropriate for this usage;
     public void setURI(String name){
 
-        //TODO: are there other cases where this will fail? Maybe URI isnt best option?
-        name = name.replace("\\", "/");
-        name = name.replace(" ", "_");
-        try {
-            this.fileURI = new URI(name);
-        } catch (URISyntaxException ex) {
-            Logger.getLogger(ViewTrack.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        this.fileURI = new File(name).toURI();
+//        name = name.replace("\\", "/");
+//        name = name.replace(" ", "_");
+//        try {
+//            this.fileURI = new URI(name);
+//        } catch (URISyntaxException ex) {
+//            Logger.getLogger(ViewTrack.class.getName()).log(Level.SEVERE, null, ex);
+//        }
     }
 
+    // FIXME: URI is not appropriate for this usage; 
     public URI getURI(){
         return this.fileURI;
     }

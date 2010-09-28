@@ -22,7 +22,6 @@
 package savant.data.sources;
 
 import net.sf.samtools.*;
-import net.sf.samtools.util.CloseableIterator;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import savant.controller.RangeController;
@@ -54,9 +53,10 @@ public class BAMDataSource implements DataSource<BAMIntervalRecord> {
     
     private SAMFileReader samFileReader;
     private SAMFileHeader samFileHeader;
+    private URI uri;
     //private String sequenceName;
 
-    private String fileNameOrURL;
+//    private String fileNameOrURL;
 
     public static BAMDataSource fromfileNameOrURL(String fileNameOrURL) throws IOException {
 
@@ -65,7 +65,8 @@ public class BAMDataSource implements DataSource<BAMIntervalRecord> {
         URL fileURL = null;
         File indexFile = null;
         try {
-            fileURL = new URI(fileNameOrURL).toURL();
+            URI uri = new URI(fileNameOrURL);
+            fileURL = uri.toURL();
             // if no exception is thrown, this is an absolute URL
             if (fileURL.getProtocol().equalsIgnoreCase("http")) {
                 // for now, we can deal with http URLs only
@@ -74,7 +75,7 @@ public class BAMDataSource implements DataSource<BAMIntervalRecord> {
                     return new BAMDataSource(fileURL, indexFile);
                 }
             }
-            
+
         } catch (MalformedURLException e) {
             // not a URL, try as a filename
         } catch (URISyntaxException e) {
@@ -84,7 +85,7 @@ public class BAMDataSource implements DataSource<BAMIntervalRecord> {
         }
 
         if (fileURL == null) {
-            
+
             // infer index file name from track filename
             indexFile = getIndexFileLocal(fileNameOrURL);
             if (indexFile != null) {
@@ -96,25 +97,52 @@ public class BAMDataSource implements DataSource<BAMIntervalRecord> {
         return null;
     }
 
-    public BAMDataSource(File path, File index) {
+    public static BAMDataSource fromURI(URI uri) throws IOException {
+        if (uri == null) throw new IllegalArgumentException("URI must not be null.");
+        if (uri.getScheme() == null) {
+            File file = new File(uri);
+            URI fileUri = file.toURI();
+            URL url = fileUri.toURL();
+            return new BAMDataSource(url);
+        }
+        else return new BAMDataSource(uri.toURL());
+    }
 
-        if (path == null) throw new IllegalArgumentException("File must not be null.");
+    public BAMDataSource(File file) {
+        this(file, getIndexFileLocal(file.getAbsolutePath()));
+
+    }
+
+    public BAMDataSource(File file, File index) {
+
+        if (file == null) throw new IllegalArgumentException("File must not be null.");
         if (index == null) throw new IllegalArgumentException("Index file must not be null");
 
-        this.fileNameOrURL = path.getAbsolutePath();
+        this.uri = file.toURI().normalize();
+
+//        this.fileNameOrURL = path.getAbsolutePath();
         
         //this.sequenceName = guessSequence(path, index);
-        samFileReader = new SAMFileReader(path, index);
+        samFileReader = new SAMFileReader(file, index);
         samFileReader.setValidationStringency(SAMFileReader.ValidationStringency.LENIENT);
         samFileHeader = samFileReader.getFileHeader();
     }
 
+    public BAMDataSource(URL url) throws IOException {
+        this(url, getIndexFileCached(url));
+    }
+    
     public BAMDataSource(URL url, File index) {
 
         if (url == null) throw new IllegalArgumentException("URL must not be null");
         if (index == null) throw new IllegalArgumentException("Index file must not be null");
 
-        this.fileNameOrURL = url.getFile();
+        try {
+            this.uri = url.toURI().normalize();
+        } catch (URISyntaxException e) {
+            throw new IllegalArgumentException("URL is not a valid URI");
+        }
+//        this.fileNameOrURL = url.getFile();
 
         samFileReader = new SAMFileReader(url, index, false);
         samFileReader.setValidationStringency(SAMFileReader.ValidationStringency.LENIENT);
@@ -127,7 +155,8 @@ public class BAMDataSource implements DataSource<BAMIntervalRecord> {
     public List<BAMIntervalRecord> getRecords(String reference, Range range, Resolution resolution) throws OutOfMemoryError {
 
 
-        CloseableIterator<SAMRecord> recordIterator=null;
+        //CloseableIterator<SAMRecord> recordIterator=null;
+        SAMRecordIterator recordIterator=null;
         List<BAMIntervalRecord> result = new ArrayList<BAMIntervalRecord>();
         try {
             // todo: actually use the given reference
@@ -299,7 +328,7 @@ public class BAMDataSource implements DataSource<BAMIntervalRecord> {
         return BAMIndexCache.getInstance().getBAMIndex(bamURL);
     }
 
-    public String getPath() {
-        return fileNameOrURL;
+    public URI getURI() {
+        return uri;
     }
 }

@@ -1,7 +1,7 @@
 <component name="libraryTable">
   <library name="picard">
     <CLASSES>
-      <root url="jar://$PROJECT_DIR$/extlib/picard-tools-1.12/sam-1.12.jar!/" />
+      <root url="jar://$PROJECT_DIR$/extlib/picard/sam-1.31.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />

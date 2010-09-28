@@ -21,15 +21,20 @@
 
 package savant.file;
 
+import net.sf.samtools.util.SeekableBufferedStream;
 import net.sf.samtools.util.SeekableFileStream;
+import net.sf.samtools.util.SeekableHTTPStream;
 import net.sf.samtools.util.SeekableStream;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import savant.util.MiscUtils;
 import savant.util.SavantFileUtils;
+import savant.util.SeekableAdjustableBufferedStream;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -44,28 +49,94 @@ public class SavantROFile implements ROFile {
     private Map<String,Long[]> referenceMap;
     private List<FieldType> fields;
     private long headerOffset;
-    private String filename;
+    private URI uri;
 
     private long filePointer = 0;
 
     public static final int CURRENT_FILE_VERSION = 2;
     public static final List<Integer> SUPPORTED_FILE_VERSIONS = Arrays.asList(2);
 
-    public SavantROFile(String filename) throws IOException, SavantFileNotFormattedException, SavantUnsupportedVersionException {
-        this.seekStream = new SeekableFileStream(new File(filename));
-        init(filename);
+    public static SavantROFile fromStringAndType(String fileOrURI, FileType ft) throws URISyntaxException, IOException, SavantFileNotFormattedException, SavantUnsupportedVersionException {
+        String lowerCaseName = fileOrURI.toLowerCase();
+        if (lowerCaseName.startsWith("http") || lowerCaseName.startsWith("ftp")) {
+            return new SavantROFile(new URI(fileOrURI), ft);
+        }
+        else {
+            return new SavantROFile(fileOrURI, ft);
+        }
     }
 
+    public static SavantROFile fromString(String fileOrURI) throws URISyntaxException, IOException, SavantFileNotFormattedException, SavantUnsupportedVersionException {
+        String lowerCaseName = fileOrURI.toLowerCase();
+        if (lowerCaseName.startsWith("http") || lowerCaseName.startsWith("ftp")) {
+            return new SavantROFile(new URI(fileOrURI));
+        }
+        else {
+            return new SavantROFile(fileOrURI);
+        }
+    }
+
+    /**
+     * Construct a Savant file from a local file name.
+     *
+     * @param filename name of file
+     * @throws IOException
+     * @throws SavantFileNotFormattedException if file is not formatted in Savant format (no magic number)
+     * @throws SavantUnsupportedVersionException if file is formatted in a currently unsupported version
+     */
+    public SavantROFile(String filename) throws IOException, SavantFileNotFormattedException, SavantUnsupportedVersionException {
+        File inFile = new File(filename);
+        this.uri = inFile.toURI();
+        this.seekStream = new SeekableFileStream(inFile);
+        init();
+    }
+
+    /**
+     * Construct a Savant file from a local file name, with a given file type
+     *
+     * @param filename filename
+     * @param ft file type
+     * @throws IOException if existing file type does not match that given
+     * @throws SavantFileNotFormattedException if file is not formatted in Savant format (no magic number)
+     * @throws SavantUnsupportedVersionException if file is formatted in a currently unsupported version
+     */
     public SavantROFile(String filename, FileType ft) throws IOException, SavantFileNotFormattedException, SavantUnsupportedVersionException {
         this(filename);
         if (!fileTypeHeader.fileType.equals(ft)) {
             throw new IOException("Wrong file type");
         }
-
     }
 
-    private void init(String filename) throws IOException, SavantFileNotFormattedException, SavantUnsupportedVersionException {
-        this.filename = filename;
+    /**
+     * Construct a Savant file from a URI
+     *
+     * @param uri HTTP URI
+     * @throws IOException
+     * @throws SavantFileNotFormattedException if file is not formatted in Savant format (no magic number)
+     * @throws SavantUnsupportedVersionException if file is formatted in a currently unsupported version
+     */
+    public SavantROFile(URI uri) throws IOException, SavantFileNotFormattedException, SavantUnsupportedVersionException {
+        this.uri = uri.normalize();
+        this.seekStream = new SeekableAdjustableBufferedStream(new SeekableHTTPStream(uri.toURL()), 4096);
+        init();
+    }
+
+    /**
+     * Construct a Savant file from a URI, with a given file type
+     *
+     * @param uri HTTP URI
+     * @param ft file type
+     * @throws IOException if existing file type does not match that given
+     * @throws SavantFileNotFormattedException if file is not formatted in Savant format (no magic number)
+     * @throws SavantUnsupportedVersionException if file is formatted in a currently unsupported version
+     */
+    public SavantROFile(URI uri, FileType ft) throws IOException, SavantFileNotFormattedException, SavantUnsupportedVersionException {
+        this(uri);
+        if (!fileTypeHeader.fileType.equals(ft)) {
+            throw new IOException("Wrong file type");
+        }
+    }
+    private void init() throws IOException, SavantFileNotFormattedException, SavantUnsupportedVersionException {
 
         log.debug("Reading file type");
         this.fileTypeHeader = SavantFileUtils.readFileTypeHeader(this);
@@ -128,7 +199,7 @@ public class SavantROFile implements ROFile {
                     + " ref=" + reference
                     + " refoffset=" + refoffset
                     + " headeroffset=" + headerOffset
-                    + " file="+this.filename);
+                    + " file="+this.uri.toString());
 
 
             seek(pos+refoffset+headerOffset);
@@ -158,13 +229,19 @@ public class SavantROFile implements ROFile {
     }
 
     public int read() throws IOException {
-        int result = seekStream.read();
-        filePointer++;
-        return result;
+        byte[] buf = new byte[1];
+        int bytesRead = seekStream.read(buf,0,1);
+        if (bytesRead  != -1) {
+            int result = buf[0];
+            filePointer++;
+            return result;
+        }
+        else
+            return -1;
     }
 
     public int read(byte[] b) throws IOException {
-        int result = seekStream.read(b);
+        int result = seekStream.read(b, 0, b.length);
         if (result != -1) filePointer += result;
         return result;
     }
@@ -293,5 +370,5 @@ public class SavantROFile implements ROFile {
         return fileTypeHeader.fileType;
     }
 
-    public String getPath() { return this.filename; }
+    public URI getURI() { return this.uri; }
 }

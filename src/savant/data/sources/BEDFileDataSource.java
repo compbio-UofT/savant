@@ -34,6 +34,8 @@ import savant.util.Range;
 import savant.util.Resolution;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -52,8 +54,8 @@ public class BEDFileDataSource implements DataSource<BEDIntervalRecord> {
 
     private Map<String, IntervalSearchTree> refnameToIntervalBSTIndex;
 
-    public BEDFileDataSource(String fileName) throws IOException, SavantFileNotFormattedException, SavantUnsupportedVersionException {
-        this.dFile = new SavantROFile(fileName, FileType.INTERVAL_BED);
+    public BEDFileDataSource(String fileName) throws URISyntaxException, IOException, SavantFileNotFormattedException, SavantUnsupportedVersionException {
+        this.dFile = SavantROFile.fromStringAndType(fileName, FileType.INTERVAL_BED);
         this.refnameToIntervalBSTIndex = DataFormatter.readIntervalBSTs(this.dFile);
     }
 
@@ -93,7 +95,7 @@ public class BEDFileDataSource implements DataSource<BEDIntervalRecord> {
         return refMap.keySet();
     }
 
-    public String getPath() {
-        return dFile.getPath();
+    public URI getURI() {
+        return dFile.getURI();
     }
 }

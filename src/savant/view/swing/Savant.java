@@ -3113,7 +3113,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
             String urlString = urlDialog.getUrlAsString();
             try {
                 URL url = new URL(urlString);
-                if (!url.getProtocol().equalsIgnoreCase("http") || !urlString.endsWith(".bam")) {
+                if (!url.getProtocol().equalsIgnoreCase("http") /*|| !urlString.endsWith(".bam")*/) {
                     DialogUtils.displayMessage("Only BAM files accessible via HTTP can be opened via URL.");
                     return;
                 }
