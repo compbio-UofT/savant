@@ -938,7 +938,6 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
 
         menuBar_top.add(menu_plugins);
 
-        menu_help.setBackground(new java.awt.Color(255, 0, 51));
         menu_help.setText("Help");
 
         menuitem_usermanual.setText("Manuals");
