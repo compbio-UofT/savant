@@ -177,8 +177,9 @@ public class IntervalTrackRenderer extends TrackRenderer {
         if (r == Resolution.VERY_HIGH || r == Resolution.HIGH) {
 
             IntervalPacker packer = new IntervalPacker(data);
-            Map<Integer, ArrayList<IntervalRecord>> intervals = packer.pack(2);
-                        
+//            Map<Integer, ArrayList<IntervalRecord>> intervals = packer.pack(2);
+            ArrayList<List<IntervalRecord>> intervals = packer.pack(2);
+
             gp.setIsOrdinal(false);
             gp.setXRange(axisRange.getXRange());
             int maxYRange;
@@ -203,7 +204,8 @@ public class IntervalTrackRenderer extends TrackRenderer {
             // scan the map of intervals and draw the intervals for each level
             for (int k=0; k<intervals.size(); k++) {
 
-                ArrayList<IntervalRecord> intervalsThisLevel = intervals.get(k);
+//                ArrayList<IntervalRecord> intervalsThisLevel = intervals.get(k);
+                List<IntervalRecord> intervalsThisLevel = intervals.get(k);
 
                 for (IntervalRecord intervalRecord : intervalsThisLevel) {
                     Interval interval = intervalRecord.getInterval();

@@ -20,6 +20,7 @@
         <element id="library" level="project" name="picard" />
         <element id="library" level="project" name="smalltext" />
         <element id="library" level="project" name="apache-ftp" />
+        <element id="library" level="project" name="jdom" />
       </element>
     </root>
   </artifact>

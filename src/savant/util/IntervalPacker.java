@@ -24,10 +24,7 @@ package savant.util;
 import savant.data.types.Interval;
 import savant.data.types.IntervalRecord;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Utility class to do build the data structures necessary to draw packed intervals.
@@ -41,14 +38,20 @@ public class IntervalPacker {
         this.data = data;
     }
 
-    public Map<Integer, ArrayList<IntervalRecord>> pack(int breathingSpace) {
+//    public Map<Integer, ArrayList<IntervalRecord>> pack(int breathingSpace) {
+    public ArrayList<List<IntervalRecord>> pack(int breathingSpace) {
 
         int numdata = data.size();
 
         // Initialize some data structures to be filled by scanning through data
-        ArrayList<List<Interval>> levels = new ArrayList<List<Interval>>();
-        Map<Integer, ArrayList<IntervalRecord>> intervals= new HashMap<Integer, ArrayList<IntervalRecord>>();
-        levels.add(new ArrayList<Interval>());
+        TreeMap<Float, Integer> rightMostPositions = new TreeMap<Float, Integer>();
+        ArrayList<List<IntervalRecord>> levels = new ArrayList<List<IntervalRecord>>();
+
+//        ArrayList<List<Interval>> levels = new ArrayList<List<Interval>>();
+//        Map<Integer, ArrayList<IntervalRecord>> intervals= new HashMap<Integer, ArrayList<IntervalRecord>>();
+//        levels.add(new ArrayList<Interval>());
+        rightMostPositions.put(0.000001f, 0);
+        levels.add(new ArrayList<IntervalRecord>());
 
 
         // scan through data, keeping track of which intervals fit in which levels
@@ -65,43 +68,65 @@ public class IntervalPacker {
 
             boolean fitsInExistingLevel = false;
 
-            for (int j=0; j<levels.size(); j++) {
-
-                // compare the left edge of the interval to the rightmost limit stored for the level
-                if (!intersectsOne(levels.get(j),inter, breathingSpace)) {
-
+            if (intervalStart >= rightMostPositions.firstKey()) {
+                SortedMap<Float, Integer> headMap = rightMostPositions.headMap((float)intervalStart);
+                if (headMap != null && !headMap.isEmpty()) {
+                    Float positionKey = headMap.firstKey();
+                    int fitLevel = rightMostPositions.get(positionKey);
                     fitsInExistingLevel = true;
-                    levels.get(j).add(inter);
-
-                    // store the interval in the 'intervals' Map as an IntervalRecord keyed by level
-                    ArrayList<IntervalRecord> intervalList;
-                    if (!intervals.keySet().contains(j)) {
-                        // start filling a new level
-                        intervalList = new ArrayList<IntervalRecord>();
-                        intervals.put(j, intervalList);
-                    }
-                    else {
-                        // level already exists
-                        intervalList = intervals.get(j);
-                    }
-                    intervalList.add(record);
-
-                    break;
+                    levels.get(fitLevel).add(record);
+                    rightMostPositions.remove(positionKey);
+                    rightMostPositions.put((float)intervalEnd+(float)breathingSpace+(float)fitLevel/(10^6), fitLevel);
                 }
+
             }
             if (!fitsInExistingLevel) {
-                // a new level is required
-                List<Interval> newLevel = new ArrayList<Interval>();
-                ArrayList<IntervalRecord> newLevelsRecords = new ArrayList<IntervalRecord>();
-
-                newLevel.add(inter);
-                newLevelsRecords.add(record);
-                
+                List<IntervalRecord> newLevel = new ArrayList<IntervalRecord>();
+                newLevel.add(record);
                 levels.add(newLevel);
-                intervals.put(intervals.size(), newLevelsRecords);
+                int levelNumber = levels.size()-1;
+                rightMostPositions.put((float)intervalEnd+(float)breathingSpace+(float)+(float)levelNumber/(10^6), levelNumber);
             }
         }
-        return intervals;
+        return levels;
+
+//            for (int j=0; j<levels.size(); j++) {
+//
+//                // compare the left edge of the interval to the rightmost limit stored for the level
+//                if (!intersectsOne(levels.get(j),inter, breathingSpace)) {
+//
+//                    fitsInExistingLevel = true;
+//                    levels.get(j).add(inter);
+//
+//                    // store the interval in the 'intervals' Map as an IntervalRecord keyed by level
+//                    ArrayList<IntervalRecord> intervalList;
+//                    if (!intervals.keySet().contains(j)) {
+//                        // start filling a new level
+//                        intervalList = new ArrayList<IntervalRecord>();
+//                        intervals.put(j, intervalList);
+//                    }
+//                    else {
+//                        // level already exists
+//                        intervalList = intervals.get(j);
+//                    }
+//                    intervalList.add(record);
+//
+//                    break;
+//                }
+//            }
+//            if (!fitsInExistingLevel) {
+//                // a new level is required
+//                List<Interval> newLevel = new ArrayList<Interval>();
+//                ArrayList<IntervalRecord> newLevelsRecords = new ArrayList<IntervalRecord>();
+//
+//                newLevel.add(inter);
+//                newLevelsRecords.add(record);
+//
+//                levels.add(newLevel);
+//                intervals.put(intervals.size(), newLevelsRecords);
+//            }
+//        }
+//        return intervals;
     }
 
     public boolean intersects(Interval i1, Interval i2) {
