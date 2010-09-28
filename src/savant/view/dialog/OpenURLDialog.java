@@ -51,12 +51,12 @@ public class OpenURLDialog extends javax.swing.JDialog {
         button_ok = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
-        setTitle("Load BAM File from URL");
+        setTitle("Load Track from URL");
 
-        jLabel1.setText("HTTP URL for BAM File");
+        jLabel1.setText("Track URL:");
 
         jLabel2.setFont(new java.awt.Font("Lucida Grande", 0, 11));
-        jLabel2.setText("BAM File must be sorted and an index must be present with the extension .bai");
+        jLabel2.setText("Note: BAM files must be sorted and an index must be present with the extension .bai");
 
         button_cancel.setText("Cancel");
         button_cancel.addActionListener(new java.awt.event.ActionListener() {
@@ -85,7 +85,7 @@ public class OpenURLDialog extends javax.swing.JDialog {
                         .addComponent(button_cancel))
                     .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jLabel1)
-                    .addComponent(textField_url, javax.swing.GroupLayout.DEFAULT_SIZE, 375, Short.MAX_VALUE))
+                    .addComponent(textField_url, javax.swing.GroupLayout.DEFAULT_SIZE, 407, Short.MAX_VALUE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
