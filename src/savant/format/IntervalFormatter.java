@@ -36,17 +36,19 @@ public class IntervalFormatter extends SavantFileFormatter {
     private int refnameindex;
     private int startcoordindex;
     private int endcoordindex;
+    private String comment;
     private boolean isGFF = false;
 
     List<FieldType> writeOrderFields;
     List<Object> writeOrderModifiers;
 
-    public IntervalFormatter(String inFile, String outFile, boolean baseOffset, FileType ft, Integer refnameindex, Integer startcoordindex, Integer endcoordindex){
+    public IntervalFormatter(String inFile, String outFile, boolean baseOffset, FileType ft, Integer refnameindex, Integer startcoordindex, Integer endcoordindex, String comment){
         super(inFile, outFile, ft); //FileType.INTERVAL_GENERIC);
         this.setInputOneBased(baseOffset);
         this.refnameindex = refnameindex;
         this.startcoordindex = startcoordindex;
         this.endcoordindex = endcoordindex;
+        this.comment = comment;
     }
 
     private ArrayList rearrangeList(Object l) {
@@ -55,6 +57,10 @@ public class IntervalFormatter extends SavantFileFormatter {
         //System.out.println(cpy.size());
         //System.out.println(l.size());
         //Collections.copy(cpy, l);
+
+        System.out.println("List is of size: " + cpy.size());
+        System.out.println("Start coordinate: " + startcoordindex);
+        System.out.println("End coordinatee: " + endcoordindex);
 
         Object ref = cpy.get(refnameindex);
         Object strt = cpy.get(startcoordindex);
@@ -95,6 +101,11 @@ public class IntervalFormatter extends SavantFileFormatter {
         BufferedReader br = new BufferedReader(new FileReader(path));
 
         String line = br.readLine();
+
+        while(line.startsWith(comment)) {
+            line = br.readLine();
+        }
+
         //StringTokenizer st = new StringTokenizer(line,"\t");
         //int numTokens = st.countTokens();
 
@@ -473,7 +484,7 @@ public class IntervalFormatter extends SavantFileFormatter {
         while((strLine = inFileReader.readLine()) != null) {
 
             // skip blank lines
-            if (strLine.equals("") || strLine.startsWith("track") || strLine.startsWith("#")) { continue; }
+            if (strLine.equals("") || strLine.startsWith("track") || strLine.startsWith(comment)) { continue; }
 
             // tokenize the line into the respective fields
             line = SavantFileFormatterUtils.parseTxtLine(strLine, fields, isGFF);

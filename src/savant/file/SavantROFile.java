@@ -103,7 +103,8 @@ public class SavantROFile implements ROFile {
     public SavantROFile(String filename, FileType ft) throws IOException, SavantFileNotFormattedException, SavantUnsupportedVersionException {
         this(filename);
         if (!fileTypeHeader.fileType.equals(ft)) {
-            throw new IOException("Wrong file type");
+            if (fileTypeHeader.fileType == FileType.INTERVAL_GFF && ft == FileType.INTERVAL_GENERIC) {}
+            else { throw new IOException("Wrong file type"); }
         }
     }
 

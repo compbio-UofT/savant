@@ -254,13 +254,13 @@ public class DataFormatter implements FormatProgressListener {
         IntervalFormatter inf;
 
         if(type.equals("GEN")){
-            inf = new IntervalFormatter(inPath, outPath,baseOffset, FileType.INTERVAL_GENERIC, 0, 1, 2);
+            inf = new IntervalFormatter(inPath, outPath,baseOffset, FileType.INTERVAL_GENERIC, 0, 1, 2, "#");
             inf.formatAsIntervalGeneric();
         } else if(type.equals("GFF")){
-            inf = new IntervalFormatter(inPath, outPath,baseOffset, FileType.INTERVAL_GFF, 0, 3, 4);
+            inf = new IntervalFormatter(inPath, outPath,baseOffset, FileType.INTERVAL_GFF, 0, 3, 4, "#");
             inf.formatAsIntervalGFF();
         } else if(type.equals("BED")){
-            inf = new IntervalFormatter(inPath, outPath,baseOffset, FileType.INTERVAL_BED, 0, 1, 2);
+            inf = new IntervalFormatter(inPath, outPath,baseOffset, FileType.INTERVAL_BED, 0, 1, 2, "#");
             inf.formatAsIntervalBED();
         } else {
             return;
