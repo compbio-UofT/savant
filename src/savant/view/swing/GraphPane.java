@@ -92,6 +92,9 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
     private int oldHeight = -1;
     private int newScroll = 0;
     private boolean renderRequired = false;
+    //private int buffTop = -1;
+    //private int buffBottom = -1;
+    private int posOffset = 0;
 
     //dragging
     private int startX;
@@ -247,7 +250,7 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
 
         Graphics2D g3;
         Mode currentMode = this.parentFrame.getTracks().get(0).getDrawMode();
-        BufferedImage bf1;
+        //BufferedImage bf1;
 
         //boolean sameRange = (prevRange != null && RangeController.getInstance().getRange().equals(prevRange));
         boolean sameRange = (prevRange != null && xRange.equals(prevRange));
@@ -258,17 +261,23 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
                 this.getParentFrame().getFrameLandscape().getHeight() == oldHeight);
         boolean sameRef = prevRef != null && ReferenceController.getInstance().getReferenceName().equals(prevRef);
 
+        boolean withinScrollBounds = this.bufferedImage != null &&
+                (((JScrollPane)this.getParent().getParent().getParent()).getVerticalScrollBar().getValue() >= this.getOffset()) &&
+                (((JScrollPane)this.getParent().getParent().getParent()).getVerticalScrollBar().getValue() < this.getOffset() + this.parentFrame.scrollPane.getViewport().getHeight() * 2);
+
         //bufferedImage stores the current graphic for future use. If nothing
         //has changed in the track since the last render, bufferedImage will
         //be used to redraw the current view. This method allows for fast repaints
         //on tracks where nothing has changed (panning, selection, plumbline,...)
 
         //if nothing has changed draw buffered image
-        if(sameRange && sameMode && sameSize && sameRef && !this.renderRequired){
+        if(sameRange && sameMode && sameSize && sameRef && !this.renderRequired && withinScrollBounds){
 
-            g.drawImage(bufferedImage, 0, 0, this);
+            g.drawImage(bufferedImage, 0, this.getOffset(), this);
             
             if(this.currentOverShape != null){
+                //temporarily shift the origin
+                ((Graphics2D)g).translate(0, this.getOffset());
                 if(currentMode != null && currentMode.getName().equals("MATE_PAIRS")){
                     g.setColor(Color.red);
                     ((Graphics2D)g).draw(currentOverShape);
@@ -283,6 +292,8 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
                         ((Graphics2D)g).draw(currentOverShape);
                     }
                 }
+                //shift origin back
+                ((Graphics2D)g).translate(0, -1 * this.getOffset());
             }
             renderCurrentSelected(g);
 
@@ -299,8 +310,14 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
         } else {
 
             renderRequired = false;
-            bf1 = new BufferedImage(this.getWidth(), this.getHeight(), BufferedImage.TYPE_INT_RGB);
-            g3 = bf1.createGraphics();
+            this.bufferedImage = new BufferedImage(this.getWidth(), Math.min(this.getHeight(), this.parentFrame.scrollPane.getViewport().getHeight()*3), BufferedImage.TYPE_INT_RGB);
+            if(this.bufferedImage.getHeight() == this.getHeight()){
+                setOffset(0);
+            } else {
+                setOffset(((JScrollPane)this.getParent().getParent().getParent()).getVerticalScrollBar().getValue() - this.parentFrame.scrollPane.getViewport().getHeight());
+            }
+            
+            g3 = this.bufferedImage.createGraphics();
             prevRange = RangeController.getInstance().getRange();
             prevSize = this.getSize();
             prevDrawMode = this.parentFrame.getTracks().get(0).getDrawMode();
@@ -372,9 +389,10 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
         System.out.println("\tRendering of " + tracks.get(0).getName() + " took " + elapsedTimeSec + " seconds");
          */
 
-        bufferedImage = bf1;
-        g.drawImage(bufferedImage, 0, 0, this);
+        //bufferedImage = bf1;
+        g.drawImage(bufferedImage, 0, this.getOffset(), this);
         renderCurrentSelected(g);
+        //drawMaxYPlotValue(g3);
         this.parentFrame.commandBar.repaint();
 
         return this.getSize();
@@ -382,6 +400,8 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
     }
 
     private void renderCurrentSelected(Graphics g){
+        //temporarily shift the origin
+        ((Graphics2D)g).translate(0, this.getOffset());
         TrackRenderer tr = null;
         for(int i = 0; i < this.trackRenderers.size(); i++){
             tr = this.trackRenderers.get(i);
@@ -413,6 +433,8 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
                 }
             }
         }
+        //shift the origin back
+        ((Graphics2D)g).translate(0, -1 * this.getOffset());
     }
 
     /*
@@ -422,8 +444,16 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
         this.renderRequired = true;
     }
 
+    private void setOffset(int offset){
+        this.posOffset = offset;
+    }
+
+    public int getOffset(){
+        return this.posOffset;
+    }
+
     private void drawMaxYPlotValue(Graphics g){
-        if (this.isYGridOn) {
+        if (this.isYGridOn && this.getOffset() == 0) {
             Graphics2D g2 = (Graphics2D) g;
             Font smallFont = new Font("Sans-Serif", Font.PLAIN, 10);
             g2.setColor(ColourSettings.colorAccent);
@@ -1181,11 +1211,13 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
     //POPUP
     public void tryPopup(Point p){
 
+        Point p_offset = new Point(p.x, p.y - this.getOffset());
+
         //get shape
         int trackNum = 0;
         Map<Record, Shape> map = null;
         for(int i = 0; i < this.trackRenderers.size(); i++){
-            map = this.trackRenderers.get(i).searchPoint(p);
+            map = this.trackRenderers.get(i).searchPoint(p_offset);
             if(map!=null){
                 trackNum = i;
                 break;
@@ -1236,10 +1268,12 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
 
     public void trySelect(Point p){
 
+        Point p_offset = new Point(p.x, p.y - this.getOffset());
+
         int trackNum = 0;
         Map<Record, Shape> map = null;
         for(int i = 0; i < this.trackRenderers.size(); i++){
-            map = this.trackRenderers.get(i).searchPoint(p);
+            map = this.trackRenderers.get(i).searchPoint(p_offset);
             if(map!=null){
                 trackNum = i;
                 break;

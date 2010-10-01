@@ -78,6 +78,8 @@ public class BAMTrackRenderer extends TrackRenderer {
 
     private byte[] refSeq=null;
 
+    private int offset = 0;
+
     // The number of standard deviations from the mean an arclength has to be before it's
     // considered discordant
     private static int DISCORDANT_STD_DEV = 3;
@@ -154,6 +156,9 @@ public class BAMTrackRenderer extends TrackRenderer {
     }
 
     private void renderPackMode(Graphics2D g2, GraphPane gp, Resolution r) {
+
+        //set position offset for scrollpane
+        this.offset = gp.getOffset();
 
         List<Object> data = this.getData();
 
@@ -277,8 +282,8 @@ public class BAMTrackRenderer extends TrackRenderer {
         double rightMostX = gp.transformXPos(range.getTo()) + unitWidth;
 
         boolean drawPoint = false;
-        //y = gp.transformYPos(level)-unitHeight;
-        y = gp.transformYPos(0) - (level + 1)*unitHeight;
+        //y = gp.transformYPos(0) - (level + 1)*unitHeight;
+        y = gp.transformYPos(0) - (level + 1)*unitHeight - offset;
         
         w = gp.getWidth(interval.getLength());
 
@@ -390,7 +395,7 @@ public class BAMTrackRenderer extends TrackRenderer {
                 if (width < 1) width = 1;
                 opRect = new Rectangle2D.Double(
                         opStart,
-                        gp.transformYPos(0)-((level + 1)*unitHeight),
+                        gp.transformYPos(0)-((level + 1)*unitHeight)-offset,
                         Math.max(opWidth, 1),
                         unitHeight);
                 g2.setColor(Color.black);
@@ -401,7 +406,7 @@ public class BAMTrackRenderer extends TrackRenderer {
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 g2.setColor(Color.white);
                 int xCoordinate = (int)gp.transformXPos(sequenceCursor);
-                int yCoordinate = (int)(gp.transformYPos(0)-((level + 1)*unitHeight)) + 1;
+                int yCoordinate = (int)(gp.transformYPos(0)-((level + 1)*unitHeight)) + 1 - offset;
                 if((int)unitWidth/3 < 4 || (int)(unitHeight/2) < 6){
                     yCoordinate = yCoordinate - 1;
                     int lineWidth = Math.max((int)(unitWidth * (2.0/3.0)), 1);
@@ -457,7 +462,7 @@ public class BAMTrackRenderer extends TrackRenderer {
                             double width = gp.getUnitWidth();
                             if (width < 1) width = 1;
                             opRect = new Rectangle2D.Double(xCoordinate,
-                                    gp.transformYPos(0)-((level + 1)*unitHeight),
+                                    gp.transformYPos(0)-((level + 1)*unitHeight) - offset,
                                     unitWidth,
                                     unitHeight);
                             g2.setColor(mismatchColor);
@@ -470,7 +475,7 @@ public class BAMTrackRenderer extends TrackRenderer {
             else if (operator == CigarOperator.N) {
                 // draw nothing
                 opRect = new Rectangle2D.Double(opStart,
-                                                    gp.transformYPos(0)-((level+1)*unitHeight),
+                                                    gp.transformYPos(0)-((level+1)*unitHeight) - offset,
                                                     opWidth,
                                                     unitHeight);
                 g2.setColor(Color.gray);
