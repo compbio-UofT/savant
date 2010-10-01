@@ -88,8 +88,8 @@ public class SavantROFile implements ROFile {
 
         File inFile = new File(filename);
         this.uri = inFile.toURI();
-        System.out.println("Adding RO File: " + filename);
-        System.out.println("URI is: " + this.uri);
+        if (log.isDebugEnabled()) log.debug("Adding RO File: " + filename);
+        if (log.isDebugEnabled()) log.debug("URI is: " + this.uri);
         this.seekStream = new SeekableFileStream(inFile);
         init();
     }
@@ -376,7 +376,7 @@ public class SavantROFile implements ROFile {
     }
 
     public URI getURI() {
-        System.out.println("Getting URI: " + this.uri);
+        if (log.isDebugEnabled()) log.debug("Getting URI: " + this.uri);
         return this.uri;
     }
 }
