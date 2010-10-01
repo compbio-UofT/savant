@@ -567,7 +567,7 @@ public class Frame {
      * Create display menu for commandBar
      */
     private JMenu createDisplayMenu() {
-        JMenu menu = new JideMenu("Display Mode");
+        JMenu menu = new JMenu("Display Mode");//new JideMenu("Display Mode");
 
         //Arc params (if bam file)
         /*if(this.tracks.get(0).getDataType() == FileFormat.INTERVAL_BAM){

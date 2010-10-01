@@ -58,10 +58,13 @@ public class RecentTracksController implements ViewTrackListChangedListener {
 
     public void viewTrackListChangeReceived(ViewTrackListChangedEvent event) {
         ViewTrack t = event.getTracks().get(event.getTracks().size()-1);
-        if (t.getPath() == null) { return; }
-        queue.remove(t.getPath());
+        String path = t.getURI().getPath();
+
+        if (path == null) { return; }
+
+        queue.remove(path);
         resizeQueue(queue, NUM_RECENTS_TO_SAVE);
-        queue.add(0,t.getPath());
+        queue.add(0,path);
         updateMenuList();
         
         try { saveRecents(queue); } catch (IOException ex) {

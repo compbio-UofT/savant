@@ -85,7 +85,6 @@ public class SavantROFile implements ROFile {
      * @throws SavantUnsupportedVersionException if file is formatted in a currently unsupported version
      */
     public SavantROFile(String filename) throws IOException, SavantFileNotFormattedException, SavantUnsupportedVersionException {
-
         File inFile = new File(filename);
         this.uri = inFile.toURI();
         if (log.isDebugEnabled()) log.debug("Adding RO File: " + filename);

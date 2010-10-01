@@ -81,6 +81,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import savant.controller.RecentTracksController;
+import savant.data.sources.FASTAFileDataSource;
 import savant.net.DownloadTreeList;
 import savant.plugin.PluginTool;
 import savant.plugin.XMLTool;
@@ -102,7 +103,6 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         ReferenceChangedListener, TrackListChangedListener {
 
     private static Log LOG = LogFactory.getLog(Savant.class);
-
     public static boolean turnExperimentalFeaturesOff = true;
     private static boolean isDebugging = false;
     private DockingManager auxDockingManager;
@@ -151,7 +151,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         this.panel_toolbar.setVisible(isVisible);
         this.menuItem_viewtoolbar.setSelected(isVisible);
     }
-    
+
     public void addTrackFromFile(String selectedFileName) throws IOException {
 
         if (!ReferenceController.getInstance().isGenomeLoaded()) {
@@ -308,7 +308,6 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
 
             public void dockableFrameTransferred(DockableFrameEvent arg0) {
             }
-
         });
         trackDockingManager.setAllowedDockSides(DockContext.DOCK_SIDE_HORIZONTAL);
 
@@ -319,18 +318,13 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         //dmg.add(auxDockingManager);
         //dmg.add(trackDockingManager);
     }
-
     /** Minimum and maximum dimensions of the browser form */
     static int minimumFormWidth = 500;
     static int minimumFormHeight = 500;
-
     /** The loaded genome */
     //private Genome loadedGenome;
-
-
     /** The log */
     private static JTextArea log;
-
     /**
      * Range Controls
      */
@@ -345,22 +339,16 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
     private MiniRangeSelectionPanel ruler;
     /** Length being displayed */
     private JLabel label_length;
-
     /** Information & Analysis Tabbed Pane (for plugin use) */
     private JTabbedPane auxTabbedPane;
-
     private PluginManager pluginManager;
-
-
     /**
      * Info
      */
     private static BookmarkSheet favoriteSheet;
-
     private RangeController rangeController = RangeController.getInstance();
     private BookmarkController favoriteController = BookmarkController.getInstance();
     private SelectionController selectionController = SelectionController.getInstance();
-
     private static Savant instance = null;
 
     public static synchronized Savant getInstance() {
@@ -430,11 +418,11 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
             }
 
             pluginManager.publishPlugins(locations);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new RuntimeException(e); // TODO: fix this and handle properly
         }
     }
+
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -1109,7 +1097,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
                     JOptionPane.showMessageDialog(this, "Problem downloading file: " + BrowserSettings.url_data);
                     return;
                 }
-                DownloadTreeList d = new DownloadTreeList(this, false, "Download Pre-formatted Data",  file, DirectorySettings.getFormatDirectory());
+                DownloadTreeList d = new DownloadTreeList(this, false, "Download Pre-formatted Data", file, DirectorySettings.getFormatDirectory());
                 d.setVisible(true);
             }
         } catch (JDOMException ex) {
@@ -1283,7 +1271,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
     }//GEN-LAST:event_menuItem_viewtoolbarActionPerformed
 
     private void jMenuItem4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem4ActionPerformed
-         boolean b = this.jMenuItem4.isSelected();
+        boolean b = this.jMenuItem4.isSelected();
         setSpeedAndEfficiencyIndicatorsVisible(b);
     }//GEN-LAST:event_jMenuItem4ActionPerformed
 
@@ -1557,7 +1545,9 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
 
                     GUIPlugin plugin = (GUIPlugin) plugininstance;
 
-                    if (LOG.isDebugEnabled()) LOG.debug("Loading GUI Plugin : " + plugin.getTitle());
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Loading GUI Plugin : " + plugin.getTitle());
+                    }
 
                     final DockableFrame f = DockableFrameFactory.createGUIPluginFrame(plugin.getTitle());
                     JPanel p = (JPanel) f.getContentPane();
@@ -1590,7 +1580,9 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
 
                     PluginTool p = (PluginTool) plugininstance;
 
-                    if (LOG.isDebugEnabled()) LOG.debug("Loading Tool Plugin : " + p.getToolInformation().getName());
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Loading Tool Plugin : " + p.getToolInformation().getName());
+                    }
 
                     p.init(new PluginAdapter());
                     ToolsModule.addTool(p);
@@ -1890,7 +1882,9 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
                     }
                 }
 
-                if (LOG.isDebugEnabled()) LOG.debug("Actually changing reference to " + ref);
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Actually changing reference to " + ref);
+                }
                 ReferenceController.getInstance().setReference(ref);
             }
         });
@@ -2418,10 +2412,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
                 System.out.println("Length not set");
             }
         } else if (n == 1) {
-
             // VANESSA: prompt with other dialog here
-
-
         } else if (n == 0) {
             // create a frame and place the dialog in it
             //JFrame jf = new JFrame();
@@ -2609,8 +2600,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
      */
     private void setGenomeFromFile(String filename) {
         try {
-            Genome g = new Genome(filename);
-            setGenome(filename, g);
+            setGenome(filename, ViewTrack.createGenome(filename));
         } catch (FileNotFoundException ex) {
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -2634,27 +2624,22 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         ReferenceController.getInstance().setGenome(genome);
 
         if (genome.isSequenceSet()) {
-            try {
-                DockableFrame df = DockableFrameFactory.createGenomeFrame(MiscUtils.getFilenameFromPath(filename));
-                JPanel panel = (JPanel) df.getContentPane();
-                List<ViewTrack> tracks = new ArrayList<ViewTrack>();
-                tracks.add(new SequenceViewTrack(genome.getName(), genome));
+            DockableFrame df = DockableFrameFactory.createGenomeFrame(MiscUtils.getFilenameFromPath(filename));
+            JPanel panel = (JPanel) df.getContentPane();
+            List<ViewTrack> tracks = new ArrayList<ViewTrack>();
+            tracks.add(genome.getViewTrack());
 
-                // layered pane
-                panel.setLayout(new BorderLayout());
-                Frame frame = new Frame(tracks, df.getName());
-                JLayeredPane layers = (JLayeredPane) frame.getFrameLandscape();
-                panel.add(layers);
-                frame.setDockableFrame(df);
-                FrameController.getInstance().addFrame(frame, panel);
-                this.getTrackDockingManager().addFrame(df);
+            // layered pane
+            panel.setLayout(new BorderLayout());
+            Frame frame = new Frame(tracks, df.getName());
+            JLayeredPane layers = (JLayeredPane) frame.getFrameLandscape();
+            panel.add(layers);
+            frame.setDockableFrame(df);
+            FrameController.getInstance().addFrame(frame, panel);
+            this.getTrackDockingManager().addFrame(df);
 
-                dockFrameToFrameMap.put(df, frame);
-                this.genomeFrame = df;
-
-            } catch (FileNotFoundException ex) {
-                Logger.getLogger(Savant.class.getName()).log(Level.SEVERE, null, ex);
-            }
+            dockFrameToFrameMap.put(df, frame);
+            this.genomeFrame = df;
         }
 
         showBrowserControls();
@@ -2836,27 +2821,26 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
      * 
      *
     public void updateProgress(int p) {
-        this.progressbar_status.setIndeterminate(false);
-        this.progressbar_status.setValue(p);
+    this.progressbar_status.setIndeterminate(false);
+    this.progressbar_status.setValue(p);
     }
     public void updateProgress(String msg) {
-        this.progressbar_status.setString(msg);
+    this.progressbar_status.setString(msg);
     }
     public void spinProgress() {
-        this.progressbar_status.setIndeterminate(true);
+    this.progressbar_status.setIndeterminate(true);
     }
     public void stopSpinningProgress() {
-        this.progressbar_status.setIndeterminate(false);
+    this.progressbar_status.setIndeterminate(false);
     }
      */
-
     public void updateStatus(String msg) {
         this.label_status.setText(msg);
         this.label_status.revalidate();
     }
 
     private void initStatusBar() {
-        toolbar_bottom.add(Box.createGlue(),2);
+        toolbar_bottom.add(Box.createGlue(), 2);
         memorystatusbar = new MemoryStatusBarItem();
         memorystatusbar.setMaximumSize(new Dimension(100, 30));
         memorystatusbar.setFillColor(Color.lightGray);
@@ -2864,21 +2848,22 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
 
         setSpeedAndEfficiencyIndicatorsVisible(false);
     }
-     
 
     public void bookmarksChangeReceived(BookmarksChangedEvent event) {
-        if (!showBookmarksChangedDialog) { return; }
+        if (!showBookmarksChangedDialog) {
+            return;
+        }
         //Custom button text
         Object[] options = {"OK",
-                            "Don't show again"};
+            "Don't show again"};
         int n = JOptionPane.showOptionDialog(Savant.getInstance(),
-            event.message(),
-            "Bookmarks changed",
-            JOptionPane.YES_NO_CANCEL_OPTION,
-            JOptionPane.INFORMATION_MESSAGE,
-            null,
-            options,
-            options[0]);
+                event.message(),
+                "Bookmarks changed",
+                JOptionPane.YES_NO_CANCEL_OPTION,
+                JOptionPane.INFORMATION_MESSAGE,
+                null,
+                options,
+                options[0]);
 
         if (n == 1) {
             showBookmarksChangedDialog = false;
@@ -2888,7 +2873,9 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
 
     private void updateReferenceNamesList() {
 
-        if (LOG.isDebugEnabled()) LOG.debug("Updating reference names list");
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Updating reference names list");
+        }
 
         String currref = (String) this.referenceDropdown.getSelectedItem();
 
@@ -2897,15 +2884,21 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         referenceDropdown.removeAllItems();
 
         //this.referenceDropdown.addItem("[ GENOMIC (" + genomicrefnames.size() + ") ]");
-        for (String s : genomicrefnames) { this.referenceDropdown.addItem(s); }
+        for (String s : genomicrefnames) {
+            this.referenceDropdown.addItem(s);
+        }
 
         //this.referenceDropdown.addItem("[ NON-GENOMIC (" + nongenomicrefnames.size() + ") ]");
         List<String> nongenomicrefnames = MiscUtils.set2List(ReferenceController.getInstance().getNonGenomicReferenceNames());
         if (nongenomicrefnames.size() > 0) {
-            for (String s : nongenomicrefnames) { this.referenceDropdown.addItem(s); }
+            for (String s : nongenomicrefnames) {
+                this.referenceDropdown.addItem(s);
+            }
         }
 
-        if (currref != null) { this.referenceDropdown.setSelectedItem(currref); }
+        if (currref != null) {
+            this.referenceDropdown.setSelectedItem(currref);
+        }
     }
 
     public void referenceChangeReceived(ReferenceChangedEvent event) {
@@ -2913,7 +2906,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         Genome loadedGenome = ReferenceController.getInstance().getGenome();
         rangeController.setMaxRange(new Range(1, loadedGenome.getLength()));
         rangeSelector.setMaximum(loadedGenome.getLength());
-        rangeController.setRange(1, Math.min(1000,loadedGenome.getLength()));
+        rangeController.setRange(1, Math.min(1000, loadedGenome.getLength()));
     }
 
     public void trackListChangeReceived(TrackListChangedEvent evt) {
@@ -2929,7 +2922,10 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         this.memorystatusbar.setVisible(b);
     }
 
-    public enum LOGMODE { NORMAL, DEBUG };
+    public enum LOGMODE {
+
+        NORMAL, DEBUG
+    };
 
     /**
      * log a message on the given text area
@@ -2937,7 +2933,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
      * @param msg The message to post
      */
     public static void log(JTextArea rtb, String msg) {
-        log(rtb,msg,LOGMODE.DEBUG);
+        log(rtb, msg, LOGMODE.DEBUG);
         //rtb.append(logMessage(msg));
         //rtb.setCaretPosition(rtb.getText().length());
     }
@@ -2957,99 +2953,32 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
      * @param msg The message to post
      */
     public static void log(String msg) {
-        log(msg,LOGMODE.DEBUG);
+        log(msg, LOGMODE.DEBUG);
     }
 
     public static void log(String msg, LOGMODE logmode) {
         /*
         if (logmode == LOGMODE.DEBUG && isDebugging) {
-            log.append(logMessage(msg));
-            log.setCaretPosition(log.getText().length());
+        log.append(logMessage(msg));
+        log.setCaretPosition(log.getText().length());
         } else if (logmode != LOGMODE.DEBUG) {
-            log.append(logMessage(msg));
-            log.setCaretPosition(log.getText().length());
+        log.append(logMessage(msg));
+        log.setCaretPosition(log.getText().length());
         }
          *
          */
     }
 
-    /**
-     * Get whether or not a genome has been loaded.
-     * @return True iff a genome has been loaded
-     *
-    public boolean isGenomeLoaded() {
-        return getGenome() != null;
-    }
-     */
-
-    /*
-    public JButton createDetailsDialogButton() {
-
-        Action a = new AbstractAction("Show Details Dialog") {
-            public void actionPerformed(ActionEvent e) {
-                String details = ("java.lang.Exception: Stack trace\n" +
-                        "\tat java.awt.Component.processMouseEvent(Component.java:5957)\n" +
-                        "\tat javax.swing.JComponent.processMouseEvent(JComponent.java:3284)\n" +
-                        "\tat java.awt.Component.processEvent(Component.java:5722)\n" +
-                        "\tat java.awt.Container.processEvent(Container.java:1966)\n" +
-                        "\tat java.awt.Component.dispatchEventImpl(Component.java:4365)\n" +
-                        "\tat java.awt.Container.dispatchEventImpl(Container.java:2024)\n" +
-                        "\tat java.awt.Component.dispatchEvent(Component.java:4195)\n" +
-                        "\tat java.awt.LightweightDispatcher.retargetMouseEvent(Container.java:4228)\n" +
-                        "\tat java.awt.LightweightDispatcher.processMouseEvent(Container.java:3892)\n" +
-                        "\tat java.awt.LightweightDispatcher.dispatchEvent(Container.java:3822)\n" +
-                        "\tat java.awt.Container.dispatchEventImpl(Container.java:2010)\n" +
-                        "\tat java.awt.Window.dispatchEventImpl(Window.java:2299)\n" +
-                        "\tat java.awt.Component.dispatchEvent(Component.java:4195)\n" +
-                        "\tat java.awt.EventQueue.dispatchEvent(EventQueue.java:599)\n" +
-                        "\tat java.awt.EventDispatchThread.pumpOneEventForFilters(EventDispatchThread.java:273)\n" +
-                        "\tat java.awt.EventDispatchThread.pumpEventsForFilter(EventDispatchThread.java:183)\n" +
-                        "\tat java.awt.EventDispatchThread.pumpEventsForHierarchy(EventDispatchThread.java:173)\n" +
-                        "\tat java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:168)\n" +
-                        "\tat java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:160)\n" +
-                        "\tat java.awt.EventDispatchThread.run(EventDispatchThread.java:121)");
-                JideOptionPane optionPane = new JideOptionPane("Click \"Details\" button to see more information ... ", JOptionPane.ERROR_MESSAGE, JideOptionPane.CLOSE_OPTION);
-                optionPane.setTitle("An exception happened during file transfers - if the title is very long, it will wrap automatically.");
-                optionPane.setDetails(details);
-                JDialog dialog = optionPane.createDialog(Savant.getInstance(), "Warning");
-                dialog.setResizable(true);
-                dialog.pack();
-                dialog.setVisible(true);
-            }
-        };
-        return createButton(a);
-    }
-
-    public JButton createButton(Action a) {
-        JButton b = new JButton() {
-            @Override
-            public Dimension getMaximumSize() {
-                int width = Short.MAX_VALUE;
-                int height = super.getMaximumSize().height;
-                return new Dimension(width, height);
-            }
-        };
-        // setting the following client property informs the button to show
-        // the action text as it's name. The default is to not show the
-        // action text.
-        b.putClientProperty("displayActionText", Boolean.TRUE);
-        b.setAction(a);
-        // b.setAlignmentX(JButton.CENTER_ALIGNMENT);
-        return b;
-    }
-     * 
-     */
-    
     public void propertyChange(PropertyChangeEvent propertyChangeEvent) {
 
         if (propertyChangeEvent.getPropertyName().equals("success")) {
-            if ((Boolean)propertyChangeEvent.getNewValue() == true) {
+            if ((Boolean) propertyChangeEvent.getNewValue() == true) {
                 if (openAfterFormat) {
                     String outfilepath = dff.getOutputFilePath();
                     if (dff.getFileType() == FileType.SEQUENCE_FASTA) {
                         this.setGenomeFromFile(outfilepath);
                     } else {
-                        try{
+                        try {
                             addTrackFromFile(outfilepath);
                         } catch (Exception e) {
                             promptUserToFormatFile(outfilepath, e.getMessage());
@@ -3057,8 +2986,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
                     }
                 }
                 JOptionPane.showMessageDialog(this, "Format successful", "Format File", JOptionPane.INFORMATION_MESSAGE);
-            }
-            else {
+            } else {
 
                 String details = (dff.getMessage());
                 JideOptionPane optionPane = new JideOptionPane("Click \"Details\" button to see more information ... \n\n"
@@ -3066,7 +2994,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
                         + "along with the file you are trying to format (if it is under 10MB in size). The Savant Team will \n"
                         + "be happy to help troubleshoot the issue with you.", JOptionPane.ERROR_MESSAGE, JideOptionPane.CLOSE_OPTION);
                 optionPane.setTitle("A problem was encountered while formatting.");
-                JDialog dialog = optionPane.createDialog(this,"Format unsuccessful");
+                JDialog dialog = optionPane.createDialog(this, "Format unsuccessful");
                 dialog.setResizable(true);
                 optionPane.setDetails(details);
                 //optionPane.setDetailsVisible(true);
@@ -3078,9 +3006,9 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
                 String extraMessage = dff.getMessage();
                 String userMessage;
                 if (extraMessage != null) {
-                    userMessage = message + extraMessage;
+                userMessage = message + extraMessage;
                 } else {
-                    userMessage = message;
+                userMessage = message;
                 }
                 JOptionPane.showMessageDialog(this, userMessage, "Format File", JOptionPane.ERROR_MESSAGE);
                  * 
@@ -3101,7 +3029,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         }
     }
 
-    public String[] getSelectedTracks(boolean multiple, String title){
+    public String[] getSelectedTracks(boolean multiple, String title) {
         TrackChooser tc = new TrackChooser(Savant.getInstance(), multiple, title);
         tc.setVisible(true);
         String[] tracks = tc.getSelectedTracks();
@@ -3130,12 +3058,12 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         }
     }
 
-    private void displayAuxPanels(){
+    private void displayAuxPanels() {
         setFrameVisibility("Bookmarks", true, this.getAuxDockingManager());
         setFrameVisibility("Table View", true, this.getAuxDockingManager());
 
         List<String> names = this.getAuxDockingManager().getAllFrameNames();
-        for(int i = 0; i < names.size(); i++){
+        for (int i = 0; i < names.size(); i++) {
             this.getAuxDockingManager().toggleAutohideState(names.get(i));
         }
 
@@ -3146,7 +3074,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         return this.selectionController;
     }
 
-    private void initStartPage(){
+    private void initStartPage() {
 
         try {
             sp = new StartPage();

@@ -31,6 +31,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import savant.controller.ViewTrackController;
+import savant.data.sources.FASTAFileDataSource;
+import savant.data.types.SequenceRecord;
+import savant.file.SavantROFile;
 
 import savant.settings.ColourSettings;
 
@@ -40,21 +43,17 @@ import savant.settings.ColourSettings;
  */
 public class SequenceViewTrack extends ViewTrack {
 
-    Genome genome;
-    String path;
+    SavantROFile dFile;
+    //Genome genome;
+    //String path;
 
-    public SequenceViewTrack(String name, Genome g) throws FileNotFoundException
+    public SequenceViewTrack(String name, FASTAFileDataSource dataTrack) throws FileNotFoundException
     {
-        super(name, FileFormat.SEQUENCE_FASTA, null);
-        setGenome(g);
-        path = g.getFilename();
+        super(name, FileFormat.SEQUENCE_FASTA, dataTrack);
+        //setGenome(g);
+        //path = g.getFilename();
         setColorScheme(getDefaultColorScheme());
         this.notifyViewTrackControllerOfCreation();
-    }
-
-    @Override
-    public String getPath() {
-        return path;
     }
 
     private ColorScheme getDefaultColorScheme()
@@ -77,8 +76,8 @@ public class SequenceViewTrack extends ViewTrack {
         setColorScheme(getDefaultColorScheme());
     }
 
-    private void setGenome(Genome genome) { this.genome = genome; }
-    private Genome getGenome() { return this.genome; }
+    //private void setGenome(Genome genome) { this.genome = genome; }
+    //private Genome getGenome() { return this.genome; }
 
 
     /*
@@ -90,13 +89,13 @@ public class SequenceViewTrack extends ViewTrack {
 
         String subsequence = "";
         try {
-            subsequence = getGenome().getSequence(reference, range);
+            List result = this.getDataSource().getRecords(reference, range, resolution);
+            if (result == null || result.isEmpty()) { return null; }
+            subsequence = ((SequenceRecord) this.getDataSource().getRecords(reference, range, resolution).get(0)).getSequence();
         } catch (IOException ex) {
             Savant.log("Error: getting sequence data");
         }
 
-        if(subsequence == null) { return null; }
-        
         List<Object> result = new ArrayList<Object>();
         result.add(subsequence);
 
@@ -126,10 +125,10 @@ public class SequenceViewTrack extends ViewTrack {
         }
 
         for (TrackRenderer renderer: getTrackRenderers()) {
-            boolean contains = (this.getGenome().getReferenceNames().contains(reference) || this.getGenome().getReferenceNames().contains(MiscUtils.homogenizeSequence(reference)));
+            boolean contains = (this.getDataSource().getReferenceNames().contains(reference) || this.getDataSource().getReferenceNames().contains(MiscUtils.homogenizeSequence(reference)));
             renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.RESOLUTION, r);
             renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.AXIS_RANGE, AxisRange.initWithRanges(range, getDefaultYRange()));
-            renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.REFERENCE_EXISTS, this.getGenome().getReferenceNames().contains(reference));
+            renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.REFERENCE_EXISTS, this.getDataSource().getReferenceNames().contains(reference));
             renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.SELECTION_ALLOWED, false);
 
             if (r == Resolution.VERY_HIGH)

@@ -158,8 +158,9 @@ public class SessionController implements
             String genomeName = null;
             // genome has sequence
             if (genomeFile != null) {
-                genome = new Genome(genomeFile);
-                genomeName = genome.getFilename();
+                System.out.println("Session creating genome");
+                genome = ViewTrack.createGenome(filename);
+                genomeName = genome.getTrack().getURI().toString();
                 // genome does not have sequence
             } else {
                 String name = gel.getChild("nosequence").getText();
@@ -336,11 +337,13 @@ public class SessionController implements
                 } else {
                     track = new Element("track");
                 }
-                System.out.println("Filename: " + t.getPath());
+
+                String path = t.getURI().getPath();
+                System.out.println("Filename: " + path);
 
                 // BAM Coverage tracks have null paths
-                if (t.getPath() != null) {
-                    track.addContent(t.getPath());
+                if (path != null) {
+                    track.addContent(path);
                     tracks.addContent(track);
                 }
             }

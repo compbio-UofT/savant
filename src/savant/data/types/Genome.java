@@ -30,6 +30,8 @@ import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import savant.view.swing.ViewTrack;
+import savant.view.swing.sequence.SequenceViewTrack;
 
 /**
  *
@@ -38,23 +40,31 @@ import java.util.Set;
 public class Genome
 {
     private String name;
-    private String filename; // set, if any
+    //private String filename; // set, if any
     
     private boolean isAssociatedWithTrack;
 
     // if associated with track
-    private FASTAFileDataSource sequenceTrack;
+    private SequenceViewTrack viewTrack;
+    private FASTAFileDataSource dataSource;
 
     // if not associated with track
     private Map<String,Long> referenceMap;
 
-    public Genome(String filename) throws URISyntaxException, IOException, SavantFileNotFormattedException, SavantUnsupportedVersionException {
+    public Genome(String name, SequenceViewTrack t) throws URISyntaxException, IOException, SavantFileNotFormattedException, SavantUnsupportedVersionException {
         isAssociatedWithTrack = true;
-        this.filename = filename;
+        //this.filename = filename;
+
+        /*
         int lastSlashIndex = filename.lastIndexOf(System.getProperty("file.separator"));
         setName( filename.substring(lastSlashIndex+1, filename.length()));
-        sequenceTrack = new FASTAFileDataSource(filename);
-        setSequenceTrack(sequenceTrack);
+         *
+         */
+
+        setName(name);
+        viewTrack = t;
+        dataSource = (FASTAFileDataSource) t.getDataSource();//new FASTAFileDataSource(filename);
+        setSequenceTrack(dataSource);
         // get the first reference (in alphanumeric sorted order)
         //String refname = MiscUtils.set2List(sequenceTrack.getReferenceNames()).get(0);
         //setReferenceName(refname);
@@ -81,14 +91,14 @@ public class Genome
 
     public Set<String> getReferenceNames() {
         if (this.isAssociatedWithTrack) {
-            return this.sequenceTrack.getReferenceNames();
+            return this.dataSource.getReferenceNames();
         } else {
             return this.referenceMap.keySet();
         }
     }
 
     private void setSequenceTrack(FASTAFileDataSource sequenceTrack) {
-        this.sequenceTrack = sequenceTrack;
+        this.dataSource = sequenceTrack;
     }
 
     public void setName(String name)
@@ -101,7 +111,7 @@ public class Genome
     public String getSequence(String reference, Range range) throws IOException
     {
         if (!isSequenceSet()) { return null; }
-        else { return sequenceTrack.getRecords(reference, range, Resolution.VERY_HIGH).get(0).getSequence(); }
+        else { return dataSource.getRecords(reference, range, Resolution.VERY_HIGH).get(0).getSequence(); }
     }
 
     public int getLength()
@@ -112,18 +122,22 @@ public class Genome
     public int getLength(String reference)
     {
         if (this.isAssociatedWithTrack) {
-            return this.sequenceTrack.getLength(reference);
+            return this.dataSource.getLength(reference);
         } else {
             //TODO: loss of precision here?
             return this.referenceMap.get(reference).intValue();
         }
     }
 
-    public FASTAFileDataSource getTrack() { return this.sequenceTrack; }
+    public FASTAFileDataSource getTrack() { return this.dataSource; }
 
     public boolean isSequenceSet()
     {
-        return (sequenceTrack != null);
+        return (dataSource != null);
+    }
+
+    public ViewTrack getViewTrack() {
+        return this.viewTrack;
     }
 
     @Override
@@ -132,7 +146,11 @@ public class Genome
         return getName();
     }
 
+    /*
     public String getFilename() {
+        System.out.println("Getting filename");
         return this.filename;
     }
+     * 
+     */
 }

@@ -105,7 +105,9 @@ public class FASTAFileDataSource implements DataSource<SequenceRecord> {
         return this.dFile.getReferenceMap();
     }
 
+    @Override
     public URI getURI() {
+        //System.out.println("Getting URI for FASTA file: " + dFile.getURI());
         return dFile.getURI();
     }
 }
