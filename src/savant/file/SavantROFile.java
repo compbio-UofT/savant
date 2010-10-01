@@ -85,8 +85,11 @@ public class SavantROFile implements ROFile {
      * @throws SavantUnsupportedVersionException if file is formatted in a currently unsupported version
      */
     public SavantROFile(String filename) throws IOException, SavantFileNotFormattedException, SavantUnsupportedVersionException {
+
         File inFile = new File(filename);
         this.uri = inFile.toURI();
+        System.out.println("Adding RO File: " + filename);
+        System.out.println("URI is: " + this.uri);
         this.seekStream = new SeekableFileStream(inFile);
         init();
     }
@@ -134,6 +137,7 @@ public class SavantROFile implements ROFile {
     public SavantROFile(URI uri, FileType ft) throws IOException, SavantFileNotFormattedException, SavantUnsupportedVersionException {
         this(uri);
         if (!fileTypeHeader.fileType.equals(ft)) {
+            if (fileTypeHeader.fileType == FileType.INTERVAL_GFF && ft == FileType.INTERVAL_GENERIC) { return; }
             throw new IOException("Wrong file type");
         }
     }
@@ -371,5 +375,8 @@ public class SavantROFile implements ROFile {
         return fileTypeHeader.fileType;
     }
 
-    public URI getURI() { return this.uri; }
+    public URI getURI() {
+        System.out.println("Getting URI: " + this.uri);
+        return this.uri;
+    }
 }
