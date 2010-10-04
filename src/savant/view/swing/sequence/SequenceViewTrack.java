@@ -16,6 +16,8 @@
 
 package savant.view.swing.sequence;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import savant.data.types.Genome;
 import savant.file.FileFormat;
 import savant.util.*;
@@ -42,6 +44,8 @@ import savant.settings.ColourSettings;
  * @author mfiume
  */
 public class SequenceViewTrack extends ViewTrack {
+
+    private static Log log = LogFactory.getLog(SequenceViewTrack.class);
 
     SavantROFile dFile;
     //Genome genome;
@@ -93,7 +97,7 @@ public class SequenceViewTrack extends ViewTrack {
             if (result == null || result.isEmpty()) { return null; }
             subsequence = ((SequenceRecord) this.getDataSource().getRecords(reference, range, resolution).get(0)).getSequence();
         } catch (IOException ex) {
-            Savant.log("Error: getting sequence data");
+            log.error("Error: getting sequence data");
         }
 
         List<Object> result = new ArrayList<Object>();
