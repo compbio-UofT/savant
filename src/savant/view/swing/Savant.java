@@ -2628,7 +2628,6 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
             JPanel panel = (JPanel) df.getContentPane();
             List<ViewTrack> tracks = new ArrayList<ViewTrack>();
             tracks.add(genome.getViewTrack());
-
             // layered pane
             panel.setLayout(new BorderLayout());
             Frame frame = new Frame(tracks, df.getName());
@@ -2658,7 +2657,8 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
             return;
         }
 
-        rangeController.setRange(50, 550);
+        // This line of code hangs Savant after formatting a genome
+        //rangeController.setRange(50, 550);
         rangeSelector.setActive(true);
         ruler.setActive(true);
 
@@ -2907,6 +2907,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         rangeController.setMaxRange(new Range(1, loadedGenome.getLength()));
         rangeSelector.setMaximum(loadedGenome.getLength());
         rangeController.setRange(1, Math.min(1000, loadedGenome.getLength()));
+        LOG.debug("referenceChangeReceived has set the range to 1-1000 (or so)");
     }
 
     public void trackListChangeReceived(TrackListChangedEvent evt) {
