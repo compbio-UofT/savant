@@ -294,8 +294,7 @@ public class DataFormatter implements FormatProgressListener {
         // read the refname -> index position map
         Map<String,Long[]> refMap = SavantFileUtils.readReferenceMap(dFile);
 
-        //System.out.println("\n=== DONE PARSING REF<->DATA MAP ===");
-        //System.out.println();
+        if (log.isDebugEnabled()) log.debug("\n=== DONE PARSING REF<->DATA MAP ===\n\n");
 
         // change the offset
         dFile.setHeaderOffset(dFile.getFilePointer());
@@ -311,21 +310,21 @@ public class DataFormatter implements FormatProgressListener {
 
         int treenum = 0;
 
-        //System.out.println("Number of trees to get: " + refMap.keySet().size());
+        if (log.isDebugEnabled()) log.debug("Number of trees to get: " + refMap.keySet().size());
 
         // keep track of the maximum end of tree position
         // (IMPORTANT NOTE: order of elements returned by keySet() is not gauranteed!!!)
         long maxend = Long.MIN_VALUE;
         for (String refname : refMap.keySet()) {
             Long[] v = refMap.get(refname);
-            //System.out.println("========== Reading tree for reference " + refname + " ==========");
+            if (log.isDebugEnabled()) log.debug("========== Reading tree for reference " + refname + " ==========");
             dFile.seek(v[0] + dFile.getHeaderOffset());
 
-            //System.out.println("Starting tree at: " + dFile.getFilePointer());
+            if (log.isDebugEnabled()) log.debug("Starting tree at: " + dFile.getFilePointer());
 
             IntervalSearchTree t = readIntervalBST(dFile);
 
-            //System.out.println("Finished tree at: " + dFile.getFilePointer());
+            if (log.isDebugEnabled()) log.debug("Finished tree at: " + dFile.getFilePointer());
 
             maxend = Math.max(maxend,dFile.getFilePointer());
 
@@ -333,12 +332,11 @@ public class DataFormatter implements FormatProgressListener {
             treenum++;
         }
 
-        /*
-        System.out.println("Read " + treenum + " trees (i.e. indicies)");
-        System.out.println("\n=== DONE PARSING REF<->INDEX MAP ===");
-        System.out.println("Changing offset from " + dFile.getHeaderOffset() + " to " + (dFile.getFilePointer()+dFile.getHeaderOffset()));
-        System.out.println();
-         */
+        if (log.isDebugEnabled()) {
+            log.debug("Read " + treenum + " trees (i.e. indicies)");
+            log.debug("\n=== DONE PARSING REF<->INDEX MAP ===");
+            log.debug("Changing offset from " + dFile.getHeaderOffset() + " to " + (dFile.getFilePointer()+dFile.getHeaderOffset()) + "\n");
+        }
 
         // set the header offset appropriately
         dFile.setHeaderOffset(maxend);
@@ -377,7 +375,7 @@ public class DataFormatter implements FormatProgressListener {
         // keep reading nodes until done
         while(true) {
 
-            //System.out.println("Reading node at byte position: " + file.getFilePointer());
+            if (log.isDebugEnabled()) log.debug("Reading node at byte position: " + file.getFilePointer());
 
             // read in the node fields
             List<Object> r1;
@@ -390,36 +388,36 @@ public class DataFormatter implements FormatProgressListener {
             // create an IntervalTreeNode
             IntervalTreeNode n = new IntervalTreeNode((Range) r1.get(1), (Integer) r1.get(0));
             if (n.index == -1) {
-                //System.out.println("Tree contains " + i + " nodes");
+                if (log.isDebugEnabled()) log.debug("Tree contains " + i + " nodes");
                 break;
             }   // the "null" terminator node has -1 as its index
 
-            /*
-            System.out.println("Node params read: ");
-            for (int j = 0; j < 6; j++) {
-                System.out.println(j + ". " + r1.get(j));
+            if (log.isDebugEnabled()) {
+                log.debug("Node params read: ");
+                for (int j = 0; j < 6; j++) {
+                    log.debug(j + ". " + r1.get(j));
+                }
             }
-             */
 
             n.startByte = (Long) r1.get(2);
             n.size = (Integer) r1.get(3);
             n.subtreeSize = (Integer) r1.get(4);
             nodeIndex2ParentIndices.put(n.index, (Integer) r1.get(5));
 
-            //System.out.println("Node:\tindex: " + n.index + "\trange: " + n.range + "\tsize: " + n.size + "\tsubsize: " + n.subtreeSize + "\tbyte: " + n.startByte);
+            if (log.isDebugEnabled()) log.debug("Node:\tindex: " + n.index + "\trange: " + n.range + "\tsize: " + n.size + "\tsubsize: " + n.subtreeSize + "\tbyte: " + n.startByte);
 
 
             // add this node to the list
             nodes.add(n);
 
             i++;
-            //System.out.println((i) + ". Read node with range " + n.range + " and index " + n.index);
+            if (log.isDebugEnabled()) log.debug((i) + ". Read node with range " + n.range + " and index " + n.index);
         }
 
         // sort node list by index
         Collections.sort(nodes);
 
-        //System.out.println("Finished parsing IBST");
+        if (log.isDebugEnabled()) log.debug("Finished parsing IBST");
 
         // make a map of node to child indicies
        HashMap<Integer,List<Integer>> nodeIndex2ChildIndices = new HashMap<Integer,List<Integer>>();
@@ -441,14 +439,14 @@ public class DataFormatter implements FormatProgressListener {
            IntervalTreeNode n = nodes.get(index);
            List<Integer> cis = nodeIndex2ChildIndices.get(index);
 
-           //System.out.print("Node " + n.index + " [ ");
+           if (log.isDebugEnabled()) log.debug("Node " + n.index + " [ ");
 
            for (Integer childIndex : cis) {
-               //System.out.print(childIndex + " ");
+               if (log.isDebugEnabled()) log.debug(childIndex + " ");
                 n.children.add(nodes.get(childIndex));
            }
 
-           //System.out.println("]");
+           if (log.isDebugEnabled()) log.debug("]");
        }
 
        return new IntervalSearchTree(nodes);

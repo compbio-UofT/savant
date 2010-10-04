@@ -17,10 +17,15 @@
 package savant.format;
 
 import java.io.*;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import savant.file.FileType;
 import savant.util.MiscUtils;
 
 public class FastaFormatter extends SavantFileFormatter{
+
+    private static Log log = LogFactory.getLog(FastaFormatter.class);
 
     public static final int RECORDS_PER_INTERRUPT_CHECK = 1000;
 
@@ -57,9 +62,14 @@ public class FastaFormatter extends SavantFileFormatter{
                         String refname = MiscUtils.removeChar(strLine, '>');
                         refname = refname.replace(' ', '_');
                         outfile = this.getFileForReference(refname);
+                        if (log.isDebugEnabled()) {
+                            log.debug("New reference found: " + refname);
+                        }
+
                     } else {
 
                         if (outfile == null) {
+                            log.error("No header line found");
                             throw new SavantFileFormattingException("no FASTA line found.");
                         }
 

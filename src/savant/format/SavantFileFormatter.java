@@ -137,9 +137,11 @@ public class SavantFileFormatter {
         referenceName2FileMap = new HashMap<String,DataOutputStream>();
         referenceName2FilenameMap = new HashMap<String,String>();
 
-        //System.out.println("Savant Formatter Created");
-        //System.out.println("input file: " + inFilePath);
-        //System.out.println("output file: " + outFilePath);
+        if (log.isDebugEnabled()) {
+            log.debug("Savant Formatter Created");
+            log.debug("input file: " + inFilePath);
+            log.debug("output file: " + outFilePath);
+        }
     }
 
 
@@ -311,18 +313,18 @@ public class SavantFileFormatter {
         // ONLY INTERVAL FILES CURRENTLY HAVE 4
 
         // 1. WRITE FILE TYPE HEADER (MAGIC NUMBER AND VERSION)
-        //System.out.println("Writing file type header");
+        if (log.isDebugEnabled()) log.debug("Writing file type header");
         FileTypeHeader fileTypeHeader = new FileTypeHeader(this.fileType, SavantROFile.CURRENT_FILE_VERSION);
         SavantFileFormatterUtils.writeFileTypeHeader(outFileStream,fileTypeHeader);
         outFileStream.flush();
 
         // 2. WRITE FIELD HEADER
-        //System.out.println("Writing fields header");
+        if (log.isDebugEnabled()) log.debug("Writing fields header");
         SavantFileFormatterUtils.writeFieldsHeader(outFileStream, fields);
         outFileStream.flush();
 
         // 3. WRITE REFERENCE MAP
-        //System.out.println("Writing reference<->data map");
+        if (log.isDebugEnabled()) log.debug("Writing reference<->data map");
         writeReferenceMap(outFileStream,refnames,refToDataFileNameMap);
         outFileStream.flush();
     }
@@ -330,7 +332,7 @@ public class SavantFileFormatter {
     protected void writeAdditionallIndices(List<String> refnames, Map<String,String> refToIndexFileNameMap) throws FileNotFoundException, IOException {
         // 4. WRITE INDEX
         if (refToIndexFileNameMap != null) {
-            //System.out.println("Writing reference<->index map");
+            if (log.isDebugEnabled()) log.debug("Writing reference<->index map");
             writeReferenceMap(outFileStream,refnames,refToIndexFileNameMap);
             List<String> indexfiles = this.getMapValuesInOrder(refnames, refToIndexFileNameMap);
             concatenateFiles(outFileStream,indexfiles);
@@ -440,7 +442,7 @@ public class SavantFileFormatter {
             // write the length of the data
             f.writeLong(reffile.length());
 
-            //System.out.println("Ref: " + refname + " Fn: " + fn + " Offset: " + refOffset + " Length: " + reffile.length());
+            if (log.isDebugEnabled()) log.debug("Ref: " + refname + " Fn: " + fn + " Offset: " + refOffset + " Length: " + reffile.length());
 
             // increment the offset for next iteration
             refOffset += reffile.length();
@@ -449,7 +451,7 @@ public class SavantFileFormatter {
 
 
     private void concatenateFiles(DataOutputStream f, List<String> filenames) throws FileNotFoundException, IOException {
-        //System.out.println("Concatenating files...");
+        if (log.isDebugEnabled()) log.debug("Concatenating files...");
 
         // 10MB buffer
         byte[] buffer = new byte[1024*10000];
@@ -482,10 +484,11 @@ public class SavantFileFormatter {
             //}
              */
 
-            //System.out.print("COPY: [ FILE:\t" + fn + "] (" + currreference + " of " + numreferences + ")\t");
-            //System.out.print("[ bytes/copied: " + tmp.length() + " / ");
-
-            //System.out.println("Copying " + fn);
+            if (log.isDebugEnabled()) {
+                log.debug("COPY: [ FILE:\t" + fn + "] (" + currreference + " of " + numreferences + ")\t");
+                log.debug("[ bytes/copied: " + tmp.length() + " / ");
+                log.debug("Copying " + fn);
+            }
 
             tmp = null;
 
@@ -495,18 +498,18 @@ public class SavantFileFormatter {
 
             while((bytesRead = is.read(buffer)) > 0) {
                 br += bytesRead;
-                //System.out.println("Read " + bytesRead + " bytes");
+                if (log.isDebugEnabled()) log.debug("Read " + bytesRead + " bytes");
                 f.write(buffer, 0, bytesRead);
             }
 
-            //System.out.println(br + " ]");
+            if (log.isDebugEnabled()) log.debug(br + " ]");
 
             is.close();
 
             //deleteFile(fn);
         }
 
-        //System.out.println(b + " bytes in file after concatenation");
+        if (log.isDebugEnabled()) log.debug(b + " bytes in file after concatenation");
 
         f.flush();
         //f.close();
