@@ -176,7 +176,7 @@ public class SavantROFile implements ROFile {
         this.headerOffset = getFilePointer();
     }
 
-    public long seek(String reference, long pos) throws IOException {
+    public synchronized long seek(String reference, long pos) throws IOException {
 
         //FIXME!!!
 
@@ -212,7 +212,7 @@ public class SavantROFile implements ROFile {
         }
     }
 
-    public void seek(long pos) throws IOException {
+    public synchronized void seek(long pos) throws IOException {
         seekStream.seek(pos);
         filePointer = pos;
         if (log.isDebugEnabled()) {
@@ -221,19 +221,19 @@ public class SavantROFile implements ROFile {
         }
     }
 
-    public void close() throws IOException {
+    public synchronized void close() throws IOException {
         seekStream.close();
     }
 
-    public long getFilePointer() throws IOException {
+    public synchronized long getFilePointer() throws IOException {
         return filePointer;
     }
 
-    public long length() throws IOException {
+    public synchronized long length() throws IOException {
         return seekStream.length();
     }
 
-    public int read() throws IOException {
+    public synchronized int read() throws IOException {
         byte[] buf = new byte[1];
         int bytesRead = seekStream.read(buf,0,1);
         if (bytesRead  != -1) {
@@ -245,24 +245,24 @@ public class SavantROFile implements ROFile {
             return -1;
     }
 
-    public int read(byte[] b) throws IOException {
+    public synchronized int read(byte[] b) throws IOException {
         int result = seekStream.read(b, 0, b.length);
         if (result != -1) filePointer += result;
         return result;
     }
 
-    public int read(byte[] b, int off, int len) throws IOException {
+    public synchronized int read(byte[] b, int off, int len) throws IOException {
         int result = seekStream.read(b, off, len);
         if (result != -1) filePointer += result;
         return result;
     }
 
-    public byte readByte() throws IOException {
+    public synchronized byte readByte() throws IOException {
         byte result = (byte)(read()&0xFF);
         return result;
     }
 
-    public double readDouble() throws IOException {
+    public synchronized double readDouble() throws IOException {
         byte[] bytes = new byte[8];
         int result = read(bytes);
         if (result != 8) {
@@ -274,7 +274,7 @@ public class SavantROFile implements ROFile {
         return Double.longBitsToDouble(longBits);
     }
 
-    public float readFloat() throws IOException {
+    public synchronized float readFloat() throws IOException {
         byte[] bytes = new byte[4];
         int result = read(bytes);
         if (result != 4) {
@@ -285,7 +285,7 @@ public class SavantROFile implements ROFile {
         return Float.intBitsToFloat(intBits);
     }
 
-    public int readInt() throws IOException {
+    public synchronized int readInt() throws IOException {
         byte[] bytes = new byte[4];
         int result = read(bytes);
         if (result != 4) {
@@ -296,7 +296,7 @@ public class SavantROFile implements ROFile {
         return intBits;
     }
 
-    public String readLine() throws IOException {
+    public synchronized String readLine() throws IOException {
 
         byte[] readBytes = new byte[2];
         StringBuilder sb = new StringBuilder();
@@ -317,7 +317,7 @@ public class SavantROFile implements ROFile {
         }
     }
 
-    public long readLong() throws IOException {
+    public synchronized long readLong() throws IOException {
         byte[] bytes = new byte[8];
         int result = read(bytes);
         if (result != 8) {
