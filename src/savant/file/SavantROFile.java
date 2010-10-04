@@ -85,6 +85,7 @@ public class SavantROFile implements ROFile {
      * @throws SavantUnsupportedVersionException if file is formatted in a currently unsupported version
      */
     public SavantROFile(String filename) throws IOException, SavantFileNotFormattedException, SavantUnsupportedVersionException {
+
         File inFile = new File(filename);
         this.uri = inFile.toURI();
         if (log.isDebugEnabled()) log.debug("Adding RO File: " + filename);
@@ -320,11 +321,11 @@ public class SavantROFile implements ROFile {
         byte[] bytes = new byte[8];
         int result = read(bytes);
         if (result != 8) {
-            log.error("Could not read 8 bytes for a double");
+            log.error("Could not read 8 bytes for a long");
             return 0;
         }
-        long longBits = (bytes[0]&0xFF)<<56 | (bytes[1]&0xFF)<<48 | (bytes[2]&0xFF)<<40 | (bytes[3]&0xFF)<<32 |
-                (bytes[4]&0xFF)<<24 | (bytes[5]&0xFF)<<16 | (bytes[6]&0xFF)<<8 | bytes[7]&0xFF;
+        long longBits = ((long)bytes[0]&0xFF)<<56 | ((long)bytes[1]&0xFF)<<48 | ((long)bytes[2]&0xFF)<<40 | ((long)bytes[3]&0xFF)<<32 |
+                ((long)bytes[4]&0xFF)<<24 | ((long)bytes[5]&0xFF)<<16 | ((long)bytes[6]&0xFF)<<8 | ((long)bytes[7]&0xFF);
         return longBits;
     }
 
