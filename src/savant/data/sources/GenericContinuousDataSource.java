@@ -85,7 +85,7 @@ public class GenericContinuousDataSource implements DataSource<GenericContinuous
 
             long seekpos = (i-1)*recordSize;
             if (seekpos < 0) continue; // going back one bin may not be possible if we're near the start
-            long bytepos = savantFile.seek(reference, (i-1)*recordSize);
+            long bytepos = savantFile.seek(reference, seekpos);
 
             float sum = 0.0f;
             int j;
