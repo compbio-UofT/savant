@@ -58,7 +58,7 @@ public class PopupPanel extends JPanel {
         PopupPanel p = null;
         switch(ff){
             case POINT_GENERIC:
-                p = new PointGenericPopup((PointRecord) rec);
+                p = new PointGenericPopup((GenericPointRecord) rec);
                 break;
             case INTERVAL_BAM:
                 if(!mode.getName().equals("SNP")){

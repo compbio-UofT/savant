@@ -17,7 +17,7 @@
 package savant.selection;
 
 import javax.swing.JLabel;
-import savant.data.types.PointRecord;
+import savant.data.types.GenericPointRecord;
 
 /**
  *
@@ -25,9 +25,9 @@ import savant.data.types.PointRecord;
  */
 public class PointGenericPopup extends PopupPanel {
 
-    private PointRecord rec;
+    private GenericPointRecord rec;
 
-    public PointGenericPopup(PointRecord rec){
+    public PointGenericPopup(GenericPointRecord rec){
         this.rec = rec;
     }
 
@@ -36,15 +36,15 @@ public class PointGenericPopup extends PopupPanel {
         ref = rec.getReference();
         start = rec.getPoint().getPosition();
         end = start;
-        name = rec.getPoint().toString();
+        name = rec.getDescription();
     }
 
     @Override
     protected void initInfo() {
+        String readName = "Description: " + name;
+        this.add(new JLabel(readName));
 
         String readStart = "Position: " + start;
         this.add(new JLabel(readStart));
- 
     }
-
 }
