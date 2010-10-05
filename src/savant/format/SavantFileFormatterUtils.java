@@ -36,6 +36,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
 
 /**
@@ -636,23 +637,27 @@ public class SavantFileFormatterUtils {
                 }
             } catch (IndexOutOfBoundsException e) {}
 
-            StringTokenizer st = new StringTokenizer(line,"\t");
-            for (int i = 0; i < columnNumber; i++) {
-                st.nextToken();
-            }
-            
-            String t = st.nextToken();
+            try {
+                StringTokenizer st = new StringTokenizer(line,"\t");
+                for (int i = 0; i < columnNumber; i++) {
+                    st.nextToken();
+                }
 
-            if (seqnameToFileNameMap.containsKey(t)) {
-                bw = seqnameToBufferedWriterMap.get(t);
-            } else {
-                String fn = filePath + ".split_" + t;
-                bw = new BufferedWriter(new FileWriter(fn));
-                seqnameToFileNameMap.put(t,fn);
-                seqnameToBufferedWriterMap.put(t,bw);
-            }
+                String t = st.nextToken();
 
-            bw.write(line + "\n");
+                if (seqnameToFileNameMap.containsKey(t)) {
+                    bw = seqnameToBufferedWriterMap.get(t);
+                } else {
+                    String fn = filePath + ".split_" + t;
+                    bw = new BufferedWriter(new FileWriter(fn));
+                    seqnameToFileNameMap.put(t,fn);
+                    seqnameToBufferedWriterMap.put(t,bw);
+                }
+
+                bw.write(line + "\n");
+            } catch (NoSuchElementException nseEx) {
+                // Blank lines at the end of the file.  No harm done.
+            }
         }
         
         br.close();
