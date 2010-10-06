@@ -408,6 +408,15 @@
             </MenuItem>
             <MenuItem class="javax.swing.JSeparator" name="jSeparator1">
             </MenuItem>
+            <MenuItem class="javax.swing.JCheckBoxMenuItem" name="menuitem_startpage">
+              <Properties>
+                <Property name="selected" type="boolean" value="true"/>
+                <Property name="text" type="java.lang.String" value="Start Page"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="menuitem_startpageActionPerformed"/>
+              </Events>
+            </MenuItem>
             <MenuItem class="javax.swing.JCheckBoxMenuItem" name="menuitem_tools">
               <Properties>
                 <Property name="accelerator" type="javax.swing.KeyStroke" editor="org.netbeans.modules.form.editors.KeyStrokeEditor">

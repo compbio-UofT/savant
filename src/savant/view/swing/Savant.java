@@ -15,6 +15,7 @@
  */
 package savant.view.swing;
 
+import java.beans.PropertyVetoException;
 import savant.swing.component.TrackChooser;
 import com.jidesoft.dialog.JideOptionPane;
 import com.jidesoft.docking.*;
@@ -125,7 +126,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
     private DataFormatForm dff;
     private OpenURLDialog urlDialog;
     private MemoryStatusBarItem memorystatusbar;
-    private StartPage sp;
+    private DockableFrame startPageDockableFrame;
 
     public void addToolBar(JToolBar b) {
         this.panel_toolbar.setLayout(new BoxLayout(this.panel_toolbar, BoxLayout.X_AXIS));
@@ -490,6 +491,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         menuitem_statusbar = new javax.swing.JCheckBoxMenuItem();
         jMenuItem4 = new javax.swing.JCheckBoxMenuItem();
         jSeparator1 = new javax.swing.JSeparator();
+        menuitem_startpage = new javax.swing.JCheckBoxMenuItem();
         menuitem_tools = new javax.swing.JCheckBoxMenuItem();
         menu_bookmarks = new javax.swing.JCheckBoxMenuItem();
         jSeparator10 = new javax.swing.JPopupMenu.Separator();
@@ -901,6 +903,15 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         menu_window.add(jMenuItem4);
         menu_window.add(jSeparator1);
 
+        menuitem_startpage.setSelected(true);
+        menuitem_startpage.setText("Start Page");
+        menuitem_startpage.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                menuitem_startpageActionPerformed(evt);
+            }
+        });
+        menu_window.add(menuitem_startpage);
+
         menuitem_tools.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Z, java.awt.event.InputEvent.SHIFT_MASK | java.awt.event.InputEvent.CTRL_MASK));
         menuitem_tools.setText("Tools");
         menuitem_tools.addActionListener(new java.awt.event.ActionListener() {
@@ -1287,6 +1298,10 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         gpc.setAiming(this.menuitem_aim.isSelected());
     }//GEN-LAST:event_menuitem_aimActionPerformed
 
+    private void menuitem_startpageActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuitem_startpageActionPerformed
+        setStartPageVisible(this.menuitem_startpage.isSelected());
+    }//GEN-LAST:event_menuitem_startpageActionPerformed
+
     /*
     public static boolean debugModeOn = false;
 
@@ -1412,6 +1427,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
     private javax.swing.JMenuItem menuitem_savesession;
     private javax.swing.JMenuItem menuitem_savesessionas;
     private javax.swing.JMenuItem menuitem_screen;
+    private javax.swing.JCheckBoxMenuItem menuitem_startpage;
     private javax.swing.JCheckBoxMenuItem menuitem_statusbar;
     private javax.swing.JMenuItem menuitem_thousandgenomes;
     private javax.swing.JCheckBoxMenuItem menuitem_tools;
@@ -1481,6 +1497,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         initPanelsAndDocking();
         initMenu();
         initStatusBar();
+        initStartPage();
 
         dff = new DataFormatForm(this, false);
         // get async notification when DataFormatForm has finished its business
@@ -1492,8 +1509,6 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
 
         //this.setVisible(true);
 
-        initStartPage();
-
         if (turnExperimentalFeaturesOff) {
             disableExperimentalFeatures();
         }
@@ -1503,10 +1518,12 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         this.menuitem_preferences.setVisible(false);
         this.menuitem_tools.setVisible(false);
         this.menuitem_aim.setVisible(false);
+        this.setFrameVisibility("Start Page", false, this.trackDockingManager);
+        this.menuitem_startpage.setVisible(false);
         this.menuitem_loadsession.setVisible(false);
         this.menuitem_savesession.setVisible(false);
         this.menuitem_savesessionas.setVisible(false);
-        this.sp.setVisible(false);
+        this.startPageDockableFrame.setVisible(false);
     }
 
     private void initPanelsAndDocking() {
@@ -2688,8 +2705,14 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         this.ruler.setVisible(true);
         this.menuitem_ruler.setSelected(true);
 
+        setStartPageVisible(false);
         showRangeControls();
         browserControlsShown = true;
+    }
+
+    private void setStartPageVisible(boolean b) {
+        setFrameVisibility("Start Page", b, this.getTrackDockingManager());
+        this.menuitem_startpage.setSelected(b);
     }
 
     /**
@@ -3098,11 +3121,22 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
     private void initStartPage() {
 
         try {
-            sp = new StartPage();
+            StartPage sp = new StartPage();
             sp.setMaximumSize(new java.awt.Dimension(99999, 99999));
             sp.setMinimumSize(new java.awt.Dimension(500, 500));
             sp.setPreferredSize(new java.awt.Dimension(99999, 99999));
-            this.panel_main.add(sp, BorderLayout.NORTH);
+
+            startPageDockableFrame = DockableFrameFactory.createFrame("Start Page", DockContext.STATE_AUTOHIDE_SHOWING, DockContext.DOCK_SIDE_NORTH);
+            startPageDockableFrame.setAvailableButtons(DockableFrame.BUTTON_CLOSE);
+            this.getTrackDockingManager().addFrame(startPageDockableFrame);
+            /*try {
+                df.setMaximized(true);
+            } catch (PropertyVetoException ex) {
+            }*/
+            startPageDockableFrame.getContentPane().setLayout(new BorderLayout());
+            startPageDockableFrame.getContentPane().add(sp, BorderLayout.NORTH);
+            this.setFrameVisibility("Start Page", true, getTrackDockingManager());
+
         } catch (IOException ex) {
             System.out.println("FAILED TO INIT START PAGE PROPERLY");
             Logger.getLogger(Savant.class.getName()).log(Level.SEVERE, null, ex);
