@@ -383,8 +383,8 @@ public class SessionController implements
     }
 
     private void addListeners() {
-        //BookmarkController.getInstance().addFavoritesChangedListener(this);
-        //RangeController.getInstance().addRangeChangedListener(this);
-        //ViewTrackController.getInstance().addTracksChangedListener(this);
+        BookmarkController.getInstance().addFavoritesChangedListener(this);
+        RangeController.getInstance().addRangeChangedListener(this);
+        ViewTrackController.getInstance().addTracksChangedListener(this);
     }
 }

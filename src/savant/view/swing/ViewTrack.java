@@ -169,7 +169,7 @@ public abstract class ViewTrack {
 
                 if (trkFile.getFileType() == null) {
                     Savant s = Savant.getInstance();
-                    s.promptUserToFormatFile(trackFilename, "This file does not appear to be formatted. Format now?");
+                    s.promptUserToFormatFile(trackFilename);
                     return results;
                 }
 
@@ -200,14 +200,15 @@ public abstract class ViewTrack {
                         break;
                     default:
                         Savant s = Savant.getInstance();
-                        s.promptUserToFormatFile(trackFilename, "This file does not appear to be formatted. Format now?");
+                        s.promptUserToFormatFile(trackFilename);
                 }
                 if (viewTrack != null) {
                     results.add(viewTrack);
                 }
             } catch (SavantFileNotFormattedException e) {
                 Savant s = Savant.getInstance();
-                s.promptUserToFormatFile(trackFilename, e.getMessage());
+                e.printStackTrace();
+                s.promptUserToFormatFile(trackFilename);
             } catch (SavantUnsupportedVersionException e) {
                 DialogUtils.displayMessage("This file was created using an older version of Savant. Please re-format the source.");
             } catch (IOException e) {
@@ -230,6 +231,8 @@ public abstract class ViewTrack {
     public static Genome createGenome(String filename) throws IOException, URISyntaxException, SavantFileNotFormattedException, SavantUnsupportedVersionException {
 
         List<ViewTrack> tracks = ViewTrack.create(filename);
+
+        if (tracks == null || tracks.isEmpty()) { return null; }
 
         // determine default track name from filename
         int lastSlashIndex = filename.lastIndexOf(System.getProperty("file.separator"));
@@ -570,6 +573,6 @@ public abstract class ViewTrack {
 
     // FIXME: URI is not appropriate for this usage; 
     public URI getURI() {
-        return this.getDataSource().getURI();
+        return (this.getDataSource() == null) ? null : this.getDataSource().getURI();
     }
 }

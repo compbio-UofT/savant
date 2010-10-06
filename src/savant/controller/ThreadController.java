@@ -103,6 +103,8 @@ public class ThreadController {
     }
 
     public void fireThreadActivityChangedEvent(ThreadActivityChangedEvent evt) {
+
+        System.out.println("Firing notification of thread activity: " + evt.getActivity());
         for (ThreadActivityChangedListener l : threadActivityListeners) {
             l.threadActivityChangedReceived(evt);
         }

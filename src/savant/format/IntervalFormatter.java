@@ -58,9 +58,9 @@ public class IntervalFormatter extends SavantFileFormatter {
         //System.out.println(l.size());
         //Collections.copy(cpy, l);
 
-        System.out.println("List is of size: " + cpy.size());
-        System.out.println("Start coordinate: " + startcoordindex);
-        System.out.println("End coordinatee: " + endcoordindex);
+        //System.out.println("List is of size: " + cpy.size());
+        //System.out.println("Start coordinate: " + startcoordindex);
+        //System.out.println("End coordinatee: " + endcoordindex);
 
         Object ref = cpy.get(refnameindex);
         Object strt = cpy.get(startcoordindex);
@@ -140,6 +140,9 @@ public class IntervalFormatter extends SavantFileFormatter {
 
         int numFields = countFields(this.inFilePath);
 
+        // set the input file size (for tracking progress)
+        this.totalBytes = new File(inFilePath).length();
+
        // System.out.println("File contains " + numFields + " fields");
 
         fields = chopOffFields((ArrayList) fields, numFields);
@@ -161,6 +164,9 @@ public class IntervalFormatter extends SavantFileFormatter {
         // map of reference name -> *index* filename
         Map<String,String> refnameToIndexFileNameMap = new HashMap<String,String>();
 
+        this.setSubtaskStatus("Processing input file ...");
+        this.incrementOverallProgress();
+
         // split the input file by chromosome
         Map<String, String> refToinFileMap = SavantFileFormatterUtils.splitFile(this.inFilePath,0);
 
@@ -174,9 +180,15 @@ public class IntervalFormatter extends SavantFileFormatter {
         // output file (one per split file)
         DataOutputStream outfile;
 
+        this.incrementOverallProgress();
+
+        int part = 0;
+        int totalparts = refToinFileMap.keySet().size();
+
         // format each split file individually
         for (String refname : refToinFileMap.keySet()) {
 
+            this.setSubtaskStatus("Formatting sections (part " + (++part) + " of " + totalparts + ") ..." );
             //currrefname = refname;
 
             // get the input file for this reference
@@ -480,8 +492,12 @@ public class IntervalFormatter extends SavantFileFormatter {
         // holds parsed tokens from the line
         List<Object> line;
 
+        int i=0;
+
         // keep reading lines into strLine until EOF
         while((strLine = inFileReader.readLine()) != null) {
+
+            this.byteCount += strLine.getBytes().length;
 
             // skip blank lines
             if (strLine.equals("") || strLine.startsWith("track") || strLine.startsWith(comment)) { continue; }
@@ -510,6 +526,13 @@ public class IntervalFormatter extends SavantFileFormatter {
 
             // write this record to the tmp file
             SavantFileFormatterUtils.writeBinaryRecord(tmpOutFile, line, fields, modifiers);
+
+            if (++i == RECORDS_PER_INTERRUPT_CHECK) {
+                 i = 0;
+                 if (Thread.interrupted()) { throw new InterruptedException(); }
+                 // update progress property for UI
+                 this.setSubtaskProgress(this.getProgressAsInteger(byteCount, totalBytes));
+            }
         }
 
         // close the tmp data file
@@ -526,6 +549,8 @@ public class IntervalFormatter extends SavantFileFormatter {
          *  - write each bin to outfile
          */
         log.debug("=== STEP 2 ===");
+
+        //this.incrementOverallProgress();
 
         // re-open the tmp data file (this time we need random sources to seek to specific records)
         RandomAccessFile tmpDataFile = new RandomAccessFile(tmpfilename,"r");
@@ -611,7 +636,7 @@ public class IntervalFormatter extends SavantFileFormatter {
                 if (log.isDebugEnabled()) {
                     log.debug("=========== " + ((lineNum *100) / intervalIndex2IntervalRange.size()) + "% done");
                 }
-                setProgress( (lineNum *100) / intervalIndex2IntervalRange.size());
+                setSubtaskProgress((lineNum *100) / intervalIndex2IntervalRange.size());
                 if (Thread.interrupted()) throw new InterruptedException();
             }
         }
@@ -655,6 +680,8 @@ public class IntervalFormatter extends SavantFileFormatter {
         nullTerminatorNode.subtreeSize = -1;
         nullTerminatorNode.startByte = (long) -1;
         writeIntervalTreeNode(nullTerminatorNode, indexOutFile);
+
+        setSubtaskProgress(100);
 
         //System.out.println("Bytes written to index: " + indexOutFile.getFilePointer());
 

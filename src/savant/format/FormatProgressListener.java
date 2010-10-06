@@ -31,5 +31,9 @@ public interface FormatProgressListener {
      *
      * @param value - percentage value between 0 and 100.
      */
-    public void progressUpdate(int progress, String status);
+    public void taskProgressUpdate(Integer progress, String status);
+
+    //public void overallProgressUpdate(int at, int total);
+    //public void overallProgressUpdate(int at);
+    public void incrementOverallProgress();
 }

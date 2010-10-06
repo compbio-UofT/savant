@@ -79,7 +79,7 @@ public class ContinuousGenericFormatter extends SavantFileFormatter {
                 // check to see if format has been cancelled
                 if (Thread.interrupted()) throw new InterruptedException();
                 // update progress property for UI
-                updateProgress();
+                this.setSubtaskProgress(this.getProgressAsInteger(byteCount, totalBytes));
             }
 
             // close output streams;

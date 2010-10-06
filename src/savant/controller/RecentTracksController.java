@@ -58,6 +58,9 @@ public class RecentTracksController implements ViewTrackListChangedListener {
 
     public void viewTrackListChangeReceived(ViewTrackListChangedEvent event) {
         ViewTrack t = event.getTracks().get(event.getTracks().size()-1);
+
+        if (t.getDataSource() == null) { return; }
+
         String path = t.getURI().getPath();
 
         if (path == null) { return; }

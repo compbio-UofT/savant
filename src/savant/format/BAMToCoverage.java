@@ -105,6 +105,9 @@ public class BAMToCoverage extends SavantFileFormatter {
             processingSequenceName = null;
             processingSequenceLength = 0;
 
+            this.setSubtaskStatus("Processing input file ...");
+            this.incrementOverallProgress();
+
             // keep going until EOF
             boolean done = false;
             while (!done) {
@@ -172,7 +175,7 @@ public class BAMToCoverage extends SavantFileFormatter {
 
                 // check to see if format has been cancelled
                 if (Thread.interrupted()) throw new InterruptedException();
-                updateProgress();
+                this.setSubtaskProgress(this.getProgressAsInteger(positionCount, totalLength));
             }
 
         }
@@ -300,12 +303,4 @@ public class BAMToCoverage extends SavantFileFormatter {
             totalLength += sequenceDictionary.get(name);
         }
     }
-
-    @Override
-    protected void updateProgress() {
-        float proportionDone = (float)this.positionCount/(float)this.totalLength;
-        int percentDone = (int)Math.round(proportionDone * 100.0);
-        setProgress(percentDone);
-    }
-
 }

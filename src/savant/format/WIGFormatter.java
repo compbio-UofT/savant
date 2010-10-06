@@ -58,6 +58,9 @@ public class WIGFormatter extends SavantFileFormatter {
 
         DataOutputStream outfile = null;
 
+        this.setSubtaskStatus("Processing input file ...");
+        this.incrementOverallProgress();
+
         //Read File Line By Line
         try {
             String strLine;
@@ -202,7 +205,7 @@ public class WIGFormatter extends SavantFileFormatter {
                 // check to see if format has been cancelled
                 if (Thread.interrupted()) throw new InterruptedException();
                 // update progress property for UI
-                updateProgress();
+                this.setSubtaskProgress(this.getProgressAsInteger(byteCount, totalBytes));
             }
 
         } catch (FileNotFoundException e) {

@@ -99,7 +99,7 @@ import savant.startpage.StartPage;
  * @author mfiume
  */
 public class Savant extends javax.swing.JFrame implements ComponentListener, RangeSelectionChangedListener,
-        RangeChangedListener, PropertyChangeListener, BookmarksChangedListener,
+        RangeChangedListener, /*PropertyChangeListener,*/ BookmarksChangedListener,
         ReferenceChangedListener, TrackListChangedListener {
 
     private static Log LOG = LogFactory.getLog(Savant.class);
@@ -123,7 +123,6 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
     private static Map<DockableFrame, Frame> dockFrameToFrameMap = new HashMap<DockableFrame, Frame>();
     private DockableFrame genomeFrame = null;
     private DataFormatForm dff;
-    private boolean openAfterFormat;
     private OpenURLDialog urlDialog;
     private MemoryStatusBarItem memorystatusbar;
     private StartPage sp;
@@ -197,7 +196,6 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
 
             Savant.log("Track loaded", Savant.LOGMODE.NORMAL);
         }
-
     }
 
     /** == [[ DOCKING ]] ==
@@ -1049,7 +1047,6 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
     private void menuItemFormatActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuItemFormatActionPerformed
         if (!dff.isVisible()) {
             Savant.log("Showing format form...");
-            openAfterFormat = false;
             dff.clear();
             dff.setVisible(true);
         }
@@ -1471,7 +1468,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
 
         dff = new DataFormatForm(this, false);
         // get async notification when DataFormatForm has finished its business
-        dff.addPropertyChangeListener("success", this);
+        //dff.addPropertyChangeListener("success", this);
 
         urlDialog = new OpenURLDialog(Savant.getInstance(), true);
         // comment next line to disable plugin manager
@@ -2393,7 +2390,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         }
 
         //Custom button text
-        Object[] options = {"From file", "From URL", "By length", "Cancel"};
+        Object[] options = {"From file", "From URL", "By length"};
         int n = JOptionPane.showOptionDialog(this,
                 "How would you like to specify the genome?",
                 "Specify a Genome",
@@ -2462,12 +2459,12 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
 
         if (mac) {
             // create a frame and place the dialog in it
-            JFrame jf = new JFrame();
+            //JFrame jf = new JFrame();
 
-            FileDialog fd = new FileDialog(jf, "Open Tracks", FileDialog.LOAD);
+            FileDialog fd = new FileDialog(this, "Open Tracks", FileDialog.LOAD);
             //        fd.setFilenameFilter(new SavantFileFilter());
             fd.setVisible(true);
-            jf.setAlwaysOnTop(true);
+            fd.setAlwaysOnTop(true);
 
             if (fd.getFile() == null) {
                 return;
@@ -2496,8 +2493,8 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
             try {
                 addTrackFromFile(selectedFileName);
             } catch (Exception e) {
-                promptUserToFormatFile(selectedFileName, e.getMessage());
                 e.printStackTrace();
+                promptUserToFormatFile(selectedFileName);
             }
         }
     }
@@ -2576,14 +2573,13 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
     /** [[ GETTERS AND SETTERS ]] */
     //public List<TrackDocument> getTrackDocuments() { return this.frames; }
     //public DockPanel getDockPanel() { return this.DOCKPANEL; }
-    public void promptUserToFormatFile(String fileName, String message) {
-
+    public void promptUserToFormatFile(String fileName) {
         String title = "Unrecognized file: " + fileName;
         // display the JOptionPane showConfirmDialog
-        int reply = JOptionPane.showConfirmDialog(this, message, title, JOptionPane.YES_NO_OPTION);
+
+        int reply = JOptionPane.showConfirmDialog(this, "This file does not appear to be formatted. Format now?", title, JOptionPane.YES_NO_OPTION);
         if (reply == JOptionPane.YES_OPTION) {
             if (!dff.isVisible()) {
-                openAfterFormat = true;
                 dff.clear();
                 dff.setInFile(fileName);
                 dff.setVisible(true);
@@ -2599,12 +2595,15 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
      * @param filename The name of the genome file containing file to be set
      */
     private void setGenomeFromFile(String filename) {
+        boolean genomeSet = false;
         try {
-            setGenome(filename, ViewTrack.createGenome(filename));
-        } catch (FileNotFoundException ex) {
+            Genome g = ViewTrack.createGenome(filename);
+            if (g != null) {
+                setGenome(filename, ViewTrack.createGenome(filename));
+                genomeSet = true;
+            }
         } catch (Exception ex) {
             ex.printStackTrace();
-            promptUserToFormatFile(filename, "This file does not appear to be formatted. Format now?");
         }
     }
 
@@ -2970,6 +2969,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
          */
     }
 
+    /*
     public void propertyChange(PropertyChangeEvent propertyChangeEvent) {
 
         if (propertyChangeEvent.getPropertyName().equals("success")) {
@@ -3013,11 +3013,13 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
                 }
                 JOptionPane.showMessageDialog(this, userMessage, "Format File", JOptionPane.ERROR_MESSAGE);
                  * 
-                 */
+                 
             }
 
         }
     }
+     * 
+     */
 
     public void updateMousePosition() {
         GraphPaneController gpc = GraphPaneController.getInstance();

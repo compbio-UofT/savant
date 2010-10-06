@@ -28,6 +28,8 @@ import savant.util.MiscUtils;
 
 public class SavantFileFormatter {
 
+    public static final int RECORDS_PER_INTERRUPT_CHECK = 1000;
+
     /**
      * VARIABLES
      */
@@ -71,7 +73,7 @@ public class SavantFileFormatter {
     // UI ...
     // variables to keep track of progress processing the input file
     protected long positionCount=0;
-    protected int progress=0; // 0 to 100%
+    //protected int progress=0; // 0 to 100%
     protected List<FormatProgressListener> listeners = new ArrayList<FormatProgressListener>();
 
     // non-UI ...
@@ -90,21 +92,48 @@ public class SavantFileFormatter {
      * PROGRESS
      */
 
-    public int getProgress() {
-        return progress;
+   // public int currentSubtaskNum;
+   // public int numberOfSubtasks;
+
+    private Integer makePercentage(Integer progress) {
+        if (progress == null || progress < 0 || progress > 100) { return null; }
+        int p = Math.max(0, progress);
+        p = Math.min(progress, 100);
+        return p;
     }
 
-    public void setProgress(int progress) {
-        this.setProgress(progress,null);
+    public void setSubtaskProgress(int progress) {
+        this.setSubtaskProgressAndStatus(progress,null);
     }
 
-    public void setProgress(String status) {
-        this.setProgress(-1,status);
+    public void setSubtaskStatus(String status) {
+        this.setSubtaskProgressAndStatus(null,status);
+    }
+    
+    // public void incrementOverallProgress() {
+   //      setOverallProgress(++currentSubtaskNum);
+   //  }
+
+   // public void setOverallProgress(int at) {
+   //     setOverallProgress(at,numberOfSubtasks);
+   // }
+
+    public void incrementOverallProgress() {
+        fireIncrementOverallProgress();
     }
 
-    public void setProgress(int progress, String status) {
-        this.progress = progress;
-        fireProgressUpdate(progress,status);
+    /*
+    public void setOverallProgress(int at, int total) {
+        System.out.println("Setting overall progress to " + at + " of " + total);
+        currentSubtaskNum = at;
+        numberOfSubtasks = total;
+        fireOverallProgressUpdate(at, total);
+    }
+     * 
+     */
+
+    public void setSubtaskProgressAndStatus(Integer progress, String status) {
+        fireStatusProgressUpdate(makePercentage(progress),status);
     }
 
     public void addProgressListener(FormatProgressListener listener) {
@@ -115,17 +144,26 @@ public class SavantFileFormatter {
         listeners.remove(listener);
     }
 
-    protected void fireProgressUpdate(int progress, String status) {
+    protected void fireStatusProgressUpdate(Integer progress, String status) {
         for (FormatProgressListener listener : listeners) {
-            listener.progressUpdate(progress,status);
+            listener.taskProgressUpdate(progress,status);
         }
     }
 
-    protected void updateProgress() {
-        float proportionDone = (float)this.byteCount/(float)this.totalBytes;
-        int percentDone = (int)Math.round(proportionDone * 100.0);
-        setProgress(percentDone);
+     protected void fireIncrementOverallProgress() {
+        for (FormatProgressListener listener : listeners) {
+            listener.incrementOverallProgress();
+        }
     }
+
+     /*
+    protected void fireOverallProgressUpdate(int at, int total) {
+        for (FormatProgressListener listener : listeners) {
+            listener.overallProgressUpdate(at,total);
+        }
+    }
+      * 
+      */
 
     public SavantFileFormatter(String inFilePath, String outFilePath, FileType fileType) {
         
@@ -352,72 +390,30 @@ public class SavantFileFormatter {
     }
 
     protected void writeOutputFile(List<String> refnames, Map<String,String> refToDataFileNameMap) throws FileNotFoundException, IOException {
+        this.setSubtaskStatus("Writing output file ...");
+        this.incrementOverallProgress();
+        //this.setOverallProgress(++currentSubtaskNum, numberOfSubtasks);
         writeSavantHeader(refnames,refToDataFileNameMap);
         writeData(refnames,refToDataFileNameMap);
     }
 
     protected void writeIntervalOutputFile(List<String> refnames, Map<String,String> refToIndexFileNameMap, Map<String,String> refToDataFileNameMap) throws FileNotFoundException, IOException {
+        //this.setOverallProgress(++currentSubtaskNum, numberOfSubtasks);
+        this.setSubtaskStatus("Writing output file ...");
+        this.incrementOverallProgress();
         writeSavantHeader(refnames,refToDataFileNameMap);
         writeAdditionallIndices(refnames,refToIndexFileNameMap);
         writeData(refnames,refToDataFileNameMap);
     }
 
     protected void writeContinuousOutputFile(List<String> refnames, Map<String,String> refToIndexFileNameMap, Map<String,String> refToDataFileNameMap) throws FileNotFoundException, IOException {
+        //this.setOverallProgress(++currentSubtaskNum, numberOfSubtasks);
+        this.setSubtaskStatus("Writing output file ...");
+        this.incrementOverallProgress();
         writeSavantHeader(refnames,refToDataFileNameMap);
         writeAdditionallIndices(refnames,refToIndexFileNameMap);
         writeData(refnames,refToDataFileNameMap);
     }
-
-    /*
-    protected void writeOutputFile(List<String> refnames, Map<String,String> refToIndexFileNameMap, Map<String,String> refToDataFileNameMap) throws FileNotFoundException, IOException {
-
-        /*
-        closeOutputStreams();
-
-        // open the output file
-        outFileStream = this.openOutputFile();
-
-        // ALL SAVANT FILES HAVE 1-3
-        // ONLY INTERVAL FILES CURRENTLY HAVE 4
-
-        // 1. WRITE FILE TYPE HEADER (MAGIC NUMBER AND VERSION)
-        //System.out.println("Writing file type header");
-        FileTypeHeader fileTypeHeader = new FileTypeHeader(this.fileType, 2);
-        SavantFileFormatterUtils.writeFileTypeHeader(outFileStream,fileTypeHeader);
-        outFileStream.flush();
-
-        // 2. WRITE FIELD HEADER
-        //System.out.println("Writing fields header");
-        SavantFileFormatterUtils.writeFieldsHeader(outFileStream, fields);
-        outFileStream.flush();
-
-        // 3. WRITE REFERENCE MAP
-        //System.out.println("Writing reference<->data map");
-        writeReferenceMap(outFileStream,refnames,refToDataFileNameMap);
-        outFileStream.flush();
-
-
-        // 4. WRITE INDEX
-        if (refToIndexFileNameMap != null) {
-            //System.out.println("Writing reference<->index map");
-            writeReferenceMap(outFileStream,refnames,refToIndexFileNameMap);
-            List<String> indexfiles = this.getMapValuesInOrder(refnames, refToIndexFileNameMap);
-            concatenateFiles(outFileStream,indexfiles);
-            deleteFiles(indexfiles);
-            outFileStream.flush();
-        }
-
-        // 5. WRITE DATA FILES
-        //System.out.println("Writing data files");
-        List<String> outfiles = this.getMapValuesInOrder(refnames, refToDataFileNameMap);
-        concatenateFiles(outFileStream,outfiles);
-        deleteFiles(outfiles);
-        outFileStream.flush();
-
-        // close the output file
-        outFileStream.close();
-    }
-     */
 
     protected void writeReferenceMap(DataOutputStream f, List<String> refnames, Map<String, String> refnameToOutputFileMap) throws IOException {
 
@@ -465,24 +461,9 @@ public class SavantFileFormatter {
 
             currreference++;
 
-            this.setProgress(currreference*100/numreferences);
+            this.setSubtaskStatus("Writing output file (part " + currreference + " of " + numreferences + ") ...");
 
             File tmp = new File(fn);
-
-            //if (!fn.contains("index")) {
-            /*
-            String p = ">>";
-            int t = fn.lastIndexOf(".index");
-            if (t == -1) { t = fn.length(); p = "<<";}
-            System.out.println(p + "C" + "\t"
-                + fn.substring(fn.indexOf("part_")+5,t) + "\t"
-                + b + "\t"
-                + f.size() + "\t"
-                + tmp.length());
-
-            b += tmp.length();
-            //}
-             */
 
             if (log.isDebugEnabled()) {
                 log.debug("COPY: [ FILE:\t" + fn + "] (" + currreference + " of " + numreferences + ")\t");
@@ -490,9 +471,10 @@ public class SavantFileFormatter {
                 log.debug("Copying " + fn);
             }
 
-            tmp = null;
 
-            int br = 0;
+            long totalBytesToRead = tmp.length(); tmp = null;
+
+            long br = 0;
 
             BufferedInputStream is = new BufferedInputStream(new FileInputStream(fn));
 
@@ -500,6 +482,7 @@ public class SavantFileFormatter {
                 br += bytesRead;
                 if (log.isDebugEnabled()) log.debug("Read " + bytesRead + " bytes");
                 f.write(buffer, 0, bytesRead);
+                this.setSubtaskProgress((int)((br*100)/totalBytesToRead));
             }
 
             if (log.isDebugEnabled()) log.debug(br + " ]");
@@ -527,6 +510,10 @@ public class SavantFileFormatter {
         for (String fn : filenames) {
             deleteFile(fn);
         }
+    }
+
+    public int getProgressAsInteger(float current, float total) {
+        return (int) Math.round((current*100/total));
     }
 
 }

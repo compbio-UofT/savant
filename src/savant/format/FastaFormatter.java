@@ -43,10 +43,15 @@ public class FastaFormatter extends SavantFileFormatter{
 
         DataOutputStream outfile = null;
 
+        this.setSubtaskStatus("Processing input file ...");
+        this.incrementOverallProgress();
+
         //Read File Line By Line
         try {
             String strLine;
             boolean done = false;
+            String refname = null;
+
 
             while (!done) {
                 for (int i=0; i<RECORDS_PER_INTERRUPT_CHECK; i++) {
@@ -59,7 +64,7 @@ public class FastaFormatter extends SavantFileFormatter{
 
                     // set the correct output stream
                     if (strLine.length() > 0 && strLine.charAt(0) == '>') {
-                        String refname = MiscUtils.removeChar(strLine, '>');
+                        refname = MiscUtils.removeChar(strLine, '>');
                         refname = refname.replace(' ', '_');
                         outfile = this.getFileForReference(refname);
                         if (log.isDebugEnabled()) {
@@ -81,10 +86,15 @@ public class FastaFormatter extends SavantFileFormatter{
                     }
                 }
                 // check to see if format has been cancelled
-                if (Thread.interrupted()) throw new InterruptedException();
+                if (Thread.interrupted()) { throw new InterruptedException(); }
+                
                 // update progress property for UI
-                updateProgress();
+                this.setSubtaskProgress(this.getProgressAsInteger(byteCount, totalBytes));
             }
+
+            System.out.println("Done converting all chrs");
+
+
 
             // close output streams; 
             // VERY IMPORTANT THAT THIS HAPPENS BEFORE COPY!

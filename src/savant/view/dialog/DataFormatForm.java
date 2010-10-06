@@ -16,14 +16,11 @@ import savant.view.swing.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import savant.format.DataFormatter;
-import savant.format.FormatProgressListener;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.awt.*;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -32,7 +29,7 @@ import savant.util.MiscUtils;
 /**
  * @author mfiume
  */
-public class DataFormatForm extends JDialog implements PropertyChangeListener /* javax.swing.JFrame*/ {
+public class DataFormatForm extends JDialog {
 
     private static final Log log = LogFactory.getLog(DataFormatForm.class);
 
@@ -46,7 +43,8 @@ public class DataFormatForm extends JDialog implements PropertyChangeListener /*
     private boolean success = false;
     private String outFilePath;
 
-    private FormatTask formatTask;
+    //private FormatTask formatTask;
+
     // message set by format task during execution
     private String message;
 
@@ -62,7 +60,6 @@ public class DataFormatForm extends JDialog implements PropertyChangeListener /*
         // in the future
         checkbox_tempOut.setVisible(false);
 
-        formatProgressBar.setVisible(false);
         //checkbox_chooseBase.setVisible(false);
 
         formatDescriptionTextArea = this.textarea_formatDescription;
@@ -117,8 +114,6 @@ public class DataFormatForm extends JDialog implements PropertyChangeListener /*
         textfield_outPath = new javax.swing.JTextField();
         checkbox_tempOut = new javax.swing.JCheckBox();
         checkbox_chooseBase = new javax.swing.JCheckBox();
-        formatProgressBar = new javax.swing.JProgressBar();
-        button_cancel = new javax.swing.JButton();
         jPanel1 = new javax.swing.JPanel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
@@ -200,13 +195,6 @@ public class DataFormatForm extends JDialog implements PropertyChangeListener /*
             }
         });
 
-        button_cancel.setText("Cancel");
-        button_cancel.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                button_cancelActionPerformed(evt);
-            }
-        });
-
         jPanel1.setMinimumSize(new java.awt.Dimension(100, 20));
         jPanel1.setPreferredSize(new java.awt.Dimension(100, 20));
 
@@ -226,36 +214,29 @@ public class DataFormatForm extends JDialog implements PropertyChangeListener /*
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 366, Short.MAX_VALUE)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(textfield_inPath, javax.swing.GroupLayout.DEFAULT_SIZE, 315, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(button_openInPath))
+                    .addComponent(jLabel1)
+                    .addComponent(jLabel2)
+                    .addComponent(jLabel4)
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 366, Short.MAX_VALUE)
+                    .addComponent(button_format, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(textfield_outPath, javax.swing.GroupLayout.DEFAULT_SIZE, 315, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(button_openOutFile))
                     .addGroup(layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(checkbox_chooseBase)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(checkbox_tempOut))
-                            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 278, Short.MAX_VALUE)
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                .addComponent(textfield_inPath, javax.swing.GroupLayout.DEFAULT_SIZE, 227, Short.MAX_VALUE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(button_openInPath))
-                            .addComponent(jLabel1)
-                            .addComponent(jLabel2)
-                            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 278, Short.MAX_VALUE)
-                            .addComponent(jLabel4)
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                .addComponent(formatProgressBar, javax.swing.GroupLayout.DEFAULT_SIZE, 134, Short.MAX_VALUE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(button_cancel)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(button_format))
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                    .addComponent(jLabel3, javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(textfield_outPath, javax.swing.GroupLayout.DEFAULT_SIZE, 227, Short.MAX_VALUE))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(button_openOutFile))))
-                    .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(checkbox_chooseBase)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(checkbox_tempOut)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jLabel3))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -274,25 +255,22 @@ public class DataFormatForm extends JDialog implements PropertyChangeListener /*
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel4)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 64, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(checkbox_chooseBase)
-                    .addComponent(checkbox_tempOut))
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 70, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(checkbox_chooseBase)
+                        .addComponent(checkbox_tempOut)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel3)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(textfield_outPath, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(button_openOutFile))
-                .addGap(10, 10, 10)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(button_format)
-                        .addComponent(button_cancel))
-                    .addComponent(formatProgressBar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(26, 26, 26)
+                .addComponent(button_format)
+                .addContainerGap())
         );
 
         pack();
@@ -375,27 +353,18 @@ public class DataFormatForm extends JDialog implements PropertyChangeListener /*
         boolean isInputOneBased = checkbox_chooseBase.isSelected();
         
         DataFormatter df = new DataFormatter(infile, outfile, ft, isInputOneBased);
-
-        button_format.setEnabled(false);
-        setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-        formatProgressBar.setIndeterminate(false);
-        formatProgressBar.setMinimum(0);
-        formatProgressBar.setMaximum(100);
-        formatProgressBar.setValue(0);
-        formatProgressBar.setVisible(true);
-
-        this.success = false; // don't use setSuccess because it fires an event
-        formatTask = new FormatTask(df);
-        formatTask.addPropertyChangeListener(this);
+        FormatFrame fpd = new FormatFrame(df);
+        fpd.setVisible(true);
+        this.dispose();
 
         // make sure the user can't interact with anything while formatting
-        this.textfield_inPath.setEnabled(false);
-        this.textfield_outPath.setEnabled(false);
-        this.button_openInPath.setEnabled(false);
-        this.button_openOutFile.setEnabled(false);
-        this.list_formats.setEnabled(false);
+        //this.textfield_inPath.setEnabled(false);
+        //this.textfield_outPath.setEnabled(false);
+        //this.button_openInPath.setEnabled(false);
+        //this.button_openOutFile.setEnabled(false);
+        //this.list_formats.setEnabled(false);
 
-        formatTask.execute();
+        //formatTask.execute();
 
     }//GEN-LAST:event_button_formatActionPerformed
 
@@ -420,39 +389,21 @@ public class DataFormatForm extends JDialog implements PropertyChangeListener /*
 //        }
     }//GEN-LAST:event_list_formatsValueChanged
 
-    private void button_cancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_cancelActionPerformed
-
+    /*
+    public void cancelFormatTask() {
         if (formatTask != null) formatTask.cancel(true);
         setVisible(false);
         DataFormatForm.this.getParent().requestFocus();
-
-    }//GEN-LAST:event_button_cancelActionPerformed
-
-    /**
-    * @param args the command line arguments
-    */
-    public static void main(String args[]) {
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                DataFormatForm dialog = new DataFormatForm(new javax.swing.JFrame(), true);
-                dialog.addWindowListener(new java.awt.event.WindowAdapter() {
-                    public void windowClosing(java.awt.event.WindowEvent e) {
-                        System.exit(0);
-                    }
-                });
-                dialog.setVisible(true);
-            }
-        });
     }
+     * 
+     */
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton button_cancel;
     private javax.swing.JButton button_format;
     private javax.swing.JButton button_openInPath;
     private javax.swing.JButton button_openOutFile;
     private javax.swing.JCheckBox checkbox_chooseBase;
     private javax.swing.JCheckBox checkbox_tempOut;
-    private javax.swing.JProgressBar formatProgressBar;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
@@ -597,6 +548,7 @@ public class DataFormatForm extends JDialog implements PropertyChangeListener /*
         return this.outFilePath;
     }
 
+    /*
     public void propertyChange(PropertyChangeEvent evt) {
         if ("state".equals(evt.getPropertyName())) {
             if (evt.getNewValue() == SwingWorker.StateValue.DONE) {
@@ -611,10 +563,15 @@ public class DataFormatForm extends JDialog implements PropertyChangeListener /*
             formatProgressBar.setValue((Integer)evt.getNewValue());
         }
     }
+     * 
+     */
 
+    /*
     public FormatTask getFormatTask() {
         return formatTask;
     }
+     * 
+     */
     
     public String getMessage() {
         return message;
@@ -629,10 +586,11 @@ public class DataFormatForm extends JDialog implements PropertyChangeListener /*
         this.message = message;
     }
 
-    class FormatTask extends SwingWorker<Void, Void> implements /*PropertyChangeListener*/ FormatProgressListener {
+
+    /*
+    class FormatTask extends SwingWorker<Void, Void> implements /*PropertyChangeListener FormatProgressListener {
 
         private DataFormatter df;
-
 
         public FormatTask(DataFormatter df) {
             this.df = df;
@@ -642,18 +600,31 @@ public class DataFormatForm extends JDialog implements PropertyChangeListener /*
 
         @Override
         public Void doInBackground() throws Exception {
-            setMessage(null);
-            setProgress(0);
-            success = false; // don't use setSuccess because it fires an event
-            try {
+            //setMessage(null);
+            //setProgress(0);
+            //success = false; // don't use setSuccess because it fires an event
+                FormatProgressDialog d = new FormatProgressDialog(
+                        this,
+                        true,
+                        df);
+
                 addToMessage("Beginning format");
                 addToMessage("Input file path: " + this.df.getInputFilePath());
                 addToMessage("Input file type: " + this.df.getInputFileType());
                 addToMessage("Output file path: " + this.df.getOutputFilePath());
-                df.format();
-                setProgress(100);
-                setSuccess(true);
-            } catch (InterruptedException e) {
+                d.setVisible(true);
+
+                if (d.didFormatComplete()) {
+
+                }
+
+
+                //df.format();
+                //setProgress(100);
+                //setSuccess(true);
+                
+            /*
+                } catch (InterruptedException e) {
                 log.info("Format cancelled by user");
             } catch (Exception e){
                 log.error("Error formatting file ", e);
@@ -662,13 +633,17 @@ public class DataFormatForm extends JDialog implements PropertyChangeListener /*
                 setSuccess(false);
             } catch (Throwable t) {
                 log.error("Error formatting file ", t);
-                addToMessage("Error, printing stack trace\n" + 
+                addToMessage("Error, printing stack trace\n" +
                         MiscUtils.getStackTrace(t));
                 setSuccess(false);
             }
             finally {
                 return null;
             }
+             * 
+             *
+
+                return null;
         }
 
         @Override
@@ -678,6 +653,10 @@ public class DataFormatForm extends JDialog implements PropertyChangeListener /*
 //            this.df.removePropertyChangeListener("progress", this);
         }
 
+        @Override
+        public void progressUpdate(int progress, String status) {
+        }
+
 //        public void propertyChange(PropertyChangeEvent propertyChangeEvent) {
 //            if ("progress".equals(propertyChangeEvent.getPropertyName())) {
 //                setProgress((Integer)propertyChangeEvent.getNewValue());
@@ -685,13 +664,38 @@ public class DataFormatForm extends JDialog implements PropertyChangeListener /*
 //        }
 
 
+        /*
         public void progressUpdate(int value) {
             setProgress(value);
         }
+         * 
+         */
 
-        public void progressUpdate(int progress, String status) {
-            this.setProgress(progress);
+        /*
+        int pr = 0;
+        String status = "";
+
+        @Override
+        public void progressUpdate(int progress, String st) {
+            if (progress != -1) {
+                pr = progress;
+                //this.setProgress(progress);
+                formatProgressBar.setValue(progress);
+                formatProgressBar.setString(progress + "%");
+            }
+            /*
+            if (status != null) {
+                status = st;
+                formatProgressBar.setString(st);
+            }
+             * 
+             *
+            System.out.println("Progress update received: (p = " + pr + ") s = (" + status + ")");
         }
+         * 
+         *
 
     }
+         * 
+         */
 }
