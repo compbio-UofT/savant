@@ -75,6 +75,9 @@ public class PointGenericFormatter extends SavantFileFormatter {
         modifiers.add(null);
         modifiers.add(descriptionLength);
 
+        this.setSubtaskStatus("Processing input file ...");
+        this.incrementOverallProgress();
+        
         //SavantFileFormatterUtils.writeFieldsHeader(out, fields);
 
         try {
