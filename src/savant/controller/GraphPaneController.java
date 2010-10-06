@@ -23,6 +23,7 @@ public class GraphPaneController {
     private boolean isSpotlight;
     private boolean isPlumbing;
     private boolean isZooming;
+    private boolean isAiming;
     private boolean isPanning;
     private boolean isSelecting;
 
@@ -108,8 +109,9 @@ public class GraphPaneController {
         return changeMade;
     }
 
+
     public void askForRefresh() {
-        if (this.isPanning() || this.isZooming() || this.isPlumbing() || this.isSpotlight()) {
+        if (this.isPanning() || this.isZooming() || this.isPlumbing() || this.isSpotlight() || this.isAiming()) {
             fireGraphPaneChangeEvent();
         }
     }
@@ -157,6 +159,18 @@ public class GraphPaneController {
 
     public boolean isZooming() {
         return this.isZooming;
+    }
+
+    public boolean isAiming() {
+        return this.isAiming;
+    }
+
+    public void setAiming(boolean isAiming) {
+        this.isAiming = isAiming;
+        System.out.println("Setting aiming " + this.isAiming);
+        changeMade = true;
+        forceRefresh();
+        changeMade = false;
     }
 
     public void setZooming(boolean isZooming) {

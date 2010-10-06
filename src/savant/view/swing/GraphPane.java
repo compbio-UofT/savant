@@ -59,6 +59,9 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
     private List<ViewTrack> tracks;
     private Frame parentFrame;
 
+    private int mouse_x = 0;
+    private int mouse_y = 0;
+
     /** min / max axis values */
     private int xMin;
     private int xMax;
@@ -70,6 +73,7 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
     private boolean isOrdinal = false;
     private boolean isYGridOn = true;
     private boolean isXGridOn = true;
+    private boolean mouseInside = false;
 
     // Locking
     private boolean isLocked = false;
@@ -121,7 +125,7 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
 
     public void keyReleased(KeyEvent e) {
         //System.out.println("Key pressed");
-        this.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        resetCursor();
     }
 
     // mouse and key modifiers
@@ -163,9 +167,8 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
      */
 
     public void graphpaneChangeReceived(GraphPaneChangeEvent event) {
-        //repaint();
         GraphPaneController gpc = GraphPaneController.getInstance();
-        if(gpc.isPanning() || gpc.isChanged() || gpc.isPlumbing() || gpc.isSpotlight()) this.resetFrameLayers();
+        this.resetFrameLayers();
     }
 
     /**
@@ -468,6 +471,8 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
         this.paneResize = resized;
     }
 
+    int rendercount = 0;
+    
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -475,6 +480,23 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
         render(g);
 
         GraphPaneController gpc = GraphPaneController.getInstance();
+
+        /* AIMING ADJUSTMENTS */
+        if (gpc.isAiming() && mouseInside) {
+            g.setColor(Color.BLACK);
+            Font thickfont = new Font("Arial", Font.BOLD, 15);
+            g.setFont(thickfont);
+            long genome_x = gpc.getMouseXPosition();
+            long genome_y = gpc.getMouseYPosition();
+            String target = "";
+            target += genome_x;
+            target += (genome_y == -1) ? "" : ", " + genome_y;
+
+            g.drawString(target,
+                    mouse_x,
+                    mouse_y);
+        }
+
         int x1 = MiscUtils.transformPositionToPixel(gpc.getMouseDragRange().getFrom(), this.getWidth(), new Range(this.xMin, this.xMax));
         int x2 = MiscUtils.transformPositionToPixel(gpc.getMouseDragRange().getTo(), this.getWidth(), new Range(this.xMin, this.xMax));
 
@@ -518,9 +540,9 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
         /** PLUMBING ADJUSTMENTS */
         if (gpc.isPlumbing()) {
             g.setColor(Color.BLACK);
-            int spos = MiscUtils.transformPositionToPixel(GraphPaneController.getInstance().getMouseXPosition(), this.getWidth(), this.getPositionalRange());
+            int spos = MiscUtils.transformPositionToPixel(GraphPaneController.getInstance().getMouseXPosition(), this.getWidth(), this.getHorizontalPositionalRange());
             g.drawLine(spos, 0, spos, this.getHeight());
-            int rpos = MiscUtils.transformPositionToPixel(GraphPaneController.getInstance().getMouseXPosition()+1, this.getWidth(), this.getPositionalRange());
+            int rpos = MiscUtils.transformPositionToPixel(GraphPaneController.getInstance().getMouseXPosition()+1, this.getWidth(), this.getHorizontalPositionalRange());
             g.drawLine(rpos, 0, rpos, this.getHeight());
         }
 
@@ -535,12 +557,12 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
             g.setColor(new Color(0,0,0,200));
 
             // draw left of spotlight
-            if (left > this.getPositionalRange().getFrom()) {
-                g.fillRect(0, 0, MiscUtils.transformPositionToPixel(left, this.getWidth(), this.getPositionalRange()), this.getHeight());
+            if (left > this.getHorizontalPositionalRange().getFrom()) {
+                g.fillRect(0, 0, MiscUtils.transformPositionToPixel(left, this.getWidth(), this.getHorizontalPositionalRange()), this.getHeight());
             }
             // draw right of spotlight
-            if (right < this.getPositionalRange().getTo()) {
-                int pix = MiscUtils.transformPositionToPixel(right, this.getWidth(), this.getPositionalRange());
+            if (right < this.getHorizontalPositionalRange().getTo()) {
+                int pix = MiscUtils.transformPositionToPixel(right, this.getWidth(), this.getHorizontalPositionalRange());
                 g.fillRect(pix, 0, this.getWidth()-pix, this.getHeight());
             }
         }
@@ -912,7 +934,7 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
         if (x1 > this.getWidth()) { x1 = this.getWidth(); }
         this.y1 = event.getY();
 
-        baseX = MiscUtils.transformPixelToPosition(x1, this.getWidth(), this.getPositionalRange());
+        baseX = MiscUtils.transformPixelToPosition(x1, this.getWidth(), this.getHorizontalPositionalRange());
         //initialScroll = ((JScrollPane)this.getParent().getParent()).getVerticalScrollBar().getValue();
         initialScroll = ((JScrollPane)this.getParent().getParent().getParent()).getVerticalScrollBar().getValue();
         
@@ -924,8 +946,17 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
         //startY = event.getY();
 
         GraphPaneController gpc = GraphPaneController.getInstance();
-        gpc.setMouseClickPosition(MiscUtils.transformPixelToPosition(x1, this.getWidth(), this.getPositionalRange()));
+        gpc.setMouseClickPosition(MiscUtils.transformPixelToPosition(x1, this.getWidth(), this.getHorizontalPositionalRange()));
         this.resetFrameLayers();
+    }
+
+    public void resetCursor() {
+        //GraphPaneController gpc = GraphPaneController.getInstance();
+        //if (gpc.isAiming()) {
+        //    this.setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
+        //} else {
+            this.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        //}
     }
 
     /**
@@ -940,9 +971,9 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
         if (x2 > this.getWidth()) { x2 = this.getWidth(); }
         this.y2 = event.getY();
 
-        this.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        resetCursor();
 
-        int x1 = MiscUtils.transformPositionToPixel(gpc.getMouseDragRange().getFrom(), this.getWidth(), this.getPositionalRange());
+        int x1 = MiscUtils.transformPositionToPixel(gpc.getMouseDragRange().getFrom(), this.getWidth(), this.getHorizontalPositionalRange());
 
         if (gpc.isPanning()) {
             
@@ -989,15 +1020,18 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
         this.isDragging = false;
         setMouseModifier(event);
 
-        gpc.setMouseReleasePosition(MiscUtils.transformPixelToPosition(x2, this.getWidth(), this.getPositionalRange()));
+        gpc.setMouseReleasePosition(MiscUtils.transformPixelToPosition(x2, this.getWidth(), this.getHorizontalPositionalRange()));
         this.resetFrameLayers();
     }
+
+
 
     /**
      * {@inheritDoc}
      */
     public void mouseEntered( final MouseEvent event ) {
-        this.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        resetCursor();
+        mouseInside = true;
         setMouseModifier(event);
         hidePopup();
        // this.resetFrameLayers();
@@ -1010,6 +1044,7 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
         this.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
         setMouseModifier(event);
 
+        mouseInside = false;
         GraphPaneController.getInstance().setMouseXPosition(-1);
         GraphPaneController.getInstance().setMouseYPosition(-1);
         //this.resetFrameLayers();
@@ -1057,7 +1092,7 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
             if(magX >= magY){
                 //pan horizontally, reset vertical pan
                 panVert = false;
-                gpc.setMouseReleasePosition(MiscUtils.transformPixelToPosition(x2, this.getWidth(), this.getPositionalRange()));
+                gpc.setMouseReleasePosition(MiscUtils.transformPixelToPosition(x2, this.getWidth(), this.getHorizontalPositionalRange()));
                 //((JScrollPane)this.getParent().getParent()).getVerticalScrollBar().setValue(initialScroll);
                 ((JScrollPane)this.getParent().getParent().getParent()).getVerticalScrollBar().setValue(initialScroll);
             } else {
@@ -1070,7 +1105,7 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
         } else {
             //pan horizontally
             panVert = false;
-            gpc.setMouseReleasePosition(MiscUtils.transformPixelToPosition(x2, this.getWidth(), this.getPositionalRange()));
+            gpc.setMouseReleasePosition(MiscUtils.transformPixelToPosition(x2, this.getWidth(), this.getHorizontalPositionalRange()));
         }
         
         this.resetFrameLayers();
@@ -1081,14 +1116,17 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
      */
     public void mouseMoved( final MouseEvent event ) {
 
+        mouse_x = event.getX();
+        mouse_y = event.getY();
+
         // update the GraphPaneController's record of the mouse position
-        GraphPaneController.getInstance().setMouseXPosition(MiscUtils.transformPixelToPosition(event.getX(), this.getWidth(), this.getPositionalRange()));
+        GraphPaneController.getInstance().setMouseXPosition(MiscUtils.transformPixelToPosition(event.getX(), this.getWidth(), this.getHorizontalPositionalRange()));
         if (this.isOrdinal()) {
             GraphPaneController.getInstance().setMouseYPosition(-1);
         } else {
             GraphPaneController.getInstance().setMouseYPosition(MiscUtils.transformPixelToPosition(this.getHeight() - event.getY(), this.getHeight(), new Range(this.yMin, this.yMax)));
         }
-        GraphPaneController.getInstance().setSpotlightSize(this.getPositionalRange().getLength());
+        GraphPaneController.getInstance().setSpotlightSize(this.getHorizontalPositionalRange().getLength());
     }
 
     /**
@@ -1153,8 +1191,12 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
      * @return
      */
 
-    public Range getPositionalRange() {
+    public Range getHorizontalPositionalRange() {
         return new Range(this.xMin, this.xMax);
+    }
+
+    public Range getVerticalPositionalRange() {
+        return new Range(this.yMin, this.yMax);
     }
 
 

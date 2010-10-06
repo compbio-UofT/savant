@@ -479,6 +479,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         menuItemShiftStart = new javax.swing.JMenuItem();
         menuItemShiftEnd = new javax.swing.JMenuItem();
         jSeparator5 = new javax.swing.JSeparator();
+        menuitem_aim = new javax.swing.JCheckBoxMenuItem();
         menuitem_view_plumbline = new javax.swing.JCheckBoxMenuItem();
         menuitem_view_spotlight = new javax.swing.JCheckBoxMenuItem();
         menu_window = new javax.swing.JMenu();
@@ -807,6 +808,15 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         });
         menu_view.add(menuItemShiftEnd);
         menu_view.add(jSeparator5);
+
+        menuitem_aim.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_J, java.awt.event.InputEvent.CTRL_MASK));
+        menuitem_aim.setText("Crosshair");
+        menuitem_aim.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                menuitem_aimActionPerformed(evt);
+            }
+        });
+        menu_view.add(menuitem_aim);
 
         menuitem_view_plumbline.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_K, java.awt.event.InputEvent.CTRL_MASK));
         menuitem_view_plumbline.setText("Plumbline");
@@ -1272,6 +1282,11 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         setSpeedAndEfficiencyIndicatorsVisible(b);
     }//GEN-LAST:event_jMenuItem4ActionPerformed
 
+    private void menuitem_aimActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuitem_aimActionPerformed
+        GraphPaneController gpc = GraphPaneController.getInstance();
+        gpc.setAiming(this.menuitem_aim.isSelected());
+    }//GEN-LAST:event_menuitem_aimActionPerformed
+
     /*
     public static boolean debugModeOn = false;
 
@@ -1383,6 +1398,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
     private javax.swing.JMenu menu_recent;
     private javax.swing.JMenu menu_view;
     private javax.swing.JMenu menu_window;
+    private javax.swing.JCheckBoxMenuItem menuitem_aim;
     private javax.swing.JMenuItem menuitem_exit;
     private javax.swing.JMenu menuitem_file;
     private javax.swing.JMenuItem menuitem_genome;
@@ -1486,6 +1502,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
     private void disableExperimentalFeatures() {
         this.menuitem_preferences.setVisible(false);
         this.menuitem_tools.setVisible(false);
+        this.menuitem_aim.setVisible(false);
         this.menuitem_loadsession.setVisible(false);
         this.menuitem_savesession.setVisible(false);
         this.menuitem_savesessionas.setVisible(false);
@@ -2280,6 +2297,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         rangeControls.add(jMenuItem5);
         rangeControls.add(menuitem_view_plumbline);
         rangeControls.add(menuitem_view_spotlight);
+        rangeControls.add(menuitem_aim);
         rangeControls.add(label_mouseposition);
         rangeControls.add(label_mouseposition_title);
         rangeControls.add(goButton);
