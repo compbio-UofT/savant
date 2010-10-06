@@ -617,7 +617,7 @@ public class SavantFileFormatterUtils {
     }
 
 
-    public static Map<String, String> splitFile(String filePath, int columnNumber ) throws IOException {
+    public static Map<String, String> splitFile(String filePath, int columnNumber) throws IOException {
         BufferedReader br = new BufferedReader(new FileReader(filePath));
 
         Map<String, String> seqnameToFileNameMap = new HashMap<String,String>();
@@ -632,6 +632,9 @@ public class SavantFileFormatterUtils {
             // TODO: this should be specific to Generic Interval files
             // currently all file types are affected
             try {
+                if (line.equals("\n")) {
+                    continue;
+                }
                 if (line.substring(0, 2).equals("##")) {
                     continue;
                 }
