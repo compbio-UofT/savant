@@ -16,6 +16,7 @@ import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import savant.file.FileType;
 import savant.format.DataFormatter;
 import savant.format.DataFormatterThread;
 import savant.format.FormatProgressListener;
@@ -47,10 +48,12 @@ public class FormatFrame extends javax.swing.JFrame implements FormatProgressLis
         df.addProgressListener(this);
 
         this.inputFilePath = df.getInputFilePath();
-        this.outputFilePath = df.getOutputFilePath();
 
-        this.label_src.setText(shorten(df.getInputFilePath()));
-        this.label_dest.setText(shorten(df.getOutputFilePath()));
+        if (df.getInputFileType() == FileType.INTERVAL_BAM) { this.outputFilePath = df.getInputFilePath() + ".cov.savant"; }
+        else { this.outputFilePath = df.getOutputFilePath(); }
+
+        this.label_src.setText(shorten(this.inputFilePath));
+        this.label_dest.setText(shorten(this.outputFilePath));
         //this.label_type.setText(df.getInputFileType().toString());
 
         setSubtaskStatus("");
