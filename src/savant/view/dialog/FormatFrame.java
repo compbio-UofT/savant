@@ -49,8 +49,8 @@ public class FormatFrame extends javax.swing.JFrame implements FormatProgressLis
         this.inputFilePath = df.getInputFilePath();
         this.outputFilePath = df.getOutputFilePath();
 
-        this.label_src.setText(df.getInputFilePath());
-        this.label_dest.setText(df.getOutputFilePath());
+        this.label_src.setText(shorten(df.getInputFilePath()));
+        this.label_dest.setText(shorten(df.getOutputFilePath()));
         this.label_type.setText(df.getInputFileType().toString());
 
         setSubtaskStatus("");
@@ -98,7 +98,8 @@ public class FormatFrame extends javax.swing.JFrame implements FormatProgressLis
         }
         overallprogress_at = at;
         setTitle();
-        this.label_overallstatus.setText("Performing task " + at + ":");
+        //this.label_overallstatus.setText("Status: ");
+        //this.label_overallstatus.setText("Performing task " + at + ":");
     }
 
 
@@ -113,7 +114,11 @@ public class FormatFrame extends javax.swing.JFrame implements FormatProgressLis
     }*/
 
     private void cancelTask() {
-        int result = JOptionPane.showConfirmDialog(this, "Are you sure you want to cancel?");
+        int result =JOptionPane.showConfirmDialog(
+                this,
+                "Are you sure you want to cancel?",
+                "Confirm cancel",
+                JOptionPane.YES_NO_OPTION);
         if (result == JOptionPane.YES_OPTION) {
             formatThread.interrupt();
             this.dispose();
@@ -192,7 +197,7 @@ public class FormatFrame extends javax.swing.JFrame implements FormatProgressLis
 
         label_dest.setText("filename2");
 
-        label_overallstatus.setText("Performing task 1:");
+        label_overallstatus.setText("Status: ");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -295,6 +300,15 @@ public class FormatFrame extends javax.swing.JFrame implements FormatProgressLis
                 dialog.pack();
                 dialog.setVisible(true);
                 this.dispose();
+        }
+    }
+
+    private String shorten(String string) {
+        int maxlen = 30;
+        if (string.length() > maxlen) {
+            return "..." + string.substring(string.length()-maxlen);
+        } else {
+            return string;
         }
     }
 

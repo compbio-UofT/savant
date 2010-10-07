@@ -138,7 +138,7 @@
     </Component>
     <Component class="javax.swing.JLabel" name="label_overallstatus">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Performing task 1:"/>
+        <Property name="text" type="java.lang.String" value="Status: "/>
       </Properties>
     </Component>
     <Component class="javax.swing.JSeparator" name="jSeparator1">
