@@ -177,7 +177,7 @@ public class SavantFileUtils {
             vals[0] = (Long) record.get(1);
             vals[1] = (Long) record.get(2);
 
-            referenceMap.put((String) record.get(0), vals);
+            referenceMap.put(((String) record.get(0)).trim(), vals);
         }
 
         return referenceMap;
