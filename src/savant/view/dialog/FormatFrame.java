@@ -51,7 +51,7 @@ public class FormatFrame extends javax.swing.JFrame implements FormatProgressLis
 
         this.label_src.setText(shorten(df.getInputFilePath()));
         this.label_dest.setText(shorten(df.getOutputFilePath()));
-        this.label_type.setText(df.getInputFileType().toString());
+        //this.label_type.setText(df.getInputFileType().toString());
 
         setSubtaskStatus("");
         setSubtaskProgress(0);
@@ -165,8 +165,6 @@ public class FormatFrame extends javax.swing.JFrame implements FormatProgressLis
         label_status = new javax.swing.JLabel();
         progress_current = new javax.swing.JProgressBar();
         jButton1 = new javax.swing.JButton();
-        jLabel7 = new javax.swing.JLabel();
-        label_type = new javax.swing.JLabel();
         label_dest = new javax.swing.JLabel();
         label_overallstatus = new javax.swing.JLabel();
         jSeparator1 = new javax.swing.JSeparator();
@@ -191,10 +189,6 @@ public class FormatFrame extends javax.swing.JFrame implements FormatProgressLis
             }
         });
 
-        jLabel7.setText("As type:");
-
-        label_type.setText("type");
-
         label_dest.setText("filename2");
 
         label_overallstatus.setText("Status: ");
@@ -211,11 +205,9 @@ public class FormatFrame extends javax.swing.JFrame implements FormatProgressLis
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel5)
-                            .addComponent(jLabel3)
-                            .addComponent(jLabel7))
+                            .addComponent(jLabel3))
                         .addGap(18, 18, 18)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(label_type)
                             .addComponent(label_dest)
                             .addComponent(label_src)))
                     .addGroup(layout.createSequentialGroup()
@@ -236,11 +228,7 @@ public class FormatFrame extends javax.swing.JFrame implements FormatProgressLis
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel5)
                     .addComponent(label_dest))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel7)
-                    .addComponent(label_type))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGap(31, 31, 31)
                 .addComponent(jSeparator1, javax.swing.GroupLayout.DEFAULT_SIZE, 1, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -263,13 +251,11 @@ public class FormatFrame extends javax.swing.JFrame implements FormatProgressLis
     private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel5;
-    private javax.swing.JLabel jLabel7;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JLabel label_dest;
     private javax.swing.JLabel label_overallstatus;
     private javax.swing.JLabel label_src;
     private javax.swing.JLabel label_status;
-    private javax.swing.JLabel label_type;
     private javax.swing.JProgressBar progress_current;
     // End of variables declaration//GEN-END:variables
 
