@@ -157,7 +157,11 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         if (!ReferenceController.getInstance().isGenomeLoaded()) {
             int result = JOptionPane.showConfirmDialog(this, "No genome is loaded yet. Load file as genome?");
             if (result == JOptionPane.YES_OPTION) {
-                this.setGenomeFromFile(selectedFileName);
+                try {
+                    this.setGenomeFromFile(selectedFileName);
+                } catch (Exception e) {
+                    JOptionPane.showMessageDialog(this, "Problem loading file as genome");
+                }
             }
             return;
         }
@@ -2425,7 +2429,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
                 options,
                 options[0]);
 
-        if (n == 2) {
+        if (n == 1) {
             GenomeLengthForm gf = new GenomeLengthForm();
 
             if (gf.userCompletedForm) {
@@ -2433,7 +2437,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
             } else {
                 System.out.println("Length not set");
             }
-        } else if (n == 1) {
+        } else if (n == 0) {
             // create a frame and place the dialog in it
             //JFrame jf = new JFrame();
             FileDialog fd = new FileDialog(this, "Load Genome", FileDialog.LOAD);
