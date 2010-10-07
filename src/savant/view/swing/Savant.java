@@ -158,7 +158,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
     public void addTrackFromFile(String selectedFileName) throws IOException {
 
         if (!ReferenceController.getInstance().isGenomeLoaded()) {
-            int result = JOptionPane.showConfirmDialog(this, "No genome is loaded yet. Load file as genome?");
+            int result = JOptionPane.showConfirmDialog(this, "No genome is loaded yet. Load file as genome?", "No genome loaded", JOptionPane.YES_NO_OPTION);
             if (result == JOptionPane.YES_OPTION) {
                 this.setGenomeFromFile(selectedFileName);
             }
