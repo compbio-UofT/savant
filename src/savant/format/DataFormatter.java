@@ -47,7 +47,10 @@ public class DataFormatter /* implements FormatProgressListener */ {
     private String outPath;
 
     public String getInputFilePath() { return this.inPath; }
-    public String getOutputFilePath() { return this.outPath; }
+    public String getOutputFilePath() {
+        if (this.getInputFileType() == FileType.INTERVAL_BAM) { return this.getInputFilePath() + ".cov.savant"; }
+        else { return this.outPath; }
+    }
     public FileType getInputFileType() { return this.inputFileType; }
 
     // sorted file path (temporary)

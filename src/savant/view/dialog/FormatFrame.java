@@ -48,9 +48,7 @@ public class FormatFrame extends javax.swing.JFrame implements FormatProgressLis
         df.addProgressListener(this);
 
         this.inputFilePath = df.getInputFilePath();
-
-        if (df.getInputFileType() == FileType.INTERVAL_BAM) { this.outputFilePath = df.getInputFilePath() + ".cov.savant"; }
-        else { this.outputFilePath = df.getOutputFilePath(); }
+        this.outputFilePath = df.getOutputFilePath();
 
         this.label_src.setText(shorten(this.inputFilePath));
         this.label_dest.setText(shorten(this.outputFilePath));
