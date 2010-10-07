@@ -2415,7 +2415,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         }
 
         //Custom button text
-        Object[] options = {"From file", "From URL", "By length"};
+        Object[] options = {"From file", /*"From URL",*/ "By length", "Cancel"};
         int n = JOptionPane.showOptionDialog(this,
                 "How would you like to specify the genome?",
                 "Specify a Genome",
@@ -2434,8 +2434,6 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
                 System.out.println("Length not set");
             }
         } else if (n == 1) {
-            // VANESSA: prompt with other dialog here
-        } else if (n == 0) {
             // create a frame and place the dialog in it
             //JFrame jf = new JFrame();
             FileDialog fd = new FileDialog(this, "Load Genome", FileDialog.LOAD);
