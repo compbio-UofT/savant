@@ -238,7 +238,12 @@ public abstract class ViewTrack {
         int lastSlashIndex = filename.lastIndexOf(System.getProperty("file.separator"));
         String name = filename.substring(lastSlashIndex + 1, filename.length());
 
-        Genome g = new Genome(name, (SequenceViewTrack) tracks.get(0));
+        Genome g = null;
+        if (tracks.get(0) instanceof SequenceViewTrack) {
+            g = new Genome(name, (SequenceViewTrack) tracks.get(0));
+        } else {
+            JOptionPane.showMessageDialog(Savant.getInstance(), "Problem opening track as genome.");
+        }
 
         return g;
     }

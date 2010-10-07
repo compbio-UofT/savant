@@ -16,6 +16,8 @@
 package savant.view.swing;
 
 import java.beans.PropertyVetoException;
+import java.net.URISyntaxException;
+import savant.file.SavantUnsupportedVersionException;
 import savant.swing.component.TrackChooser;
 import com.jidesoft.dialog.JideOptionPane;
 import com.jidesoft.docking.*;
@@ -83,6 +85,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import savant.controller.RecentTracksController;
 import savant.data.sources.FASTAFileDataSource;
+import savant.file.SavantFileNotFormattedException;
 import savant.net.DownloadTreeList;
 import savant.plugin.PluginTool;
 import savant.plugin.XMLTool;
@@ -157,11 +160,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         if (!ReferenceController.getInstance().isGenomeLoaded()) {
             int result = JOptionPane.showConfirmDialog(this, "No genome is loaded yet. Load file as genome?");
             if (result == JOptionPane.YES_OPTION) {
-                try {
-                    this.setGenomeFromFile(selectedFileName);
-                } catch (Exception e) {
-                    JOptionPane.showMessageDialog(this, "Problem loading file as genome");
-                }
+                this.setGenomeFromFile(selectedFileName);
             }
             return;
         }
@@ -2434,8 +2433,6 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
 
             if (gf.userCompletedForm) {
                 setGenome(gf.loadedGenome.getName(), gf.loadedGenome);
-            } else {
-                System.out.println("Length not set");
             }
         } else if (n == 0) {
             // create a frame and place the dialog in it
@@ -2455,7 +2452,6 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
 
             // get the path (null if none selected)
             String selectedFileName = fd.getFile();
-
 
             // set the genome
             if (selectedFileName != null) {
@@ -2520,7 +2516,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
             try {
                 addTrackFromFile(selectedFileName);
             } catch (Exception e) {
-                e.printStackTrace();
+                //e.printStackTrace();
                 promptUserToFormatFile(selectedFileName);
             }
         }
@@ -2624,13 +2620,13 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
     private void setGenomeFromFile(String filename) {
         boolean genomeSet = false;
         try {
+
             Genome g = ViewTrack.createGenome(filename);
             if (g != null) {
                 setGenome(filename, ViewTrack.createGenome(filename));
                 genomeSet = true;
             }
         } catch (Exception ex) {
-            ex.printStackTrace();
         }
     }
 

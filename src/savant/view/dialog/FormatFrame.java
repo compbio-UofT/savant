@@ -206,23 +206,22 @@ public class FormatFrame extends javax.swing.JFrame implements FormatProgressLis
                             .addComponent(jLabel3))
                         .addGap(18, 18, 18)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(label_dest)
-                            .addComponent(label_src))
-                        .addGap(362, 362, 362))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jSeparator1, javax.swing.GroupLayout.DEFAULT_SIZE, 477, Short.MAX_VALUE)
-                        .addContainerGap())
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(jButton1)
-                        .addContainerGap())
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(progress_current, javax.swing.GroupLayout.DEFAULT_SIZE, 477, Short.MAX_VALUE)
+                            .addComponent(label_src, javax.swing.GroupLayout.PREFERRED_SIZE, 398, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(label_dest, javax.swing.GroupLayout.PREFERRED_SIZE, 398, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addContainerGap())
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(label_overallstatus)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(label_status)
-                        .addContainerGap(398, Short.MAX_VALUE))))
+                        .addComponent(label_status, javax.swing.GroupLayout.PREFERRED_SIZE, 433, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addContainerGap())
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(jButton1)
+                        .addContainerGap())
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jSeparator1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 477, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(progress_current, javax.swing.GroupLayout.DEFAULT_SIZE, 477, Short.MAX_VALUE))
+                        .addContainerGap())))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -235,8 +234,8 @@ public class FormatFrame extends javax.swing.JFrame implements FormatProgressLis
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel5)
                     .addComponent(label_dest))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jSeparator1, javax.swing.GroupLayout.DEFAULT_SIZE, 1, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 13, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(label_overallstatus)
@@ -268,7 +267,7 @@ public class FormatFrame extends javax.swing.JFrame implements FormatProgressLis
 
     public void notifyOfTermination(boolean wasFormatSuccessful, Exception e) {
         if (wasFormatSuccessful) {
-            int result = JOptionPane.showConfirmDialog(this, "Format successful. Open track now?", "Format Successful", 1);
+            int result = JOptionPane.showConfirmDialog(this, "Format successful. Open track now?", "Format Successful", JOptionPane.YES_NO_OPTION);
             this.setVisible(false);
             if (result == JOptionPane.YES_OPTION) {
                 try {
