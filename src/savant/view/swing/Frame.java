@@ -781,7 +781,10 @@ public class Frame {
     public BufferedImage frameToImage(){
         BufferedImage bufferedImage = new BufferedImage(getGraphPane().getWidth(), getGraphPane().getHeight(), BufferedImage.TYPE_INT_RGB);
         Graphics2D g = bufferedImage.createGraphics();
+        this.getGraphPane().setRenderRequired();
+        this.getGraphPane().forceFullRender();
         this.getGraphPane().render(g);
+        this.getGraphPane().unforceFullRender();
         g.setColor(Color.black);
         g.setFont(new Font(null, Font.BOLD, 13));
         g.drawString(this.getTracks().get(0).getName(), 2, 15);

@@ -99,6 +99,7 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
     //private int buffTop = -1;
     //private int buffBottom = -1;
     private int posOffset = 0;
+    private boolean forcedHeight = false;
 
     //dragging
     private int startX;
@@ -314,6 +315,9 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
 
             renderRequired = false;
             this.bufferedImage = new BufferedImage(this.getWidth(), Math.min(this.getHeight(), this.parentFrame.scrollPane.getViewport().getHeight()*3), BufferedImage.TYPE_INT_RGB);
+            if(this.forcedHeight){
+                this.bufferedImage = new BufferedImage(this.getWidth(), this.getHeight(), BufferedImage.TYPE_INT_RGB);
+            }
             if(this.bufferedImage.getHeight() == this.getHeight()){
                 setOffset(0);
             } else {
@@ -445,6 +449,16 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
      */
     public void setRenderRequired(){
         this.renderRequired = true;
+    }
+
+    //Force the bufferedImage to contain entire height at current range
+    //Make sure you unforce immediately after!
+    public void forceFullRender(){
+        this.forcedHeight = true;
+    }
+
+    public void unforceFullRender(){
+        this.forcedHeight = false;
     }
 
     private void setOffset(int offset){
