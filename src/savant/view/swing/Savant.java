@@ -460,7 +460,6 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         menuitem_ucsc = new javax.swing.JMenuItem();
         menuitem_thousandgenomes = new javax.swing.JMenuItem();
         jSeparator4 = new javax.swing.JSeparator();
-        menuitem_screen = new javax.swing.JMenuItem();
         jMenuItem2 = new javax.swing.JMenuItem();
         jSeparator9 = new javax.swing.JPopupMenu.Separator();
         menuitem_exit = new javax.swing.JMenuItem();
@@ -520,7 +519,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         panelExtendedMiddle.setLayout(panelExtendedMiddleLayout);
         panelExtendedMiddleLayout.setHorizontalGroup(
             panelExtendedMiddleLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 856, Short.MAX_VALUE)
+            .addGap(0, 866, Short.MAX_VALUE)
         );
         panelExtendedMiddleLayout.setVerticalGroup(
             panelExtendedMiddleLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -538,7 +537,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         panel_main.setLayout(panel_mainLayout);
         panel_mainLayout.setHorizontalGroup(
             panel_mainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 856, Short.MAX_VALUE)
+            .addGap(0, 866, Short.MAX_VALUE)
         );
         panel_mainLayout.setVerticalGroup(
             panel_mainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -573,7 +572,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         panel_toolbar.setLayout(panel_toolbarLayout);
         panel_toolbarLayout.setHorizontalGroup(
             panel_toolbarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 856, Short.MAX_VALUE)
+            .addGap(0, 866, Short.MAX_VALUE)
         );
         panel_toolbarLayout.setVerticalGroup(
             panel_toolbarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -682,10 +681,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         menuitem_file.add(submenu_download);
         menuitem_file.add(jSeparator4);
 
-        menuitem_screen.setText("Screenshot");
-        menuitem_file.add(menuitem_screen);
-
-        jMenuItem2.setText("Export");
+        jMenuItem2.setText("Export to PNG...");
         jMenuItem2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 menuitem_exportActionPerformed(evt);
@@ -988,12 +984,12 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(panel_top, javax.swing.GroupLayout.DEFAULT_SIZE, 856, Short.MAX_VALUE)
+            .addComponent(panel_top, javax.swing.GroupLayout.DEFAULT_SIZE, 866, Short.MAX_VALUE)
             .addGroup(layout.createSequentialGroup()
                 .addComponent(toolbar_bottom, javax.swing.GroupLayout.DEFAULT_SIZE, 846, Short.MAX_VALUE)
                 .addContainerGap())
-            .addComponent(panel_toolbar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(panel_main, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 856, Short.MAX_VALUE)
+            .addComponent(panel_toolbar, javax.swing.GroupLayout.DEFAULT_SIZE, 866, Short.MAX_VALUE)
+            .addComponent(panel_main, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 866, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1088,10 +1084,6 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
     private void menuitem_trackURLActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuitem_trackActionPerformed
         this.showOpenURLDialog();
     }//GEN-LAST:event_menuitem_trackActionPerformed
-
-    private void menuitem_screenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuitem_screenActionPerformed
-        ScreenShot.takeAndSave();
-    }//GEN-LAST:event_menuitem_screenActionPerformed
 
     private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
         try {
@@ -1426,7 +1418,6 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
     private javax.swing.JCheckBoxMenuItem menuitem_ruler;
     private javax.swing.JMenuItem menuitem_savesession;
     private javax.swing.JMenuItem menuitem_savesessionas;
-    private javax.swing.JMenuItem menuitem_screen;
     private javax.swing.JCheckBoxMenuItem menuitem_startpage;
     private javax.swing.JCheckBoxMenuItem menuitem_statusbar;
     private javax.swing.JMenuItem menuitem_thousandgenomes;
@@ -1732,7 +1723,6 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         menuitem_track.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_T, osSpecificModifier));
         menuitem_trackURL.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_U, osSpecificModifier));
         menuItemFormat.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F, osSpecificModifier));
-        menuitem_screen.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_S, osSpecificModifier));
         menuitem_exit.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Q, osSpecificModifier));
         menuitem_undo.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Z, osSpecificModifier));
         jMenuItem5.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Y, osSpecificModifier));

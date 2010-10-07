@@ -135,14 +135,9 @@
             </Menu>
             <MenuItem class="javax.swing.JSeparator" name="jSeparator4">
             </MenuItem>
-            <MenuItem class="javax.swing.JMenuItem" name="menuitem_screen">
-              <Properties>
-                <Property name="text" type="java.lang.String" value="Screenshot"/>
-              </Properties>
-            </MenuItem>
             <MenuItem class="javax.swing.JMenuItem" name="jMenuItem2">
               <Properties>
-                <Property name="text" type="java.lang.String" value="Export"/>
+                <Property name="text" type="java.lang.String" value="Export to PNG..."/>
               </Properties>
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="menuitem_exportActionPerformed"/>
@@ -527,13 +522,13 @@
   <Layout>
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Component id="panel_top" alignment="0" pref="856" max="32767" attributes="0"/>
+          <Component id="panel_top" alignment="0" pref="866" max="32767" attributes="0"/>
           <Group type="102" alignment="0" attributes="0">
               <Component id="toolbar_bottom" pref="846" max="32767" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
-          <Component id="panel_toolbar" alignment="0" max="32767" attributes="0"/>
-          <Component id="panel_main" alignment="1" pref="856" max="32767" attributes="0"/>
+          <Component id="panel_toolbar" alignment="0" pref="866" max="32767" attributes="0"/>
+          <Component id="panel_main" alignment="1" pref="866" max="32767" attributes="0"/>
       </Group>
     </DimensionLayout>
     <DimensionLayout dim="1">
@@ -587,7 +582,7 @@
           <Layout>
             <DimensionLayout dim="0">
               <Group type="103" groupAlignment="0" attributes="0">
-                  <EmptySpace min="0" pref="856" max="32767" attributes="0"/>
+                  <EmptySpace min="0" pref="866" max="32767" attributes="0"/>
               </Group>
             </DimensionLayout>
             <DimensionLayout dim="1">
@@ -618,7 +613,7 @@
       <Layout>
         <DimensionLayout dim="0">
           <Group type="103" groupAlignment="0" attributes="0">
-              <EmptySpace min="0" pref="856" max="32767" attributes="0"/>
+              <EmptySpace min="0" pref="866" max="32767" attributes="0"/>
           </Group>
         </DimensionLayout>
         <DimensionLayout dim="1">
@@ -686,7 +681,7 @@
       <Layout>
         <DimensionLayout dim="0">
           <Group type="103" groupAlignment="0" attributes="0">
-              <EmptySpace min="0" pref="856" max="32767" attributes="0"/>
+              <EmptySpace min="0" pref="866" max="32767" attributes="0"/>
           </Group>
         </DimensionLayout>
         <DimensionLayout dim="1">
