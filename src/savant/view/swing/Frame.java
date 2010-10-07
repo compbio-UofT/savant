@@ -65,7 +65,8 @@ public class Frame {
 
     private JLayeredPane jlp;
 
-    public CommandBar commandBar;
+    //public CommandBar commandBar;
+    public JMenuBar commandBar;
     public CommandBar commandBarHidden;
     private JPanel arcLegend;
     //private boolean legend = false;
@@ -180,11 +181,16 @@ public class Frame {
         //frameLandscape.add(getGraphPane());
 
         //COMMAND BAR
-        commandBar = new CommandBar();
-        commandBar.setStretch(false);
-        commandBar.setPaintBackground(false);
+        commandBar = new JMenuBar();
+
+        //THE FOLLOWING BLOCK ONLY APPLIED TO JIDE COMMANDBAR
+        //commandBar = new CommandBar();
+        //commandBar.setStretch(false);
+        //commandBar.setPaintBackground(false);
+        //commandBar.setChevronAlwaysVisible(false);
+        
         commandBar.setOpaque(true);
-        commandBar.setChevronAlwaysVisible(false);
+        
         JMenu optionsMenu = createOptionsMenu();
         //JMenu infoMenu = createInfoMenu();
         //JideButton lockButton = createLockButton();
@@ -415,7 +421,8 @@ public class Frame {
      */
     private JMenu createOptionsMenu() {
         JCheckBoxMenuItem item;
-        JMenu menu = new JideMenu("Settings");
+        //JMenu menu = new JideMenu("Settings");
+        JMenu menu = new JMenu("Settings");
         item = new JCheckBoxMenuItem("Lock Track");
         item.addActionListener(new AbstractAction() {
             public void actionPerformed(ActionEvent e) {
