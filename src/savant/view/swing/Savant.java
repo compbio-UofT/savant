@@ -15,11 +15,8 @@
  */
 package savant.view.swing;
 
-import java.beans.PropertyVetoException;
-import java.net.URISyntaxException;
-import savant.file.SavantUnsupportedVersionException;
 import savant.swing.component.TrackChooser;
-import com.jidesoft.dialog.JideOptionPane;
+import com.apple.eawt.*;
 import com.jidesoft.docking.*;
 import com.jidesoft.docking.event.DockableFrameEvent;
 import com.jidesoft.docking.event.DockableFrameListener;
@@ -50,7 +47,6 @@ import savant.controller.event.reference.ReferenceChangedListener;
 import savant.controller.event.track.TrackListChangedEvent;
 import savant.controller.event.track.TrackListChangedListener;
 import savant.data.types.Genome;
-import savant.file.FileType;
 import savant.plugin.GUIPlugin;
 import savant.plugin.PluginAdapter;
 import savant.settings.BrowserSettings;
@@ -63,18 +59,13 @@ import savant.view.dialog.DataFormatForm;
 import savant.view.dialog.GenomeLengthForm;
 import savant.view.dialog.OpenURLDialog;
 import savant.view.dialog.PluginDialog;
-import savant.view.swing.sequence.SequenceViewTrack;
 import savant.view.swing.util.DialogUtils;
-import savant.view.swing.util.ScreenShot;
 import savant.view.tools.ToolsModule;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -84,8 +75,6 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import savant.controller.RecentTracksController;
-import savant.data.sources.FASTAFileDataSource;
-import savant.file.SavantFileNotFormattedException;
 import savant.net.DownloadTreeList;
 import savant.plugin.PluginTool;
 import savant.plugin.XMLTool;
@@ -114,8 +103,6 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
     private DockingManager trackDockingManager;
     private JPanel trackPanel;
     private JPanel menuPanel;
-    private JButton button_genome;
-    private JButton trackButton;
     private JButton goButton;
     private ToolsModule savantTools;
     private static boolean showNonGenomicReferenceDialog = true;
@@ -123,13 +110,13 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
     public static String os = System.getProperty("os.name").toLowerCase();
     public static boolean mac = os.contains("mac");
     public static int osSpecificModifier = (mac ? java.awt.event.InputEvent.META_MASK : java.awt.event.InputEvent.CTRL_MASK);
-    private static int groupNum = 0;
     private static Map<DockableFrame, Frame> dockFrameToFrameMap = new HashMap<DockableFrame, Frame>();
     private DockableFrame genomeFrame = null;
     private DataFormatForm dff;
     private OpenURLDialog urlDialog;
     private MemoryStatusBarItem memorystatusbar;
     private DockableFrame startPageDockableFrame;
+    private Application macOSXApplication;
 
     public void addToolBar(JToolBar b) {
         this.panel_toolbar.setLayout(new BoxLayout(this.panel_toolbar, BoxLayout.X_AXIS));
@@ -456,23 +443,23 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         menuitem_loadsession = new javax.swing.JMenuItem();
         menuitem_savesession = new javax.swing.JMenuItem();
         menuitem_savesessionas = new javax.swing.JMenuItem();
-        jSeparator3 = new javax.swing.JSeparator();
+        javax.swing.JSeparator jSeparator3 = new javax.swing.JSeparator();
         menuItemFormat = new javax.swing.JMenuItem();
         submenu_download = new javax.swing.JMenu();
         menuitem_preformatted = new javax.swing.JMenuItem();
         menuitem_ucsc = new javax.swing.JMenuItem();
         menuitem_thousandgenomes = new javax.swing.JMenuItem();
-        jSeparator4 = new javax.swing.JSeparator();
+        javax.swing.JSeparator jSeparator4 = new javax.swing.JSeparator();
         jMenuItem2 = new javax.swing.JMenuItem();
         jSeparator9 = new javax.swing.JPopupMenu.Separator();
         menuitem_exit = new javax.swing.JMenuItem();
         menu_edit = new javax.swing.JMenu();
         menuitem_undo = new javax.swing.JMenuItem();
         jMenuItem5 = new javax.swing.JMenuItem();
-        jSeparator2 = new javax.swing.JPopupMenu.Separator();
+        javax.swing.JPopupMenu.Separator jSeparator2 = new javax.swing.JPopupMenu.Separator();
         menuItemAddToFaves = new javax.swing.JMenuItem();
         menuitem_preferences = new javax.swing.JMenuItem();
-        jSeparator8 = new javax.swing.JPopupMenu.Separator();
+        javax.swing.JPopupMenu.Separator jSeparator8 = new javax.swing.JPopupMenu.Separator();
         menuitem_preferences1 = new javax.swing.JMenuItem();
         menu_view = new javax.swing.JMenu();
         menuItemPanLeft = new javax.swing.JMenuItem();
@@ -481,7 +468,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         menuItemZoomOut = new javax.swing.JMenuItem();
         menuItemShiftStart = new javax.swing.JMenuItem();
         menuItemShiftEnd = new javax.swing.JMenuItem();
-        jSeparator5 = new javax.swing.JSeparator();
+        javax.swing.JSeparator jSeparator5 = new javax.swing.JSeparator();
         menuitem_aim = new javax.swing.JCheckBoxMenuItem();
         menuitem_view_plumbline = new javax.swing.JCheckBoxMenuItem();
         menuitem_view_spotlight = new javax.swing.JCheckBoxMenuItem();
@@ -492,11 +479,10 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         menuitem_ruler = new javax.swing.JCheckBoxMenuItem();
         menuitem_statusbar = new javax.swing.JCheckBoxMenuItem();
         jMenuItem4 = new javax.swing.JCheckBoxMenuItem();
-        jSeparator1 = new javax.swing.JSeparator();
+        javax.swing.JSeparator jSeparator1 = new javax.swing.JSeparator();
         menuitem_startpage = new javax.swing.JCheckBoxMenuItem();
         menuitem_tools = new javax.swing.JCheckBoxMenuItem();
         menu_bookmarks = new javax.swing.JCheckBoxMenuItem();
-        jSeparator10 = new javax.swing.JPopupMenu.Separator();
         menu_plugins = new javax.swing.JMenu();
         menuitem_pluginmanager = new javax.swing.JMenuItem();
         menu_help = new javax.swing.JMenu();
@@ -522,7 +508,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         panelExtendedMiddle.setLayout(panelExtendedMiddleLayout);
         panelExtendedMiddleLayout.setHorizontalGroup(
             panelExtendedMiddleLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 866, Short.MAX_VALUE)
+            .addGap(0, 876, Short.MAX_VALUE)
         );
         panelExtendedMiddleLayout.setVerticalGroup(
             panelExtendedMiddleLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -540,7 +526,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         panel_main.setLayout(panel_mainLayout);
         panel_mainLayout.setHorizontalGroup(
             panel_mainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 866, Short.MAX_VALUE)
+            .addGap(0, 876, Short.MAX_VALUE)
         );
         panel_mainLayout.setVerticalGroup(
             panel_mainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -575,7 +561,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         panel_toolbar.setLayout(panel_toolbarLayout);
         panel_toolbarLayout.setHorizontalGroup(
             panel_toolbarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 866, Short.MAX_VALUE)
+            .addGap(0, 876, Short.MAX_VALUE)
         );
         panel_toolbarLayout.setVerticalGroup(
             panel_toolbarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -928,7 +914,6 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
             }
         });
         menu_window.add(menu_bookmarks);
-        menu_window.add(jSeparator10);
 
         menuBar_top.add(menu_window);
 
@@ -987,12 +972,12 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(panel_top, javax.swing.GroupLayout.DEFAULT_SIZE, 866, Short.MAX_VALUE)
+            .addComponent(panel_top, javax.swing.GroupLayout.DEFAULT_SIZE, 876, Short.MAX_VALUE)
             .addGroup(layout.createSequentialGroup()
-                .addComponent(toolbar_bottom, javax.swing.GroupLayout.DEFAULT_SIZE, 846, Short.MAX_VALUE)
+                .addComponent(toolbar_bottom, javax.swing.GroupLayout.DEFAULT_SIZE, 856, Short.MAX_VALUE)
                 .addContainerGap())
-            .addComponent(panel_toolbar, javax.swing.GroupLayout.DEFAULT_SIZE, 866, Short.MAX_VALUE)
-            .addComponent(panel_main, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 866, Short.MAX_VALUE)
+            .addComponent(panel_toolbar, javax.swing.GroupLayout.DEFAULT_SIZE, 876, Short.MAX_VALUE)
+            .addComponent(panel_main, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 876, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1320,6 +1305,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         java.awt.EventQueue.invokeLater(new Runnable() {
 
             public void run() {
+                System.setProperty("apple.laf.useScreenMenuBar", "true");
                 com.jidesoft.utils.Lm.verifyLicense("Marc Fiume", "Savant Genome Browser", "1BimsQGmP.vjmoMbfkPdyh0gs3bl3932");
                 LookAndFeelFactory.installJideExtension(LookAndFeelFactory.OFFICE2007_STYLE);
                 loadPreferences();
@@ -1376,14 +1362,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
     private javax.swing.JMenuItem jMenuItem3;
     private javax.swing.JCheckBoxMenuItem jMenuItem4;
     private javax.swing.JMenuItem jMenuItem5;
-    private javax.swing.JSeparator jSeparator1;
-    private javax.swing.JPopupMenu.Separator jSeparator10;
-    private javax.swing.JPopupMenu.Separator jSeparator2;
-    private javax.swing.JSeparator jSeparator3;
-    private javax.swing.JSeparator jSeparator4;
-    private javax.swing.JSeparator jSeparator5;
     private javax.swing.JSeparator jSeparator6;
-    private javax.swing.JPopupMenu.Separator jSeparator8;
     private javax.swing.JPopupMenu.Separator jSeparator9;
     private javax.swing.JLabel label_memory;
     private javax.swing.JLabel label_mouseposition;
@@ -1444,9 +1423,24 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
     // End of variables declaration//GEN-END:variables
 
     /**
-     * Customize the UI
+     * Customize the UI.  This includes doing any platform-specific customization.
      */
     void customizeUI() {
+        if (mac) {
+            try {
+                macOSXApplication = new com.apple.eawt.Application();
+                macOSXApplication.addApplicationListener(new ApplicationAdapter() {
+                    @Override
+                    public void handleQuit(ApplicationEvent evt) {
+                        menuitem_exitActionPerformed(null);
+                    }
+                });
+                this.menuitem_file.remove(jSeparator9);
+                this.menuitem_file.remove(menuitem_exit);
+            } catch (Exception e) {
+                LOG.error("Unable to load Apple eAWT classes.");
+            }
+        }
         LookAndFeelFactory.UIDefaultsCustomizer uiDefaultsCustomizer = new LookAndFeelFactory.UIDefaultsCustomizer() {
 
             public void customize(UIDefaults defaults) {
@@ -1552,7 +1546,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
     private void initPlugins() {
         try {
             // init the AuxData plugins
-
+            boolean separatorAdded = false;
             PluginDescriptor core = pluginManager.getRegistry().getPluginDescriptor("savant.core");
             ExtensionPoint point = pluginManager.getRegistry().getExtensionPoint(core.getId(), "AuxData");
 
@@ -1582,8 +1576,8 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
                     canvas.setLayout(new BorderLayout());
                     plugin.init(canvas, new PluginAdapter());
                     this.getAuxDockingManager().addFrame(f);
-                    boolean isIntiallyVisible = false;
-                    setFrameVisibility(f.getTitle(), isIntiallyVisible, auxDockingManager);
+                    boolean isInitiallyVisible = false;
+                    setFrameVisibility(f.getTitle(), isInitiallyVisible, auxDockingManager);
                     final JCheckBoxMenuItem cb = new JCheckBoxMenuItem(plugin.getTitle());
                     cb.addActionListener(new ActionListener() {
 
@@ -1599,6 +1593,10 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
                     //FIXME: this is not ideal...
                     if (plugin.getTitle().equals("Table View")) {
                         cb.setSelected(true);
+                    }
+                    if (!separatorAdded) {
+                        menu_window.add(new JSeparator());
+                        separatorAdded = true;
                     }
                     menu_window.add(cb);
                 } else if (plugininstance instanceof PluginTool) {
@@ -1675,8 +1673,8 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
     }
 
     /**
-     * Provide access to the tabbed pane in the bottom auxilliary panel
-     * @return the auxilliary tabbed pane
+     * Provide access to the tabbed pane in the bottom auxiliary panel
+     * @return the auxiliary tabbed pane
      */
     public JTabbedPane getAuxTabbedPane() {
         return auxTabbedPane;
@@ -1707,6 +1705,7 @@ public class Savant extends javax.swing.JFrame implements ComponentListener, Ran
         this.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
         this.addWindowListener(new WindowAdapter() {
 
+            @Override
             public void windowClosing(WindowEvent e) {
                 askToDispose();
 
