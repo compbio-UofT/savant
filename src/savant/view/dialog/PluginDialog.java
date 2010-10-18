@@ -1,9 +1,4 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
-/*
  * PluginManager.java
  *
  * Created on Mar 9, 2010, 10:11:36 AM
@@ -11,8 +6,8 @@
 
 package savant.view.dialog;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jdom.JDOMException;
 import savant.view.swing.*;
 import javax.swing.*;
@@ -22,15 +17,10 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.MalformedURLException;
 import java.net.URL;
 import savant.net.DownloadTreeList;
 import savant.settings.BrowserSettings;
-import savant.settings.DirectorySettings;
 import savant.util.DownloadFile;
-import savant.util.MiscUtils;
 
 /**
  *
@@ -38,6 +28,7 @@ import savant.util.MiscUtils;
  */
 public class PluginDialog extends javax.swing.JDialog {
 
+    private static Log log = LogFactory.getLog(PluginDialog.class);
     public static String pluginDir = "plugins";
 
     /** Creates new form PluginManager */
@@ -167,7 +158,7 @@ public class PluginDialog extends javax.swing.JDialog {
     // End of variables declaration//GEN-END:variables
 
     private void updatePluginList() {
-        System.out.println("Updating plugin list");
+        log.info("Updating plugin list");
         
         DefaultListModel model = (DefaultListModel) this.list_installedplugins.getModel();
         model.removeAllElements();
@@ -177,6 +168,7 @@ public class PluginDialog extends javax.swing.JDialog {
         // It is also possible to filter the list of returned files.
         // This example does not return any files that start with `.'.
         FilenameFilter filter = new FilenameFilter() {
+            @Override
             public boolean accept(File dir, String name) {
                 return name.endsWith(".jar");
             }
@@ -233,16 +225,16 @@ public class PluginDialog extends javax.swing.JDialog {
                         "\nYou can manually install it by adding the appropriate \n" +
                         ".jar file to the plugins directory.");
             }
-        }
 
-        JOptionPane.showMessageDialog(this, "Plugin successfully installed. Restart Savant \n" +
-                "for changes to take effect.");
+            JOptionPane.showMessageDialog(this, "Plugin successfully installed. Restart Savant \n" +
+                    "for changes to take effect.");
+        }
     }
 
     private void removePlugin() {
 
         int reply = JOptionPane.showConfirmDialog(this, "Are you sure you want to remove \n" +
-                "this plugin?");
+                "this plugin?", "Remove Plugin?", JOptionPane.YES_NO_OPTION);
         if (reply == JOptionPane.YES_OPTION) {
             try {
                 String pluginFileName = (String) this.list_installedplugins.getSelectedValue();
@@ -255,7 +247,7 @@ public class PluginDialog extends javax.swing.JDialog {
 
                 DefaultListModel model = (DefaultListModel) this.list_installedplugins.getModel();
 
-                System.out.println("trying to uninstall " + pluginDir + System.getProperty("file.separator") + pluginFileName);
+                log.info("Trying to uninstall " + pluginDir + System.getProperty("file.separator") + pluginFileName);
 
                 File f = new File(pluginDir + System.getProperty("file.separator") + pluginFileName);
 
@@ -302,68 +294,6 @@ public class PluginDialog extends javax.swing.JDialog {
         finally {
             if (fis != null) fis.close();
             if (fos != null) fos.close();
-        }
-    }
-
-    private void addPluginFromURL() {
-        String s = (String)JOptionPane.showInputDialog(
-                    this,
-                    "Enter the URL of the plugin: ",
-                    "Install plugin from URL",
-                    JOptionPane.PLAIN_MESSAGE,
-                    null,
-                    null,
-                    "URL");
-
-        //If a string was returned, say so.
-        if ((s != null) && (s.length() > 0)) {
-
-            String url = s;
-
-            URL u;
-            OutputStream out = null;
-            InputStream in = null;
-            try
-            {
-                String plname = MiscUtils.getFilenameFromPath(url);
-                out = new FileOutputStream(pluginDir + System.getProperty("file.separator") + MiscUtils.getFilenameFromPath(url));
-                u = new URL(url);
-                //Serve the file
-                in = u.openStream();
-                byte[] buf = new byte[4 * 1024]; // 4K buffer
-                int bytesRead;
-                while ((bytesRead = in.read(buf)) != -1) {
-                    out.write(buf, 0, bytesRead);
-                }
-            }
-            catch (MalformedURLException mue)
-            {
-              JOptionPane.showMessageDialog(this, "Error installing plugin." +
-                        "\nThe URL appears to be incorrect.");
-              addPluginFromURL();
-              return;
-            }
-            catch (IOException ioe)
-            {
-              JOptionPane.showMessageDialog(this, "Error installing plugin." +
-                        "\nYou can manually install it by adding the appropriate \n" +
-                        ".jar file to the plugins directory.");
-              return;
-            }
-            finally
-            {
-              try
-              {
-                in.close();
-                out.close();
-              }
-              catch (IOException ioe) {}
-            }
-
-            updatePluginList();
-            JOptionPane.showMessageDialog(this, "Plugin successfully installed. Restart Savant \n" +
-                "for changes to take effect.");
-            return;
         }
     }
 }
