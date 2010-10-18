@@ -30,6 +30,7 @@ import org.apache.commons.logging.LogFactory;
 import savant.util.MiscUtils;
 import savant.util.SavantFileUtils;
 import savant.util.SeekableAdjustableBufferedStream;
+import savant.util.SeekableFTPStream;
 
 import java.io.File;
 import java.io.IOException;
@@ -121,7 +122,16 @@ public class SavantROFile implements ROFile {
      */
     public SavantROFile(URI uri) throws IOException, SavantFileNotFormattedException, SavantUnsupportedVersionException {
         this.uri = uri.normalize();
-        this.seekStream = new SeekableAdjustableBufferedStream(new SeekableHTTPStream(uri.toURL()), 4096);
+        if (uri.getScheme().toLowerCase().equals("http"))  {
+            this.seekStream = new SeekableAdjustableBufferedStream(new SeekableHTTPStream(uri.toURL()), 4096);
+        }
+        else if (uri.getScheme().toLowerCase().equals("ftp")) {
+            this.seekStream = new SeekableAdjustableBufferedStream(new SeekableFTPStream(uri.toURL()), 4096);
+        }
+        else {
+            this.seekStream = null;
+            throw new IllegalArgumentException("Only HTTP and FTP URLs are valid");
+        }
         init();
     }
 

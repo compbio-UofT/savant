@@ -69,13 +69,11 @@ public class BAMDataSource implements DataSource<BAMIntervalRecord> {
             fileURL = uri.toURL();
             // if no exception is thrown, this is an absolute URL
             if (fileURL.getProtocol().equalsIgnoreCase("http")) {
-                // for now, we can deal with http URLs only
                 indexFile = getIndexFileCached(fileURL);
                 if (indexFile != null) {
                     return new BAMDataSource(fileURL, indexFile);
                 }
             }
-
         } catch (MalformedURLException e) {
             // not a URL, try as a filename
         } catch (URISyntaxException e) {
