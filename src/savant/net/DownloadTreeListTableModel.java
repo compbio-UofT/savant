@@ -1,8 +1,18 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ *    Copyright 2009-2010 University of Toronto
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
  */
-
 package savant.net;
 
 import com.jidesoft.grid.CellStyle;
@@ -11,10 +21,15 @@ import com.jidesoft.grid.TreeTableModel;
 
 import java.awt.*;
 import java.util.List;
-import javax.swing.JButton;
 
 public class DownloadTreeListTableModel extends TreeTableModel implements StyleModel {
     static final protected String[] COLUMN_NAMES = {"Name", "Description", "Type", "Filename", "Size"}; //, "Download"};
+    static final Color BACKGROUND = new Color(247, 247, 247);
+    static final CellStyle CELL_STYLE = new CellStyle();
+
+    static {
+        CELL_STYLE.setBackground(BACKGROUND);
+    }
 
     public DownloadTreeListTableModel(List rows) {
         super(rows);
@@ -25,17 +40,12 @@ public class DownloadTreeListTableModel extends TreeTableModel implements StyleM
         return COLUMN_NAMES[column];
     }
 
+    @Override
     public int getColumnCount() {
         return COLUMN_NAMES.length;
     }
 
-    static final Color BACKGROUND = new Color(247, 247, 247);
-    static final CellStyle CELL_STYLE = new CellStyle();
-
-    static {
-        CELL_STYLE.setBackground(BACKGROUND);
-    }
-
+    @Override
     public CellStyle getCellStyleAt(int rowIndex, int columnIndex) {
         if (columnIndex == 0) {
             return CELL_STYLE;
@@ -45,6 +55,7 @@ public class DownloadTreeListTableModel extends TreeTableModel implements StyleM
         }
     }
 
+    @Override
     public boolean isCellStyleOn() {
         return true;
     }
@@ -62,10 +73,7 @@ public class DownloadTreeListTableModel extends TreeTableModel implements StyleM
                 return String.class;
             case 4:
                 return String.class;
-            //case 4:
-            //    return JButton.class;
         }
         return super.getColumnClass(columnIndex);
-    }
-   
+    }   
 }
