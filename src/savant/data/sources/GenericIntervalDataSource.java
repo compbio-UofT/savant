@@ -77,6 +77,7 @@ public class GenericIntervalDataSource implements DataSource<GenericIntervalReco
         return refnameToIntervalBSTIndex.get(refname);
     }
 
+    @Override
     public List<GenericIntervalRecord> getRecords(String reference, Range range, Resolution resolution) throws IOException {
         List<IntervalRecord> data = null;
 
@@ -95,6 +96,7 @@ public class GenericIntervalDataSource implements DataSource<GenericIntervalReco
         return girList;
     }
 
+    @Override
     public void close() {
         try {
             this.dFile.close();
@@ -103,11 +105,13 @@ public class GenericIntervalDataSource implements DataSource<GenericIntervalReco
         }
     }
 
+    @Override
     public Set<String> getReferenceNames() {
         Map<String, Long[]> refMap = dFile.getReferenceMap();
         return refMap.keySet();
     }
 
+    @Override
     public URI getURI() {
         return dFile.getURI();
     }

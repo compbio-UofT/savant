@@ -1,4 +1,7 @@
 /*
+ * GenericIntervalRecord.java
+ * Created on Jan 8, 2010
+ *
  *    Copyright 2010 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,12 +16,6 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-
-/*
- * GenericIntervalRecord.java
- * Created on Jan 8, 2010
- */
-
 package savant.data.types;
 
 import savant.util.Strand;
@@ -31,7 +28,7 @@ import java.util.List;
  * 
  * @author mfiume, vwilliams
  */
-public class BEDIntervalRecord implements IntervalRecord, Comparable {
+public final class BEDIntervalRecord implements IntervalRecord, Comparable {
 
     private final Interval interval;
     private final List<Block> blocks;
@@ -39,8 +36,8 @@ public class BEDIntervalRecord implements IntervalRecord, Comparable {
     private final String name;
     private final float score;
     private final Strand strand;
-    private final int thickStart;
-    private final int thickEnd;
+    private final long thickStart;
+    private final long thickEnd;
     private final ItemRGB itemRGB;
 
     /**
@@ -56,7 +53,7 @@ public class BEDIntervalRecord implements IntervalRecord, Comparable {
      * @param rgb
      * @param blocks
      */
-    BEDIntervalRecord(String chrom, Interval interval, String name, float score, Strand strand, int thickStart, int thickEnd, ItemRGB rgb,  List<Block> blocks) {
+    private BEDIntervalRecord(String chrom, Interval interval, String name, float score, Strand strand, long thickStart, long thickEnd, ItemRGB rgb,  List<Block> blocks) {
 
         if (chrom == null) throw new IllegalArgumentException("Invalid argument: chrom may not be null");
         if (interval == null) throw new IllegalArgumentException("Invalid argument. Interval must not be null");
@@ -75,7 +72,7 @@ public class BEDIntervalRecord implements IntervalRecord, Comparable {
     /**
      * Static factory method to construct a BEDIntervalRecord
      *
-     * @param chrom chrom chromosome; may not be null
+     * @param chrom chromosome; may not be null
      * @param interval interval interval including chromStart and chromEnd; may not be null
      * @param name
      * @param score
@@ -86,10 +83,11 @@ public class BEDIntervalRecord implements IntervalRecord, Comparable {
      * @param blocks
      * @return
      */
-    public static BEDIntervalRecord valueOf(String chrom, Interval interval, String name, float score, Strand strand, int thickStart, int thickEnd, ItemRGB rgb,  List<Block> blocks) {
+    public static BEDIntervalRecord valueOf(String chrom, Interval interval, String name, float score, Strand strand, long thickStart, long thickEnd, ItemRGB rgb,  List<Block> blocks) {
         return new BEDIntervalRecord(chrom, interval, name, score, strand, thickStart, thickEnd, rgb, blocks);
     }
 
+    @Override
     public Interval getInterval() {
         return this.interval;
     }
@@ -102,6 +100,7 @@ public class BEDIntervalRecord implements IntervalRecord, Comparable {
         return chrom;
     }
 
+    @Override
     public String getReference() {
         return getChrom();
     }
@@ -110,11 +109,11 @@ public class BEDIntervalRecord implements IntervalRecord, Comparable {
         return name;
     }
 
-    public int getChromStart() {
+    public long getChromStart() {
         return getInterval().getStart();
     }
 
-    public int getChromEnd() {
+    public long getChromEnd() {
         return getInterval().getEnd();
     }
 
@@ -126,11 +125,11 @@ public class BEDIntervalRecord implements IntervalRecord, Comparable {
         return strand;
     }
 
-    public int getThickStart() {
+    public long getThickStart() {
         return thickStart;
     }
 
-    public int getThickEnd() {
+    public long getThickEnd() {
         return thickEnd;
     }
 
@@ -158,6 +157,7 @@ public class BEDIntervalRecord implements IntervalRecord, Comparable {
         return true;
     }
 
+    @Override
     public int compareTo(Object o) {
 
         BEDIntervalRecord other = (BEDIntervalRecord) o;
@@ -175,8 +175,8 @@ public class BEDIntervalRecord implements IntervalRecord, Comparable {
         }
 
         //compare point
-        int a = this.getChromStart();
-        int b = other.getChromStart();
+        long a = this.getChromStart();
+        long b = other.getChromStart();
 
         if(a == b){
             String a1 = this.getName();
@@ -200,8 +200,8 @@ public class BEDIntervalRecord implements IntervalRecord, Comparable {
         result = 31 * result + (name != null ? name.hashCode() : 0);
         result = 31 * result + (score != +0.0f ? Float.floatToIntBits(score) : 0);
         result = 31 * result + (strand != null ? strand.hashCode() : 0);
-        result = 31 * result + thickStart;
-        result = 31 * result + thickEnd;
+        result = 31 * result + (int)thickStart;
+        result = 31 * result + (int)thickEnd;
         result = 31 * result + (itemRGB != null ? itemRGB.hashCode() : 0);
         return result;
     }

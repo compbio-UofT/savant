@@ -207,7 +207,6 @@ public abstract class ViewTrack {
                 }
             } catch (SavantFileNotFormattedException e) {
                 Savant s = Savant.getInstance();
-                e.printStackTrace();
                 s.promptUserToFormatFile(trackFilename);
             } catch (SavantUnsupportedVersionException e) {
                 DialogUtils.displayMessage("This file was created using an older version of Savant. Please re-format the source.");

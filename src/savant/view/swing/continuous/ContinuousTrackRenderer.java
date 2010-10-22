@@ -85,7 +85,7 @@ public class ContinuousTrackRenderer extends TrackRenderer {
 
         int numdata = this.getData().size();
 
-        int xPos;
+        long xPos;
         double yPos;
         GeneralPath path = new GeneralPath();
         double xFormXPos, xFormYPos;

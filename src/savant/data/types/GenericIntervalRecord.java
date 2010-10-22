@@ -106,8 +106,8 @@ public class GenericIntervalRecord implements IntervalRecord, Comparable {
             if(a1.length() > a2.length()) return 1;
         }
         //compare interval
-        int a = this.getInterval().getStart();
-        int b = other.getInterval().getStart();
+        long a = this.getInterval().getStart();
+        long b = other.getInterval().getStart();
 
         if(a == b){
             String a1 = this.getDescription();

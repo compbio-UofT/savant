@@ -132,7 +132,7 @@ public class BAMViewTrack extends ViewTrack {
             renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.REFERENCE_EXISTS, contains); //this.getTrack().getReferenceNames().contains(reference));
 
             if (getDrawMode().getName().equals("MATE_PAIRS")) {
-                int maxDataValue = getMaxValue(data);
+                long maxDataValue = getMaxValue(data);
                 renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.AXIS_RANGE, AxisRange.initWithRanges(range, new Range(0,(int)Math.round(maxDataValue+maxDataValue*0.1))));
                 renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.ARC_MIN, getArcSizeVisibilityThreshold());
                 renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.DISCORDANT_MIN, getDiscordantMin());
@@ -148,11 +148,11 @@ public class BAMViewTrack extends ViewTrack {
     /*
     * Calculate the maximum (within reason) arc height to be used to set the Y axis for drawing.
      */
-    private int getMaxValue(List<Object>data) {
+    private long getMaxValue(List<Object>data) {
 
         double max = 0;
         Range displayedRange = RangeController.getInstance().getRange();
-        int displayedRangeLength = displayedRange.getLength();
+        long displayedRangeLength = displayedRange.getLength();
 
         for (Object o: data) {
 
@@ -174,7 +174,7 @@ public class BAMViewTrack extends ViewTrack {
             if (val > max) max = val;
 
         }
-        return (int)Math.ceil(max);
+        return (long)Math.ceil(max);
     }
 
     private Range getDefaultYRange() {
@@ -198,14 +198,7 @@ public class BAMViewTrack extends ViewTrack {
 
     private Resolution getDefaultModeResolution(Range range)
     {
-        int length = range.getLength();
-
-//        if (length < 10000) { return Resolution.VERY_HIGH; }
-//        else if (length < 50000) { return Resolution.HIGH; }
-//        else if (length < 1000000) { return Resolution.MEDIUM; }
-//        else if (length < 10000000) { return Resolution.LOW; }
-//        else if (length >= 10000000) { return Resolution.VERY_LOW; }
-//        else { return Resolution.VERY_HIGH; }      
+        long length = range.getLength();
 
         if (length < 5000) { return Resolution.VERY_HIGH; }
         else if (length < 10000) { return Resolution.HIGH; }

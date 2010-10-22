@@ -99,6 +99,7 @@ public class SavantFileUtils {
                     int numBlocks = file.readInt();
                     List<Block> blocks = new ArrayList<Block>(numBlocks);
                     for (int i = 0; i < numBlocks; i++) {
+                        // TODO: Should Blocks be saved as longs?
                         int start = file.readInt();
                         int size = file.readInt();
                         blocks.add(Block.valueOf(start,size));
@@ -121,6 +122,7 @@ public class SavantFileUtils {
                     record.add((char) file.readByte());
                     break;
                 case RANGE:
+                    // TODO: Should Ranges be saved as longs?
                     int start = file.readInt();
                     int end = file.readInt();
                     record.add(new Range(start,end));

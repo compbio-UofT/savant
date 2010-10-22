@@ -65,9 +65,10 @@ public class FASTAFileDataSource implements DataSource<SequenceRecord> {
         return this.length;
     }
 
+    @Override
     public List<SequenceRecord> getRecords(String reference, Range range, Resolution resolution) throws IOException {
 
-        int rangeLength = range.getLength();
+        int rangeLength = range.getLengthAsInt();
         byte[] sequence = new byte[rangeLength];
         if (this.getReferenceMap().containsKey(reference)) {
             dFile.seek(reference, SavantFileFormatterUtils.BYTE_FIELD_SIZE*range.getFrom()-1);
@@ -89,6 +90,7 @@ public class FASTAFileDataSource implements DataSource<SequenceRecord> {
         return result;
     }
 
+    @Override
     public void close() {
         if (dFile != null) {
             try {
@@ -97,6 +99,7 @@ public class FASTAFileDataSource implements DataSource<SequenceRecord> {
         }
     }
 
+    @Override
     public Set<String> getReferenceNames() {
         return this.getReferenceMap().keySet();
     }

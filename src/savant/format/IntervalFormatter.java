@@ -17,7 +17,6 @@
 
 package savant.format;
 
-import savant.debug.SavantDebugger;
 import savant.file.FieldType;
 import savant.file.FileType;
 import savant.file.SavantUnsupportedVersionException;
@@ -345,6 +344,7 @@ public class IntervalFormatter extends SavantFileFormatter {
      * @return
      * @throws FileNotFoundException
      */
+    @Override
     public BufferedReader openInputFile() throws FileNotFoundException {
         return new BufferedReader(new FileReader(inFilePath));
     }
@@ -461,7 +461,7 @@ public class IntervalFormatter extends SavantFileFormatter {
         List<Range> intervalIndex2IntervalRange = new ArrayList<Range>();
 
         // interval index (i.e. line number) -> start byte in data file (where index is implicit in list index)
-        List<Long> intevalIndex2StartByte = new ArrayList<Long>();
+        List<Long> intervalIndex2StartByte = new ArrayList<Long>();
 
         // TODO: why?
         // create a file to hold the data temporarily
@@ -479,9 +479,8 @@ public class IntervalFormatter extends SavantFileFormatter {
         log.debug("=== STEP 1 ===");
 
         // the maximum and minimum range values in the input file
-        int minRange = Integer.MAX_VALUE;
-        int maxRange = Integer.MIN_VALUE;
-
+        long minRange = Long.MAX_VALUE;
+        long maxRange = Long.MIN_VALUE;
 
         // open the input file
         inFileReader = new BufferedReader(new FileReader(path));
@@ -511,18 +510,18 @@ public class IntervalFormatter extends SavantFileFormatter {
             //}
 
             // adjust the start byte and endbyte offsets (for 0 vs. 1-based)
-            line.set(startcoordindex, ((Integer)line.get(startcoordindex)) + this.baseOffset);
-            line.set(endcoordindex, ((Integer)line.get(endcoordindex))  + this.baseOffset);
+            line.set(startcoordindex, (Long)line.get(startcoordindex) + this.baseOffset);
+            line.set(endcoordindex, (Long)line.get(endcoordindex) + this.baseOffset);
 
             // update min and max
-            int startInterval = (Integer) line.get(startcoordindex);
-            int endInterval = (Integer) line.get(endcoordindex);
+            long startInterval = (Long)line.get(startcoordindex);
+            long endInterval = (Long)line.get(endcoordindex);
             minRange = Math.min(minRange, startInterval);
             maxRange = Math.max(maxRange, endInterval);
 
             // add values to the map
             intervalIndex2IntervalRange.add(new Range(startInterval, endInterval));
-            intevalIndex2StartByte.add((long)tmpOutFile.size());
+            intervalIndex2StartByte.add((long)tmpOutFile.size());
 
             // write this record to the tmp file
             SavantFileFormatterUtils.writeBinaryRecord(tmpOutFile, line, fields, modifiers);
@@ -589,7 +588,7 @@ public class IntervalFormatter extends SavantFileFormatter {
                 writeIntervalTreeNode(currentSmallestNode, indexOutFile);
 
                 // write the data in this node to the output file
-                writeBinToOutfile(currentSmallestNode, tmpDataFile, outFile, nodeIndex2IntervalIndices, intevalIndex2StartByte, fields, modifiers);
+                writeBinToOutfile(currentSmallestNode, tmpDataFile, outFile, nodeIndex2IntervalIndices, intervalIndex2StartByte, fields, modifiers);
 
                 // remove node from ist
                 ist.removeNode(currentSmallestNode);
@@ -667,7 +666,7 @@ public class IntervalFormatter extends SavantFileFormatter {
             writeIntervalTreeNode(currentSmallestNode, indexOutFile);
 
             // write the intervals in this node to the data file
-            writeBinToOutfile(currentSmallestNode, tmpDataFile, outFile, nodeIndex2IntervalIndices, intevalIndex2StartByte, fields, modifiers);
+            writeBinToOutfile(currentSmallestNode, tmpDataFile, outFile, nodeIndex2IntervalIndices, intervalIndex2StartByte, fields, modifiers);
 
             // remove the node from the tree
             ist.removeNode(currentSmallestNode);

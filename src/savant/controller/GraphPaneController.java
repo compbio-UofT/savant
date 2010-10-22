@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 import savant.controller.event.graphpane.GraphPaneChangeEvent;
 import savant.controller.event.graphpane.GraphPaneChangeListener;
-import savant.util.MiscUtils;
 import savant.util.Range;
 import savant.view.swing.GraphPane;
 import savant.view.swing.Savant;
@@ -27,14 +26,14 @@ public class GraphPaneController {
     private boolean isPanning;
     private boolean isSelecting;
 
-    private int mouseClickPosition;
-    private int mouseReleasePosition;
-    private int mouseXPosition;
-    private int mouseYPosition;
+    private long mouseClickPosition;
+    private long mouseReleasePosition;
+    private long mouseXPosition;
+    private long mouseYPosition;
 
     private List<GraphPane> graphpanesQueuedForRendering;
 
-    private int spotlightSize;
+    private long spotlightSize;
     private double spotlightproportion = 0.25;
 
     private static GraphPaneController instance;
@@ -56,22 +55,16 @@ public class GraphPaneController {
         if (graphpanesQueuedForRendering.size() == 1) {
             Savant.getInstance().updateStatus("rendering ...");
             start = System.currentTimeMillis();
-            //System.out.println("Range change started at " + MiscUtils.now());
         }
     }
 
     public void delistRenderingGraphpane(GraphPane p) {
-        //System.out.println("Delisting gp " + p.getTrackRenderers().get(0).toString());
 
         if (!graphpanesQueuedForRendering.contains(p)) {
-            //System.err.println("Warning: attempting to delist a "
-            //        + "graphpane which is not enlisted");
             return;
         }
 
         if (graphpanesQueuedForRendering.isEmpty()) {
-            //System.err.println("Warning: attempting to delist a "
-            //        + "graphpane when non are enlisted");
             return;
         }
         graphpanesQueuedForRendering.remove(p);
@@ -80,7 +73,6 @@ public class GraphPaneController {
             // Get elapsed time in seconds
             float elapsedTimeSec = elapsedTimeMillis/1000F;
             Savant.getInstance().updateStatus("ready (took " + elapsedTimeSec + " s)");
-            //System.out.println("Range change started at " + MiscUtils.now());
             RangeController.getInstance().fireRangeChangeCompletedEvent();
         }
     }
@@ -167,7 +159,6 @@ public class GraphPaneController {
 
     public void setAiming(boolean isAiming) {
         this.isAiming = isAiming;
-        System.out.println("Setting aiming " + this.isAiming);
         changeMade = true;
         forceRefresh();
         changeMade = false;
@@ -195,50 +186,48 @@ public class GraphPaneController {
         setMouseDragRange(r.getFrom(),r.getTo());
     }
 
-    public void setMouseDragRange(int fromPosition, int toPosition) {
+    public void setMouseDragRange(long fromPosition, long toPosition) {
         this.mouseClickPosition = fromPosition;
         this.mouseReleasePosition = toPosition;
         askForRefresh();
     }
 
-    public void setMouseClickPosition(int position) {
+    public void setMouseClickPosition(long position) {
         this.mouseClickPosition = position;
         askForRefresh();
     }
 
-    public void setMouseReleasePosition(int position) {
+    public void setMouseReleasePosition(long position) {
         this.mouseReleasePosition = position;
         askForRefresh();
     }
     
-    public int getMouseXPosition() {
+    public long getMouseXPosition() {
         return this.mouseXPosition;
     }
 
-    public void setMouseXPosition(int position) {
+    public void setMouseXPosition(long position) {
         this.mouseXPosition = position;
         askForRefresh();
         Savant.getInstance().updateMousePosition();
     }
 
-    public int getMouseYPosition() {
+    public long getMouseYPosition() {
         return this.mouseYPosition;
     }
 
-    public void setMouseYPosition(int position) {
+    public void setMouseYPosition(long position) {
         this.mouseYPosition = position;
         askForRefresh();
         Savant.getInstance().updateMousePosition();
     }
     
-    public void setSpotlightSize(int size) {
+    public void setSpotlightSize(long size) {
         this.spotlightSize = Math.max(2,(int) Math.round(size*spotlightproportion));
         this.spotlightSize = 1;
     }
 
-    public int getSpotlightSize() {
+    public long getSpotlightSize() {
         return this.spotlightSize;
     }
-
-
 }

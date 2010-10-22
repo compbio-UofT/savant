@@ -49,7 +49,9 @@ public class ExportImage {
             }
         }
         //no frames selected
-        if(images.size() == 0) return;
+        if (images.isEmpty()) {
+            return;
+        }
 
         BufferedImage out = new BufferedImage(totalWidth, totalHeight, BufferedImage.TYPE_INT_RGB);
 

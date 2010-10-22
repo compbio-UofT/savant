@@ -477,7 +477,7 @@ public class BEDTrackRenderer extends TrackRenderer {
         Interval gene = bedRecord.getInterval();
         if (intervals.isEmpty()) {
             for (Block block: blocks) {
-                int blockStart = gene.getStart() + block.getPosition();
+                long blockStart = gene.getStart() + block.getPosition();
                 Interval blockInterval = Interval.valueOf(blockStart, blockStart+block.getSize());
                 intervals.add(blockInterval);
             }
@@ -486,7 +486,7 @@ public class BEDTrackRenderer extends TrackRenderer {
 
             for (Block block: blocks) {
                 // merging only works on intervals, so convert block to interval
-                int blockStart = gene.getStart() + block.getPosition();
+                long blockStart = gene.getStart() + block.getPosition();
                 Interval blockInterval = Interval.valueOf(blockStart, blockStart+block.getSize());
                 ListIterator<Interval> intervalIt = intervals.listIterator();
                 boolean merged = false;

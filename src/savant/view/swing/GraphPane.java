@@ -63,10 +63,10 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
     private int mouse_y = 0;
 
     /** min / max axis values */
-    private int xMin;
-    private int xMax;
-    private int yMin;
-    private int yMax;
+    private long xMin;
+    private long xMax;
+    private long yMin;
+    private long yMax;
     private double unitWidth;
     private double unitHeight;
 
@@ -104,7 +104,7 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
     //dragging
     private int startX;
     private int startY;
-    private int baseX;
+    private long baseX;
     private int initialScroll;
     private boolean panVert = false;
 
@@ -218,7 +218,7 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
     public Dimension render(Graphics g, Range xRange, Range yRange) {
 
         double oldUnitHeight = unitHeight;
-        int oldYMax = yMax;
+        long oldYMax = yMax;
 
         GraphPaneController gpc = GraphPaneController.getInstance();
         int x1 = MiscUtils.transformPositionToPixel(gpc.getMouseDragRange().getFrom(), this.getWidth(), new Range(this.xMin, this.xMax));
@@ -226,18 +226,18 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
 
         if (gpc.isPanning() && !this.isLocked()) { g.translate(x2-x1, 0); }
 
-        int minYRange = Integer.MAX_VALUE;
-        int maxYRange = Integer.MIN_VALUE;
+        long minYRange = Long.MAX_VALUE;
+        long maxYRange = Long.MIN_VALUE;
         isYGridOn = false;
         for (TrackRenderer tr: trackRenderers) {
 
             // ask renderers for extra info on range; consolidate to maximum Y range
             AxisRange axisRange = (AxisRange)tr.getDrawingInstructions().getInstruction(DrawingInstructions.InstructionName.AXIS_RANGE);
 
-            int yMin = axisRange.getYMin();
-            int yMax = axisRange.getYMax();
-            if (yMin < minYRange) minYRange = yMin;
-            if (yMax > maxYRange) maxYRange = yMax;
+            long axisYMin = axisRange.getYMin();
+            long axisYMax = axisRange.getYMax();
+            if (axisYMin < minYRange) minYRange = axisYMin;
+            if (axisYMax > maxYRange) maxYRange = axisYMax;
 
             // ask renders if they want horizontal lines; if any say yes, draw them
             if (tr.hasHorizontalGrid()) {
@@ -474,7 +474,7 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
             Graphics2D g2 = (Graphics2D) g;
             Font smallFont = new Font("Sans-Serif", Font.PLAIN, 10);
             g2.setColor(ColourSettings.colorAccent);
-            String maxPlotString = "ymax=" + Integer.toString(yMax);
+            String maxPlotString = "ymax=" + yMax;
             g2.setFont(smallFont);
             Rectangle2D stringRect = smallFont.getStringBounds(maxPlotString, g2.getFontRenderContext());
             g2.drawString(maxPlotString, (int)(getWidth()-stringRect.getWidth()-20), (int)(stringRect.getHeight() + 5));
@@ -563,9 +563,9 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
         /** SPOTLIGHT */
         if (gpc.isSpotlight() && !gpc.isZooming()) {
 
-            int center = gpc.getMouseXPosition();
-            int left = center - gpc.getSpotlightSize()/2;
-            int right = center + gpc.getSpotlightSize()/2;
+            long center = gpc.getMouseXPosition();
+            long left = center - gpc.getSpotlightSize()/2;
+            long right = center + gpc.getSpotlightSize()/2;
             if (gpc.getSpotlightSize() == 1) { right = center + 1; }
             
             g.setColor(new Color(0,0,0,200));
@@ -737,7 +737,7 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
      * @param len width in graph units
      * @return corresponding number of pixels
      */
-    public double getWidth(int len) {
+    public double getWidth(long len) {
         return this.unitWidth * len;
     }
 
@@ -766,8 +766,8 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
      * @param pos position in graph coordinates
      * @return a corresponding drawing coordinate
      */
-    public double transformXPos(int pos) {
-        pos = pos - this.xMin;
+    public double transformXPos(long pos) {
+        pos -= xMin;
         return pos * getUnitWidth();
     }
 

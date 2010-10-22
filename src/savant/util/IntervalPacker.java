@@ -58,8 +58,8 @@ public class IntervalPacker {
             IntervalRecord record = (IntervalRecord)data.get(i);
             Interval inter = record.getInterval();
 
-            int intervalEnd = inter.getEnd();
-            int intervalStart = inter.getStart();
+            long intervalEnd = inter.getEnd();
+            long intervalStart = inter.getStart();
 
             // check for bogus intervals here
             if (!(intervalEnd >= intervalStart) || intervalEnd < 0 || intervalStart < 0)  continue;
@@ -74,7 +74,6 @@ public class IntervalPacker {
                         availableLevels.add(headMap.get(position));
                         positions.remove();
                     }
-
                 }
             }
 
@@ -83,16 +82,13 @@ public class IntervalPacker {
                 level = ++highestLevel;
                 List<IntervalRecord> newLevel = new ArrayList<IntervalRecord>();
                 levels.add(newLevel);
-            }
-            else {
+            } else {
                 level = availableLevel;
             }
 
             levels.get(level).add(record);
             double tieBreaker = (double)(level+1) * ONE_MILLIONTH;
             rightMostPositions.put((double)intervalEnd+(double)breathingSpace-tieBreaker, level);
-
-
         }
 
         return levels;

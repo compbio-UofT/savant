@@ -76,7 +76,7 @@ public class ContinuousViewTrack extends ViewTrack {
 
     @Override
     public Resolution getResolution(Range range) {
-        int length = range.getLength();
+        long length = range.getLength();
 
         if (length < 10000) { return Resolution.VERY_HIGH; }
         else if (length < 50000) { return Resolution.HIGH; }

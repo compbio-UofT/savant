@@ -89,10 +89,7 @@ public class IntervalViewTrack extends ViewTrack {
         }
     }
 
-    public Resolution getDefaultModeResolution(Range range)
-    {
-        int length = range.getLength();
-
+    public Resolution getDefaultModeResolution(Range range) {
         return Resolution.VERY_HIGH;
     }
 

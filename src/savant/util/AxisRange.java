@@ -23,12 +23,12 @@ package savant.util;
  */
 public class AxisRange {
 
-    private final int xMin;
-    private final int xMax;
-    private final int yMin;
-    private final int yMax;
+    private final long xMin;
+    private final long xMax;
+    private final long yMin;
+    private final long yMax;
 
-    AxisRange(int xMin, int xMax, int yMin, int yMax)
+    AxisRange(long xMin, long xMax, long yMin, long yMax)
     {
         this.xMin = xMin;
         this.xMax = xMax;
@@ -36,7 +36,7 @@ public class AxisRange {
         this.yMax = yMax;
     }
 
-    public static AxisRange initWithMinMax(int xMin, int xMax, int yMin, int yMax) {
+    public static AxisRange initWithMinMax(long xMin, long xMax, long yMin, long yMax) {
         return new AxisRange(xMin, xMax, yMin, yMax);
     }
 
@@ -44,19 +44,17 @@ public class AxisRange {
         return new AxisRange (xRange.getFrom(), xRange.getTo(), yRange.getFrom(), yRange.getTo());
     }
 
-    public int getXMin() { return this.xMin; }
-    public int getXMax() { return this.xMax; }
-    public int getYMin() { return this.yMin; }
-    public int getYMax() { return this.yMax; }
+    public long getXMin() { return this.xMin; }
+    public long getXMax() { return this.xMax; }
+    public long getYMin() { return this.yMin; }
+    public long getYMax() { return this.yMax; }
 
-    public Range getXRange()
-    {
-        return new Range(getXMin(), getXMax());
+    public Range getXRange() {
+        return new Range(xMin, xMax);
     }
 
-    public Range getYRange()
-    {
-        return new Range(getYMin(), getYMax());
+    public Range getYRange() {
+        return new Range(yMin, yMax);
     }
 
 }

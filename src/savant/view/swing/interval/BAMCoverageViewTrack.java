@@ -118,7 +118,7 @@ public class BAMCoverageViewTrack extends ViewTrack {
 
     public Resolution getDefaultModeResolution(Range range)
     {
-        int length = range.getLength();
+        long length = range.getLength();
 
         if (length < 5000) { return Resolution.VERY_HIGH; }
         else if (length < 10000) { return Resolution.HIGH; }

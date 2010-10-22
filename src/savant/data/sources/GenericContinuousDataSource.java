@@ -54,7 +54,7 @@ public class GenericContinuousDataSource implements DataSource<GenericContinuous
 
     private Map<String,List<Level>> refnameToLevelsIndex;
     
-    private Hashtable<Resolution, int[]> resolutionToSamplingMap;
+    private EnumMap<Resolution, int[]> resolutionToSamplingMap;
 
     public GenericContinuousDataSource(String filename) throws URISyntaxException, IOException, SavantFileNotFormattedException, SavantUnsupportedVersionException {
 
@@ -68,6 +68,7 @@ public class GenericContinuousDataSource implements DataSource<GenericContinuous
         setResolutionToFrequencyMap();
     }
 
+    @Override
     public List<GenericContinuousRecord> getRecords(String reference, Range range, Resolution resolution) throws IOException {
 
         List<GenericContinuousRecord> data = new ArrayList<GenericContinuousRecord>();
@@ -79,9 +80,9 @@ public class GenericContinuousDataSource implements DataSource<GenericContinuous
         int contiguousSamples = getNumContinuousSamples(range);
 
         // int index = range.getFrom();
-        int index = range.getFrom() - binSize; // to avoid missing a value at the start of the range, go back one bin
-        int lastIndex = range.getTo() + binSize;
-        for  (int i = index; i <= lastIndex; i += binSize) {
+        long index = range.getFrom() - binSize; // to avoid missing a value at the start of the range, go back one bin
+        long lastIndex = range.getTo() + binSize;
+        for  (long i = index; i <= lastIndex; i += binSize) {
 
             long seekpos = (i-1)*recordSize;
             if (seekpos < 0) continue; // going back one bin may not be possible if we're near the start
@@ -95,9 +96,7 @@ public class GenericContinuousDataSource implements DataSource<GenericContinuous
                     sum += savantFile.readFloat();
                 }
             } catch (Exception e) { break; }
-            int pos;
-            if (contiguousSamples > 1) pos = i+contiguousSamples/2;
-            else pos = i;
+            long pos = contiguousSamples > 1 ? i + contiguousSamples / 2 : i;
             GenericContinuousRecord p = GenericContinuousRecord.valueOf(reference, pos, Continuous.valueOf( sum/j));
 
             data.add(p);
@@ -106,6 +105,7 @@ public class GenericContinuousDataSource implements DataSource<GenericContinuous
         return data;
     }
 
+    @Override
     public void close() {
         try {
             if (savantFile != null) savantFile.close();
@@ -122,14 +122,14 @@ public class GenericContinuousDataSource implements DataSource<GenericContinuous
         return recordSize;
     }
 
-    public void setRecordSize() throws IOException {
+    public final void setRecordSize() throws IOException {
         this.recordSize = SavantFileUtils.getRecordSize(savantFile);
         if (log.isDebugEnabled()) log.debug("Setting record size to " + this.recordSize);
     }
 
     private void setResolutionToFrequencyMap()
     {
-        resolutionToSamplingMap = new Hashtable<Resolution, int[]>();
+        resolutionToSamplingMap = new EnumMap<Resolution, int[]>(Resolution.class);
         resolutionToSamplingMap.put(Resolution.VERY_LOW, new int[] {   1000000,    1000 });
         resolutionToSamplingMap.put(Resolution.LOW, new int[] {        50000,      1000 });
         resolutionToSamplingMap.put(Resolution.MEDIUM, new int[] {     5000,       2500 });
@@ -152,7 +152,7 @@ public class GenericContinuousDataSource implements DataSource<GenericContinuous
     // FIXME: this is a nasty kludge to accommodate BAM coverage tracks
     private int getSamplingFrequency(Range r)
     {
-        int length = r.getLength();
+        long length = r.getLength();
         if (length < 10000) { return 1; }
         else if (length < 50000) { return 100; }
         else if (length < 1000000) { return 5000; }
@@ -163,7 +163,7 @@ public class GenericContinuousDataSource implements DataSource<GenericContinuous
 
     private int getNumContinuousSamples(Range r)
     {
-        int length = r.getLength();
+        long length = r.getLength();
         if (length < 10000) { return 1; }
         else if (length < 50000) { return 100; }
         else if (length < 1000000) { return 2500; }
@@ -172,6 +172,7 @@ public class GenericContinuousDataSource implements DataSource<GenericContinuous
         else { return 1; }
     }
 
+    @Override
     public Set<String> getReferenceNames() {
         Map<String, Long[]> refMap = savantFile.getReferenceMap();
         return refMap.keySet();
@@ -193,6 +194,7 @@ public class GenericContinuousDataSource implements DataSource<GenericContinuous
         }
     }
 
+    @Override
     public URI getURI() {
         return savantFile.getURI();
     }

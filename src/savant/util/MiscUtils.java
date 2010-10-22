@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.text.DateFormat;
 import java.util.Set;
 import savant.view.swing.Savant;
 
@@ -57,7 +58,7 @@ public class MiscUtils {
      */
     public static String now() {
         Calendar cal = Calendar.getInstance();
-        return cal.getTime().toLocaleString();
+        return DateFormat.getTimeInstance().format(cal.getTime());
     }
 
 
@@ -115,12 +116,12 @@ public class MiscUtils {
      * Translate a pixel to a (genome) position
      * @param pixel The pixel to transform
      * @param widthOfComponent The width of the component in which the pixel occurs
-     * @param positionalRange The (genome) range the componentn applies to
+     * @param positionalRange The (genome) range the component applies to
      * @return The position represented by the pixel
      */
-    public static int transformPixelToPosition(int pixel, int widthOfComponent, Range positionalRange) {
+    public static long transformPixelToPosition(int pixel, int widthOfComponent, Range positionalRange) {
         double positionsperpixel = ((double)positionalRange.getLength()) / widthOfComponent;
-        return (int) (positionalRange.getFrom() + (int) Math.round(positionsperpixel*pixel));
+        return positionalRange.getFrom() + Math.round(positionsperpixel*pixel);
     }
 
     /**
@@ -144,13 +145,15 @@ public class MiscUtils {
         return l;
     }
 
-    public static String intToShortString(int genomepos) {
+    public static String posToShortString(long genomepos) {
         String mousePos;
 
-        int quotient;
-        if ((quotient = genomepos / 1000000) > 1) {
+        long quotient;
+        if ((quotient = genomepos / 1000000000) > 1) {
+            mousePos = MiscUtils.numToString(quotient) + " G";
+        } else if ((quotient = genomepos / 1000000) > 1) {
             mousePos = MiscUtils.numToString(quotient) + " M";
-        } else if ((quotient = genomepos / 100) > 1) {
+        } else if ((quotient = genomepos / 1000) > 1) {
             mousePos = MiscUtils.numToString(quotient) + " K";
         } else {
             mousePos = MiscUtils.numToString(genomepos) + "";

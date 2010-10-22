@@ -436,7 +436,7 @@ public class BAMTrackRenderer extends TrackRenderer {
                     for (int i=0; i<operatorLength; i++) {
                         // indices into refSeq and readBases associated with this position in the cigar string
                         int readIndex = readCursor-alignmentStart+i;
-                        int refIndex = sequenceCursor+i-range.getFrom();
+                        int refIndex = sequenceCursor + i - range.getFromAsInt();
 
                         if (refIndex < 0) continue;  // outside sequence and drawing range
                         if (refIndex > refSeq.length-1) continue;
@@ -648,9 +648,10 @@ public class BAMTrackRenderer extends TrackRenderer {
         List<Pileup> pileups = new ArrayList<Pileup>();
 
         // make the pileups
-        int length = axisRange.getXMax() - axisRange.getXMin() + 1;
-        int startPosition = axisRange.getXMin();
-        for (int j = 0; j < length; j++) {
+        long length = axisRange.getXMax() - axisRange.getXMin() + 1;
+        assert Math.abs(axisRange.getXMin()) <= Integer.MAX_VALUE;
+        int startPosition = (int)axisRange.getXMin();
+        for (long j = 0; j < length; j++) {
             pileups.add(new Pileup(startPosition + j));
             //pileups.add(new Pileup(viewTrackName, startPosition + i, Pileup.getNucleotide(genome.getRecords(axisRange.getXRange()).charAt(i))));
         }
@@ -690,7 +691,8 @@ public class BAMTrackRenderer extends TrackRenderer {
             if(genome.isSequenceSet()){
                 String genomeNucString = "A";
                 byte[] readBase = new byte[1];
-                readBase[0] = refSeq[(int)p.getPosition() - startPosition];
+                assert Math.abs(p.getPosition() - startPosition) <= Integer.MAX_VALUE;
+                readBase[0] = refSeq[(int)(p.getPosition() - startPosition)];
                 genomeNucString = new String(readBase);
                 //genomeNucString = genome.getRecords(ReferenceController.getInstance().getReferenceName(), new Range((int) p.getPosition(), (int) p.getPosition()));
                 genomeNuc = Pileup.stringToNuc(genomeNucString);
@@ -700,7 +702,7 @@ public class BAMTrackRenderer extends TrackRenderer {
 
             while((genome.isSequenceSet() && p.getCoverage(snpNuc) > 0) || (snpNuc = p.getLargestNucleotide()) != null){
 
-                double x = gp.transformXPos((int)p.getPosition());
+                double x = gp.transformXPos(p.getPosition());
                 double coverage = p.getCoverage(snpNuc);
 
                 Color subPileColor = null;

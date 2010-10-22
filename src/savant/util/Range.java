@@ -16,24 +16,59 @@
 package savant.util;
 
 /**
- * TODO:
+ * Utility class for storing any type of range.  For generality, the values
+ * are all stored as longs.
+ *
  * @author mfiume
  */
-public class Range
+public final class Range
 {
-    private int from;
-    private int to;
+    private long from;
+    private long to;
 
-    public Range(int from, int to)
+    public Range(long from, long to)
     {
         this.from = from;
         this.to = to;
     }
 
-    public int getFrom() { return this.from; }
-    public int getTo() { return this.to; }
+    public long getFrom() { return this.from; }
+    public long getTo() { return this.to; }
 
-    public int getLength() { return getTo() - getFrom() + 1; }
+    public long getLength() { return getTo() - getFrom() + 1; }
+
+    /**
+     * Like getFrom(), but used when we know that the value must fall within
+     * the range of an int.
+     *
+     * @return the start of the range
+     */
+    public int getFromAsInt() {
+        assert Math.abs(from) <= Integer.MAX_VALUE;
+        return (int)from;
+    }
+
+    /**
+     * Like getTo(), but used when we know that the value must fall within
+     * the range of an int.
+     *
+     * @return the end of the range
+     */
+    public int getToAsInt() {
+        assert Math.abs(to) <= Integer.MAX_VALUE;
+        return (int)to;
+    }
+
+    /**
+     * Like getLength(), but used when we know that the value must fall within
+     * the range of an int.
+     *
+     * @return the length of the range
+     */
+    public int getLengthAsInt() {
+        assert Math.abs(to - from + 1) <= Integer.MAX_VALUE;
+        return (int)(to - from + 1);
+    }
 
     @Override
     public String toString()

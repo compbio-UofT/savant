@@ -1,12 +1,21 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
-/*
  * GenomeLengthForm.java
  *
  * Created on Apr 8, 2010, 4:49:19 PM
+ *
+ *    Copyright 2009-2010 University of Toronto
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
  */
 
 package savant.view.dialog;
@@ -18,7 +27,6 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JOptionPane;
 import savant.data.types.Genome;
-import savant.view.swing.Savant;
 
 /**
  *
@@ -28,10 +36,8 @@ public class GenomeLengthForm extends javax.swing.JDialog {
 
     public boolean isPopularGenome = true;
     public boolean userCompletedForm = false;
-
     public Genome loadedGenome;
-    //public boolean isLengthSet = false;
-    //public int length;
+    List<SpeciesInfo> genomeInformation;
 
     private void initGenomeInformation() {
         genomeInformation = getGenomeInformation();
@@ -186,55 +192,294 @@ public class GenomeLengthForm extends javax.swing.JDialog {
         return humanInfo;
     }
 
+    /** Creates new form GenomeLengthForm */
+    public GenomeLengthForm(java.awt.Frame parent, boolean modal) {
+        super(parent, modal);
+        setTitle("Load genome by length");
+        initComponents();
+        initGenomeInformation();
+        initDropDowns();
+        updateEnabledControls();
+        setVisible(true);
+    }
+
+
     private void initDropDowns() {
         updateSpeciesList();
 
-        this.dropdown_species.addActionListener(new ActionListener(){
+        speciesCombo.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e) {
                 updateBuildList();
-            }
-        });
-
-        this.dropdown_build.addActionListener(new ActionListener(){
-            public void actionPerformed(ActionEvent e) {
-                //updateChromosomeList();
             }
         });
     }
 
     private void updateSpeciesList() {
-        this.dropdown_species.removeAllItems();
+        speciesCombo.removeAllItems();
         for (SpeciesInfo si : this.genomeInformation) {
-            this.dropdown_species.addItem(si);
+            speciesCombo.addItem(si);
         }
-        this.dropdown_species.setSelectedIndex(0);
+        speciesCombo.setSelectedIndex(0);
         updateBuildList();
     }
 
     private void updateBuildList() {
-        if (this.dropdown_species.getItemCount() == 0) { return; }
-        SpeciesInfo si = (SpeciesInfo) this.dropdown_species.getSelectedItem();
-        if (si == null) { si = (SpeciesInfo) this.dropdown_species.getItemAt(0); }
-        this.dropdown_build.removeAllItems();
-        for (BuildInfo bi : si.builds) {
-            this.dropdown_build.addItem(bi);
+        if (speciesCombo.getItemCount() > 0) {
+            SpeciesInfo si = (SpeciesInfo)speciesCombo.getSelectedItem();
+            if (si == null) {
+                si = (SpeciesInfo)speciesCombo.getItemAt(0);
+            }
+            buildCombo.removeAllItems();
+            for (BuildInfo bi : si.builds) {
+                buildCombo.addItem(bi);
+            }
+            buildCombo.setSelectedIndex(0);
         }
-        this.dropdown_build.setSelectedIndex(0);
-        //updateChromosomeList();
     }
 
-    /*
-    private void updateChromosomeList() {
-        if (this.dropdown_build.getItemCount() == 0) { return; }
-        BuildInfo bi = (BuildInfo) this.dropdown_build.getSelectedItem();
-        if (bi == null) { bi = (BuildInfo) this.dropdown_build.getItemAt(0); }
-        this.dropdown_chromosome.removeAllItems();
-        for (ReferenceInfo ci : bi.chromosomes) {
-            this.dropdown_chromosome.addItem(ci);
-        }
-        this.dropdown_chromosome.setSelectedIndex(0);
+    private void updateEnabledControls() {
+        setPublishedGenomeControlsEnabled(commonGenomeRadio.isSelected());
+        setUserSpecifiedControlsEnabled(userSpecifiedRadio.isSelected());
     }
+
+    private void setPublishedGenomeControlsEnabled(boolean isEnabled) {
+        speciesCombo.setEnabled(isEnabled);
+        buildCombo.setEnabled(isEnabled);
+    }
+
+    private void setUserSpecifiedControlsEnabled(boolean isEnabled) {
+        lengthField.setEnabled(isEnabled);
+        nameField.setEnabled(isEnabled);
+    }
+
+    private boolean validateUserSpecifiedLength() {
+        String refname = nameField.getText();
+        if (refname.equals("")) {
+            JOptionPane.showMessageDialog(this, "Invalid name.");
+            nameField.requestFocus();
+            return false;
+        }
+
+        String text = lengthField.getText();
+        try {
+            long i = Long.parseLong(text);
+            if (i <= 0) { throw new Exception(); }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Invalid length.");
+            lengthField.requestFocus();
+            return false;
+        }
+
+        return true;
+    }
+
+    /** This method is called from within the constructor to
+     * initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is
+     * always regenerated by the Form Editor.
      */
+    @SuppressWarnings("unchecked")
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    private void initComponents() {
+
+        buttongroup_whichkind = new javax.swing.ButtonGroup();
+        commonGenomeRadio = new javax.swing.JRadioButton();
+        userSpecifiedRadio = new javax.swing.JRadioButton();
+        speciesCombo = new javax.swing.JComboBox();
+        javax.swing.JLabel speciesLabel = new javax.swing.JLabel();
+        javax.swing.JLabel buildLabel = new javax.swing.JLabel();
+        buildCombo = new javax.swing.JComboBox();
+        javax.swing.JLabel lengthLabel = new javax.swing.JLabel();
+        lengthField = new javax.swing.JTextField();
+        button_ok = new javax.swing.JButton();
+        button_cancel = new javax.swing.JButton();
+        javax.swing.JLabel nameLabel = new javax.swing.JLabel();
+        nameField = new javax.swing.JTextField();
+
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+
+        buttongroup_whichkind.add(commonGenomeRadio);
+        commonGenomeRadio.setSelected(true);
+        commonGenomeRadio.setText("Published Genome");
+        commonGenomeRadio.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                commonGenomeRadioActionPerformed(evt);
+            }
+        });
+
+        buttongroup_whichkind.add(userSpecifiedRadio);
+        userSpecifiedRadio.setText("User-specified");
+        userSpecifiedRadio.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                userSpecifiedRadioActionPerformed(evt);
+            }
+        });
+
+        speciesCombo.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        speciesCombo.setToolTipText("Species of a published genome to load");
+
+        speciesLabel.setText("Species:");
+
+        buildLabel.setText("Build:");
+
+        buildCombo.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        buildCombo.setToolTipText("Build for species to load");
+
+        lengthLabel.setText("Length:");
+
+        lengthField.setToolTipText("Length in basepairs of reference");
+        lengthField.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                lengthFieldFocusLost(evt);
+            }
+        });
+
+        button_ok.setText("OK");
+        button_ok.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                button_okMouseClicked(evt);
+            }
+        });
+
+        button_cancel.setText("Cancel");
+        button_cancel.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                button_cancelMouseClicked(evt);
+            }
+        });
+
+        nameLabel.setText("Name:");
+
+        nameField.setToolTipText("Name of reference (must correspond to name in records)");
+
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
+        getContentPane().setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(21, 21, 21)
+                                .addComponent(speciesLabel)
+                                .addGap(30, 30, 30)
+                                .addComponent(speciesCombo, 0, 243, Short.MAX_VALUE))
+                            .addComponent(commonGenomeRadio)))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(27, 27, 27)
+                        .addComponent(buildLabel)
+                        .addGap(44, 44, 44)
+                        .addComponent(buildCombo, 0, 256, Short.MAX_VALUE)))
+                .addGap(10, 10, 10))
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(21, 21, 21)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(lengthLabel)
+                            .addComponent(nameLabel))
+                        .addGap(37, 37, 37)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(lengthField, javax.swing.GroupLayout.DEFAULT_SIZE, 230, Short.MAX_VALUE)
+                            .addComponent(nameField, javax.swing.GroupLayout.DEFAULT_SIZE, 230, Short.MAX_VALUE)))
+                    .addComponent(userSpecifiedRadio))
+                .addContainerGap())
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addContainerGap(188, Short.MAX_VALUE)
+                .addComponent(button_ok)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(button_cancel)
+                .addContainerGap())
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(commonGenomeRadio)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(speciesLabel)
+                    .addComponent(speciesCombo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(buildLabel)
+                    .addComponent(buildCombo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(userSpecifiedRadio)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(nameLabel)
+                    .addComponent(nameField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(lengthLabel)
+                    .addComponent(lengthField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(button_cancel)
+                    .addComponent(button_ok))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        pack();
+    }// </editor-fold>//GEN-END:initComponents
+
+    private void userSpecifiedRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_userSpecifiedRadioActionPerformed
+        updateEnabledControls();
+    }//GEN-LAST:event_userSpecifiedRadioActionPerformed
+
+    private void commonGenomeRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_commonGenomeRadioActionPerformed
+        updateEnabledControls();
+    }//GEN-LAST:event_commonGenomeRadioActionPerformed
+
+    private void lengthFieldFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_lengthFieldFocusLost
+        //validateUserSpecifiedLength();
+    }//GEN-LAST:event_lengthFieldFocusLost
+
+    private void button_cancelMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_button_cancelMouseClicked
+        this.setVisible(false);
+    }//GEN-LAST:event_button_cancelMouseClicked
+
+    private void button_okMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_button_okMouseClicked
+
+        if (userSpecifiedRadio.isSelected() && !validateUserSpecifiedLength()) {
+            return;
+        }
+
+        try {
+            if (userSpecifiedRadio.isSelected()) {
+                isPopularGenome = false;
+                loadedGenome = new Genome(nameField.getText(), Long.parseLong(lengthField.getText()));
+
+            } else {
+                isPopularGenome = true;
+                loadedGenome = new Genome((BuildInfo) buildCombo.getSelectedItem());
+            }
+        } catch (IOException ex) {
+            JOptionPane.showMessageDialog(this, "Error creating genome.");
+            return;
+        }
+
+
+        userCompletedForm = true;
+        
+        setVisible(false);
+    }//GEN-LAST:event_button_okMouseClicked
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JComboBox buildCombo;
+    private javax.swing.JButton button_cancel;
+    private javax.swing.JButton button_ok;
+    private javax.swing.ButtonGroup buttongroup_whichkind;
+    private javax.swing.JRadioButton commonGenomeRadio;
+    private javax.swing.JTextField lengthField;
+    private javax.swing.JTextField nameField;
+    private javax.swing.JComboBox speciesCombo;
+    private javax.swing.JRadioButton userSpecifiedRadio;
+    // End of variables declaration//GEN-END:variables
 
     public static class SpeciesInfo {
         public String name;
@@ -288,298 +533,4 @@ public class GenomeLengthForm extends javax.swing.JDialog {
             return this.name;
         }
     }
-
-    List<SpeciesInfo> genomeInformation;
-
-    /** Creates new form GenomeLengthForm */
-    public GenomeLengthForm(java.awt.Frame parent, boolean modal) {
-        super(parent, modal);
-        this.setTitle("Load genome by length");
-        initComponents();
-        initGenomeInformation();
-        initDropDowns();
-        updateEnabledControls();
-        this.setVisible(true);
-    }
-
-    private void updateEnabledControls() {
-        setPublishedGenomeControlsEnabled(this.radio_commongenome.isSelected());
-        setUserSpecifiedControlsEnabled(this.radio_userspecified.isSelected());
-    }
-
-    private void setPublishedGenomeControlsEnabled(boolean isEnabled) {
-        this.dropdown_species.setEnabled(isEnabled);
-        this.dropdown_build.setEnabled(isEnabled);
-        //this.dropdown_chromosome.setEnabled(isEnabled);
-    }
-
-    private void setUserSpecifiedControlsEnabled(boolean isEnabled) {
-        this.textfield_length.setEnabled(isEnabled);
-        this.textfield_refname.setEnabled(isEnabled);
-    }
-
-    private boolean validateUserSpecifiedLength() {
-        String refname = this.textfield_refname.getText();
-        if (refname.equals("")) {
-            JOptionPane.showMessageDialog(this, "Invalid name.");
-            this.textfield_refname.requestFocus();
-            return false;
-        }
-
-        String text = this.textfield_length.getText();
-        try {
-            int i = Integer.parseInt(text);
-            if (i <= 0) { throw new Exception(); }
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Invalid length.");
-            this.textfield_length.requestFocus();
-            return false;
-        }
-
-        return true;
-    }
-
-    /*
-    private void setLength() {
-
-        if (this.radio_commongenome.isSelected()) {
-
-            this.length = ((ReferenceInfo) this.dropdown_chromosome.getSelectedItem()).length;
-
-        } else if (this.radio_userspecified.isSelected()) {
-
-            this.length = Integer.parseInt(this.textfield_length.getText());
-        }
-
-        this.isLengthSet = true;
-    }
-     */
-
-    /** This method is called from within the constructor to
-     * initialize the form.
-     * WARNING: Do NOT modify this code. The content of this method is
-     * always regenerated by the Form Editor.
-     */
-    @SuppressWarnings("unchecked")
-    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
-    private void initComponents() {
-
-        buttongroup_whichkind = new javax.swing.ButtonGroup();
-        radio_commongenome = new javax.swing.JRadioButton();
-        radio_userspecified = new javax.swing.JRadioButton();
-        dropdown_species = new javax.swing.JComboBox();
-        jLabel1 = new javax.swing.JLabel();
-        jLabel2 = new javax.swing.JLabel();
-        dropdown_build = new javax.swing.JComboBox();
-        jLabel4 = new javax.swing.JLabel();
-        textfield_length = new javax.swing.JTextField();
-        button_ok = new javax.swing.JButton();
-        button_cancel = new javax.swing.JButton();
-        jLabel5 = new javax.swing.JLabel();
-        textfield_refname = new javax.swing.JTextField();
-
-        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-
-        buttongroup_whichkind.add(radio_commongenome);
-        radio_commongenome.setSelected(true);
-        radio_commongenome.setText("Published Genome");
-        radio_commongenome.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                radio_commongenomeActionPerformed(evt);
-            }
-        });
-
-        buttongroup_whichkind.add(radio_userspecified);
-        radio_userspecified.setText("User-specified");
-        radio_userspecified.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                radio_userspecifiedActionPerformed(evt);
-            }
-        });
-
-        dropdown_species.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
-        dropdown_species.setToolTipText("Species of a published genome to load");
-
-        jLabel1.setText("Species:");
-
-        jLabel2.setText("Build:");
-
-        dropdown_build.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
-        dropdown_build.setToolTipText("Build for species to load");
-
-        jLabel4.setText("Length:");
-
-        textfield_length.setToolTipText("Length in basepairs of reference");
-        textfield_length.addFocusListener(new java.awt.event.FocusAdapter() {
-            public void focusLost(java.awt.event.FocusEvent evt) {
-                textfield_lengthFocusLost(evt);
-            }
-        });
-
-        button_ok.setText("OK");
-        button_ok.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                button_okMouseClicked(evt);
-            }
-        });
-
-        button_cancel.setText("Cancel");
-        button_cancel.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                button_cancelMouseClicked(evt);
-            }
-        });
-
-        jLabel5.setText("Name:");
-
-        textfield_refname.setToolTipText("Name of reference (must correspond to name in records)");
-        textfield_refname.addFocusListener(new java.awt.event.FocusAdapter() {
-            public void focusLost(java.awt.event.FocusEvent evt) {
-                textfield_refnameFocusLost(evt);
-            }
-        });
-
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-        getContentPane().setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(21, 21, 21)
-                                .addComponent(jLabel1)
-                                .addGap(30, 30, 30)
-                                .addComponent(dropdown_species, 0, 209, Short.MAX_VALUE))
-                            .addComponent(radio_commongenome)))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(27, 27, 27)
-                        .addComponent(jLabel2)
-                        .addGap(44, 44, 44)
-                        .addComponent(dropdown_build, 0, 209, Short.MAX_VALUE)))
-                .addGap(10, 10, 10))
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(21, 21, 21)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel4)
-                            .addComponent(jLabel5))
-                        .addGap(37, 37, 37)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(textfield_length, javax.swing.GroupLayout.DEFAULT_SIZE, 205, Short.MAX_VALUE)
-                            .addComponent(textfield_refname, javax.swing.GroupLayout.DEFAULT_SIZE, 205, Short.MAX_VALUE)))
-                    .addComponent(radio_userspecified))
-                .addContainerGap())
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(188, Short.MAX_VALUE)
-                .addComponent(button_ok)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(button_cancel)
-                .addContainerGap())
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(radio_commongenome)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel1)
-                    .addComponent(dropdown_species, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel2)
-                    .addComponent(dropdown_build, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(radio_userspecified)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel5)
-                    .addComponent(textfield_refname, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel4)
-                    .addComponent(textfield_length, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(button_cancel)
-                    .addComponent(button_ok))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-
-        pack();
-    }// </editor-fold>//GEN-END:initComponents
-
-    private void radio_userspecifiedActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_radio_userspecifiedActionPerformed
-        updateEnabledControls();
-    }//GEN-LAST:event_radio_userspecifiedActionPerformed
-
-    private void radio_commongenomeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_radio_commongenomeActionPerformed
-        updateEnabledControls();
-    }//GEN-LAST:event_radio_commongenomeActionPerformed
-
-    private void textfield_lengthFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_textfield_lengthFocusLost
-        //validateUserSpecifiedLength();
-    }//GEN-LAST:event_textfield_lengthFocusLost
-
-    private void button_cancelMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_button_cancelMouseClicked
-        this.setVisible(false);
-    }//GEN-LAST:event_button_cancelMouseClicked
-
-    private void button_okMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_button_okMouseClicked
-
-        if (this.radio_userspecified.isSelected() && !validateUserSpecifiedLength()) { 
-            return;
-        }
-
-        try {
-            if (this.radio_userspecified.isSelected()) {
-                this.isPopularGenome = false;
-                loadedGenome = new Genome(this.textfield_refname.getText(), Integer.parseInt(this.textfield_length.getText()));
-
-            } else {
-                this.isPopularGenome = true;
-                loadedGenome = new Genome((BuildInfo) this.dropdown_build.getSelectedItem());
-            }
-        } catch (IOException ex) {
-            JOptionPane.showMessageDialog(this, "Error creating genome.");
-            return;
-        }
-
-
-        this.userCompletedForm = true;
-        
-        //setLength();
-        this.setVisible(false);
-    }//GEN-LAST:event_button_okMouseClicked
-
-    private void textfield_refnameFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_textfield_refnameFocusLost
-        // TODO add your handling code here:
-    }//GEN-LAST:event_textfield_refnameFocusLost
-
-    public GenomeLengthForm() {
-        this(Savant.getInstance(), true);
-    }
-
-    // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton button_cancel;
-    private javax.swing.JButton button_ok;
-    private javax.swing.ButtonGroup buttongroup_whichkind;
-    private javax.swing.JComboBox dropdown_build;
-    private javax.swing.JComboBox dropdown_species;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel4;
-    private javax.swing.JLabel jLabel5;
-    private javax.swing.JRadioButton radio_commongenome;
-    private javax.swing.JRadioButton radio_userspecified;
-    private javax.swing.JTextField textfield_length;
-    private javax.swing.JTextField textfield_refname;
-    // End of variables declaration//GEN-END:variables
-
-
 }

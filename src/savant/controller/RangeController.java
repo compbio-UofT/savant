@@ -1,4 +1,7 @@
 /*
+ * RangeController.java
+ * Created on Jan 19, 2010
+ *
  *    Copyright 2010 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,30 +17,22 @@
  *    limitations under the License.
  */
 
-/*
- * RangeController.java
- * Created on Jan 19, 2010
- */
-
 /**
  * Controller object to manage changes to viewed range.
  * @author vwilliams
  */
 package savant.controller;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import savant.controller.event.range.RangeChangedEvent;
-import savant.controller.event.range.RangeChangedListener;
-import savant.util.Range;
-import savant.settings.BrowserSettings;
-
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Stack;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import savant.controller.event.range.RangeChangeCompletedListener;
-import savant.util.MiscUtils;
+import savant.controller.event.range.RangeChangedEvent;
+import savant.controller.event.range.RangeChangedListener;
+import savant.settings.BrowserSettings;
+import savant.util.Range;
 import savant.view.swing.Savant;
 
 public class RangeController {
@@ -50,16 +45,15 @@ public class RangeController {
     private int maxUndoStackSize = 50;
     private boolean shouldClearRedoStack = true;
 
-    private static Log log = LogFactory.getLog(RangeController.class);
+    private static final Log LOG = LogFactory.getLog(RangeController.class);
 
     /** The maximum and current viewable range */
     private Range maximumViewableRange;
     private Range currentViewableRange;
 
     /** Range Changed Listeners */
-    // TODO: List of what?
-    private List rangeChangedListeners;
-    private List rangeChangeCompletedListeners;
+    private List<RangeChangedListener> rangeChangedListeners;
+    private List<RangeChangeCompletedListener> rangeChangeCompletedListeners;
 
     public static synchronized RangeController getInstance() {
         if (instance == null) {
@@ -81,7 +75,7 @@ public class RangeController {
      */
     public void setMaxRange(Range r) {
         maximumViewableRange = r;
-        log.debug("Setting maximum range to " + r);
+        LOG.debug("Setting maximum range to " + r);
     }
 
     /**
@@ -89,7 +83,7 @@ public class RangeController {
      * @param from Lowest value of the maximum viewable range
      * @param to Highest value of the maximum viewable range
      */
-    public void setMaxRange(int from, int to) {
+    public void setMaxRange(long from, long to) {
         setMaxRange(new Range(from, to));
     }
 
@@ -105,7 +99,7 @@ public class RangeController {
      * Get the lower bound on the maximumViewableRange.
      * @return The lower bound on the maximumViewableRange
      */
-    public int getMaxRangeStart() {
+    public long getMaxRangeStart() {
         return maximumViewableRange.getFrom();
     }
 
@@ -113,7 +107,7 @@ public class RangeController {
      * Get the upper bound on the maximumViewableRange.
      * @return The upper bound on the maximumViewableRange
      */
-    public int getMaxRangeEnd() {
+    public long getMaxRangeEnd() {
         return maximumViewableRange.getTo();
     }
 
@@ -122,32 +116,32 @@ public class RangeController {
      * @param r The range to set as current
      */
     public void setRange(Range r) {
-        log.debug("Setting range to " + r);
+        LOG.debug("Setting range to " + r);
         Savant.log("Setting range to " + r, Savant.LOGMODE.NORMAL);
-        //System.out.println("[ Setting range to " + r + " ]");
-        if (shouldClearRedoStack && this.currentViewableRange != null) {
+
+        if (shouldClearRedoStack && currentViewableRange != null) {
             redoStack.clear();
             undoStack.push(currentViewableRange);
-            while (undoStack.size() > this.maxUndoStackSize) {
+            while (undoStack.size() > maxUndoStackSize) {
                 undoStack.remove(0);
             }
         }
 
-        int from = r.getFrom();
-        int to = r.getTo();
+        long from = r.getFrom();
+        long to = r.getTo();
 
         /*
          * Make sure the current viewable range
          * stays within the maximum viewable range
          */
         if (from < getMaxRangeStart()) {
-            int diff = getMaxRangeStart() - from;
+            long diff = getMaxRangeStart() - from;
             from = getMaxRangeStart();
             to += diff;
         }
 
         if (to > getMaxRangeEnd()) {
-            int diff = to - getMaxRangeEnd();
+            long diff = to - getMaxRangeEnd();
             to = getMaxRangeEnd();
             from -= diff;
         }
@@ -162,21 +156,15 @@ public class RangeController {
         // set the current viewable range
         currentViewableRange = r;
 
-        //printStacks();
-
         Savant.getInstance().updateRange();
 
-        // TODO: invoke a range changed event
         fireRangeChangedEvent();
-        // try { RangeChanged(getRange(), null); } catch {}
     }
 
     public synchronized void fireRangeChangeCompletedEvent() {
-        //System.out.println("Range change completed at " + MiscUtils.now());
-        RangeChangedEvent evt = new RangeChangedEvent(this, this.currentViewableRange);
-        Iterator listeners = this.rangeChangeCompletedListeners.iterator();
-        while (listeners.hasNext()) {
-            ((RangeChangeCompletedListener) listeners.next()).rangeChangeCompletedReceived(evt);
+        RangeChangedEvent evt = new RangeChangedEvent(this, currentViewableRange);
+        for (RangeChangeCompletedListener l : rangeChangeCompletedListeners) {
+            l.rangeChangeCompletedReceived(evt);
         }
     }
 
@@ -184,10 +172,9 @@ public class RangeController {
      * Fire the RangeChangedEvent
      */
     private synchronized void fireRangeChangedEvent() {
-        RangeChangedEvent evt = new RangeChangedEvent(this, this.currentViewableRange);
-        Iterator listeners = this.rangeChangedListeners.iterator();
-        while (listeners.hasNext()) {
-            ((RangeChangedListener) listeners.next()).rangeChangeReceived(evt);
+        RangeChangedEvent evt = new RangeChangedEvent(this, currentViewableRange);
+        for (RangeChangedListener l : rangeChangedListeners) {
+            l.rangeChangeReceived(evt);
         }
     }
     
@@ -213,7 +200,7 @@ public class RangeController {
      * @param from The lower bound on the viewed range
      * @param to The upper bound on the viewed range
      */
-    public void setRange(int from, int to) {
+    public void setRange(long from, long to) {
         setRange(new Range(from, to));
     }
     /**
@@ -228,7 +215,7 @@ public class RangeController {
      * Get the lower bound on the currentViewableRange.
      * @return The lower bound on the currentViewableRange
      */
-    public int getRangeStart() {
+    public long getRangeStart() {
         return currentViewableRange.getFrom();
     }
 
@@ -236,7 +223,7 @@ public class RangeController {
      * Get the upper bound on the currentViewableRange.
      * @return The upper bound on the currentViewableRange
      */
-    public int getRangeEnd() {
+    public long getRangeEnd() {
         return currentViewableRange.getTo();
     }
     /**
@@ -267,13 +254,13 @@ public class RangeController {
      */
     public void shiftRange(boolean shiftRight, double percentwindow) {
         Range r = getRange();
-        int length = r.getLength();
+        long length = r.getLength();
         int direction = 1;
         if (!shiftRight) {
             direction = -1;
         }
         //int shift = (int) Math.ceil(direction * (percentwindow * length)) - ( (direction == 1) ? 1 : 0);
-        int shift = (int) Math.ceil(direction * (percentwindow * length)) - ( (direction == -1 && length == 1) ? 1 : 0);
+        long shift = (long) Math.ceil(direction * (percentwindow * length)) - ( (direction == -1 && length == 1) ? 1 : 0);
 
         r = new Range(r.getFrom() + shift, r.getTo() + shift);
         setRange(r);
@@ -304,64 +291,42 @@ public class RangeController {
      * Zoom to the specified length.
      * @param length The length to which to zoom
      */
-    public void zoomToLength(int length) {
+    public void zoomToLength(long length) {
         zoomToLength(length, (getRangeEnd() + getRangeStart()) / 2);
     }
     
-    public void zoomToLength(int length, int center) {
+    public void zoomToLength(long length, long center) {
 
-        if(length > this.maximumViewableRange.getLength()){
-            zoomToLength(this.maximumViewableRange.getLength());
+        if(length > maximumViewableRange.getLength()){
+            zoomToLength(maximumViewableRange.getLength());
         }
 
         length = Math.max(length, 1);
-        log.debug("Zooming to length " + length);
+        LOG.debug("Zooming to length " + length);
 
         if (length > getMaxRangeEnd()) {
             return; // can't go any further out, stay at same range.
         }
-        //int middle = (getRangeEnd() + getRangeStart()) / 2;
-        int half = Math.max(length / 2, 1);
+
+        long half = Math.max(length / 2, 1);
 
         Range rg = new Range(center-half,center-half+length-1);
         setRange(rg);
-        
-        /*
-        Range r=null;
-        if (length == 1){
-            r = new Range(center, center);
-        }
-        else if (half <= center) {
-            r = new Range(center - half + 1, center + half);
-        }
-        else if ((center + half) > getMaxRangeEnd())
-        {
-            return; // can't go any further out,stay at same range
-        }
-        else if ( half > center) {
-            r = new Range(1, length);
-        }
-        setRange(r);
-         *
-         */
     }
 
     /**
      * Zoom out one level
      */
     public void zoomOut() {
-        //TRACKBAR_ZOOM.setValue(Math.max(0, TRACKBAR_ZOOM.getValue() - 1));
-        int length = Math.min(this.maximumViewableRange.getLength(), this.currentViewableRange.getLength() * BrowserSettings.zoomAmount);
+        long length = Math.min(maximumViewableRange.getLength(), currentViewableRange.getLength() * BrowserSettings.zoomAmount);
         zoomToLength(length);
-        //zoomToLength(this.currentViewableRange.getLength() * BrowserDefaults.zoomAmount);
     }
 
     /**
      * Zoom in one level
      */
     public void zoomIn() {
-        //TRACKBAR_ZOOM.setValue(Math.min(TRACKBAR_ZOOM.getMaximum(), TRACKBAR_ZOOM.getValue() + 1));
-        zoomToLength(this.currentViewableRange.getLength() / BrowserSettings.zoomAmount);
+        zoomToLength(currentViewableRange.getLength() / BrowserSettings.zoomAmount);
     }
 
     /**
@@ -370,12 +335,10 @@ public class RangeController {
     public void undoRangeChange() {
         if (undoStack.size() > 0) {
             shouldClearRedoStack = false;
-            redoStack.push(this.currentViewableRange);
+            redoStack.push(currentViewableRange);
             setRange((Range) undoStack.pop());
             shouldClearRedoStack = true;
         }
-
-        //printStacks();
     }
 
     /**
@@ -385,45 +348,24 @@ public class RangeController {
 
         if (redoStack.size() > 0) {
             shouldClearRedoStack = false;
-            undoStack.push(this.currentViewableRange);
+            undoStack.push(currentViewableRange);
             setRange((Range)redoStack.pop());
             shouldClearRedoStack = true;
         }
-
-        //printStacks();
     }
 
     public void zoomInOnMouse() {
-        int center = GraphPaneController.getInstance().getMouseXPosition();
-        zoomToLength(this.currentViewableRange.getLength() / BrowserSettings.zoomAmount,center);
+        long center = GraphPaneController.getInstance().getMouseXPosition();
+        zoomToLength(currentViewableRange.getLength() / BrowserSettings.zoomAmount,center);
     }
 
     public void zoomOutFromMouse() {
-        int center = GraphPaneController.getInstance().getMouseXPosition();
-        zoomToLength(this.currentViewableRange.getLength() * BrowserSettings.zoomAmount,center);
+        long center = GraphPaneController.getInstance().getMouseXPosition();
+        zoomToLength(currentViewableRange.getLength() * BrowserSettings.zoomAmount,center);
     }
 
     public void setRange(String reference, Range range) {
         ReferenceController.getInstance().setReference(reference);
-        this.setRange(range);
+        setRange(range);
     }
-
-
-    /*
-     *
-     *
-     private void printStacks() {
-        printStack(undoStack, "Undo");
-        printStack(redoStack, "Redo");
-    }
-     
-    public void printStack(Stack s, String name) {
-        System.out.println("Stack: " + name);
-        for (int i = 0; i < s.size(); i++) {
-            System.out.println(i + ". " + s.get(i));
-        }
-    }
-     * 
-     */
-
 }

@@ -66,7 +66,6 @@ public class BEDFileDataSource implements DataSource<BEDIntervalRecord> {
     public List<BEDIntervalRecord> getRecords(String reference, Range range, Resolution resolution) throws IOException {
         List<IntervalRecord> data = null;
 
-
         IntervalSearchTree ist = getIntervalSearchTreeForReference(reference);
 
         if (ist == null) { return new ArrayList<BEDIntervalRecord>(); }

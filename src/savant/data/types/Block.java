@@ -21,25 +21,25 @@ package savant.data.types;
  * FIXME: this class is redundant; use Interval with a different static factory instead.
  * @author mfiume
  */
-public class Block {
+public final class Block {
 
-    private final int position;
-    private final int size;
+    private final long position;
+    private final long size;
 
-    Block(int pos, int size) {
+    private Block(long pos, long size) {
         this.position = pos;
         this.size = size;
     }
 
-    public static Block valueOf(int pos, int size) {
+    public static Block valueOf(long pos, long size) {
         return new Block(pos, size);
     }
 
-    public int getPosition() {
+    public long getPosition() {
         return position;
     }
 
-    public int getSize() {
+    public long getSize() {
         return size;
     }
 
@@ -58,8 +58,8 @@ public class Block {
 
     @Override
     public int hashCode() {
-        int result = position;
-        result = 31 * result + size;
+        int result = (int)position;
+        result = 31 * result + (int)size;
         return result;
     }
 

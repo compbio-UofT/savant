@@ -150,6 +150,7 @@ public class BAMDataSource implements DataSource<BAMIntervalRecord> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public List<BAMIntervalRecord> getRecords(String reference, Range range, Resolution resolution) throws OutOfMemoryError {
 
 
@@ -168,7 +169,7 @@ public class BAMDataSource implements DataSource<BAMIntervalRecord> {
                 ref = guessSequence();
             }
 
-            recordIterator = samFileReader.query(ref, range.getFrom(), range.getTo(), false);
+            recordIterator = samFileReader.query(ref, range.getFromAsInt(), range.getToAsInt(), false);
 
             SAMRecord samRecord;
             BAMIntervalRecord bamRecord;
@@ -202,16 +203,17 @@ public class BAMDataSource implements DataSource<BAMIntervalRecord> {
 
         // Find out what sequence we're using, by reading the header for sequences and lengths
         RangeController rangeController = RangeController.getInstance();
-        int referenceSequenceLength = rangeController.getMaxRangeEnd() - rangeController.getMaxRangeStart();
+        long referenceSequenceLength = rangeController.getMaxRangeEnd() - rangeController.getMaxRangeStart();
+        assert Math.abs(referenceSequenceLength) < Integer.MAX_VALUE;
 
         String sequenceName = null;
         SAMSequenceDictionary sequenceDictionary = samFileHeader.getSequenceDictionary();
         // find the first sequence with the smallest difference in length from our reference sequence
-        int leastDifferenceInSequenceLength = Integer.MAX_VALUE;
+        long leastDifferenceInSequenceLength = Long.MAX_VALUE;
         int closestSequenceIndex = Integer.MAX_VALUE;
         int i = 0;
         for (SAMSequenceRecord sequenceRecord : sequenceDictionary.getSequences()) {
-            int lengthDelta = Math.abs(sequenceRecord.getSequenceLength() - referenceSequenceLength);
+            int lengthDelta = Math.abs(sequenceRecord.getSequenceLength() - (int)referenceSequenceLength);
             if (lengthDelta < leastDifferenceInSequenceLength) {
                 leastDifferenceInSequenceLength = lengthDelta;
                 closestSequenceIndex = i;
@@ -278,6 +280,7 @@ public class BAMDataSource implements DataSource<BAMIntervalRecord> {
     /**
      * {@inheritDoc}
      */
+    @Override
     public void close() {
 
         if (samFileReader != null) {
@@ -287,6 +290,7 @@ public class BAMDataSource implements DataSource<BAMIntervalRecord> {
 
     Set<String> referenceNames;
 
+    @Override
     public Set<String> getReferenceNames() {
 
         if (this.referenceNames == null) {
@@ -326,6 +330,7 @@ public class BAMDataSource implements DataSource<BAMIntervalRecord> {
         return BAMIndexCache.getInstance().getBAMIndex(bamURL);
     }
 
+    @Override
     public URI getURI() {
         return uri;
     }

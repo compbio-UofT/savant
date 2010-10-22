@@ -20,6 +20,7 @@ import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.GridLayout;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.Iterator;
@@ -50,8 +51,8 @@ public class PopupPanel extends JPanel {
     //info
     protected String name;
     protected String ref;
-    protected int start;
-    protected int end;
+    protected long start;
+    protected long end;
 
     public static PopupPanel create(GraphPane parent, Mode mode, FileFormat ff, Record rec){
 
@@ -115,15 +116,12 @@ public class PopupPanel extends JPanel {
         final JLabel select = new JLabel("Select/Deselect");
         select.setForeground(Color.BLUE);
         select.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        select.addMouseListener(new MouseListener() {
+        select.addMouseListener(new MouseAdapter() {
+            @Override
             public void mouseClicked(MouseEvent e) {
                 gp.getTrackRenderers().get(0).addToSelected(record);
                 gp.repaint();
             }
-            public void mousePressed(MouseEvent e) {}
-            public void mouseReleased(MouseEvent e) {}
-            public void mouseEntered(MouseEvent e) {}
-            public void mouseExited(MouseEvent e) {}
         });
         this.add(select);
 
@@ -135,7 +133,8 @@ public class PopupPanel extends JPanel {
             JLabel bookmark = new JLabel("Add to Bookmarks");
             bookmark.setForeground(Color.BLUE);
             bookmark.setCursor(new Cursor(Cursor.HAND_CURSOR));
-            bookmark.addMouseListener(new MouseListener() {
+            bookmark.addMouseListener(new MouseAdapter() {
+                @Override
                 public void mouseClicked(MouseEvent e) {
                     ref = homogenizeRef(ref);
                     if(name != null){
@@ -144,10 +143,6 @@ public class PopupPanel extends JPanel {
                         BookmarkController.getInstance().addBookmark(new Bookmark(ref, new Range(start, end)));
                     }
                 }
-                public void mousePressed(MouseEvent e) {}
-                public void mouseReleased(MouseEvent e) {}
-                public void mouseEntered(MouseEvent e) {}
-                public void mouseExited(MouseEvent e) {}
             });
             this.add(bookmark);
         }

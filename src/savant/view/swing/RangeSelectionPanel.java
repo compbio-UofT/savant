@@ -42,8 +42,8 @@ public class RangeSelectionPanel extends JPanel implements MouseListener, MouseM
     private boolean isMouseInside = false;
     private boolean isDragging = false;
     private boolean isActive = false;
-    private int minimum = 0;
-    private int maximum = 100;
+    private long minimum = 0;
+    private long maximum = 100;
     private static final long serialVersionUID = 1L;
     private final JLabel mousePosition;
     int x1, x2, y1, y2;
@@ -137,7 +137,7 @@ public class RangeSelectionPanel extends JPanel implements MouseListener, MouseM
             end = this.x1;
         }
 
-        int startRange, endRange;
+        long startRange, endRange;
         
         if (st < 2) {
             startRange = RangeController.getInstance().getMaxRangeStart();
@@ -258,8 +258,8 @@ public class RangeSelectionPanel extends JPanel implements MouseListener, MouseM
             
         } else {
             RangeController rc = RangeController.getInstance();
-            int startrange = rc.getRangeStart();
-            int endrange = rc.getRangeEnd();
+            long startrange = rc.getRangeStart();
+            long endrange = rc.getRangeEnd();
             int startx = MiscUtils.transformPositionToPixel(startrange, this.getWidth(), rc.getMaxRange());
             int endx = MiscUtils.transformPositionToPixel(endrange, this.getWidth(), rc.getMaxRange());
             int widpixels = Math.max(2, endx-startx);
@@ -297,11 +297,11 @@ public class RangeSelectionPanel extends JPanel implements MouseListener, MouseM
 
             if (this.rangeChangedExternally) {
                 Range r = RangeController.getInstance().getRange();
-                from = MiscUtils.intToShortString(r.getFrom());
-                to = MiscUtils.intToShortString(r.getTo());
+                from = MiscUtils.posToShortString(r.getFrom());
+                to = MiscUtils.posToShortString(r.getTo());
             } else {
-                from = MiscUtils.intToShortString(MiscUtils.transformPixelToPosition(fromX, this.getWidth(), RangeController.getInstance().getMaxRange()));
-                to = MiscUtils.intToShortString(MiscUtils.transformPixelToPosition(toX, this.getWidth(), RangeController.getInstance().getMaxRange()));
+                from = MiscUtils.posToShortString(MiscUtils.transformPixelToPosition(fromX, this.getWidth(), RangeController.getInstance().getMaxRange()));
+                to = MiscUtils.posToShortString(MiscUtils.transformPixelToPosition(toX, this.getWidth(), RangeController.getInstance().getMaxRange()));
             }
 
             FontMetrics metrics = g.getFontMetrics(g.getFont());
@@ -326,9 +326,9 @@ public class RangeSelectionPanel extends JPanel implements MouseListener, MouseM
 
             FontMetrics metrics = g.getFontMetrics(g.getFont());
 
-            int genomepos = this.translatePixelToPosition(this.x_notdragging);
+            long genomepos = this.translatePixelToPosition(this.x_notdragging);
 
-            String mousePos = MiscUtils.intToShortString(genomepos);
+            String mousePos = MiscUtils.posToShortString(genomepos);
             g.drawString(
                     mousePos,
                     x_notdragging-metrics.stringWidth(mousePos)-12,
@@ -338,11 +338,11 @@ public class RangeSelectionPanel extends JPanel implements MouseListener, MouseM
         }
     }
 
-    public void setMaximum(int max) {
+    public void setMaximum(long max) {
         this.maximum = max - 1;
     }
 
-    public void setRange(int lower, int upper) {
+    public void setRange(long lower, long upper) {
         setRange(new Range(lower, upper));
     }
 
@@ -354,19 +354,19 @@ public class RangeSelectionPanel extends JPanel implements MouseListener, MouseM
         repaint();
     }
 
-    public int getLowerPosition() {
+    public long getLowerPosition() {
         return translatePixelToPosition(this.x1);
     }
 
-    public int getUpperPosition() {
+    public long getUpperPosition() {
         return translatePixelToPosition(this.x2);
     }
 
-    private int translatePixelToPosition(int pixel) {
-        return (int) ((double) pixel * this.maximum / (double) this.getWidth());
+    private long translatePixelToPosition(int pixel) {
+        return (long) ((double) pixel * this.maximum / (double) this.getWidth());
     }
 
-    private int translatePositionToPixel(int position) {
+    private int translatePositionToPixel(long position) {
         return (int) (((double) position * this.getWidth() - 4) / this.maximum) + 1;
     }
 

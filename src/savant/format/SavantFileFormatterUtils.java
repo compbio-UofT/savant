@@ -125,6 +125,7 @@ public class SavantFileFormatterUtils {
                     int numBlocks = in.readInt();
                     List<Block> blocks = new ArrayList<Block>(numBlocks);
                     for (int i = 0; i < numBlocks; i++) {
+                        // TODO: Should start and size of blocks be stored as longs?
                         int start = in.readInt();
                         int size = in.readInt();
                         blocks.add(Block.valueOf(start,size));
@@ -146,6 +147,7 @@ public class SavantFileFormatterUtils {
                     record.add((char) in.readByte());
                     break;
                 case RANGE:
+                    // TODO: Should Ranges be stored as longs?
                     int start = in.readInt();
                     int end = in.readInt();
                     record.add(new Range(start,end));
@@ -216,8 +218,9 @@ public class SavantFileFormatterUtils {
                     List<Block> blocks = (List<Block>) o;
                     outFile.writeInt(blocks.size());
                     for (Block b : blocks) {
-                        outFile.writeInt(b.getPosition());
-                        outFile.writeInt(b.getSize());
+                        // TODO: Should file format be changed to support long Blocks?  Note that Blocks may be deprecated.
+                        outFile.writeInt((int)b.getPosition());
+                        outFile.writeInt((int)b.getSize());
                     }
                     break;
                 case ITEMRGB:
@@ -244,8 +247,9 @@ public class SavantFileFormatterUtils {
                     break;
                 case RANGE:
                     Range r = (Range) o;
-                    outFile.writeInt(r.getFrom());
-                    outFile.writeInt(r.getTo());
+                    // TODO: Should file format be changed to support long ranges?
+                    outFile.writeInt((int)r.getFrom());
+                    outFile.writeInt((int)r.getTo());
                     break;
                 default:
                     System.err.println("DataFormatUtils.writeBinaryRecord: Not implemented for " + ft);
@@ -528,8 +532,8 @@ public class SavantFileFormatterUtils {
         String name = "";
         Float score = 0.0f;
         Strand strand = SavantFileFormatterUtils.getStrand("+");
-        Integer thickStart = 0;
-        Integer thickEnd = 0;
+        long thickStart = 0;
+        long thickEnd = 0;
         ItemRGB rgb = ItemRGB.valueOf(0,0,0);
         List<Block> blocks = null;
         
@@ -543,8 +547,8 @@ public class SavantFileFormatterUtils {
             }
         }
         if (numFields > 5) { strand = SavantFileFormatterUtils.getStrand((String) record.get(5)); }
-        if (numFields > 6) { thickStart = (Integer) record.get(6); } else { thickStart = 0; }
-        if (numFields > 7) { thickEnd = (Integer) record.get(7); } else { thickEnd = interval.getLength(); }
+        if (numFields > 6) { thickStart = (Long)record.get(6); }
+        if (numFields > 7) { thickEnd = (Long)record.get(7); } else { thickEnd = interval.getLength(); }
         if (numFields > 8) { rgb = (ItemRGB) record.get(8); }
         if (numFields > 9) { blocks = (List<Block>) record.get(9); } else {
             blocks = new ArrayList<Block>();
@@ -575,8 +579,8 @@ public class SavantFileFormatterUtils {
             StringTokenizer sizeTokenizer = new StringTokenizer(blockSizes,",");
 
             while(numBlocks-- > 0) {
-                int nextPos = Integer.parseInt(posTokenizer.nextToken());
-                int nextSize = Integer.parseInt(sizeTokenizer.nextToken()) -1;
+                long nextPos = Long.parseLong(posTokenizer.nextToken());
+                long nextSize = Long.parseLong(sizeTokenizer.nextToken()) -1;
                 blocks.add(Block.valueOf(nextPos,nextSize));
             }
         }

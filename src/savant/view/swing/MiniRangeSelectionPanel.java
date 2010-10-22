@@ -34,9 +34,6 @@ import java.awt.event.MouseMotionListener;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import javax.swing.border.Border;
-import javax.swing.border.EmptyBorder;
-import javax.swing.border.EtchedBorder;
 
 /**
  *
@@ -46,8 +43,8 @@ public class MiniRangeSelectionPanel extends JPanel implements MouseListener, Mo
 
     private boolean isDragging = false;
     private boolean isActive = false;
-    private int minimum = 0;
-    private int maximum = 100;
+    private long minimum = 0;
+    private long maximum = 100;
     private static final long serialVersionUID = 1L;
     private final JLabel mousePosition;
     int x1, x2, y1, y2;
@@ -98,10 +95,10 @@ public class MiniRangeSelectionPanel extends JPanel implements MouseListener, Mo
 
         this.x1 = event.getX();
         if (this.x1 < this.minimum) {
-            this.x1 = this.minimum;
+            this.x1 = (int)this.minimum;
         }
         if (this.x1 > this.maximum) {
-            this.x1 = this.maximum;
+            this.x1 = (int)this.maximum;
         }
         this.y1 = event.getY();
 
@@ -122,27 +119,16 @@ public class MiniRangeSelectionPanel extends JPanel implements MouseListener, Mo
 
         this.x2 = event.getX();
         if (this.x2 < this.minimum) {
-            this.x2 = this.minimum;
+            this.x2 = (int)this.minimum;
         }
         if (this.x2 > this.maximum) {
-            this.x2 = this.maximum;
+            this.x2 = (int)this.maximum;
         }
         this.y2 = event.getY();
-        //this.mousePosition.setText( "Released at [" + ( this.x2 ) + ", " + ( this.y2 ) + "]" );
 
         this.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
 
-        //this.recStop.setText( "End:  [" + this.x2 + "]" );
-
         repaint();
-
-        int st = this.x1;
-        int end = this.x2;
-        if (this.x1 > this.x2) {
-            st = this.x2;
-            end = this.x1;
-        }
-        //fireRangeSelectionChangedEvent(new Range(translatePixelToPosition(st), translatePixelToPosition(end)));
     }
 
 // handle event when mouse enters area
@@ -161,11 +147,12 @@ public class MiniRangeSelectionPanel extends JPanel implements MouseListener, Mo
         this.isDragging = true;
 
         this.x2 = event.getX();
+        // TODO: This looks fishy to me:  x is a pixel value, while minimum/maximum are genome positions.
         if (this.x2 < this.minimum) {
-            this.x2 = this.minimum;
+            this.x2 = (int)this.minimum;
         }
         if (this.x2 > this.maximum) {
-            this.x2 = this.maximum;
+            this.x2 = (int)this.maximum;
         }
         this.y2 = event.getY();
 
@@ -313,13 +300,12 @@ public class MiniRangeSelectionPanel extends JPanel implements MouseListener, Mo
                 int yTwo = 0;
                 g2.drawLine(xOne,yOne,xTwo,yTwo);
 
-                // TODO: fix divide by zero
                 if (skipstring != 0) {
                     if (i % skipstring == 0) {
                         g2.setColor(Color.black);
-                        int a;
+                        long a;
                         if (xOne < 5) {
-                           a = RangeController.getInstance().getRangeStart();
+                            a = RangeController.getInstance().getRangeStart();
                         // todo: add same sort of catching on the right side
                         } else {
                             a = MiscUtils.transformPixelToPosition(xOne, width, (RangeController.getInstance()).getRange());
@@ -328,7 +314,7 @@ public class MiniRangeSelectionPanel extends JPanel implements MouseListener, Mo
                     }
                 } else {
                     g2.setColor(Color.black);
-                    int a = MiscUtils.transformPixelToPosition(xOne, width, (RangeController.getInstance()).getRange());
+                    long a = MiscUtils.transformPixelToPosition(xOne, width, (RangeController.getInstance()).getRange());
                     g2.drawString(MiscUtils.numToString(a), (float) (xOne + 3), (float) ((this.getHeight()*0.5)+3));
                 }
             }
@@ -355,11 +341,11 @@ public class MiniRangeSelectionPanel extends JPanel implements MouseListener, Mo
         }
     }
 
-    public void setMaximum(int max) {
+    public void setMaximum(long max) {
         this.maximum = max - 1;
     }
 
-    public void setRange(int lower, int upper) {
+    public void setRange(long lower, long upper) {
         setRange(new Range(lower, upper));
     }
 
@@ -379,21 +365,19 @@ public class MiniRangeSelectionPanel extends JPanel implements MouseListener, Mo
         repaint();
     }
 
-    public int getLowerPosition() {
+    public long getLowerPosition() {
         return translatePixelToPosition(this.x1);
     }
 
-    public int getUpperPosition() {
+    public long getUpperPosition() {
         return translatePixelToPosition(this.x2);
     }
 
-    private int translatePixelToPosition(int pixel) {
-        //System.out.println("min: " + this.minimum + " max: " + this.maximum + " pixel: " + pixel + " result: "
-        //        + ((int) (((double) pixel * (this.maximum-this.minimum)) / (double) this.getWidth())) );
-        return this.minimum + (int) (((double) pixel * (this.maximum-this.minimum)) / (double) this.getWidth());
+    private long translatePixelToPosition(int pixel) {
+        return this.minimum + (long) (((double) pixel * (this.maximum-this.minimum)) / (double) this.getWidth());
     }
 
-    private int translatePositionToPixel(int position) {
+    private int translatePositionToPixel(long position) {
         return (int) (((double) position * this.getWidth() - 4) / this.maximum) + 1;
     }
 

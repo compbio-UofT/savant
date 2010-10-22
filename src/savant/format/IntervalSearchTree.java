@@ -153,6 +153,7 @@ public class IntervalSearchTree {
 
     /**
      * Get the arity (branching) of this tree
+     *
      * @return The arity of this tree
      */
     public int getArity() {
@@ -169,11 +170,11 @@ public class IntervalSearchTree {
     }
 
     private Range getRangeOfContainingChild(IntervalTreeNode n, Range r) {
-        int childRangeLength = n.range.getLength()/this.arity;
+        long childRangeLength = n.range.getLength() / arity;
 
-        for (int i = 0; i < this.arity; i++) {
-            int childRangeStart = i*childRangeLength + n.range.getFrom();
-            int childRangeEnd = childRangeStart + childRangeLength;
+        for (int i = 0; i < arity; i++) {
+            long childRangeStart = i * childRangeLength + n.range.getFrom();
+            long childRangeEnd = childRangeStart + childRangeLength;
             Range childRange = new Range(childRangeStart, childRangeEnd);
             if (this.contains(childRange, r)) {
                 return childRange;
@@ -213,7 +214,7 @@ public class IntervalSearchTree {
         //System.out.print(node.index + " >> ");
 
         int indexofsmallestmax = -1;
-        int smallestmax = Integer.MAX_VALUE;
+        long smallestmax = Long.MAX_VALUE;
 
         for (int i = 0; i < node.children.size(); i++) {
             IntervalTreeNode c = node.children.get(i);

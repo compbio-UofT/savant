@@ -60,6 +60,7 @@ public class GenericPointDataSource implements DataSource<GenericPointRecord> {
         return GenericPointRecord.valueOf((String) record.get(0), Point.valueOf((Integer) record.get(1)), (String) record.get(2));
     }
 
+    @Override
     public List<GenericPointRecord> getRecords(String reference, Range range, Resolution resolution) throws IOException {
         
         List<GenericPointRecord> data = new ArrayList<GenericPointRecord>();
@@ -90,6 +91,7 @@ public class GenericPointDataSource implements DataSource<GenericPointRecord> {
         return data;
     }
 
+    @Override
     public void close() {
         try {
             if (savantFile != null) savantFile.close();
@@ -131,12 +133,14 @@ public class GenericPointDataSource implements DataSource<GenericPointRecord> {
         return (Integer) line.get(1);
     }
 
+    @Override
     public Set<String> getReferenceNames() {
         Map<String, Long[]> refMap = savantFile.getReferenceMap();
         return refMap.keySet();
 
     }
     
+    @Override
     public URI getURI() {
         return savantFile.getURI();
     }

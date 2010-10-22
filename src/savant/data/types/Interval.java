@@ -22,29 +22,26 @@ import savant.util.Range;
  *
  * @author mfiume, vwilliams
  */
-public class Interval {
+public final class Interval {
 
-    private final int start;
-    private final int end;
+    private final long start;
+    private final long end;
 
 
-    protected Interval(int start, int end)
-    {
+    private Interval(long start, long end) {
         this.start = start;
         this.end = end;
     }
 
-    public static Interval valueOf(int start, int end) {
+    public static Interval valueOf(long start, long end) {
         return new Interval(start, end);
     }
 
-    public int getStart() { return this.start; }
-    public int getEnd() { return this.end; }
-
-    public int getLength() { return getEnd() - getStart();}
+    public long getStart() { return this.start; }
+    public long getEnd() { return this.end; }
+    public long getLength() { return end - start;}
 
     public boolean intersects(Interval interval) {
-        boolean result = false;
         return this.start < interval.getEnd()-1 && interval.getStart() < this.end-1;
     }
 
@@ -71,8 +68,8 @@ public class Interval {
 
     @Override
     public int hashCode() {
-        int result = start;
-        result = 31 * result + end;
+        int result = (int)start;
+        result = 31 * result + (int)end;
         return result;
     }
 

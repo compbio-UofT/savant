@@ -389,8 +389,8 @@ public class BookmarkSheet implements BookmarksChangedListener /*, RangeChangedL
         StringTokenizer st = new StringTokenizer(line,"\t");
 
         String ref = st.nextToken();
-        int from = Integer.parseInt(st.nextToken());
-        int to = Integer.parseInt(st.nextToken());
+        long from = Long.parseLong(st.nextToken());
+        long to = Long.parseLong(st.nextToken());
         String annotation = "";
 
         while (st.hasMoreElements()) {

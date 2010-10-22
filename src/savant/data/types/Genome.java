@@ -114,18 +114,17 @@ public class Genome
         else { return dataSource.getRecords(reference, range, Resolution.VERY_HIGH).get(0).getSequence(); }
     }
 
-    public int getLength()
+    public long getLength()
     {
         return getLength(ReferenceController.getInstance().getReferenceName());
     }
 
-    public int getLength(String reference)
+    public long getLength(String reference)
     {
         if (this.isAssociatedWithTrack) {
             return this.dataSource.getLength(reference);
         } else {
-            //TODO: loss of precision here?
-            return this.referenceMap.get(reference).intValue();
+            return this.referenceMap.get(reference).longValue();
         }
     }
 

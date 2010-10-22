@@ -35,6 +35,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -684,13 +685,13 @@ public class ToolsModule implements BookmarksChangedListener, RangeChangeComplet
         panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
 
         if (runInformation.getStartTime() != null) {
-            panel.add(new JLabel("Start time: " + runInformation.getStartTime().toLocaleString()));
+            panel.add(new JLabel("Start time: " + DateFormat.getTimeInstance().format(runInformation.getStartTime())));
         }
 
         switch(runInformation.getTerminationStatus()) {
             case INTERRUPT:
                 JLabel l = new JLabel("Status: cancelled");
-                panel.add(new JLabel("Cancel time: " + runInformation.getEndTime().toLocaleString()));
+                panel.add(new JLabel("Cancel time: " + DateFormat.getTimeInstance().format(runInformation.getEndTime())));
                 l.setForeground(Color.red);
                 panel.add(l);
                 break;
@@ -704,7 +705,7 @@ public class ToolsModule implements BookmarksChangedListener, RangeChangeComplet
                     pane.setCollapsed(true);
                 } catch (PropertyVetoException ex) {}
                 if (runInformation.getEndTime() != null) {
-                    panel.add(new JLabel("End time: " + runInformation.getEndTime().toLocaleString()));
+                    panel.add(new JLabel("End time: " + DateFormat.getTimeInstance().format(runInformation.getEndTime())));
                 }
                 panel.add(new JLabel("Status: complete"));
                 break;

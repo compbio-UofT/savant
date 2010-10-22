@@ -28,9 +28,9 @@ public class GenericContinuousRecord implements ContinuousRecord, Comparable {
 
     private final String reference;
     private final Continuous value;
-    private final int position;
+    private final long position;
 
-    GenericContinuousRecord(String reference, int position, Continuous value) {
+    GenericContinuousRecord(String reference, long position, Continuous value) {
         if (reference == null) throw new IllegalArgumentException("reference must not be null");
         if (value == null) throw new IllegalArgumentException("Value may not be null.");
         this.reference = reference;
@@ -38,7 +38,7 @@ public class GenericContinuousRecord implements ContinuousRecord, Comparable {
         this.value = value;
     }
 
-    public static GenericContinuousRecord valueOf(String reference, int position, Continuous value) {
+    public static GenericContinuousRecord valueOf(String reference, long position, Continuous value) {
         return new GenericContinuousRecord(reference, position, value);
     }
 
@@ -50,7 +50,7 @@ public class GenericContinuousRecord implements ContinuousRecord, Comparable {
         return value;
     }
 
-    public int getPosition() {
+    public long getPosition() {
         return position;
     }
 
@@ -72,7 +72,7 @@ public class GenericContinuousRecord implements ContinuousRecord, Comparable {
     public int hashCode() {
         int result = reference.hashCode();
         result = 31 * result + value.hashCode();
-        result = 31 * result + position;
+        result = 31 * result + (int)position;
         return result;
     }
 
