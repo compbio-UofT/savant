@@ -40,6 +40,9 @@
                 </MenuItem>
                 <MenuItem class="javax.swing.JMenuItem" name="openTrackFromURLItem">
                   <Properties>
+                    <Property name="accelerator" type="javax.swing.KeyStroke" editor="org.netbeans.modules.form.editors.KeyStrokeEditor">
+                      <KeyStroke key="Ctrl+U"/>
+                    </Property>
                     <Property name="text" type="java.lang.String" value="Track from URL"/>
                   </Properties>
                   <Events>
@@ -55,6 +58,9 @@
             </Menu>
             <MenuItem class="javax.swing.JMenuItem" name="menuitem_loadsession">
               <Properties>
+                <Property name="accelerator" type="javax.swing.KeyStroke" editor="org.netbeans.modules.form.editors.KeyStrokeEditor">
+                  <KeyStroke key="Ctrl+O"/>
+                </Property>
                 <Property name="text" type="java.lang.String" value="Load Session"/>
               </Properties>
               <Events>
@@ -91,6 +97,9 @@
             </MenuItem>
             <MenuItem class="javax.swing.JMenuItem" name="menuItemFormat">
               <Properties>
+                <Property name="accelerator" type="javax.swing.KeyStroke" editor="org.netbeans.modules.form.editors.KeyStrokeEditor">
+                  <KeyStroke key="Ctrl+F"/>
+                </Property>
                 <Property name="text" type="java.lang.String" value="Format"/>
               </Properties>
               <Events>

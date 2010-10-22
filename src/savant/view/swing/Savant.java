@@ -377,6 +377,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         } catch (Exception e) {
             // handle exception
         }
+        instance = this;
 
         addComponentListener(new ComponentAdapter() {
             /**
