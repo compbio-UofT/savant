@@ -266,13 +266,13 @@ public class IntervalFormatter extends SavantFileFormatter {
 
         fields = new ArrayList<FieldType>();
         fields.add(FieldType.STRING);   // reference
-        fields.add(FieldType.INTEGER);  // start
-        fields.add(FieldType.INTEGER);  // end
+        fields.add(FieldType.INTEGER);  // start (#306 should be LONG)
+        fields.add(FieldType.INTEGER);  // end (#306 should be LONG)
         fields.add(FieldType.STRING);   // name
         fields.add(FieldType.FLOAT);  // score
         fields.add(FieldType.STRING);   // strand
-        fields.add(FieldType.INTEGER);  // thickstart
-        fields.add(FieldType.INTEGER);  // thickend
+        fields.add(FieldType.INTEGER);  // thickstart (#306 should be LONG)
+        fields.add(FieldType.INTEGER);  // thickend (#306 should be LONG)
         fields.add(FieldType.ITEMRGB);  // itemrgb
         fields.add(FieldType.BLOCKS);   // exonblocks
 
@@ -319,8 +319,8 @@ public class IntervalFormatter extends SavantFileFormatter {
         fields.add(FieldType.STRING);   // seqname
         fields.add(FieldType.STRING);   // source
         fields.add(FieldType.STRING);   // feature
-        fields.add(FieldType.INTEGER);  // start
-        fields.add(FieldType.INTEGER);  // end
+        fields.add(FieldType.INTEGER);  // start (#306 should be LONG)
+        fields.add(FieldType.INTEGER);  // end (#306 should be LONG)
         fields.add(FieldType.DOUBLE);  // score
         fields.add(FieldType.STRING);   // strand
         fields.add(FieldType.STRING);   // frame
@@ -509,13 +509,14 @@ public class IntervalFormatter extends SavantFileFormatter {
             //    System.out.println(o);
             //}
 
-            // adjust the start byte and endbyte offsets (for 0 vs. 1-based)
-            line.set(startcoordindex, (Long)line.get(startcoordindex) + this.baseOffset);
-            line.set(endcoordindex, (Long)line.get(endcoordindex) + this.baseOffset);
+            // Adjust the start byte and endbyte offsets (for 0 vs. 1-based)
+            // TODO: #306 These fields should really be cast to Long rather than Integer.
+            line.set(startcoordindex, (Integer)line.get(startcoordindex) + this.baseOffset);
+            line.set(endcoordindex, (Integer)line.get(endcoordindex) + this.baseOffset);
 
             // update min and max
-            long startInterval = (Long)line.get(startcoordindex);
-            long endInterval = (Long)line.get(endcoordindex);
+            long startInterval = (Integer)line.get(startcoordindex);
+            long endInterval = (Integer)line.get(endcoordindex);
             minRange = Math.min(minRange, startInterval);
             maxRange = Math.max(maxRange, endInterval);
 

@@ -133,7 +133,7 @@ public class SavantFileUtils {
                 case IGNORE:
                     break;
                 default:
-                    System.err.println("Not implemented yet for Field Type: " + ft);
+                    log.warn("Not implemented yet for Field Type: " + ft);
                     break;
             }
         }

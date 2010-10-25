@@ -15,7 +15,16 @@
  */
 package savant.view.swing;
 
-import savant.swing.component.TrackChooser;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.io.File;
+import java.io.FilenameFilter;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.*;
+import java.util.List;
 import com.apple.eawt.*;
 import com.jidesoft.docking.*;
 import com.jidesoft.docking.event.DockableFrameEvent;
@@ -47,12 +56,14 @@ import savant.controller.event.reference.ReferenceChangedListener;
 import savant.controller.event.track.TrackListChangedEvent;
 import savant.controller.event.track.TrackListChangedListener;
 import savant.data.types.Genome;
+import savant.net.DownloadTreeList;
 import savant.plugin.GUIPlugin;
 import savant.plugin.PluginAdapter;
-import savant.settings.BrowserSettings;
-import savant.settings.ColourSchemeSettingsSection;
-import savant.settings.ColourSettings;
-import savant.settings.SettingsDialog;
+import savant.plugin.PluginTool;
+import savant.plugin.XMLTool;
+import savant.settings.*;
+import savant.swing.component.TrackChooser;
+import savant.util.DownloadFile;
 import savant.util.MiscUtils;
 import savant.util.Range;
 import savant.view.dialog.DataFormatForm;
@@ -61,24 +72,6 @@ import savant.view.dialog.OpenURLDialog;
 import savant.view.dialog.PluginDialog;
 import savant.view.swing.util.DialogUtils;
 import savant.view.tools.ToolsModule;
-
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.*;
-import java.io.File;
-import java.io.FilenameFilter;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.*;
-import java.util.List;
-import savant.controller.RecentTracksController;
-import savant.net.DownloadTreeList;
-import savant.plugin.PluginTool;
-import savant.plugin.XMLTool;
-import savant.settings.DirectorySettings;
-import savant.settings.TemporaryFilesSettingsSection;
-import savant.util.DownloadFile;
 import savant.view.icon.SavantIconFactory;
 import savant.xml.XMLVersion;
 import savant.xml.XMLVersion.Version;
@@ -627,6 +620,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         });
         menu_load.add(openTrackFromFileItem);
 
+        openTrackFromURLItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_U, java.awt.event.InputEvent.CTRL_MASK));
         openTrackFromURLItem.setText("Track from URL");
         openTrackFromURLItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -640,6 +634,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         menu_recent.setText("Open Recent");
         menuitem_file.add(menu_recent);
 
+        menuitem_loadsession.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_O, java.awt.event.InputEvent.CTRL_MASK));
         menuitem_loadsession.setText("Load Session");
         menuitem_loadsession.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -667,6 +662,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         menuitem_file.add(menuitem_savesessionas);
         menuitem_file.add(jSeparator3);
 
+        menuItemFormat.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F, java.awt.event.InputEvent.CTRL_MASK));
         menuItemFormat.setText("Format");
         menuItemFormat.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -1914,7 +1910,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         p.add(fromtext);
         //p.add(this.getRigidPadding());
 
-        int tfwidth = 120;
+        int tfwidth = 100;
         int labwidth = 100;
         int tfheight = 22;
         textboxFrom = addTextField(p, "");
@@ -2889,55 +2885,54 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
     /*
     public void propertyChange(PropertyChangeEvent propertyChangeEvent) {
 
-        if (propertyChangeEvent.getPropertyName().equals("success")) {
-            if ((Boolean) propertyChangeEvent.getNewValue() == true) {
-                if (openAfterFormat) {
-                    String outfilepath = dff.getOutputFilePath();
-                    if (dff.getFileType() == FileType.SEQUENCE_FASTA) {
-                        this.setGenomeFromFile(outfilepath);
-                    } else {
-                        try {
-                            addTrackFromFile(outfilepath);
-                        } catch (Exception e) {
-                            promptUserToFormatFile(outfilepath, e.getMessage());
-                        }
-                    }
-                }
-                JOptionPane.showMessageDialog(this, "Format successful", "Format File", JOptionPane.INFORMATION_MESSAGE);
-            } else {
+    if (propertyChangeEvent.getPropertyName().equals("success")) {
+    if ((Boolean) propertyChangeEvent.getNewValue() == true) {
+    if (openAfterFormat) {
+    String outfilepath = dff.getOutputFilePath();
+    if (dff.getFileType() == FileType.SEQUENCE_FASTA) {
+    this.setGenomeFromFile(outfilepath);
+    } else {
+    try {
+    addTrackFromFile(outfilepath);
+    } catch (Exception e) {
+    promptUserToFormatFile(outfilepath, e.getMessage());
+    }
+    }
+    }
+    JOptionPane.showMessageDialog(this, "Format successful", "Format File", JOptionPane.INFORMATION_MESSAGE);
+    } else {
 
-                String details = (dff.getMessage());
-                JideOptionPane optionPane = new JideOptionPane("Click \"Details\" button to see more information ... \n\n"
-                        + "Problems formatting files? Please copy these details and email them to savant@cs.toronto.edu \n"
-                        + "along with the file you are trying to format (if it is under 10MB in size). The Savant Team will \n"
-                        + "be happy to help troubleshoot the issue with you.", JOptionPane.ERROR_MESSAGE, JideOptionPane.CLOSE_OPTION);
-                optionPane.setTitle("A problem was encountered while formatting.");
-                JDialog dialog = optionPane.createDialog(this, "Format unsuccessful");
-                dialog.setResizable(true);
-                optionPane.setDetails(details);
-                //optionPane.setDetailsVisible(true);
-                dialog.pack();
-                dialog.setVisible(true);
+    String details = (dff.getMessage());
+    JideOptionPane optionPane = new JideOptionPane("Click \"Details\" button to see more information ... \n\n"
+    + "Problems formatting files? Please copy these details and email them to savant@cs.toronto.edu \n"
+    + "along with the file you are trying to format (if it is under 10MB in size). The Savant Team will \n"
+    + "be happy to help troubleshoot the issue with you.", JOptionPane.ERROR_MESSAGE, JideOptionPane.CLOSE_OPTION);
+    optionPane.setTitle("A problem was encountered while formatting.");
+    JDialog dialog = optionPane.createDialog(this, "Format unsuccessful");
+    dialog.setResizable(true);
+    optionPane.setDetails(details);
+    //optionPane.setDetailsVisible(true);
+    dialog.pack();
+    dialog.setVisible(true);
 
-                /*
-                String message = "Format was not successful! ";
-                String extraMessage = dff.getMessage();
-                String userMessage;
-                if (extraMessage != null) {
-                userMessage = message + extraMessage;
-                } else {
-                userMessage = message;
-                }
-                JOptionPane.showMessageDialog(this, userMessage, "Format File", JOptionPane.ERROR_MESSAGE);
-                 * 
-                 
-            }
+    /*
+    String message = "Format was not successful! ";
+    String extraMessage = dff.getMessage();
+    String userMessage;
+    if (extraMessage != null) {
+    userMessage = message + extraMessage;
+    } else {
+    userMessage = message;
+    }
+    JOptionPane.showMessageDialog(this, userMessage, "Format File", JOptionPane.ERROR_MESSAGE);
+     *
 
-        }
+    }
+
+    }
     }
      * 
      */
-
     public void updateMousePosition() {
         GraphPaneController gpc = GraphPaneController.getInstance();
         long x = gpc.getMouseXPosition();
@@ -3006,7 +3001,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
             startPageDockableFrame.setAvailableButtons(DockableFrame.BUTTON_CLOSE);
             this.getTrackDockingManager().addFrame(startPageDockableFrame);
             /*try {
-                df.setMaximized(true);
+            df.setMaximized(true);
             } catch (PropertyVetoException ex) {
             }*/
             startPageDockableFrame.getContentPane().setLayout(new BorderLayout());

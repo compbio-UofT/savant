@@ -147,7 +147,7 @@ public class SavantFileFormatterUtils {
                     record.add((char) in.readByte());
                     break;
                 case RANGE:
-                    // TODO: Should Ranges be stored as longs?
+                    // TODO: Should Ranges be stored as longs #306?
                     int start = in.readInt();
                     int end = in.readInt();
                     record.add(new Range(start,end));
@@ -158,7 +158,7 @@ public class SavantFileFormatterUtils {
                 case IGNORE:
                     break;
                 default:
-                    System.err.println("Not implemented yet for Field Type: " + ft);
+                    log.info("Not implemented yet for Field Type: " + ft);
                     break;
             }
         }
@@ -252,7 +252,7 @@ public class SavantFileFormatterUtils {
                     outFile.writeInt((int)r.getTo());
                     break;
                 default:
-                    System.err.println("DataFormatUtils.writeBinaryRecord: Not implemented for " + ft);
+                    log.info("DataFormatUtils.writeBinaryRecord: Not implemented for " + ft);
                     break;
             }
 
@@ -315,6 +315,9 @@ public class SavantFileFormatterUtils {
                     break;
                 case INTEGER:
                     line.add(Integer.parseInt(token));
+                    break;
+                case LONG:
+                    line.add(Long.parseLong(token));
                     break;
                 case DOUBLE:
                     if(isGFF && token.contains(".") && token.length() == 1){
@@ -428,7 +431,6 @@ public class SavantFileFormatterUtils {
         }
     }
     
-
 
     public static void printRecord(List<Object> record) {
         for (Object o : record) {
@@ -547,8 +549,9 @@ public class SavantFileFormatterUtils {
             }
         }
         if (numFields > 5) { strand = SavantFileFormatterUtils.getStrand((String) record.get(5)); }
-        if (numFields > 6) { thickStart = (Long)record.get(6); }
-        if (numFields > 7) { thickEnd = (Long)record.get(7); } else { thickEnd = interval.getLength(); }
+        // TODO: #306 The next two fields should really be Longs, not Integers.
+        if (numFields > 6) { thickStart = (Integer)record.get(6); }
+        if (numFields > 7) { thickEnd = (Integer)record.get(7); } else { thickEnd = interval.getLength(); }
         if (numFields > 8) { rgb = (ItemRGB) record.get(8); }
         if (numFields > 9) { blocks = (List<Block>) record.get(9); } else {
             blocks = new ArrayList<Block>();
