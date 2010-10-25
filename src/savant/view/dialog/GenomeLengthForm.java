@@ -200,6 +200,7 @@ public class GenomeLengthForm extends javax.swing.JDialog {
         initGenomeInformation();
         initDropDowns();
         updateEnabledControls();
+        getRootPane().setDefaultButton(okButton);
         setVisible(true);
     }
 
@@ -291,8 +292,8 @@ public class GenomeLengthForm extends javax.swing.JDialog {
         buildCombo = new javax.swing.JComboBox();
         javax.swing.JLabel lengthLabel = new javax.swing.JLabel();
         lengthField = new javax.swing.JTextField();
-        button_ok = new javax.swing.JButton();
-        button_cancel = new javax.swing.JButton();
+        okButton = new javax.swing.JButton();
+        javax.swing.JButton cancelButton = new javax.swing.JButton();
         javax.swing.JLabel nameLabel = new javax.swing.JLabel();
         nameField = new javax.swing.JTextField();
 
@@ -334,17 +335,17 @@ public class GenomeLengthForm extends javax.swing.JDialog {
             }
         });
 
-        button_ok.setText("OK");
-        button_ok.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                button_okMouseClicked(evt);
+        okButton.setText("OK");
+        okButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                okButtonActionPerformed(evt);
             }
         });
 
-        button_cancel.setText("Cancel");
-        button_cancel.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                button_cancelMouseClicked(evt);
+        cancelButton.setText("Cancel");
+        cancelButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cancelButtonActionPerformed(evt);
             }
         });
 
@@ -389,9 +390,9 @@ public class GenomeLengthForm extends javax.swing.JDialog {
                 .addContainerGap())
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap(188, Short.MAX_VALUE)
-                .addComponent(button_ok)
+                .addComponent(okButton)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(button_cancel)
+                .addComponent(cancelButton)
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -419,8 +420,8 @@ public class GenomeLengthForm extends javax.swing.JDialog {
                     .addComponent(lengthField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(button_cancel)
-                    .addComponent(button_ok))
+                    .addComponent(cancelButton)
+                    .addComponent(okButton))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -439,12 +440,7 @@ public class GenomeLengthForm extends javax.swing.JDialog {
         //validateUserSpecifiedLength();
     }//GEN-LAST:event_lengthFieldFocusLost
 
-    private void button_cancelMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_button_cancelMouseClicked
-        this.setVisible(false);
-    }//GEN-LAST:event_button_cancelMouseClicked
-
-    private void button_okMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_button_okMouseClicked
-
+    private void okButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_okButtonActionPerformed
         if (userSpecifiedRadio.isSelected() && !validateUserSpecifiedLength()) {
             return;
         }
@@ -465,18 +461,21 @@ public class GenomeLengthForm extends javax.swing.JDialog {
 
 
         userCompletedForm = true;
-        
+
         setVisible(false);
-    }//GEN-LAST:event_button_okMouseClicked
+    }//GEN-LAST:event_okButtonActionPerformed
+
+    private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelButtonActionPerformed
+        setVisible(false);
+    }//GEN-LAST:event_cancelButtonActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JComboBox buildCombo;
-    private javax.swing.JButton button_cancel;
-    private javax.swing.JButton button_ok;
     private javax.swing.ButtonGroup buttongroup_whichkind;
     private javax.swing.JRadioButton commonGenomeRadio;
     private javax.swing.JTextField lengthField;
     private javax.swing.JTextField nameField;
+    private javax.swing.JButton okButton;
     private javax.swing.JComboBox speciesCombo;
     private javax.swing.JRadioButton userSpecifiedRadio;
     // End of variables declaration//GEN-END:variables
