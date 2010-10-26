@@ -1,4 +1,7 @@
 /*
+ * ReferenceController.java
+ * Created on Jan 19, 2010
+ *
  *    Copyright 2010 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,19 +17,11 @@
  *    limitations under the License.
  */
 
-/*
- * RangeController.java
- * Created on Jan 19, 2010
- */
-
 /**
  * Controller object to manage changes to viewed range.
  * @author vwilliams
  */
 package savant.controller;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -46,14 +41,10 @@ public class ReferenceController {
 
     private static ReferenceController instance;
 
-    private static Log log = LogFactory.getLog(RangeController.class);
-
     private List<ReferenceChangedListener> referenceChangedListeners;
 
     /** The maximum and current viewable range */
     private String currentReference;
-    //private Set<String> genomicReferences;
-    //private Set<String> otherReferences;
 
     public static synchronized ReferenceController getInstance() {
         if (instance == null) {
@@ -68,19 +59,35 @@ public class ReferenceController {
         referenceChangedListeners = new ArrayList<ReferenceChangedListener>();
     }
 
-    public void setReference(String reference) {
-        if (this.getAllReferenceNames().contains(reference)) {
-            if (!reference.equals(this.currentReference)) {
-                this.currentReference = reference;
+    /**
+     * Set the new reference, firing a ReferenceChangedEvent if appropriate.
+     *
+     * @param ref           the new reference
+     * @param forceEvent    if true, always fire a ReferenceChangedEvent #303
+     */
+    public void setReference(String ref, boolean forceEvent) {
+        if (getAllReferenceNames().contains(ref)) {
+            if (forceEvent || !ref.equals(currentReference)) {
+                currentReference = ref;
                 fireReferenceChangedEvent();
             }
         } else {
             if (TrackController.getInstance().getDataSources().size() > 0) {
                 JOptionPane.showMessageDialog(
                         Savant.getInstance(),
-                        "Reference " + reference + " not found in loaded tracks");
+                        "Reference " + ref + " not found in loaded tracks");
             }
         }
+    }
+
+    /**
+     * Set the new reference, firing a ReferenceChangedEvent only if the reference
+     * has actually changed.
+     *
+     * @param ref   the new reference
+     */
+    public void setReference(String ref) {
+        setReference(ref, false);
     }
 
     public String getReferenceName() {
@@ -167,14 +174,9 @@ public class ReferenceController {
 
     public void setGenome(Genome genome) {
         this.loadedGenome = genome;
-        pickReference();
-    }
 
-    private void pickReference() {
+        // Auto-select the first reference on the new genome.
         String ref = MiscUtils.set2List(this.loadedGenome.getReferenceNames()).get(0);
-        setReference(ref);
+        setReference(ref, true);
     }
-
-
-
 }
