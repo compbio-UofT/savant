@@ -1528,7 +1528,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         // get async notification when DataFormatForm has finished its business
         //dff.addPropertyChangeListener("success", this);
 
-        urlDialog = new OpenURLDialog(Savant.getInstance(), true);
+        urlDialog = new OpenURLDialog(this, true);
         // comment next line to disable plugin manager
         //this.menu_plugins.setVisible(false);
 
@@ -2784,11 +2784,9 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
 
     private void updateReferenceNamesList() {
 
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Updating reference names list");
-        }
+        LOG.debug("Updating reference names list");
 
-        String currref = (String) this.referenceDropdown.getSelectedItem();
+        Object curRef = referenceDropdown.getSelectedItem();
 
         List<String> genomicrefnames = MiscUtils.set2List(ReferenceController.getInstance().getReferenceNames());
 
@@ -2807,8 +2805,8 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
             }
         }
 
-        if (currref != null) {
-            this.referenceDropdown.setSelectedItem(currref);
+        if (curRef != null) {
+            this.referenceDropdown.setSelectedItem(curRef);
         }
     }
 
@@ -2952,14 +2950,16 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
     }
 
     private void showOpenURLDialog() {
+        urlDialog.setLocationRelativeTo(this);
         urlDialog.setVisible(true);
 
         if (urlDialog.isAccepted()) {
             String urlString = urlDialog.getUrlAsString();
             try {
                 URL url = new URL(urlString);
-                if (!url.getProtocol().equalsIgnoreCase("http") /*|| !urlString.endsWith(".bam")*/) {
-                    DialogUtils.displayMessage("Only BAM files accessible via HTTP can be opened via URL.");
+                String proto = url.getProtocol().toLowerCase();
+                if (!proto.equals("http") && !proto.equals("ftp")) {
+                    DialogUtils.displayMessage("Only files accessible via HTTP or FTP can be opened via URL.");
                     return;
                 }
             } catch (MalformedURLException e) {
@@ -2968,7 +2968,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
             try {
                 addTrackFromFile(urlDialog.getUrlAsString());
             } catch (IOException e) {
-                DialogUtils.displayException("Load Track from URL", "Error opening remote BAM file", e);
+                DialogUtils.displayException("Load Track from URL", "Error opening remote file", e);
             }
         }
     }

@@ -201,6 +201,7 @@ public class GenomeLengthForm extends javax.swing.JDialog {
         initDropDowns();
         updateEnabledControls();
         getRootPane().setDefaultButton(okButton);
+        setLocationRelativeTo(parent);
         setVisible(true);
     }
 

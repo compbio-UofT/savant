@@ -41,6 +41,9 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import net.sf.samtools.util.SeekableHTTPStream;
+import net.sf.samtools.util.SeekableStream;
+import savant.util.SeekableFTPStream;
 
 /**
  * Class to represent a track of BAM intervals. Uses SAMTools to read data within a range.
@@ -68,7 +71,8 @@ public class BAMDataSource implements DataSource<BAMIntervalRecord> {
             URI uri = new URI(fileNameOrURL);
             fileURL = uri.toURL();
             // if no exception is thrown, this is an absolute URL
-            if (fileURL.getProtocol().equalsIgnoreCase("http")) {
+            String proto = fileURL.getProtocol().toLowerCase();
+            if (proto.equals("http") || proto.equals("ftp")) {
                 indexFile = getIndexFileCached(fileURL);
                 if (indexFile != null) {
                     return new BAMDataSource(fileURL, indexFile);
@@ -142,7 +146,16 @@ public class BAMDataSource implements DataSource<BAMIntervalRecord> {
         }
 //        this.fileNameOrURL = url.getFile();
 
-        samFileReader = new SAMFileReader(url, index, false);
+        String proto = url.getProtocol().toLowerCase();
+        SeekableStream stream;
+        if (proto.equals("http")) {
+            stream = new SeekableHTTPStream(url);
+        } else if (proto.equals("ftp")) {
+            stream = new SeekableFTPStream(url);
+        } else {
+            throw new IllegalArgumentException("Only http:// and ftp:// URLs are supported for BAM access.");
+        }
+        samFileReader = new SAMFileReader(stream, index, false);
         samFileReader.setValidationStringency(SAMFileReader.ValidationStringency.LENIENT);
         samFileHeader = samFileReader.getFileHeader();
     }

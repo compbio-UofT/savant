@@ -1,4 +1,7 @@
 /*
+ * SeekableFTPStream.java
+ * Created on Aug 23, 2010
+ *
  *    Copyright 2010 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,24 +17,22 @@
  *    limitations under the License.
  */
 
-/*
- * SeekableFTPStream.java
- * Created on Aug 23, 2010
- */
-
 package savant.util;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+
 import net.sf.samtools.util.SeekableStream;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPConnectionClosedException;
 import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.net.ftp.FTPReply;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
 
 /**
  * Random access stream for FTP access to BAM files through Picard
@@ -40,43 +41,43 @@ import java.net.URL;
  */
 public class SeekableFTPStream extends SeekableStream {
 
-    private static Log log = LogFactory.getLog(SeekableFTPStream.class);
+    private static Log LOG = LogFactory.getLog(SeekableFTPStream.class);
 
-    private final URL url;
+    private final String source;
     private final String username;
     private final String password;
     private final String host;
     private final int port;
-    private final String file;
-    private final String dir;
     private final String fileName;
 
     private long length;
     private FTPClient ftpClient = null;
-    private long restartOffset = 0;
     private long position = 0;
 
     public SeekableFTPStream(URL url) {
-        this(url, "", "anonymous");
+        this(url, "anonymous", "");
     }
 
-    public SeekableFTPStream(URL url, String username, String password) {
+    public SeekableFTPStream(URL url, String user, String pwd) {
         
-        if (url == null) throw new IllegalArgumentException("URL may not be null");
-        if (!url.getProtocol().toLowerCase().equals("ftp")) throw new IllegalArgumentException("Only ftp:// protocol URLs are valid");
+        if (url == null) {
+            throw new IllegalArgumentException("URL may not be null");
+        }
+        if (!url.getProtocol().toLowerCase().equals("ftp")) {
+            throw new IllegalArgumentException("Only ftp:// protocol URLs are valid.");
+        }
 
-        this.username = username;
-        this.password = password;
-        this.url = url;
-        this.host = url.getHost();
-        this.file = url.getFile();
-        this.dir = url.getPath();
-        this.port = url.getPort();
-        this.fileName = url.getFile();
-        this.length = 0;
-
+        source = url.toString();
+        username = user;
+        password = pwd;
+        host = url.getHost();
+        int p = url.getPort();
+        port = p != -1 ? p : url.getDefaultPort();
+        fileName = url.getFile();
+        length = 0;
     }
 
+    @Override
     public long length() {
         if (length == 0) {
             FTPFile[] files;
@@ -88,7 +89,7 @@ public class SeekableFTPStream extends SeekableStream {
                     disconnect();
                     files = listFiles(fileName);
                 } catch (IOException e1) {
-                    log.warn("Unable to reconnect getting length");
+                    LOG.warn("Unable to reconnect getting length");
                     return 0;
                 }
 
@@ -107,34 +108,31 @@ public class SeekableFTPStream extends SeekableStream {
         
     }
 
-    public void seek(long l) throws IOException {
-        restartOffset = l;
+    @Override
+    public void seek(long pos) throws IOException {
+        position = pos;
+        LOG.info("FTP: seek to " + pos);
     }
 
+    @Override
     public int read(byte[] bytes, int offset, int len) throws IOException {
-        try
-         {
-             return readFromStream(bytes, offset, len);
-         }
-         catch (FTPConnectionClosedException e)
-         {
-             disconnect();
-
-             return readFromStream(bytes, offset, len);
-         }
-
+        try {
+            return readFromStream(bytes, offset, len);
+        } catch (FTPConnectionClosedException e) {
+            LOG.info("Connection closed during read.  Disconnecting and trying again at " + position);
+            disconnect();
+            return readFromStream(bytes, offset, len);
+        }
     }
 
     private int readFromStream(byte[] bytes, int offset, int len) throws IOException {
 
         FTPClient client = getFtpClient();
-        if (restartOffset != 0) {
-           client.setRestartOffset(restartOffset);
-           position = restartOffset;
-           restartOffset = 0;
+        if (position != 0) {
+            client.setRestartOffset(position);
         }
-
         InputStream is = client.retrieveFileStream(fileName);
+        long oldPos = position;
         if (is != null) {
             int n = 0;
             while (n < len) {
@@ -147,87 +145,88 @@ public class SeekableFTPStream extends SeekableStream {
             }
             position += n;
             is.close();
-            completePendingCommand();
+            LOG.info(String.format("FTP reading %d bytes at %d: %02x %02x %02x %02x %02x %02x %02x %02x...", len, oldPos, bytes[offset], bytes[offset + 1], bytes[offset + 2], bytes[offset + 3], bytes[offset + 4], bytes[offset + 5], bytes[offset + 6], bytes[offset + 7]));
+            try {
+                if (!client.completePendingCommand()) {
+                    LOG.warn("Unable to complete file transfer.");
+                }
+            } catch (FTPConnectionClosedException suppressed) {
+            }
             return n;
-        }
-        else {
-            log.error("Unable to retrieve input stream for file");
-            throw new IOException("Unable to retrieve input stream for file");
+        } else {
+            String msg = String.format("Unable to retrieve input stream for file (reply code %1).", client.getReplyCode());
+            LOG.error(msg);
+            throw new IOException(msg);
         }
     }
 
+    @Override
     public void close() throws IOException {
-        if (ftpClient != null) ftpClient.logout();
-        disconnect();
+        if (ftpClient != null) {
+            try {
+                ftpClient.completePendingCommand();
+                ftpClient.logout();
+            } catch (FTPConnectionClosedException e) {
+                LOG.info("Suppressing FTPConnectionClosedException exception from logout().");
+            }
+            disconnect();
+        }
     }
 
+    @Override
     public boolean eof() throws IOException {
         return position >= length();
     }
 
+    @Override
     public int read() throws IOException {
         throw new UnsupportedOperationException("read() not supported for SeekableFTPStreams");
     }
 
-     public String getSource() {
-        return this.url.toString();
+    @Override
+    public String getSource() {
+        return source;
     }
 
-    public boolean completePendingCommand() throws IOException
-    {
-        if (ftpClient != null)
-        {
-            return getFtpClient().completePendingCommand();
-        }
-
-        return true;
-    }
-
-    public FTPFile[] listFiles(String relPath) throws IOException
-    {
+    public FTPFile[] listFiles(String relPath) throws IOException {
         try {
             return getFtpClient().listFiles(relPath);
-        }
-        catch (FTPConnectionClosedException e) {
+        } catch (FTPConnectionClosedException e) {
             disconnect();
             return getFtpClient().listFiles(relPath);
         }
     }
 
-    public void disconnect() throws IOException
-    {
-        try
-        {
-            getFtpClient().disconnect();
-        }
-        finally
-        {
-            ftpClient = null;
+    public void disconnect() throws IOException {
+        if (ftpClient != null) {
+            try {
+                ftpClient.disconnect();
+            } finally {
+                ftpClient = null;
+            }
         }
     }
 
-    private FTPClient getFtpClient() throws IOException
-    {
-        if (ftpClient == null)
-        {
+    private FTPClient getFtpClient() throws IOException {
+        if (ftpClient == null) {
             ftpClient = createClient();
         }
 
         return ftpClient;
     }
 
-    private FTPClient createClient() throws IOException
-    {
-        FTPClient ftpClient = new FTPClient();
-        ftpClient.connect(host, port);
-        ftpClient.login(username, password);
-        int reply = ftpClient.getReplyCode();
+    private FTPClient createClient() throws IOException {
+        FTPClient client = new FTPClient();
+        client.connect(host, port);
+        client.login(username, password);
+        client.setFileType(FTP.BINARY_FILE_TYPE);
+        int reply = client.getReplyCode();
 
-        if(!FTPReply.isPositiveCompletion(reply)) {
-            ftpClient.disconnect();
-            log.error("FTP server refused connection.");
+        if (!FTPReply.isPositiveCompletion(reply)) {
+            client.disconnect();
+            LOG.error("FTP server refused connection.");
             return null;
         }
-        return ftpClient;
+        return client;
     }
 }

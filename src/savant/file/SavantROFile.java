@@ -223,11 +223,13 @@ public class SavantROFile implements ROFile {
     }
 
     public synchronized void seek(long pos) throws IOException {
-        seekStream.seek(pos);
-        filePointer = pos;
-        if (log.isDebugEnabled()) {
-            log.debug("Seeking to " + pos);
-            log.debug("warning: consider calling seek (string reference, long pos) instead");
+        if (filePointer != pos) {
+            seekStream.seek(pos);
+            filePointer = pos;
+            if (log.isDebugEnabled()) {
+                log.debug("Seeking to " + pos);
+                log.debug("warning: consider calling seek (string reference, long pos) instead");
+            }
         }
     }
 
@@ -390,3 +392,4 @@ public class SavantROFile implements ROFile {
         return this.uri;
     }
 }
+

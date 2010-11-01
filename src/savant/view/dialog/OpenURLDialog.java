@@ -1,20 +1,28 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
-/*
+ *
  * OpenURLDialog.java
  *
  * Created on Aug 4, 2010, 4:06:06 PM
+ * 
+ *    Copyright 2009-2010 University of Toronto
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
  */
-
 package savant.view.dialog;
 
 import java.awt.*;
 import java.net.MalformedURLException;
 import java.net.URL;
-import savant.view.swing.Savant;
 
 /**
  *
@@ -22,8 +30,7 @@ import savant.view.swing.Savant;
  */
 public class OpenURLDialog extends javax.swing.JDialog {
 
-    private boolean accepted  = false;
-
+    private boolean accepted = false;
     private URL url;
 
     /** Creates new form OpenURLDialog */
@@ -32,7 +39,7 @@ public class OpenURLDialog extends javax.swing.JDialog {
         initComponents();
 
         this.setModal(true);
-        this.getRootPane().setDefaultButton(button_ok);
+        this.getRootPane().setDefaultButton(okButton);
     }
 
     /** This method is called from within the constructor to
@@ -44,31 +51,31 @@ public class OpenURLDialog extends javax.swing.JDialog {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jLabel1 = new javax.swing.JLabel();
-        textField_url = new javax.swing.JTextField();
-        jLabel2 = new javax.swing.JLabel();
-        button_cancel = new javax.swing.JButton();
-        button_ok = new javax.swing.JButton();
+        javax.swing.JLabel urlLabel = new javax.swing.JLabel();
+        urlField = new javax.swing.JTextField();
+        javax.swing.JLabel noteLabel = new javax.swing.JLabel();
+        javax.swing.JButton cancelButton = new javax.swing.JButton();
+        okButton = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
         setTitle("Load Track from URL");
 
-        jLabel1.setText("Track URL:");
+        urlLabel.setText("Track URL:");
 
-        jLabel2.setFont(new java.awt.Font("Lucida Grande", 0, 11));
-        jLabel2.setText("Note: BAM files must be sorted and an index must be present with the extension .bai");
+        noteLabel.setFont(new java.awt.Font("Lucida Grande", 0, 11));
+        noteLabel.setText("Note: BAM files must be sorted and an index must be present with the extension .bai");
 
-        button_cancel.setText("Cancel");
-        button_cancel.addActionListener(new java.awt.event.ActionListener() {
+        cancelButton.setText("Cancel");
+        cancelButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                button_cancelActionPerformed(evt);
+                cancelButtonActionPerformed(evt);
             }
         });
 
-        button_ok.setText("OK");
-        button_ok.addActionListener(new java.awt.event.ActionListener() {
+        okButton.setText("OK");
+        okButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                button_okActionPerformed(evt);
+                okButtonActionPerformed(evt);
             }
         });
 
@@ -80,81 +87,60 @@ public class OpenURLDialog extends javax.swing.JDialog {
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(button_ok)
+                        .addComponent(okButton)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(button_cancel))
-                    .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jLabel1)
-                    .addComponent(textField_url, javax.swing.GroupLayout.DEFAULT_SIZE, 407, Short.MAX_VALUE))
+                        .addComponent(cancelButton))
+                    .addComponent(noteLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 560, Short.MAX_VALUE)
+                    .addComponent(urlLabel)
+                    .addComponent(urlField, javax.swing.GroupLayout.DEFAULT_SIZE, 560, Short.MAX_VALUE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jLabel1)
+                .addComponent(urlLabel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(textField_url, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(urlField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabel2)
+                .addComponent(noteLabel)
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(button_cancel)
-                    .addComponent(button_ok))
+                    .addComponent(cancelButton)
+                    .addComponent(okButton))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void button_cancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_cancelActionPerformed
+    private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelButtonActionPerformed
         setAccepted(false);
         this.setVisible(false);
-    }//GEN-LAST:event_button_cancelActionPerformed
+    }//GEN-LAST:event_cancelButtonActionPerformed
 
-    private void button_okActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_okActionPerformed
+    private void okButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_okButtonActionPerformed
         if (parseURL()) {
             setAccepted(true);
             this.setVisible(false);
         }
-    }//GEN-LAST:event_button_okActionPerformed
-
-    /**
-    * @param args the command line arguments
-    */
-    public static void main(String args[]) {
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                OpenURLDialog dialog = new OpenURLDialog(new javax.swing.JFrame(), true);
-                dialog.addWindowListener(new java.awt.event.WindowAdapter() {
-                    public void windowClosing(java.awt.event.WindowEvent e) {
-                        System.exit(0);
-                    }
-                });
-                dialog.setVisible(true);
-            }
-        });
-    }
-
+    }//GEN-LAST:event_okButtonActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton button_cancel;
-    private javax.swing.JButton button_ok;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
-    private javax.swing.JTextField textField_url;
+    private javax.swing.JButton okButton;
+    private javax.swing.JTextField urlField;
     // End of variables declaration//GEN-END:variables
 
     private boolean parseURL() {
 
         boolean result = false;
-        String urlStr = textField_url.getText();
+        String urlStr = urlField.getText();
 
         try {
             setUrl(new URL(urlStr));
             result = true;
         } catch (MalformedURLException e) {
             Toolkit.getDefaultToolkit().beep();
-            textField_url.grabFocus();
+            urlField.grabFocus();
         }
         return result;
     }
@@ -176,9 +162,10 @@ public class OpenURLDialog extends javax.swing.JDialog {
     }
 
     public String getUrlAsString() {
-        if (url != null)
+        if (url != null) {
             return url.toString();
-        else
+        } else {
             return "";
+        }
     }
 }

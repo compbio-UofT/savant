@@ -1,4 +1,8 @@
 /*
+ * BAMIndexCache.java
+ * Created on Aug 4, 2010
+ *
+ *
  *    Copyright 2010 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,22 +18,18 @@
  *    limitations under the License.
  */
 
-/*
- * BAMIndexCache.java
- * Created on Aug 4, 2010
- */
-
 package savant.data.sources;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import savant.util.HttpUtils;
-import savant.util.MiscUtils;
 
 import java.io.*;
 import java.net.URL;
 import java.util.Properties;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import savant.settings.DirectorySettings;
+import savant.util.MiscUtils;
+import savant.util.NetworkUtils;
 
 /**
  * Singleton class to manage a cache of indices for remote BAM files.
@@ -38,7 +38,7 @@ import savant.settings.DirectorySettings;
  */
 public class BAMIndexCache {
 
-    private static Log log = LogFactory.getLog(BAMIndexCache.class);
+    private static final Log LOG = LogFactory.getLog(BAMIndexCache.class);
 
     private static int BUF_SIZE = 8 * 1024; // 8K is optimal size for HTTP transfer
     
@@ -53,64 +53,67 @@ public class BAMIndexCache {
     private File indexPropFile = new File(getCacheDir(), "indices");
 
     public static synchronized BAMIndexCache getInstance() {
-        if (instance == null) instance = new BAMIndexCache();
+        if (instance == null) {
+            instance = new BAMIndexCache();
+        }
         return instance;
     }
 
     private BAMIndexCache() {}
 
-    public File getBAMIndex(URL URL) throws IOException {
+    public File getBAMIndex(URL url) throws IOException {
 
-        String indexURLString = URL.toString() + ".bai";
+        String indexURLString = url.toString() + ".bai";
         URL indexURL = new URL(indexURLString);
-        String eTag = null;
+        String hash = null;
 
         try {
-            eTag = HttpUtils.getETag(indexURL);
+            hash = NetworkUtils.getHash(indexURL);
         } catch (IOException e) {
             // file probably doesn't exist
-            log.warn("Remote file can't be accessed: "+ indexURL.toString(), e);
+            LOG.warn("Remote file can't be accessed: "+ indexURL, e);
         }
 
-        if (eTag == null) {
+        if (hash == null) {
             // file doesn't exist, try alternate
-            indexURLString = URL.toString().replace("bam", "bai");
+            indexURLString = url.toString().replace("bam", "bai");
             indexURL = new URL(indexURLString);
             try {
-                eTag = HttpUtils.getETag(indexURL);
+                hash = NetworkUtils.getHash(indexURL);
             } catch (IOException e1) {
                 // alternate file doesn't exist, either
-                log.warn("Remote file can't be accessed: "+ indexURL.toString(), e1);
+                LOG.warn("Remote file can't be accessed: "+ indexURL, e1);
             }
         }
 
-        if (eTag == null) {
+        if (hash == null) {
             // no index file found
             return null;
         }
 
-        String indexFilename = getIndexFileName(URL.toString(), indexURLString);
+        String indexFilename = getIndexFileName(url.toString(), indexURLString);
         File indexFile = new File(getCacheDir(), indexFilename);
         if (indexFile.exists()) {
-            String cachedTag = getETagForURL(URL.toString());
-            if (cachedTag == null || eTag == null || !eTag.equals(cachedTag)) {
+            String cachedTag = getETagForURL(url.toString());
+            if (cachedTag == null || hash == null || !hash.equals(cachedTag)) {
                 indexFile.delete();    
             }
         }
         if (!indexFile.exists()) {
             loadRemoteIndex(indexURL, indexFile);
-            setETagForURL(eTag, indexURLString);
+            setETagForURL(hash, indexURLString);
         }
         return indexFile;
     }
 
     public void clearCache() {
-        File cacheDir = getCacheDir();
-        MiscUtils.deleteDirectory(cacheDir);
+        MiscUtils.deleteDirectory(getCacheDir());
     }
 
     private synchronized Properties getETags() {
-        if (tags == null) tags = loadPropertiesFile(tagPropFile);
+        if (tags == null) {
+            tags = loadPropertiesFile(tagPropFile);
+        }
         return tags;
     }
 
@@ -118,14 +121,19 @@ public class BAMIndexCache {
         return getETags().getProperty(URL);
     }
 
-    private void setETagForURL(String etag, String URL) {
-        if (etag == null) getETags().remove(etag);
-        else getETags().put(URL, etag);
+    private void setETagForURL(String etag, String url) {
+        if (etag == null) {
+            getETags().remove(url);
+        } else {
+            getETags().put(url, etag);
+        }
         writePropertiesToFile(getETags(), tagPropFile);
     }
-    
+
     private synchronized Properties getIndices() {
-        if (indices == null) indices = loadPropertiesFile(indexPropFile);
+        if (indices == null) {
+            indices = loadPropertiesFile(indexPropFile);
+        }
         return indices;
     }
 
@@ -133,8 +141,8 @@ public class BAMIndexCache {
         return getIndices().getProperty(URL);
     }
 
-    private void setIndexForURL(String index, String URL) {
-        getIndices().put(URL, index);
+    private void setIndexForURL(String index, String url) {
+        getIndices().put(url, index);
         writePropertiesToFile(getIndices(), indexPropFile);
     }
     
@@ -148,15 +156,15 @@ public class BAMIndexCache {
         return cacheDir;
     }
 
-    private synchronized String getIndexFileName(String URL, String indexURL) {
-        String indexFilename = getIndexForURL(URL);
+    private synchronized String getIndexFileName(String url, String indexURL) {
+        String indexFilename = getIndexForURL(url);
         if (indexFilename == null) {
             int offset = indexURL.lastIndexOf("/");
             String name = indexURL.substring(offset+1);
             offset = name.lastIndexOf(".bai");
             name = (offset > 0) ? name.substring(0,offset)+"_" : name+"_";
             indexFilename = name + System.currentTimeMillis() + ".bai";
-            setIndexForURL(indexFilename, URL);
+            setIndexForURL(indexFilename, url);
         }
         return indexFilename;
     }
@@ -171,18 +179,13 @@ public class BAMIndexCache {
             try {
                 is = new FileInputStream(propFile);
                 result.load(is);
-            }
-            catch (FileNotFoundException e) {
+            } catch (FileNotFoundException e) {
                 // should not happen
-                log.error("Properties file not found",e);
-            }
-            catch (IOException e) {
-                log.error("Exception reading properties file",e);
-            }
-            finally {
-                if (is != null) {
-                    try { is.close(); } catch (IOException ignore) {}
-                }
+                LOG.error("Properties file not found",e);
+            } catch (IOException e) {
+                LOG.error("Exception reading properties file",e);
+            } finally {
+                if (is != null) try { is.close(); } catch (IOException ignore) {};
             }
         }
         return result;
@@ -193,14 +196,11 @@ public class BAMIndexCache {
         try {
             os = new FileOutputStream(propFile);
             props.store(os,null);
-        }
-        catch (FileNotFoundException e) {
-            log.error("Unable to save BAM Cache properties file",e);
-        }
-        catch (IOException e) {
-            log.error("Unable to save BAM Cache properties file",e);            
-        }
-        finally {
+        } catch (FileNotFoundException e) {
+            LOG.error("Unable to save BAM Cache properties file",e);
+        } catch (IOException e) {
+            LOG.error("Unable to save BAM Cache properties file",e);
+        } finally {
             if (os != null) try { os.close(); } catch (IOException ignore) {}
         }
     }

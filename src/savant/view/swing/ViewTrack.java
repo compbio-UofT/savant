@@ -16,19 +16,25 @@
 package savant.view.swing;
 
 import java.awt.Color;
+import java.io.File;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
+import javax.swing.JOptionPane;
 
-import savant.data.types.Genome;
-import savant.file.SavantUnsupportedVersionException;
-import savant.format.SavantFileFormatterUtils;
-import savant.util.Resolution;
-import savant.view.dialog.BAMParametersDialog;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import savant.controller.TrackController;
 import savant.controller.ViewTrackController;
+import savant.data.types.Genome;
 import savant.data.sources.*;
 import savant.file.*;
+import savant.format.SavantFileFormatterUtils;
 import savant.util.*;
+import savant.view.dialog.BAMParametersDialog;
 import savant.view.swing.continuous.ContinuousViewTrack;
 import savant.view.swing.interval.BAMCoverageViewTrack;
 import savant.view.swing.interval.BAMViewTrack;
@@ -38,15 +44,6 @@ import savant.view.swing.point.PointViewTrack;
 import savant.view.swing.sequence.SequenceViewTrack;
 import savant.view.swing.util.DialogUtils;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.swing.JOptionPane;
 
 /**
  * Class to handle the preparation for rendering of a track. Handles colour schemes and
@@ -58,16 +55,15 @@ import javax.swing.JOptionPane;
  */
 public abstract class ViewTrack {
 
-    private static Log log = LogFactory.getLog(ViewTrack.class);
-    private String name;
+    private static final Log LOG = LogFactory.getLog(ViewTrack.class);
+    private final String name;
     private ColorScheme colorScheme;
-    private FileFormat dataType;
+    private final FileFormat dataType;
     private List<Object> dataInRange;
     private List<Mode> drawModes;
     private Mode drawMode;
     private List<TrackRenderer> trackRenderers;
     private DataSource dataSource;
-    private URI fileURI;
     private ColorSchemeDialog colorDialog = new ColorSchemeDialog();
     private IntervalDialog intervalDialog = new IntervalDialog();
     // FIXME:
@@ -85,7 +81,7 @@ public abstract class ViewTrack {
      */
     public static List<ViewTrack> create(String trackFilename) throws IOException {
 
-        log.info("Opening track " + trackFilename);
+        LOG.info("Opening track " + trackFilename);
 
         List<ViewTrack> results = new ArrayList<ViewTrack>();
 
@@ -101,7 +97,7 @@ public abstract class ViewTrack {
         // BAM
         if (fileType == FileType.INTERVAL_BAM) {
 
-            log.info("Opening BAM file");
+            LOG.info("Opening BAM file " + trackFilename);
 
             try {
                 dataTrack = BAMDataSource.fromfileNameOrURL(trackFilename);
@@ -113,7 +109,7 @@ public abstract class ViewTrack {
                     //}
                     results.add(viewTrack);
                 } else {
-                    String e = "Could not create BAM track; check that index file exists and is named  filename.bam.bai or filename.bai";
+                    String e = String.format("Could not create BAM track; check that index file exists and is named \"%1$s.bai\".", name);
                     JOptionPane.showConfirmDialog(Savant.getInstance(), e, "Error loading track", JOptionPane.DEFAULT_OPTION);
                     return null;
                 }
@@ -126,15 +122,15 @@ public abstract class ViewTrack {
                     dataTrack = new GenericContinuousDataSource(coverageFileName);
                     viewTrack = new BAMCoverageViewTrack(name + " (coverage)", (GenericContinuousDataSource) dataTrack);
                 } else {
-                    log.info("No coverage track available");
+                    LOG.info("No coverage track available");
                     viewTrack = new BAMCoverageViewTrack(name + " (coverage)", null);
                 }
             } catch (IOException e) {
-                log.warn("Could not load coverage track", e);
+                LOG.warn("Could not load coverage track", e);
                 // create an empty ViewTrack that just displays an error message
                 viewTrack = new BAMCoverageViewTrack(name + " (coverage)", null);
             } catch (SavantFileNotFormattedException e) {
-                log.warn("Coverage track appears to be unformatted", e);
+                LOG.warn("Coverage track appears to be unformatted", e);
                 viewTrack = new BAMCoverageViewTrack(name + " (coverage)", null);
             } catch (SavantUnsupportedVersionException e) {
                 DialogUtils.displayMessage("This file was created using an older version of Savant. Please re-format the source.");
@@ -157,13 +153,8 @@ public abstract class ViewTrack {
                 // read file header
                 SavantROFile trkFile = SavantROFile.fromString(trackFilename);
 
-                if (log.isDebugEnabled()) {
-                    log.debug("Reading file type header");
-                }
-//                FileTypeHeader fth = SavantFileUtils.readFileTypeHeader(trkFile);
-                if (log.isDebugEnabled()) {
-                    log.debug("File type: " + trkFile.getFileType());
-                }
+                LOG.debug("Reading file type header");
+                LOG.debug("File type: " + trkFile.getFileType());
 
                 trkFile.close();
 
@@ -253,8 +244,8 @@ public abstract class ViewTrack {
      * @param dataType FileFormat representing file type, e.g. INTERVAL_BED, CONTINUOUS_GENERIC
      */
     public ViewTrack(String name, FileFormat dataType, DataSource dataSource) {
-        setName(name);
-        setDataType(dataType);
+        this.name = name;
+        this.dataType = dataType;
         drawModes = new ArrayList<Mode>();
         trackRenderers = new ArrayList<TrackRenderer>();
         this.dataSource = dataSource;
@@ -317,15 +308,6 @@ public abstract class ViewTrack {
     }
 
     /**
-     * Set the track name.
-     *
-     * @param name new name
-     */
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    /**
      * Get the data currently being displayed (or ready to be displayed)
      *
      * @return List of data objects
@@ -355,15 +337,6 @@ public abstract class ViewTrack {
      */
     public List<Mode> getDrawModes() {
         return this.drawModes;
-    }
-
-    /**
-     * Set data type.
-     *
-     * @param kind
-     */
-    public void setDataType(FileFormat kind) {
-        this.dataType = kind;
     }
 
     /**
@@ -490,7 +463,7 @@ public abstract class ViewTrack {
     }
 
     /**
-     * Retrive data from the underlying data track.
+     * Retrieve data from the underlying data track.
      *
      * @param range The range within which to retrieve objects
      * @param resolution The resolution at which to get data
