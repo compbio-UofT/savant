@@ -76,7 +76,7 @@ import savant.startpage.StartPage;
  * @author mfiume
  */
 public class Savant extends javax.swing.JFrame implements RangeSelectionChangedListener,
-        RangeChangedListener, /*PropertyChangeListener,*/ BookmarksChangedListener,
+        /*RangeChangedListener, */ /*PropertyChangeListener,*/ BookmarksChangedListener,
         ReferenceChangedListener, TrackListChangedListener {
 
     private static Log LOG = LogFactory.getLog(Savant.class);
@@ -471,12 +471,12 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         menuitem_view_spotlight = new javax.swing.JCheckBoxMenuItem();
         menu_window = new javax.swing.JMenu();
         menuItem_viewRangeControls = new javax.swing.JCheckBoxMenuItem();
-        menuItem_viewtoolbar = new javax.swing.JCheckBoxMenuItem();
         menuitem_genomeview = new javax.swing.JCheckBoxMenuItem();
         menuitem_ruler = new javax.swing.JCheckBoxMenuItem();
+        menuItem_viewtoolbar = new javax.swing.JCheckBoxMenuItem();
         menuitem_statusbar = new javax.swing.JCheckBoxMenuItem();
         speedAndEfficiencyItem = new javax.swing.JCheckBoxMenuItem();
-        jSeparator1 = new javax.swing.JSeparator();
+        javax.swing.JSeparator jSeparator1 = new javax.swing.JSeparator();
         menuitem_startpage = new javax.swing.JCheckBoxMenuItem();
         menuitem_tools = new javax.swing.JCheckBoxMenuItem();
         menu_bookmarks = new javax.swing.JCheckBoxMenuItem();
@@ -831,7 +831,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         });
 
         menuItem_viewRangeControls.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_R, java.awt.event.InputEvent.SHIFT_MASK | java.awt.event.InputEvent.CTRL_MASK));
-        menuItem_viewRangeControls.setText("Navigation Controls");
+        menuItem_viewRangeControls.setText("Navigation");
         menuItem_viewRangeControls.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 menuItem_viewRangeControlsMousePressed(evt);
@@ -839,17 +839,8 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         });
         menu_window.add(menuItem_viewRangeControls);
 
-        menuItem_viewtoolbar.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_T, java.awt.event.InputEvent.SHIFT_MASK | java.awt.event.InputEvent.CTRL_MASK));
-        menuItem_viewtoolbar.setText("Toolbar");
-        menuItem_viewtoolbar.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                menuItem_viewtoolbarActionPerformed(evt);
-            }
-        });
-        menu_window.add(menuItem_viewtoolbar);
-
         menuitem_genomeview.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_C, java.awt.event.InputEvent.SHIFT_MASK | java.awt.event.InputEvent.CTRL_MASK));
-        menuitem_genomeview.setText("Genome Context");
+        menuitem_genomeview.setText("Genome");
         menuitem_genomeview.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 menuitem_genomeviewActionPerformed(evt);
@@ -866,6 +857,15 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         });
         menu_window.add(menuitem_ruler);
 
+        menuItem_viewtoolbar.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_T, java.awt.event.InputEvent.SHIFT_MASK | java.awt.event.InputEvent.CTRL_MASK));
+        menuItem_viewtoolbar.setText("Plugin Toolbar");
+        menuItem_viewtoolbar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                menuItem_viewtoolbarActionPerformed(evt);
+            }
+        });
+        menu_window.add(menuItem_viewtoolbar);
+
         menuitem_statusbar.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_S, java.awt.event.InputEvent.SHIFT_MASK | java.awt.event.InputEvent.CTRL_MASK));
         menuitem_statusbar.setSelected(true);
         menuitem_statusbar.setText("Status Bar");
@@ -876,8 +876,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         });
         menu_window.add(menuitem_statusbar);
 
-        speedAndEfficiencyItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_D, java.awt.event.InputEvent.SHIFT_MASK | java.awt.event.InputEvent.CTRL_MASK));
-        speedAndEfficiencyItem.setText("Speed & Efficiency Toolbar");
+        speedAndEfficiencyItem.setText("Resources");
         speedAndEfficiencyItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 speedAndEfficiencyItemActionPerformed(evt);
@@ -1344,7 +1343,6 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JSeparator jSeparator1;
     private javax.swing.JPopupMenu.Separator jSeparator7;
     private javax.swing.JPopupMenu.Separator jSeparator9;
     private javax.swing.JLabel label_memory;
@@ -1473,7 +1471,8 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         //this.setVisible(false);
         //this.setExtendedState(this.getExtendedState() | JFrame.MAXIMIZED_BOTH);
 
-        rangeController.addRangeChangedListener(this);
+        //rangeController.addRangeChangedListener(this);
+        
         ReferenceController.getInstance().addReferenceChangedListener(this);
 
         initGUIFrame();
@@ -2280,40 +2279,12 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         rangeController.setRange(event.range());
     }
 
+    /*
     @Override
     public void rangeChangeReceived(RangeChangedEvent event) {
-
-        /*
-        // adjust descriptions
-        setRangeDescription(event.range());
-
-        // adjust range controls
-        setRangeSelectorFromRange();
-
-        setRulerFromRange();
-
-        // draw all frames
-        FrameController fc = FrameController.getInstance();
-
-        // Get current time
-        long start = System.currentTimeMillis();
-
-        updateProgress("Redrawing...");
-        spinProgress();
-
-        fc.drawFrames();
-
-        stopSpinningProgress();
-
-        // Get elapsed time in milliseconds
-        long elapsedTimeMillis = System.currentTimeMillis()-start;
-
-        // Get elapsed time in seconds
-        float elapsedTimeSec = elapsedTimeMillis/1000F;
-
-        updateProgress("Took " + elapsedTimeSec + " s");
-         */
     }
+     * 
+     */
 
     public void updateRange() {
         // adjust descriptions
@@ -2327,23 +2298,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         // draw all frames
         FrameController fc = FrameController.getInstance();
 
-        // Get current time
-        //long start = System.currentTimeMillis();
-
-        //updateProgress("Redrawing...");
-        //spinProgress();
-
         fc.drawFrames();
-
-        //stopSpinningProgress();
-
-        // Get elapsed time in milliseconds
-        //long elapsedTimeMillis = System.currentTimeMillis()-start;
-
-        // Get elapsed time in seconds
-        //float elapsedTimeSec = elapsedTimeMillis/1000F;
-
-        //updateProgress("Took " + elapsedTimeSec + " s");
 
     }
 
