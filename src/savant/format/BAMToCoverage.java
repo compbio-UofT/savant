@@ -44,8 +44,8 @@ public class BAMToCoverage extends SavantFileFormatter {
     // keep track of the sequence we're processing and the sequence we've just read
     private String processingSequenceName;
     private int processingSequenceLength;
-    private String readSequenceName;
-    private int readSequenceLength;
+    private String referenceName;
+    private int referenceSequenceLength;
 
     private long totalLength=0;
     private long previousSequencesCumulativeLength=0;
@@ -73,6 +73,7 @@ public class BAMToCoverage extends SavantFileFormatter {
         calculateTotalLength();
     }
 
+    //FIXME: this code is very messy. It doesnt handle reference name = *, which occurs in many files!
     public void format() throws InterruptedException, IOException, Exception {
 
         //DataOutputStream outfile = null;
@@ -115,17 +116,18 @@ public class BAMToCoverage extends SavantFileFormatter {
                 // stop now and again to update progress
                 for (int j=0; j<RECORDS_PER_INTERRUPT_CHECK; j++) {
 
-    //                samRecord = readNextRecordInSequence(recordIterator);
-                    
                     samRecord = readNextRecord(recordIterator); // iterate to next record
 
-                    if (samRecord == null || !readSequenceName.equals(processingSequenceName)) {
+                    if (referenceName.equals("*") && samRecord != null) {
+                        continue;
+                    } else if (samRecord == null || !referenceName.equals(processingSequenceName)) {
 
                         // we've finished reading the last sequence
                         // OR we've finished reading one sequence and have started reading the next
                         advanceToNextSequence(toWrite, m);
 
                         if (samRecord == null) {
+                            System.out.println("Finished");
                             // we're finished
                             done = true;
                             break;
@@ -206,11 +208,17 @@ public class BAMToCoverage extends SavantFileFormatter {
         SAMRecord sam = null;
         if (recordIterator.hasNext()) {
             sam = recordIterator.next();
+
+            System.out.println(sam + " " + sam.getReferenceName());
             // check if sequence has changed
-            String sequenceName = sam.getReferenceName();
-            if (!sequenceName.equals(readSequenceName)) {
-                readSequenceName = sequenceName;
-                readSequenceLength = sequenceDictionary.get(readSequenceName);
+            String refName = sam.getReferenceName();
+            if (!refName.equals(referenceName)) {
+                referenceName = refName;
+                if (refName.equals("*")) {
+                    System.out.println(sam);
+                    referenceSequenceLength = 0;
+                }
+                else { referenceSequenceLength = sequenceDictionary.get(referenceName); }
             }
         }
         return sam;
@@ -236,11 +244,10 @@ public class BAMToCoverage extends SavantFileFormatter {
         previousSequencesCumulativeLength +=  processingSequenceLength;
 
         // switch sequence and output file, as long as we're not at the last one
-        if (!readSequenceName.equals(processingSequenceName)) {
-            //closeOutput();
+        if (!referenceName.equals(processingSequenceName) && !referenceName.equals("*")) {
 
-            processingSequenceName = readSequenceName;
-            processingSequenceLength = readSequenceLength;
+            processingSequenceName = referenceName;
+            processingSequenceLength = referenceSequenceLength;
 
             prepareOutputFile(processingSequenceName);
         }
@@ -283,6 +290,7 @@ public class BAMToCoverage extends SavantFileFormatter {
     }
 
     private void prepareOutputFile(String sequenceName) throws FileNotFoundException {
+        System.out.println("Preparing output file for : " + sequenceName);
         outfile = this.getFileForReference(sequenceName);
         //this.outFilePath = outDir + fileSeparator + sequenceName + ".cov.savant";
         //initOutput();

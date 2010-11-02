@@ -5,6 +5,8 @@
 
 package savant.util;
 
+import com.jidesoft.docking.DockableFrame;
+import com.jidesoft.docking.DockingManager;
 import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -215,4 +217,12 @@ public class MiscUtils {
         return( path.delete() );
     }
 
+     public static void setFrameVisibility(String frameKey, boolean isVisible, DockingManager m) {
+        DockableFrame f = m.getFrame(frameKey);
+        if (isVisible) {
+            m.showFrame(frameKey);
+        } else {
+            m.hideFrame(frameKey);
+        }
+    }
 }

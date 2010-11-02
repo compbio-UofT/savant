@@ -15,6 +15,8 @@
  */
 package savant.view.swing;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -36,12 +38,6 @@ import com.jidesoft.status.MemoryStatusBarItem;
 import com.jidesoft.swing.JideSplitPane;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.java.plugin.ObjectFactory;
-import org.java.plugin.PluginManager;
-import org.java.plugin.registry.Extension;
-import org.java.plugin.registry.ExtensionPoint;
-import org.java.plugin.registry.PluginDescriptor;
-import org.java.plugin.standard.StandardPluginLocation;
 import org.jdom.JDOMException;
 import savant.analysis.BatchAnalysisForm;
 import savant.controller.*;
@@ -57,9 +53,6 @@ import savant.controller.event.track.TrackListChangedEvent;
 import savant.controller.event.track.TrackListChangedListener;
 import savant.data.types.Genome;
 import savant.net.DownloadTreeList;
-import savant.plugin.GUIPlugin;
-import savant.plugin.PluginAdapter;
-import savant.plugin.PluginTool;
 import savant.plugin.XMLTool;
 import savant.settings.*;
 import savant.swing.component.TrackChooser;
@@ -336,7 +329,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
     private JLabel label_length;
     /** Information & Analysis Tabbed Pane (for plugin use) */
     private JTabbedPane auxTabbedPane;
-    private PluginManager pluginManager;
+    
     /**
      * Info
      */
@@ -359,7 +352,6 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         try {
 
             UIManager.put("JideSplitPaneDivider.border", 5);
-            UIManager.put("JideSplitPaneDivider.background", Color.red);
 
             // Set System L&F
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -414,31 +406,6 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
             }
         } catch (IOException ex) {
         } catch (JDOMException ex) {
-        }
-    }
-
-    private void loadPlugins() {
-
-        pluginManager = ObjectFactory.newInstance().createManager();
-
-        File pluginsDir = new File("plugins");
-        File[] plugins = pluginsDir.listFiles(new FilenameFilter() {
-            @Override
-            public boolean accept(File dir, String name) {
-                return name.toLowerCase().endsWith(".jar");
-            }
-        });
-
-        try {
-            PluginManager.PluginLocation[] locations = new PluginManager.PluginLocation[plugins.length];
-
-            for (int i = 0; i < plugins.length; i++) {
-                locations[i] = StandardPluginLocation.create(plugins[i]);
-            }
-
-            pluginManager.publishPlugins(locations);
-        } catch (Exception e) {
-            throw new RuntimeException(e); // TODO: fix this and handle properly
         }
     }
 
@@ -509,12 +476,13 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         menuitem_ruler = new javax.swing.JCheckBoxMenuItem();
         menuitem_statusbar = new javax.swing.JCheckBoxMenuItem();
         speedAndEfficiencyItem = new javax.swing.JCheckBoxMenuItem();
-        javax.swing.JSeparator jSeparator1 = new javax.swing.JSeparator();
+        jSeparator1 = new javax.swing.JSeparator();
         menuitem_startpage = new javax.swing.JCheckBoxMenuItem();
         menuitem_tools = new javax.swing.JCheckBoxMenuItem();
         menu_bookmarks = new javax.swing.JCheckBoxMenuItem();
         menu_plugins = new javax.swing.JMenu();
         menuitem_pluginmanager = new javax.swing.JMenuItem();
+        jSeparator7 = new javax.swing.JPopupMenu.Separator();
         menu_help = new javax.swing.JMenu();
         userManualItem = new javax.swing.JMenuItem();
         tutorialsItem = new javax.swing.JMenuItem();
@@ -956,6 +924,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
             }
         });
         menu_plugins.add(menuitem_pluginmanager);
+        menu_plugins.add(jSeparator7);
 
         menuBar_top.add(menu_plugins);
 
@@ -1004,7 +973,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(panel_top, javax.swing.GroupLayout.DEFAULT_SIZE, 876, Short.MAX_VALUE)
             .addGroup(layout.createSequentialGroup()
-                .addComponent(toolbar_bottom, javax.swing.GroupLayout.DEFAULT_SIZE, 856, Short.MAX_VALUE)
+                .addComponent(toolbar_bottom, javax.swing.GroupLayout.DEFAULT_SIZE, 866, Short.MAX_VALUE)
                 .addContainerGap())
             .addComponent(panel_toolbar, javax.swing.GroupLayout.DEFAULT_SIZE, 876, Short.MAX_VALUE)
             .addComponent(panel_main, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 876, Short.MAX_VALUE)
@@ -1182,7 +1151,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         String frameKey = "Bookmarks";
         DockingManager m = this.getAuxDockingManager();
         boolean isVisible = m.getFrame(frameKey).isHidden();
-        setFrameVisibility(frameKey, isVisible, m);
+        MiscUtils.setFrameVisibility(frameKey, isVisible, m);
         this.menu_bookmarks.setSelected(isVisible);
     }//GEN-LAST:event_menu_bookmarksActionPerformed
 
@@ -1199,15 +1168,6 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
             java.awt.Desktop.getDesktop().browse(java.net.URI.create(BrowserSettings.url_manuals));
         } catch (IOException ex) {
             LOG.error("Unable to access online user manual.", ex);
-        }
-    }
-
-    private void setFrameVisibility(String frameKey, boolean isVisible, DockingManager m) {
-        DockableFrame f = m.getFrame(frameKey);
-        if (isVisible) {
-            m.showFrame(frameKey);
-        } else {
-            m.hideFrame(frameKey);
         }
     }//GEN-LAST:event_userManualItemActionPerformed
 
@@ -1270,7 +1230,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         String frameKey = "Tools";
         DockingManager m = this.getAuxDockingManager();
         boolean isVisible = m.getFrame(frameKey).isHidden();
-        setFrameVisibility(frameKey, isVisible, m);
+        MiscUtils.setFrameVisibility(frameKey, isVisible, m);
         this.menuitem_tools.setSelected(isVisible);
     }//GEN-LAST:event_menuitem_toolsActionPerformed
 
@@ -1340,9 +1300,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
                 loadPreferences();
                 checkVersion();
                 Savant instance = Savant.getInstance();
-                instance.loadPlugins();
-                instance.initXMLTools();
-                instance.initPlugins();
+                PluginController pc = PluginController.getInstance();
                 instance.displayAuxPanels();
             }
         });
@@ -1386,6 +1344,8 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JSeparator jSeparator1;
+    private javax.swing.JPopupMenu.Separator jSeparator7;
     private javax.swing.JPopupMenu.Separator jSeparator9;
     private javax.swing.JLabel label_memory;
     private javax.swing.JLabel label_mouseposition;
@@ -1543,7 +1503,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         this.menuitem_preferences.setVisible(false);
         this.menuitem_tools.setVisible(false);
         this.menuitem_aim.setVisible(false);
-        this.setFrameVisibility("Start Page", false, this.trackDockingManager);
+        MiscUtils.setFrameVisibility("Start Page", false, this.trackDockingManager);
         this.menuitem_startpage.setVisible(false);
         this.menuitem_loadsession.setVisible(false);
         this.menuitem_savesession.setVisible(false);
@@ -1566,88 +1526,6 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         return p;
     }
 
-    private PluginManager getPluginManager() {
-        return pluginManager;
-    }
-
-    private void initPlugins() {
-        try {
-            // init the AuxData plugins
-            boolean separatorAdded = false;
-            PluginDescriptor core = pluginManager.getRegistry().getPluginDescriptor("savant.core");
-            ExtensionPoint point = pluginManager.getRegistry().getExtensionPoint(core.getId(), "AuxData");
-
-            for (Iterator it = point.getConnectedExtensions().iterator(); it.hasNext();) {
-
-                Extension ext = (Extension) it.next();
-                PluginDescriptor descr = ext.getDeclaringPluginDescriptor();
-                pluginManager.activatePlugin(descr.getId());
-                ClassLoader classLoader = pluginManager.getPluginClassLoader(descr);
-                Class pluginCls = classLoader.loadClass(ext.getParameter("class").valueAsString());
-
-                Object plugininstance = pluginCls.newInstance();
-
-                if (plugininstance instanceof GUIPlugin) {
-
-                    GUIPlugin plugin = (GUIPlugin) plugininstance;
-
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("Loading GUI Plugin : " + plugin.getTitle());
-                    }
-
-                    final DockableFrame f = DockableFrameFactory.createGUIPluginFrame(plugin.getTitle());
-                    JPanel p = (JPanel) f.getContentPane();
-                    p.setLayout(new BorderLayout());
-                    JPanel canvas = new JPanel();
-                    p.add(canvas, BorderLayout.CENTER);
-                    canvas.setLayout(new BorderLayout());
-                    plugin.init(canvas, new PluginAdapter());
-                    this.getAuxDockingManager().addFrame(f);
-                    boolean isInitiallyVisible = false;
-                    setFrameVisibility(f.getTitle(), isInitiallyVisible, auxDockingManager);
-                    final JCheckBoxMenuItem cb = new JCheckBoxMenuItem(plugin.getTitle());
-                    cb.addActionListener(new ActionListener() {
-                        @Override
-                        public void actionPerformed(ActionEvent e) {
-                            DockingManager m = auxDockingManager;
-                            String frameKey = f.getTitle();
-                            boolean isVisible = m.getFrame(frameKey).isHidden();
-                            setFrameVisibility(frameKey, isVisible, m);
-                            cb.setSelected(isVisible);
-                        }
-                    });
-                    cb.setSelected(!auxDockingManager.getFrame(f.getTitle()).isHidden());
-                    //FIXME: this is not ideal...
-                    if (plugin.getTitle().equals("Table View")) {
-                        cb.setSelected(true);
-                    }
-                    if (!separatorAdded) {
-                        menu_window.add(new JSeparator());
-                        separatorAdded = true;
-                    }
-                    menu_window.add(cb);
-                } else if (plugininstance instanceof PluginTool) {
-
-                    PluginTool p = (PluginTool) plugininstance;
-
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("Loading Tool Plugin : " + p.getToolInformation().getName());
-                    }
-
-                    p.init(new PluginAdapter());
-                    ToolsModule.addTool(p);
-                } else {
-                    LOG.warn("Unknown plugin type");
-                }
-            }
-
-            // TODO: add provisions for runnable plugins
-
-        } catch (Exception e) {
-            LOG.error("Unable to load plugins", e);
-        }
-    }
-
     public DockingManager getAuxDockingManager() {
         return auxDockingManager;
     }
@@ -1662,7 +1540,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         DockableFrame df = DockableFrameFactory.createFrame(frameTitle, DockContext.STATE_HIDDEN, DockContext.DOCK_SIDE_SOUTH);
         df.setAvailableButtons(DockableFrame.BUTTON_AUTOHIDE | DockableFrame.BUTTON_FLOATING | DockableFrame.BUTTON_MAXIMIZE);
         this.getAuxDockingManager().addFrame(df);
-        setFrameVisibility(frameTitle, false, this.getAuxDockingManager());
+        MiscUtils.setFrameVisibility(frameTitle, false, this.getAuxDockingManager());
 
         JPanel canvas = new JPanel();
         canvas.setBackground(Color.red);
@@ -1691,7 +1569,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         DockableFrame df = DockableFrameFactory.createFrame("Bookmarks", DockContext.STATE_HIDDEN, DockContext.DOCK_SIDE_EAST);
         df.setAvailableButtons(DockableFrame.BUTTON_AUTOHIDE | DockableFrame.BUTTON_FLOATING | DockableFrame.BUTTON_MAXIMIZE);
         this.getAuxDockingManager().addFrame(df);
-        setFrameVisibility("Bookmarks", false, this.getAuxDockingManager());
+        MiscUtils.setFrameVisibility("Bookmarks", false, this.getAuxDockingManager());
 
 
         df.getContentPane().setLayout(new BorderLayout());
@@ -2265,12 +2143,6 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
 
     }
 
-    private void initLogTab(JTabbedPane jtp) {
-        //JPanel pan = createTabPanel(jtp, "Log");
-        //this.initLog(pan);
-        this.initLog(new JPanel());
-    }
-
     private JPanel createTabPanel(JTabbedPane jtp, String name) {
         JPanel pan = new JPanel();
         pan.setLayout(new BorderLayout());
@@ -2581,7 +2453,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
     }
 
     private void setStartPageVisible(boolean b) {
-        setFrameVisibility("Start Page", b, this.getTrackDockingManager());
+        MiscUtils.setFrameVisibility("Start Page", b, this.getTrackDockingManager());
         this.menuitem_startpage.setSelected(b);
     }
 
@@ -2668,46 +2540,6 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         ruler.setRulerRange(rangeController.getRange());
     }
 
-    /** == [[ DOCKING ]] ==
-     *  Components (such as frames, the Task Pane, etc.)
-     *  can be docked to regions of the UI
-     */
-    /**
-     * Start the log
-     */
-    private void initLog(JPanel pan) {
-        if (log != null) {
-            JOptionPane.showMessageDialog(this, "Log already started");
-            return;
-        }
-
-        log = new JTextArea();
-        log.setFont(new Font(BrowserSettings.fontName, Font.PLAIN, 18));
-        JScrollPane jsp = new JScrollPane(log);
-
-        pan.add(jsp);
-
-        log(log, "LOG STARTED");
-    }
-
-    /**
-     * Stop the log
-     */
-    private void killLog() {
-        log = null;
-    }
-
-    /**
-     * Update the log
-     */
-    private void updateLog() {
-        if (log == null) {
-            return;
-        }
-        log(log, "Range change to: " + rangeController.getRange());
-        // TODO: add track information
-    }
-
     /**
      * Get a string formatted for the log (with a new line).
      * @param s The message to format
@@ -2726,24 +2558,6 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         return "[" + MiscUtils.now() + "]\t" + s;
     }
 
-    /**
-     * Update the status bar
-     * 
-     *
-    public void updateProgress(int p) {
-    this.progressbar_status.setIndeterminate(false);
-    this.progressbar_status.setValue(p);
-    }
-    public void updateProgress(String msg) {
-    this.progressbar_status.setString(msg);
-    }
-    public void spinProgress() {
-    this.progressbar_status.setIndeterminate(true);
-    }
-    public void stopSpinningProgress() {
-    this.progressbar_status.setIndeterminate(false);
-    }
-     */
     public void updateStatus(String msg) {
         this.label_status.setText(msg);
         this.label_status.revalidate();
@@ -2833,6 +2647,10 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         this.memorystatusbar.setVisible(b);
     }
 
+    public void addPluginToMenu(JCheckBoxMenuItem cb) {
+        menu_plugins.add(cb);
+    }
+
     public enum LOGMODE {
 
         NORMAL, DEBUG
@@ -2842,7 +2660,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
      * log a message on the given text area
      * @param rtb The text area on which to post the message
      * @param msg The message to post
-     */
+     *
     public static void log(JTextArea rtb, String msg) {
         log(rtb, msg, LOGMODE.DEBUG);
         //rtb.append(logMessage(msg));
@@ -2858,6 +2676,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
             rtb.setCaretPosition(rtb.getText().length());
         }
     }
+     */
 
     /**
      * log a message on the default log text area
@@ -2880,57 +2699,6 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
          */
     }
 
-    /*
-    public void propertyChange(PropertyChangeEvent propertyChangeEvent) {
-
-    if (propertyChangeEvent.getPropertyName().equals("success")) {
-    if ((Boolean) propertyChangeEvent.getNewValue() == true) {
-    if (openAfterFormat) {
-    String outfilepath = dff.getOutputFilePath();
-    if (dff.getFileType() == FileType.SEQUENCE_FASTA) {
-    this.setGenomeFromFile(outfilepath);
-    } else {
-    try {
-    addTrackFromFile(outfilepath);
-    } catch (Exception e) {
-    promptUserToFormatFile(outfilepath, e.getMessage());
-    }
-    }
-    }
-    JOptionPane.showMessageDialog(this, "Format successful", "Format File", JOptionPane.INFORMATION_MESSAGE);
-    } else {
-
-    String details = (dff.getMessage());
-    JideOptionPane optionPane = new JideOptionPane("Click \"Details\" button to see more information ... \n\n"
-    + "Problems formatting files? Please copy these details and email them to savant@cs.toronto.edu \n"
-    + "along with the file you are trying to format (if it is under 10MB in size). The Savant Team will \n"
-    + "be happy to help troubleshoot the issue with you.", JOptionPane.ERROR_MESSAGE, JideOptionPane.CLOSE_OPTION);
-    optionPane.setTitle("A problem was encountered while formatting.");
-    JDialog dialog = optionPane.createDialog(this, "Format unsuccessful");
-    dialog.setResizable(true);
-    optionPane.setDetails(details);
-    //optionPane.setDetailsVisible(true);
-    dialog.pack();
-    dialog.setVisible(true);
-
-    /*
-    String message = "Format was not successful! ";
-    String extraMessage = dff.getMessage();
-    String userMessage;
-    if (extraMessage != null) {
-    userMessage = message + extraMessage;
-    } else {
-    userMessage = message;
-    }
-    JOptionPane.showMessageDialog(this, userMessage, "Format File", JOptionPane.ERROR_MESSAGE);
-     *
-
-    }
-
-    }
-    }
-     * 
-     */
     public void updateMousePosition() {
         GraphPaneController gpc = GraphPaneController.getInstance();
         long x = gpc.getMouseXPosition();
@@ -2974,8 +2742,8 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
     }
 
     private void displayAuxPanels() {
-        setFrameVisibility("Bookmarks", true, this.getAuxDockingManager());
-        setFrameVisibility("Table View", true, this.getAuxDockingManager());
+        MiscUtils.setFrameVisibility("Bookmarks", true, this.getAuxDockingManager());
+        //MiscUtils.setFrameVisibility("Table View", true, this.getAuxDockingManager());
 
         List<String> names = this.getAuxDockingManager().getAllFrameNames();
         for (int i = 0; i < names.size(); i++) {
@@ -3006,7 +2774,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
             }*/
             startPageDockableFrame.getContentPane().setLayout(new BorderLayout());
             startPageDockableFrame.getContentPane().add(sp, BorderLayout.NORTH);
-            this.setFrameVisibility("Start Page", true, getTrackDockingManager());
+            MiscUtils.setFrameVisibility("Start Page", true, getTrackDockingManager());
 
         } catch (IOException ex) {
             LOG.error("Unable to load start page.", ex);

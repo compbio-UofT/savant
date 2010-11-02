@@ -103,10 +103,6 @@ public abstract class ViewTrack {
                 dataTrack = BAMDataSource.fromfileNameOrURL(trackFilename);
                 if (dataTrack != null) {
                     viewTrack = new BAMViewTrack(name, (BAMDataSource) dataTrack);
-                    // FIXME: this is a bad place to set the URI
-                    //if (viewTrack != null) {
-                    //    viewTrack.setURI(trackFilename);
-                    //}
                     results.add(viewTrack);
                 } else {
                     String e = String.format("Could not create BAM track; check that index file exists and is named \"%1$s.bai\".", name);
@@ -114,20 +110,20 @@ public abstract class ViewTrack {
                     return null;
                 }
 
-                // TODO: test BAM to coverage (with v2 formatting) then re-enable adding coverage file
-            /* RE-ENABLE STARTING */
                 String coverageFileName = trackFilename + ".cov.savant";
 
                 if ((new File(coverageFileName)).exists()) {
                     dataTrack = new GenericContinuousDataSource(coverageFileName);
                     viewTrack = new BAMCoverageViewTrack(name + " (coverage)", (GenericContinuousDataSource) dataTrack);
                 } else {
-                    LOG.info("No coverage track available");
+                    //FIXME: this should not happen! plugins expect tracks to contain data, and not be vacuous
                     viewTrack = new BAMCoverageViewTrack(name + " (coverage)", null);
                 }
             } catch (IOException e) {
                 LOG.warn("Could not load coverage track", e);
-                // create an empty ViewTrack that just displays an error message
+
+                //FIXME: this should not happen! plugins expect tracks to contain data, and not be vacuous
+                // create an empty ViewTrack that just displays an error message << see the above FIXME
                 viewTrack = new BAMCoverageViewTrack(name + " (coverage)", null);
             } catch (SavantFileNotFormattedException e) {
                 LOG.warn("Coverage track appears to be unformatted", e);
@@ -137,12 +133,6 @@ public abstract class ViewTrack {
             } catch (URISyntaxException e) {
                 DialogUtils.displayMessage("Syntax error on URI; file URI is not valid");
             }
-
-            //RE-ENABLE ENDING HERE
-
-            //if (viewTrack != null) {
-            //    viewTrack.setURI(trackFilename + ".cov.savant");
-            //}
             
             results.add(viewTrack);
 

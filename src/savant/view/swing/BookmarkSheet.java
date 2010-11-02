@@ -15,6 +15,7 @@
  */
 package savant.view.swing;
 
+import savant.view.icon.SavantIconFactory;
 import savant.controller.BookmarkController;
 import savant.controller.RangeController;
 import savant.controller.event.bookmark.BookmarksChangedEvent;
@@ -60,62 +61,49 @@ public class BookmarkSheet implements BookmarksChangedListener /*, RangeChangedL
         /**
          * Create a toolbar. 
          */
-        JPanel toolbar = new JPanel();
-        toolbar.setLayout(new BoxLayout(toolbar, BoxLayout.Y_AXIS));
-        toolbar.setMinimumSize(new Dimension(22,22));
-        toolbar.setPreferredSize(new Dimension(22,22));
-        toolbar.setMaximumSize(new Dimension(999999,22));
+        JToolBar toolbar = new JToolBar();
+        toolbar.setFloatable(false);
+        toolbar.setLayout(new BoxLayout(toolbar,BoxLayout.X_AXIS));
         c.add(toolbar, BorderLayout.NORTH);
 
-        //bottom toolbar for load and save
-        JPanel toolbarBottom = new JPanel();
-        toolbarBottom.setLayout(new BoxLayout(toolbarBottom, BoxLayout.Y_AXIS));
-        toolbarBottom.setMinimumSize(new Dimension(22,22));
-        toolbarBottom.setPreferredSize(new Dimension(22,22));
-        toolbarBottom.setMaximumSize(new Dimension(999999,22));
-        c.add(toolbarBottom, BorderLayout.SOUTH);
-
-        JPanel topToolRow = new JPanel();
-        topToolRow.setLayout(new BoxLayout(topToolRow, BoxLayout.X_AXIS));
-        topToolRow.setMinimumSize(new Dimension(22,22));
-        topToolRow.setPreferredSize(new Dimension(22,22));
-        topToolRow.setMaximumSize(new Dimension(999999,22));
-        toolbar.add(topToolRow);
-
-        JPanel bottomToolRow = new JPanel();
-        bottomToolRow.setLayout(new BoxLayout(bottomToolRow, BoxLayout.X_AXIS));
-        bottomToolRow.setMinimumSize(new Dimension(22,22));
-        bottomToolRow.setPreferredSize(new Dimension(22,22));
-        bottomToolRow.setMaximumSize(new Dimension(999999,22));
-        toolbarBottom.add(bottomToolRow);
-        
-        Dimension buttonSize = new Dimension(65,22);
-
-        JButton goButton = new JButton("Go");
-        goButton.setMinimumSize(buttonSize);
-        goButton.setPreferredSize(buttonSize);
-        goButton.setMaximumSize(buttonSize);
-        goButton.setToolTipText("Go to selected bookmark");
-        goButton.addActionListener(new ActionListener() {
+        JButton previousButton = new JButton();
+        previousButton.setIcon(SavantIconFactory.getInstance().getIcon(SavantIconFactory.StandardIcon.UP));
+        previousButton.setToolTipText("Go to previous bookmark");
+        previousButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                int selectedRow = table.getSelectedRow();
-                if (selectedRow > -1) {
-                    RangeController rc = RangeController.getInstance();
-                    BookmarksTableModel tableModel = (BookmarksTableModel) table.getModel();
-                    Bookmark bookmark = tableModel.getData().get(selectedRow);
-                    rc.setRange(bookmark.getReference(),bookmark.getRange());
-                }
+                goToPreviousBookmark();
             }
 
         });
-        topToolRow.add(goButton);
+        toolbar.add(previousButton);
 
-        topToolRow.add(Box.createGlue());
+        JButton nextButton = new JButton();
+        nextButton.setIcon(SavantIconFactory.getInstance().getIcon(SavantIconFactory.StandardIcon.DOWN));
+        nextButton.setToolTipText("Go to next bookmark");
+        nextButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                goToNextBookmark();
+            }
 
-        addButton = new JButton("Add");
-        addButton.setMinimumSize(buttonSize);
-        addButton.setPreferredSize(buttonSize);
-        addButton.setMaximumSize(buttonSize);
+        });
+        toolbar.add(nextButton);
+
+        JButton goButton = new JButton("Go");
+        goButton.setToolTipText("Go to selected bookmark");
+        goButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                goToSelectedBookmark();
+            }
+
+        });
+        toolbar.add(goButton);
+
+        toolbar.add(Box.createGlue());
+
+        addButton = new JButton();
+        addButton.setBorder(null);
+        addButton.setBorderPainted(false);
+        addButton.setIcon(SavantIconFactory.getInstance().getIcon(SavantIconFactory.StandardIcon.BKMK_ADD));
         addButton.setToolTipText("Add bookmark for current range");
         addButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -123,12 +111,10 @@ public class BookmarkSheet implements BookmarksChangedListener /*, RangeChangedL
                 fc.addCurrentRangeToBookmarks();
             }
         });
-        topToolRow.add(addButton);
+        toolbar.add(addButton);
 
-        JButton deleteButton = new JButton("Delete");
-        deleteButton.setMinimumSize(buttonSize);
-        deleteButton.setPreferredSize(buttonSize);
-        deleteButton.setMaximumSize(buttonSize);
+        JButton deleteButton = new JButton();
+        deleteButton.setIcon(SavantIconFactory.getInstance().getIcon(SavantIconFactory.StandardIcon.BKMK_RM));
         deleteButton.setToolTipText("Delete selected bookmarks");
         deleteButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -169,70 +155,35 @@ public class BookmarkSheet implements BookmarksChangedListener /*, RangeChangedL
                 }
             }
         });
-        topToolRow.add(deleteButton);
+        toolbar.add(deleteButton);
 
-        bottomToolRow.add(Box.createGlue());
+        toolbar.add(Box.createGlue());
 
-        JButton loadButton = new JButton("Load");
-        loadButton.setMinimumSize(buttonSize);
-        loadButton.setPreferredSize(buttonSize);
-        loadButton.setMaximumSize(buttonSize);
+        JButton loadButton = new JButton();
+        loadButton.setIcon(SavantIconFactory.getInstance().getIcon(SavantIconFactory.StandardIcon.OPEN));
         loadButton.setToolTipText("Load bookmarks from file");
         loadButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 loadBookmarks(table);
             }
         });
-        bottomToolRow.add(loadButton);
+        toolbar.add(loadButton);
 
-        JButton saveButton = new JButton("Save");
-        saveButton.setMinimumSize(buttonSize);
-        saveButton.setPreferredSize(buttonSize);
-        saveButton.setMaximumSize(buttonSize);
+        JButton saveButton = new JButton();
+        saveButton.setIcon(SavantIconFactory.getInstance().getIcon(SavantIconFactory.StandardIcon.SAVE));
         saveButton.setToolTipText("Save bookmarks to file");
         saveButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 saveBookmarks(table);
             }
         });
-        bottomToolRow.add(saveButton);
-
-
-        recordButton = new JButton("Record");
-        recordButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                BookmarkSheet.isRecording = !BookmarkSheet.isRecording;
-                if (BookmarkSheet.isRecording) {
-                    recordButton.setText("Stop Recording");
-                    addButton.setEnabled(false);
-                } else {
-                    recordButton.setText("Record");
-                    addButton.setEnabled(true);
-                }
-            }
-        });
-        toolbar.add(recordButton);
+        toolbar.add(saveButton);
 
         // create a table (the most important component)
         table = new JTable(new BookmarksTableModel());
         table.setAutoCreateRowSorter(true);
         table.setFillsViewportHeight(true);
         //table.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
-
-        /*
-        table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-
-            public void valueChanged(ListSelectionEvent e) {
-                BookmarkController fc = BookmarkController.getInstance();
-                int index = e.getFirstIndex();
-                RangeController rc = RangeController.getInstance();
-                rc.setRange(fc.getBookmark(index).getRange());
-            }
-
-        });
-         * 
-         */
-
 
         // add the table and its header to the subpanel
         c.add(table.getTableHeader());
@@ -399,5 +350,41 @@ public class BookmarkSheet implements BookmarksChangedListener /*, RangeChangedL
         annotation.trim();
 
         return new Bookmark(ref, new Range(from,to), annotation);
+    }
+
+    public void goToSelectedBookmark() {
+        int selectedRow = table.getSelectedRow();
+        if (selectedRow > -1) {
+            goToBookmark(selectedRow);
+        }
+    }
+
+    public void goToNextBookmark() {
+        int row = table.getSelectedRow();
+        if (row == -1 || row == table.getRowCount()-1) { row = 0; }
+        else { row += 1; }
+        selectRow(row);
+    }
+
+    private void selectRow(int row) {
+        table.removeRowSelectionInterval(0, table.getRowCount()-1);
+        table.addRowSelectionInterval(row, row);
+        goToSelectedBookmark();
+    }
+
+    public void goToPreviousBookmark() {
+        int row = table.getSelectedRow();
+        if (row == -1 || row == 0) { row = table.getRowCount()-1; }
+        else { row -= 1; }
+        selectRow(row);
+    }
+
+    public void goToBookmark(int i) {
+        if (i == -1 && table.getRowCount() == 0) { return; }
+        else { i = 0; }
+        RangeController rc = RangeController.getInstance();
+        BookmarksTableModel tableModel = (BookmarksTableModel) table.getModel();
+        Bookmark bookmark = tableModel.getData().get(i);
+        rc.setRange(bookmark.getReference(),bookmark.getRange());
     }
 }

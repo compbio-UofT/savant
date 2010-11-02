@@ -30,7 +30,7 @@ public class SavantIconFactory {
         return new ImageIcon(getClass().getResource(resourcePath));
     }
 
-    public enum StandardIcon { ADD, SAVE, COPY, CLOSE, DELETE, RUN, STOP, REFRESH, UP, DOWN, VIEW, LOGO, TRACK, FOLDER };
+    public enum StandardIcon { ADD, SAVE, OPEN, COPY, CLOSE, DELETE, RUN, STOP, REFRESH, UP, DOWN, VIEW, LOGO, TRACK, FOLDER, BKMK_ADD, BKMK_RM };
 
     public ImageIcon getIcon(StandardIcon icon) {
         switch(icon) {
@@ -38,6 +38,8 @@ public class SavantIconFactory {
                 return getIcon("/savant/images/icon/add.png");
             case SAVE:
                 return getIcon("/savant/images/icon/save2.png");
+            case OPEN:
+                return getIcon("/savant/images/icon/open.png");
             case COPY:
                 return getIcon("/savant/images/icon/copy2.png");
             case CLOSE:
@@ -62,6 +64,10 @@ public class SavantIconFactory {
                 return getIcon("/savant/images/icon/logo.png");
             case TRACK:
                 return getIcon("/savant/images/icon/track.png");
+            case BKMK_ADD:
+                return getIcon("/savant/images/icon/bkm_add.png");
+            case BKMK_RM:
+                return getIcon("/savant/images/icon/bkm_rm.png");
             default:
                 return null;
         }

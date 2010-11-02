@@ -17,6 +17,7 @@
 package savant.format;
 
 import java.io.*;
+import java.util.StringTokenizer;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -64,8 +65,9 @@ public class FastaFormatter extends SavantFileFormatter{
 
                     // set the correct output stream
                     if (strLine.length() > 0 && strLine.charAt(0) == '>') {
-                        refname = MiscUtils.removeChar(strLine, '>');
-                        refname = refname.replace(' ', '_');
+                        refname = strLine.substring(1).trim();
+                        StringTokenizer st = new StringTokenizer(refname);
+                        refname = st.nextToken();
                         outfile = this.getFileForReference(refname);
                         if (log.isDebugEnabled()) {
                             log.debug("New reference found: " + refname);
@@ -93,8 +95,6 @@ public class FastaFormatter extends SavantFileFormatter{
             }
 
             System.out.println("Done converting all chrs");
-
-
 
             // close output streams; 
             // VERY IMPORTANT THAT THIS HAPPENS BEFORE COPY!

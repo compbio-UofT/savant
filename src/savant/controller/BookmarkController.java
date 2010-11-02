@@ -120,5 +120,4 @@ public class BookmarkController {
     public void clearBookmarks() {
         this.bookmarks.clear();
     }
-
 }

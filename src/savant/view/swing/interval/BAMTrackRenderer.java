@@ -467,6 +467,17 @@ public class BAMTrackRenderer extends TrackRenderer {
                                     unitHeight);
                             g2.setColor(mismatchColor);
                             g2.fill(opRect);
+
+                            /*
+                            if (unitWidth > 10 && unitHeight > 10) {
+                            g2.setColor(Color.BLACK);
+                                FontMetrics fm   = g2.getFontMetrics(g2.getFont());
+                                java.awt.geom.Rectangle2D rect = fm.getStringBounds(base, g2);
+                                g2.drawString(base, (float) (xCoordinate + unitWidth/2 - rect.getWidth()/2),  (float) (gp.transformYPos(0)-((level)*unitHeight) - offset - unitHeight/2));
+                            }
+                             * 
+                             */
+
                         }
                     }
                 }
