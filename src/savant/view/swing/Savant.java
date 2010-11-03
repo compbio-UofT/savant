@@ -1051,6 +1051,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         if (!dff.isVisible()) {
             Savant.log("Showing format form...");
             dff.clear();
+            dff.setLocationRelativeTo(this);
             dff.setVisible(true);
         }
     }//GEN-LAST:event_menuItemFormatActionPerformed
@@ -1769,7 +1770,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
                     } else if (n == 0) {
                         return;
                     }
-                }
+                    }
 
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("Actually changing reference to " + ref);
@@ -2314,6 +2315,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
             if (!dff.isVisible()) {
                 dff.clear();
                 dff.setInFile(fileName);
+                dff.setLocationRelativeTo(this);
                 dff.setVisible(true);
             }
         }

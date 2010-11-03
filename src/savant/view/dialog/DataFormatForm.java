@@ -354,6 +354,7 @@ public class DataFormatForm extends JDialog {
         
         DataFormatter df = new DataFormatter(infile, outfile, ft, isInputOneBased);
         FormatFrame fpd = new FormatFrame(df);
+        fpd.setLocationRelativeTo(this);
         fpd.setVisible(true);
         this.dispose();
 
