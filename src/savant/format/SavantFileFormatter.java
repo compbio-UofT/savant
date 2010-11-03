@@ -28,12 +28,6 @@ import savant.util.MiscUtils;
 
 public class SavantFileFormatter {
 
-    public static final int RECORDS_PER_INTERRUPT_CHECK = 1000;
-
-    /**
-     * VARIABLES
-     */
-
     /* LOG */
 
     // a log
@@ -348,7 +342,7 @@ public class SavantFileFormatter {
         outFileStream = this.openOutputFile();
 
         // ALL SAVANT FILES HAVE 1-3
-        // ONLY INTERVAL FILES CURRENTLY HAVE 4
+        // ONLY INTERVAL AND CONTINUOUS FILES CURRENTLY HAVE 4
 
         // 1. WRITE FILE TYPE HEADER (MAGIC NUMBER AND VERSION)
         if (log.isDebugEnabled()) log.debug("Writing file type header");
@@ -367,7 +361,7 @@ public class SavantFileFormatter {
         outFileStream.flush();
     }
 
-    protected void writeAdditionallIndices(List<String> refnames, Map<String,String> refToIndexFileNameMap) throws FileNotFoundException, IOException {
+    protected void writeAdditionalIndices(List<String> refnames, Map<String,String> refToIndexFileNameMap) throws FileNotFoundException, IOException {
         // 4. WRITE INDEX
         if (refToIndexFileNameMap != null) {
             if (log.isDebugEnabled()) log.debug("Writing reference<->index map");
@@ -402,7 +396,7 @@ public class SavantFileFormatter {
         this.setSubtaskStatus("Writing output file ...");
         this.incrementOverallProgress();
         writeSavantHeader(refnames,refToDataFileNameMap);
-        writeAdditionallIndices(refnames,refToIndexFileNameMap);
+        writeAdditionalIndices(refnames,refToIndexFileNameMap);
         writeData(refnames,refToDataFileNameMap);
     }
 
@@ -411,7 +405,7 @@ public class SavantFileFormatter {
         this.setSubtaskStatus("Writing output file ...");
         this.incrementOverallProgress();
         writeSavantHeader(refnames,refToDataFileNameMap);
-        writeAdditionallIndices(refnames,refToIndexFileNameMap);
+        writeAdditionalIndices(refnames,refToIndexFileNameMap);
         writeData(refnames,refToDataFileNameMap);
     }
 

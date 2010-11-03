@@ -29,7 +29,7 @@ import savant.file.FileType;
 
 public class PointGenericFormatter extends SavantFileFormatter {
 
-    public static final int RECORDS_PER_INTERRUPT_CHECK = 100;
+    private static final int RECORDS_PER_INTERRUPT_CHECK = 100;
 
     private int baseOffset = 0;
 

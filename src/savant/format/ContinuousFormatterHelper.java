@@ -1,6 +1,17 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ *    Copyright 2010 University of Toronto
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
  */
 package savant.format;
 
@@ -21,44 +32,104 @@ import java.util.Map;
  */
 public class ContinuousFormatterHelper {
 
-    private static Log log = LogFactory.getLog(ContinuousFormatterHelper.class);
+    private static final Log LOG = LogFactory.getLog(ContinuousFormatterHelper.class);
     
     // size of the output buffer
     protected static final int OUTPUT_BUFFER_SIZE = 1024 * 128; // 128K
 
+    /** Resolution of the first lo-res level. */
+    private static final int FIRST_LOW_RESOLUTION = 1000;
+
+    /** Subsequent resolutions increase by a factor of 10. */
+    private static final int RESOLUTION_FACTOR = 10;
+
+    /** No point in lower resolutions which would generate less than 1000 pixels of data. */
+    public static final int NOTIONAL_SCREEN_SIZE = 1000;
 
     public static Map<String, String> makeMultiResolutionContinuousFiles(Map<String, String> referenceName2FilenameMap) throws FileNotFoundException, IOException {
 
-        System.out.println("Making multi resolution continuous files...");
+        LOG.info("Making multi resolution continuous files...");
 
         Map<String, String> referenceNameToIndexMap = new HashMap<String, String>();
 
         for (String refname : referenceName2FilenameMap.keySet()) {
 
-            System.out.println("Making multi resolution continuous file for " + refname);
+            LOG.info("Making multi resolution continuous file for " + refname);
 
-            String infile = referenceName2FilenameMap.get(refname);
+            File inFile = new File(referenceName2FilenameMap.get(refname));
 
-            String indexpath = infile + SavantFileFormatter.indexExtension;
+            String indexpath = inFile.getAbsolutePath() + SavantFileFormatter.indexExtension;
 
             List<Level> levels = new ArrayList<Level>();
 
-            // start making levels
+            // At very least, we will always have a full-resolution level.
+            FixedMode m = new FixedMode(1, 1, 1);
+            Level lev = new Level(0, inFile.length(), SavantFileFormatterUtils.FLOAT_FIELD_SIZE, 1, m);
+            levels.add(lev);
 
-            Mode m = new FixedMode(1, 1, 1);
-            Level l1 = new Level(
-                    0,
-                    new File(infile).length(),
-                    SavantFileFormatterUtils.FLOAT_FIELD_SIZE,
-                    1,
-                    m);
+            // The first lo-res level will be at resolution 1000, and then increasing by factors of 10.
+            // When we've reached a resolution where the entire file would be 1200 pixels across, we can stop.
+            long maxUsefulRes = inFile.length() / NOTIONAL_SCREEN_SIZE;
+            for (int res = FIRST_LOW_RESOLUTION; res < maxUsefulRes ; res *= RESOLUTION_FACTOR) {
+                // Data for the next level will start at the end of the previous level.
+                long numRecords = inFile.length() / res / SavantFileFormatterUtils.FLOAT_FIELD_SIZE;
+                lev = new Level(lev.offset + lev.size, numRecords * SavantFileFormatterUtils.FLOAT_FIELD_SIZE, SavantFileFormatterUtils.FLOAT_FIELD_SIZE, res, new FixedMode(1, res, res));
+                levels.add(lev);
+            }
 
-            levels.add(l1);
+            if (levels.size() > 1) {
+                DataInputStream input = new DataInputStream(new BufferedInputStream(new FileInputStream(inFile)));
 
-            // end make levels
+                // Bins for our first low-res level.  Lower-res levels will be computed
+                // off those.  The assumption is that with a factor of 1000 for the
+                // initial resolution, the bins for that initiable level will be a
+                // manageable size.
+                float[] bins = new float[(int)levels.get(1).size / SavantFileFormatterUtils.FLOAT_FIELD_SIZE];
+                float bestVal = 0.0F;
+                int bestPos = -1;
+                for (int b = 0; b < bins.length; b++) {
+                    for (int j = 0; j < FIRST_LOW_RESOLUTION; j++) {
+                        bins[b] += input.readFloat();
+                    }
+                    bins[b] /= FIRST_LOW_RESOLUTION;
+                    if (bins[b] > bestVal) {
+                        bestVal = bins[b];
+                        bestPos = b;
+                    }
+                }
+                input.close();
+                LOG.debug("Level 1: Biggest bin was " + bestVal + " at " + bestPos);
+
+                DataOutputStream output = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(inFile, true)));
+ //             LOG.debug("Writing level 1 data at position " + inFile.length() + " should be " + levels.get(1).offset);
+                for (int b = 0; b < bins.length; b++) {
+                    output.writeFloat(bins[b]);
+                }
+                float[] bigBins = bins;
+                for (int l = 2; l < levels.size(); l++) {
+//                    LOG.debug("Writing level " + l + " data at position " + inFile.length() + " should be " + levels.get(l).offset);
+                    bestVal = 0.0F;
+                    bestPos = -1;
+                    bins = new float[bigBins.length / RESOLUTION_FACTOR];
+                    for (int b = 0; b < bins.length; b++) {
+                        for (int j = 0; j < RESOLUTION_FACTOR; j++) {
+                            bins[b] += bigBins[b * RESOLUTION_FACTOR + j];
+                        }
+                        bins[b] /= RESOLUTION_FACTOR;
+                        output.writeFloat(bins[b]);
+                        if (bins[b] > bestVal) {
+                            bestVal = bins[b];
+                            bestPos = b;
+                        }
+                    }
+                    LOG.debug("Level " + l + ": Biggest bin was " + bestVal + " at " + bestPos);
+                    bigBins = bins;
+                }
+                output.close();
+            }
 
             // write index file
-            writeLevelsToFile(refname, levels, indexpath);
+            writeLevelHeaders(refname, levels, indexpath);
 
             referenceNameToIndexMap.put(refname, indexpath);
         }
@@ -66,64 +137,36 @@ public class ContinuousFormatterHelper {
         return referenceNameToIndexMap;
     }
 
-    private static void writeLevelsToFile(String refname, List<Level> levels, String filename) throws IOException {
+    private static void writeLevelHeaders(String refname, List<Level> levels, String filename) throws IOException {
 
-        DataOutputStream outfile = new DataOutputStream(
+        DataOutputStream outFile = new DataOutputStream(
                 new BufferedOutputStream(
                 new FileOutputStream(filename), OUTPUT_BUFFER_SIZE));
 
-        System.out.println("Writing header for " + refname + " with " + levels.size() + " levels");
+        LOG.info("Writing header for " + refname + " with " + levels.size() + " levels");
 
-        outfile.writeInt(levels.size());
+        outFile.writeInt(levels.size());
         
         for (Level l : levels) {
-            writeLevelToFile(refname, l, outfile);
+            l.writeHeader(outFile);
         }
 
-        outfile.close();
+        outFile.close();
     }
 
-    private static void writeLevelToFile(String refname, Level l, DataOutputStream o) throws IOException {
-
-        o.writeLong(l.offset);
-        o.writeLong(l.size);
-        o.writeLong(l.recordSize);
-        o.writeLong(l.resolution);
-
-        o.writeInt(l.mode.type.ordinal());
-        if (l.mode.type == Mode.ModeType.FIXED) {
-            FixedMode m = (FixedMode) l.mode;
-            o.writeInt(m.start);
-            o.writeInt(m.step);
-            o.writeInt(m.span);
-        } else if (l.mode.type == Mode.ModeType.VARIABLESTEP) {
-            throw new UnsupportedOperationException("Variable step writing not implemented");
-        }
-    }
-
-    public static Map<String,List<Level>> readLevelHeadersFromBinaryFile(SavantROFile savantFile) throws IOException {
+    public static Map<String,List<Level>> readLevelHeaders(SavantROFile savantFile) throws IOException {
 
         // read the refname -> index position map
         Map<String,Long[]> refMap = SavantFileUtils.readReferenceMap(savantFile);
 
-        //System.out.println("\n=== DONE PARSING REF<->DATA MAP ===");
-        //System.out.println();
-
         // change the offset
         savantFile.setHeaderOffset(savantFile.getFilePointer());
-
-        /*
-        for (String s : refMap.keySet()) {
-            Long[] vals = refMap.get(s);
-            //System.out.println("Reference " + s + " at " + vals[0] + " of length " + vals[1]);
-        }
-         */
 
         Map<String,List<Level>> headers = new HashMap<String,List<Level>>();
 
         int headerNum = 0;
 
-       if (log.isDebugEnabled()) log.debug("Number of headers to get: " + refMap.keySet().size());
+        LOG.debug("Number of headers to get: " + refMap.keySet().size());
 
         // keep track of the maximum end of tree position
         // (IMPORTANT NOTE: order of elements returned by keySet() is not gauranteed!!!)
@@ -131,29 +174,19 @@ public class ContinuousFormatterHelper {
         for (String refname : refMap.keySet()) {
             Long[] v = refMap.get(refname);
 
-            //System.out.println("Getting header for refname: " + refname);
+            savantFile.seek(v[0] + savantFile.getHeaderOffset());
 
-            //System.out.println("========== Reading header for reference " + refname + " ==========");
-            savantFile.seek(v[0]+savantFile.getHeaderOffset());
-
-            //System.out.println("Starting header at: " + savantFile.getFilePointer());
-
-            List<Level> header = readLevelHeaderFromBinaryFile(savantFile);
-
-            //System.out.println("Finished header at : " + savantFile.getFilePointer());
+            int numLevels = savantFile.readInt();
+            List<Level> levels =  new ArrayList<Level>(numLevels);
+            for (int i = 0; i < numLevels; i++) {
+                levels.add(new Level(savantFile));
+            }
 
             maxend = Math.max(maxend,savantFile.getFilePointer());
 
-            headers.put(refname, header);
+            headers.put(refname, levels);
             headerNum++;
         }
-
-        /*
-        System.out.println("Read " + treenum + " trees (i.e. indicies)");
-        System.out.println("\n=== DONE PARSING REF<->INDEX MAP ===");
-        System.out.println("Changing offset from " + dFile.getHeaderOffset() + " to " + (dFile.getFilePointer()+dFile.getHeaderOffset()));
-        System.out.println();
-         */
 
         // set the header offset appropriately
         savantFile.setHeaderOffset(maxend);
@@ -161,54 +194,6 @@ public class ContinuousFormatterHelper {
         return headers;
     }
 
-    public static List<Level> readLevelHeaderFromBinaryFile(SavantROFile savantFile) throws IOException {
-
-        List<Level> header = new ArrayList<Level>();
-
-        int numLevels = savantFile.readInt();
-
-        //System.out.println("Number of levels in header: " + numLevels);
-
-        for (int i = 0; i < numLevels; i++) {
-            Level l = readLevelFromBinaryFile(savantFile);
-            header.add(l);
-        }
-
-        return header;
-    }
-
-    private static Level readLevelFromBinaryFile(SavantROFile savantFile) throws IOException {
-
-        // need to use readBinaryRecord!
-        long offset = savantFile.readLong();
-        long size = savantFile.readLong();
-        long recordSize = savantFile.readLong();
-        long resolution = savantFile.readLong();
-        Mode.ModeType type = Mode.ModeType.class.getEnumConstants()[savantFile.readInt()];
-        Mode m = null;
-        if (type == Mode.ModeType.FIXED) {
-            int start = savantFile.readInt();
-            int step = savantFile.readInt();
-            int span = savantFile.readInt();
-            m = new FixedMode(start, step, span);
-        } else {
-            throw new UnsupportedOperationException("Reading other mode types not implemented");
-        }
-
-        Level l = new Level(offset, size, recordSize, resolution, m);
-        return l;
-    }
-
-    public static class Mode {
-
-        public enum ModeType { FIXED, VARIABLESTEP };
-        
-        public ModeType type;
-
-        public Mode(ModeType t) {
-            this.type = t;
-        }
-    }
 
     public static class Level {
 
@@ -225,8 +210,46 @@ public class ContinuousFormatterHelper {
             this.resolution = resolution;
             this.mode = m;
         }
+
+        public Level(SavantROFile savantFile) throws IOException {
+            // FIXME: need to use readBinaryRecord?
+            offset = savantFile.readLong();
+            size = savantFile.readLong();
+            recordSize = savantFile.readLong();
+            resolution = savantFile.readLong();
+            mode = Mode.ModeType.class.getEnumConstants()[savantFile.readInt()] == Mode.ModeType.FIXED ? new FixedMode(savantFile) : new VariableStepMode(savantFile);
+        }
+
+        public void writeHeader(DataOutputStream o) throws IOException {
+            o.writeLong(offset);
+            o.writeLong(size);
+            o.writeLong(recordSize);
+            o.writeLong(resolution);
+
+            mode.write(o);
+        }
     }
 
+    public static class Mode {
+
+        public enum ModeType { FIXED, VARIABLESTEP };
+
+        public ModeType type;
+
+        public Mode(ModeType t) {
+            this.type = t;
+        }
+
+        public void write(DataOutputStream o) throws IOException {
+            o.writeInt(type.ordinal());
+        }
+    }
+
+
+    /**
+     * Corresponds to fixedStep mode, as described in Wiggle format.
+     * This is currently the only mode supported by Savant.
+     */
     public static class FixedMode extends Mode {
 
         public int start;
@@ -234,24 +257,51 @@ public class ContinuousFormatterHelper {
         public int span;
 
         public FixedMode(int start, int step, int span) {
-            super(Mode.ModeType.FIXED);
+            super(ModeType.FIXED);
             this.start = start;
             this.step = step;
             this.span = span;
         }
+
+        public FixedMode(SavantROFile savantFile) throws IOException {
+            super(ModeType.FIXED);
+            start = savantFile.readInt();
+            step = savantFile.readInt();
+            span = savantFile.readInt();
+        }
+
+        @Override
+        public void write(DataOutputStream o) throws IOException {
+            super.write(o);
+            o.writeInt(start);
+            o.writeInt(step);
+            o.writeInt(span);
+        }
     }
 
+    /**
+     * Corresponds to variableStep mode, as described in Wiggle format.
+     * Not currently supported by Savant.
+     */
     public static class VariableStepMode extends Mode {
 
         public int start;
-        public int step;
         public int span;
 
-        public VariableStepMode(int start, int step, int span) {
-            super(Mode.ModeType.VARIABLESTEP);
+        public VariableStepMode(int start, int span) {
+            super(ModeType.VARIABLESTEP);
             this.start = start;
-            this.step = step;
             this.span = span;
+        }
+
+        public VariableStepMode(SavantROFile savantFile) {
+            super(ModeType.VARIABLESTEP);
+            throw new UnsupportedOperationException("Reading variable-step mode not implemented.");
+        }
+
+        @Override
+        public void write(DataOutputStream o) {
+            throw new UnsupportedOperationException("Writing variable-step mode not supported.");
         }
     }
 }

@@ -28,7 +28,7 @@ import savant.util.MiscUtils;
 
 public class WIGFormatter extends SavantFileFormatter {
 
-    public static final int RECORDS_PER_INTERRUPT_CHECK = 100;
+    private static final int RECORDS_PER_INTERRUPT_CHECK = 100;
 
     // variables to keep track of progress processing the input file(s)
     private long totalBytes;

@@ -30,6 +30,7 @@ import java.util.Map;
 
 public class IntervalFormatter extends SavantFileFormatter {
 
+    private static final int RECORDS_PER_INTERRUPT_CHECK = 1000;
     protected int baseOffset = 0; // 0 if *input* file is 1-based; 1 if 0-based
     private static final long DEFAULT_RUN_SIZE = (long)(12.5 * Math.pow(2, 20)); // 12.5MB
     private int refnameindex;

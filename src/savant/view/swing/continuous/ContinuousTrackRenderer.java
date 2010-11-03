@@ -83,7 +83,7 @@ public class ContinuousTrackRenderer extends TrackRenderer {
         gp.setXRange(axisRange.getXRange());
         gp.setYRange(axisRange.getYRange());
 
-        int numdata = this.getData().size();
+        int numdata = data.size();
 
         long xPos;
         double yPos;
@@ -95,11 +95,9 @@ public class ContinuousTrackRenderer extends TrackRenderer {
         path.moveTo(xFormXPos, xFormYPos);
 
         
-        GenericContinuousRecord continuousRecord;
         double maxData = 0;
-        boolean first = true;
         for (int i=0; i<numdata; i++) {
-            continuousRecord = (GenericContinuousRecord)data.get(i);
+            GenericContinuousRecord continuousRecord = (GenericContinuousRecord)data.get(i);
             xPos = continuousRecord.getPosition();
             yPos = continuousRecord.getValue().getValue();
             xFormXPos = gp.transformXPos(xPos)+gp.getUnitWidth()/2;
