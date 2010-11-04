@@ -69,6 +69,7 @@ import savant.view.icon.SavantIconFactory;
 import savant.xml.XMLVersion;
 import savant.xml.XMLVersion.Version;
 import savant.startpage.StartPage;
+import savant.view.dialog.PluginManagerDialog;
 
 /**
  * Main application Window (Frame).
@@ -1121,7 +1122,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
     }//GEN-LAST:event_menuitem_thousandgenomesActionPerformed
 
     private void menuitem_pluginmanagerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuitem_pluginmanagerActionPerformed
-        PluginDialog pd = new PluginDialog(this);
+        PluginManagerDialog pd = new PluginManagerDialog(this);
         pd.setVisible(true);
     }//GEN-LAST:event_menuitem_pluginmanagerActionPerformed
 

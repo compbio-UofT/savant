@@ -8,11 +8,11 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.net.MalformedURLException;
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JPanel;
 import org.java.plugin.JpfException;
@@ -37,14 +37,21 @@ import savant.view.tools.ToolsModule;
  */
 public class PluginController {
 
+    /** VARIABLES **/
+
     private static PluginController instance;
     private static PluginManager pluginManager;
-    //private Set<SuperPluginDescriptor> plugins = new HashSet<SuperPluginDescriptor>();
-    private Map<SuperPluginDescriptor,Plugin> pluginMap = new HashMap<SuperPluginDescriptor,Plugin>();
 
-    //private List<Plugin> plugins;
+    //private Map<SuperPluginDescriptor,Plugin> pluginMap = new HashMap<SuperPluginDescriptor,Plugin>();
+
+    private Map<String,PluginDescriptor> pluginIdToDescriptorMap = new HashMap<String,PluginDescriptor>();
+    private Map<String,Extension> pluginIdToExtensionMap = new HashMap<String,Extension>();
+    private Map<String,Plugin> pluginIdToPluginMap = new HashMap<String,Plugin>();
+
     private ExtensionPoint coreExtPt;
     private final String PLUGINS_DIR = "plugins";
+
+    /** SINGLETON **/
 
     public static synchronized PluginController getInstance() {
         if (instance == null) {
@@ -52,6 +59,8 @@ public class PluginController {
         }
         return instance;
     }
+
+    /** CONSTRUCTOR **/
 
     public PluginController() {
         try {
@@ -63,7 +72,9 @@ public class PluginController {
         }
     }
 
-    public void loadPlugins(File pluginsDir) throws MalformedURLException, JpfException, InstantiationException, IllegalAccessException {
+    /** PLUGIN LOADING **/
+
+    private void loadPlugins(File pluginsDir) throws MalformedURLException, JpfException, InstantiationException, IllegalAccessException {
         File[] plugins = pluginsDir.listFiles(new FilenameFilter() {
 
             public boolean accept(File dir, String name) {
@@ -75,57 +86,42 @@ public class PluginController {
         }
     }
 
-    public void loadPlugin(File pluginLocation) throws JpfException, MalformedURLException, InstantiationException, IllegalAccessException {
+    private void loadPlugin(File pluginLocation) throws JpfException, MalformedURLException, InstantiationException, IllegalAccessException {
         PluginManager.PluginLocation[] locs = new PluginManager.PluginLocation[1];
         locs[0] = StandardPluginLocation.create(pluginLocation);
         pluginManager.publishPlugins(locs);
-        Set<SuperPluginDescriptor> spds = getInactivePluginInfo();
-        activatePlugins(spds);
+        activateNewPlugins();
     }
 
-    private class SuperPluginDescriptor {
+    /** PLUGIN ACTIVATION **/
 
-        private PluginDescriptor pd;
-        private Extension e;
-
-        public SuperPluginDescriptor(PluginDescriptor pd, Extension e) {
-            this.pd = pd;
-            this.e = e;
-        }
-
-        public PluginDescriptor getPD() {
-            return pd;
-        }
-
-        public Extension getExtension() {
-            return e;
-        }
+    private void deactivatePlugin(String id) {
+        pluginManager.deactivatePlugin(id);
     }
 
-    private Set<SuperPluginDescriptor> getInactivePluginInfo() {
-        Set<SuperPluginDescriptor> result = new HashSet<SuperPluginDescriptor>();
-        Iterator it = coreExtPt.getConnectedExtensions().iterator();
-        while (it.hasNext()) {
-            Extension ext = (Extension) it.next();
-            PluginDescriptor descr = ext.getDeclaringPluginDescriptor();
-            SuperPluginDescriptor s = new SuperPluginDescriptor(descr, ext);
-            if (!pluginMap.containsKey(s)) {
-                result.add(s);
-            }
+    public boolean uninstallPlugin(String id) {
+        deactivatePlugin(id);
+        String s = this.pluginIdToDescriptorMap.get(id).getLocation().getPath();
+        s = s.replaceFirst("file:/", "");
+        s = s.substring(0,s.lastIndexOf("!"));
+        //System.out.println("uninstalling: " + s);
+        boolean result = (new File(s)).delete();
+        if (!result) {
+            (new File(s)).deleteOnExit();
         }
+        //System.out.println("Deleted? " + result);
         return result;
     }
 
-    public void activatePlugins(Set<SuperPluginDescriptor> spds) {
+    private boolean activatePlugin(PluginDescriptor d, Extension e) {
 
-        for (SuperPluginDescriptor spd : spds) {
             try {
-                pluginManager.activatePlugin(spd.getPD().getId());
-                ClassLoader classLoader = pluginManager.getPluginClassLoader(spd.getPD());
+                pluginManager.activatePlugin(d.getId());
+                ClassLoader classLoader = pluginManager.getPluginClassLoader(d);
 
                 Plugin plugininstance = (Plugin) (
                         classLoader.loadClass(
-                            spd.getExtension().getParameter("class").valueAsString()
+                            e.getParameter("class").valueAsString()
                         )).newInstance();
 
                 // init the plugin based on its type
@@ -135,10 +131,80 @@ public class PluginController {
                     initPluginTool(plugininstance);
                 }
 
-                pluginMap.put(spd, (Plugin) plugininstance);
+                addToPluginMaps(d.getUniqueId(), d, e, plugininstance);
+
+                return true;
+
             } catch (Exception ex) {}
+
+            return false;
+        }
+
+    /** ACTIVATE NEW **/
+        private void activateNewPlugins() {
+        Iterator it = coreExtPt.getConnectedExtensions().iterator();
+        while (it.hasNext()) {
+            Extension ext = (Extension) it.next();
+            PluginDescriptor descr = ext.getDeclaringPluginDescriptor();
+            this.activatePlugin(descr, ext);
         }
     }
+
+    /** ADD AND REMOVE PLUGINS **/
+
+    public void installPlugin(String path) throws JpfException, MalformedURLException, InstantiationException, IllegalAccessException {
+        loadPlugin(new File(path));
+    }
+
+    private void addToPluginMaps(String id, PluginDescriptor d, Extension e, Plugin p) {
+        this.pluginIdToDescriptorMap.put(id, d);
+        this.pluginIdToExtensionMap.put(id, e);
+        this.pluginIdToPluginMap.put(id, p);
+    }
+
+    private void removeFromPluginMaps(String id) {
+        this.pluginIdToDescriptorMap.remove(id);
+        this.pluginIdToExtensionMap.remove(id);
+        this.pluginIdToPluginMap.remove(id);
+    }
+
+    /** CORE PLUGIN **/
+
+    private void loadCorePlugin() throws MalformedURLException, JpfException {
+        PluginManager.PluginLocation[] locs = new PluginManager.PluginLocation[1];
+        java.net.URL[] mans = new java.net.URL[1];
+
+        File location = new File(PLUGINS_DIR + System.getProperty("file.separator") + "SavantCore.jar");
+
+        if (!location.exists()) {
+            System.err.println("Loading of core plugin failed.");
+            return;
+        }
+
+        locs[0] = StandardPluginLocation.create(location);
+
+        pluginManager.publishPlugins(locs);
+
+        PluginDescriptor core = pluginManager.getRegistry().getPluginDescriptor("savant.core");
+        ExtensionPoint corePt = (ExtensionPoint) (core.getExtensionPoints().toArray()[0]);
+        coreExtPt = pluginManager.getRegistry().getExtensionPoint(core.getId(), corePt.getId());
+    }
+
+
+    /** GETTERS **/
+    public List<PluginDescriptor> getPluginDescriptors() {
+        return new ArrayList<PluginDescriptor>(this.pluginIdToDescriptorMap.values());
+    }
+
+    public List<Extension> getExtensions() {
+        return new ArrayList<Extension>(this.pluginIdToExtensionMap.values());
+    }
+
+    public List<Plugin> getPlugins() {
+        return new ArrayList<Plugin>(this.pluginIdToPluginMap.values());
+    }
+
+    /** INIT PLUGIN TYPES **/
 
     private void initPluginTool(Object plugininstance) {
         PluginTool p = (PluginTool) plugininstance;
@@ -172,17 +238,5 @@ public class PluginController {
         cb.setSelected(!Savant.getInstance().getAuxDockingManager().getFrame(f.getTitle()).isHidden());
         // move this to a menu controller!
         Savant.getInstance().addPluginToMenu(cb);
-    }
-
-    private void loadCorePlugin() throws MalformedURLException, JpfException {
-        PluginManager.PluginLocation[] locs = new PluginManager.PluginLocation[1];
-        java.net.URL[] mans = new java.net.URL[1];
-        locs[0] = StandardPluginLocation.create(new File(PLUGINS_DIR + System.getProperty("file.separator") + "SavantCore.jar"));
-
-        pluginManager.publishPlugins(locs);
-
-        PluginDescriptor core = pluginManager.getRegistry().getPluginDescriptor("savant.core");
-        ExtensionPoint corePt = (ExtensionPoint) (core.getExtensionPoints().toArray()[0]);
-        coreExtPt = pluginManager.getRegistry().getExtensionPoint(core.getId(), corePt.getId());
     }
 }
