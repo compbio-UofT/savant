@@ -28,7 +28,7 @@ import java.util.Map;
 
 /**
  *
- * @author mfiume
+ * @author mfiume, zig
  */
 public class ContinuousFormatterHelper {
 
@@ -37,11 +37,11 @@ public class ContinuousFormatterHelper {
     // size of the output buffer
     protected static final int OUTPUT_BUFFER_SIZE = 1024 * 128; // 128K
 
-    /** Resolution of the first lo-res level. */
-    private static final int FIRST_LOW_RESOLUTION = 1000;
-
     /** Subsequent resolutions increase by a factor of 10. */
     private static final int RESOLUTION_FACTOR = 10;
+
+    /** Resolution of the first lo-res level.  We now start at 10. */
+    private static final int FIRST_LOW_RESOLUTION = 10;
 
     /** No point in lower resolutions which would generate less than 1000 pixels of data. */
     public static final int NOTIONAL_SCREEN_SIZE = 1000;
@@ -79,52 +79,23 @@ public class ContinuousFormatterHelper {
 
             if (levels.size() > 1) {
                 DataInputStream input = new DataInputStream(new BufferedInputStream(new FileInputStream(inFile)));
+                DataOutputStream output = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(inFile, true)));
 
-                // Bins for our first low-res level.  Lower-res levels will be computed
-                // off those.  The assumption is that with a factor of 1000 for the
-                // initial resolution, the bins for that initiable level will be a
-                // manageable size.
-                float[] bins = new float[(int)levels.get(1).size / SavantFileFormatterUtils.FLOAT_FIELD_SIZE];
-                float bestVal = 0.0F;
-                int bestPos = -1;
-                for (int b = 0; b < bins.length; b++) {
-                    for (int j = 0; j < FIRST_LOW_RESOLUTION; j++) {
-                        bins[b] += input.readFloat();
+                for (int l = 1; l < levels.size(); l++) {
+                    lev = levels.get(l - 1);
+                    float bin = 0.0F;
+                    long numRecords = lev.size / SavantFileFormatterUtils.FLOAT_FIELD_SIZE;
+                    for (long i = 0; i < numRecords; i++) {
+                        bin += input.readFloat();
+                        if ((i + 1) % RESOLUTION_FACTOR == 0) {
+                            output.writeFloat(bin / RESOLUTION_FACTOR);
+                            bin = 0.0F;
+                        }
                     }
-                    bins[b] /= FIRST_LOW_RESOLUTION;
-                    if (bins[b] > bestVal) {
-                        bestVal = bins[b];
-                        bestPos = b;
-                    }
+                    output.flush();
+                    LOG.debug("Index file is now " + inFile.length() + " bytes long.");
                 }
                 input.close();
-                LOG.debug("Level 1: Biggest bin was " + bestVal + " at " + bestPos);
-
-                DataOutputStream output = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(inFile, true)));
- //             LOG.debug("Writing level 1 data at position " + inFile.length() + " should be " + levels.get(1).offset);
-                for (int b = 0; b < bins.length; b++) {
-                    output.writeFloat(bins[b]);
-                }
-                float[] bigBins = bins;
-                for (int l = 2; l < levels.size(); l++) {
-//                    LOG.debug("Writing level " + l + " data at position " + inFile.length() + " should be " + levels.get(l).offset);
-                    bestVal = 0.0F;
-                    bestPos = -1;
-                    bins = new float[bigBins.length / RESOLUTION_FACTOR];
-                    for (int b = 0; b < bins.length; b++) {
-                        for (int j = 0; j < RESOLUTION_FACTOR; j++) {
-                            bins[b] += bigBins[b * RESOLUTION_FACTOR + j];
-                        }
-                        bins[b] /= RESOLUTION_FACTOR;
-                        output.writeFloat(bins[b]);
-                        if (bins[b] > bestVal) {
-                            bestVal = bins[b];
-                            bestPos = b;
-                        }
-                    }
-                    LOG.debug("Level " + l + ": Biggest bin was " + bestVal + " at " + bestPos);
-                    bigBins = bins;
-                }
                 output.close();
             }
 

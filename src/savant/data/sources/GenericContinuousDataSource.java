@@ -21,7 +21,6 @@
 
 package savant.data.sources;
 
-import java.io.EOFException;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -72,7 +71,7 @@ public class GenericContinuousDataSource implements DataSource<GenericContinuous
      * @return
      */
     private Level getBestLevel(List<Level> levels, Range r) {
-        for (int i = 1; i < levels.size(); i++) {
+        for (int i = levels.size() - 1; i > 0; i--) {
             Level lev = levels.get(i);
             if (r.getLength() > lev.resolution * ContinuousFormatterHelper.NOTIONAL_SCREEN_SIZE / 2) {
                 return lev;
