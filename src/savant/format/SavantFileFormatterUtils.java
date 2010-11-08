@@ -1,4 +1,8 @@
 /*
+ * SavantFileFormatterUtils.java
+ * Created on Jan 12, 2010
+ *
+ *
  *    Copyright 2010 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,30 +18,26 @@
  *    limitations under the License.
  */
 
-/*
- * SavantFileFormatterUtils.java
- * Created on Jan 12, 2010
- */
-
 package savant.format;
 
 import java.io.*;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import savant.data.types.*;
-import savant.file.FieldType;
-import savant.file.FileType;
-import savant.file.FileTypeHeader;
-import savant.util.Range;
-import savant.util.Strand;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import savant.data.types.*;
+import savant.file.FieldType;
+import savant.file.FileType;
+import savant.file.FileTypeHeader;
+import savant.util.MiscUtils;
+import savant.util.Range;
+import savant.util.Strand;
 
 /**
  * Utilities for manipulating data files.
@@ -57,39 +57,40 @@ public class SavantFileFormatterUtils {
     public static final int DOUBLE_FIELD_SIZE   = 8;
     public static final int FLOAT_FIELD_SIZE    = 4;
 
-    public static FileType getTrackDataTypeFromPath(String path) {
+    /**
+     * Given an unformatted file, try to guess what it should be formatted as.  For
+     * now, this is just a stub.  In future, this can be used to select a sensible
+     * default in the DataFormatForm, and to provide a default for the -t option of
+     * the FormatTool.
+     *
+     * @param path    path to an unformatted file
+     * @return a guess at the file type (or null if we have no good guess)
+     */
+    public static FileType guessFileTypeFromPath(String path) {
 
-        // get the file extension
-        String extension = getExtension(path);
-        extension = extension.toUpperCase();
+        // Get the file extension
+        String extension = MiscUtils.getExtension(path).toUpperCase();
 
         if (extension.equals("BAM")) {
             return FileType.INTERVAL_BAM;
         }
-//        if (extension.equals("SAVANT")) {
-//            return FileType.SAVANT;
-//        }
+        if (extension.equals("BED")) {
+            return FileType.INTERVAL_BED;
+        }
+        if (extension.equals("GFF")) {
+            return FileType.INTERVAL_GFF;
+        }
+        if (extension.equals("WIG") || extension.equals("BEDGRAPH")) {
+            return FileType.CONTINUOUS_WIG;
+        }
+        if (extension.equals("FA") || extension.equals("FASTA")) {
+            return FileType.SEQUENCE_FASTA;
+        }
 
+        // None of the generic formats have any kind of standard extension.
         return null;
     }
     
-    /**
-     * Extract the extension from the given path
-     * @param path The path from which to extract the extension
-     * @return The extension of the file at the given path
-     */
-    public static String getExtension(String path) {
-        int indexOfDot = path.lastIndexOf(".");
-
-        if (indexOfDot == -1 || indexOfDot == path.length() - 1) {
-            return "";
-        } else {
-            return path.substring(indexOfDot + 1);
-        }
-    }
-
-
-
     public static List<Object> readBinaryRecord(RandomAccessFile in, List<FieldType> fields) throws IOException {
 
         List<Object> record = new ArrayList<Object>(fields.size());

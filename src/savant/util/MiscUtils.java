@@ -88,6 +88,21 @@ public class MiscUtils {
         return path.substring(lastSlashIndex+1, path.length());
     }
 
+    /**
+     * Extract the extension from the given path
+     * @param path The path from which to extract the extension
+     * @return The extension of the file at the given path
+     */
+    public static String getExtension(String path) {
+        int indexOfDot = path.lastIndexOf(".");
+
+        if (indexOfDot == -1 || indexOfDot == path.length() - 1) {
+            return "";
+        } else {
+            return path.substring(indexOfDot + 1);
+        }
+    }
+
     public static String getTemporaryDirectory() {
         String os = System.getProperty("os.name");
 

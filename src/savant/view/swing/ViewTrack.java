@@ -89,7 +89,7 @@ public abstract class ViewTrack {
         int lastSlashIndex = trackFilename.lastIndexOf(System.getProperty("file.separator"));
         String name = trackFilename.substring(lastSlashIndex + 1, trackFilename.length());
 
-        FileType fileType = SavantFileFormatterUtils.getTrackDataTypeFromPath(trackFilename);
+        FileType fileType = SavantFileFormatterUtils.guessFileTypeFromPath(trackFilename);
 
         ViewTrack viewTrack = null;
         DataSource dataTrack = null;

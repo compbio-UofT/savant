@@ -136,7 +136,7 @@ public class IntervalFormatter extends SavantFileFormatter {
      * @throws IOException
      * @throws InterruptedException
      */
-    public void format() throws IOException, InterruptedException, SavantUnsupportedVersionException {
+    public void format() throws IOException, InterruptedException {
 
         int numFields = countFields(this.inFilePath);
 

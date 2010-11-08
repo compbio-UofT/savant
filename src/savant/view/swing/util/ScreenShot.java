@@ -1,20 +1,32 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ *    Copyright 2010 University of Toronto
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
  */
 
 package savant.view.swing.util;
 
-import savant.format.SavantFileFormatterUtils;
-import savant.view.swing.Savant;
-
-import javax.imageio.ImageIO;
-import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import javax.imageio.ImageIO;
+import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
+
+import savant.util.MiscUtils;
+import savant.view.swing.Savant;
+
 
 public class ScreenShot
 {
@@ -73,9 +85,9 @@ public class ScreenShot
                             return true;
                         }
 
-                        String extension = SavantFileFormatterUtils.getExtension(f.getAbsolutePath());
+                        String extension = MiscUtils.getExtension(f.getAbsolutePath());
                         if (extension != null) {
-                            if (extension.equals("png")) {
+                            if (extension.equalsIgnoreCase("png")) {
                                 return true;
                             } else {
                                 return false;

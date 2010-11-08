@@ -130,7 +130,7 @@ public class DataFormatter /* implements FormatProgressListener */ {
      * @throws IOException
      * @throws ParseException
      */
-    public boolean format() throws InterruptedException, IOException, ParseException, SavantFileFormattingException, Exception {
+    public boolean format() throws InterruptedException, IOException, ParseException, SavantFileFormattingException {
 
         // start a timer
         long start = System.currentTimeMillis();
@@ -241,7 +241,7 @@ public class DataFormatter /* implements FormatProgressListener */ {
      * CONTINUOUS : BAM
      * @return
      */
-    private void formatAsBAM() throws IOException, InterruptedException, Exception {
+    private void formatAsBAM() throws IOException, InterruptedException {
         BAMToCoverage btc = new BAMToCoverage(this.inPath);
         subscribeProgressListeners(btc, this.progressListeners);
         btc.format();
@@ -251,7 +251,7 @@ public class DataFormatter /* implements FormatProgressListener */ {
     /*
      * INTERVAL
      */
-    private void formatAsInterval(String type) throws IOException, InterruptedException, SavantUnsupportedVersionException {
+    private void formatAsInterval(String type) throws IOException, InterruptedException {
         IntervalFormatter inf;
 
         if(type.equals("GEN")){
