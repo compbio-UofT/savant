@@ -5,14 +5,25 @@ import com.jidesoft.docking.DockingManager;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.FilenameFilter;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JPanel;
 import org.java.plugin.JpfException;
@@ -37,6 +48,9 @@ import savant.view.tools.ToolsModule;
  */
 public class PluginController {
 
+    private final String FILENAME = ".uninstall_plugins";
+    private Set<String> pluginsToUnInstall = new HashSet<String>();
+
     /** VARIABLES **/
 
     private static PluginController instance;
@@ -47,6 +61,7 @@ public class PluginController {
     private Map<String,PluginDescriptor> pluginIdToDescriptorMap = new HashMap<String,PluginDescriptor>();
     private Map<String,Extension> pluginIdToExtensionMap = new HashMap<String,Extension>();
     private Map<String,Plugin> pluginIdToPluginMap = new HashMap<String,Plugin>();
+    //private Map<String,String> pluginIdToPathMap = new HashMap<String,String>();
 
     private ExtensionPoint coreExtPt;
     private final String PLUGINS_DIR = "plugins";
@@ -59,12 +74,17 @@ public class PluginController {
         }
         return instance;
     }
+    private File f;
 
     /** CONSTRUCTOR **/
 
     public PluginController() {
         try {
             pluginManager = ObjectFactory.newInstance().createManager();
+            f = new File(FILENAME);
+            if (f.exists()) {
+                uninstallPlugins(f);
+            }
             loadCorePlugin();
             loadPlugins(new File(PLUGINS_DIR));
         } catch (Exception ex) {
@@ -99,18 +119,27 @@ public class PluginController {
         pluginManager.deactivatePlugin(id);
     }
 
-    public boolean uninstallPlugin(String id) {
-        deactivatePlugin(id);
-        String s = this.pluginIdToDescriptorMap.get(id).getLocation().getPath();
-        s = s.replaceFirst("file:/", "");
-        s = s.substring(0,s.lastIndexOf("!"));
-        //System.out.println("uninstalling: " + s);
-        boolean result = (new File(s)).delete();
-        if (!result) {
-            (new File(s)).deleteOnExit();
+
+    public void queuePluginForUnInstallation(String pluginid) {
+        pluginsToUnInstall.add(pluginid);
+        FileWriter fstream = null;
+        try {
+            if (!f.exists()) {
+                f.createNewFile();
+            }
+            fstream = new FileWriter(f, true);
+            BufferedWriter out = new BufferedWriter(fstream);
+            out.write(this.getPluginPath(pluginid) + "\n");
+            out.close();
+        } catch (IOException ex) {
+            Logger.getLogger(PluginController.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            try {
+                fstream.close();
+            } catch (IOException ex) {
+                Logger.getLogger(PluginController.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
-        //System.out.println("Deleted? " + result);
-        return result;
     }
 
     private boolean activatePlugin(PluginDescriptor d, Extension e) {
@@ -166,6 +195,13 @@ public class PluginController {
         this.pluginIdToDescriptorMap.remove(id);
         this.pluginIdToExtensionMap.remove(id);
         this.pluginIdToPluginMap.remove(id);
+    }
+
+    public String getPluginPath(String pluginId) {
+        String rawLocation = this.pluginIdToDescriptorMap.get(pluginId).getLocation().getPath();
+        rawLocation = rawLocation.replaceAll("!/plugin.xml", "");
+        rawLocation = rawLocation.replaceAll("file:/", "");
+        return rawLocation;
     }
 
     /** CORE PLUGIN **/
@@ -238,5 +274,28 @@ public class PluginController {
         cb.setSelected(!Savant.getInstance().getAuxDockingManager().getFrame(f.getTitle()).isHidden());
         // move this to a menu controller!
         Savant.getInstance().addPluginToMenu(cb);
+    }
+
+    private void uninstallPlugins(File f) {
+        BufferedReader br = null;
+        try {
+            br = new BufferedReader(new FileReader(f));
+            String line = "";
+            while ((line = br.readLine()) != null) {
+                new File(line).delete();
+            }
+        } catch (IOException ex) {
+            Logger.getLogger(PluginController.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            try {
+                br.close();
+            } catch (IOException ex) {
+            }
+        }
+        f.delete();
+    }
+
+    public boolean isPluginQueuedForDeletion(String id) {
+        return this.pluginsToUnInstall.contains(id);
     }
 }
