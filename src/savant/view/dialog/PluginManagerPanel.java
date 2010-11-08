@@ -98,7 +98,7 @@ public class PluginManagerPanel {
         JComponent createTextPanel() {
             NullPanel panel = new NullPanel(new GridLayout(2, 1, 5, 0));
 
-            panel.add(new NullLabel(program.id, null, JLabel.LEADING));
+            panel.add(new NullLabel(PluginController.getInstance().getPluginName(program.id), null, JLabel.LEADING));
             //panel.add(new NullLabel(program.id, SavantIconFactory.getInstance().getIcon(SavantIconFactory.StandardIcon.PLUGIN), JLabel.LEADING));
             panel.add(new NullPanel());
             return panel;
@@ -168,7 +168,7 @@ public class PluginManagerPanel {
             PluginStub program = pluginStubs[rowIndex];
             switch (columnIndex) {
                 case 0:
-                    return program;
+                    return PluginController.getInstance().getPluginName(program.id);
                 case 1:
                     return "";
                 case 2:

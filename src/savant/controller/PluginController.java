@@ -298,4 +298,16 @@ public class PluginController {
     public boolean isPluginQueuedForDeletion(String id) {
         return this.pluginsToUnInstall.contains(id);
     }
+
+    public String getPluginName(String id) {
+        Plugin p = this.pluginIdToPluginMap.get(id);
+        if (p instanceof GUIPlugin) {
+            GUIPlugin pp = (GUIPlugin) p;
+            return pp.getTitle();
+        } else if (p instanceof PluginTool) {
+            PluginTool pp = (PluginTool) p;
+            return pp.getToolInformation().getName();
+        }
+        return id;
+    }
 }
