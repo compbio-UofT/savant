@@ -225,7 +225,7 @@ public class ToolsModule implements BookmarksChangedListener, RangeChangeComplet
         canvas.setBackground(ColourSettings.colorSplitter);
 
         toolsDockingManager.setInitSplitPriority(DockingManager.SPLIT_EAST_SOUTH_WEST_NORTH);
-        toolsDockingManager.loadLayoutData();
+        //toolsDockingManager.loadLayoutData();
 
         Savant.addDockingManagerToGroup(toolsDockingManager);
 
