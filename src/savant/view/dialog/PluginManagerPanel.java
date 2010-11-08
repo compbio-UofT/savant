@@ -8,11 +8,13 @@ import com.jidesoft.swing.NullLabel;
 import com.jidesoft.swing.NullPanel;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.File;
 import java.util.List;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.filechooser.FileSystemView;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableModel;
@@ -95,7 +97,9 @@ public class PluginManagerPanel {
 
         JComponent createTextPanel() {
             NullPanel panel = new NullPanel(new GridLayout(2, 1, 5, 0));
-            panel.add(new NullLabel(program.id, SavantIconFactory.getInstance().getIcon(SavantIconFactory.StandardIcon.PLUGIN), JLabel.LEADING));
+
+            panel.add(new NullLabel(program.id, null, JLabel.LEADING));
+            //panel.add(new NullLabel(program.id, SavantIconFactory.getInstance().getIcon(SavantIconFactory.StandardIcon.PLUGIN), JLabel.LEADING));
             panel.add(new NullPanel());
             return panel;
         }
@@ -114,14 +118,17 @@ public class PluginManagerPanel {
             //activateButton.addActionListener(new ClickAction(program, "Inactivate", activateButton));
             //panel.add(activateButton);
             panel.add(new NullPanel());
-            NullButton removeButton = new NullButton("Uninstall");
+            final NullButton removeButton = new NullButton("Uninstall");
             removeButton.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    PluginController.getInstance().uninstallPlugin(program.id);
+                    removeButton.setEnabled(false);
+                    PluginController.getInstance().queuePluginForUnInstallation(program.id);
                 }
-
             });
+            if (PluginController.getInstance().isPluginQueuedForDeletion(program.id)) {
+                removeButton.setEnabled(false);
+            }
             panel.add(removeButton);
             return panel;
         }
@@ -301,7 +308,15 @@ public class PluginManagerPanel {
         public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
             if (value instanceof PluginStub) {
                 JLabel label = (JLabel) super.getTableCellRendererComponent(table, ((PluginStub) value).id, isSelected, hasFocus, row, column);
-                label.setIcon(SavantIconFactory.getInstance().getIcon(SavantIconFactory.StandardIcon.PLUGIN));
+                
+                /*
+                label.setIcon(FileSystemView.getFileSystemView().getSystemIcon(
+                        new File(
+                            PluginController.getInstance().getPluginPath(
+                                ((PluginStub) value).id)
+                                )));
+                 * 
+                 */
                 return label;
             }
             else {
