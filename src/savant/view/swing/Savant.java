@@ -15,13 +15,10 @@
  */
 package savant.view.swing;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -1414,20 +1411,22 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
     private void customizeUI() {
         if (mac) {
             try {
-                macOSXApplication = new com.apple.eawt.Application();
-                macOSXApplication.addApplicationListener(new ApplicationAdapter() {
+                macOSXApplication = Application.getApplication();
+                macOSXApplication.setPreferencesHandler(new PreferencesHandler() {
                     @Override
-                    public void handlePreferences(ApplicationEvent evt) {
+                    public void handlePreferences(AppEvent.PreferencesEvent evt) {
                         menuitem_preferencesActionPerformed(null);
                     }
-
+                });
+                macOSXApplication.setQuitHandler(new QuitHandler() {
                     @Override
-                    public void handleQuit(ApplicationEvent evt) {
+                    public void handleQuitRequestWith(AppEvent.QuitEvent evt, QuitResponse resp) {
                         menuitem_exitActionPerformed(null);
+                        // If the user agreed to quit, System.exit would have been
+                        // called.  Since we got here, the user has said "No" to quitting.
+                        resp.cancelQuit();
                     }
                 });
-                macOSXApplication.addPreferencesMenuItem();
-                macOSXApplication.setEnabledPreferencesMenu(true);
                 menuitem_file.remove(jSeparator9);
                 menuitem_file.remove(menuitem_exit);
                 menu_edit.remove(menuitem_preferences);
