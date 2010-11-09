@@ -73,6 +73,7 @@ public class IntervalViewTrack extends ViewTrack {
         setColorScheme(getDefaultColorScheme());
     }
 
+    @Override
     public Resolution getResolution(Range range) { return getResolution(range, getDrawMode()); }
 
     public Resolution getResolution(Range range, Mode mode)
@@ -140,7 +141,7 @@ public class IntervalViewTrack extends ViewTrack {
             renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.COLOR_SCHEME, this.getColorScheme());
             renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.REFERENCE_EXISTS, contains);
 
-            if (getDrawMode().getName() == "ARC") {
+            if (getDrawMode().getName().equals("ARC")) {
                 int maxDataValue = getMaxValue(data);
                 renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.AXIS_RANGE, AxisRange.initWithRanges(range, new Range(0,(int)Math.round(Math.log(maxDataValue)))));
             }
