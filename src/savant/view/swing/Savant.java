@@ -1429,8 +1429,20 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         if (mac) {
             try {
                 macOSXApplication = Application.getApplication();
+                macOSXApplication.setAboutHandler(new AboutHandler() {
+                    @Override
+                    public void handleAbout(AppEvent.AboutEvent evt) {
+                        final Splash dlg = new Splash(instance, true);
+                        dlg.addMouseListener(new MouseAdapter() {
+                            @Override
+                            public void mouseClicked(MouseEvent e) {
+                                dlg.setVisible(false);
+                            }
+                        });
+                        dlg.setVisible(true);
+                    }
+                });
                 macOSXApplication.setPreferencesHandler(new PreferencesHandler() {
-
                     @Override
                     public void handlePreferences(AppEvent.PreferencesEvent evt) {
                         menuitem_preferencesActionPerformed(null);

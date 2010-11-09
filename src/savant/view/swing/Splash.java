@@ -1,20 +1,27 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
-/*
  * Splash.java
  *
  * Created on Nov 8, 2010, 10:22:11 AM
+ *
+ *    Copyright 2010 University of Toronto
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
  */
 package savant.view.swing;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.Graphics;
 import java.awt.Image;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
@@ -31,7 +38,12 @@ public class Splash extends javax.swing.JDialog {
     JLabel status;
     String pad = "  ";
 
-    /** Creates new form Splash */
+    /**
+     * Creates new form Splash
+     *
+     * @param parent  the parent frame, typically the Savant main form
+     * @param modal   true if this is being used as a modal dialog (i.e. as an about-box)
+     */
     public Splash(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
@@ -67,7 +79,7 @@ public class Splash extends javax.swing.JDialog {
 
         textPanel.add(getPadding(6));
 
-        status = new JLabel(pad + "Status: initializing ...");
+        status = new JLabel(modal ? "" : pad + "Status: Initializing ...");
         formatLabel(status, true);
         textPanel.add(status);
 
@@ -77,7 +89,7 @@ public class Splash extends javax.swing.JDialog {
         ip.add(textPanel,BorderLayout.SOUTH);
     }
 
-    public JPanel getPadding(int ps) {
+    public final JPanel getPadding(int ps) {
         JPanel p = new JPanel();
         Dimension d = new Dimension(ps,ps);
         p.setMaximumSize(d);
