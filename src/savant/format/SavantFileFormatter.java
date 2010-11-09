@@ -24,6 +24,7 @@ import savant.file.FileType;
 import savant.file.FileTypeHeader;
 import savant.file.FieldType;
 import savant.file.SavantROFile;
+import savant.settings.DirectorySettings;
 import savant.util.MiscUtils;
 
 public class SavantFileFormatter {
@@ -183,7 +184,8 @@ public class SavantFileFormatter {
 
     protected DataOutputStream addReferenceFile(String referenceName) throws FileNotFoundException {
 
-        String fn = inFilePath + ".part_" + referenceName;
+        String fn = DirectorySettings.getTmpDirectory() + System.getProperty("file.separator") + (new File(inFilePath)).getName() + ".part_" + referenceName;
+        //String fn = inFilePath + ".part_" + referenceName;
 
         DataOutputStream f = new DataOutputStream(
                 new BufferedOutputStream(
@@ -201,9 +203,12 @@ public class SavantFileFormatter {
         }
     }
 
+    /*
     protected void addReferenceFile(String referenceName, DataOutputStream file) {
         referenceName2FileMap.put(referenceName, file);
     }
+     * 
+     */
 
     /*
     protected void closeOutputFiles() {

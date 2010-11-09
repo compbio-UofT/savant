@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import savant.settings.DirectorySettings;
 
 public class IntervalFormatter extends SavantFileFormatter {
 
@@ -199,7 +200,8 @@ public class IntervalFormatter extends SavantFileFormatter {
             refnames.add(refname);
 
             // make and save path to tmp output files
-            String outPath = inFilePath + ".part_" + refname;
+            String outPath = DirectorySettings.getFormatDirectory() + System.getProperty("file.separator") + (new File(inFilePath)).getName() + ".part_" + refname;
+
             String indexPath = outPath + indexExtension;
             refnameToDataFileNameMap.put(refname, outPath);
             refnameToIndexFileNameMap.put(refname, indexPath);

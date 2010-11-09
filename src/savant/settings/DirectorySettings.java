@@ -26,6 +26,7 @@ public class DirectorySettings {
 
 
     private static String SAVANT_DIR;
+    private static String tmpDir;
     private static String formatDir;
     private static String pluginsDir;
     private static String XMLToolsDir;
@@ -128,6 +129,20 @@ public class DirectorySettings {
             boolean ret = f.mkdirs();
             if(ret) pluginsDir = dir;
         }
+    }
+
+    public static String getTmpDirectory() {
+        if(tmpDir == null){
+            //String home = System.getProperty("user.home");
+            String home = getSavantDirectory();
+            String fileSeparator = System.getProperty("file.separator");
+            tmpDir = home + fileSeparator + "tmp";
+            File dir = new File(tmpDir);
+            if (!dir.exists()) {
+                dir.mkdirs();
+            }
+        }
+        return tmpDir;
     }
 
 }

@@ -471,9 +471,9 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         menuitem_redo = new javax.swing.JMenuItem();
         javax.swing.JPopupMenu.Separator jSeparator2 = new javax.swing.JPopupMenu.Separator();
         menuItemAddToFaves = new javax.swing.JMenuItem();
-        menuitem_preferences = new javax.swing.JMenuItem();
+        menuitem_deselectall = new javax.swing.JMenuItem();
         javax.swing.JPopupMenu.Separator jSeparator8 = new javax.swing.JPopupMenu.Separator();
-        menuitem_preferences1 = new javax.swing.JMenuItem();
+        menuitem_preferences = new javax.swing.JMenuItem();
         menu_view = new javax.swing.JMenu();
         menuItemPanLeft = new javax.swing.JMenuItem();
         menuItemPanRight = new javax.swing.JMenuItem();
@@ -733,6 +733,15 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         });
         menu_edit.add(menuItemAddToFaves);
 
+        menuitem_deselectall.setText("Deselect All");
+        menuitem_deselectall.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                menuitem_deselectActionPerformed(evt);
+            }
+        });
+        menu_edit.add(menuitem_deselectall);
+        menu_edit.add(jSeparator8);
+
         menuitem_preferences.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_P, java.awt.event.InputEvent.CTRL_MASK));
         menuitem_preferences.setText("Preferences");
         menuitem_preferences.addActionListener(new java.awt.event.ActionListener() {
@@ -741,15 +750,6 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
             }
         });
         menu_edit.add(menuitem_preferences);
-        menu_edit.add(jSeparator8);
-
-        menuitem_preferences1.setText("Deselect All");
-        menuitem_preferences1.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                menuitem_deselectActionPerformed(evt);
-            }
-        });
-        menu_edit.add(menuitem_preferences1);
 
         menuBar_top.add(menu_edit);
 
@@ -1385,13 +1385,13 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
     private javax.swing.JMenu menu_view;
     private javax.swing.JMenu menu_window;
     private javax.swing.JCheckBoxMenuItem menuitem_aim;
+    private javax.swing.JMenuItem menuitem_deselectall;
     private javax.swing.JMenuItem menuitem_exit;
     private javax.swing.JMenu menuitem_file;
     private javax.swing.JCheckBoxMenuItem menuitem_genomeview;
     private javax.swing.JMenuItem menuitem_loadsession;
     private javax.swing.JMenuItem menuitem_pluginmanager;
     private javax.swing.JMenuItem menuitem_preferences;
-    private javax.swing.JMenuItem menuitem_preferences1;
     private javax.swing.JMenuItem menuitem_preformatted;
     private javax.swing.JMenuItem menuitem_redo;
     private javax.swing.JCheckBoxMenuItem menuitem_ruler;
@@ -1516,9 +1516,9 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
     }
 
     private void disableExperimentalFeatures() {
-        this.menuitem_preferences.setVisible(false);
+        //this.menuitem_preferences.setVisible(false);
         this.menuitem_tools.setVisible(false);
-        this.menuitem_aim.setVisible(false);
+       // this.menuitem_aim.setVisible(false);
         MiscUtils.setFrameVisibility("Start Page", false, this.trackDockingManager);
         this.menuitem_startpage.setVisible(false);
         this.menuitem_loadsession.setVisible(false);
@@ -2090,6 +2090,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         rangeControls.add(label_length);
         rangeControls.add(textboxFrom);
         rangeControls.add(textboxTo);
+        rangeControls.add(menuitem_deselectall);
         rangeControls.add(shiftFarLeft);
         rangeControls.add(shiftFarRight);
         rangeControls.add(shiftLeft);
