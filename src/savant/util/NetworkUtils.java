@@ -29,7 +29,7 @@ import org.apache.commons.net.ftp.FTPFile;
 /**
  * Some useful methods for performing network-related functions.
  *
- * @author vwilliams, zig
+ * @author vwilliams, tarkvara
  */
 public class NetworkUtils {
 

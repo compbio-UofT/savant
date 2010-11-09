@@ -127,7 +127,7 @@ public class SeekableFTPStream extends SeekableStream {
 
     private int readFromStream(byte[] bytes, int offset, int len) throws IOException {
 
-        FTPClient client = getFtpClient();
+        FTPClient client = getFTPClient();
         if (position != 0) {
             client.setRestartOffset(position);
         }
@@ -147,9 +147,7 @@ public class SeekableFTPStream extends SeekableStream {
             is.close();
             LOG.info(String.format("FTP reading %d bytes at %d: %02x %02x %02x %02x %02x %02x %02x %02x...", len, oldPos, bytes[offset], bytes[offset + 1], bytes[offset + 2], bytes[offset + 3], bytes[offset + 4], bytes[offset + 5], bytes[offset + 6], bytes[offset + 7]));
             try {
-                if (!client.completePendingCommand()) {
-                    LOG.warn("Unable to complete file transfer.");
-                }
+                client.completePendingCommand();
             } catch (FTPConnectionClosedException suppressed) {
             }
             return n;
@@ -190,10 +188,10 @@ public class SeekableFTPStream extends SeekableStream {
 
     public FTPFile[] listFiles(String relPath) throws IOException {
         try {
-            return getFtpClient().listFiles(relPath);
+            return getFTPClient().listFiles(relPath);
         } catch (FTPConnectionClosedException e) {
             disconnect();
-            return getFtpClient().listFiles(relPath);
+            return getFTPClient().listFiles(relPath);
         }
     }
 
@@ -207,7 +205,7 @@ public class SeekableFTPStream extends SeekableStream {
         }
     }
 
-    private FTPClient getFtpClient() throws IOException {
+    private FTPClient getFTPClient() throws IOException {
         if (ftpClient == null) {
             ftpClient = createClient();
         }
@@ -220,8 +218,8 @@ public class SeekableFTPStream extends SeekableStream {
         client.connect(host, port);
         client.login(username, password);
         client.setFileType(FTP.BINARY_FILE_TYPE);
+        client.enterLocalPassiveMode();
         int reply = client.getReplyCode();
-
         if (!FTPReply.isPositiveCompletion(reply)) {
             client.disconnect();
             LOG.error("FTP server refused connection.");
