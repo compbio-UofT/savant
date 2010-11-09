@@ -40,8 +40,6 @@ import savant.analysis.BatchAnalysisForm;
 import savant.controller.*;
 import savant.controller.event.bookmark.BookmarksChangedEvent;
 import savant.controller.event.bookmark.BookmarksChangedListener;
-import savant.controller.event.range.RangeChangedEvent;
-import savant.controller.event.range.RangeChangedListener;
 import savant.controller.event.rangeselection.RangeSelectionChangedEvent;
 import savant.controller.event.rangeselection.RangeSelectionChangedListener;
 import savant.controller.event.reference.ReferenceChangedEvent;
@@ -59,7 +57,6 @@ import savant.util.Range;
 import savant.view.dialog.DataFormatForm;
 import savant.view.dialog.GenomeLengthForm;
 import savant.view.dialog.OpenURLDialog;
-import savant.view.dialog.PluginDialog;
 import savant.view.swing.util.DialogUtils;
 import savant.view.tools.ToolsModule;
 import savant.view.icon.SavantIconFactory;
@@ -188,7 +185,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         //auxDockingManager.setSidebarRollover(false);
         auxDockingManager.getWorkspace().setBackground(ColourSettings.colorSplitter);
         auxDockingManager.setInitSplitPriority(DockingManager.SPLIT_EAST_SOUTH_WEST_NORTH);
-        auxDockingManager.loadLayoutData();
+        //auxDockingManager.loadLayoutData();
 
         trackPanel = new JPanel();
         trackPanel.setLayout(new BorderLayout());
@@ -201,7 +198,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         //trackDockingManager.setSidebarRollover(false);
         trackDockingManager.getWorkspace().setBackground(Color.red);
         trackDockingManager.setInitNorthSplit(JideSplitPane.VERTICAL_SPLIT);
-        trackDockingManager.loadLayoutData();
+        //trackDockingManager.loadLayoutData();
 
         rangeSelector = new RangeSelectionPanel();
         rangeSelector.setPreferredSize(new Dimension(10000, 23));
@@ -327,7 +324,6 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
     private JLabel label_length;
     /** Information & Analysis Tabbed Pane (for plugin use) */
     private JTabbedPane auxTabbedPane;
-    
     /**
      * Info
      */
@@ -347,22 +343,16 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
 
     /** Creates new form Savant */
     private Savant() {
-        try {
 
-            UIManager.put("JideSplitPaneDivider.border", 5);
-
-            // Set System L&F
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-
-            LookAndFeelFactory.installJideExtension(LookAndFeelFactory.XERTO_STYLE_WITHOUT_MENU);
-            // LookAndFeelFactory.installJideExtension(LookAndFeelFactory.OFFICE2003_STYLE);
-
-        } catch (Exception e) {
-            // handle exception
-        }
         instance = this;
 
+        Splash s = new Splash(instance, false);
+        s.setVisible(true);
+
+        loadPreferences();
+
         addComponentListener(new ComponentAdapter() {
+
             /**
              * Resize the form to the minimum size if the
              * user has resized it to something smaller.
@@ -388,10 +378,38 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
                 }
             }
         });
+
+        s.setStatus("Initializing GUI");
+
         initComponents();
         customizeUI();
+
         init();
 
+        s.setStatus("Checking version");
+
+        checkVersion();
+
+        s.setStatus("Loading plugins");
+
+        PluginController pc = PluginController.getInstance();
+
+        s.setStatus("Organizing layout");
+
+        loadLayoutData();
+
+        displayAuxPanels();
+
+        if (turnExperimentalFeaturesOff) {
+            disableExperimentalFeatures();
+        }
+
+        s.setStatus("Initialization complete");
+        s.setVisible(false);
+
+
+       // auxDockingManager.setShowInitial(true);
+       // trackDockingManager.setShowInitial(true);
     }
 
     private void initXMLTools() {
@@ -504,7 +522,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         panelExtendedMiddle.setLayout(panelExtendedMiddleLayout);
         panelExtendedMiddleLayout.setHorizontalGroup(
             panelExtendedMiddleLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 876, Short.MAX_VALUE)
+            .addGap(0, 878, Short.MAX_VALUE)
         );
         panelExtendedMiddleLayout.setVerticalGroup(
             panelExtendedMiddleLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -522,7 +540,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         panel_main.setLayout(panel_mainLayout);
         panel_mainLayout.setHorizontalGroup(
             panel_mainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 876, Short.MAX_VALUE)
+            .addGap(0, 878, Short.MAX_VALUE)
         );
         panel_mainLayout.setVerticalGroup(
             panel_mainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -557,7 +575,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         panel_toolbar.setLayout(panel_toolbarLayout);
         panel_toolbarLayout.setHorizontalGroup(
             panel_toolbarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 876, Short.MAX_VALUE)
+            .addGap(0, 878, Short.MAX_VALUE)
         );
         panel_toolbarLayout.setVerticalGroup(
             panel_toolbarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -968,12 +986,12 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(panel_top, javax.swing.GroupLayout.DEFAULT_SIZE, 876, Short.MAX_VALUE)
+            .addComponent(panel_top, javax.swing.GroupLayout.DEFAULT_SIZE, 878, Short.MAX_VALUE)
             .addGroup(layout.createSequentialGroup()
                 .addComponent(toolbar_bottom, javax.swing.GroupLayout.DEFAULT_SIZE, 866, Short.MAX_VALUE)
                 .addContainerGap())
-            .addComponent(panel_toolbar, javax.swing.GroupLayout.DEFAULT_SIZE, 876, Short.MAX_VALUE)
-            .addComponent(panel_main, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 876, Short.MAX_VALUE)
+            .addComponent(panel_toolbar, javax.swing.GroupLayout.DEFAULT_SIZE, 878, Short.MAX_VALUE)
+            .addComponent(panel_main, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 878, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1080,13 +1098,6 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
 
     private void menuitem_preformattedActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuitem_preformattedActionPerformed
         try {
-            if (turnExperimentalFeaturesOff) {
-                try {
-                    java.awt.Desktop.getDesktop().browse(java.net.URI.create(BrowserSettings.url_preformatteddata));
-                } catch (IOException ex) {
-                    LOG.error("Unable to access online preformatted data.", ex);
-                }
-            } else {
                 File file = DownloadFile.downloadFile(new URL(BrowserSettings.url_data), System.getProperty("java.io.tmpdir"));
                 if (file == null) {
                     JOptionPane.showMessageDialog(this, "Problem downloading file: " + BrowserSettings.url_data);
@@ -1094,7 +1105,6 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
                 }
                 DownloadTreeList d = new DownloadTreeList(this, false, "Download Pre-formatted Data", file, DirectorySettings.getFormatDirectory());
                 d.setVisible(true);
-            }
         } catch (JDOMException ex) {
             JOptionPane.showMessageDialog(this, "Problem downloading file: " + BrowserSettings.url_data);
         } catch (IOException ex) {
@@ -1269,14 +1279,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         setStartPageVisible(this.menuitem_startpage.isSelected());
     }//GEN-LAST:event_menuitem_startpageActionPerformed
 
-    /*
-    public static boolean debugModeOn = false;
 
-    public boolean isDebugModeOn() {
-    return debugModeOn;
-    }
-     * 
-     */
     /**
      * Starts an instance of the Savant Browser
      * @param args the command line arguments
@@ -1289,19 +1292,33 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
             }
         }
 
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            @Override
-            public void run() {
+        //java.awt.EventQueue.invokeLater(new Runnable() {
+
+            //@Override
+            //public void run() {
+
                 System.setProperty("apple.laf.useScreenMenuBar", "true");
                 com.jidesoft.utils.Lm.verifyLicense("Marc Fiume", "Savant Genome Browser", "1BimsQGmP.vjmoMbfkPdyh0gs3bl3932");
                 LookAndFeelFactory.installJideExtension(LookAndFeelFactory.OFFICE2007_STYLE);
-                loadPreferences();
-                checkVersion();
+
+                try {
+
+                    UIManager.put("JideSplitPaneDivider.border", 5);
+
+                    // Set System L&F
+                    UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+
+                    LookAndFeelFactory.installJideExtension(LookAndFeelFactory.XERTO_STYLE_WITHOUT_MENU);
+                    // LookAndFeelFactory.installJideExtension(LookAndFeelFactory.OFFICE2003_STYLE);
+
+                } catch (Exception e) {
+                    // handle exception
+                }
+
+
                 Savant instance = Savant.getInstance();
-                PluginController pc = PluginController.getInstance();
-                instance.displayAuxPanels();
-            }
-        });
+            //}
+        //});
     }
 
     public static void loadPreferences() {
@@ -1413,6 +1430,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
             try {
                 macOSXApplication = Application.getApplication();
                 macOSXApplication.setPreferencesHandler(new PreferencesHandler() {
+
                     @Override
                     public void handlePreferences(AppEvent.PreferencesEvent evt) {
                         menuitem_preferencesActionPerformed(null);
@@ -1469,34 +1487,20 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
      * Initialize the Browser
      */
     private void init() {
-        //this.setVisible(false);
-        //this.setExtendedState(this.getExtendedState() | JFrame.MAXIMIZED_BOTH);
-
-        //rangeController.addRangeChangedListener(this);
-        
         ReferenceController.getInstance().addReferenceChangedListener(this);
 
         initGUIFrame();
         initDocking();
         initToolsPanel();
-        initBookmarksPanel();
         initMenu();
         initStatusBar();
+
+        initBookmarksPanel();
         initStartPage();
 
         dff = new DataFormatForm(this, false);
-        // get async notification when DataFormatForm has finished its business
-        //dff.addPropertyChangeListener("success", this);
 
         urlDialog = new OpenURLDialog(this, true);
-        // comment next line to disable plugin manager
-        //this.menu_plugins.setVisible(false);
-
-        //this.setVisible(true);
-
-        if (turnExperimentalFeaturesOff) {
-            disableExperimentalFeatures();
-        }
     }
 
     private void disableExperimentalFeatures() {
@@ -1571,7 +1575,6 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         this.getAuxDockingManager().addFrame(df);
         MiscUtils.setFrameVisibility("Bookmarks", false, this.getAuxDockingManager());
 
-
         df.getContentPane().setLayout(new BorderLayout());
 
         //JPanel tablePanel = createTabPanel(jtp, "Bookmarks");
@@ -1625,7 +1628,6 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
                 SavantIconFactory.getInstance().getIcon(SavantIconFactory.StandardIcon.LOGO).getImage());
         this.setTitle("Savant Genome Browser");
         this.setName("Savant Genome Browser");
-        this.setExtendedState(this.getExtendedState() | JFrame.MAXIMIZED_BOTH);
     }
 
     private void initMenu() {
@@ -1705,6 +1707,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         referenceDropdown.setMaximumSize(comboboxDimension);
         referenceDropdown.setToolTipText("Reference sequence");
         referenceDropdown.addActionListener(new ActionListener() {
+
             @Override
             public void actionPerformed(ActionEvent e) {
 
@@ -1770,7 +1773,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
                     } else if (n == 0) {
                         return;
                     }
-                    }
+                }
 
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("Actually changing reference to " + ref);
@@ -1799,6 +1802,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         textboxFrom.setMinimumSize(new Dimension(tfwidth, tfheight));
 
         textboxFrom.addKeyListener(new KeyAdapter() {
+
             @Override
             public void keyPressed(KeyEvent evt) {
                 RangeTextBoxKeypressed(evt);
@@ -1827,6 +1831,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         textboxTo.setMinimumSize(new Dimension(tfwidth, tfheight));
 
         textboxTo.addKeyListener(new KeyAdapter() {
+
             @Override
             public void keyPressed(java.awt.event.KeyEvent evt) {
                 RangeTextBoxKeypressed(evt);
@@ -1839,6 +1844,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         goButton = addButton(p, "  Go  ");
         goButton.setToolTipText("Go to specified range (Enter)");
         goButton.addMouseListener(new MouseAdapter() {
+
             @Override
             public void mouseReleased(MouseEvent e) {
                 if (goButton.contains(e.getPoint())) {
@@ -1882,6 +1888,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         /////////
         button_undo.setToolTipText("Undo range change (" + shortcutMod + "+Z)");
         button_undo.addActionListener(new ActionListener() {
+
             @Override
             public void actionPerformed(ActionEvent e) {
                 RangeController.getInstance().undoRangeChange();
@@ -1905,6 +1912,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         /////////
         button_redo.setToolTipText("Redo range change (" + shortcutMod + "+Y)");
         button_redo.addActionListener(new ActionListener() {
+
             @Override
             public void actionPerformed(ActionEvent e) {
                 RangeController.getInstance().redoRangeChange();
@@ -1930,6 +1938,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         zoomIn.setMinimumSize(iconDimension);
         zoomIn.setMaximumSize(iconDimension);
         zoomIn.addMouseListener(new MouseAdapter() {
+
             @Override
             public void mouseClicked(MouseEvent e) {
                 rangeController.zoomIn();
@@ -1952,6 +1961,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         zoomOut.setMinimumSize(iconDimension);
         zoomOut.setMaximumSize(iconDimension);
         zoomOut.addMouseListener(new MouseAdapter() {
+
             @Override
             public void mouseClicked(MouseEvent e) {
                 rangeController.zoomOut();
@@ -1977,6 +1987,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         shiftFarLeft.setMaximumSize(iconDimension);
 
         shiftFarLeft.addMouseListener(new MouseAdapter() {
+
             @Override
             public void mouseClicked(MouseEvent e) {
                 rangeController.shiftRangeFarLeft();
@@ -2000,6 +2011,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         shiftLeft.setMinimumSize(iconDimension);
         shiftLeft.setMaximumSize(iconDimension);
         shiftLeft.addMouseListener(new MouseAdapter() {
+
             @Override
             public void mouseClicked(MouseEvent e) {
                 rangeController.shiftRangeLeft();
@@ -2023,6 +2035,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         shiftRight.setMinimumSize(iconDimension);
         shiftRight.setMaximumSize(iconDimension);
         shiftRight.addMouseListener(new MouseAdapter() {
+
             @Override
             public void mouseClicked(MouseEvent e) {
                 rangeController.shiftRangeRight();
@@ -2046,6 +2059,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         shiftFarRight.setMinimumSize(iconDimension);
         shiftFarRight.setMaximumSize(iconDimension);
         shiftFarRight.addMouseListener(new MouseAdapter() {
+
             @Override
             public void mouseClicked(MouseEvent e) {
                 rangeController.shiftRangeFarRight();
@@ -2131,6 +2145,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
 
         JButton addBatchAnalysisButton = new JButton("Add Batch Analysis");
         addBatchAnalysisButton.addActionListener(new ActionListener() {
+
             @Override
             public void actionPerformed(ActionEvent e) {
                 BatchAnalysisForm baf = new BatchAnalysisForm();
@@ -2286,7 +2301,6 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
     }
      * 
      */
-
     public void updateRange() {
         // adjust descriptions
         setRangeDescription(RangeController.getInstance().getRange());
@@ -2334,7 +2348,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
 
             Genome g = ViewTrack.createGenome(filename);
             if (g != null) {
-                setGenome(filename, ViewTrack.createGenome(filename));
+                setGenome(filename, g);
                 genomeSet = true;
             }
         } catch (Exception ex) {
@@ -2608,6 +2622,13 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         menu_plugins.add(cb);
     }
 
+    private void loadLayoutData() {
+       // auxDockingManager.setShowInitial(false);
+       // trackDockingManager.setShowInitial(false);
+        auxDockingManager.loadLayoutData();
+        trackDockingManager.loadLayoutData();
+    }
+
     public enum LOGMODE {
 
         NORMAL, DEBUG
@@ -2619,22 +2640,21 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
      * @param msg The message to post
      *
     public static void log(JTextArea rtb, String msg) {
-        log(rtb, msg, LOGMODE.DEBUG);
-        //rtb.append(logMessage(msg));
-        //rtb.setCaretPosition(rtb.getText().length());
+    log(rtb, msg, LOGMODE.DEBUG);
+    //rtb.append(logMessage(msg));
+    //rtb.setCaretPosition(rtb.getText().length());
     }
 
     public static void log(JTextArea rtb, String msg, LOGMODE logmode) {
-        if (logmode == LOGMODE.DEBUG && isDebugging) {
-            rtb.append(logMessage(msg));
-            rtb.setCaretPosition(rtb.getText().length());
-        } else if (logmode != LOGMODE.DEBUG) {
-            rtb.append(logMessage(msg));
-            rtb.setCaretPosition(rtb.getText().length());
-        }
+    if (logmode == LOGMODE.DEBUG && isDebugging) {
+    rtb.append(logMessage(msg));
+    rtb.setCaretPosition(rtb.getText().length());
+    } else if (logmode != LOGMODE.DEBUG) {
+    rtb.append(logMessage(msg));
+    rtb.setCaretPosition(rtb.getText().length());
+    }
     }
      */
-
     /**
      * log a message on the default log text area
      * @param msg The message to post
@@ -2699,14 +2719,14 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
     }
 
     private void displayAuxPanels() {
-        MiscUtils.setFrameVisibility("Bookmarks", true, this.getAuxDockingManager());
-        //MiscUtils.setFrameVisibility("Table View", true, this.getAuxDockingManager());
-
+        
         List<String> names = this.getAuxDockingManager().getAllFrameNames();
         for (int i = 0; i < names.size(); i++) {
-            this.getAuxDockingManager().toggleAutohideState(names.get(i));
+            MiscUtils.setFrameVisibility(names.get(i), false, this.getAuxDockingManager());
         }
 
+        MiscUtils.setFrameVisibility("Bookmarks", true, this.getAuxDockingManager());
+        this.getAuxDockingManager().toggleAutohideState("Bookmarks");
         menu_bookmarks.setState(true);
     }
 

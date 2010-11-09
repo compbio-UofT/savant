@@ -278,13 +278,16 @@ public class PluginController {
 
     private void uninstallPlugins(File f) {
         BufferedReader br = null;
+        String line = "";
         try {
             br = new BufferedReader(new FileReader(f));
-            String line = "";
+            
             while ((line = br.readLine()) != null) {
+                System.out.println("Uninstalling " + line);
                 new File(line).delete();
             }
         } catch (IOException ex) {
+            System.err.println("Problem uninstalling " + line);
             Logger.getLogger(PluginController.class.getName()).log(Level.SEVERE, null, ex);
         } finally {
             try {

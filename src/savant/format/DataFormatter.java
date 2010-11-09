@@ -242,10 +242,11 @@ public class DataFormatter /* implements FormatProgressListener */ {
      * @return
      */
     private void formatAsBAM() throws IOException, InterruptedException {
-        BAMToCoverage btc = new BAMToCoverage(this.inPath);
-        subscribeProgressListeners(btc, this.progressListeners);
-        btc.format();
-        unsubscribeProgressListeners(btc, this.progressListeners);
+            BAMToCoverage btc = new BAMToCoverage(this.inPath);
+            subscribeProgressListeners(btc, this.progressListeners);
+            btc.format();
+            unsubscribeProgressListeners(btc, this.progressListeners);
+        
     }
 
     /*

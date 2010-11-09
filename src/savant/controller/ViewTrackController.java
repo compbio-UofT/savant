@@ -82,6 +82,7 @@ public class ViewTrackController {
      * @param track The track to add
      */
     public void addTrack(ViewTrack track) {
+        System.out.println("Adding track: " + track.getName());
         tracks.add(track);
         fireTracksListChangedEvent();
     }
@@ -111,6 +112,7 @@ public class ViewTrackController {
             ((ViewTrackListChangedListener) listeners.next()).viewTrackListChangeReceived(evt);
         }
     }
+
 
     public synchronized void addTracksChangedListener(ViewTrackListChangedListener l) {
         tracksChangedListeners.add(l);

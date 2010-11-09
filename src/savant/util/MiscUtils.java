@@ -11,6 +11,7 @@ import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.net.URI;
 import java.text.DateFormat;
 import java.util.Set;
 import savant.view.swing.Savant;
@@ -240,4 +241,10 @@ public class MiscUtils {
             m.hideFrame(frameKey);
         }
     }
+
+     public static String getNeatPathFromURI(URI u) {
+         String uglypath = u.toASCIIString();
+         String neatpath = uglypath.replace("file:/", "");
+         return neatpath;
+     }
 }

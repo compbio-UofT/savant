@@ -19,6 +19,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import savant.controller.event.viewtrack.ViewTrackListChangedEvent;
 import savant.controller.event.viewtrack.ViewTrackListChangedListener;
+import savant.util.MiscUtils;
 import savant.view.swing.Savant;
 import savant.view.swing.ViewTrack;
 
@@ -61,9 +62,9 @@ public class RecentTracksController implements ViewTrackListChangedListener {
 
         if (t.getDataSource() == null) { return; }
 
-        String path = t.getURI().getPath();
-
+        String path = t.getURI().toASCIIString();
         if (path == null) { return; }
+        path = MiscUtils.getNeatPathFromURI(t.getURI());
 
         queue.remove(path);
         resizeQueue(queue, NUM_RECENTS_TO_SAVE);

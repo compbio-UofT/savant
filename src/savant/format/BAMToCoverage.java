@@ -50,11 +50,11 @@ public class BAMToCoverage extends SavantFileFormatter {
     private long totalLength=0;
     private long previousSequencesCumulativeLength=0;
 
-    public BAMToCoverage(String inFile) throws IOException, Exception {
+    public BAMToCoverage(String inFile) throws IOException {
         this(inFile, inFile + ".cov.savant");
     }
 
-    public BAMToCoverage(String inFile, String outFile) throws IOException, Exception {
+    public BAMToCoverage(String inFile, String outFile) throws IOException {
         super(inFile,outFile,FileType.CONTINUOUS_GENERIC);
 
         log = LogFactory.getLog(BAMToCoverage.class);
@@ -74,7 +74,7 @@ public class BAMToCoverage extends SavantFileFormatter {
     }
 
     //FIXME: this code is very messy. It doesnt handle reference name = *, which occurs in many files!
-    public void format() throws InterruptedException, IOException, Exception {
+    public void format() throws InterruptedException, IOException {
 
         //DataOutputStream outfile = null;
 

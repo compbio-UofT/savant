@@ -36,6 +36,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import javax.swing.JComponent;
+import savant.view.swing.ViewTrack;
 
 public class FrameController {
 
@@ -208,10 +209,12 @@ public class FrameController {
 
     public void closeFrame(Frame frame) {
         this.hideFrame(frame);
+
         ViewTrackController vtc = ViewTrackController.getInstance();
-        for(int i = 0; i < vtc.getTracks().size(); i++){
-            vtc.removeTrack(vtc.getTrack(i));
+        for (ViewTrack t : frame.getTracks()) {
+            vtc.removeTrack(t);
         }
+
         this.frames.remove(frame);
     }
 
