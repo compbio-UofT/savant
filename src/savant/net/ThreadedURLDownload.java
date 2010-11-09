@@ -96,8 +96,9 @@ public class ThreadedURLDownload implements Runnable {
                 totalread += bytesRead;
                 if (dd != null) {
                     if (totalsize != -1) {
-                        dd.setProgress((int)(100*(totalread/totalsize)));
-                        dd.setAmountDownloaded(MiscUtils.getSophisticatedByteString(totalread) + " downloaded (" + (100*(totalread/totalsize)) + " %)");
+
+                        dd.setProgress(((int) (100*(((double)totalread)/totalsize))));
+                        dd.setAmountDownloaded(MiscUtils.getSophisticatedByteString(totalread) + " downloaded (" +  ((int) (100*(((double)totalread)/totalsize))) + " %)");
                     } else {
 
                         dd.setAmountDownloaded(MiscUtils.getSophisticatedByteString(totalread) + " downloaded");

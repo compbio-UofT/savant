@@ -152,6 +152,7 @@ public class DownloadDialog extends javax.swing.JDialog {
     }
 
     public void setSource(String arg) {
+        this.setTitle("Downloading " + arg);
         this.l_currentfilename.setText(arg);
     }
 

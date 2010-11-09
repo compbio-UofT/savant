@@ -245,23 +245,25 @@ public class MiscUtils {
      public static double roundToSignificantDigits(double num, int n) {
         if(num == 0) {
             return 0;
+        } else if (n == 0) {
+            return Math.round(num);
         }
 
-        final double d = Math.ceil(Math.log10(num < 0 ? -num: num));
-        final int power = n - (int) d;
-
-        final double magnitude = Math.pow(10, power);
-        final long shifted = Math.round(num*magnitude);
-        return shifted/magnitude;
+        String s = num + "";
+        int index = s.indexOf(".");
+        while (n >= s.length() - index) {
+            s = s + "0";
+        }
+        return Double.parseDouble(s.substring(0,index+n+1));
     }
 
     public static String getSophisticatedByteString(long bytes) {
         if (bytes < 1000) {
             return bytes + " KB";
         } else if (bytes < 1000000000) {
-            return roundToSignificantDigits(((double) bytes/1000000),2) + " MB";
+            return roundToSignificantDigits(((double) bytes/1000000),1) + " MB";
         } else {
-            return roundToSignificantDigits(((double) bytes/1000000000),3) + " GB";
+            return roundToSignificantDigits(((double) bytes/1000000000),2) + " GB";
         }
     }
 
