@@ -33,13 +33,13 @@
                       </Group>
                       <EmptySpace type="unrelated" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="l_currentfilename" min="-2" max="-2" attributes="0"/>
-                          <Component id="l_destination" min="-2" max="-2" attributes="0"/>
+                          <Component id="l_currentfilename" min="-2" pref="329" max="-2" attributes="0"/>
+                          <Component id="l_destination" alignment="0" min="-2" pref="329" max="-2" attributes="0"/>
                       </Group>
                   </Group>
-                  <Component id="progress" alignment="0" pref="407" max="32767" attributes="0"/>
+                  <Component id="progress" alignment="0" min="-2" pref="407" max="-2" attributes="0"/>
                   <Component id="b_cancel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="l_amount" alignment="0" min="-2" max="-2" attributes="0"/>
+                  <Component id="l_amount" alignment="0" min="-2" pref="407" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
           </Group>

@@ -99,11 +99,11 @@ public class DownloadDialog extends javax.swing.JDialog {
                             .addComponent(jLabel2))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(l_currentfilename)
-                            .addComponent(l_destination)))
-                    .addComponent(progress, javax.swing.GroupLayout.DEFAULT_SIZE, 407, Short.MAX_VALUE)
+                            .addComponent(l_currentfilename, javax.swing.GroupLayout.PREFERRED_SIZE, 329, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(l_destination, javax.swing.GroupLayout.PREFERRED_SIZE, 329, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addComponent(progress, javax.swing.GroupLayout.PREFERRED_SIZE, 407, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(b_cancel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(l_amount))
+                    .addComponent(l_amount, javax.swing.GroupLayout.PREFERRED_SIZE, 407, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
