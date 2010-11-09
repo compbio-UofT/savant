@@ -79,19 +79,29 @@ public class ThreadedURLDownload implements Runnable {
             out = new FileOutputStream(destFile.getAbsolutePath());
 
             HttpURLConnection httpConn = (HttpURLConnection) u.openConnection();
-            int totalsize = httpConn.getContentLength();
+            long totalsize = httpConn.getContentLength();
+            if (totalsize == -1) {
+                dd.getProgressBar().setIndeterminate(true);
+            }
+
+            System.out.println("Length of " + u.getPath() + ": " + totalsize);
 
             in = u.openStream();
 
             byte[] buf = new byte[1000 * 1024]; // 1000K buffer
             int bytesRead;
-            int totalread = 0;
+            long totalread = 0;
             while ((bytesRead = in.read(buf)) != -1) {
                 out.write(buf, 0, bytesRead);
                 totalread += bytesRead;
                 if (dd != null) {
-                    dd.setProgress(((totalread*100)/totalsize));
-                    dd.setAmountDownloaded(totalread + " Kb downloaded (" + ((totalread*100)/totalsize) + " %)");
+                    if (totalsize != -1) {
+                        dd.setProgress((int)(100*(totalread/totalsize)));
+                        dd.setAmountDownloaded(MiscUtils.getSophisticatedByteString(totalread) + " downloaded (" + (100*(totalread/totalsize)) + " %)");
+                    } else {
+
+                        dd.setAmountDownloaded(MiscUtils.getSophisticatedByteString(totalread) + " downloaded");
+                    }
                 }
                 if (Thread.interrupted()) {
                     return false;
