@@ -16,6 +16,8 @@
 
 package savant.format;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import savant.file.*;
@@ -35,6 +37,8 @@ import java.util.*;
 public class DataFormatter /* implements FormatProgressListener */ {
 
     private static Log log = LogFactory.getLog(DataFormatter.class);
+
+    private SavantFileFormatter sff;
 
     /**
      * VARIABLES
@@ -183,7 +187,7 @@ public class DataFormatter /* implements FormatProgressListener */ {
             }
         }
         finally {
-            //deleteTmpOutputFile();
+            //deleteOutputFiles();
             //this.setProgress(false, 100);
         }
 
@@ -211,7 +215,7 @@ public class DataFormatter /* implements FormatProgressListener */ {
     private void formatAsSequenceFasta() throws IOException, InterruptedException, SavantFileFormattingException {
         FastaFormatter ff = new FastaFormatter(this.inPath, this.outPath);
         subscribeProgressListeners(ff, this.progressListeners);
-        ff.format();
+        runFormatter(ff);
         unsubscribeProgressListeners(ff, this.progressListeners);
     }
 
@@ -219,10 +223,10 @@ public class DataFormatter /* implements FormatProgressListener */ {
      * CONTINUOUS : GENERIC
      * @return
      */
-    private void formatAsContinuousGeneric() throws IOException, InterruptedException {
+    private void formatAsContinuousGeneric() throws IOException, InterruptedException, SavantFileFormattingException {
         ContinuousGenericFormatter cgf = new ContinuousGenericFormatter(this.inPath, this.outPath);
         subscribeProgressListeners(cgf, this.progressListeners);
-        cgf.format();
+        runFormatter(cgf);
         unsubscribeProgressListeners(cgf, this.progressListeners);
     }
 
@@ -230,10 +234,10 @@ public class DataFormatter /* implements FormatProgressListener */ {
      * CONTINUOUS : WIG
      * @return
      */
-    private void formatAsContinuousWIG() throws IOException, InterruptedException, ParseException {
+    private void formatAsContinuousWIG() throws IOException, InterruptedException, ParseException, SavantFileFormattingException {
         WIGFormatter wtc = new WIGFormatter(this.inPath, this.outPath);
         subscribeProgressListeners(wtc, this.progressListeners);
-        wtc.format();
+        runFormatter(wtc);
         unsubscribeProgressListeners(wtc, this.progressListeners);
     }
 
@@ -241,18 +245,17 @@ public class DataFormatter /* implements FormatProgressListener */ {
      * CONTINUOUS : BAM
      * @return
      */
-    private void formatAsBAM() throws IOException, InterruptedException {
+    private void formatAsBAM() throws IOException, InterruptedException, SavantFileFormattingException {
             BAMToCoverage btc = new BAMToCoverage(this.inPath);
             subscribeProgressListeners(btc, this.progressListeners);
-            btc.format();
+            runFormatter(btc);
             unsubscribeProgressListeners(btc, this.progressListeners);
-        
     }
 
     /*
      * INTERVAL
      */
-    private void formatAsInterval(String type) throws IOException, InterruptedException {
+    private void formatAsInterval(String type) throws IOException, InterruptedException, SavantFileFormattingException {
         IntervalFormatter inf;
 
         if(type.equals("GEN")){
@@ -272,7 +275,7 @@ public class DataFormatter /* implements FormatProgressListener */ {
 
         log.info("Beginning formatting");
 
-        inf.format();
+        runFormatter(inf);
 
         log.info("Formatting complete");
 
@@ -284,10 +287,10 @@ public class DataFormatter /* implements FormatProgressListener */ {
      * @return
      * @throws IOException
      */
-    private void formatAsPointGeneric() throws IOException, InterruptedException {
+    private void formatAsPointGeneric() throws IOException, InterruptedException, SavantFileFormattingException {
         PointGenericFormatter pgf = new PointGenericFormatter(this.inPath, this.outPath, this.baseOffset);
         subscribeProgressListeners(pgf, this.progressListeners);
-        pgf.format();
+        runFormatter(pgf);
         unsubscribeProgressListeners(pgf, this.progressListeners);
     }
 
@@ -527,5 +530,10 @@ public class DataFormatter /* implements FormatProgressListener */ {
         for (FormatProgressListener listener : progressListeners) {
             ff.removeProgressListener(listener);
         }
+    }
+
+    private void runFormatter(SavantFileFormatter ff) throws IOException, InterruptedException, SavantFileFormattingException {
+        sff = ff;
+        ff.format();
     }
 }

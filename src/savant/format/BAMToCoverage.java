@@ -74,6 +74,7 @@ public class BAMToCoverage extends SavantFileFormatter {
     }
 
     //FIXME: this code is very messy. It doesnt handle reference name = *, which occurs in many files!
+    @Override
     public void format() throws InterruptedException, IOException {
 
         //DataOutputStream outfile = null;

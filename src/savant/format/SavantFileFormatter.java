@@ -27,7 +27,7 @@ import savant.file.SavantROFile;
 import savant.settings.DirectorySettings;
 import savant.util.MiscUtils;
 
-public class SavantFileFormatter {
+public abstract class SavantFileFormatter {
 
     /* LOG */
 
@@ -126,6 +126,8 @@ public class SavantFileFormatter {
     }
      * 
      */
+
+    public abstract void format() throws InterruptedException, IOException, SavantFileFormattingException;
 
     public void setSubtaskProgressAndStatus(Integer progress, String status) {
         fireStatusProgressUpdate(makePercentage(progress),status);

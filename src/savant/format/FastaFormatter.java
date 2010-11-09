@@ -22,7 +22,6 @@ import java.util.StringTokenizer;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import savant.file.FileType;
-import savant.util.MiscUtils;
 
 public class FastaFormatter extends SavantFileFormatter{
 
@@ -34,6 +33,7 @@ public class FastaFormatter extends SavantFileFormatter{
         super(inFile, outFile, FileType.SEQUENCE_FASTA);
     }
 
+    @Override
     public void format() throws IOException, InterruptedException, SavantFileFormattingException{
 
         // set the input file size (for tracking progress)

@@ -42,7 +42,7 @@ public class WIGFormatter extends SavantFileFormatter {
         if (s != null) byteCount += s.getBytes().length;
     }
 
-    public void format() throws InterruptedException, ParseException, IOException {
+    public void format() throws InterruptedException, IOException {
 
         fields = new ArrayList<FieldType>();
         fields.add(FieldType.FLOAT);
@@ -111,7 +111,7 @@ public class WIGFormatter extends SavantFileFormatter {
                         if(tokens.length < 2){
                             this.closeOutputStreams();
                             this.deleteOutputStreams();
-                            throw new ParseException("Error parsing file (variableStep line)", 0);
+                            throw new IOException("Error parsing file (variableStep line)");
                         }
 
                         String sectok = tokens[1];
@@ -130,7 +130,7 @@ public class WIGFormatter extends SavantFileFormatter {
                         if(tokens.length < 4){
                             this.closeOutputStreams();
                             this.deleteOutputStreams();
-                            throw new ParseException("Error parsing file (fixedStep line)", 0);
+                            throw new IOException("Error parsing file (fixedStep line)");
                         }
                         mode = "fixed";
                         
@@ -169,7 +169,7 @@ public class WIGFormatter extends SavantFileFormatter {
                         if (tokens.length < 2){
                             this.closeOutputStreams();
                             this.deleteOutputStreams();
-                            throw new ParseException("Error parsing file (too few tokens on variable line)", 0);
+                            throw new IOException("Error parsing file (too few tokens on variable line)");
                         }
 
                         int dest = Integer.parseInt(tokens[0]);
@@ -194,7 +194,7 @@ public class WIGFormatter extends SavantFileFormatter {
                     } else if (mode.equals("none")){
                         this.closeOutputStreams();
                         this.deleteOutputStreams();
-                        throw new ParseException("Error parsing file (no format line)", 0);
+                        throw new IOException("Error parsing file (no format line)");
                     }
 
                     strLine = inFileReader.readLine();

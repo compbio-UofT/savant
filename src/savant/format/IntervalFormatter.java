@@ -19,7 +19,6 @@ package savant.format;
 
 import savant.file.FieldType;
 import savant.file.FileType;
-import savant.file.SavantUnsupportedVersionException;
 import savant.util.Range;
 
 import java.io.*;
@@ -200,7 +199,7 @@ public class IntervalFormatter extends SavantFileFormatter {
             refnames.add(refname);
 
             // make and save path to tmp output files
-            String outPath = DirectorySettings.getFormatDirectory() + System.getProperty("file.separator") + (new File(inFilePath)).getName() + ".part_" + refname;
+            String outPath = DirectorySettings.getTmpDirectory() + System.getProperty("file.separator") + (new File(inFilePath)).getName() + ".part_" + refname;
 
             String indexPath = outPath + indexExtension;
             refnameToDataFileNameMap.put(refname, outPath);

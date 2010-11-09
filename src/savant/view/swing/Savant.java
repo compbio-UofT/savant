@@ -351,6 +351,8 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
 
         loadPreferences();
 
+        removeTmpFiles();
+
         addComponentListener(new ComponentAdapter() {
 
             /**
@@ -1616,6 +1618,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
                 options[1]);
 
         if (answer == JOptionPane.YES_OPTION) {
+            cleanUpBeforeExit();
             System.exit(0);
         }
     }
@@ -2640,6 +2643,16 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
        // trackDockingManager.setShowInitial(false);
         auxDockingManager.loadLayoutData();
         trackDockingManager.loadLayoutData();
+    }
+
+    private void cleanUpBeforeExit() {
+        removeTmpFiles();
+    }
+
+    private void removeTmpFiles() {
+        for (File f : ((new File(DirectorySettings.getTmpDirectory())).listFiles())) {
+            f.delete();
+        }
     }
 
     public enum LOGMODE {
