@@ -36,7 +36,7 @@ public class ProjectHandler implements
     private boolean isOpenProjectSaved = true;
     private String openProjectPath = null;
     private String untitledProjectPath = DirectorySettings.getProjectsDirectory() + System.getProperty("file.separator") + "UntitledProject.svp";
-    private final String UNSAVEDINDICATOR = "(unsaved)";
+    private final String UNSAVEDINDICATOR = "*";
     private boolean isLoading = false;
 
     public ProjectHandler() {

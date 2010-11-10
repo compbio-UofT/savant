@@ -26,6 +26,7 @@ import savant.view.dialog.GenomeLengthForm.BuildInfo;
 import savant.view.dialog.GenomeLengthForm.ReferenceInfo;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
@@ -37,7 +38,7 @@ import savant.view.swing.sequence.SequenceViewTrack;
  *
  * @author mfiume, vwilliams
  */
-public class Genome
+public class Genome implements Serializable
 {
     private String name;
     //private String filename; // set, if any
