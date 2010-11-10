@@ -272,4 +272,10 @@ public class MiscUtils {
          String neatpath = uglypath.replace("file:/", "");
          return neatpath;
      }
+
+    public static String getNeatPathFromString(String s) {
+        String uglypath = s;
+        String neatpath = uglypath.replace("file:/", "");
+        return neatpath;
+    }
 }

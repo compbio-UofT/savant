@@ -139,7 +139,8 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
 
         if (tracks != null && tracks.size() > 0) {
             Frame frame = null;
-            DockableFrame df = DockableFrameFactory.createTrackFrame(MiscUtils.getFilenameFromPath(selectedFileName));
+            DockableFrame df = DockableFrameFactory.createTrackFrame(MiscUtils.getNeatPathFromString(selectedFileName));
+                    //MiscUtils.getFilenameFromPath(selectedFileName));
             JPanel panel = (JPanel) df.getContentPane();
             if (!tracks.isEmpty()) {
 
@@ -2392,7 +2393,8 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         ReferenceController.getInstance().setGenome(genome);
 
         if (genome.isSequenceSet()) {
-            DockableFrame df = DockableFrameFactory.createGenomeFrame(MiscUtils.getFilenameFromPath(filename));
+            DockableFrame df = DockableFrameFactory.createGenomeFrame(MiscUtils.getNeatPathFromString(filename));
+                    //MiscUtils.getFilenameFromPath(filename));
             JPanel panel = (JPanel) df.getContentPane();
             List<ViewTrack> tracks = new ArrayList<ViewTrack>();
             tracks.add(genome.getViewTrack());

@@ -51,7 +51,7 @@ public class DockableFrameFactory {
 
         numTracks++;
         
-        final DockableFrame frame = new DockableFrame(numTracks + ". " + name, SavantIconFactory.getInstance().getIcon(SavantIconFactory.StandardIcon.TRACK));
+        final DockableFrame frame = new DockableFrame(/*numTracks + ". " +*/ name, SavantIconFactory.getInstance().getIcon(SavantIconFactory.StandardIcon.TRACK));
         frame.setInitIndex(numTracks);
         if (allowClose) {
             frame.setAvailableButtons(DockableFrame.BUTTON_AUTOHIDE | DockableFrame.BUTTON_FLOATING | DockableFrame.BUTTON_MAXIMIZE | DockableFrame.BUTTON_CLOSE );
