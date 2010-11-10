@@ -15,6 +15,8 @@
  */
 package savant.view.swing;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -201,6 +203,11 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         trackDockingManager.getWorkspace().setBackground(Color.red);
         trackDockingManager.setInitNorthSplit(JideSplitPane.VERTICAL_SPLIT);
         //trackDockingManager.loadLayoutData();
+
+        auxDockingManager.setShowInitial(false);
+        trackDockingManager.setShowInitial(false);
+        auxDockingManager.loadLayoutData();
+        trackDockingManager.loadLayoutData();
 
         rangeSelector = new RangeSelectionPanel();
         rangeSelector.setPreferredSize(new Dimension(10000, 23));
@@ -400,20 +407,15 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
 
         s.setStatus("Organizing layout");
 
-        loadLayoutData();
-
         displayAuxPanels();
 
         if (turnExperimentalFeaturesOff) {
             disableExperimentalFeatures();
         }
 
-        s.setStatus("Initialization complete");
         s.setVisible(false);
 
-
-        // auxDockingManager.setShowInitial(true);
-        // trackDockingManager.setShowInitial(true);
+        makeGUIVisible();
     }
 
     private void initXMLTools() {
@@ -2645,13 +2647,6 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         menu_plugins.add(cb);
     }
 
-    private void loadLayoutData() {
-        // auxDockingManager.setShowInitial(false);
-        // trackDockingManager.setShowInitial(false);
-        auxDockingManager.loadLayoutData();
-        trackDockingManager.loadLayoutData();
-    }
-
     private void cleanUpBeforeExit() {
         removeTmpFiles();
     }
@@ -2664,6 +2659,13 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
 
     private void initGUIHandlers() {
         this.projectHandler = new ProjectHandler();
+    }
+
+    private void makeGUIVisible() {
+        auxDockingManager.showInitial();
+        trackDockingManager.showInitial();
+
+        this.setExtendedState(this.getExtendedState() | this.MAXIMIZED_BOTH);
     }
 
     public enum LOGMODE {
