@@ -30,7 +30,7 @@ public class DirectorySettings {
     private static String formatDir;
     private static String pluginsDir;
     private static String XMLToolsDir;
-    private static String sessionsDir;
+    private static String projectsDir;
 
     public static String getSavantDirectory() {
         if (SAVANT_DIR == null) {
@@ -65,18 +65,18 @@ public class DirectorySettings {
         return formatDir;
     }
 
-    public static String getSessionsDirectory() {
-        if(sessionsDir == null){
+    public static String getProjectsDirectory() {
+        if(projectsDir == null){
             //String home = System.getProperty("user.home");
             String home = getSavantDirectory();
             String fileSeparator = System.getProperty("file.separator");
-            sessionsDir = home + fileSeparator + "sessions";
-            File dir = new File(sessionsDir);
+            projectsDir = home + fileSeparator + "projects";
+            File dir = new File(projectsDir);
             if (!dir.exists()) {
                 dir.mkdirs();
             }
         }
-        return sessionsDir;
+        return projectsDir;
     }
 
     public static void setFormatDirectory(String dir) {

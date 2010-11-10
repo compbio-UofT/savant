@@ -1,5 +1,5 @@
 /*
- *    Copyright 2009-2010 University of Toronto
+ *    Copyright 2010 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -14,29 +14,28 @@
  *    limitations under the License.
  */
 
-package savant.controller.event.viewtrack;
-
-import savant.view.swing.ViewTrack;
-
-import java.util.EventObject;
-import java.util.List;
-
-/**
- *
- * @author mfiume
+/*
+ * SavantFileNotFormattedException.java
+ * Created on Sep 8, 2010
  */
-public class ViewTrackListChangedEvent extends EventObject {
 
-    private List<ViewTrack> tracks;
+package savant.exception;
 
-    public ViewTrackListChangedEvent( Object source, List<ViewTrack> tracks ) {
-        super( source );
-        this.tracks = tracks;
+public class SavantEmptySessionException extends Exception {
+
+    public SavantEmptySessionException() {
+        super();
     }
 
-    public List<ViewTrack> getTracks() {
-        return tracks;
+    public SavantEmptySessionException(String msg) {
+        super(msg);
     }
 
+    public SavantEmptySessionException(String msg, Throwable t) {
+        super(msg, t);
+    }
+
+    public SavantEmptySessionException(Throwable t) {
+        super(t);
+    }
 }
-

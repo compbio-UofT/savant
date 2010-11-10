@@ -16,40 +16,42 @@ import java.io.IOException;
 import java.util.LinkedList;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import savant.view.swing.Savant;
 
 /**
  *
  * @author mfiume
  */
-public class RecentSessionController {
+public class RecentProjectsController {
 
-    private final String FILENAME = ".recent_tracks";
+    private final String FILENAME = ".recent_projects";
     private final int NUM_RECENTS_TO_SAVE = 10;
 
     JMenu menu;
     LinkedList<String> queue;
     File f;
     
-    private static RecentSessionController instance;
+    private static RecentProjectsController instance;
 
-    public static RecentSessionController getInstance() throws IOException {
+    public static RecentProjectsController getInstance() throws IOException {
         if (instance == null) {
-            instance = new RecentSessionController();
+            instance = new RecentProjectsController();
         }
         return instance;
     }
 
-    public RecentSessionController() throws IOException {
+    public RecentProjectsController() throws IOException {
         f = new File(FILENAME);
         if (!f.exists()) { f.createNewFile(); }
         queue = new LinkedList<String>();
         menu = new JMenu();
-        menu.setText("Session ...");
+        menu.setText("Project ...");
         loadRecents(f);
         updateMenuList();
     }
 
-    public void addSessionFile(String filename) {
+    public void addProjectFile(String filename) {
         queue.remove(filename);
         resizeQueue(queue, NUM_RECENTS_TO_SAVE);
         queue.add(0,filename);
@@ -94,7 +96,11 @@ public class RecentSessionController {
 
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    SessionController.getInstance().loadSession(s, true);
+                    try {
+                        ProjectController.getInstance().loadProjectFrom(s);
+                    } catch (Exception ex) {
+                        JOptionPane.showMessageDialog(Savant.getInstance(), "Error opening project from file " + s);
+                    }
                 }
             });
             item.setText(s);

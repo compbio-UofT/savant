@@ -19,23 +19,22 @@ package savant.controller.event.viewtrack;
 import savant.view.swing.ViewTrack;
 
 import java.util.EventObject;
-import java.util.List;
 
 /**
  *
  * @author mfiume
  */
-public class ViewTrackListChangedEvent extends EventObject {
+public class ViewTrackAddedOrRemovedEvent extends EventObject {
 
-    private List<ViewTrack> tracks;
+    private ViewTrack track;
 
-    public ViewTrackListChangedEvent( Object source, List<ViewTrack> tracks ) {
+    public ViewTrackAddedOrRemovedEvent( Object source, ViewTrack track ) {
         super( source );
-        this.tracks = tracks;
+        this.track = track;
     }
 
-    public List<ViewTrack> getTracks() {
-        return tracks;
+    public ViewTrack getTrack() {
+        return track;
     }
 
 }

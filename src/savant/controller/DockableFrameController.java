@@ -7,7 +7,6 @@ package savant.controller;
 
 import com.jidesoft.docking.DockableFrame;
 import com.jidesoft.docking.DockingManager;
-import java.util.Collection;
 import java.util.List;
 import javax.swing.JOptionPane;
 
@@ -27,8 +26,6 @@ public class DockableFrameController {
     }
 
     public void closeAllDockableFrames(DockingManager dm, boolean askFirst) {
-
-        System.out.println("Closing all dockable frames");
 
         if (askFirst) {
             int response = JOptionPane.showConfirmDialog(null, "Are you sure you want to close all tracks?", "Confirm",

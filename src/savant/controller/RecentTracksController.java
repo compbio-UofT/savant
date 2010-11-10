@@ -17,8 +17,8 @@ import java.util.LinkedList;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
-import savant.controller.event.viewtrack.ViewTrackListChangedEvent;
-import savant.controller.event.viewtrack.ViewTrackListChangedListener;
+import savant.controller.event.viewtrack.ViewTrackAddedListener;
+import savant.controller.event.viewtrack.ViewTrackAddedOrRemovedEvent;
 import savant.util.MiscUtils;
 import savant.view.swing.Savant;
 import savant.view.swing.ViewTrack;
@@ -27,7 +27,7 @@ import savant.view.swing.ViewTrack;
  *
  * @author mfiume
  */
-public class RecentTracksController implements ViewTrackListChangedListener {
+public class RecentTracksController implements ViewTrackAddedListener {
 
     private static RecentTracksController instance;
 
@@ -40,7 +40,7 @@ public class RecentTracksController implements ViewTrackListChangedListener {
     private File f;
 
     public RecentTracksController() throws IOException {
-        ViewTrackController.getInstance().addTracksChangedListener(this);
+        ViewTrackController.getInstance().addTracksAddedListener(this);
         f = new File(FILENAME);
         if (!f.exists()) { f.createNewFile(); }
         queue = new LinkedList<String>();
@@ -57,8 +57,10 @@ public class RecentTracksController implements ViewTrackListChangedListener {
         return instance;
     }
 
-    public void viewTrackListChangeReceived(ViewTrackListChangedEvent event) {
-        ViewTrack t = event.getTracks().get(event.getTracks().size()-1);
+    @Override
+    public void viewTrackAddedEventReceived(ViewTrackAddedOrRemovedEvent event) {
+
+        ViewTrack t = event.getTrack();
 
         if (t.getDataSource() == null) { return; }
 
@@ -124,4 +126,6 @@ public class RecentTracksController implements ViewTrackListChangedListener {
         }
         r.close();
     }
+
+
 }

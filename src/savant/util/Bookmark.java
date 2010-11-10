@@ -5,11 +5,13 @@
 
 package savant.util;
 
+import java.io.Serializable;
+
 /**
  *
  * @author mfiume
  */
-public class Bookmark {
+public class Bookmark implements Serializable {
 
     private String reference;
     private Range range;

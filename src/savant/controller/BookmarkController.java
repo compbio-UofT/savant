@@ -45,8 +45,6 @@ public class BookmarkController {
 
     private List<BookmarksChangedListener> favoritesChangedListeners;
 
-    public boolean added = false;
-
     public static synchronized BookmarkController getInstance() {
         if (instance == null) {
             instance = new BookmarkController();
@@ -64,15 +62,13 @@ public class BookmarkController {
     }
 
     public void addBookmark(Bookmark f) {
-        added = true;
         if(this.bookmarks == null || this.bookmarks.isEmpty())this.bookmarks = new ArrayList<Bookmark>();
-        Savant.log("Bookmark added", Savant.LOGMODE.NORMAL);
         this.bookmarks.add(f);
         this.fireBookmarksChangedEvent("Bookmark added at " + f.getReference() + ": " +  f.getRange());
     }
 
     public void addBookmarkSilent(Bookmark f){
-        if(!added)this.bookmarks.add(f);
+        this.bookmarks.add(f);
     }
 
     public void removeBookmark() {

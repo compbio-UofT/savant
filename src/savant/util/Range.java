@@ -15,13 +15,15 @@
  */
 package savant.util;
 
+import java.io.Serializable;
+
 /**
  * Utility class for storing any type of range.  For generality, the values
  * are all stored as longs.
  *
  * @author mfiume
  */
-public final class Range
+public final class Range implements Serializable
 {
     private long from;
     private long to;
