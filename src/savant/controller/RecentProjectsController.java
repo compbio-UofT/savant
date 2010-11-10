@@ -17,6 +17,7 @@ import java.util.LinkedList;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JSeparator;
 import savant.view.swing.Savant;
 
 /**
@@ -106,6 +107,30 @@ public class RecentProjectsController {
             item.setText(s);
             menu.add(item);
         }
+
+        menu.add(new JSeparator());
+
+        JMenuItem item = new JMenuItem();
+            item.addActionListener(new ActionListener() {
+
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    try {
+                        RecentProjectsController.getInstance().clearRecents();
+                    } catch (Exception ex) {
+                    }
+                }
+            });
+            item.setText("Clear Recents");
+            menu.add(item);
+    }
+
+    private void clearRecents() {
+        while (!queue.isEmpty()) {
+            queue.remove(0);
+        }
+        try { saveRecents(queue); } catch (IOException ex) {}
+        updateMenuList();
     }
 
 }
