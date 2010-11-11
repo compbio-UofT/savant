@@ -120,10 +120,15 @@ public class BAMViewTrack extends ViewTrack {
 
         Resolution r = getResolution(range);
         List<Object> data = null;
-        if ((getDrawMode().equals(MATE_PAIRS_MODE)) || (r == Resolution.VERY_HIGH || r == Resolution.HIGH)) {
+        boolean zoomIn = false;
+        if ((getDrawMode().equals(MATE_PAIRS_MODE) && (r == Resolution.HIGH || r == Resolution.VERY_HIGH) || r == Resolution.MEDIUM)
+                || (r == Resolution.VERY_HIGH || r == Resolution.HIGH)) {
             data = retrieveAndSaveData(reference, range);
+        } else if(getDrawMode().equals(MATE_PAIRS_MODE)){
+            zoomIn = true;
         }
         for (TrackRenderer renderer : getTrackRenderers()) {
+            renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.ZOOM_IN, zoomIn);
             boolean contains = (this.getDataSource().getReferenceNames().contains(reference) || this.getDataSource().getReferenceNames().contains(MiscUtils.homogenizeSequence(reference)));
             renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.RANGE, range);
             renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.RESOLUTION, r);
@@ -131,7 +136,7 @@ public class BAMViewTrack extends ViewTrack {
             // TODO: fix this (problem: references appear as 1 and not chr1)
             renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.REFERENCE_EXISTS, contains); //this.getTrack().getReferenceNames().contains(reference));
 
-            if (getDrawMode().getName().equals("MATE_PAIRS")) {
+            if (getDrawMode().getName().equals("MATE_PAIRS") && !zoomIn) {
                 long maxDataValue = getMaxValue(data);
                 renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.AXIS_RANGE, AxisRange.initWithRanges(range, new Range(0,(int)Math.round(maxDataValue+maxDataValue*0.1))));
                 renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.ARC_MIN, getArcSizeVisibilityThreshold());

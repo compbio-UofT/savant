@@ -112,7 +112,14 @@ public class BAMTrackRenderer extends TrackRenderer {
             GlassMessagePane.draw(g2, gp, "no data for reference", 500);
             return;
         // Don't display sequence if data is too high resolution to see.
-        } 
+        }
+
+        Boolean zoomIn = (Boolean) di.getInstruction(DrawingInstructions.InstructionName.ZOOM_IN);
+        if(zoomIn){
+            resizeFrame(gp);
+            GlassMessagePane.draw(g2, gp, "zoom in to see data", 500);
+            return;
+        }
 
         drawMode = (Mode) di.getInstruction(DrawingInstructions.InstructionName.MODE);
         Resolution r = (Resolution) di.getInstruction(DrawingInstructions.InstructionName.RESOLUTION.toString());
