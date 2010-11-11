@@ -15,7 +15,6 @@
  */
 package savant.data;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.event.MouseEvent;
 import savant.controller.ViewTrackController;
@@ -188,11 +187,6 @@ public class DataSheet implements RangeChangedListener, ViewTrackListChangedList
         table.setSurrendersFocusOnKeystroke(true);
         refreshData();
         refreshSelection();
-        /*
-        if (!tableModel.hasEmptyRow()) {
-             tableModel.addEmptyRow();
-         }
-         */
     }
 
     private void updateTrackList() {
