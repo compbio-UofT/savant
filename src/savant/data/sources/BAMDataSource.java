@@ -126,7 +126,7 @@ public class BAMDataSource implements DataSource<BAMIntervalRecord> {
         
         //this.sequenceName = guessSequence(path, index);
         samFileReader = new SAMFileReader(file, index);
-        samFileReader.setValidationStringency(SAMFileReader.ValidationStringency.LENIENT);
+        samFileReader.setValidationStringency(SAMFileReader.ValidationStringency.SILENT);
         samFileHeader = samFileReader.getFileHeader();
     }
 
@@ -156,7 +156,7 @@ public class BAMDataSource implements DataSource<BAMIntervalRecord> {
             throw new IllegalArgumentException("Only http:// and ftp:// URLs are supported for BAM access.");
         }
         samFileReader = new SAMFileReader(stream, index, false);
-        samFileReader.setValidationStringency(SAMFileReader.ValidationStringency.LENIENT);
+        samFileReader.setValidationStringency(SAMFileReader.ValidationStringency.SILENT);
         samFileHeader = samFileReader.getFileHeader();
     }
 
