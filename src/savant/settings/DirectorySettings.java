@@ -31,6 +31,7 @@ public class DirectorySettings {
     private static String pluginsDir;
     private static String XMLToolsDir;
     private static String projectsDir;
+    private static String cacheDir;
 
     public static String getSavantDirectory() {
         if (SAVANT_DIR == null) {
@@ -143,6 +144,28 @@ public class DirectorySettings {
             }
         }
         return tmpDir;
+    }
+
+    public static String getCacheDirectory() {
+        if(cacheDir == null){
+            //String home = System.getProperty("user.home");
+            String home = getSavantDirectory();
+            String fileSeparator = System.getProperty("file.separator");
+            cacheDir = home + fileSeparator + "cache";
+            File dir = new File(cacheDir);
+            if (!dir.exists()) {
+                dir.mkdirs();
+            }
+        }
+        return cacheDir;
+    }
+
+    public static void setCacheDirectory(String dir) {
+        File f = new File(dir);
+        if (!f.exists()) {
+            boolean ret = f.mkdirs();
+            if(ret) cacheDir = dir;
+        }
     }
 
 }

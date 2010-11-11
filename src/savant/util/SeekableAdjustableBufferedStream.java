@@ -28,10 +28,10 @@ import java.io.IOException;
 
 public class SeekableAdjustableBufferedStream extends SeekableStream {
 
-    private int bufferSize = 4096; // 4K
-    private BufferedInputStream bufferedStream;
-    private SeekableStream wrappedStream;
-    private long position;
+    protected int bufferSize = 4096; // 4K
+    protected BufferedInputStream bufferedStream;
+    protected SeekableStream wrappedStream;
+    protected long position;
 
     public SeekableAdjustableBufferedStream(SeekableStream seekable) {
         this.wrappedStream = seekable;

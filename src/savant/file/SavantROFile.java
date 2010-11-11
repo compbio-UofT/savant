@@ -39,6 +39,7 @@ import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import savant.util.CacheableSABS;
 
 public class SavantROFile implements ROFile {
 
@@ -124,6 +125,7 @@ public class SavantROFile implements ROFile {
         this.uri = uri.normalize();
         if (uri.getScheme().toLowerCase().equals("http"))  {
             this.seekStream = new SeekableAdjustableBufferedStream(new SeekableHTTPStream(uri.toURL()), 4096);
+            //this.seekStream = new CacheableSABS(new SeekableHTTPStream(uri.toURL()), 4096, uri);
         }
         else if (uri.getScheme().toLowerCase().equals("ftp")) {
             this.seekStream = new SeekableAdjustableBufferedStream(new SeekableFTPStream(uri.toURL()), 4096);
