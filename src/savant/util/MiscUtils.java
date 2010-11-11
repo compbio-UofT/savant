@@ -268,14 +268,22 @@ public class MiscUtils {
     }
 
     public static String getNeatPathFromURI(URI u) {
-         String uglypath = u.toASCIIString();
+        return (new File(u)).getAbsolutePath();
+        /*
+        String uglypath = u.toASCIIString();
          String neatpath = uglypath.replace("file:/", "");
          return neatpath;
+         * 
+         */
      }
 
     public static String getNeatPathFromString(String s) {
-        String uglypath = s;
+        return (new File(s)).getAbsolutePath();
+        /*
+         String uglypath = s;
         String neatpath = uglypath.replace("file:/", "");
         return neatpath;
+         * 
+         */
     }
 }

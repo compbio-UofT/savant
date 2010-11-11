@@ -34,7 +34,6 @@ import java.util.List;
 import java.util.StringTokenizer;
 import java.util.Arrays;
 
-import savant.controller.event.range.RangeChangedListener;
 import static java.awt.FileDialog.SAVE;
 
 /**
