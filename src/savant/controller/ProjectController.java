@@ -203,7 +203,12 @@ public class ProjectController {
     private Persistent getTrackPersistence() {
         List<String> trackpaths = new ArrayList<String>();
         for (ViewTrack t : ViewTrackController.getInstance().getTracks()) {
-            trackpaths.add(MiscUtils.getNeatPathFromURI(t.getURI()));
+            String path = t.getURI().toString();
+            if(t.getURI().getScheme().equals("file")){
+                path = MiscUtils.getNeatPathFromURI(t.getURI());
+            } 
+            //trackpaths.add(MiscUtils.getNeatPathFromURI(t.getURI()));
+            trackpaths.add(path);
         }
         return new Persistent(KEY_TRACKS, trackpaths);
     }
@@ -228,7 +233,12 @@ public class ProjectController {
         result[0] = new Persistent(KEY_SEQUENCESET, isSequenceSet);
 
         if (isSequenceSet) {
-            result[1] = new Persistent(KEY_GENOMEPATH, MiscUtils.getNeatPathFromURI(ReferenceController.getInstance().getGenome().getTrack().getURI()));
+            String path = ReferenceController.getInstance().getGenome().getTrack().getURI().toString();
+            if(ReferenceController.getInstance().getGenome().getTrack().getURI().getScheme().equals("file")){
+                path = MiscUtils.getNeatPathFromURI(ReferenceController.getInstance().getGenome().getTrack().getURI());
+            }
+            //result[1] = new Persistent(KEY_GENOMEPATH, MiscUtils.getNeatPathFromURI(ReferenceController.getInstance().getGenome().getTrack().getURI()));
+            result[1] = new Persistent(KEY_GENOMEPATH, path);
         } else {
             result[1] = new Persistent(KEY_GENOME, ReferenceController.getInstance().getGenome());
         }
