@@ -15,8 +15,6 @@
  */
 package savant.view.swing;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -125,6 +123,11 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
     }
 
     public void addTrackFromFile(String selectedFileName) throws IOException {
+
+        if (ViewTrackController.getInstance().containsTrack(selectedFileName)) {
+            JOptionPane.showMessageDialog(this, "This track is already loaded.");
+            return;
+        }
 
         if (!ReferenceController.getInstance().isGenomeLoaded()) {
             int result = JOptionPane.showConfirmDialog(this, "No genome is loaded yet. Load file as genome?", "No genome loaded", JOptionPane.YES_NO_OPTION);
@@ -2665,7 +2668,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         auxDockingManager.showInitial();
         trackDockingManager.showInitial();
 
-        this.setExtendedState(this.getExtendedState() | this.MAXIMIZED_BOTH);
+        //this.setExtendedState(this.getExtendedState() | this.MAXIMIZED_BOTH);
     }
 
     public enum LOGMODE {

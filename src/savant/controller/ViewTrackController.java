@@ -38,6 +38,7 @@ import java.util.List;
 import savant.controller.event.viewtrack.ViewTrackAddedListener;
 import savant.controller.event.viewtrack.ViewTrackAddedOrRemovedEvent;
 import savant.controller.event.viewtrack.ViewTrackRemovedListener;
+import savant.util.MiscUtils;
 import savant.view.swing.Savant;
 
 public class ViewTrackController {
@@ -180,5 +181,14 @@ public class ViewTrackController {
     public void closeTracks() {
         DockableFrameController.getInstance().closeAllDockableFrames(
                 Savant.getInstance().getTrackDockingManager(),false);
+    }
+
+    public boolean containsTrack(String path) {
+        for (ViewTrack t : tracks) {
+            if (MiscUtils.getNeatPathFromURI(t.getURI()).equals(path)) {
+                return true;
+            }
+        }
+        return false;
     }
 }
