@@ -2,6 +2,7 @@ package savant.view.swing;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFileChooser;
@@ -17,13 +18,14 @@ import savant.controller.event.range.RangeChangedListener;
 import savant.controller.event.viewtrack.ViewTrackListChangedEvent;
 import savant.controller.event.viewtrack.ViewTrackListChangedListener;
 import savant.exception.SavantEmptySessionException;
+import savant.file.SavantFileNotFormattedException;
+import savant.file.SavantUnsupportedVersionException;
 import savant.settings.DirectorySettings;
 
 /*
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-
 /**
  *
  * @author mfiume
@@ -33,6 +35,7 @@ public class ProjectHandler implements
         RangeChangedListener,
         ViewTrackListChangedListener {
 
+    private static ProjectHandler instance;
     private boolean isOpenProjectSaved = true;
     private String openProjectPath = null;
     private String untitledProjectPath = DirectorySettings.getProjectsDirectory() + System.getProperty("file.separator") + "UntitledProject.svp";
@@ -41,6 +44,13 @@ public class ProjectHandler implements
 
     public ProjectHandler() {
         addListeners();
+    }
+
+    public static ProjectHandler getInstance() {
+        if (instance == null) {
+            instance = new ProjectHandler();
+        }
+        return instance;
     }
 
     private void addListeners() {
@@ -63,13 +73,13 @@ public class ProjectHandler implements
     public void setProjectInfo() {
         String path = getCurrentPath();
         String base = "Savant Genome Browser - ";
-            if (isLoading) {
-                Savant.getInstance().setTitle(base + "Opening " + path + "...");
-            } else if (!isOpenProjectSaved && !isLoading) {
-                Savant.getInstance().setTitle(base + path + " " + UNSAVEDINDICATOR);
-            } else {
-                Savant.getInstance().setTitle(base + path);
-            }
+        if (isLoading) {
+            Savant.getInstance().setTitle(base + "Opening " + path + " ...");
+        } else if (!isOpenProjectSaved && !isLoading) {
+            Savant.getInstance().setTitle(base + path + " " + UNSAVEDINDICATOR);
+        } else {
+            Savant.getInstance().setTitle(base + path);
+        }
     }
 
     @Override
@@ -106,11 +116,7 @@ public class ProjectHandler implements
         if (result == JFileChooser.APPROVE_OPTION) {
             try {
                 String filename = jfc.getSelectedFile().getAbsolutePath();
-                isLoading = true;
-                openProjectPath = filename;
-                ProjectController.getInstance().loadProjectFrom(filename);
-                isLoading = false;
-                setProjectSaved(true);
+                loadProjectFrom(filename);
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(Savant.getInstance(), "Error loading project.");
             }
@@ -187,5 +193,13 @@ public class ProjectHandler implements
         } else {
             return this.openProjectPath;
         }
+    }
+
+    public void loadProjectFrom(String filename) throws IOException, URISyntaxException, SavantFileNotFormattedException, SavantUnsupportedVersionException {
+        isLoading = true;
+        openProjectPath = filename;
+        ProjectController.getInstance().loadProjectFrom(filename);
+        isLoading = false;
+        this.setProjectSaved(true);
     }
 }

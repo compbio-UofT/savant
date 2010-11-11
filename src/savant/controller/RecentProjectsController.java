@@ -18,6 +18,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JSeparator;
+import savant.view.swing.ProjectHandler;
 import savant.view.swing.Savant;
 
 /**
@@ -98,7 +99,7 @@ public class RecentProjectsController {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     try {
-                        ProjectController.getInstance().loadProjectFrom(s);
+                        ProjectHandler.getInstance().loadProjectFrom(s);
                     } catch (Exception ex) {
                         JOptionPane.showMessageDialog(Savant.getInstance(), "Error opening project from file " + s);
                     }

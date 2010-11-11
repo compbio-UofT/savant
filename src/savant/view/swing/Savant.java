@@ -2658,7 +2658,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
     }
 
     private void initGUIHandlers() {
-        this.projectHandler = new ProjectHandler();
+        this.projectHandler = ProjectHandler.getInstance();
     }
 
     private void makeGUIVisible() {
