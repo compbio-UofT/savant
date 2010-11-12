@@ -1,3 +1,19 @@
+/*
+ *    Copyright 2010 University of Toronto
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
+ */
+
 package savant.view.swing;
 
 import java.io.File;
@@ -21,11 +37,8 @@ import savant.exception.SavantEmptySessionException;
 import savant.file.SavantFileNotFormattedException;
 import savant.file.SavantUnsupportedVersionException;
 import savant.settings.DirectorySettings;
+import savant.util.MiscUtils;
 
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 /**
  *
  * @author mfiume
@@ -39,7 +52,6 @@ public class ProjectHandler implements
     private boolean isOpenProjectSaved = true;
     private String openProjectPath = null;
     private String untitledProjectPath = DirectorySettings.getProjectsDirectory() + System.getProperty("file.separator") + "UntitledProject.svp";
-    private final String UNSAVEDINDICATOR = "*";
     private boolean isLoading = false;
 
     public ProjectHandler() {
@@ -75,10 +87,8 @@ public class ProjectHandler implements
         String base = "Savant Genome Browser - ";
         if (isLoading) {
             Savant.getInstance().setTitle(base + "Opening " + path + " ...");
-        } else if (!isOpenProjectSaved && !isLoading) {
-            Savant.getInstance().setTitle(base + path + " " + UNSAVEDINDICATOR);
         } else {
-            Savant.getInstance().setTitle(base + path);
+            MiscUtils.setUnsavedTitle(Savant.getInstance(), base + path, !isOpenProjectSaved);
         }
     }
 

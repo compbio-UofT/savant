@@ -5,28 +5,43 @@
 
 package savant.util;
 
-import com.jidesoft.docking.DockableFrame;
-import com.jidesoft.docking.DockingManager;
 import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.net.URI;
 import java.text.DateFormat;
-import java.util.Set;
-import savant.view.swing.Savant;
-
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+import javax.swing.JFrame;
+
+import com.jidesoft.docking.DockableFrame;
+import com.jidesoft.docking.DockingManager;
+
+import savant.view.swing.Savant;
+
 
 /**
  *
  * @author mfiume
  */
 public class MiscUtils {
+
+    public static final boolean MAC;
+    public static final boolean WINDOWS;
+    public static final boolean LINUX;
+    public static final String UNSAVED_MARK = " *";
+
+    static {
+        String os = System.getProperty("os.name").toLowerCase();
+        MAC = os.startsWith("mac");
+        WINDOWS = os.startsWith("windows");
+        LINUX = os.contains("linux");
+    }
 
     /** [[ Miscellaneous Functions ]] */
     /**
@@ -105,10 +120,8 @@ public class MiscUtils {
     }
 
     public static String getTemporaryDirectory() {
-        String os = System.getProperty("os.name");
-
         String tmpDir;
-        if (os.toLowerCase().contains("mac") || os.toLowerCase().contains("linux")) {
+        if (MAC || LINUX) {
             tmpDir = System.getenv("TMPDIR");
             if (tmpDir != null) {
                 return tmpDir;
@@ -116,8 +129,7 @@ public class MiscUtils {
             else {
                 return "/tmp/savant";
             }
-        }
-        else {
+        } else {
             if ((tmpDir = System.getenv("TEMP")) != null) {
                 return tmpDir;
             }
@@ -146,7 +158,7 @@ public class MiscUtils {
      * Translate a (genome) position to a pixel
      * @param position genome position, first base is 1
      * @param widthOfComponent The width of the component in which the pixel occurs
-     * @param positionalRange The (genome) range the componentn applies to
+     * @param positionalRange The (genome) range the component applies to
      * @return The pixel represented by the position
      */
     public static int transformPositionToPixel(long position, int widthOfComponent, Range positionalRange) {
@@ -285,5 +297,21 @@ public class MiscUtils {
         return neatpath;
          * 
          */
+    }
+
+    /**
+     * Set the title of a window to reflect whether it is saved or not.  On Windows
+     * and Linux, this appends an asterisk to the title of an unsaved document; on
+     * Mac, it puts a dot inside the close-button.
+     * @param f
+     * @param unsaved
+     */
+    public static void setUnsavedTitle(JFrame f, String title, boolean unsaved) {
+        f.getRootPane().putClientProperty("Window.documentModified", unsaved);
+        if (!MAC && unsaved) {
+            f.setTitle(title + UNSAVED_MARK);
+        } else {
+            f.setTitle(title);
+        }
     }
 }
