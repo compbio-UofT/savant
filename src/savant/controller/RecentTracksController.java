@@ -18,6 +18,8 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JSeparator;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import savant.controller.event.viewtrack.ViewTrackAddedListener;
 import savant.controller.event.viewtrack.ViewTrackAddedOrRemovedEvent;
 import savant.util.MiscUtils;
@@ -29,6 +31,7 @@ import savant.view.swing.ViewTrack;
  * @author mfiume
  */
 public class RecentTracksController implements ViewTrackAddedListener {
+    private static final Log LOG = LogFactory.getLog(RecentTracksController.class);
 
     private static RecentTracksController instance;
 
@@ -45,10 +48,7 @@ public class RecentTracksController implements ViewTrackAddedListener {
         f = new File(FILENAME);
         if (!f.exists()) { f.createNewFile(); }
         queue = new LinkedList<String>();
-        menu = new JMenu();
-        menu.setText("Track ...");
         loadRecents(f);
-        updateMenuList();
     }
 
     public static RecentTracksController getInstance() throws IOException {
@@ -78,8 +78,7 @@ public class RecentTracksController implements ViewTrackAddedListener {
         updateMenuList();
         
         try { saveRecents(queue); } catch (IOException ex) {
-            System.err.println("Could not save recents to file");
-            ex.printStackTrace();
+            LOG.error("Could not save recents to file", ex);
         }
     }
 
@@ -89,8 +88,9 @@ public class RecentTracksController implements ViewTrackAddedListener {
         }
     }
 
-    public JMenu getMenu() {
-        return menu;
+    public void populateMenu(JMenu m) {
+        menu = m;
+        updateMenuList();
     }
 
     private void updateMenuList() {
@@ -98,7 +98,7 @@ public class RecentTracksController implements ViewTrackAddedListener {
         for (final String s : queue) {
             JMenuItem item = new JMenuItem();
             item.addActionListener(new ActionListener() {
-
+                @Override
                 public void actionPerformed(ActionEvent e) {
                     try {
                         Savant.getInstance().addTrackFromFile(s);
@@ -154,6 +154,4 @@ public class RecentTracksController implements ViewTrackAddedListener {
         }
         r.close();
     }
-
-
 }

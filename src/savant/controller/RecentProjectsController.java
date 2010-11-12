@@ -27,6 +27,7 @@ import savant.view.swing.Savant;
  */
 public class RecentProjectsController {
 
+
     private final String FILENAME = ".recent_projects";
     private final int NUM_RECENTS_TO_SAVE = 10;
 
@@ -47,10 +48,7 @@ public class RecentProjectsController {
         f = new File(FILENAME);
         if (!f.exists()) { f.createNewFile(); }
         queue = new LinkedList<String>();
-        menu = new JMenu();
-        menu.setText("Project ...");
         loadRecents(f);
-        updateMenuList();
     }
 
     public void addProjectFile(String filename) {
@@ -86,8 +84,9 @@ public class RecentProjectsController {
         r.close();
     }
 
-    public JMenu getMenu() {
-        return menu;
+    public void populateMenu(JMenu m) {
+        menu = m;
+        updateMenuList();
     }
 
      private void updateMenuList() {

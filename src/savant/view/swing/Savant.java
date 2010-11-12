@@ -457,32 +457,32 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         panel_toolbar = new javax.swing.JPanel();
         menuBar_top = new javax.swing.JMenuBar();
         menuitem_file = new javax.swing.JMenu();
-        menu_load = new javax.swing.JMenu();
         openGenomeItem = new javax.swing.JMenuItem();
         openTrackFromFileItem = new javax.swing.JMenuItem();
         openTrackFromURLItem = new javax.swing.JMenuItem();
-        menuitem_loadsession = new javax.swing.JMenuItem();
-        menuitem_savesession = new javax.swing.JMenuItem();
-        menuitem_savesessionas = new javax.swing.JMenuItem();
-        jSeparator9 = new javax.swing.JPopupMenu.Separator();
-        menu_recent = new javax.swing.JMenu();
-        javax.swing.JPopupMenu.Separator jSeparator10 = new javax.swing.JPopupMenu.Separator();
-        menuItemFormat = new javax.swing.JMenuItem();
-        submenu_download = new javax.swing.JMenu();
+        recentTrackMenu = new javax.swing.JMenu();
+        javax.swing.JPopupMenu.Separator jSeparator1 = new javax.swing.JPopupMenu.Separator();
+        openProjectItem = new javax.swing.JMenuItem();
+        recentProjectMenu = new javax.swing.JMenu();
+        saveProjectItem = new javax.swing.JMenuItem();
+        saveProjectAsItem = new javax.swing.JMenuItem();
+        javax.swing.JPopupMenu.Separator jSeparator2 = new javax.swing.JPopupMenu.Separator();
+        formatItem = new javax.swing.JMenuItem();
+        downloadMenu = new javax.swing.JMenu();
         menuitem_preformatted = new javax.swing.JMenuItem();
         menuitem_ucsc = new javax.swing.JMenuItem();
         menuitem_thousandgenomes = new javax.swing.JMenuItem();
-        jSeparator3 = new javax.swing.JPopupMenu.Separator();
+        javax.swing.JPopupMenu.Separator jSeparator3 = new javax.swing.JPopupMenu.Separator();
         javax.swing.JMenuItem exportItem = new javax.swing.JMenuItem();
         jSeparator4 = new javax.swing.JPopupMenu.Separator();
-        menuitem_exit = new javax.swing.JMenuItem();
+        exitItem = new javax.swing.JMenuItem();
         menu_edit = new javax.swing.JMenu();
         menuitem_undo = new javax.swing.JMenuItem();
         menuitem_redo = new javax.swing.JMenuItem();
-        javax.swing.JPopupMenu.Separator jSeparator2 = new javax.swing.JPopupMenu.Separator();
+        javax.swing.JPopupMenu.Separator jSeparator6 = new javax.swing.JPopupMenu.Separator();
         menuItemAddToFaves = new javax.swing.JMenuItem();
         menuitem_deselectall = new javax.swing.JMenuItem();
-        jSeparator8 = new javax.swing.JPopupMenu.Separator();
+        jSeparator7 = new javax.swing.JPopupMenu.Separator();
         menuitem_preferences = new javax.swing.JMenuItem();
         menu_view = new javax.swing.JMenu();
         menuItemPanLeft = new javax.swing.JMenuItem();
@@ -491,7 +491,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         menuItemZoomOut = new javax.swing.JMenuItem();
         menuItemShiftStart = new javax.swing.JMenuItem();
         menuItemShiftEnd = new javax.swing.JMenuItem();
-        javax.swing.JSeparator jSeparator5 = new javax.swing.JSeparator();
+        javax.swing.JSeparator jSeparator8 = new javax.swing.JSeparator();
         menuitem_aim = new javax.swing.JCheckBoxMenuItem();
         menuitem_view_plumbline = new javax.swing.JCheckBoxMenuItem();
         menuitem_view_spotlight = new javax.swing.JCheckBoxMenuItem();
@@ -502,18 +502,18 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         menuItem_viewtoolbar = new javax.swing.JCheckBoxMenuItem();
         menuitem_statusbar = new javax.swing.JCheckBoxMenuItem();
         speedAndEfficiencyItem = new javax.swing.JCheckBoxMenuItem();
-        javax.swing.JSeparator jSeparator1 = new javax.swing.JSeparator();
+        javax.swing.JSeparator jSeparator9 = new javax.swing.JSeparator();
         menuitem_startpage = new javax.swing.JCheckBoxMenuItem();
         menuitem_tools = new javax.swing.JCheckBoxMenuItem();
         menu_bookmarks = new javax.swing.JCheckBoxMenuItem();
         menu_plugins = new javax.swing.JMenu();
         menuitem_pluginmanager = new javax.swing.JMenuItem();
-        jSeparator7 = new javax.swing.JPopupMenu.Separator();
+        jSeparator10 = new javax.swing.JPopupMenu.Separator();
         menu_help = new javax.swing.JMenu();
         userManualItem = new javax.swing.JMenuItem();
         tutorialsItem = new javax.swing.JMenuItem();
         javax.swing.JMenuItem checkForUpdatesItem = new javax.swing.JMenuItem();
-        javax.swing.JSeparator jSeparator6 = new javax.swing.JSeparator();
+        javax.swing.JSeparator jSeparator11 = new javax.swing.JSeparator();
         websiteItem = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -594,79 +594,78 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
 
         menuitem_file.setText("File");
 
-        menu_load.setText("Open");
-
         openGenomeItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_G, java.awt.event.InputEvent.CTRL_MASK));
-        openGenomeItem.setText("Genome");
+        openGenomeItem.setText("Open Genome...");
         openGenomeItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 openGenomeItemActionPerformed(evt);
             }
         });
-        menu_load.add(openGenomeItem);
+        menuitem_file.add(openGenomeItem);
 
         openTrackFromFileItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_T, java.awt.event.InputEvent.CTRL_MASK));
-        openTrackFromFileItem.setText("Track from File");
+        openTrackFromFileItem.setText("Open Track from File...");
         openTrackFromFileItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 openTrackFromFileItemActionPerformed(evt);
             }
         });
-        menu_load.add(openTrackFromFileItem);
+        menuitem_file.add(openTrackFromFileItem);
 
         openTrackFromURLItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_U, java.awt.event.InputEvent.CTRL_MASK));
-        openTrackFromURLItem.setText("Track from URL");
+        openTrackFromURLItem.setText("Open Track from URL...");
         openTrackFromURLItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 openTrackFromURLItemActionPerformed(evt);
             }
         });
-        menu_load.add(openTrackFromURLItem);
+        menuitem_file.add(openTrackFromURLItem);
 
-        menuitem_file.add(menu_load);
+        recentTrackMenu.setText("Open Recent Track");
+        menuitem_file.add(recentTrackMenu);
+        menuitem_file.add(jSeparator1);
 
-        menuitem_loadsession.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_O, java.awt.event.InputEvent.CTRL_MASK));
-        menuitem_loadsession.setText("Open Project");
-        menuitem_loadsession.addActionListener(new java.awt.event.ActionListener() {
+        openProjectItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_O, java.awt.event.InputEvent.CTRL_MASK));
+        openProjectItem.setText("Open Project...");
+        openProjectItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                menuitem_loadsessionActionPerformed(evt);
+                openProjectItemActionPerformed(evt);
             }
         });
-        menuitem_file.add(menuitem_loadsession);
+        menuitem_file.add(openProjectItem);
 
-        menuitem_savesession.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_S, java.awt.event.InputEvent.CTRL_MASK));
-        menuitem_savesession.setText("Save Project");
-        menuitem_savesession.addActionListener(new java.awt.event.ActionListener() {
+        recentProjectMenu.setText("Open Recent Project");
+        menuitem_file.add(recentProjectMenu);
+
+        saveProjectItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_S, java.awt.event.InputEvent.CTRL_MASK));
+        saveProjectItem.setText("Save Project");
+        saveProjectItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                menuitem_savesessionActionPerformed(evt);
+                saveProjectItemActionPerformed(evt);
             }
         });
-        menuitem_file.add(menuitem_savesession);
+        menuitem_file.add(saveProjectItem);
 
-        menuitem_savesessionas.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_S, java.awt.event.InputEvent.SHIFT_MASK | java.awt.event.InputEvent.CTRL_MASK));
-        menuitem_savesessionas.setText("Save Project As ...");
-        menuitem_savesessionas.addActionListener(new java.awt.event.ActionListener() {
+        saveProjectAsItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_S, java.awt.event.InputEvent.SHIFT_MASK | java.awt.event.InputEvent.CTRL_MASK));
+        saveProjectAsItem.setText("Save Project As...");
+        saveProjectAsItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                menuitem_savesessionasActionPerformed(evt);
+                saveProjectAsItemActionPerformed(evt);
             }
         });
-        menuitem_file.add(menuitem_savesessionas);
-        menuitem_file.add(jSeparator9);
+        menuitem_file.add(saveProjectAsItem);
+        menuitem_file.add(jSeparator2);
 
-        menu_recent.setText("Recent ...");
-        menuitem_file.add(menu_recent);
-        menuitem_file.add(jSeparator10);
-
-        menuItemFormat.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F, java.awt.event.InputEvent.CTRL_MASK));
-        menuItemFormat.setText("Format");
-        menuItemFormat.addActionListener(new java.awt.event.ActionListener() {
+        formatItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F, java.awt.event.InputEvent.CTRL_MASK));
+        formatItem.setText("Format...");
+        formatItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                menuItemFormatActionPerformed(evt);
+                formatItemActionPerformed(evt);
             }
         });
-        menuitem_file.add(menuItemFormat);
+        menuitem_file.add(formatItem);
 
-        submenu_download.setText("Download ...");
+        downloadMenu.setText("Download");
 
         menuitem_preformatted.setText("Preformatted");
         menuitem_preformatted.addActionListener(new java.awt.event.ActionListener() {
@@ -674,7 +673,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
                 menuitem_preformattedActionPerformed(evt);
             }
         });
-        submenu_download.add(menuitem_preformatted);
+        downloadMenu.add(menuitem_preformatted);
 
         menuitem_ucsc.setText("UCSC");
         menuitem_ucsc.addActionListener(new java.awt.event.ActionListener() {
@@ -682,7 +681,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
                 menuitem_ucscActionPerformed(evt);
             }
         });
-        submenu_download.add(menuitem_ucsc);
+        downloadMenu.add(menuitem_ucsc);
 
         menuitem_thousandgenomes.setText("1000 Genomes");
         menuitem_thousandgenomes.addActionListener(new java.awt.event.ActionListener() {
@@ -690,12 +689,12 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
                 menuitem_thousandgenomesActionPerformed(evt);
             }
         });
-        submenu_download.add(menuitem_thousandgenomes);
+        downloadMenu.add(menuitem_thousandgenomes);
 
-        menuitem_file.add(submenu_download);
+        menuitem_file.add(downloadMenu);
         menuitem_file.add(jSeparator3);
 
-        exportItem.setText("Export track images");
+        exportItem.setText("Export Track Images...");
         exportItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 menuitem_exportActionPerformed(evt);
@@ -704,13 +703,13 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         menuitem_file.add(exportItem);
         menuitem_file.add(jSeparator4);
 
-        menuitem_exit.setText("Exit");
-        menuitem_exit.addActionListener(new java.awt.event.ActionListener() {
+        exitItem.setText("Exit");
+        exitItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                menuitem_exitActionPerformed(evt);
+                exitItemActionPerformed(evt);
             }
         });
-        menuitem_file.add(menuitem_exit);
+        menuitem_file.add(exitItem);
 
         menuBar_top.add(menuitem_file);
 
@@ -733,7 +732,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
             }
         });
         menu_edit.add(menuitem_redo);
-        menu_edit.add(jSeparator2);
+        menu_edit.add(jSeparator6);
 
         menuItemAddToFaves.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_D, java.awt.event.InputEvent.CTRL_MASK));
         menuItemAddToFaves.setText("Bookmark");
@@ -751,7 +750,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
             }
         });
         menu_edit.add(menuitem_deselectall);
-        menu_edit.add(jSeparator8);
+        menu_edit.add(jSeparator7);
 
         menuitem_preferences.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_P, java.awt.event.InputEvent.CTRL_MASK));
         menuitem_preferences.setText("Preferences");
@@ -819,7 +818,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
             }
         });
         menu_view.add(menuItemShiftEnd);
-        menu_view.add(jSeparator5);
+        menu_view.add(jSeparator8);
 
         menuitem_aim.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_J, java.awt.event.InputEvent.CTRL_MASK));
         menuitem_aim.setText("Crosshair");
@@ -910,7 +909,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
             }
         });
         menu_window.add(speedAndEfficiencyItem);
-        menu_window.add(jSeparator1);
+        menu_window.add(jSeparator9);
 
         menuitem_startpage.setSelected(true);
         menuitem_startpage.setText("Start Page");
@@ -950,7 +949,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
             }
         });
         menu_plugins.add(menuitem_pluginmanager);
-        menu_plugins.add(jSeparator7);
+        menu_plugins.add(jSeparator10);
 
         menuBar_top.add(menu_plugins);
 
@@ -979,7 +978,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
             }
         });
         menu_help.add(checkForUpdatesItem);
-        menu_help.add(jSeparator6);
+        menu_help.add(jSeparator11);
 
         websiteItem.setText("Website");
         websiteItem.addActionListener(new java.awt.event.ActionListener() {
@@ -1074,18 +1073,18 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         fc.addCurrentRangeToBookmarks();
     }//GEN-LAST:event_menuItemAddToFavesActionPerformed
 
-    private void menuItemFormatActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuItemFormatActionPerformed
+    private void formatItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_formatItemActionPerformed
         if (!dff.isVisible()) {
             Savant.log("Showing format form...");
             dff.clear();
             dff.setLocationRelativeTo(this);
             dff.setVisible(true);
         }
-    }//GEN-LAST:event_menuItemFormatActionPerformed
+    }//GEN-LAST:event_formatItemActionPerformed
 
-    private void menuitem_exitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuitem_exitActionPerformed
+    private void exitItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exitItemActionPerformed
         Savant.getInstance().askToDispose();
-    }//GEN-LAST:event_menuitem_exitActionPerformed
+    }//GEN-LAST:event_exitItemActionPerformed
 
     private void openGenomeItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openGenomeItemActionPerformed
         this.showOpenGenomeDialog();
@@ -1257,21 +1256,21 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         SelectionController.getInstance().removeAll();
     }//GEN-LAST:event_menuitem_deselectActionPerformed
 
-    private void menuitem_savesessionasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuitem_savesessionasActionPerformed
+    private void saveProjectAsItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveProjectAsItemActionPerformed
         projectHandler.promptUserToSaveProjectAs();
-    }//GEN-LAST:event_menuitem_savesessionasActionPerformed
+    }//GEN-LAST:event_saveProjectAsItemActionPerformed
 
-    private void menuitem_loadsessionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuitem_loadsessionActionPerformed
+    private void openProjectItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openProjectItemActionPerformed
         projectHandler.promptUserToLoadProject();
-    }//GEN-LAST:event_menuitem_loadsessionActionPerformed
+    }//GEN-LAST:event_openProjectItemActionPerformed
 
     private void checkForUpdatesItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkForUpdatesItemActionPerformed
         checkVersion(true);
     }//GEN-LAST:event_checkForUpdatesItemActionPerformed
 
-    private void menuitem_savesessionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuitem_savesessionActionPerformed
+    private void saveProjectItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveProjectItemActionPerformed
         projectHandler.promptUserToSaveSession();
-    }//GEN-LAST:event_menuitem_savesessionActionPerformed
+    }//GEN-LAST:event_saveProjectItemActionPerformed
 
     private void menuItem_viewtoolbarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuItem_viewtoolbarActionPerformed
         this.setToolBarVisibility(menuItem_viewtoolbar.isSelected());
@@ -1368,19 +1367,19 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
 
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JMenu downloadMenu;
+    private javax.swing.JMenuItem exitItem;
+    private javax.swing.JMenuItem formatItem;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JPopupMenu.Separator jSeparator3;
+    private javax.swing.JPopupMenu.Separator jSeparator10;
     private javax.swing.JPopupMenu.Separator jSeparator4;
     private javax.swing.JPopupMenu.Separator jSeparator7;
-    private javax.swing.JPopupMenu.Separator jSeparator8;
-    private javax.swing.JPopupMenu.Separator jSeparator9;
     private javax.swing.JLabel label_memory;
     private javax.swing.JLabel label_mouseposition;
     private javax.swing.JLabel label_mouseposition_title;
     private javax.swing.JLabel label_status;
     private javax.swing.JMenuBar menuBar_top;
     private javax.swing.JMenuItem menuItemAddToFaves;
-    private javax.swing.JMenuItem menuItemFormat;
     private javax.swing.JMenuItem menuItemPanLeft;
     private javax.swing.JMenuItem menuItemPanRight;
     private javax.swing.JMenuItem menuItemShiftEnd;
@@ -1392,24 +1391,18 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
     private javax.swing.JCheckBoxMenuItem menu_bookmarks;
     private javax.swing.JMenu menu_edit;
     private javax.swing.JMenu menu_help;
-    private javax.swing.JMenu menu_load;
     private javax.swing.JMenu menu_plugins;
-    private javax.swing.JMenu menu_recent;
     private javax.swing.JMenu menu_view;
     private javax.swing.JMenu menu_window;
     private javax.swing.JCheckBoxMenuItem menuitem_aim;
     private javax.swing.JMenuItem menuitem_deselectall;
-    private javax.swing.JMenuItem menuitem_exit;
     private javax.swing.JMenu menuitem_file;
     private javax.swing.JCheckBoxMenuItem menuitem_genomeview;
-    private javax.swing.JMenuItem menuitem_loadsession;
     private javax.swing.JMenuItem menuitem_pluginmanager;
     private javax.swing.JMenuItem menuitem_preferences;
     private javax.swing.JMenuItem menuitem_preformatted;
     private javax.swing.JMenuItem menuitem_redo;
     private javax.swing.JCheckBoxMenuItem menuitem_ruler;
-    private javax.swing.JMenuItem menuitem_savesession;
-    private javax.swing.JMenuItem menuitem_savesessionas;
     private javax.swing.JCheckBoxMenuItem menuitem_startpage;
     private javax.swing.JCheckBoxMenuItem menuitem_statusbar;
     private javax.swing.JMenuItem menuitem_thousandgenomes;
@@ -1419,15 +1412,19 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
     private javax.swing.JCheckBoxMenuItem menuitem_view_plumbline;
     private javax.swing.JCheckBoxMenuItem menuitem_view_spotlight;
     private javax.swing.JMenuItem openGenomeItem;
+    private javax.swing.JMenuItem openProjectItem;
     private javax.swing.JMenuItem openTrackFromFileItem;
     private javax.swing.JMenuItem openTrackFromURLItem;
     private javax.swing.JPanel panelExtendedMiddle;
     private javax.swing.JPanel panel_main;
     private javax.swing.JPanel panel_toolbar;
     private javax.swing.JPanel panel_top;
+    private javax.swing.JMenu recentProjectMenu;
+    private javax.swing.JMenu recentTrackMenu;
     private javax.swing.JToolBar.Separator s_e_sep;
+    private javax.swing.JMenuItem saveProjectAsItem;
+    private javax.swing.JMenuItem saveProjectItem;
     private javax.swing.JCheckBoxMenuItem speedAndEfficiencyItem;
-    private javax.swing.JMenu submenu_download;
     private javax.swing.JToolBar toolbar_bottom;
     private javax.swing.JMenuItem tutorialsItem;
     private javax.swing.JMenuItem userManualItem;
@@ -1468,15 +1465,15 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
 
                     @Override
                     public void handleQuitRequestWith(AppEvent.QuitEvent evt, QuitResponse resp) {
-                        menuitem_exitActionPerformed(null);
+                        exitItemActionPerformed(null);
                         // If the user agreed to quit, System.exit would have been
                         // called.  Since we got here, the user has said "No" to quitting.
                         resp.cancelQuit();
                     }
                 });
-                menuitem_file.remove(jSeparator9);
-                menuitem_file.remove(menuitem_exit);
-                menu_edit.remove(jSeparator8);
+                menuitem_file.remove(jSeparator4);
+                menuitem_file.remove(exitItem);
+                menu_edit.remove(jSeparator7);
                 menu_edit.remove(menuitem_preferences);
             } catch (Exception e) {
                 LOG.error("Unable to load Apple eAWT classes.");
@@ -1664,8 +1661,11 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         openGenomeItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_G, osSpecificModifier));
         openTrackFromFileItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_T, osSpecificModifier));
         openTrackFromURLItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_U, osSpecificModifier));
-        menuItemFormat.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F, osSpecificModifier));
-        menuitem_exit.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Q, osSpecificModifier));
+        openProjectItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_O, osSpecificModifier));
+        saveProjectItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_S, osSpecificModifier));
+        saveProjectAsItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_S, osSpecificModifier | java.awt.event.InputEvent.SHIFT_MASK));
+        formatItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F, osSpecificModifier));
+        exitItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Q, osSpecificModifier));
         menuitem_undo.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Z, osSpecificModifier));
         menuitem_redo.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Y, osSpecificModifier));
         menuItemAddToFaves.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_B, osSpecificModifier));
@@ -1685,18 +1685,15 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         menuitem_statusbar.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_S, osSpecificModifier | java.awt.event.InputEvent.SHIFT_MASK));
 
         if (!Desktop.isDesktopSupported() || !Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
-            submenu_download.setEnabled(false);
+            downloadMenu.setEnabled(false);
             tutorialsItem.setEnabled(false);
             userManualItem.setEnabled(false);
             websiteItem.setEnabled(false);
         }
         initBrowseMenu();
         try {
-            JMenu recentsMenu = RecentTracksController.getInstance().getMenu();
-            this.menu_recent.add(recentsMenu);
-
-            JMenu recentProjectsMenu = RecentProjectsController.getInstance().getMenu();
-            this.menu_recent.add(recentProjectsMenu);
+            RecentTracksController.getInstance().populateMenu(recentTrackMenu);
+            RecentProjectsController.getInstance().populateMenu(recentProjectMenu);
         } catch (IOException ex) {
             LOG.error("Unable to populate Recent Items menu.", ex);
         }
