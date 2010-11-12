@@ -72,7 +72,7 @@ public class GlassMessagePane {
         //g2.setColor(vColor);
         //g2.fillRoundRect(x, y, w, h, arc, arc);
 
-        g2.setColor(ColourSettings.colorGlassPaneBackground);
+        g2.setColor(ColourSettings.getGlassPaneBackground());
         x = (gp.getSize().width - (int)stringBounds.getWidth()) / 2;
         y = (gp.getSize().height / 2) + ((metrics.getAscent()- metrics.getDescent()) / 2);
 

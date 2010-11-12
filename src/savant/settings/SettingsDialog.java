@@ -17,21 +17,18 @@
 
 package savant.settings;
 
-
-import com.jidesoft.dialog.*;
-import com.jidesoft.plaf.LookAndFeelFactory;
-import com.jidesoft.plaf.UIDefaultsLookup;
-import com.jidesoft.swing.JideSwingUtilities;
-
-import com.jidesoft.swing.PartialEtchedBorder;
-import java.awt.event.MouseEvent;
-import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.awt.event.MouseListener;
+import java.awt.event.ActionListener;
+import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
-import savant.view.swing.Savant;
+
+import com.jidesoft.dialog.*;
+import com.jidesoft.plaf.UIDefaultsLookup;
+import com.jidesoft.swing.JideSwingUtilities;
+import com.jidesoft.swing.PartialEtchedBorder;
+
 
 public class SettingsDialog extends MultiplePageDialog {
 
@@ -72,6 +69,7 @@ public class SettingsDialog extends MultiplePageDialog {
     public ButtonPanel createButtonPanel() {
         ButtonPanel buttonPanel = super.createButtonPanel();
         AbstractAction okAction = new AbstractAction(UIDefaultsLookup.getString("OptionPane.okButtonText")) {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 setDialogResult(RESULT_AFFIRMED);
                 setVisible(false);
@@ -79,6 +77,7 @@ public class SettingsDialog extends MultiplePageDialog {
             }
         };
         AbstractAction cancelAction = new AbstractAction(UIDefaultsLookup.getString("OptionPane.cancelButtonText")) {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 setDialogResult(RESULT_CANCELLED);
                 setVisible(false);
@@ -97,9 +96,9 @@ public class SettingsDialog extends MultiplePageDialog {
         return new Dimension(600, 500);
     }
 
-    public static void showOptionsDialog() {
+    public static void showOptionsDialog(Frame f) {
 
-        final MultiplePageDialog dialog = new SettingsDialog(Savant.getInstance(), "Preferences");
+        final SettingsDialog dialog = new SettingsDialog(f, "Preferences");
         dialog.setStyle(MultiplePageDialog.LIST_STYLE);
         dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         
@@ -110,33 +109,29 @@ public class SettingsDialog extends MultiplePageDialog {
             ((Section)dialog.getPageList().getPage(i)).populate();
         }
 
-        dialog.getOkButton().addMouseListener(new MouseListener() {
-            public void mouseClicked(MouseEvent e) {}
-            public void mousePressed(MouseEvent e) {}
-            public void mouseReleased(MouseEvent e) {
-                if(dialog.getApplyButton().isEnabled()){
-                    for(int i = 0; i < model.getPageCount(); i++){
-                        ((Section)dialog.getPageList().getPage(i)).applyChanges();
-                    }
+        dialog.getOkButton().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (dialog.getApplyButton().isEnabled()){
+                    dialog.applySectionChanges();
                 }               
             }
-            public void mouseEntered(MouseEvent e) {}
-            public void mouseExited(MouseEvent e) {}
         });
-        dialog.getApplyButton().addMouseListener(new MouseListener() {
-            public void mouseClicked(MouseEvent e) {}
-            public void mousePressed(MouseEvent e) {}
-            public void mouseReleased(MouseEvent e) {
-                for(int i = 0; i < model.getPageCount(); i++){
-                    ((Section)dialog.getPageList().getPage(i)).applyChanges();
-                }
+        dialog.getApplyButton().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                dialog.applySectionChanges();
             }
-            public void mouseEntered(MouseEvent e) {}
-            public void mouseExited(MouseEvent e) {}
         });
 
         JideSwingUtilities.globalCenterWindow(dialog);
         dialog.setVisible(true);
+    }
+
+    private void applySectionChanges() {
+        for (int i = 0; i < model.getPageCount(); i++){
+            ((Section)getPageList().getPage(i)).applyChanges();
+        }
     }
 
     public static void addSection(Section s) {
@@ -152,6 +147,7 @@ public class SettingsDialog extends MultiplePageDialog {
             super(name, icon);
         }
 
+        @Override
         public void lazyInitialize() {
             initComponents();
         }

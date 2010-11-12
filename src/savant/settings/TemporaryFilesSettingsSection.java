@@ -20,16 +20,19 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
+import java.io.IOException;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import savant.data.sources.BAMIndexCache;
 
 /**
@@ -37,6 +40,7 @@ import savant.data.sources.BAMIndexCache;
  * @author mfiume
  */
 public class TemporaryFilesSettingsSection extends Section {
+    private static final Log LOG = LogFactory.getLog(PersistentSettings.class);
 
     private JTextField formatInput;
     private JTextField pluginsInput;
@@ -50,16 +54,13 @@ public class TemporaryFilesSettingsSection extends Section {
         return "Temporary Files";
     }
 
+    @Override
     public Icon getSectionIcon() {
         return null;
     }
 
-    private TemporaryFilesSettingsSection getThis(){
-        return this;
-    }
-
+    @Override
     public void lazyInitialize() {
-
         setLayout(new BorderLayout());
         add(SettingsDialog.getHeader(getTitle()), BorderLayout.BEFORE_FIRST_LINE);
 
@@ -109,33 +110,29 @@ public class TemporaryFilesSettingsSection extends Section {
         formatInput.setText(formatPath);
 
         //enable apply button if text changed
-        formatInput.addKeyListener(new KeyListener() {
+        formatInput.addKeyListener(new KeyAdapter() {
+            @Override
             public void keyTyped(KeyEvent e) {
                 enableApplyButton();
             }
-            public void keyPressed(KeyEvent e) {}
-            public void keyReleased(KeyEvent e) {}
         });
 
         //browse action
-        formatBrowse.addMouseListener(new MouseListener() {
-            public void mouseClicked(MouseEvent e) {}
-            public void mousePressed(MouseEvent e) {}
-            public void mouseReleased(MouseEvent e) {
-                final JFileChooser fc = new JFileChooser();
+        formatBrowse.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JFileChooser fc = new JFileChooser();
                 fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-                int returnVal = fc.showOpenDialog(getThis());
-                if(returnVal == -1){
+                int returnVal = fc.showOpenDialog(TemporaryFilesSettingsSection.this);
+                if (returnVal == -1){
                     return;
                 }
                 formatInput.setText(fc.getSelectedFile().getAbsolutePath());
                 enableApplyButton();
             }
-            public void mouseEntered(MouseEvent e) {}
-            public void mouseExited(MouseEvent e) {}
         });
 
-        
+
         //PLUGINS/////////////////////////////////////
 
         JLabel pluginsLabel = new JLabel("Select the folder to store plugin files: ");
@@ -179,30 +176,26 @@ public class TemporaryFilesSettingsSection extends Section {
         pluginsInput.setText(pluginsPath);
 
         //enable apply button if text changed
-        pluginsInput.addKeyListener(new KeyListener() {
+        pluginsInput.addKeyListener(new KeyAdapter() {
+            @Override
             public void keyTyped(KeyEvent e) {
                 enableApplyButton();
             }
-            public void keyPressed(KeyEvent e) {}
-            public void keyReleased(KeyEvent e) {}
         });
 
         //browse action
-        pluginsBrowse.addMouseListener(new MouseListener() {
-            public void mouseClicked(MouseEvent e) {}
-            public void mousePressed(MouseEvent e) {}
-            public void mouseReleased(MouseEvent e) {
+        pluginsBrowse.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
                 final JFileChooser fc = new JFileChooser();
                 fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-                int returnVal = fc.showOpenDialog(getThis());
+                int returnVal = fc.showOpenDialog(TemporaryFilesSettingsSection.this);
                 if(returnVal == -1){
                     return;
                 }
                 pluginsInput.setText(fc.getSelectedFile().getAbsolutePath());
                 enableApplyButton();
             }
-            public void mouseEntered(MouseEvent e) {}
-            public void mouseExited(MouseEvent e) {}
         });
 
         //XMLTOOLS/////////////////////////////////////
@@ -248,30 +241,26 @@ public class TemporaryFilesSettingsSection extends Section {
         xmlToolsInput.setText(xmlToolsPath);
 
         //enable apply button if text changed
-        xmlToolsInput.addKeyListener(new KeyListener() {
+        xmlToolsInput.addKeyListener(new KeyAdapter() {
+            @Override
             public void keyTyped(KeyEvent e) {
                 enableApplyButton();
             }
-            public void keyPressed(KeyEvent e) {}
-            public void keyReleased(KeyEvent e) {}
         });
 
         //browse action
-        pluginsBrowse.addMouseListener(new MouseListener() {
-            public void mouseClicked(MouseEvent e) {}
-            public void mousePressed(MouseEvent e) {}
-            public void mouseReleased(MouseEvent e) {
+        pluginsBrowse.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
                 final JFileChooser fc = new JFileChooser();
                 fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-                int returnVal = fc.showOpenDialog(getThis());
+                int returnVal = fc.showOpenDialog(TemporaryFilesSettingsSection.this);
                 if(returnVal == -1){
                     return;
                 }
                 pluginsInput.setText(fc.getSelectedFile().getAbsolutePath());
                 enableApplyButton();
             }
-            public void mouseEntered(MouseEvent e) {}
-            public void mouseExited(MouseEvent e) {}
         });
 
         //CLEAR CACHE///////////////////////////////////
@@ -288,29 +277,33 @@ public class TemporaryFilesSettingsSection extends Section {
         panel.add(clearButton, c);
 
         //clear action
-        clearButton.addMouseListener(new MouseListener() {
-            public void mouseClicked(MouseEvent e) {}
-            public void mousePressed(MouseEvent e) {}
-            public void mouseReleased(MouseEvent e) {
+        clearButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
                 BAMIndexCache.getInstance().clearCache();
             }
-            public void mouseEntered(MouseEvent e) {}
-            public void mouseExited(MouseEvent e) {}
         });
 
-        this.add(panel, BorderLayout.CENTER);
+        add(panel, BorderLayout.CENTER);
     }
 
+    @Override
     public void applyChanges() {
+        // Only save anything if this panel has gone through lazy initialization.
+        if (formatInput != null) {
+            formatPath = formatInput.getText();
+            DirectorySettings.setFormatDirectory(formatPath);
 
-        formatPath = formatInput.getText();
-        DirectorySettings.setFormatDirectory(formatPath);
+            pluginsPath = pluginsInput.getText();
+            DirectorySettings.setPluginsDirectory(pluginsPath);
 
-        pluginsPath = pluginsInput.getText();
-        DirectorySettings.setPluginsDirectory(pluginsPath);
-
-        xmlToolsPath = xmlToolsInput.getText();
-        DirectorySettings.setPluginsDirectory(xmlToolsPath);
-
+            xmlToolsPath = xmlToolsInput.getText();
+            DirectorySettings.setXMLToolDescriptionsDirectory(xmlToolsPath);
+            try {
+                PersistentSettings.getInstance().store();
+            } catch (IOException iox) {
+                LOG.error("Unable to save directory settings.", iox);
+            }
+        }
     }
 }

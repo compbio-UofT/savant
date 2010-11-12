@@ -28,7 +28,7 @@ import java.util.Map;
 
 /**
  *
- * @author mfiume, zig
+ * @author mfiume, tarkvara
  */
 public class ContinuousFormatterHelper {
 

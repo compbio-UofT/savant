@@ -18,154 +18,87 @@ package savant.settings;
 
 import java.io.File;
 
+
 /**
  *
  * @author AndrewBrook
  */
 public class DirectorySettings {
+    private static PersistentSettings settings = PersistentSettings.getInstance();
 
+    private static String savantDir;
 
-    private static String SAVANT_DIR;
-    private static String tmpDir;
-    private static String formatDir;
-    private static String pluginsDir;
-    private static String XMLToolsDir;
-    private static String projectsDir;
-    private static String cacheDir;
+    private static final String CACHE_DIR_KEY = "CacheDir";
+    private static final String FORMAT_DIR_KEY = "FormatDir";
+    private static final String TMP_DIR_KEY = "TmpDir";
+    private static final String PLUGINS_DIR_KEY = "PluginsDir";
+    private static final String XML_TOOLS_DIR_KEY = "XMLToolDir";
+    private static final String PROJECTS_DIR_KEY = "ProjectsDir";
 
     public static String getSavantDirectory() {
-        if (SAVANT_DIR == null) {
+        if (savantDir == null) {
             String os = System.getProperty("os.name").toLowerCase();
-            String home = System.getProperty("user.home");
-            String fileSeparator = System.getProperty("file.separator");
-            if (os.contains("win")) {
-                SAVANT_DIR = home + fileSeparator + "savant";
+            File f = new File(System.getProperty("user.home"), os.contains("win") ? "savant" : ".savant");
+            if (!f.exists()) {
+                f.mkdir();
             }
-            else {
-                SAVANT_DIR = home + fileSeparator + ".savant";
-            }
-            File dir = new File(SAVANT_DIR);
-            if (!dir.exists()) {
-                dir.mkdir();
-            }
+            savantDir = f.getAbsolutePath();
         }
-        return SAVANT_DIR;
+        return savantDir;
     }
 
-    public static String getFormatDirectory() {
-        if(formatDir == null){
-            //String home = System.getProperty("user.home");
-            String home = getSavantDirectory();
-            String fileSeparator = System.getProperty("file.separator");
-            formatDir = home + fileSeparator + "formatted_files";
-            File dir = new File(formatDir);
-            if (!dir.exists()) {
-                dir.mkdirs();
-            }
+    private static String getDirectory(String key, String dirName) {
+        File result = settings.getFile(key);
+        if (result == null) {
+            result = new File(getSavantDirectory(), dirName);
         }
-        return formatDir;
+        if (!result.exists()) {
+            result.mkdirs();
+        }
+        return result.getAbsolutePath();
     }
 
-    public static String getProjectsDirectory() {
-        if(projectsDir == null){
-            //String home = System.getProperty("user.home");
-            String home = getSavantDirectory();
-            String fileSeparator = System.getProperty("file.separator");
-            projectsDir = home + fileSeparator + "projects";
-            File dir = new File(projectsDir);
-            if (!dir.exists()) {
-                dir.mkdirs();
-            }
+    private static void setDirectory(String key, String value) {
+        File dir = new File(value);
+        if (!dir.exists()) {
+            dir.mkdirs();
         }
-        return projectsDir;
-    }
-
-    public static void setFormatDirectory(String dir) {
-        File f = new File(dir);
-        if (!f.exists()) {
-            boolean ret = f.mkdirs();
-            if(ret) formatDir = dir;
-        }      
-    }
-
-    public static String getXMLToolDescriptionsDirectory() {
-        if(XMLToolsDir == null){
-            //String home = System.getProperty("user.home");
-            String home = getSavantDirectory();
-            String fileSeparator = System.getProperty("file.separator");
-            XMLToolsDir = home + fileSeparator + "xmltools";
-            File dir = new File(XMLToolsDir);
-            if (!dir.exists()) {
-                dir.mkdirs();
-            }
-        }
-        return XMLToolsDir;
-    }
-
-    public static void setXMLToolDescriptionsDirectory(String dir) {
-        File f = new File(dir);
-        if (!f.exists()) {
-            boolean ret = f.mkdirs();
-            if(ret) XMLToolsDir = dir;
-        }
-    }
-
-    public static String getPluginsDirectory() {
-        if(pluginsDir == null){
-            //String home = System.getProperty("user.home");
-            String home = getSavantDirectory();
-            String fileSeparator = System.getProperty("file.separator");
-            pluginsDir = home + fileSeparator + "plugins";
-            File dir = new File(pluginsDir);
-            if (!dir.exists()) {
-                dir.mkdirs();
-            }
-        }
-        return pluginsDir;
-    }
-
-    public static void setPluginsDirectory(String dir) {
-        File f = new File(dir);
-        if (!f.exists()) {
-            boolean ret = f.mkdirs();
-            if(ret) pluginsDir = dir;
-        }
-    }
-
-    public static String getTmpDirectory() {
-        if(tmpDir == null){
-            //String home = System.getProperty("user.home");
-            String home = getSavantDirectory();
-            String fileSeparator = System.getProperty("file.separator");
-            tmpDir = home + fileSeparator + "tmp";
-            File dir = new File(tmpDir);
-            if (!dir.exists()) {
-                dir.mkdirs();
-            }
-        }
-        return tmpDir;
+        settings.setFile(key, dir);
     }
 
     public static String getCacheDirectory() {
-        if(cacheDir == null){
-            //String home = System.getProperty("user.home");
-            String home = getSavantDirectory();
-            String fileSeparator = System.getProperty("file.separator");
-            cacheDir = home + fileSeparator + "cache";
-            File dir = new File(cacheDir);
-            if (!dir.exists()) {
-                dir.mkdirs();
-            }
-        }
-        return cacheDir;
+        return getDirectory(CACHE_DIR_KEY, "cache");
     }
 
-    public static void setCacheDirectory(String dir) {
-        File f = new File(dir);
-        if (!f.exists()) {
-            boolean ret = f.mkdirs();
-            if(ret) cacheDir = dir;
-        }
+    public static String getFormatDirectory() {
+        return getDirectory(FORMAT_DIR_KEY, "formatted_files");
     }
 
+    public static String getPluginsDirectory() {
+        return getDirectory(PLUGINS_DIR_KEY, "plugins");
+    }
+
+    public static String getProjectsDirectory() {
+        return getDirectory(PROJECTS_DIR_KEY, "projects");
+    }
+
+    public static String getTmpDirectory() {
+        return getDirectory(TMP_DIR_KEY, "tmp");
+    }
+
+    public static String getXMLToolDescriptionsDirectory() {
+        return getDirectory(XML_TOOLS_DIR_KEY, "xmltools");
+    }
+
+    public static void setFormatDirectory(String dir) {
+        setDirectory(FORMAT_DIR_KEY, dir);
+    }
+
+    public static void setPluginsDirectory(String dir) {
+        setDirectory(PLUGINS_DIR_KEY, dir);
+    }
+
+    public static void setXMLToolDescriptionsDirectory(String dir) {
+        setDirectory(XML_TOOLS_DIR_KEY, dir);
+    }
 }

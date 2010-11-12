@@ -454,16 +454,16 @@ public class BAMTrackRenderer extends TrackRenderer {
                             String base = new String(readBase);
                             Color mismatchColor = null;
                             if (base.equals("A")) {
-                                mismatchColor = ColourSettings.A_COLOR;
+                                mismatchColor = ColourSettings.getA();
                             }
                             else if (base.equals("C")) {
-                                mismatchColor = ColourSettings.C_COLOR;
+                                mismatchColor = ColourSettings.getC();
                             }
                             else if (base.equals("G")) {
-                                mismatchColor = ColourSettings.G_COLOR;
+                                mismatchColor = ColourSettings.getG();
                             }
                             else if (base.equals("T")) {
-                                mismatchColor = ColourSettings.T_COLOR;
+                                mismatchColor = ColourSettings.getT();
                             }
                             double xCoordinate = gp.transformXPos(sequenceCursor+i);
                             double width = gp.getUnitWidth();
@@ -727,10 +727,10 @@ public class BAMTrackRenderer extends TrackRenderer {
                 if(genome.isSequenceSet() && snpNuc.equals(genomeNuc)){
                     subPileColor = cs.getColor("Reverse Strand");
                 } else {
-                    if(snpNuc.equals(Nucleotide.A)) subPileColor = ColourSettings.A_COLOR;
-                    else if (snpNuc.equals(Nucleotide.C)) subPileColor = ColourSettings.C_COLOR;
-                    else if (snpNuc.equals(Nucleotide.G)) subPileColor = ColourSettings.G_COLOR;
-                    else if (snpNuc.equals(Nucleotide.T)) subPileColor = ColourSettings.T_COLOR;
+                    if(snpNuc.equals(Nucleotide.A)) subPileColor = ColourSettings.getA();
+                    else if (snpNuc.equals(Nucleotide.C)) subPileColor = ColourSettings.getC();
+                    else if (snpNuc.equals(Nucleotide.G)) subPileColor = ColourSettings.getG();
+                    else if (snpNuc.equals(Nucleotide.T)) subPileColor = ColourSettings.getT();
                     //FIXME: what do we do here?
                     else if (snpNuc.equals(Nucleotide.OTHER)) subPileColor = Color.BLACK;
                 }
@@ -853,7 +853,7 @@ public class BAMTrackRenderer extends TrackRenderer {
             g2.setStroke(twoStroke);
             Rectangle2D stringRect = smallFont.getStringBounds(legendString, g2.getFontRenderContext());
             g2.drawLine(x-25, y-(int)stringRect.getHeight()/2, x-5, y-(int)stringRect.getHeight()/2);
-            g2.setColor(ColourSettings.colorAccent);
+            g2.setColor(ColourSettings.getPointLine());
             g2.setStroke(oneStroke);
             g2.drawString(legendString, x, y);
 
@@ -985,7 +985,7 @@ public class BAMTrackRenderer extends TrackRenderer {
                 g2.setStroke(twoStroke);
                 Rectangle2D stringRect = smallFont.getStringBounds(legendString, g2.getFontRenderContext());
                 g2.drawLine(x-25, y-(int)stringRect.getHeight()/2, x-5, y-(int)stringRect.getHeight()/2);
-                g2.setColor(ColourSettings.colorAccent);
+                g2.setColor(ColourSettings.getPointLine());
                 g2.setStroke(oneStroke);
                 g2.drawString(legendString, x, y);
 

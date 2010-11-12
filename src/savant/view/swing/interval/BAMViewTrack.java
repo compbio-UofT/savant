@@ -89,13 +89,13 @@ public class BAMViewTrack extends ViewTrack {
     private ColorScheme getDefaultColorScheme() {
         ColorScheme c = new ColorScheme();
         
-        c.addColorSetting("Forward Strand", ColourSettings.forwardStrand);
-        c.addColorSetting("Reverse Strand", ColourSettings.reverseStrand);
-        c.addColorSetting("Inverted Read", ColourSettings.invertedRead);
-        c.addColorSetting("Inverted Mate", ColourSettings.invertedMate);
-        c.addColorSetting("Everted Pair", ColourSettings.evertedPair);
-        c.addColorSetting("Discordant Length", ColourSettings.discordantLength);
-        c.addColorSetting("Line", ColourSettings.line);
+        c.addColorSetting("Forward Strand", ColourSettings.getForwardStrand());
+        c.addColorSetting("Reverse Strand", ColourSettings.getReverseStrand());
+        c.addColorSetting("Inverted Read", ColourSettings.getInvertedRead());
+        c.addColorSetting("Inverted Mate", ColourSettings.getInvertedMate());
+        c.addColorSetting("Everted Pair", ColourSettings.getEvertedPair());
+        c.addColorSetting("Discordant Length", ColourSettings.getDiscordantLength());
+        c.addColorSetting("Line", ColourSettings.getLine());
 
         return c;
     }

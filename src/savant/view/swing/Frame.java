@@ -714,7 +714,7 @@ public class Frame {
 
     private void initGraph() {
         graphPane = getNewZedGraphControl();
-        graphPane.setBackground(ColourSettings.colorFrameBackground);
+        graphPane.setBackground(ColourSettings.getFrameBackground());
     }
 
     // FIXME: this is a horrible kludge

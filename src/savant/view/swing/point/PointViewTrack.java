@@ -45,8 +45,8 @@ public class PointViewTrack extends ViewTrack {
         ColorScheme c = new ColorScheme();
 
         /* add settings here */
-        c.addColorSetting("Background", ColourSettings.colorGraphMain);
-        c.addColorSetting("Line", ColourSettings.colorAccent);
+        c.addColorSetting("Background", ColourSettings.getPointFill());
+        c.addColorSetting("Line", ColourSettings.getPointLine());
 
         return c; 
     }

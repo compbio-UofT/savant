@@ -19,62 +19,421 @@ package savant.settings;
 import java.awt.Color;
 
 /**
+ * Class which keeps track of global colour-scheme settings.
  *
- * @author AndrewBrook
+ * @author AndrewBrook, tarkvara
  */
 public class ColourSettings {
+    private static PersistentSettings settings = PersistentSettings.getInstance();
 
+    private static final String A_KEY = "A";
+    private static final String C_KEY = "C";
+    private static final String G_KEY = "G";
+    private static final String T_KEY = "T";
+    private static final String FORWARD_STRAND_KEY = "ForwardStrand";
+    private static final String REVERSE_STRAND_KEY = "ReverseStrand";
+    private static final String INVERTED_READ_KEY = "InvertedRead";
+    private static final String INVERTED_MATE_KEY = "InvertedMate";
+    private static final String EVERTED_PAIR_KEY = "EvertedPair";
+    private static final String DISCORDANT_LENGTH_KEY = "DiscordantLength";
+    private static final String LINE_KEY = "Line";
+    private static final String CONTINUOUS_LINE_KEY = "ContinuousLine";
+    private static final String OPAQUE_GRAPH_KEY = "OpaqueGraph";
+    private static final String TRANSLUCENT_GRAPH_KEY = "TranslucentGraph";
+    private static final String SPLITTER_KEY = "Splitter";
+    private static final String GLASS_PANE_BACKGROUND_KEY = "GlassPaneBackground";
+    private static final String GRAPH_PANE_BACKGROUND_TOP_KEY = "GraphPaneBackgroundTop";
+    private static final String GRAPH_PANE_BACKGROUND_BOTTOM_KEY = "GraphPaneBackgroundBottom";
+    private static final String GRAPH_PANE_ZOOM_FILL_KEY = "GraphPaneZoomFill";
+    private static final String GRAPH_PANE_SELECTION_FILL_KEY = "GraphPaneSelectionFill";
+    private static final String GRAPH_PANE_SELECTION_BORDER_KEY = "GraphPaneSelectionBorder";
+    private static final String RANGE_SELECTION_TOP_KEY = "RangeSelectionTop";
+    private static final String RANGE_SELECTION_BOTTOM_KEY = "RangeSelectionBottom";
+    private static final String FRAME_BACKGROUND_KEY = "FrameBackground";
+    private static final String BROWSE_BACKGROUND_KEY = "BrowseBackground";
+    private static final String BROWSE_AUXILIARY_BACKGROUND_KEY = "BrowseAuxiliaryBackground";
+    private static final String TAB_BACKGROUND_KEY = "TabBackground";
+    private static final String TOOLS_MARGIN_BACKGROUND_KEY = "ToolsMarginBackground";
+    private static final String TOOLS_BACKGROUND_KEY = "ToolsBackground";
+    private static final String POINT_LINE_KEY = "PointLine";
+    private static final String AXIS_GRID_KEY = "AxisGrid";
+    private static final String POINT_FILL_KEY = "PointFill";
 
-    //Nucleotides
-    public static Color A_COLOR = new Color(27, 97, 97);  // blue
-    public static Color C_COLOR = new Color(162, 45, 45); // red
-    public static Color G_COLOR = new Color(36, 130, 36); // green
-    public static Color T_COLOR = new Color(162,98, 45);  // yellow
+    /**
+     * @return the colour for A bases
+     */
+    public static Color getA() {
+        return settings.getColour(A_KEY, new Color(27, 97, 97));
+    }
 
+    /**
+     * @param value the colour for A bases
+     */
+    public static void setA(Color value) {
+        settings.setColour(A_KEY, value);
+    }
 
-    //BAM, BED
-    public static Color forwardStrand = new Color(0,131,192);
-    public static Color reverseStrand = new Color(0,174,255);
-    public static Color invertedRead = Color.yellow;
-    public static Color invertedMate = Color.magenta;
-    public static Color evertedPair = Color.green;
-    public static Color discordantLength = Color.blue;
-    public static Color line = new Color(128,128,128);
+    /**
+     * @return the colour for C bases
+     */
+    public static Color getC() {
+        return settings.getColour(C_KEY, new Color(162, 45, 45));
+    }
 
+    /**
+     * @param value the colour for C bases
+     */
+    public static void setC(Color value) {
+        settings.setColour(C_KEY, value);
+    }
 
-    //Continuous
-    public static Color continuousLine = new Color(0, 174, 255, 200);
+    /**
+     * @return the colour for G bases
+     */
+    public static Color getG() {
+        return settings.getColour(G_KEY, new Color(36, 130, 36));
+    }
 
-    
-    //Interval
-    public static Color opaqueGraph = new Color(0,174,255);
-    public static Color translucentGraph = new Color(0, 174, 255, 100);
+    /**
+     * @param value the colour for G bases
+     */
+    public static void setG(Color value) {
+        settings.setColour(G_KEY, value);
+    }
 
+    /**
+     * @return the colour for T bases
+     */
+    public static Color getT() {
+        return settings.getColour(T_KEY, new Color(162, 98, 45));
+    }
 
-    //Misc.
-    public static Color colorSplitter = new Color(210,210,210);//Color.lightGray;
-    public static Color colorGlassPaneBackground = Color.darkGray;
-    public static Color colorGraphPaneBackgroundTop = Color.white;
-    public static Color colorGraphPaneBackgroundBottom = new Color(210,210,210);
-    public static Color colorGraphPaneZoomFill = new Color(0,0,255,100);
-    public static Color colorGraphPaneSelectionFill = new Color(120,70,10,100);
-    public static Color colorGraphPaneSelectionBorder = new Color(30,30,30);
-    public static Color colorRangeSelectionTop = new Color(95, 161, 241);
-    public static Color colorRangeSelectionBottom = new Color(75, 144, 228);
-    public static Color colorFrameBackground = Color.lightGray;
-    public static Color colorBrowseBackground = new Color(60,60,60,100);
-    public static Color colorBrowseAuxiliaryBackground = new Color(160,160,160);
-    public static Color colorTabBackground = new Color(240,240,240);
-    public static Color colorToolsMarginBackground = new Color(236,236,236);
-    //public static Color colorToolsMarginBackground = new Color(215,219,229); //new Color(255,255,255); //new Color(245,250,255);
-    public static Color colorToolsBackground = Color.white; //new Color(200,200,200);   
-    public static Color colorAccent = Color.black;
-    public static Color colorAxisGrid = Color.lightGray;    
-    public static Color colorGraphMain = new Color(0, 174, 255, 150);
-    //public static Color colorFrameBackground = Color.darkGray;
-    //public static Color colorBrowseBackground = new Color(60,60,60);
-    //public static Color colorBrowseBackground = /*new Color(0, 174, 255, 150);*/ new Color(171, 207, 59);
-    //public static Color colorGraphMain = Color.red;
-    //public static Color ColorMain = new Color(0, 174, 255, 150);
+    /**
+     * @param value the colour for T bases
+     */
+    public static void setT(Color value) {
+        settings.setColour(T_KEY, value);
+    }
 
+    /**
+     * @return the colour for forward strands
+     */
+    public static Color getForwardStrand() {
+        return settings.getColour(FORWARD_STRAND_KEY, new Color(0, 131, 192));
+    }
+
+    /**
+     * @param value the colour for forward strands
+     */
+    public static void setForwardStrand(Color value) {
+        settings.setColour(FORWARD_STRAND_KEY, value);
+    }
+
+    /**
+     * @return the colour for reverse strands
+     */
+    public static Color getReverseStrand() {
+        return settings.getColour(REVERSE_STRAND_KEY, new Color(0, 174, 255));
+    }
+
+    /**
+     * @param value the colour for reverse strands
+     */
+    public static void setReverseStrand(Color value) {
+        settings.setColour(REVERSE_STRAND_KEY, value);
+    }
+
+    /**
+     * @return the colour for reverse strands
+     */
+    public static Color getInvertedRead() {
+        return settings.getColour(INVERTED_READ_KEY, Color.yellow);
+    }
+
+    /**
+     * @param value the colour for inverted reads
+     */
+    public static void setInvertedRead(Color value) {
+        settings.setColour(INVERTED_READ_KEY, value);
+    }
+
+    /**
+     * @return the colour for inverted mate pairs
+     */
+    public static Color getInvertedMate() {
+        return settings.getColour(INVERTED_MATE_KEY, Color.magenta);
+    }
+
+    /**
+     * @param value the colour for inverted mate pairs
+     */
+    public static void setInvertedMate(Color value) {
+        settings.setColour(INVERTED_MATE_KEY, value);
+    }
+
+    /**
+     * @return the colour for everted pairs
+     */
+    public static Color getEvertedPair() {
+        return settings.getColour(EVERTED_PAIR_KEY, Color.green);
+    }
+
+    /**
+     * @param value the colour for everted pairs
+     */
+    public static void setEvertedPair(Color value) {
+        settings.setColour(EVERTED_PAIR_KEY, value);
+    }
+
+    /**
+     * @return the colour for discordant lengths
+     */
+    public static Color getDiscordantLength() {
+        return settings.getColour(DISCORDANT_LENGTH_KEY, Color.blue);
+    }
+
+    /**
+     * @param value the colour for discordant lengths
+     */
+    public static void setDiscordantLength(Color value) {
+        settings.setColour(DISCORDANT_LENGTH_KEY, value);
+    }
+
+    /**
+     * @return the colour for ordinary lines
+     */
+    public static Color getLine() {
+        return settings.getColour(LINE_KEY, new Color(128, 128, 128));
+    }
+
+    /**
+     * @param value the colour for ordinary lines
+     */
+    public static void setLine(Color value) {
+        settings.setColour(LINE_KEY, value);
+    }
+
+    /**
+     * @return the colour for continuous lines
+     */
+    public static Color getContinuousLine() {
+        return settings.getColour(CONTINUOUS_LINE_KEY, new Color(0, 174, 255, 200));
+    }
+
+    /**
+     * @param value the colour for continuous lines
+     */
+    public static void setContinuousLine(Color value) {
+        settings.setColour(CONTINUOUS_LINE_KEY, value);
+    }
+
+    /**
+     * @return the colour for opaque graphs
+     */
+    public static Color getOpaqueGraph() {
+        return settings.getColour(OPAQUE_GRAPH_KEY, new Color(0, 174, 255));
+    }
+
+    /**
+     * @param value the colour for opaque graphs
+     */
+    public static void setOpaqueGraph(Color value) {
+        settings.setColour(OPAQUE_GRAPH_KEY, value);
+    }
+
+    /**
+     * @return the colour for translucent graphs
+     */
+    public static Color getTranslucentGraph() {
+        return settings.getColour(TRANSLUCENT_GRAPH_KEY, new Color(0, 174, 255, 100));
+    }
+
+    /**
+     * @param value the colour for translucent graphs
+     */
+    public static void setTranslucentGraph(Color value) {
+        settings.setColour(TRANSLUCENT_GRAPH_KEY, value);
+    }
+
+    /**
+     * @return the colour for splitters
+     */
+    public static Color getSplitter() {
+        return settings.getColour(SPLITTER_KEY, new Color(210, 210, 210));
+    }
+
+    /**
+     * @param value the colour for splitters
+     */
+    public static void setSplitter(Color value) {
+        settings.setColour(SPLITTER_KEY, value);
+    }
+
+    /**
+     * @return the background colour for the glass pane
+     */
+    public static Color getGlassPaneBackground() {
+        return settings.getColour(GLASS_PANE_BACKGROUND_KEY, Color.darkGray);
+    }
+
+    /**
+     * @param value the background colour for the glass pane
+     */
+    public static void setGlassPaneBackground(Color value) {
+        settings.setColour(GLASS_PANE_BACKGROUND_KEY, value);
+    }
+
+    /**
+     * @return the background colour for the graph pane top
+     */
+    public static Color getGraphPaneBackgroundTop() {
+        return settings.getColour(GRAPH_PANE_BACKGROUND_TOP_KEY, Color.white);
+    }
+
+    /**
+     * @param value the background colour for the graph pane top
+     */
+    public static void setGraphPaneBackgroundTop(Color value) {
+        settings.setColour(GRAPH_PANE_BACKGROUND_TOP_KEY, value);
+    }
+
+    /**
+     * @return the background colour for the graph pane bottom
+     */
+    public static Color getGraphPaneBackgroundBottom() {
+        return settings.getColour(GRAPH_PANE_BACKGROUND_BOTTOM_KEY, new Color(210, 210, 210));
+    }
+
+    /**
+     * @param value the background colour for the graph pane bottom
+     */
+    public static void setGraphPaneBackgroundBottom(Color value) {
+        settings.setColour(GRAPH_PANE_BACKGROUND_BOTTOM_KEY, value);
+    }
+
+    /**
+     * @return the fill colour for graph pane zooms (whatever those are)
+     */
+    public static Color getGraphPaneZoomFill() {
+        return settings.getColour(GRAPH_PANE_ZOOM_FILL_KEY, new Color(0, 0, 255, 100));
+    }
+
+    /**
+     * @param value the fill colour for graph pane zooms (whatever those are)
+     */
+    public static void setGraphPaneZoomFill(Color value) {
+        settings.setColour(GRAPH_PANE_ZOOM_FILL_KEY, value);
+    }
+
+    /**
+     * @return the fill colour for graph pane selections
+     */
+    public static Color getGraphPaneSelectionFill() {
+        return settings.getColour(GRAPH_PANE_SELECTION_FILL_KEY, new Color(120, 70, 10, 100));
+    }
+
+    /**
+     * @param value the fill colour for graph pane selections
+     */
+    public static void setGraphPaneSelectionFill(Color value) {
+        settings.setColour(GRAPH_PANE_SELECTION_FILL_KEY, value);
+    }
+
+    /**
+     * @return the background colour for frames
+     */
+    public static Color getFrameBackground() {
+        return settings.getColour(FRAME_BACKGROUND_KEY, Color.lightGray);
+    }
+
+    /**
+     * @param value the background colour for frames
+     */
+    public static void setFrameBackground(Color value) {
+        settings.setColour(FRAME_BACKGROUND_KEY, value);
+    }
+
+    /**
+     * @return the background colour for tabs
+     */
+    public static Color getTabBackground() {
+        return settings.getColour(TAB_BACKGROUND_KEY, new Color(240, 240, 240));
+    }
+
+    /**
+     * @param value the background colour for tabs
+     */
+    public static void setTabBackground(Color value) {
+        settings.setColour(TAB_BACKGROUND_KEY, value);
+    }
+
+    /**
+     * @return the background colour for tools margins
+     */
+    public static Color getToolsMarginBackground() {
+        return settings.getColour(TOOLS_MARGIN_BACKGROUND_KEY, new Color(236, 236, 236));
+    }
+
+    /**
+     * @param value the background colour for tools margins
+     */
+    public static void setToolsMarginBackground(Color value) {
+        settings.setColour(TOOLS_MARGIN_BACKGROUND_KEY, value);
+    }
+
+    /**
+     * @return the background colour for tools
+     */
+    public static Color getToolsBackground() {
+        return settings.getColour(TOOLS_BACKGROUND_KEY, Color.white);
+    }
+
+    /**
+     * @param value the background colour for tools
+     */
+    public static void setToolsBackground(Color value) {
+        settings.setColour(TOOLS_BACKGROUND_KEY, value);
+    }
+
+    /**
+     * @return the colour for lines on point tracks
+     */
+    public static Color getPointLine() {
+        return settings.getColour(POINT_LINE_KEY, Color.black);
+    }
+
+    /**
+     * @param value the colour for lines on point tracks
+     */
+    public static void setPointLine(Color value) {
+        settings.setColour(POINT_LINE_KEY, value);
+    }
+
+    /**
+     * @return the colour for the axis grid
+     */
+    public static Color getAxisGrid() {
+        return settings.getColour(AXIS_GRID_KEY, Color.lightGray);
+    }
+
+    /**
+     * @param value the colour for the axis grid
+     */
+    public static void setAxisGrid(Color value) {
+        settings.setColour(AXIS_GRID_KEY, value);
+    }
+
+    /**
+     * @return the colour for reverse strands
+     */
+    public static Color getPointFill() {
+        return settings.getColour(POINT_FILL_KEY, new Color(0, 174, 255, 150));
+    }
+
+    /**
+     * @param value the fill colour for point tracks
+     */
+    public static void setPointFill(Color value) {
+        settings.setColour(POINT_FILL_KEY, value);
+    }
 }

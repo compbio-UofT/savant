@@ -222,7 +222,7 @@ public class ToolsModule implements BookmarksChangedListener, RangeChangeComplet
     private void initDocking(JPanel canvas) {
 
         DefaultDockingManager toolsDockingManager = new DefaultDockingManager(Savant.getInstance(),canvas);
-        canvas.setBackground(ColourSettings.colorSplitter);
+        canvas.setBackground(ColourSettings.getSplitter());
 
         toolsDockingManager.setInitSplitPriority(DockingManager.SPLIT_EAST_SOUTH_WEST_NORTH);
         //toolsDockingManager.loadLayoutData();
@@ -241,7 +241,7 @@ public class ToolsModule implements BookmarksChangedListener, RangeChangeComplet
 
 
         toolCanvas = new JPanel();
-        toolCanvas.setBackground(ColourSettings.colorToolsBackground);
+        toolCanvas.setBackground(ColourSettings.getToolsBackground());
         //toolCanvas.setPreferredSize(new Dimension(2000, 2000));
         JComponent workspace = toolsDockingManager.getWorkspace();
         workspace.setLayout(new BorderLayout());
@@ -260,7 +260,7 @@ public class ToolsModule implements BookmarksChangedListener, RangeChangeComplet
         toolsListCanvas = new JPanel();
 
         Container tlworkspace = toolsListBar.getContentPane();
-        tlworkspace.setBackground(ColourSettings.colorToolsBackground);
+        tlworkspace.setBackground(ColourSettings.getToolsBackground());
         pad(toolsListCanvas,tlworkspace,0);
 
         toolsDockingManager.addFrame(toolsListBar);
@@ -519,7 +519,7 @@ public class ToolsModule implements BookmarksChangedListener, RangeChangeComplet
         _container.add(createPanel("Range Change", toolsSubscribedToRangeChangeEvent,true));
         _container.add(createPanel("Track List Change", toolsSubscribedToTrackListChangeEvent,true));
 
-        _container.setBackground(ColourSettings.colorToolsMarginBackground);
+        _container.setBackground(ColourSettings.getToolsMarginBackground());
         _container.setGap(0);
         //_container.setBorder(new LineBorder(Color.lightGray, 1));
 
@@ -544,7 +544,7 @@ public class ToolsModule implements BookmarksChangedListener, RangeChangeComplet
             _container.add(pane);
         }
 
-        _container.setBackground(ColourSettings.colorToolsMarginBackground);
+        _container.setBackground(ColourSettings.getToolsMarginBackground());
         _container.setGap(0);
         //_container.setBorder(new LineBorder(Color.lightGray, 1));
 
@@ -639,7 +639,7 @@ public class ToolsModule implements BookmarksChangedListener, RangeChangeComplet
             _container.add(pane);
         }
 
-        _container.setBackground(ColourSettings.colorToolsMarginBackground);
+        _container.setBackground(ColourSettings.getToolsMarginBackground());
         _container.setGap(0);
         //_container.setBorder(new LineBorder(Color.lightGray, 1));
 
@@ -722,7 +722,7 @@ public class ToolsModule implements BookmarksChangedListener, RangeChangeComplet
                 break;
         }
 
-        panel.setBackground(ColourSettings.colorToolsMarginBackground);
+        panel.setBackground(ColourSettings.getToolsMarginBackground());
 
 
         pane.setStyle(CollapsiblePane.PLAIN_STYLE);
@@ -811,7 +811,7 @@ public class ToolsModule implements BookmarksChangedListener, RangeChangeComplet
             //_container.add(createPanel("Event Subscriptions", getEventSubscriptionCanvas(p), true));
         }
 
-        jtp.setBackground(ColourSettings.colorToolsBackground);
+        jtp.setBackground(ColourSettings.getToolsBackground());
         jtp.setBorder(new LineBorder(Color.lightGray, 1));
 
         /*
@@ -827,7 +827,7 @@ public class ToolsModule implements BookmarksChangedListener, RangeChangeComplet
         toolCanvas.repaint();
         toolCanvas.setLayout(new BorderLayout());
         //toolCanvas.setLayout(new BoxLayout(toolCanvas, BoxLayout.PAGE_AXIS));
-        toolCanvas.setBackground(ColourSettings.colorToolsBackground);
+        toolCanvas.setBackground(ColourSettings.getToolsBackground());
 
         JPanel toppan = new JPanel();
         toppan.setLayout(new BoxLayout(toppan,BoxLayout.Y_AXIS));
@@ -845,7 +845,7 @@ public class ToolsModule implements BookmarksChangedListener, RangeChangeComplet
             toppan.add(plugin);
         }
 
-        toppan.setBackground(ColourSettings.colorToolsBackground);
+        toppan.setBackground(ColourSettings.getToolsBackground());
 
         toolCanvas.add(toppan, BorderLayout.NORTH);
         toolCanvas.add(jtp, BorderLayout.CENTER);

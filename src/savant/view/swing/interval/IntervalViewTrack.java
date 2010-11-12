@@ -61,9 +61,9 @@ public class IntervalViewTrack extends ViewTrack {
 
         /* add settings here */
         //c.addColorSetting("Background", BrowserDefaults.colorGraphMain);
-        c.addColorSetting("Translucent Graph", ColourSettings.translucentGraph);
-        c.addColorSetting("Opaque Graph", ColourSettings.opaqueGraph);
-        c.addColorSetting("Line", ColourSettings.colorAccent);
+        c.addColorSetting("Translucent Graph", ColourSettings.getTranslucentGraph());
+        c.addColorSetting("Opaque Graph", ColourSettings.getOpaqueGraph());
+        c.addColorSetting("Line", ColourSettings.getPointLine());
 
         return c;
     }

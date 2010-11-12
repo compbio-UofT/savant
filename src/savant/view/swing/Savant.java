@@ -188,9 +188,9 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         this.panel_main.add(masterPlaceholderPanel, BorderLayout.CENTER);
 
         auxDockingManager = new DefaultDockingManager(this, masterPlaceholderPanel);
-        masterPlaceholderPanel.setBackground(ColourSettings.colorSplitter);
+        masterPlaceholderPanel.setBackground(ColourSettings.getSplitter());
         //auxDockingManager.setSidebarRollover(false);
-        auxDockingManager.getWorkspace().setBackground(ColourSettings.colorSplitter);
+        auxDockingManager.getWorkspace().setBackground(ColourSettings.getSplitter());
         auxDockingManager.setInitSplitPriority(DockingManager.SPLIT_EAST_SOUTH_WEST_NORTH);
         //auxDockingManager.loadLayoutData();
 
@@ -200,8 +200,8 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         auxDockingManager.getWorkspace().add(trackPanel, BorderLayout.CENTER);
 
         trackDockingManager = new DefaultDockingManager(this, trackPanel);
-        trackPanel.setBackground(ColourSettings.colorSplitter);
-        trackDockingManager.getWorkspace().setBackground(ColourSettings.colorSplitter);
+        trackPanel.setBackground(ColourSettings.getSplitter());
+        trackDockingManager.getWorkspace().setBackground(ColourSettings.getSplitter());
         //trackDockingManager.setSidebarRollover(false);
         trackDockingManager.getWorkspace().setBackground(Color.red);
         trackDockingManager.setInitNorthSplit(JideSplitPane.VERTICAL_SPLIT);
@@ -482,7 +482,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         javax.swing.JPopupMenu.Separator jSeparator2 = new javax.swing.JPopupMenu.Separator();
         menuItemAddToFaves = new javax.swing.JMenuItem();
         menuitem_deselectall = new javax.swing.JMenuItem();
-        javax.swing.JPopupMenu.Separator jSeparator8 = new javax.swing.JPopupMenu.Separator();
+        jSeparator8 = new javax.swing.JPopupMenu.Separator();
         menuitem_preferences = new javax.swing.JMenuItem();
         menu_view = new javax.swing.JMenu();
         menuItemPanLeft = new javax.swing.JMenuItem();
@@ -532,7 +532,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         panelExtendedMiddle.setLayout(panelExtendedMiddleLayout);
         panelExtendedMiddleLayout.setHorizontalGroup(
             panelExtendedMiddleLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 878, Short.MAX_VALUE)
+            .addGap(0, 886, Short.MAX_VALUE)
         );
         panelExtendedMiddleLayout.setVerticalGroup(
             panelExtendedMiddleLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -550,7 +550,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         panel_main.setLayout(panel_mainLayout);
         panel_mainLayout.setHorizontalGroup(
             panel_mainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 878, Short.MAX_VALUE)
+            .addGap(0, 886, Short.MAX_VALUE)
         );
         panel_mainLayout.setVerticalGroup(
             panel_mainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -585,7 +585,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         panel_toolbar.setLayout(panel_toolbarLayout);
         panel_toolbarLayout.setHorizontalGroup(
             panel_toolbarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 878, Short.MAX_VALUE)
+            .addGap(0, 886, Short.MAX_VALUE)
         );
         panel_toolbarLayout.setVerticalGroup(
             panel_toolbarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -997,12 +997,12 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(panel_top, javax.swing.GroupLayout.DEFAULT_SIZE, 878, Short.MAX_VALUE)
+            .addComponent(panel_top, javax.swing.GroupLayout.DEFAULT_SIZE, 886, Short.MAX_VALUE)
             .addGroup(layout.createSequentialGroup()
                 .addComponent(toolbar_bottom, javax.swing.GroupLayout.DEFAULT_SIZE, 866, Short.MAX_VALUE)
                 .addContainerGap())
-            .addComponent(panel_toolbar, javax.swing.GroupLayout.DEFAULT_SIZE, 878, Short.MAX_VALUE)
-            .addComponent(panel_main, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 878, Short.MAX_VALUE)
+            .addComponent(panel_toolbar, javax.swing.GroupLayout.DEFAULT_SIZE, 886, Short.MAX_VALUE)
+            .addComponent(panel_main, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 886, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1231,18 +1231,18 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
     private void menuItemShiftEndActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuItemShiftEndActionPerformed
         rangeController.shiftRangeFarRight();
     }//GEN-LAST:event_menuItemShiftEndActionPerformed
-    static boolean arePreferencesIntialized = false;
+    static boolean arePreferencesInitialized = false;
 
     private void menuitem_preferencesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuitem_preferencesActionPerformed
 
-        if (!arePreferencesIntialized) {
+        if (!arePreferencesInitialized) {
             SettingsDialog.addSection(new ColourSchemeSettingsSection());
             SettingsDialog.addSection(new TemporaryFilesSettingsSection());
             //SettingsDialog.addSection(new ResolutionSettingsSection());
-            arePreferencesIntialized = true;
+            arePreferencesInitialized = true;
         }
 
-        SettingsDialog.showOptionsDialog();
+        SettingsDialog.showOptionsDialog(this);
     }//GEN-LAST:event_menuitem_preferencesActionPerformed
 
     private void menuitem_toolsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuitem_toolsActionPerformed
@@ -1372,6 +1372,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
     private javax.swing.JPopupMenu.Separator jSeparator3;
     private javax.swing.JPopupMenu.Separator jSeparator4;
     private javax.swing.JPopupMenu.Separator jSeparator7;
+    private javax.swing.JPopupMenu.Separator jSeparator8;
     private javax.swing.JPopupMenu.Separator jSeparator9;
     private javax.swing.JLabel label_memory;
     private javax.swing.JLabel label_mouseposition;
@@ -1475,6 +1476,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
                 });
                 menuitem_file.remove(jSeparator9);
                 menuitem_file.remove(menuitem_exit);
+                menu_edit.remove(jSeparator8);
                 menu_edit.remove(menuitem_preferences);
             } catch (Exception e) {
                 LOG.error("Unable to load Apple eAWT classes.");
@@ -2188,7 +2190,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
     private JPanel createTabPanel(JTabbedPane jtp, String name) {
         JPanel pan = new JPanel();
         pan.setLayout(new BorderLayout());
-        pan.setBackground(ColourSettings.colorTabBackground);
+        pan.setBackground(ColourSettings.getTabBackground());
         jtp.addTab(name, pan);
         return pan;
     }

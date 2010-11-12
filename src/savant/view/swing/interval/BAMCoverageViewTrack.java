@@ -96,7 +96,7 @@ public class BAMCoverageViewTrack extends ViewTrack {
         ColorScheme c = new ColorScheme();
 
         /* add settings here */
-        c.addColorSetting("Line", ColourSettings.continuousLine);
+        c.addColorSetting("Line", ColourSettings.getContinuousLine());
 
         return c;
     }

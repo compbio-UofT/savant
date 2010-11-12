@@ -218,10 +218,6 @@
               </Events>
             </MenuItem>
             <MenuItem class="javax.swing.JPopupMenu$Separator" name="jSeparator8">
-              <AuxValues>
-                <AuxValue name="JavaCodeGenerator_VariableLocal" type="java.lang.Boolean" value="true"/>
-                <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="0"/>
-              </AuxValues>
             </MenuItem>
             <MenuItem class="javax.swing.JMenuItem" name="menuitem_preferences">
               <Properties>
@@ -553,13 +549,13 @@
   <Layout>
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Component id="panel_top" alignment="0" pref="878" max="32767" attributes="0"/>
+          <Component id="panel_top" alignment="0" pref="886" max="32767" attributes="0"/>
           <Group type="102" alignment="0" attributes="0">
               <Component id="toolbar_bottom" pref="866" max="32767" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
-          <Component id="panel_toolbar" alignment="0" pref="878" max="32767" attributes="0"/>
-          <Component id="panel_main" alignment="1" pref="878" max="32767" attributes="0"/>
+          <Component id="panel_toolbar" alignment="0" pref="886" max="32767" attributes="0"/>
+          <Component id="panel_main" alignment="1" pref="886" max="32767" attributes="0"/>
       </Group>
     </DimensionLayout>
     <DimensionLayout dim="1">
@@ -613,7 +609,7 @@
           <Layout>
             <DimensionLayout dim="0">
               <Group type="103" groupAlignment="0" attributes="0">
-                  <EmptySpace min="0" pref="878" max="32767" attributes="0"/>
+                  <EmptySpace min="0" pref="886" max="32767" attributes="0"/>
               </Group>
             </DimensionLayout>
             <DimensionLayout dim="1">
@@ -644,7 +640,7 @@
       <Layout>
         <DimensionLayout dim="0">
           <Group type="103" groupAlignment="0" attributes="0">
-              <EmptySpace min="0" pref="878" max="32767" attributes="0"/>
+              <EmptySpace min="0" pref="886" max="32767" attributes="0"/>
           </Group>
         </DimensionLayout>
         <DimensionLayout dim="1">
@@ -712,7 +708,7 @@
       <Layout>
         <DimensionLayout dim="0">
           <Group type="103" groupAlignment="0" attributes="0">
-              <EmptySpace min="0" pref="878" max="32767" attributes="0"/>
+              <EmptySpace min="0" pref="886" max="32767" attributes="0"/>
           </Group>
         </DimensionLayout>
         <DimensionLayout dim="1">

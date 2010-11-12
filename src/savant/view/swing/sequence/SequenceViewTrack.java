@@ -65,10 +65,10 @@ public class SequenceViewTrack extends ViewTrack {
         ColorScheme c = new ColorScheme();
 
         /* add settings here */
-        c.addColorSetting("A", ColourSettings.A_COLOR);
-        c.addColorSetting("C", ColourSettings.C_COLOR);
-        c.addColorSetting("G", ColourSettings.G_COLOR);
-        c.addColorSetting("T", ColourSettings.T_COLOR);
+        c.addColorSetting("A", ColourSettings.getA());
+        c.addColorSetting("C", ColourSettings.getC());
+        c.addColorSetting("G", ColourSettings.getG());
+        c.addColorSetting("T", ColourSettings.getT());
         c.addColorSetting("Line", Color.black);
         c.addColorSetting("Background", new Color(100,100,100,220));
 

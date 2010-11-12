@@ -14,171 +14,118 @@
  *    limitations under the License.
  */
 
-
 package savant.settings;
+
+import java.awt.*;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import javax.swing.*;
+import javax.swing.table.TableCellRenderer;
 
 import com.jidesoft.action.CommandBar;
 import com.jidesoft.converter.ConverterContext;
-import com.jidesoft.docking.DockableFrame;
 import com.jidesoft.grid.*;
 import com.jidesoft.swing.JideSwingUtilities;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.swing.*;
-import java.awt.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import javax.swing.table.TableCellRenderer;
-import savant.controller.RangeController;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import savant.controller.ViewTrackController;
-import savant.view.swing.Savant;
 import savant.view.swing.ViewTrack;
 
 /**
+ * SettingsDialog panel which lets the user screw up their colour settings.
  *
  * @author mfiume
  */
 public class ColourSchemeSettingsSection extends Section {
 
-    private PropertyTable _table;
-    private static PropertyTable table;
-    private PropertyPane _pane;
+    private static final Log LOG = LogFactory.getLog(ColourSchemeSettingsSection.class);
+
+    private PropertyPane pane;
     private PropertyTableModel model;
-    static HashMap<String, Object> map = new HashMap<String, Object>();
-    private JPanel panel;
+    static HashMap<String, Color> map = new HashMap<String, Color>();
 
-    public ColourSchemeSettingsSection(){
+    private static final String A_NAME = "A";
+    private static final String C_NAME = "C";
+    private static final String G_NAME = "G";
+    private static final String T_NAME = "T";
+    private static final String FORWARD_STRAND_NAME = "Forward Strand";
+    private static final String REVERSE_STRAND_NAME = "Reverse Strand";
+    private static final String INVERTED_READ_NAME = "Inverted Read";
+    private static final String INVERTED_MATE_NAME = "Inverted Mate";
+    private static final String EVERTED_PAIR_NAME = "Everted Pair";
+    private static final String DISCORDANT_LENGTH_NAME = "Discordant Length";
+    private static final String LINE_NAME = "Line";
+    private static final String CONTINUOUS_LINE_NAME = "Continuous Line";
+    private static final String POINT_LINE_NAME = "Point Line";
+    private static final String POINT_FILL_NAME = "Point Fill";
 
-        panel = new JPanel(new BorderLayout(12, 12));
-        _table = createTable();
-        _pane = new PropertyPane(_table) {
-            @Override
-            protected JComponent createToolBarComponent() {
-                CommandBar toolBar = new CommandBar();
-                toolBar.setBorder(BorderFactory.createEmptyBorder(2, 0, 0, 0));
-                toolBar.setFloatable(false);
-                toolBar.setStretch(true);
-                toolBar.setPaintBackground(false);
-                toolBar.setChevronAlwaysVisible(false);
-                return toolBar;
-            }
-        };
-
-        _pane.setShowDescription(false);
-
-        panel.add(_pane, BorderLayout.CENTER);
-    }
-
+    @Override
     public String getSectionName() {
         return "Colour Schemes";
     }
 
+    @Override
     public Icon getSectionIcon() {
         return null;
     }
 
+    @Override
     public void applyChanges() {
-
-        //TODO: ISSUE A WARNING THAT CHANGES WILL BE OVERWRITTEN
-        
-        Iterator it = map.keySet().iterator();
-        while(it.hasNext()){
-
-            Object o = it.next();
-            String name = (String) o;
-            Color c = (Color)map.get(name);
-
-            //nucleotides
-            if(name.equals("A")) ColourSettings.A_COLOR = c;
-            else if(name.equals("C")) ColourSettings.C_COLOR = c;
-            else if(name.equals("G")) ColourSettings.G_COLOR = c;
-            else if(name.equals("T")) ColourSettings.T_COLOR = c;
-
-            //interval
-            else if(name.equals("Forward Strand")) ColourSettings.forwardStrand = c;
-            else if(name.equals("Reverse Strand")) ColourSettings.reverseStrand = c;
-            else if(name.equals("Inverted Read")) ColourSettings.invertedRead = c;
-            else if(name.equals("Inverted Mate")) ColourSettings.invertedMate = c;
-            else if(name.equals("Everted Pair")) ColourSettings.evertedPair = c;
-            else if(name.equals("Discordant Length")) ColourSettings.discordantLength = c;
-            else if(name.equals("Line")) ColourSettings.line = c;
-
-            //continuous
-            else if(name.equals("Continuous Line")) ColourSettings.continuousLine = c;
-
-            //point
-            else if(name.equals("Point Fill")) ColourSettings.colorGraphMain = c;
-            else if(name.equals("Point Line")) ColourSettings.colorAccent = c;
-
-        }
-
-        //modify existing colour schemes
-        java.util.List<ViewTrack> viewTracks = ViewTrackController.getInstance().getTracks();
-        for(int i = 0; i < viewTracks.size(); i++){
-            viewTracks.get(i).resetColorScheme();
-            viewTracks.get(i).getFrame().getGraphPane().setRenderRequired();
+        // Only save anything if this panel has gone through lazy initialization.
+        if (pane != null) {
             try {
-                viewTracks.get(i).getFrame().redrawTracksInRange();
-            } catch (Exception ex) {
-                Logger.getLogger(ColourSchemeSettingsSection.class.getName()).log(Level.SEVERE, null, ex);
+            //nucleotides
+                ColourSettings.setA(map.get(A_NAME));
+                ColourSettings.setC(map.get(C_NAME));
+                ColourSettings.setG(map.get(G_NAME));
+                ColourSettings.setT(map.get(T_NAME));
+
+                //interval
+                ColourSettings.setForwardStrand(map.get(FORWARD_STRAND_NAME));
+                ColourSettings.setReverseStrand(map.get(REVERSE_STRAND_NAME));
+                ColourSettings.setInvertedRead(map.get(INVERTED_READ_NAME));
+                ColourSettings.setInvertedMate(map.get(INVERTED_MATE_NAME));
+                ColourSettings.setEvertedPair(map.get(EVERTED_PAIR_NAME));
+                ColourSettings.setDiscordantLength(map.get(DISCORDANT_LENGTH_NAME));
+                ColourSettings.setLine(map.get(LINE_NAME));
+
+                //continuous
+                ColourSettings.setContinuousLine(map.get(CONTINUOUS_LINE_NAME));
+
+                //point
+                ColourSettings.setPointFill(map.get(POINT_FILL_NAME));
+                ColourSettings.setPointLine(map.get(POINT_LINE_NAME));
+
+                PersistentSettings.getInstance().store();
+
+                //modify existing colour schemes
+                java.util.List<ViewTrack> viewTracks = ViewTrackController.getInstance().getTracks();
+                for(int i = 0; i < viewTracks.size(); i++){
+                    viewTracks.get(i).resetColorScheme();
+                    viewTracks.get(i).getFrame().getGraphPane().setRenderRequired();
+                    try {
+                        viewTracks.get(i).getFrame().redrawTracksInRange();
+                    } catch (Exception ex) {
+                        LOG.error(null, ex);
+                    }
+                }
+            } catch (IOException iox) {
+                LOG.error("Unable to save colour settings.", iox);
             }
         }
     }
 
+    @Override
     public void lazyInitialize() {
         setLayout(new BorderLayout());
         add(SettingsDialog.getHeader(getTitle()), BorderLayout.BEFORE_FIRST_LINE);
-        this.add(this.panel);
-    }
+        JPanel panel = new JPanel(new BorderLayout(12, 12));
 
-    public void populate(){
-
-        //nucleotides
-        addProperty("A", "Nucleotide A", "Nucleotide", Color.class);
-        map.put("A", ColourSettings.A_COLOR);
-        addProperty("C", "Nucleotide C", "Nucleotide", Color.class);
-        map.put("C", ColourSettings.C_COLOR);
-        addProperty("G", "Nucleotide G", "Nucleotide", Color.class);
-        map.put("G", ColourSettings.G_COLOR);
-        addProperty("T", "Nucleotide T", "Nucleotide", Color.class);
-        map.put("T", ColourSettings.T_COLOR);
-
-        //interval
-        addProperty("Forward Strand", "Colour of forward strands", "Interval", Color.class);
-        map.put("Forward Strand", ColourSettings.forwardStrand);
-        addProperty("Reverse Strand", "Colour of reverse strands", "Interval", Color.class);
-        map.put("Reverse Strand", ColourSettings.reverseStrand);
-        addProperty("Inverted Read", "Colour of inverted reads", "Interval", Color.class);
-        map.put("Inverted Read", ColourSettings.invertedRead);
-        addProperty("Inverted Mate", "Colour of inverted mates", "Interval", Color.class);
-        map.put("Inverted Mate", ColourSettings.invertedMate);
-        addProperty("Everted Pair", "Colour of everted pairs", "Interval", Color.class);
-        map.put("Everted Pair", ColourSettings.evertedPair);
-        addProperty("Discordant Length", "Colour of discordant lengths", "Interval", Color.class);
-        map.put("Discordant Length", ColourSettings.discordantLength);
-        addProperty("Line", "Colour of lines", "Interval", Color.class);
-        map.put("Line", ColourSettings.line);
-
-        //continuous
-        addProperty("Continuous Line", "Colour of continuous lines", "Continuous", Color.class);
-        map.put("Continuous Line", ColourSettings.continuousLine);
-
-        //point
-        addProperty("Point Fill", "Colour of point fill", "Point", Color.class);
-        map.put("Point Fill", ColourSettings.colorGraphMain);
-        addProperty("Point Line", "Colour of point line", "Point", Color.class);
-        map.put("Point Line", ColourSettings.colorAccent);
-
-        model.expandAll();
-    }
-
-    private PropertyTable createTable() {
-
-        ArrayList<SampleProperty> list = new ArrayList<SampleProperty>();
-
-        model = new PropertyTableModel<SampleProperty>(list);
-        table = new PropertyTable(model) {
+        ArrayList<ColourProperty> list = new ArrayList<ColourProperty>();
+        model = new PropertyTableModel<ColourProperty>(list);
+        PropertyTable table = new PropertyTable(model) {
             @Override
             public TableCellRenderer getCellRenderer(int row, int column) {
                 Property property = getPropertyTableModel().getPropertyAt(row);
@@ -195,22 +142,67 @@ public class ColourSchemeSettingsSection extends Section {
         searchable.setRecursive(true);
 
         table.setTableStyleProvider(new RowStripeTableStyleProvider());
-        return table;
+        pane = new PropertyPane(table) {
+            @Override
+            protected JComponent createToolBarComponent() {
+                CommandBar toolBar = new CommandBar();
+                toolBar.setBorder(BorderFactory.createEmptyBorder(2, 0, 0, 0));
+                toolBar.setFloatable(false);
+                toolBar.setStretch(true);
+                toolBar.setPaintBackground(false);
+                toolBar.setChevronAlwaysVisible(false);
+                return toolBar;
+            }
+        };
+
+        pane.setShowDescription(false);
+
+        panel.add(pane, BorderLayout.CENTER);
+        add(panel);
     }
 
-    private void addProperty(String name, String description, String category, Class type){
+    @Override
+    public void populate(){
+
+        //nucleotides
+        addProperty(A_NAME, "Nucleotide A", "Nucleotide", ColourSettings.getA());
+        addProperty(C_NAME, "Nucleotide C", "Nucleotide", ColourSettings.getC());
+        addProperty(G_NAME, "Nucleotide G", "Nucleotide", ColourSettings.getG());
+        addProperty(T_NAME, "Nucleotide T", "Nucleotide", ColourSettings.getT());
+
+        //interval
+        addProperty(FORWARD_STRAND_NAME, "Colour of forward strands", "Interval", ColourSettings.getForwardStrand());
+        addProperty(REVERSE_STRAND_NAME, "Colour of reverse strands", "Interval", ColourSettings.getReverseStrand());
+        addProperty(INVERTED_READ_NAME, "Colour of inverted reads", "Interval", ColourSettings.getInvertedRead());
+        addProperty(INVERTED_MATE_NAME, "Colour of inverted mates", "Interval", ColourSettings.getInvertedMate());
+        addProperty(EVERTED_PAIR_NAME, "Colour of everted pairs", "Interval", ColourSettings.getEvertedPair());
+        addProperty(DISCORDANT_LENGTH_NAME, "Colour of discordant lengths", "Interval", ColourSettings.getDiscordantLength());
+        addProperty(LINE_NAME, "Colour of lines", "Interval", ColourSettings.getLine());
+
+        //continuous
+        addProperty(CONTINUOUS_LINE_NAME, "Colour of continuous lines", "Continuous", ColourSettings.getContinuousLine());
+
+        //point
+        addProperty(POINT_FILL_NAME, "Colour of point fill", "Point", ColourSettings.getPointFill());
+        addProperty(POINT_LINE_NAME, "Colour of point line", "Point", ColourSettings.getPointLine());
+
+        model.expandAll();
+    }
+
+    private void addProperty(String name, String description, String category, Color value){
         int pos = findProperty(name);
-        if(pos == -1){
-            SampleProperty property = new SampleProperty(name, description, type, category, this);
+        if (pos == -1){
+            ColourProperty property = new ColourProperty(name, description, Color.class, category, this);
             model.getOriginalProperties().add(property);
             model.refresh();
         }
+        map.put(name, value);
     }
 
     private int findProperty(String name){
         int result = -1;
         for(int j = 0; j < model.getOriginalProperties().size(); j++){
-            if(((SampleProperty) model.getOriginalProperties().get(j)).getName().equals(name)){
+            if(((ColourProperty) model.getOriginalProperties().get(j)).getName().equals(name)){
                 result = j;
                 break;
             }
@@ -218,39 +210,41 @@ public class ColourSchemeSettingsSection extends Section {
         return result;
     }
 
-    static class SampleProperty extends Property {
+    static class ColourProperty extends Property {
 
         private ColourSchemeSettingsSection csss = null;
 
-        public SampleProperty(String name, String description, Class type, String category, ConverterContext context) {
+        public ColourProperty(String name, String description, Class type, String category, ConverterContext context) {
             super(name, description, type, category, context);
         }
 
-        public SampleProperty(String name, String description, Class type, String category, ColourSchemeSettingsSection csss) {
+        public ColourProperty(String name, String description, Class type, String category, ColourSchemeSettingsSection csss) {
             super(name, description, type, category);
             this.csss = csss;
         }
 
-        public SampleProperty(String name, String description, Class type) {
+        public ColourProperty(String name, String description, Class type) {
             super(name, description, type);
         }
 
-        public SampleProperty(String name, String description) {
+        public ColourProperty(String name, String description) {
             super(name, description);
         }
 
-        public SampleProperty(String name) {
+        public ColourProperty(String name) {
             super(name);
         }
 
+        @Override
         public void setValue(Object value) {
             Object old = getValue();
             if (!JideSwingUtilities.equals(old, value)) {
                 csss.enableApplyButton();
-                map.put(getFullName(), value);
+                map.put(getFullName(), (Color)value);
             }
         }
 
+        @Override
         public Object getValue() {
             return map.get(getFullName());
         }

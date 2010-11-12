@@ -116,10 +116,10 @@ public class BEDViewTrack extends ViewTrack {
         ColorScheme c = new ColorScheme();
 
         /* add settings here */
-        c.addColorSetting("Forward Strand", ColourSettings.forwardStrand);
-        c.addColorSetting("Reverse Strand", ColourSettings.reverseStrand);
-        c.addColorSetting("Translucent Graph", ColourSettings.translucentGraph);        
-        c.addColorSetting("Line", ColourSettings.line);
+        c.addColorSetting("Forward Strand", ColourSettings.getForwardStrand());
+        c.addColorSetting("Reverse Strand", ColourSettings.getReverseStrand());
+        c.addColorSetting("Translucent Graph", ColourSettings.getTranslucentGraph());
+        c.addColorSetting("Line", ColourSettings.getLine());
 
         return c;
     }
