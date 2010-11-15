@@ -21,6 +21,7 @@ package savant.util;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.SocketTimeoutException;
 import java.net.URL;
 
 import net.sf.samtools.util.SeekableStream;
@@ -42,6 +43,7 @@ import org.apache.commons.net.ftp.FTPReply;
 public class SeekableFTPStream extends SeekableStream {
 
     private static Log LOG = LogFactory.getLog(SeekableFTPStream.class);
+    private static final int SOCKET_TIMEOUT = 10000;
 
     private final String source;
     private final String username;
@@ -118,7 +120,7 @@ public class SeekableFTPStream extends SeekableStream {
     public int read(byte[] bytes, int offset, int len) throws IOException {
         try {
             return readFromStream(bytes, offset, len);
-        } catch (FTPConnectionClosedException e) {
+        } catch (FTPConnectionClosedException x) {
             LOG.info("Connection closed during read.  Disconnecting and trying again at " + position);
             disconnect();
             return readFromStream(bytes, offset, len);
@@ -143,13 +145,17 @@ public class SeekableFTPStream extends SeekableStream {
                }
                n += bytesRead;
             }
-            position += n;
             is.close();
-            LOG.info(String.format("FTP reading %d bytes at %d: %02x %02x %02x %02x %02x %02x %02x %02x...", len, oldPos, bytes[offset], bytes[offset + 1], bytes[offset + 2], bytes[offset + 3], bytes[offset + 4], bytes[offset + 5], bytes[offset + 6], bytes[offset + 7]));
+            LOG.info(String.format("FTP read %d bytes at %d: %02x %02x %02x %02x %02x %02x %02x %02x...", len, oldPos, bytes[offset], bytes[offset + 1], bytes[offset + 2], bytes[offset + 3], bytes[offset + 4], bytes[offset + 5], bytes[offset + 6], bytes[offset + 7]));
             try {
                 client.completePendingCommand();
             } catch (FTPConnectionClosedException suppressed) {
+            } catch (SocketTimeoutException stx) {
+                // Accessing 1000 Genomes, we sometimes get a timeout for no apparent reason.
+                LOG.info("Timed out during read.  Disconnecting.");
+                disconnect();
             }
+            position += n;
             return n;
         } else {
             String msg = String.format("Unable to retrieve input stream for file (reply code %1).", client.getReplyCode());
@@ -219,6 +225,7 @@ public class SeekableFTPStream extends SeekableStream {
         client.login(username, password);
         client.setFileType(FTP.BINARY_FILE_TYPE);
         client.enterLocalPassiveMode();
+        client.setSoTimeout(SOCKET_TIMEOUT);
         int reply = client.getReplyCode();
         if (!FTPReply.isPositiveCompletion(reply)) {
             client.disconnect();
