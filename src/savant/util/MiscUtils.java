@@ -279,14 +279,18 @@ public class MiscUtils {
         }
     }
 
+    /**
+     * If u is a file:// URI, return the absolute path.  If it's a network URI, leave
+     * it unchanged.
+     *
+     * @param u the URI to be neatened
+     * @return a canonical string representing the URI.
+     */
     public static String getNeatPathFromURI(URI u) {
-        return (new File(u)).getAbsolutePath();
-        /*
-        String uglypath = u.toASCIIString();
-         String neatpath = uglypath.replace("file:/", "");
-         return neatpath;
-         * 
-         */
+        if (u.getScheme().equals("file")) {
+            return (new File(u)).getAbsolutePath();
+        }
+        return u.toString();
      }
 
     public static String getNeatPathFromString(String s) {
