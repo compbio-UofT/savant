@@ -34,6 +34,7 @@ import savant.data.types.GenericContinuousRecord;
 import savant.file.*;
 import savant.format.ContinuousFormatterHelper;
 import savant.format.ContinuousFormatterHelper.Level;
+import savant.util.MiscUtils;
 import savant.util.Range;
 import savant.util.Resolution;
 import savant.util.SavantFileUtils;
@@ -95,7 +96,10 @@ public class GenericContinuousDataSource implements DataSource<GenericContinuous
         List<GenericContinuousRecord> data = new ArrayList<GenericContinuousRecord>();
 
         if (!savantFile.containsDataForReference(ref)) {
-            return data;
+            ref = MiscUtils.homogenizeSequence(ref);
+            if (!savantFile.containsDataForReference(ref)) {
+                return data;
+            }
         }
 
         Level lev = getBestLevel(refnameToLevelsIndex.get(ref), r);
