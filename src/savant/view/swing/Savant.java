@@ -21,9 +21,12 @@ import java.awt.event.*;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.*;
 import java.util.List;
+
 import com.apple.eawt.*;
 import com.jidesoft.docking.*;
 import com.jidesoft.docking.event.DockableFrameEvent;
@@ -36,6 +39,7 @@ import com.jidesoft.swing.JideSplitPane;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jdom.JDOMException;
+
 import savant.analysis.BatchAnalysisForm;
 import savant.controller.*;
 import savant.controller.event.bookmark.BookmarksChangedEvent;
@@ -50,6 +54,7 @@ import savant.data.types.Genome;
 import savant.net.DownloadTreeList;
 import savant.plugin.XMLTool;
 import savant.settings.*;
+import savant.startpage.StartPage;
 import savant.swing.component.TrackChooser;
 import savant.util.DownloadFile;
 import savant.util.MiscUtils;
@@ -57,13 +62,12 @@ import savant.util.Range;
 import savant.view.dialog.DataFormatForm;
 import savant.view.dialog.GenomeLengthForm;
 import savant.view.dialog.OpenURLDialog;
+import savant.view.dialog.PluginManagerDialog;
+import savant.view.icon.SavantIconFactory;
 import savant.view.swing.util.DialogUtils;
 import savant.view.tools.ToolsModule;
-import savant.view.icon.SavantIconFactory;
 import savant.xml.XMLVersion;
 import savant.xml.XMLVersion.Version;
-import savant.startpage.StartPage;
-import savant.view.dialog.PluginManagerDialog;
 
 /**
  * Main application Window (Frame).
@@ -122,9 +126,14 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         this.menuItem_viewtoolbar.setSelected(isVisible);
     }
 
-    public void addTrackFromFile(String selectedFileName) throws IOException {
+    public void addTrackFromFile(String selectedFileName) throws IOException, URISyntaxException {
 
-        if (ViewTrackController.getInstance().containsTrack(selectedFileName)) {
+        URI uri = new URI(selectedFileName);
+        if (uri.getScheme() == null) {
+            uri = new File(selectedFileName).toURI();
+        }
+
+        if (ViewTrackController.getInstance().containsTrack(uri)) {
             JOptionPane.showMessageDialog(this, "This track is already loaded.");
             return;
         }
@@ -144,8 +153,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
 
         if (tracks != null && tracks.size() > 0) {
             Frame frame = null;
-            DockableFrame df = DockableFrameFactory.createTrackFrame(MiscUtils.getNeatPathFromString(selectedFileName));
-                    //MiscUtils.getFilenameFromPath(selectedFileName));
+            DockableFrame df = DockableFrameFactory.createTrackFrame(MiscUtils.getNeatPathFromURI(uri));
             JPanel panel = (JPanel) df.getContentPane();
             if (!tracks.isEmpty()) {
 
@@ -2753,8 +2761,8 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
             }
             try {
                 addTrackFromFile(urlDialog.getUrlAsString());
-            } catch (IOException e) {
-                DialogUtils.displayException("Load Track from URL", "Error opening remote file", e);
+            } catch (Exception ex) {
+                DialogUtils.displayException("Load Track from URL", "Error opening remote file", ex);
             }
         }
     }

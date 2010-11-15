@@ -10,13 +10,11 @@
  */
 package savant.view.dialog;
 
-import com.jidesoft.dialog.JideOptionPane;
-import java.io.IOException;
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import savant.file.FileType;
+
+import com.jidesoft.dialog.JideOptionPane;
+
 import savant.format.DataFormatter;
 import savant.format.DataFormatterThread;
 import savant.format.FormatProgressListener;
@@ -30,7 +28,6 @@ import savant.view.swing.Savant;
  */
 public class FormatFrame extends javax.swing.JFrame implements FormatProgressListener {
 
-    private static final Log log = LogFactory.getLog(DataFormatForm.class);
     //DataFormatter dataFormatter;
     Thread formatThread;
     String inputFilePath;
@@ -62,7 +59,7 @@ public class FormatFrame extends javax.swing.JFrame implements FormatProgressLis
         formatThread.start();
     }
 
-    public void setSubtaskStatus(String msg) {
+    public final void setSubtaskStatus(String msg) {
         if (msg != null) {
             this.label_status.setText(msg);
         }
@@ -77,7 +74,7 @@ public class FormatFrame extends javax.swing.JFrame implements FormatProgressLis
     
     int subtaskprogress;
 
-    public void setSubtaskProgress(Integer p) {
+    public final void setSubtaskProgress(Integer p) {
         if (p == null) {
             //this.progress_current.setIndeterminate(true);
         } else if (p >= 0 && p <= 100) {
@@ -93,7 +90,7 @@ public class FormatFrame extends javax.swing.JFrame implements FormatProgressLis
         this.label_overallstatus.setText("Format complete.");
     }
 
-    public void setOverallProgress(int at) {
+    public final void setOverallProgress(int at) {
         if (at != overallprogress_at) {
             setSubtaskProgress(0);
         }
@@ -273,7 +270,7 @@ public class FormatFrame extends javax.swing.JFrame implements FormatProgressLis
             if (result == JOptionPane.YES_OPTION) {
                 try {
                     Savant.getInstance().addTrackFromFile(outputFilePath);
-                } catch (IOException ex) {
+                } catch (Exception ex) {
                 }
             }
             this.dispose();

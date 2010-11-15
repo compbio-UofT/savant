@@ -16,15 +16,18 @@
 
 package savant.startpage;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.swing.JEditorPane;
-import javax.swing.event.*;
 import java.io.*;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.Arrays;
+import javax.swing.JEditorPane;
 import javax.swing.JOptionPane;
+import javax.swing.event.*;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import savant.view.swing.Savant;
 
 /**
@@ -32,6 +35,7 @@ import savant.view.swing.Savant;
  * @author AndrewBrook
  */
 public class StartPage extends JEditorPane {
+    private static final Log LOG = LogFactory.getLog(StartPage.class);
 
     public StartPage() throws IOException{
 
@@ -86,12 +90,13 @@ public class StartPage extends JEditorPane {
         
 
         this.addHyperlinkListener(new HyperlinkListener(){
+            @Override
             public void hyperlinkUpdate(HyperlinkEvent e){
-                if(e.getEventType() == HyperlinkEvent.EventType.ACTIVATED){
+                if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED){
                     try {
                         link(e);
-                    } catch (IOException ex) {
-                        Logger.getLogger(StartPage.class.getName()).log(Level.SEVERE, null, ex);
+                    } catch (Exception ex) {
+                        LOG.error(String.format("Unable to update hyperlink %s.", e.getURL()), ex);
                     }
                 }
             }
@@ -99,11 +104,11 @@ public class StartPage extends JEditorPane {
         this.setSize(500, 500);
     }
 
-    private void link(HyperlinkEvent e) throws IOException{
+    private void link(HyperlinkEvent e) throws IOException, URISyntaxException {
         String urlString = e.getDescription();
         String function = urlString.substring(0,2);
         
-        if(function.equals("F1")){
+        if (function.equals("F1")){
             //close
             this.setVisible(false);
         } else if (function.equals("F2")) {

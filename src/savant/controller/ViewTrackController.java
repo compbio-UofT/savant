@@ -25,27 +25,23 @@
  */
 package savant.controller;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import savant.controller.event.viewtrack.ViewTrackListChangedEvent;
-import savant.controller.event.viewtrack.ViewTrackListChangedListener;
-import savant.file.FileFormat;
-import savant.view.swing.ViewTrack;
-
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
 import savant.controller.event.viewtrack.ViewTrackAddedListener;
 import savant.controller.event.viewtrack.ViewTrackAddedOrRemovedEvent;
+import savant.controller.event.viewtrack.ViewTrackListChangedEvent;
+import savant.controller.event.viewtrack.ViewTrackListChangedListener;
 import savant.controller.event.viewtrack.ViewTrackRemovedListener;
-import savant.util.MiscUtils;
+import savant.file.FileFormat;
 import savant.view.swing.Savant;
+import savant.view.swing.ViewTrack;
 
 public class ViewTrackController {
 
     private static ViewTrackController instance;
-
-    private static Log log = LogFactory.getLog(ViewTrackController.class);
 
     List<ViewTrack> tracks;
 
@@ -183,9 +179,9 @@ public class ViewTrackController {
                 Savant.getInstance().getTrackDockingManager(),false);
     }
 
-    public boolean containsTrack(String path) {
+    public boolean containsTrack(URI uri) {
         for (ViewTrack t : tracks) {
-            if (MiscUtils.getNeatPathFromURI(t.getURI()).equals(path)) {
+            if (uri.equals(t.getURI())) {
                 return true;
             }
         }
