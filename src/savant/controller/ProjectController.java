@@ -1,6 +1,17 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ *    Copyright 2010 University of Toronto
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
  */
 package savant.controller;
 
@@ -11,13 +22,16 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import savant.data.types.Genome;
 import savant.exception.SavantEmptySessionException;
 import savant.file.SavantFileNotFormattedException;
@@ -33,6 +47,7 @@ import savant.view.swing.ViewTrack;
  * @author mfiume
  */
 public class ProjectController {
+    private static final Log LOG = LogFactory.getLog(ProjectController.class);
 
     private static ProjectController instance;
     private String KEY_GENOME = "GENOME";
@@ -114,9 +129,9 @@ public class ProjectController {
                 } catch (EOFException e) { break; }
             }
         } catch (ClassNotFoundException ex) {
-            Logger.getLogger(ProjectController.class.getName()).log(Level.SEVERE, null, ex);
+            LOG.error("Unable to read map for " + filename, ex);
         } catch (IOException ex) {
-            Logger.getLogger(ProjectController.class.getName()).log(Level.SEVERE, null, ex);
+            LOG.error("Unable to read map for " + filename, ex);
         }
 
         return map;
@@ -203,12 +218,14 @@ public class ProjectController {
     private Persistent getTrackPersistence() {
         List<String> trackpaths = new ArrayList<String>();
         for (ViewTrack t : ViewTrackController.getInstance().getTracks()) {
-            String path = t.getURI().toString();
-            if(t.getURI().getScheme().equals("file")){
-                path = MiscUtils.getNeatPathFromURI(t.getURI());
-            } 
-            //trackpaths.add(MiscUtils.getNeatPathFromURI(t.getURI()));
-            trackpaths.add(path);
+            URI trackURI = t.getURI();
+            if (trackURI != null) {
+                String path = trackURI.toString();
+                if(trackURI.getScheme().equals("file")){
+                    path = MiscUtils.getNeatPathFromURI(trackURI);
+                }
+                trackpaths.add(path);
+            }
         }
         return new Persistent(KEY_TRACKS, trackpaths);
     }
