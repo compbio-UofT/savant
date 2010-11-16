@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
@@ -78,6 +79,7 @@ public class DownloadTreeList extends JDialog {
         JToolBar bottombar = new JToolBar();
         bottombar.setFloatable(false);
         bottombar.setAlignmentX(RIGHT_ALIGNMENT);
+        bottombar.add(Box.createHorizontalGlue());
         JButton downbutt = new JButton("Download");
         downbutt.addActionListener(new ActionListener() {
 
@@ -94,7 +96,7 @@ public class DownloadTreeList extends JDialog {
 
         });
         bottombar.add(downbutt);
-        this.add(bottombar, BorderLayout.NORTH);
+        this.add(bottombar, BorderLayout.SOUTH);
 
         this.setPreferredSize(new Dimension(800, 500));
         this.pack();

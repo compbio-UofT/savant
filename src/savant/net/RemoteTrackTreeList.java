@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
@@ -82,7 +83,8 @@ public class RemoteTrackTreeList extends JDialog {
         JToolBar bottombar = new JToolBar();
         bottombar.setFloatable(false);
         bottombar.setAlignmentX(RIGHT_ALIGNMENT);
-        JButton openbutt = new JButton("Open Track");
+        bottombar.add(Box.createHorizontalGlue());
+        JButton openbutt = new JButton("Open Remotely");
         openbutt.addActionListener(new ActionListener() {
 
             @Override
@@ -91,6 +93,7 @@ public class RemoteTrackTreeList extends JDialog {
                 if (r != null && r.isLeaf()) {
                     try {
                         Savant.getInstance().addTrackFromFile(r.getURL().toString());
+                        closeDialog();
                     } catch (Exception ex) {
                         JOptionPane.showMessageDialog(p, "Error opening URL: " + r.getURL());
                     }
@@ -101,7 +104,7 @@ public class RemoteTrackTreeList extends JDialog {
 
         });
         bottombar.add(openbutt);
-        JButton downbutt = new JButton("Download Track");
+        JButton downbutt = new JButton("Download");
         downbutt.addActionListener(new ActionListener() {
 
             @Override
@@ -110,6 +113,7 @@ public class RemoteTrackTreeList extends JDialog {
                 if (r != null && r.isLeaf()) {
                     DownloadController.getInstance().enqueueDownload(r.getURL(), new File(saveToDirectory));
                     System.out.println(r.getURL());
+                    closeDialog();
                 } else {
                     JOptionPane.showMessageDialog(p, "Please select a file");
                 }
@@ -117,10 +121,14 @@ public class RemoteTrackTreeList extends JDialog {
 
         });
         bottombar.add(downbutt);
-        this.add(bottombar, BorderLayout.NORTH);
+        this.add(bottombar, BorderLayout.SOUTH);
 
         this.setPreferredSize(new Dimension(800, 500));
         this.pack();
+    }
+
+    private void closeDialog() {
+        this.dispose();
     }
 
     private static TreeRow parseDocumentTreeRow(Element root) {
