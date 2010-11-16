@@ -21,6 +21,7 @@
 package savant.data.sources;
 
 import java.io.*;
+import java.net.URI;
 import java.net.URL;
 import java.util.Properties;
 
@@ -61,9 +62,9 @@ public class BAMIndexCache {
 
     private BAMIndexCache() {}
 
-    public File getBAMIndex(URL url) throws IOException {
+    public File getBAMIndex(URI uri) throws IOException {
 
-        String indexURLString = url.toString() + ".bai";
+        String indexURLString = uri.toString() + ".bai";
         URL indexURL = new URL(indexURLString);
         String hash = null;
 
@@ -76,7 +77,7 @@ public class BAMIndexCache {
 
         if (hash == null) {
             // file doesn't exist, try alternate
-            indexURLString = url.toString().replace("bam", "bai");
+            indexURLString = uri.toString().replace("bam", "bai");
             indexURL = new URL(indexURLString);
             try {
                 hash = NetworkUtils.getHash(indexURL);
@@ -91,10 +92,10 @@ public class BAMIndexCache {
             return null;
         }
 
-        String indexFilename = getIndexFileName(url.toString(), indexURLString);
+        String indexFilename = getIndexFileName(uri.toString(), indexURLString);
         File indexFile = new File(getCacheDir(), indexFilename);
         if (indexFile.exists()) {
-            String cachedTag = getETagForURL(url.toString());
+            String cachedTag = getETagForURL(uri.toString());
             if (cachedTag == null || hash == null || !hash.equals(cachedTag)) {
                 indexFile.delete();    
             }

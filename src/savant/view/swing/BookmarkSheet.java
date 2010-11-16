@@ -15,17 +15,6 @@
  */
 package savant.view.swing;
 
-import savant.view.icon.SavantIconFactory;
-import savant.controller.BookmarkController;
-import savant.controller.RangeController;
-import savant.controller.event.bookmark.BookmarksChangedEvent;
-import savant.controller.event.bookmark.BookmarksChangedListener;
-//import savant.controller.event.range.RangeChangedEvent;
-//import savant.controller.event.range.RangeChangedListener;
-import savant.util.Bookmark;
-import savant.util.Range;
-import savant.view.swing.model.BookmarksTableModel;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -34,7 +23,15 @@ import java.util.List;
 import java.util.StringTokenizer;
 import java.util.Arrays;
 
-import static java.awt.FileDialog.SAVE;
+import savant.controller.BookmarkController;
+import savant.controller.RangeController;
+import savant.controller.event.bookmark.BookmarksChangedEvent;
+import savant.controller.event.bookmark.BookmarksChangedListener;
+import savant.util.Bookmark;
+import savant.util.Range;
+import savant.view.icon.SavantIconFactory;
+import savant.view.swing.model.BookmarksTableModel;
+import savant.view.swing.util.DialogUtils;
 
 /**
  *
@@ -80,6 +77,7 @@ public class BookmarkSheet implements BookmarksChangedListener /*, RangeChangedL
         nextButton.setIcon(SavantIconFactory.getInstance().getIcon(SavantIconFactory.StandardIcon.DOWN));
         nextButton.setToolTipText("Go to next bookmark");
         nextButton.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 goToNextBookmark();
             }
@@ -90,6 +88,7 @@ public class BookmarkSheet implements BookmarksChangedListener /*, RangeChangedL
         JButton goButton = new JButton("Go");
         goButton.setToolTipText("Go to selected bookmark");
         goButton.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 goToSelectedBookmark();
             }
@@ -103,6 +102,7 @@ public class BookmarkSheet implements BookmarksChangedListener /*, RangeChangedL
         addButton.setIcon(SavantIconFactory.getInstance().getIcon(SavantIconFactory.StandardIcon.BKMK_ADD));
         addButton.setToolTipText("Add bookmark for current range");
         addButton.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 BookmarkController fc = BookmarkController.getInstance();
                 fc.addCurrentRangeToBookmarks();
@@ -114,6 +114,7 @@ public class BookmarkSheet implements BookmarksChangedListener /*, RangeChangedL
         deleteButton.setIcon(SavantIconFactory.getInstance().getIcon(SavantIconFactory.StandardIcon.BKMK_RM));
         deleteButton.setToolTipText("Delete selected bookmarks");
         deleteButton.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 BookmarkController fc = BookmarkController.getInstance();
                 int[] selectedRows = table.getSelectedRows();
@@ -160,6 +161,7 @@ public class BookmarkSheet implements BookmarksChangedListener /*, RangeChangedL
         loadButton.setIcon(SavantIconFactory.getInstance().getIcon(SavantIconFactory.StandardIcon.OPEN));
         loadButton.setToolTipText("Load bookmarks from file");
         loadButton.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 loadBookmarks(table);
             }
@@ -170,6 +172,7 @@ public class BookmarkSheet implements BookmarksChangedListener /*, RangeChangedL
         saveButton.setIcon(SavantIconFactory.getInstance().getIcon(SavantIconFactory.StandardIcon.SAVE));
         saveButton.setToolTipText("Save bookmarks to file");
         saveButton.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 saveBookmarks(table);
             }
@@ -202,6 +205,7 @@ public class BookmarkSheet implements BookmarksChangedListener /*, RangeChangedL
         // initContextualMenu();
     }
 
+    @Override
     public void bookmarksChangeReceived(BookmarksChangedEvent event) {
         this.refreshData(event.favorites());
     }
@@ -228,33 +232,14 @@ public class BookmarkSheet implements BookmarksChangedListener /*, RangeChangedL
             }
         }
 
-        JFrame jf = new JFrame();
-        String selectedFileName;
-        if (Savant.mac) {
-            FileDialog fd = new FileDialog(jf, "Load Bookmarks", FileDialog.LOAD);
-            fd.setVisible(true);
-            jf.setAlwaysOnTop(true);
-            // get the path (null if none selected)
-            selectedFileName = fd.getFile();
-            if (selectedFileName != null) {
-                selectedFileName = fd.getDirectory() + selectedFileName;
-            }
-        }
-        else {
-            JFileChooser fd = new JFileChooser();
-            fd.setDialogTitle("Load Bookmards");
-            fd.setDialogType(JFileChooser.OPEN_DIALOG);
-            int result = fd.showOpenDialog(jf);
-            if (result == JFileChooser.CANCEL_OPTION || result == JFileChooser.ERROR_OPTION ) return;
-            selectedFileName = fd.getSelectedFile().getPath();
-        }
+        File selectedFile = DialogUtils.chooseFileForOpen(Savant.getInstance(), "Load Bookmarks", null);
 
         Savant.log("load 0");
 
         // set the genome
-        if (selectedFileName != null) {
+        if (selectedFile != null) {
             try {
-                loadBookmarks(selectedFileName, bookmarks);
+                loadBookmarks(selectedFile, bookmarks);
                 btm.fireTableDataChanged();
             } catch (IOException ex) {
                 String message = "Load unsuccessful";
@@ -270,19 +255,13 @@ public class BookmarkSheet implements BookmarksChangedListener /*, RangeChangedL
         BookmarksTableModel btm = (BookmarksTableModel) table.getModel();
         List<Bookmark> bookmarks = btm.getData();
 
-        JFrame jf = new JFrame();
-        FileDialog fd = new FileDialog(jf, "Save Bookmarks", SAVE);
-        fd.setVisible(true);
-        jf.setAlwaysOnTop(true);
-
         // get the path (null if none selected)
-        String selectedFileName = fd.getFile();
+        File selectedFile = DialogUtils.chooseFileForSave(Savant.getInstance(), "Save Bookmarks");
 
         // set the genome
-        if (selectedFileName != null) {
+        if (selectedFile != null) {
             try {
-                selectedFileName = fd.getDirectory() + selectedFileName;
-                saveBookmarks(selectedFileName, bookmarks);
+                saveBookmarks(selectedFile.getAbsolutePath(), bookmarks);
             } catch (IOException ex) {
                 String message = "Save unsuccessful";
                 String title = "Uh oh...";
@@ -302,11 +281,11 @@ public class BookmarkSheet implements BookmarksChangedListener /*, RangeChangedL
         bw.close();
     }
 
-    private static void loadBookmarks(String filename, List<Bookmark> bookmarks) throws FileNotFoundException, IOException {
+    private static void loadBookmarks(File f, List<Bookmark> bookmarks) throws FileNotFoundException, IOException {
 
         Savant.log("load 1");
 
-        BufferedReader br = new BufferedReader(new FileReader(filename));
+        BufferedReader br = new BufferedReader(new FileReader(f));
 
         BookmarkController bmc = BookmarkController.getInstance();
 

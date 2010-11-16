@@ -62,6 +62,8 @@ public class ScreenShot
     private static String save(BufferedImage screen) {
 
         JFrame jf = new JFrame();
+
+
         String selectedFileName;
         if (Savant.mac) {
             FileDialog fd = new FileDialog(jf, "Output File", FileDialog.SAVE);

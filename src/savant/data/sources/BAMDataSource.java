@@ -1,4 +1,8 @@
 /*
+ * BAMDataSource.java
+ * Created on Jan 28, 2010
+ *
+ *
  *    Copyright 2010 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,22 +18,7 @@
  *    limitations under the License.
  */
 
-/*
- * BAMDataSource.java
- * Created on Jan 28, 2010
- */
-
 package savant.data.sources;
-
-import net.sf.samtools.*;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import savant.controller.RangeController;
-import savant.controller.ReferenceController;
-import savant.data.types.BAMIntervalRecord;
-import savant.util.MiscUtils;
-import savant.util.Range;
-import savant.util.Resolution;
 
 import java.io.File;
 import java.io.IOException;
@@ -41,9 +30,19 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import net.sf.samtools.util.SeekableHTTPStream;
+
+import net.sf.samtools.*;
 import net.sf.samtools.util.SeekableStream;
-import savant.util.SeekableFTPStream;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import savant.controller.RangeController;
+import savant.controller.ReferenceController;
+import savant.data.types.BAMIntervalRecord;
+import savant.util.MiscUtils;
+import savant.util.Range;
+import savant.util.Resolution;
+import savant.util.NetworkUtils;
 
 /**
  * Class to represent a track of BAM intervals. Uses SAMTools to read data within a range.
@@ -73,7 +72,7 @@ public class BAMDataSource implements DataSource<BAMIntervalRecord> {
             // if no exception is thrown, this is an absolute URL
             String proto = fileURL.getProtocol().toLowerCase();
             if (proto.equals("http") || proto.equals("ftp")) {
-                indexFile = getIndexFileCached(fileURL);
+                indexFile = getIndexFileCached(uri);
                 if (indexFile != null) {
                     return new BAMDataSource(fileURL, indexFile);
                 }
@@ -99,15 +98,12 @@ public class BAMDataSource implements DataSource<BAMIntervalRecord> {
         return null;
     }
 
-    public static BAMDataSource fromURI(URI uri) throws IOException {
+    public static BAMDataSource fromURI(URI uri) throws URISyntaxException, IOException {
         if (uri == null) throw new IllegalArgumentException("URI must not be null.");
         if (uri.getScheme() == null) {
-            File file = new File(uri);
-            URI fileUri = file.toURI();
-            URL url = fileUri.toURL();
-            return new BAMDataSource(url);
+            uri = new File(uri).toURI();
         }
-        else return new BAMDataSource(uri.toURL());
+        return new BAMDataSource(uri.toURL());
     }
 
     public BAMDataSource(File file) {
@@ -130,31 +126,18 @@ public class BAMDataSource implements DataSource<BAMIntervalRecord> {
         samFileHeader = samFileReader.getFileHeader();
     }
 
-    public BAMDataSource(URL url) throws IOException {
-        this(url, getIndexFileCached(url));
+    public BAMDataSource(URL url) throws URISyntaxException, IOException {
+        this(url, getIndexFileCached(url.toURI()));
     }
     
-    public BAMDataSource(URL url, File index) {
+    public BAMDataSource(URL url, File index) throws URISyntaxException, IOException {
 
         if (url == null) throw new IllegalArgumentException("URL must not be null");
         if (index == null) throw new IllegalArgumentException("Index file must not be null");
 
-        try {
-            this.uri = url.toURI().normalize();
-        } catch (URISyntaxException e) {
-            throw new IllegalArgumentException("URL is not a valid URI");
-        }
-//        this.fileNameOrURL = url.getFile();
+        uri = url.toURI().normalize();
 
-        String proto = url.getProtocol().toLowerCase();
-        SeekableStream stream;
-        if (proto.equals("http")) {
-            stream = new SeekableHTTPStream(url);
-        } else if (proto.equals("ftp")) {
-            stream = new SeekableFTPStream(url);
-        } else {
-            throw new IllegalArgumentException("Only http:// and ftp:// URLs are supported for BAM access.");
-        }
+        SeekableStream stream = NetworkUtils.getSeekableStreamForURI(uri, true);
         samFileReader = new SAMFileReader(stream, index, false);
         samFileReader.setValidationStringency(SAMFileReader.ValidationStringency.SILENT);
         samFileHeader = samFileReader.getFileHeader();
@@ -339,8 +322,8 @@ public class BAMDataSource implements DataSource<BAMIntervalRecord> {
         return null;
     }
 
-    private static File getIndexFileCached(URL bamURL) throws IOException {
-        return BAMIndexCache.getInstance().getBAMIndex(bamURL);
+    private static File getIndexFileCached(URI bamURI) throws IOException {
+        return BAMIndexCache.getInstance().getBAMIndex(bamURI);
     }
 
     @Override

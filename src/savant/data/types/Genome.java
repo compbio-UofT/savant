@@ -27,7 +27,6 @@ import savant.view.dialog.GenomeLengthForm.ReferenceInfo;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -38,10 +37,8 @@ import savant.view.swing.sequence.SequenceViewTrack;
  *
  * @author mfiume, vwilliams
  */
-public class Genome implements Serializable
-{
+public class Genome implements Serializable {
     private String name;
-    //private String filename; // set, if any
     
     private boolean isAssociatedWithTrack;
 
@@ -52,7 +49,7 @@ public class Genome implements Serializable
     // if not associated with track
     private Map<String,Long> referenceMap;
 
-    public Genome(String name, SequenceViewTrack t) throws URISyntaxException, IOException, SavantFileNotFormattedException, SavantUnsupportedVersionException {
+    public Genome(String name, SequenceViewTrack t) throws IOException, SavantFileNotFormattedException, SavantUnsupportedVersionException {
         isAssociatedWithTrack = true;
         //this.filename = filename;
 
@@ -102,8 +99,7 @@ public class Genome implements Serializable
         this.dataSource = sequenceTrack;
     }
 
-    public void setName(String name)
-    {
+    public final void setName(String name) {
         this.name = name;
     }
 

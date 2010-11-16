@@ -208,7 +208,7 @@ public abstract class ViewTrack {
         return results;
     }
 
-    public static Genome createGenome(String filename) throws IOException, URISyntaxException, SavantFileNotFormattedException, SavantUnsupportedVersionException {
+    public static Genome createGenome(String filename) throws IOException, SavantFileNotFormattedException, SavantUnsupportedVersionException {
 
         List<ViewTrack> tracks = ViewTrack.create(filename);
 

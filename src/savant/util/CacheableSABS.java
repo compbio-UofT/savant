@@ -28,7 +28,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.net.URI;
+
 import net.sf.samtools.util.SeekableStream;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import savant.settings.DirectorySettings;
 
 /**
@@ -36,6 +40,8 @@ import savant.settings.DirectorySettings;
  * @author AndrewBrook
  */
 public class CacheableSABS extends SeekableAdjustableBufferedStream {
+    public static final int DEFAULT_BLOCK_SIZE = 65536;
+    private static final Log LOG = LogFactory.getLog(CacheableSABS.class);
 
     private String cacheFile = null;
     private int numBlocks = 0;
@@ -44,20 +50,20 @@ public class CacheableSABS extends SeekableAdjustableBufferedStream {
     protected InputStream inputStream;
     private URI uri;
 
-    public CacheableSABS(SeekableStream seekable, int bufferSize, URI uri){
+    public CacheableSABS(SeekableStream seekable, int bufferSize, URI uri) {
         super(seekable, bufferSize);
         this.uri = uri;
         try {
             this.initCache();
         } catch(IOException e) {
-            e.printStackTrace();
+            LOG.error("Unable to initialise cache.", e);
         }
     }
 
     @Override
     public int read(byte[] buffer, int offset, int length) throws IOException {
 
-        int posInByteArray = 0;
+        int posInByteArray = offset;
         int bytesRead = 0;
         while(length > 0){
             //how many we can read from this buffer (ie. how far allow stream is it)
@@ -76,12 +82,8 @@ public class CacheableSABS extends SeekableAdjustableBufferedStream {
             byte[] buff1 = new byte[toRead];
 
             //read canRead bytes
-            int bytesReadThisTime = bufferedStream.read(buff1, offset, toRead);
-
-            //copy buff1 into buffer
-            for(int i = 0; i < toRead; i++){
-                buffer[posInByteArray + i] = buff1[i];
-            }
+            int bytesReadThisTime = bufferedStream.read(buff1, 0, toRead);
+            System.arraycopy(buff1, 0, buffer, posInByteArray, toRead);
 
             //prepare for next iteration
             position += bytesReadThisTime;
@@ -106,6 +108,7 @@ public class CacheableSABS extends SeekableAdjustableBufferedStream {
         positionInBuff = positionOffset;
     }
 
+    @Override
     public void seek(long position) throws IOException {
 
         this.position = position;

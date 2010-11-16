@@ -17,7 +17,6 @@
 package savant.startpage;
 
 import java.io.*;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.Arrays;
@@ -28,6 +27,8 @@ import javax.swing.event.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import savant.file.SavantFileNotFormattedException;
+import savant.file.SavantUnsupportedVersionException;
 import savant.view.swing.Savant;
 
 /**
@@ -104,7 +105,7 @@ public class StartPage extends JEditorPane {
         this.setSize(500, 500);
     }
 
-    private void link(HyperlinkEvent e) throws IOException, URISyntaxException {
+    private void link(HyperlinkEvent e) throws IOException, SavantFileNotFormattedException, SavantUnsupportedVersionException {
         String urlString = e.getDescription();
         String function = urlString.substring(0,2);
         

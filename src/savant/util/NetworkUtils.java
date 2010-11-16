@@ -16,10 +16,16 @@
 
 package savant.util;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
+import net.sf.samtools.util.SeekableFileStream;
+import net.sf.samtools.util.SeekableHTTPStream;
+import net.sf.samtools.util.SeekableStream;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -67,5 +73,33 @@ public class NetworkUtils {
         } else {
             throw new IllegalArgumentException("Invalid argument; cannot get hash for " + proto + " URLs");
         }
+    }
+
+    /**
+     * Given a URI, return a SeekableStream of the appropriate type.
+     *
+     * @param url an ftp:, http:, or file: URI
+     * @param cacheing if true, the stream will be a CacheableSABS wrapping the actual stream
+     *
+     * @return a SeekableStream which can be passed to SavantROFile or BAMDataSource
+     */
+    public static SeekableStream getSeekableStreamForURI(URI uri, boolean cacheing) throws IOException, MalformedURLException {
+        String scheme = uri.getScheme().toLowerCase();
+        SeekableStream result;
+        if (scheme.equals("file")) {
+            result = new SeekableFileStream(new File(uri));
+        } else {
+            if (scheme.equals("http")) {
+                result = new SeekableHTTPStream(uri.toURL());
+            } else if (scheme.equals("ftp")) {
+                result = new SeekableFTPStream(uri.toURL());
+            } else {
+                throw new IllegalArgumentException("Only file:, ftp:, and http: URIs are valid.");
+            }
+            if (cacheing) {
+                result = new CacheableSABS(result, CacheableSABS.DEFAULT_BLOCK_SIZE, uri);
+            }
+        }
+        return result;
     }
 }

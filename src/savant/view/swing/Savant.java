@@ -15,10 +15,6 @@
  */
 package savant.view.swing;
 
-import java.io.UnsupportedEncodingException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
@@ -29,6 +25,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.*;
 import java.util.List;
+import javax.swing.*;
 
 import com.apple.eawt.*;
 import com.jidesoft.docking.*;
@@ -39,7 +36,6 @@ import com.jidesoft.plaf.UIDefaultsLookup;
 import com.jidesoft.plaf.basic.ThemePainter;
 import com.jidesoft.status.MemoryStatusBarItem;
 import com.jidesoft.swing.JideSplitPane;
-import java.net.URLEncoder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jdom.JDOMException;
@@ -55,6 +51,8 @@ import savant.controller.event.reference.ReferenceChangedListener;
 import savant.controller.event.track.TrackListChangedEvent;
 import savant.controller.event.track.TrackListChangedListener;
 import savant.data.types.Genome;
+import savant.file.SavantFileNotFormattedException;
+import savant.file.SavantUnsupportedVersionException;
 import savant.net.RemoteTrackTreeList;
 import savant.plugin.XMLTool;
 import savant.settings.*;
@@ -130,10 +128,16 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         this.menuItem_viewtoolbar.setSelected(isVisible);
     }
 
-    public void addTrackFromFile(String selectedFileName) throws IOException, URISyntaxException {
+    public void addTrackFromFile(String selectedFileName) throws IOException, SavantFileNotFormattedException, SavantUnsupportedVersionException {
 
-        URI uri = new URI(selectedFileName);
-        if (uri.getScheme() == null) {
+        URI uri = null;
+        try {
+            uri = new URI(selectedFileName);
+            if (uri.getScheme() == null) {
+                uri = new File(selectedFileName).toURI();
+            }
+        } catch (URISyntaxException usx) {
+            // This can happen if we're passed a file-name containing spaces.
             uri = new File(selectedFileName).toURI();
         }
 
@@ -145,7 +149,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         if (!ReferenceController.getInstance().isGenomeLoaded()) {
             int result = JOptionPane.showConfirmDialog(this, "No genome is loaded yet. Load file as genome?", "No genome loaded", JOptionPane.YES_NO_OPTION);
             if (result == JOptionPane.YES_OPTION) {
-                this.setGenomeFromFile(selectedFileName);
+                setGenomeFromFile(new File(selectedFileName));
             }
             return;
         }
@@ -1078,7 +1082,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
     }//GEN-LAST:event_exitItemActionPerformed
 
     private void openGenomeItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openGenomeItemActionPerformed
-        this.showOpenGenomeDialog();
+        showOpenGenomeDialog();
     }//GEN-LAST:event_openGenomeItemActionPerformed
 
     private void openTrackFromFileItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openTrackFromFileItemActionPerformed
@@ -1654,6 +1658,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         openGenomeItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_G, osSpecificModifier));
         openTrackFromFileItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_T, osSpecificModifier));
         openTrackFromURLItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_U, osSpecificModifier));
+        menuitem_preformatted.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_R, osSpecificModifier));
         openProjectItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_O, osSpecificModifier));
         saveProjectItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_S, osSpecificModifier));
         saveProjectAsItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_S, osSpecificModifier | java.awt.event.InputEvent.SHIFT_MASK));
@@ -2195,10 +2200,10 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
     }
 
     /**
-     * Open Genome Dialog
-     *  Prompt the user to open a genome file.
-     *  Expects a Binary Fasta file (created using the
-     *  data formatter included in the distribution)
+     * Prompt the user to open a genome file.
+     *
+     * Expects a Binary Fasta file (created using the data formatter included in
+     * the distribution).
      */
     void showOpenGenomeDialog() {
 
@@ -2231,21 +2236,20 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
                 setGenome(gf.loadedGenome.getName(), gf.loadedGenome);
             }
         } else if (n == 0) {
-            FileDialog fd = new FileDialog(this, "Load Genome", FileDialog.LOAD);
-            fd.setVisible(true);
-            fd.setAlwaysOnTop(true);
-
-            // get the path (null if none selected)
-            String selectedFileName = fd.getFile();
-
+            File selectedFile = DialogUtils.chooseFileForOpen(this, "Load Genome", null);
             // set the genome
-            if (selectedFileName != null) {
-                selectedFileName = fd.getDirectory() + selectedFileName;
-                Savant.log("Loading genome " + fd.getDirectory(), Savant.LOGMODE.NORMAL);
-                setGenomeFromFile(selectedFileName);
-                Savant.log("Genome loaded", Savant.LOGMODE.NORMAL);
+            if (selectedFile != null) {
+                Savant.log("Loading genome " + selectedFile, Savant.LOGMODE.NORMAL);
+                try {
+                    setGenomeFromFile(selectedFile);
+                    Savant.log("Genome loaded", Savant.LOGMODE.NORMAL);
+                } catch (SavantFileNotFormattedException sfnfx) {
+                    promptUserToFormatFile(selectedFile.getAbsolutePath());
+                } catch (Exception x) {
+
+                }
             } else {
-                this.showOpenGenomeDialog();
+                showOpenGenomeDialog();
             }
         }
     }
@@ -2263,46 +2267,15 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
             return;
         }
 
-        List<String> filenames = new ArrayList<String>();
-
-        if (mac) {
-            // create a frame and place the dialog in it
-            //JFrame jf = new JFrame();
-
-            FileDialog fd = new FileDialog(this, "Open Tracks", FileDialog.LOAD);
-            //        fd.setFilenameFilter(new SavantFileFilter());
-            fd.setVisible(true);
-            fd.setAlwaysOnTop(true);
-
-            if (fd.getFile() == null) {
-                return;
-            }
-
-            String selectedFileName = fd.getDirectory() + fd.getFile();
-
-            filenames.add(selectedFileName);
-
-        } else {
-            JFileChooser fc = new JFileChooser();
-            fc.setMultiSelectionEnabled(true);
-            fc.setDialogTitle("Open Tracks");
-
-            fc.showOpenDialog(this);
-
-            File[] selectedFiles = fc.getSelectedFiles();
-
-            for (File f : selectedFiles) {
-                filenames.add(f.getAbsolutePath());
-            }
-        }
-
-        // set the track
-        for (String selectedFileName : filenames) {
+        File[] selectedFiles = DialogUtils.chooseFilesForOpen(this, "Open Tracks", null);
+        for (File f : selectedFiles) {
             try {
-                addTrackFromFile(selectedFileName);
-            } catch (Exception e) {
+                addTrackFromFile(f.getAbsolutePath());
+            } catch (SavantFileNotFormattedException sfnfx) {
                 //e.printStackTrace();
-                promptUserToFormatFile(selectedFileName);
+                promptUserToFormatFile(f.getAbsolutePath());
+            } catch (Exception x) {
+                DialogUtils.displayException("Error", String.format("%s opening %s.", x.getClass(), f), x);
             }
         }
     }
@@ -2340,7 +2313,6 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
     //public DockPanel getDockPanel() { return this.DOCKPANEL; }
     public void promptUserToFormatFile(String fileName) {
         String title = "Unrecognized file: " + fileName;
-        // display the JOptionPane showConfirmDialog
 
         URI uri = null;
         try {
@@ -2366,27 +2338,23 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
      * Genome
      */
     /**
-     * Set the genome at specified path.
-     * @param filename The name of the genome file containing file to be set
+     * Set the genome to the specified file.
+     *
+     * @param f path to the genome.
      */
-    private void setGenomeFromFile(String filename) {
-        boolean genomeSet = false;
-        try {
-
-            Genome g = ViewTrack.createGenome(filename);
-            if (g != null) {
-                setGenome(filename, g);
-                genomeSet = true;
-            }
-        } catch (Exception ex) {
+    private void setGenomeFromFile(File f) throws IOException, SavantFileNotFormattedException, SavantUnsupportedVersionException {
+        Genome g = ViewTrack.createGenome(f.getAbsolutePath());
+        if (g != null) {
+            setGenome(f.getAbsolutePath(), g);
         }
     }
 
     /**
      * Set the genome.
-     * @param genome The genome to set
+     * @param name name of the genome (will be a full path if the sequence is set)
+     * @param genome the genome to set
      */
-    public void setGenome(String filename, Genome genome) {
+    public void setGenome(String name, Genome genome) {
 
         boolean someGenomeSetAlready = ReferenceController.getInstance().isGenomeLoaded();
 
@@ -2398,7 +2366,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         ReferenceController.getInstance().setGenome(genome);
 
         if (genome.isSequenceSet()) {
-            DockableFrame df = DockableFrameFactory.createGenomeFrame(MiscUtils.getNeatPathFromString(filename));
+            DockableFrame df = DockableFrameFactory.createGenomeFrame(MiscUtils.getNeatPathFromString(name));
                     //MiscUtils.getFilenameFromPath(filename));
             JPanel panel = (JPanel) df.getContentPane();
             List<ViewTrack> tracks = new ArrayList<ViewTrack>();

@@ -1,4 +1,8 @@
 /*
+ * SavantROFile.java
+ * Created on Aug 27, 2010
+ *
+ *
  *    Copyright 2010 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,23 +18,7 @@
  *    limitations under the License.
  */
 
-/*
- * SavantROFile.java
- * Created on Aug 27, 2010
- */
-
 package savant.file;
-
-import net.sf.samtools.util.SeekableBufferedStream;
-import net.sf.samtools.util.SeekableFileStream;
-import net.sf.samtools.util.SeekableHTTPStream;
-import net.sf.samtools.util.SeekableStream;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import savant.util.MiscUtils;
-import savant.util.SavantFileUtils;
-import savant.util.SeekableAdjustableBufferedStream;
-import savant.util.SeekableFTPStream;
 
 import java.io.File;
 import java.io.IOException;
@@ -39,12 +27,20 @@ import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import savant.util.CacheableSABS;
+
+import net.sf.samtools.util.SeekableFileStream;
+import net.sf.samtools.util.SeekableStream;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import savant.util.MiscUtils;
+import savant.util.NetworkUtils;
+import savant.util.SavantFileUtils;
 
 public class SavantROFile implements ROFile {
 
-    private static Log log = LogFactory.getLog(SavantROFile.class);
-    
+    private static final Log LOG = LogFactory.getLog(SavantROFile.class);
+
     private final SeekableStream seekStream;
 
     private FileTypeHeader fileTypeHeader;
@@ -90,8 +86,8 @@ public class SavantROFile implements ROFile {
 
         File inFile = new File(filename);
         this.uri = inFile.toURI();
-        if (log.isDebugEnabled()) log.debug("Adding RO File: " + filename);
-        if (log.isDebugEnabled()) log.debug("URI is: " + this.uri);
+        LOG.debug("Adding RO File: " + filename);
+        LOG.debug("URI is: " + this.uri);
         this.seekStream = new SeekableFileStream(inFile);
         init();
     }
@@ -116,24 +112,14 @@ public class SavantROFile implements ROFile {
     /**
      * Construct a Savant file from a URI
      *
-     * @param uri HTTP URI
+     * @param uri http, ftp (or file) URI
      * @throws IOException
      * @throws SavantFileNotFormattedException if file is not formatted in Savant format (no magic number)
      * @throws SavantUnsupportedVersionException if file is formatted in a currently unsupported version
      */
     public SavantROFile(URI uri) throws IOException, SavantFileNotFormattedException, SavantUnsupportedVersionException {
         this.uri = uri.normalize();
-        if (uri.getScheme().toLowerCase().equals("http"))  {
-            this.seekStream = new SeekableAdjustableBufferedStream(new SeekableHTTPStream(uri.toURL()), 4096);
-            //this.seekStream = new CacheableSABS(new SeekableHTTPStream(uri.toURL()), 4096, uri);
-        }
-        else if (uri.getScheme().toLowerCase().equals("ftp")) {
-            this.seekStream = new SeekableAdjustableBufferedStream(new SeekableFTPStream(uri.toURL()), 4096);
-        }
-        else {
-            this.seekStream = null;
-            throw new IllegalArgumentException("Only HTTP and FTP URLs are valid");
-        }
+        seekStream = NetworkUtils.getSeekableStreamForURI(uri, true);
         init();
     }
 
@@ -155,50 +141,51 @@ public class SavantROFile implements ROFile {
     }
     private void init() throws IOException, SavantFileNotFormattedException, SavantUnsupportedVersionException {
 
-        log.debug("Reading file type");
+        LOG.debug("Reading file type");
         this.fileTypeHeader = SavantFileUtils.readFileTypeHeader(this);
 
         if (fileTypeHeader.fileType == null) throw new SavantFileNotFormattedException("This file does not appear to be formatted. Format now?");
 
         if (!isSupportedVersion(fileTypeHeader.version)) { throw new SavantUnsupportedVersionException(fileTypeHeader.version, getSupportedVersions()); }
 
-        if (log.isDebugEnabled()) {
-            log.debug("File type: " + this.fileTypeHeader.fileType);
-            log.debug("Done... at " + getFilePointer() + " bytes");
-            log.debug("Reading fields");
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("File type: " + this.fileTypeHeader.fileType);
+            LOG.debug("Done... at " + getFilePointer() + " bytes");
+            LOG.debug("Reading fields");
         }
 
         this.fields = SavantFileUtils.readFieldsHeader(this);
-        if (log.isDebugEnabled()) {
-            log.debug(fields);
-            log.debug("Number of fields: " + fields.size());
-            log.debug("Reading reference<-> data map");
+        if (LOG.isDebugEnabled()) {
+            LOG.debug(fields);
+            LOG.debug("Number of fields: " + fields.size());
+            LOG.debug("Reading reference<-> data map");
         }
 
         this.referenceMap = SavantFileUtils.readReferenceMap(this);
-        if (log.isDebugEnabled()) {
+        if (LOG.isDebugEnabled()) {
             for (String refname : this.referenceMap.keySet()) {
                 Long[] vals = this.referenceMap.get(refname);
-                log.debug("Reference " + refname + " at " + vals[0] + " of length " + vals[1]);
+                LOG.debug("Reference " + refname + " at " + vals[0] + " of length " + vals[1]);
             }
         }
 
-        if (log.isDebugEnabled()) log.debug("Making note of offset: " + getFilePointer());
+        LOG.debug("Making note of offset: " + getFilePointer());
 
         this.headerOffset = getFilePointer();
     }
 
+    @Override
     public synchronized long seek(String reference, long pos) throws IOException {
 
         //FIXME!!!
 
         if (!this.containsDataForReference(reference) &&
                 !this.containsDataForReference(MiscUtils.homogenizeSequence(reference))) { //FIXME: temporary fix for chrx != x issue
-            if (log.isDebugEnabled()) log.debug("No data for reference: " + reference);
+            LOG.debug("No data for reference: " + reference);
             return -1;
         } else if (pos >= this.getReferenceLength(reference) &&
                 pos >= this.getReferenceLength(reference.substring(reference.length()-1))) { //ditto ^^
-            if (log.isDebugEnabled()) log.debug("End of data for reference: " + reference);
+            LOG.debug("End of data for reference: " + reference);
             return -1;
         }
         else {
@@ -211,7 +198,7 @@ public class SavantROFile implements ROFile {
             }
 
 
-            if (log.isDebugEnabled()) log.debug("Seeking to " + (pos + refoffset+headerOffset)
+            if (LOG.isDebugEnabled()) LOG.debug("Seeking to " + (pos + refoffset+headerOffset)
                     + " pos=" + pos
                     + " ref=" + reference
                     + " refoffset=" + refoffset
@@ -224,29 +211,34 @@ public class SavantROFile implements ROFile {
         }
     }
 
+    @Override
     public synchronized void seek(long pos) throws IOException {
         if (filePointer != pos) {
             seekStream.seek(pos);
             filePointer = pos;
-            if (log.isDebugEnabled()) {
-                log.debug("Seeking to " + pos);
-                log.debug("warning: consider calling seek (string reference, long pos) instead");
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Seeking to " + pos);
+                LOG.debug("warning: consider calling seek (string reference, long pos) instead");
             }
         }
     }
 
+    @Override
     public synchronized void close() throws IOException {
         seekStream.close();
     }
 
+    @Override
     public synchronized long getFilePointer() throws IOException {
         return filePointer;
     }
 
+    @Override
     public synchronized long length() throws IOException {
         return seekStream.length();
     }
 
+    @Override
     public synchronized int read() throws IOException {
         byte[] buf = new byte[1];
         int bytesRead = seekStream.read(buf,0,1);
@@ -259,57 +251,64 @@ public class SavantROFile implements ROFile {
             return -1;
     }
 
+    @Override
     public synchronized int read(byte[] b) throws IOException {
         int result = seekStream.read(b, 0, b.length);
         if (result != -1) filePointer += result;
         return result;
     }
 
+    @Override
     public synchronized int read(byte[] b, int off, int len) throws IOException {
         int result = seekStream.read(b, off, len);
         if (result != -1) filePointer += result;
         return result;
     }
 
+    @Override
     public synchronized byte readByte() throws IOException {
         byte result = (byte)(read()&0xFF);
         return result;
     }
 
+    @Override
     public synchronized double readDouble() throws IOException {
         byte[] bytes = new byte[8];
         int result = read(bytes);
         if (result != 8) {
-            log.warn("Could not read 8 bytes for a double");
+            LOG.warn("Could not read 8 bytes for a double");
             throw new IOException("At EOF");
         }
-        long longBits = (bytes[0]&0xFF)<<56 | (bytes[1]&0xFF)<<48 | (bytes[2]&0xFF)<<40 | (bytes[3]&0xFF)<<32 |
-                (bytes[4]&0xFF)<<24 | (bytes[5]&0xFF)<<16 | (bytes[6]&0xFF)<<8 | bytes[7]&0xFF;
+        long longBits = ((long)bytes[0]&0xFF)<<56 | ((long)bytes[1]&0xFF)<<48 | ((long)bytes[2]&0xFF)<<40 | ((long)bytes[3]&0xFF)<<32 |
+                ((long)bytes[4]&0xFF)<<24 | ((long)bytes[5]&0xFF)<<16 | ((long)bytes[6]&0xFF)<<8 | ((long)bytes[7]&0xFF);
         return Double.longBitsToDouble(longBits);
     }
 
+    @Override
     public synchronized float readFloat() throws IOException {
         byte[] bytes = new byte[4];
         int result = read(bytes);
         if (result != 4) {
-            log.warn("Could not read 4 bytes for float");
+            LOG.warn("Could not read 4 bytes for float");
             throw new IOException("At EOF");
         }
         int intBits = (bytes[0]&0xFF)<<24 | (bytes[1]&0xFF)<<16 | (bytes[2]&0xFF)<<8 | bytes[3]&0xFF;
         return Float.intBitsToFloat(intBits);
     }
 
+    @Override
     public synchronized int readInt() throws IOException {
         byte[] bytes = new byte[4];
         int result = read(bytes);
         if (result != 4) {
-            log.warn("Could not read 4 bytes for int");
+            LOG.warn("Could not read 4 bytes for int");
             throw new IOException("At EOF");
         }
         int intBits = (bytes[0]&0xFF)<<24 | (bytes[1]&0xFF)<<16 | (bytes[2]&0xFF)<<8 | bytes[3]&0xFF;
         return intBits;
     }
 
+    @Override
     public synchronized String readLine() throws IOException {
 
         byte[] readBytes = new byte[2];
@@ -317,7 +316,7 @@ public class SavantROFile implements ROFile {
         while (true) {
             int read = read(readBytes);
             if (read != 2) {
-                log.warn("Unable to read 2 bytes");
+                LOG.warn("Unable to read 2 bytes");
                 return sb.toString();
             }
             char theChar = (char)(readBytes[0]<<8 | readBytes[1]);
@@ -331,11 +330,12 @@ public class SavantROFile implements ROFile {
         }
     }
 
+    @Override
     public synchronized long readLong() throws IOException {
         byte[] bytes = new byte[8];
         int result = read(bytes);
         if (result != 8) {
-            log.warn("Could not read 8 bytes for a long");
+            LOG.warn("Could not read 8 bytes for a long");
             throw new IOException("At EOF");
         }
         long longBits = ((long)bytes[0]&0xFF)<<56 | ((long)bytes[1]&0xFF)<<48 | ((long)bytes[2]&0xFF)<<40 | ((long)bytes[3]&0xFF)<<32 |
@@ -343,18 +343,22 @@ public class SavantROFile implements ROFile {
         return longBits;
     }
 
+    @Override
     public List<FieldType> getFields() {
         return this.fields;
     }
 
+    @Override
     public Map<String, Long[]> getReferenceMap() {
         return this.referenceMap;
     }
 
+    @Override
     public long getHeaderOffset() {
         return headerOffset;
     }
 
+    @Override
     public void setHeaderOffset(long offset) {
         this.headerOffset = offset;
     }
@@ -366,7 +370,7 @@ public class SavantROFile implements ROFile {
     public String getSupportedVersions() {
         StringBuilder sb = new StringBuilder();
         for (Integer version: SUPPORTED_FILE_VERSIONS) {
-            sb.append(version + " ");
+            sb.append(version).append(" ");
         }
         return sb.toString().trim();
     }
@@ -390,7 +394,7 @@ public class SavantROFile implements ROFile {
     }
 
     public URI getURI() {
-        if (log.isDebugEnabled()) log.debug("Getting URI: " + this.uri);
+        LOG.debug("Getting URI: " + this.uri);
         return this.uri;
     }
 }
