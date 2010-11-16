@@ -1526,7 +1526,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
 
     private void disableExperimentalFeatures() {
         this.menuitem_tools.setVisible(false);
-        //MiscUtils.setFrameVisibility("Start Page", false, this.trackDockingManager);
+        MiscUtils.setFrameVisibility("Start Page", false, this.trackDockingManager);
         this.menuitem_startpage.setVisible(false);
         this.startPageDockableFrame.setVisible(false);
     }
