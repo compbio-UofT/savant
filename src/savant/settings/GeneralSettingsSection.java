@@ -57,7 +57,7 @@ public class GeneralSettingsSection extends Section {
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 
         checkversion_cb = new JCheckBox("Check version on startup");
-        checkversion_cb.setSelected(BrowserSettings.checkVersionOnStartup);
+        checkversion_cb.setSelected(BrowserSettings.getCheckVersionOnStartup());
         checkversion_cb.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -68,7 +68,7 @@ public class GeneralSettingsSection extends Section {
 
 
         collectrstats_cb = new JCheckBox("Collect anonymous statistics about usage");
-        collectrstats_cb.setSelected(BrowserSettings.collectAnonymousStats);
+        collectrstats_cb.setSelected(BrowserSettings.getCollectAnonymousUsage());
         collectrstats_cb.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -84,8 +84,8 @@ public class GeneralSettingsSection extends Section {
     public void applyChanges() {
         // Only save anything if this panel has gone through lazy initialization.
         if (checkversion_cb != null) {
-            BrowserSettings.checkVersionOnStartup = this.checkversion_cb.isSelected();
-            BrowserSettings.collectAnonymousStats = this.collectrstats_cb.isSelected();
+            BrowserSettings.setCheckVersionOnStartup(this.checkversion_cb.isSelected());
+            BrowserSettings.setCollectAnonymousUsage(this.collectrstats_cb.isSelected());
             
             try {
                 PersistentSettings.getInstance().store();

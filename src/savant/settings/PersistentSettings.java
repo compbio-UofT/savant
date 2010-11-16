@@ -99,6 +99,15 @@ public class PersistentSettings extends Properties {
         setProperty(key, String.format("%02X%02X%02X%02X", value.getRed(), value.getGreen(), value.getBlue(), value.getAlpha()));
     }
 
+    public boolean getBoolean(String key, boolean dflt) {
+        String value = getProperty(key);
+        return value != null ? value.toLowerCase().equals("true") : dflt;
+    }
+
+    public void setBoolean(String key, boolean value) {
+        setProperty(key, value + "");
+    }
+
     public File getFile(String key) {
         String value = getProperty(key);
         return value != null ? new File(value) : null;

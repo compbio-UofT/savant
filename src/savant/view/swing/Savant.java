@@ -416,9 +416,12 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
 
         init();
 
-        if (BrowserSettings.checkVersionOnStartup) {
+        if (BrowserSettings.getCheckVersionOnStartup()) {
             s.setStatus("Checking version");
             checkVersion();
+        }
+
+        if (BrowserSettings.getCollectAnonymousUsage()) {
             notifyServer();
         }
 
@@ -1348,8 +1351,9 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
                 Version currentversion = (new XMLVersion(versionFile)).getVersion();
                 Version thisversion = new Version(BrowserSettings.version);
                 if (currentversion.compareTo(thisversion) > 0) {
-                    JOptionPane.showMessageDialog(Savant.getInstance(), "A new version of Savant (" + currentversion.toString() + ") is available. "
-                            + "Please visit " + BrowserSettings.url + " to get the latest version.");
+                    JOptionPane.showMessageDialog(Savant.getInstance(), "A new version of Savant (" + currentversion.toString() + ") is available.\n"
+                            + "To stop this message from appearing, download the newest version at " + BrowserSettings.url + "\nor disable automatic "
+                            + "checking in Preferences.");
                 } else {
                     if (verbose) {
                         JOptionPane.showMessageDialog(Savant.getInstance(), "This version of Savant (" + thisversion.toString() + ") is up to date.");

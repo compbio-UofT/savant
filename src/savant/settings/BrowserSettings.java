@@ -25,6 +25,9 @@ public class BrowserSettings {
 
     private static PersistentSettings settings = PersistentSettings.getInstance();
 
+    private static final String CHECKVERSION_KEY = "CHECKVERSION";
+    private static final String COLLECTSTATS_KEY = "COLLECTSTATS";
+
     /*
      * Website
      */
@@ -35,14 +38,25 @@ public class BrowserSettings {
     public static String url_phonehome = "http://compbio.cs.toronto.edu/savant/stats.html";
     public static String url_tutorials = "http://compbio.cs.toronto.edu/savant/media.html";
     public static String url_manuals = "http://compbio.cs.toronto.edu/savant/documentation.html";
-    public static String url_preformatteddata = "http://compbio.cs.toronto.edu/savant/data.html";
-    public static String url_ucsctablebrowser = "http://genome.ucsc.edu/cgi-bin/hgTables?command=start";
-    public static String url_thousandgenomes = "http://www.1000genomes.org/page.php?page=data";
 
     public static String version = "1.3.2";
 
-    public static boolean checkVersionOnStartup = true;
-    public static boolean collectAnonymousStats = true;
+
+    public static boolean getCheckVersionOnStartup() {
+        return settings.getBoolean(CHECKVERSION_KEY, true);
+    }
+
+    public static boolean getCollectAnonymousUsage() {
+        return settings.getBoolean(COLLECTSTATS_KEY, true);
+    }
+
+    public static void setCheckVersionOnStartup(boolean b) {
+        settings.setBoolean(CHECKVERSION_KEY, b);
+    }
+
+    public static void setCollectAnonymousUsage(boolean b) {
+        settings.setBoolean(COLLECTSTATS_KEY, b);
+    }
 
     /**
      * Look and Feel

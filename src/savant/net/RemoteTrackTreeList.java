@@ -195,7 +195,7 @@ public class RemoteTrackTreeList extends JDialog {
         table.setRowHeight(18);
         table.setShowGrid(false);
         table.setIntercellSpacing(new Dimension(0, 0));
-        //_table.expandFirstLevel();
+        table.expandAll();
 
         // do not select row when expanding a row.
         table.setSelectRowWhenToggling(false);
