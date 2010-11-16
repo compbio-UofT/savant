@@ -103,6 +103,7 @@ public class RecentTracksController implements ViewTrackAddedListener {
                     try {
                         Savant.getInstance().addTrackFromFile(s);
                     } catch (Exception ex) {
+                        LOG.error("Unable to open file.", ex);
                         JOptionPane.showMessageDialog(Savant.getInstance(), "Error opening track from file " + s);
                     }
                 }
