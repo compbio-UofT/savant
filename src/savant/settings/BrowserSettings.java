@@ -23,6 +23,8 @@ import javax.swing.*;
  */
 public class BrowserSettings {
 
+    private static PersistentSettings settings = PersistentSettings.getInstance();
+
     /*
      * Website
      */
@@ -38,6 +40,9 @@ public class BrowserSettings {
     public static String url_thousandgenomes = "http://www.1000genomes.org/page.php?page=data";
 
     public static String version = "1.3.2";
+
+    public static boolean checkVersionOnStartup = true;
+    public static boolean collectAnonymousStats = true;
 
     /**
      * Look and Feel
@@ -60,5 +65,4 @@ public class BrowserSettings {
      */
     public static String fontName = "Verdana";
 
-    
 }

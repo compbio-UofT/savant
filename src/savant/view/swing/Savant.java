@@ -412,10 +412,11 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
 
         init();
 
-        s.setStatus("Checking version");
-
-        checkVersion();
-        notifyServer();
+        if (BrowserSettings.checkVersionOnStartup) {
+            s.setStatus("Checking version");
+            checkVersion();
+            notifyServer();
+        }
 
         s.setStatus("Loading plugins");
 
@@ -1211,6 +1212,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         if (!arePreferencesInitialized) {
             SettingsDialog.addSection(new ColourSchemeSettingsSection());
             SettingsDialog.addSection(new TemporaryFilesSettingsSection());
+            SettingsDialog.addSection(new GeneralSettingsSection());
             //SettingsDialog.addSection(new ResolutionSettingsSection());
             arePreferencesInitialized = true;
         }

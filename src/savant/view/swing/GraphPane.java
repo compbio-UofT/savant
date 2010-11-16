@@ -566,7 +566,6 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
             long center = gpc.getMouseXPosition();
             long left = center - gpc.getSpotlightSize()/2;
             long right = left + gpc.getSpotlightSize();
-            //if (gpc.getSpotlightSize() == 1) { right = center + 1; }
             
             g.setColor(new Color(0,0,0,200));
 
