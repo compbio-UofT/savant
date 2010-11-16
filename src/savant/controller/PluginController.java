@@ -34,6 +34,7 @@ import org.java.plugin.registry.Extension;
 import org.java.plugin.registry.ExtensionPoint;
 import org.java.plugin.registry.PluginDescriptor;
 import org.java.plugin.standard.StandardPluginLocation;
+import org.java.plugin.util.ExtendedProperties;
 import savant.view.swing.DockableFrameFactory;
 import savant.plugin.GUIPlugin;
 import savant.plugin.PluginAdapter;
@@ -80,6 +81,7 @@ public class PluginController {
 
     public PluginController() {
         try {
+
             pluginManager = ObjectFactory.newInstance().createManager();
             f = new File(FILENAME);
             if (f.exists()) {
@@ -148,6 +150,14 @@ public class PluginController {
                 pluginManager.activatePlugin(d.getId());
                 ClassLoader classLoader = pluginManager.getPluginClassLoader(d);
 
+               /* if (d.getId().equals("savant.pivot")) {
+                    StandardPathResolver spr = new StandardPathResolver();
+                    Library l = d.getLibrary("excel");
+                    System.out.println(l.getPath());
+                }
+                * 
+                */
+                
                 Plugin plugininstance = (Plugin) (
                         classLoader.loadClass(
                             e.getParameter("class").valueAsString()

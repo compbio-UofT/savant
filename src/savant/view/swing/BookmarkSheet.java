@@ -100,8 +100,6 @@ public class BookmarkSheet implements BookmarksChangedListener /*, RangeChangedL
         toolbar.add(Box.createGlue());
 
         addButton = new JButton();
-        addButton.setBorder(null);
-        addButton.setBorderPainted(false);
         addButton.setIcon(SavantIconFactory.getInstance().getIcon(SavantIconFactory.StandardIcon.BKMK_ADD));
         addButton.setToolTipText("Add bookmark for current range");
         addButton.addActionListener(new ActionListener() {
@@ -215,15 +213,6 @@ public class BookmarkSheet implements BookmarksChangedListener /*, RangeChangedL
         ((BookmarksTableModel) table.getModel()).fireTableDataChanged();
     }
 
-    /*
-    public void rangeChangeReceived(RangeChangedEvent event) {
-        if (isRecording) {
-            BookmarkController bc = BookmarkController.getInstance();
-            bc.addCurrentRangeToBookmarks();
-        }
-    }
-     */
-
     private static void loadBookmarks(JTable table) {
         BookmarksTableModel btm = (BookmarksTableModel) table.getModel();
         List<Bookmark> bookmarks = btm.getData();
@@ -334,8 +323,6 @@ public class BookmarkSheet implements BookmarksChangedListener /*, RangeChangedL
 
     private static Bookmark parseBookmark(String line) {
 
-        Savant.log("load 2");
-
         StringTokenizer st = new StringTokenizer(line,"\t");
 
         String ref = st.nextToken();
@@ -380,7 +367,6 @@ public class BookmarkSheet implements BookmarksChangedListener /*, RangeChangedL
 
     public void goToBookmark(int i) {
         if (i == -1 && table.getRowCount() == 0) { return; }
-        else { i = 0; }
         RangeController rc = RangeController.getInstance();
         BookmarksTableModel tableModel = (BookmarksTableModel) table.getModel();
         Bookmark bookmark = tableModel.getData().get(i);
