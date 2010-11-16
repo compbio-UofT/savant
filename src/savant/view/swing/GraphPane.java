@@ -565,17 +565,20 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
 
             long center = gpc.getMouseXPosition();
             long left = center - gpc.getSpotlightSize()/2;
-            long right = center + gpc.getSpotlightSize()/2;
-            if (gpc.getSpotlightSize() == 1) { right = center + 1; }
+            long right = left + gpc.getSpotlightSize();
+            //if (gpc.getSpotlightSize() == 1) { right = center + 1; }
             
             g.setColor(new Color(0,0,0,200));
 
+            int xt = MiscUtils.transformPositionToPixel(left, this.getWidth(), this.getHorizontalPositionalRange());
+            int yt = MiscUtils.transformPositionToPixel(right, this.getWidth(), this.getHorizontalPositionalRange());
+
             // draw left of spotlight
-            if (left > this.getHorizontalPositionalRange().getFrom()) {
+            if (left >= this.getHorizontalPositionalRange().getFrom()) {
                 g.fillRect(0, 0, MiscUtils.transformPositionToPixel(left, this.getWidth(), this.getHorizontalPositionalRange()), this.getHeight());
             }
             // draw right of spotlight
-            if (right < this.getHorizontalPositionalRange().getTo()) {
+            if (right <= this.getHorizontalPositionalRange().getTo()) {
                 int pix = MiscUtils.transformPositionToPixel(right, this.getWidth(), this.getHorizontalPositionalRange());
                 g.fillRect(pix, 0, this.getWidth()-pix, this.getHeight());
             }
