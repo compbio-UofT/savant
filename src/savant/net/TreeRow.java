@@ -24,24 +24,24 @@ import javax.swing.filechooser.FileSystemView;
 import savant.settings.DirectorySettings;
 import savant.util.MiscUtils;
 
-public class DownloadTreeRow extends AbstractExpandableRow implements Comparable<DownloadTreeRow> {
+public class TreeRow extends AbstractExpandableRow implements Comparable<TreeRow> {
 
     static FileSystemView _fileSystemView;
 
     private boolean isLeaf;
-    private List<DownloadTreeRow> children;
+    private List<TreeRow> children;
     private String name;
     private String type;
     private String description;
     private String url;
     private String size;
 
-    public DownloadTreeRow(String name, List<DownloadTreeRow> r) {
+    public TreeRow(String name, List<TreeRow> r) {
         this.name = name;
         setChildren(r);
     }
 
-    public DownloadTreeRow(
+    public TreeRow(
                 String name,
                 String type,
                 String description,
@@ -84,9 +84,9 @@ public class DownloadTreeRow extends AbstractExpandableRow implements Comparable
 
     @Override
     public final void setChildren(List<?> value) {
-        children = (List<DownloadTreeRow>)value;
+        children = (List<TreeRow>)value;
 	if (children != null) {
-            for (DownloadTreeRow row : children) {
+            for (TreeRow row : children) {
                 row.setParent(this);
 	    }
 	}
@@ -133,7 +133,7 @@ public class DownloadTreeRow extends AbstractExpandableRow implements Comparable
 
 
     @Override
-    public int compareTo(DownloadTreeRow o) {
+    public int compareTo(TreeRow o) {
         return getName().compareToIgnoreCase(o.getName());
     }
 

@@ -22,7 +22,7 @@ import com.jidesoft.grid.TreeTableModel;
 import java.awt.*;
 import java.util.List;
 
-public class DownloadTreeListTableModel extends TreeTableModel implements StyleModel {
+public class TreeListTableModel extends TreeTableModel implements StyleModel {
     static final protected String[] COLUMN_NAMES = {"Name", "Description", "Type", "Filename", "Size"}; //, "Download"};
     static final Color BACKGROUND = new Color(247, 247, 247);
     static final CellStyle CELL_STYLE = new CellStyle();
@@ -31,7 +31,7 @@ public class DownloadTreeListTableModel extends TreeTableModel implements StyleM
         CELL_STYLE.setBackground(BACKGROUND);
     }
 
-    public DownloadTreeListTableModel(List rows) {
+    public TreeListTableModel(List rows) {
         super(rows);
     }
 
@@ -64,7 +64,7 @@ public class DownloadTreeListTableModel extends TreeTableModel implements StyleM
     public Class<?> getColumnClass(int columnIndex) {
         switch (columnIndex) {
             case 0:
-                return DownloadTreeRow.class;
+                return TreeRow.class;
             case 1:
                 return String.class;
             case 2:

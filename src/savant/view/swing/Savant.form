@@ -44,6 +44,17 @@
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="openTrackFromURLItemActionPerformed"/>
               </Events>
             </MenuItem>
+            <MenuItem class="javax.swing.JMenuItem" name="menuitem_preformatted">
+              <Properties>
+                <Property name="accelerator" type="javax.swing.KeyStroke" editor="org.netbeans.modules.form.editors.KeyStrokeEditor">
+                  <KeyStroke key="Ctrl+R"/>
+                </Property>
+                <Property name="text" type="java.lang.String" value="Open Track from Server..."/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="menuitem_preformattedActionPerformed"/>
+              </Events>
+            </MenuItem>
             <Menu class="javax.swing.JMenu" name="recentTrackMenu">
               <Properties>
                 <Property name="text" type="java.lang.String" value="Open Recent Track"/>
@@ -101,46 +112,12 @@
             </MenuItem>
             <MenuItem class="javax.swing.JMenuItem" name="formatItem">
               <Properties>
-                <Property name="accelerator" type="javax.swing.KeyStroke" editor="org.netbeans.modules.form.editors.KeyStrokeEditor">
-                  <KeyStroke key="Ctrl+F"/>
-                </Property>
-                <Property name="text" type="java.lang.String" value="Format..."/>
+                <Property name="text" type="java.lang.String" value="Format Text File..."/>
               </Properties>
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="formatItemActionPerformed"/>
               </Events>
             </MenuItem>
-            <Menu class="javax.swing.JMenu" name="downloadMenu">
-              <Properties>
-                <Property name="text" type="java.lang.String" value="Download"/>
-              </Properties>
-              <SubComponents>
-                <MenuItem class="javax.swing.JMenuItem" name="menuitem_preformatted">
-                  <Properties>
-                    <Property name="text" type="java.lang.String" value="Preformatted"/>
-                  </Properties>
-                  <Events>
-                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="menuitem_preformattedActionPerformed"/>
-                  </Events>
-                </MenuItem>
-                <MenuItem class="javax.swing.JMenuItem" name="menuitem_ucsc">
-                  <Properties>
-                    <Property name="text" type="java.lang.String" value="UCSC"/>
-                  </Properties>
-                  <Events>
-                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="menuitem_ucscActionPerformed"/>
-                  </Events>
-                </MenuItem>
-                <MenuItem class="javax.swing.JMenuItem" name="menuitem_thousandgenomes">
-                  <Properties>
-                    <Property name="text" type="java.lang.String" value="1000 Genomes"/>
-                  </Properties>
-                  <Events>
-                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="menuitem_thousandgenomesActionPerformed"/>
-                  </Events>
-                </MenuItem>
-              </SubComponents>
-            </Menu>
             <MenuItem class="javax.swing.JPopupMenu$Separator" name="jSeparator3">
               <AuxValues>
                 <AuxValue name="JavaCodeGenerator_VariableLocal" type="java.lang.Boolean" value="true"/>
@@ -557,7 +534,7 @@
       <Group type="103" groupAlignment="0" attributes="0">
           <Component id="panel_top" alignment="0" pref="886" max="32767" attributes="0"/>
           <Group type="102" alignment="0" attributes="0">
-              <Component id="toolbar_bottom" pref="866" max="32767" attributes="0"/>
+              <Component id="toolbar_bottom" pref="874" max="32767" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
           <Component id="panel_toolbar" alignment="0" pref="886" max="32767" attributes="0"/>

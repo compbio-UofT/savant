@@ -15,6 +15,9 @@
  */
 package savant.view.swing;
 
+import java.io.UnsupportedEncodingException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -36,6 +39,7 @@ import com.jidesoft.plaf.UIDefaultsLookup;
 import com.jidesoft.plaf.basic.ThemePainter;
 import com.jidesoft.status.MemoryStatusBarItem;
 import com.jidesoft.swing.JideSplitPane;
+import java.net.URLEncoder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jdom.JDOMException;
@@ -51,7 +55,7 @@ import savant.controller.event.reference.ReferenceChangedListener;
 import savant.controller.event.track.TrackListChangedEvent;
 import savant.controller.event.track.TrackListChangedListener;
 import savant.data.types.Genome;
-import savant.net.DownloadTreeList;
+import savant.net.RemoteTrackTreeList;
 import savant.plugin.XMLTool;
 import savant.settings.*;
 import savant.startpage.StartPage;
@@ -411,6 +415,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         s.setStatus("Checking version");
 
         checkVersion();
+        notifyServer();
 
         s.setStatus("Loading plugins");
 
@@ -468,6 +473,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         openGenomeItem = new javax.swing.JMenuItem();
         openTrackFromFileItem = new javax.swing.JMenuItem();
         openTrackFromURLItem = new javax.swing.JMenuItem();
+        menuitem_preformatted = new javax.swing.JMenuItem();
         recentTrackMenu = new javax.swing.JMenu();
         javax.swing.JPopupMenu.Separator jSeparator1 = new javax.swing.JPopupMenu.Separator();
         openProjectItem = new javax.swing.JMenuItem();
@@ -476,10 +482,6 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         saveProjectAsItem = new javax.swing.JMenuItem();
         javax.swing.JPopupMenu.Separator jSeparator2 = new javax.swing.JPopupMenu.Separator();
         formatItem = new javax.swing.JMenuItem();
-        downloadMenu = new javax.swing.JMenu();
-        menuitem_preformatted = new javax.swing.JMenuItem();
-        menuitem_ucsc = new javax.swing.JMenuItem();
-        menuitem_thousandgenomes = new javax.swing.JMenuItem();
         javax.swing.JPopupMenu.Separator jSeparator3 = new javax.swing.JPopupMenu.Separator();
         javax.swing.JMenuItem exportItem = new javax.swing.JMenuItem();
         jSeparator4 = new javax.swing.JPopupMenu.Separator();
@@ -629,6 +631,15 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         });
         menuitem_file.add(openTrackFromURLItem);
 
+        menuitem_preformatted.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_R, java.awt.event.InputEvent.CTRL_MASK));
+        menuitem_preformatted.setText("Open Track from Server...");
+        menuitem_preformatted.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                menuitem_preformattedActionPerformed(evt);
+            }
+        });
+        menuitem_file.add(menuitem_preformatted);
+
         recentTrackMenu.setText("Open Recent Track");
         menuitem_file.add(recentTrackMenu);
         menuitem_file.add(jSeparator1);
@@ -664,42 +675,13 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         menuitem_file.add(saveProjectAsItem);
         menuitem_file.add(jSeparator2);
 
-        formatItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F, java.awt.event.InputEvent.CTRL_MASK));
-        formatItem.setText("Format...");
+        formatItem.setText("Format Text File...");
         formatItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 formatItemActionPerformed(evt);
             }
         });
         menuitem_file.add(formatItem);
-
-        downloadMenu.setText("Download");
-
-        menuitem_preformatted.setText("Preformatted");
-        menuitem_preformatted.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                menuitem_preformattedActionPerformed(evt);
-            }
-        });
-        downloadMenu.add(menuitem_preformatted);
-
-        menuitem_ucsc.setText("UCSC");
-        menuitem_ucsc.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                menuitem_ucscActionPerformed(evt);
-            }
-        });
-        downloadMenu.add(menuitem_ucsc);
-
-        menuitem_thousandgenomes.setText("1000 Genomes");
-        menuitem_thousandgenomes.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                menuitem_thousandgenomesActionPerformed(evt);
-            }
-        });
-        downloadMenu.add(menuitem_thousandgenomes);
-
-        menuitem_file.add(downloadMenu);
         menuitem_file.add(jSeparator3);
 
         exportItem.setText("Export Track Images...");
@@ -1006,7 +988,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(panel_top, javax.swing.GroupLayout.DEFAULT_SIZE, 886, Short.MAX_VALUE)
             .addGroup(layout.createSequentialGroup()
-                .addComponent(toolbar_bottom, javax.swing.GroupLayout.DEFAULT_SIZE, 866, Short.MAX_VALUE)
+                .addComponent(toolbar_bottom, javax.swing.GroupLayout.DEFAULT_SIZE, 874, Short.MAX_VALUE)
                 .addContainerGap())
             .addComponent(panel_toolbar, javax.swing.GroupLayout.DEFAULT_SIZE, 886, Short.MAX_VALUE)
             .addComponent(panel_main, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 886, Short.MAX_VALUE)
@@ -1121,7 +1103,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
                 JOptionPane.showMessageDialog(this, "Problem downloading file: " + BrowserSettings.url_data);
                 return;
             }
-            DownloadTreeList d = new DownloadTreeList(this, false, "Download Pre-formatted Data", file, DirectorySettings.getFormatDirectory());
+            RemoteTrackTreeList d = new RemoteTrackTreeList(this, false, "Open remote track", file, DirectorySettings.getFormatDirectory());
             d.setVisible(true);
         } catch (JDOMException ex) {
             JOptionPane.showMessageDialog(this, "Problem downloading file: " + BrowserSettings.url_data);
@@ -1129,22 +1111,6 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
             JOptionPane.showMessageDialog(this, "Problem downloading file: " + BrowserSettings.url_data);
         }
     }//GEN-LAST:event_menuitem_preformattedActionPerformed
-
-    private void menuitem_ucscActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuitem_ucscActionPerformed
-        try {
-            java.awt.Desktop.getDesktop().browse(java.net.URI.create(BrowserSettings.url_ucsctablebrowser));
-        } catch (IOException ex) {
-            LOG.error("Unable to access UCSC site.", ex);
-        }
-    }//GEN-LAST:event_menuitem_ucscActionPerformed
-
-    private void menuitem_thousandgenomesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuitem_thousandgenomesActionPerformed
-        try {
-            java.awt.Desktop.getDesktop().browse(java.net.URI.create(BrowserSettings.url_thousandgenomes));
-        } catch (IOException ex) {
-            LOG.error("Unable to access 1000 Genomes site.", ex);
-        }
-    }//GEN-LAST:event_menuitem_thousandgenomesActionPerformed
 
     private void menuitem_pluginmanagerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuitem_pluginmanagerActionPerformed
         PluginManagerDialog pd = new PluginManagerDialog(this);
@@ -1345,6 +1311,29 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         checkVersion(false);
     }
 
+    private static String getPost(String name, String value) {
+        return "?" + name + "=" + value;
+    }
+
+    private static void notifyServer() {
+        String request = "";
+        request += getPost("savantversion", BrowserSettings.version);
+        request += getPost("javaversion", System.getProperty("java.version"));
+        request += getPost("osname", System.getProperty("os.name").replace(" ", ""));
+        request += getPost("osversion", System.getProperty("os.version"));
+        request += getPost("osarc", System.getProperty("os.arch"));
+
+        try {
+            request = BrowserSettings.url_phonehome + request;
+            System.out.println(request);
+            File phoneHomeFile = DownloadFile.downloadFile(new URL(request), System.getProperty("java.io.tmpdir"));
+            if (phoneHomeFile != null) { phoneHomeFile.delete(); }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+
     public static void checkVersion(boolean verbose) {
         try {
             File versionFile = DownloadFile.downloadFile(new URL(BrowserSettings.url_version), DirectorySettings.getSavantDirectory());
@@ -1375,7 +1364,6 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
 
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JMenu downloadMenu;
     private javax.swing.JMenuItem exitItem;
     private javax.swing.JMenuItem formatItem;
     private javax.swing.JLabel jLabel1;
@@ -1413,9 +1401,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
     private javax.swing.JCheckBoxMenuItem menuitem_ruler;
     private javax.swing.JCheckBoxMenuItem menuitem_startpage;
     private javax.swing.JCheckBoxMenuItem menuitem_statusbar;
-    private javax.swing.JMenuItem menuitem_thousandgenomes;
     private javax.swing.JCheckBoxMenuItem menuitem_tools;
-    private javax.swing.JMenuItem menuitem_ucsc;
     private javax.swing.JMenuItem menuitem_undo;
     private javax.swing.JCheckBoxMenuItem menuitem_view_plumbline;
     private javax.swing.JCheckBoxMenuItem menuitem_view_spotlight;
@@ -1540,11 +1526,8 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
 
     private void disableExperimentalFeatures() {
         this.menuitem_tools.setVisible(false);
-        MiscUtils.setFrameVisibility("Start Page", false, this.trackDockingManager);
+        //MiscUtils.setFrameVisibility("Start Page", false, this.trackDockingManager);
         this.menuitem_startpage.setVisible(false);
-        //this.menuitem_loadsession.setVisible(false);
-        //this.menuitem_savesession.setVisible(false);
-        //this.menuitem_savesessionas.setVisible(false);
         this.startPageDockableFrame.setVisible(false);
     }
 
@@ -1693,7 +1676,6 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         menuitem_statusbar.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_S, osSpecificModifier | java.awt.event.InputEvent.SHIFT_MASK));
 
         if (!Desktop.isDesktopSupported() || !Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
-            downloadMenu.setEnabled(false);
             tutorialsItem.setEnabled(false);
             userManualItem.setEnabled(false);
             websiteItem.setEnabled(false);
@@ -2358,13 +2340,22 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         String title = "Unrecognized file: " + fileName;
         // display the JOptionPane showConfirmDialog
 
-        int reply = JOptionPane.showConfirmDialog(this, "This file does not appear to be formatted. Format now?", title, JOptionPane.YES_NO_OPTION);
-        if (reply == JOptionPane.YES_OPTION) {
-            if (!dff.isVisible()) {
-                dff.clear();
-                dff.setInFile(fileName);
-                dff.setLocationRelativeTo(this);
-                dff.setVisible(true);
+        URI uri = null;
+        try {
+            uri = new URI(fileName);
+        } catch (URISyntaxException ex) {
+        }
+        if (uri != null && uri.getScheme() != null) {
+            JOptionPane.showMessageDialog(this, "This file does not appear to be formatted. Please try to format it.");
+        } else {
+            int reply = JOptionPane.showConfirmDialog(this, "This file does not appear to be formatted. Format now?", title, JOptionPane.YES_NO_OPTION);
+            if (reply == JOptionPane.YES_OPTION) {
+                if (!dff.isVisible()) {
+                    dff.clear();
+                    dff.setInFile(fileName);
+                    dff.setLocationRelativeTo(this);
+                    dff.setVisible(true);
+                }
             }
         }
     }

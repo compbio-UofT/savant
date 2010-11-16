@@ -26,8 +26,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -43,12 +46,13 @@ import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
+import savant.view.swing.Savant;
 
 /**
  *
  * @author mfiume
  */
-public class DownloadTreeList extends JDialog {
+public class RemoteTrackTreeList extends JDialog {
 
     private static final TableCellRenderer FILE_RENDERER = new FileRowCellRenderer();
 
@@ -56,11 +60,11 @@ public class DownloadTreeList extends JDialog {
     private String saveToDirectory;
     private TreeTable table;
 
-    public DownloadTreeList(Frame parent, boolean modal, String title, File xmlfile, String destDir) throws JDOMException, IOException {
+    public RemoteTrackTreeList(Frame parent, boolean modal, String title, File xmlfile, String destDir) throws JDOMException, IOException {
         this(parent, modal, title, getDownloadTreeRows(xmlfile), destDir);
     }
 
-    public DownloadTreeList(
+    public RemoteTrackTreeList(
             Frame parent,
             boolean modal,
             String title,
@@ -78,7 +82,26 @@ public class DownloadTreeList extends JDialog {
         JToolBar bottombar = new JToolBar();
         bottombar.setFloatable(false);
         bottombar.setAlignmentX(RIGHT_ALIGNMENT);
-        JButton downbutt = new JButton("Download");
+        JButton openbutt = new JButton("Open Track");
+        openbutt.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                TreeRow r  = (TreeRow) table.getRowAt(table.getSelectedRow());
+                if (r != null && r.isLeaf()) {
+                    try {
+                        Savant.getInstance().addTrackFromFile(r.getURL().toString());
+                    } catch (Exception ex) {
+                        JOptionPane.showMessageDialog(p, "Error opening URL: " + r.getURL());
+                    }
+                } else {
+                    JOptionPane.showMessageDialog(p, "Please select a track");
+                }
+            }
+
+        });
+        bottombar.add(openbutt);
+        JButton downbutt = new JButton("Download Track");
         downbutt.addActionListener(new ActionListener() {
 
             @Override
