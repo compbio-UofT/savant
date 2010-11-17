@@ -503,12 +503,14 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
             long genome_x = gpc.getMouseXPosition();
             long genome_y = gpc.getMouseYPosition();
             String target = "";
-            target += genome_x;
-            target += (genome_y == -1) ? "" : ", " + genome_y;
+            target += "X: " + MiscUtils.numToString(genome_x);
+            target += (genome_y == -1) ? "" : " Y: " + MiscUtils.numToString(genome_y);
 
+            g.drawLine(mouse_x, 0, mouse_x, this.getHeight());
+            if (genome_y != -1) g.drawLine(0, mouse_y, this.getWidth(), mouse_y);
             g.drawString(target,
-                    mouse_x,
-                    mouse_y);
+                    mouse_x + 5,
+                    mouse_y - 5);
         }
 
         int x1 = MiscUtils.transformPositionToPixel(gpc.getMouseDragRange().getFrom(), this.getWidth(), new Range(this.xMin, this.xMax));
