@@ -7,7 +7,7 @@ package savant.tools.program;
 
 import java.util.ArrayList;
 import java.util.List;
-import savant.plugin.ProgramInformation;
+import savant.experimental.ProgramInformation;
 import savant.tools.program.ProgramArgument.IOType;
 
 /**

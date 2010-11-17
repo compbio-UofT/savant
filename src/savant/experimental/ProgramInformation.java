@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 
-package savant.plugin;
+package savant.experimental;
 
 /**
  *

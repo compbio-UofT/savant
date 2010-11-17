@@ -1,4 +1,4 @@
-package savant.plugin;
+package savant.experimental;
 
 /*
  *    Copyright 2010 University of Toronto
@@ -22,6 +22,7 @@ package savant.plugin;
  */
 
 
+import savant.experimental.ProgramInformation;
 import java.io.PrintStream;
 import javax.swing.*;
 import org.java.plugin.Plugin;

@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.jdom.*;
 import org.jdom.input.*;
-import savant.plugin.ProgramInformation;
+import savant.experimental.ProgramInformation;
 import savant.tools.program.Program;
 import savant.tools.program.ProgramArgument;
 import savant.tools.program.ProgramArgument.IOType;

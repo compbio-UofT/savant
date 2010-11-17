@@ -1,4 +1,7 @@
-package savant.plugin;
+package savant.experimental;
+
+import savant.plugin.PluginAdapter;
+import savant.plugin.PluginAdapterOld;
 
 /*
  *    Copyright 2010 University of Toronto

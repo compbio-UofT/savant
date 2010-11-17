@@ -54,7 +54,7 @@ import savant.data.types.Genome;
 import savant.file.SavantFileNotFormattedException;
 import savant.file.SavantUnsupportedVersionException;
 import savant.net.RemoteTrackTreeList;
-import savant.plugin.XMLTool;
+import savant.experimental.XMLTool;
 import savant.settings.*;
 import savant.startpage.StartPage;
 import savant.swing.component.TrackChooser;

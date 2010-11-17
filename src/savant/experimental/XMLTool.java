@@ -3,8 +3,9 @@
  * and open the template in the editor.
  */
 
-package savant.plugin;
+package savant.experimental;
 
+import savant.experimental.ProgramInformation;
 import java.awt.BorderLayout;
 import java.io.IOException;
 import java.util.List;
