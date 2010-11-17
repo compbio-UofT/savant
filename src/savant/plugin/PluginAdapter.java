@@ -21,26 +21,32 @@
 
 package savant.plugin;
 
-import savant.plugin.util.BookmarkUtils;
-import savant.plugin.util.NavigationUtils;
-import savant.plugin.util.SelectionUtils;
-import savant.plugin.util.TrackUtils;
+import savant.controller.*;
 
 public class PluginAdapter {
 
-    public BookmarkUtils getBookmarkUtils(){
-        return new BookmarkUtils();
+    public BookmarkController getBookmarkController(){
+        return BookmarkController.getInstance();
     }
 
-    public NavigationUtils getNavigationUtils(){
-        return new NavigationUtils();
+    public FrameController getFrameController() {
+        return FrameController.getInstance();
     }
 
-    public SelectionUtils getSelectionUtils(){
-        return new SelectionUtils();
+    public RangeController getRangeController() {
+        return RangeController.getInstance();
     }
 
-    public TrackUtils getTrackUtils(){
-        return new TrackUtils();
+    public TrackController getTrackController() {
+        return TrackController.getInstance();
     }
+
+    public ViewTrackController getViewTrackController() {
+        return ViewTrackController.getInstance();
+    }
+
+    public SelectionController getSelectionController() {
+        return SelectionController.getInstance();
+    }
+
 }
