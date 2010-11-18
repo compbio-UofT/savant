@@ -14,7 +14,7 @@
  *    limitations under the License.
  */
 
-package savant.file;
+package savant.util;
 
 import java.io.BufferedReader;
 import java.io.File;
