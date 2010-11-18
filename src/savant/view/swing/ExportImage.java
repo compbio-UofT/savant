@@ -35,9 +35,8 @@ public class ExportImage {
         List<BufferedImage> images = new ArrayList<BufferedImage>();
         int totalWidth = 0;
         int totalHeight = 45;
-        for(int i = 0; i <frames.size(); i++){
-            for(int j = 0; j <tracks.length; j++){
-                //if(frames.get(i).getTracks().get(0).getName().equals(tracks[j])){
+        for(int j = 0; j <tracks.length; j++){
+            for(int i = 0; i <frames.size(); i++){
                 if(frames.get(i).getName().equals(tracks[j])){
                     BufferedImage im = frames.get(i).frameToImage();
                     images.add(im);
