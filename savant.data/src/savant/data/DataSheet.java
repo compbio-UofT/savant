@@ -351,7 +351,7 @@ public class DataSheet implements RangeChangedListener, ViewTrackListChangedList
         if(currentViewTrack == null || table == null || data == null) return;
         ((ExtendedTable) table).clearSelectedRows();
         //List<Comparable> selected = SelectionController.getInstance().getSelections(currentViewTrack.getURI());
-        List<Comparable> selected = SelectionController.getInstance().getSelectedInRange(currentViewTrack.getURI(), RangeController.getInstance().getRange(), this.data);
+        List<Comparable> selected = SelectionController.getInstance().getSelectedFromList(currentViewTrack.getURI(), RangeController.getInstance().getRange(), this.data);
         if(selected == null) return;
         for(int i = 0; i < selected.size(); i++){
             Object o = (Object)selected.get(i);

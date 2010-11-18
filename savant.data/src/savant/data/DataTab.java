@@ -42,7 +42,7 @@ public class DataTab extends Plugin implements GUIPlugin {
     private JPanel createTabPanel(JTabbedPane jtp, String name) {
         JPanel pan = new JPanel();
         pan.setLayout(new BorderLayout());
-        pan.setBackground(ColourSettings.colorTabBackground);
+        pan.setBackground(ColourSettings.getTabBackground());
         jtp.addTab(name, pan);
         return pan;
     }

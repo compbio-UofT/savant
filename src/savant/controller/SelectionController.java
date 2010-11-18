@@ -167,7 +167,12 @@ public class SelectionController {
        return list;
    }
 
-   public List getSelectedInRange(URI uri, Range range, List<Object> data){
+   /*
+    * This function is equivalent to getSelectedFromList(URI uri, List<Object> data)
+    * but it uses range to check whether anything has change since the last
+    * request. If nothing has changed, return the same list. 
+    */
+   public List getSelectedFromList(URI uri, Range range, List<Object> data){
        
        if(range.equals(rangeMap.get(uri)) && currentMap.get(uri) != null){
            return currentMap.get(uri);

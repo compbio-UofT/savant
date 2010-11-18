@@ -189,7 +189,7 @@ public abstract class TrackRenderer {
 
     public List<Shape> getCurrentSelectedShapes(GraphPane gp){
         List<Shape> shapes = new ArrayList<Shape>();
-        List<Record> currentSelected = SelectionController.getInstance().getSelectedInRange(fileURI, RangeController.getInstance().getRange(), data);
+        List<Record> currentSelected = SelectionController.getInstance().getSelectedFromList(fileURI, RangeController.getInstance().getRange(), data);
         for(int i = 0; i < currentSelected.size(); i++){
             if(this.getClass().equals(ContinuousTrackRenderer.class)){
                 shapes.add(continuousRecordToEllipse(gp, currentSelected.get(i)));
