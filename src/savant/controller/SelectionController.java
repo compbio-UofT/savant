@@ -181,6 +181,10 @@ public class SelectionController {
 
    }
 
+   public Map<URI, List<Comparable>> getAllSelected(){
+       return this.map;
+   }
+
    private void addToCurrentSelected(URI uri, Comparable o){
        if(currentMap.get(uri) == null) currentMap.put(uri, new ArrayList<Comparable>());
        currentMap.get(uri).add(o);
