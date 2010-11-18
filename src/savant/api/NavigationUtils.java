@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 
-package savant.plugin.util;
+package savant.api;
 
 import java.util.Set;
 import savant.controller.RangeController;
@@ -13,7 +13,7 @@ import savant.data.types.Genome;
 import savant.util.Range;
 
 /**
- *
+ * Utilities for navigating Savant
  * @author mfiume
  */
 public class NavigationUtils {

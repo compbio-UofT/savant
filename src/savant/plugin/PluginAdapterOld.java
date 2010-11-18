@@ -21,10 +21,10 @@
 
 package savant.plugin;
 
-import savant.plugin.util.BookmarkUtils;
-import savant.plugin.util.NavigationUtils;
-import savant.plugin.util.SelectionUtils;
-import savant.plugin.util.TrackUtils;
+import savant.api.BookmarkUtils;
+import savant.api.NavigationUtils;
+import savant.api.SelectionUtils;
+import savant.api.TrackUtils;
 
 public class PluginAdapterOld {
 

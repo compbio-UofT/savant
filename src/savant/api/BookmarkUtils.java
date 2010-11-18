@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 
-package savant.plugin.util;
+package savant.api;
 
 import java.util.List;
 import savant.controller.BookmarkController;
@@ -11,7 +11,7 @@ import savant.controller.event.bookmark.BookmarksChangedListener;
 import savant.util.Bookmark;
 
 /**
- *
+ * Utilities for Savant bookmarks
  * @author mfiume
  */
 public class BookmarkUtils {

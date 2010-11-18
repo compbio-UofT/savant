@@ -30,6 +30,7 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import savant.api.adapter.GenomeAdapter;
 import savant.view.swing.ViewTrack;
 import savant.view.swing.sequence.SequenceViewTrack;
 
@@ -37,7 +38,7 @@ import savant.view.swing.sequence.SequenceViewTrack;
  *
  * @author mfiume, vwilliams
  */
-public class Genome implements Serializable {
+public class Genome implements Serializable, GenomeAdapter {
     private String name;
     
     private boolean isAssociatedWithTrack;
@@ -51,21 +52,10 @@ public class Genome implements Serializable {
 
     public Genome(String name, SequenceViewTrack t) throws IOException, SavantFileNotFormattedException, SavantUnsupportedVersionException {
         isAssociatedWithTrack = true;
-        //this.filename = filename;
-
-        /*
-        int lastSlashIndex = filename.lastIndexOf(System.getProperty("file.separator"));
-        setName( filename.substring(lastSlashIndex+1, filename.length()));
-         *
-         */
-
         setName(name);
         viewTrack = t;
         dataSource = (FASTAFileDataSource) t.getDataSource();//new FASTAFileDataSource(filename);
         setSequenceTrack(dataSource);
-        // get the first reference (in alphanumeric sorted order)
-        //String refname = MiscUtils.set2List(sequenceTrack.getReferenceNames()).get(0);
-        //setReferenceName(refname);
     }
 
     public Genome(BuildInfo bi) throws IOException {
@@ -76,7 +66,6 @@ public class Genome implements Serializable {
         for (ReferenceInfo c : bi.chromosomes) {
             referenceMap.put(c.name, c.length);
         }
-        //setLength(length);
     }
 
     public Genome(String name, long length) throws IOException {
@@ -84,7 +73,6 @@ public class Genome implements Serializable {
         setName("user defined");
         referenceMap = new HashMap<String,Long>();
         referenceMap.put(name, length);
-        //setLength(length);
     }
 
     public Set<String> getReferenceNames() {
@@ -99,7 +87,7 @@ public class Genome implements Serializable {
         this.dataSource = sequenceTrack;
     }
 
-    public final void setName(String name) {
+    private void setName(String name) {
         this.name = name;
     }
 
@@ -142,11 +130,4 @@ public class Genome implements Serializable {
         return getName();
     }
 
-    /*
-    public String getFilename() {
-        System.out.println("Getting filename");
-        return this.filename;
-    }
-     * 
-     */
 }

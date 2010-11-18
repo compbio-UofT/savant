@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 
-package savant.plugin.util;
+package savant.api;
 
 import java.io.IOException;
 import java.util.List;
@@ -11,11 +11,12 @@ import savant.controller.ViewTrackController;
 import savant.controller.event.viewtrack.ViewTrackAddedListener;
 import savant.controller.event.viewtrack.ViewTrackListChangedListener;
 import savant.controller.event.viewtrack.ViewTrackRemovedListener;
+import savant.data.sources.DataSource;
 import savant.file.FileFormat;
 import savant.view.swing.ViewTrack;
 
 /**
- *
+ * Utilities for Savant tracks
  * @author mfiume
  */
 public class TrackUtils {
@@ -46,6 +47,17 @@ public class TrackUtils {
      */
     public List<ViewTrack> createTrack(String path) throws IOException {
         return ViewTrack.create(path);
+    }
+
+    /**
+     * Get the data source of a track
+     * @param trackname
+     * @return
+     */
+    public DataSource getTrackDatasource(String trackname) {
+        ViewTrack t = this.getTrack(trackname);
+        if (t == null) { return null; }
+        return t.getDataSource();
     }
 
     /**
