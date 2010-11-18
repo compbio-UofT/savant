@@ -68,10 +68,8 @@ public class RecentTracksController implements ViewTrackAddedListener {
         String path = t.getURI().toASCIIString();
         if (path == null) { return; }
 
-        if(t.getURI().getScheme().equals("file")){
-            path = MiscUtils.getNeatPathFromURI(t.getURI());
-        }
-
+        path = MiscUtils.getNeatPathFromURI(t.getURI());
+        
         queue.remove(path);
         resizeQueue(queue, NUM_RECENTS_TO_SAVE);
         queue.add(0,path);
