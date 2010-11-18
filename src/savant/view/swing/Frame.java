@@ -71,9 +71,9 @@ public class Frame {
     private JPanel arcLegend;
     //private boolean legend = false;
     private List<JCheckBoxMenuItem> visItems;
-    private JideButton arcButton;
+    private JMenu arcButton;
     //private JMenu intervalMenu;
-    private JideButton intervalButton;
+    private JMenu intervalButton;
 
     private boolean commandBarActive = true;
     private DockableFrame parent;
@@ -496,8 +496,8 @@ public class Frame {
     /**
      * Create the button to show the arc params dialog
      */
-    private JideButton createArcButton() {
-        JideButton button = new JideButton("Arc Options");
+    private JMenu createArcButton() {
+        JMenu button = new JMenu("Arc Options");
         button.setToolTipText("Change mate pair parameters");
         button.addMouseListener(new MouseListener() {
             public void mouseClicked(MouseEvent e) {
@@ -516,8 +516,8 @@ public class Frame {
     /**
      * Create interval button for commandBar
      */
-    private JideButton createIntervalButton() {
-        JideButton button = new JideButton("Interval Options");
+    private JMenu createIntervalButton() {
+        JMenu button = new JMenu("Interval Options");
         button.setToolTipText("Change interval display parameters");
         button.addMouseListener(new MouseListener() {
             public void mouseClicked(MouseEvent e) {
