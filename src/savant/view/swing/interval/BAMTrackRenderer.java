@@ -158,7 +158,11 @@ public class BAMTrackRenderer extends TrackRenderer {
             renderArcMode(g2, gp);
         }
         else if (modeName.equals("SNP")){
-            renderSNPMode(g2, gp, r);
+            if (r == Resolution.VERY_HIGH || r == Resolution.HIGH) {
+                renderSNPMode(g2, gp, r);
+            } else {
+                this.resizeFrame(gp);
+            }
         }
     }
 
