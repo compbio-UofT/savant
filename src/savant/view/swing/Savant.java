@@ -40,7 +40,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jdom.JDOMException;
 
-import savant.analysis.BatchAnalysisForm;
 import savant.controller.*;
 import savant.controller.event.bookmark.BookmarksChangedEvent;
 import savant.controller.event.bookmark.BookmarksChangedListener;
@@ -2165,25 +2164,6 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         for (JComponent j : components) {
             j.setEnabled(isVisible);
         }
-    }
-
-    private void initBatchAnalyzeTab(JTabbedPane jtp) {
-
-        JPanel tablePanel = createTabPanel(jtp, "Batch Run");
-
-        JButton addBatchAnalysisButton = new JButton("Add Batch Analysis");
-        addBatchAnalysisButton.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                BatchAnalysisForm baf = new BatchAnalysisForm();
-                baf.setVisible(true);
-                baf.setAlwaysOnTop(true);
-            }
-        });
-
-        tablePanel.add(addBatchAnalysisButton);
-
     }
 
     private JPanel createTabPanel(JTabbedPane jtp, String name) {
