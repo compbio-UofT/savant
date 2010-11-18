@@ -32,6 +32,7 @@ import net.sf.samtools.util.SeekableFileStream;
 import net.sf.samtools.util.SeekableStream;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import savant.settings.BrowserSettings;
 
 import savant.util.MiscUtils;
 import savant.util.NetworkUtils;
@@ -119,7 +120,7 @@ public class SavantROFile implements ROFile {
      */
     public SavantROFile(URI uri) throws IOException, SavantFileNotFormattedException, SavantUnsupportedVersionException {
         this.uri = uri.normalize();
-        seekStream = NetworkUtils.getSeekableStreamForURI(uri, true);
+        seekStream = NetworkUtils.getSeekableStreamForURI(uri, BrowserSettings.getCachingEnabled());
         init();
     }
 

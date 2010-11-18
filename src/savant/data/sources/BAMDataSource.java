@@ -39,6 +39,7 @@ import org.apache.commons.logging.LogFactory;
 import savant.controller.RangeController;
 import savant.controller.ReferenceController;
 import savant.data.types.BAMIntervalRecord;
+import savant.settings.BrowserSettings;
 import savant.util.MiscUtils;
 import savant.util.Range;
 import savant.util.Resolution;
@@ -137,7 +138,7 @@ public class BAMDataSource implements DataSource<BAMIntervalRecord> {
 
         uri = url.toURI().normalize();
 
-        SeekableStream stream = NetworkUtils.getSeekableStreamForURI(uri, true);
+        SeekableStream stream = NetworkUtils.getSeekableStreamForURI(uri, BrowserSettings.getCachingEnabled());
         samFileReader = new SAMFileReader(stream, index, false);
         samFileReader.setValidationStringency(SAMFileReader.ValidationStringency.SILENT);
         samFileHeader = samFileReader.getFileHeader();

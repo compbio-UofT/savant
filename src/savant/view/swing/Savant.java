@@ -101,7 +101,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
     private OpenURLDialog urlDialog;
     private MemoryStatusBarItem memorystatusbar;
     private DockableFrame startPageDockableFrame;
-    private Application macOSXApplication;
+    //private Application macOSXApplication;
     private ProjectHandler projectHandler;
 
     public void addToolBar(JToolBar b) {
@@ -1220,6 +1220,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
             SettingsDialog.addSection(new ColourSchemeSettingsSection());
             SettingsDialog.addSection(new TemporaryFilesSettingsSection());
             SettingsDialog.addSection(new GeneralSettingsSection());
+            SettingsDialog.addSection(new RemoteFilesSettingsSection());
             //SettingsDialog.addSection(new ResolutionSettingsSection());
             arePreferencesInitialized = true;
         }
@@ -1442,7 +1443,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
     private void customizeUI() {
         if (mac) {
             try {
-                macOSXApplication = Application.getApplication();
+                /*macOSXApplication = Application.getApplication();
                 macOSXApplication.setAboutHandler(new AboutHandler() {
 
                     @Override
@@ -1478,7 +1479,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
                 menuitem_file.remove(jSeparator4);
                 menuitem_file.remove(exitItem);
                 menu_edit.remove(jSeparator7);
-                menu_edit.remove(menuitem_preferences);
+                menu_edit.remove(menuitem_preferences);*/
             } catch (Exception e) {
                 LOG.error("Unable to load Apple eAWT classes.");
             }

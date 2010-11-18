@@ -101,4 +101,8 @@ public class DirectorySettings {
     public static void setXMLToolDescriptionsDirectory(String dir) {
         setDirectory(XML_TOOLS_DIR_KEY, dir);
     }
+
+    public static void setCacheDirectory(String dir) {
+        setDirectory(CACHE_DIR_KEY, dir);
+    }
 }

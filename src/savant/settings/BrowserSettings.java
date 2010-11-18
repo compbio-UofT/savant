@@ -27,6 +27,7 @@ public class BrowserSettings {
 
     private static final String CHECKVERSION_KEY = "CHECKVERSION";
     private static final String COLLECTSTATS_KEY = "COLLECTSTATS";
+    private static final String CACHINGENABLED_KEY = "CACHINGENABLED";
 
     /*
      * Website
@@ -50,12 +51,20 @@ public class BrowserSettings {
         return settings.getBoolean(COLLECTSTATS_KEY, true);
     }
 
+    public static boolean getCachingEnabled() {
+        return settings.getBoolean(CACHINGENABLED_KEY, true);
+    }
+
     public static void setCheckVersionOnStartup(boolean b) {
         settings.setBoolean(CHECKVERSION_KEY, b);
     }
 
     public static void setCollectAnonymousUsage(boolean b) {
         settings.setBoolean(COLLECTSTATS_KEY, b);
+    }
+
+    public static void setCachingEnabled(boolean b) {
+        settings.setBoolean(CACHINGENABLED_KEY, b);
     }
 
     /**
