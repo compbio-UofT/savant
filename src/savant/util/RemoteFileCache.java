@@ -60,6 +60,7 @@ public class RemoteFileCache {
                     currFile.deleteOnExit();
                 }
             }
+            bufferedReader.close();
         } catch (IOException ex) {
             Logger.getLogger(RemoteFileCache.class.getName()).log(Level.SEVERE, "Error reading: " + indexName, ex);
         }
