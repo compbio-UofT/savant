@@ -16,12 +16,12 @@
 
 package savant.format;
 
+import java.io.*;
+import java.util.*;
+
 import net.sf.samtools.*;
 import net.sf.samtools.util.CloseableIterator;
-import org.apache.commons.logging.LogFactory;
-import java.io.*;
-import java.net.URI;
-import java.util.*;
+
 import savant.file.FileType;
 import savant.file.FieldType;
 import savant.util.MiscUtils;
@@ -205,13 +205,13 @@ public class BAMToCoverage extends SavantFileFormatter {
         if (recordIterator.hasNext()) {
             sam = recordIterator.next();
 
-            LOG.info(sam + " " + sam.getReferenceName());
+            LOG.debug(sam + " " + sam.getReferenceName());
             // check if sequence has changed
             String refName = sam.getReferenceName();
             if (!refName.equals(referenceName)) {
                 referenceName = refName;
                 if (refName.equals("*")) {
-                    LOG.info(sam);
+                    LOG.debug(sam);
                     referenceSequenceLength = 0;
                 }
                 else { referenceSequenceLength = sequenceDictionary.get(referenceName); }
