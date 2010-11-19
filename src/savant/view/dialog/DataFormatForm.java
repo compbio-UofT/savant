@@ -21,6 +21,7 @@ import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.awt.*;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -41,7 +42,7 @@ public class DataFormatForm extends JDialog {
 
     private static JTextArea formatDescriptionTextArea;
     private boolean success = false;
-    private String outFilePath;
+    private File outFile;
 
     //private FormatTask formatTask;
 
@@ -346,9 +347,9 @@ public class DataFormatForm extends JDialog {
 
     private void button_formatActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_formatActionPerformed
 
-        String infile = this.textfield_inPath.getText();
-        String outfile = this.textfield_outPath.getText();
-        this.outFilePath = outfile;
+        File infile = new File(textfield_inPath.getText());
+        File outfile = new File(textfield_outPath.getText());
+        this.outFile = outfile;
         FileType ft = formatTypeMap.get(formats.get(list_formats.getSelectedIndex()));
         boolean isInputOneBased = checkbox_chooseBase.isSelected();
         
@@ -543,10 +544,6 @@ public class DataFormatForm extends JDialog {
         // force property change support to fire the event, even if the property hasn't actually changed.
         // this is the only way Savant has of knowing what has happened during formatting.
         firePropertyChange("success", !this.success, this.success);
-    }
-
-    public String getOutputFilePath() {
-        return this.outFilePath;
     }
 
     /*

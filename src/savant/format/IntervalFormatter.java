@@ -17,16 +17,17 @@
 
 package savant.format;
 
-import savant.file.FieldType;
-import savant.file.FileType;
-import savant.util.Range;
-
 import java.io.*;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import savant.file.FieldType;
+import savant.file.FileType;
 import savant.settings.DirectorySettings;
+import savant.util.Range;
 
 public class IntervalFormatter extends SavantFileFormatter {
 
@@ -42,7 +43,7 @@ public class IntervalFormatter extends SavantFileFormatter {
     List<FieldType> writeOrderFields;
     List<Object> writeOrderModifiers;
 
-    public IntervalFormatter(String inFile, String outFile, boolean baseOffset, FileType ft, Integer refnameindex, Integer startcoordindex, Integer endcoordindex, String comment){
+    public IntervalFormatter(File inFile, File outFile, boolean baseOffset, FileType ft, Integer refnameindex, Integer startcoordindex, Integer endcoordindex, String comment){
         super(inFile, outFile, ft); //FileType.INTERVAL_GENERIC);
         this.setInputOneBased(baseOffset);
         this.refnameindex = refnameindex;
@@ -96,9 +97,9 @@ public class IntervalFormatter extends SavantFileFormatter {
     }
      */
 
-    private int countFields(String path) throws FileNotFoundException, IOException {
+    private int countFields() throws FileNotFoundException, IOException {
         //System.out.println("Counting fields");
-        BufferedReader br = new BufferedReader(new FileReader(path));
+        BufferedReader br = new BufferedReader(new FileReader(inFile));
 
         String line = br.readLine();
 
@@ -136,12 +137,13 @@ public class IntervalFormatter extends SavantFileFormatter {
      * @throws IOException
      * @throws InterruptedException
      */
+    @Override
     public void format() throws IOException, InterruptedException {
 
-        int numFields = countFields(this.inFilePath);
+        int numFields = countFields();
 
         // set the input file size (for tracking progress)
-        this.totalBytes = new File(inFilePath).length();
+        this.totalBytes = inFile.length();
 
        // System.out.println("File contains " + numFields + " fields");
 
@@ -168,7 +170,7 @@ public class IntervalFormatter extends SavantFileFormatter {
         this.incrementOverallProgress();
 
         // split the input file by chromosome
-        Map<String, String> refToinFileMap = SavantFileFormatterUtils.splitFile(this.inFilePath,0);
+        Map<String, String> refToinFileMap = SavantFileFormatterUtils.splitFile(inFile, 0);
 
         //List<String> indexFiles = new ArrayList<String>();
         //List<String> outFiles = new ArrayList<String>();
@@ -199,7 +201,7 @@ public class IntervalFormatter extends SavantFileFormatter {
             refnames.add(refname);
 
             // make and save path to tmp output files
-            String outPath = DirectorySettings.getTmpDirectory() + System.getProperty("file.separator") + (new File(inFilePath)).getName() + ".part_" + refname;
+            String outPath = DirectorySettings.getTmpDirectory() + System.getProperty("file.separator") + inFile.getName() + ".part_" + refname;
 
             String indexPath = outPath + indexExtension;
             refnameToDataFileNameMap.put(refname, outPath);
@@ -264,7 +266,7 @@ public class IntervalFormatter extends SavantFileFormatter {
         int[] columns = {1,2};
         sortInput(columns);
 
-        log.info("Formatting as BED");
+        LOG.info("Formatting as BED");
 
         fields = new ArrayList<FieldType>();
         fields.add(FieldType.STRING);   // reference
@@ -348,7 +350,7 @@ public class IntervalFormatter extends SavantFileFormatter {
      */
     @Override
     public BufferedReader openInputFile() throws FileNotFoundException {
-        return new BufferedReader(new FileReader(inFilePath));
+        return new BufferedReader(new FileReader(inFile));
     }
 
     private void writeBinToOutfile(IntervalTreeNode n, RandomAccessFile srcFile, DataOutputStream outFile, HashMap<Integer, List<LinePlusRange>> nodeIndex2IntervalIndices, List<Long> intevalIndex2StartByte, List<FieldType> fields, List<Object> modifiers) throws IOException {
@@ -478,7 +480,7 @@ public class IntervalFormatter extends SavantFileFormatter {
          *  - create a line number -> startbyte map (bytes correspond to tmpfile)
          *  - create a line number -> Range map
          */
-        log.debug("=== STEP 1 ===");
+        LOG.debug("=== STEP 1 ===");
 
         // the maximum and minimum range values in the input file
         long minRange = Long.MAX_VALUE;
@@ -550,7 +552,7 @@ public class IntervalFormatter extends SavantFileFormatter {
          *  - create a bin -> List<line> map
          *  - write each bin to outfile
          */
-        log.debug("=== STEP 2 ===");
+        LOG.debug("=== STEP 2 ===");
 
         //this.incrementOverallProgress();
 
@@ -603,8 +605,8 @@ public class IntervalFormatter extends SavantFileFormatter {
 
             //System.out.println("Insert into: " + n.range);
 
-            if (log.isDebugEnabled()) {
-                log.debug("I " + n.index + "\t" + r);
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("I " + n.index + "\t" + r);
             }
 
             // if new node becomes smallest, set currentSmallestNode accordingly
@@ -630,13 +632,13 @@ public class IntervalFormatter extends SavantFileFormatter {
             lines.add(new LinePlusRange(r,lineNum));
             nodeIndex2IntervalIndices.put(n.index, lines);
 
-            log.debug("Adding to node " + n.index);
+            LOG.debug("Adding to node " + n.index);
 
             // increment counter and do progress reporting
             lineNum++;
             if (lineNum % 500 == 0) {
-                if (log.isDebugEnabled()) {
-                    log.debug("=========== " + ((lineNum *100) / intervalIndex2IntervalRange.size()) + "% done");
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("=========== " + ((lineNum *100) / intervalIndex2IntervalRange.size()) + "% done");
                 }
                 setSubtaskProgress((lineNum *100) / intervalIndex2IntervalRange.size());
                 if (Thread.interrupted()) throw new InterruptedException();
@@ -700,6 +702,6 @@ public class IntervalFormatter extends SavantFileFormatter {
         // delete the tmp file
         if (!(new File(tmpfilename)).delete()) { (new File(tmpfilename)).deleteOnExit(); }
 
-        log.debug("Done formatting");
+        LOG.debug("Done formatting");
     }
 }

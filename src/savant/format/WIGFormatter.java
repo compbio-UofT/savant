@@ -17,7 +17,6 @@
 package savant.format;
 
 import java.io.*;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -30,11 +29,7 @@ public class WIGFormatter extends SavantFileFormatter {
 
     private static final int RECORDS_PER_INTERRUPT_CHECK = 100;
 
-    // variables to keep track of progress processing the input file(s)
-    private long totalBytes;
-    private long byteCount;
-
-    public WIGFormatter(String inFile, String outFile) {
+    public WIGFormatter(File inFile, File outFile) {
         super(inFile, outFile, FileType.CONTINUOUS_GENERIC);
     }
 
@@ -42,6 +37,7 @@ public class WIGFormatter extends SavantFileFormatter {
         if (s != null) byteCount += s.getBytes().length;
     }
 
+    @Override
     public void format() throws InterruptedException, IOException {
 
         fields = new ArrayList<FieldType>();
@@ -51,7 +47,7 @@ public class WIGFormatter extends SavantFileFormatter {
         modifiers.add(null);
 
         // set the input file size (for tracking progress)
-        this.totalBytes = new File(inFilePath).length();
+        totalBytes = inFile.length();
 
         // open the input file
         inFileReader = this.openInputFile();
@@ -209,9 +205,9 @@ public class WIGFormatter extends SavantFileFormatter {
             }
 
         } catch (FileNotFoundException e) {
-            log.error("File not found " + inFilePath);
+            LOG.error("File not found " + inFile);
         } catch (IOException io) {
-            log.error("Error converting file " + inFilePath, io);
+            LOG.error("Error converting file " + inFile, io);
         } finally {
             this.closeOutputStreams();
         }
@@ -225,9 +221,7 @@ public class WIGFormatter extends SavantFileFormatter {
 
     private void fillWithZeros(int curent, int dest,DataOutputStream out) throws IOException{
     	for (int i = curent; i < dest;i++){
-    		out.writeFloat(0.0f);
+            out.writeFloat(0.0f);
     	}
     }
-
-
 }

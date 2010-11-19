@@ -20,6 +20,7 @@ import net.sf.samtools.*;
 import net.sf.samtools.util.CloseableIterator;
 import org.apache.commons.logging.LogFactory;
 import java.io.*;
+import java.net.URI;
 import java.util.*;
 import savant.file.FileType;
 import savant.file.FieldType;
@@ -27,12 +28,9 @@ import savant.util.MiscUtils;
 
 public class BAMToCoverage extends SavantFileFormatter {
 
-    private static String fileSeparator = System.getProperty("file.separator");
-
     public static final int RECORDS_PER_INTERRUPT_CHECK = 5000;
 
-    private String indexFile;   // xx.bai file
-    private String outDir;      // xx_cov directory
+    private File indexFile;   // xx.bai file
 
     private DataOutputStream outfile;
 
@@ -50,21 +48,19 @@ public class BAMToCoverage extends SavantFileFormatter {
     private long totalLength=0;
     private long previousSequencesCumulativeLength=0;
 
-    public BAMToCoverage(String inFile) throws IOException {
-        this(inFile, inFile + ".cov.savant");
+    public BAMToCoverage(File inFile) throws IOException {
+        this(inFile, new File(inFile.getAbsolutePath() + ".cov.savant"));
     }
 
-    public BAMToCoverage(String inFile, String outFile) throws IOException {
-        super(inFile,outFile,FileType.CONTINUOUS_GENERIC);
-
-        log = LogFactory.getLog(BAMToCoverage.class);
+    public BAMToCoverage(File inFile, File outFile) throws IOException {
+        super(inFile, outFile, FileType.CONTINUOUS_GENERIC);
 
         //this.inFilePath = inFile;
 
         // determine index and output file names
-        prepareFiles(inFile);
+        prepareFiles();
 
-        this.samFileReader = new SAMFileReader(new File(inFile), new File(indexFile));
+        this.samFileReader = new SAMFileReader(inFile, indexFile);
         samFileReader.setValidationStringency(SAMFileReader.ValidationStringency.SILENT);
 
         // get name and length of all reference sequences in the file
@@ -128,7 +124,6 @@ public class BAMToCoverage extends SavantFileFormatter {
                         advanceToNextSequence(toWrite, m);
 
                         if (samRecord == null) {
-                            System.out.println("Finished");
                             // we're finished
                             done = true;
                             break;
@@ -158,7 +153,7 @@ public class BAMToCoverage extends SavantFileFormatter {
                             
                             //out.writeFloat(x);
                         } catch (IOException e) {
-                            log.error("Problem writing data", e);
+                            LOG.error("Problem writing data", e);
                         }
                     }
                     toWrite = alignmentStart;
@@ -210,13 +205,13 @@ public class BAMToCoverage extends SavantFileFormatter {
         if (recordIterator.hasNext()) {
             sam = recordIterator.next();
 
-            System.out.println(sam + " " + sam.getReferenceName());
+            LOG.info(sam + " " + sam.getReferenceName());
             // check if sequence has changed
             String refName = sam.getReferenceName();
             if (!refName.equals(referenceName)) {
                 referenceName = refName;
                 if (refName.equals("*")) {
-                    System.out.println(sam);
+                    LOG.info(sam);
                     referenceSequenceLength = 0;
                 }
                 else { referenceSequenceLength = sequenceDictionary.get(referenceName); }
@@ -237,7 +232,7 @@ public class BAMToCoverage extends SavantFileFormatter {
             try {
                 outfile.writeFloat(x);
             } catch (IOException e) {
-                log.error("Problem writing data", e);
+                LOG.error("Problem writing data", e);
             }
         }
 
@@ -254,28 +249,30 @@ public class BAMToCoverage extends SavantFileFormatter {
         }
     }
 
-    private void prepareFiles(String inFile) throws IOException {
+    private void prepareFiles() throws IOException {
 
         // determine default track name from filename
         //int lastSlashIndex = inFile.lastIndexOf(System.getProperty("file.separator"));
         //String name = inFile.substring(lastSlashIndex+1, inFile.length());
 
         // infer index file name from track filename
+        String path = inFile.getAbsolutePath();
         String pathWithoutExtension;
-        int lastIndex = inFile.lastIndexOf(".bam");
+        int lastIndex = path.lastIndexOf(".bam");
         if(lastIndex == -1){
-            log.error("BAM files should end with the \".bam\" file extension.");
+            LOG.error("BAM files should end with the \".bam\" file extension.");
             throw new IOException("BAM files should end with the \".bam\" file extension.");
         } else {
-            pathWithoutExtension = inFile.substring(0, lastIndex);
+            pathWithoutExtension = path.substring(0, lastIndex);
         }
         //String pathWithoutExtension = inFile.substring(0, inFile.lastIndexOf(".bam"));
-        if (new File(inFile + ".bai").exists()) {
-            indexFile = inFile + ".bai";
-        }
-        else {
-            if (new File(pathWithoutExtension + ".bai").exists()) {
-                indexFile = pathWithoutExtension + ".bai";
+        File f = new File(path + ".bai");
+        if (f.exists()) {
+            indexFile = f;
+        } else {
+            f = new File(pathWithoutExtension + ".bai");
+            if (f.exists()) {
+                indexFile = f;
             }
         }
 
@@ -291,7 +288,7 @@ public class BAMToCoverage extends SavantFileFormatter {
     }
 
     private void prepareOutputFile(String sequenceName) throws FileNotFoundException {
-        System.out.println("Preparing output file for : " + sequenceName);
+        LOG.info("Preparing output file for : " + sequenceName);
         outfile = this.getFileForReference(sequenceName);
         //this.outFilePath = outDir + fileSeparator + sequenceName + ".cov.savant";
         //initOutput();

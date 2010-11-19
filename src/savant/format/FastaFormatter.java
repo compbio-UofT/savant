@@ -17,6 +17,7 @@
 package savant.format;
 
 import java.io.*;
+import java.net.URI;
 import java.util.StringTokenizer;
 
 import org.apache.commons.logging.Log;
@@ -29,7 +30,7 @@ public class FastaFormatter extends SavantFileFormatter{
 
     public static final int RECORDS_PER_INTERRUPT_CHECK = 1000;
 
-    public FastaFormatter(String inFile, String outFile) {
+    public FastaFormatter(File inFile, File outFile) {
         super(inFile, outFile, FileType.SEQUENCE_FASTA);
     }
 
@@ -37,7 +38,7 @@ public class FastaFormatter extends SavantFileFormatter{
     public void format() throws IOException, InterruptedException, SavantFileFormattingException{
 
         // set the input file size (for tracking progress)
-        this.totalBytes = new File(inFilePath).length();
+        this.totalBytes = inFile.length();
 
         // open the input file
         inFileReader = this.openInputFile();

@@ -18,8 +18,10 @@ package savant.format;
 
 import java.io.*;
 import java.util.*;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import savant.file.FileType;
 import savant.file.FileTypeHeader;
 import savant.file.FieldType;
@@ -28,16 +30,17 @@ import savant.settings.DirectorySettings;
 import savant.util.MiscUtils;
 
 public abstract class SavantFileFormatter {
+    protected static final Log LOG = LogFactory.getLog(SavantFileFormatter.class);
 
-    /* LOG */
+    /**
+     * Input file.  For now, this is usually a file URI.
+     */
+    protected File inFile;
 
-    // a log
-    protected Log log;
-
-    /* FILES */
-    protected String inFilePath;        // input file path
-    protected String outFilePath;       // output file path
-    //protected String sortPath;        // sort path
+    /**
+     * Output file.
+     */
+    protected File outFile;
 
     protected FileType fileType;
 
@@ -162,20 +165,19 @@ public abstract class SavantFileFormatter {
       * 
       */
 
-    public SavantFileFormatter(String inFilePath, String outFilePath, FileType fileType) {
+    public SavantFileFormatter(File inFile, File outFile, FileType fileType) {
         
-        this.inFilePath = inFilePath;
-        this.outFilePath = outFilePath;
+        this.inFile = inFile;
+        this.outFile = outFile;
         this.fileType = fileType;
         
-        log = LogFactory.getLog(SavantFileFormatter.class);
         referenceName2FileMap = new HashMap<String,DataOutputStream>();
         referenceName2FilenameMap = new HashMap<String,String>();
 
-        if (log.isDebugEnabled()) {
-            log.debug("Savant Formatter Created");
-            log.debug("input file: " + inFilePath);
-            log.debug("output file: " + outFilePath);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Savant Formatter Created");
+            LOG.debug("input URI: " + inFile);
+            LOG.debug("output file: " + outFile);
         }
     }
 
@@ -186,7 +188,7 @@ public abstract class SavantFileFormatter {
 
     protected DataOutputStream addReferenceFile(String referenceName) throws FileNotFoundException {
 
-        String fn = DirectorySettings.getTmpDirectory() + System.getProperty("file.separator") + (new File(inFilePath)).getName() + ".part_" + referenceName;
+        String fn = DirectorySettings.getTmpDirectory() + System.getProperty("file.separator") + inFile.getName() + ".part_" + referenceName;
         //String fn = inFilePath + ".part_" + referenceName;
 
         DataOutputStream f = new DataOutputStream(
@@ -273,7 +275,7 @@ public abstract class SavantFileFormatter {
      * @throws FileNotFoundException
      */
     protected BufferedReader openInputFile() throws FileNotFoundException {
-        return new BufferedReader(new FileReader(inFilePath));
+        return new BufferedReader(new FileReader(inFile));
     }
 
     /**
@@ -283,7 +285,7 @@ public abstract class SavantFileFormatter {
      */
     protected DataOutputStream openOutputFile() throws FileNotFoundException {
         outFileStream = new DataOutputStream(new BufferedOutputStream(
-                new FileOutputStream(outFilePath), OUTPUT_BUFFER_SIZE));
+                new FileOutputStream(outFile), OUTPUT_BUFFER_SIZE));
         return outFileStream;
     }
 
@@ -313,10 +315,9 @@ public abstract class SavantFileFormatter {
      */
 
     protected void deleteOutputFile() {
-        File f = new File(outFilePath);
-        if (f.exists()) {
-            if (!f.delete()) {
-                f.deleteOnExit();
+        if (outFile.exists()) {
+            if (!outFile.delete()) {
+                outFile.deleteOnExit();
             }
         }
     }
@@ -352,18 +353,18 @@ public abstract class SavantFileFormatter {
         // ONLY INTERVAL AND CONTINUOUS FILES CURRENTLY HAVE 4
 
         // 1. WRITE FILE TYPE HEADER (MAGIC NUMBER AND VERSION)
-        if (log.isDebugEnabled()) log.debug("Writing file type header");
+        LOG.debug("Writing file type header");
         FileTypeHeader fileTypeHeader = new FileTypeHeader(this.fileType, SavantROFile.CURRENT_FILE_VERSION);
         SavantFileFormatterUtils.writeFileTypeHeader(outFileStream,fileTypeHeader);
         outFileStream.flush();
 
         // 2. WRITE FIELD HEADER
-        if (log.isDebugEnabled()) log.debug("Writing fields header");
+        LOG.debug("Writing fields header");
         SavantFileFormatterUtils.writeFieldsHeader(outFileStream, fields);
         outFileStream.flush();
 
         // 3. WRITE REFERENCE MAP
-        if (log.isDebugEnabled()) log.debug("Writing reference<->data map");
+        LOG.debug("Writing reference<->data map");
         writeReferenceMap(outFileStream,refnames,refToDataFileNameMap);
         outFileStream.flush();
     }
@@ -371,7 +372,7 @@ public abstract class SavantFileFormatter {
     protected void writeAdditionalIndices(List<String> refnames, Map<String,String> refToIndexFileNameMap) throws FileNotFoundException, IOException {
         // 4. WRITE INDEX
         if (refToIndexFileNameMap != null) {
-            if (log.isDebugEnabled()) log.debug("Writing reference<->index map");
+            LOG.debug("Writing reference<->index map");
             writeReferenceMap(outFileStream,refnames,refToIndexFileNameMap);
             List<String> indexfiles = this.getMapValuesInOrder(refnames, refToIndexFileNameMap);
             concatenateFiles(outFileStream,indexfiles);
@@ -439,7 +440,7 @@ public abstract class SavantFileFormatter {
             // write the length of the data
             f.writeLong(reffile.length());
 
-            if (log.isDebugEnabled()) log.debug("Ref: " + refname + " Fn: " + fn + " Offset: " + refOffset + " Length: " + reffile.length());
+            LOG.debug("Ref: " + refname + " Fn: " + fn + " Offset: " + refOffset + " Length: " + reffile.length());
 
             // increment the offset for next iteration
             refOffset += reffile.length();
@@ -448,7 +449,7 @@ public abstract class SavantFileFormatter {
 
 
     private void concatenateFiles(DataOutputStream f, List<String> filenames) throws FileNotFoundException, IOException {
-        if (log.isDebugEnabled()) log.debug("Concatenating files...");
+        LOG.debug("Concatenating files...");
 
         // 10MB buffer
         byte[] buffer = new byte[1024*10000];
@@ -466,10 +467,10 @@ public abstract class SavantFileFormatter {
 
             File tmp = new File(fn);
 
-            if (log.isDebugEnabled()) {
-                log.debug("COPY: [ FILE:\t" + fn + "] (" + currreference + " of " + numreferences + ")\t");
-                log.debug("[ bytes/copied: " + tmp.length() + " / ");
-                log.debug("Copying " + fn);
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("COPY: [ FILE:\t" + fn + "] (" + currreference + " of " + numreferences + ")\t");
+                LOG.debug("[ bytes/copied: " + tmp.length() + " / ");
+                LOG.debug("Copying " + fn);
             }
 
 
@@ -481,19 +482,19 @@ public abstract class SavantFileFormatter {
 
             while((bytesRead = is.read(buffer)) > 0) {
                 br += bytesRead;
-                if (log.isDebugEnabled()) log.debug("Read " + bytesRead + " bytes");
+                LOG.debug("Read " + bytesRead + " bytes");
                 f.write(buffer, 0, bytesRead);
                 this.setSubtaskProgress((int)((br*100)/totalBytesToRead));
             }
 
-            if (log.isDebugEnabled()) log.debug(br + " ]");
+            LOG.debug(br + " ]");
 
             is.close();
 
             //deleteFile(fn);
         }
 
-        if (log.isDebugEnabled()) log.debug(b + " bytes in file after concatenation");
+        LOG.debug(b + " bytes in file after concatenation");
 
         f.flush();
         //f.close();

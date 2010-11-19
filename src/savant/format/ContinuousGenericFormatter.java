@@ -17,6 +17,7 @@
 package savant.format;
 
 import java.io.*;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -29,16 +30,15 @@ public class ContinuousGenericFormatter extends SavantFileFormatter {
 
     private static final int RECORDS_PER_INTERRUPT_CHECK = 100;
 
-    public ContinuousGenericFormatter(String inFile, String outFile) {
+    public ContinuousGenericFormatter(File inFile, File outFile) {
         super(inFile, outFile, FileType.CONTINUOUS_GENERIC);
-       // this.inFilePath = inFile;
-        //this.out = outFile;
     }
 
-    public void format() throws IOException, InterruptedException{
+    @Override
+    public void format() throws IOException, InterruptedException {
 
         // Initialize the total size of the input file, for purposes of tracking progress
-        this.totalBytes = new File(inFilePath).length();
+        totalBytes = inFile.length();
 
         inFileReader = this.openInputFile();
 

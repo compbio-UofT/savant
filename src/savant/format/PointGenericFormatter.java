@@ -35,26 +35,27 @@ public class PointGenericFormatter extends SavantFileFormatter {
 
     // todo: remove this contructor, dont make DataFormatter.java do the work
     // of making an offset, just take the boolean, as below
-    public PointGenericFormatter(String inFile, String outFile, int baseOffset) {
+    public PointGenericFormatter(File inFile, File outFile, int baseOffset) {
         super(inFile, outFile, FileType.POINT_GENERIC);
         this.baseOffset = baseOffset;
     }
 
-    public PointGenericFormatter(String inFile, String outFile, boolean isOneBased) {
+    public PointGenericFormatter(File inFile, File outFile, boolean isOneBased) {
         super(inFile, outFile, FileType.POINT_GENERIC);
         if (!isOneBased) {
             baseOffset = 1;
         }
     }
 
-     public PointGenericFormatter(String inFile, String outFile) {
+     public PointGenericFormatter(File inFile, File outFile) {
         this(inFile, outFile, true);
     }
 
+    @Override
     public void format() throws IOException, InterruptedException{
 
         // Initialize the total size of the input file, for purposes of tracking progress
-        this.totalBytes = new File(inFilePath).length();
+        totalBytes = inFile.length();
 
         inFileReader = this.openInputFile();
 
@@ -92,10 +93,10 @@ public class PointGenericFormatter extends SavantFileFormatter {
                         break;
                     }
                     // update bytes read from input
-                    this.byteCount += strLine.getBytes().length;
+                    byteCount += strLine.getBytes().length;
                     // parse input and write output
                     if ((line = SavantFileFormatterUtils.parseTxtLine(strLine, fields)) != null) {
-                        line.set(1, ((Integer) line.get(1))+ this.baseOffset);
+                        line.set(1, ((Integer) line.get(1))+ baseOffset);
                         outfile = this.getFileForReference((String) line.get(0));
                         
                         SavantFileFormatterUtils.writeBinaryRecord(outfile, line, fields, modifiers);
@@ -104,7 +105,7 @@ public class PointGenericFormatter extends SavantFileFormatter {
                 // check to see if format has been cancelled
                 if (Thread.interrupted()) throw new InterruptedException();
                 // update progress property for UI
-                this.setSubtaskProgress(this.getProgressAsInteger(byteCount, totalBytes));
+                this.setSubtaskProgress(getProgressAsInteger(byteCount, totalBytes));
             }
 
             // close output streams;
@@ -112,7 +113,7 @@ public class PointGenericFormatter extends SavantFileFormatter {
             closeOutputStreams();
 
             // write the output file
-            this.writeOutputFile();
+            writeOutputFile();
         }
         finally {
             inFileReader.close();

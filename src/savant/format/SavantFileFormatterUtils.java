@@ -625,8 +625,8 @@ public class SavantFileFormatterUtils {
     }
 
 
-    public static Map<String, String> splitFile(String filePath, int columnNumber) throws IOException {
-        BufferedReader br = new BufferedReader(new FileReader(filePath));
+    public static Map<String, String> splitFile(File file, int columnNumber) throws IOException {
+        BufferedReader br = new BufferedReader(new FileReader(file));
 
         Map<String, String> seqnameToFileNameMap = new HashMap<String,String>();
         Map<String, BufferedWriter> seqnameToBufferedWriterMap = new HashMap<String,BufferedWriter>();
@@ -659,7 +659,7 @@ public class SavantFileFormatterUtils {
                 if (seqnameToFileNameMap.containsKey(t)) {
                     bw = seqnameToBufferedWriterMap.get(t);
                 } else {
-                    String fn = filePath + ".split_" + t;
+                    String fn = file + ".split_" + t;
                     bw = new BufferedWriter(new FileWriter(fn));
                     seqnameToFileNameMap.put(t,fn);
                     seqnameToBufferedWriterMap.put(t,bw);

@@ -40,8 +40,8 @@ public class FormatTool {
     @SuppressWarnings("UseOfSystemOutOrSystemErr")
     public static void main(String args[]) {
         try {
-            String inFile = null;
-            String outFile = null;
+            File inFile = null;
+            File outFile = null;
             FileType ft = null;
             boolean oneBased = false;
             boolean forceOneBased = false;
@@ -56,9 +56,9 @@ public class FormatTool {
                     forceOneBased = true;
                     oneBased = true;
                 } else if (inFile == null) {
-                    inFile = args[i];
+                    inFile = new File(args[i]);
                 } else if (outFile == null) {
-                    outFile = args[i];
+                    outFile = new File(args[i]);
                 } else {
                     throw new IllegalArgumentException(String.format("Unrecognised command line argument: %s.", args[i]));
                 }
@@ -67,21 +67,20 @@ public class FormatTool {
             if (inFile == null) {
                 throw new IllegalArgumentException("Input file not specified.");
             }
-            File f = new File(inFile);
-            if (!f.exists()) {
-                throw new FileNotFoundException(String.format("File not found: %s.", inFile));
+            if (!inFile.exists()) {
+                throw new FileNotFoundException(String.format("File not found: %s.", inFile.getAbsolutePath()));
             }
             if (ft == null) {
                 ft = inferFileType(inFile);
                 if (ft == null) {
-                    throw new IllegalArgumentException(String.format("Unable to determine file type of %s.", f.getName()));
+                    throw new IllegalArgumentException(String.format("Unable to determine file type of %s.", inFile.getName()));
                 }
             }
             if (!forceOneBased) {
                 oneBased = inferOneBased(ft);
             }
             if (outFile == null) {
-                outFile = inFile + ".savant";
+                outFile = new File(inFile.getAbsolutePath() + ".savant");
             }
             try {
                 DataFormatter df = new DataFormatter(inFile, outFile, ft, oneBased);
@@ -142,8 +141,8 @@ public class FormatTool {
      * @param   inFile  path to the input file
      * @return  the file's type, or null if it wasn't recognised
      */
-    private static FileType inferFileType(String inFile) {
-        return SavantFileFormatterUtils.guessFileTypeFromPath(inFile);
+    private static FileType inferFileType(File inFile) {
+        return SavantFileFormatterUtils.guessFileTypeFromPath(inFile.getAbsolutePath());
     }
 
     private static boolean inferOneBased(FileType ft) {

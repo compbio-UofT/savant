@@ -23,6 +23,7 @@ import org.apache.commons.logging.LogFactory;
 import savant.file.*;
 import savant.util.*;
 import java.io.*;
+import java.net.URI;
 import java.text.ParseException;
 import java.util.*;
 
@@ -36,45 +37,37 @@ import java.util.*;
  */
 public class DataFormatter /* implements FormatProgressListener */ {
 
-    private static Log log = LogFactory.getLog(DataFormatter.class);
+    private static Log LOG = LogFactory.getLog(DataFormatter.class);
 
     private SavantFileFormatter sff;
 
     /**
-     * VARIABLES
+     * Input path
      */
+    private File inFile;
 
-    // input path
-    private String inPath;
+    /**
+     * output path
+     */
+    private File outFile;
 
-    // output path
-    private String outPath;
+    public final File getInputFile() { return inFile; }
 
-    public String getInputFilePath() { return this.inPath; }
-    public String getOutputFilePath() {
-        if (this.getInputFileType() == FileType.INTERVAL_BAM) { return this.getInputFilePath() + ".cov.savant"; }
-        else { return this.outPath; }
+    public File getOutputFile() {
+        if (getInputFileType() == FileType.INTERVAL_BAM) {
+            return new File(inFile + ".cov.savant").getAbsoluteFile();
+        } else {
+            return outFile;
+        }
     }
-    public FileType getInputFileType() { return this.inputFileType; }
 
-    // sorted file path (temporary)
-    //private String sortPath;
+    public FileType getInputFileType() { return inputFileType; }
 
-    // output file
-    //private DataOutputStream outFile;
-
-    // file type
+    /**
+     * File type
+     */
     private FileType inputFileType;
 
-    // path to tmp file
-    //private String tmpOutPath = "tmp";
-
-    // index extension
-    //public static final String indexExtension = ".index";
-
-    //private List<FormatStatusUpdateListener> statusListeners = new ArrayList<FormatStatusUpdateListener>();
-
-    // variables to keep track of progress processing the input file(s)
     // property change support to make progress changes visible to UI
     // FIXME: figure out why PropertyChangeSupport does not work. Then get rid of FormatProgressListener and related stuff.
     // private PropertyChangeSupport propertyChangeSupport = new PropertyChangeSupport(this);
@@ -102,10 +95,10 @@ public class DataFormatter /* implements FormatProgressListener */ {
      * annotation of 10 refers to the 10th position in the genome, not the 9th
      * as in zero-based scheme)
      */
-    public DataFormatter(String inPath, String outPath, FileType fileType, boolean isInputOneBased) {
+    public DataFormatter(File inFile, File outFile, FileType fileType, boolean isInputOneBased) {
 
-        this.inPath = inPath;   // set the desired input file path
-        this.outPath = outPath; // set the desired output file path
+        this.inFile = inFile;   // set the desired input file path
+        this.outFile = outFile; // set the desired output file path
         this.inputFileType = fileType;  // set the input file type (e.g. interval, point, etc)
 
         setInputOneBased(isInputOneBased); // set the base offset
@@ -119,8 +112,8 @@ public class DataFormatter /* implements FormatProgressListener */ {
      * @param outPath output file path (should not already exist)
      * @param fileType type of the input file (e.g. interval, point, etc)
      */
-    public DataFormatter(String inPath, String outPath, FileType fileType) {
-        this(inPath, outPath,fileType,true);
+    public DataFormatter(File inFile, File outFile, FileType fileType) {
+        this(inFile, outFile, fileType, true);
     }
 
     /**
@@ -150,7 +143,7 @@ public class DataFormatter /* implements FormatProgressListener */ {
             } else {
 
                 // check that it really is a text file
-                if (!verifyTextFile(inPath)) {
+                if (!verifyTextFile(inFile)) {
                     throw new IOException("Input file is not a text file");
                 }
 
@@ -213,7 +206,7 @@ public class DataFormatter /* implements FormatProgressListener */ {
      * @return
      */
     private void formatAsSequenceFasta() throws IOException, InterruptedException, SavantFileFormattingException {
-        FastaFormatter ff = new FastaFormatter(this.inPath, this.outPath);
+        FastaFormatter ff = new FastaFormatter(inFile, outFile);
         subscribeProgressListeners(ff, this.progressListeners);
         runFormatter(ff);
         unsubscribeProgressListeners(ff, this.progressListeners);
@@ -224,7 +217,7 @@ public class DataFormatter /* implements FormatProgressListener */ {
      * @return
      */
     private void formatAsContinuousGeneric() throws IOException, InterruptedException, SavantFileFormattingException {
-        ContinuousGenericFormatter cgf = new ContinuousGenericFormatter(this.inPath, this.outPath);
+        ContinuousGenericFormatter cgf = new ContinuousGenericFormatter(inFile, outFile);
         subscribeProgressListeners(cgf, this.progressListeners);
         runFormatter(cgf);
         unsubscribeProgressListeners(cgf, this.progressListeners);
@@ -235,7 +228,7 @@ public class DataFormatter /* implements FormatProgressListener */ {
      * @return
      */
     private void formatAsContinuousWIG() throws IOException, InterruptedException, ParseException, SavantFileFormattingException {
-        WIGFormatter wtc = new WIGFormatter(this.inPath, this.outPath);
+        WIGFormatter wtc = new WIGFormatter(this.inFile, this.outFile);
         subscribeProgressListeners(wtc, this.progressListeners);
         runFormatter(wtc);
         unsubscribeProgressListeners(wtc, this.progressListeners);
@@ -246,7 +239,7 @@ public class DataFormatter /* implements FormatProgressListener */ {
      * @return
      */
     private void formatAsBAM() throws IOException, InterruptedException, SavantFileFormattingException {
-            BAMToCoverage btc = new BAMToCoverage(this.inPath);
+            BAMToCoverage btc = new BAMToCoverage(inFile);
             subscribeProgressListeners(btc, this.progressListeners);
             runFormatter(btc);
             unsubscribeProgressListeners(btc, this.progressListeners);
@@ -259,13 +252,13 @@ public class DataFormatter /* implements FormatProgressListener */ {
         IntervalFormatter inf;
 
         if(type.equals("GEN")){
-            inf = new IntervalFormatter(inPath, outPath,baseOffset, FileType.INTERVAL_GENERIC, 0, 1, 2, "#");
+            inf = new IntervalFormatter(inFile, outFile,baseOffset, FileType.INTERVAL_GENERIC, 0, 1, 2, "#");
             inf.formatAsIntervalGeneric();
         } else if(type.equals("GFF")){
-            inf = new IntervalFormatter(inPath, outPath,baseOffset, FileType.INTERVAL_GFF, 0, 3, 4, "#");
+            inf = new IntervalFormatter(inFile, outFile,baseOffset, FileType.INTERVAL_GFF, 0, 3, 4, "#");
             inf.formatAsIntervalGFF();
         } else if(type.equals("BED")){
-            inf = new IntervalFormatter(inPath, outPath,baseOffset, FileType.INTERVAL_BED, 0, 1, 2, "#");
+            inf = new IntervalFormatter(inFile, outFile,baseOffset, FileType.INTERVAL_BED, 0, 1, 2, "#");
             inf.formatAsIntervalBED();
         } else {
             return;
@@ -273,11 +266,11 @@ public class DataFormatter /* implements FormatProgressListener */ {
 
         subscribeProgressListeners(inf, this.progressListeners);
 
-        log.info("Beginning formatting");
+        LOG.info("Beginning formatting");
 
         runFormatter(inf);
 
-        log.info("Formatting complete");
+        LOG.info("Formatting complete");
 
         unsubscribeProgressListeners(inf, this.progressListeners);
     }
@@ -288,7 +281,7 @@ public class DataFormatter /* implements FormatProgressListener */ {
      * @throws IOException
      */
     private void formatAsPointGeneric() throws IOException, InterruptedException, SavantFileFormattingException {
-        PointGenericFormatter pgf = new PointGenericFormatter(this.inPath, this.outPath, this.baseOffset);
+        PointGenericFormatter pgf = new PointGenericFormatter(this.inFile, this.outFile, this.baseOffset);
         subscribeProgressListeners(pgf, this.progressListeners);
         runFormatter(pgf);
         unsubscribeProgressListeners(pgf, this.progressListeners);
@@ -299,7 +292,7 @@ public class DataFormatter /* implements FormatProgressListener */ {
         // read the refname -> index position map
         Map<String,Long[]> refMap = SavantFileUtils.readReferenceMap(dFile);
 
-        if (log.isDebugEnabled()) log.debug("\n=== DONE PARSING REF<->DATA MAP ===\n\n");
+        if (LOG.isDebugEnabled()) LOG.debug("\n=== DONE PARSING REF<->DATA MAP ===\n\n");
 
         // change the offset
         dFile.setHeaderOffset(dFile.getFilePointer());
@@ -315,21 +308,21 @@ public class DataFormatter /* implements FormatProgressListener */ {
 
         int treenum = 0;
 
-        if (log.isDebugEnabled()) log.debug("Number of trees to get: " + refMap.keySet().size());
+        if (LOG.isDebugEnabled()) LOG.debug("Number of trees to get: " + refMap.keySet().size());
 
         // keep track of the maximum end of tree position
         // (IMPORTANT NOTE: order of elements returned by keySet() is not gauranteed!!!)
         long maxend = Long.MIN_VALUE;
         for (String refname : refMap.keySet()) {
             Long[] v = refMap.get(refname);
-            if (log.isDebugEnabled()) log.debug("========== Reading tree for reference " + refname + " ==========");
+            if (LOG.isDebugEnabled()) LOG.debug("========== Reading tree for reference " + refname + " ==========");
             dFile.seek(v[0] + dFile.getHeaderOffset());
 
-            if (log.isDebugEnabled()) log.debug("Starting tree at: " + dFile.getFilePointer());
+            if (LOG.isDebugEnabled()) LOG.debug("Starting tree at: " + dFile.getFilePointer());
 
             IntervalSearchTree t = readIntervalBST(dFile);
 
-            if (log.isDebugEnabled()) log.debug("Finished tree at: " + dFile.getFilePointer());
+            if (LOG.isDebugEnabled()) LOG.debug("Finished tree at: " + dFile.getFilePointer());
 
             maxend = Math.max(maxend,dFile.getFilePointer());
 
@@ -337,10 +330,10 @@ public class DataFormatter /* implements FormatProgressListener */ {
             treenum++;
         }
 
-        if (log.isDebugEnabled()) {
-            log.debug("Read " + treenum + " trees (i.e. indicies)");
-            log.debug("\n=== DONE PARSING REF<->INDEX MAP ===");
-            log.debug("Changing offset from " + dFile.getHeaderOffset() + " to " + (dFile.getFilePointer()+dFile.getHeaderOffset()) + "\n");
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Read " + treenum + " trees (i.e. indicies)");
+            LOG.debug("\n=== DONE PARSING REF<->INDEX MAP ===");
+            LOG.debug("Changing offset from " + dFile.getHeaderOffset() + " to " + (dFile.getFilePointer()+dFile.getHeaderOffset()) + "\n");
         }
 
         // set the header offset appropriately
@@ -380,27 +373,28 @@ public class DataFormatter /* implements FormatProgressListener */ {
         // keep reading nodes until done
         while(true) {
 
-            if (log.isDebugEnabled()) log.debug("Reading node at byte position: " + file.getFilePointer());
+            LOG.debug("Reading node at byte position: " + file.getFilePointer());
 
             // read in the node fields
             List<Object> r1;
-            try { r1 = SavantFileUtils.readBinaryRecord(file, fields); }
-            catch (EOFException e) {
-                System.err.println("error: hit EOF while trying to parse IntervalSearchTree from file");
+            try {
+                r1 = SavantFileUtils.readBinaryRecord(file, fields);
+            } catch (EOFException e) {
+                LOG.error("Hit EOF while trying to parse IntervalSearchTree from file");
                 break;
             }
 
             // create an IntervalTreeNode
             IntervalTreeNode n = new IntervalTreeNode((Range) r1.get(1), (Integer) r1.get(0));
             if (n.index == -1) {
-                if (log.isDebugEnabled()) log.debug("Tree contains " + i + " nodes");
+                LOG.debug("Tree contains " + i + " nodes");
                 break;
             }   // the "null" terminator node has -1 as its index
 
-            if (log.isDebugEnabled()) {
-                log.debug("Node params read: ");
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Node params read: ");
                 for (int j = 0; j < 6; j++) {
-                    log.debug(j + ". " + r1.get(j));
+                    LOG.debug(j + ". " + r1.get(j));
                 }
             }
 
@@ -409,20 +403,20 @@ public class DataFormatter /* implements FormatProgressListener */ {
             n.subtreeSize = (Integer) r1.get(4);
             nodeIndex2ParentIndices.put(n.index, (Integer) r1.get(5));
 
-            if (log.isDebugEnabled()) log.debug("Node:\tindex: " + n.index + "\trange: " + n.range + "\tsize: " + n.size + "\tsubsize: " + n.subtreeSize + "\tbyte: " + n.startByte);
+            if (LOG.isDebugEnabled()) LOG.debug("Node:\tindex: " + n.index + "\trange: " + n.range + "\tsize: " + n.size + "\tsubsize: " + n.subtreeSize + "\tbyte: " + n.startByte);
 
 
             // add this node to the list
             nodes.add(n);
 
             i++;
-            if (log.isDebugEnabled()) log.debug((i) + ". Read node with range " + n.range + " and index " + n.index);
+            LOG.debug((i) + ". Read node with range " + n.range + " and index " + n.index);
         }
 
         // sort node list by index
         Collections.sort(nodes);
 
-        if (log.isDebugEnabled()) log.debug("Finished parsing IBST");
+        LOG.debug("Finished parsing IBST");
 
         // make a map of node to child indicies
        HashMap<Integer,List<Integer>> nodeIndex2ChildIndices = new HashMap<Integer,List<Integer>>();
@@ -444,14 +438,14 @@ public class DataFormatter /* implements FormatProgressListener */ {
            IntervalTreeNode n = nodes.get(index);
            List<Integer> cis = nodeIndex2ChildIndices.get(index);
 
-           if (log.isDebugEnabled()) log.debug("Node " + n.index + " [ ");
+           if (LOG.isDebugEnabled()) LOG.debug("Node " + n.index + " [ ");
 
            for (Integer childIndex : cis) {
-               if (log.isDebugEnabled()) log.debug(childIndex + " ");
+               if (LOG.isDebugEnabled()) LOG.debug(childIndex + " ");
                 n.children.add(nodes.get(childIndex));
            }
 
-           if (log.isDebugEnabled()) log.debug("]");
+           if (LOG.isDebugEnabled()) LOG.debug("]");
        }
 
        return new IntervalSearchTree(nodes);
@@ -461,7 +455,7 @@ public class DataFormatter /* implements FormatProgressListener */ {
     /** FILE OPENING **/
 
     private DataOutputStream openNewOutputFile() throws IOException {
-        return new DataOutputStream(new BufferedOutputStream(new FileOutputStream(outPath)));
+        return new DataOutputStream(new BufferedOutputStream(new FileOutputStream(outFile)));
     }
 
 
@@ -485,7 +479,7 @@ public class DataFormatter /* implements FormatProgressListener */ {
     }
      */
 
-    private boolean verifyTextFile(String fileName) {
+    private boolean verifyTextFile(File fileName) {
         boolean result = false;
         BufferedReader reader=null;
         try {
