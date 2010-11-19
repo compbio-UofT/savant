@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.1" encoding="UTF-8" ?>
 
 <Form version="1.3" maxVersion="1.7" type="org.netbeans.modules.form.forminfo.JFrameFormInfo">
   <NonVisualComponents>
@@ -6,20 +6,20 @@
     </Component>
     <Menu class="javax.swing.JMenuBar" name="menuBar_top">
       <SubComponents>
-        <Menu class="javax.swing.JMenu" name="menuitem_file">
+        <Menu class="javax.swing.JMenu" name="fileMenu">
           <Properties>
             <Property name="text" type="java.lang.String" value="File"/>
           </Properties>
           <SubComponents>
-            <MenuItem class="javax.swing.JMenuItem" name="openGenomeItem">
+            <MenuItem class="javax.swing.JMenuItem" name="loadGenomeItem">
               <Properties>
                 <Property name="accelerator" type="javax.swing.KeyStroke" editor="org.netbeans.modules.form.editors.KeyStrokeEditor">
                   <KeyStroke key="Ctrl+G"/>
                 </Property>
-                <Property name="text" type="java.lang.String" value="Open Genome..."/>
+                <Property name="text" type="java.lang.String" value="Load Genome..."/>
               </Properties>
               <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="openGenomeItemActionPerformed"/>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="loadGenomeItemActionPerformed"/>
               </Events>
             </MenuItem>
             <MenuItem class="javax.swing.JMenuItem" name="openTrackFromFileItem">
@@ -27,37 +27,37 @@
                 <Property name="accelerator" type="javax.swing.KeyStroke" editor="org.netbeans.modules.form.editors.KeyStrokeEditor">
                   <KeyStroke key="Ctrl+T"/>
                 </Property>
-                <Property name="text" type="java.lang.String" value="Open Track from File..."/>
+                <Property name="text" type="java.lang.String" value="Load from File..."/>
               </Properties>
               <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="openTrackFromFileItemActionPerformed"/>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="loadFromFileItemActionPerformed"/>
               </Events>
             </MenuItem>
-            <MenuItem class="javax.swing.JMenuItem" name="openTrackFromURLItem">
+            <MenuItem class="javax.swing.JMenuItem" name="loadFromURLItem">
               <Properties>
                 <Property name="accelerator" type="javax.swing.KeyStroke" editor="org.netbeans.modules.form.editors.KeyStrokeEditor">
                   <KeyStroke key="Ctrl+U"/>
                 </Property>
-                <Property name="text" type="java.lang.String" value="Open Track from URL..."/>
+                <Property name="text" type="java.lang.String" value="Load from URL..."/>
               </Properties>
               <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="openTrackFromURLItemActionPerformed"/>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="loadFromURLItemActionPerformed"/>
               </Events>
             </MenuItem>
-            <MenuItem class="javax.swing.JMenuItem" name="menuitem_preformatted">
+            <MenuItem class="javax.swing.JMenuItem" name="loadFromRepositoryItem">
               <Properties>
                 <Property name="accelerator" type="javax.swing.KeyStroke" editor="org.netbeans.modules.form.editors.KeyStrokeEditor">
                   <KeyStroke key="Ctrl+R"/>
                 </Property>
-                <Property name="text" type="java.lang.String" value="Open Track from Server..."/>
+                <Property name="text" type="java.lang.String" value="Load from Repository..."/>
               </Properties>
               <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="menuitem_preformattedActionPerformed"/>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="loadFromRepositoryItemActionPerformed"/>
               </Events>
             </MenuItem>
             <Menu class="javax.swing.JMenu" name="recentTrackMenu">
               <Properties>
-                <Property name="text" type="java.lang.String" value="Open Recent Track"/>
+                <Property name="text" type="java.lang.String" value="Load Recent Track"/>
               </Properties>
             </Menu>
             <MenuItem class="javax.swing.JPopupMenu$Separator" name="jSeparator1">
@@ -148,7 +148,7 @@
             </MenuItem>
           </SubComponents>
         </Menu>
-        <Menu class="javax.swing.JMenu" name="menu_edit">
+        <Menu class="javax.swing.JMenu" name="editMenu">
           <Properties>
             <Property name="text" type="java.lang.String" value="Edit"/>
           </Properties>
@@ -215,7 +215,7 @@
             </MenuItem>
           </SubComponents>
         </Menu>
-        <Menu class="javax.swing.JMenu" name="menu_view">
+        <Menu class="javax.swing.JMenu" name="viewMenu">
           <Properties>
             <Property name="text" type="java.lang.String" value="View"/>
           </Properties>
@@ -327,12 +327,12 @@
             </MenuItem>
           </SubComponents>
         </Menu>
-        <Menu class="javax.swing.JMenu" name="menu_window">
+        <Menu class="javax.swing.JMenu" name="windowMenu">
           <Properties>
             <Property name="text" type="java.lang.String" value="Window"/>
           </Properties>
           <Events>
-            <EventHandler event="stateChanged" listener="javax.swing.event.ChangeListener" parameters="javax.swing.event.ChangeEvent" handler="menu_windowStateChanged"/>
+            <EventHandler event="stateChanged" listener="javax.swing.event.ChangeListener" parameters="javax.swing.event.ChangeEvent" handler="windowMenuStateChanged"/>
           </Events>
           <SubComponents>
             <MenuItem class="javax.swing.JCheckBoxMenuItem" name="menuItem_viewRangeControls">
@@ -438,7 +438,7 @@
             </MenuItem>
           </SubComponents>
         </Menu>
-        <Menu class="javax.swing.JMenu" name="menu_plugins">
+        <Menu class="javax.swing.JMenu" name="pluginsMenu">
           <Properties>
             <Property name="text" type="java.lang.String" value="Plugins"/>
           </Properties>
@@ -455,7 +455,7 @@
             </MenuItem>
           </SubComponents>
         </Menu>
-        <Menu class="javax.swing.JMenu" name="menu_help">
+        <Menu class="javax.swing.JMenu" name="helpMenu">
           <Properties>
             <Property name="text" type="java.lang.String" value="Help"/>
           </Properties>
@@ -532,13 +532,13 @@
   <Layout>
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Component id="panel_top" alignment="0" pref="886" max="32767" attributes="0"/>
+          <Component id="panel_top" alignment="0" pref="894" max="32767" attributes="0"/>
           <Group type="102" alignment="0" attributes="0">
               <Component id="toolbar_bottom" pref="874" max="32767" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
-          <Component id="panel_toolbar" alignment="0" pref="886" max="32767" attributes="0"/>
-          <Component id="panel_main" alignment="1" pref="886" max="32767" attributes="0"/>
+          <Component id="panel_toolbar" alignment="0" pref="894" max="32767" attributes="0"/>
+          <Component id="panel_main" alignment="1" pref="894" max="32767" attributes="0"/>
       </Group>
     </DimensionLayout>
     <DimensionLayout dim="1">
@@ -592,7 +592,7 @@
           <Layout>
             <DimensionLayout dim="0">
               <Group type="103" groupAlignment="0" attributes="0">
-                  <EmptySpace min="0" pref="886" max="32767" attributes="0"/>
+                  <EmptySpace min="0" pref="894" max="32767" attributes="0"/>
               </Group>
             </DimensionLayout>
             <DimensionLayout dim="1">
@@ -623,7 +623,7 @@
       <Layout>
         <DimensionLayout dim="0">
           <Group type="103" groupAlignment="0" attributes="0">
-              <EmptySpace min="0" pref="886" max="32767" attributes="0"/>
+              <EmptySpace min="0" pref="894" max="32767" attributes="0"/>
           </Group>
         </DimensionLayout>
         <DimensionLayout dim="1">
@@ -691,7 +691,7 @@
       <Layout>
         <DimensionLayout dim="0">
           <Group type="103" groupAlignment="0" attributes="0">
-              <EmptySpace min="0" pref="886" max="32767" attributes="0"/>
+              <EmptySpace min="0" pref="894" max="32767" attributes="0"/>
           </Group>
         </DimensionLayout>
         <DimensionLayout dim="1">

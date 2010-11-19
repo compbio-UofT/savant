@@ -54,8 +54,8 @@ public class BEDFileDataSource implements DataSource<BEDIntervalRecord> {
 
     private Map<String, IntervalSearchTree> refnameToIntervalBSTIndex;
 
-    public BEDFileDataSource(String fileName) throws URISyntaxException, IOException, SavantFileNotFormattedException, SavantUnsupportedVersionException {
-        this.dFile = SavantROFile.fromStringAndType(fileName, FileType.INTERVAL_BED);
+    public BEDFileDataSource(URI uri) throws URISyntaxException, IOException, SavantFileNotFormattedException, SavantUnsupportedVersionException {
+        this.dFile = new SavantROFile(uri, FileType.INTERVAL_BED);
         this.refnameToIntervalBSTIndex = DataFormatter.readIntervalBSTs(this.dFile);
     }
 

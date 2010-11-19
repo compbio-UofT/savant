@@ -61,54 +61,39 @@ public class BAMDataSource implements DataSource<BAMIntervalRecord> {
 
 //    private String fileNameOrURL;
 
-    public static BAMDataSource fromfileNameOrURL(String fileNameOrURL) throws IOException {
+    public static BAMDataSource fromURI(URI uri) throws IOException {
 
-        if (fileNameOrURL == null) throw new IllegalArgumentException("Invalid argument; file name or URL must be non-null");
+        if (uri == null) throw new IllegalArgumentException("Invalid argument: URI must be non-null");
 
-        URL fileURL = null;
         File indexFile = null;
         try {
-            URI uri = new URI(fileNameOrURL);
-            fileURL = uri.toURL();
             // if no exception is thrown, this is an absolute URL
-            String proto = fileURL.getProtocol().toLowerCase();
-            if (proto.equals("http") || proto.equals("ftp")) {
+            String scheme = uri.getScheme();
+            if ("http".equals(scheme) || "ftp".equals(scheme)) {
                 indexFile = getIndexFileCached(uri);
                 if (indexFile != null) {
-                    return new BAMDataSource(fileURL, indexFile);
+                    return new BAMDataSource(uri, indexFile);
                 }
             }
         } catch (MalformedURLException e) {
             // not a URL, try as a filename
-        } catch (URISyntaxException e) {
-            // not a URI, try as a filename
         } catch (IllegalArgumentException e) {
             // not an absolute URI, try a filename
         }
 
-        if (fileURL == null) {
-
-            // infer index file name from track filename
-            indexFile = getIndexFileLocal(fileNameOrURL);
-            if (indexFile != null) {
-                return new BAMDataSource(new File(fileNameOrURL), indexFile);
-            }
+        // infer index file name from track filename
+        File bamFile = new File(uri);
+        indexFile = getIndexFileLocal(bamFile);
+        if (indexFile != null) {
+            return new BAMDataSource(bamFile, indexFile);
         }
 
         // no success
         return null;
     }
 
-    public static BAMDataSource fromURI(URI uri) throws URISyntaxException, IOException {
-        if (uri == null) throw new IllegalArgumentException("URI must not be null.");
-        if (uri.getScheme() == null) {
-            uri = new File(uri).toURI();
-        }
-        return new BAMDataSource(uri.toURL());
-    }
-
     public BAMDataSource(File file) {
-        this(file, getIndexFileLocal(file.getAbsolutePath()));
+        this(file, getIndexFileLocal(file));
 
     }
 
@@ -127,16 +112,16 @@ public class BAMDataSource implements DataSource<BAMIntervalRecord> {
         samFileHeader = samFileReader.getFileHeader();
     }
 
-    public BAMDataSource(URL url) throws URISyntaxException, IOException {
-        this(url, getIndexFileCached(url.toURI()));
+    public BAMDataSource(URI uri) throws URISyntaxException, IOException {
+        this(uri, getIndexFileCached(uri));
     }
     
-    public BAMDataSource(URL url, File index) throws URISyntaxException, IOException {
+    public BAMDataSource(URI uri, File index) throws IOException {
 
-        if (url == null) throw new IllegalArgumentException("URL must not be null");
+        if (uri == null) throw new IllegalArgumentException("URI must not be null");
         if (index == null) throw new IllegalArgumentException("Index file must not be null");
 
-        uri = url.toURI().normalize();
+        this.uri = uri.normalize();
 
         SeekableStream stream = NetworkUtils.getSeekableStreamForURI(uri, BrowserSettings.getCachingEnabled());
         samFileReader = new SAMFileReader(stream, index, false);
@@ -307,15 +292,15 @@ public class BAMDataSource implements DataSource<BAMIntervalRecord> {
         return referenceNames;
     }
 
-    private static File getIndexFileLocal(String bamFileName) {
-        
-        File indexFile = new File(bamFileName + ".bai");
+    private static File getIndexFileLocal(File bamFile) {
+        String bamPath = bamFile.getAbsolutePath();
+        File indexFile = new File(bamPath + ".bai");
         if (indexFile.exists()) {
             return indexFile;
         }
         else {
             // try alternate index file name
-            indexFile = new File(bamFileName.replace(".bam", ".bai"));
+            indexFile = new File(bamPath.replace(".bam", ".bai"));
             if (indexFile.exists()) {
                 return indexFile;
             }

@@ -51,8 +51,8 @@ public class FASTAFileDataSource implements DataSource<SequenceRecord> {
     private int length = -1;
     private SavantROFile dFile;
 
-    public FASTAFileDataSource(String fileName) throws URISyntaxException, IOException, SavantFileNotFormattedException, SavantUnsupportedVersionException {
-        this.dFile = SavantROFile.fromStringAndType(fileName, FileType.SEQUENCE_FASTA);
+    public FASTAFileDataSource(URI uri) throws URISyntaxException, IOException, SavantFileNotFormattedException, SavantUnsupportedVersionException {
+        this.dFile = new SavantROFile(uri, FileType.SEQUENCE_FASTA);
     }
 
     public int getLength(String refname) {

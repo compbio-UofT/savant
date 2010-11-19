@@ -51,8 +51,8 @@ public class GenericPointDataSource implements DataSource<GenericPointRecord> {
 
     private int recordSize;
 
-    public GenericPointDataSource(String filename) throws URISyntaxException, IOException, SavantFileNotFormattedException, SavantUnsupportedVersionException {
-        this.savantFile = SavantROFile.fromStringAndType(filename, FileType.POINT_GENERIC);
+    public GenericPointDataSource(URI uri) throws IOException, SavantFileNotFormattedException, SavantUnsupportedVersionException {
+        this.savantFile = new SavantROFile(uri, FileType.POINT_GENERIC);
         this.recordSize = SavantFileUtils.getRecordSize(savantFile);
     }
 

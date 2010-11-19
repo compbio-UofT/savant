@@ -58,8 +58,8 @@ public class GenericIntervalDataSource implements DataSource<GenericIntervalReco
 
     private Map<String,IntervalSearchTree> refnameToIntervalBSTIndex;
 
-    public GenericIntervalDataSource(String fileName) throws URISyntaxException, IOException, SavantFileNotFormattedException, SavantUnsupportedVersionException {
-        this.dFile = SavantROFile.fromStringAndType(fileName, FileType.INTERVAL_GENERIC);
+    public GenericIntervalDataSource(URI uri) throws URISyntaxException, IOException, SavantFileNotFormattedException, SavantUnsupportedVersionException {
+        this.dFile = new SavantROFile(uri, FileType.INTERVAL_GENERIC);
         this.refnameToIntervalBSTIndex = DataFormatter.readIntervalBSTs(this.dFile);
 
         if (log.isDebugEnabled()) {

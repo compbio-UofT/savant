@@ -32,7 +32,7 @@ import savant.format.SavantFileFormattingException;
 /**
  * Command-line format utility.
  *
- * @author zig
+ * @author tarkvara
  */
 
 public class FormatTool {
@@ -163,7 +163,7 @@ public class FormatTool {
 
     @SuppressWarnings("UseOfSystemOutOrSystemErr")
     private static void usage() {
-        System.err.println("Usage: FormatTool [-t type] [-1] inputFile [outputFile]");
+        System.err.println("Usage: FormatTool [-t type] [-1] inFile [outFile]");
         System.err.println("    -t       file type (one of FASTA, BED, GFF, BAM, WIG, BedGraph, Interval,");
         System.err.println("             Point, Continuous; if omitted, will try to infer from file");
         System.err.println("             extension)");

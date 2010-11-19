@@ -185,7 +185,7 @@ public class ProjectController {
         String genomeName;
         if (isSequenceSet) {
             trackpaths.remove(genomepath);
-            genome = ViewTrack.createGenome(genomepath);
+            genome = ViewTrack.createGenome(new URI(genomepath));
             genomeName = genome.getTrack().getURI().toString();
         } else {
             genomeName = genome.getName();

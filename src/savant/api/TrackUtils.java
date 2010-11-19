@@ -5,8 +5,11 @@
 
 package savant.api;
 
+import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.util.List;
+
 import savant.controller.ViewTrackController;
 import savant.controller.event.viewtrack.ViewTrackAddedListener;
 import savant.controller.event.viewtrack.ViewTrackListChangedListener;
@@ -40,13 +43,23 @@ public class TrackUtils {
     }
 
     /**
-     * Create a track from a path (either file or from web)
+     * Create a track from a path (either file or from web).
      * @param path Path to the track (can be either local or remote, e.g. on http or ftp server)
      * @return A list of tracks based on the path (some paths, e.g. to BAM files, can create multiple tracks)
      * @throws IOException Exception opening the track at path
      */
-    public List<ViewTrack> createTrack(String path) throws IOException {
-        return ViewTrack.create(path);
+    public List<ViewTrack> createTrack(URI uri) throws IOException {
+        return ViewTrack.create(uri);
+    }
+
+    /**
+     * Create a track from a local file.
+     * @param file Local file
+     * @return A list of tracks based on the path (some paths, e.g. to BAM files, can create multiple tracks)
+     * @throws IOException Exception opening the track at path
+     */
+    public List<ViewTrack> createTrack(File file) throws IOException {
+        return ViewTrack.create(file.toURI());
     }
 
     /**

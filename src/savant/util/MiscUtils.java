@@ -287,21 +287,11 @@ public class MiscUtils {
      * @return a canonical string representing the URI.
      */
     public static String getNeatPathFromURI(URI u) {
-        if (u.getScheme().equals("file")) {
+        if ("file".equals(u.getScheme())) {
             return (new File(u)).getAbsolutePath();
         }
         return u.toString();
      }
-
-    public static String getNeatPathFromString(String s) {
-        return (new File(s)).getAbsolutePath();
-        /*
-         String uglypath = s;
-        String neatpath = uglypath.replace("file:/", "");
-        return neatpath;
-         * 
-         */
-    }
 
     /**
      * Set the title of a window to reflect whether it is saved or not.  On Windows

@@ -75,21 +75,22 @@ public abstract class ViewTrack {
     /**
      * Create one or more tracks from the given file name.
      *
-     * @param trackFilename
+     * @param trackURI
      * @return List of ViewTrack which can be added to a Frame
      * @throws IOException
      */
-    public static List<ViewTrack> create(String trackFilename) throws IOException {
+    public static List<ViewTrack> create(URI trackURI) throws IOException {
 
-        LOG.info("Opening track " + trackFilename);
+        LOG.info("Opening track " + trackURI);
 
         List<ViewTrack> results = new ArrayList<ViewTrack>();
 
         // determine default track name from filename
-        int lastSlashIndex = trackFilename.lastIndexOf(System.getProperty("file.separator"));
-        String name = trackFilename.substring(lastSlashIndex + 1, trackFilename.length());
+        String trackPath = trackURI.getPath();
+        int lastSlashIndex = trackPath.lastIndexOf(System.getProperty("file.separator"));
+        String name = trackPath.substring(lastSlashIndex + 1, trackPath.length());
 
-        FileType fileType = SavantFileFormatterUtils.guessFileTypeFromPath(trackFilename);
+        FileType fileType = SavantFileFormatterUtils.guessFileTypeFromPath(trackPath);
 
         ViewTrack viewTrack = null;
         DataSource dataTrack = null;
@@ -97,10 +98,10 @@ public abstract class ViewTrack {
         // BAM
         if (fileType == FileType.INTERVAL_BAM) {
 
-            LOG.info("Opening BAM file " + trackFilename);
+            LOG.info("Opening BAM file " + trackURI);
 
             try {
-                dataTrack = BAMDataSource.fromfileNameOrURL(trackFilename);
+                dataTrack = BAMDataSource.fromURI(trackURI);
                 if (dataTrack != null) {
                     viewTrack = new BAMViewTrack(name, (BAMDataSource) dataTrack);
                     results.add(viewTrack);
@@ -110,14 +111,17 @@ public abstract class ViewTrack {
                     return null;
                 }
 
-                String coverageFileName = trackFilename + ".cov.savant";
+                // TODO: Only resolves coverage files for local data.  Should also work for network URIs.
+                if (trackURI.getScheme().equals("file")) {
+                    File coverageFile = new File(new URI(trackURI.toString() + ".cov.savant"));
 
-                if ((new File(coverageFileName)).exists()) {
-                    dataTrack = new GenericContinuousDataSource(coverageFileName);
-                    viewTrack = new BAMCoverageViewTrack(name + " (coverage)", (GenericContinuousDataSource) dataTrack);
-                } else {
-                    //FIXME: this should not happen! plugins expect tracks to contain data, and not be vacuous
-                    viewTrack = new BAMCoverageViewTrack(name + " (coverage)", null);
+                    if (coverageFile.exists()) {
+                        dataTrack = new GenericContinuousDataSource(coverageFile.toURI());
+                        viewTrack = new BAMCoverageViewTrack(name + " (coverage)", (GenericContinuousDataSource)dataTrack);
+                    } else {
+                        //FIXME: this should not happen! plugins expect tracks to contain data, and not be vacuous
+                        viewTrack = new BAMCoverageViewTrack(name + " (coverage)", null);
+                    }
                 }
             } catch (IOException e) {
                 LOG.warn("Could not load coverage track", e);
@@ -141,7 +145,7 @@ public abstract class ViewTrack {
             try {
 
                 // read file header
-                SavantROFile trkFile = SavantROFile.fromString(trackFilename);
+                SavantROFile trkFile = new SavantROFile(trackURI);
 
                 LOG.debug("Reading file type header");
                 LOG.debug("File type: " + trkFile.getFileType());
@@ -150,45 +154,45 @@ public abstract class ViewTrack {
 
                 if (trkFile.getFileType() == null) {
                     Savant s = Savant.getInstance();
-                    s.promptUserToFormatFile(trackFilename);
+                    s.promptUserToFormatFile(trackURI);
                     return results;
                 }
 
                 switch (trkFile.getFileType()) {
                     case SEQUENCE_FASTA:
-                        dataTrack = new FASTAFileDataSource(trackFilename);
+                        dataTrack = new FASTAFileDataSource(trackURI);
                         viewTrack = new SequenceViewTrack(name, (FASTAFileDataSource) dataTrack);
                         break;
                     case POINT_GENERIC:
-                        dataTrack = new GenericPointDataSource(trackFilename);
+                        dataTrack = new GenericPointDataSource(trackURI);
                         viewTrack = new PointViewTrack(name, (GenericPointDataSource) dataTrack);
                         break;
                     case CONTINUOUS_GENERIC:
-                        dataTrack = new GenericContinuousDataSource(trackFilename);
+                        dataTrack = new GenericContinuousDataSource(trackURI);
                         viewTrack = new ContinuousViewTrack(name, (GenericContinuousDataSource) dataTrack);
                         break;
                     case INTERVAL_GENERIC:
-                        dataTrack = new GenericIntervalDataSource(trackFilename);
+                        dataTrack = new GenericIntervalDataSource(trackURI);
                         viewTrack = new IntervalViewTrack(name, (GenericIntervalDataSource) dataTrack);
                         break;
                     case INTERVAL_GFF:
-                        dataTrack = new GenericIntervalDataSource(trackFilename);
+                        dataTrack = new GenericIntervalDataSource(trackURI);
                         viewTrack = new IntervalViewTrack(name, (GenericIntervalDataSource) dataTrack);
                         break;
                     case INTERVAL_BED:
-                        dataTrack = new BEDFileDataSource(trackFilename);
+                        dataTrack = new BEDFileDataSource(trackURI);
                         viewTrack = new BEDViewTrack(name, (BEDFileDataSource) dataTrack);
                         break;
                     default:
                         Savant s = Savant.getInstance();
-                        s.promptUserToFormatFile(trackFilename);
+                        s.promptUserToFormatFile(trackURI);
                 }
                 if (viewTrack != null) {
                     results.add(viewTrack);
                 }
             } catch (SavantFileNotFormattedException e) {
                 Savant s = Savant.getInstance();
-                s.promptUserToFormatFile(trackFilename);
+                s.promptUserToFormatFile(trackURI);
             } catch (SavantUnsupportedVersionException e) {
                 DialogUtils.displayMessage("This file was created using an older version of Savant. Please re-format the source.");
             } catch (IOException e) {
@@ -208,15 +212,16 @@ public abstract class ViewTrack {
         return results;
     }
 
-    public static Genome createGenome(String filename) throws IOException, SavantFileNotFormattedException, SavantUnsupportedVersionException {
+    public static Genome createGenome(URI genomeURI) throws IOException, SavantFileNotFormattedException, SavantUnsupportedVersionException {
 
-        List<ViewTrack> tracks = ViewTrack.create(filename);
+        List<ViewTrack> tracks = ViewTrack.create(genomeURI);
 
         if (tracks == null || tracks.isEmpty()) { return null; }
 
         // determine default track name from filename
-        int lastSlashIndex = filename.lastIndexOf(System.getProperty("file.separator"));
-        String name = filename.substring(lastSlashIndex + 1, filename.length());
+        String genomePath = genomeURI.getPath();
+        int lastSlashIndex = genomePath.lastIndexOf("/");
+        String name = genomePath.substring(lastSlashIndex + 1, genomePath.length());
 
         Genome g = null;
         if (tracks.get(0) instanceof SequenceViewTrack) {

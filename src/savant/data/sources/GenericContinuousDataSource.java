@@ -55,9 +55,9 @@ public class GenericContinuousDataSource implements DataSource<GenericContinuous
 
     private Map<String,List<Level>> refnameToLevelsIndex;
     
-    public GenericContinuousDataSource(String filename) throws URISyntaxException, IOException, SavantFileNotFormattedException, SavantUnsupportedVersionException {
+    public GenericContinuousDataSource(URI uri) throws IOException, SavantFileNotFormattedException, SavantUnsupportedVersionException {
 
-        this.savantFile = SavantROFile.fromStringAndType(filename, FileType.CONTINUOUS_GENERIC);
+        this.savantFile = new SavantROFile(uri, FileType.CONTINUOUS_GENERIC);
         this.refnameToLevelsIndex = ContinuousFormatterHelper.readLevelHeaders(savantFile);
 
         printLevelsMap(refnameToLevelsIndex);
