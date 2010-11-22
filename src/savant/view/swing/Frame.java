@@ -45,7 +45,6 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import savant.api.adapter.FrameAdapter;
 import savant.api.adapter.ModeAdapter;
 
 import savant.controller.ReferenceController;
@@ -56,7 +55,7 @@ import savant.view.swing.interval.BAMViewTrack;
  *
  * @author mfiume
  */
-public class Frame implements FrameAdapter {
+public class Frame {
 
     private boolean isHidden = false;
     private GraphPane graphPane;
