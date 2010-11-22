@@ -21,7 +21,7 @@
 
 package savant.data.types;
 
-import savant.data.types.Continuous;
+import org.junit.Test;
 import junit.framework.TestCase;
 
 /**
@@ -92,4 +92,33 @@ public class ContinuousTest extends TestCase {
         catch(Exception e) {
             fail("Unexpected exception " + e.getMessage());
         }
-    }}
+    }
+
+    /**
+     * Test of valueOf method, of class Continuous.
+     */
+    @Test
+    public void testValueOf() {
+        System.out.println("valueOf");
+        float value = 0.0F;
+        Continuous expResult = null;
+        Continuous result = Continuous.valueOf(value);
+        assertEquals(expResult, result);
+        // TODO review the generated test code and remove the default call to fail.
+        fail("The test case is a prototype.");
+    }
+
+    /**
+     * Test of getValue method, of class Continuous.
+     */
+    @Test
+    public void testGetValue() {
+        System.out.println("getValue");
+        Continuous instance = null;
+        float expResult = 0.0F;
+        float result = instance.getValue();
+        assertEquals(expResult, result, 0.0);
+        // TODO review the generated test code and remove the default call to fail.
+        fail("The test case is a prototype.");
+    }
+}
