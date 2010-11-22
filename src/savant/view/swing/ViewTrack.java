@@ -26,6 +26,10 @@ import javax.swing.JOptionPane;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import savant.api.adapter.FrameAdapter;
+import savant.api.adapter.ModeAdapter;
+import savant.api.adapter.RangeAdapter;
+import savant.api.adapter.ViewTrackAdapter;
 
 import savant.controller.TrackController;
 import savant.controller.ViewTrackController;
@@ -53,15 +57,15 @@ import savant.view.swing.util.DialogUtils;
  *
  * @author mfiume
  */
-public abstract class ViewTrack {
+public abstract class ViewTrack implements ViewTrackAdapter {
 
     private static final Log LOG = LogFactory.getLog(ViewTrack.class);
     private final String name;
     private ColorScheme colorScheme;
     private final FileFormat dataType;
     private List<Object> dataInRange;
-    private List<Mode> drawModes;
-    private Mode drawMode;
+    private List<ModeAdapter> drawModes;
+    private ModeAdapter drawMode;
     private List<TrackRenderer> trackRenderers;
     private DataSource dataSource;
     private ColorSchemeDialog colorDialog = new ColorSchemeDialog();
@@ -241,7 +245,7 @@ public abstract class ViewTrack {
     public ViewTrack(String name, FileFormat dataType, DataSource dataSource) {
         this.name = name;
         this.dataType = dataType;
-        drawModes = new ArrayList<Mode>();
+        drawModes = new ArrayList<ModeAdapter>();
         trackRenderers = new ArrayList<TrackRenderer>();
         this.dataSource = dataSource;
     }
@@ -321,7 +325,7 @@ public abstract class ViewTrack {
      *
      * @return draw mode as Mode
      */
-    public Mode getDrawMode() {
+    public ModeAdapter getDrawMode() {
         return this.drawMode;
     }
 
@@ -330,7 +334,8 @@ public abstract class ViewTrack {
      *
      * @return List of draw Modes
      */
-    public List<Mode> getDrawModes() {
+    @Override
+    public List<ModeAdapter> getDrawModes() {
         return this.drawModes;
     }
 
@@ -359,7 +364,7 @@ public abstract class ViewTrack {
      *
      * @param mode
      */
-    public void setDrawMode(Mode mode) {
+    public void setDrawMode(ModeAdapter mode) {
         this.drawMode = mode;
     }
 
@@ -369,7 +374,7 @@ public abstract class ViewTrack {
      * @param modename
      */
     public void setDrawMode(String modename) {
-        for (Mode m : drawModes) {
+        for (ModeAdapter m : drawModes) {
             if (m.getName().equals(modename)) {
                 setDrawMode(m);
                 break;
@@ -385,7 +390,7 @@ public abstract class ViewTrack {
      *
      * @param modes
      */
-    public void setDrawModes(List<Mode> modes) {
+    public void setDrawModes(List<ModeAdapter> modes) {
         this.drawModes = modes;
     }
 
@@ -465,7 +470,7 @@ public abstract class ViewTrack {
      * @return a List of data objects from the given range and resolution
      * @throws Exception
      */
-    public abstract List<Object> retrieveData(String reference, Range range, Resolution resolution) throws Throwable;
+    public abstract List<Object> retrieveData(String reference, RangeAdapter range, Resolution resolution) throws Throwable;
 
     /**
      * Add a renderer to this view track
@@ -491,7 +496,7 @@ public abstract class ViewTrack {
      * @param range
      * @return resolution appropriate to the range
      */
-    public abstract Resolution getResolution(Range range);
+    public abstract Resolution getResolution(RangeAdapter range);
 
     /**
      * Get the default draw mode.

@@ -31,6 +31,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import savant.api.adapter.GenomeAdapter;
+import savant.api.adapter.RangeAdapter;
 import savant.view.swing.ViewTrack;
 import savant.view.swing.sequence.SequenceViewTrack;
 
@@ -93,7 +94,7 @@ public class Genome implements Serializable, GenomeAdapter {
 
     public String getName() { return this.name; }
 
-    public String getSequence(String reference, Range range) throws IOException
+    public String getSequence(String reference, RangeAdapter range) throws IOException
     {
         if (!isSequenceSet()) { return null; }
         else { return dataSource.getRecords(reference, range, Resolution.VERY_HIGH).get(0).getSequence(); }
@@ -113,6 +114,7 @@ public class Genome implements Serializable, GenomeAdapter {
         }
     }
 
+    @Override
     public FASTAFileDataSource getTrack() { return this.dataSource; }
 
     public boolean isSequenceSet()
@@ -120,6 +122,7 @@ public class Genome implements Serializable, GenomeAdapter {
         return (dataSource != null);
     }
 
+    @Override
     public ViewTrack getViewTrack() {
         return this.viewTrack;
     }

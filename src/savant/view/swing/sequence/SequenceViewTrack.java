@@ -18,12 +18,10 @@ package savant.view.swing.sequence;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import savant.data.types.Genome;
 import savant.file.FileFormat;
 import savant.util.*;
 import savant.util.ColorScheme;
 import savant.util.DrawingInstructions;
-import savant.view.swing.Savant;
 import savant.view.swing.TrackRenderer;
 import savant.view.swing.ViewTrack;
 
@@ -32,6 +30,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import savant.api.adapter.RangeAdapter;
 import savant.controller.ViewTrackController;
 import savant.data.sources.FASTAFileDataSource;
 import savant.data.types.SequenceRecord;
@@ -88,7 +87,7 @@ public class SequenceViewTrack extends ViewTrack {
      * getData
      *     Get data in the specified range at the specified resolution
      */
-    public List<Object> retrieveData(String reference, Range range, Resolution resolution)
+    public List<Object> retrieveData(String reference, RangeAdapter range, Resolution resolution)
     {
 
         String subsequence = "";
@@ -107,7 +106,7 @@ public class SequenceViewTrack extends ViewTrack {
         return result;
     }
 
-    public Resolution getResolution(Range range)
+    public Resolution getResolution(RangeAdapter range)
     {
         long length = range.getLength();
 

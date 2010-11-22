@@ -16,12 +16,14 @@
 
 package savant.util;
 
+import savant.api.adapter.ModeAdapter;
+
 /**
  * Immutable class to hold information about drawing modes
  *
  * @author mfiume
  */
-public class Mode {
+public class Mode implements ModeAdapter {
 
     private final String name;
     private final String description;

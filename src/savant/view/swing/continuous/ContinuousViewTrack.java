@@ -33,13 +33,14 @@ import savant.view.swing.ViewTrack;
 
 import java.util.ArrayList;
 import java.util.List;
+import savant.api.adapter.RangeAdapter;
 import savant.settings.ColourSettings;
 
 /**
  * A helper class to set up rendering of a ContinuousTrack
  * @author vwilliams
  */
-public class ContinuousViewTrack extends ViewTrack {
+ public class ContinuousViewTrack extends ViewTrack {
 
     public ContinuousViewTrack(String name, GenericContinuousDataSource track) {
         super(name, FileFormat.CONTINUOUS_GENERIC, track);
@@ -70,7 +71,7 @@ public class ContinuousViewTrack extends ViewTrack {
     }
 
     @Override
-    public List<Object> retrieveData(String reference, Range range, Resolution resolution) throws Exception {
+    public List<Object> retrieveData(String reference, RangeAdapter range, Resolution resolution) throws Exception {
         return new ArrayList<Object>(getDataSource().getRecords(reference, range, resolution));
     }
 
@@ -83,7 +84,7 @@ public class ContinuousViewTrack extends ViewTrack {
      */
     @Override
     @Deprecated
-    public Resolution getResolution(Range range) {
+    public Resolution getResolution(RangeAdapter range) {
         return Resolution.VERY_HIGH;
     }
 

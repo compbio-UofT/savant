@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import savant.api.adapter.RangeAdapter;
 
 /**
  *
@@ -22,14 +23,14 @@ import java.util.List;
  */
 public class IntervalRecordGetter {
 
-    public static List<IntervalRecord> getData(SavantROFile dFile, String reference, Range r, IntervalTreeNode n) throws IOException {
+    public static List<IntervalRecord> getData(SavantROFile dFile, String reference, RangeAdapter r, IntervalTreeNode n) throws IOException {
         List<IntervalRecord> result = new ArrayList<IntervalRecord>();
         getData(dFile, result, reference, r, n);
         Collections.sort(result, new IntervalRecordComparator());
         return result;
     }
 
-    private static void getData(SavantROFile dFile, List<IntervalRecord> data, String reference, Range r, IntervalTreeNode n) throws IOException {
+    private static void getData(SavantROFile dFile, List<IntervalRecord> data, String reference, RangeAdapter r, IntervalTreeNode n) throws IOException {
 
         if (intersects(r, n.range)) {
             //System.out.println("\tBin : " + n.range + " overlaps range " + r);
@@ -42,12 +43,12 @@ public class IntervalRecordGetter {
         }
     }
 
-    private static boolean intersects(Range r1, Range r2) {
+    private static boolean intersects(RangeAdapter r1, RangeAdapter r2) {
         //System.out.println("Does " + r1  + " intersect " + r2 + "? " + (r1.getFrom() <= r2.getTo() && r1.getTo() >= r2.getFrom()));
         return (r1.getFrom() <= r2.getTo() && r1.getTo() >= r2.getFrom());
     }
 
-    private static List<IntervalRecord> getIntersectingIntervals(SavantROFile dFile, String reference, Range r, IntervalTreeNode n) throws IOException {
+    private static List<IntervalRecord> getIntersectingIntervals(SavantROFile dFile, String reference, RangeAdapter r, IntervalTreeNode n) throws IOException {
 
         //System.out.println("\t\tGetting intersecting intervals");
         //System.out.println("Node range: " + n.range + " size: " + n.size);

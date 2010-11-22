@@ -28,6 +28,7 @@ import java.util.*;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import savant.api.adapter.RangeAdapter;
 
 import savant.data.types.Continuous;
 import savant.data.types.GenericContinuousRecord;
@@ -71,7 +72,7 @@ public class GenericContinuousDataSource implements DataSource<GenericContinuous
      * @param r     the range to be displayed
      * @return
      */
-    private Level getBestLevel(List<Level> levels, Range r) {
+    private Level getBestLevel(List<Level> levels, RangeAdapter r) {
         for (int i = levels.size() - 1; i > 0; i--) {
             Level lev = levels.get(i);
             if (r.getLength() > lev.resolution * ContinuousFormatterHelper.NOTIONAL_SCREEN_SIZE / 2) {
@@ -91,7 +92,7 @@ public class GenericContinuousDataSource implements DataSource<GenericContinuous
      * @throws IOException
      */
     @Override
-    public List<GenericContinuousRecord> getRecords(String ref, Range r, Resolution ignored) throws IOException {
+    public List<GenericContinuousRecord> getRecords(String ref, RangeAdapter r, Resolution ignored) throws IOException {
 
         List<GenericContinuousRecord> data = new ArrayList<GenericContinuousRecord>();
 

@@ -89,12 +89,12 @@ public class BookmarksTableModel extends AbstractTableModel {
                  fave.setReference((String)value);
                  break;
              case 1:
-                 Range r1 = fave.getRange();
+                 Range r1 = (Range) fave.getRange();
                  Range newr1 = new Range((Integer) value - 1, r1.getTo());
                  fave.setRange(newr1);
                  break;
              case 2:
-                 Range r2 = fave.getRange();
+                 Range r2 = (Range) fave.getRange();
                  Range newr2 = new Range(r2.getFrom(), (Integer) value - 1);
                  fave.setRange(newr2);
                  break;

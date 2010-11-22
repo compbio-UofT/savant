@@ -32,6 +32,8 @@ import savant.view.swing.ViewTrack;
 
 import java.util.ArrayList;
 import java.util.List;
+import savant.api.adapter.ModeAdapter;
+import savant.api.adapter.RangeAdapter;
 import savant.settings.ColourSettings;
 
 public class BAMCoverageViewTrack extends ViewTrack {
@@ -87,8 +89,7 @@ public class BAMCoverageViewTrack extends ViewTrack {
         }
     }
 
-    @Override
-    public List<Object> retrieveData(String reference, Range range, Resolution resolution) throws Throwable {
+    public List<Object> retrieveData(String reference, RangeAdapter range, Resolution resolution) throws Throwable {
         return new ArrayList<Object>(getDataSource().getRecords(reference, range, resolution));
     }
 
@@ -107,16 +108,16 @@ public class BAMCoverageViewTrack extends ViewTrack {
     }
 
     @Override
-    public Resolution getResolution(Range range) {
+    public Resolution getResolution(RangeAdapter range) {
         return getResolution(range, getDrawMode());
     }
 
-    public Resolution getResolution(Range range, Mode mode)
+    public Resolution getResolution(RangeAdapter range, ModeAdapter mode)
     {
         return getDefaultModeResolution(range);
     }
 
-    public Resolution getDefaultModeResolution(Range range)
+    public Resolution getDefaultModeResolution(RangeAdapter range)
     {
         long length = range.getLength();
 

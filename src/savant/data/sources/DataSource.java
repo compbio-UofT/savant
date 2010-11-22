@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.List;
 import java.util.Set;
+import savant.api.adapter.RangeAdapter;
 
 /**
  * Interface for a data source which contains records associated with a reference sequence.
@@ -51,7 +52,7 @@ public interface DataSource<E extends Record> {
      * @param resolution
      * @return an ordered list of records
      */
-    public List<E> getRecords(String reference, Range range, Resolution resolution) throws IOException;
+    public List<E> getRecords(String reference, RangeAdapter range, Resolution resolution) throws IOException;
 
     public URI getURI();
     

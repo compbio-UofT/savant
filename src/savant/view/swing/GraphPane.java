@@ -36,6 +36,7 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import savant.api.adapter.ModeAdapter;
 import savant.controller.GraphPaneController;
 import savant.controller.ReferenceController;
 import savant.controller.event.graphpane.GraphPaneChangeListener;
@@ -87,7 +88,7 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
     //scrolling...
     private BufferedImage bufferedImage;
     private Range prevRange = null;
-    private Mode prevDrawMode = null;
+    private ModeAdapter prevDrawMode = null;
     private Dimension prevSize = null;
     private String prevRef = null;
     public boolean paneResize = false;
@@ -253,7 +254,7 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
         yMax = maxYRange;
 
         Graphics2D g3;
-        Mode currentMode = this.parentFrame.getTracks().get(0).getDrawMode();
+        ModeAdapter currentMode = this.parentFrame.getTracks().get(0).getDrawMode();
         //BufferedImage bf1;
 
         //boolean sameRange = (prevRange != null && RangeController.getInstance().getRange().equals(prevRange));

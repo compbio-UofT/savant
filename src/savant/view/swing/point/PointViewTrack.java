@@ -25,6 +25,7 @@ import savant.view.swing.ViewTrack;
 
 import java.util.ArrayList;
 import java.util.List;
+import savant.api.adapter.RangeAdapter;
 import savant.settings.ColourSettings;
 
 /**
@@ -56,7 +57,7 @@ public class PointViewTrack extends ViewTrack {
         setColorScheme(getDefaultColorScheme());
     }
 
-    public Resolution getResolution(Range range)
+    public Resolution getResolution(RangeAdapter range)
     {
         long length = range.getLength();
 
@@ -65,7 +66,7 @@ public class PointViewTrack extends ViewTrack {
     }
 
     @Override
-    public List<Object> retrieveData(String reference, Range range, Resolution resolution) throws Exception {
+    public List<Object> retrieveData(String reference, RangeAdapter range, Resolution resolution) throws Exception {
         return new ArrayList<Object>(getDataSource().getRecords(reference, range, resolution));
     }
 

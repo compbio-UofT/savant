@@ -3,8 +3,9 @@
  * and open the template in the editor.
  */
 
-package savant.api;
+package savant.api.util;
 
+import savant.api.adapter.ViewTrackAdapter;
 import savant.controller.SelectionController;
 import savant.controller.event.selection.SelectionChangedListener;
 import savant.view.swing.ViewTrack;
@@ -22,8 +23,8 @@ public class SelectionUtils {
      * @param t The track for which to add the selection
      * @param data The data point to select
      */
-    public void addSelection(ViewTrack t, Comparable data) {
-        sc.addSelection(t.getURI(), data);
+    public void addSelection(ViewTrackAdapter t, Comparable data) {
+        sc.addSelection(((ViewTrack) t).getURI(), data);
     }
 
     /**

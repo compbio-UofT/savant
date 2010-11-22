@@ -44,6 +44,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import savant.api.adapter.RangeAdapter;
 
 /**
  * Class to represent an track of generic intervals. Responsible for reading records within a given range.
@@ -78,7 +79,7 @@ public class GenericIntervalDataSource implements DataSource<GenericIntervalReco
     }
 
     @Override
-    public List<GenericIntervalRecord> getRecords(String reference, Range range, Resolution resolution) throws IOException {
+    public List<GenericIntervalRecord> getRecords(String reference, RangeAdapter range, Resolution resolution) throws IOException {
         List<IntervalRecord> data = null;
 
         IntervalSearchTree ist = getIntervalSearchTreeForReference(reference);

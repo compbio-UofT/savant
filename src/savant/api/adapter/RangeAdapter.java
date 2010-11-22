@@ -14,33 +14,19 @@
  *    limitations under the License.
  */
 
-/*
- * PluginAdapter.java
- * Created on Mar 12, 2010
+package savant.api.adapter;
+
+/**
+ *
+ * @author mfiume
  */
+public interface RangeAdapter {
 
-package savant.plugin;
+    public long getFrom();
+    public long getTo();
+    public long getLength();
+    public int getLengthAsInt();
+    public int getFromAsInt();
+    public int getToAsInt();
 
-import savant.api.util.BookmarkUtils;
-import savant.api.util.NavigationUtils;
-import savant.api.util.SelectionUtils;
-import savant.api.util.TrackUtils;
-
-public class PluginAdapterOld {
-
-    public BookmarkUtils getBookmarkUtils(){
-        return new BookmarkUtils();
-    }
-
-    public NavigationUtils getNavigationUtils(){
-        return new NavigationUtils();
-    }
-
-    public SelectionUtils getSelectionUtils(){
-        return new SelectionUtils();
-    }
-
-    public TrackUtils getTrackUtils(){
-        return new TrackUtils();
-    }
 }

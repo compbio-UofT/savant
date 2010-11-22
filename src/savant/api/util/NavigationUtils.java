@@ -3,9 +3,11 @@
  * and open the template in the editor.
  */
 
-package savant.api;
+package savant.api.util;
 
 import java.util.Set;
+import savant.api.adapter.GenomeAdapter;
+import savant.api.adapter.RangeAdapter;
 import savant.controller.RangeController;
 import savant.controller.ReferenceController;
 import savant.controller.event.range.RangeChangeCompletedListener;
@@ -33,7 +35,7 @@ public class NavigationUtils {
      * Get the loaded genome.
      * @return The loaded genome
      */
-    public static Genome getGenome() {
+    public static GenomeAdapter getGenome() {
         return refc.getGenome();
     }
 
@@ -41,8 +43,8 @@ public class NavigationUtils {
      * Set the genome
      * @param genome The genome to set
      */
-    public static void setGenome(Genome genome) {
-        refc.setGenome(genome);
+    public static void setGenome(GenomeAdapter genome) {
+        refc.setGenome((Genome) genome);
     }
 
     /**
@@ -65,7 +67,7 @@ public class NavigationUtils {
      * Get the current reference's range.
      * @return The maximumViewableRange
      */
-    public static Range getCurrentReferenceRange() {
+    public static RangeAdapter getCurrentReferenceRange() {
         return rc.getMaxRange();
     }
 
@@ -81,8 +83,8 @@ public class NavigationUtils {
      * Navigate to the specified range
      * @param r The range to set as current
      */
-    public static void navigateTo(Range r) {
-        rc.setRange(r);
+    public static void navigateTo(RangeAdapter r) {
+        rc.setRange((Range) r);
     }
 
     /**
@@ -90,15 +92,15 @@ public class NavigationUtils {
      * @param reference The name of the reference that the range applies to
      * @param range The range to set as current
      */
-    public static void navigateTo(String reference, Range range) {
-        rc.setRange(reference, range);
+    public static void navigateTo(String reference, RangeAdapter range) {
+        rc.setRange(reference, (Range) range);
     }
 
     /**
      * Get the current range
      * @return The currentViewableRange
      */
-    public static Range getCurrentRange() {
+    public static RangeAdapter getCurrentRange() {
         return rc.getRange();
     }
 

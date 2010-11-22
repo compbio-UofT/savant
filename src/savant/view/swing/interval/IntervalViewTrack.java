@@ -32,6 +32,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import savant.api.adapter.ModeAdapter;
+import savant.api.adapter.RangeAdapter;
 import savant.settings.ColourSettings;
 
 /**
@@ -74,9 +76,9 @@ public class IntervalViewTrack extends ViewTrack {
     }
 
     @Override
-    public Resolution getResolution(Range range) { return getResolution(range, getDrawMode()); }
+    public Resolution getResolution(RangeAdapter range) { return getResolution(range, getDrawMode()); }
 
-    public Resolution getResolution(Range range, Mode mode)
+    public Resolution getResolution(RangeAdapter range, ModeAdapter mode)
     {
         if(mode.getName().equals("SQUISH")) {
             return getSquishModeResolution(range);
@@ -90,22 +92,22 @@ public class IntervalViewTrack extends ViewTrack {
         }
     }
 
-    public Resolution getDefaultModeResolution(Range range) {
+    public Resolution getDefaultModeResolution(RangeAdapter range) {
         return Resolution.VERY_HIGH;
     }
 
-    public Resolution getArcModeResolution(Range range)
+    public Resolution getArcModeResolution(RangeAdapter range)
     {
         return Resolution.VERY_HIGH;
     }
 
-    public Resolution getSquishModeResolution(Range range) {
+    public Resolution getSquishModeResolution(RangeAdapter range) {
         return Resolution.VERY_HIGH;
     }
     
-    public List<Mode> getDefaultDrawModes()
+    public List<ModeAdapter> getDefaultDrawModes()
     {
-        List<Mode> modes = new ArrayList<Mode>();
+        List<ModeAdapter> modes = new ArrayList<ModeAdapter>();
 
         modes.add(SQUISH_MODE);
         modes.add(PACK_MODE);
@@ -117,7 +119,7 @@ public class IntervalViewTrack extends ViewTrack {
      * getData
      *     Get data in the specified range at the specified resolution
      */
-    public List<Object> retrieveData(String reference, Range range, Resolution resolution) throws IOException {
+    public List<Object> retrieveData(String reference, RangeAdapter range, Resolution resolution) throws IOException {
         return new ArrayList<Object>(getDataSource().getRecords(reference, range, resolution));
     }
 

@@ -6,12 +6,14 @@
 package savant.util;
 
 import java.io.Serializable;
+import savant.api.adapter.BookmarkAdapter;
+import savant.api.adapter.RangeAdapter;
 
 /**
  *
  * @author mfiume
  */
-public class Bookmark implements Serializable {
+public class Bookmark implements BookmarkAdapter, Serializable {
 
     private String reference;
     private Range range;
@@ -28,11 +30,11 @@ public class Bookmark implements Serializable {
     }
 
     public String getReference() { return this.reference; }
-    public Range getRange() { return this.range; }
+    public RangeAdapter getRange() { return this.range; }
     public String getAnnotation() { return this.annotation; }
 
     public void setReference(String r) { this.reference = r; }
-    public void setRange(Range r) { this.range = r; }
+    public void setRange(RangeAdapter r) { this.range = (Range) r; }
     public void setAnnotation(String ann) { this.annotation = ann; }
 
 }

@@ -39,6 +39,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import savant.api.adapter.RangeAdapter;
 
 /**
  * Data access object for accessing generic point files.
@@ -61,7 +62,7 @@ public class GenericPointDataSource implements DataSource<GenericPointRecord> {
     }
 
     @Override
-    public List<GenericPointRecord> getRecords(String reference, Range range, Resolution resolution) throws IOException {
+    public List<GenericPointRecord> getRecords(String reference, RangeAdapter range, Resolution resolution) throws IOException {
         
         List<GenericPointRecord> data = new ArrayList<GenericPointRecord>();
 

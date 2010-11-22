@@ -3,12 +3,14 @@
  * and open the template in the editor.
  */
 
-package savant.api;
+package savant.api.util;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
+import savant.api.adapter.ViewTrackAdapter;
 
 import savant.controller.ViewTrackController;
 import savant.controller.event.viewtrack.ViewTrackAddedListener;
@@ -30,16 +32,20 @@ public class TrackUtils {
      * Get the loaded tracks.
      * @return A list of tracks
      */
-    public static List<ViewTrack> getTracks() {
-        return vtc.getTracks();
+    public static List<ViewTrackAdapter> getTracks() {
+        List<ViewTrackAdapter> r = new ArrayList<ViewTrackAdapter>();
+        for (ViewTrack t : vtc.getTracks()) {
+            r.add((ViewTrackAdapter) t);
+        }
+        return r;
     }
 
     /**
      * Add a track to the list of tracks.
      * @param track The track to add
      */
-    public void addTrack(ViewTrack track) {
-        vtc.addTrack(track);
+    public void addTrack(ViewTrackAdapter track) {
+        vtc.addTrack((ViewTrack) track);
     }
 
     /**
@@ -48,8 +54,12 @@ public class TrackUtils {
      * @return A list of tracks based on the path (some paths, e.g. to BAM files, can create multiple tracks)
      * @throws IOException Exception opening the track at path
      */
-    public List<ViewTrack> createTrack(URI uri) throws IOException {
-        return ViewTrack.create(uri);
+    public List<ViewTrackAdapter> createTrack(URI uri) throws IOException {
+        List<ViewTrackAdapter> r = new ArrayList<ViewTrackAdapter>();
+        for (ViewTrack t : ViewTrack.create(uri)) {
+            r.add((ViewTrackAdapter) t);
+        }
+        return r;
     }
 
     /**
@@ -58,8 +68,12 @@ public class TrackUtils {
      * @return A list of tracks based on the path (some paths, e.g. to BAM files, can create multiple tracks)
      * @throws IOException Exception opening the track at path
      */
-    public List<ViewTrack> createTrack(File file) throws IOException {
-        return ViewTrack.create(file.toURI());
+    public List<ViewTrackAdapter> createTrack(File file) throws IOException {
+        List<ViewTrackAdapter> r = new ArrayList<ViewTrackAdapter>();
+        for (ViewTrack t : ViewTrack.create(file.toURI())) {
+            r.add((ViewTrackAdapter) t);
+        }
+        return r;
     }
 
     /**
@@ -68,7 +82,7 @@ public class TrackUtils {
      * @return
      */
     public DataSource getTrackDatasource(String trackname) {
-        ViewTrack t = this.getTrack(trackname);
+        ViewTrackAdapter t = this.getTrack(trackname);
         if (t == null) { return null; }
         return t.getDataSource();
     }
@@ -78,8 +92,12 @@ public class TrackUtils {
      * @param kind The format of tracks wanted
      * @return A list of all tracks of a specific format
      */
-    public List<ViewTrack> getTracks(FileFormat kind) {
-        return vtc.getTracks(kind);
+    public List<ViewTrackAdapter> getTracks(FileFormat kind) {
+        List<ViewTrackAdapter> r = new ArrayList<ViewTrackAdapter>();
+        for (ViewTrack t : vtc.getTracks(kind)) {
+            r.add((ViewTrackAdapter) t);
+        }
+        return r;
     }
 
     /**
@@ -135,7 +153,7 @@ public class TrackUtils {
      * @param trackname Name of the track to get
      * @return The track with the specified name, null if none
      */
-    public ViewTrack getTrack(String trackname) {
+    public ViewTrackAdapter getTrack(String trackname) {
         return vtc.getTrack(trackname);
     }
 }

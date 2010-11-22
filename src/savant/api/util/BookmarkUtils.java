@@ -3,8 +3,10 @@
  * and open the template in the editor.
  */
 
-package savant.api;
+package savant.api.util;
 
+import savant.api.adapter.BookmarkAdapter;
+import java.util.ArrayList;
 import java.util.List;
 import savant.controller.BookmarkController;
 import savant.controller.event.bookmark.BookmarksChangedListener;
@@ -20,16 +22,20 @@ public class BookmarkUtils {
      * Get a list of the current bookmarks
      * @return A list of bookmarks
      */
-    public static List<Bookmark> getBookmarks() {
-        return BookmarkController.getInstance().getBookmarks();
+    public static List<BookmarkAdapter> getBookmarks() {
+        List<BookmarkAdapter> r = new ArrayList<BookmarkAdapter>();
+        for (BookmarkAdapter b : BookmarkController.getInstance().getBookmarks()) {
+            r.add((BookmarkAdapter) b);
+        }
+        return r;
     }
 
     /**
      * Add a bookmark
      * @param f The bookmark to add
      */
-    public static void addBookmark(Bookmark f) {
-        BookmarkController.getInstance().addBookmark(f);
+    public static void addBookmark(BookmarkAdapter f) {
+        BookmarkController.getInstance().addBookmark((Bookmark) f);
     }
 
     /**
@@ -75,8 +81,8 @@ public class BookmarkUtils {
      * @param index The index of the bookmark to get
      * @return The bookmark at the specified index
      */
-    public static Bookmark getBookmark(int index) {
-        return BookmarkController.getInstance().getBookmark(index);
+    public static BookmarkAdapter getBookmark(int index) {
+        return (BookmarkAdapter) BookmarkController.getInstance().getBookmark(index);
     }
 
     /**

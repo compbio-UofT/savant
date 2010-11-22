@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 
-package savant.api;
+package savant.api.util;
 
 import java.io.File;
 import savant.file.FileType;

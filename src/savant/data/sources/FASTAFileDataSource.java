@@ -39,6 +39,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import savant.api.adapter.RangeAdapter;
 
 /**
  * TODO:
@@ -66,7 +67,7 @@ public class FASTAFileDataSource implements DataSource<SequenceRecord> {
     }
 
     @Override
-    public List<SequenceRecord> getRecords(String reference, Range range, Resolution resolution) throws IOException {
+    public List<SequenceRecord> getRecords(String reference, RangeAdapter range, Resolution resolution) throws IOException {
 
         int rangeLength = range.getLengthAsInt();
         byte[] sequence = new byte[rangeLength];

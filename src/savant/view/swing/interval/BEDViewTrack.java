@@ -34,6 +34,8 @@ import savant.view.swing.ViewTrack;
 
 import java.util.ArrayList;
 import java.util.List;
+import savant.api.adapter.ModeAdapter;
+import savant.api.adapter.RangeAdapter;
 import savant.settings.ColourSettings;
 
 /**
@@ -81,21 +83,21 @@ public class BEDViewTrack extends ViewTrack {
 
 
     @Override
-    public List<Object> retrieveData(String reference, Range range, Resolution resolution) throws Exception {
+    public List<Object> retrieveData(String reference, RangeAdapter range, Resolution resolution) throws Exception {
         return new ArrayList<Object>(getDataSource().getRecords(reference, range, resolution));
     }
 
     @Override
-    public Resolution getResolution(Range range) {
+    public Resolution getResolution(RangeAdapter range) {
         return getResolution(range, getDrawMode());
     }
 
-    public Resolution getResolution(Range range, Mode mode)
+    public Resolution getResolution(RangeAdapter range, ModeAdapter mode)
     {
         return getDefaultModeResolution(range);
     }
 
-    public Resolution getDefaultModeResolution(Range range)
+    public Resolution getDefaultModeResolution(RangeAdapter range)
     {
         long length = range.getLength();
 
@@ -124,9 +126,9 @@ public class BEDViewTrack extends ViewTrack {
         return c;
     }
 
-    private List<Mode> getDefaultDrawModes()
+    private List<ModeAdapter> getDefaultDrawModes()
     {
-        List<Mode> modes = new ArrayList<Mode>();
+        List<ModeAdapter> modes = new ArrayList<ModeAdapter>();
         modes.add(STANDARD_MODE);
         modes.add(SQUISH_MODE);
         return modes;

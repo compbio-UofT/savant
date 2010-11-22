@@ -27,6 +27,7 @@ import java.util.Iterator;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
+import savant.api.adapter.ModeAdapter;
 import savant.controller.BookmarkController;
 import savant.controller.ReferenceController;
 import savant.data.types.*;
@@ -44,7 +45,7 @@ import savant.view.swing.GraphPane;
 public class PopupPanel extends JPanel {
 
     protected GraphPane gp;
-    protected Mode mode;
+    protected ModeAdapter mode;
     protected FileFormat fileFormat;
     protected Record record;
 
@@ -54,7 +55,7 @@ public class PopupPanel extends JPanel {
     protected long start;
     protected long end;
 
-    public static PopupPanel create(GraphPane parent, Mode mode, FileFormat ff, Record rec){
+    public static PopupPanel create(GraphPane parent, ModeAdapter mode, FileFormat ff, Record rec){
 
         PopupPanel p = null;
         switch(ff){
@@ -85,7 +86,7 @@ public class PopupPanel extends JPanel {
         return p;
     }
 
-    protected void init(GraphPane parent, Mode mode, FileFormat ff, Record rec){
+    protected void init(GraphPane parent, ModeAdapter mode, FileFormat ff, Record rec){
 
         this.fileFormat = ff;
         this.mode = mode;

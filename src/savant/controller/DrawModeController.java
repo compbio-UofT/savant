@@ -30,6 +30,7 @@ import savant.view.swing.ViewTrack;
 
 import java.util.ArrayList;
 import java.util.List;
+import savant.api.adapter.ModeAdapter;
 
 /**
  * Controller to manage switching view track draw modes and alerting listeners.
@@ -59,12 +60,12 @@ public class DrawModeController {
         listeners.remove(listener);
     }
 
-    public void switchMode(ViewTrack track, Mode mode) {
+    public void switchMode(ViewTrack track, ModeAdapter mode) {
         track.setDrawMode(mode);
-        DrawModeChangedEvent evt = new DrawModeChangedEvent(track, mode);
-//        fireDrawModeChangedEvent(evt);
-        // FIXME:
-        track.getFrame().drawModeChanged(evt);
+        if (mode instanceof Mode) {
+            DrawModeChangedEvent evt = new DrawModeChangedEvent(track, (Mode) mode);
+            track.getFrame().drawModeChanged(evt);
+        }
     }
     
     private synchronized void fireDrawModeChangedEvent(DrawModeChangedEvent evt) {

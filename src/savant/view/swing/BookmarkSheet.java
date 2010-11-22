@@ -349,6 +349,6 @@ public class BookmarkSheet implements BookmarksChangedListener /*, RangeChangedL
         RangeController rc = RangeController.getInstance();
         BookmarksTableModel tableModel = (BookmarksTableModel) table.getModel();
         Bookmark bookmark = tableModel.getData().get(i);
-        rc.setRange(bookmark.getReference(),bookmark.getRange());
+        rc.setRange(bookmark.getReference(),(Range) bookmark.getRange());
     }
 }

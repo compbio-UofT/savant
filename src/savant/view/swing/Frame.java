@@ -45,6 +45,8 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import savant.api.adapter.FrameAdapter;
+import savant.api.adapter.ModeAdapter;
 
 import savant.controller.ReferenceController;
 import savant.settings.ColourSettings;
@@ -54,7 +56,7 @@ import savant.view.swing.interval.BAMViewTrack;
  *
  * @author mfiume
  */
-public class Frame {
+public class Frame implements FrameAdapter {
 
     private boolean isHidden = false;
     private GraphPane graphPane;
@@ -592,7 +594,7 @@ public class Frame {
         }*/
 
         //display modes
-        List<Mode> drawModes = this.tracks.get(0).getDrawModes();
+        List<ModeAdapter> drawModes = this.tracks.get(0).getDrawModes();
         visItems = new ArrayList<JCheckBoxMenuItem>();
         for(int i = 0; i < drawModes.size(); i++){
             final JCheckBoxMenuItem item = new JCheckBoxMenuItem(drawModes.get(i).getName());

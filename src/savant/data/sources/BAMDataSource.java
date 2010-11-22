@@ -35,6 +35,7 @@ import net.sf.samtools.*;
 import net.sf.samtools.util.SeekableStream;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import savant.api.adapter.RangeAdapter;
 
 import savant.controller.RangeController;
 import savant.controller.ReferenceController;
@@ -133,7 +134,7 @@ public class BAMDataSource implements DataSource<BAMIntervalRecord> {
      * {@inheritDoc}
      */
     @Override
-    public List<BAMIntervalRecord> getRecords(String reference, Range range, Resolution resolution) throws OutOfMemoryError {
+    public List<BAMIntervalRecord> getRecords(String reference, RangeAdapter range, Resolution resolution) throws OutOfMemoryError {
 
 
         //CloseableIterator<SAMRecord> recordIterator=null;

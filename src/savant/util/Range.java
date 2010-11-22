@@ -16,6 +16,7 @@
 package savant.util;
 
 import java.io.Serializable;
+import savant.api.adapter.RangeAdapter;
 
 /**
  * Utility class for storing any type of range.  For generality, the values
@@ -23,7 +24,7 @@ import java.io.Serializable;
  *
  * @author mfiume
  */
-public final class Range implements Serializable
+public final class Range implements RangeAdapter, Serializable
 {
     private long from;
     private long to;
@@ -39,9 +40,12 @@ public final class Range implements Serializable
         this.to = to;
     }
 
+    @Override
     public long getFrom() { return this.from; }
+    @Override
     public long getTo() { return this.to; }
 
+    @Override
     public long getLength() { return getTo() - getFrom() + 1; }
 
     /**

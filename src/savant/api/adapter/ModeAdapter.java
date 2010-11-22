@@ -14,33 +14,17 @@
  *    limitations under the License.
  */
 
-/*
- * PluginAdapter.java
- * Created on Mar 12, 2010
+package savant.api.adapter;
+
+/**
+ *
+ * @author mfiume
  */
+public interface ModeAdapter {
 
-package savant.plugin;
-
-import savant.api.util.BookmarkUtils;
-import savant.api.util.NavigationUtils;
-import savant.api.util.SelectionUtils;
-import savant.api.util.TrackUtils;
-
-public class PluginAdapterOld {
-
-    public BookmarkUtils getBookmarkUtils(){
-        return new BookmarkUtils();
-    }
-
-    public NavigationUtils getNavigationUtils(){
-        return new NavigationUtils();
-    }
-
-    public SelectionUtils getSelectionUtils(){
-        return new SelectionUtils();
-    }
-
-    public TrackUtils getTrackUtils(){
-        return new TrackUtils();
-    }
+    //public static Mode valueOf(String name, String desc) {
+    //public static Mode fromObject(Object o, String desc) {
+    
+    public String getDescription();
+    public String getName();
 }
