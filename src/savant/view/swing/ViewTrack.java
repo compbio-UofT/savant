@@ -26,7 +26,6 @@ import javax.swing.JOptionPane;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import savant.api.adapter.FrameAdapter;
 import savant.api.adapter.ModeAdapter;
 import savant.api.adapter.RangeAdapter;
 import savant.api.adapter.ViewTrackAdapter;
