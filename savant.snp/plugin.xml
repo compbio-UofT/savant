@@ -1,0 +1,15 @@
+<?xml version="1.0" ?>
+<!DOCTYPE plugin PUBLIC "-//JPF//Java Plug-in Manifest 1.0" "http://jpf.sourceforge.net/plugin_1_0.dtd">
+<plugin id="savant.snp" version="1.0.0"
+	class="savant.snp.SNPFinderPlugin">
+    <requires><import plugin-id="savant.core"/></requires>
+	<runtime>
+		<library id="snp" path="/" type="code">
+			<export prefix="*" />
+		</library>
+	</runtime>
+    <extension plugin-id="savant.core" point-id="AuxData" id="SNPFinderPlugin">
+		<parameter id="class" value="savant.snp.SNPFinderPlugin"/>
+		<parameter id="name" value="Data"/>
+	</extension>
+</plugin>
