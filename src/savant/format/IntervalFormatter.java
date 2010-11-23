@@ -18,7 +18,6 @@
 package savant.format;
 
 import java.io.*;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -239,7 +238,7 @@ public class IntervalFormatter extends SavantFileFormatter {
     }
 
 
-    public void sortInput(int[] columns) throws IOException {
+    private void sortInput(int[] columns) throws IOException {
 
         //TODO: reenable...
         // - be careful and consistent about tmp file name
@@ -349,7 +348,7 @@ public class IntervalFormatter extends SavantFileFormatter {
      * @throws FileNotFoundException
      */
     @Override
-    public BufferedReader openInputFile() throws FileNotFoundException {
+    protected BufferedReader openInputFile() throws FileNotFoundException {
         return new BufferedReader(new FileReader(inFile));
     }
 
@@ -388,7 +387,7 @@ public class IntervalFormatter extends SavantFileFormatter {
 
     //String currrefname = "";
 
-    protected void writeIntervalTreeNode(IntervalTreeNode n, DataOutputStream indexOutFile) throws IOException {
+    private void writeIntervalTreeNode(IntervalTreeNode n, DataOutputStream indexOutFile) throws IOException {
 
         /*
         System.out.println("<<I" + "\t"

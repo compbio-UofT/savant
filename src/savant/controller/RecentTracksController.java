@@ -16,10 +16,10 @@ import java.io.IOException;
 import java.util.LinkedList;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
 import javax.swing.JSeparator;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import savant.api.util.DialogUtils;
 import savant.controller.event.viewtrack.ViewTrackAddedListener;
 import savant.controller.event.viewtrack.ViewTrackAddedOrRemovedEvent;
 import savant.util.MiscUtils;
@@ -102,7 +102,7 @@ public class RecentTracksController implements ViewTrackAddedListener {
                         Savant.getInstance().addTrackFromFile(s);
                     } catch (Exception ex) {
                         LOG.error("Unable to open file.", ex);
-                        JOptionPane.showMessageDialog(Savant.getInstance(), "Error opening track from file " + s);
+                        DialogUtils.displayMessage("Error opening track from file " + s);
                     }
                 }
             });

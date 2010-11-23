@@ -1,21 +1,21 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ *    Copyright 2010 University of Toronto
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
  */
 
 package savant.view.tools;
 
-import com.jidesoft.swing.JideTabbedPane;
-import savant.controller.ThreadController;
-import com.jidesoft.docking.DefaultDockingManager;
-import com.jidesoft.docking.DockContext;
-import com.jidesoft.docking.DockableFrame;
-import com.jidesoft.docking.DockingManager;
-import com.jidesoft.docking.DockingManager.TabbedPaneCustomizer;
-import com.jidesoft.pane.CollapsiblePane;
-import com.jidesoft.pane.CollapsiblePanes;
-import com.jidesoft.swing.JideButton;
-import com.jidesoft.swing.JideSwingUtilities;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -41,27 +41,24 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComponent;
-import javax.swing.JEditorPane;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JSeparator;
-import javax.swing.JTabbedPane;
-import javax.swing.JToolBar;
-import javax.swing.SpringLayout;
-import javax.swing.SwingConstants;
+import javax.swing.*;
 import javax.swing.border.LineBorder;
 import javax.swing.filechooser.FileFilter;
+import com.jidesoft.swing.JideTabbedPane;
+import com.jidesoft.docking.DefaultDockingManager;
+import com.jidesoft.docking.DockContext;
+import com.jidesoft.docking.DockableFrame;
+import com.jidesoft.docking.DockingManager;
+import com.jidesoft.docking.DockingManager.TabbedPaneCustomizer;
+import com.jidesoft.pane.CollapsiblePane;
+import com.jidesoft.pane.CollapsiblePanes;
+import com.jidesoft.swing.JideButton;
+import com.jidesoft.swing.JideSwingUtilities;
+import savant.api.util.DialogUtils;
 import savant.controller.BookmarkController;
 import savant.controller.RangeController;
 import savant.controller.InformativeThread;
+import savant.controller.ThreadController;
 import savant.controller.ViewTrackController;
 import savant.controller.event.bookmark.BookmarksChangedEvent;
 import savant.controller.event.bookmark.BookmarksChangedListener;
@@ -436,7 +433,7 @@ public class ToolsModule implements BookmarksChangedListener, RangeChangeComplet
                 StringSelection stringSelection = new StringSelection( t.getRunInformation().getOutput() );
                 Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
                 clipboard.setContents( stringSelection, null );
-                JOptionPane.showMessageDialog(null, "Output copied to clipboard", "Copy Output", JOptionPane.INFORMATION_MESSAGE);
+                DialogUtils.displayMessage("Output copied to clipboard");
             }
 
         });
@@ -506,7 +503,7 @@ public class ToolsModule implements BookmarksChangedListener, RangeChangeComplet
             } catch (IOException ex) {
                 String message = "Save unsuccessful";
                 String title = "Uh oh...";
-                JOptionPane.showConfirmDialog(null, message, title, JOptionPane.ERROR_MESSAGE);
+                DialogUtils.displayError(title, message);
             }
         }
     }

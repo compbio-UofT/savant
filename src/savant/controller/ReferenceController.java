@@ -17,10 +17,6 @@
  *    limitations under the License.
  */
 
-/**
- * Controller object to manage changes to viewed range.
- * @author vwilliams
- */
 package savant.controller;
 
 import java.util.ArrayList;
@@ -28,13 +24,17 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import javax.swing.JOptionPane;
+import savant.api.util.DialogUtils;
 import savant.controller.event.reference.ReferenceChangedEvent;
 import savant.controller.event.reference.ReferenceChangedListener;
 import savant.data.types.Genome;
 import savant.util.MiscUtils;
-import savant.view.swing.Savant;
 
+/**
+ * Controller object to manage changes to viewed range.
+ *
+ * @author vwilliams
+ */
 public class ReferenceController {
 
     private Genome loadedGenome;
@@ -73,9 +73,7 @@ public class ReferenceController {
             }
         } else {
             if (TrackController.getInstance().getDataSources().size() > 0) {
-                JOptionPane.showMessageDialog(
-                        Savant.getInstance(),
-                        "Reference " + ref + " not found in loaded tracks");
+                DialogUtils.displayMessage("Reference " + ref + " not found in loaded tracks.");
             }
         }
     }

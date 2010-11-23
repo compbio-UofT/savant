@@ -16,17 +16,15 @@ import java.io.IOException;
 import java.util.LinkedList;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
 import javax.swing.JSeparator;
+import savant.api.util.DialogUtils;
 import savant.view.swing.ProjectHandler;
-import savant.view.swing.Savant;
 
 /**
  *
  * @author mfiume
  */
 public class RecentProjectsController {
-
 
     private final String FILENAME = ".recent_projects";
     private final int NUM_RECENTS_TO_SAVE = 10;
@@ -100,7 +98,7 @@ public class RecentProjectsController {
                     try {
                         ProjectHandler.getInstance().loadProjectFrom(s);
                     } catch (Exception ex) {
-                        JOptionPane.showMessageDialog(Savant.getInstance(), "Error opening project from file " + s);
+                        DialogUtils.displayMessage("Error opening project from file " + s);
                     }
                 }
             });

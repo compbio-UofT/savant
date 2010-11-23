@@ -22,7 +22,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
-import javax.swing.JOptionPane;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -109,8 +108,7 @@ public abstract class ViewTrack implements ViewTrackAdapter {
                     viewTrack = new BAMViewTrack(name, (BAMDataSource) dataTrack);
                     results.add(viewTrack);
                 } else {
-                    String e = String.format("Could not create BAM track; check that index file exists and is named \"%1$s.bai\".", name);
-                    JOptionPane.showConfirmDialog(Savant.getInstance(), e, "Error loading track", JOptionPane.DEFAULT_OPTION);
+                    DialogUtils.displayError("Error loading track", String.format("Could not create BAM track; check that index file exists and is named \"%1$s.bai\".", name));
                     return null;
                 }
 
@@ -230,7 +228,7 @@ public abstract class ViewTrack implements ViewTrackAdapter {
         if (tracks.get(0) instanceof SequenceViewTrack) {
             g = new Genome(name, (SequenceViewTrack) tracks.get(0));
         } else {
-            JOptionPane.showMessageDialog(Savant.getInstance(), "Problem opening track as genome.");
+            DialogUtils.displayError("Problem opening track as genome.");
         }
 
         return g;

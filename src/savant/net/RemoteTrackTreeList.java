@@ -15,38 +15,25 @@
  */
 package savant.net;
 
-import com.jidesoft.grid.TreeTable;
-import com.jidesoft.swing.TableSearchable;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.Frame;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.JToolBar;
+import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
+import com.jidesoft.grid.TreeTable;
+import com.jidesoft.swing.TableSearchable;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
+import savant.api.util.DialogUtils;
 import savant.view.swing.Savant;
 
 /**
@@ -54,6 +41,7 @@ import savant.view.swing.Savant;
  * @author mfiume
  */
 public class RemoteTrackTreeList extends JDialog {
+    private static final Log LOG = LogFactory.getLog(RemoteTrackTreeList.class);
 
     private static final TableCellRenderer FILE_RENDERER = new FileRowCellRenderer();
 
@@ -95,10 +83,10 @@ public class RemoteTrackTreeList extends JDialog {
                         Savant.getInstance().addTrackFromFile(r.getURL().toString());
                         closeDialog();
                     } catch (Exception ex) {
-                        JOptionPane.showMessageDialog(p, "Error opening URL: " + r.getURL());
+                        DialogUtils.displayMessage("Error opening URL: " + r.getURL());
                     }
                 } else {
-                    JOptionPane.showMessageDialog(p, "Please select a track");
+                    DialogUtils.displayMessage("Please select a track");
                 }
             }
 
@@ -112,10 +100,10 @@ public class RemoteTrackTreeList extends JDialog {
                 TreeRow r  = (TreeRow) table.getRowAt(table.getSelectedRow());
                 if (r != null && r.isLeaf()) {
                     DownloadController.getInstance().enqueueDownload(r.getURL(), new File(saveToDirectory));
-                    System.out.println(r.getURL());
+                    LOG.info(r.getURL());
                     closeDialog();
                 } else {
-                    JOptionPane.showMessageDialog(p, "Please select a file");
+                    DialogUtils.displayMessage("Please select a file");
                 }
             }
 

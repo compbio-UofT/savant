@@ -42,8 +42,20 @@ import savant.view.swing.Savant;
  */
 public class DialogUtils {
 
+    public static void displayError(String title, String message) {
+        JOptionPane.showMessageDialog(Savant.getInstance(), message, title, JOptionPane.PLAIN_MESSAGE);
+    }
+
+    public static void displayError(String message) {
+        displayError("Savant Error", message);
+    }
+
+    public static void displayMessage(String title, String message) {
+        JOptionPane.showMessageDialog(Savant.getInstance(), message, title, JOptionPane.PLAIN_MESSAGE);
+    }
+
     public static void displayMessage(String message) {
-        JOptionPane.showMessageDialog(Savant.getInstance(), message);
+        displayMessage("Savant", message);
     }
 
     public static void displayException(String title, String message, Throwable t) {
@@ -123,9 +135,16 @@ public class DialogUtils {
     }
 
     public static File chooseFileForSave(Frame parent, String title) {
+        return chooseFileForSave(parent, title, null);
+    }
+
+    public static File chooseFileForSave(Frame parent, String title, FileFilter filter) {
         FileDialog fd = new FileDialog(parent, title, FileDialog.SAVE);
-        fd.setVisible(true);
+        if (filter != null) {
+            fd.setFilenameFilter(new FileFilterAdapter(filter));
+        }
         fd.setAlwaysOnTop(true);
+        fd.setVisible(true);
         String selectedFile = fd.getFile();
         if (selectedFile != null) {
             return new File(fd.getDirectory(), selectedFile);

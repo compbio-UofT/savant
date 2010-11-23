@@ -16,20 +16,20 @@
 
 package savant.view.swing.util;
 
-import java.awt.*;
+import java.awt.AWTException;
+import java.awt.Robot;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import javax.imageio.ImageIO;
-import javax.swing.*;
+import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileFilter;
 
 import savant.util.MiscUtils;
 import savant.view.swing.Savant;
 
 
-public class ScreenShot
-{
+public class ScreenShot {
     private static int saveCount = 0;
     private static boolean showCompletionDialog = true;
 
@@ -45,81 +45,47 @@ public class ScreenShot
     }
     
     public static void takeAndSave() {
-        Savant.log("Take");
         BufferedImage screen = take();
-        Savant.log("Save");
-        String name = save(screen);
-        Savant.log("Done screenshot");
-        showCompletionDialog(name);
+        showCompletionDialog(save(screen));
     }
 
     public static void takeAndSaveWithoutAsking() {
         BufferedImage screen = take();
-        String name = saveWithoutAsking(screen);
-        showCompletionDialog(name );
+        showCompletionDialog(saveWithoutAsking(screen));
     }
 
     private static String save(BufferedImage screen) {
 
-        JFrame jf = new JFrame();
+        File selectedFile = DialogUtils.chooseFileForSave(Savant.getInstance(), "Output File", new FileFilter() {
+            @Override
+            public boolean accept(File f) {
+                if (f.isDirectory()) {
+                    return true;
+                }
 
-
-        String selectedFileName;
-        if (Savant.mac) {
-            FileDialog fd = new FileDialog(jf, "Output File", FileDialog.SAVE);
-            fd.setVisible(true);
-            jf.setAlwaysOnTop(true);
-            // get the path (null if none selected)
-            selectedFileName = fd.getFile();
-            if (selectedFileName != null) {
-                selectedFileName = fd.getDirectory() + selectedFileName;
+                String extension = MiscUtils.getExtension(f.getAbsolutePath());
+                if (extension != null) {
+                    return extension.equalsIgnoreCase("png");
+                }
+                return false;
             }
-        }
-        else {
-            JFileChooser fd = new JFileChooser();
-            fd.setDialogTitle("Output File");
-            fd.setDialogType(JFileChooser.SAVE_DIALOG);
-            fd.setFileFilter(new FileFilter() {
 
-                @Override
-                public boolean accept(File f) {
-                        if (f.isDirectory()) {
-                            return true;
-                        }
+            @Override
+            public String getDescription() {
+                return "Image files (*.png)";
+            }
+        });
 
-                        String extension = MiscUtils.getExtension(f.getAbsolutePath());
-                        if (extension != null) {
-                            if (extension.equalsIgnoreCase("png")) {
-                                return true;
-                            } else {
-                                return false;
-                            }
-                        }
-
-                        return false;
-                }
-
-                @Override
-                public String getDescription() {
-                    return "Image files (*.png)";
-                }
-
-            });
-            int result = fd.showSaveDialog(jf);
-            if (result == JFileChooser.CANCEL_OPTION || result == JFileChooser.ERROR_OPTION ) return null;
-            selectedFileName = fd.getSelectedFile().getPath();
-        }
 
         // set the genome
-        if (selectedFileName != null) {
+        if (selectedFile != null) {
             try {
-                ImageIO.write(screen, "PNG", new File(selectedFileName));
-                return selectedFileName;
+                ImageIO.write(screen, "PNG", selectedFile);
+                return selectedFile.getName();
             } catch (IOException ex) {
                 String message = "Screenshot unsuccessful";
                 String title = "Uh oh...";
-                // display the JOptionPane showConfirmDialog
-                JOptionPane.showConfirmDialog(null, message, title, JOptionPane.ERROR_MESSAGE);
+                DialogUtils.displayError(title, message);
                 return null;
             }
         }
@@ -135,8 +101,7 @@ public class ScreenShot
             } catch (IOException ex) {
                 String message = "Screenshot unsuccessful";
                 String title = "Uh oh...";
-                // display the JOptionPane showConfirmDialog
-                JOptionPane.showConfirmDialog(null, message, title, JOptionPane.ERROR_MESSAGE);
+                DialogUtils.displayError(title, message);
             }
         return null;
     }
@@ -148,7 +113,7 @@ public class ScreenShot
                             "Don't show again"};
         int n = JOptionPane.showOptionDialog(Savant.getInstance(),
             "Saved to " + name,
-            "Sreenshot Taken",
+            "Screenshot Taken",
             JOptionPane.YES_NO_CANCEL_OPTION,
             JOptionPane.INFORMATION_MESSAGE,
             null,
@@ -158,7 +123,5 @@ public class ScreenShot
         if (n == 1) {
             showCompletionDialog = false;
         }
-        //JOptionPane.showMessageDialog(Savant.getInstance(), "Saved to " + name, "Sreenshot Taken", JOptionPane.INFORMATION_MESSAGE);
     }
-
 }

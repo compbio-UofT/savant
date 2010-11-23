@@ -21,12 +21,12 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.Arrays;
 import javax.swing.JEditorPane;
-import javax.swing.JOptionPane;
 import javax.swing.event.*;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import savant.api.util.DialogUtils;
 import savant.file.SavantFileNotFormattedException;
 import savant.file.SavantUnsupportedVersionException;
 import savant.view.swing.Savant;
@@ -165,9 +165,8 @@ public class StartPage extends JEditorPane {
                     if (browser == null)
                         throw new Exception(Arrays.toString(browsers));
                 }
-            }
-            catch (Exception e) {
-                JOptionPane.showMessageDialog(null, errMsg + "\n" + e.toString());
+            } catch (Exception e) {
+                DialogUtils.displayException("Unable to Open URL", errMsg, e);
             }
         }
     }
