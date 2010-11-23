@@ -1,7 +1,20 @@
+/*
+ *    Copyright 2010 University of Toronto
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
+ */
 package savant.controller;
 
-import com.jidesoft.docking.DockableFrame;
-import com.jidesoft.docking.DockingManager;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -20,10 +33,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JPanel;
+
+import com.jidesoft.docking.DockableFrame;
+import com.jidesoft.docking.DockingManager;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.java.plugin.JpfException;
 import org.java.plugin.ObjectFactory;
 import org.java.plugin.Plugin;
@@ -32,11 +48,12 @@ import org.java.plugin.registry.Extension;
 import org.java.plugin.registry.ExtensionPoint;
 import org.java.plugin.registry.PluginDescriptor;
 import org.java.plugin.standard.StandardPluginLocation;
-import savant.view.swing.DockableFrameFactory;
-import savant.plugin.GUIPlugin;
+
 import savant.experimental.PluginTool;
+import savant.plugin.GUIPlugin;
 import savant.plugin.PluginAdapter;
 import savant.util.MiscUtils;
+import savant.view.swing.DockableFrameFactory;
 import savant.view.swing.Savant;
 import savant.view.tools.ToolsModule;
 
@@ -45,7 +62,7 @@ import savant.view.tools.ToolsModule;
  * @author mfiume
  */
 public class PluginController {
-
+    private static final Log LOG = LogFactory.getLog(PluginController.class);
     private final String FILENAME = ".uninstall_plugins";
     private Set<String> pluginsToUnInstall = new HashSet<String>();
 
@@ -72,7 +89,7 @@ public class PluginController {
         }
         return instance;
     }
-    private File f;
+    private File uninstallFile;
 
     /** CONSTRUCTOR **/
 
@@ -80,14 +97,14 @@ public class PluginController {
         try {
 
             pluginManager = ObjectFactory.newInstance().createManager();
-            f = new File(FILENAME);
-            if (f.exists()) {
-                uninstallPlugins(f);
+            uninstallFile = new File(FILENAME);
+            if (uninstallFile.exists()) {
+                uninstallPlugins(uninstallFile);
             }
             loadCorePlugin();
             loadPlugins(new File(PLUGINS_DIR));
         } catch (Exception ex) {
-            ex.printStackTrace();
+            LOG.error("Error loading plugins.", ex);
         }
     }
 
@@ -108,8 +125,12 @@ public class PluginController {
     private void loadPlugin(File pluginLocation) throws JpfException, MalformedURLException, InstantiationException, IllegalAccessException {
         PluginManager.PluginLocation[] locs = new PluginManager.PluginLocation[1];
         locs[0] = StandardPluginLocation.create(pluginLocation);
-        pluginManager.publishPlugins(locs);
-        activateNewPlugins();
+        if (locs[0] != null) {
+            pluginManager.publishPlugins(locs);
+            activateNewPlugins();
+        } else {
+            LOG.warn("Unable to load plugin: " + pluginLocation);
+        }
     }
 
     /** PLUGIN ACTIVATION **/
@@ -123,20 +144,19 @@ public class PluginController {
         pluginsToUnInstall.add(pluginid);
         FileWriter fstream = null;
         try {
-            if (!f.exists()) {
-                f.createNewFile();
+            if (!uninstallFile.exists()) {
+                uninstallFile.createNewFile();
             }
-            fstream = new FileWriter(f, true);
+            fstream = new FileWriter(uninstallFile, true);
             BufferedWriter out = new BufferedWriter(fstream);
             out.write(this.getPluginPath(pluginid) + "\n");
             out.close();
         } catch (IOException ex) {
-            Logger.getLogger(PluginController.class.getName()).log(Level.SEVERE, null, ex);
+            LOG.error("Error uninstalling plugin: " + uninstallFile, ex);
         } finally {
             try {
                 fstream.close();
-            } catch (IOException ex) {
-                Logger.getLogger(PluginController.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (IOException ignored) {
             }
         }
     }
@@ -220,7 +240,7 @@ public class PluginController {
         File location = new File(PLUGINS_DIR + System.getProperty("file.separator") + "SavantCore.jar");
 
         if (!location.exists()) {
-            System.err.println("Loading of core plugin failed.");
+            LOG.error("Loading of core plugin failed.");
             return;
         }
 
@@ -269,7 +289,7 @@ public class PluginController {
         MiscUtils.setFrameVisibility(f.getTitle(), isIntiallyVisible, Savant.getInstance().getAuxDockingManager());
         final JCheckBoxMenuItem cb = new JCheckBoxMenuItem(plugin.getTitle());
         cb.addActionListener(new ActionListener() {
-
+            @Override
             public void actionPerformed(ActionEvent e) {
                 DockingManager m = Savant.getInstance().getAuxDockingManager();
                 String frameKey = f.getTitle();
@@ -290,12 +310,11 @@ public class PluginController {
             br = new BufferedReader(new FileReader(f));
             
             while ((line = br.readLine()) != null) {
-                System.out.println("Uninstalling " + line);
+                LOG.info("Uninstalling " + line);
                 new File(line).delete();
             }
         } catch (IOException ex) {
-            System.err.println("Problem uninstalling " + line);
-            Logger.getLogger(PluginController.class.getName()).log(Level.SEVERE, null, ex);
+            LOG.error("Problem uninstalling " + line, ex);
         } finally {
             try {
                 br.close();
