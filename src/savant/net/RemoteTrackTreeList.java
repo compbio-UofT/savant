@@ -33,7 +33,7 @@ import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
-import savant.api.util.DialogUtils;
+import savant.view.swing.util.DialogUtils;
 import savant.view.swing.Savant;
 
 /**

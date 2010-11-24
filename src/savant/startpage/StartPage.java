@@ -26,7 +26,7 @@ import javax.swing.event.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import savant.api.util.DialogUtils;
+import savant.view.swing.util.DialogUtils;
 import savant.file.SavantFileNotFormattedException;
 import savant.file.SavantUnsupportedVersionException;
 import savant.view.swing.Savant;

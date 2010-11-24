@@ -24,7 +24,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import savant.api.util.DialogUtils;
+import savant.view.swing.util.DialogUtils;
 import savant.controller.event.reference.ReferenceChangedEvent;
 import savant.controller.event.reference.ReferenceChangedListener;
 import savant.data.types.Genome;

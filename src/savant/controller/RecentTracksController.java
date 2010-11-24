@@ -19,7 +19,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JSeparator;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import savant.api.util.DialogUtils;
+import savant.view.swing.util.DialogUtils;
 import savant.controller.event.viewtrack.ViewTrackAddedListener;
 import savant.controller.event.viewtrack.ViewTrackAddedOrRemovedEvent;
 import savant.util.MiscUtils;

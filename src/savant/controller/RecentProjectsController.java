@@ -17,7 +17,7 @@ import java.util.LinkedList;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JSeparator;
-import savant.api.util.DialogUtils;
+import savant.view.swing.util.DialogUtils;
 import savant.view.swing.ProjectHandler;
 
 /**

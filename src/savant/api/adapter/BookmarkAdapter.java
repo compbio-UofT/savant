@@ -5,8 +5,6 @@
 
 package savant.api.adapter;
 
-import savant.api.adapter.RangeAdapter;
-
 /**
  *
  * @author mfiume

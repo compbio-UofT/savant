@@ -82,7 +82,7 @@ public class BookmarkUtils {
      * @return The bookmark at the specified index
      */
     public static BookmarkAdapter getBookmark(int index) {
-        return (BookmarkAdapter) BookmarkController.getInstance().getBookmark(index);
+        return (BookmarkAdapter)  BookmarkController.getInstance().getBookmark(index);
     }
 
     /**
