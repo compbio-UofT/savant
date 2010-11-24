@@ -25,6 +25,8 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.*;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.*;
 
 import com.apple.eawt.*;
@@ -36,6 +38,12 @@ import com.jidesoft.plaf.UIDefaultsLookup;
 import com.jidesoft.plaf.basic.ThemePainter;
 import com.jidesoft.status.MemoryStatusBarItem;
 import com.jidesoft.swing.JideSplitPane;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.net.URLConnection;
+import java.net.URLEncoder;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jdom.JDOMException;
@@ -420,9 +428,9 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
             checkVersion();
         }
 
-        if (BrowserSettings.getCollectAnonymousUsage()) {
-            notifyServer();
-        }
+        //if (BrowserSettings.getCollectAnonymousUsage()) {
+            logUsageStats();
+        //}
 
         s.setStatus("Loading plugins");
 
@@ -1321,25 +1329,56 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
     }
 
     private static String getPost(String name, String value) {
-        return "?" + name + "=" + value;
+        return name + "=" + value;
     }
 
-    private static void notifyServer() {
-        String request = "";
-        request += getPost("savantversion", BrowserSettings.version);
-        request += getPost("javaversion", System.getProperty("java.version"));
-        request += getPost("osname", System.getProperty("os.name").replace(" ", ""));
-        request += getPost("osversion", System.getProperty("os.version"));
-        request += getPost("osarc", System.getProperty("os.arch"));
-
+    private static void logUsageStats() {
         try {
-            request = BrowserSettings.url_phonehome + request;
-            System.out.println(request);
-            File phoneHomeFile = DownloadFile.downloadFile(new URL(request), System.getProperty("java.io.tmpdir"));
-            if (phoneHomeFile != null) { phoneHomeFile.delete(); }
-        } catch (Exception ex) {
-            ex.printStackTrace();
+            URL url;
+            URLConnection urlConn;
+            DataOutputStream printout;
+            // URL of CGI-Bin script.
+            url = new URL(BrowserSettings.url_logusagestats);
+            // URL connection channel.
+            urlConn = url.openConnection();
+            // Let the run-time system (RTS) know that we want input.
+            urlConn.setDoInput(true);
+            // Let the RTS know that we want to do output.
+            urlConn.setDoOutput(true);
+            // No caching, we want the real thing.
+            urlConn.setUseCaches(false);
+            // Specify the content type.
+            urlConn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+            // Send POST output.
+            printout = new DataOutputStream(urlConn.getOutputStream());
+
+            DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+            Date date = new Date();
+            Locale locale = Locale.getDefault();
+
+            String content = 
+                            post("time", dateFormat.format(date))
+                    + "&" + post("language",locale.getDisplayLanguage())
+                    + "&" + post("java.version",System.getProperty("java.version"))
+                    + "&" + post("java.vendor",System.getProperty("java.vendor"))
+                    + "&" + post("os.name",System.getProperty("os.name"))
+                    + "&" + post("os.arch",System.getProperty("os.arch"))
+                    + "&" + post("os.version",System.getProperty("os.version"))
+                    + "&" + post("user.region",System.getProperty("user.region"))
+                    + "&" + post("user.timezone",System.getProperty("user.timezone"))
+                    + "&" + post("savant.version",BrowserSettings.version);
+            
+            printout.writeBytes(content);
+            printout.flush();
+            printout.close();
+            urlConn.getInputStream();
+        } catch (IOException ex) {
+            Logger.getLogger(Savant.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+
+    private static String post(String id, String msg) {
+        return id + "=" + id + ":" + ((msg == null) ? "null" : URLEncoder.encode(msg));
     }
 
 

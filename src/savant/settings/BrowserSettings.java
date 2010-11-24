@@ -32,15 +32,15 @@ public class BrowserSettings {
     /*
      * Website
      */
-    public static String url = "http://compbio.cs.toronto.edu/savant";
-    public static String url_version = "http://compbio.cs.toronto.edu/savant/serve/version/version.xml";
-    public static String url_data = "http://compbio.cs.toronto.edu/savant/serve/data/data.xml";
-    public static String url_plugin = "http://compbio.cs.toronto.edu/savant/serve/plugin/plugin.xml";
-    public static String url_phonehome = "http://compbio.cs.toronto.edu/savant/stats.html";
-    public static String url_tutorials = "http://compbio.cs.toronto.edu/savant/media.html";
-    public static String url_manuals = "http://compbio.cs.toronto.edu/savant/documentation.html";
+    public static final String url = "http://www.savantbrowser.com";
+    public static String url_version = url + "/serve/version/version.xml";
+    public static String url_data = url + "/serve/data/data.xml";
+    public static String url_plugin = url + "/serve/plugin/plugin.xml";
+    public static String url_logusagestats = url + "/scripts/logUsageStats.cgi";
+    public static String url_tutorials = url + "/media.html";
+    public static String url_manuals = url + "/documentation.html";
 
-    public static String version = "1.3.2";
+    public static String version = "1.3.3";
 
 
     public static boolean getCheckVersionOnStartup() {
