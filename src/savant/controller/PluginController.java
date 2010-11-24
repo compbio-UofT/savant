@@ -73,9 +73,9 @@ public class PluginController {
 
     //private Map<SuperPluginDescriptor,Plugin> pluginMap = new HashMap<SuperPluginDescriptor,Plugin>();
 
-    private Map<String,PluginDescriptor> pluginIdToDescriptorMap = new HashMap<String,PluginDescriptor>();
-    private Map<String,Extension> pluginIdToExtensionMap = new HashMap<String,Extension>();
-    private Map<String,Plugin> pluginIdToPluginMap = new HashMap<String,Plugin>();
+    private Map<String,PluginDescriptor> pluginIDToDescriptorMap = new HashMap<String,PluginDescriptor>();
+    private Map<String,Extension> pluginIDToExtensionMap = new HashMap<String,Extension>();
+    private Map<String,Plugin> pluginIDToPluginMap = new HashMap<String,Plugin>();
     //private Map<String,String> pluginIdToPathMap = new HashMap<String,String>();
 
     private ExtensionPoint coreExtPt;
@@ -161,48 +161,39 @@ public class PluginController {
         }
     }
 
-    private boolean activatePlugin(PluginDescriptor d, Extension e) {
+    private boolean activatePlugin(PluginDescriptor desc, Extension ext) {
 
-            try {
-                pluginManager.activatePlugin(d.getId());
-                ClassLoader classLoader = pluginManager.getPluginClassLoader(d);
+        try {
+            pluginManager.activatePlugin(desc.getId());
+            ClassLoader classLoader = pluginManager.getPluginClassLoader(desc);
 
-               /* if (d.getId().equals("savant.pivot")) {
-                    StandardPathResolver spr = new StandardPathResolver();
-                    Library l = d.getLibrary("excel");
-                    System.out.println(l.getPath());
-                }
-                * 
-                */
-                
-                Plugin plugininstance = (Plugin) (
-                        classLoader.loadClass(
-                            e.getParameter("class").valueAsString()
-                        )).newInstance();
+            Plugin plugininstance = (Plugin)(classLoader.loadClass(ext.getParameter("class").valueAsString())).newInstance();
 
-                // init the plugin based on its type
-                if (plugininstance instanceof GUIPlugin) {
-                    initGUIPlugin(plugininstance);
-                } else if (plugininstance instanceof PluginTool) {
-                    initPluginTool(plugininstance);
-                }
+            // init the plugin based on its type
+            if (plugininstance instanceof GUIPlugin) {
+                initGUIPlugin(plugininstance);
+            } else if (plugininstance instanceof PluginTool) {
+                initPluginTool(plugininstance);
+            }
 
-                addToPluginMaps(d.getUniqueId(), d, e, plugininstance);
+            addToPluginMaps(desc.getUniqueId(), desc, ext, plugininstance);
 
-                return true;
+            return true;
 
-            } catch (Exception ex) {}
-
-            return false;
+        } catch (Exception ex) {
+            LOG.error("Unable to activate plugin: " + desc.getPluginClassName(), ex);
         }
 
+        return false;
+    }
+
     /** ACTIVATE NEW **/
-        private void activateNewPlugins() {
-        Iterator it = coreExtPt.getConnectedExtensions().iterator();
-        while (it.hasNext()) {
-            Extension ext = (Extension) it.next();
-            PluginDescriptor descr = ext.getDeclaringPluginDescriptor();
-            this.activatePlugin(descr, ext);
+    private void activateNewPlugins() {
+        for (Extension ext : coreExtPt.getConnectedExtensions()) {
+            if (!pluginIDToExtensionMap.containsValue(ext)) {
+                LOG.info("Activating new plugin: " + ext);
+                activatePlugin(ext.getDeclaringPluginDescriptor(), ext);
+            }
         }
     }
 
@@ -213,19 +204,19 @@ public class PluginController {
     }
 
     private void addToPluginMaps(String id, PluginDescriptor d, Extension e, Plugin p) {
-        this.pluginIdToDescriptorMap.put(id, d);
-        this.pluginIdToExtensionMap.put(id, e);
-        this.pluginIdToPluginMap.put(id, p);
+        this.pluginIDToDescriptorMap.put(id, d);
+        this.pluginIDToExtensionMap.put(id, e);
+        this.pluginIDToPluginMap.put(id, p);
     }
 
     private void removeFromPluginMaps(String id) {
-        this.pluginIdToDescriptorMap.remove(id);
-        this.pluginIdToExtensionMap.remove(id);
-        this.pluginIdToPluginMap.remove(id);
+        this.pluginIDToDescriptorMap.remove(id);
+        this.pluginIDToExtensionMap.remove(id);
+        this.pluginIDToPluginMap.remove(id);
     }
 
-    public String getPluginPath(String pluginId) {
-        String rawLocation = this.pluginIdToDescriptorMap.get(pluginId).getLocation().getPath();
+    public String getPluginPath(String id) {
+        String rawLocation = this.pluginIDToDescriptorMap.get(id).getLocation().getPath();
         rawLocation = rawLocation.replaceAll("!/plugin.xml", "");
         rawLocation = rawLocation.replaceAll("file:/", "");
         return rawLocation;
@@ -256,15 +247,15 @@ public class PluginController {
 
     /** GETTERS **/
     public List<PluginDescriptor> getPluginDescriptors() {
-        return new ArrayList<PluginDescriptor>(this.pluginIdToDescriptorMap.values());
+        return new ArrayList<PluginDescriptor>(this.pluginIDToDescriptorMap.values());
     }
 
     public List<Extension> getExtensions() {
-        return new ArrayList<Extension>(this.pluginIdToExtensionMap.values());
+        return new ArrayList<Extension>(this.pluginIDToExtensionMap.values());
     }
 
     public List<Plugin> getPlugins() {
-        return new ArrayList<Plugin>(this.pluginIdToPluginMap.values());
+        return new ArrayList<Plugin>(this.pluginIDToPluginMap.values());
     }
 
     /** INIT PLUGIN TYPES **/
@@ -329,7 +320,7 @@ public class PluginController {
     }
 
     public String getPluginName(String id) {
-        Plugin p = this.pluginIdToPluginMap.get(id);
+        Plugin p = this.pluginIDToPluginMap.get(id);
         if (p instanceof GUIPlugin) {
             GUIPlugin pp = (GUIPlugin) p;
             return pp.getTitle();

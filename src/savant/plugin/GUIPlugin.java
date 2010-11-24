@@ -1,4 +1,8 @@
-package savant.plugin;/*
+/*
+ * GUIPlugin.java
+ * Created on Feb 23, 2010
+ *
+ *
  *    Copyright 2010 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,22 +18,24 @@ package savant.plugin;/*
  *    limitations under the License.
  */
 
-/*
- * savant.plugin.AuxData.java
- * Created on Feb 23, 2010
- */
+package savant.plugin;
 
-import javax.swing.*;
+import javax.swing.JPanel;
+import org.java.plugin.Plugin;
 
-public interface GUIPlugin {
+public abstract class GUIPlugin extends Plugin {
 
     /**
-     * This method is called once during application life cycle to allow
-     * auxiliary data plugin to initialize and show itself.
-     * @param tabbedPane parent tabbedpane for auxiliary data components
+     * This method is called once during application life cycle to allow a third-party
+     * plugin to initialize and show itself.
+     *
+     * @param panel parent panel for auxiliary data components
+     * @param adapter gives access to functionality provided by Savant
      */
+    public abstract void init(JPanel panel, PluginAdapter pluginAdapter);
 
-    public void init(JPanel canvas, PluginAdapter pluginAdapter);
-
-    public String getTitle();
+    /**
+     * @return title to be used in Plugins menu and for frame in which plugin is rendered
+     */
+    public abstract String getTitle();
 }

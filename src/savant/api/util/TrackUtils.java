@@ -5,19 +5,31 @@
 
 package savant.api.util;
 
+import java.awt.BorderLayout;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
-import savant.api.adapter.ViewTrackAdapter;
+import javax.swing.JLayeredPane;
+import javax.swing.JPanel;
 
+import com.jidesoft.docking.DockableFrame;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import savant.api.adapter.ViewTrackAdapter;
+import savant.controller.FrameController;
 import savant.controller.ViewTrackController;
 import savant.controller.event.viewtrack.ViewTrackAddedListener;
 import savant.controller.event.viewtrack.ViewTrackListChangedListener;
 import savant.controller.event.viewtrack.ViewTrackRemovedListener;
 import savant.data.sources.DataSource;
 import savant.file.FileFormat;
+import savant.util.MiscUtils;
+import savant.view.swing.DockableFrameFactory;
+import savant.view.swing.Frame;
+import savant.view.swing.Savant;
 import savant.view.swing.ViewTrack;
 
 /**
@@ -25,6 +37,7 @@ import savant.view.swing.ViewTrack;
  * @author mfiume
  */
 public class TrackUtils {
+    private static final Log LOG = LogFactory.getLog(TrackUtils.class);
 
     private static ViewTrackController vtc = ViewTrackController.getInstance();
 
@@ -44,8 +57,22 @@ public class TrackUtils {
      * Add a track to the list of tracks.
      * @param track The track to add
      */
-    public void addTrack(ViewTrackAdapter track) {
-        vtc.addTrack((ViewTrack) track);
+    public static void addTrack(ViewTrackAdapter track) {
+        List<ViewTrackAdapter> tracks = new ArrayList<ViewTrackAdapter>();
+        tracks.add(track);
+        addTracks(tracks);
+    }
+
+    /**
+     * Add multiple tracks to the list of tracks.
+     * @param tracs The track to add
+     */
+    public static void addTracks(List<ViewTrackAdapter> tracks) {
+        List<ViewTrack> myTracks = new ArrayList<ViewTrack>();
+        for (ViewTrackAdapter t : tracks) {
+            myTracks.add((ViewTrack)t);
+        }
+        Savant.getInstance().createFrameForTrack(myTracks);
     }
 
     /**
@@ -54,7 +81,7 @@ public class TrackUtils {
      * @return A list of tracks based on the path (some paths, e.g. to BAM files, can create multiple tracks)
      * @throws IOException Exception opening the track at path
      */
-    public List<ViewTrackAdapter> createTrack(URI uri) throws IOException {
+    public static List<ViewTrackAdapter> createTrack(URI uri) throws IOException {
         List<ViewTrackAdapter> r = new ArrayList<ViewTrackAdapter>();
         for (ViewTrack t : ViewTrack.create(uri)) {
             r.add((ViewTrackAdapter) t);
@@ -68,7 +95,7 @@ public class TrackUtils {
      * @return A list of tracks based on the path (some paths, e.g. to BAM files, can create multiple tracks)
      * @throws IOException Exception opening the track at path
      */
-    public List<ViewTrackAdapter> createTrack(File file) throws IOException {
+    public static List<ViewTrackAdapter> createTrack(File file) throws IOException {
         List<ViewTrackAdapter> r = new ArrayList<ViewTrackAdapter>();
         for (ViewTrack t : ViewTrack.create(file.toURI())) {
             r.add((ViewTrackAdapter) t);
@@ -81,8 +108,8 @@ public class TrackUtils {
      * @param trackname
      * @return
      */
-    public DataSource getTrackDatasource(String trackname) {
-        ViewTrackAdapter t = this.getTrack(trackname);
+    public static DataSource getTrackDatasource(String trackname) {
+        ViewTrackAdapter t = getTrack(trackname);
         if (t == null) { return null; }
         return t.getDataSource();
     }
@@ -92,7 +119,7 @@ public class TrackUtils {
      * @param kind The format of tracks wanted
      * @return A list of all tracks of a specific format
      */
-    public List<ViewTrackAdapter> getTracks(FileFormat kind) {
+    public static List<ViewTrackAdapter> getTracks(FileFormat kind) {
         List<ViewTrackAdapter> r = new ArrayList<ViewTrackAdapter>();
         for (ViewTrack t : vtc.getTracks(kind)) {
             r.add((ViewTrackAdapter) t);
@@ -104,7 +131,7 @@ public class TrackUtils {
      * Subscribe a listener to be notified when the track list changes
      * @param l The listener to subscribe
      */
-    public synchronized void addTracksChangedListener(ViewTrackListChangedListener l) {
+    public static synchronized void addTracksChangedListener(ViewTrackListChangedListener l) {
         vtc.addTracksChangedListener(l);
     }
 
@@ -112,7 +139,7 @@ public class TrackUtils {
      * Unsubscribe a listener from being notified when the track list changes
      * @param l The listener to unsubscribe
      */
-    public synchronized void removeTracksChangedListener(ViewTrackListChangedListener l) {
+    public static synchronized void removeTracksChangedListener(ViewTrackListChangedListener l) {
         vtc.removeTracksChangedListener(l);
     }
 
@@ -120,7 +147,7 @@ public class TrackUtils {
      * Subscribe a listener to be notified when a track is added
      * @param l The listener to subscribe
      */
-    public synchronized void addTracksAddedListener(ViewTrackAddedListener l) {
+    public static synchronized void addTracksAddedListener(ViewTrackAddedListener l) {
         vtc.addTracksAddedListener(l);
     }
 
@@ -128,7 +155,7 @@ public class TrackUtils {
      * Unsubscribe a listener from being notified when a track is added
      * @param l The listener to unsubscribe
      */
-    public synchronized void removeTracksAddedListener(ViewTrackAddedListener l) {
+    public static synchronized void removeTracksAddedListener(ViewTrackAddedListener l) {
         vtc.removeTracksAddedListener(l);
     }
 
@@ -136,7 +163,7 @@ public class TrackUtils {
      * Subscribe a listener to be notified when a track is removed
      * @param l The listener to subscribe
      */
-    public synchronized void addTracksRemovedListener(ViewTrackRemovedListener l) {
+    public static synchronized void addTracksRemovedListener(ViewTrackRemovedListener l) {
         vtc.addTracksRemovedListener(l);
     }
 
@@ -144,7 +171,7 @@ public class TrackUtils {
      * Unsubscribe a listener from being notified when a track is removed
      * @param l The listener to unsubscribe
      */
-    public synchronized void removeTracksRemovedListener(ViewTrackRemovedListener l) {
+    public static synchronized void removeTracksRemovedListener(ViewTrackRemovedListener l) {
         vtc.removeTracksRemovedListener(l);
     }
 
@@ -153,8 +180,7 @@ public class TrackUtils {
      * @param trackname Name of the track to get
      * @return The track with the specified name, null if none
      */
-    public ViewTrackAdapter getTrack(String trackname) {
+    public static ViewTrackAdapter getTrack(String trackname) {
         return vtc.getTrack(trackname);
     }
 }
-

@@ -47,6 +47,7 @@ import java.text.SimpleDateFormat;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jdom.JDOMException;
+import savant.api.adapter.ViewTrackAdapter;
 
 import savant.controller.*;
 import savant.controller.event.bookmark.BookmarksChangedEvent;
@@ -165,10 +166,13 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
 
         // Some types of track actually create more than one track per frame, e.g. BAM
         List<ViewTrack> tracks = ViewTrack.create(uri);
+        createFrameForTrack(tracks);
+    }
 
+    public void createFrameForTrack(List<ViewTrack> tracks) {
         if (tracks != null && tracks.size() > 0) {
             Frame frame = null;
-            DockableFrame df = DockableFrameFactory.createTrackFrame(MiscUtils.getNeatPathFromURI(uri));
+            DockableFrame df = DockableFrameFactory.createTrackFrame(MiscUtils.getNeatPathFromURI(tracks.get(0).getURI()));
             JPanel panel = (JPanel) df.getContentPane();
             if (!tracks.isEmpty()) {
 
