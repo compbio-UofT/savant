@@ -152,6 +152,7 @@ public abstract class TrackRenderer {
         if(!selectionAllowed() || !hasMappedValues()) return false;
 
         boolean repaint = false;
+        List<Comparable> toAdd = new ArrayList<Comparable>();
 
         Iterator<Record> it = this.recordToShapeMap.keySet().iterator();
         while(it.hasNext()){
@@ -159,11 +160,13 @@ public abstract class TrackRenderer {
             Shape s = this.recordToShapeMap.get(o);
             if(s == null) continue;
             if(s.intersects(rect)){
-                this.addMultipleToSelected(o);
+                toAdd.add((Comparable)o);
                 repaint = true;
             }
         }
-        SelectionController.getInstance().doneAdding(fileURI);
+
+        if(repaint)
+            SelectionController.getInstance().addMultipleSelections(fileURI, toAdd);
 
         return repaint;
     }
@@ -175,12 +178,6 @@ public abstract class TrackRenderer {
     public void addToSelected(Record i){
         if(selectionAllowed()){
             SelectionController.getInstance().toggleSelection(fileURI, (Comparable)i);
-        }
-    }
-
-    public void addMultipleToSelected(Record i){
-        if(selectionAllowed()){
-            SelectionController.getInstance().addSelection(fileURI, (Comparable)i);
         }
     }
 

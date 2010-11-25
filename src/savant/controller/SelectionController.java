@@ -87,14 +87,24 @@ public class SelectionController {
         return (pos == -1);
     }
 
-    //this forces element to be added (never removed) and does not fire event
+    //this forces element to be added (never removed) and fires event
     public void addSelection(URI uri, Comparable o){
+        addSelectionWithoutEvent(uri, o);
+        this.fireSelectionChangedEvent();
+    }
+
+    /*
+     * This forces element to be added (never removed) and does not fire event.
+     * Should be used when adding a large amount of selection, but event must be
+     * called when done.
+     */
+    private void addSelectionWithoutEvent(URI uri, Comparable o){
         if(this.map.get(uri) == null) addKey(uri);
         int pos = binarySearchSelected(uri, o);
         if(pos == -1){
             this.map.get(uri).add(o);
             this.addToCurrentSelected(uri, o);
-        } 
+        }
     }
 
     public void removeSelection(URI uri, Comparable o){
@@ -204,11 +214,12 @@ public class SelectionController {
        this.map.put(uri, new ArrayList<Comparable>());
    }
 
-   public void doneAdding(URI uri){
+   public void addMultipleSelections(URI uri, List<Comparable> list){
+       for(int i = 0; i < list.size(); i++){
+           addSelectionWithoutEvent(uri, list.get(i));
+       }
        if(this.map.get(uri) == null) addKey(uri);
        Collections.sort(this.map.get(uri));
        this.fireSelectionChangedEvent();
    }
-
-
 }
