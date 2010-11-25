@@ -21,15 +21,13 @@
 
 package savant.data;
 
-import org.java.plugin.Plugin;
 import savant.plugin.PluginAdapter;
-
 import javax.swing.*;
 import java.awt.*;
 import savant.plugin.GUIPlugin;
 import savant.settings.ColourSettings;
 
-public class DataTab extends Plugin implements GUIPlugin {
+public class DataTab extends GUIPlugin {
 
     public void init(JPanel tablePanel, PluginAdapter pluginAdapter) {
         savant.data.DataSheet currentRangeDataSheet = new DataSheet(tablePanel, pluginAdapter);
