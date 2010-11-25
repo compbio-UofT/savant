@@ -30,6 +30,7 @@ import net.sf.samtools.util.SeekableStream;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.net.ftp.FTPFile;
+import savant.settings.BrowserSettings;
 
 
 /**
@@ -79,11 +80,10 @@ public class NetworkUtils {
      * Given a URI, return a SeekableStream of the appropriate type.
      *
      * @param url an ftp:, http:, or file: URI
-     * @param cacheing if true, the stream will be a CacheableSABS wrapping the actual stream
      *
      * @return a SeekableStream which can be passed to SavantROFile or BAMDataSource
      */
-    public static SeekableStream getSeekableStreamForURI(URI uri, boolean cacheing) throws IOException, MalformedURLException {
+    public static SeekableStream getSeekableStreamForURI(URI uri) throws IOException, MalformedURLException {
         String scheme = uri.getScheme().toLowerCase();
         SeekableStream result;
         if (scheme.equals("file")) {
@@ -96,7 +96,7 @@ public class NetworkUtils {
             } else {
                 throw new IllegalArgumentException("Only file:, ftp:, and http: URIs are valid.");
             }
-            if (cacheing) {
+            if (BrowserSettings.getCachingEnabled()) {
                 result = new CacheableSABS(result, CacheableSABS.DEFAULT_BLOCK_SIZE, uri);
             }
         }

@@ -99,7 +99,7 @@ public class SavantROFile implements ROFile {
      */
     public SavantROFile(URI uri) throws IOException, SavantFileNotFormattedException, SavantUnsupportedVersionException {
         this.uri = uri.normalize();
-        seekStream = NetworkUtils.getSeekableStreamForURI(uri, true);
+        seekStream = NetworkUtils.getSeekableStreamForURI(uri);
         init();
     }
 

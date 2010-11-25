@@ -124,7 +124,7 @@ public class BAMDataSource implements DataSource<BAMIntervalRecord> {
 
         this.uri = uri.normalize();
 
-        SeekableStream stream = NetworkUtils.getSeekableStreamForURI(uri, BrowserSettings.getCachingEnabled());
+        SeekableStream stream = NetworkUtils.getSeekableStreamForURI(uri);
         samFileReader = new SAMFileReader(stream, index, false);
         samFileReader.setValidationStringency(SAMFileReader.ValidationStringency.SILENT);
         samFileHeader = samFileReader.getFileHeader();
