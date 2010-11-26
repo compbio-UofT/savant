@@ -448,7 +448,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
 
         PluginController pc = PluginController.getInstance();
         if (DataSourcePluginController.getInstance().getDataSourcePlugins().isEmpty()) {
-            //loadFromDataSourcePlugin.setVisible(false);
+            loadFromDataSourcePlugin.setVisible(false);
         }
 
         s.setStatus("Organizing layout");
