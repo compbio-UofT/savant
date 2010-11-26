@@ -17,6 +17,7 @@ package savant.view.swing;
 
 import java.awt.Color;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -58,9 +59,30 @@ import savant.view.swing.util.DialogUtils;
 public abstract class ViewTrack implements ViewTrackAdapter {
 
     private static final Log LOG = LogFactory.getLog(ViewTrack.class);
+
+    public static ViewTrack create(String name, DataSource dataTrack) {
+        switch(dataTrack.getDataFormat()) {
+            case SEQUENCE_FASTA:
+                return new SequenceViewTrack(name, (FASTAFileDataSource) dataTrack);
+            case INTERVAL_BED:
+                return new BEDViewTrack(name, (BEDFileDataSource) dataTrack);
+            case POINT_GENERIC:
+                return new PointViewTrack(name, (GenericPointDataSource) dataTrack);
+            case CONTINUOUS_GENERIC:
+                return new ContinuousViewTrack(name, (GenericContinuousDataSource) dataTrack);
+            case INTERVAL_BAM:
+                return new BAMViewTrack(name, (BAMDataSource) dataTrack);
+            case INTERVAL_GENERIC:
+                return new IntervalViewTrack(name, (GenericIntervalDataSource) dataTrack);
+            default:
+                return null;
+        }
+    }
+
+
     private final String name;
     private ColorScheme colorScheme;
-    private final FileFormat dataType;
+    private final DataFormat dataType;
     private List<Object> dataInRange;
     private List<ModeAdapter> drawModes;
     private ModeAdapter drawMode;
@@ -105,7 +127,7 @@ public abstract class ViewTrack implements ViewTrackAdapter {
             try {
                 dataTrack = BAMDataSource.fromURI(trackURI);
                 if (dataTrack != null) {
-                    viewTrack = new BAMViewTrack(name, (BAMDataSource) dataTrack);
+                    viewTrack = create(name, (BAMDataSource) dataTrack);
                     results.add(viewTrack);
                 } else {
                     DialogUtils.displayError("Error loading track", String.format("Could not create BAM track; check that index file exists and is named \"%1$s.bai\".", name));
@@ -159,34 +181,34 @@ public abstract class ViewTrack implements ViewTrackAdapter {
                     return results;
                 }
 
+                boolean recognized = true;
+                
                 switch (trkFile.getFileType()) {
                     case SEQUENCE_FASTA:
                         dataTrack = new FASTAFileDataSource(trackURI);
-                        viewTrack = new SequenceViewTrack(name, (FASTAFileDataSource) dataTrack);
                         break;
                     case POINT_GENERIC:
                         dataTrack = new GenericPointDataSource(trackURI);
-                        viewTrack = new PointViewTrack(name, (GenericPointDataSource) dataTrack);
                         break;
                     case CONTINUOUS_GENERIC:
                         dataTrack = new GenericContinuousDataSource(trackURI);
-                        viewTrack = new ContinuousViewTrack(name, (GenericContinuousDataSource) dataTrack);
                         break;
                     case INTERVAL_GENERIC:
                         dataTrack = new GenericIntervalDataSource(trackURI);
-                        viewTrack = new IntervalViewTrack(name, (GenericIntervalDataSource) dataTrack);
                         break;
                     case INTERVAL_GFF:
                         dataTrack = new GenericIntervalDataSource(trackURI);
-                        viewTrack = new IntervalViewTrack(name, (GenericIntervalDataSource) dataTrack);
                         break;
                     case INTERVAL_BED:
                         dataTrack = new BEDFileDataSource(trackURI);
-                        viewTrack = new BEDViewTrack(name, (BEDFileDataSource) dataTrack);
                         break;
                     default:
+                        recognized = false;
                         Savant s = Savant.getInstance();
                         s.promptUserToFormatFile(trackURI);
+                }
+                if (recognized) {
+                    viewTrack = create(name, dataTrack);
                 }
                 if (viewTrack != null) {
                     results.add(viewTrack);
@@ -239,7 +261,7 @@ public abstract class ViewTrack implements ViewTrackAdapter {
      * @param name track name (typically, the file name)
      * @param dataType FileFormat representing file type, e.g. INTERVAL_BED, CONTINUOUS_GENERIC
      */
-    public ViewTrack(String name, FileFormat dataType, DataSource dataSource) {
+    public ViewTrack(String name, DataFormat dataType, DataSource dataSource) {
         this.name = name;
         this.dataType = dataType;
         drawModes = new ArrayList<ModeAdapter>();
@@ -271,7 +293,7 @@ public abstract class ViewTrack implements ViewTrackAdapter {
      *
      * @return  FileFormat
      */
-    public FileFormat getDataType() {
+    public DataFormat getDataType() {
         return this.dataType;
     }
 

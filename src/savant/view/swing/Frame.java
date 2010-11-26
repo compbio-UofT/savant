@@ -16,7 +16,7 @@
 
 package savant.view.swing;
 
-import savant.file.FileFormat;
+import savant.file.DataFormat;
 import com.jidesoft.action.CommandBar;
 import com.jidesoft.docking.DockableFrame;
 import com.jidesoft.swing.JideButton;
@@ -205,7 +205,7 @@ public class Frame {
             JMenu displayMenu = createDisplayMenu();
             commandBar.add(displayMenu);
         }
-         if (this.tracks.get(0).getDataType() == FileFormat.INTERVAL_BAM) {
+         if (this.tracks.get(0).getDataType() == DataFormat.INTERVAL_BAM) {
             arcButton = createArcButton();
             commandBar.add(arcButton);
             arcButton.setVisible(false);
@@ -725,7 +725,7 @@ public class Frame {
 
 //        if (getTracks().contains(viewTrack)) {
         boolean reRender = true;
-        if (viewTrack.getDataType() == FileFormat.INTERVAL_BAM) {
+        if (viewTrack.getDataType() == DataFormat.INTERVAL_BAM) {
             if (evt.getMode().getName().equals("MATE_PAIRS")) {
                 reRender = true;
                 setCoverageEnabled(false);

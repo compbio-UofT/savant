@@ -34,7 +34,7 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import savant.controller.FrameController;
-import savant.file.FileFormat;
+import savant.file.DataFormat;
 import savant.view.swing.Frame;
 import savant.view.swing.Savant;
 
@@ -107,7 +107,7 @@ public class TrackChooser extends javax.swing.JDialog {
             return;
         }
 
-        FileFormat ff = (FileFormat)filterCombo.getSelectedItem();
+        DataFormat ff = (DataFormat)filterCombo.getSelectedItem();
         String[] leftTracks = ((TrackListModel)leftList.getModel()).getAll();       
         List<Frame> frames = FrameController.getInstance().getFrames();
 
@@ -446,11 +446,11 @@ public class TrackChooser extends javax.swing.JDialog {
 
         List<Frame> frames = FrameController.getInstance().getFrames();
         String[] tracks = new String[frames.size()];
-        List<FileFormat> fileFormats = new ArrayList<FileFormat>();
+        List<DataFormat> fileFormats = new ArrayList<DataFormat>();
         for(int i = 0; i <frames.size(); i++){
             //tracks[i] = frames.get(i).getTracks().get(0).getName();
             tracks[i] = frames.get(i).getName();
-            FileFormat ff = frames.get(i).getTracks().get(0).getDataType();
+            DataFormat ff = frames.get(i).getTracks().get(0).getDataType();
             if(!fileFormats.contains(ff)) fileFormats.add(ff);
         }
         filterCombo.addItem("ALL");

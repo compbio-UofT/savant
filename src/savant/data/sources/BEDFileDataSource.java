@@ -23,6 +23,7 @@ package savant.data.sources;
 
 import savant.data.types.BEDIntervalRecord;
 import savant.data.types.IntervalRecord;
+import savant.file.DataFormat;
 import savant.file.FileType;
 import savant.file.SavantFileNotFormattedException;
 import savant.file.SavantROFile;
@@ -97,5 +98,10 @@ public class BEDFileDataSource implements DataSource<BEDIntervalRecord> {
 
     public URI getURI() {
         return dFile.getURI();
+    }
+
+    @Override
+    public DataFormat getDataFormat() {
+        return DataFormat.INTERVAL_BED;
     }
 }

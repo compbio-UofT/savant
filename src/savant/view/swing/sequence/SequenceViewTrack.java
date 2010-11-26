@@ -18,7 +18,7 @@ package savant.view.swing.sequence;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import savant.file.FileFormat;
+import savant.file.DataFormat;
 import savant.util.*;
 import savant.util.ColorScheme;
 import savant.util.DrawingInstructions;
@@ -50,9 +50,9 @@ public class SequenceViewTrack extends ViewTrack {
     //Genome genome;
     //String path;
 
-    public SequenceViewTrack(String name, FASTAFileDataSource dataTrack) throws FileNotFoundException
+    public SequenceViewTrack(String name, FASTAFileDataSource dataTrack)
     {
-        super(name, FileFormat.SEQUENCE_FASTA, dataTrack);
+        super(name, DataFormat.SEQUENCE_FASTA, dataTrack);
         //setGenome(g);
         //path = g.getFilename();
         setColorScheme(getDefaultColorScheme());

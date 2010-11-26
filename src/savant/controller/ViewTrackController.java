@@ -35,7 +35,7 @@ import savant.controller.event.viewtrack.ViewTrackAddedOrRemovedEvent;
 import savant.controller.event.viewtrack.ViewTrackListChangedEvent;
 import savant.controller.event.viewtrack.ViewTrackListChangedListener;
 import savant.controller.event.viewtrack.ViewTrackRemovedListener;
-import savant.file.FileFormat;
+import savant.file.DataFormat;
 import savant.view.swing.Savant;
 import savant.view.swing.ViewTrack;
 
@@ -96,7 +96,7 @@ public class ViewTrackController {
      * @param kind A track kind
      * @return A list of tracks
      */
-    public List<ViewTrack> getTracks(FileFormat kind) {
+    public List<ViewTrack> getTracks(DataFormat kind) {
         List<ViewTrack> tracksOfKind = new ArrayList<ViewTrack>();
         for (ViewTrack t : tracks) {
             if (t.getDataType() == kind) {

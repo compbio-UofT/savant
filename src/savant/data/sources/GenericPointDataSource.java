@@ -23,6 +23,7 @@ package savant.data.sources;
 
 import savant.data.types.GenericPointRecord;
 import savant.data.types.Point;
+import savant.file.DataFormat;
 import savant.file.FileType;
 import savant.file.SavantFileNotFormattedException;
 import savant.file.SavantROFile;
@@ -144,5 +145,10 @@ public class GenericPointDataSource implements DataSource<GenericPointRecord> {
     @Override
     public URI getURI() {
         return savantFile.getURI();
+    }
+
+    @Override
+    public DataFormat getDataFormat() {
+        return DataFormat.POINT_GENERIC;
     }
 }

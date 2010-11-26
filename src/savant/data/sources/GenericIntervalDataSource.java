@@ -25,6 +25,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import savant.data.types.GenericIntervalRecord;
 import savant.data.types.IntervalRecord;
+import savant.file.DataFormat;
 import savant.file.FileType;
 import savant.file.SavantFileNotFormattedException;
 import savant.file.SavantROFile;
@@ -115,5 +116,10 @@ public class GenericIntervalDataSource implements DataSource<GenericIntervalReco
     @Override
     public URI getURI() {
         return dFile.getURI();
+    }
+
+    @Override
+    public DataFormat getDataFormat() {
+        return DataFormat.INTERVAL_GENERIC;
     }
 }

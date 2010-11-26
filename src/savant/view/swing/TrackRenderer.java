@@ -17,7 +17,7 @@
 package savant.view.swing;
 
 import java.net.URI;
-import savant.file.FileFormat;
+import savant.file.DataFormat;
 import savant.util.DrawingInstructions;
 import savant.util.Mode;
 import savant.util.Range;
@@ -46,7 +46,7 @@ public abstract class TrackRenderer {
 
     private List<Object> data;
     private DrawingInstructions instructions;
-    private FileFormat dataType;
+    private DataFormat dataType;
     private URI fileURI;
     protected Map<Record, Shape> recordToShapeMap = new HashMap<Record, Shape>();
 
@@ -63,7 +63,7 @@ public abstract class TrackRenderer {
         return Collections.unmodifiableList(this.data);
     }
     public DrawingInstructions getDrawingInstructions() { return this.instructions; }
-    public FileFormat getDataType() { return this.dataType; }
+    public DataFormat getDataType() { return this.dataType; }
 
     public abstract void render(Graphics g, GraphPane gp);
 

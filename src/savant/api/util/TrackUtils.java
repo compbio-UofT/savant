@@ -25,7 +25,7 @@ import savant.controller.event.viewtrack.ViewTrackAddedListener;
 import savant.controller.event.viewtrack.ViewTrackListChangedListener;
 import savant.controller.event.viewtrack.ViewTrackRemovedListener;
 import savant.data.sources.DataSource;
-import savant.file.FileFormat;
+import savant.file.DataFormat;
 import savant.util.MiscUtils;
 import savant.view.swing.DockableFrameFactory;
 import savant.view.swing.Frame;
@@ -119,7 +119,7 @@ public class TrackUtils {
      * @param kind The format of tracks wanted
      * @return A list of all tracks of a specific format
      */
-    public static List<ViewTrackAdapter> getTracks(FileFormat kind) {
+    public List<ViewTrackAdapter> getTracks(DataFormat kind) {
         List<ViewTrackAdapter> r = new ArrayList<ViewTrackAdapter>();
         for (ViewTrack t : vtc.getTracks(kind)) {
             r.add((ViewTrackAdapter) t);

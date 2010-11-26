@@ -19,7 +19,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import savant.data.types.GenericIntervalRecord;
 import savant.data.types.Interval;
-import savant.file.FileFormat;
+import savant.file.DataFormat;
 import savant.util.*;
 import savant.data.sources.GenericIntervalDataSource;
 import savant.util.ColorScheme;
@@ -50,8 +50,8 @@ public class IntervalViewTrack extends ViewTrack {
     private static final Mode PACK_MODE = Mode.fromObject(DrawingMode.PACK, "Minimum number of lines");
     private static final Mode ARC_MODE = Mode.fromObject(DrawingMode.ARC, "Arcs");
 
-    public IntervalViewTrack(String name, GenericIntervalDataSource intervalTrack) throws FileNotFoundException {
-        super(name, FileFormat.INTERVAL_GENERIC, intervalTrack);
+    public IntervalViewTrack(String name, GenericIntervalDataSource intervalTrack) {
+        super(name, DataFormat.INTERVAL_GENERIC, intervalTrack);
         setColorScheme(getDefaultColorScheme());
         setDrawModes(getDefaultDrawModes());
         setDrawMode(PACK_MODE);

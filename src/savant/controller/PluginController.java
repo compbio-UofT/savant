@@ -52,6 +52,7 @@ import org.java.plugin.standard.StandardPluginLocation;
 import savant.experimental.PluginTool;
 import savant.plugin.GUIPlugin;
 import savant.plugin.PluginAdapter;
+import savant.plugin.SavantDataSourcePlugin;
 import savant.util.MiscUtils;
 import savant.view.swing.DockableFrameFactory;
 import savant.view.swing.Savant;
@@ -169,12 +170,14 @@ public class PluginController {
 
             Plugin plugininstance = (Plugin)(classLoader.loadClass(ext.getParameter("class").valueAsString())).newInstance();
 
-            // init the plugin based on its type
-            if (plugininstance instanceof GUIPlugin) {
-                initGUIPlugin(plugininstance);
-            } else if (plugininstance instanceof PluginTool) {
-                initPluginTool(plugininstance);
-            }
+                // init the plugin based on its type
+                if (plugininstance instanceof GUIPlugin) {
+                    initGUIPlugin(plugininstance);
+                } else if (plugininstance instanceof PluginTool) {
+                    initPluginTool(plugininstance);
+                } else if (plugininstance instanceof SavantDataSourcePlugin) {
+                    initSavantDataSourcePlugin(plugininstance);
+                }
 
             addToPluginMaps(desc.getUniqueId(), desc, ext, plugininstance);
 
@@ -329,5 +332,11 @@ public class PluginController {
             return pp.getToolInformation().getName();
         }
         return id;
+    }
+
+    private void initSavantDataSourcePlugin(Plugin plugininstance) {
+        SavantDataSourcePlugin plugin = (SavantDataSourcePlugin) plugininstance;
+        DataSourcePluginController.getInstance().addDataSourcePlugin(plugin);
+        plugin.init(new PluginAdapter());
     }
 }

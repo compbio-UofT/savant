@@ -58,11 +58,14 @@ import savant.controller.event.reference.ReferenceChangedEvent;
 import savant.controller.event.reference.ReferenceChangedListener;
 import savant.controller.event.track.TrackListChangedEvent;
 import savant.controller.event.track.TrackListChangedListener;
+import savant.data.sources.DataSource;
 import savant.data.types.Genome;
 import savant.file.SavantFileNotFormattedException;
 import savant.file.SavantUnsupportedVersionException;
 import savant.net.RemoteTrackTreeList;
 import savant.experimental.XMLTool;
+import savant.file.DataFormat;
+import savant.plugin.SavantDataSourcePlugin;
 import savant.settings.*;
 import savant.startpage.StartPage;
 import savant.swing.component.TrackChooser;
@@ -70,6 +73,7 @@ import savant.util.DownloadFile;
 import savant.util.MiscUtils;
 import savant.util.Range;
 import savant.view.dialog.DataFormatForm;
+import savant.view.dialog.DataSourcePluginDialog;
 import savant.view.dialog.GenomeLengthForm;
 import savant.view.dialog.OpenURLDialog;
 import savant.view.dialog.PluginManagerDialog;
@@ -171,35 +175,39 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
 
     public void createFrameForTrack(List<ViewTrack> tracks) {
         if (tracks != null && tracks.size() > 0) {
-            Frame frame = null;
-            DockableFrame df = DockableFrameFactory.createTrackFrame(MiscUtils.getNeatPathFromURI(tracks.get(0).getURI()));
-            JPanel panel = (JPanel) df.getContentPane();
-            if (!tracks.isEmpty()) {
-
-                //////////////////////////////////////////////////
-
-                panel.setLayout(new BorderLayout());
-                //JLayeredPane layers = new JLayeredPane();
-                //layers.setLayout(new BorderLayout());
-                //panel.add(layers);
-
-                //////////////////////////////////////////////////
-
-
-                frame = new Frame(tracks, df.getName());
-                JLayeredPane layers = (JLayeredPane) frame.getFrameLandscape();
-                panel.add(layers);
-                frame.setDockableFrame(df);
-                for (ViewTrack t : tracks) {
-                    t.setFrame(frame);
-                }
-                dockFrameToFrameMap.put(df, frame);
-            }
-            FrameController.getInstance().addFrame(frame, panel);
-            this.getTrackDockingManager().addFrame(df);
-
-            Savant.log("Track loaded", Savant.LOGMODE.NORMAL);
+            addFrameForTrack(MiscUtils.getNeatPathFromURI(tracks.get(0).getURI()), tracks);
         }
+    }
+
+    public void addFrameForTrack(String name, List<ViewTrack> tracks) {
+        Frame frame = null;
+        DockableFrame df = DockableFrameFactory.createTrackFrame(name);
+        JPanel panel = (JPanel) df.getContentPane();
+        if (!tracks.isEmpty()) {
+
+            //////////////////////////////////////////////////
+
+            panel.setLayout(new BorderLayout());
+            //JLayeredPane layers = new JLayeredPane();
+            //layers.setLayout(new BorderLayout());
+            //panel.add(layers);
+
+            //////////////////////////////////////////////////
+
+
+            frame = new Frame(tracks, df.getName());
+            JLayeredPane layers = (JLayeredPane) frame.getFrameLandscape();
+            panel.add(layers);
+            frame.setDockableFrame(df);
+            for (ViewTrack t : tracks) {
+                t.setFrame(frame);
+            }
+            dockFrameToFrameMap.put(df, frame);
+        }
+        FrameController.getInstance().addFrame(frame, panel);
+        this.getTrackDockingManager().addFrame(df);
+
+        Savant.log("Track loaded", Savant.LOGMODE.NORMAL);
     }
 
     /** == [[ DOCKING ]] ==
@@ -433,12 +441,15 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         }
 
         //if (BrowserSettings.getCollectAnonymousUsage()) {
-            logUsageStats();
+        logUsageStats();
         //}
 
         s.setStatus("Loading plugins");
 
         PluginController pc = PluginController.getInstance();
+        if (DataSourcePluginController.getInstance().getDataSourcePlugins().isEmpty()) {
+            //loadFromDataSourcePlugin.setVisible(false);
+        }
 
         s.setStatus("Organizing layout");
 
@@ -493,6 +504,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         loadFromFileItem = new javax.swing.JMenuItem();
         loadFromURLItem = new javax.swing.JMenuItem();
         loadFromRepositoryItem = new javax.swing.JMenuItem();
+        loadFromDataSourcePlugin = new javax.swing.JMenuItem();
         recentTrackMenu = new javax.swing.JMenu();
         javax.swing.JPopupMenu.Separator jSeparator1 = new javax.swing.JPopupMenu.Separator();
         openProjectItem = new javax.swing.JMenuItem();
@@ -658,6 +670,15 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
             }
         });
         fileMenu.add(loadFromRepositoryItem);
+
+        loadFromDataSourcePlugin.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_E, java.awt.event.InputEvent.CTRL_MASK));
+        loadFromDataSourcePlugin.setText("Load from External Datasource...");
+        loadFromDataSourcePlugin.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                loadFromDataSourcePluginActionPerformed(evt);
+            }
+        });
+        fileMenu.add(loadFromDataSourcePlugin);
 
         recentTrackMenu.setText("Load Recent Track");
         fileMenu.add(recentTrackMenu);
@@ -1007,7 +1028,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(panel_top, javax.swing.GroupLayout.DEFAULT_SIZE, 894, Short.MAX_VALUE)
             .addGroup(layout.createSequentialGroup()
-                .addComponent(toolbar_bottom, javax.swing.GroupLayout.DEFAULT_SIZE, 874, Short.MAX_VALUE)
+                .addComponent(toolbar_bottom, javax.swing.GroupLayout.DEFAULT_SIZE, 882, Short.MAX_VALUE)
                 .addContainerGap())
             .addComponent(panel_toolbar, javax.swing.GroupLayout.DEFAULT_SIZE, 894, Short.MAX_VALUE)
             .addComponent(panel_main, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 894, Short.MAX_VALUE)
@@ -1284,6 +1305,23 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         setStartPageVisible(this.menuitem_startpage.isSelected());
     }//GEN-LAST:event_menuitem_startpageActionPerformed
 
+    private void loadFromDataSourcePluginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loadFromDataSourcePluginActionPerformed
+        List<SavantDataSourcePlugin> ps = DataSourcePluginController.getInstance().getDataSourcePlugins();
+        DataSourcePluginDialog d = new DataSourcePluginDialog(this, true, DataSourcePluginController.getInstance().getDataSourcePlugins());
+        d.setVisible(true);
+        SavantDataSourcePlugin p = d.getSelectedPlugin();
+        if (p != null) {
+            System.out.println("Plugin selected: " + p.getTitle());
+            DataSource s = p.getDataSource();
+            ViewTrack t = ViewTrack.create(p.getTitle(), s);
+            List<ViewTrack> tracks = new ArrayList<ViewTrack>(); // TODO: should not need to do this!!
+            tracks.add(t);
+            addFrameForTrack(t.getName(), tracks);
+        } else {
+            System.out.println("No plugin selected");
+        }
+    }//GEN-LAST:event_loadFromDataSourcePluginActionPerformed
+
     /**
      * Starts an instance of the Savant Browser
      * @param args the command line arguments
@@ -1360,18 +1398,18 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
             Date date = new Date();
             Locale locale = Locale.getDefault();
 
-            String content = 
-                            post("time", dateFormat.format(date))
-                    + "&" + post("language",locale.getDisplayLanguage())
-                    + "&" + post("java.version",System.getProperty("java.version"))
-                    + "&" + post("java.vendor",System.getProperty("java.vendor"))
-                    + "&" + post("os.name",System.getProperty("os.name"))
-                    + "&" + post("os.arch",System.getProperty("os.arch"))
-                    + "&" + post("os.version",System.getProperty("os.version"))
-                    + "&" + post("user.region",System.getProperty("user.region"))
-                    + "&" + post("user.timezone",System.getProperty("user.timezone"))
-                    + "&" + post("savant.version",BrowserSettings.version);
-            
+            String content =
+                    post("time", dateFormat.format(date))
+                    + "&" + post("language", locale.getDisplayLanguage())
+                    + "&" + post("java.version", System.getProperty("java.version"))
+                    + "&" + post("java.vendor", System.getProperty("java.vendor"))
+                    + "&" + post("os.name", System.getProperty("os.name"))
+                    + "&" + post("os.arch", System.getProperty("os.arch"))
+                    + "&" + post("os.version", System.getProperty("os.version"))
+                    + "&" + post("user.region", System.getProperty("user.region"))
+                    + "&" + post("user.timezone", System.getProperty("user.timezone"))
+                    + "&" + post("savant.version", BrowserSettings.version);
+
             printout.writeBytes(content);
             printout.flush();
             printout.close();
@@ -1384,7 +1422,6 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
     private static String post(String id, String msg) {
         return id + "=" + id + ":" + ((msg == null) ? "null" : URLEncoder.encode(msg));
     }
-
 
     public static void checkVersion(boolean verbose) {
         try {
@@ -1430,6 +1467,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
     private javax.swing.JLabel label_mouseposition;
     private javax.swing.JLabel label_mouseposition_title;
     private javax.swing.JLabel label_status;
+    private javax.swing.JMenuItem loadFromDataSourcePlugin;
     private javax.swing.JMenuItem loadFromFileItem;
     private javax.swing.JMenuItem loadFromRepositoryItem;
     private javax.swing.JMenuItem loadFromURLItem;
@@ -1668,7 +1706,9 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
                     Savant.getInstance(),
                     "Save project before quitting?");
 
-            if (answer == JOptionPane.CANCEL_OPTION) { return; }
+            if (answer == JOptionPane.CANCEL_OPTION) {
+                return;
+            }
             if (answer == JOptionPane.YES_OPTION) {
                 projectHandler.promptUserToSaveSession();
             }
@@ -2158,6 +2198,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         rangeControls.add(ruler);
         //rangeControls.add(trackButton);
         rangeControls.add(loadFromFileItem);
+        rangeControls.add(loadFromDataSourcePlugin);
         rangeControls.add(loadFromURLItem);
         rangeControls.add(button_undo);
         rangeControls.add(button_redo);
@@ -2394,7 +2435,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
 
         if (genome.isSequenceSet()) {
             DockableFrame df = DockableFrameFactory.createGenomeFrame(genomeName);
-                    //MiscUtils.getFilenameFromPath(filename));
+            //MiscUtils.getFilenameFromPath(filename));
             JPanel panel = (JPanel) df.getContentPane();
             List<ViewTrack> tracks = new ArrayList<ViewTrack>();
             tracks.add(genome.getViewTrack());

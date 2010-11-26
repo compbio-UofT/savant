@@ -16,7 +16,7 @@
 package savant.view.swing.point;
 
 import savant.data.sources.GenericPointDataSource;
-import savant.file.FileFormat;
+import savant.file.DataFormat;
 import savant.util.*;
 import savant.util.ColorScheme;
 import savant.util.DrawingInstructions;
@@ -37,7 +37,7 @@ public class PointViewTrack extends ViewTrack {
     public List<Object> savedList = null;
 
     public PointViewTrack(String name, GenericPointDataSource pointTrack) {
-        super(name, FileFormat.POINT_GENERIC, pointTrack);
+        super(name, DataFormat.POINT_GENERIC, pointTrack);
         setColorScheme(getDefaultColorScheme());
         this.notifyViewTrackControllerOfCreation();
     }

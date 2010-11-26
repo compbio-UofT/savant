@@ -171,4 +171,9 @@ public class GenericContinuousDataSource implements DataSource<GenericContinuous
     public URI getURI() {
         return savantFile.getURI();
     }
+
+    @Override
+    public DataFormat getDataFormat() {
+        return DataFormat.CONTINUOUS_GENERIC;
+    }
 }

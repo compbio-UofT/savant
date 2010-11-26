@@ -22,7 +22,7 @@
 package savant.data.sources;
 
 import savant.data.types.Record;
-import savant.util.Range;
+import savant.file.DataFormat;
 import savant.util.Resolution;
 
 import java.io.IOException;
@@ -61,4 +61,5 @@ public interface DataSource<E extends Record> {
      */
     public void close();
 
+    public DataFormat getDataFormat();
 }

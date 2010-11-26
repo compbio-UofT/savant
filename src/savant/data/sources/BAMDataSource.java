@@ -40,6 +40,7 @@ import savant.api.adapter.RangeAdapter;
 import savant.controller.RangeController;
 import savant.controller.ReferenceController;
 import savant.data.types.BAMIntervalRecord;
+import savant.file.DataFormat;
 import savant.settings.BrowserSettings;
 import savant.util.MiscUtils;
 import savant.util.Range;
@@ -316,5 +317,10 @@ public class BAMDataSource implements DataSource<BAMIntervalRecord> {
     @Override
     public URI getURI() {
         return uri;
+    }
+
+    @Override
+    public DataFormat getDataFormat() {
+        return DataFormat.INTERVAL_BAM;
     }
 }

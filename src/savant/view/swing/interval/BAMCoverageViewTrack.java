@@ -23,7 +23,7 @@ package savant.view.swing.interval;
 
 import savant.data.sources.GenericContinuousDataSource;
 import savant.data.types.ContinuousRecord;
-import savant.file.FileFormat;
+import savant.file.DataFormat;
 import savant.util.*;
 import savant.util.ColorScheme;
 import savant.util.DrawingInstructions;
@@ -41,7 +41,7 @@ public class BAMCoverageViewTrack extends ViewTrack {
     private boolean enabled = true;
 
     public BAMCoverageViewTrack(String name, GenericContinuousDataSource track) {
-        super(name, FileFormat.CONTINUOUS_GENERIC, track);
+        super(name, DataFormat.CONTINUOUS_GENERIC, track);
         setColorScheme(getDefaultColorScheme());
         this.notifyViewTrackControllerOfCreation();
     }

@@ -19,7 +19,7 @@ package savant.api.adapter;
 import java.net.URI;
 import java.util.List;
 import savant.data.sources.DataSource;
-import savant.file.FileFormat;
+import savant.file.DataFormat;
 import savant.util.Resolution;
 
 /**
@@ -48,7 +48,7 @@ public interface ViewTrackAdapter {
      */
 
     // api
-    public FileFormat getDataType();
+    public DataFormat getDataType();
     public String getName();
     public List<Object> getDataInRange();
     public List<ModeAdapter> getDrawModes();

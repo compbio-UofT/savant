@@ -1,6 +1,6 @@
 package savant.file;
 
-public enum FileFormat {
+public enum DataFormat {
 
     SEQUENCE_FASTA,
     POINT_GENERIC,

@@ -24,6 +24,7 @@ package savant.data.sources;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import savant.data.types.SequenceRecord;
+import savant.file.DataFormat;
 import savant.file.FileType;
 import savant.file.SavantFileNotFormattedException;
 import savant.file.SavantROFile;
@@ -113,5 +114,10 @@ public class FASTAFileDataSource implements DataSource<SequenceRecord> {
     public URI getURI() {
         //System.out.println("Getting URI for FASTA file: " + dFile.getURI());
         return dFile.getURI();
+    }
+
+    @Override
+    public DataFormat getDataFormat() {
+        return DataFormat.SEQUENCE_FASTA;
     }
 }

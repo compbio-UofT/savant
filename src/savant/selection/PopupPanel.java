@@ -31,7 +31,7 @@ import savant.api.adapter.ModeAdapter;
 import savant.controller.BookmarkController;
 import savant.controller.ReferenceController;
 import savant.data.types.*;
-import savant.file.FileFormat;
+import savant.file.DataFormat;
 import savant.util.Mode;
 import savant.util.Bookmark;
 import savant.util.MiscUtils;
@@ -46,7 +46,7 @@ public class PopupPanel extends JPanel {
 
     protected GraphPane gp;
     protected ModeAdapter mode;
-    protected FileFormat fileFormat;
+    protected DataFormat fileFormat;
     protected Record record;
 
     //info
@@ -55,7 +55,7 @@ public class PopupPanel extends JPanel {
     protected long start;
     protected long end;
 
-    public static PopupPanel create(GraphPane parent, ModeAdapter mode, FileFormat ff, Record rec){
+    public static PopupPanel create(GraphPane parent, ModeAdapter mode, DataFormat ff, Record rec){
 
         PopupPanel p = null;
         switch(ff){
@@ -86,7 +86,7 @@ public class PopupPanel extends JPanel {
         return p;
     }
 
-    protected void init(GraphPane parent, ModeAdapter mode, FileFormat ff, Record rec){
+    protected void init(GraphPane parent, ModeAdapter mode, DataFormat ff, Record rec){
 
         this.fileFormat = ff;
         this.mode = mode;

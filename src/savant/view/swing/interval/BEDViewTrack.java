@@ -24,7 +24,7 @@ package savant.view.swing.interval;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import savant.data.sources.BEDFileDataSource;
-import savant.file.FileFormat;
+import savant.file.DataFormat;
 import savant.util.*;
 import savant.util.ColorScheme;
 import savant.util.DrawingInstructions;
@@ -56,7 +56,7 @@ public class BEDViewTrack extends ViewTrack {
     private static final Mode SQUISH_MODE = Mode.fromObject(DrawingMode.SQUISH, "All on one line");
 
     public BEDViewTrack(String name, BEDFileDataSource bedTrack) {
-        super(name, FileFormat.INTERVAL_BED, bedTrack);
+        super(name, DataFormat.INTERVAL_BED, bedTrack);
         setColorScheme(getDefaultColorScheme());
         setDrawModes(getDefaultDrawModes());
         setDrawMode(STANDARD_MODE);
