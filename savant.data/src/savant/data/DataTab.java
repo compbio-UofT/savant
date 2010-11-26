@@ -21,10 +21,10 @@
 
 package savant.data;
 
-import savant.plugin.PluginAdapter;
 import javax.swing.*;
 import java.awt.*;
 import savant.plugin.GUIPlugin;
+import savant.plugin.PluginAdapter;
 import savant.settings.ColourSettings;
 
 public class DataTab extends GUIPlugin {

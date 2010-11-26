@@ -16,11 +16,13 @@
 
 package savant.data;
 
-import net.sf.samtools.SAMRecord;
-import savant.data.types.*;
-import savant.file.FileFormat;
-import javax.swing.table.AbstractTableModel;
 import java.util.List;
+import javax.swing.table.AbstractTableModel;
+
+import net.sf.samtools.SAMRecord;
+
+import savant.data.types.*;
+import savant.file.DataFormat;
 
 
 
@@ -30,11 +32,11 @@ import java.util.List;
  */
 public class DataTableModel extends AbstractTableModel {
 
-     private FileFormat dataType;
-     private String[] columnNames;
+    private DataFormat dataType;
+    private String[] columnNames;
 
-     private static boolean dontAllowMoreThanMaxNumRows = true;
-     private static int maxNumRows = 500;
+    private static boolean dontAllowMoreThanMaxNumRows = true;
+    private static int maxNumRows = 500;
 
      //public static final int SEQUENCE_INDEX = 0;
      /*
@@ -61,14 +63,14 @@ public class DataTableModel extends AbstractTableModel {
     protected String[] continuousColumnNames = { "Reference", "Position", "Value" };
 
 
-     //protected Vector dataVector;
-     protected List<Object> data;
+    //protected Vector dataVector;
+    protected List<Object> data;
 
-    public DataTableModel(FileFormat dataType, List<Object> data) {
+    public DataTableModel(DataFormat dataType, List<Object> data) {
          //this.columnNames = { "Sequence","" };
          //dataVector = new Vector();
          this.data = data;
-         this.setDataType(dataType);
+         setDataType(dataType);
 
          switch(this.dataType) {
              case SEQUENCE_FASTA:
@@ -95,6 +97,7 @@ public class DataTableModel extends AbstractTableModel {
      }
 
 
+    @Override
      public String getColumnName(int column) {
          try {
              switch(dataType) {
@@ -114,11 +117,12 @@ public class DataTableModel extends AbstractTableModel {
                      return "Unknown";
              }
          } catch(Exception e) { return "??"; }
-     }
+    }
 
-     public boolean isCellEditable(int row, int column) {
-         return false;
-     }
+    @Override
+    public boolean isCellEditable(int row, int column) {
+        return false;
+    }
 
     @Override
     public Class getColumnClass(int column) {
@@ -142,6 +146,7 @@ public class DataTableModel extends AbstractTableModel {
         } catch(Exception e) { return String.class; }
      }
 
+    @Override
      public Object getValueAt(int row, int column) {
          Object datum = data.get(row);
          switch (dataType) {
@@ -226,7 +231,8 @@ public class DataTableModel extends AbstractTableModel {
          }
      }
 
-     public void setValueAt(Object value, int row, int column) {
+    @Override
+    public void setValueAt(Object value, int row, int column) {
 
          Object datum = data.get(row);
          switch (dataType) {
@@ -326,17 +332,19 @@ public class DataTableModel extends AbstractTableModel {
          fireTableCellUpdated(row, column);
      }
 
+    @Override
      public int getRowCount() {
          if (!isData()) { return 0; }
          return data.size();
      }
 
+    @Override
      public int getColumnCount() {
          return columnNames.length;
      }
 
      public boolean hasEmptyRow() {
-         if (data.size() == 0) return false;
+         if (data.isEmpty()) return false;
          Object datum = data.get(data.size() - 1);
          if (((String)datum).trim().equals(""))
          {
@@ -366,17 +374,17 @@ public class DataTableModel extends AbstractTableModel {
 
     public boolean isData() { return this.data != null; }
 
-    public void setDataType(FileFormat k) {
+    public final void setDataType(DataFormat k) {
         this.dataType = k;
         this.fireTableChanged(null);
     }
 
     public void setMaxNumRows(int maxNumRows) {
-        this.maxNumRows = maxNumRows;
+        DataTableModel.maxNumRows = maxNumRows;
     }
 
     public int getMaxNumRows() {
-        return this.maxNumRows;
+        return DataTableModel.maxNumRows;
     }
 
     public void setIsNumRowsLimited(boolean isNumRowsLimited) {
