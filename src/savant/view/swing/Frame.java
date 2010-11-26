@@ -16,17 +16,30 @@
 
 package savant.view.swing;
 
-import savant.file.DataFormat;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
 import com.jidesoft.action.CommandBar;
 import com.jidesoft.docking.DockableFrame;
 import com.jidesoft.swing.JideButton;
 import com.jidesoft.swing.JideMenu;
 
+import savant.api.adapter.ModeAdapter;
+import savant.controller.ReferenceController;
 import savant.controller.DrawModeController;
 import savant.controller.RangeController;
 import savant.controller.event.drawmode.DrawModeChangedEvent;
+import savant.file.DataFormat;
+import savant.settings.ColourSettings;
 import savant.util.DrawingInstructions;
-import savant.util.Mode;
 import savant.util.Range;
 import savant.view.swing.continuous.ContinuousTrackRenderer;
 import savant.view.swing.interval.BAMCoverageViewTrack;
@@ -35,20 +48,6 @@ import savant.view.swing.interval.BEDTrackRenderer;
 import savant.view.swing.interval.IntervalTrackRenderer;
 import savant.view.swing.point.PointTrackRenderer;
 import savant.view.swing.sequence.SequenceTrackRenderer;
-
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.image.BufferedImage;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import savant.api.adapter.ModeAdapter;
-
-import savant.controller.ReferenceController;
-import savant.settings.ColourSettings;
 import savant.view.swing.interval.BAMViewTrack;
 
 /**
@@ -88,7 +87,7 @@ public class Frame {
 
     public GraphPane getGraphPane() { return this.graphPane; }
     public JComponent getFrameLandscape() { return this.frameLandscape; }
-    public List<ViewTrack> getTracks() { return this.tracks; }
+    public final List<ViewTrack> getTracks() { return this.tracks; }
 
     public boolean isOpen() { return getGraphPane() != null; }
 
@@ -122,18 +121,17 @@ public class Frame {
         scrollPane.setBorder(null);
 
         //hide commandBar while scrolling
-        MouseListener ml = new MouseListener(){
-            public void mouseClicked(MouseEvent e) {}
+        MouseListener ml = new MouseAdapter(){
+            @Override
             public void mousePressed(MouseEvent e) {
                 if(parent.isActive())
                     tempHideCommands();
             }
+            @Override
             public void mouseReleased(MouseEvent e) {
                 if(parent.isActive())
                     tempShowCommands();
             }
-            public void mouseEntered(MouseEvent e) {}
-            public void mouseExited(MouseEvent e) {}
         };
         scrollPane.getVerticalScrollBar().addMouseListener(ml);
         JScrollBar vsb = scrollPane.getVerticalScrollBar();
@@ -163,7 +161,7 @@ public class Frame {
             int i=0;
             Iterator<ViewTrack> it = tracks.iterator();
             while ( it.hasNext()) {
-                ViewTrack track = it.next();
+                ViewTrack track = (ViewTrack)it.next();
                 // FIXME:
                 track.setFrame(this);
                 TrackRenderer renderer=null;
@@ -213,7 +211,7 @@ public class Frame {
             intervalButton = createIntervalButton();
             commandBar.add(intervalButton);
             intervalButton.setVisible(false);
-            String drawMode = this.getTracks().get(0).getDrawMode().getName();
+            String drawMode = getTracks().get(0).getDrawMode().getName();
             if(drawMode.equals("STANDARD") || drawMode.equals("VARIANTS")){
                 intervalButton.setVisible(true);
             }
