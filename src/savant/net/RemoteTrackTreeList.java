@@ -25,6 +25,7 @@ import java.util.List;
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
+
 import com.jidesoft.grid.TreeTable;
 import com.jidesoft.swing.TableSearchable;
 import org.apache.commons.logging.Log;
@@ -33,7 +34,8 @@ import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
-import savant.view.swing.util.DialogUtils;
+
+import savant.api.util.DialogUtils;
 import savant.view.swing.Savant;
 
 /**

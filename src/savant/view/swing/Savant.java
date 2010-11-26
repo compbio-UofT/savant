@@ -154,7 +154,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         }
 
         if (ViewTrackController.getInstance().containsTrack(uri)) {
-            DialogUtils.displayMessage("This track is already loaded.");
+            DialogUtils.displayMessage("Sorry", "This track is already loaded.");
             return;
         }
 
@@ -1140,15 +1140,15 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         try {
             File file = DownloadFile.downloadFile(new URL(BrowserSettings.url_data), System.getProperty("java.io.tmpdir"));
             if (file == null) {
-                DialogUtils.displayMessage("Problem downloading file: " + BrowserSettings.url_data);
+                DialogUtils.displayError("Savant Error", "Problem downloading file: " + BrowserSettings.url_data);
                 return;
             }
             RemoteTrackTreeList d = new RemoteTrackTreeList(this, false, "Open remote track", file, DirectorySettings.getFormatDirectory());
             d.setVisible(true);
         } catch (JDOMException ex) {
-            DialogUtils.displayMessage("Problem downloading file: " + BrowserSettings.url_data);
+            DialogUtils.displayError("Savant Error", "Problem downloading file: " + BrowserSettings.url_data);
         } catch (IOException ex) {
-            DialogUtils.displayMessage("Problem downloading file: " + BrowserSettings.url_data);
+            DialogUtils.displayError("Savant Error", "Problem downloading file: " + BrowserSettings.url_data);
         }
     }//GEN-LAST:event_loadFromRepositoryItemActionPerformed
 
@@ -1431,17 +1431,17 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
                 Version currentversion = (new XMLVersion(versionFile)).getVersion();
                 Version thisversion = new Version(BrowserSettings.version);
                 if (currentversion.compareTo(thisversion) > 0) {
-                    DialogUtils.displayMessage("A new version of Savant (" + currentversion.toString() + ") is available.\n"
+                    DialogUtils.displayMessage("Savant", "A new version of Savant (" + currentversion.toString() + ") is available.\n"
                             + "To stop this message from appearing, download the newest version at " + BrowserSettings.url + "\nor disable automatic "
                             + "checking in Preferences.");
                 } else {
                     if (verbose) {
-                        DialogUtils.displayMessage("This version of Savant (" + thisversion.toString() + ") is up to date.");
+                        DialogUtils.displayMessage("Savant", "This version of Savant (" + thisversion.toString() + ") is up to date.");
                     }
                 }
             } else {
                 if (verbose) {
-                    DialogUtils.displayMessage("Could not connect to server. Please ensure you have connection to the internet and try again.");
+                    DialogUtils.displayMessage("Savant Warning", "Could not connect to server. Please ensure you have connection to the internet and try again.");
                 }
                 LOG.error("Error downloading version file");
             }
@@ -2782,7 +2782,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
                 URL url = new URL(urlString);
                 String proto = url.getProtocol().toLowerCase();
                 if (!proto.equals("http") && !proto.equals("ftp")) {
-                    DialogUtils.displayMessage("Only files accessible via HTTP or FTP can be opened via URL.");
+                    DialogUtils.displayMessage("Sorry", "Only files accessible via HTTP or FTP can be opened via URL.");
                     return;
                 }
             } catch (MalformedURLException e) {

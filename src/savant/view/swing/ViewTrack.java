@@ -17,7 +17,6 @@ package savant.view.swing;
 
 import java.awt.Color;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -156,9 +155,9 @@ public abstract class ViewTrack implements ViewTrackAdapter {
                 LOG.warn("Coverage track appears to be unformatted", e);
                 viewTrack = new BAMCoverageViewTrack(name + " (coverage)", null);
             } catch (SavantUnsupportedVersionException e) {
-                DialogUtils.displayMessage("This file was created using an older version of Savant. Please re-format the source.");
+                DialogUtils.displayMessage("Sorry", "This file was created using an older version of Savant. Please re-format the source.");
             } catch (URISyntaxException e) {
-                DialogUtils.displayMessage("Syntax error on URI; file URI is not valid");
+                DialogUtils.displayError("Savant Error", "Syntax error on URI; file URI is not valid");
             }
             
             results.add(viewTrack);
@@ -217,11 +216,9 @@ public abstract class ViewTrack implements ViewTrackAdapter {
                 Savant s = Savant.getInstance();
                 s.promptUserToFormatFile(trackURI);
             } catch (SavantUnsupportedVersionException e) {
-                DialogUtils.displayMessage("This file was created using an older version of Savant. Please re-format the source.");
+                DialogUtils.displayMessage("Sorry", "This file was created using an older version of Savant. Please re-format the source.");
             } catch (IOException e) {
                 DialogUtils.displayException("Error opening track", "There was a problem opening this file.", e);
-            } catch (URISyntaxException e) {
-                DialogUtils.displayMessage("Syntax error on URI; file URI is not valid");
             }
             /*
             if (viewTrack != null) {
@@ -250,7 +247,7 @@ public abstract class ViewTrack implements ViewTrackAdapter {
         if (tracks.get(0) instanceof SequenceViewTrack) {
             g = new Genome(name, (SequenceViewTrack) tracks.get(0));
         } else {
-            DialogUtils.displayError("Problem opening track as genome.");
+            DialogUtils.displayError("Sorry", "Problem opening track as genome.");
         }
 
         return g;
@@ -550,22 +547,6 @@ public abstract class ViewTrack implements ViewTrackAdapter {
         intervalDialog.update(this);
         intervalDialog.setVisible(true);
     }
-
-    // FIXME: URI is not appropriate for this usage;
-    /*
-    public void setURI(String name) {
-
-        this.fileURI = new File(name).toURI();
-//        name = name.replace("\\", "/");
-//        name = name.replace(" ", "_");
-//        try {
-//            this.fileURI = new URI(name);
-//        } catch (URISyntaxException ex) {
-//            Logger.getLogger(ViewTrack.class.getName()).log(Level.SEVERE, null, ex);
-//        }
-    }
-     * 
-     */
 
     // FIXME: URI is not appropriate for this usage; 
     public URI getURI() {

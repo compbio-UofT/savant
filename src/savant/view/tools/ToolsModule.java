@@ -54,7 +54,8 @@ import com.jidesoft.pane.CollapsiblePane;
 import com.jidesoft.pane.CollapsiblePanes;
 import com.jidesoft.swing.JideButton;
 import com.jidesoft.swing.JideSwingUtilities;
-import savant.view.swing.util.DialogUtils;
+
+import savant.api.util.DialogUtils;
 import savant.controller.BookmarkController;
 import savant.controller.RangeController;
 import savant.controller.InformativeThread;
