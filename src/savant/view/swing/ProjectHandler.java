@@ -18,11 +18,13 @@ package savant.view.swing;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URISyntaxException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import savant.api.util.DialogUtils;
 import savant.controller.BookmarkController;
 import savant.controller.ProjectController;
 import savant.controller.RangeController;
@@ -34,8 +36,6 @@ import savant.controller.event.range.RangeChangedListener;
 import savant.controller.event.viewtrack.ViewTrackListChangedEvent;
 import savant.controller.event.viewtrack.ViewTrackListChangedListener;
 import savant.exception.SavantEmptySessionException;
-import savant.file.SavantFileNotFormattedException;
-import savant.file.SavantUnsupportedVersionException;
 import savant.settings.DirectorySettings;
 import savant.util.MiscUtils;
 
@@ -47,6 +47,8 @@ public class ProjectHandler implements
         BookmarksChangedListener,
         RangeChangedListener,
         ViewTrackListChangedListener {
+
+    private static final Log LOG = LogFactory.getLog(ProjectHandler.class);
 
     private static ProjectHandler instance;
     private boolean isOpenProjectSaved = true;
@@ -124,19 +126,15 @@ public class ProjectHandler implements
         jfc.setCurrentDirectory(new File(DirectorySettings.getProjectsDirectory()));
         int result = jfc.showOpenDialog(Savant.getInstance());
         if (result == JFileChooser.APPROVE_OPTION) {
-            try {
-                String filename = jfc.getSelectedFile().getAbsolutePath();
-                loadProjectFrom(filename);
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(Savant.getInstance(), "Error loading project.");
-            }
+            String filename = jfc.getSelectedFile().getAbsolutePath();
+            loadProjectFrom(filename);
         }
     }
 
     public void promptUserToSaveProjectAs() {
 
         if (!ProjectController.getInstance().isProjectOpen()) {
-            JOptionPane.showMessageDialog(Savant.getInstance(), "No project to save.");
+            DialogUtils.displayMessage("No project to save.");
             return;
         }
 
@@ -183,16 +181,12 @@ public class ProjectHandler implements
                 openProjectPath = getCurrentPath();
                 setProjectSaved(true);
             } catch (IOException ex) {
-                ex.printStackTrace();
-                if (JOptionPane.showConfirmDialog(Savant.getInstance(),
-                        "Error saving project to "
-                        + getCurrentPath()
-                        + ". Try another location?") == JOptionPane.YES_OPTION) {
+                LOG.error(String.format("Unable to save %s.", openProjectPath), ex);
+                if (DialogUtils.askYesNo("Error saving project to " + getCurrentPath() + ". Try another location?") == DialogUtils.YES) {
                     promptUserToSaveProjectAs();
                 }
-                Logger.getLogger(ProjectHandler.class.getName()).log(Level.SEVERE, null, ex);
             } catch (SavantEmptySessionException ex) {
-                Logger.getLogger(ProjectHandler.class.getName()).log(Level.SEVERE, null, ex);
+                LOG.error(String.format("Unable to save %s.", openProjectPath), ex);
             }
         }
     }
@@ -205,11 +199,15 @@ public class ProjectHandler implements
         }
     }
 
-    public void loadProjectFrom(String filename) throws IOException, URISyntaxException, SavantFileNotFormattedException, SavantUnsupportedVersionException {
+    public void loadProjectFrom(String filename) {
         isLoading = true;
         openProjectPath = filename;
-        ProjectController.getInstance().loadProjectFrom(filename);
-        isLoading = false;
-        this.setProjectSaved(true);
+        try {
+            ProjectController.getInstance().loadProjectFrom(filename);
+            isLoading = false;
+            setProjectSaved(true);
+        } catch (Exception x) {
+            DialogUtils.displayError("Error Loading Project", x.getMessage());
+        }
     }
 }

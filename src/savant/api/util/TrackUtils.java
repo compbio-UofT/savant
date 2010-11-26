@@ -5,30 +5,22 @@
 
 package savant.api.util;
 
-import java.awt.BorderLayout;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
-import javax.swing.JLayeredPane;
-import javax.swing.JPanel;
 
-import com.jidesoft.docking.DockableFrame;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import savant.api.adapter.ViewTrackAdapter;
-import savant.controller.FrameController;
 import savant.controller.ViewTrackController;
 import savant.controller.event.viewtrack.ViewTrackAddedListener;
 import savant.controller.event.viewtrack.ViewTrackListChangedListener;
 import savant.controller.event.viewtrack.ViewTrackRemovedListener;
 import savant.data.sources.DataSource;
 import savant.file.DataFormat;
-import savant.util.MiscUtils;
-import savant.view.swing.DockableFrameFactory;
-import savant.view.swing.Frame;
 import savant.view.swing.Savant;
 import savant.view.swing.ViewTrack;
 

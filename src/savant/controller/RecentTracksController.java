@@ -17,11 +17,14 @@ import java.util.LinkedList;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JSeparator;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import savant.view.swing.util.DialogUtils;
+
+import savant.api.util.DialogUtils;
 import savant.controller.event.viewtrack.ViewTrackAddedListener;
 import savant.controller.event.viewtrack.ViewTrackAddedOrRemovedEvent;
+import savant.settings.DirectorySettings;
 import savant.util.MiscUtils;
 import savant.view.swing.Savant;
 import savant.view.swing.ViewTrack;
@@ -35,20 +38,20 @@ public class RecentTracksController implements ViewTrackAddedListener {
 
     private static RecentTracksController instance;
 
-    private final String FILENAME = ".recent_tracks";
+    private static final String RECENT_TRACKS_FILE = ".recent_tracks";
     private final int NUM_RECENTS_TO_SAVE = 10;
 
     JMenu menu;
     LinkedList<String> queue;
     
-    private File f;
+    private File recentTracksFile;
 
     public RecentTracksController() throws IOException {
         ViewTrackController.getInstance().addTracksAddedListener(this);
-        f = new File(FILENAME);
-        if (!f.exists()) { f.createNewFile(); }
+        recentTracksFile = new File(DirectorySettings.getSavantDirectory(), RECENT_TRACKS_FILE);
+        if (!recentTracksFile.exists()) { recentTracksFile.createNewFile(); }
         queue = new LinkedList<String>();
-        loadRecents(f);
+        loadRecents(recentTracksFile);
     }
 
     public static RecentTracksController getInstance() throws IOException {
@@ -102,7 +105,7 @@ public class RecentTracksController implements ViewTrackAddedListener {
                         Savant.getInstance().addTrackFromFile(s);
                     } catch (Exception ex) {
                         LOG.error("Unable to open file.", ex);
-                        DialogUtils.displayMessage("Error opening track from file " + s);
+                        DialogUtils.displayError("Error opening track from file " + s);
                     }
                 }
             });
@@ -136,9 +139,9 @@ public class RecentTracksController implements ViewTrackAddedListener {
     }
 
     private void saveRecents(LinkedList<String> queue) throws IOException {
-        f.delete();
-        f.createNewFile();
-        BufferedWriter w = new BufferedWriter(new FileWriter(f));
+        recentTracksFile.delete();
+        recentTracksFile.createNewFile();
+        BufferedWriter w = new BufferedWriter(new FileWriter(recentTracksFile));
         for (String s : queue) {
             w.write(s + "\n");
         }

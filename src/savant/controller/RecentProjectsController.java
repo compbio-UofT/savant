@@ -1,6 +1,17 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ *    Copyright 2010 University of Toronto
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
  */
 
 package savant.controller;
@@ -17,7 +28,9 @@ import java.util.LinkedList;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JSeparator;
-import savant.view.swing.util.DialogUtils;
+
+import savant.api.util.DialogUtils;
+import savant.settings.DirectorySettings;
 import savant.view.swing.ProjectHandler;
 
 /**
@@ -26,12 +39,12 @@ import savant.view.swing.ProjectHandler;
  */
 public class RecentProjectsController {
 
-    private final String FILENAME = ".recent_projects";
+    private final String RECENT_PROJECTS_FILE = ".recent_projects";
     private final int NUM_RECENTS_TO_SAVE = 10;
 
     JMenu menu;
     LinkedList<String> queue;
-    File f;
+    File recentProjectsFile;
     
     private static RecentProjectsController instance;
 
@@ -43,10 +56,10 @@ public class RecentProjectsController {
     }
 
     public RecentProjectsController() throws IOException {
-        f = new File(FILENAME);
-        if (!f.exists()) { f.createNewFile(); }
+        recentProjectsFile = new File(DirectorySettings.getSavantDirectory(), RECENT_PROJECTS_FILE);
+        if (!recentProjectsFile.exists()) { recentProjectsFile.createNewFile(); }
         queue = new LinkedList<String>();
-        loadRecents(f);
+        loadRecents(recentProjectsFile);
     }
 
     public void addProjectFile(String filename) {
@@ -58,9 +71,9 @@ public class RecentProjectsController {
     }
 
     private void saveRecents(LinkedList<String> queue) throws IOException {
-        f.delete();
-        f.createNewFile();
-        BufferedWriter w = new BufferedWriter(new FileWriter(f));
+        recentProjectsFile.delete();
+        recentProjectsFile.createNewFile();
+        BufferedWriter w = new BufferedWriter(new FileWriter(recentProjectsFile));
         for (String s : queue) {
             w.write(s + "\n");
         }

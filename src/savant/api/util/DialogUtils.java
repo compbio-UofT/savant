@@ -44,12 +44,26 @@ public class DialogUtils {
     public static final int CANCEL = 2;
 
     /**
+     * Display a Savant dialog to ask a yes/no question.
+     */
+    public static int askYesNo(String title, String prompt) {
+        return savant.view.swing.util.DialogUtils.askYesNo(title, prompt);
+    }
+
+    /**
+     * Display a Savant dialog to ask a yes/no question with the title "Savant".
+     */
+    public static int askYesNo(String prompt) {
+        return askYesNo("Savant", prompt);
+    }
+
+    /**
      * Display a Savant error dialog with the given message and the title "Savant Error".
      *
      * @param message the message to be displayed
      */
     public static void displayError(String message) {
-        savant.view.swing.util.DialogUtils.displayError(message);
+        savant.view.swing.util.DialogUtils.displayError("Savant Error", message);
     }
 
     /**
@@ -68,7 +82,7 @@ public class DialogUtils {
      * @param message the message to be displayed
      */
     public static void displayMessage(String message) {
-        savant.view.swing.util.DialogUtils.displayMessage(message);
+        savant.view.swing.util.DialogUtils.displayMessage("Savant", message);
     }
 
     /**

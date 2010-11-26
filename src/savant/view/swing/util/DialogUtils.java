@@ -42,20 +42,16 @@ import savant.view.swing.Savant;
  */
 public class DialogUtils {
 
+    public static int askYesNo(String title, String prompt) {
+        return JOptionPane.showConfirmDialog(Savant.getInstance(), prompt, title, JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+    }
+
     public static void displayError(String title, String message) {
         JOptionPane.showMessageDialog(Savant.getInstance(), message, title, JOptionPane.PLAIN_MESSAGE);
     }
 
-    public static void displayError(String message) {
-        displayError("Savant Error", message);
-    }
-
     public static void displayMessage(String title, String message) {
         JOptionPane.showMessageDialog(Savant.getInstance(), message, title, JOptionPane.PLAIN_MESSAGE);
-    }
-
-    public static void displayMessage(String message) {
-        displayMessage("Savant", message);
     }
 
     public static void displayException(String title, String message, Throwable t) {

@@ -47,8 +47,8 @@ import savant.view.swing.ViewTrack;
  * @author mfiume
  */
 public class ProjectController {
-    private static final Log LOG = LogFactory.getLog(ProjectController.class);
 
+    private static final Log LOG = LogFactory.getLog(ProjectController.class);
     private static ProjectController instance;
     private String KEY_GENOME = "GENOME";
     private String KEY_GENOMEPATH = "GENOMEPATH";
@@ -91,47 +91,45 @@ public class ProjectController {
     }
 
     private void writeMap(Map<String, Object> persistentMap, String filename) throws IOException {
-        FileOutputStream fos = null;
         ObjectOutputStream outStream = null;
         try {
-            fos = new FileOutputStream(filename);
-            outStream = new ObjectOutputStream(fos);
+            outStream = new ObjectOutputStream(new FileOutputStream(filename));
             for (String key : persistentMap.keySet()) {
                 outStream.writeObject(key);
                 outStream.writeObject(persistentMap.get(key));
             }
         } finally {
             try {
-                fos.close();
                 outStream.close();
-            } catch (IOException ex) {
+            } catch (Exception ignored) {
             }
         }
     }
 
-    private Map<String, Object> readMap(String filename) {
+    private Map<String, Object> readMap(String filename) throws ClassNotFoundException, IOException {
 
-        Map<String, Object> map = new HashMap<String,Object>();
+        Map<String, Object> map = new HashMap<String, Object>();
 
-        FileInputStream fis = null;
         ObjectInputStream inStream = null;
         try {
-            fis = new FileInputStream(filename);
-            inStream = new ObjectInputStream(fis);
-            String key = "";
-            Object value;
-            while(true) {
+            inStream = new ObjectInputStream(new FileInputStream(filename));
+            while (true) {
                 try {
-                    key = (String) inStream.readObject();
-                    if (key == null) { break; }
-                    value = inStream.readObject();
+                    String key = (String) inStream.readObject();
+                    if (key == null) {
+                        break;
+                    }
+                    Object value = inStream.readObject();
                     map.put(key, value);
-                } catch (EOFException e) { break; }
+                } catch (EOFException e) {
+                    break;
+                }
             }
-        } catch (ClassNotFoundException ex) {
-            LOG.error("Unable to read map for " + filename, ex);
-        } catch (IOException ex) {
-            LOG.error("Unable to read map for " + filename, ex);
+        } finally {
+            try {
+                inStream.close();
+            } catch (Exception ignored) {
+            }
         }
 
         return map;
@@ -160,7 +158,7 @@ public class ProjectController {
 
     public void saveProjectAs(String filename) throws IOException, SavantEmptySessionException {
         Map<String, Object> persistentMap = getCurrentPersistenceMap();
-        writeMap(persistentMap,filename);
+        writeMap(persistentMap, filename);
         RecentProjectsController.getInstance().addProjectFile(filename);
     }
 
@@ -168,7 +166,7 @@ public class ProjectController {
         return ReferenceController.getInstance().isGenomeLoaded();
     }
 
-    public void loadProjectFrom(String filename) throws IOException, URISyntaxException, SavantFileNotFormattedException, SavantUnsupportedVersionException {
+    public void loadProjectFrom(String filename) throws ClassNotFoundException, IOException, URISyntaxException, SavantFileNotFormattedException, SavantUnsupportedVersionException {
 
         clearExistingProject();
 
@@ -176,7 +174,7 @@ public class ProjectController {
 
         Boolean isSequenceSet = (Boolean) m.get(KEY_SEQUENCESET);
         Genome genome = (Genome) m.get(KEY_GENOME);
-        String genomepath = (String) m.get(KEY_GENOMEPATH);
+        String genomePath = (String) m.get(KEY_GENOMEPATH);
         List bookmarks = (List) m.get(KEY_BOOKMARKS);
         List trackpaths = (List) m.get(KEY_TRACKS);
         String referencename = (String) m.get(KEY_REFERENCE);
@@ -184,8 +182,13 @@ public class ProjectController {
 
         String genomeName;
         if (isSequenceSet) {
-            trackpaths.remove(genomepath);
-            genome = ViewTrack.createGenome(new URI(genomepath));
+            trackpaths.remove(genomePath);
+            try {
+                genome = ViewTrack.createGenome(new URI(genomePath));
+            } catch (URISyntaxException usx) {
+                // A common cause of URISyntaxExceptions is a file-path containing spaces.
+                genome = ViewTrack.createGenome(new File(genomePath).toURI());
+            }
             genomeName = genome.getTrack().getURI().toString();
         } else {
             genomeName = genome.getName();
@@ -218,8 +221,9 @@ public class ProjectController {
     private Persistent getTrackPersistence() {
         List<String> trackpaths = new ArrayList<String>();
         for (ViewTrack t : ViewTrackController.getInstance().getTracks()) {
-            if(t.getURI() != null)
+            if (t.getURI() != null) {
                 trackpaths.add(MiscUtils.getNeatPathFromURI(t.getURI()));
+            }
         }
         return new Persistent(KEY_TRACKS, trackpaths);
     }
