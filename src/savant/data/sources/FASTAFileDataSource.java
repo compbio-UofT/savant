@@ -30,12 +30,10 @@ import savant.file.SavantFileNotFormattedException;
 import savant.file.SavantROFile;
 import savant.file.SavantUnsupportedVersionException;
 import savant.format.SavantFileFormatterUtils;
-import savant.util.Range;
 import savant.util.Resolution;
 
 import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -53,7 +51,7 @@ public class FASTAFileDataSource implements DataSource<SequenceRecord> {
     private int length = -1;
     private SavantROFile dFile;
 
-    public FASTAFileDataSource(URI uri) throws URISyntaxException, IOException, SavantFileNotFormattedException, SavantUnsupportedVersionException {
+    public FASTAFileDataSource(URI uri) throws IOException, SavantFileNotFormattedException, SavantUnsupportedVersionException {
         this.dFile = new SavantROFile(uri, FileType.SEQUENCE_FASTA);
     }
 

@@ -24,8 +24,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -35,15 +33,13 @@ import net.sf.samtools.*;
 import net.sf.samtools.util.SeekableStream;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import savant.api.adapter.RangeAdapter;
 
+import savant.api.adapter.RangeAdapter;
 import savant.controller.RangeController;
 import savant.controller.ReferenceController;
 import savant.data.types.BAMIntervalRecord;
 import savant.file.DataFormat;
-import savant.settings.BrowserSettings;
 import savant.util.MiscUtils;
-import savant.util.Range;
 import savant.util.Resolution;
 import savant.util.NetworkUtils;
 
@@ -68,19 +64,13 @@ public class BAMDataSource implements DataSource<BAMIntervalRecord> {
         if (uri == null) throw new IllegalArgumentException("Invalid argument: URI must be non-null");
 
         File indexFile = null;
-        try {
-            // if no exception is thrown, this is an absolute URL
-            String scheme = uri.getScheme();
-            if ("http".equals(scheme) || "ftp".equals(scheme)) {
-                indexFile = getIndexFileCached(uri);
-                if (indexFile != null) {
-                    return new BAMDataSource(uri, indexFile);
-                }
+        // if no exception is thrown, this is an absolute URL
+        String scheme = uri.getScheme();
+        if ("http".equals(scheme) || "ftp".equals(scheme)) {
+            indexFile = getIndexFileCached(uri);
+            if (indexFile != null) {
+                return new BAMDataSource(uri, indexFile);
             }
-        } catch (MalformedURLException e) {
-            // not a URL, try as a filename
-        } catch (IllegalArgumentException e) {
-            // not an absolute URI, try a filename
         }
 
         // infer index file name from track filename
@@ -114,7 +104,7 @@ public class BAMDataSource implements DataSource<BAMIntervalRecord> {
         samFileHeader = samFileReader.getFileHeader();
     }
 
-    public BAMDataSource(URI uri) throws URISyntaxException, IOException {
+    public BAMDataSource(URI uri) throws IOException {
         this(uri, getIndexFileCached(uri));
     }
     

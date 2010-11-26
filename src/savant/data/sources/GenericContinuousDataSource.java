@@ -23,7 +23,6 @@ package savant.data.sources;
 
 import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.*;
 
 import org.apache.commons.logging.Log;
@@ -36,7 +35,6 @@ import savant.file.*;
 import savant.format.ContinuousFormatterHelper;
 import savant.format.ContinuousFormatterHelper.Level;
 import savant.util.MiscUtils;
-import savant.util.Range;
 import savant.util.Resolution;
 import savant.util.SavantFileUtils;
 

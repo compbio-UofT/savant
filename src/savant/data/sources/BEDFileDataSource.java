@@ -31,12 +31,10 @@ import savant.file.SavantUnsupportedVersionException;
 import savant.format.DataFormatter;
 import savant.format.IntervalRecordGetter;
 import savant.format.IntervalSearchTree;
-import savant.util.Range;
 import savant.util.Resolution;
 
 import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -56,7 +54,7 @@ public class BEDFileDataSource implements DataSource<BEDIntervalRecord> {
 
     private Map<String, IntervalSearchTree> refnameToIntervalBSTIndex;
 
-    public BEDFileDataSource(URI uri) throws URISyntaxException, IOException, SavantFileNotFormattedException, SavantUnsupportedVersionException {
+    public BEDFileDataSource(URI uri) throws IOException, SavantFileNotFormattedException, SavantUnsupportedVersionException {
         this.dFile = new SavantROFile(uri, FileType.INTERVAL_BED);
         this.refnameToIntervalBSTIndex = DataFormatter.readIntervalBSTs(this.dFile);
     }

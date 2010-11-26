@@ -23,7 +23,6 @@ package savant.file;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -32,7 +31,6 @@ import net.sf.samtools.util.SeekableFileStream;
 import net.sf.samtools.util.SeekableStream;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import savant.settings.BrowserSettings;
 
 import savant.util.MiscUtils;
 import savant.util.NetworkUtils;

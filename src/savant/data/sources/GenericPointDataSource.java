@@ -21,6 +21,15 @@
 
 package savant.data.sources;
 
+import java.io.EOFException;
+import java.io.IOException;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import savant.api.adapter.RangeAdapter;
 import savant.data.types.GenericPointRecord;
 import savant.data.types.Point;
 import savant.file.DataFormat;
@@ -28,19 +37,8 @@ import savant.file.FileType;
 import savant.file.SavantFileNotFormattedException;
 import savant.file.SavantROFile;
 import savant.file.SavantUnsupportedVersionException;
-import savant.util.Range;
 import savant.util.Resolution;
 import savant.util.SavantFileUtils;
-
-import java.io.EOFException;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import savant.api.adapter.RangeAdapter;
 
 /**
  * Data access object for accessing generic point files.

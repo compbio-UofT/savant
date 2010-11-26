@@ -38,7 +38,6 @@ import savant.util.Resolution;
 
 import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -60,7 +59,7 @@ public class GenericIntervalDataSource implements DataSource<GenericIntervalReco
 
     private Map<String,IntervalSearchTree> refnameToIntervalBSTIndex;
 
-    public GenericIntervalDataSource(URI uri) throws URISyntaxException, IOException, SavantFileNotFormattedException, SavantUnsupportedVersionException {
+    public GenericIntervalDataSource(URI uri) throws IOException, SavantFileNotFormattedException, SavantUnsupportedVersionException {
         this.dFile = new SavantROFile(uri, FileType.INTERVAL_GENERIC);
         this.refnameToIntervalBSTIndex = DataFormatter.readIntervalBSTs(this.dFile);
 
