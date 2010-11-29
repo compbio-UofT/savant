@@ -26,8 +26,8 @@ import java.util.List;
 import java.util.Set;
 
 import savant.api.util.DialogUtils;
-import savant.controller.event.reference.ReferenceChangedEvent;
-import savant.controller.event.reference.ReferenceChangedListener;
+import savant.controller.event.ReferenceChangedEvent;
+import savant.controller.event.ReferenceChangedListener;
 import savant.data.types.Genome;
 import savant.util.MiscUtils;
 

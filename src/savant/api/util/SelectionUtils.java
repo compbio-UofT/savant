@@ -7,7 +7,7 @@ package savant.api.util;
 
 import savant.api.adapter.ViewTrackAdapter;
 import savant.controller.SelectionController;
-import savant.controller.event.selection.SelectionChangedListener;
+import savant.controller.event.SelectionChangedListener;
 import savant.view.swing.ViewTrack;
 
 /**

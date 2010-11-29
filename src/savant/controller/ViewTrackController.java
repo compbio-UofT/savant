@@ -30,11 +30,11 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import savant.controller.event.viewtrack.ViewTrackAddedListener;
-import savant.controller.event.viewtrack.ViewTrackAddedOrRemovedEvent;
-import savant.controller.event.viewtrack.ViewTrackListChangedEvent;
-import savant.controller.event.viewtrack.ViewTrackListChangedListener;
-import savant.controller.event.viewtrack.ViewTrackRemovedListener;
+import savant.controller.event.ViewTrackAddedListener;
+import savant.controller.event.ViewTrackAddedOrRemovedEvent;
+import savant.controller.event.ViewTrackListChangedEvent;
+import savant.controller.event.ViewTrackListChangedListener;
+import savant.controller.event.ViewTrackRemovedListener;
 import savant.file.DataFormat;
 import savant.view.swing.Savant;
 import savant.view.swing.ViewTrack;

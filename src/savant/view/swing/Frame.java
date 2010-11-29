@@ -36,7 +36,7 @@ import savant.api.adapter.ModeAdapter;
 import savant.controller.ReferenceController;
 import savant.controller.DrawModeController;
 import savant.controller.RangeController;
-import savant.controller.event.drawmode.DrawModeChangedEvent;
+import savant.controller.event.DrawModeChangedEvent;
 import savant.file.DataFormat;
 import savant.settings.ColourSettings;
 import savant.util.DrawingInstructions;

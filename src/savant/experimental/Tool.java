@@ -26,7 +26,7 @@ import savant.experimental.ProgramInformation;
 import java.io.PrintStream;
 import javax.swing.*;
 import org.java.plugin.Plugin;
-import savant.controller.event.thread.ThreadActivityChangedEvent;
+import savant.controller.event.ThreadActivityChangedEvent;
 import savant.view.tools.ToolRunInformation;
 import savant.controller.ThreadController;
 import savant.view.tools.ToolRunInformation.TerminationStatus;

@@ -22,8 +22,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import savant.api.util.DialogUtils;
-import savant.controller.event.viewtrack.ViewTrackAddedListener;
-import savant.controller.event.viewtrack.ViewTrackAddedOrRemovedEvent;
+import savant.controller.event.ViewTrackAddedListener;
+import savant.controller.event.ViewTrackAddedOrRemovedEvent;
 import savant.settings.DirectorySettings;
 import savant.util.MiscUtils;
 import savant.view.swing.Savant;

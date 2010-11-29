@@ -24,6 +24,12 @@
  */
 package savant.controller;
 
+import savant.controller.event.FrameShownEvent;
+import savant.controller.event.FrameChangedListener;
+import savant.controller.event.FrameShownListener;
+import savant.controller.event.FrameChangedEvent;
+import savant.controller.event.FrameHiddenListener;
+import savant.controller.event.FrameHiddenEvent;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import savant.controller.event.frame.*;

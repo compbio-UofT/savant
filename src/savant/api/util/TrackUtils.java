@@ -16,9 +16,9 @@ import org.apache.commons.logging.LogFactory;
 
 import savant.api.adapter.ViewTrackAdapter;
 import savant.controller.ViewTrackController;
-import savant.controller.event.viewtrack.ViewTrackAddedListener;
-import savant.controller.event.viewtrack.ViewTrackListChangedListener;
-import savant.controller.event.viewtrack.ViewTrackRemovedListener;
+import savant.controller.event.ViewTrackAddedListener;
+import savant.controller.event.ViewTrackListChangedListener;
+import savant.controller.event.ViewTrackRemovedListener;
 import savant.data.sources.DataSource;
 import savant.file.DataFormat;
 import savant.view.swing.Savant;

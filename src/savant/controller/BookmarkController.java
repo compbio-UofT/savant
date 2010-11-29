@@ -27,8 +27,8 @@ package savant.controller;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import savant.controller.event.bookmark.BookmarksChangedEvent;
-import savant.controller.event.bookmark.BookmarksChangedListener;
+import savant.controller.event.BookmarksChangedEvent;
+import savant.controller.event.BookmarksChangedListener;
 import savant.util.Bookmark;
 
 import java.util.ArrayList;

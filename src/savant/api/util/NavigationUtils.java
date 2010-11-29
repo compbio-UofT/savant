@@ -10,7 +10,7 @@ import savant.api.adapter.GenomeAdapter;
 import savant.api.adapter.RangeAdapter;
 import savant.controller.RangeController;
 import savant.controller.ReferenceController;
-import savant.controller.event.range.RangeChangeCompletedListener;
+import savant.controller.event.RangeChangeCompletedListener;
 import savant.data.types.Genome;
 import savant.util.Range;
 

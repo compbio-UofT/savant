@@ -5,6 +5,11 @@
 
 package savant.view.swing;
 
+import savant.controller.event.FrameRemovedEvent;
+import savant.controller.event.FrameAddedListener;
+import savant.controller.event.FrameChangedEvent;
+import savant.controller.event.FrameRemovedListener;
+import savant.controller.event.FrameAddedEvent;
 import savant.controller.FrameController;
 import savant.controller.event.frame.*;
 

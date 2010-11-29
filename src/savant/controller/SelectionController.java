@@ -23,8 +23,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import savant.controller.event.selection.SelectionChangedEvent;
-import savant.controller.event.selection.SelectionChangedListener;
+import savant.controller.event.SelectionChangedEvent;
+import savant.controller.event.SelectionChangedListener;
 import savant.util.Range;
 
 /**

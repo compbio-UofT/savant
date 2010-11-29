@@ -19,10 +19,10 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import savant.controller.RangeController;
-import savant.controller.event.range.RangeChangedEvent;
-import savant.controller.event.range.RangeChangedListener;
-import savant.controller.event.rangeselection.RangeSelectionChangedEvent;
-import savant.controller.event.rangeselection.RangeSelectionChangedListener;
+import savant.controller.event.RangeChangedEvent;
+import savant.controller.event.RangeChangedListener;
+import savant.controller.event.RangeSelectionChangedEvent;
+import savant.controller.event.RangeSelectionChangedListener;
 import savant.util.MiscUtils;
 import savant.util.Range;
 

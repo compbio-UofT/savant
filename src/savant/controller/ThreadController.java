@@ -9,8 +9,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import savant.controller.event.thread.ThreadActivityChangedEvent;
-import savant.controller.event.thread.ThreadActivityChangedListener;
+import savant.controller.event.ThreadActivityChangedEvent;
+import savant.controller.event.ThreadActivityChangedListener;
 import savant.view.tools.ToolRunInformation;
 
 /**

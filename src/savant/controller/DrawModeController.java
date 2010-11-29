@@ -23,8 +23,8 @@ package savant.controller;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import savant.controller.event.drawmode.DrawModeChangedEvent;
-import savant.controller.event.drawmode.DrawModeChangedListener;
+import savant.controller.event.DrawModeChangedEvent;
+import savant.controller.event.DrawModeChangedListener;
 import savant.util.Mode;
 import savant.view.swing.ViewTrack;
 

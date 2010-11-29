@@ -25,8 +25,8 @@ import java.util.Arrays;
 
 import savant.controller.BookmarkController;
 import savant.controller.RangeController;
-import savant.controller.event.bookmark.BookmarksChangedEvent;
-import savant.controller.event.bookmark.BookmarksChangedListener;
+import savant.controller.event.BookmarksChangedEvent;
+import savant.controller.event.BookmarksChangedListener;
 import savant.util.Bookmark;
 import savant.util.Range;
 import savant.view.icon.SavantIconFactory;

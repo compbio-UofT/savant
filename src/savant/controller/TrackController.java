@@ -21,8 +21,8 @@
 
 package savant.controller;
 
-import savant.controller.event.track.TrackListChangedEvent;
-import savant.controller.event.track.TrackListChangedListener;
+import savant.controller.event.TrackListChangedEvent;
+import savant.controller.event.TrackListChangedListener;
 import savant.data.sources.DataSource;
 
 import java.util.ArrayList;

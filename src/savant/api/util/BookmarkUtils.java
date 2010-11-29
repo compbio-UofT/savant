@@ -9,7 +9,7 @@ import savant.api.adapter.BookmarkAdapter;
 import java.util.ArrayList;
 import java.util.List;
 import savant.controller.BookmarkController;
-import savant.controller.event.bookmark.BookmarksChangedListener;
+import savant.controller.event.BookmarksChangedListener;
 import savant.util.Bookmark;
 
 /**

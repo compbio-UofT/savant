@@ -7,8 +7,8 @@ package savant.controller;
 
 import java.util.ArrayList;
 import java.util.List;
-import savant.controller.event.graphpane.GraphPaneChangeEvent;
-import savant.controller.event.graphpane.GraphPaneChangeListener;
+import savant.controller.event.GraphPaneChangeEvent;
+import savant.controller.event.GraphPaneChangeListener;
 import savant.util.Range;
 import savant.view.swing.GraphPane;
 import savant.view.swing.Savant;

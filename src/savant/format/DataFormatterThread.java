@@ -1,6 +1,6 @@
 package savant.format;
 
-import savant.controller.event.thread.ThreadActivityChangedEvent;
+import savant.controller.event.ThreadActivityChangedEvent;
 import savant.view.dialog.FormatFrame;
 
 public class DataFormatterThread implements Runnable {
