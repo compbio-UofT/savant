@@ -1,4 +1,7 @@
 /*
+ * ContinuousRecord.java
+ * Created on Jan 11, 2010
+ *
  *    Copyright 2010 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,15 +17,7 @@
  *    limitations under the License.
  */
 
-/*
- * ContinuousRecord.java
- * Created on Jan 11, 2010
- */
-
 package savant.data.types;
-
-import savant.data.types.Continuous;
-import savant.data.types.Record;
 
 /**
  * Interface to represent an object containing a Continuous value.

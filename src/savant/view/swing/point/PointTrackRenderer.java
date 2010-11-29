@@ -16,7 +16,16 @@
 
 package savant.view.swing.point;
 
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Polygon;
+import java.awt.geom.Point2D;
+import java.util.List;
+
 import savant.data.types.PointRecord;
+import savant.data.types.Record;
+
 import savant.util.DrawingInstructions;
 import savant.util.Resolution;
 import savant.util.ColorScheme;
@@ -24,10 +33,6 @@ import savant.util.Range;
 import savant.view.swing.GraphPane;
 import savant.view.swing.TrackRenderer;
 import savant.view.swing.util.GlassMessagePane;
-
-import java.awt.*;
-import java.awt.geom.Point2D;
-import java.util.List;
 
 /**
  *
@@ -64,7 +69,7 @@ public class PointTrackRenderer extends TrackRenderer {
 
         Resolution r = (Resolution) di.getInstruction(DrawingInstructions.InstructionName.RESOLUTION.toString());
 
-        List<Object> data = this.getData();
+        List<Record> data = getData();
 
         // don't draw things which are too small to be seen: less than 1 pixel wide
         if (width < 1 || data == null) {
@@ -73,7 +78,7 @@ public class PointTrackRenderer extends TrackRenderer {
             return;
 
         }
-        int numdata = this.getData().size();
+        int numdata = getData().size();
 
 
         if (r == Resolution.VERY_HIGH) {

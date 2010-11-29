@@ -21,9 +21,6 @@
 
 package savant.data.types;
 
-import savant.data.types.Interval;
-import savant.data.types.Record;
-
 /**
  * Interface to represent a record which contains an interval
  *

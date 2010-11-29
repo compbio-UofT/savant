@@ -21,20 +21,20 @@
 
 package savant.view.swing.interval;
 
+import java.util.List;
+
+import savant.api.adapter.ModeAdapter;
+import savant.api.adapter.RangeAdapter;
 import savant.data.sources.GenericContinuousDataSource;
 import savant.data.types.ContinuousRecord;
+import savant.data.types.Record;
 import savant.file.DataFormat;
+import savant.settings.ColourSettings;
 import savant.util.*;
 import savant.util.ColorScheme;
 import savant.util.DrawingInstructions;
 import savant.view.swing.TrackRenderer;
 import savant.view.swing.ViewTrack;
-
-import java.util.ArrayList;
-import java.util.List;
-import savant.api.adapter.ModeAdapter;
-import savant.api.adapter.RangeAdapter;
-import savant.settings.ColourSettings;
 
 public class BAMCoverageViewTrack extends ViewTrack {
 
@@ -49,7 +49,7 @@ public class BAMCoverageViewTrack extends ViewTrack {
     @Override
     public void prepareForRendering(String reference, Range range) throws Throwable {
 
-        List<Object> data = null;
+        List<Record> data = null;
         Resolution r = getResolution(range);
         if (getDataSource() != null) {
             if (isEnabled() && (r == Resolution.LOW || r == Resolution.VERY_LOW || r == Resolution.MEDIUM)) {
@@ -89,8 +89,9 @@ public class BAMCoverageViewTrack extends ViewTrack {
         }
     }
 
-    public List<Object> retrieveData(String reference, RangeAdapter range, Resolution resolution) throws Throwable {
-        return new ArrayList<Object>(getDataSource().getRecords(reference, range, resolution));
+    @Override
+    public List<Record> retrieveData(String reference, RangeAdapter range, Resolution resolution) throws Throwable {
+        return getDataSource().getRecords(reference, range, resolution);
     }
 
     private ColorScheme getDefaultColorScheme() {
@@ -133,13 +134,13 @@ public class BAMCoverageViewTrack extends ViewTrack {
         return new Range(0, 1);
     }
 
-    private int getMaxValue(List<Object>data) {
+    private int getMaxValue(List<Record> data) {
         
         if (data == null) return 0;
 
         float max = 0;
-        for (Object o: data) {
-            ContinuousRecord record = (ContinuousRecord)o;
+        for (Record r: data) {
+            ContinuousRecord record = (ContinuousRecord)r;
             float val = record.getValue().getValue();
             if (val > max) max = val;
         }

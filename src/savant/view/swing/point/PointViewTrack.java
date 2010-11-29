@@ -13,20 +13,24 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+
 package savant.view.swing.point;
 
+import java.util.List;
+import savant.api.adapter.RangeAdapter;
 import savant.data.sources.GenericPointDataSource;
+import savant.data.types.Record;
 import savant.file.DataFormat;
-import savant.util.*;
+import savant.settings.ColourSettings;
+import savant.util.AxisRange;
 import savant.util.ColorScheme;
 import savant.util.DrawingInstructions;
+import savant.util.MiscUtils;
+import savant.util.Range;
+import savant.util.Resolution;
 import savant.view.swing.TrackRenderer;
 import savant.view.swing.ViewTrack;
 
-import java.util.ArrayList;
-import java.util.List;
-import savant.api.adapter.RangeAdapter;
-import savant.settings.ColourSettings;
 
 /**
  *
@@ -34,7 +38,7 @@ import savant.settings.ColourSettings;
  */
 public class PointViewTrack extends ViewTrack {
 
-    public List<Object> savedList = null;
+    public List<Record> savedList = null;
 
     public PointViewTrack(String name, GenericPointDataSource pointTrack) {
         super(name, DataFormat.POINT_GENERIC, pointTrack);
@@ -57,6 +61,7 @@ public class PointViewTrack extends ViewTrack {
         setColorScheme(getDefaultColorScheme());
     }
 
+    @Override
     public Resolution getResolution(RangeAdapter range)
     {
         long length = range.getLength();
@@ -66,22 +71,22 @@ public class PointViewTrack extends ViewTrack {
     }
 
     @Override
-    public List<Object> retrieveData(String reference, RangeAdapter range, Resolution resolution) throws Exception {
-        return new ArrayList<Object>(getDataSource().getRecords(reference, range, resolution));
+    public List<Record> retrieveData(String reference, RangeAdapter range, Resolution resolution) throws Exception {
+        return getDataSource().getRecords(reference, range, resolution);
     }
 
+    @Override
     public void prepareForRendering(String reference, Range range) throws Throwable {
         Resolution r = getResolution(range);
 
-        List<Object> data = null;
+        List<Record> data = null;
 
-        switch (r)
-        {
+        switch (r) {
             case VERY_HIGH:
-                data = this.retrieveAndSaveData(reference, range);
+                data = retrieveAndSaveData(reference, range);
                 break;
             default:
-                this.saveNullData();
+                saveNullData();
                 break;
         }
 

@@ -47,8 +47,22 @@ public class SequenceRecord implements Record {
         return sequence;
     }
 
+    @Override
     public String getReference() {
         return reference;
+    }
+
+    public int compareTo(Object o) {
+        if (this == o) {
+            return 0;
+        }
+
+        SequenceRecord that = (SequenceRecord)o;
+        int result = reference.compareTo(that.reference);
+        if (result == 0) {
+            result = sequence.compareTo(that.sequence);
+        }
+        return result;
     }
 
     @Override
@@ -57,11 +71,7 @@ public class SequenceRecord implements Record {
         if (o == null || getClass() != o.getClass()) return false;
 
         SequenceRecord that = (SequenceRecord) o;
-
-        if (!reference.equals(that.reference)) return false;
-        if (!sequence.equals(that.sequence)) return false;
-
-        return true;
+        return compareTo(that) == 0;
     }
 
     @Override

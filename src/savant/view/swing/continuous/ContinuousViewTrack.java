@@ -1,4 +1,8 @@
 /*
+ * ContinuousViewTrack.java
+ * Created on Jan 19, 2010
+ *
+ *
  *    Copyright 2010 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,27 +18,26 @@
  *    limitations under the License.
  */
 
-/*
- * ContinuousViewTrack.java
- * Created on Jan 19, 2010
- */
-
 package savant.view.swing.continuous;
 
-import savant.data.types.ContinuousRecord;
-import savant.file.DataFormat;
-import savant.util.*;
+import java.util.List;
+
+import savant.api.adapter.RangeAdapter;
 import savant.data.sources.GenericContinuousDataSource;
+import savant.data.types.ContinuousRecord;
+import savant.data.types.Record;
+import savant.file.DataFormat;
+import savant.settings.ColourSettings;
+import savant.util.AxisRange;
 import savant.util.ColorScheme;
 import savant.util.DrawingInstructions;
+import savant.util.MiscUtils;
+import savant.util.Range;
+import savant.util.Resolution;
 import savant.view.swing.Savant;
 import savant.view.swing.TrackRenderer;
 import savant.view.swing.ViewTrack;
 
-import java.util.ArrayList;
-import java.util.List;
-import savant.api.adapter.RangeAdapter;
-import savant.settings.ColourSettings;
 
 /**
  * A helper class to set up rendering of a ContinuousTrack
@@ -52,7 +55,7 @@ import savant.settings.ColourSettings;
     public void prepareForRendering(String reference, Range range) throws Throwable {
 
         Resolution r = getResolution(range);
-        List<Object> data = retrieveAndSaveData(reference, range);
+        List<Record> data = retrieveAndSaveData(reference, range);
         //System.out.println("contin data: " + data);
         for (TrackRenderer renderer : getTrackRenderers()) {
             boolean contains = (this.getDataSource().getReferenceNames().contains(reference) || this.getDataSource().getReferenceNames().contains(MiscUtils.homogenizeSequence(reference)));
@@ -71,8 +74,8 @@ import savant.settings.ColourSettings;
     }
 
     @Override
-    public List<Object> retrieveData(String reference, RangeAdapter range, Resolution resolution) throws Exception {
-        return new ArrayList<Object>(getDataSource().getRecords(reference, range, resolution));
+    public List<Record> retrieveData(String reference, RangeAdapter range, Resolution resolution) throws Exception {
+        return getDataSource().getRecords(reference, range, resolution);
     }
 
     /**
@@ -106,11 +109,10 @@ import savant.settings.ColourSettings;
         return new Range(0, 1);
     }
 
-    private int getMaxValue(List<Object>data) {
+    private int getMaxValue(List<Record> data) {
         float max = 0f;
-        for (Object o: data) {
-            ContinuousRecord record = (ContinuousRecord)o;
-            float val = record.getValue().getValue();
+        for (Record r: data) {
+            float val = ((ContinuousRecord)r).getValue().getValue();
             if (val > max) max = val;
         }
         return (int)Math.ceil(max);

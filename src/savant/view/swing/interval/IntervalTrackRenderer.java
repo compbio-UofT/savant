@@ -16,21 +16,28 @@
 
 package savant.view.swing.interval;
 
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import java.awt.geom.Rectangle2D;
+import java.util.ArrayList;
+import java.util.List;
+
 import savant.data.types.Interval;
 import savant.data.types.IntervalRecord;
-import savant.util.*;
+import savant.data.types.Record;
+import savant.util.AxisRange;
 import savant.util.ColorScheme;
 import savant.util.DrawingInstructions;
+import savant.util.IntervalPacker;
 import savant.util.Mode;
+import savant.util.Range;
+import savant.util.Resolution;
 import savant.view.swing.GraphPane;
 import savant.view.swing.TrackRenderer;
 import savant.view.swing.util.GlassMessagePane;
 
-import java.awt.*;
-import java.awt.geom.Rectangle2D;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 /**
  *
@@ -63,21 +70,21 @@ public class IntervalTrackRenderer extends TrackRenderer {
         Mode drawMode = (Mode) di.getInstruction(DrawingInstructions.InstructionName.MODE);
         Resolution r = (Resolution) di.getInstruction(DrawingInstructions.InstructionName.RESOLUTION.toString());
 
-        if (drawMode.getName() == "SQUISH") {
+        if (drawMode.getName().equals("SQUISH")) {
             renderSquishMode(g2, gp, r);
         }
-        else if (drawMode.getName() == "ARC") {
+        else if (drawMode.getName().equals("ARC")) {
             renderArcMode(g2, gp, r);
         }
-        else if (drawMode.getName() == "PACK") {
+        else if (drawMode.getName().equals("PACK")) {
             renderPackMode(g2, gp, r);
         }
     }
 
     private void renderSquishMode(Graphics2D g2, GraphPane gp, Resolution r) {
 
-        List<Object> data = this.getData();
-        int numdata = this.getData().size();
+        List<Record> data = getData();
+        int numdata = getData().size();
 
         ColorScheme cs = (ColorScheme) getDrawingInstructions().getInstruction(DrawingInstructions.InstructionName.COLOR_SCHEME.toString());
         Color bgcolor = cs.getColor("Translucent Graph");
@@ -127,8 +134,8 @@ public class IntervalTrackRenderer extends TrackRenderer {
     private void renderArcMode(Graphics2D g2, GraphPane gp, Resolution r) {
 
 
-        List<Object> data = this.getData();
-        int numdata = this.getData().size();
+        List<Record> data = getData();
+        int numdata = getData().size();
 
         ColorScheme cs = (ColorScheme) getDrawingInstructions().getInstruction(DrawingInstructions.InstructionName.COLOR_SCHEME.toString());
         Color bgcolor = cs.getColor("Opaque Graph");
@@ -166,7 +173,7 @@ public class IntervalTrackRenderer extends TrackRenderer {
 
     private void renderPackMode(Graphics2D g2, GraphPane gp, Resolution r) {
 
-        List<Object> data = this.getData();
+        List<Record> data = getData();
 
         ColorScheme cs = (ColorScheme) getDrawingInstructions().getInstruction(DrawingInstructions.InstructionName.COLOR_SCHEME.toString());
         Color bgcolor = cs.getColor("Opaque Graph");
@@ -245,10 +252,9 @@ public class IntervalTrackRenderer extends TrackRenderer {
     public boolean hasHorizontalGrid() {
         Mode drawMode = (Mode)getDrawingInstructions().getInstruction(DrawingInstructions.InstructionName.MODE);
         String modeName = drawMode.getName();
-        if (modeName == "ARC") {
+        if (modeName.equals("ARC")) {
             return true;
-        }
-        else {
+        } else {
             return false;
         }
     }

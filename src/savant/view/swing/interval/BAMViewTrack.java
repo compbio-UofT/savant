@@ -1,4 +1,8 @@
 /*
+ * BAMViewTrack.java
+ * Created on Feb 1, 2010
+ *
+ *
  *    Copyright 2010 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,32 +18,33 @@
  *    limitations under the License.
  */
 
-/*
- * BAMViewTrack.java
- * Created on Feb 1, 2010
- */
-
 package savant.view.swing.interval;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import net.sf.samtools.SAMRecord;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import savant.api.adapter.ModeAdapter;
+import savant.api.adapter.RangeAdapter;
 import savant.controller.RangeController;
 import savant.data.sources.BAMDataSource;
 import savant.data.types.BAMIntervalRecord;
+import savant.data.types.Record;
 import savant.file.DataFormat;
-import savant.util.*;
+import savant.settings.ColourSettings;
+import savant.util.AxisRange;
 import savant.util.ColorScheme;
 import savant.util.DrawingInstructions;
+import savant.util.MiscUtils;
 import savant.util.Mode;
+import savant.util.Range;
+import savant.util.Resolution;
 import savant.view.swing.TrackRenderer;
 import savant.view.swing.ViewTrack;
 
-import java.util.ArrayList;
-import java.util.List;
-import savant.api.adapter.ModeAdapter;
-import savant.api.adapter.RangeAdapter;
-import savant.settings.ColourSettings;
 
 /**
  * Class to handle the preparation for rendering of a BAM track. Handles colour schemes and
@@ -121,7 +126,7 @@ public class BAMViewTrack extends ViewTrack {
     public void prepareForRendering(String reference, Range range) throws Throwable {
 
         Resolution r = getResolution(range);
-        List<Object> data = null;
+        List<Record> data = null;
         boolean zoomIn = false;
         if ((getDrawMode().equals(MATE_PAIRS_MODE) && (r == Resolution.HIGH || r == Resolution.VERY_HIGH) || r == Resolution.MEDIUM)
                 || (r == Resolution.VERY_HIGH || r == Resolution.HIGH)) {
@@ -155,23 +160,22 @@ public class BAMViewTrack extends ViewTrack {
     /*
     * Calculate the maximum (within reason) arc height to be used to set the Y axis for drawing.
      */
-    private long getMaxValue(List<Object>data) {
+    private long getMaxValue(List<Record> data) {
 
         double max = 0;
         Range displayedRange = RangeController.getInstance().getRange();
         long displayedRangeLength = displayedRange.getLength();
 
-        for (Object o: data) {
+        for (Record r: data) {
 
-            BAMIntervalRecord record = (BAMIntervalRecord)o;
-            SAMRecord samRecord = record.getSamRecord();
+            SAMRecord samRecord = ((BAMIntervalRecord)r).getSamRecord();
 
             double val;
             int alignmentStart = samRecord.getAlignmentStart();
             int mateAlignmentStart = samRecord.getMateAlignmentStart();
             if (alignmentStart < mateAlignmentStart) {
 
-                val = record.getSamRecord().getInferredInsertSize();
+                val = samRecord.getInferredInsertSize();
                 // throw away, for purposes of calculating the max y axis, any insert sizes larger than the displayed range.
                 if (val > displayedRangeLength) continue;
             }
@@ -189,8 +193,8 @@ public class BAMViewTrack extends ViewTrack {
     }
 
     @Override
-    public List<Object> retrieveData(String reference, RangeAdapter range, Resolution resolution) throws Throwable {
-        return new ArrayList<Object>(getDataSource().getRecords(reference, range, resolution));
+    public List<Record> retrieveData(String reference, RangeAdapter range, Resolution resolution) throws Throwable {
+        return getDataSource().getRecords(reference, range, resolution);
     }
 
     @Override

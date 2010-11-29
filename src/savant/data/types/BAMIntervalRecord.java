@@ -24,14 +24,14 @@ package savant.data.types;
 import net.sf.samtools.SAMRecord;
 
 /**
- * Class to represent an inverval from a BAM file. Wraps a SAMRecord. Almost, but not quite immutable.
+ * Class to represent an interval from a BAM file. Wraps a SAMRecord. Almost, but not quite immutable.
  * The SAMRecord's internals are mutable and since it is too expensive to make a defensive copy of it,
  * be careful not to modify the SAMRecord after construction of a BAMIntervalRecord.
  * 
  * @see net.sf.samtools.SAMRecord
  * @author vwilliams
  */
-public class BAMIntervalRecord implements IntervalRecord, Comparable {
+public class BAMIntervalRecord implements IntervalRecord {
 
     public enum PairType { NORMAL, INVERTED_MATE, INVERTED_READ, EVERTED };
 

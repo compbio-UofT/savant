@@ -1,4 +1,8 @@
 /*
+ * ContinuousTrackRenderer.java
+ * Created on Jan 19, 2010
+ *
+ * 
  *    Copyright 2010 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,14 +18,18 @@
  *    limitations under the License.
  */
 
-/*
- * ContinuousTrackRenderer.java
- * Created on Jan 19, 2010
- */
-
 package savant.view.swing.continuous;
 
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import java.awt.geom.GeneralPath;
+import java.awt.geom.Rectangle2D;
+import java.util.List;
+
 import savant.data.types.GenericContinuousRecord;
+import savant.data.types.Record;
 import savant.util.AxisRange;
 import savant.util.ColorScheme;
 import savant.util.DrawingInstructions;
@@ -30,9 +38,6 @@ import savant.view.swing.GraphPane;
 import savant.view.swing.TrackRenderer;
 import savant.view.swing.util.GlassMessagePane;
 
-import java.awt.*;
-import java.awt.geom.GeneralPath;
-import java.awt.geom.Rectangle2D;
 
 /**
  * Class to render continuous tracks.
@@ -61,7 +66,7 @@ public class ContinuousTrackRenderer extends TrackRenderer {
             return;
         }
 
-        java.util.List<Object> data = this.getData();
+        List<Record> data = getData();
         if (data == null) {
             // FIXME: a nasty hack to accommodate coverage; see BAMCoverageViewTrack
             String message = (String) di.getInstruction(DrawingInstructions.InstructionName.MESSAGE);

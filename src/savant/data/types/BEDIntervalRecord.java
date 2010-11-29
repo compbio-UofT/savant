@@ -28,7 +28,7 @@ import java.util.List;
  * 
  * @author mfiume, vwilliams
  */
-public final class BEDIntervalRecord implements IntervalRecord, Comparable {
+public final class BEDIntervalRecord implements IntervalRecord {
 
     private final Interval interval;
     private final List<Block> blocks;

@@ -1,4 +1,8 @@
 /*
+ * IntervalPacker.java
+ * Created on Feb 1, 2010
+ *
+ *
  *    Copyright 2010 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,17 +18,19 @@
  *    limitations under the License.
  */
 
-/*
- * IntervalPacker.java
- * Created on Feb 1, 2010
- */
-
 package savant.util;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.PriorityQueue;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import savant.data.types.Interval;
 import savant.data.types.IntervalRecord;
+import savant.data.types.Record;
 
-import java.util.*;
 
 /**
  * Utility class to do build the data structures necessary to draw packed intervals.
@@ -32,11 +38,11 @@ import java.util.*;
  */
 public class IntervalPacker {
 
-    private List<Object> data;
+    private List<Record> data;
 
     private static final double ONE_MILLIONTH = Math.pow(10, -6);
 
-    public IntervalPacker(List<Object> data) {
+    public IntervalPacker(List<Record> data) {
         this.data = data;
     }
 

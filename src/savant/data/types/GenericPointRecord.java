@@ -1,4 +1,8 @@
 /*
+ * GenericPointRecord.java
+ * Created on Jan 8, 2010
+ *
+ *
  *    Copyright 2010 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,11 +18,6 @@
  *    limitations under the License.
  */
 
-/*
- * GenericPointRecord.java
- * Created on Jan 8, 2010
- */
-
 package savant.data.types;
 
 /**
@@ -26,7 +25,7 @@ package savant.data.types;
  * 
  * @author vwilliams
  */
-public class GenericPointRecord implements PointRecord, Comparable {
+public class GenericPointRecord implements PointRecord {
 
     private final String reference;
     private final Point point;

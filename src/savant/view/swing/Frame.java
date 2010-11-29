@@ -758,7 +758,7 @@ public class Frame {
     /**
      * Create a new panel to draw on.
      */
-    public JPanel getLayerToDraw(){
+    public JPanel getLayerCanvas(){
         JPanel p = new JPanel();
         p.setOpaque(false);
         GridBagConstraints c = new GridBagConstraints();

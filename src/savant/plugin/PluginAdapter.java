@@ -21,32 +21,5 @@
 
 package savant.plugin;
 
-import savant.controller.*;
-
 public class PluginAdapter {
-
-    public BookmarkController getBookmarkController(){
-        return BookmarkController.getInstance();
-    }
-
-    public FrameController getFrameController() {
-        return FrameController.getInstance();
-    }
-
-    public RangeController getRangeController() {
-        return RangeController.getInstance();
-    }
-
-    public TrackController getTrackController() {
-        return TrackController.getInstance();
-    }
-
-    public ViewTrackController getViewTrackController() {
-        return ViewTrackController.getInstance();
-    }
-
-    public SelectionController getSelectionController() {
-        return SelectionController.getInstance();
-    }
-
 }

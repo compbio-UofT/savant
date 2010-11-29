@@ -28,12 +28,12 @@ import savant.util.Mode;
 import savant.view.swing.TrackRenderer;
 import savant.view.swing.ViewTrack;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import savant.api.adapter.ModeAdapter;
 import savant.api.adapter.RangeAdapter;
+import savant.data.types.Record;
 import savant.settings.ColourSettings;
 
 /**
@@ -42,7 +42,7 @@ import savant.settings.ColourSettings;
  */
 public class IntervalViewTrack extends ViewTrack {
 
-    private static Log log = LogFactory.getLog(IntervalViewTrack.class); 
+    private static Log LOG = LogFactory.getLog(IntervalViewTrack.class);
 
     public enum DrawingMode { SQUISH, PACK, ARC };
 
@@ -78,16 +78,15 @@ public class IntervalViewTrack extends ViewTrack {
     @Override
     public Resolution getResolution(RangeAdapter range) { return getResolution(range, getDrawMode()); }
 
-    public Resolution getResolution(RangeAdapter range, ModeAdapter mode)
-    {
-        if(mode.getName().equals("SQUISH")) {
+    public Resolution getResolution(RangeAdapter range, ModeAdapter mode) {
+        if (mode.getName().equals("SQUISH")) {
             return getSquishModeResolution(range);
         } else if (mode.getName().equals("ARC")) {
             return getArcModeResolution(range);
         } else if (mode.getName().equals("PACK")) {
             return getDefaultModeResolution(range);
         } else {
-            log.warn("Unrecognized draw mode " + mode.getName());
+            LOG.warn("Unrecognized draw mode " + mode.getName());
             return getDefaultModeResolution(range);
         }
     }
@@ -105,8 +104,7 @@ public class IntervalViewTrack extends ViewTrack {
         return Resolution.VERY_HIGH;
     }
     
-    public List<ModeAdapter> getDefaultDrawModes()
-    {
+    public final List<ModeAdapter> getDefaultDrawModes() {
         List<ModeAdapter> modes = new ArrayList<ModeAdapter>();
 
         modes.add(SQUISH_MODE);
@@ -119,19 +117,20 @@ public class IntervalViewTrack extends ViewTrack {
      * getData
      *     Get data in the specified range at the specified resolution
      */
-    public List<Object> retrieveData(String reference, RangeAdapter range, Resolution resolution) throws IOException {
-        return new ArrayList<Object>(getDataSource().getRecords(reference, range, resolution));
+    @Override
+    public List<Record> retrieveData(String reference, RangeAdapter range, Resolution resolution) throws IOException {
+        return getDataSource().getRecords(reference, range, resolution);
     }
 
+    @Override
     public void prepareForRendering(String reference, Range range) throws Throwable {
 
         Resolution r = getResolution(range);
 
-        List<Object> data = null;
-        switch (r)
-        {
+        List<Record> data = null;
+        switch (r) {
             case VERY_HIGH:
-                data = this.retrieveAndSaveData(reference, range);
+                data = retrieveAndSaveData(reference, range);
                 break;
             default:
                 break;
@@ -159,11 +158,10 @@ public class IntervalViewTrack extends ViewTrack {
         return new Range(0, 1);
     }
 
-    private int getMaxValue(List<Object>data) {
+    private int getMaxValue(List<Record> data) {
         double max = 0;
-        for (Object o: data) {
-            GenericIntervalRecord record = (GenericIntervalRecord)o;
-            Interval interval = record.getInterval();
+        for (Record r: data) {
+            Interval interval = ((GenericIntervalRecord)r).getInterval();
             double val = interval.getLength();
             if (val > max) max = val;
         }

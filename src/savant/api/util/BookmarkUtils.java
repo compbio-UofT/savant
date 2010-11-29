@@ -5,12 +5,14 @@
 
 package savant.api.util;
 
-import savant.api.adapter.BookmarkAdapter;
 import java.util.ArrayList;
 import java.util.List;
+import savant.api.adapter.BookmarkAdapter;
+import savant.api.adapter.RangeAdapter;
 import savant.controller.BookmarkController;
 import savant.controller.event.BookmarksChangedListener;
 import savant.util.Bookmark;
+import savant.util.Range;
 
 /**
  * Utilities for Savant bookmarks
@@ -90,5 +92,19 @@ public class BookmarkUtils {
      */
     public static void clearBookmarks() {
         BookmarkController.getInstance().clearBookmarks();
+    }
+
+    /**
+     * Factory method for creating new BookmarkAdapter objects.
+     */
+    public static BookmarkAdapter createBookmark(String ref, RangeAdapter range) {
+        return new Bookmark(ref, (Range)range);
+    }
+
+    /**
+     * Factory method for creating new BookmarkAdapter objects.
+     */
+    public static BookmarkAdapter createBookmark(String ref, RangeAdapter range, String ann) {
+        return new Bookmark(ref, (Range)range, ann);
     }
 }

@@ -1,4 +1,8 @@
 /*
+ * Continuous.java
+ * Created on Jan 11, 2010
+ *
+ *
  *    Copyright 2010 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,11 +16,6 @@
  *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
- */
-
-/*
- * Continuous.java
- * Created on Jan 11, 2010
  */
 
 package savant.data.types;

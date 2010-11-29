@@ -22,20 +22,30 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
+import javax.swing.JPanel;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import savant.api.adapter.ModeAdapter;
 import savant.api.adapter.RangeAdapter;
 import savant.api.adapter.ViewTrackAdapter;
-
+import savant.controller.SelectionController;
 import savant.controller.TrackController;
 import savant.controller.ViewTrackController;
 import savant.data.types.Genome;
 import savant.data.sources.*;
-import savant.file.*;
+import savant.data.types.Record;
+import savant.file.DataFormat;
+import savant.file.FileType;
+import savant.file.SavantFileNotFormattedException;
+import savant.file.SavantROFile;
+import savant.file.SavantUnsupportedVersionException;
 import savant.format.SavantFileFormatterUtils;
-import savant.util.*;
+import savant.util.ColorScheme;
+import savant.util.Mode;
+import savant.util.Range;
+import savant.util.Resolution;
 import savant.view.dialog.BAMParametersDialog;
 import savant.view.swing.continuous.ContinuousViewTrack;
 import savant.view.swing.interval.BAMCoverageViewTrack;
@@ -82,7 +92,7 @@ public abstract class ViewTrack implements ViewTrackAdapter {
     private final String name;
     private ColorScheme colorScheme;
     private final DataFormat dataType;
-    private List<Object> dataInRange;
+    private List<Record> dataInRange;
     private List<ModeAdapter> drawModes;
     private ModeAdapter drawMode;
     private List<TrackRenderer> trackRenderers;
@@ -290,8 +300,9 @@ public abstract class ViewTrack implements ViewTrackAdapter {
      *
      * @return  FileFormat
      */
+    @Override
     public DataFormat getDataType() {
-        return this.dataType;
+        return dataType;
     }
 
     /**
@@ -300,7 +311,7 @@ public abstract class ViewTrack implements ViewTrackAdapter {
      * @return ColorScheme
      */
     public ColorScheme getColorScheme() {
-        return this.colorScheme;
+        return colorScheme;
     }
 
     /**
@@ -310,7 +321,7 @@ public abstract class ViewTrack implements ViewTrackAdapter {
      * @param color new color
      */
     public void setColor(String name, Color color) {
-        this.colorScheme.addColorSetting(name, color);
+        colorScheme.addColorSetting(name, color);
     }
 
     /**
@@ -318,6 +329,7 @@ public abstract class ViewTrack implements ViewTrackAdapter {
      *
      * @return track name
      */
+    @Override
     public String getName() {
         return name;
     }
@@ -327,8 +339,14 @@ public abstract class ViewTrack implements ViewTrackAdapter {
      *
      * @return List of data objects
      */
-    public List<Object> getDataInRange() {
-        return this.dataInRange;
+    @Override
+    public List<Record> getDataInRange() {
+        return dataInRange;
+    }
+
+    @Override
+    public List<Record> getSelectedDataInRange() {
+        return SelectionController.getInstance().getSelections(getURI());
     }
 
     /*
@@ -341,8 +359,9 @@ public abstract class ViewTrack implements ViewTrackAdapter {
      *
      * @return draw mode as Mode
      */
+    @Override
     public ModeAdapter getDrawMode() {
-        return this.drawMode;
+        return drawMode;
     }
 
     /**
@@ -352,7 +371,7 @@ public abstract class ViewTrack implements ViewTrackAdapter {
      */
     @Override
     public List<ModeAdapter> getDrawModes() {
-        return this.drawModes;
+        return drawModes;
     }
 
     /**
@@ -380,8 +399,9 @@ public abstract class ViewTrack implements ViewTrackAdapter {
      *
      * @param mode
      */
+    @Override
     public void setDrawMode(ModeAdapter mode) {
-        this.drawMode = mode;
+        drawMode = mode;
     }
 
     /**
@@ -389,6 +409,7 @@ public abstract class ViewTrack implements ViewTrackAdapter {
      *
      * @param modename
      */
+    @Override
     public void setDrawMode(String modename) {
         for (ModeAdapter m : drawModes) {
             if (m.getName().equals(modename)) {
@@ -406,7 +427,7 @@ public abstract class ViewTrack implements ViewTrackAdapter {
      *
      * @param modes
      */
-    public void setDrawModes(List<ModeAdapter> modes) {
+    public final void setDrawModes(List<ModeAdapter> modes) {
         this.drawModes = modes;
     }
 
@@ -415,8 +436,19 @@ public abstract class ViewTrack implements ViewTrackAdapter {
      *
      * @return Record Track or null (in the case of a genome.)
      */
+    @Override
     public DataSource getDataSource() {
         return this.dataSource;
+    }
+
+    /**
+     * Get the JPanel for the layer to draw on top of the track.
+     *
+     * @return component to draw onto
+     */
+    @Override
+    public JPanel getLayerCanvas() {
+        return frame.getLayerCanvas();
     }
 
     // FIXME:
@@ -440,13 +472,26 @@ public abstract class ViewTrack implements ViewTrackAdapter {
     public abstract void prepareForRendering(String reference, Range range) throws Throwable;
 
     /**
+     * Method which plugins can use to force the ViewTrack to repaint itself.
+     */
+    @Override
+    public void repaint() {
+        frame.getGraphPane().repaint();
+    }
+
+    @Override
+    public boolean isSelectionAllowed() {
+        return getTrackRenderers().get(0).selectionAllowed();
+    }
+
+    /**
      * Retrieve data from the underlying data track at the current resolution and save it.
      *
      * @param range The range within which to retrieve objects
      * @return a list of data objects in the given range
      * @throws Exception
      */
-    public List<Object> retrieveAndSaveData(String reference, Range range) throws Throwable {
+    public List<Record> retrieveAndSaveData(String reference, Range range) throws Throwable {
         Resolution resolution = getResolution(range);
 
         /*
@@ -454,7 +499,7 @@ public abstract class ViewTrack implements ViewTrackAdapter {
         long start = System.currentTimeMillis();
          */
 
-        this.dataInRange = retrieveData(reference, range, resolution);
+        dataInRange = retrieveData(reference, range, resolution);
 
         /*
         // Get elapsed time in milliseconds
@@ -463,10 +508,10 @@ public abstract class ViewTrack implements ViewTrackAdapter {
         // Get elapsed time in seconds
         float elapsedTimeSec = elapsedTimeMillis/1000F;
 
-        System.out.println("\tData retreival for " + this.getName() + " took " + elapsedTimeSec + " seconds");
+        System.out.println("\tData retrieval for " + this.getName() + " took " + elapsedTimeSec + " seconds");
          */
 
-        return this.dataInRange;
+        return dataInRange;
     }
 
     /**
@@ -486,7 +531,7 @@ public abstract class ViewTrack implements ViewTrackAdapter {
      * @return a List of data objects from the given range and resolution
      * @throws Exception
      */
-    public abstract List<Object> retrieveData(String reference, RangeAdapter range, Resolution resolution) throws Throwable;
+    public abstract List<Record> retrieveData(String reference, RangeAdapter range, Resolution resolution) throws Throwable;
 
     /**
      * Add a renderer to this view track
@@ -507,18 +552,11 @@ public abstract class ViewTrack implements ViewTrackAdapter {
     }
 
     /**
-     * Get the resoultion associated with the given range
-     *
-     * @param range
-     * @return resolution appropriate to the range
-     */
-    public abstract Resolution getResolution(RangeAdapter range);
-
-    /**
      * Get the default draw mode.
      *
      * @return  the default draw mode
      */
+    @Override
     public Mode getDefaultDrawMode() {
         return null;
     }
@@ -549,6 +587,7 @@ public abstract class ViewTrack implements ViewTrackAdapter {
     }
 
     // FIXME: URI is not appropriate for this usage; 
+    @Override
     public URI getURI() {
         return (this.getDataSource() == null) ? null : this.getDataSource().getURI();
     }

@@ -57,8 +57,7 @@ public class MiscUtils {
 
     /**
      * Get an integer from a string
-     * @param str The string respresenting an integer
-     * (possibly with commas)
+     * @param str The string representing an integer (possibly with commas)
      * @return An integer
      */
     public static int stringToInt(String str) {

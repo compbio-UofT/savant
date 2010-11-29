@@ -16,22 +16,21 @@
 
 package savant.data.types;
 
-import savant.controller.ReferenceController;
-import savant.data.sources.FASTAFileDataSource;
-import savant.file.SavantFileNotFormattedException;
-import savant.file.SavantUnsupportedVersionException;
-import savant.util.Range;
-import savant.util.Resolution;
-import savant.view.dialog.GenomeLengthForm.BuildInfo;
-import savant.view.dialog.GenomeLengthForm.ReferenceInfo;
-
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+
 import savant.api.adapter.GenomeAdapter;
 import savant.api.adapter.RangeAdapter;
+import savant.controller.ReferenceController;
+import savant.data.sources.FASTAFileDataSource;
+import savant.file.SavantFileNotFormattedException;
+import savant.file.SavantUnsupportedVersionException;
+import savant.util.Resolution;
+import savant.view.dialog.GenomeLengthForm.BuildInfo;
+import savant.view.dialog.GenomeLengthForm.ReferenceInfo;
 import savant.view.swing.ViewTrack;
 import savant.view.swing.sequence.SequenceViewTrack;
 

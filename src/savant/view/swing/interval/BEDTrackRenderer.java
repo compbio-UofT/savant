@@ -1,4 +1,8 @@
 /*
+ * BEDTrackRenderer.java
+ * Created on Feb 19, 2010
+ *
+ *
  *    Copyright 2010 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,40 +18,41 @@
  *    limitations under the License.
  */
 
-/*
- * BEDTrackRenderer.java
- * Created on Feb 19, 2010
- */
-
 package savant.view.swing.interval;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import savant.data.types.BEDIntervalRecord;
-import savant.data.types.Block;
-import savant.data.types.Interval;
-import savant.data.types.IntervalRecord;
-import savant.util.Resolution;
-import savant.util.*;
-import savant.util.ColorScheme;
-import savant.util.DrawingInstructions;
-import savant.util.Mode;
-import savant.util.IntervalPacker;
-import savant.util.Range;
-import savant.util.Strand;
-import savant.view.swing.GraphPane;
-import savant.view.swing.TrackRenderer;
-import savant.view.swing.util.GlassMessagePane;
-
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Polygon;
+import java.awt.RenderingHints;
 import java.awt.geom.Area;
 import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.Map;
-import savant.controller.RangeController;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import savant.data.types.BEDIntervalRecord;
+import savant.data.types.Block;
+import savant.data.types.Interval;
+import savant.data.types.IntervalRecord;
+import savant.data.types.Record;
+import savant.util.AxisRange;
+import savant.util.ColorScheme;
+import savant.util.DrawingInstructions;
+import savant.util.Mode;
+import savant.util.IntervalPacker;
+import savant.util.Range;
+import savant.util.Resolution;
+import savant.util.Strand;
+import savant.view.swing.GraphPane;
+import savant.view.swing.TrackRenderer;
+import savant.view.swing.util.GlassMessagePane;
+
 
 /**
  * Renderer for BED gene tracks.
@@ -106,7 +111,7 @@ public class BEDTrackRenderer extends TrackRenderer {
 
     private void renderPackMode(Graphics2D g2, GraphPane gp, Resolution resolution) {
 
-        java.util.List<Object> data = this.getData();
+        List<Record> data = this.getData();
 
         AxisRange axisRange = (AxisRange) getDrawingInstructions().getInstruction(DrawingInstructions.InstructionName.AXIS_RANGE);
         ColorScheme cs = (ColorScheme) getDrawingInstructions().getInstruction(DrawingInstructions.InstructionName.COLOR_SCHEME.toString());
@@ -356,8 +361,8 @@ public class BEDTrackRenderer extends TrackRenderer {
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
             // data
-            java.util.List<Object> data = this.getData();
-            int numdata = this.getData().size();
+            List<Record> data = getData();
+            int numdata = getData().size();
 
             // first pass through the data, merging Blocks
             List<Interval> posStrandBlocks = new ArrayList<Interval>();

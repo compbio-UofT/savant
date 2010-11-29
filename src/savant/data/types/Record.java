@@ -20,7 +20,7 @@ package savant.data.types;
  *
  * @author vwilliams
  */
-public interface Record {
+public interface Record extends Comparable {
 
     /**
      * @return the reference sequence to which this record applies

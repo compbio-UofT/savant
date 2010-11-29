@@ -23,8 +23,10 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
 import savant.controller.event.SelectionChangedEvent;
 import savant.controller.event.SelectionChangedListener;
+import savant.data.types.Record;
 import savant.util.Range;
 
 /**
@@ -35,8 +37,8 @@ public class SelectionController {
 
     private static SelectionController instance;
     private List selectionChangedListeners;
-    private Map<URI, List<Comparable>> map;
-    private Map<URI, List<Comparable>> currentMap;
+    private Map<URI, List<Record>> map;
+    private Map<URI, List<Record>> currentMap;
     private Map<URI, Range> rangeMap;
 
     public static synchronized SelectionController getInstance() {
@@ -48,8 +50,8 @@ public class SelectionController {
 
     private SelectionController() {
         selectionChangedListeners = new ArrayList();
-        map = Collections.synchronizedMap(new HashMap<URI, List<Comparable>>());
-        currentMap = new HashMap<URI, List<Comparable>>();
+        map = Collections.synchronizedMap(new HashMap<URI, List<Record>>());
+        currentMap = new HashMap<URI, List<Record>>();
         rangeMap = new HashMap<URI, Range>();
     }
 
@@ -72,7 +74,7 @@ public class SelectionController {
         selectionChangedListeners.remove(l);
     }
 
-    public boolean toggleSelection(URI uri, Comparable o){
+    public boolean toggleSelection(URI uri, Record o){
         if(this.map.get(uri) == null) addKey(uri);
         int pos = binarySearchSelected(uri, o);
         if(pos == -1){
@@ -88,7 +90,7 @@ public class SelectionController {
     }
 
     //this forces element to be added (never removed) and fires event
-    public void addSelection(URI uri, Comparable o){
+    public void addSelection(URI uri, Record o){
         addSelectionWithoutEvent(uri, o);
         this.fireSelectionChangedEvent();
     }
@@ -98,7 +100,7 @@ public class SelectionController {
      * Should be used when adding a large amount of selection, but event must be
      * called when done.
      */
-    private void addSelectionWithoutEvent(URI uri, Comparable o){
+    private void addSelectionWithoutEvent(URI uri, Record o) {
         if(this.map.get(uri) == null) addKey(uri);
         int pos = binarySearchSelected(uri, o);
         if(pos == -1){
@@ -107,7 +109,7 @@ public class SelectionController {
         }
     }
 
-    public void removeSelection(URI uri, Comparable o){
+    public void removeSelection(URI uri, Record o){
         map.get(uri).remove(o);
         this.removeFromCurrentSelected(uri, o);
         this.fireSelectionChangedEvent();
@@ -128,7 +130,7 @@ public class SelectionController {
         this.fireSelectionChangedEvent();
     }
 
-    public List<Comparable> getSelections(URI uri){
+    public List<Record> getSelections(URI uri){
         if(map.get(uri) == null) return null;
         return Collections.unmodifiableList(map.get(uri));
     }
@@ -139,7 +141,7 @@ public class SelectionController {
 
     private int binarySearchSelected(URI uri, Comparable key){
 
-        List<Comparable> selected = this.map.get(uri);
+        List<Record> selected = this.map.get(uri);
         if(selected == null) return -1;
 
         int start = 0;
@@ -159,18 +161,18 @@ public class SelectionController {
         return -1;    // Failed to find key
     }
 
-   private List<Comparable> getSelectedFromList(URI uri, List<Object> data){
+   private List<Record> getSelectedFromList(URI uri, List<Record> data){
 
        //TODO: change so that we perform binary search of
        //larger list for each element of smaller list. Cannot do this currently
        //because data may not be sorted as Comparable expects.
 
-       List<Comparable> list = new ArrayList<Comparable>();
-       if(map.get(uri) == null || map.get(uri).isEmpty()) return list;
+       List<Record> list = new ArrayList<Record>();
+       if (map.get(uri) == null || map.get(uri).isEmpty()) return list;
 
        for(int i = 0; i < data.size(); i++){
-           Comparable o = (Comparable)data.get(i);
-           int pos = binarySearchSelected(uri, (Comparable) o);
+           Record o = data.get(i);
+           int pos = binarySearchSelected(uri, o);
            if(pos != -1) list.add(o);
        }
        
@@ -178,48 +180,48 @@ public class SelectionController {
    }
 
    /*
-    * This function is equivalent to getSelectedFromList(URI uri, List<Object> data)
-    * but it uses range to check whether anything has change since the last
+    * This function is equivalent to getSelectedFromList(URI uri, List<Record> data)
+    * but it uses range to check whether anything has changed since the last
     * request. If nothing has changed, return the same list. 
     */
-   public List getSelectedFromList(URI uri, Range range, List<Object> data){
+   public List getSelectedFromList(URI uri, Range range, List<Record> data){
        
        if(range.equals(rangeMap.get(uri)) && currentMap.get(uri) != null){
            return currentMap.get(uri);
        }
 
        rangeMap.put(uri, range);
-       List<Comparable> currentSelected = this.getSelectedFromList(uri, data);
+       List<Record> currentSelected = this.getSelectedFromList(uri, data);
        currentMap.put(uri, currentSelected);
 
        return currentSelected;
 
    }
 
-   public Map<URI, List<Comparable>> getAllSelected(){
-       return this.map;
+   public Map<URI, List<Record>> getAllSelected(){
+       return map;
    }
 
-   private void addToCurrentSelected(URI uri, Comparable o){
-       if(currentMap.get(uri) == null) currentMap.put(uri, new ArrayList<Comparable>());
+   private void addToCurrentSelected(URI uri, Record o){
+       if (currentMap.get(uri) == null) currentMap.put(uri, new ArrayList<Record>());
        currentMap.get(uri).add(o);
    }
 
-   private void removeFromCurrentSelected(URI uri, Comparable o){
-       if(currentMap.get(uri) == null) currentMap.put(uri, new ArrayList<Comparable>());
+   private void removeFromCurrentSelected(URI uri, Record o){
+       if (currentMap.get(uri) == null) currentMap.put(uri, new ArrayList<Record>());
        currentMap.get(uri).remove(o);
    }
 
    private void addKey(URI uri){
-       this.map.put(uri, new ArrayList<Comparable>());
+       map.put(uri, new ArrayList<Record>());
    }
 
-   public void addMultipleSelections(URI uri, List<Comparable> list){
+   public void addMultipleSelections(URI uri, List<Record> list){
        for(int i = 0; i < list.size(); i++){
            addSelectionWithoutEvent(uri, list.get(i));
        }
-       if(this.map.get(uri) == null) addKey(uri);
-       Collections.sort(this.map.get(uri));
+       if (map.get(uri) == null) addKey(uri);
+       Collections.sort(map.get(uri));
        this.fireSelectionChangedEvent();
    }
 }

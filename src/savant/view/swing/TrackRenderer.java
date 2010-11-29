@@ -16,14 +16,10 @@
 
 package savant.view.swing;
 
-import java.net.URI;
-import savant.file.DataFormat;
-import savant.util.DrawingInstructions;
-import savant.util.Mode;
-import savant.util.Range;
 import java.awt.*;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Rectangle2D;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -32,10 +28,15 @@ import java.util.List;
 import java.util.Map;
 import javax.swing.JPanel;
 import javax.swing.JViewport;
+
 import savant.controller.RangeController;
 import savant.controller.SelectionController;
 import savant.data.types.GenericContinuousRecord;
 import savant.data.types.Record;
+import savant.file.DataFormat;
+import savant.util.DrawingInstructions;
+import savant.util.Mode;
+import savant.util.Range;
 import savant.view.swing.continuous.ContinuousTrackRenderer;
 
 /**
@@ -44,7 +45,7 @@ import savant.view.swing.continuous.ContinuousTrackRenderer;
  */
 public abstract class TrackRenderer {
 
-    private List<Object> data;
+    private List<Record> data;
     private DrawingInstructions instructions;
     private DataFormat dataType;
     private URI fileURI;
@@ -58,10 +59,10 @@ public abstract class TrackRenderer {
         this.fileURI = uri;
     }
 
-    public List<Object> getData() { 
-        if(data == null) return null;
-        return Collections.unmodifiableList(this.data);
+    public List<Record> getData() {
+        return data == null ? null : Collections.unmodifiableList(data);
     }
+
     public DrawingInstructions getDrawingInstructions() { return this.instructions; }
     public DataFormat getDataType() { return this.dataType; }
 
@@ -77,7 +78,7 @@ public abstract class TrackRenderer {
         return true;
     }
 
-    public void setData(List<Object> data) {
+    public void setData(List<Record> data) {
         this.data = data;
     }
 
@@ -152,15 +153,15 @@ public abstract class TrackRenderer {
         if(!selectionAllowed() || !hasMappedValues()) return false;
 
         boolean repaint = false;
-        List<Comparable> toAdd = new ArrayList<Comparable>();
+        List<Record> toAdd = new ArrayList<Record>();
 
         Iterator<Record> it = this.recordToShapeMap.keySet().iterator();
         while(it.hasNext()){
             Record o = it.next();
-            Shape s = this.recordToShapeMap.get(o);
+            Shape s = recordToShapeMap.get(o);
             if(s == null) continue;
             if(s.intersects(rect)){
-                toAdd.add((Comparable)o);
+                toAdd.add(o);
                 repaint = true;
             }
         }
@@ -177,7 +178,7 @@ public abstract class TrackRenderer {
 
     public void addToSelected(Record i){
         if(selectionAllowed()){
-            SelectionController.getInstance().toggleSelection(fileURI, (Comparable)i);
+            SelectionController.getInstance().toggleSelection(fileURI, i);
         }
     }
 

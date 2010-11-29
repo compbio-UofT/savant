@@ -29,12 +29,22 @@ public class Bookmark implements BookmarkAdapter, Serializable {
         this.setAnnotation(ann);
     }
 
+    @Override
     public String getReference() { return this.reference; }
+
+    @Override
     public RangeAdapter getRange() { return this.range; }
+
+    @Override
     public String getAnnotation() { return this.annotation; }
 
-    public void setReference(String r) { this.reference = r; }
-    public void setRange(RangeAdapter r) { this.range = (Range) r; }
-    public void setAnnotation(String ann) { this.annotation = ann; }
+    @Override
+    public final void setReference(String r) { this.reference = r; }
+
+    @Override
+    public final void setRange(RangeAdapter r) { this.range = (Range) r; }
+
+    @Override
+    public final void setAnnotation(String ann) { this.annotation = ann; }
 
 }

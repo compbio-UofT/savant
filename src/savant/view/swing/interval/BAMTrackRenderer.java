@@ -53,6 +53,7 @@ import java.util.logging.Logger;
 import javax.swing.JPanel;
 import javax.swing.JViewport;
 import savant.controller.ReferenceController;
+import savant.data.types.Record;
 import savant.settings.ColourSettings;
 import savant.view.swing.interval.Pileup.Nucleotide;
 
@@ -171,7 +172,7 @@ public class BAMTrackRenderer extends TrackRenderer {
         //set position offset for scrollpane
         this.offset = gp.getOffset();
 
-        List<Object> data = this.getData();
+        List<Record> data = this.getData();
 
         AxisRange axisRange = (AxisRange) getDrawingInstructions().getInstruction(DrawingInstructions.InstructionName.AXIS_RANGE);
         ColorScheme cs = (ColorScheme) getDrawingInstructions().getInstruction(DrawingInstructions.InstructionName.COLOR_SCHEME.toString());
@@ -527,8 +528,8 @@ public class BAMTrackRenderer extends TrackRenderer {
 
     private void renderArcMode(Graphics2D g2, GraphPane gp) {
 
-        List<Object> data = this.getData();
-        int numdata = this.getData().size();
+        List<Record> data = getData();
+        int numdata = getData().size();
 
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
@@ -660,7 +661,7 @@ public class BAMTrackRenderer extends TrackRenderer {
 
     private void renderSNPMode(Graphics2D g2, GraphPane gp, Resolution r){
 
-        List<Object> data = this.getData();
+        List<Record> data = getData();
         Genome genome = ReferenceController.getInstance().getGenome();
 
         AxisRange axisRange = (AxisRange) getDrawingInstructions().getInstruction(DrawingInstructions.InstructionName.AXIS_RANGE);

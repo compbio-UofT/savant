@@ -18,7 +18,9 @@ package savant.api.adapter;
 
 import java.net.URI;
 import java.util.List;
+import javax.swing.JPanel;
 import savant.data.sources.DataSource;
+import savant.data.types.Record;
 import savant.file.DataFormat;
 import savant.util.Resolution;
 
@@ -47,17 +49,119 @@ public interface ViewTrackAdapter {
     public Frame getFrame();
      */
 
-    // api
-    public DataFormat getDataType();
-    public String getName();
-    public List<Object> getDataInRange();
-    public List<ModeAdapter> getDrawModes();
-    public ModeAdapter getDrawMode();
-    public void setDrawMode(ModeAdapter mode);
-    public void setDrawMode(String modename);
+    /**
+     * Get the data currently being displayed (or ready to be displayed)
+     *
+     * @return List of data records
+     */
+    public List<Record> getDataInRange();
+
+    /**
+     * Get the data currently being displayed (or ready to be displayed) and intersect
+     * it with the selection.
+     *
+     * @return List of data records
+     */
+    public List<Record> getSelectedDataInRange();
+
+
+    /**
+     * Get the record (data) track associated with this view track (if any.)
+     *
+     * @return Record Track or null (in the case of a genome.)
+     */
     public DataSource getDataSource();
-    public Resolution getResolution(RangeAdapter range);
+
+
+    /**
+     * Get the type of file this view track represents
+     *
+     * @return  data format
+     */
+    public DataFormat getDataType();
+
+
+    /**
+     * Get current draw mode
+     *
+     * @return draw mode
+     */
+    public ModeAdapter getDrawMode();
+
+    /**
+     * Set the current draw mode.
+     *
+     * @param mode
+     */
+    public void setDrawMode(ModeAdapter mode);
+
+
+    /**
+     * Set the current draw mode by its name
+     *
+     * @param mode name
+     */
+    public void setDrawMode(String modename);
+
+
+    /**
+     * Get all valid draw modes for this track.
+     *
+     * @return List of draw Modes
+     */
+    public List<ModeAdapter> getDrawModes();
+
+
+    /**
+     * Get the default draw mode.
+     *
+     * @return  the default draw mode
+     */
     public ModeAdapter getDefaultDrawMode();
+
+
+    /**
+     * Get the JPanel for the layer to draw on top of the track.
+     *
+     * @return component to draw onto
+     */
+    public JPanel getLayerCanvas();
+
+
+    /**
+     * Get the name of this track. Usually constructed from the file name.
+     *
+     * @return track name
+     */
+    public String getName();
+
+
+    /**
+     * Get the resolution associated with the given range
+     *
+     * @param range
+     * @return resolution appropriate to the range
+     */
+    public Resolution getResolution(RangeAdapter range);
+
+
+    /**
+     * Get the URI corresponding to the track's DataSource.
+     *
+     * @return the URI for the track's data (possibly null)
+     */
     public URI getURI();
 
+    /**
+     * Does this track allow selections?
+     *
+     * @return true if the user can select
+     */
+    public boolean isSelectionAllowed();
+
+
+    /**
+     * Repaint the track's contents.
+     */
+    public void repaint();
 }

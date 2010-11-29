@@ -21,9 +21,6 @@
 
 package savant.data.types;
 
-import savant.data.types.Point;
-import savant.data.types.Record;
-
 /**
  * Immutable class implementing a Record which contains a Point
  *

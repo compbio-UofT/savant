@@ -1,4 +1,7 @@
 /*
+ * GenericContinuousRecord.java
+ * Created on Aug 18, 2010
+ *
  *    Copyright 2010 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,17 +17,12 @@
  *    limitations under the License.
  */
 
-/*
- * GenericContinuousRecord.java
- * Created on Aug 18, 2010
- */
-
 package savant.data.types;
 
 /**
  * Immutable class to contain a value and the position at which that value obtains.
  */
-public class GenericContinuousRecord implements ContinuousRecord, Comparable {
+public class GenericContinuousRecord implements ContinuousRecord {
 
     private final String reference;
     private final Continuous value;

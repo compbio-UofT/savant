@@ -33,6 +33,7 @@ import java.util.List;
 import savant.api.adapter.RangeAdapter;
 import savant.controller.ViewTrackController;
 import savant.data.sources.FASTAFileDataSource;
+import savant.data.types.Record;
 import savant.data.types.SequenceRecord;
 import savant.file.SavantROFile;
 
@@ -87,25 +88,27 @@ public class SequenceViewTrack extends ViewTrack {
      * getData
      *     Get data in the specified range at the specified resolution
      */
-    public List<Object> retrieveData(String reference, RangeAdapter range, Resolution resolution)
+    @Override
+    public List<Record> retrieveData(String reference, RangeAdapter range, Resolution resolution)
     {
 
-        String subsequence = "";
+        SequenceRecord subsequence = null;
         try {
-            List result = this.getDataSource().getRecords(reference, range, resolution);
+            List<Record> result = getDataSource().getRecords(reference, range, resolution);
             if (result == null || result.isEmpty()) { return null; }
-            subsequence = ((SequenceRecord) this.getDataSource().getRecords(reference, range, resolution).get(0)).getSequence();
+            subsequence = (SequenceRecord)getDataSource().getRecords(reference, range, resolution).get(0);
         } catch (IOException ex) {
             log.error("Error: getting sequence data");
         }
 
-        List<Object> result = new ArrayList<Object>();
+        List<Record> result = new ArrayList<Record>();
         result.add(subsequence);
 
         // return result
         return result;
     }
 
+    @Override
     public Resolution getResolution(RangeAdapter range)
     {
         long length = range.getLength();
@@ -114,15 +117,16 @@ public class SequenceViewTrack extends ViewTrack {
         return Resolution.VERY_HIGH;
     }
 
+    @Override
     public void prepareForRendering(String reference, Range range) throws Throwable {
 
         if (range == null) { return; }
 
         Resolution r = getResolution(range);
-        List<Object> data = null;
+        List<Record> data = null;
 
         if (r == Resolution.VERY_HIGH) {
-            data = this.retrieveAndSaveData(reference, range);
+            data = retrieveAndSaveData(reference, range);
         } else {
             this.saveNullData();
         }

@@ -100,7 +100,7 @@ public class TrackUtils {
      * @param trackname
      * @return
      */
-    public static DataSource getTrackDatasource(String trackname) {
+    public static DataSource getTrackDataSource(String trackname) {
         ViewTrackAdapter t = getTrack(trackname);
         if (t == null) { return null; }
         return t.getDataSource();

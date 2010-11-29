@@ -16,6 +16,15 @@
 
 package savant.view.swing.sequence;
 
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.geom.Rectangle2D;
+import java.util.List;
+import savant.data.types.Record;
+
+import savant.data.types.SequenceRecord;
 import savant.util.ColorScheme;
 import savant.util.DrawingInstructions;
 import savant.util.Range;
@@ -23,9 +32,6 @@ import savant.view.swing.GraphPane;
 import savant.view.swing.TrackRenderer;
 import savant.view.swing.util.GlassMessagePane;
 
-import java.awt.*;
-import java.awt.geom.Rectangle2D;
-import java.util.List;
 
 /**
  * Class to draw a sequence track as alternating bars of colour with base letters in the center.
@@ -63,7 +69,7 @@ public class SequenceTrackRenderer extends TrackRenderer {
         double unitHeight = gp.getUnitHeight();
 
 
-        List<Object> data = this.getData();
+        List<Record> data = getData();
         
         // Don't display sequence if data is too high resolution to see.
         if (data == null || unitWidth < 0.2) {
@@ -72,7 +78,7 @@ public class SequenceTrackRenderer extends TrackRenderer {
             return;
         }
 
-        String sequence = (String) this.getData().get(0);
+        String sequence = ((SequenceRecord)getData().get(0)).getSequence();
 
         // Set the font size, if base name is renderable at all.
         boolean baseRenderable = false;
@@ -96,7 +102,7 @@ public class SequenceTrackRenderer extends TrackRenderer {
 
             ColorScheme colorScheme = (ColorScheme)getDrawingInstructions().getInstruction(DrawingInstructions.InstructionName.COLOR_SCHEME);
             Color c = colorScheme.getColor("Background");
-            switch(sequence.charAt(i)) {
+            switch (sequence.charAt(i)) {
 
                 case 'A':
                     c = colorScheme.getColor("A");

@@ -36,6 +36,7 @@ import java.util.ArrayList;
 import java.util.List;
 import savant.api.adapter.ModeAdapter;
 import savant.api.adapter.RangeAdapter;
+import savant.data.types.Record;
 import savant.settings.ColourSettings;
 
 /**
@@ -67,7 +68,7 @@ public class BEDViewTrack extends ViewTrack {
     @Override
     public void prepareForRendering(String reference, Range range) throws Throwable {
         Resolution r = getResolution(range);
-        List<Object> data = retrieveAndSaveData(reference, range);
+        List<Record> data = retrieveAndSaveData(reference, range);
         for (TrackRenderer renderer : getTrackRenderers()) {
             boolean contains = (this.getDataSource().getReferenceNames().contains(reference) || this.getDataSource().getReferenceNames().contains(MiscUtils.homogenizeSequence(reference)));
             renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.RANGE, range);
@@ -83,8 +84,8 @@ public class BEDViewTrack extends ViewTrack {
 
 
     @Override
-    public List<Object> retrieveData(String reference, RangeAdapter range, Resolution resolution) throws Exception {
-        return new ArrayList<Object>(getDataSource().getRecords(reference, range, resolution));
+    public List<Record> retrieveData(String reference, RangeAdapter range, Resolution resolution) throws Exception {
+        return getDataSource().getRecords(reference, range, resolution);
     }
 
     @Override
