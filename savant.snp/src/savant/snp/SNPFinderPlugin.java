@@ -14,54 +14,54 @@
  *    limitations under the License.
  */
 
-/*
- * DataTab.java
- * Created on Feb 25, 2010
- */
 package savant.snp;
 
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
-import javax.swing.event.ChangeEvent;
-import org.java.plugin.Plugin;
-import savant.controller.event.range.RangeChangedEvent;
-import savant.controller.event.viewtrack.ViewTrackListChangedEvent;
-import savant.plugin.GUIPlugin;
-import savant.plugin.PluginAdapter;
-import savant.settings.ColourSettings;
-
-import javax.swing.*;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseListener;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.swing.JCheckBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSlider;
+import javax.swing.JTextArea;
+import javax.swing.JToolBar;
 import javax.swing.event.ChangeListener;
+import javax.swing.event.ChangeEvent;
+
 import net.sf.samtools.Cigar;
 import net.sf.samtools.CigarElement;
 import net.sf.samtools.CigarOperator;
 import net.sf.samtools.SAMRecord;
-import savant.controller.BookmarkController;
-import savant.controller.RangeController;
-import savant.controller.ReferenceController;
-import savant.controller.ViewTrackController;
-import savant.controller.event.range.RangeChangedListener;
-import savant.controller.event.viewtrack.ViewTrackListChangedListener;
-import savant.model.BAMIntervalRecord;
-import savant.model.FileFormat;
-import savant.model.Genome;
-//import savant.snp.Pileup.Nucleotide;
-import savant.snp.Pileup.Nucleotide;
-import savant.util.Bookmark;
-import savant.util.MiscUtils;
-import savant.util.Range;
-import savant.view.swing.Savant;
-import savant.view.swing.ViewTrack;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import savant.api.adapter.GenomeAdapter;
 
-public class SNPFinderPlugin extends Plugin implements GUIPlugin, RangeChangedListener, ViewTrackListChangedListener {
+import savant.api.adapter.ViewTrackAdapter;
+import savant.api.util.BookmarkUtils;
+import savant.api.util.NavigationUtils;
+import savant.api.util.TrackUtils;
+import savant.controller.event.RangeChangeCompletedListener;
+import savant.controller.event.RangeChangedEvent;
+import savant.controller.event.ViewTrackListChangedEvent;
+import savant.controller.event.ViewTrackListChangedListener;
+import savant.data.types.BAMIntervalRecord;
+import savant.data.types.Record;
+import savant.file.DataFormat;
+import savant.plugin.GUIPlugin;
+import savant.plugin.PluginAdapter;
+import savant.snp.Pileup.Nucleotide;
+
+public class SNPFinderPlugin extends GUIPlugin implements RangeChangeCompletedListener, ViewTrackListChangedListener {
+    private static final Log LOG = LogFactory.getLog(SNPFinderPlugin.class);
 
     private final int MAX_RANGE_TO_SEARCH = 5000;
     private JTextArea info;
@@ -70,21 +70,25 @@ public class SNPFinderPlugin extends Plugin implements GUIPlugin, RangeChangedLi
     private int transparency = 50;
     private String sequence;
 
-    private Map<ViewTrack, JPanel> viewTrackToCanvasMap;
-    private Map<ViewTrack, List<Pileup>> viewTrackToPilesMap;
-    private Map<ViewTrack, List<Pileup>> viewTrackToSNPsMap;
+    private Map<ViewTrackAdapter, JPanel> viewTrackToCanvasMap;
+    private Map<ViewTrackAdapter, List<Pileup>> viewTrackToPilesMap;
+    private Map<ViewTrackAdapter, List<Pileup>> viewTrackToSNPsMap;
+    private Map<ViewTrackAdapter, List<Pileup>> snpsFound;
+
+
 
     //private Map<ViewTrack,JPanel> lastViewTrackToCanvasMapDrawn;
 
     /* == INITIALIZATION == */
 
     /* INITIALIZE THE SNP FINDER */
-    public void init(JTabbedPane tabbedPane, PluginAdapter pluginAdapter) {
-        JPanel tablePanel = createTabPanel(tabbedPane, "SNPs");
-        pluginAdapter.getRangeController().addRangeChangedListener(this);
-        pluginAdapter.getViewTrackController().addTracksChangedListener(this);
-        snpsFound = new HashMap<ViewTrack,List<Pileup>>();
-        setupGUI(tablePanel);
+
+    @Override
+    public void init(JPanel canvas, PluginAdapter pluginAdapter) {
+        NavigationUtils.addRangeChangeListener(this);
+        TrackUtils.addTracksChangedListener(this);
+        snpsFound = new HashMap<ViewTrackAdapter, List<Pileup>>();
+        setupGUI(canvas);
         addMessage("SNP finder initialized");
     }
 
@@ -95,6 +99,12 @@ public class SNPFinderPlugin extends Plugin implements GUIPlugin, RangeChangedLi
     @Override
     protected void doStop() throws Exception {
     }
+
+    @Override
+    public String getTitle() {
+        return "SNP Finder Plugin";
+    }
+
 
     /* INIT THE UI */
     private void setupGUI(JPanel panel) {
@@ -126,27 +136,10 @@ public class SNPFinderPlugin extends Plugin implements GUIPlugin, RangeChangedLi
                 setSensitivity(sens_slider.getValue());
             }
         });
-        sens_slider.addMouseListener(new MouseListener() {
-
-            @Override
-            public void mouseClicked(MouseEvent e) {
-            }
-
-            @Override
-            public void mousePressed(MouseEvent e) {
-            }
-
+        sens_slider.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseReleased(MouseEvent e) {
                 addMessage("Changed sensitivity to " + sensitivity);
-            }
-
-            @Override
-            public void mouseEntered(MouseEvent e) {
-            }
-
-            @Override
-            public void mouseExited(MouseEvent e) {
             }
         });
 
@@ -162,27 +155,10 @@ public class SNPFinderPlugin extends Plugin implements GUIPlugin, RangeChangedLi
                 setTransparency(trans_slider.getValue());
             }
         });
-        trans_slider.addMouseListener(new MouseListener() {
-
-            @Override
-            public void mouseClicked(MouseEvent e) {
-            }
-
-            @Override
-            public void mousePressed(MouseEvent e) {
-            }
-
+        trans_slider.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseReleased(MouseEvent e) {
                 addMessage("Changed transparency to " + transparency);
-            }
-
-            @Override
-            public void mouseEntered(MouseEvent e) {
-            }
-
-            @Override
-            public void mouseExited(MouseEvent e) {
             }
         });
 
@@ -210,24 +186,19 @@ public class SNPFinderPlugin extends Plugin implements GUIPlugin, RangeChangedLi
 
     }
 
-    /* ATTACH TO SAVANT UI */
-    private JPanel createTabPanel(JTabbedPane jtp, String name) {
-        JPanel pan = new JPanel();
-        pan.setLayout(new BorderLayout());
-        pan.setBackground(ColourSettings.colorTabBackground);
-        jtp.addTab(name, pan);
-        return pan;
-    }
-
-    /* ADD INFO TO THE UI */
+    /**
+     * Add info to the UI.
+     */
     private void addMessage(String msg) {
-        info.setText(info.getText() + "[" + MiscUtils.now() + "]    " + msg + "\n");
+        info.setText(String.format("%s[%T]    %s\n", info.getText(), new Date(), msg));
         info.setCaretPosition(info.getText().length());
     }
 
-    /* == HELPERS == */
-
-    /* RETRIEVE CANVASES */
+    /**
+     * Retrieve canvases.
+     *
+     * @return
+     */
     private List<PileupPanel> getPileupPanels() {
         List<PileupPanel> panels = new ArrayList<PileupPanel>();
         for (JPanel p : this.viewTrackToCanvasMap.values()) {
@@ -238,30 +209,36 @@ public class SNPFinderPlugin extends Plugin implements GUIPlugin, RangeChangedLi
         return panels;
     }
 
-    /* == EVENTS == */
-
-    /* RANGE CHANGE */
+    /**
+     * Range change.
+     *
+     * @param event
+     */
     @Override
-    public void rangeChangeReceived(RangeChangedEvent event) {
+    public void rangeChangeCompletedReceived(RangeChangedEvent event) {
         setSequence();
         updateTrackCanvasMap();
         runSNPFinder();
     }
 
-    /* TRACK CHANGE */
+    /**
+     * Track change.
+     */
     @Override
     public void viewTrackListChangeReceived(ViewTrackListChangedEvent event) {
         //updateTrackCanvasMap();
     }
 
-    /* REFRESH LIST OF CANVASES */
+    /**
+     * Refresh list of canvases.
+     */
     private void updateTrackCanvasMap() {
 
 
 
 
         if (viewTrackToCanvasMap == null) {
-            viewTrackToCanvasMap = new HashMap<ViewTrack, JPanel>();
+            viewTrackToCanvasMap = new HashMap<ViewTrackAdapter, JPanel>();
         }
 
         // TODO: should get rid of old JPanels here!
@@ -272,32 +249,30 @@ public class SNPFinderPlugin extends Plugin implements GUIPlugin, RangeChangedLi
         viewTrackToCanvasMap.clear();
         // END
 
-        Map<ViewTrack, JPanel> newmap = new HashMap<ViewTrack, JPanel>();
+        Map<ViewTrackAdapter, JPanel> newmap = new HashMap<ViewTrackAdapter, JPanel>();
 
-        ViewTrackController vtc = ViewTrackController.getInstance();
-        for (ViewTrack t : vtc.getTracks()) {
+        for (ViewTrackAdapter t : TrackUtils.getTracks()) {
 
-            if (t.getDataType() == FileFormat.INTERVAL_BAM) {
+            if (t.getDataType() == DataFormat.INTERVAL_BAM) {
 
-                try {
-                    if (viewTrackToCanvasMap.containsKey(t)) {
-                        newmap.put(t, viewTrackToCanvasMap.get(t));
-                        viewTrackToCanvasMap.remove(t);
-                    } else {
-                        //System.out.println("putting " + t.getName() + " in BAM map");
-                        newmap.put(t, t.getFrame().getLayerToDraw());
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
+                if (viewTrackToCanvasMap.containsKey(t)) {
+                    newmap.put(t, viewTrackToCanvasMap.get(t));
+                    viewTrackToCanvasMap.remove(t);
+                } else {
+                    //System.out.println("putting " + t.getName() + " in BAM map");
+                    newmap.put(t, t.getLayerCanvas());
                 }
-                //System.out.println("done putting " + t.getName() + " in BAM map");
             }
         }
 
         viewTrackToCanvasMap = newmap;
     }
 
-    /* SET THIS SNP FINDER ON/OFF */
+    /**
+     * Set this SNP finder on/off.
+     *
+     * @param isOn
+     */
     private void setIsOn(boolean isOn) {
         this.isSNPFinderOn = isOn;
         List<PileupPanel> panels = this.getPileupPanels();
@@ -307,13 +282,17 @@ public class SNPFinderPlugin extends Plugin implements GUIPlugin, RangeChangedLi
         this.repaintPileupPanels();
     }
 
-    /* CHANGE THE SENSITIVITY OF THE FINDER */
+    /**
+     * Change the sensitivity of the finder.
+     */
     private void setSensitivity(int s) {
         sensitivity = s;
         this.doEverything();
     }
 
-    /* CHANGE THE TRANSPARENCY OF THE RENDERER */
+    /**
+     * Change the transparency of the renderer.
+     */
     private void setTransparency(int t) {
         transparency = t;
         List<PileupPanel> panels = this.getPileupPanels();
@@ -323,13 +302,13 @@ public class SNPFinderPlugin extends Plugin implements GUIPlugin, RangeChangedLi
         repaintPileupPanels();
     }
 
-    /* == SNP FINDING == */
-
-    /* RUN THE FINDER */
+    /**
+     * Run the finder.
+     */
     private void runSNPFinder() {
         if (isSNPFinderOn) {
 
-            if (RangeController.getInstance().getRange().getLength() > MAX_RANGE_TO_SEARCH) {
+            if (NavigationUtils.getCurrentRange().getLength() > MAX_RANGE_TO_SEARCH) {
                 addMessage("Won't look for SNPs above range of " + MAX_RANGE_TO_SEARCH + " basepairs");
                 return;
             }
@@ -341,25 +320,31 @@ public class SNPFinderPlugin extends Plugin implements GUIPlugin, RangeChangedLi
         //System.out.println("done checking for snps");
     }
 
-    /* DO EVERYTHING */
+    /**
+     * Do everything.
+     */
     private void doEverything() {
         if (sequence == null) { setSequence(); }
         updateTrackCanvasMap();
         createPileups();
         callSNPs();
-        drawPiles(this.viewTrackToSNPsMap, this.viewTrackToCanvasMap);
+        drawPiles();
     }
 
-    /* PILE UP */
+    /**
+     * Pile up.
+     */
     private void createPileups() {
 
-        if (this.viewTrackToPilesMap != null) { this.viewTrackToPilesMap.clear(); }
-        this.viewTrackToPilesMap = new HashMap<ViewTrack,List<Pileup>>();
+        if (this.viewTrackToPilesMap != null) {
+            viewTrackToPilesMap.clear();
+        }
+        viewTrackToPilesMap = new HashMap<ViewTrackAdapter, List<Pileup>>();
 
-        for (ViewTrack t : viewTrackToCanvasMap.keySet()) {
+        for (ViewTrackAdapter t : viewTrackToCanvasMap.keySet()) {
             try {
                 //List<Integer> snps =
-                int startPosition = RangeController.getInstance().getRangeStart();
+                long startPosition = NavigationUtils.getCurrentRange().getFrom();
                 List<Pileup> piles = makePileupsFromSAMRecords(t.getName(), t.getDataInRange(), sequence, startPosition);
                 this.viewTrackToPilesMap.put(t, piles);
                 //drawPiles(piles, viewTrackToCanvasMap.get(t));
@@ -373,8 +358,10 @@ public class SNPFinderPlugin extends Plugin implements GUIPlugin, RangeChangedLi
         }
     }
 
-    /* MAKE PILEUPS FOR SAMRECORDS */
-    private List<Pileup> makePileupsFromSAMRecords(String viewTrackName, List<Object> samRecords, String sequence, long startPosition) throws IOException {
+    /**
+     * Make pileups for SAM records.
+     */
+    private List<Pileup> makePileupsFromSAMRecords(String viewTrackName, List<Record> samRecords, String sequence, long startPosition) throws IOException {
 
         //addMessage("Examining each position");
 
@@ -389,10 +376,9 @@ public class SNPFinderPlugin extends Plugin implements GUIPlugin, RangeChangedLi
         //System.out.println("Pileup start: " + startPosition);
 
         // go through the samrecords and edit the pileups
-        for (Object o : samRecords) {
-            BAMIntervalRecord bir = (BAMIntervalRecord) o;
-            SAMRecord sr = bir.getSamRecord();
-            updatePileupsFromSAMRecord(pileups, ReferenceController.getInstance().getGenome(), sr, startPosition);
+        for (Record r : samRecords) {
+            SAMRecord sr = ((BAMIntervalRecord)r).getSamRecord();
+            updatePileupsFromSAMRecord(pileups, NavigationUtils.getGenome(), sr, startPosition);
         }
 
         //addMessage("Done examining each position");
@@ -401,7 +387,7 @@ public class SNPFinderPlugin extends Plugin implements GUIPlugin, RangeChangedLi
     }
 
     /* UPDATE PILEUP INFORMATION FROM SAM RECORD */
-    private void updatePileupsFromSAMRecord(List<Pileup> pileups, Genome genome, SAMRecord samRecord, long startPosition) throws IOException {
+    private void updatePileupsFromSAMRecord(List<Pileup> pileups, GenomeAdapter genome, SAMRecord samRecord, long startPosition) throws IOException {
 
         // the start and end of the alignment
         int alignmentStart = samRecord.getAlignmentStart();
@@ -418,7 +404,7 @@ public class SNPFinderPlugin extends Plugin implements GUIPlugin, RangeChangedLi
 
         // the reference sequence
         //byte[] refSeq = genome.getSequence(new Range(alignmentStart, alignmentEnd)).getBytes();
-        byte[] refSeq = genome.getSequence(ReferenceController.getInstance().getReferenceName(), new Range(alignmentStart, alignmentEnd)).getBytes();
+        byte[] refSeq = genome.getSequence(NavigationUtils.getCurrentReferenceName(), NavigationUtils.createRange(alignmentStart, alignmentEnd)).getBytes();
 
         // get the cigar object for this alignment
         Cigar cigar = samRecord.getCigar();
@@ -506,17 +492,19 @@ public class SNPFinderPlugin extends Plugin implements GUIPlugin, RangeChangedLi
     private void callSNPs() {
 
         if (this.viewTrackToSNPsMap != null) { this.viewTrackToSNPsMap.clear(); }
-        this.viewTrackToSNPsMap = new HashMap<ViewTrack,List<Pileup>>();
+        this.viewTrackToSNPsMap = new HashMap<ViewTrackAdapter, List<Pileup>>();
 
-        for (ViewTrack t : viewTrackToCanvasMap.keySet()) {
-            List<Pileup> piles = this.viewTrackToPilesMap.get(t);
+        for (ViewTrackAdapter t : viewTrackToCanvasMap.keySet()) {
+            List<Pileup> piles = viewTrackToPilesMap.get(t);
             List<Pileup> snps = callSNPsFromPileups(piles, sequence);
             this.viewTrackToSNPsMap.put(t, snps);
             addFoundSNPs(t, snps);
         }
     }
 
-    /* CALL SNP FOR PILES FOR CURRECT SEQUENCE */
+    /**
+     * Call SNP for piles for current sequence.
+     */
     private List<Pileup> callSNPsFromPileups(List<Pileup> piles, String sequence) {
 
         //addMessage("Calling SNPs");
@@ -555,7 +543,9 @@ public class SNPFinderPlugin extends Plugin implements GUIPlugin, RangeChangedLi
 
     /* == RENDERING == */
 
-    /* REPAINT CANVASES (e.g. bc of change in transparency) */
+    /**
+     * Repaint canvases (e.g. because of change in transparency).
+     */
     private void repaintPileupPanels() {
 
         List<PileupPanel> canvases = this.getPileupPanels();
@@ -566,22 +556,26 @@ public class SNPFinderPlugin extends Plugin implements GUIPlugin, RangeChangedLi
         }
     }
 
-    /* DRAW PILES ON PANELS FOR ALL VIEWTRACKS */
-    private void drawPiles(Map<ViewTrack,List<Pileup>> viewTrackToPileMap, Map<ViewTrack,JPanel> viewTrackToCanvasMap) {
+    /**
+     * Draw piles on panels for all ViewTracks.
+     */
+    private void drawPiles() {
 
         //lastViewTrackToCanvasMapDrawn = viewTrackToCanvasMap;
 
         //System.out.println("Drawing annotations");
 
-        for (ViewTrack t : viewTrackToPileMap.keySet()) {
-            List<Pileup> pile = viewTrackToPileMap.get(t);
+        for (ViewTrackAdapter t : viewTrackToSNPsMap.keySet()) {
+            List<Pileup> pile = viewTrackToSNPsMap.get(t);
             drawPiles(pile, viewTrackToCanvasMap.get(t));
         }
 
         //System.out.println("Done drawing annotations");
     }
 
-    /* DRAW PILES ON PANEL */
+    /**
+     * Draw piles on panel.
+     */
     private void drawPiles(List<Pileup> piles, JPanel p) {
 
         p.removeAll();
@@ -594,14 +588,14 @@ public class SNPFinderPlugin extends Plugin implements GUIPlugin, RangeChangedLi
         this.repaintPileupPanels();
     }
 
-    /* == OTHER == */
-
-    /* SET REFERENCE SEQUENCE */
+    /**
+     * Set reference sequence.
+     */
     private void setSequence() {
         sequence = null;
-        if (ReferenceController.getInstance().getGenome().isSequenceSet()) {
+        if (NavigationUtils.isGenomeLoaded()) {
             try {
-                sequence = ReferenceController.getInstance().getGenome().getSequence(ReferenceController.getInstance().getReferenceName(), RangeController.getInstance().getRange());
+                sequence = NavigationUtils.getGenome().getSequence(NavigationUtils.getCurrentReferenceName(), NavigationUtils.getCurrentRange());
             } catch (IOException ex) {
                 addMessage("Error: could not get sequence");
                 return;
@@ -612,9 +606,7 @@ public class SNPFinderPlugin extends Plugin implements GUIPlugin, RangeChangedLi
         }
     }
 
-    HashMap<ViewTrack,List<Pileup>> snpsFound;
-
-    private boolean foundSNPAlready(ViewTrack t, Pileup p) {
+    private boolean foundSNPAlready(ViewTrackAdapter t, Pileup p) {
         if (snpsFound.containsKey(t) && snpsFound.get(t).contains(p)) {
             //System.out.println(p.getPosition() + " found already");
             return true;
@@ -624,20 +616,20 @@ public class SNPFinderPlugin extends Plugin implements GUIPlugin, RangeChangedLi
         }
     }
 
-    private void addFoundSNPs(ViewTrack t, List<Pileup> snps) {
+    private void addFoundSNPs(ViewTrackAdapter t, List<Pileup> snps) {
         for (Pileup snp : snps) {
             addFoundSNP(t,snp);
         }
     }
 
-    private void addFoundSNP(ViewTrack t, Pileup snp) {
+    private void addFoundSNP(ViewTrackAdapter t, Pileup snp) {
         if (!this.foundSNPAlready(t, snp)) {
             if (!snpsFound.containsKey(t)) {
                 List<Pileup> snps = new ArrayList<Pileup>();
                 snpsFound.put(t, snps);
             }
 
-            BookmarkController.getInstance().addBookmark(new Bookmark(ReferenceController.getInstance().getReferenceName(), new Range((int) snp.getPosition(), (int) snp.getPosition()),
+            BookmarkUtils.addBookmark(BookmarkUtils.createBookmark(NavigationUtils.getCurrentReferenceName(), NavigationUtils.createRange(snp.getPosition(), snp.getPosition()),
                     snp.getSNPNucleotide() + "/" + snp.getReferenceNucleotide()
                     + " SNP "
                     + (int) snp.getCoverage(snp.getSNPNucleotide()) + "/" + (int) snp.getCoverage(snp.getReferenceNucleotide())
@@ -650,19 +642,5 @@ public class SNPFinderPlugin extends Plugin implements GUIPlugin, RangeChangedLi
     private String shortenPercentage(double p) {
         String s = ((int) Math.round(p*100)) + "";
         return s + "%";
-    }
-
-    @Override
-    public void init(JPanel canvas, PluginAdapter pluginAdapter) {
-        pluginAdapter.getRangeController().addRangeChangedListener(this);
-        pluginAdapter.getViewTrackController().addTracksChangedListener(this);
-        snpsFound = new HashMap<ViewTrack,List<Pileup>>();
-        setupGUI(canvas);
-        addMessage("SNP finder initialized");
-    }
-
-    @Override
-    public String getTitle() {
-        return "SNP Finder Plugin";
     }
 }
