@@ -1,26 +1,41 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ *    Copyright 2010 University of Toronto
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
  */
 
 package savant.view.swing;
 
+
+import java.awt.BorderLayout;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import javax.swing.DefaultListModel;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JTree;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreePath;
+import javax.swing.tree.TreeSelectionModel;
+
+import savant.controller.FrameController;
 import savant.controller.event.FrameRemovedEvent;
 import savant.controller.event.FrameAddedListener;
 import savant.controller.event.FrameChangedEvent;
 import savant.controller.event.FrameRemovedListener;
 import savant.controller.event.FrameAddedEvent;
-import savant.controller.FrameController;
-import savant.controller.event.frame.*;
-
-import javax.swing.*;
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.TreePath;
-import javax.swing.tree.TreeSelectionModel;
-import java.awt.*;
-import java.util.Hashtable;
-import java.util.List;
 
 /**
  *
@@ -87,10 +102,10 @@ class FrameSheet implements FrameAddedListener, FrameRemovedListener {
         return childNode;
     }
 
-    private Hashtable getFrameTree() {
+    private Map<String, String[]> getFrameTree() {
 
         List<Frame> frames = FrameController.getInstance().getFrames();
-        Hashtable framesTree = new Hashtable();
+        Map<String, String[]> framesTree = new HashMap<String, String[]>();
 
         for (int j = 0; j < frames.size(); j++) {
             Frame fr = frames.get(j);
@@ -98,7 +113,7 @@ class FrameSheet implements FrameAddedListener, FrameRemovedListener {
             for (int i = 0; i < fr.getTracks().size(); i++) {
                 trackNames[i] = fr.getTracks().get(i).getName();
             }
-            framesTree.put("Frame " + (j+1),trackNames);
+            framesTree.put("Frame " + (j+1), trackNames);
         }
 
         printMap(framesTree);
@@ -110,13 +125,10 @@ class FrameSheet implements FrameAddedListener, FrameRemovedListener {
         updateFrameSheet();
     }
 
-    private void printMap(Hashtable framesTree) {
+    private void printMap(Map<String, String[]> framesTree) {
 
-        for (Object key : framesTree.keySet()) {
-            String k = (String) key;
-            //System.out.println(k);
-
-            String[] value = (String[]) framesTree.get(key);
+        for (String key : framesTree.keySet()) {
+            String[] value = framesTree.get(key);
             for (String val : value) {
                 //System.out.println("\t" + val);
             }
@@ -143,10 +155,12 @@ class FrameSheet implements FrameAddedListener, FrameRemovedListener {
         this.panel.add(tree,BorderLayout.CENTER);
     }
 
+    @Override
     public void frameAddedReceived(FrameAddedEvent event) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
+    @Override
     public void frameRemovedReceived(FrameRemovedEvent event) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
