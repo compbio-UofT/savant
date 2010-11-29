@@ -16,6 +16,11 @@
 
 package savant.api.util;
 
+import java.io.File;
+import javax.swing.filechooser.FileFilter;
+
+import savant.view.swing.Savant;
+
 /**
  * Utility methods to allow plugins to make Savant display a dialog.
  *
@@ -105,5 +110,26 @@ public class DialogUtils {
      */
     public static void displayException(String title, String message, Throwable x) {
         savant.view.swing.util.DialogUtils.displayException(title, message, x);
+    }
+
+    /**
+     * Prompt the user to save a file.
+     *
+     * @param title title of the dialog
+     * @return a File, or null if cancelled
+     */
+    public static File chooseFileForSave(String title) {
+        return savant.view.swing.util.DialogUtils.chooseFileForSave(Savant.getInstance(), title, null);
+    }
+
+    /**
+     * Prompt the user to save a file.
+     *
+     * @param title title of the dialog
+     * @param filter file-filter for controlling what appears in the dialog
+     * @return a File, or null if cancelled
+     */
+    public static File chooseFileForSave(String title, FileFilter filter) {
+        return savant.view.swing.util.DialogUtils.chooseFileForSave(Savant.getInstance(), title, filter);
     }
 }

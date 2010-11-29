@@ -27,8 +27,8 @@ import java.io.File;
 import java.io.FilenameFilter;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
-import javax.swing.filechooser.FileFilter;
 import javax.swing.JOptionPane;
+import javax.swing.filechooser.FileFilter;
 
 import com.jidesoft.dialog.JideOptionPane;
 
@@ -78,7 +78,7 @@ public class DialogUtils {
         if (MiscUtils.MAC) {
             FileDialog fd = new FileDialog(parent, title, FileDialog.LOAD);
             if (filter != null) {
-                fd.setFilenameFilter(new FileFilterAdapter(filter));
+                fd.setFilenameFilter(new FilenameFilterAdapter(filter));
             }
             fd.setVisible(true);
             fd.setAlwaysOnTop(true);
@@ -130,14 +130,29 @@ public class DialogUtils {
         return new File[] {};
     }
 
+    /**
+     * Prompt the user to save a file.
+     *
+     * @param parent window which will serve as the parent for this dialog
+     * @param title title of the dialog
+     * @return a File, or null if cancelled
+     */
     public static File chooseFileForSave(Frame parent, String title) {
         return chooseFileForSave(parent, title, null);
     }
 
+    /**
+     * Prompt the user to save a file.
+     *
+     * @param parent window which will serve as the parent for this dialog
+     * @param title title of the dialog
+     * @param filter file-filter for controlling what appears in the dialog
+     * @return a File, or null if cancelled
+     */
     public static File chooseFileForSave(Frame parent, String title, FileFilter filter) {
         FileDialog fd = new FileDialog(parent, title, FileDialog.SAVE);
         if (filter != null) {
-            fd.setFilenameFilter(new FileFilterAdapter(filter));
+            fd.setFilenameFilter(new FilenameFilterAdapter(filter));
         }
         fd.setAlwaysOnTop(true);
         fd.setVisible(true);
@@ -152,10 +167,10 @@ public class DialogUtils {
      * Little class so that caller can pass us a FileFilter and will still be able
      * to use it with a Mac FileDialog.
      */
-    static class FileFilterAdapter implements FilenameFilter {
+    static class FilenameFilterAdapter implements FilenameFilter {
         FileFilter filter;
 
-        FileFilterAdapter(FileFilter f) {
+        FilenameFilterAdapter(FileFilter f) {
             filter = f;
         }
 
