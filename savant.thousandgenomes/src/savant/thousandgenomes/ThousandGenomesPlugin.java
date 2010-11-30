@@ -24,10 +24,10 @@ import javax.swing.JPanel;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import savant.plugin.GUIPlugin;
 import savant.plugin.PluginAdapter;
+import savant.plugin.SavantPanelPlugin;
 
-public class ThousandGenomesPlugin extends GUIPlugin {
+public class ThousandGenomesPlugin extends SavantPanelPlugin {
     private static final Log LOG = LogFactory.getLog(ThousandGenomesPlugin.class);
 
     FTPBrowser browser;

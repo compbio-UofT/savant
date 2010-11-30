@@ -25,10 +25,10 @@ import javax.swing.JPanel;
 import savant.api.util.NavigationUtils;
 import savant.api.util.SelectionUtils;
 import savant.api.util.TrackUtils;
-import savant.plugin.GUIPlugin;
 import savant.plugin.PluginAdapter;
+import savant.plugin.SavantPanelPlugin;
 
-public class DataTab extends GUIPlugin {
+public class DataTab extends SavantPanelPlugin {
 
     @Override
     public void init(JPanel tablePanel, PluginAdapter pluginAdapter) {

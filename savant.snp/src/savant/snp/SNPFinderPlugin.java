@@ -56,11 +56,11 @@ import savant.controller.event.ViewTrackListChangedListener;
 import savant.data.types.BAMIntervalRecord;
 import savant.data.types.Record;
 import savant.file.DataFormat;
-import savant.plugin.GUIPlugin;
 import savant.plugin.PluginAdapter;
+import savant.plugin.SavantPanelPlugin;
 import savant.snp.Pileup.Nucleotide;
 
-public class SNPFinderPlugin extends GUIPlugin implements RangeChangeCompletedListener, ViewTrackListChangedListener {
+public class SNPFinderPlugin extends SavantPanelPlugin implements RangeChangeCompletedListener, ViewTrackListChangedListener {
     private static final Log LOG = LogFactory.getLog(SNPFinderPlugin.class);
 
     private final int MAX_RANGE_TO_SEARCH = 5000;
