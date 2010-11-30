@@ -1,0 +1,15 @@
+<?xml version="1.0" ?>
+<!DOCTYPE plugin PUBLIC "-//JPF//Java Plug-in Manifest 1.0" "http://jpf.sourceforge.net/plugin_1_0.dtd">
+<plugin id="savant.thousandgenomes" version="1.0.0"
+	class="savant.thousandgenomes.ThousandGenomesPlugin">
+    <requires>
+        <import plugin-id="savant.core"/>
+    </requires>
+	<runtime>
+                <library id="library" path="/" type="code"></library>
+	</runtime>
+    <extension plugin-id="savant.core" point-id="AuxData" id="extension">
+		<parameter id="class" value="savant.thousandgenomes.ThousandGenomesPlugin"/>
+		<parameter id="name" value="1000 Genomes"/>
+    </extension>
+</plugin>
