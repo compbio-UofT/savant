@@ -23,7 +23,7 @@ package savant.view.swing.interval;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import savant.data.sources.BEDFileDataSource;
+import savant.data.sources.file.BEDFileDataSource;
 import savant.file.DataFormat;
 import savant.util.*;
 import savant.util.ColorScheme;
@@ -36,6 +36,7 @@ import java.util.ArrayList;
 import java.util.List;
 import savant.api.adapter.ModeAdapter;
 import savant.api.adapter.RangeAdapter;
+import savant.data.sources.DataSource;
 import savant.data.types.Record;
 import savant.settings.ColourSettings;
 
@@ -56,7 +57,7 @@ public class BEDViewTrack extends ViewTrack {
     private static final Mode STANDARD_MODE = Mode.fromObject(DrawingMode.STANDARD, "Standard Gene View");
     private static final Mode SQUISH_MODE = Mode.fromObject(DrawingMode.SQUISH, "All on one line");
 
-    public BEDViewTrack(String name, BEDFileDataSource bedTrack) {
+    public BEDViewTrack(String name, DataSource bedTrack) {
         super(name, DataFormat.INTERVAL_BED, bedTrack);
         setColorScheme(getDefaultColorScheme());
         setDrawModes(getDefaultDrawModes());

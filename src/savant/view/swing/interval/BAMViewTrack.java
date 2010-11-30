@@ -30,7 +30,8 @@ import org.apache.commons.logging.LogFactory;
 import savant.api.adapter.ModeAdapter;
 import savant.api.adapter.RangeAdapter;
 import savant.controller.RangeController;
-import savant.data.sources.BAMDataSource;
+import savant.data.sources.file.BAMFileDataSource;
+import savant.data.sources.DataSource;
 import savant.data.types.BAMIntervalRecord;
 import savant.data.types.Record;
 import savant.file.DataFormat;
@@ -85,7 +86,7 @@ public class BAMViewTrack extends ViewTrack {
      * @param name track name
      * @param bamTrack data track which this view track represents
      */
-    public BAMViewTrack(String name, BAMDataSource bamTrack) {
+    public BAMViewTrack(String name, DataSource bamTrack) {
         super(name, DataFormat.INTERVAL_BAM, bamTrack);
         setColorScheme(getDefaultColorScheme());
         setDrawModes(getDefaultDrawModes());

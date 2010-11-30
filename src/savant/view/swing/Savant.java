@@ -1310,6 +1310,8 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         DataSourcePluginDialog d = new DataSourcePluginDialog(this, true, DataSourcePluginController.getInstance().getDataSourcePlugins());
         d.setVisible(true);
         SavantDataSourcePlugin p = d.getSelectedPlugin();
+        d.dispose();
+
         if (p != null) {
             System.out.println("Plugin selected: " + p.getTitle());
             DataSource s = p.getDataSource();
@@ -1317,9 +1319,12 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
             List<ViewTrack> tracks = new ArrayList<ViewTrack>(); // TODO: should not need to do this!!
             tracks.add(t);
             addFrameForTrack(t.getName(), tracks);
+            
         } else {
             System.out.println("No plugin selected");
         }
+
+
     }//GEN-LAST:event_loadFromDataSourcePluginActionPerformed
 
     /**
@@ -1608,7 +1613,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         initStatusBar();
         initGUIHandlers();
         initBookmarksPanel();
-        initStartPage();
+        //initStartPage();
 
         dff = new DataFormatForm(this, false);
 
@@ -1619,7 +1624,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         this.menuitem_tools.setVisible(false);
         MiscUtils.setFrameVisibility("Start Page", false, this.trackDockingManager);
         this.menuitem_startpage.setVisible(false);
-        this.startPageDockableFrame.setVisible(false);
+        //this.startPageDockableFrame.setVisible(false);
     }
 
     private JPanel addDockableFrame(String key, int mode, int side) {
@@ -2482,7 +2487,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         this.ruler.setVisible(true);
         this.menuitem_ruler.setSelected(true);
 
-        setStartPageVisible(false);
+        //setStartPageVisible(false);
         showRangeControls();
         browserControlsShown = true;
     }

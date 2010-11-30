@@ -53,7 +53,7 @@ public final class BEDIntervalRecord implements IntervalRecord {
      * @param rgb
      * @param blocks
      */
-    private BEDIntervalRecord(String chrom, Interval interval, String name, float score, Strand strand, long thickStart, long thickEnd, ItemRGB rgb,  List<Block> blocks) {
+    public BEDIntervalRecord(String chrom, Interval interval, String name, float score, Strand strand, long thickStart, long thickEnd, ItemRGB rgb,  List<Block> blocks) {
 
         if (chrom == null) throw new IllegalArgumentException("Invalid argument: chrom may not be null");
         if (interval == null) throw new IllegalArgumentException("Invalid argument. Interval must not be null");

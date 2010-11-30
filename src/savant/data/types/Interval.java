@@ -28,7 +28,7 @@ public final class Interval {
     private final long end;
 
 
-    private Interval(long start, long end) {
+    public Interval(long start, long end) {
         this.start = start;
         this.end = end;
     }

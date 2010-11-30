@@ -68,6 +68,8 @@ public class RecentTracksController implements ViewTrackAddedListener {
 
         if (t.getDataSource() == null) { return; }
 
+        if (t.getURI() == null) { return; }
+
         String path = t.getURI().toASCIIString();
         if (path == null) { return; }
 

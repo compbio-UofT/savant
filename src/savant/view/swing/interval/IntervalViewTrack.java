@@ -21,7 +21,7 @@ import savant.data.types.GenericIntervalRecord;
 import savant.data.types.Interval;
 import savant.file.DataFormat;
 import savant.util.*;
-import savant.data.sources.GenericIntervalDataSource;
+import savant.data.sources.file.GenericIntervalFileDataSource;
 import savant.util.ColorScheme;
 import savant.util.DrawingInstructions;
 import savant.util.Mode;
@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import java.util.List;
 import savant.api.adapter.ModeAdapter;
 import savant.api.adapter.RangeAdapter;
+import savant.data.sources.DataSource;
 import savant.data.types.Record;
 import savant.settings.ColourSettings;
 
@@ -50,7 +51,7 @@ public class IntervalViewTrack extends ViewTrack {
     private static final Mode PACK_MODE = Mode.fromObject(DrawingMode.PACK, "Minimum number of lines");
     private static final Mode ARC_MODE = Mode.fromObject(DrawingMode.ARC, "Arcs");
 
-    public IntervalViewTrack(String name, GenericIntervalDataSource intervalTrack) {
+    public IntervalViewTrack(String name, DataSource intervalTrack) {
         super(name, DataFormat.INTERVAL_GENERIC, intervalTrack);
         setColorScheme(getDefaultColorScheme());
         setDrawModes(getDefaultDrawModes());

@@ -15,6 +15,12 @@
  */
 package savant.view.swing;
 
+import savant.data.sources.file.BAMFileDataSource;
+import savant.data.sources.file.BEDFileDataSource;
+import savant.data.sources.file.GenericPointFileDataSource;
+import savant.data.sources.file.GenericContinuousFileDataSource;
+import savant.data.sources.file.GenericIntervalFileDataSource;
+import savant.data.sources.file.FASTAFileDataSource;
 import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
@@ -72,17 +78,17 @@ public abstract class ViewTrack implements ViewTrackAdapter {
     public static ViewTrack create(String name, DataSource dataTrack) {
         switch(dataTrack.getDataFormat()) {
             case SEQUENCE_FASTA:
-                return new SequenceViewTrack(name, (FASTAFileDataSource) dataTrack);
+                return new SequenceViewTrack(name, dataTrack);
             case INTERVAL_BED:
-                return new BEDViewTrack(name, (BEDFileDataSource) dataTrack);
+                return new BEDViewTrack(name, dataTrack);
             case POINT_GENERIC:
-                return new PointViewTrack(name, (GenericPointDataSource) dataTrack);
+                return new PointViewTrack(name, dataTrack);
             case CONTINUOUS_GENERIC:
-                return new ContinuousViewTrack(name, (GenericContinuousDataSource) dataTrack);
+                return new ContinuousViewTrack(name, dataTrack);
             case INTERVAL_BAM:
-                return new BAMViewTrack(name, (BAMDataSource) dataTrack);
+                return new BAMViewTrack(name, dataTrack);
             case INTERVAL_GENERIC:
-                return new IntervalViewTrack(name, (GenericIntervalDataSource) dataTrack);
+                return new IntervalViewTrack(name, dataTrack);
             default:
                 return null;
         }
@@ -134,9 +140,9 @@ public abstract class ViewTrack implements ViewTrackAdapter {
             LOG.info("Opening BAM file " + trackURI);
 
             try {
-                dataTrack = BAMDataSource.fromURI(trackURI);
+                dataTrack = BAMFileDataSource.fromURI(trackURI);
                 if (dataTrack != null) {
-                    viewTrack = create(name, (BAMDataSource) dataTrack);
+                    viewTrack = create(name, (BAMFileDataSource) dataTrack);
                     results.add(viewTrack);
                 } else {
                     DialogUtils.displayError("Error loading track", String.format("Could not create BAM track; check that index file exists and is named \"%1$s.bai\".", name));
@@ -148,8 +154,8 @@ public abstract class ViewTrack implements ViewTrackAdapter {
                     File coverageFile = new File(new URI(trackURI.toString() + ".cov.savant"));
 
                     if (coverageFile.exists()) {
-                        dataTrack = new GenericContinuousDataSource(coverageFile.toURI());
-                        viewTrack = new BAMCoverageViewTrack(name + " (coverage)", (GenericContinuousDataSource)dataTrack);
+                        dataTrack = new GenericContinuousFileDataSource(coverageFile.toURI());
+                        viewTrack = new BAMCoverageViewTrack(name + " (coverage)", (GenericContinuousFileDataSource)dataTrack);
                     } else {
                         //FIXME: this should not happen! plugins expect tracks to contain data, and not be vacuous
                         viewTrack = new BAMCoverageViewTrack(name + " (coverage)", null);
@@ -197,16 +203,16 @@ public abstract class ViewTrack implements ViewTrackAdapter {
                         dataTrack = new FASTAFileDataSource(trackURI);
                         break;
                     case POINT_GENERIC:
-                        dataTrack = new GenericPointDataSource(trackURI);
+                        dataTrack = new GenericPointFileDataSource(trackURI);
                         break;
                     case CONTINUOUS_GENERIC:
-                        dataTrack = new GenericContinuousDataSource(trackURI);
+                        dataTrack = new GenericContinuousFileDataSource(trackURI);
                         break;
                     case INTERVAL_GENERIC:
-                        dataTrack = new GenericIntervalDataSource(trackURI);
+                        dataTrack = new GenericIntervalFileDataSource(trackURI);
                         break;
                     case INTERVAL_GFF:
-                        dataTrack = new GenericIntervalDataSource(trackURI);
+                        dataTrack = new GenericIntervalFileDataSource(trackURI);
                         break;
                     case INTERVAL_BED:
                         dataTrack = new BEDFileDataSource(trackURI);

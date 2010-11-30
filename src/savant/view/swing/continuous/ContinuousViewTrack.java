@@ -23,7 +23,8 @@ package savant.view.swing.continuous;
 import java.util.List;
 
 import savant.api.adapter.RangeAdapter;
-import savant.data.sources.GenericContinuousDataSource;
+import savant.data.sources.DataSource;
+import savant.data.sources.file.GenericContinuousFileDataSource;
 import savant.data.types.ContinuousRecord;
 import savant.data.types.Record;
 import savant.file.DataFormat;
@@ -45,7 +46,7 @@ import savant.view.swing.ViewTrack;
  */
  public class ContinuousViewTrack extends ViewTrack {
 
-    public ContinuousViewTrack(String name, GenericContinuousDataSource track) {
+    public ContinuousViewTrack(String name, DataSource track) {
         super(name, DataFormat.CONTINUOUS_GENERIC, track);
         setColorScheme(getDefaultColorScheme());
         this.notifyViewTrackControllerOfCreation();

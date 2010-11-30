@@ -13,112 +13,26 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-
-/*
- * GenericIntervalDataSource.java
- * Created on Jan 12, 2010
- */
-
 package savant.data.sources;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import java.io.IOException;
+import java.util.List;
+import savant.api.adapter.RangeAdapter;
 import savant.data.types.GenericIntervalRecord;
-import savant.data.types.IntervalRecord;
 import savant.file.DataFormat;
-import savant.file.FileType;
-import savant.file.SavantFileNotFormattedException;
-import savant.file.SavantROFile;
-import savant.file.SavantUnsupportedVersionException;
-import savant.format.DataFormatter;
-import savant.format.IntervalRecordGetter;
-import savant.format.IntervalSearchTree;
-import savant.util.Range;
 import savant.util.Resolution;
 
-import java.io.IOException;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import savant.api.adapter.RangeAdapter;
-
 /**
- * Class to represent an track of generic intervals. Responsible for reading records within a given range.
- * 
- * @author vwilliams
+ *
+ * @author mfiume
  */
-public class GenericIntervalDataSource implements DataSource<GenericIntervalRecord> {
-
-    private static Log log = LogFactory.getLog(GenericIntervalDataSource.class);
-
-    private SavantROFile dFile;
-
-    private Map<String,IntervalSearchTree> refnameToIntervalBSTIndex;
-
-    public GenericIntervalDataSource(URI uri) throws IOException, SavantFileNotFormattedException, SavantUnsupportedVersionException {
-        this.dFile = new SavantROFile(uri, FileType.INTERVAL_GENERIC);
-        this.refnameToIntervalBSTIndex = DataFormatter.readIntervalBSTs(this.dFile);
-
-        if (log.isDebugEnabled()) {
-            log.debug("HEADER SIZE && : "+  dFile.getFilePointer());
-
-            log.debug("Found indicies for:");
-            for (String refname : refnameToIntervalBSTIndex.keySet()) {
-                log.debug(refname);
-            }
-        }
-
-    }
-
-    public IntervalSearchTree getIntervalSearchTreeForReference(String refname) {
-        return refnameToIntervalBSTIndex.get(refname);
-    }
+public abstract class GenericIntervalDataSource implements DataSource<GenericIntervalRecord> {
 
     @Override
-    public List<GenericIntervalRecord> getRecords(String reference, RangeAdapter range, Resolution resolution) throws IOException {
-        List<IntervalRecord> data = null;
-
-        IntervalSearchTree ist = getIntervalSearchTreeForReference(reference);
-
-        if (ist == null) { return new ArrayList<GenericIntervalRecord>(); }
-        
-
-        data = IntervalRecordGetter.getData(this.dFile, reference, range, ist.getRoot());
-
-        List<GenericIntervalRecord> girList = new ArrayList<GenericIntervalRecord>(data.size());
-        for (int i = 0; i < data.size(); i++) {
-            girList.add((GenericIntervalRecord) data.get(i));
-        }
-
-        return girList;
-    }
+    public abstract List<GenericIntervalRecord> getRecords(String reference, RangeAdapter range, Resolution resolution) throws IOException;
 
     @Override
-    public void close() {
-        try {
-            this.dFile.close();
-        } catch (IOException ex) {
-            Logger.getLogger(GenericIntervalDataSource.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-
-    @Override
-    public Set<String> getReferenceNames() {
-        Map<String, Long[]> refMap = dFile.getReferenceMap();
-        return refMap.keySet();
-    }
-
-    @Override
-    public URI getURI() {
-        return dFile.getURI();
-    }
-
-    @Override
-    public DataFormat getDataFormat() {
+    public final DataFormat getDataFormat() {
         return DataFormat.INTERVAL_GENERIC;
     }
 }

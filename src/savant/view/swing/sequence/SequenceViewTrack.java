@@ -32,7 +32,8 @@ import java.util.ArrayList;
 import java.util.List;
 import savant.api.adapter.RangeAdapter;
 import savant.controller.ViewTrackController;
-import savant.data.sources.FASTAFileDataSource;
+import savant.data.sources.DataSource;
+import savant.data.sources.file.FASTAFileDataSource;
 import savant.data.types.Record;
 import savant.data.types.SequenceRecord;
 import savant.file.SavantROFile;
@@ -51,7 +52,7 @@ public class SequenceViewTrack extends ViewTrack {
     //Genome genome;
     //String path;
 
-    public SequenceViewTrack(String name, FASTAFileDataSource dataTrack)
+    public SequenceViewTrack(String name, DataSource dataTrack)
     {
         super(name, DataFormat.SEQUENCE_FASTA, dataTrack);
         //setGenome(g);

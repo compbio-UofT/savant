@@ -21,7 +21,7 @@ package savant.data.types;
  *
  * @author mfiume
  */
-public class ItemRGB {
+public final class ItemRGB {
 
     private final int red;
     private final int blue;
@@ -34,7 +34,7 @@ public class ItemRGB {
      * @param g green component, between 0 and 255
      * @param b blue component, between 0 and 255
      */
-    ItemRGB(int r, int g, int b) {
+    public ItemRGB(int r, int g, int b) {
         this.red = r;
         this.green = g;
         this.blue = b;

@@ -88,7 +88,7 @@ public class DataSourcePluginDialog extends javax.swing.JDialog {
     }// </editor-fold>//GEN-END:initComponents
 
     private void button_loadActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_loadActionPerformed
-
+        this.dispose();
     }//GEN-LAST:event_button_loadActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

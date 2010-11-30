@@ -25,7 +25,7 @@ import java.util.List;
 
 import savant.api.adapter.ModeAdapter;
 import savant.api.adapter.RangeAdapter;
-import savant.data.sources.GenericContinuousDataSource;
+import savant.data.sources.file.GenericContinuousFileDataSource;
 import savant.data.types.ContinuousRecord;
 import savant.data.types.Record;
 import savant.file.DataFormat;
@@ -40,7 +40,7 @@ public class BAMCoverageViewTrack extends ViewTrack {
 
     private boolean enabled = true;
 
-    public BAMCoverageViewTrack(String name, GenericContinuousDataSource track) {
+    public BAMCoverageViewTrack(String name, GenericContinuousFileDataSource track) {
         super(name, DataFormat.CONTINUOUS_GENERIC, track);
         setColorScheme(getDefaultColorScheme());
         this.notifyViewTrackControllerOfCreation();

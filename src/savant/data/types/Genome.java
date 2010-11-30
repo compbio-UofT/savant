@@ -25,7 +25,7 @@ import java.util.Set;
 import savant.api.adapter.GenomeAdapter;
 import savant.api.adapter.RangeAdapter;
 import savant.controller.ReferenceController;
-import savant.data.sources.FASTAFileDataSource;
+import savant.data.sources.file.FASTAFileDataSource;
 import savant.file.SavantFileNotFormattedException;
 import savant.file.SavantUnsupportedVersionException;
 import savant.util.Resolution;

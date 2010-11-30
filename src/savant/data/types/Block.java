@@ -26,7 +26,7 @@ public final class Block {
     private final long position;
     private final long size;
 
-    private Block(long pos, long size) {
+    public Block(long pos, long size) {
         this.position = pos;
         this.size = size;
     }
