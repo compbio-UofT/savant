@@ -257,7 +257,7 @@ public abstract class ViewTrack implements ViewTrackAdapter {
         if (sequenceTrack == null) { return null; }
 
         if (!(sequenceTrack instanceof SequenceViewTrack)) {
-            JOptionPane.showMessageDialog(Savant.getInstance(), "Could not load this track as genome.");
+            DialogUtils.displayMessage("Sorry", "Could not load this track as genome.");
             return null;
         }
 
