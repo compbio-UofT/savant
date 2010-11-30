@@ -71,4 +71,17 @@
     nbproject/build-impl.xml file. 
 
     -->
+    <target name="-pre-jar">
+        <copy file="plugin.xml" todir="${build.classes.dir}">
+        </copy>
+    </target>
+
+    <target name="-post-jar">
+        <jar jarfile="${dist.jar}-all">
+            <zipfileset src="${dist.jar}" excludes="META-INF/*" />
+        </jar>
+        <delete dir="${dist.dir}/lib"/>
+        <move file="${dist.jar}-all" tofile="${dist.jar}"/>   
+    </target>
+
 </project>

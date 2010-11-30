@@ -102,7 +102,7 @@ public class SNPFinderPlugin extends GUIPlugin implements RangeChangeCompletedLi
 
     @Override
     public String getTitle() {
-        return "SNP Finder Plugin";
+        return "SNP Finder";
     }
 
 
@@ -190,7 +190,7 @@ public class SNPFinderPlugin extends GUIPlugin implements RangeChangeCompletedLi
      * Add info to the UI.
      */
     private void addMessage(String msg) {
-        info.setText(String.format("%s[%T]    %s\n", info.getText(), new Date(), msg));
+        info.setText(String.format("%s[%tT]    %s\n", info.getText(), new Date(), msg));
         info.setCaretPosition(info.getText().length());
     }
 
