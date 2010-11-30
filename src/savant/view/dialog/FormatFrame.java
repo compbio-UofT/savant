@@ -70,7 +70,7 @@ public class FormatFrame extends javax.swing.JFrame implements FormatProgressLis
     //int overallprogress_total;
 
     private void setTitle() {
-        this.setTitle("("  + subtaskprogress + "% done subtask" + /*"/" + overallprogress_total +*/ ") Formatting " + inputFile);
+        this.setTitle("("  + subtaskprogress + "% done current task" + /*"/" + overallprogress_total +*/ ") Formatting " + inputFile);
     }
     
     int subtaskprogress;

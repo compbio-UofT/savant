@@ -45,6 +45,7 @@ import savant.util.MiscUtils;
 import savant.util.Range;
 import savant.view.swing.Savant;
 import savant.view.swing.ViewTrack;
+import savant.view.swing.interval.BAMCoverageViewTrack;
 import savant.view.swing.util.DialogUtils;
 
 /**
@@ -236,7 +237,7 @@ public class ProjectController {
     private Persistent getTrackPersistence() {
         List<String> trackpaths = new ArrayList<String>();
         for (ViewTrack t : ViewTrackController.getInstance().getTracks()) {
-            if (t.getDataSource() instanceof FileDataSource) {
+            if (!(t instanceof BAMCoverageViewTrack) && (t.getDataSource() instanceof FileDataSource)) {
                 if (((FileDataSource) t.getDataSource()).getURI() != null) {
                     trackpaths.add(MiscUtils.getNeatPathFromURI(((FileDataSource) t.getDataSource()).getURI()));
                 }

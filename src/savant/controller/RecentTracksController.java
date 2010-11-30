@@ -29,6 +29,7 @@ import savant.settings.DirectorySettings;
 import savant.util.MiscUtils;
 import savant.view.swing.Savant;
 import savant.view.swing.ViewTrack;
+import savant.view.swing.interval.BAMCoverageViewTrack;
 
 /**
  *
@@ -67,10 +68,9 @@ public class RecentTracksController implements ViewTrackAddedListener {
 
         ViewTrack t = event.getTrack();
 
+        if (t instanceof BAMCoverageViewTrack) { return; }
+
         if (t.getDataSource() == null) { return; }
-
-        System.out.println("Considering: " + t.getName() + " for recents...");
-
 
         if (t.getDataSource() instanceof FileDataSource) {
             if (((FileDataSource) t.getDataSource()).getURI() == null) {
