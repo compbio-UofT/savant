@@ -1,18 +1,30 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
-/*
  * DownloadDialog.java
  *
  * Created on Sep 7, 2010, 4:48:54 PM
+ *
+ *
+ *    Copyright 2009-2010 University of Toronto
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
  */
 
 package savant.net;
 
+import java.awt.Frame;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 import javax.swing.JProgressBar;
 import javax.swing.WindowConstants;
@@ -21,19 +33,20 @@ import javax.swing.WindowConstants;
  *
  * @author mfiume
  */
-public class DownloadDialog extends javax.swing.JDialog {
+public class DownloadDialog extends JDialog {
 
     private Thread t;
 
-    public DownloadDialog(java.awt.Frame parent, boolean modal, Thread t) {
+    public DownloadDialog(Frame parent, boolean modal, Thread t) {
         super(parent, modal);
         initComponents();
         this.t = t;
-
+        setLocationRelativeTo(parent);
 
         this.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
         this.addWindowListener(new WindowAdapter() {
 
+            @Override
             public void windowClosing(WindowEvent e) {
                 askToDispose();
 
