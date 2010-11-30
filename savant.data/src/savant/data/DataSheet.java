@@ -16,23 +16,13 @@
 package savant.data;
 
 import java.awt.Color;
-import java.awt.event.MouseEvent;
-import savant.controller.ViewTrackController;
-import savant.controller.event.selection.SelectionChangedEvent;
-import savant.controller.event.viewtrack.ViewTrackListChangedEvent;
-import savant.controller.event.viewtrack.ViewTrackListChangedListener;
-import savant.plugin.PluginAdapter;
-import savant.view.swing.Savant;
-import savant.controller.event.range.RangeChangedEvent;
-import savant.controller.event.range.RangeChangedListener;
-import savant.view.swing.ViewTrack;
-
 import java.awt.Dimension;
-import java.awt.FileDialog;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -41,32 +31,37 @@ import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.table.TableCellRenderer;
-import savant.controller.RangeController;
-import savant.controller.SelectionController;
-import savant.controller.event.selection.SelectionChangedListener;
-import savant.util.MiscUtils;
-import savant.view.swing.GraphPane;
+
+import savant.api.adapter.ViewTrackAdapter;
+import savant.api.util.DialogUtils;
+import savant.api.util.SelectionUtils;
+import savant.api.util.TrackUtils;
+import savant.controller.event.RangeChangedEvent;
+import savant.controller.event.RangeChangeCompletedListener;
+import savant.controller.event.SelectionChangedEvent;
+import savant.controller.event.SelectionChangedListener;
+import savant.controller.event.ViewTrackListChangedEvent;
+import savant.controller.event.ViewTrackListChangedListener;
+import savant.data.types.Record;
+import savant.plugin.PluginAdapter;
+
 
 /**
  *
  * @author mfiume
  */
-public class DataSheet implements RangeChangedListener, ViewTrackListChangedListener, SelectionChangedListener {
-
-    private PluginAdapter pluginAdapter;
+public class DataSheet implements RangeChangeCompletedListener, ViewTrackListChangedListener, SelectionChangedListener {
 
     private JComboBox trackList;
-    private JTable table;
+    private ExtendedTable table;
     private boolean autoUpdate = true;
     private JCheckBox autoUpdateCheckBox;
     private JLabel label_num_items;
-    private ViewTrack currentViewTrack;
+    private ViewTrackAdapter currentViewTrack;
     private DataTableModel tableModel;
-    private List<Object> data;
+    private List<Record> data;
 
     public DataSheet(JPanel panel, PluginAdapter pluginAdapter) {
-
-        this.pluginAdapter = pluginAdapter;
 
         // set the layout of the data sheet
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
@@ -89,9 +84,10 @@ public class DataSheet implements RangeChangedListener, ViewTrackListChangedList
         // add a dropdown, populated with tracks
         trackList = new JComboBox();
         trackList.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 if (currentViewTrack == null || (trackList.getSelectedItem() != null && trackList.getSelectedItem() != currentViewTrack)) {
-                    setCurrentTrack((ViewTrack) trackList.getSelectedItem());
+                    setCurrentTrack((ViewTrackAdapter) trackList.getSelectedItem());
                     presentDataFromCurrentTrack();
                 }
             }
@@ -111,6 +107,7 @@ public class DataSheet implements RangeChangedListener, ViewTrackListChangedList
 
         autoUpdateCheckBox.addChangeListener(
             new ChangeListener() {
+                @Override
                 public void stateChanged(ChangeEvent e) {
                     setAutoUpdate(autoUpdateCheckBox.isSelected());
                 }
@@ -119,8 +116,9 @@ public class DataSheet implements RangeChangedListener, ViewTrackListChangedList
 
         JButton exportButton = new JButton("Export");
         exportButton.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
-                exportTable(table, (ViewTrack) trackList.getSelectedItem());
+                exportTable(table, (ViewTrackAdapter)trackList.getSelectedItem());
             }
         });
         toolbar.add(exportButton);
@@ -136,22 +134,19 @@ public class DataSheet implements RangeChangedListener, ViewTrackListChangedList
         tmp.add(table.getTableHeader());
         tmp.add(table);
 
-        table.addMouseListener(new MouseListener() {
+        table.addMouseListener(new MouseAdapter() {
+            @Override
             public void mouseClicked(MouseEvent e) {
                 if (e.getClickCount() == 2) {
-                    if(!currentViewTrack.getTrackRenderers().get(0).selectionAllowed()) return;
-                    JTable table = (JTable)e.getSource();
-                    int row = table.getSelectedRow();
-                    GraphPane gp = currentViewTrack.getFrame().getGraphPane();
-                    Object o = data.get(table.getRowSorter().convertRowIndexToModel(row));
-                    SelectionController.getInstance().toggleSelection(currentViewTrack.getURI(), (Comparable) o);
-                    gp.repaint();
+                    if (currentViewTrack.isSelectionAllowed()) {
+                        JTable table = (JTable)e.getSource();
+                        int row = table.getSelectedRow();
+                        Record r = data.get(table.getRowSorter().convertRowIndexToModel(row));
+                        SelectionUtils.toggleSelection(currentViewTrack, r);
+                        currentViewTrack.repaint();
+                    }
                 }
             }
-            public void mousePressed(MouseEvent e) {}
-            public void mouseReleased(MouseEvent e) {}
-            public void mouseEntered(MouseEvent e) {}
-            public void mouseExited(MouseEvent e) {}
         });
 
         JScrollPane jsp = new JScrollPane(tmp);
@@ -171,17 +166,18 @@ public class DataSheet implements RangeChangedListener, ViewTrackListChangedList
     }
 
     private void setAutoUpdate(boolean au) {
-        this.autoUpdate = au;
-        if (this.autoUpdate) { refreshData(); }
+        autoUpdate = au;
+        if (autoUpdate) {
+            refreshData();
+        }
     }
 
-    private void setCurrentTrack(ViewTrack t) {
+    private void setCurrentTrack(ViewTrackAdapter t) {
         currentViewTrack = t;
     }
 
     private void presentDataFromCurrentTrack() {
-        ViewTrack t = currentViewTrack;
-        //Savant.log("Presenting data from track: " + t.getPath());
+        ViewTrackAdapter t = currentViewTrack;
         tableModel = new DataTableModel(currentViewTrack.getDataType(), t.getDataInRange());
         table.setModel(tableModel);
         table.setSurrendersFocusOnKeystroke(true);
@@ -190,9 +186,8 @@ public class DataSheet implements RangeChangedListener, ViewTrackListChangedList
     }
 
     private void updateTrackList() {
-        this.trackList.removeAllItems();
-        ViewTrackController tc = pluginAdapter.getViewTrackController();
-        for (ViewTrack t : tc.getTracks()) {
+        trackList.removeAllItems();
+        for (ViewTrackAdapter t : TrackUtils.getTracks()) {
             trackList.addItem(t);
         }
     }
@@ -209,7 +204,7 @@ public class DataSheet implements RangeChangedListener, ViewTrackListChangedList
         } else {
             String s = "";
 
-            s += MiscUtils.numToString(data.size());
+            s += String.format("###,###", data.size());
 
             DataTableModel dtm = (DataTableModel) table.getModel();
             if (dtm.getIsNumRowsLimited() && data.size() > dtm.getMaxNumRows()) {
@@ -223,18 +218,20 @@ public class DataSheet implements RangeChangedListener, ViewTrackListChangedList
 
     }
 
-    public void rangeChangeReceived(RangeChangedEvent event) {
-        if (this.autoUpdate) {
+    @Override
+    public void rangeChangeCompletedReceived(RangeChangedEvent event) {
+        if (autoUpdate) {
             refreshData();
             refreshSelection();
         }
     }
 
+    @Override
     public void viewTrackListChangeReceived(ViewTrackListChangedEvent event) {
         updateTrackList();
     }
 
-    private static void exportTable(JTable table, ViewTrack track) {
+    private static void exportTable(JTable table, ViewTrackAdapter track) {
 
         String[] choices = { "All data in view", "All selected data in view", "All selected data"};
         String input = (String) JOptionPane.showInputDialog(null, "Export: ",
@@ -244,36 +241,17 @@ public class DataSheet implements RangeChangedListener, ViewTrackListChangedList
 
         if(input == null) return;
 
-        JFrame jf = new JFrame();
-        String selectedFileName;
-        if (Savant.mac) {
-            FileDialog fd = new FileDialog(jf, "Export Data", FileDialog.SAVE);
-            fd.setVisible(true);
-            jf.setAlwaysOnTop(true);
-            // get the path (null if none selected)
-            selectedFileName = fd.getFile();
-            if (selectedFileName != null) {
-                selectedFileName = fd.getDirectory() + selectedFileName;
-            }
-        }
-        else {
-            JFileChooser fd = new JFileChooser();
-            fd.setDialogTitle("Export Data");
-            fd.setDialogType(JFileChooser.SAVE_DIALOG);
-            int result = fd.showOpenDialog(jf);
-            if (result == JFileChooser.CANCEL_OPTION || result == JFileChooser.ERROR_OPTION ) return;
-            selectedFileName = fd.getSelectedFile().getPath();
-        }
+        File selectedFile = DialogUtils.chooseFileForSave("Export Data");
 
         // set the genome
-        if (selectedFileName != null) {
+        if (selectedFile != null) {
             try {
                 if(input.equals("All data in view")){
-                    exportAllInView(table, track, selectedFileName);
+                    exportAllInView(table, track, selectedFile);
                 } else if(input.equals("All selected data in view")){
-                    exportSelectedInView(table, track, selectedFileName);
+                    exportSelectedInView(table, track, selectedFile);
                 } else if(input.equals("All selected data")){
-                    exportAllSelected(table, track, selectedFileName);
+                    exportAllSelected(table, track, selectedFile);
                 }                
             } catch (IOException ex) {
                 String message = "Export unsuccessful";
@@ -284,8 +262,8 @@ public class DataSheet implements RangeChangedListener, ViewTrackListChangedList
         }
     }
 
-    private static void exportAllInView(JTable table, ViewTrack track, String selectedFileName) throws IOException {
-        BufferedWriter bw = new BufferedWriter(new FileWriter(selectedFileName));
+    private static void exportAllInView(JTable table, ViewTrackAdapter track, File selectedFile) throws IOException {
+        BufferedWriter bw = new BufferedWriter(new FileWriter(selectedFile));
 
         DataTableModel dtm = (DataTableModel) table.getModel();
         int numRows = dtm.getRowCount();
@@ -301,8 +279,8 @@ public class DataSheet implements RangeChangedListener, ViewTrackListChangedList
         bw.close();
     }
 
-    private static void exportSelectedInView(JTable table, ViewTrack track, String selectedFileName) throws IOException {
-        BufferedWriter bw = new BufferedWriter(new FileWriter(selectedFileName));
+    private static void exportSelectedInView(JTable table, ViewTrackAdapter track, File selectedFile) throws IOException {
+        BufferedWriter bw = new BufferedWriter(new FileWriter(selectedFile));
 
         DataTableModel dtm = (DataTableModel) table.getModel();
         int numRows = dtm.getRowCount();
@@ -322,11 +300,13 @@ public class DataSheet implements RangeChangedListener, ViewTrackListChangedList
         bw.close();
     }
 
-    private static void exportAllSelected(JTable table, ViewTrack track, String selectedFileName) throws IOException {
-        BufferedWriter bw = new BufferedWriter(new FileWriter(selectedFileName));
+    private static void exportAllSelected(JTable table, ViewTrackAdapter track, File selectedFile) throws IOException {
+        BufferedWriter bw = new BufferedWriter(new FileWriter(selectedFile));
         
-        List dataInRange = SelectionController.getInstance().getSelections(track.getURI());
-        DataTableModel dtm = new DataTableModel(track.getDataType(), dataInRange);
+        // FIXME: Does this actually do the same as the commented-out lines?
+//      List dataInRange = SelectionController.getInstance().getSelections(track.getURI());
+//      DataTableModel dtm = new DataTableModel(track.getDataType(), dataInRange);
+        DataTableModel dtm = new DataTableModel(track.getDataType(), track.getDataInRange());
 
         int numRows = dtm.getRowCount();
         int numCols = dtm.getColumnCount();
@@ -341,22 +321,26 @@ public class DataSheet implements RangeChangedListener, ViewTrackListChangedList
         bw.close();        
     }
 
+    @Override
     public void selectionChangeReceived(SelectionChangedEvent event) {
-        if (this.autoUpdate) {
+        if (autoUpdate) {
             refreshSelection();
         }
     }
 
     public void refreshSelection(){
         if(currentViewTrack == null || table == null || data == null) return;
-        ((ExtendedTable) table).clearSelectedRows();
+        table.clearSelectedRows();
         //List<Comparable> selected = SelectionController.getInstance().getSelections(currentViewTrack.getURI());
-        List<Comparable> selected = SelectionController.getInstance().getSelectedFromList(currentViewTrack.getURI(), RangeController.getInstance().getRange(), this.data);
-        if(selected == null) return;
-        for(int i = 0; i < selected.size(); i++){
-            Object o = (Object)selected.get(i);
-            int index = data.indexOf(o);
-            ((ExtendedTable) table).addSelectedRow(index);
+        List<Record> selected = currentViewTrack.getSelectedDataInRange();
+
+        if (selected != null) {
+            for (Record c : selected) {
+                int index = data.indexOf(c);
+                if (index >= 0) {
+                    table.addSelectedRow(index);
+                }
+            }
         }
         table.updateUI();
     }
@@ -374,13 +358,13 @@ public class DataSheet implements RangeChangedListener, ViewTrackListChangedList
         }
 
         public List<Integer> getRowsSelected(){
-            return this.selectedRows;
+            return selectedRows;
         }
 
         @Override
         public TableCellRenderer getCellRenderer (int row, int column){
             int modRow = table.getRowSorter().convertRowIndexToModel(row);
-            if(selectedRows.contains(modRow)){
+            if (selectedRows.contains(modRow)){
                 super.getCellRenderer(row, column).getTableCellRendererComponent(this, null, false, false, row, column).setBackground(Color.GREEN);
             } else {
                 super.getCellRenderer(row, column).getTableCellRendererComponent(this, null, false, false, row, column).setBackground(Color.WHITE);

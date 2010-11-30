@@ -1,4 +1,8 @@
 /*
+ * DataTab.java
+ * Created on Feb 25, 2010
+ *
+ *
  *    Copyright 2010 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,47 +18,40 @@
  *    limitations under the License.
  */
 
-/*
- * DataTab.java
- * Created on Feb 25, 2010
- */
-
 package savant.data;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JPanel;
+
+import savant.api.util.NavigationUtils;
+import savant.api.util.SelectionUtils;
+import savant.api.util.TrackUtils;
 import savant.plugin.GUIPlugin;
 import savant.plugin.PluginAdapter;
-import savant.settings.ColourSettings;
 
 public class DataTab extends GUIPlugin {
 
+    @Override
     public void init(JPanel tablePanel, PluginAdapter pluginAdapter) {
-        savant.data.DataSheet currentRangeDataSheet = new DataSheet(tablePanel, pluginAdapter);
-        pluginAdapter.getRangeController().addRangeChangedListener(currentRangeDataSheet);
-        pluginAdapter.getViewTrackController().addTracksChangedListener(currentRangeDataSheet);
-        pluginAdapter.getSelectionController().addSelectionChangedListener(currentRangeDataSheet);
+        DataSheet currentRangeDataSheet = new DataSheet(tablePanel, pluginAdapter);
+        NavigationUtils.addRangeChangeListener(currentRangeDataSheet);
+        SelectionUtils.addSelectionChangedListener(currentRangeDataSheet);
+        TrackUtils.addTracksChangedListener(currentRangeDataSheet);
     }
 
 
-    private JPanel createTabPanel(JTabbedPane jtp, String name) {
-        JPanel pan = new JPanel();
-        pan.setLayout(new BorderLayout());
-        pan.setBackground(ColourSettings.getTabBackground());
-        jtp.addTab(name, pan);
-        return pan;
-    }
-
+    @Override
     protected void doStart() throws Exception {
 
     }
 
+    @Override
     protected void doStop() throws Exception {
 
     }
 
+    @Override
     public String getTitle() {
         return "Table View";
     }
-    
+
 }

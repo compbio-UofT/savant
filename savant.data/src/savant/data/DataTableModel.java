@@ -20,8 +20,13 @@ import java.util.List;
 import javax.swing.table.AbstractTableModel;
 
 import net.sf.samtools.SAMRecord;
+import savant.data.types.BAMIntervalRecord;
+import savant.data.types.BEDIntervalRecord;
+import savant.data.types.GenericContinuousRecord;
+import savant.data.types.GenericIntervalRecord;
+import savant.data.types.GenericPointRecord;
+import savant.data.types.Record;
 
-import savant.data.types.*;
 import savant.file.DataFormat;
 
 
@@ -62,11 +67,9 @@ public class DataTableModel extends AbstractTableModel {
     protected Class[] continuousColumnClasses = { String.class, Integer.class, Double.class };
     protected String[] continuousColumnNames = { "Reference", "Position", "Value" };
 
+    protected List<Record> data;
 
-    //protected Vector dataVector;
-    protected List<Object> data;
-
-    public DataTableModel(DataFormat dataType, List<Object> data) {
+    public DataTableModel(DataFormat dataType, List<Record> data) {
          //this.columnNames = { "Sequence","" };
          //dataVector = new Vector();
          this.data = data;
@@ -148,41 +151,41 @@ public class DataTableModel extends AbstractTableModel {
 
     @Override
      public Object getValueAt(int row, int column) {
-         Object datum = data.get(row);
+         Record datum = data.get(row);
          switch (dataType) {
              case SEQUENCE_FASTA:
                  return datum;
              case POINT_GENERIC:
                  switch (column) {
                      case 0:
-                         return ((GenericPointRecord) datum).getReference();
+                         return datum.getReference();
                      case 1:
-                        return ((GenericPointRecord) datum).getPoint().getPosition();
+                        return ((GenericPointRecord)datum).getPoint().getPosition();
                      case 2:
-                         return ((GenericPointRecord) datum).getDescription();
+                         return ((GenericPointRecord)datum).getDescription();
                  }
              case CONTINUOUS_GENERIC:
                  switch (column) {
                      case 0:
-                         return ((GenericContinuousRecord) datum).getReference();
+                         return datum.getReference();
                      case 1:
-                         return ((GenericContinuousRecord) datum).getPosition();
+                         return ((GenericContinuousRecord)datum).getPosition();
                      case 2:
-                         return ((GenericContinuousRecord) datum).getValue().getValue();
+                         return ((GenericContinuousRecord)datum).getValue().getValue();
                  }
              case INTERVAL_GENERIC:
                  switch (column) {
                      case 0:
-                         return ((GenericIntervalRecord) datum).getReference();
+                         return datum.getReference();
                      case 1:
-                        return ((GenericIntervalRecord) datum).getInterval().getStart();
+                        return ((GenericIntervalRecord)datum).getInterval().getStart();
                      case 2:
                          return ((GenericIntervalRecord) datum).getInterval().getEnd();
                      case 3:
                          return ((GenericIntervalRecord) datum).getDescription();
                  }
              case INTERVAL_BAM:
-                 SAMRecord samRecord = ((BAMIntervalRecord) datum).getSamRecord();
+                 SAMRecord samRecord = ((BAMIntervalRecord)datum).getSamRecord();
                  boolean mated = samRecord.getReadPairedFlag();
                  switch (column) {
                      case 0:
@@ -216,15 +219,15 @@ public class DataTableModel extends AbstractTableModel {
              case INTERVAL_BED:
                  switch (column) {
                      case 0:
-                         return ((BEDIntervalRecord) datum).getChrom();
+                         return ((BEDIntervalRecord)datum).getChrom();
                      case 1:
-                         return ((BEDIntervalRecord) datum).getInterval().getStart();
+                         return ((BEDIntervalRecord)datum).getInterval().getStart();
                      case 2:
-                         return ((BEDIntervalRecord) datum).getInterval().getEnd();
+                         return ((BEDIntervalRecord)datum).getInterval().getEnd();
                      case 3:
-                         return ((BEDIntervalRecord) datum).getName();
+                         return ((BEDIntervalRecord)datum).getName();
                      case 4:
-                         return ((BEDIntervalRecord) datum).getBlocks().size();
+                         return ((BEDIntervalRecord)datum).getBlocks().size();
                  }
              default:
                  return "?";
@@ -234,10 +237,10 @@ public class DataTableModel extends AbstractTableModel {
     @Override
     public void setValueAt(Object value, int row, int column) {
 
-         Object datum = data.get(row);
+         Record datum = data.get(row);
          switch (dataType) {
              case SEQUENCE_FASTA:
-                 datum = value;
+                 datum = (Record)value;
                  break;
              case POINT_GENERIC:
                  switch (column) {
@@ -278,35 +281,35 @@ public class DataTableModel extends AbstractTableModel {
              case INTERVAL_BAM:
                  switch (column) {
                      case 0:
-                         ((BAMIntervalRecord) datum).getSamRecord().setReadName((String) value);
+                         ((BAMIntervalRecord)datum).getSamRecord().setReadName((String) value);
                          break;
                      case 1:
-                         ((BAMIntervalRecord) datum).getSamRecord().setReadString((String) value);
+                         ((BAMIntervalRecord)datum).getSamRecord().setReadString((String) value);
                          break;
                      case 2:
                          break;
                      case 3:
-                         ((BAMIntervalRecord) datum).getSamRecord().setDuplicateReadFlag((Boolean) value);
+                         ((BAMIntervalRecord)datum).getSamRecord().setDuplicateReadFlag((Boolean) value);
                      case 4:
-                         ((BAMIntervalRecord) datum).getSamRecord().setAlignmentStart(Integer.parseInt((String) value));
+                         ((BAMIntervalRecord)datum).getSamRecord().setAlignmentStart(Integer.parseInt((String) value));
                          break;
                      case 5:
-                         ((BAMIntervalRecord) datum).getSamRecord().setReadNegativeStrandFlag(!((Boolean) value));
+                         ((BAMIntervalRecord)datum).getSamRecord().setReadNegativeStrandFlag(!((Boolean) value));
                          break;
                      case 6:
-                         ((BAMIntervalRecord) datum).getSamRecord().setMappingQuality(Integer.parseInt((String) value));
+                         ((BAMIntervalRecord)datum).getSamRecord().setMappingQuality(Integer.parseInt((String) value));
                          break;
                      case 7:
-                         ((BAMIntervalRecord) datum).getSamRecord().setCigarString((String) value);
+                         ((BAMIntervalRecord)datum).getSamRecord().setCigarString((String) value);
                          break;
                      case 8:
-                         ((BAMIntervalRecord) datum).getSamRecord().setMateAlignmentStart(Integer.parseInt((String) value));
+                         ((BAMIntervalRecord)datum).getSamRecord().setMateAlignmentStart(Integer.parseInt((String) value));
                          break;
                      case 9:
-                         ((BAMIntervalRecord) datum).getSamRecord().setMateNegativeStrandFlag(!((Boolean) value));
+                         ((BAMIntervalRecord)datum).getSamRecord().setMateNegativeStrandFlag(!((Boolean) value));
                          break;
                      case 10:
-                         ((BAMIntervalRecord) datum).getSamRecord().setInferredInsertSize(Integer.parseInt((String) value));
+                         ((BAMIntervalRecord)datum).getSamRecord().setInferredInsertSize(Integer.parseInt((String) value));
                          break;
                  }
              case INTERVAL_BED:
@@ -353,30 +356,30 @@ public class DataTableModel extends AbstractTableModel {
          else return false;
      }
 
-     public void addEmptyRow() {
+/*     public void addEmptyRow() {
          data.add(new String());
          fireTableRowsInserted(
             data.size() - 1,
             data.size() - 1);
-     }
+     }*/
 
-    public void setData(List<Object> dataInRange) {
+    public void setData(List<Record> dataInRange) {
         if (dataInRange == null) { 
-            this.data = null;
+            data = null;
             return;
         }
         if (dontAllowMoreThanMaxNumRows && dataInRange.size() > maxNumRows) {
-            this.data = dataInRange.subList(0, maxNumRows);
+            data = dataInRange.subList(0, maxNumRows);
         } else {
-            this.data = dataInRange;
+            data = dataInRange;
         }
     }
 
-    public boolean isData() { return this.data != null; }
+    public boolean isData() { return data != null; }
 
     public final void setDataType(DataFormat k) {
-        this.dataType = k;
-        this.fireTableChanged(null);
+        dataType = k;
+        fireTableChanged(null);
     }
 
     public void setMaxNumRows(int maxNumRows) {
