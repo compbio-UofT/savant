@@ -43,10 +43,11 @@ import net.sf.samtools.CigarOperator;
 import net.sf.samtools.SAMRecord;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import savant.api.adapter.GenomeAdapter;
 
+import savant.api.adapter.GenomeAdapter;
 import savant.api.adapter.ViewTrackAdapter;
 import savant.api.util.BookmarkUtils;
+import savant.api.util.GenomeUtils;
 import savant.api.util.NavigationUtils;
 import savant.api.util.TrackUtils;
 import savant.controller.event.RangeChangeCompletedListener;
@@ -68,7 +69,7 @@ public class SNPFinderPlugin extends SavantPanelPlugin implements RangeChangeCom
     private boolean isSNPFinderOn = true;
     private int sensitivity = 80;
     private int transparency = 50;
-    private String sequence;
+    private byte[] sequence;
 
     private Map<ViewTrackAdapter, JPanel> viewTrackToCanvasMap;
     private Map<ViewTrackAdapter, List<Pileup>> viewTrackToPilesMap;
@@ -201,10 +202,12 @@ public class SNPFinderPlugin extends SavantPanelPlugin implements RangeChangeCom
      */
     private List<PileupPanel> getPileupPanels() {
         List<PileupPanel> panels = new ArrayList<PileupPanel>();
-        for (JPanel p : this.viewTrackToCanvasMap.values()) {
-            try {
-                panels.add((PileupPanel) p.getComponent(0));
-            } catch (ArrayIndexOutOfBoundsException e) {}
+        if (viewTrackToCanvasMap != null) {
+            for (JPanel p : this.viewTrackToCanvasMap.values()) {
+                try {
+                    panels.add((PileupPanel) p.getComponent(0));
+                } catch (ArrayIndexOutOfBoundsException e) {}
+            }
         }
         return panels;
     }
@@ -364,16 +367,16 @@ public class SNPFinderPlugin extends SavantPanelPlugin implements RangeChangeCom
     /**
      * Make pileups for SAM records.
      */
-    private List<Pileup> makePileupsFromSAMRecords(String viewTrackName, List<Record> samRecords, String sequence, long startPosition) throws IOException {
+    private List<Pileup> makePileupsFromSAMRecords(String viewTrackName, List<Record> samRecords, byte[] sequence, long startPosition) throws IOException {
 
         //addMessage("Examining each position");
 
         List<Pileup> pileups = new ArrayList<Pileup>();
 
         // make the pileups
-        int length = sequence.length();
+        int length = sequence.length;
         for (int i = 0; i < length; i++) {
-            pileups.add(new Pileup(viewTrackName, startPosition + i, Pileup.getNucleotide(sequence.charAt(i))));
+            pileups.add(new Pileup(viewTrackName, startPosition + i, Pileup.getNucleotide(sequence[i])));
         }
 
         //System.out.println("Pileup start: " + startPosition);
@@ -381,7 +384,7 @@ public class SNPFinderPlugin extends SavantPanelPlugin implements RangeChangeCom
         // go through the samrecords and edit the pileups
         for (Record r : samRecords) {
             SAMRecord sr = ((BAMIntervalRecord)r).getSamRecord();
-            updatePileupsFromSAMRecord(pileups, NavigationUtils.getGenome(), sr, startPosition);
+            updatePileupsFromSAMRecord(pileups, GenomeUtils.getGenome(), sr, startPosition);
         }
 
         //addMessage("Done examining each position");
@@ -407,7 +410,7 @@ public class SNPFinderPlugin extends SavantPanelPlugin implements RangeChangeCom
 
         // the reference sequence
         //byte[] refSeq = genome.getSequence(new Range(alignmentStart, alignmentEnd)).getBytes();
-        byte[] refSeq = genome.getSequence(NavigationUtils.getCurrentReferenceName(), NavigationUtils.createRange(alignmentStart, alignmentEnd)).getBytes();
+        byte[] refSeq = genome.getSequence(NavigationUtils.getCurrentReferenceName(), NavigationUtils.createRange(alignmentStart, alignmentEnd));
 
         // get the cigar object for this alignment
         Cigar cigar = samRecord.getCigar();
@@ -449,7 +452,7 @@ public class SNPFinderPlugin extends SavantPanelPlugin implements RangeChangeCom
                         byte[] readBase = new byte[1];
                         readBase[0] = readBases[readIndex];
 
-                        Nucleotide readN = Pileup.getNucleotide((new String(readBase)).charAt(0));
+                        Nucleotide readN = Pileup.getNucleotide(readBase[0]);
 
                         int j = i + (int) (alignmentStart - startPosition);
                         //for (int j = pileupcursor; j < operatorLength; j++) {
@@ -508,17 +511,17 @@ public class SNPFinderPlugin extends SavantPanelPlugin implements RangeChangeCom
     /**
      * Call SNP for piles for current sequence.
      */
-    private List<Pileup> callSNPsFromPileups(List<Pileup> piles, String sequence) {
+    private List<Pileup> callSNPsFromPileups(List<Pileup> piles, byte[] sequence) {
 
         //addMessage("Calling SNPs");
 
         List<Pileup> snps = new ArrayList<Pileup>();
 
-        int length = sequence.length();
+        int length = sequence.length;
         Pileup.Nucleotide n;
         Pileup p;
         for (int i = 0; i < length; i++) {
-            n = Pileup.getNucleotide(sequence.charAt(i));
+            n = Pileup.getNucleotide(sequence[i]);
             p = piles.get(i);
 
             double confidence = p.getSNPNucleotideConfidence()*100;
@@ -596,9 +599,9 @@ public class SNPFinderPlugin extends SavantPanelPlugin implements RangeChangeCom
      */
     private void setSequence() {
         sequence = null;
-        if (NavigationUtils.isGenomeLoaded()) {
+        if (GenomeUtils.isGenomeLoaded()) {
             try {
-                sequence = NavigationUtils.getGenome().getSequence(NavigationUtils.getCurrentReferenceName(), NavigationUtils.getCurrentRange());
+                sequence = GenomeUtils.getGenome().getSequence(NavigationUtils.getCurrentReferenceName(), NavigationUtils.getCurrentRange());
             } catch (IOException ex) {
                 addMessage("Error: could not get sequence");
                 return;

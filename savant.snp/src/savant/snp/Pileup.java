@@ -74,11 +74,11 @@ class Pileup {
         return hash;
     }
 
-    public void pileOn(char c) { pileOn(c,1.0); }
+    public void pileOn(byte c) { pileOn(c,1.0); }
 
     public void pileOn(Nucleotide n) { pileOn(n,1.0); }
 
-    public void pileOn(char c, double quality) { pileOn(getNucleotide(c),quality); }
+    public void pileOn(byte c, double quality) { pileOn(getNucleotide(c),quality); }
 
     public void pileOn(Nucleotide n, double quality) {
         double coverage = 1.0 * quality;
@@ -160,9 +160,8 @@ class Pileup {
     }
      */
 
-    public static Nucleotide getNucleotide(char c) {
-        c = ("" + c).toUpperCase().charAt(0);
-        switch(c) {
+    public static Nucleotide getNucleotide(byte c) {
+        switch (Character.toUpperCase(c)) {
             case 'A':
                 return Nucleotide.A;
             case 'C':
