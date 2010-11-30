@@ -77,7 +77,7 @@ public class BAMTrackRenderer extends TrackRenderer {
     private int minimumHeight = 4;
     private boolean renderFixed = false;
 
-    private byte[] refSeq=null;
+    private byte[] refSeq = null;
 
     private int offset = 0;
 
@@ -135,7 +135,7 @@ public class BAMTrackRenderer extends TrackRenderer {
                    AxisRange axisRange = (AxisRange) getDrawingInstructions().getInstruction(DrawingInstructions.InstructionName.AXIS_RANGE);
                     Range range = axisRange.getXRange();
                     try {
-                        refSeq = genome.getSequence(ReferenceController.getInstance().getReferenceName(), range).getBytes();
+                        refSeq = genome.getSequence(ReferenceController.getInstance().getReferenceName(), range);
                     } catch (IOException e) {
                         // FIXME: this exception should be propagated to someone who can alert the user
                         log.warn("Unable to read reference sequence");

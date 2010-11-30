@@ -34,30 +34,6 @@ public class NavigationUtils {
     private static ReferenceController refc = ReferenceController.getInstance();
 
     /**
-     * Tell whether a genome has been loaded yet
-     * @return Whether or not a genome has been loaded yet
-     */
-    public static boolean isGenomeLoaded() {
-        return refc.isGenomeLoaded();
-    }
-
-    /**
-     * Get the loaded genome.
-     * @return The loaded genome
-     */
-    public static GenomeAdapter getGenome() {
-        return refc.getGenome();
-    }
-
-    /**
-     * Set the genome
-     * @param genome The genome to set
-     */
-    public static void setGenome(GenomeAdapter genome) {
-        refc.setGenome((Genome) genome);
-    }
-
-    /**
      * Get the name of the current reference
      * @return The name of the current reference
      */

@@ -78,18 +78,15 @@ public class FASTAFileDataSource extends FASTADataSource implements FileDataSour
 
             for (int i = 0; i < rangeLength; i++) {
                 try {
-                    sequence[i] = dFile.readByte();
+                    sequence[i] = (byte)Character.toUpperCase(dFile.readByte());
                 } catch (IOException e) { break; }
             }
         } else {
             return null;
         }
 
-        String s = new String(sequence);
-        s = s.toUpperCase();
-
         ArrayList<SequenceRecord> result = new ArrayList<SequenceRecord>();
-        result.add(SequenceRecord.valueOf(reference, s));
+        result.add(SequenceRecord.valueOf(reference, sequence));
         return result;
     }
 

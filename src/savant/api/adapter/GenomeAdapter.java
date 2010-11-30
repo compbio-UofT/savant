@@ -17,7 +17,7 @@ public interface GenomeAdapter {
 
     public Set<String> getReferenceNames();
     public String getName();
-    public String getSequence(String reference, RangeAdapter range) throws IOException;
+    public byte[] getSequence(String reference, RangeAdapter range) throws IOException;
     public long getLength();
     public long getLength(String reference);
     public DataSource getTrack();

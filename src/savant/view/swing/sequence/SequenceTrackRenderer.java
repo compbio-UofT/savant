@@ -21,9 +21,10 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.geom.Rectangle2D;
+import java.io.UnsupportedEncodingException;
 import java.util.List;
-import savant.data.types.Record;
 
+import savant.data.types.Record;
 import savant.data.types.SequenceRecord;
 import savant.util.ColorScheme;
 import savant.util.DrawingInstructions;
@@ -78,7 +79,7 @@ public class SequenceTrackRenderer extends TrackRenderer {
             return;
         }
 
-        String sequence = ((SequenceRecord)getData().get(0)).getSequence();
+        byte[] sequence = ((SequenceRecord)getData().get(0)).getSequence();
 
         // Set the font size, if base name is renderable at all.
         boolean baseRenderable = false;
@@ -91,7 +92,7 @@ public class SequenceTrackRenderer extends TrackRenderer {
             baseRenderable = true;
         }
 
-        int len = sequence.length();
+        int len = sequence.length;
         for (int i = 0; i < len; i++) {
             double x = (i*unitWidth);
             double y = 0;//gp.transformYPos(1);
@@ -102,7 +103,7 @@ public class SequenceTrackRenderer extends TrackRenderer {
 
             ColorScheme colorScheme = (ColorScheme)getDrawingInstructions().getInstruction(DrawingInstructions.InstructionName.COLOR_SCHEME);
             Color c = colorScheme.getColor("Background");
-            switch (sequence.charAt(i)) {
+            switch (sequence[i]) {
 
                 case 'A':
                     c = colorScheme.getColor("A");
@@ -127,23 +128,23 @@ public class SequenceTrackRenderer extends TrackRenderer {
                 g2.draw(rect);
             }
 
-            String base = Character.toString(sequence.charAt(i));
+            try {
+                String base = new String(sequence, i, 1, "ISO-8859-1");
 
-            if (baseRenderable) {
-                float charX, charY;
-                Font font = g2.getFont();
-                Rectangle2D charRect = font.getStringBounds(base, g2.getFontRenderContext());
-                // center the font rectangle in the coloured sequence rectangle
-                charX = (float) (rect.getX() + (rect.getWidth() - charRect.getWidth())/2);
-                charY = (float) (rect.getY() + charRect.getHeight() + (rect.getHeight() - charRect.getHeight())/2);
-                // draw character
-                g2.setColor(Color.black);
-                g2.drawString(base, charX, charY);
+                if (baseRenderable) {
+                    float charX, charY;
+                    Font font = g2.getFont();
+                    Rectangle2D charRect = font.getStringBounds(base, g2.getFontRenderContext());
+                    // center the font rectangle in the coloured sequence rectangle
+                    charX = (float) (rect.getX() + (rect.getWidth() - charRect.getWidth())/2);
+                    charY = (float) (rect.getY() + charRect.getHeight() + (rect.getHeight() - charRect.getHeight())/2);
+                    // draw character
+                    g2.setColor(Color.black);
+                    g2.drawString(base, charX, charY);
 
+                }
+            } catch (UnsupportedEncodingException ignored) {
             }
-            
-            //g.drawRect(x, y, w, h);
-            //g.drawRect(i*10,i*10,i*100,i*100);
         }
     }
 

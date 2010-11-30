@@ -26,8 +26,6 @@ import savant.api.adapter.GenomeAdapter;
 import savant.api.adapter.RangeAdapter;
 import savant.controller.ReferenceController;
 import savant.data.sources.file.FASTAFileDataSource;
-import savant.file.SavantFileNotFormattedException;
-import savant.file.SavantUnsupportedVersionException;
 import savant.util.Resolution;
 import savant.view.dialog.GenomeLengthForm.BuildInfo;
 import savant.view.dialog.GenomeLengthForm.ReferenceInfo;
@@ -68,13 +66,14 @@ public class Genome implements Serializable, GenomeAdapter {
         }
     }
 
-    public Genome(String name, long length) throws IOException {
+    public Genome(String name, long length) {
         isAssociatedWithTrack = false;
         setName("user defined");
         referenceMap = new HashMap<String,Long>();
         referenceMap.put(name, length);
     }
 
+    @Override
     public Set<String> getReferenceNames() {
         if (this.isAssociatedWithTrack) {
             return this.dataSource.getReferenceNames();
@@ -91,44 +90,45 @@ public class Genome implements Serializable, GenomeAdapter {
         this.name = name;
     }
 
+    @Override
     public String getName() { return this.name; }
 
-    public String getSequence(String reference, RangeAdapter range) throws IOException
-    {
-        if (!isSequenceSet()) { return null; }
-        else { return dataSource.getRecords(reference, range, Resolution.VERY_HIGH).get(0).getSequence(); }
+    @Override
+    public byte[] getSequence(String reference, RangeAdapter range) throws IOException {
+        return isSequenceSet() ? dataSource.getRecords(reference, range, Resolution.VERY_HIGH).get(0).getSequence() : null;
     }
 
-    public long getLength()
-    {
+    @Override
+    public long getLength() {
         return getLength(ReferenceController.getInstance().getReferenceName());
     }
 
-    public long getLength(String reference)
-    {
-        if (this.isAssociatedWithTrack) {
-            return this.dataSource.getLength(reference);
+    @Override
+    public long getLength(String reference) {
+        if (isAssociatedWithTrack) {
+            return dataSource.getLength(reference);
         } else {
-            return this.referenceMap.get(reference).longValue();
+            return referenceMap.get(reference).longValue();
         }
     }
 
     @Override
-    public FASTAFileDataSource getTrack() { return this.dataSource; }
+    public FASTAFileDataSource getTrack() {
+        return dataSource;
+    }
 
-    public boolean isSequenceSet()
-    {
-        return (dataSource != null);
+    @Override
+    public boolean isSequenceSet() {
+        return dataSource != null;
     }
 
     @Override
     public ViewTrack getViewTrack() {
-        return this.viewTrack;
+        return viewTrack;
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         return getName();
     }
 

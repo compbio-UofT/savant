@@ -1,4 +1,8 @@
 /*
+ * SequenceRecord.java
+ * Created on Aug 23, 2010
+ *
+ *
  *    Copyright 2010 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,12 +18,9 @@
  *    limitations under the License.
  */
 
-/*
- * SequenceRecord.java
- * Created on Aug 23, 2010
- */
-
 package savant.data.types;
+
+import java.io.UnsupportedEncodingException;
 
 /**
  * Immutable class to represent a sequence. Includes the sequence name.
@@ -29,9 +30,9 @@ package savant.data.types;
 public class SequenceRecord implements Record {
 
     private final String reference;
-    private final String sequence;
+    private final byte[] sequence;
 
-    SequenceRecord(String reference, String sequence) {
+    SequenceRecord(String reference, byte[] sequence) {
         if (reference == null) throw new IllegalArgumentException("Invalid argument; reference may not be null.");
         if (sequence == null) throw new IllegalArgumentException("Invalud argument; sequence may not be null.");
 
@@ -39,11 +40,11 @@ public class SequenceRecord implements Record {
         this.sequence = sequence;
     }
 
-    public static SequenceRecord valueOf(String reference, String sequence) {
+    public static SequenceRecord valueOf(String reference, byte[] sequence) {
         return new SequenceRecord(reference, sequence);
     }
 
-    public String getSequence() {
+    public byte[] getSequence() {
         return sequence;
     }
 
@@ -52,6 +53,7 @@ public class SequenceRecord implements Record {
         return reference;
     }
 
+    @Override
     public int compareTo(Object o) {
         if (this == o) {
             return 0;
@@ -60,7 +62,30 @@ public class SequenceRecord implements Record {
         SequenceRecord that = (SequenceRecord)o;
         int result = reference.compareTo(that.reference);
         if (result == 0) {
-            result = sequence.compareTo(that.sequence);
+            int thisLen = sequence.length;
+            int thatLen = that.sequence.length;
+
+            for (int i = 0; ; i++) {
+                int a = 0, b = 0;
+
+                if (i < thisLen) {
+                    a = ((int)sequence[i]) & 0xff;
+                } else if (i >= thatLen) {
+                    return 0;
+                }
+
+                if (i < thisLen) {
+                    b = ((int) that.sequence[i]) & 0xff;
+                }
+
+                if (a > b) {
+                    return 1;
+                }
+
+                if (b > a) {
+                    return -1;
+                }
+            }
         }
         return result;
     }
@@ -85,9 +110,12 @@ public class SequenceRecord implements Record {
     public String toString() {
         final StringBuilder sb = new StringBuilder();
         sb.append("SequenceRecord");
-        sb.append("{reference='").append(reference).append('\'');
-        sb.append(", sequence='").append(sequence).append('\'');
-        sb.append('}');
+        sb.append("{reference='").append(reference).append("\', sequence='");
+        try {
+            sb.append(new String(sequence, "ISO-8859-1"));
+        } catch (UnsupportedEncodingException ignored) {
+        }
+        sb.append("\'}");
         return sb.toString();
     }
 }
