@@ -217,8 +217,10 @@ public class SNPFinderPlugin extends GUIPlugin implements RangeChangeCompletedLi
     @Override
     public void rangeChangeCompletedReceived(RangeChangedEvent event) {
         setSequence();
-        updateTrackCanvasMap();
-        runSNPFinder();
+        if (sequence != null) {
+            updateTrackCanvasMap();
+            runSNPFinder();
+        }
     }
 
     /**
@@ -233,9 +235,6 @@ public class SNPFinderPlugin extends GUIPlugin implements RangeChangeCompletedLi
      * Refresh list of canvases.
      */
     private void updateTrackCanvasMap() {
-
-
-
 
         if (viewTrackToCanvasMap == null) {
             viewTrackToCanvasMap = new HashMap<ViewTrackAdapter, JPanel>();
@@ -324,11 +323,15 @@ public class SNPFinderPlugin extends GUIPlugin implements RangeChangeCompletedLi
      * Do everything.
      */
     private void doEverything() {
-        if (sequence == null) { setSequence(); }
-        updateTrackCanvasMap();
-        createPileups();
-        callSNPs();
-        drawPiles();
+        if (sequence == null) {
+            setSequence();
+        }
+        if (sequence != null) {
+            updateTrackCanvasMap();
+            createPileups();
+            callSNPs();
+            drawPiles();
+        }
     }
 
     /**
