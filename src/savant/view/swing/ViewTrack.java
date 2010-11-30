@@ -29,7 +29,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import org.apache.commons.logging.Log;
@@ -38,7 +37,6 @@ import org.apache.commons.logging.LogFactory;
 import savant.api.adapter.ModeAdapter;
 import savant.api.adapter.RangeAdapter;
 import savant.api.adapter.ViewTrackAdapter;
-import savant.controller.ReferenceController;
 import savant.controller.SelectionController;
 import savant.controller.TrackController;
 import savant.controller.ViewTrackController;
@@ -51,7 +49,6 @@ import savant.file.SavantFileNotFormattedException;
 import savant.file.SavantROFile;
 import savant.file.SavantUnsupportedVersionException;
 import savant.format.SavantFileFormatterUtils;
-import savant.format.SavantFileFormattingException;
 import savant.util.ColorScheme;
 import savant.util.MiscUtils;
 import savant.util.Mode;
@@ -287,6 +284,10 @@ public abstract class ViewTrack implements ViewTrackAdapter {
     }
 
     // TODO: remove this constructor!! should not need to pass a name
+    /*
+     * @deprecated use the correspeonding constructor without name argument
+     * instead
+     */
     public ViewTrack(String name, DataFormat dataType, DataSource dataSource) {
         this.dataType = dataType;
         drawModes = new ArrayList<ModeAdapter>();
