@@ -56,7 +56,7 @@ public class ScreenShot {
 
     private static String save(BufferedImage screen) {
 
-        File selectedFile = DialogUtils.chooseFileForSave(Savant.getInstance(), "Output File", new FileFilter() {
+        File selectedFile = DialogUtils.chooseFileForSave(Savant.getInstance(), "Output File", "Screenshot.png", new FileFilter() {
             @Override
             public boolean accept(File f) {
                 if (f.isDirectory()) {

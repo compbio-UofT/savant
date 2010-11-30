@@ -241,7 +241,7 @@ public class DataSheet implements RangeChangeCompletedListener, ViewTrackListCha
 
         if(input == null) return;
 
-        File selectedFile = DialogUtils.chooseFileForSave("Export Data");
+        File selectedFile = DialogUtils.chooseFileForSave("Export Data", "Export.txt");
 
         // set the genome
         if (selectedFile != null) {

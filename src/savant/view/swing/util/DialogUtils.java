@@ -135,10 +135,11 @@ public class DialogUtils {
      *
      * @param parent window which will serve as the parent for this dialog
      * @param title title of the dialog
+     * @param defaultName default file-name to appear in the dialog
      * @return a File, or null if cancelled
      */
-    public static File chooseFileForSave(Frame parent, String title) {
-        return chooseFileForSave(parent, title, null);
+    public static File chooseFileForSave(Frame parent, String title, String defaultName) {
+        return chooseFileForSave(parent, title, defaultName, null);
     }
 
     /**
@@ -146,14 +147,16 @@ public class DialogUtils {
      *
      * @param parent window which will serve as the parent for this dialog
      * @param title title of the dialog
+     * @param defaultName default file-name to appear in the dialog
      * @param filter file-filter for controlling what appears in the dialog
      * @return a File, or null if cancelled
      */
-    public static File chooseFileForSave(Frame parent, String title, FileFilter filter) {
+    public static File chooseFileForSave(Frame parent, String title, String defaultName, FileFilter filter) {
         FileDialog fd = new FileDialog(parent, title, FileDialog.SAVE);
         if (filter != null) {
             fd.setFilenameFilter(new FilenameFilterAdapter(filter));
         }
+        fd.setFile(defaultName);
         fd.setAlwaysOnTop(true);
         fd.setVisible(true);
         String selectedFile = fd.getFile();

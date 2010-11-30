@@ -116,10 +116,11 @@ public class DialogUtils {
      * Prompt the user to save a file.
      *
      * @param title title of the dialog
+     * @param defaultName default file-name to appear in the dialog
      * @return a File, or null if cancelled
      */
-    public static File chooseFileForSave(String title) {
-        return savant.view.swing.util.DialogUtils.chooseFileForSave(Savant.getInstance(), title, null);
+    public static File chooseFileForSave(String title, String defaultName) {
+        return savant.view.swing.util.DialogUtils.chooseFileForSave(Savant.getInstance(), title, defaultName, null);
     }
 
     /**
@@ -129,7 +130,7 @@ public class DialogUtils {
      * @param filter file-filter for controlling what appears in the dialog
      * @return a File, or null if cancelled
      */
-    public static File chooseFileForSave(String title, FileFilter filter) {
-        return savant.view.swing.util.DialogUtils.chooseFileForSave(Savant.getInstance(), title, filter);
+    public static File chooseFileForSave(String title, String defaultName, FileFilter filter) {
+        return savant.view.swing.util.DialogUtils.chooseFileForSave(Savant.getInstance(), title, defaultName, filter);
     }
 }
