@@ -54,6 +54,15 @@ public class DialogUtils {
         JOptionPane.showMessageDialog(Savant.getInstance(), message, title, JOptionPane.PLAIN_MESSAGE);
     }
 
+    public static String displayInputMessage(String message, String defaultInput) {
+        String result = JideOptionPane.showInputDialog(Savant.getInstance(), message, defaultInput);
+        if ((result != null) && (result.length() > 0)) {
+            return result;
+        } else {
+            return null;
+        }
+    }
+
     public static void displayException(String title, String message, Throwable t) {
         JideOptionPane optionPane = new JideOptionPane(message, JOptionPane.ERROR_MESSAGE, JideOptionPane.CLOSE_OPTION);
         optionPane.setTitle(title);

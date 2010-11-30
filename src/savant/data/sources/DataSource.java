@@ -54,7 +54,9 @@ public interface DataSource<E extends Record> {
      */
     public List<E> getRecords(String reference, RangeAdapter range, Resolution resolution) throws IOException;
 
-    public URI getURI();
+    //public URI getURI();
+
+    public String getName();
     
     /**
      * Close the source

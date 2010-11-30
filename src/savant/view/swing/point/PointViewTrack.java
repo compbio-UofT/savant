@@ -21,6 +21,7 @@ import savant.api.adapter.RangeAdapter;
 import savant.data.sources.DataSource;
 import savant.data.sources.file.GenericPointFileDataSource;
 import savant.data.types.Record;
+import savant.exception.SavantTrackCreationCancelledException;
 import savant.file.DataFormat;
 import savant.settings.ColourSettings;
 import savant.util.AxisRange;
@@ -41,8 +42,8 @@ public class PointViewTrack extends ViewTrack {
 
     public List<Record> savedList = null;
 
-    public PointViewTrack(String name, DataSource pointTrack) {
-        super(name, DataFormat.POINT_GENERIC, pointTrack);
+    public PointViewTrack(DataSource pointTrack) throws SavantTrackCreationCancelledException {
+        super(DataFormat.POINT_GENERIC, pointTrack);
         setColorScheme(getDefaultColorScheme());
         this.notifyViewTrackControllerOfCreation();
     }

@@ -18,6 +18,7 @@ package savant.view.swing.sequence;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import savant.exception.SavantTrackCreationCancelledException;
 import savant.file.DataFormat;
 import savant.util.*;
 import savant.util.ColorScheme;
@@ -52,9 +53,9 @@ public class SequenceViewTrack extends ViewTrack {
     //Genome genome;
     //String path;
 
-    public SequenceViewTrack(String name, DataSource dataTrack)
+    public SequenceViewTrack(DataSource dataTrack) throws SavantTrackCreationCancelledException
     {
-        super(name, DataFormat.SEQUENCE_FASTA, dataTrack);
+        super(DataFormat.SEQUENCE_FASTA, dataTrack);
         //setGenome(g);
         //path = g.getFilename();
         setColorScheme(getDefaultColorScheme());

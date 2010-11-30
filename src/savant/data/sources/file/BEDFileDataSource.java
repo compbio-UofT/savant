@@ -42,13 +42,14 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import savant.api.adapter.RangeAdapter;
 import savant.data.sources.BEDDataSource;
+import savant.util.MiscUtils;
 
 /**
  * Class to represent an track of generic intervals. Responsible for reading records within a given range.
  *
  * @author vwilliams
  */
-public class BEDFileDataSource extends BEDDataSource {
+public class BEDFileDataSource extends BEDDataSource implements FileDataSource  {
 
     private SavantROFile dFile;
 
@@ -100,5 +101,10 @@ public class BEDFileDataSource extends BEDDataSource {
     @Override
     public URI getURI() {
         return dFile.getURI();
+    }
+
+    @Override
+    public String getName() {
+        return MiscUtils.getNeatPathFromURI(getURI());
     }
 }

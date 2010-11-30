@@ -24,6 +24,7 @@ package savant.view.swing.interval;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import savant.data.sources.file.BEDFileDataSource;
+import savant.exception.SavantTrackCreationCancelledException;
 import savant.file.DataFormat;
 import savant.util.*;
 import savant.util.ColorScheme;
@@ -57,8 +58,8 @@ public class BEDViewTrack extends ViewTrack {
     private static final Mode STANDARD_MODE = Mode.fromObject(DrawingMode.STANDARD, "Standard Gene View");
     private static final Mode SQUISH_MODE = Mode.fromObject(DrawingMode.SQUISH, "All on one line");
 
-    public BEDViewTrack(String name, DataSource bedTrack) {
-        super(name, DataFormat.INTERVAL_BED, bedTrack);
+    public BEDViewTrack(DataSource bedTrack) throws SavantTrackCreationCancelledException {
+        super(DataFormat.INTERVAL_BED, bedTrack);
         setColorScheme(getDefaultColorScheme());
         setDrawModes(getDefaultDrawModes());
         setDrawMode(STANDARD_MODE);

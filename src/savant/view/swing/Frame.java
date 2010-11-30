@@ -648,7 +648,7 @@ public class Frame {
                     break;
             }
         }
-        renderer.setURI(track.getURI());
+        renderer.setTrackName(track.getName());
         renderer.getDrawingInstructions().addInstruction(
                 DrawingInstructions.InstructionName.TRACK_DATA_TYPE, track.getDataType());
         track.addTrackRenderer(renderer);

@@ -36,7 +36,7 @@ public class SelectionUtils {
      * @param data The data point to select
      */
     public static void addSelection(ViewTrackAdapter t, Record data) {
-        sc.addSelection(t.getURI(), data);
+        sc.addSelection(t.getName(), data);
     }
 
     /**
@@ -45,7 +45,7 @@ public class SelectionUtils {
      * @param data The data point to select/deselect
      */
     public static void toggleSelection(ViewTrackAdapter t, Record data) {
-        sc.toggleSelection(t.getURI(), data);
+        sc.toggleSelection(t.getName(), data);
     }
 
     /**

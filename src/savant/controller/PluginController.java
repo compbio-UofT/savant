@@ -50,7 +50,7 @@ import org.java.plugin.registry.PluginDescriptor;
 import org.java.plugin.standard.StandardPluginLocation;
 
 import savant.experimental.PluginTool;
-import savant.plugin.GUIPlugin;
+import savant.plugin.SavantPanelPlugin;
 import savant.plugin.PluginAdapter;
 import savant.plugin.SavantDataSourcePlugin;
 import savant.util.MiscUtils;
@@ -171,7 +171,7 @@ public class PluginController {
             Plugin plugininstance = (Plugin)(classLoader.loadClass(ext.getParameter("class").valueAsString())).newInstance();
 
                 // init the plugin based on its type
-                if (plugininstance instanceof GUIPlugin) {
+                if (plugininstance instanceof SavantPanelPlugin) {
                     initGUIPlugin(plugininstance);
                 } else if (plugininstance instanceof PluginTool) {
                     initPluginTool(plugininstance);
@@ -270,7 +270,7 @@ public class PluginController {
     }
 
     private void initGUIPlugin(Object plugininstance) {
-        GUIPlugin plugin = (GUIPlugin) plugininstance;
+        SavantPanelPlugin plugin = (SavantPanelPlugin) plugininstance;
         final DockableFrame f = DockableFrameFactory.createGUIPluginFrame(plugin.getTitle());
         JPanel p = (JPanel) f.getContentPane();
         p.setLayout(new BorderLayout());
@@ -324,8 +324,8 @@ public class PluginController {
 
     public String getPluginName(String id) {
         Plugin p = this.pluginIDToPluginMap.get(id);
-        if (p instanceof GUIPlugin) {
-            GUIPlugin pp = (GUIPlugin) p;
+        if (p instanceof SavantPanelPlugin) {
+            SavantPanelPlugin pp = (SavantPanelPlugin) p;
             return pp.getTitle();
         } else if (p instanceof PluginTool) {
             PluginTool pp = (PluginTool) p;

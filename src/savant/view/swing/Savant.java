@@ -60,6 +60,7 @@ import savant.controller.event.TrackListChangedEvent;
 import savant.controller.event.TrackListChangedListener;
 import savant.data.sources.DataSource;
 import savant.data.types.Genome;
+import savant.exception.SavantTrackCreationCancelledException;
 import savant.file.SavantFileNotFormattedException;
 import savant.file.SavantUnsupportedVersionException;
 import savant.net.RemoteTrackTreeList;
@@ -154,21 +155,20 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
             uri = new File(selectedFileName).toURI();
         }
 
-        if (ViewTrackController.getInstance().containsTrack(uri)) {
-            DialogUtils.displayMessage("Sorry", "This track is already loaded.");
-            return;
-        }
-
         Savant.log("Loading track " + selectedFileName, Savant.LOGMODE.NORMAL);
 
         // Some types of track actually create more than one track per frame, e.g. BAM
-        List<ViewTrack> tracks = ViewTrack.create(uri);
-        createFrameForTrack(tracks);
+        List<ViewTrack> tracks;
+        try {
+            tracks = ViewTrack.create(uri);
+            createFrameForTrack(tracks);
+        } catch (SavantTrackCreationCancelledException ex) {
+        }
     }
 
     public void createFrameForTrack(List<ViewTrack> tracks) {
         if (tracks != null && tracks.size() > 0) {
-            addFrameForTrack(MiscUtils.getNeatPathFromURI(tracks.get(0).getURI()), tracks);
+            addFrameForTrack(tracks.get(0).getName(), tracks);
         }
     }
 
@@ -1326,11 +1326,14 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         if (p != null) {
             System.out.println("Plugin selected: " + p.getTitle());
             DataSource s = p.getDataSource();
-            ViewTrack t = ViewTrack.create(p.getTitle(), s);
-            List<ViewTrack> tracks = new ArrayList<ViewTrack>(); // TODO: should not need to do this!!
-            tracks.add(t);
-            addFrameForTrack(t.getName(), tracks);
-            
+            ViewTrack t;
+            try {
+                t = ViewTrack.create(s);
+                List<ViewTrack> tracks = new ArrayList<ViewTrack>(); // TODO: should not need to do this!!
+                tracks.add(t);
+                addFrameForTrack(t.getName(), tracks);
+            } catch (SavantTrackCreationCancelledException ex) {
+            }
         } else {
             System.out.println("No plugin selected");
         }
@@ -2433,7 +2436,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
     private void setGenomeFromTrack(ViewTrack track) {
         Genome g = ViewTrack.createGenome(track);
         if (g != null) {
-            setGenome(MiscUtils.getNeatPathFromURI(track.getURI()), g);
+            setGenome(track.getName(), g);
         }
     }
 

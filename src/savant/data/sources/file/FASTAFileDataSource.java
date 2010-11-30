@@ -41,12 +41,13 @@ import java.util.Set;
 import savant.api.adapter.RangeAdapter;
 import savant.data.sources.DataSource;
 import savant.data.sources.FASTADataSource;
+import savant.util.MiscUtils;
 
 /**
  * TODO:
  * @author vwilliams
  */
-public class FASTAFileDataSource extends FASTADataSource {
+public class FASTAFileDataSource extends FASTADataSource implements FileDataSource {
 
     private static Log log = LogFactory.getLog(FASTAFileDataSource.class);
 
@@ -114,5 +115,10 @@ public class FASTAFileDataSource extends FASTADataSource {
     public URI getURI() {
         //System.out.println("Getting URI for FASTA file: " + dFile.getURI());
         return dFile.getURI();
+    }
+
+    @Override
+    public String getName() {
+        return MiscUtils.getNeatPathFromURI(getURI());
     }
 }

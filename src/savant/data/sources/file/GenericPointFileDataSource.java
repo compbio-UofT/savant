@@ -37,6 +37,7 @@ import savant.file.FileType;
 import savant.file.SavantFileNotFormattedException;
 import savant.file.SavantROFile;
 import savant.file.SavantUnsupportedVersionException;
+import savant.util.MiscUtils;
 import savant.util.Resolution;
 import savant.util.SavantFileUtils;
 
@@ -45,7 +46,7 @@ import savant.util.SavantFileUtils;
  * 
  * @author mfiume, vwilliams
  */
-public class GenericPointFileDataSource extends GenericPointDataSource {
+public class GenericPointFileDataSource extends GenericPointDataSource implements FileDataSource {
 
     private SavantROFile savantFile;
 
@@ -143,5 +144,10 @@ public class GenericPointFileDataSource extends GenericPointDataSource {
     @Override
     public URI getURI() {
         return savantFile.getURI();
+    }
+
+    @Override
+    public String getName() {
+        return MiscUtils.getNeatPathFromURI(getURI());
     }
 }

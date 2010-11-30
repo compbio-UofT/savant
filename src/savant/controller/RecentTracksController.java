@@ -24,6 +24,7 @@ import org.apache.commons.logging.LogFactory;
 import savant.api.util.DialogUtils;
 import savant.controller.event.ViewTrackAddedListener;
 import savant.controller.event.ViewTrackAddedOrRemovedEvent;
+import savant.data.sources.file.FileDataSource;
 import savant.settings.DirectorySettings;
 import savant.util.MiscUtils;
 import savant.view.swing.Savant;
@@ -68,12 +69,23 @@ public class RecentTracksController implements ViewTrackAddedListener {
 
         if (t.getDataSource() == null) { return; }
 
-        if (t.getURI() == null) { return; }
+        System.out.println("Considering: " + t.getName() + " for recents...");
 
-        String path = t.getURI().toASCIIString();
+
+        if (t.getDataSource() instanceof FileDataSource) {
+            if (((FileDataSource) t.getDataSource()).getURI() == null) {
+                return;
+            }
+        } else {
+            return;
+        }
+
+        FileDataSource fds = (FileDataSource) t.getDataSource();
+
+        String path = fds.getURI().toASCIIString();
         if (path == null) { return; }
 
-        path = MiscUtils.getNeatPathFromURI(t.getURI());
+        path = MiscUtils.getNeatPathFromURI(fds.getURI());
         
         queue.remove(path);
         resizeQueue(queue, NUM_RECENTS_TO_SAVE);
@@ -107,7 +119,7 @@ public class RecentTracksController implements ViewTrackAddedListener {
                         Savant.getInstance().addTrackFromFile(s);
                     } catch (Exception ex) {
                         LOG.error("Unable to open file.", ex);
-                        DialogUtils.displayError("Error opening track from file " + s);
+                        DialogUtils.displayError("Problem opening track from file " + s);
                     }
                 }
             });

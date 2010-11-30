@@ -19,6 +19,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import savant.data.types.GenericIntervalRecord;
 import savant.data.types.Interval;
+import savant.exception.SavantTrackCreationCancelledException;
 import savant.file.DataFormat;
 import savant.util.*;
 import savant.data.sources.file.GenericIntervalFileDataSource;
@@ -51,8 +52,8 @@ public class IntervalViewTrack extends ViewTrack {
     private static final Mode PACK_MODE = Mode.fromObject(DrawingMode.PACK, "Minimum number of lines");
     private static final Mode ARC_MODE = Mode.fromObject(DrawingMode.ARC, "Arcs");
 
-    public IntervalViewTrack(String name, DataSource intervalTrack) {
-        super(name, DataFormat.INTERVAL_GENERIC, intervalTrack);
+    public IntervalViewTrack(DataSource intervalTrack) throws SavantTrackCreationCancelledException {
+        super(DataFormat.INTERVAL_GENERIC, intervalTrack);
         setColorScheme(getDefaultColorScheme());
         setDrawModes(getDefaultDrawModes());
         setDrawMode(PACK_MODE);

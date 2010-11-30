@@ -71,6 +71,13 @@ public class DialogUtils {
         savant.view.swing.util.DialogUtils.displayError("Savant Error", message);
     }
 
+    /*
+     * Display a dialog that gets input
+     */
+    public static String displayInputMessage(String message, String defaultInput) {
+        return savant.view.swing.util.DialogUtils.displayInputMessage(message, defaultInput);
+    }
+
     /**
      * Display a Savant error dialog with the given title and message.
      *

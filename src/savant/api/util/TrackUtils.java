@@ -20,6 +20,7 @@ import savant.controller.event.ViewTrackAddedListener;
 import savant.controller.event.ViewTrackListChangedListener;
 import savant.controller.event.ViewTrackRemovedListener;
 import savant.data.sources.DataSource;
+import savant.exception.SavantTrackCreationCancelledException;
 import savant.file.DataFormat;
 import savant.view.swing.Savant;
 import savant.view.swing.ViewTrack;
@@ -73,7 +74,7 @@ public class TrackUtils {
      * @return A list of tracks based on the path (some paths, e.g. to BAM files, can create multiple tracks)
      * @throws IOException Exception opening the track at path
      */
-    public static List<ViewTrackAdapter> createTrack(URI uri) throws IOException {
+    public static List<ViewTrackAdapter> createTrack(URI uri) throws IOException, SavantTrackCreationCancelledException {
         List<ViewTrackAdapter> r = new ArrayList<ViewTrackAdapter>();
         for (ViewTrack t : ViewTrack.create(uri)) {
             r.add((ViewTrackAdapter) t);
@@ -87,7 +88,7 @@ public class TrackUtils {
      * @return A list of tracks based on the path (some paths, e.g. to BAM files, can create multiple tracks)
      * @throws IOException Exception opening the track at path
      */
-    public static List<ViewTrackAdapter> createTrack(File file) throws IOException {
+    public static List<ViewTrackAdapter> createTrack(File file) throws IOException, SavantTrackCreationCancelledException {
         List<ViewTrackAdapter> r = new ArrayList<ViewTrackAdapter>();
         for (ViewTrack t : ViewTrack.create(file.toURI())) {
             r.add((ViewTrackAdapter) t);

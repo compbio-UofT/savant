@@ -49,7 +49,7 @@ import savant.util.NetworkUtils;
  * 
  * @author vwilliams
  */
-public class BAMFileDataSource extends BAMDataSource {
+public class BAMFileDataSource extends BAMDataSource implements FileDataSource {
 
     private static Log log = LogFactory.getLog(BAMFileDataSource.class);
     
@@ -308,5 +308,10 @@ public class BAMFileDataSource extends BAMDataSource {
     @Override
     public URI getURI() {
         return uri;
+    }
+
+    @Override
+    public String getName() {
+        return MiscUtils.getNeatPathFromURI(getURI());
     }
 }

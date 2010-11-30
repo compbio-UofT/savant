@@ -45,13 +45,14 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import savant.api.adapter.RangeAdapter;
 import savant.data.sources.GenericIntervalDataSource;
+import savant.util.MiscUtils;
 
 /**
  * Class to represent an track of generic intervals. Responsible for reading records within a given range.
  * 
  * @author vwilliams
  */
-public class GenericIntervalFileDataSource extends GenericIntervalDataSource {
+public class GenericIntervalFileDataSource extends GenericIntervalDataSource implements FileDataSource  {
 
     private static Log log = LogFactory.getLog(GenericIntervalFileDataSource.class);
 
@@ -115,5 +116,10 @@ public class GenericIntervalFileDataSource extends GenericIntervalDataSource {
     @Override
     public URI getURI() {
         return dFile.getURI();
+    }
+
+    @Override
+    public String getName() {
+        return MiscUtils.getNeatPathFromURI(getURI());
     }
 }

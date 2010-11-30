@@ -48,15 +48,17 @@ public abstract class TrackRenderer {
     private List<Record> data;
     private DrawingInstructions instructions;
     private DataFormat dataType;
-    private URI fileURI;
+    //private URI fileURI;
+    private String trackname;
+
     protected Map<Record, Shape> recordToShapeMap = new HashMap<Record, Shape>();
 
     public TrackRenderer(DrawingInstructions instructions) {
         this.instructions = instructions;
     }
 
-    public void setURI(URI uri) {
-        this.fileURI = uri;
+    public void setTrackName(String name) {
+        this.trackname = name;
     }
 
     public List<Record> getData() {
@@ -167,7 +169,7 @@ public abstract class TrackRenderer {
         }
 
         if(repaint)
-            SelectionController.getInstance().addMultipleSelections(fileURI, toAdd);
+            SelectionController.getInstance().addMultipleSelections(trackname, toAdd);
 
         return repaint;
     }
@@ -178,7 +180,7 @@ public abstract class TrackRenderer {
 
     public void addToSelected(Record i){
         if(selectionAllowed()){
-            SelectionController.getInstance().toggleSelection(fileURI, i);
+            SelectionController.getInstance().toggleSelection(trackname, i);
         }
     }
 
@@ -187,7 +189,7 @@ public abstract class TrackRenderer {
 
     public List<Shape> getCurrentSelectedShapes(GraphPane gp){
         List<Shape> shapes = new ArrayList<Shape>();
-        List<Record> currentSelected = SelectionController.getInstance().getSelectedFromList(fileURI, RangeController.getInstance().getRange(), data);
+        List<Record> currentSelected = SelectionController.getInstance().getSelectedFromList(trackname, RangeController.getInstance().getRange(), data);
         for(int i = 0; i < currentSelected.size(); i++){
             if(this.getClass().equals(ContinuousTrackRenderer.class)){
                 shapes.add(continuousRecordToEllipse(gp, currentSelected.get(i)));

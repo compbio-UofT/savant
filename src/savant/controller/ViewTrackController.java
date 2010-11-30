@@ -179,9 +179,9 @@ public class ViewTrackController {
                 Savant.getInstance().getTrackDockingManager(),false);
     }
 
-    public boolean containsTrack(URI uri) {
+    public boolean containsTrack(String name) {
         for (ViewTrack t : tracks) {
-            if (uri.equals(t.getURI())) {
+            if (name.equals(t.getName())) {
                 return true;
             }
         }

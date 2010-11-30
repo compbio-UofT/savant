@@ -23,7 +23,7 @@ package savant.plugin;
 import javax.swing.JPanel;
 import org.java.plugin.Plugin;
 
-public abstract class GUIPlugin extends Plugin {
+public abstract class SavantPanelPlugin extends Plugin {
 
     /**
      * This method is called once during application life cycle to allow a third-party

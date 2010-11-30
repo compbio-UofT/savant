@@ -28,12 +28,16 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import savant.data.sources.file.FileDataSource;
 
 import savant.data.types.Genome;
 import savant.exception.SavantEmptySessionException;
+import savant.exception.SavantTrackCreationCancelledException;
 import savant.file.SavantFileNotFormattedException;
 import savant.file.SavantUnsupportedVersionException;
 import savant.util.Bookmark;
@@ -41,6 +45,7 @@ import savant.util.MiscUtils;
 import savant.util.Range;
 import savant.view.swing.Savant;
 import savant.view.swing.ViewTrack;
+import savant.view.swing.util.DialogUtils;
 
 /**
  *
@@ -184,10 +189,20 @@ public class ProjectController {
         if (isSequenceSet) {
             trackpaths.remove(genomePath);
             try {
-                genome = ViewTrack.createGenome(ViewTrack.create(new URI(genomePath)).get(0));
+                try {
+                    genome = ViewTrack.createGenome(ViewTrack.create(new URI(genomePath)).get(0));
+                } catch (SavantTrackCreationCancelledException ex) {
+                    DialogUtils.displayMessage("Sorry", "Problem loading project.");
+                    return;
+                }
             } catch (URISyntaxException usx) {
-                // A common cause of URISyntaxExceptions is a file-path containing spaces.
-                genome = ViewTrack.createGenome(ViewTrack.create(new File(genomePath).toURI()).get(0));
+                try {
+                    // A common cause of URISyntaxExceptions is a file-path containing spaces.
+                    genome = ViewTrack.createGenome(ViewTrack.create(new File(genomePath).toURI()).get(0));
+                } catch (SavantTrackCreationCancelledException ex) {
+                    DialogUtils.displayMessage("Sorry", "Problem loading project.");
+                    return;
+                }
             }
             genomeName = genome.getTrack().getURI().toString();
         } else {
@@ -221,8 +236,10 @@ public class ProjectController {
     private Persistent getTrackPersistence() {
         List<String> trackpaths = new ArrayList<String>();
         for (ViewTrack t : ViewTrackController.getInstance().getTracks()) {
-            if (t.getURI() != null) {
-                trackpaths.add(MiscUtils.getNeatPathFromURI(t.getURI()));
+            if (t.getDataSource() instanceof FileDataSource) {
+                if (((FileDataSource) t.getDataSource()).getURI() != null) {
+                    trackpaths.add(MiscUtils.getNeatPathFromURI(((FileDataSource) t.getDataSource()).getURI()));
+                }
             }
         }
         return new Persistent(KEY_TRACKS, trackpaths);

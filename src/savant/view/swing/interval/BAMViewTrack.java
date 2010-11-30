@@ -34,6 +34,7 @@ import savant.data.sources.file.BAMFileDataSource;
 import savant.data.sources.DataSource;
 import savant.data.types.BAMIntervalRecord;
 import savant.data.types.Record;
+import savant.exception.SavantTrackCreationCancelledException;
 import savant.file.DataFormat;
 import savant.settings.ColourSettings;
 import savant.util.AxisRange;
@@ -86,8 +87,8 @@ public class BAMViewTrack extends ViewTrack {
      * @param name track name
      * @param bamTrack data track which this view track represents
      */
-    public BAMViewTrack(String name, DataSource bamTrack) {
-        super(name, DataFormat.INTERVAL_BAM, bamTrack);
+    public BAMViewTrack(DataSource bamTrack) throws SavantTrackCreationCancelledException {
+        super(DataFormat.INTERVAL_BAM, bamTrack);
         setColorScheme(getDefaultColorScheme());
         setDrawModes(getDefaultDrawModes());
         setDrawMode(VARIANTS_MODE);

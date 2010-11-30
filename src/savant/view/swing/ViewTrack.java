@@ -15,6 +15,7 @@
  */
 package savant.view.swing;
 
+import savant.exception.SavantTrackCreationCancelledException;
 import savant.data.sources.file.BAMFileDataSource;
 import savant.data.sources.file.BEDFileDataSource;
 import savant.data.sources.file.GenericPointFileDataSource;
@@ -52,6 +53,7 @@ import savant.file.SavantUnsupportedVersionException;
 import savant.format.SavantFileFormatterUtils;
 import savant.format.SavantFileFormattingException;
 import savant.util.ColorScheme;
+import savant.util.MiscUtils;
 import savant.util.Mode;
 import savant.util.Range;
 import savant.util.Resolution;
@@ -78,21 +80,21 @@ public abstract class ViewTrack implements ViewTrackAdapter {
 
     private static final Log LOG = LogFactory.getLog(ViewTrack.class);
 
-    public static ViewTrack create(String name, DataSource dataTrack) {
+    public static ViewTrack create(DataSource dataTrack) throws SavantTrackCreationCancelledException {
 
         switch(dataTrack.getDataFormat()) {
             case SEQUENCE_FASTA:
-                return new SequenceViewTrack(name, dataTrack);
+                return new SequenceViewTrack(dataTrack);
             case INTERVAL_BED:
-                return new BEDViewTrack(name, dataTrack);
+                return new BEDViewTrack(dataTrack);
             case POINT_GENERIC:
-                return new PointViewTrack(name, dataTrack);
+                return new PointViewTrack(dataTrack);
             case CONTINUOUS_GENERIC:
-                return new ContinuousViewTrack(name, dataTrack);
+                return new ContinuousViewTrack(dataTrack);
             case INTERVAL_BAM:
-                return new BAMViewTrack(name, dataTrack);
+                return new BAMViewTrack(dataTrack);
             case INTERVAL_GENERIC:
-                return new IntervalViewTrack(name, dataTrack);
+                return new IntervalViewTrack(dataTrack);
             default:
                 return null;
         }
@@ -122,7 +124,7 @@ public abstract class ViewTrack implements ViewTrackAdapter {
      * @return List of ViewTrack which can be added to a Frame
      * @throws IOException
      */
-    public static List<ViewTrack> create(URI trackURI) {
+    public static List<ViewTrack> create(URI trackURI) throws SavantTrackCreationCancelledException {
 
         LOG.info("Opening track " + trackURI);
 
@@ -146,7 +148,7 @@ public abstract class ViewTrack implements ViewTrackAdapter {
             try {
                 dataTrack = BAMFileDataSource.fromURI(trackURI);
                 if (dataTrack != null) {
-                    viewTrack = create(name, (BAMFileDataSource) dataTrack);
+                    viewTrack = create((BAMFileDataSource) dataTrack);
                     results.add(viewTrack);
                 } else {
                     DialogUtils.displayError("Error loading track", String.format("Could not create BAM track; check that index file exists and is named \"%1$s.bai\".", name));
@@ -159,10 +161,10 @@ public abstract class ViewTrack implements ViewTrackAdapter {
 
                     if (coverageFile.exists()) {
                         dataTrack = new GenericContinuousFileDataSource(coverageFile.toURI());
-                        viewTrack = new BAMCoverageViewTrack(name + " (coverage)", (GenericContinuousFileDataSource)dataTrack);
+                        viewTrack = new BAMCoverageViewTrack((GenericContinuousFileDataSource)dataTrack);
                     } else {
                         //FIXME: this should not happen! plugins expect tracks to contain data, and not be vacuous
-                        viewTrack = new BAMCoverageViewTrack(name + " (coverage)", null);
+                        viewTrack = new BAMCoverageViewTrack(MiscUtils.getNeatPathFromURI(trackURI) + " (coverage)", null);
                     }
                 }
             } catch (IOException e) {
@@ -170,10 +172,10 @@ public abstract class ViewTrack implements ViewTrackAdapter {
 
                 //FIXME: this should not happen! plugins expect tracks to contain data, and not be vacuous
                 // create an empty ViewTrack that just displays an error message << see the above FIXME
-                viewTrack = new BAMCoverageViewTrack(name + " (coverage)", null);
+                viewTrack = new BAMCoverageViewTrack(MiscUtils.getNeatPathFromURI(trackURI) + " (coverage)", null);
             } catch (SavantFileNotFormattedException e) {
                 LOG.warn("Coverage track appears to be unformatted", e);
-                viewTrack = new BAMCoverageViewTrack(name + " (coverage)", null);
+                viewTrack = new BAMCoverageViewTrack(MiscUtils.getNeatPathFromURI(trackURI) + " (coverage)", null);
             } catch (SavantUnsupportedVersionException e) {
                 DialogUtils.displayMessage("Sorry", "This file was created using an older version of Savant. Please re-format the source.");
             } catch (URISyntaxException e) {
@@ -227,7 +229,7 @@ public abstract class ViewTrack implements ViewTrackAdapter {
                         s.promptUserToFormatFile(trackURI);
                 }
                 if (recognized) {
-                    viewTrack = create(name, dataTrack);
+                    viewTrack = create(dataTrack);
                 }
                 if (viewTrack != null) {
                     results.add(viewTrack);
@@ -240,13 +242,6 @@ public abstract class ViewTrack implements ViewTrackAdapter {
             } catch (IOException e) {
                 DialogUtils.displayException("Error opening track", "There was a problem opening this file.", e);
             }
-            /*
-            if (viewTrack != null) {
-                viewTrack.setURI(trackFilename);
-            } else {
-            }
-             * 
-             */
         }
 
         return results;
@@ -262,7 +257,7 @@ public abstract class ViewTrack implements ViewTrackAdapter {
         }
 
         // determine default track name from filename
-        String genomePath = sequenceTrack.getURI().getPath();
+        String genomePath = sequenceTrack.getName();
         int lastSlashIndex = genomePath.lastIndexOf("/");
         String name = genomePath.substring(lastSlashIndex + 1, genomePath.length());
 
@@ -274,12 +269,43 @@ public abstract class ViewTrack implements ViewTrackAdapter {
      * @param name track name (typically, the file name)
      * @param dataType FileFormat representing file type, e.g. INTERVAL_BED, CONTINUOUS_GENERIC
      */
+    public ViewTrack(DataFormat dataType, DataSource dataSource) throws SavantTrackCreationCancelledException {
+
+        this.dataType = dataType;
+        drawModes = new ArrayList<ModeAdapter>();
+        trackRenderers = new ArrayList<TrackRenderer>();
+
+        this.dataSource = dataSource;
+
+        String n = getUniqueName(dataSource.getName());
+
+        if (n == null) {
+            throw new SavantTrackCreationCancelledException();
+        }
+
+        this.name = n;
+    }
+
+    // TODO: remove this constructor!! should not need to pass a name
     public ViewTrack(String name, DataFormat dataType, DataSource dataSource) {
-        this.name = name;
         this.dataType = dataType;
         drawModes = new ArrayList<ModeAdapter>();
         trackRenderers = new ArrayList<TrackRenderer>();
         this.dataSource = dataSource;
+        this.name = name;
+    }
+
+    private String getUniqueName(String name) {
+        String result = name;
+        while(ViewTrackController.getInstance().containsTrack(result)) {
+            result = DialogUtils.displayInputMessage(
+                    "A track with that name already exists. Please enter a new name:",
+                    result);
+            if (result == null) {
+                return null;
+            }
+        }
+        return result;
     }
 
     public void notifyViewTrackControllerOfCreation() {
@@ -290,17 +316,6 @@ public abstract class ViewTrack implements ViewTrackAdapter {
         }
     }
 
-    //public void setFilename(String fn) {
-    //    this.filename = fn;
-    //}
-    // FIXME: this shouldn't be a URI
-    /*
-    public String getPath() {
-    if (this.getDataSource() == null) { return null; }
-    return this.getDataSource().getURI().toString();
-    }
-     * 
-     */
     /**
      * Get the type of file this view track represents
      *
@@ -352,7 +367,7 @@ public abstract class ViewTrack implements ViewTrackAdapter {
 
     @Override
     public List<Record> getSelectedDataInRange() {
-        return SelectionController.getInstance().getSelections(getURI());
+        return SelectionController.getInstance().getSelections(getName());
     }
 
     /*
@@ -593,8 +608,11 @@ public abstract class ViewTrack implements ViewTrackAdapter {
     }
 
     // FIXME: URI is not appropriate for this usage; 
+    /*
     @Override
     public URI getURI() {
         return (this.getDataSource() == null) ? null : this.getDataSource().getURI();
     }
+     * 
+     */
 }

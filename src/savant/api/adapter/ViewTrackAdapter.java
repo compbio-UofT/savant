@@ -150,7 +150,7 @@ public interface ViewTrackAdapter {
      *
      * @return the URI for the track's data (possibly null)
      */
-    public URI getURI();
+    //public URI getURI();
 
     /**
      * Does this track allow selections?

@@ -286,6 +286,7 @@ public class MiscUtils {
      * @return a canonical string representing the URI.
      */
     public static String getNeatPathFromURI(URI u) {
+        if(u == null) { return ""; }
         if ("file".equals(u.getScheme())) {
             return (new File(u)).getAbsolutePath();
         }
