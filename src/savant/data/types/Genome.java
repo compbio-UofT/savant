@@ -50,7 +50,7 @@ public class Genome implements Serializable, GenomeAdapter {
     // if not associated with track
     private Map<String,Long> referenceMap;
 
-    public Genome(String name, SequenceViewTrack t) throws IOException, SavantFileNotFormattedException, SavantUnsupportedVersionException {
+    public Genome(String name, SequenceViewTrack t) {
         isAssociatedWithTrack = true;
         setName(name);
         viewTrack = t;

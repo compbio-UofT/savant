@@ -28,6 +28,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import org.apache.commons.logging.Log;
@@ -36,6 +37,7 @@ import org.apache.commons.logging.LogFactory;
 import savant.api.adapter.ModeAdapter;
 import savant.api.adapter.RangeAdapter;
 import savant.api.adapter.ViewTrackAdapter;
+import savant.controller.ReferenceController;
 import savant.controller.SelectionController;
 import savant.controller.TrackController;
 import savant.controller.ViewTrackController;
@@ -48,6 +50,7 @@ import savant.file.SavantFileNotFormattedException;
 import savant.file.SavantROFile;
 import savant.file.SavantUnsupportedVersionException;
 import savant.format.SavantFileFormatterUtils;
+import savant.format.SavantFileFormattingException;
 import savant.util.ColorScheme;
 import savant.util.Mode;
 import savant.util.Range;
@@ -76,6 +79,7 @@ public abstract class ViewTrack implements ViewTrackAdapter {
     private static final Log LOG = LogFactory.getLog(ViewTrack.class);
 
     public static ViewTrack create(String name, DataSource dataTrack) {
+
         switch(dataTrack.getDataFormat()) {
             case SEQUENCE_FASTA:
                 return new SequenceViewTrack(name, dataTrack);
@@ -118,7 +122,7 @@ public abstract class ViewTrack implements ViewTrackAdapter {
      * @return List of ViewTrack which can be added to a Frame
      * @throws IOException
      */
-    public static List<ViewTrack> create(URI trackURI) throws IOException {
+    public static List<ViewTrack> create(URI trackURI) {
 
         LOG.info("Opening track " + trackURI);
 
@@ -248,25 +252,21 @@ public abstract class ViewTrack implements ViewTrackAdapter {
         return results;
     }
 
-    public static Genome createGenome(URI genomeURI) throws IOException, SavantFileNotFormattedException, SavantUnsupportedVersionException {
+    public static Genome createGenome(ViewTrack sequenceTrack) {
 
-        List<ViewTrack> tracks = ViewTrack.create(genomeURI);
+        if (sequenceTrack == null) { return null; }
 
-        if (tracks == null || tracks.isEmpty()) { return null; }
+        if (!(sequenceTrack instanceof SequenceViewTrack)) {
+            JOptionPane.showMessageDialog(Savant.getInstance(), "Could not load this track as genome.");
+            return null;
+        }
 
         // determine default track name from filename
-        String genomePath = genomeURI.getPath();
+        String genomePath = sequenceTrack.getURI().getPath();
         int lastSlashIndex = genomePath.lastIndexOf("/");
         String name = genomePath.substring(lastSlashIndex + 1, genomePath.length());
 
-        Genome g = null;
-        if (tracks.get(0) instanceof SequenceViewTrack) {
-            g = new Genome(name, (SequenceViewTrack) tracks.get(0));
-        } else {
-            DialogUtils.displayError("Sorry", "Problem opening track as genome.");
-        }
-
-        return g;
+        return new Genome(name, (SequenceViewTrack) sequenceTrack);
     }
 
     /**

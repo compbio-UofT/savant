@@ -184,10 +184,10 @@ public class ProjectController {
         if (isSequenceSet) {
             trackpaths.remove(genomePath);
             try {
-                genome = ViewTrack.createGenome(new URI(genomePath));
+                genome = ViewTrack.createGenome(ViewTrack.create(new URI(genomePath)).get(0));
             } catch (URISyntaxException usx) {
                 // A common cause of URISyntaxExceptions is a file-path containing spaces.
-                genome = ViewTrack.createGenome(new File(genomePath).toURI());
+                genome = ViewTrack.createGenome(ViewTrack.create(new File(genomePath).toURI()).get(0));
             }
             genomeName = genome.getTrack().getURI().toString();
         } else {

@@ -78,6 +78,7 @@ import savant.view.dialog.GenomeLengthForm;
 import savant.view.dialog.OpenURLDialog;
 import savant.view.dialog.PluginManagerDialog;
 import savant.view.icon.SavantIconFactory;
+import savant.view.swing.sequence.SequenceViewTrack;
 import savant.view.swing.util.DialogUtils;
 import savant.view.tools.ToolsModule;
 import savant.xml.XMLVersion;
@@ -158,14 +159,6 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
             return;
         }
 
-        if (!ReferenceController.getInstance().isGenomeLoaded()) {
-            int result = JOptionPane.showConfirmDialog(this, "No genome is loaded yet. Load file as genome?", "No genome loaded", JOptionPane.YES_NO_OPTION);
-            if (result == JOptionPane.YES_OPTION) {
-                setGenomeFromURI(uri);
-            }
-            return;
-        }
-
         Savant.log("Loading track " + selectedFileName, Savant.LOGMODE.NORMAL);
 
         // Some types of track actually create more than one track per frame, e.g. BAM
@@ -180,6 +173,24 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
     }
 
     public void addFrameForTrack(String name, List<ViewTrack> tracks) {
+
+         if (!ReferenceController.getInstance().isGenomeLoaded()) {
+            if (askIfTrackShouldBeLoadedAsGenome()) {
+                setGenomeFromTrack(tracks.get(0));
+            }
+            return;
+        }
+
+        /*
+        if (!ReferenceController.getInstance().isGenomeLoaded()) {
+            int result = JOptionPane.showConfirmDialog(this, "No genome is loaded yet. Load file as genome?", "No genome loaded", JOptionPane.YES_NO_OPTION);
+            if (result == JOptionPane.YES_OPTION) {
+            }
+            return null;
+        }
+         * 
+         */
+
         Frame frame = null;
         DockableFrame df = DockableFrameFactory.createTrackFrame(name);
         JPanel panel = (JPanel) df.getContentPane();
@@ -2203,7 +2214,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         rangeControls.add(ruler);
         //rangeControls.add(trackButton);
         rangeControls.add(loadFromFileItem);
-        rangeControls.add(loadFromDataSourcePlugin);
+        //rangeControls.add(loadFromDataSourcePlugin);
         rangeControls.add(loadFromURLItem);
         rangeControls.add(button_undo);
         rangeControls.add(button_redo);
@@ -2315,10 +2326,11 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
             if (selectedFile != null) {
                 Savant.log("Loading genome " + selectedFile, Savant.LOGMODE.NORMAL);
                 try {
-                    setGenomeFromURI(selectedFile.toURI());
-                    Savant.log("Genome loaded", Savant.LOGMODE.NORMAL);
-                } catch (SavantFileNotFormattedException sfnfx) {
-                    promptUserToFormatFile(selectedFile.toURI());
+                    List<ViewTrack> trks = ViewTrack.create(selectedFile.toURI());
+                    if (!trks.isEmpty()) {
+                        setGenomeFromTrack(trks.get(0));
+                        Savant.log("Genome loaded", Savant.LOGMODE.NORMAL);
+                    }
                 } catch (Exception x) {
                     LOG.error("Unable to load genome.", x);
                     DialogUtils.displayException("Error Loading Genome", String.format("Unable to load genome from %s.", selectedFile.getName()), x);
@@ -2347,7 +2359,6 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
             try {
                 addTrackFromFile(f.getAbsolutePath());
             } catch (SavantFileNotFormattedException sfnfx) {
-                //e.printStackTrace();
                 promptUserToFormatFile(f.toURI());
             } catch (Exception x) {
                 DialogUtils.displayException("Error", String.format("%s opening %s.", x.getClass(), f), x);
@@ -2415,10 +2426,10 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
      *
      * @param f path to the genome.
      */
-    private void setGenomeFromURI(URI uri) throws IOException, SavantFileNotFormattedException, SavantUnsupportedVersionException {
-        Genome g = ViewTrack.createGenome(uri);
+    private void setGenomeFromTrack(ViewTrack track) {
+        Genome g = ViewTrack.createGenome(track);
         if (g != null) {
-            setGenome(MiscUtils.getNeatPathFromURI(uri), g);
+            setGenome(MiscUtils.getNeatPathFromURI(track.getURI()), g);
         }
     }
 
@@ -2710,6 +2721,14 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         trackDockingManager.showInitial();
 
         //this.setExtendedState(this.getExtendedState() | this.MAXIMIZED_BOTH);
+    }
+
+    private boolean askIfTrackShouldBeLoadedAsGenome() {
+        int result = JOptionPane.showConfirmDialog(this, "No genome is loaded yet. Load file as genome?", "No genome loaded", JOptionPane.YES_NO_OPTION);
+        if (result == JOptionPane.YES_OPTION) {
+            return true;
+        }
+        return false;
     }
 
     public enum LOGMODE {
