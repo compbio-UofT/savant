@@ -23,6 +23,8 @@ public class DataSourcePluginDialog extends javax.swing.JDialog {
 
     List<SavantDataSourcePlugin> datasources;
 
+    SavantDataSourcePlugin selectedPlugin;
+
     /** Creates new form DataSourcePluginDialog */
     public DataSourcePluginDialog(java.awt.Frame parent, boolean modal, List<SavantDataSourcePlugin> datasources) {
         super(parent, modal);
@@ -46,6 +48,7 @@ public class DataSourcePluginDialog extends javax.swing.JDialog {
         jLabel1 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setTitle("Load from Other Datasource");
         setModal(true);
 
         button_load.setText("Load track");
@@ -88,6 +91,13 @@ public class DataSourcePluginDialog extends javax.swing.JDialog {
     }// </editor-fold>//GEN-END:initComponents
 
     private void button_loadActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_loadActionPerformed
+        String title = (String) this.list_datasources.getSelectedValue();
+        for (SavantDataSourcePlugin p : datasources) {
+            if (p.getTitle().equals(title)) {
+                selectedPlugin = p;
+                break;
+            }
+        }
         this.dispose();
     }//GEN-LAST:event_button_loadActionPerformed
 
@@ -111,13 +121,7 @@ public class DataSourcePluginDialog extends javax.swing.JDialog {
     }
 
     public SavantDataSourcePlugin getSelectedPlugin() {
-        String title = (String) this.list_datasources.getSelectedValue();
-        for (SavantDataSourcePlugin p : datasources) {
-            if (p.getTitle().equals(title)) {
-                return p;
-            }
-        }
-        return null;
+         return selectedPlugin;
     }
 
 }

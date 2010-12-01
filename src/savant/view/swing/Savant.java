@@ -67,6 +67,7 @@ import savant.net.RemoteTrackTreeList;
 import savant.experimental.XMLTool;
 import savant.file.DataFormat;
 import savant.plugin.SavantDataSourcePlugin;
+import savant.plugin.builtin.SavantFileRepositoryDataSource;
 import savant.settings.*;
 import savant.startpage.StartPage;
 import savant.swing.component.TrackChooser;
@@ -160,7 +161,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         // Some types of track actually create more than one track per frame, e.g. BAM
         List<ViewTrack> tracks;
         try {
-            tracks = ViewTrack.create(uri);
+            tracks = TrackFactory.createTrack(uri);
             createFrameForTrack(tracks);
         } catch (SavantTrackCreationCancelledException ex) {
         }
@@ -458,9 +459,6 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         s.setStatus("Loading plugins");
 
         PluginController pc = PluginController.getInstance();
-        if (DataSourcePluginController.getInstance().getDataSourcePlugins().isEmpty()) {
-            loadFromDataSourcePlugin.setVisible(false);
-        }
 
         s.setStatus("Organizing layout");
 
@@ -683,7 +681,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         fileMenu.add(loadFromRepositoryItem);
 
         loadFromDataSourcePlugin.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_E, java.awt.event.InputEvent.CTRL_MASK));
-        loadFromDataSourcePlugin.setText("Load from External Datasource...");
+        loadFromDataSourcePlugin.setText("Load from Other Datasource...");
         loadFromDataSourcePlugin.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 loadFromDataSourcePluginActionPerformed(evt);
@@ -1328,7 +1326,8 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
             DataSource s = p.getDataSource();
             ViewTrack t;
             try {
-                t = ViewTrack.create(s);
+                if (s == null) { return; }
+                t = TrackFactory.createTrack(s);
                 List<ViewTrack> tracks = new ArrayList<ViewTrack>(); // TODO: should not need to do this!!
                 tracks.add(t);
                 addFrameForTrack(t.getName(), tracks);
@@ -1337,8 +1336,6 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         } else {
             System.out.println("No plugin selected");
         }
-
-
     }//GEN-LAST:event_loadFromDataSourcePluginActionPerformed
 
     /**
@@ -1627,6 +1624,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         initStatusBar();
         initGUIHandlers();
         initBookmarksPanel();
+        initDataSources();
         //initStartPage();
 
         dff = new DataFormatForm(this, false);
@@ -1635,6 +1633,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
     }
 
     private void disableExperimentalFeatures() {
+        loadFromRepositoryItem.setVisible(false);
         menuitem_tools.setVisible(false);
         MiscUtils.setFrameVisibility("Start Page", false, trackDockingManager);
         menuitem_startpage.setVisible(false);
@@ -2333,7 +2332,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
             if (selectedFile != null) {
                 Savant.log("Loading genome " + selectedFile, Savant.LOGMODE.NORMAL);
                 try {
-                    List<ViewTrack> trks = ViewTrack.create(selectedFile.toURI());
+                    List<ViewTrack> trks = TrackFactory.createTrack(selectedFile.toURI());
                     if (!trks.isEmpty()) {
                         setGenomeFromTrack(trks.get(0));
                         Savant.log("Genome loaded", Savant.LOGMODE.NORMAL);
@@ -2736,6 +2735,10 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
             return true;
         }
         return false;
+    }
+
+    private void initDataSources() {
+        DataSourcePluginController.getInstance().addDataSourcePlugin(new SavantFileRepositoryDataSource());
     }
 
     public enum LOGMODE {

@@ -15,6 +15,8 @@
  */
 package savant.view.swing;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import savant.exception.SavantTrackCreationCancelledException;
 import savant.data.sources.file.BAMFileDataSource;
 import savant.data.sources.file.BEDFileDataSource;
@@ -42,11 +44,13 @@ import savant.controller.TrackController;
 import savant.controller.ViewTrackController;
 import savant.data.types.Genome;
 import savant.data.sources.*;
+import savant.data.sources.file.FileDataSource;
 import savant.data.types.Record;
 import savant.file.DataFormat;
 import savant.file.FileType;
 import savant.file.SavantFileNotFormattedException;
 import savant.file.SavantROFile;
+import savant.file.SavantUnsupportedFileTypeException;
 import savant.file.SavantUnsupportedVersionException;
 import savant.format.SavantFileFormatterUtils;
 import savant.util.ColorScheme;
@@ -64,7 +68,6 @@ import savant.view.swing.point.PointViewTrack;
 import savant.view.swing.sequence.SequenceViewTrack;
 import savant.view.swing.util.DialogUtils;
 
-
 /**
  * Class to handle the preparation for rendering of a track. Handles colour schemes and
  * drawing instructions, getting and filtering of data, setting of vertical axis, etc. The
@@ -74,29 +77,6 @@ import savant.view.swing.util.DialogUtils;
  * @author mfiume
  */
 public abstract class ViewTrack implements ViewTrackAdapter {
-
-    private static final Log LOG = LogFactory.getLog(ViewTrack.class);
-
-    public static ViewTrack create(DataSource dataTrack) throws SavantTrackCreationCancelledException {
-
-        switch(dataTrack.getDataFormat()) {
-            case SEQUENCE_FASTA:
-                return new SequenceViewTrack(dataTrack);
-            case INTERVAL_BED:
-                return new BEDViewTrack(dataTrack);
-            case POINT_GENERIC:
-                return new PointViewTrack(dataTrack);
-            case CONTINUOUS_GENERIC:
-                return new ContinuousViewTrack(dataTrack);
-            case INTERVAL_BAM:
-                return new BAMViewTrack(dataTrack);
-            case INTERVAL_GENERIC:
-                return new IntervalViewTrack(dataTrack);
-            default:
-                return null;
-        }
-    }
-
 
     private final String name;
     private ColorScheme colorScheme;
@@ -114,139 +94,13 @@ public abstract class ViewTrack implements ViewTrackAdapter {
 
     // TODO: put all of this in a ViewTrackFactory class
     // TODO: inform the user when there is a problem
-    /**
-     * Create one or more tracks from the given file name.
-     *
-     * @param trackURI
-     * @return List of ViewTrack which can be added to a Frame
-     * @throws IOException
-     */
-    public static List<ViewTrack> create(URI trackURI) throws SavantTrackCreationCancelledException {
-
-        LOG.info("Opening track " + trackURI);
-
-        List<ViewTrack> results = new ArrayList<ViewTrack>();
-
-        // determine default track name from filename
-        String trackPath = trackURI.getPath();
-        int lastSlashIndex = trackPath.lastIndexOf(System.getProperty("file.separator"));
-        String name = trackPath.substring(lastSlashIndex + 1, trackPath.length());
-
-        FileType fileType = SavantFileFormatterUtils.guessFileTypeFromPath(trackPath);
-
-        ViewTrack viewTrack = null;
-        DataSource dataTrack = null;
-
-        // BAM
-        if (fileType == FileType.INTERVAL_BAM) {
-
-            LOG.info("Opening BAM file " + trackURI);
-
-            try {
-                dataTrack = BAMFileDataSource.fromURI(trackURI);
-                if (dataTrack != null) {
-                    viewTrack = create((BAMFileDataSource) dataTrack);
-                    results.add(viewTrack);
-                } else {
-                    DialogUtils.displayError("Error loading track", String.format("Could not create BAM track; check that index file exists and is named \"%1$s.bai\".", name));
-                    return null;
-                }
-
-                // TODO: Only resolves coverage files for local data.  Should also work for network URIs.
-                if (trackURI.getScheme().equals("file")) {
-                    File coverageFile = new File(new URI(trackURI.toString() + ".cov.savant"));
-
-                    if (coverageFile.exists()) {
-                        dataTrack = new GenericContinuousFileDataSource(coverageFile.toURI());
-                        viewTrack = new BAMCoverageViewTrack((GenericContinuousFileDataSource)dataTrack);
-                    } else {
-                        //FIXME: this should not happen! plugins expect tracks to contain data, and not be vacuous
-                        viewTrack = new BAMCoverageViewTrack(MiscUtils.getNeatPathFromURI(trackURI) + " (coverage)", null);
-                    }
-                }
-            } catch (IOException e) {
-                LOG.warn("Could not load coverage track", e);
-
-                //FIXME: this should not happen! plugins expect tracks to contain data, and not be vacuous
-                // create an empty ViewTrack that just displays an error message << see the above FIXME
-                viewTrack = new BAMCoverageViewTrack(MiscUtils.getNeatPathFromURI(trackURI) + " (coverage)", null);
-            } catch (SavantFileNotFormattedException e) {
-                LOG.warn("Coverage track appears to be unformatted", e);
-                viewTrack = new BAMCoverageViewTrack(MiscUtils.getNeatPathFromURI(trackURI) + " (coverage)", null);
-            } catch (SavantUnsupportedVersionException e) {
-                DialogUtils.displayMessage("Sorry", "This file was created using an older version of Savant. Please re-format the source.");
-            } catch (URISyntaxException e) {
-                DialogUtils.displayError("Savant Error", "Syntax error on URI; file URI is not valid");
-            }
-            
-            results.add(viewTrack);
-
-        } else {
-
-            try {
-
-                // read file header
-                SavantROFile trkFile = new SavantROFile(trackURI);
-
-                LOG.debug("Reading file type header");
-                LOG.debug("File type: " + trkFile.getFileType());
-
-                trkFile.close();
-
-                if (trkFile.getFileType() == null) {
-                    Savant s = Savant.getInstance();
-                    s.promptUserToFormatFile(trackURI);
-                    return results;
-                }
-
-                boolean recognized = true;
-                
-                switch (trkFile.getFileType()) {
-                    case SEQUENCE_FASTA:
-                        dataTrack = new FASTAFileDataSource(trackURI);
-                        break;
-                    case POINT_GENERIC:
-                        dataTrack = new GenericPointFileDataSource(trackURI);
-                        break;
-                    case CONTINUOUS_GENERIC:
-                        dataTrack = new GenericContinuousFileDataSource(trackURI);
-                        break;
-                    case INTERVAL_GENERIC:
-                        dataTrack = new GenericIntervalFileDataSource(trackURI);
-                        break;
-                    case INTERVAL_GFF:
-                        dataTrack = new GenericIntervalFileDataSource(trackURI);
-                        break;
-                    case INTERVAL_BED:
-                        dataTrack = new BEDFileDataSource(trackURI);
-                        break;
-                    default:
-                        recognized = false;
-                        Savant s = Savant.getInstance();
-                        s.promptUserToFormatFile(trackURI);
-                }
-                if (recognized) {
-                    viewTrack = create(dataTrack);
-                }
-                if (viewTrack != null) {
-                    results.add(viewTrack);
-                }
-            } catch (SavantFileNotFormattedException e) {
-                Savant s = Savant.getInstance();
-                s.promptUserToFormatFile(trackURI);
-            } catch (SavantUnsupportedVersionException e) {
-                DialogUtils.displayMessage("Sorry", "This file was created using an older version of Savant. Please re-format the source.");
-            } catch (IOException e) {
-                DialogUtils.displayException("Error opening track", "There was a problem opening this file.", e);
-            }
-        }
-
-        return results;
-    }
+    
 
     public static Genome createGenome(ViewTrack sequenceTrack) {
 
-        if (sequenceTrack == null) { return null; }
+        if (sequenceTrack == null) {
+            return null;
+        }
 
         if (!(sequenceTrack instanceof SequenceViewTrack)) {
             DialogUtils.displayMessage("Sorry", "Could not load this track as genome.");
@@ -298,7 +152,7 @@ public abstract class ViewTrack implements ViewTrackAdapter {
 
     private String getUniqueName(String name) {
         String result = name;
-        while(ViewTrackController.getInstance().containsTrack(result)) {
+        while (ViewTrackController.getInstance().containsTrack(result)) {
             result = DialogUtils.displayInputMessage(
                     "A track with that name already exists. Please enter a new name:",
                     result);
@@ -607,12 +461,11 @@ public abstract class ViewTrack implements ViewTrackAdapter {
         intervalDialog.update(this);
         intervalDialog.setVisible(true);
     }
-
     // FIXME: URI is not appropriate for this usage; 
     /*
     @Override
     public URI getURI() {
-        return (this.getDataSource() == null) ? null : this.getDataSource().getURI();
+    return (this.getDataSource() == null) ? null : this.getDataSource().getURI();
     }
      * 
      */

@@ -23,6 +23,7 @@ import savant.data.sources.DataSource;
 import savant.exception.SavantTrackCreationCancelledException;
 import savant.file.DataFormat;
 import savant.view.swing.Savant;
+import savant.view.swing.TrackFactory;
 import savant.view.swing.ViewTrack;
 
 /**
@@ -76,7 +77,7 @@ public class TrackUtils {
      */
     public static List<ViewTrackAdapter> createTrack(URI uri) throws IOException, SavantTrackCreationCancelledException {
         List<ViewTrackAdapter> r = new ArrayList<ViewTrackAdapter>();
-        for (ViewTrack t : ViewTrack.create(uri)) {
+        for (ViewTrack t : TrackFactory.createTrack(uri)) {
             r.add((ViewTrackAdapter) t);
         }
         return r;
@@ -90,7 +91,7 @@ public class TrackUtils {
      */
     public static List<ViewTrackAdapter> createTrack(File file) throws IOException, SavantTrackCreationCancelledException {
         List<ViewTrackAdapter> r = new ArrayList<ViewTrackAdapter>();
-        for (ViewTrack t : ViewTrack.create(file.toURI())) {
+        for (ViewTrack t : TrackFactory.createTrack(file.toURI())) {
             r.add((ViewTrackAdapter) t);
         }
         return r;
@@ -176,4 +177,5 @@ public class TrackUtils {
     public static ViewTrackAdapter getTrack(String trackname) {
         return vtc.getTrack(trackname);
     }
+
 }

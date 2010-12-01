@@ -96,6 +96,7 @@ public class DockableFrameFactory {
             public void removePropertyChangeListener(PropertyChangeListener listener) {}
         });
 
+
         return frame;
     }
 
