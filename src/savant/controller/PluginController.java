@@ -63,27 +63,22 @@ import savant.view.tools.ToolsModule;
  * @author mfiume
  */
 public class PluginController {
+
     private static final Log LOG = LogFactory.getLog(PluginController.class);
     private final String FILENAME = ".uninstall_plugins";
     private Set<String> pluginsToUnInstall = new HashSet<String>();
-
     /** VARIABLES **/
-
     private static PluginController instance;
     private static PluginManager pluginManager;
-
     //private Map<SuperPluginDescriptor,Plugin> pluginMap = new HashMap<SuperPluginDescriptor,Plugin>();
-
-    private Map<String,PluginDescriptor> pluginIDToDescriptorMap = new HashMap<String,PluginDescriptor>();
-    private Map<String,Extension> pluginIDToExtensionMap = new HashMap<String,Extension>();
-    private Map<String,Plugin> pluginIDToPluginMap = new HashMap<String,Plugin>();
+    private Map<String, PluginDescriptor> pluginIDToDescriptorMap = new HashMap<String, PluginDescriptor>();
+    private Map<String, Extension> pluginIDToExtensionMap = new HashMap<String, Extension>();
+    private Map<String, Plugin> pluginIDToPluginMap = new HashMap<String, Plugin>();
     //private Map<String,String> pluginIdToPathMap = new HashMap<String,String>();
-
     private ExtensionPoint coreExtPt;
     private final String PLUGINS_DIR = "plugins";
 
     /** SINGLETON **/
-
     public static synchronized PluginController getInstance() {
         if (instance == null) {
             instance = new PluginController();
@@ -93,7 +88,6 @@ public class PluginController {
     private File uninstallFile;
 
     /** CONSTRUCTOR **/
-
     public PluginController() {
         try {
 
@@ -110,7 +104,6 @@ public class PluginController {
     }
 
     /** PLUGIN LOADING **/
-
     private void loadPlugins(File pluginsDir) throws MalformedURLException, JpfException, InstantiationException, IllegalAccessException {
         File[] plugins = pluginsDir.listFiles(new FilenameFilter() {
 
@@ -135,11 +128,9 @@ public class PluginController {
     }
 
     /** PLUGIN ACTIVATION **/
-
     private void deactivatePlugin(String id) {
         pluginManager.deactivatePlugin(id);
     }
-
 
     public void queuePluginForUnInstallation(String pluginid) {
         pluginsToUnInstall.add(pluginid);
@@ -168,16 +159,16 @@ public class PluginController {
             pluginManager.activatePlugin(desc.getId());
             ClassLoader classLoader = pluginManager.getPluginClassLoader(desc);
 
-            Plugin plugininstance = (Plugin)(classLoader.loadClass(ext.getParameter("class").valueAsString())).newInstance();
+            Plugin plugininstance = (Plugin) (classLoader.loadClass(ext.getParameter("class").valueAsString())).newInstance();
 
-                // init the plugin based on its type
-                if (plugininstance instanceof SavantPanelPlugin) {
-                    initGUIPlugin(plugininstance);
-                } else if (plugininstance instanceof PluginTool) {
-                    initPluginTool(plugininstance);
-                } else if (plugininstance instanceof SavantDataSourcePlugin) {
-                    initSavantDataSourcePlugin(plugininstance);
-                }
+            // init the plugin based on its type
+            if (plugininstance instanceof SavantPanelPlugin) {
+                initGUIPlugin(plugininstance);
+            } else if (plugininstance instanceof PluginTool) {
+                initPluginTool(plugininstance);
+            } else if (plugininstance instanceof SavantDataSourcePlugin) {
+                initSavantDataSourcePlugin(plugininstance);
+            }
 
             addToPluginMaps(desc.getUniqueId(), desc, ext, plugininstance);
 
@@ -201,7 +192,6 @@ public class PluginController {
     }
 
     /** ADD AND REMOVE PLUGINS **/
-
     public void installPlugin(String path) throws JpfException, MalformedURLException, InstantiationException, IllegalAccessException {
         loadPlugin(new File(path));
     }
@@ -226,7 +216,6 @@ public class PluginController {
     }
 
     /** CORE PLUGIN **/
-
     private void loadCorePlugin() throws MalformedURLException, JpfException {
         PluginManager.PluginLocation[] locs = new PluginManager.PluginLocation[1];
         java.net.URL[] mans = new java.net.URL[1];
@@ -247,7 +236,6 @@ public class PluginController {
         coreExtPt = pluginManager.getRegistry().getExtensionPoint(core.getId(), corePt.getId());
     }
 
-
     /** GETTERS **/
     public List<PluginDescriptor> getPluginDescriptors() {
         return new ArrayList<PluginDescriptor>(this.pluginIDToDescriptorMap.values());
@@ -262,7 +250,6 @@ public class PluginController {
     }
 
     /** INIT PLUGIN TYPES **/
-
     private void initPluginTool(Object plugininstance) {
         PluginTool p = (PluginTool) plugininstance;
         p.init(new PluginAdapter());
@@ -283,6 +270,7 @@ public class PluginController {
         MiscUtils.setFrameVisibility(f.getTitle(), isIntiallyVisible, Savant.getInstance().getAuxDockingManager());
         final JCheckBoxMenuItem cb = new JCheckBoxMenuItem(plugin.getTitle());
         cb.addActionListener(new ActionListener() {
+
             @Override
             public void actionPerformed(ActionEvent e) {
                 DockingManager m = Savant.getInstance().getAuxDockingManager();
@@ -302,7 +290,7 @@ public class PluginController {
         String line = "";
         try {
             br = new BufferedReader(new FileReader(f));
-            
+
             while ((line = br.readLine()) != null) {
                 LOG.info("Uninstalling " + line);
                 new File(line).delete();

@@ -29,7 +29,7 @@ public class PluginManagerPanel {
     public PluginManagerPanel() {
     }
 
-    public Component getDemoPanel() {
+    public Component getPluginListPanel() {
         HierarchicalTable table = createTable();
         JScrollPane pane = new JScrollPane(table);
         pane.getViewport().setBackground(Color.WHITE);

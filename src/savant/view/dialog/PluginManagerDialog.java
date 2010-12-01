@@ -302,6 +302,6 @@ public class PluginManagerDialog extends javax.swing.JDialog {
     private void refresh() {
         this.panel_plugincanvas.setLayout(new BorderLayout());
         this.panel_plugincanvas.removeAll();
-        this.panel_plugincanvas.add(panel.getDemoPanel(), BorderLayout.CENTER);
+        this.panel_plugincanvas.add(panel.getPluginListPanel(), BorderLayout.CENTER);
     }
 }
