@@ -2707,14 +2707,14 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
     private void cleanUpBeforeExit() {
         removeTmpFiles();
     }
-
-    private void removeTmpFiles() {
+     */
+    
+    public void removeTmpFiles() {
         for (File f : ((new File(DirectorySettings.getTmpDirectory())).listFiles())) {
             f.delete();
         }
     }
-     * 
-     */
+    
 
     private void initGUIHandlers() {
         this.projectHandler = ProjectHandler.getInstance();

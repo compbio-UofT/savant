@@ -22,10 +22,12 @@ import java.awt.event.ActionListener;
 import java.io.IOException;
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import savant.view.swing.Savant;
 
 /**
  *
@@ -76,6 +78,15 @@ public class GeneralSettingsSection extends Section {
             }
         });
         panel.add(collectrstats_cb);
+
+        JButton clearTmpButt = new JButton("Clear Temporary Files");
+        clearTmpButt.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Savant.getInstance().removeTmpFiles();
+            }
+        });
+        panel.add(clearTmpButt);
 
         add(panel, BorderLayout.CENTER);
     }
