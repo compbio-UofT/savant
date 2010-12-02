@@ -78,7 +78,7 @@ public interface ViewTrackAdapter {
      *
      * @return  data format
      */
-    public DataFormat getDataType();
+    //public DataFormat getDataFormat();
 
 
     /**

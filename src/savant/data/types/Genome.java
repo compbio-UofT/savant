@@ -27,8 +27,8 @@ import savant.api.adapter.RangeAdapter;
 import savant.controller.ReferenceController;
 import savant.data.sources.file.FASTAFileDataSource;
 import savant.util.Resolution;
-import savant.view.dialog.GenomeLengthForm.BuildInfo;
-import savant.view.dialog.GenomeLengthForm.ReferenceInfo;
+import savant.view.dialog.LoadGenomeDialog.BuildInfo;
+import savant.view.dialog.LoadGenomeDialog.ReferenceInfo;
 import savant.view.swing.ViewTrack;
 import savant.view.swing.sequence.SequenceViewTrack;
 

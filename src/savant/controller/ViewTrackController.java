@@ -99,7 +99,7 @@ public class ViewTrackController {
     public List<ViewTrack> getTracks(DataFormat kind) {
         List<ViewTrack> tracksOfKind = new ArrayList<ViewTrack>();
         for (ViewTrack t : tracks) {
-            if (t.getDataType() == kind) {
+            if (t.getDataSource().getDataFormat() == kind) {
                 tracksOfKind.add(t);
             }
         }
@@ -179,6 +179,15 @@ public class ViewTrackController {
                 Savant.getInstance().getTrackDockingManager(),false);
     }
 
+    /**
+     * Remove a track which (for some reason) was created but was not
+     * placed in a frame.
+     * @param t The track to be removed
+     */
+    public void removeUnframedTrack(ViewTrack t) {
+        this.tracks.remove(t);
+    }
+
     public boolean containsTrack(String name) {
         for (ViewTrack t : tracks) {
             if (name.equals(t.getName())) {
@@ -187,4 +196,6 @@ public class ViewTrackController {
         }
         return false;
     }
+
+
 }

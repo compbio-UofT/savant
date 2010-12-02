@@ -55,7 +55,7 @@ public class SequenceViewTrack extends ViewTrack {
 
     public SequenceViewTrack(DataSource dataTrack) throws SavantTrackCreationCancelledException
     {
-        super(DataFormat.SEQUENCE_FASTA, dataTrack);
+        super(dataTrack);
         //setGenome(g);
         //path = g.getFilename();
         setColorScheme(getDefaultColorScheme());

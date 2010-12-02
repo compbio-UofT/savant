@@ -1,32 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project-private xmlns="http://www.netbeans.org/ns/project-private/1">
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/1"/>
-    <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/1">
-        <file>file:/C:/Users/mfiume/Documents/NetBeansProjects/Savant/src/savant/controller/ViewTrackController.java</file>
-        <file>file:/C:/Users/mfiume/Documents/NetBeansProjects/Savant/src/savant/controller/SelectionController.java</file>
-        <file>file:/C:/Users/mfiume/Documents/NetBeansProjects/Savant/src/savant/plugin/GUIPlugin.java</file>
-        <file>file:/C:/Users/mfiume/Documents/NetBeansProjects/Savant/src/savant/view/swing/Savant.java</file>
-        <file>file:/C:/Users/mfiume/Documents/NetBeansProjects/Savant/src/savant/controller/PluginController.java</file>
-        <file>file:/C:/Users/mfiume/Documents/NetBeansProjects/Savant/src/savant/plugin/PluginAdapter.java</file>
-        <file>file:/C:/Users/mfiume/Documents/NetBeansProjects/Savant/src/savant/api/factory/GenomeFactory.java</file>
-        <file>file:/C:/Users/mfiume/Documents/NetBeansProjects/Savant/src/savant/api/adapter/GenomeAdapter.java</file>
-        <file>file:/C:/Users/mfiume/Documents/NetBeansProjects/Savant/src/savant/settings/BrowserSettings.java</file>
-        <file>file:/C:/Users/mfiume/Documents/NetBeansProjects/Savant/src/savant/controller/DataSourcePluginController.java</file>
-        <file>file:/C:/Users/mfiume/Documents/NetBeansProjects/Savant/src/savant/data/sources/DataSource.java</file>
-        <file>file:/C:/Users/mfiume/Documents/NetBeansProjects/Savant/src/savant/view/swing/interval/IntervalViewTrack.java</file>
-        <file>file:/C:/Users/mfiume/Documents/NetBeansProjects/Savant/src/savant/api/util/TrackUtils.java</file>
-        <file>file:/C:/Users/mfiume/Documents/NetBeansProjects/Savant/src/savant/view/swing/ProjectHandler.java</file>
-        <file>file:/C:/Users/mfiume/Documents/NetBeansProjects/Savant/src/savant/data/sources/BEDDataSource.java</file>
-        <file>file:/C:/Users/mfiume/Documents/NetBeansProjects/Savant/src/savant/data/sources/file/BAMFileDataSource.java</file>
-        <file>file:/C:/Users/mfiume/Documents/NetBeansProjects/Savant/src/savant/data/sources/file/BEDFileDataSource.java</file>
-        <file>file:/C:/Users/mfiume/Documents/NetBeansProjects/Savant/src/savant/data/sources/FASTADataSource.java</file>
-        <file>file:/C:/Users/mfiume/Documents/NetBeansProjects/Savant/src/savant/data/sources/GenericContinuousDataSource.java</file>
-        <file>file:/C:/Users/mfiume/Documents/NetBeansProjects/Savant/src/savant/data/sources/GenericIntervalDataSource.java</file>
-        <file>file:/C:/Users/mfiume/Documents/NetBeansProjects/Savant/src/savant/data/sources/GenericPointDataSource.java</file>
-        <file>file:/C:/Users/mfiume/Documents/NetBeansProjects/Savant/src/savant/data/sources/BAMDataSource.java</file>
-        <file>file:/C:/Users/mfiume/Documents/NetBeansProjects/Savant/src/savant/data/sources/file/FASTAFileDataSource.java</file>
-        <file>file:/C:/Users/mfiume/Documents/NetBeansProjects/Savant/src/savant/data/sources/file/GenericContinuousFileDataSource.java</file>
-        <file>file:/C:/Users/mfiume/Documents/NetBeansProjects/Savant/src/savant/data/sources/file/GenericIntervalFileDataSource.java</file>
-        <file>file:/C:/Users/mfiume/Documents/NetBeansProjects/Savant/src/savant/data/sources/file/GenericPointFileDataSource.java</file>
-    </open-files>
 </project-private>

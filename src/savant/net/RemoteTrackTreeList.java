@@ -193,8 +193,8 @@ public class RemoteTrackTreeList extends JDialog {
         table.getColumnModel().getColumn(0).setPreferredWidth(200);
         table.getColumnModel().getColumn(1).setPreferredWidth(300);
         table.getColumnModel().getColumn(2).setPreferredWidth(50);
-        table.getColumnModel().getColumn(3).setPreferredWidth(100);
-        table.getColumnModel().getColumn(4).setPreferredWidth(50);
+        //table.getColumnModel().getColumn(3).setPreferredWidth(100);
+        //table.getColumnModel().getColumn(4).setPreferredWidth(50);
 
         table.getColumnModel().getColumn(0).setCellRenderer(FILE_RENDERER);
 

@@ -43,14 +43,14 @@ public class BAMCoverageViewTrack extends ViewTrack {
 
     // DO NOT DELETE THIS CONSTRUCTOR!!! THIS SHOULD BE THE DEFAULT
     public BAMCoverageViewTrack(GenericContinuousFileDataSource track) throws SavantTrackCreationCancelledException {
-        super(DataFormat.CONTINUOUS_GENERIC, track);
+        super(track);
         setColorScheme(getDefaultColorScheme());
         this.notifyViewTrackControllerOfCreation();
     }
 
     // TODO: remove this constructor, should not need to pass a name!!
     public BAMCoverageViewTrack(String name, GenericContinuousFileDataSource track) {
-        super(name, DataFormat.CONTINUOUS_GENERIC, track);
+        super(name, track);
         setColorScheme(getDefaultColorScheme());
         this.notifyViewTrackControllerOfCreation();
     }

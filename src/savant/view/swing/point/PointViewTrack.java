@@ -43,7 +43,7 @@ public class PointViewTrack extends ViewTrack {
     public List<Record> savedList = null;
 
     public PointViewTrack(DataSource pointTrack) throws SavantTrackCreationCancelledException {
-        super(DataFormat.POINT_GENERIC, pointTrack);
+        super(pointTrack);
         setColorScheme(getDefaultColorScheme());
         this.notifyViewTrackControllerOfCreation();
     }

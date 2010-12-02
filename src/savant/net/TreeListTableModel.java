@@ -23,7 +23,7 @@ import java.awt.*;
 import java.util.List;
 
 public class TreeListTableModel extends TreeTableModel implements StyleModel {
-    static final protected String[] COLUMN_NAMES = {"Name", "Description", "Type", "Filename", "Size"}; //, "Download"};
+    static final protected String[] COLUMN_NAMES = {"Name", "Description", "Type" /*, "Filename", "Size"*/}; //, "Download"};
     static final Color BACKGROUND = new Color(247, 247, 247);
     static final CellStyle CELL_STYLE = new CellStyle();
 
@@ -69,10 +69,10 @@ public class TreeListTableModel extends TreeTableModel implements StyleModel {
                 return String.class;
             case 2:
                 return String.class;
-            case 3:
-                return String.class;
-            case 4:
-                return String.class;
+            //case 3:
+            //    return String.class;
+            //case 4:
+            //    return String.class;
         }
         return super.getColumnClass(columnIndex);
     }   

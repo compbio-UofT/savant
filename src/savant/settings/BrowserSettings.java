@@ -40,7 +40,7 @@ public class BrowserSettings {
     public static String url_tutorials = url + "/media.html";
     public static String url_manuals = url + "/documentation.html";
 
-    public static String version = "1.3.3";
+    public static String version = "1.4.0";
 
 
     public static boolean getCheckVersionOnStartup() {

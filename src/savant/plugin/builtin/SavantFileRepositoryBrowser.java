@@ -41,17 +41,12 @@ import org.jdom.input.SAXBuilder;
 
 import savant.api.util.DialogUtils;
 import savant.data.sources.DataSource;
-import savant.file.SavantFileNotFormattedException;
-import savant.file.SavantUnsupportedFileTypeException;
-import savant.file.SavantUnsupportedVersionException;
 import savant.net.TreeListTableModel;
 import savant.net.TreeRow;
 import savant.settings.BrowserSettings;
-import savant.settings.DirectorySettings;
 import savant.util.DownloadFile;
 import savant.view.swing.Savant;
 import savant.view.swing.TrackFactory;
-import savant.view.swing.ViewTrack;
 
 /**
  *
@@ -83,6 +78,8 @@ public class SavantFileRepositoryBrowser extends JDialog {
             List<TreeRow> roots) {
 
         super(parent, title, modal);
+
+        setLocationRelativeTo(parent);
 
         p = parent;
         this.setResizable(true);
@@ -163,7 +160,6 @@ public class SavantFileRepositoryBrowser extends JDialog {
         }
     }
 
-
     public static class FileRowCellRenderer extends DefaultTableCellRenderer {
         @Override
         public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
@@ -206,16 +202,16 @@ public class SavantFileRepositoryBrowser extends JDialog {
         table.setRowHeight(18);
         table.setShowGrid(false);
         table.setIntercellSpacing(new Dimension(0, 0));
-        table.expandAll();
+        //table.expandAll();
 
         // do not select row when expanding a row.
         table.setSelectRowWhenToggling(false);
 
         table.getColumnModel().getColumn(0).setPreferredWidth(200);
-        table.getColumnModel().getColumn(1).setPreferredWidth(300);
-        table.getColumnModel().getColumn(2).setPreferredWidth(50);
-        table.getColumnModel().getColumn(3).setPreferredWidth(100);
-        table.getColumnModel().getColumn(4).setPreferredWidth(50);
+        table.getColumnModel().getColumn(1).setPreferredWidth(400);
+        table.getColumnModel().getColumn(2).setPreferredWidth(100);
+        //table.getColumnModel().getColumn(3).setPreferredWidth(100);
+        //table.getColumnModel().getColumn(4).setPreferredWidth(50);
 
         table.getColumnModel().getColumn(0).setCellRenderer(FILE_RENDERER);
 

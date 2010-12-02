@@ -59,7 +59,7 @@ public class BEDViewTrack extends ViewTrack {
     private static final Mode SQUISH_MODE = Mode.fromObject(DrawingMode.SQUISH, "All on one line");
 
     public BEDViewTrack(DataSource bedTrack) throws SavantTrackCreationCancelledException {
-        super(DataFormat.INTERVAL_BED, bedTrack);
+        super(bedTrack);
         setColorScheme(getDefaultColorScheme());
         setDrawModes(getDefaultDrawModes());
         setDrawMode(STANDARD_MODE);

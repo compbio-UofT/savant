@@ -21,12 +21,7 @@
 
 package savant.plugin.builtin;
 
-import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import org.jdom.JDOMException;
 import savant.data.sources.DataSource;
-import savant.net.RemoteTrackTreeList;
 import savant.plugin.PluginAdapter;
 import savant.plugin.SavantDataSourcePlugin;
 

@@ -1304,7 +1304,7 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
         }
 
         this.createJidePopup();
-        PopupPanel pp = PopupPanel.create(this, this.tracks.get(0).getDrawMode(), this.tracks.get(trackNum).getDataType(), currentOverRecord);
+        PopupPanel pp = PopupPanel.create(this, this.tracks.get(0).getDrawMode(), this.tracks.get(trackNum).getDataSource().getDataFormat(), currentOverRecord);
         if(pp != null){
             popPanel.add(pp, BorderLayout.CENTER);
             Point p1 = (Point)p.clone();

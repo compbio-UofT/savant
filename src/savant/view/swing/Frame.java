@@ -171,7 +171,7 @@ public class Frame {
                 addTrack(track, renderer);
 
                 //CREATE LEGEND PANEL
-                if(track.getDataType().toString().equals("INTERVAL_BAM")){
+                if(track.getDataSource().getDataFormat().toString().equals("INTERVAL_BAM")){
                     arcLegend = track.getTrackRenderers().get(0).arcLegendPaint();
                 }
             }
@@ -203,7 +203,7 @@ public class Frame {
             JMenu displayMenu = createDisplayMenu();
             commandBar.add(displayMenu);
         }
-         if (this.tracks.get(0).getDataType() == DataFormat.INTERVAL_BAM) {
+         if (this.tracks.get(0).getDataSource().getDataFormat() == DataFormat.INTERVAL_BAM) {
             arcButton = createArcButton();
             commandBar.add(arcButton);
             arcButton.setVisible(false);
@@ -627,7 +627,7 @@ public class Frame {
         tracks.add(track);
 
         if (renderer == null) {
-            switch(track.getDataType()) {
+            switch(track.getDataSource().getDataFormat()) {
                 case POINT_GENERIC:
                     renderer = new PointTrackRenderer();
                     break;
@@ -650,7 +650,7 @@ public class Frame {
         }
         renderer.setTrackName(track.getName());
         renderer.getDrawingInstructions().addInstruction(
-                DrawingInstructions.InstructionName.TRACK_DATA_TYPE, track.getDataType());
+                DrawingInstructions.InstructionName.TRACK_DATA_TYPE, track.getDataSource().getDataFormat());
         track.addTrackRenderer(renderer);
         GraphPane graphPane = getGraphPane();
         graphPane.addTrackRenderer(renderer);
@@ -723,7 +723,7 @@ public class Frame {
 
 //        if (getTracks().contains(viewTrack)) {
         boolean reRender = true;
-        if (viewTrack.getDataType() == DataFormat.INTERVAL_BAM) {
+        if (viewTrack.getDataSource().getDataFormat() == DataFormat.INTERVAL_BAM) {
             if (evt.getMode().getName().equals("MATE_PAIRS")) {
                 reRender = true;
                 setCoverageEnabled(false);

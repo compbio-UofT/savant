@@ -29,6 +29,7 @@ public class DataSourcePluginDialog extends javax.swing.JDialog {
     public DataSourcePluginDialog(java.awt.Frame parent, boolean modal, List<SavantDataSourcePlugin> datasources) {
         super(parent, modal);
         initComponents();
+        setLocationRelativeTo(parent);
         this.datasources = datasources;
         initList(datasources);
     }
@@ -117,6 +118,7 @@ public class DataSourcePluginDialog extends javax.swing.JDialog {
         }
 
         this.list_datasources.setModel(listModel);
+        this.list_datasources.setSelectedIndex(0);
 
     }
 

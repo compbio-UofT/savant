@@ -15,26 +15,11 @@
  */
 package savant.view.swing;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import savant.exception.SavantTrackCreationCancelledException;
-import savant.data.sources.file.BAMFileDataSource;
-import savant.data.sources.file.BEDFileDataSource;
-import savant.data.sources.file.GenericPointFileDataSource;
-import savant.data.sources.file.GenericContinuousFileDataSource;
-import savant.data.sources.file.GenericIntervalFileDataSource;
-import savant.data.sources.file.FASTAFileDataSource;
 import java.awt.Color;
-import java.io.File;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JPanel;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import savant.api.adapter.ModeAdapter;
 import savant.api.adapter.RangeAdapter;
@@ -44,27 +29,14 @@ import savant.controller.TrackController;
 import savant.controller.ViewTrackController;
 import savant.data.types.Genome;
 import savant.data.sources.*;
-import savant.data.sources.file.FileDataSource;
 import savant.data.types.Record;
 import savant.file.DataFormat;
-import savant.file.FileType;
-import savant.file.SavantFileNotFormattedException;
-import savant.file.SavantROFile;
-import savant.file.SavantUnsupportedFileTypeException;
-import savant.file.SavantUnsupportedVersionException;
-import savant.format.SavantFileFormatterUtils;
 import savant.util.ColorScheme;
-import savant.util.MiscUtils;
 import savant.util.Mode;
 import savant.util.Range;
 import savant.util.Resolution;
 import savant.view.dialog.BAMParametersDialog;
-import savant.view.swing.continuous.ContinuousViewTrack;
-import savant.view.swing.interval.BAMCoverageViewTrack;
 import savant.view.swing.interval.BAMViewTrack;
-import savant.view.swing.interval.BEDViewTrack;
-import savant.view.swing.interval.IntervalViewTrack;
-import savant.view.swing.point.PointViewTrack;
 import savant.view.swing.sequence.SequenceViewTrack;
 import savant.view.swing.util.DialogUtils;
 
@@ -80,7 +52,7 @@ public abstract class ViewTrack implements ViewTrackAdapter {
 
     private final String name;
     private ColorScheme colorScheme;
-    private final DataFormat dataType;
+    //private final DataFormat dataType;
     private List<Record> dataInRange;
     private List<ModeAdapter> drawModes;
     private ModeAdapter drawMode;
@@ -104,6 +76,7 @@ public abstract class ViewTrack implements ViewTrackAdapter {
 
         if (!(sequenceTrack instanceof SequenceViewTrack)) {
             DialogUtils.displayMessage("Sorry", "Could not load this track as genome.");
+            ViewTrackController.getInstance().removeUnframedTrack(sequenceTrack);
             return null;
         }
 
@@ -120,9 +93,9 @@ public abstract class ViewTrack implements ViewTrackAdapter {
      * @param name track name (typically, the file name)
      * @param dataType FileFormat representing file type, e.g. INTERVAL_BED, CONTINUOUS_GENERIC
      */
-    public ViewTrack(DataFormat dataType, DataSource dataSource) throws SavantTrackCreationCancelledException {
+    public ViewTrack(/*DataFormat dataType,*/ DataSource dataSource) throws SavantTrackCreationCancelledException {
 
-        this.dataType = dataType;
+        //this.dataType = dataType;
         drawModes = new ArrayList<ModeAdapter>();
         trackRenderers = new ArrayList<TrackRenderer>();
 
@@ -142,8 +115,8 @@ public abstract class ViewTrack implements ViewTrackAdapter {
      * @deprecated use the correspeonding constructor without name argument
      * instead
      */
-    public ViewTrack(String name, DataFormat dataType, DataSource dataSource) {
-        this.dataType = dataType;
+    public ViewTrack(String name, /*DataFormat dataType,*/ DataSource dataSource) {
+        //this.dataType = dataType;
         drawModes = new ArrayList<ModeAdapter>();
         trackRenderers = new ArrayList<TrackRenderer>();
         this.dataSource = dataSource;
@@ -175,11 +148,12 @@ public abstract class ViewTrack implements ViewTrackAdapter {
      * Get the type of file this view track represents
      *
      * @return  FileFormat
-     */
+     *
     @Override
-    public DataFormat getDataType() {
+    public DataFormat getDataFormat() {
         return dataType;
     }
+     */
 
     /**
      * Get the current colour scheme.

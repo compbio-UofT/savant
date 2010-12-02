@@ -49,7 +49,7 @@ import savant.view.swing.ViewTrack;
  public class ContinuousViewTrack extends ViewTrack {
 
     public ContinuousViewTrack(DataSource track) throws SavantTrackCreationCancelledException {
-        super(DataFormat.CONTINUOUS_GENERIC, track);
+        super(track);
         setColorScheme(getDefaultColorScheme());
         this.notifyViewTrackControllerOfCreation();
     }

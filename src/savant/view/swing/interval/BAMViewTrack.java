@@ -88,7 +88,7 @@ public class BAMViewTrack extends ViewTrack {
      * @param bamTrack data track which this view track represents
      */
     public BAMViewTrack(DataSource bamTrack) throws SavantTrackCreationCancelledException {
-        super(DataFormat.INTERVAL_BAM, bamTrack);
+        super(bamTrack);
         setColorScheme(getDefaultColorScheme());
         setDrawModes(getDefaultDrawModes());
         setDrawMode(VARIANTS_MODE);

@@ -53,7 +53,7 @@ public class IntervalViewTrack extends ViewTrack {
     private static final Mode ARC_MODE = Mode.fromObject(DrawingMode.ARC, "Arcs");
 
     public IntervalViewTrack(DataSource intervalTrack) throws SavantTrackCreationCancelledException {
-        super(DataFormat.INTERVAL_GENERIC, intervalTrack);
+        super(intervalTrack);
         setColorScheme(getDefaultColorScheme());
         setDrawModes(getDefaultDrawModes());
         setDrawMode(PACK_MODE);
