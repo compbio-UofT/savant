@@ -178,7 +178,7 @@ public class DataSheet implements RangeChangeCompletedListener, ViewTrackListCha
 
     private void presentDataFromCurrentTrack() {
         ViewTrackAdapter t = currentViewTrack;
-        tableModel = new DataTableModel(currentViewTrack.getDataType(), t.getDataInRange());
+        tableModel = new DataTableModel(currentViewTrack.getDataSource().getDataFormat(), t.getDataInRange());
         table.setModel(tableModel);
         table.setSurrendersFocusOnKeystroke(true);
         refreshData();
@@ -306,7 +306,7 @@ public class DataSheet implements RangeChangeCompletedListener, ViewTrackListCha
         // FIXME: Does this actually do the same as the commented-out lines?
 //      List dataInRange = SelectionController.getInstance().getSelections(track.getURI());
 //      DataTableModel dtm = new DataTableModel(track.getDataType(), dataInRange);
-        DataTableModel dtm = new DataTableModel(track.getDataType(), track.getDataInRange());
+        DataTableModel dtm = new DataTableModel(track.getDataSource().getDataFormat(), track.getDataInRange());
 
         int numRows = dtm.getRowCount();
         int numCols = dtm.getColumnCount();
