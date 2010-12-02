@@ -204,7 +204,9 @@ public class DataSheet implements RangeChangeCompletedListener, ViewTrackListCha
         } else {
             String s = "";
 
-            s += String.format("###,###", data.size());
+            //TODO: add commas? current formatting doesn't work
+            //s += String.format("###,###", data.size());
+            s += data.size();
 
             DataTableModel dtm = (DataTableModel) table.getModel();
             if (dtm.getIsNumRowsLimited() && data.size() > dtm.getMaxNumRows()) {
