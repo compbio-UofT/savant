@@ -461,13 +461,16 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
             checkVersion();
         }
 
-        //if (BrowserSettings.getCollectAnonymousUsage()) {
-        logUsageStats();
-        //}
+        if (BrowserSettings.getCollectAnonymousUsage()) {
+            logUsageStats();
+        }
 
         s.setStatus("Loading plugins");
 
         PluginController pc = PluginController.getInstance();
+        if (DataSourcePluginController.getInstance().hasOnlySavantRepoDataSource()) {
+            loadFromDataSourcePlugin.setText("Load from Repository...");
+        }
 
         s.setStatus("Organizing layout");
 
@@ -1600,6 +1603,8 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         initGUIHandlers();
         initBookmarksPanel();
         initDataSources();
+
+
         //initStartPage();
 
         dff = new DataFormatForm(this, false);
@@ -2729,9 +2734,6 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
 
     private void initDataSources() {
         DataSourcePluginController.getInstance().addDataSourcePlugin(new SavantFileRepositoryDataSource());
-        if (DataSourcePluginController.getInstance().hasOnlySavantRepoDataSource()) {
-            loadFromDataSourcePlugin.setText("Load from Repository...");
-        }
     }
 
     public int showLoadFromOtherDataSourceDialog(boolean loadAsGenome) {
