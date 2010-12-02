@@ -62,7 +62,18 @@ public class SavantFileRepositoryBrowser extends JDialog {
 
     private String trackpath = null;
 
-    public SavantFileRepositoryBrowser() throws JDOMException, IOException {
+
+    private static SavantFileRepositoryBrowser instance;
+
+    public static SavantFileRepositoryBrowser getInstance() throws JDOMException, IOException {
+        if (instance == null) {
+            instance = new SavantFileRepositoryBrowser();
+        }
+        instance.trackpath = null;
+        return instance;
+    }
+
+    private SavantFileRepositoryBrowser() throws JDOMException, IOException {
         this(
                 Savant.getInstance(),
                 true,
@@ -81,6 +92,7 @@ public class SavantFileRepositoryBrowser extends JDialog {
 
         setLocationRelativeTo(parent);
 
+        this.setDefaultCloseOperation(JDialog.HIDE_ON_CLOSE);
         p = parent;
         this.setResizable(true);
         this.setLayout(new BorderLayout());
@@ -203,6 +215,7 @@ public class SavantFileRepositoryBrowser extends JDialog {
         table.setShowGrid(false);
         table.setIntercellSpacing(new Dimension(0, 0));
         //table.expandAll();
+        table.expandFirstLevel();
 
         // do not select row when expanding a row.
         table.setSelectRowWhenToggling(false);

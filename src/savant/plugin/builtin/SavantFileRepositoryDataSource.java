@@ -42,7 +42,7 @@ public class SavantFileRepositoryDataSource extends SavantDataSourcePlugin {
     @Override
     public DataSource getDataSource() {
         try {
-            SavantFileRepositoryBrowser d = new SavantFileRepositoryBrowser();
+            SavantFileRepositoryBrowser d = SavantFileRepositoryBrowser.getInstance();
             d.setVisible(true);
             return d.getDataSource();
         } catch (Exception ex) {

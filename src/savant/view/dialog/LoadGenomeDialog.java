@@ -196,7 +196,7 @@ public class LoadGenomeDialog extends javax.swing.JDialog {
             }
         });
 
-        jButton2.setText("URI");
+        jButton2.setText("URL");
         jButton2.setPreferredSize(new java.awt.Dimension(135, 25));
         jButton2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {

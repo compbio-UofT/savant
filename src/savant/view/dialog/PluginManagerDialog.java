@@ -31,8 +31,18 @@ public class PluginManagerDialog extends javax.swing.JDialog {
     public static String pluginDir = "plugins";
     private PluginManagerPanel panel;
 
+
+    public static PluginManagerDialog instance;
+
+    public static PluginManagerDialog getInstance() {
+        if (instance == null) {
+            instance = new PluginManagerDialog(Savant.getInstance());
+        }
+        return instance;
+    }
+
     /** Creates new form PluginManager */
-    public PluginManagerDialog(java.awt.Frame parent) {
+    private PluginManagerDialog(java.awt.Frame parent) {
         super(parent,"Plugin Manager");
         initComponents();
         this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -128,6 +138,8 @@ public class PluginManagerDialog extends javax.swing.JDialog {
         addPlugin();
     }//GEN-LAST:event_button_add_from_fileActionPerformed
 
+    DownloadTreeList browser = null;
+
     private void button_add_from_urlActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_add_from_urlActionPerformed
         try {
             File file = DownloadFile.downloadFile(new URL(BrowserSettings.url_plugin), System.getProperty("java.io.tmpdir"));
@@ -135,8 +147,10 @@ public class PluginManagerDialog extends javax.swing.JDialog {
                 JOptionPane.showMessageDialog(this, "Problem downloading file: " + BrowserSettings.url_plugin);
                 return;
             }
-            DownloadTreeList d = new DownloadTreeList(Savant.getInstance(), true, "Download Plugins", file, pluginDir);
-            d.setVisible(true);
+            if (browser == null) {
+                browser = new DownloadTreeList(Savant.getInstance(), true, "Download Plugins", file, pluginDir);
+            }
+            browser.setVisible(true);
             this.refresh();
             //addPluginFromURL();
         } catch (JDOMException ex) {

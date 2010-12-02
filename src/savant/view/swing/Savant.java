@@ -419,7 +419,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
 
         loadPreferences();
 
-        removeTmpFiles();
+        //removeTmpFiles();
 
         addComponentListener(new ComponentAdapter() {
 
@@ -469,7 +469,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
 
         PluginController pc = PluginController.getInstance();
         if (DataSourcePluginController.getInstance().hasOnlySavantRepoDataSource()) {
-            loadFromDataSourcePlugin.setText("Load from Repository...");
+            loadFromDataSourcePlugin.setText("Load Track from Repository...");
         }
 
         s.setStatus("Organizing layout");
@@ -665,7 +665,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         fileMenu.add(loadGenomeItem);
 
         loadFromFileItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_T, java.awt.event.InputEvent.CTRL_MASK));
-        loadFromFileItem.setText("Load from File...");
+        loadFromFileItem.setText("Load Track from File...");
         loadFromFileItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 loadFromFileItemActionPerformed(evt);
@@ -674,7 +674,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         fileMenu.add(loadFromFileItem);
 
         loadFromURLItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_U, java.awt.event.InputEvent.CTRL_MASK));
-        loadFromURLItem.setText("Load from URL...");
+        loadFromURLItem.setText("Load Track from URL...");
         loadFromURLItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 loadFromURLItemActionPerformed(evt);
@@ -683,7 +683,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         fileMenu.add(loadFromURLItem);
 
         loadFromDataSourcePlugin.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_E, java.awt.event.InputEvent.CTRL_MASK));
-        loadFromDataSourcePlugin.setText("Load from Other Datasource...");
+        loadFromDataSourcePlugin.setText("Load Track from Other Datasource...");
         loadFromDataSourcePlugin.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 loadFromDataSourcePluginActionPerformed(evt);
@@ -1148,7 +1148,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
     }//GEN-LAST:event_websiteItemActionPerformed
 
     private void menuitem_pluginmanagerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuitem_pluginmanagerActionPerformed
-        PluginManagerDialog pd = new PluginManagerDialog(this);
+        PluginManagerDialog pd = PluginManagerDialog.getInstance();
         pd.setVisible(true);
     }//GEN-LAST:event_menuitem_pluginmanagerActionPerformed
 
@@ -1715,7 +1715,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
             }
         }
 
-        cleanUpBeforeExit();
+        //cleanUpBeforeExit();
         System.exit(0);
     }
 
@@ -2703,6 +2703,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         pluginsMenu.add(cb);
     }
 
+    /*
     private void cleanUpBeforeExit() {
         removeTmpFiles();
     }
@@ -2712,6 +2713,8 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
             f.delete();
         }
     }
+     * 
+     */
 
     private void initGUIHandlers() {
         this.projectHandler = ProjectHandler.getInstance();
