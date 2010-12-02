@@ -130,7 +130,7 @@ public class BAMViewTrack extends ViewTrack {
         Resolution r = getResolution(range);
         List<Record> data = null;
         boolean zoomIn = false;
-        if ((getDrawMode().equals(MATE_PAIRS_MODE) && (r == Resolution.HIGH || r == Resolution.VERY_HIGH) || r == Resolution.MEDIUM)
+        if ((getDrawMode().equals(MATE_PAIRS_MODE) && (r == Resolution.HIGH || r == Resolution.VERY_HIGH || r == Resolution.MEDIUM))
                 || (r == Resolution.VERY_HIGH || r == Resolution.HIGH)) {
             data = retrieveAndSaveData(reference, range);
         } else if(getDrawMode().equals(MATE_PAIRS_MODE)){
