@@ -27,6 +27,7 @@ import java.util.List;
 import savant.data.types.Interval;
 import savant.data.types.IntervalRecord;
 import savant.data.types.Record;
+import savant.file.DataFormat;
 import savant.util.AxisRange;
 import savant.util.ColorScheme;
 import savant.util.DrawingInstructions;
@@ -50,6 +51,7 @@ public class IntervalTrackRenderer extends TrackRenderer {
     public IntervalTrackRenderer(
             DrawingInstructions drawingInstructions) {
         super(drawingInstructions);
+        this.dataType = DataFormat.INTERVAL_GENERIC;
     }
 
     @Override

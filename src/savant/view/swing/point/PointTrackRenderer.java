@@ -25,6 +25,7 @@ import java.util.List;
 
 import savant.data.types.PointRecord;
 import savant.data.types.Record;
+import savant.file.DataFormat;
 
 import savant.util.DrawingInstructions;
 import savant.util.Resolution;
@@ -48,6 +49,7 @@ public class PointTrackRenderer extends TrackRenderer {
     public PointTrackRenderer(
             DrawingInstructions drawingInstructions) {
         super(drawingInstructions);
+        this.dataType = DataFormat.POINT_GENERIC;
     }
 
     @Override

@@ -120,7 +120,12 @@ public class PopupPanel extends JPanel {
         select.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                gp.getTrackRenderers().get(0).addToSelected(record);
+                for(int i = 0; i < gp.getTrackRenderers().size(); i++){
+                    if(gp.getTrackRenderers().get(i).getDataType() == fileFormat){
+                        gp.getTrackRenderers().get(i).addToSelected(record);
+                        break;
+                    }
+                }
                 gp.repaint();
             }
         });

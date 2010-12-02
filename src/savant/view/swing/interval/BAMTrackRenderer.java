@@ -54,6 +54,7 @@ import javax.swing.JPanel;
 import javax.swing.JViewport;
 import savant.controller.ReferenceController;
 import savant.data.types.Record;
+import savant.file.DataFormat;
 import savant.settings.ColourSettings;
 import savant.view.swing.interval.Pileup.Nucleotide;
 
@@ -94,6 +95,7 @@ public class BAMTrackRenderer extends TrackRenderer {
     public BAMTrackRenderer(
             DrawingInstructions drawingInstructions) {
         super(drawingInstructions);
+        this.dataType = DataFormat.INTERVAL_BAM;
     }
     
     @Override

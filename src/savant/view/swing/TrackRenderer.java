@@ -47,7 +47,7 @@ public abstract class TrackRenderer {
 
     private List<Record> data;
     private DrawingInstructions instructions;
-    private DataFormat dataType;
+    protected DataFormat dataType;
     //private URI fileURI;
     private String trackname;
 

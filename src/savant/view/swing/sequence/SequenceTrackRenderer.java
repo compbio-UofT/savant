@@ -26,6 +26,7 @@ import java.util.List;
 
 import savant.data.types.Record;
 import savant.data.types.SequenceRecord;
+import savant.file.DataFormat;
 import savant.util.ColorScheme;
 import savant.util.DrawingInstructions;
 import savant.util.Range;
@@ -51,6 +52,7 @@ public class SequenceTrackRenderer extends TrackRenderer {
     public SequenceTrackRenderer(
             DrawingInstructions drawingInstructions) {
         super(drawingInstructions);
+        this.dataType = DataFormat.SEQUENCE_FASTA;
     }
 
     @Override

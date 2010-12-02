@@ -41,6 +41,7 @@ import savant.data.types.Block;
 import savant.data.types.Interval;
 import savant.data.types.IntervalRecord;
 import savant.data.types.Record;
+import savant.file.DataFormat;
 import savant.util.AxisRange;
 import savant.util.ColorScheme;
 import savant.util.DrawingInstructions;
@@ -78,6 +79,7 @@ public class BEDTrackRenderer extends TrackRenderer {
 
     public BEDTrackRenderer(DrawingInstructions drawingInstructions) {
         super(drawingInstructions);
+        this.dataType = DataFormat.INTERVAL_BED;
     }
     
     @Override

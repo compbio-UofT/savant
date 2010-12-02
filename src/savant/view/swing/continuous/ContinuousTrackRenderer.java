@@ -30,6 +30,7 @@ import java.util.List;
 
 import savant.data.types.GenericContinuousRecord;
 import savant.data.types.Record;
+import savant.file.DataFormat;
 import savant.util.AxisRange;
 import savant.util.ColorScheme;
 import savant.util.DrawingInstructions;
@@ -50,6 +51,7 @@ public class ContinuousTrackRenderer extends TrackRenderer {
     }
     public ContinuousTrackRenderer(DrawingInstructions drawingInstructions) {
         super(drawingInstructions);
+        this.dataType = DataFormat.CONTINUOUS_GENERIC;
     }
 
     @Override
