@@ -124,13 +124,11 @@ public class Frame {
         MouseListener ml = new MouseAdapter(){
             @Override
             public void mousePressed(MouseEvent e) {
-                if(parent.isActive())
-                    tempHideCommands();
+                tempHideCommands();
             }
             @Override
             public void mouseReleased(MouseEvent e) {
-                if(parent.isActive())
-                    tempShowCommands();
+                tempShowCommands();
             }
         };
         scrollPane.getVerticalScrollBar().addMouseListener(ml);
@@ -331,11 +329,15 @@ public class Frame {
     }
 
     private void tempHideCommands(){
+        if(!parent.isActive())
+            return;
         commandBar.setVisible(false);
         commandBarHidden.setVisible(false);
     }
 
-    private void tempShowCommands(){
+    public void tempShowCommands(){
+        if(!parent.isActive())
+            return;
         if(commandBarActive){
             commandBar.setVisible(true);
             commandBarHidden.setVisible(false);

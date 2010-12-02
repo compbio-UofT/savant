@@ -1008,6 +1008,7 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
             }
 
             this.getParentFrame().commandBar.setVisible(true);
+             this.parentFrame.tempShowCommands();
 
         } else if (gpc.isZooming()) {
 
@@ -1024,6 +1025,7 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
             Range newr = new Range(r.getFrom()+newMin,r.getFrom()+newMax);
 
             rc.setRange(newr);
+            this.parentFrame.tempShowCommands();
         } else if (gpc.isSelecting()) {
             TrackRenderer tr = null;
             for(int i = 0; i < this.trackRenderers.size(); i++){
@@ -1036,6 +1038,7 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
                 boolean repaintNeeded = tr.rectangleSelect(new Rectangle2D.Double(this.x, this.y, this.w, this.h));
                 if(repaintNeeded) this.repaint();
             }
+             this.parentFrame.tempShowCommands();
         }
 
         this.isDragging = false;
