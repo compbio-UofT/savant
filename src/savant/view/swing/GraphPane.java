@@ -116,6 +116,7 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
     private Shape currentOverShape = null;
     private boolean popupVisible = false;
     private JPanel popPanel;
+    private boolean mouseWheel = false; //used by popupThread
 
     public void keyTyped(KeyEvent e) {
     }
@@ -824,27 +825,28 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
      */
     public void mouseWheelMoved(MouseWheelEvent e) {
 
-       int notches = e.getWheelRotation();
+        this.setMouseWheel(true);
+        int notches = e.getWheelRotation();
 
-       if (mac && e.isMetaDown() || e.isControlDown()) {
-           if (notches < 0) {
-               RangeController rc = RangeController.getInstance();
-               rc.shiftRangeLeft();
-           } else {
-               RangeController rc = RangeController.getInstance();
-               rc.shiftRangeRight();
-           }
-       }
-       else {
+        if (mac && e.isMetaDown() || e.isControlDown()) {
             if (notches < 0) {
-               RangeController rc = RangeController.getInstance();
-               rc.zoomInOnMouse();
+                RangeController rc = RangeController.getInstance();
+                rc.shiftRangeLeft();
+            } else {
+                RangeController rc = RangeController.getInstance();
+                rc.shiftRangeRight();
+            }
+        }
+        else {
+            if (notches < 0) {
+                RangeController rc = RangeController.getInstance();
+                rc.zoomInOnMouse();
            } else {
-               RangeController rc = RangeController.getInstance();
-               rc.zoomOutFromMouse();
+                RangeController rc = RangeController.getInstance();
+                rc.zoomOutFromMouse();
            }
-       }
-       this.resetFrameLayers();
+        }
+        this.resetFrameLayers();
     }
 
         /** Mouse modifiers */
@@ -1391,6 +1393,18 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
         popPanel.setBackground(Color.WHITE);
         jp.add(popPanel);
         jp.packPopup();
+    }
+
+    /*
+     * Set whether the mouseWheel recently used. 
+     * This is used by PopupThread to determine whether a popup should appear. 
+     */
+    public void setMouseWheel(boolean value){
+        this.mouseWheel = value;
+    }
+
+    public boolean getMouseWheel(){
+        return this.mouseWheel;
     }
 
 }

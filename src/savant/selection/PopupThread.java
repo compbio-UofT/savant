@@ -56,8 +56,11 @@ public class PopupThread implements Runnable {
                         //sleep for 1 sec and then compare
                         Thread.sleep(1000);
                         Point p2 = gp.getMousePosition();
-                        if(p1 != null && p2 != null && p1.equals(p2)){
+                        if(p1 != null && p2 != null && p1.equals(p2) && !gp.getMouseWheel()){
                             gp.tryPopup(p2);
+                        } else if (gp.getMouseWheel()){
+                            gp.setMouseWheel(false);
+                            retry = true;
                         }
                     } catch (InterruptedException ex1) {
                         //mouse is still moving
