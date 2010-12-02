@@ -97,7 +97,7 @@ public class FTPBrowser extends JPanel {
                             curDir = new File(curDir, f.getName());
                             updateDirectory();
                         } else {
-                            List<ViewTrackAdapter> tracks = TrackUtils.createTrack(new URI("ftp://" + host + new File(curDir, f.getName()).getAbsolutePath()));
+                            List<ViewTrackAdapter> tracks = TrackUtils.createTrack(new URI("ftp://" + host + new File(curDir, f.getName()).getPath().replace("\\", "/")));
                             TrackUtils.addTracks(tracks);
                         }
                     } catch (Exception x) {
@@ -116,8 +116,8 @@ public class FTPBrowser extends JPanel {
     }
 
     private void updateDirectory() throws IOException {
-        FTPFile[] files = getFTPClient().listFiles(curDir.getAbsolutePath());
-        addressLabel.setText("ftp://" + host + curDir.getAbsolutePath());
+        FTPFile[] files = getFTPClient().listFiles(curDir.getPath().replace("\\", "/"));
+        addressLabel.setText("ftp://" + host + curDir.getPath().replace("\\", "/"));
         table.setModel(new FTPTableModel(files, !curDir.equals(rootDir)));
 
         TableColumnModel columns = table.getColumnModel();
