@@ -26,6 +26,7 @@ import savant.data.types.GenericContinuousRecord;
 import savant.data.types.GenericIntervalRecord;
 import savant.data.types.GenericPointRecord;
 import savant.data.types.Record;
+import savant.data.types.SequenceRecord;
 
 import savant.file.DataFormat;
 
@@ -154,7 +155,7 @@ public class DataTableModel extends AbstractTableModel {
          Record datum = data.get(row);
          switch (dataType) {
              case SEQUENCE_FASTA:
-                 return datum;
+                 return new String(((SequenceRecord)datum).getSequence());
              case POINT_GENERIC:
                  switch (column) {
                      case 0:
