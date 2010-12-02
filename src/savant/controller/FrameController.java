@@ -198,8 +198,10 @@ public class FrameController {
         try {
             
             ViewTrackController vtc = ViewTrackController.getInstance();
+            SelectionController sc = SelectionController.getInstance();
             for (ViewTrack t : frame.getTracks()) {
                 vtc.removeTrack(t);
+                sc.removeAll(t.getName());
             }
             this.frames.remove(frame);
 
