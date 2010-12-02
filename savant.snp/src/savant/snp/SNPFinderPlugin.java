@@ -255,7 +255,7 @@ public class SNPFinderPlugin extends SavantPanelPlugin implements RangeChangeCom
 
         for (ViewTrackAdapter t : TrackUtils.getTracks()) {
 
-            if (t.getDataType() == DataFormat.INTERVAL_BAM) {
+            if (t.getDataSource().getDataFormat() == DataFormat.INTERVAL_BAM) {
 
                 if (viewTrackToCanvasMap.containsKey(t)) {
                     newmap.put(t, viewTrackToCanvasMap.get(t));
