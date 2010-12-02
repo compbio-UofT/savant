@@ -521,7 +521,6 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         loadGenomeItem = new javax.swing.JMenuItem();
         loadFromFileItem = new javax.swing.JMenuItem();
         loadFromURLItem = new javax.swing.JMenuItem();
-        loadFromRepositoryItem = new javax.swing.JMenuItem();
         loadFromDataSourcePlugin = new javax.swing.JMenuItem();
         recentTrackMenu = new javax.swing.JMenu();
         javax.swing.JPopupMenu.Separator jSeparator1 = new javax.swing.JPopupMenu.Separator();
@@ -679,15 +678,6 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
             }
         });
         fileMenu.add(loadFromURLItem);
-
-        loadFromRepositoryItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_R, java.awt.event.InputEvent.CTRL_MASK));
-        loadFromRepositoryItem.setText("Load from Repository...");
-        loadFromRepositoryItem.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                loadFromRepositoryItemActionPerformed(evt);
-            }
-        });
-        fileMenu.add(loadFromRepositoryItem);
 
         loadFromDataSourcePlugin.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_E, java.awt.event.InputEvent.CTRL_MASK));
         loadFromDataSourcePlugin.setText("Load from Other Datasource...");
@@ -1154,22 +1144,6 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         }
     }//GEN-LAST:event_websiteItemActionPerformed
 
-    private void loadFromRepositoryItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loadFromRepositoryItemActionPerformed
-        try {
-            File file = DownloadFile.downloadFile(new URL(BrowserSettings.url_data), System.getProperty("java.io.tmpdir"));
-            if (file == null) {
-                DialogUtils.displayError("Savant Error", "Problem downloading file: " + BrowserSettings.url_data);
-                return;
-            }
-            RemoteTrackTreeList d = new RemoteTrackTreeList(this, false, "Open remote track", file, DirectorySettings.getFormatDirectory());
-            d.setVisible(true);
-        } catch (JDOMException ex) {
-            DialogUtils.displayError("Savant Error", "Problem downloading file: " + BrowserSettings.url_data);
-        } catch (IOException ex) {
-            DialogUtils.displayError("Savant Error", "Problem downloading file: " + BrowserSettings.url_data);
-        }
-    }//GEN-LAST:event_loadFromRepositoryItemActionPerformed
-
     private void menuitem_pluginmanagerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuitem_pluginmanagerActionPerformed
         PluginManagerDialog pd = new PluginManagerDialog(this);
         pd.setVisible(true);
@@ -1487,7 +1461,6 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
     private javax.swing.JLabel label_status;
     private javax.swing.JMenuItem loadFromDataSourcePlugin;
     private javax.swing.JMenuItem loadFromFileItem;
-    private javax.swing.JMenuItem loadFromRepositoryItem;
     private javax.swing.JMenuItem loadFromURLItem;
     private javax.swing.JMenuItem loadGenomeItem;
     private javax.swing.JMenuBar menuBar_top;
@@ -1635,7 +1608,6 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
     }
 
     private void disableExperimentalFeatures() {
-        loadFromRepositoryItem.setVisible(false);
         menuitem_tools.setVisible(false);
         MiscUtils.setFrameVisibility("Start Page", false, trackDockingManager);
         menuitem_startpage.setVisible(false);
@@ -1769,7 +1741,6 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         loadGenomeItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_G, osSpecificModifier));
         loadFromFileItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_T, osSpecificModifier));
         loadFromURLItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_U, osSpecificModifier));
-        loadFromRepositoryItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_R, osSpecificModifier));
         openProjectItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_O, osSpecificModifier));
         saveProjectItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_S, osSpecificModifier));
         saveProjectAsItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_S, osSpecificModifier | java.awt.event.InputEvent.SHIFT_MASK));
