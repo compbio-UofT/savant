@@ -30,6 +30,8 @@ import javax.swing.table.TableCellRenderer;
 
 import com.jidesoft.grid.TreeTable;
 import com.jidesoft.swing.TableSearchable;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.net.URI;
 import java.net.URL;
 import org.apache.commons.logging.Log;
@@ -53,16 +55,12 @@ import savant.view.swing.TrackFactory;
  * @author mfiume
  */
 public class SavantFileRepositoryBrowser extends JDialog {
+
     private static final Log LOG = LogFactory.getLog(SavantFileRepositoryBrowser.class);
-
     private static final TableCellRenderer FILE_RENDERER = new FileRowCellRenderer();
-
     private Frame p;
     private TreeTable table;
-
     private String trackpath = null;
-
-
     private static SavantFileRepositoryBrowser instance;
 
     public static SavantFileRepositoryBrowser getInstance() throws JDOMException, IOException {
@@ -78,8 +76,7 @@ public class SavantFileRepositoryBrowser extends JDialog {
                 Savant.getInstance(),
                 true,
                 "Savant File Repository Browser",
-                getDownloadTreeRows(DownloadFile.downloadFile(new URL(BrowserSettings.url_data), System.getProperty("java.io.tmpdir")))
-                );
+                getDownloadTreeRows(DownloadFile.downloadFile(new URL(BrowserSettings.url_data), System.getProperty("java.io.tmpdir"))));
     }
 
     private SavantFileRepositoryBrowser(
@@ -106,27 +103,32 @@ public class SavantFileRepositoryBrowser extends JDialog {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                TreeBrowserEntry r  = (TreeBrowserEntry) table.getRowAt(table.getSelectedRow());
-                if (r != null && r.isLeaf()) {
-                    try {
-                        System.out.println("Setting track path to " + r.getURL().toString());
-                        trackpath = r.getURL().toString();
-                        closeDialog();
-                    } catch (Exception ex) {
-                        DialogUtils.displayMessage("Error opening URL: " + r.getURL());
-                    }
-                } else {
-                    DialogUtils.displayMessage("Please select a track");
-                }
+                actOnSelectedItem(false);
             }
-
         });
         bottombar.add(openbutt);
-        
+
         this.add(bottombar, BorderLayout.SOUTH);
 
         this.setPreferredSize(new Dimension(800, 500));
         this.pack();
+    }
+
+    private void actOnSelectedItem(boolean ignoreActionOnBranch) {
+        TreeBrowserEntry r = (TreeBrowserEntry) table.getRowAt(table.getSelectedRow());
+        if (r != null && r.isLeaf()) {
+            try {
+                System.out.println("Setting track path to " + r.getURL().toString());
+                trackpath = r.getURL().toString();
+                closeDialog();
+            } catch (Exception ex) {
+                DialogUtils.displayMessage("Error opening URL: " + r.getURL());
+            }
+        } else {
+            if (!ignoreActionOnBranch) {
+                DialogUtils.displayMessage("Please select a track");
+            }
+        }
     }
 
     private void closeDialog() {
@@ -137,11 +139,9 @@ public class SavantFileRepositoryBrowser extends JDialog {
         if (trackpath == null) {
             System.out.println("Trackpath is null");
             return null;
-        }
-        else {
+        } else {
             try {
                 DataSource d = TrackFactory.createDataSource(new URI(trackpath));
-                System.out.println("Datasource is " + d);
                 return d;
             } catch (Exception ex) {
                 ex.printStackTrace();
@@ -164,14 +164,14 @@ public class SavantFileRepositoryBrowser extends JDialog {
                     root.getChildText("type"),
                     root.getChildText("description"),
                     root.getChildText("url"),
-                    root.getChildText("size")
-                    );
+                    root.getChildText("size"));
         } else {
             return null;
         }
     }
 
     public static class FileRowCellRenderer extends DefaultTableCellRenderer {
+
         @Override
         public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
             if (value instanceof TreeBrowserEntry) {
@@ -181,8 +181,7 @@ public class SavantFileRepositoryBrowser extends JDialog {
                         isSelected, hasFocus, row, column);
                 try {
                     label.setIcon(fileRow.getIcon());
-                }
-                catch (Exception e) {
+                } catch (Exception e) {
                     //System.out.println(fileRow.getFile().getAbsolutePath());
                 }
                 label.setBorder(BorderFactory.createEmptyBorder(0, 3, 0, 3));
@@ -215,6 +214,31 @@ public class SavantFileRepositoryBrowser extends JDialog {
         table.setIntercellSpacing(new Dimension(0, 0));
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         table.expandFirstLevel();
+        table.addMouseListener(new MouseListener() {
+
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (e.getClickCount() == 2) {
+                    actOnSelectedItem(true);
+                }
+            }
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent e) {
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+            }
+        });
 
         // do not select row when expanding a row.
         table.setSelectRowWhenToggling(false);

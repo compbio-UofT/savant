@@ -101,7 +101,7 @@ public class SequenceTrackRenderer extends TrackRenderer {
         for (int i = 0; i < len; i++) {
             double x = gp.transformXPos(axisRange.getXMin()+i);
             double y = 0;//gp.transformYPos(1);
-            double w = gp.getUnitWidth();
+            double w = Math.ceil(gp.getUnitWidth());
             double h = gp.getUnitHeight();
 
             Rectangle2D.Double rect = new Rectangle2D.Double(x, y, w, h);

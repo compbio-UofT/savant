@@ -217,8 +217,10 @@ public class PluginController {
                     activatePlugin(ext.getDeclaringPluginDescriptor(), ext);
                     oneLoaded = true;
                 } catch (java.lang.Error e) {
+                    this.addToIgnoredBadPlugin(ext.getDeclaringPluginDescriptor());
                     error = true;
                 } catch (Exception e) {
+                    this.addToIgnoredBadPlugin(ext.getDeclaringPluginDescriptor());
                     error = true;
                 }
             }

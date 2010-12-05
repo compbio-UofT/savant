@@ -15,6 +15,7 @@
  */
 package savant.view.dialog.tree;
 
+import java.awt.event.MouseEvent;
 import savant.view.dialog.tree.TreeBrowserModel;
 import savant.view.dialog.tree.TreeBrowserEntry;
 import com.jidesoft.grid.TreeTable;
@@ -26,6 +27,7 @@ import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -47,6 +49,7 @@ import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
+import savant.api.util.DialogUtils;
 import savant.net.DownloadController;
 
 /**
@@ -56,7 +59,6 @@ import savant.net.DownloadController;
 public class PluginRepositoryBrowser extends JDialog {
 
     private static final TableCellRenderer FILE_RENDERER = new FileRowCellRenderer();
-
     private Frame p;
     private String saveToDirectory;
     private TreeTable table;
@@ -93,24 +95,28 @@ public class PluginRepositoryBrowser extends JDialog {
         bottombar.add(Box.createHorizontalGlue());
         JButton downbutt = new JButton(buttonText);
         downbutt.addActionListener(new ActionListener() {
-
             @Override
             public void actionPerformed(ActionEvent e) {
-                TreeBrowserEntry r  = (TreeBrowserEntry) table.getRowAt(table.getSelectedRow());
-                if (r != null && r.isLeaf()) {
-                    DownloadController.getInstance().enqueueDownload(r.getURL(), new File(saveToDirectory));
-                    System.out.println(r.getURL());
-                } else {
-                    JOptionPane.showMessageDialog(p, "Please select a file");
-                }
+                downloadSelectedItem(false);
             }
-
         });
         bottombar.add(downbutt);
         this.add(bottombar, BorderLayout.SOUTH);
 
         this.setPreferredSize(new Dimension(800, 500));
         this.pack();
+    }
+
+    private void downloadSelectedItem(boolean ignoreBranchSelected) {
+        TreeBrowserEntry r = (TreeBrowserEntry) table.getRowAt(table.getSelectedRow());
+        if (r != null && r.isLeaf()) {
+            DownloadController.getInstance().enqueueDownload(r.getURL(), new File(saveToDirectory));
+            System.out.println(r.getURL());
+        } else {
+            if (!ignoreBranchSelected) {
+                JOptionPane.showMessageDialog(p, "Please select a file");
+            }
+        }
     }
 
     private static TreeBrowserEntry parseDocumentTreeRow(Element root) {
@@ -127,15 +133,14 @@ public class PluginRepositoryBrowser extends JDialog {
                     root.getChildText("type"),
                     root.getChildText("description"),
                     root.getChildText("url"),
-                    root.getChildText("size")
-                    );
+                    root.getChildText("size"));
         } else {
             return null;
         }
     }
 
-
     public static class FileRowCellRenderer extends DefaultTableCellRenderer {
+
         @Override
         public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
             if (value instanceof TreeBrowserEntry) {
@@ -145,8 +150,7 @@ public class PluginRepositoryBrowser extends JDialog {
                         isSelected, hasFocus, row, column);
                 try {
                     label.setIcon(fileRow.getIcon());
-                }
-                catch (Exception e) {
+                } catch (Exception e) {
                     //System.out.println(fileRow.getFile().getAbsolutePath());
                 }
                 label.setBorder(BorderFactory.createEmptyBorder(0, 3, 0, 3));
@@ -180,6 +184,31 @@ public class PluginRepositoryBrowser extends JDialog {
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         //table.expandAll();
         table.expandFirstLevel();
+        table.addMouseListener(new MouseListener() {
+
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (e.getClickCount() == 2) {
+                    downloadSelectedItem(true);
+                }
+            }
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent e) {
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+            }
+        });
 
         // do not select row when expanding a row.
         table.setSelectRowWhenToggling(false);

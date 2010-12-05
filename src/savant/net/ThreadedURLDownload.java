@@ -24,7 +24,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import javax.swing.JOptionPane;
 import javax.swing.JProgressBar;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -71,7 +70,7 @@ public class ThreadedURLDownload implements Runnable {
             dd.setVisible(true);
         }
 
-        if (downloadFile(url, dir.getAbsolutePath(), dd)) {
+        if (downloadFile(url, destination, dd)) {
             if (showDownloadDialog) {
                 JProgressBar b = dd.getProgressBar();
                 b.setIndeterminate(false);
@@ -98,10 +97,10 @@ public class ThreadedURLDownload implements Runnable {
 
     File destFile;
 
-    private boolean downloadFile(URL u, String destDir, DownloadDialog dd) {
+    private boolean downloadFile(URL u, String destination, DownloadDialog dd) {
         OutputStream out = null;
         InputStream in = null;
-        destFile = new File(destDir + System.getProperty("file.separator") + MiscUtils.getFilenameFromPath(u.getPath()));
+        destFile = new File(destination);
         try {
             out = new FileOutputStream(destFile.getAbsolutePath());
 
