@@ -24,7 +24,9 @@ package savant.net;
 import java.awt.Frame;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
+import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JProgressBar;
 import javax.swing.WindowConstants;
@@ -33,23 +35,25 @@ import javax.swing.WindowConstants;
  *
  * @author mfiume
  */
-public class DownloadDialog extends JDialog {
+public class DownloadDialog extends JFrame {
 
     private Thread t;
+    private boolean complete = false;
 
-    public DownloadDialog(Frame parent, boolean modal, Thread t) {
-        super(parent, modal);
+
+    public DownloadDialog(JFrame parent, boolean modal, Thread t) {
+
         initComponents();
         this.t = t;
         setLocationRelativeTo(parent);
 
+        this.setAlwaysOnTop(true);
         this.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
         this.addWindowListener(new WindowAdapter() {
 
             @Override
             public void windowClosing(WindowEvent e) {
                 askToDispose();
-
             }
         });
         
@@ -97,7 +101,7 @@ public class DownloadDialog extends JDialog {
 
         l_destination.setText("destination");
 
-        l_amount.setText("0 Kb downloaded");
+        l_amount.setText("Starting download...");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -106,17 +110,18 @@ public class DownloadDialog extends JDialog {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel1)
-                            .addComponent(jLabel2))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(l_currentfilename, javax.swing.GroupLayout.PREFERRED_SIZE, 329, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(l_destination, javax.swing.GroupLayout.PREFERRED_SIZE, 329, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addComponent(progress, javax.swing.GroupLayout.PREFERRED_SIZE, 407, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(b_cancel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(l_amount, javax.swing.GroupLayout.PREFERRED_SIZE, 407, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(progress, javax.swing.GroupLayout.DEFAULT_SIZE, 423, Short.MAX_VALUE)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(layout.createSequentialGroup()
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addComponent(jLabel1)
+                                .addComponent(jLabel2))
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addComponent(l_currentfilename, javax.swing.GroupLayout.PREFERRED_SIZE, 329, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(l_destination, javax.swing.GroupLayout.PREFERRED_SIZE, 329, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(b_cancel, javax.swing.GroupLayout.Alignment.TRAILING)
+                        .addComponent(l_amount, javax.swing.GroupLayout.PREFERRED_SIZE, 407, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -178,11 +183,26 @@ public class DownloadDialog extends JDialog {
     }
 
     private void askToDispose() {
-        int result = JOptionPane.showConfirmDialog(this, "Are you sure you want to cancel?", "Cancel download", JOptionPane.YES_NO_OPTION);
-        
-        if (result == JOptionPane.YES_OPTION) {
-            t.interrupt();
+        if (!complete) {
+            int result = JOptionPane.showConfirmDialog(this, "Are you sure you want to cancel?", "Cancel download", JOptionPane.YES_NO_OPTION);
+            if (result == JOptionPane.YES_OPTION) {
+                t.interrupt();
+                this.dispose();
+            }
+        } else {
+            this.dispose();
         }
+    }
+
+    void setComplete() {
+        this.l_amount.setText("Download Complete");
+        this.progress.setValue(100);
+        this.b_cancel.setText("Close");
+        this.complete = true;
+        this.toFront();
+        this.setAlwaysOnTop(true);
+        //DialogUtils.displayMessage("Download complete", "Done");
+        //this.dispose();
     }
 
 }

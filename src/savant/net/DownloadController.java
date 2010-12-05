@@ -11,10 +11,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.LinkedList;
 import java.util.Queue;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import javax.swing.JDialog;
 import javax.swing.JOptionPane;
-import javax.swing.SwingUtilities;
 import savant.view.swing.Savant;
 
 /**
@@ -60,7 +58,14 @@ public class DownloadController {
 
     public static class DownloadInfo {
         URL url;
+        JDialog parent;
         File dir;
+
+        public DownloadInfo(URL url, File dir, JDialog parent) {
+            this.url = url;
+            this.dir = dir;
+            this.parent = parent;
+        }
 
         public DownloadInfo(URL url, File dir) {
             this.url = url;
@@ -70,15 +75,23 @@ public class DownloadController {
     }
 
     public void enqueueDownload(String url, File destination) {
+        enqueueDownload(url, destination, null);
+    }
+
+    public void enqueueDownload(String url, File destination, JDialog parent) {
         try {
-            enqueueDownload(new URL(url), destination);
+            enqueueDownload(new URL(url), destination, parent);
         } catch (MalformedURLException ex) {
             JOptionPane.showMessageDialog(Savant.getInstance(), "Invalid URL, download cannot continue.");
         }
     }
 
     public void enqueueDownload(URL url, File destination) {
-        this.downloadQueue.add(new DownloadInfo(url, destination));
+        enqueueDownload(url, destination, null);
+    }
+
+    public void enqueueDownload(URL url, File destination, JDialog parent) {
+        this.downloadQueue.add(new DownloadInfo(url, destination, parent));
         downloadQueuedFiles();
     }
 }

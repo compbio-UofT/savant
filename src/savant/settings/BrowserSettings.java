@@ -40,8 +40,7 @@ public class BrowserSettings {
     public static String url_tutorials = url + "/media.html";
     public static String url_manuals = url + "/documentation.html";
 
-    public static String version = "1.4.0";
-
+    public static String version = "1.4.1";
 
     public static boolean getCheckVersionOnStartup() {
         return settings.getBoolean(CHECKVERSION_KEY, true);

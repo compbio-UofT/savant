@@ -29,6 +29,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import savant.util.MiscUtils;
 import savant.view.swing.Savant;
+import savant.view.swing.util.DialogUtils;
 
 /**
  *
@@ -58,9 +59,8 @@ public class ThreadedURLDownload implements Runnable {
         if (showDownloadDialog) {
             dd = new DownloadDialog(Savant.getInstance(), false, Thread.currentThread());
             dd.setDestination(destination);
-            dd.setSource(url.getFile());
+            dd.setSource(url.toExternalForm());
             dd.setVisible(true);
-            //dd.validate();
         }
 
         if (downloadFile(url, dir.getAbsolutePath(), dd)) {
@@ -70,17 +70,22 @@ public class ThreadedURLDownload implements Runnable {
                 b.setValue(100);
             }
 
-            JOptionPane.showMessageDialog(Savant.getInstance(), "Download of " + url.getFile() + " complete");
+            dd.setComplete();
+
+            //DialogUtils.displayMessage("Download Complete", "Download of " + url.toExternalForm() + " complete");
         } else {
             if (destFile != null && destFile.exists()) {
                 destFile.delete();
             }
-            JOptionPane.showMessageDialog(Savant.getInstance(), "Download of " + url.getFile() + " incomplete");
+            DialogUtils.displayError("Sorry", "Error downloading " + url.toExternalForm() + ". Please ensure you have a working connection to the internet.");
+            if (showDownloadDialog) {
+                dd.dispose();
+            }
         }
 
-        if (showDownloadDialog) {
-            dd.dispose();
-        }
+        //if (showDownloadDialog) {
+        //    dd.dispose();
+        //}
     }
 
     File destFile;
@@ -123,12 +128,15 @@ public class ThreadedURLDownload implements Runnable {
                 }
             }
         } catch (IOException ioe) {
+            return false;
         } finally {
             try {
                 in.close();
                 out.close();
             } catch (IOException ioe) {
+                return false;
             } catch (NullPointerException n) {
+                return false;
             }
         }
 

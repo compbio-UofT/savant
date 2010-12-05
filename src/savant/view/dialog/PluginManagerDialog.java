@@ -148,11 +148,12 @@ public class PluginManagerDialog extends javax.swing.JDialog {
                 return;
             }
             if (browser == null) {
-                browser = new DownloadTreeList(Savant.getInstance(), true, "Download Plugins", file, pluginDir);
+                browser = new DownloadTreeList(Savant.getInstance(), false, "Install Plugins", "Install", file, pluginDir);
             }
+            this.setVisible(false);
+            browser.setAlwaysOnTop(true);
             browser.setVisible(true);
-            this.refresh();
-            //addPluginFromURL();
+
         } catch (JDOMException ex) {
             JOptionPane.showMessageDialog(this, "Problem downloading file: " + BrowserSettings.url_plugin);
         } catch (IOException ex) {

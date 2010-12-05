@@ -1,6 +1,6 @@
 <?xml version="1.1" encoding="UTF-8" ?>
 
-<Form version="1.3" maxVersion="1.7" type="org.netbeans.modules.form.forminfo.JDialogFormInfo">
+<Form version="1.3" maxVersion="1.7" type="org.netbeans.modules.form.forminfo.JFrameFormInfo">
   <Properties>
     <Property name="defaultCloseOperation" type="int" value="0"/>
     <Property name="resizable" type="boolean" value="false"/>
@@ -23,23 +23,25 @@
   <Layout>
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Group type="102" attributes="0">
+          <Group type="102" alignment="0" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" alignment="0" attributes="0">
-                      <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
-                          <Component id="jLabel2" alignment="0" min="-2" max="-2" attributes="0"/>
+                  <Component id="progress" alignment="0" pref="423" max="32767" attributes="0"/>
+                  <Group type="103" alignment="0" groupAlignment="0" attributes="0">
+                      <Group type="102" alignment="0" attributes="0">
+                          <Group type="103" groupAlignment="0" attributes="0">
+                              <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
+                              <Component id="jLabel2" alignment="0" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                          <Group type="103" groupAlignment="0" attributes="0">
+                              <Component id="l_currentfilename" min="-2" pref="329" max="-2" attributes="0"/>
+                              <Component id="l_destination" alignment="0" min="-2" pref="329" max="-2" attributes="0"/>
+                          </Group>
                       </Group>
-                      <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="l_currentfilename" min="-2" pref="329" max="-2" attributes="0"/>
-                          <Component id="l_destination" alignment="0" min="-2" pref="329" max="-2" attributes="0"/>
-                      </Group>
+                      <Component id="b_cancel" alignment="1" min="-2" max="-2" attributes="0"/>
+                      <Component id="l_amount" alignment="0" min="-2" pref="407" max="-2" attributes="0"/>
                   </Group>
-                  <Component id="progress" alignment="0" min="-2" pref="407" max="-2" attributes="0"/>
-                  <Component id="b_cancel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="l_amount" alignment="0" min="-2" pref="407" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
@@ -102,7 +104,7 @@
     </Component>
     <Component class="javax.swing.JLabel" name="l_amount">
       <Properties>
-        <Property name="text" type="java.lang.String" value="0 Kb downloaded"/>
+        <Property name="text" type="java.lang.String" value="Starting download..."/>
       </Properties>
     </Component>
   </SubComponents>

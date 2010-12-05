@@ -47,7 +47,7 @@ public class DialogUtils {
     }
 
     public static void displayError(String title, String message) {
-        JOptionPane.showMessageDialog(Savant.getInstance(), message, title, JOptionPane.PLAIN_MESSAGE);
+        JOptionPane.showMessageDialog(Savant.getInstance(), message, title, JOptionPane.ERROR_MESSAGE);
     }
 
     public static void displayMessage(String title, String message) {

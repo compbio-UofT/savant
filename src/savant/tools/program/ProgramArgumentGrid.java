@@ -36,8 +36,7 @@ public class ProgramArgumentGrid extends JPanel {
         this.setLayout(new BorderLayout());
         table = createTable();
         populateTable(arguments);
-        createPropertyPane();
-        //table.expandAll();
+        createPropertyPane();        
         this.add(pane, BorderLayout.CENTER);
     }
 

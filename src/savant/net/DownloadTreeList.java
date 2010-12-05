@@ -58,13 +58,18 @@ public class DownloadTreeList extends JDialog {
     private TreeTable table;
 
     public DownloadTreeList(Frame parent, boolean modal, String title, File xmlfile, String destDir) throws JDOMException, IOException {
-        this(parent, modal, title, getDownloadTreeRows(xmlfile), destDir);
+        this(parent, modal, title, "Download", getDownloadTreeRows(xmlfile), destDir);
+    }
+
+    public DownloadTreeList(Frame parent, boolean modal, String title, String buttonText, File xmlfile, String destDir) throws JDOMException, IOException {
+        this(parent, modal, title, buttonText, getDownloadTreeRows(xmlfile), destDir);
     }
 
     public DownloadTreeList(
             Frame parent,
             boolean modal,
             String title,
+            String buttonText,
             List<TreeRow> roots,
             String dir) {
 
@@ -80,7 +85,7 @@ public class DownloadTreeList extends JDialog {
         bottombar.setFloatable(false);
         bottombar.setAlignmentX(RIGHT_ALIGNMENT);
         bottombar.add(Box.createHorizontalGlue());
-        JButton downbutt = new JButton("Download");
+        JButton downbutt = new JButton(buttonText);
         downbutt.addActionListener(new ActionListener() {
 
             @Override
