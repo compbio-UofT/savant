@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 
-package savant.net;
+package savant.view.dialog;
 
 import java.awt.Component;
 import java.util.Map;

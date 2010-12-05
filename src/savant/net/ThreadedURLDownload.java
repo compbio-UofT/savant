@@ -16,6 +16,7 @@
 
 package savant.net;
 
+import savant.view.dialog.DownloadDialog;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -54,6 +55,13 @@ public class ThreadedURLDownload implements Runnable {
         String destination = dir.getAbsolutePath()
                     + System.getProperty("file.separator")
                     + MiscUtils.getFilenameFromPath(url.getFile());
+
+        while (new File(destination).exists()) {
+            destination = DialogUtils.displayInputMessage("File already exists. Please enter a new path:", destination);
+            if (destination == null) {
+                return;
+            }
+        }
 
         DownloadDialog dd = null;
         if (showDownloadDialog) {
@@ -115,11 +123,9 @@ public class ThreadedURLDownload implements Runnable {
                 totalread += bytesRead;
                 if (dd != null) {
                     if (totalsize != -1) {
-
                         dd.setProgress(((int) (100*(((double)totalread)/totalsize))));
                         dd.setAmountDownloaded(MiscUtils.getSophisticatedByteString(totalread) + " downloaded (" +  ((int) (100*(((double)totalread)/totalsize))) + " %)");
                     } else {
-
                         dd.setAmountDownloaded(MiscUtils.getSophisticatedByteString(totalread) + " downloaded");
                     }
                 }

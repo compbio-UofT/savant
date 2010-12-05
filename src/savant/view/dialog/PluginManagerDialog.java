@@ -6,6 +6,7 @@
 
 package savant.view.dialog;
 
+import savant.view.dialog.tree.PluginRepositoryBrowser;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jdom.JDOMException;
@@ -17,7 +18,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
-import savant.net.DownloadTreeList;
 import savant.settings.BrowserSettings;
 import savant.util.DownloadFile;
 
@@ -29,7 +29,7 @@ public class PluginManagerDialog extends javax.swing.JDialog {
 
     private static Log log = LogFactory.getLog(PluginManagerDialog.class);
     public static String pluginDir = "plugins";
-    private PluginManagerPanel panel;
+    private PluginBrowser panel;
 
 
     public static PluginManagerDialog instance;
@@ -47,7 +47,7 @@ public class PluginManagerDialog extends javax.swing.JDialog {
         initComponents();
         this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         this.setResizable(false);
-        panel = new PluginManagerPanel();
+        panel = new PluginBrowser();
         refresh();
     }
 
@@ -91,11 +91,11 @@ public class PluginManagerDialog extends javax.swing.JDialog {
         panel_plugincanvas.setLayout(panel_plugincanvasLayout);
         panel_plugincanvasLayout.setHorizontalGroup(
             panel_plugincanvasLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 611, Short.MAX_VALUE)
+            .addGap(0, 481, Short.MAX_VALUE)
         );
         panel_plugincanvasLayout.setVerticalGroup(
             panel_plugincanvasLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 301, Short.MAX_VALUE)
+            .addGap(0, 243, Short.MAX_VALUE)
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -110,7 +110,7 @@ public class PluginManagerDialog extends javax.swing.JDialog {
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(jLabel1)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 400, Short.MAX_VALUE))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 270, Short.MAX_VALUE))
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(button_add_from_url)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)))
@@ -138,7 +138,7 @@ public class PluginManagerDialog extends javax.swing.JDialog {
         addPlugin();
     }//GEN-LAST:event_button_add_from_fileActionPerformed
 
-    DownloadTreeList browser = null;
+    PluginRepositoryBrowser browser = null;
 
     private void button_add_from_urlActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_add_from_urlActionPerformed
         try {
@@ -148,10 +148,10 @@ public class PluginManagerDialog extends javax.swing.JDialog {
                 return;
             }
             if (browser == null) {
-                browser = new DownloadTreeList(Savant.getInstance(), false, "Install Plugins", "Install", file, pluginDir);
+                browser = new PluginRepositoryBrowser(Savant.getInstance(), false, "Install Plugins", "Install", file, pluginDir);
             }
             this.setVisible(false);
-            browser.setAlwaysOnTop(true);
+            //browser.setAlwaysOnTop(true);
             browser.setVisible(true);
 
         } catch (JDOMException ex) {

@@ -63,7 +63,6 @@ import savant.data.types.Genome;
 import savant.exception.SavantTrackCreationCancelledException;
 import savant.file.SavantFileNotFormattedException;
 import savant.file.SavantUnsupportedVersionException;
-import savant.net.RemoteTrackTreeList;
 import savant.experimental.XMLTool;
 import savant.file.DataFormat;
 import savant.plugin.SavantDataSourcePlugin;

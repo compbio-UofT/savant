@@ -19,23 +19,22 @@
  *    limitations under the License.
  */
 
-package savant.net;
+package savant.view.dialog;
 
-import java.awt.Frame;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JProgressBar;
 import javax.swing.WindowConstants;
+import savant.api.util.DialogUtils;
 
 /**
  *
  * @author mfiume
  */
-public class DownloadDialog extends JFrame {
+public class DownloadDialog extends JDialog {
 
     private Thread t;
     private boolean complete = false;
@@ -59,13 +58,6 @@ public class DownloadDialog extends JFrame {
         
     }
 
-    /** Creates new form DownloadDialog 
-    public DownloadDialog(java.awt.Frame parent, boolean modal) {
-        super(parent, modal);
-        initComponents();
-    }
-     */
-
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -86,6 +78,7 @@ public class DownloadDialog extends JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
         setResizable(false);
 
+        jLabel1.setFont(new java.awt.Font("Tahoma", 1, 13));
         jLabel1.setText("Downloading: ");
 
         b_cancel.setText("Cancel");
@@ -97,6 +90,7 @@ public class DownloadDialog extends JFrame {
 
         l_currentfilename.setText("filename");
 
+        jLabel2.setFont(new java.awt.Font("Tahoma", 1, 13));
         jLabel2.setText("To:");
 
         l_destination.setText("destination");
@@ -110,7 +104,7 @@ public class DownloadDialog extends JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(progress, javax.swing.GroupLayout.DEFAULT_SIZE, 423, Short.MAX_VALUE)
+                    .addComponent(progress, javax.swing.GroupLayout.DEFAULT_SIZE, 432, Short.MAX_VALUE)
                     .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                         .addGroup(layout.createSequentialGroup()
                             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -178,7 +172,7 @@ public class DownloadDialog extends JFrame {
         this.l_destination.setText(arg);
     }
 
-    void setAmountDownloaded(String string) {
+    public void setAmountDownloaded(String string) {
         this.l_amount.setText(string);
     }
 
@@ -194,15 +188,13 @@ public class DownloadDialog extends JFrame {
         }
     }
 
-    void setComplete() {
+    public void setComplete() {
         this.l_amount.setText("Download Complete");
         this.progress.setValue(100);
         this.b_cancel.setText("Close");
         this.complete = true;
-        this.toFront();
-        this.setAlwaysOnTop(true);
-        //DialogUtils.displayMessage("Download complete", "Done");
-        //this.dispose();
+        this.dispose();
+        DialogUtils.displayMessage("Installation Complete", "Please restart Savant for changes to take effect.");
     }
 
 }

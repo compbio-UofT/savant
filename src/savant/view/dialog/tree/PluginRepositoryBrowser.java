@@ -13,37 +13,47 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package savant.net;
+package savant.view.dialog.tree;
 
-import java.awt.*;
+import savant.view.dialog.tree.TreeBrowserModel;
+import savant.view.dialog.tree.TreeBrowserEntry;
+import com.jidesoft.grid.TreeTable;
+import com.jidesoft.swing.TableSearchable;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JToolBar;
+import javax.swing.ListSelectionModel;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
-
-import com.jidesoft.grid.TreeTable;
-import com.jidesoft.swing.TableSearchable;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
-
-import savant.api.util.DialogUtils;
-import savant.view.swing.Savant;
+import savant.net.DownloadController;
 
 /**
  *
  * @author mfiume
  */
-public class RemoteTrackTreeList extends JDialog {
-    private static final Log LOG = LogFactory.getLog(RemoteTrackTreeList.class);
+public class PluginRepositoryBrowser extends JDialog {
 
     private static final TableCellRenderer FILE_RENDERER = new FileRowCellRenderer();
 
@@ -51,21 +61,28 @@ public class RemoteTrackTreeList extends JDialog {
     private String saveToDirectory;
     private TreeTable table;
 
-    public RemoteTrackTreeList(Frame parent, boolean modal, String title, File xmlfile, String destDir) throws JDOMException, IOException {
-        this(parent, modal, title, getDownloadTreeRows(xmlfile), destDir);
+    public PluginRepositoryBrowser(Frame parent, boolean modal, String title, File xmlfile, String destDir) throws JDOMException, IOException {
+        this(parent, modal, title, "Download", getDownloadTreeRows(xmlfile), destDir);
     }
 
-    public RemoteTrackTreeList(
+    public PluginRepositoryBrowser(Frame parent, boolean modal, String title, String buttonText, File xmlfile, String destDir) throws JDOMException, IOException {
+        this(parent, modal, title, buttonText, getDownloadTreeRows(xmlfile), destDir);
+    }
+
+    public PluginRepositoryBrowser(
             Frame parent,
             boolean modal,
             String title,
-            List<TreeRow> roots,
+            String buttonText,
+            List<TreeBrowserEntry> roots,
             String dir) {
 
         super(parent, title, modal);
+        setLocationRelativeTo(parent);
 
         saveToDirectory = dir;
         p = parent;
+
         this.setResizable(true);
         this.setLayout(new BorderLayout());
         this.add(getCenterPanel(roots), BorderLayout.CENTER);
@@ -74,38 +91,17 @@ public class RemoteTrackTreeList extends JDialog {
         bottombar.setFloatable(false);
         bottombar.setAlignmentX(RIGHT_ALIGNMENT);
         bottombar.add(Box.createHorizontalGlue());
-        JButton openbutt = new JButton("Open Remotely");
-        openbutt.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                TreeRow r  = (TreeRow) table.getRowAt(table.getSelectedRow());
-                if (r != null && r.isLeaf()) {
-                    try {
-                        Savant.getInstance().addTrackFromFile(r.getURL().toString());
-                        closeDialog();
-                    } catch (Exception ex) {
-                        DialogUtils.displayMessage("Error opening URL: " + r.getURL());
-                    }
-                } else {
-                    DialogUtils.displayMessage("Please select a track");
-                }
-            }
-
-        });
-        bottombar.add(openbutt);
-        JButton downbutt = new JButton("Download");
+        JButton downbutt = new JButton(buttonText);
         downbutt.addActionListener(new ActionListener() {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                TreeRow r  = (TreeRow) table.getRowAt(table.getSelectedRow());
+                TreeBrowserEntry r  = (TreeBrowserEntry) table.getRowAt(table.getSelectedRow());
                 if (r != null && r.isLeaf()) {
                     DownloadController.getInstance().enqueueDownload(r.getURL(), new File(saveToDirectory));
-                    LOG.info(r.getURL());
-                    closeDialog();
+                    System.out.println(r.getURL());
                 } else {
-                    DialogUtils.displayMessage("Please select a file");
+                    JOptionPane.showMessageDialog(p, "Please select a file");
                 }
             }
 
@@ -117,20 +113,16 @@ public class RemoteTrackTreeList extends JDialog {
         this.pack();
     }
 
-    private void closeDialog() {
-        this.dispose();
-    }
-
-    private static TreeRow parseDocumentTreeRow(Element root) {
+    private static TreeBrowserEntry parseDocumentTreeRow(Element root) {
         if (root.getName().equals("branch")) {
-            List<TreeRow> children = new ArrayList<TreeRow>();
+            List<TreeBrowserEntry> children = new ArrayList<TreeBrowserEntry>();
             for (Object o : root.getChildren()) {
                 Element c = (Element) o;
                 children.add(parseDocumentTreeRow(c));
             }
-            return new TreeRow(root.getAttributeValue("name"), children);
+            return new TreeBrowserEntry(root.getAttributeValue("name"), children);
         } else if (root.getName().equals("leaf")) {
-            return new TreeRow(
+            return new TreeBrowserEntry(
                     root.getAttributeValue("name"),
                     root.getChildText("type"),
                     root.getChildText("description"),
@@ -146,8 +138,8 @@ public class RemoteTrackTreeList extends JDialog {
     public static class FileRowCellRenderer extends DefaultTableCellRenderer {
         @Override
         public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-            if (value instanceof TreeRow) {
-                TreeRow fileRow = (TreeRow) value;
+            if (value instanceof TreeBrowserEntry) {
+                TreeBrowserEntry fileRow = (TreeBrowserEntry) value;
                 JLabel label = (JLabel) super.getTableCellRendererComponent(table,
                         fileRow.getName(),
                         isSelected, hasFocus, row, column);
@@ -164,17 +156,17 @@ public class RemoteTrackTreeList extends JDialog {
         }
     }
 
-    private static List<TreeRow> getDownloadTreeRows(File f) throws JDOMException, IOException {
-        List<TreeRow> roots = new ArrayList<TreeRow>();
+    private static List<TreeBrowserEntry> getDownloadTreeRows(File f) throws JDOMException, IOException {
+        List<TreeBrowserEntry> roots = new ArrayList<TreeBrowserEntry>();
         Document d = new SAXBuilder().build(f);
         Element root = d.getRootElement();
-        TreeRow treeroot = parseDocumentTreeRow(root);
+        TreeBrowserEntry treeroot = parseDocumentTreeRow(root);
         roots.add(treeroot);
         return roots;
     }
 
-    public final Component getCenterPanel(List<TreeRow> roots) {
-        table = new TreeTable(new TreeListTableModel(roots));
+    public final Component getCenterPanel(List<TreeBrowserEntry> roots) {
+        table = new TreeTable(new TreeBrowserModel(roots));
         table.setSortable(true);
         table.setRespectRenderPreferredHeight(true);
 
@@ -185,6 +177,7 @@ public class RemoteTrackTreeList extends JDialog {
         table.setRowHeight(18);
         table.setShowGrid(false);
         table.setIntercellSpacing(new Dimension(0, 0));
+        table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         //table.expandAll();
         table.expandFirstLevel();
 
@@ -204,8 +197,8 @@ public class RemoteTrackTreeList extends JDialog {
 
             @Override
             protected String convertElementToString(Object item) {
-                if (item instanceof TreeRow) {
-                    return ((TreeRow) item).getType();
+                if (item instanceof TreeBrowserEntry) {
+                    return ((TreeBrowserEntry) item).getType();
                 }
                 return super.convertElementToString(item);
             }

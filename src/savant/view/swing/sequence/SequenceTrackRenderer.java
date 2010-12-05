@@ -27,6 +27,7 @@ import java.util.List;
 import savant.data.types.Record;
 import savant.data.types.SequenceRecord;
 import savant.file.DataFormat;
+import savant.util.AxisRange;
 import savant.util.ColorScheme;
 import savant.util.DrawingInstructions;
 import savant.util.Range;
@@ -94,12 +95,14 @@ public class SequenceTrackRenderer extends TrackRenderer {
             baseRenderable = true;
         }
 
+        AxisRange axisRange = (AxisRange) getDrawingInstructions().getInstruction(DrawingInstructions.InstructionName.AXIS_RANGE);
+
         int len = sequence.length;
         for (int i = 0; i < len; i++) {
-            double x = (i*unitWidth);
+            double x = gp.transformXPos(axisRange.getXMin()+i);
             double y = 0;//gp.transformYPos(1);
-            double w = Math.ceil(unitWidth);
-            double h = unitHeight;
+            double w = gp.getUnitWidth();
+            double h = gp.getUnitHeight();
 
             Rectangle2D.Double rect = new Rectangle2D.Double(x, y, w, h);
 
@@ -118,6 +121,9 @@ public class SequenceTrackRenderer extends TrackRenderer {
                     break;
                 case 'C':
                     c = colorScheme.getColor("C");
+                    break;
+                case 'N':
+                    c = colorScheme.getColor("N");
                     break;
                 default:
                     break;

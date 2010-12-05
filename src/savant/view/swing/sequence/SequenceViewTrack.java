@@ -71,6 +71,7 @@ public class SequenceViewTrack extends ViewTrack {
         c.addColorSetting("C", ColourSettings.getC());
         c.addColorSetting("G", ColourSettings.getG());
         c.addColorSetting("T", ColourSettings.getT());
+        c.addColorSetting("N", ColourSettings.getN());
         c.addColorSetting("Line", Color.black);
         c.addColorSetting("Background", new Color(100,100,100,220));
 

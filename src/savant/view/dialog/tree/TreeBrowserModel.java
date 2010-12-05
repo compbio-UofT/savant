@@ -13,7 +13,7 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package savant.net;
+package savant.view.dialog.tree;
 
 import com.jidesoft.grid.CellStyle;
 import com.jidesoft.grid.StyleModel;
@@ -22,7 +22,7 @@ import com.jidesoft.grid.TreeTableModel;
 import java.awt.*;
 import java.util.List;
 
-public class TreeListTableModel extends TreeTableModel implements StyleModel {
+public class TreeBrowserModel extends TreeTableModel implements StyleModel {
     static final protected String[] COLUMN_NAMES = {"Name", "Description", "Type" /*, "Filename", "Size"*/}; //, "Download"};
     static final Color BACKGROUND = new Color(247, 247, 247);
     static final CellStyle CELL_STYLE = new CellStyle();
@@ -31,7 +31,7 @@ public class TreeListTableModel extends TreeTableModel implements StyleModel {
         CELL_STYLE.setBackground(BACKGROUND);
     }
 
-    public TreeListTableModel(List rows) {
+    public TreeBrowserModel(List rows) {
         super(rows);
     }
 
@@ -64,7 +64,7 @@ public class TreeListTableModel extends TreeTableModel implements StyleModel {
     public Class<?> getColumnClass(int columnIndex) {
         switch (columnIndex) {
             case 0:
-                return TreeRow.class;
+                return TreeBrowserEntry.class;
             case 1:
                 return String.class;
             case 2:

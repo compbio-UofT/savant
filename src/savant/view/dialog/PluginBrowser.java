@@ -19,15 +19,11 @@ import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableModel;
 import org.java.plugin.registry.PluginDescriptor;
+import savant.api.util.DialogUtils;
 import savant.controller.PluginController;
-import savant.view.icon.SavantIconFactory;
 
-
-public class PluginManagerPanel {
+public class PluginBrowser {
     private TableModel _programTableModel;
-
-    public PluginManagerPanel() {
-    }
 
     public Component getPluginListPanel() {
         HierarchicalTable table = createTable();
@@ -114,16 +110,13 @@ public class PluginManagerPanel {
             //versionButton.addActionListener(new ClickAction(program, "Version", versionButton));
             panel.add(versionButton);
 
-            //NullButton activateButton = new NullButton("Inactivate");
-            //activateButton.addActionListener(new ClickAction(program, "Inactivate", activateButton));
-            //panel.add(activateButton);
             panel.add(new NullPanel());
             final NullButton removeButton = new NullButton("Uninstall");
             removeButton.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     removeButton.setEnabled(false);
-                    PluginController.getInstance().queuePluginForUnInstallation(program.id);
+                    PluginController.getInstance().queuePluginForUnInstallation(PluginController.getInstance().getPluginDescriptor(program.id));
                 }
             });
             if (PluginController.getInstance().isPluginQueuedForDeletion(program.id)) {

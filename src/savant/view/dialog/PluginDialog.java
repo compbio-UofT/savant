@@ -6,6 +6,7 @@
 
 package savant.view.dialog;
 
+import savant.view.dialog.tree.PluginRepositoryBrowser;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jdom.JDOMException;
@@ -18,7 +19,6 @@ import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.URL;
-import savant.net.DownloadTreeList;
 import savant.settings.BrowserSettings;
 import savant.util.DownloadFile;
 
@@ -36,6 +36,7 @@ public class PluginDialog extends javax.swing.JDialog {
         super(parent,"Plugin Manager");
         initComponents();
         this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        this.setLocationRelativeTo(parent);
         this.setResizable(false);
         updatePluginList();
     }
@@ -93,7 +94,7 @@ public class PluginDialog extends javax.swing.JDialog {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 470, Short.MAX_VALUE)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 351, Short.MAX_VALUE)
                     .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                         .addComponent(jLabel1)
                         .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
@@ -137,7 +138,7 @@ public class PluginDialog extends javax.swing.JDialog {
                 JOptionPane.showMessageDialog(this, "Problem downloading file: " + BrowserSettings.url_plugin);
                 return;
             }
-            DownloadTreeList d = new DownloadTreeList(Savant.getInstance(), true, "Download Plugins", file, pluginDir);
+            PluginRepositoryBrowser d = new PluginRepositoryBrowser(Savant.getInstance(), true, "Download Plugins", file, pluginDir);
             d.setVisible(true);
             this.updatePluginList();
             //addPluginFromURL();

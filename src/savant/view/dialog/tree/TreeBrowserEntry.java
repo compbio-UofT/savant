@@ -13,7 +13,7 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package savant.net;
+package savant.view.dialog.tree;
 
 import com.jidesoft.grid.AbstractExpandableRow;
 import java.io.File;
@@ -24,24 +24,24 @@ import javax.swing.filechooser.FileSystemView;
 import savant.settings.DirectorySettings;
 import savant.util.MiscUtils;
 
-public class TreeRow extends AbstractExpandableRow implements Comparable<TreeRow> {
+public class TreeBrowserEntry extends AbstractExpandableRow implements Comparable<TreeBrowserEntry> {
 
     static FileSystemView _fileSystemView;
 
     private boolean isLeaf;
-    private List<TreeRow> children;
+    private List<TreeBrowserEntry> children;
     private String name;
     private String type;
     private String description;
     private String url;
     private String size;
 
-    public TreeRow(String name, List<TreeRow> r) {
+    public TreeBrowserEntry(String name, List<TreeBrowserEntry> r) {
         this.name = name;
         setChildren(r);
     }
 
-    public TreeRow(
+    public TreeBrowserEntry(
                 String name,
                 String type,
                 String description,
@@ -84,9 +84,9 @@ public class TreeRow extends AbstractExpandableRow implements Comparable<TreeRow
 
     @Override
     public final void setChildren(List<?> value) {
-        children = (List<TreeRow>)value;
+        children = (List<TreeBrowserEntry>)value;
 	if (children != null) {
-            for (TreeRow row : children) {
+            for (TreeBrowserEntry row : children) {
                 row.setParent(this);
 	    }
 	}
@@ -133,7 +133,7 @@ public class TreeRow extends AbstractExpandableRow implements Comparable<TreeRow
 
 
     @Override
-    public int compareTo(TreeRow o) {
+    public int compareTo(TreeBrowserEntry o) {
         return getName().compareToIgnoreCase(o.getName());
     }
 

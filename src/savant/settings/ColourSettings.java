@@ -30,6 +30,8 @@ public class ColourSettings {
     private static final String C_KEY = "C";
     private static final String G_KEY = "G";
     private static final String T_KEY = "T";
+    private static final String N_KEY = "N";
+
     private static final String FORWARD_STRAND_KEY = "ForwardStrand";
     private static final String REVERSE_STRAND_KEY = "ReverseStrand";
     private static final String INVERTED_READ_KEY = "InvertedRead";
@@ -113,6 +115,20 @@ public class ColourSettings {
      */
     public static void setT(Color value) {
         settings.setColour(T_KEY, value);
+    }
+
+    /**
+     * @return the colour for N bases
+     */
+    public static Color getN() {
+        return settings.getColour(N_KEY, new Color(100,100,100,50));
+    }
+
+    /**
+     * @param value the colour for N bases
+     */
+    public static void setN(Color value) {
+        settings.setColour(N_KEY, value);
     }
 
     /**

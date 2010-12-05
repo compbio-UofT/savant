@@ -41,8 +41,8 @@ import org.jdom.input.SAXBuilder;
 
 import savant.api.util.DialogUtils;
 import savant.data.sources.DataSource;
-import savant.net.TreeListTableModel;
-import savant.net.TreeRow;
+import savant.view.dialog.tree.TreeBrowserModel;
+import savant.view.dialog.tree.TreeBrowserEntry;
 import savant.settings.BrowserSettings;
 import savant.util.DownloadFile;
 import savant.view.swing.Savant;
@@ -86,10 +86,9 @@ public class SavantFileRepositoryBrowser extends JDialog {
             Frame parent,
             boolean modal,
             String title,
-            List<TreeRow> roots) {
+            List<TreeBrowserEntry> roots) {
 
         super(parent, title, modal);
-
         setLocationRelativeTo(parent);
 
         this.setDefaultCloseOperation(JDialog.HIDE_ON_CLOSE);
@@ -107,7 +106,7 @@ public class SavantFileRepositoryBrowser extends JDialog {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                TreeRow r  = (TreeRow) table.getRowAt(table.getSelectedRow());
+                TreeBrowserEntry r  = (TreeBrowserEntry) table.getRowAt(table.getSelectedRow());
                 if (r != null && r.isLeaf()) {
                     try {
                         System.out.println("Setting track path to " + r.getURL().toString());
@@ -151,16 +150,16 @@ public class SavantFileRepositoryBrowser extends JDialog {
         }
     }
 
-    private static TreeRow parseDocumentTreeRow(Element root) {
+    private static TreeBrowserEntry parseDocumentTreeRow(Element root) {
         if (root.getName().equals("branch")) {
-            List<TreeRow> children = new ArrayList<TreeRow>();
+            List<TreeBrowserEntry> children = new ArrayList<TreeBrowserEntry>();
             for (Object o : root.getChildren()) {
                 Element c = (Element) o;
                 children.add(parseDocumentTreeRow(c));
             }
-            return new TreeRow(root.getAttributeValue("name"), children);
+            return new TreeBrowserEntry(root.getAttributeValue("name"), children);
         } else if (root.getName().equals("leaf")) {
-            return new TreeRow(
+            return new TreeBrowserEntry(
                     root.getAttributeValue("name"),
                     root.getChildText("type"),
                     root.getChildText("description"),
@@ -175,8 +174,8 @@ public class SavantFileRepositoryBrowser extends JDialog {
     public static class FileRowCellRenderer extends DefaultTableCellRenderer {
         @Override
         public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-            if (value instanceof TreeRow) {
-                TreeRow fileRow = (TreeRow) value;
+            if (value instanceof TreeBrowserEntry) {
+                TreeBrowserEntry fileRow = (TreeBrowserEntry) value;
                 JLabel label = (JLabel) super.getTableCellRendererComponent(table,
                         fileRow.getName(),
                         isSelected, hasFocus, row, column);
@@ -193,17 +192,17 @@ public class SavantFileRepositoryBrowser extends JDialog {
         }
     }
 
-    private static List<TreeRow> getDownloadTreeRows(File f) throws JDOMException, IOException {
-        List<TreeRow> roots = new ArrayList<TreeRow>();
+    private static List<TreeBrowserEntry> getDownloadTreeRows(File f) throws JDOMException, IOException {
+        List<TreeBrowserEntry> roots = new ArrayList<TreeBrowserEntry>();
         Document d = new SAXBuilder().build(f);
         Element root = d.getRootElement();
-        TreeRow treeroot = parseDocumentTreeRow(root);
+        TreeBrowserEntry treeroot = parseDocumentTreeRow(root);
         roots.add(treeroot);
         return roots;
     }
 
-    public final Component getCenterPanel(List<TreeRow> roots) {
-        table = new TreeTable(new TreeListTableModel(roots));
+    public final Component getCenterPanel(List<TreeBrowserEntry> roots) {
+        table = new TreeTable(new TreeBrowserModel(roots));
         table.setSortable(true);
         table.setRespectRenderPreferredHeight(true);
 
@@ -214,7 +213,7 @@ public class SavantFileRepositoryBrowser extends JDialog {
         table.setRowHeight(18);
         table.setShowGrid(false);
         table.setIntercellSpacing(new Dimension(0, 0));
-        //table.expandAll();
+        table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         table.expandFirstLevel();
 
         // do not select row when expanding a row.
@@ -233,8 +232,8 @@ public class SavantFileRepositoryBrowser extends JDialog {
 
             @Override
             protected String convertElementToString(Object item) {
-                if (item instanceof TreeRow) {
-                    return ((TreeRow) item).getType();
+                if (item instanceof TreeBrowserEntry) {
+                    return ((TreeBrowserEntry) item).getType();
                 }
                 return super.convertElementToString(item);
             }
