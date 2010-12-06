@@ -231,7 +231,7 @@ class FTPTableModel extends AbstractTableModel {
         if (f != null && f.isFile()) {
             long size = f.getSize();
             if (size < 1E6) {
-                return size + " kB";
+                return String.format("%.2f kB", size / 1.0E3);
             } else if (size < 1E9) {
                 return String.format("%.2f MB", size / 1.0E6);
             } else {
