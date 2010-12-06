@@ -171,7 +171,7 @@ public class CacheableSABS extends SeekableAdjustableBufferedStream {
         index.createNewFile();
 
         //check for entry
-        String newETag = uri.toURL().openConnection().getHeaderField("ETag");
+        String newETag = NetworkUtils.getHash(uri.toURL());
         boolean entryFound = false;
         BufferedReader bufferedReader = null;
         bufferedReader = new BufferedReader(new FileReader(indexName));

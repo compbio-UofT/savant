@@ -120,7 +120,7 @@ public class SeekableFTPStream extends SeekableStream {
     public int read(byte[] bytes, int offset, int len) throws IOException {
         try {
             return readFromStream(bytes, offset, len);
-        } catch (FTPConnectionClosedException x) {
+        } catch (IOException x) {
             LOG.info("Connection closed during read.  Disconnecting and trying again at " + position);
             disconnect();
             return readFromStream(bytes, offset, len);
