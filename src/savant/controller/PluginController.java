@@ -26,6 +26,7 @@ import java.io.FileWriter;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -33,11 +34,15 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JPanel;
 
 import com.jidesoft.docking.DockableFrame;
 import com.jidesoft.docking.DockingManager;
+import java.net.URI;
+import java.net.URL;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.java.plugin.JpfException;
@@ -54,6 +59,7 @@ import savant.experimental.PluginTool;
 import savant.plugin.SavantPanelPlugin;
 import savant.plugin.PluginAdapter;
 import savant.plugin.SavantDataSourcePlugin;
+import savant.settings.DirectorySettings;
 import savant.util.MiscUtils;
 import savant.view.swing.DockableFrameFactory;
 import savant.view.swing.Savant;
@@ -95,14 +101,13 @@ public class PluginController {
         try {
 
             pluginManager = ObjectFactory.newInstance().createManager();
-            uninstallFile = new File(FILENAME);
+            uninstallFile = new File(DirectorySettings.getSavantDirectory(), FILENAME);
             if (uninstallFile.exists()) {
                 deleteFileList(uninstallFile);
             }
             loadCorePlugin();
             loadPlugins(new File(PLUGINS_DIR));
         } catch (Exception ex) {
-            ex.printStackTrace();
             LOG.error("Error loading plugins.", ex);
         }
     }
@@ -111,6 +116,7 @@ public class PluginController {
     private void loadPlugins(File pluginsDir) throws MalformedURLException, JpfException, InstantiationException, IllegalAccessException {
         File[] plugins = pluginsDir.listFiles(new FilenameFilter() {
 
+            @Override
             public boolean accept(File dir, String name) {
                 return name.toLowerCase().endsWith(".jar") || name.toLowerCase().endsWith(".zip") || name.toLowerCase().endsWith(".gz");
             }
@@ -131,7 +137,7 @@ public class PluginController {
                 LOG.warn("Unable to load plugin: " + pluginLocation.getAbsolutePath());
                 int result = DialogUtils.askYesNo("Unable to load plugin at " + pluginLocation.getAbsolutePath() + ". Please check if it is compatible with this version of Savant. Uninstall it?");
                 if (result == DialogUtils.YES) {
-                    this.queuePluginForUnInstallation(pluginLocation.getAbsolutePath());
+                    this.queuePluginForUnInstallation(pluginLocation);
                 }
             }
         } else {
@@ -144,8 +150,7 @@ public class PluginController {
         pluginManager.deactivatePlugin(path);
     }
 
-    public void queuePluginForUnInstallation(String path) {
-        path = getFilePathOfPlugin(path);
+    public void queuePluginForUnInstallation(File path) {
         FileWriter fstream = null;
         try {
             if (!uninstallFile.exists()) {
@@ -153,7 +158,7 @@ public class PluginController {
             }
             fstream = new FileWriter(uninstallFile, true);
             BufferedWriter out = new BufferedWriter(fstream);
-            out.write(path + "\n");
+            out.write(path.getAbsolutePath() + "\n");
             out.close();
 
             DialogUtils.displayMessage("Uninstallation Complete", "Please restart Savant for changes to take effect.");
@@ -169,7 +174,14 @@ public class PluginController {
     }
 
     public void queuePluginForUnInstallation(PluginDescriptor pd) {
-        queuePluginForUnInstallation(this.getFilePathOfPlugin(pd.getLocation().getPath()));
+        try {
+            String foo = pd.getLocation().toString().replace("jar:", "").replace("!/plugin.xml", "");
+            URI jpfURI = new URI(foo);
+
+            queuePluginForUnInstallation(new File(jpfURI));
+        } catch (URISyntaxException ex) {
+            LOG.error("Bogus URI from Java Plugin Framework.", ex);
+        }
     }
 
     private boolean activatePlugin(PluginDescriptor desc, Extension ext) {
