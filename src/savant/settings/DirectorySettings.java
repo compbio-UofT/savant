@@ -83,7 +83,12 @@ public class DirectorySettings {
     public static String getPluginsDirectory() {
         File result = settings.getFile(PLUGINS_DIR_KEY);
         if (result == null) {
-            result = new File(MiscUtils.MAC ? "Savant.app/Contents/Plugins" : "plugins");
+            // First, determine whether we're a Mac application bundle by looking
+            // for the magical Mac directory.  If it's not found, we'll just use ./plugins.
+            result = new File("Savant.app/Contents/Plugins");
+            if (!result.exists()) {
+                result = new File("plugins");
+            }
         }
         if (!result.exists()) {
             result.mkdirs();
