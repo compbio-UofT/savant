@@ -1,36 +1,55 @@
 /*
- * PluginManager.java
+ * PluginManagerDialog.java
  *
  * Created on Mar 9, 2010, 10:11:36 AM
+ *
+ *
+ *    Copyright 2010 University of Toronto
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
  */
 
 package savant.view.dialog;
 
-import savant.view.dialog.tree.PluginRepositoryBrowser;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.jdom.JDOMException;
-import savant.view.swing.*;
-import javax.swing.*;
-import java.awt.*;
+import java.awt.BorderLayout;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.jdom.JDOMException;
+
 import savant.settings.BrowserSettings;
+import savant.settings.DirectorySettings;
 import savant.util.DownloadFile;
+import savant.view.dialog.tree.PluginRepositoryBrowser;
+import savant.view.swing.Savant;
+import savant.view.swing.util.DialogUtils;
 
 /**
  *
  * @author mfiume
  */
-public class PluginManagerDialog extends javax.swing.JDialog {
+public class PluginManagerDialog extends JDialog {
 
-    private static Log log = LogFactory.getLog(PluginManagerDialog.class);
-    public static String pluginDir = "plugins";
+    private static Log LOG = LogFactory.getLog(PluginManagerDialog.class);
     private PluginBrowser panel;
-
 
     public static PluginManagerDialog instance;
 
@@ -148,7 +167,7 @@ public class PluginManagerDialog extends javax.swing.JDialog {
                 return;
             }
             if (browser == null) {
-                browser = new PluginRepositoryBrowser(Savant.getInstance(), false, "Install Plugins", "Install", file, pluginDir);
+                browser = new PluginRepositoryBrowser(Savant.getInstance(), false, "Install Plugins", "Install", file, DirectorySettings.getPluginsDirectory());
             }
             this.setVisible(false);
             //browser.setAlwaysOnTop(true);
@@ -201,47 +220,25 @@ public class PluginManagerDialog extends javax.swing.JDialog {
 
     private void addPlugin() {
 
-        // create a frame and place the dialog in it
-        JFrame jf = new JFrame();
-        String selectedFileName;
-        if (Savant.mac) {
-            FileDialog fd = new FileDialog(jf, "Add Plugin", FileDialog.LOAD);
-            fd.setVisible(true);
-            jf.setAlwaysOnTop(true);
-            // get the path (null if none selected)
-            selectedFileName = fd.getFile();
-            if (selectedFileName != null) {
-                selectedFileName = fd.getDirectory() + selectedFileName;
-            }
-        }
-        else {
-            JFileChooser fd = new JFileChooser();
-            fd.setDialogTitle("Add Plugin");
-            fd.setDialogType(JFileChooser.OPEN_DIALOG);
-            int result = fd.showOpenDialog(this);
-            if (result == JFileChooser.CANCEL_OPTION || result == JFileChooser.ERROR_OPTION ) return;
-            selectedFileName = fd.getSelectedFile().getPath();
-        }
+        File selectedFile = DialogUtils.chooseFileForOpen(Savant.getInstance(), "Select Plugin JAR", null);
 
         // copy the plugin
-        if (selectedFileName != null) {
+        if (selectedFile != null) {
             try {
-                int lastSlashIndex = selectedFileName.lastIndexOf(System.getProperty("file.separator"));
-                String name = selectedFileName.substring(lastSlashIndex + 1, selectedFileName.length());
-
-                copyFile(new File(selectedFileName), new File(pluginDir + System.getProperty("file.separator") + name));
+                copyFile(selectedFile, new File(DirectorySettings.getPluginsDirectory(), selectedFile.getName()));
 
                 refresh();
+                JOptionPane.showMessageDialog(this, "Plugin successfully installed. Restart Savant \n" +
+                    "for changes to take effect.");
 
             // error copying file
             } catch (Exception ex) {
+                LOG.error("Error installing plugin.", ex);
                 JOptionPane.showMessageDialog(this, "Error installing plugin." +
                         "\nYou can manually install it by adding the appropriate \n" +
                         ".jar file to the plugins directory.");
             }
 
-            JOptionPane.showMessageDialog(this, "Plugin successfully installed. Restart Savant \n" +
-                    "for changes to take effect.");
         }
     }
 

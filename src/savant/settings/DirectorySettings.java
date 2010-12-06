@@ -17,6 +17,7 @@
 package savant.settings;
 
 import java.io.File;
+import savant.util.MiscUtils;
 
 
 /**
@@ -74,8 +75,20 @@ public class DirectorySettings {
         return getDirectory(FORMAT_DIR_KEY, "formatted_files");
     }
 
+    /**
+     * Retrieve the preference for the plugins directory.  Unlike the other directories,
+     * its default location is <b>not</b> inside the <i>.savant</i> directory.
+     * @return
+     */
     public static String getPluginsDirectory() {
-        return getDirectory(PLUGINS_DIR_KEY, "plugins");
+        File result = settings.getFile(PLUGINS_DIR_KEY);
+        if (result == null) {
+            result = new File(MiscUtils.MAC ? "Savant.app/Contents/Plugins" : "plugins");
+        }
+        if (!result.exists()) {
+            result.mkdirs();
+        }
+        return result.getAbsolutePath();
     }
 
     public static String getProjectsDirectory() {

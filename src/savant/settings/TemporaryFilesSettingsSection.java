@@ -133,7 +133,7 @@ public class TemporaryFilesSettingsSection extends Section {
         });
 
 
-        //PLUGINS/////////////////////////////////////
+/*        //PLUGINS/////////////////////////////////////
 
         JLabel pluginsLabel = new JLabel("Select the folder to store plugin files: ");
         c.fill = GridBagConstraints.HORIZONTAL;
@@ -261,7 +261,7 @@ public class TemporaryFilesSettingsSection extends Section {
                 pluginsInput.setText(fc.getSelectedFile().getAbsolutePath());
                 enableApplyButton();
             }
-        });
+        });*/
 
         //CLEAR CACHE///////////////////////////////////
 
@@ -294,11 +294,13 @@ public class TemporaryFilesSettingsSection extends Section {
             formatPath = formatInput.getText();
             DirectorySettings.setFormatDirectory(formatPath);
 
+/*
             pluginsPath = pluginsInput.getText();
             DirectorySettings.setPluginsDirectory(pluginsPath);
 
             xmlToolsPath = xmlToolsInput.getText();
             DirectorySettings.setXMLToolDescriptionsDirectory(xmlToolsPath);
+ */
             try {
                 PersistentSettings.getInstance().store();
             } catch (IOException iox) {

@@ -72,19 +72,19 @@ import savant.view.tools.ToolsModule;
 public class PluginController {
 
     private static final Log LOG = LogFactory.getLog(PluginController.class);
-    private final String FILENAME = ".uninstall_plugins";
-    private Set<String> pluginsToUnInstall = new HashSet<String>();
-    /** VARIABLES **/
+    private static final String UNINSTALL_FILENAME = ".uninstall_plugins";
+
     private static PluginController instance;
     private static PluginManager pluginManager;
-    //private Map<SuperPluginDescriptor,Plugin> pluginMap = new HashMap<SuperPluginDescriptor,Plugin>();
+    private ExtensionPoint coreExtPt;
+    private File coreLocation;
+    private File uninstallFile;
+
+    private Set<String> pluginsToUnInstall = new HashSet<String>();
+
     private Map<String, PluginDescriptor> pluginIDToDescriptorMap = new HashMap<String, PluginDescriptor>();
     private Map<String, Extension> pluginIDToExtensionMap = new HashMap<String, Extension>();
     private Map<String, Plugin> pluginIDToPluginMap = new HashMap<String, Plugin>();
-    //private Map<String,String> pluginIdToPathMap = new HashMap<String,String>();
-    private ExtensionPoint coreExtPt;
-    private final String PLUGINS_DIR = "plugins";
-    File coreLocation = new File(PLUGINS_DIR + System.getProperty("file.separator") + "SavantCore.jar");
 
 
     /** SINGLETON **/
@@ -94,19 +94,21 @@ public class PluginController {
         }
         return instance;
     }
-    private File uninstallFile;
 
     /** CONSTRUCTOR **/
     public PluginController() {
         try {
 
             pluginManager = ObjectFactory.newInstance().createManager();
-            uninstallFile = new File(DirectorySettings.getSavantDirectory(), FILENAME);
+            uninstallFile = new File(DirectorySettings.getSavantDirectory(), UNINSTALL_FILENAME);
             if (uninstallFile.exists()) {
                 deleteFileList(uninstallFile);
             }
+            File pluginsDir = new File(DirectorySettings.getPluginsDirectory());
+            coreLocation = new File(pluginsDir, "SavantCore.jar");
+            LOG.info("coreLocation=" + coreLocation.getAbsolutePath());
             loadCorePlugin();
-            loadPlugins(new File(PLUGINS_DIR));
+            loadPlugins(pluginsDir);
         } catch (Exception ex) {
             LOG.error("Error loading plugins.", ex);
         }
