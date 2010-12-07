@@ -169,7 +169,8 @@ public class Frame {
                 addTrack(track, renderer);
 
                 //CREATE LEGEND PANEL
-                if(track.getDataSource().getDataFormat().toString().equals("INTERVAL_BAM")){
+                //TODO: check for null is another hack to get coverage to work...
+                if(track.getDataSource() != null && track.getDataSource().getDataFormat().toString().equals("INTERVAL_BAM")){
                     arcLegend = track.getTrackRenderers().get(0).arcLegendPaint();
                 }
             }
@@ -629,30 +630,38 @@ public class Frame {
         tracks.add(track);
 
         if (renderer == null) {
-            switch(track.getDataSource().getDataFormat()) {
-                case POINT_GENERIC:
-                    renderer = new PointTrackRenderer();
-                    break;
-                case INTERVAL_GENERIC:
-                    renderer = new IntervalTrackRenderer();
-                    break;
-                case CONTINUOUS_GENERIC:
-                    renderer = new ContinuousTrackRenderer();
-                    break;
-                case INTERVAL_BAM:
-                    renderer = new BAMTrackRenderer();
-                    break;
-                case INTERVAL_BED:
-                    renderer = new BEDTrackRenderer();
-                    break;
-                case SEQUENCE_FASTA:
-                    renderer = new SequenceTrackRenderer();
-                    break;
+            if (track.getDataSource() == null) {
+                renderer = new ContinuousTrackRenderer();
+            } else {
+                switch(track.getDataSource().getDataFormat()) {
+                    case POINT_GENERIC:
+                        renderer = new PointTrackRenderer();
+                        break;
+                    case INTERVAL_GENERIC:
+                        renderer = new IntervalTrackRenderer();
+                        break;
+                    case CONTINUOUS_GENERIC:
+                        renderer = new ContinuousTrackRenderer();
+                        break;
+                    case INTERVAL_BAM:
+                        renderer = new BAMTrackRenderer();
+                        break;
+                    case INTERVAL_BED:
+                        renderer = new BEDTrackRenderer();
+                        break;
+                    case SEQUENCE_FASTA:
+                        renderer = new SequenceTrackRenderer();
+                        break;
+                }
             }
         }
+
+        // TODO: another hack to make coverage work ...
+        DataFormat df = (track.getDataSource() == null) ? DataFormat.CONTINUOUS_GENERIC : track.getDataSource().getDataFormat();
+
         renderer.setTrackName(track.getName());
         renderer.getDrawingInstructions().addInstruction(
-                DrawingInstructions.InstructionName.TRACK_DATA_TYPE, track.getDataSource().getDataFormat());
+                DrawingInstructions.InstructionName.TRACK_DATA_TYPE, df);
         track.addTrackRenderer(renderer);
         GraphPane graphPane = getGraphPane();
         graphPane.addTrackRenderer(renderer);
