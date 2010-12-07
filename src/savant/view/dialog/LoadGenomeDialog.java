@@ -267,6 +267,11 @@ public class LoadGenomeDialog extends javax.swing.JDialog {
     }// </editor-fold>//GEN-END:initComponents
 
     private void okButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_okButtonActionPerformed
+        
+        if (!userSpecifiedRadio.isSelected() && !this.commonGenomeRadio.isSelected()) {
+            return;
+        }
+
         if (userSpecifiedRadio.isSelected() && !validateUserSpecifiedLength()) {
             return;
         }
