@@ -116,7 +116,7 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
     private Shape currentOverShape = null;
     private boolean popupVisible = false;
     private JPanel popPanel;
-    private boolean mouseWheel = false; //used by popupThread
+    //private boolean mouseWheel = false; //used by popupThread
 
     public void keyTyped(KeyEvent e) {
     }
@@ -825,7 +825,7 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
      */
     public void mouseWheelMoved(MouseWheelEvent e) {
 
-        this.setMouseWheel(true);
+        //this.setMouseWheel(true);
         int notches = e.getWheelRotation();
 
         if (mac && e.isMetaDown() || e.isControlDown()) {
@@ -1400,12 +1400,12 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
      * Set whether the mouseWheel recently used. 
      * This is used by PopupThread to determine whether a popup should appear. 
      */
-    public void setMouseWheel(boolean value){
+    /*public void setMouseWheel(boolean value){
         this.mouseWheel = value;
     }
 
     public boolean getMouseWheel(){
         return this.mouseWheel;
-    }
+    }*/
 
 }
