@@ -99,6 +99,7 @@ public class SavantFileRepositoryBrowser extends JDialog {
         bottombar.setAlignmentX(RIGHT_ALIGNMENT);
         bottombar.add(Box.createHorizontalGlue());
         JButton openbutt = new JButton("Load Track");
+        openbutt.putClientProperty( "JButton.buttonType", "default" );
         openbutt.addActionListener(new ActionListener() {
 
             @Override

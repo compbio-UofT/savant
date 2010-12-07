@@ -78,7 +78,7 @@ import savant.settings.ColourSettings;
 import savant.settings.DirectorySettings;
 import savant.util.CopyFile;
 import savant.view.dialog.NewXMLToolDialog;
-import savant.view.dialog.PluginDialog;
+import savant.view.dialog.PluginManagerDialog;
 import savant.view.swing.DockableFrameFactory;
 import savant.view.swing.Savant;
 
@@ -590,7 +590,7 @@ public class ToolsModule implements BookmarksChangedListener, RangeChangeComplet
 
         switch(n) {
             case 0:
-                PluginDialog pd = new PluginDialog(Savant.getInstance());
+                PluginManagerDialog pd = PluginManagerDialog.getInstance();
                 pd.setVisible(true);
                 break;
             case 1:

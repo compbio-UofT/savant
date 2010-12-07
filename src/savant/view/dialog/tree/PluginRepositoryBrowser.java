@@ -94,6 +94,7 @@ public class PluginRepositoryBrowser extends JDialog {
         bottombar.setAlignmentX(RIGHT_ALIGNMENT);
         bottombar.add(Box.createHorizontalGlue());
         JButton downbutt = new JButton(buttonText);
+        downbutt.putClientProperty( "JButton.buttonType", "default" );
         downbutt.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {

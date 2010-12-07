@@ -110,7 +110,7 @@ public class PluginManagerDialog extends JDialog {
         panel_plugincanvas.setLayout(panel_plugincanvasLayout);
         panel_plugincanvasLayout.setHorizontalGroup(
             panel_plugincanvasLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 481, Short.MAX_VALUE)
+            .addGap(0, 515, Short.MAX_VALUE)
         );
         panel_plugincanvasLayout.setVerticalGroup(
             panel_plugincanvasLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -293,6 +293,9 @@ public class PluginManagerDialog extends JDialog {
      */
 
     public static void copyFile(File in, File out) throws Exception {
+
+        if (in.getAbsolutePath().equals(out.getAbsolutePath())) { return; }
+
         FileInputStream fis  = new FileInputStream(in);
         FileOutputStream fos = new FileOutputStream(out);
         try {

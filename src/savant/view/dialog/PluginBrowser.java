@@ -111,7 +111,7 @@ public class PluginBrowser {
             panel.add(versionButton);
 
             panel.add(new NullPanel());
-            final NullButton removeButton = new NullButton("Uninstall");
+            final JButton removeButton = new JButton("Uninstall");
             removeButton.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {

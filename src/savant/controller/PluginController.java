@@ -283,6 +283,7 @@ public class PluginController {
 
         if (!coreLocation.exists()) {
             LOG.error("Loading of core plugin failed.");
+            DialogUtils.displayError("Error initializing plugin loader. Please ensure " + this.coreLocation.getAbsolutePath() + " exists. Otherwise, please download a new copy of Savant");
             return;
         }
 
@@ -293,6 +294,11 @@ public class PluginController {
         PluginDescriptor core = pluginManager.getRegistry().getPluginDescriptor("savant.core");
         ExtensionPoint corePt = (ExtensionPoint) (core.getExtensionPoints().toArray()[0]);
         coreExtPt = pluginManager.getRegistry().getExtensionPoint(core.getId(), corePt.getId());
+
+        if (coreExtPt == null) {
+            DialogUtils.displayError("Error initializing plugin loader. Please ensure " + this.coreLocation.getAbsolutePath() + " exists. Otherwise, please download a new copy of Savant.");
+            return;
+        }
     }
 
     /** GETTERS **/
