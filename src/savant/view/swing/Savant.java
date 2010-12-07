@@ -2219,7 +2219,6 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
 
         JButton shiftFarRight = addButton(p, "");
         /////////
-        shiftFarRight.setIcon(new javax.swing.ImageIcon(getClass().getResource("/savant/images/rightfull.png")));
         shiftFarRight.setIcon(SavantIconFactory.getInstance().getIcon(SavantIconFactory.StandardIcon.SHIFT_FARRIGHT));
         if (mac) {
             shiftFarRight.putClientProperty( "JButton.buttonType", buttonStyle );
