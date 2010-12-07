@@ -59,8 +59,8 @@ public class DataTableModel extends AbstractTableModel {
     protected Class[] intervalColumnClasses = { String.class, Integer.class, Integer.class, String.class };
     protected String[] intervalColumnNames = { "Reference", "From", "To", "Description" };
 
-    protected Class[] bamColumnClasses = { String.class, String.class, Integer.class, Boolean.class, Integer.class, Boolean.class, Integer.class, String.class, Integer.class, Boolean.class, Integer.class};
-    protected String[] bamColumnNames = { "Read Name", "Sequence", "Length", "First of Pair", "Position", "Strand +", "Mapping Quality", "CIGAR", "Mate Position", "Strand +", "Inferred Insert Size" };
+    protected Class[] bamColumnClasses = { String.class, String.class, Integer.class, Boolean.class, Integer.class, Boolean.class, Integer.class, String.class, String.class, Integer.class, Boolean.class, Integer.class};
+    protected String[] bamColumnNames = { "Read Name", "Sequence", "Length", "First of Pair", "Position", "Strand +", "Mapping Quality", "Base Qualities", "CIGAR", "Mate Position", "Strand +", "Inferred Insert Size" };
 
     protected Class[] bedColumnClasses = { String.class, Integer.class, Integer.class, String.class, Integer.class};
     protected String[] bedColumnNames = {"Reference", "Start", "End", "Name", "Block Count"};
@@ -209,12 +209,14 @@ public class DataTableModel extends AbstractTableModel {
                      case 6:
                          return samRecord.getMappingQuality();
                      case 7:
-                         return samRecord.getCigarString();
+                         return samRecord.getBaseQualityString();
                      case 8:
-                         return mated ? samRecord.getMateAlignmentStart() : -1;
+                         return samRecord.getCigarString();
                      case 9:
-                         return mated ? !samRecord.getMateNegativeStrandFlag() : false;
+                         return mated ? samRecord.getMateAlignmentStart() : -1;
                      case 10:
+                         return mated ? !samRecord.getMateNegativeStrandFlag() : false;
+                     case 11:
                          return mated ? samRecord.getInferredInsertSize() : 0;
                  }
              case INTERVAL_BED:
@@ -301,15 +303,18 @@ public class DataTableModel extends AbstractTableModel {
                          ((BAMIntervalRecord)datum).getSamRecord().setMappingQuality(Integer.parseInt((String) value));
                          break;
                      case 7:
-                         ((BAMIntervalRecord)datum).getSamRecord().setCigarString((String) value);
+                         ((BAMIntervalRecord)datum).getSamRecord().setBaseQualityString((String) value);
                          break;
                      case 8:
-                         ((BAMIntervalRecord)datum).getSamRecord().setMateAlignmentStart(Integer.parseInt((String) value));
+                         ((BAMIntervalRecord)datum).getSamRecord().setCigarString((String) value);
                          break;
                      case 9:
-                         ((BAMIntervalRecord)datum).getSamRecord().setMateNegativeStrandFlag(!((Boolean) value));
+                         ((BAMIntervalRecord)datum).getSamRecord().setMateAlignmentStart(Integer.parseInt((String) value));
                          break;
                      case 10:
+                         ((BAMIntervalRecord)datum).getSamRecord().setMateNegativeStrandFlag(!((Boolean) value));
+                         break;
+                     case 11:
                          ((BAMIntervalRecord)datum).getSamRecord().setInferredInsertSize(Integer.parseInt((String) value));
                          break;
                  }
