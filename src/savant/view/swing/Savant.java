@@ -1795,13 +1795,13 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
 
         p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
 
-        Dimension comboboxDimension = new Dimension(150, 23);
+        Dimension comboboxDimension = new Dimension(130, 23);
         Dimension iconDimension = null;
 
         if (mac) {
             iconDimension = new Dimension(50, 23);
         } else {
-            iconDimension = new Dimension(30, 40);
+            iconDimension = new Dimension(27, 27);
         }
 
         String shortcutMod;
