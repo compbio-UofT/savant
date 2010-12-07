@@ -101,7 +101,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
     private JPanel masterPlaceholderPanel;
     private DockingManager trackDockingManager;
     private JPanel trackPanel;
-    private JPanel menuPanel;
+    private JToolBar menuPanel;
     private JButton goButton;
     private ToolsModule savantTools;
     private static boolean showNonGenomicReferenceDialog = true;
@@ -1788,12 +1788,13 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
 
         String buttonStyle = "segmentedTextured";
 
-        this.menuPanel = new JPanel();
+        this.menuPanel = new JToolBar();
         this.panelExtendedMiddle.setLayout(new BorderLayout());
         this.panelExtendedMiddle.add(menuPanel);
-        JPanel p = this.menuPanel;
+        JToolBar p = this.menuPanel;
+        p.setFloatable(false);
 
-        p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
+        //p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
 
         Dimension comboboxDimension = new Dimension(130, 23);
         Dimension iconDimension = null;
@@ -1853,21 +1854,6 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
             private void switchReference(int index) {
 
                 String ref = (String) referenceDropdown.getItemAt(index);
-
-                /*
-                System.out.println("Trying to change reference to " + ref);
-                if (ref.contains("[")) {
-                int newindex = referenceDropdown.getSelectedIndex() + 1;
-                if (newindex < referenceDropdown.getItemCount()) {
-                System.out.println("Instead trying to change reference to " + newindex);
-                switchReference(newindex);
-                } else {
-                System.out.println("Instead trying to change reference to " + 0);
-                switchReference(0);
-                }
-                return;
-                }
-                 */
 
                 if (!ReferenceController.getInstance().getReferenceNames().contains(ref)) {
                     if (!showNonGenomicReferenceDialog) {
@@ -1957,7 +1943,6 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
 
         p.add(this.getRigidPadding());
 
-
         goButton = addButton(p, "  Go  ");
         goButton.putClientProperty( "JButton.buttonType", buttonStyle );
         goButton.putClientProperty( "JButton.segmentPosition", "only" );
@@ -2004,13 +1989,11 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         if (mac) {
             button_undo.putClientProperty( "JButton.buttonType", buttonStyle );
             button_undo.putClientProperty( "JButton.segmentPosition", "first" );
-        } else {
-            button_undo.setBorder(null);
-            button_undo.setBorderPainted(false);
+        }
             button_undo.setPreferredSize(iconDimension);
             button_undo.setMinimumSize(iconDimension);
             button_undo.setMaximumSize(iconDimension);
-        }
+        
 
         p.add(button_undo);
 
@@ -2027,13 +2010,11 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         if (mac) {
             redo.putClientProperty( "JButton.buttonType", buttonStyle );
             redo.putClientProperty( "JButton.segmentPosition", "last" );
-        } else {
-            redo.setBorder(null);
-            redo.setBorderPainted(false);
+        }
             redo.setPreferredSize(iconDimension);
             redo.setMinimumSize(iconDimension);
             redo.setMaximumSize(iconDimension);
-        }
+        
 
         p.add(redo);
        
@@ -2047,15 +2028,11 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         if (mac) {
             zoomIn.putClientProperty( "JButton.buttonType", buttonStyle );
             zoomIn.putClientProperty( "JButton.segmentPosition", "first" );
-        } else {
-            zoomIn.setBorder(null);
-            zoomIn.setBorderPainted(false);
-           // zoomIn.setContentAreaFilled(false);
-           // zoomIn.setFocusPainted(false);
+        }
             zoomIn.setPreferredSize(iconDimension);
             zoomIn.setMinimumSize(iconDimension);
             zoomIn.setMaximumSize(iconDimension);
-        }
+        
         /////////
         zoomIn.setToolTipText("Zoom in (Shift+Up)");
 
@@ -2083,43 +2060,12 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         if (mac) {
             zoomOut.putClientProperty( "JButton.buttonType", buttonStyle );
             zoomOut.putClientProperty( "JButton.segmentPosition", "last" );
-        } else {
-            zoomOut.setBorder(null);
-            zoomOut.setBorderPainted(false);
+        }
             zoomOut.setPreferredSize(iconDimension);
             zoomOut.setMinimumSize(iconDimension);
             zoomOut.setMaximumSize(iconDimension);
-        }
 
         p.add(zoomOut);
-
-
-        /*
-        JButton zoomOut = addButton(p, "");
-        /////////
-        zoomOut.setIcon(SavantIconFactory.getInstance().getIcon(SavantIconFactory.StandardIcon.ZOOMOUT));
-        if (mac) {
-            zoomOut.putClientProperty( "JButton.buttonType", buttonStyle );
-            zoomOut.putClientProperty( "JButton.segmentPosition", "last" );
-        } else {
-            zoomOut.setBorder(null);
-            zoomOut.setBorderPainted(false);
-            //zoomOut.setContentAreaFilled(false);
-            //zoomOut.setFocusPainted(false);
-            zoomOut.setPreferredSize(iconDimension);
-            zoomOut.setMinimumSize(iconDimension);
-        }
-        /////////
-        zoomOut.setToolTipText("Zoom out (Shift+Down)");
-        zoomOut.addMouseListener(new MouseAdapter() {
-
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                rangeController.zoomOut();
-            }
-
-         * 
-         */
 
         p.add(getRigidPadding());
         p.add(this.getRigidPadding());
@@ -2130,15 +2076,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         if (mac) {
             shiftFarLeft.putClientProperty( "JButton.buttonType", buttonStyle );
             shiftFarLeft.putClientProperty( "JButton.segmentPosition", "first" );
-        } else {
-            shiftFarLeft.setBorder(null);
-            shiftFarLeft.setBorderPainted(false);
-            //shiftFarLeft.setContentAreaFilled(false);
-            //shiftFarLeft.setFocusPainted(false);
-            shiftFarLeft.setPreferredSize(iconDimension);
-            shiftFarLeft.setMinimumSize(iconDimension);
         }
-        /////////
         shiftFarLeft.setToolTipText("Move to the beginning of the genome (Home)");
         shiftFarLeft.setPreferredSize(iconDimension);
         shiftFarLeft.setMinimumSize(iconDimension);
@@ -2151,23 +2089,12 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
             }
         });
 
-        if (!mac) {
-            //p.add(this.getRigidPadding());
-        }
-
         JButton shiftLeft = addButton(p, "");
         /////////
         shiftLeft.setIcon(SavantIconFactory.getInstance().getIcon(SavantIconFactory.StandardIcon.SHIFT_LEFT));
         if (mac) {
             shiftLeft.putClientProperty( "JButton.buttonType", buttonStyle );
             shiftLeft.putClientProperty( "JButton.segmentPosition", "middle" );
-        } else {
-            shiftLeft.setBorder(null);
-            shiftLeft.setBorderPainted(false);
-            //shiftLeft.setContentAreaFilled(false);
-            //shiftLeft.setFocusPainted(false);
-            shiftLeft.setPreferredSize(iconDimension);
-            shiftLeft.setMinimumSize(iconDimension);
         }
         /////////
         shiftLeft.setToolTipText("Move left (Shift+Left)");
@@ -2192,13 +2119,6 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         if (mac) {
             shiftRight.putClientProperty( "JButton.buttonType", buttonStyle );
             shiftRight.putClientProperty( "JButton.segmentPosition", "middle" );
-        } else {
-            shiftRight.setBorder(null);
-            shiftRight.setBorderPainted(false);
-            //shiftRight.setContentAreaFilled(false);
-            //shiftRight.setFocusPainted(false);
-            shiftRight.setPreferredSize(iconDimension);
-            shiftRight.setMinimumSize(iconDimension);
         }
         /////////
         shiftRight.setToolTipText("Move right (Shift+Right)");
@@ -2213,23 +2133,12 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
             }
         });
 
-        if (!mac) {
-            //p.add(this.getRigidPadding());
-        }
-
         JButton shiftFarRight = addButton(p, "");
         /////////
         shiftFarRight.setIcon(SavantIconFactory.getInstance().getIcon(SavantIconFactory.StandardIcon.SHIFT_FARRIGHT));
         if (mac) {
             shiftFarRight.putClientProperty( "JButton.buttonType", buttonStyle );
             shiftFarRight.putClientProperty( "JButton.segmentPosition", "last" );
-        } else {
-            shiftFarRight.setBorder(null);
-            shiftFarRight.setBorderPainted(false);
-            //shiftFarRight.setContentAreaFilled(false);
-            //shiftFarRight.setFocusPainted(false);
-            shiftFarRight.setPreferredSize(iconDimension);
-            shiftFarRight.setMinimumSize(iconDimension);
         }
         /////////
         shiftFarRight.setToolTipText("Move to the end of the genome (End)");
@@ -2293,7 +2202,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         this.panel_top.setVisible(false);
     }
 
-    private JTextField addTextField(JPanel p, String msg) {
+    private JTextField addTextField(JToolBar p, String msg) {
         JTextField f = new JTextField(msg);
         p.add(f);
         return f;
@@ -2331,7 +2240,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         return Box.createRigidArea(new Dimension(BrowserSettings.padding, BrowserSettings.padding));
     }
 
-    private JButton addButton(JPanel p, String label) {
+    private JButton addButton(JToolBar p, String label) {
         JButton b = new JButton(label);
         p.add(b);
         return b;
