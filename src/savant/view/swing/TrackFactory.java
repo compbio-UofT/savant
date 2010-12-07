@@ -29,6 +29,7 @@ import savant.file.SavantUnsupportedFileTypeException;
 import savant.file.SavantUnsupportedVersionException;
 import savant.format.SavantFileFormatterUtils;
 import savant.util.MiscUtils;
+import savant.util.NetworkUtils;
 import savant.view.swing.continuous.ContinuousViewTrack;
 import savant.view.swing.interval.BAMCoverageViewTrack;
 import savant.view.swing.interval.BAMViewTrack;
@@ -110,16 +111,14 @@ public class TrackFactory {
                 }
 
                 // TODO: Only resolves coverage files for local data.  Should also work for network URIs.
-                if (trackURI.getScheme().equals("file")) {
-                    File coverageFile = new File(new URI(trackURI.toString() + ".cov.savant"));
-
-                    if (coverageFile.exists()) {
-                        ds = new GenericContinuousFileDataSource(coverageFile.toURI());
-                        viewTrack = new BAMCoverageViewTrack((GenericContinuousFileDataSource) ds);
-                    } else {
-                        //FIXME: this should not happen! plugins expect tracks to contain data, and not be vacuous
-                        viewTrack = new BAMCoverageViewTrack(MiscUtils.getNeatPathFromURI(trackURI) + " (coverage)", null);
-                    }
+                viewTrack = null;
+                URI coverageURI = new URI(trackURI.toString() + ".cov.savant");
+                if (NetworkUtils.exists(coverageURI)) {
+                    ds = new GenericContinuousFileDataSource(coverageURI);
+                    viewTrack = new BAMCoverageViewTrack((GenericContinuousFileDataSource) ds);
+                } else {
+                    // Coverage file is missing.  Always the case for remote tracks.
+                    viewTrack = new BAMCoverageViewTrack(MiscUtils.getNeatPathFromURI(trackURI) + " (coverage)", null);
                 }
             } catch (IOException e) {
                 LOG.warn("Could not load coverage track", e);

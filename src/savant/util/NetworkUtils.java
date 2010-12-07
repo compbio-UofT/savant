@@ -43,6 +43,20 @@ public class NetworkUtils {
     private static final Log LOG = LogFactory.getLog(NetworkUtils.class);
 
     /**
+     * Given a URI, determine whether it exists or not.
+     */
+    public static boolean exists(URI uri) {
+        try {
+            if (uri.getScheme().equals("file")) {
+                return new File(uri).exists();
+            }
+            return getHash(uri.toURL()) != null;
+        } catch (Exception x) {
+            return false;
+        }
+    }
+
+    /**
      * Get a unique hash representing the contents of this file.  For an HTTP server,
      * this will be the ETag returned in the header; for FTP servers, we create a
      * hash based on the size and modification time.

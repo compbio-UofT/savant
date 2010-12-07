@@ -76,7 +76,7 @@ public class BAMCoverageViewTrack extends ViewTrack {
 
             // FIXME: another nasty hack to accommodate coverage
             if (getDataSource() == null && isEnabled() && (r == Resolution.LOW || r == Resolution.VERY_LOW || r == Resolution.MEDIUM)) {
-                renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.MESSAGE, "No coverage file available");
+                renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.MESSAGE, "no coverage file available");
                 renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.AXIS_RANGE, AxisRange.initWithRanges(range, getDefaultYRange()));
             }
             else if (isEnabled() && (r == Resolution.LOW || r == Resolution.VERY_LOW || r == Resolution.MEDIUM)) {
