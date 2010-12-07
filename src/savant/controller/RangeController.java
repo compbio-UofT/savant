@@ -159,6 +159,8 @@ public class RangeController {
         Savant.getInstance().updateRange();
 
         fireRangeChangedEvent();
+
+        System.gc();
     }
 
     public synchronized void fireRangeChangeCompletedEvent() {

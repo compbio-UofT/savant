@@ -105,7 +105,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
     private JButton goButton;
     private ToolsModule savantTools;
     private static boolean showNonGenomicReferenceDialog = true;
-    private static boolean showBookmarksChangedDialog = true;
+    private static boolean showBookmarksChangedDialog = false; // turned off, its kind of annoying
     public static final String os = System.getProperty("os.name").toLowerCase();
     public static final boolean mac = os.contains("mac");
     public static final int osSpecificModifier = (mac ? java.awt.event.InputEvent.META_MASK : java.awt.event.InputEvent.CTRL_MASK);
