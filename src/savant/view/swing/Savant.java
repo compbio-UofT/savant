@@ -2013,16 +2013,16 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
 
         JButton button_redo = new JButton("");
         /////////
-        button_redo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/savant/images/redo.png")));
-        button_redo.setBorder(null);
-        button_redo.setBorderPainted(false);
-        button_redo.setContentAreaFilled(false);
-        button_redo.setFocusPainted(false);
+        button_redo.setIcon(SavantIconFactory.getInstance().getIcon(SavantIconFactory.StandardIcon.REDO));
+        //button_redo.setBorder(null);
+        //button_redo.setBorderPainted(false);
+        //button_redo.setContentAreaFilled(false);
+        //button_redo.setFocusPainted(false);
+        button_redo.putClientProperty( "JButton.buttonType", "segmentedTextured" );
+        button_redo.putClientProperty( "JButton.segmentPosition", "last" );
         button_redo.setPreferredSize(iconDimension);
         button_redo.setMinimumSize(iconDimension);
         button_redo.setMaximumSize(iconDimension);
-        button_redo.setPressedIcon(new javax.swing.ImageIcon(getClass().getResource("/savant/images/redo_down.png")));
-        button_redo.setRolloverIcon(new javax.swing.ImageIcon(getClass().getResource("/savant/images/redo_over.png")));
         /////////
         button_redo.setToolTipText("Redo range change (" + shortcutMod + "+Y)");
         button_redo.addActionListener(new ActionListener() {
@@ -2034,9 +2034,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         });
         p.add(button_redo);
 
-
-        button_redo.putClientProperty( "JButton.buttonType", "segmentedTextured" );
-        button_redo.putClientProperty( "JButton.segmentPosition", "last" );
+        
 
         p.add(this.getRigidPadding());
         p.add(this.getRigidPadding());
