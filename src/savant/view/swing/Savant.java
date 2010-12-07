@@ -44,6 +44,7 @@ import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import javax.swing.border.EtchedBorder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jdom.JDOMException;
@@ -1795,7 +1796,13 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
 
         Dimension comboboxDimension = new Dimension(150, 23);
-        Dimension iconDimension = new Dimension(50, 23);
+        Dimension iconDimension = null;
+
+        if (mac) {
+            iconDimension = new Dimension(50, 23);
+        } else {
+            iconDimension = new Dimension(30, 40);
+        }
 
         String shortcutMod;
         if (mac) {
@@ -1986,26 +1993,20 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         p.add(Box.createGlue());
 
         JButton button_undo = new JButton("");
-        /////////
         button_undo.setIcon(SavantIconFactory.getInstance().getIcon(SavantIconFactory.StandardIcon.UNDO));
-        /////////
         button_undo.setToolTipText("Undo range change (" + shortcutMod + "+Z)");
         button_undo.addActionListener(new ActionListener() {
-
             @Override
             public void actionPerformed(ActionEvent e) {
                 RangeController.getInstance().undoRangeChange();
             }
         });
-
         if (mac) {
             button_undo.putClientProperty( "JButton.buttonType", buttonStyle );
             button_undo.putClientProperty( "JButton.segmentPosition", "first" );
         } else {
             button_undo.setBorder(null);
             button_undo.setBorderPainted(false);
-            button_undo.setContentAreaFilled(false);
-            button_undo.setFocusPainted(false);
             button_undo.setPreferredSize(iconDimension);
             button_undo.setMinimumSize(iconDimension);
             button_undo.setMaximumSize(iconDimension);
@@ -2013,38 +2014,29 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
 
         p.add(button_undo);
 
-        if (!mac) {
-            p.add(this.getRigidPadding());
-        }
 
-        JButton button_redo = new JButton("");
-        /////////
-        button_redo.setIcon(SavantIconFactory.getInstance().getIcon(SavantIconFactory.StandardIcon.REDO));
-        if (mac) {
-            button_redo.putClientProperty( "JButton.buttonType", buttonStyle );
-            button_redo.putClientProperty( "JButton.segmentPosition", "last" );
-        } else {
-            button_redo.setBorder(null);
-            button_redo.setBorderPainted(false);
-            button_redo.setContentAreaFilled(false);
-            button_redo.setFocusPainted(false);
-            button_redo.setPreferredSize(iconDimension);
-            button_redo.setMinimumSize(iconDimension);
-            button_redo.setMaximumSize(iconDimension);
-        }
-        
-        /////////
-        button_redo.setToolTipText("Redo range change (" + shortcutMod + "+Y)");
-        button_redo.addActionListener(new ActionListener() {
-
+        JButton redo = new JButton("");
+        redo.setIcon(SavantIconFactory.getInstance().getIcon(SavantIconFactory.StandardIcon.REDO));
+        redo.setToolTipText("Redo range change (" + shortcutMod + "+Y)");
+        redo.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 RangeController.getInstance().redoRangeChange();
             }
         });
-        p.add(button_redo);
+        if (mac) {
+            redo.putClientProperty( "JButton.buttonType", buttonStyle );
+            redo.putClientProperty( "JButton.segmentPosition", "last" );
+        } else {
+            redo.setBorder(null);
+            redo.setBorderPainted(false);
+            redo.setPreferredSize(iconDimension);
+            redo.setMinimumSize(iconDimension);
+            redo.setMaximumSize(iconDimension);
+        }
 
-        
+        p.add(redo);
+       
 
         p.add(this.getRigidPadding());
         p.add(this.getRigidPadding());
@@ -2058,8 +2050,8 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         } else {
             zoomIn.setBorder(null);
             zoomIn.setBorderPainted(false);
-            zoomIn.setContentAreaFilled(false);
-            zoomIn.setFocusPainted(false);
+           // zoomIn.setContentAreaFilled(false);
+           // zoomIn.setFocusPainted(false);
             zoomIn.setPreferredSize(iconDimension);
             zoomIn.setMinimumSize(iconDimension);
             zoomIn.setMaximumSize(iconDimension);
@@ -2076,9 +2068,33 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         });
 
         if (!mac) {
-            p.add(this.getRigidPadding());
+            //p.add(this.getRigidPadding());
         }
 
+        JButton zoomOut = new JButton("");
+        zoomOut.setIcon(SavantIconFactory.getInstance().getIcon(SavantIconFactory.StandardIcon.ZOOMOUT));
+        zoomOut.setToolTipText("Zoom out (Shift+Down)");
+        zoomOut.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                rangeController.zoomOut();
+            }
+        });
+        if (mac) {
+            zoomOut.putClientProperty( "JButton.buttonType", buttonStyle );
+            zoomOut.putClientProperty( "JButton.segmentPosition", "last" );
+        } else {
+            zoomOut.setBorder(null);
+            zoomOut.setBorderPainted(false);
+            zoomOut.setPreferredSize(iconDimension);
+            zoomOut.setMinimumSize(iconDimension);
+            zoomOut.setMaximumSize(iconDimension);
+        }
+
+        p.add(zoomOut);
+
+
+        /*
         JButton zoomOut = addButton(p, "");
         /////////
         zoomOut.setIcon(SavantIconFactory.getInstance().getIcon(SavantIconFactory.StandardIcon.ZOOMOUT));
@@ -2088,8 +2104,8 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         } else {
             zoomOut.setBorder(null);
             zoomOut.setBorderPainted(false);
-            zoomOut.setContentAreaFilled(false);
-            zoomOut.setFocusPainted(false);
+            //zoomOut.setContentAreaFilled(false);
+            //zoomOut.setFocusPainted(false);
             zoomOut.setPreferredSize(iconDimension);
             zoomOut.setMinimumSize(iconDimension);
         }
@@ -2101,7 +2117,9 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
             public void mouseClicked(MouseEvent e) {
                 rangeController.zoomOut();
             }
-        });
+
+         * 
+         */
 
         p.add(getRigidPadding());
         p.add(this.getRigidPadding());
@@ -2115,8 +2133,8 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         } else {
             shiftFarLeft.setBorder(null);
             shiftFarLeft.setBorderPainted(false);
-            shiftFarLeft.setContentAreaFilled(false);
-            shiftFarLeft.setFocusPainted(false);
+            //shiftFarLeft.setContentAreaFilled(false);
+            //shiftFarLeft.setFocusPainted(false);
             shiftFarLeft.setPreferredSize(iconDimension);
             shiftFarLeft.setMinimumSize(iconDimension);
         }
@@ -2134,7 +2152,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         });
 
         if (!mac) {
-            p.add(this.getRigidPadding());
+            //p.add(this.getRigidPadding());
         }
 
         JButton shiftLeft = addButton(p, "");
@@ -2146,8 +2164,8 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         } else {
             shiftLeft.setBorder(null);
             shiftLeft.setBorderPainted(false);
-            shiftLeft.setContentAreaFilled(false);
-            shiftLeft.setFocusPainted(false);
+            //shiftLeft.setContentAreaFilled(false);
+            //shiftLeft.setFocusPainted(false);
             shiftLeft.setPreferredSize(iconDimension);
             shiftLeft.setMinimumSize(iconDimension);
         }
@@ -2165,7 +2183,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         });
 
         if(!mac) {
-            p.add(this.getRigidPadding());
+            //p.add(this.getRigidPadding());
         }
 
         JButton shiftRight = addButton(p, "");
@@ -2177,8 +2195,8 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         } else {
             shiftRight.setBorder(null);
             shiftRight.setBorderPainted(false);
-            shiftRight.setContentAreaFilled(false);
-            shiftRight.setFocusPainted(false);
+            //shiftRight.setContentAreaFilled(false);
+            //shiftRight.setFocusPainted(false);
             shiftRight.setPreferredSize(iconDimension);
             shiftRight.setMinimumSize(iconDimension);
         }
@@ -2196,7 +2214,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         });
 
         if (!mac) {
-            p.add(this.getRigidPadding());
+            //p.add(this.getRigidPadding());
         }
 
         JButton shiftFarRight = addButton(p, "");
@@ -2209,8 +2227,8 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         } else {
             shiftFarRight.setBorder(null);
             shiftFarRight.setBorderPainted(false);
-            shiftFarRight.setContentAreaFilled(false);
-            shiftFarRight.setFocusPainted(false);
+            //shiftFarRight.setContentAreaFilled(false);
+            //shiftFarRight.setFocusPainted(false);
             shiftFarRight.setPreferredSize(iconDimension);
             shiftFarRight.setMinimumSize(iconDimension);
         }
@@ -2253,7 +2271,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         rangeControls.add(loadFromDataSourcePlugin);
         rangeControls.add(loadFromURLItem);
         rangeControls.add(button_undo);
-        rangeControls.add(button_redo);
+        rangeControls.add(redo);
         rangeControls.add(menuItemPanLeft);
         rangeControls.add(menuItemPanRight);
         rangeControls.add(menuItemZoomOut);

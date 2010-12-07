@@ -283,7 +283,7 @@ public class PluginController {
 
         if (!coreLocation.exists()) {
             LOG.error("Loading of core plugin failed.");
-            DialogUtils.displayError("Error initializing plugin loader. Please ensure " + this.coreLocation.getAbsolutePath() + " exists. Otherwise, please download a new copy of Savant");
+            DialogUtils.displayError("Error initializing plugin loader. Please ensure SavantCore.jar exists, or download a new copy of Savant");
             return;
         }
 
@@ -296,7 +296,7 @@ public class PluginController {
         coreExtPt = pluginManager.getRegistry().getExtensionPoint(core.getId(), corePt.getId());
 
         if (coreExtPt == null) {
-            DialogUtils.displayError("Error initializing plugin loader. Please ensure " + this.coreLocation.getAbsolutePath() + " exists. Otherwise, please download a new copy of Savant.");
+            DialogUtils.displayError("Error initializing plugin loader. Please ensure SavantCore.jar exists, or download a new copy of Savant");
             return;
         }
     }
