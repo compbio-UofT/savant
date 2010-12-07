@@ -1950,6 +1950,8 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
 
 
         goButton = addButton(p, "  Go  ");
+        goButton.putClientProperty( "JButton.buttonType", "segmentedTextured" );
+        goButton.putClientProperty( "JButton.segmentPosition", "only" );
         goButton.setToolTipText("Go to specified range (Enter)");
         goButton.addMouseListener(new MouseAdapter() {
 
@@ -2002,6 +2004,10 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
                 RangeController.getInstance().undoRangeChange();
             }
         });
+
+        button_undo.putClientProperty( "JButton.buttonType", "segmentedTextured" );
+        button_undo.putClientProperty( "JButton.segmentPosition", "first" );
+
         p.add(button_undo);
         p.add(this.getRigidPadding());
 
@@ -2028,6 +2034,10 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         });
         p.add(button_redo);
 
+
+        button_redo.putClientProperty( "JButton.buttonType", "segmentedTextured" );
+        button_redo.putClientProperty( "JButton.segmentPosition", "last" );
+
         p.add(this.getRigidPadding());
         p.add(this.getRigidPadding());
 
@@ -2042,6 +2052,9 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         zoomIn.setRolloverIcon(new javax.swing.ImageIcon(getClass().getResource("/savant/images/in_over.png")));
         /////////
         zoomIn.setToolTipText("Zoom in (Shift+Up)");
+
+
+
         zoomIn.setPreferredSize(iconDimension);
         zoomIn.setMinimumSize(iconDimension);
         zoomIn.setMaximumSize(iconDimension);

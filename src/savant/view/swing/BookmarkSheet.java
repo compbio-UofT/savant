@@ -16,6 +16,7 @@
 package savant.view.swing;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
@@ -82,6 +83,8 @@ public class BookmarkSheet implements BookmarksChangedListener /*, RangeChangedL
         JButton previousButton = new JButton();
         previousButton.setIcon(SavantIconFactory.getInstance().getIcon(SavantIconFactory.StandardIcon.UP));
         previousButton.setToolTipText("Go to previous bookmark");
+        previousButton.putClientProperty( "JButton.buttonType", "segmentedRoundRect" );
+        previousButton.putClientProperty( "JButton.segmentPosition", "first" );
         previousButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -94,6 +97,8 @@ public class BookmarkSheet implements BookmarksChangedListener /*, RangeChangedL
         JButton nextButton = new JButton();
         nextButton.setIcon(SavantIconFactory.getInstance().getIcon(SavantIconFactory.StandardIcon.DOWN));
         nextButton.setToolTipText("Go to next bookmark");
+        nextButton.putClientProperty( "JButton.buttonType", "segmentedRoundRect" );
+        nextButton.putClientProperty( "JButton.segmentPosition", "last" );
         nextButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -105,6 +110,8 @@ public class BookmarkSheet implements BookmarksChangedListener /*, RangeChangedL
 
         JButton goButton = new JButton("Go");
         goButton.setToolTipText("Go to selected bookmark");
+        goButton.putClientProperty( "JButton.buttonType", "segmentedRoundRect" );
+        goButton.putClientProperty( "JButton.segmentPosition", "only" );
         goButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -119,6 +126,8 @@ public class BookmarkSheet implements BookmarksChangedListener /*, RangeChangedL
         addButton = new JButton();
         addButton.setIcon(SavantIconFactory.getInstance().getIcon(SavantIconFactory.StandardIcon.BKMK_ADD));
         addButton.setToolTipText("Add bookmark for current range");
+        addButton.putClientProperty( "JButton.buttonType", "segmentedRoundRect" );
+        addButton.putClientProperty( "JButton.segmentPosition", "first" );
         addButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -131,6 +140,8 @@ public class BookmarkSheet implements BookmarksChangedListener /*, RangeChangedL
         JButton deleteButton = new JButton();
         deleteButton.setIcon(SavantIconFactory.getInstance().getIcon(SavantIconFactory.StandardIcon.BKMK_RM));
         deleteButton.setToolTipText("Delete selected bookmarks");
+        deleteButton.putClientProperty( "JButton.buttonType", "segmentedRoundRect" );
+        deleteButton.putClientProperty( "JButton.segmentPosition", "last" );
         deleteButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -178,6 +189,8 @@ public class BookmarkSheet implements BookmarksChangedListener /*, RangeChangedL
         JButton loadButton = new JButton();
         loadButton.setIcon(SavantIconFactory.getInstance().getIcon(SavantIconFactory.StandardIcon.OPEN));
         loadButton.setToolTipText("Load bookmarks from file");
+        loadButton.putClientProperty( "JButton.buttonType", "segmentedRoundRect" );
+        loadButton.putClientProperty( "JButton.segmentPosition", "first" );
         loadButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -189,6 +202,8 @@ public class BookmarkSheet implements BookmarksChangedListener /*, RangeChangedL
         JButton saveButton = new JButton();
         saveButton.setIcon(SavantIconFactory.getInstance().getIcon(SavantIconFactory.StandardIcon.SAVE));
         saveButton.setToolTipText("Save bookmarks to file");
+        saveButton.putClientProperty( "JButton.buttonType", "segmentedRoundRect" );
+        saveButton.putClientProperty( "JButton.segmentPosition", "last" );
         saveButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -199,8 +214,10 @@ public class BookmarkSheet implements BookmarksChangedListener /*, RangeChangedL
 
         // create a table (the most important component)
         table = new JTable(new BookmarksTableModel());
-        table.setAutoCreateRowSorter(true);
+        //table.setAutoCreateRowSorter(true);
         table.setFillsViewportHeight(true);
+        table.setShowGrid(true);
+        table.setGridColor(Color.gray);
         //table.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
 
         // add the table and its header to the subpanel
