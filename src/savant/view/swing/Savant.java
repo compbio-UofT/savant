@@ -1785,6 +1785,8 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
 
     private void initBrowseMenu() {
 
+        String buttonStyle = "segmentedTextured";
+
         this.menuPanel = new JPanel();
         this.panelExtendedMiddle.setLayout(new BorderLayout());
         this.panelExtendedMiddle.add(menuPanel);
@@ -1793,7 +1795,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
 
         Dimension comboboxDimension = new Dimension(150, 23);
-        Dimension iconDimension = new Dimension(23, 23);
+        Dimension iconDimension = new Dimension(50, 23);
 
         String shortcutMod;
         if (mac) {
@@ -1950,7 +1952,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
 
 
         goButton = addButton(p, "  Go  ");
-        goButton.putClientProperty( "JButton.buttonType", "segmentedTextured" );
+        goButton.putClientProperty( "JButton.buttonType", buttonStyle );
         goButton.putClientProperty( "JButton.segmentPosition", "only" );
         goButton.setToolTipText("Go to specified range (Enter)");
         goButton.addMouseListener(new MouseAdapter() {
@@ -1985,16 +1987,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
 
         JButton button_undo = new JButton("");
         /////////
-        button_undo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/savant/images/undo.png")));
-        button_undo.setBorder(null);
-        button_undo.setBorderPainted(false);
-        button_undo.setContentAreaFilled(false);
-        button_undo.setFocusPainted(false);
-        button_undo.setPreferredSize(iconDimension);
-        button_undo.setMinimumSize(iconDimension);
-        button_undo.setMaximumSize(iconDimension);
-        button_undo.setPressedIcon(new javax.swing.ImageIcon(getClass().getResource("/savant/images/undo_down.png")));
-        button_undo.setRolloverIcon(new javax.swing.ImageIcon(getClass().getResource("/savant/images/undo_over.png")));
+        button_undo.setIcon(SavantIconFactory.getInstance().getIcon(SavantIconFactory.StandardIcon.UNDO));
         /////////
         button_undo.setToolTipText("Undo range change (" + shortcutMod + "+Z)");
         button_undo.addActionListener(new ActionListener() {
@@ -2005,24 +1998,41 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
             }
         });
 
-        button_undo.putClientProperty( "JButton.buttonType", "segmentedTextured" );
-        button_undo.putClientProperty( "JButton.segmentPosition", "first" );
+        if (mac) {
+            button_undo.putClientProperty( "JButton.buttonType", buttonStyle );
+            button_undo.putClientProperty( "JButton.segmentPosition", "first" );
+        } else {
+            button_undo.setBorder(null);
+            button_undo.setBorderPainted(false);
+            button_undo.setContentAreaFilled(false);
+            button_undo.setFocusPainted(false);
+            button_undo.setPreferredSize(iconDimension);
+            button_undo.setMinimumSize(iconDimension);
+            button_undo.setMaximumSize(iconDimension);
+        }
 
         p.add(button_undo);
-        p.add(this.getRigidPadding());
+
+        if (!mac) {
+            p.add(this.getRigidPadding());
+        }
 
         JButton button_redo = new JButton("");
         /////////
         button_redo.setIcon(SavantIconFactory.getInstance().getIcon(SavantIconFactory.StandardIcon.REDO));
-        //button_redo.setBorder(null);
-        //button_redo.setBorderPainted(false);
-        //button_redo.setContentAreaFilled(false);
-        //button_redo.setFocusPainted(false);
-        button_redo.putClientProperty( "JButton.buttonType", "segmentedTextured" );
-        button_redo.putClientProperty( "JButton.segmentPosition", "last" );
-        button_redo.setPreferredSize(iconDimension);
-        button_redo.setMinimumSize(iconDimension);
-        button_redo.setMaximumSize(iconDimension);
+        if (mac) {
+            button_redo.putClientProperty( "JButton.buttonType", buttonStyle );
+            button_redo.putClientProperty( "JButton.segmentPosition", "last" );
+        } else {
+            button_redo.setBorder(null);
+            button_redo.setBorderPainted(false);
+            button_redo.setContentAreaFilled(false);
+            button_redo.setFocusPainted(false);
+            button_redo.setPreferredSize(iconDimension);
+            button_redo.setMinimumSize(iconDimension);
+            button_redo.setMaximumSize(iconDimension);
+        }
+        
         /////////
         button_redo.setToolTipText("Redo range change (" + shortcutMod + "+Y)");
         button_redo.addActionListener(new ActionListener() {
@@ -2041,21 +2051,22 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
 
         JButton zoomIn = addButton(p, "");
         /////////
-        zoomIn.setIcon(new javax.swing.ImageIcon(getClass().getResource("/savant/images/in.png")));
-        zoomIn.setBorder(null);
-        zoomIn.setBorderPainted(false);
-        zoomIn.setContentAreaFilled(false);
-        zoomIn.setFocusPainted(false);
-        zoomIn.setPressedIcon(new javax.swing.ImageIcon(getClass().getResource("/savant/images/in_down.png")));
-        zoomIn.setRolloverIcon(new javax.swing.ImageIcon(getClass().getResource("/savant/images/in_over.png")));
+        zoomIn.setIcon(SavantIconFactory.getInstance().getIcon(SavantIconFactory.StandardIcon.ZOOMIN));
+        if (mac) {
+            zoomIn.putClientProperty( "JButton.buttonType", buttonStyle );
+            zoomIn.putClientProperty( "JButton.segmentPosition", "first" );
+        } else {
+            zoomIn.setBorder(null);
+            zoomIn.setBorderPainted(false);
+            zoomIn.setContentAreaFilled(false);
+            zoomIn.setFocusPainted(false);
+            zoomIn.setPreferredSize(iconDimension);
+            zoomIn.setMinimumSize(iconDimension);
+            zoomIn.setMaximumSize(iconDimension);
+        }
         /////////
         zoomIn.setToolTipText("Zoom in (Shift+Up)");
 
-
-
-        zoomIn.setPreferredSize(iconDimension);
-        zoomIn.setMinimumSize(iconDimension);
-        zoomIn.setMaximumSize(iconDimension);
         zoomIn.addMouseListener(new MouseAdapter() {
 
             @Override
@@ -2063,22 +2074,27 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
                 rangeController.zoomIn();
             }
         });
-        p.add(this.getRigidPadding());
+
+        if (!mac) {
+            p.add(this.getRigidPadding());
+        }
 
         JButton zoomOut = addButton(p, "");
         /////////
-        zoomOut.setIcon(new javax.swing.ImageIcon(getClass().getResource("/savant/images/out.png")));
-        zoomOut.setBorder(null);
-        zoomOut.setBorderPainted(false);
-        zoomOut.setContentAreaFilled(false);
-        zoomOut.setFocusPainted(false);
-        zoomOut.setPressedIcon(new javax.swing.ImageIcon(getClass().getResource("/savant/images/out_down.png")));
-        zoomOut.setRolloverIcon(new javax.swing.ImageIcon(getClass().getResource("/savant/images/out_over.png")));
+        zoomOut.setIcon(SavantIconFactory.getInstance().getIcon(SavantIconFactory.StandardIcon.ZOOMOUT));
+        if (mac) {
+            zoomOut.putClientProperty( "JButton.buttonType", buttonStyle );
+            zoomOut.putClientProperty( "JButton.segmentPosition", "last" );
+        } else {
+            zoomOut.setBorder(null);
+            zoomOut.setBorderPainted(false);
+            zoomOut.setContentAreaFilled(false);
+            zoomOut.setFocusPainted(false);
+            zoomOut.setPreferredSize(iconDimension);
+            zoomOut.setMinimumSize(iconDimension);
+        }
         /////////
         zoomOut.setToolTipText("Zoom out (Shift+Down)");
-        zoomOut.setPreferredSize(iconDimension);
-        zoomOut.setMinimumSize(iconDimension);
-        zoomOut.setMaximumSize(iconDimension);
         zoomOut.addMouseListener(new MouseAdapter() {
 
             @Override
@@ -2092,19 +2108,23 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
 
         JButton shiftFarLeft = addButton(p, "");
         /////////
-        shiftFarLeft.setIcon(new javax.swing.ImageIcon(getClass().getResource("/savant/images/leftfull.png")));
-        shiftFarLeft.setBorder(null);
-        shiftFarLeft.setBorderPainted(false);
-        shiftFarLeft.setContentAreaFilled(false);
-        shiftFarLeft.setFocusPainted(false);
-        shiftFarLeft.setPressedIcon(new javax.swing.ImageIcon(getClass().getResource("/savant/images/leftfull_down.png")));
-        shiftFarLeft.setRolloverIcon(new javax.swing.ImageIcon(getClass().getResource("/savant/images/leftfull_over.png")));
+        shiftFarLeft.setIcon(SavantIconFactory.getInstance().getIcon(SavantIconFactory.StandardIcon.SHIFT_FARLEFT));
+        if (mac) {
+            shiftFarLeft.putClientProperty( "JButton.buttonType", buttonStyle );
+            shiftFarLeft.putClientProperty( "JButton.segmentPosition", "first" );
+        } else {
+            shiftFarLeft.setBorder(null);
+            shiftFarLeft.setBorderPainted(false);
+            shiftFarLeft.setContentAreaFilled(false);
+            shiftFarLeft.setFocusPainted(false);
+            shiftFarLeft.setPreferredSize(iconDimension);
+            shiftFarLeft.setMinimumSize(iconDimension);
+        }
         /////////
         shiftFarLeft.setToolTipText("Move to the beginning of the genome (Home)");
         shiftFarLeft.setPreferredSize(iconDimension);
         shiftFarLeft.setMinimumSize(iconDimension);
         shiftFarLeft.setMaximumSize(iconDimension);
-
         shiftFarLeft.addMouseListener(new MouseAdapter() {
 
             @Override
@@ -2113,17 +2133,24 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
             }
         });
 
-        p.add(this.getRigidPadding());
+        if (!mac) {
+            p.add(this.getRigidPadding());
+        }
 
         JButton shiftLeft = addButton(p, "");
         /////////
-        shiftLeft.setIcon(new javax.swing.ImageIcon(getClass().getResource("/savant/images/left.png")));
-        shiftLeft.setBorder(null);
-        shiftLeft.setBorderPainted(false);
-        shiftLeft.setContentAreaFilled(false);
-        shiftLeft.setFocusPainted(false);
-        shiftLeft.setPressedIcon(new javax.swing.ImageIcon(getClass().getResource("/savant/images/left_down.png")));
-        shiftLeft.setRolloverIcon(new javax.swing.ImageIcon(getClass().getResource("/savant/images/left_over.png")));
+        shiftLeft.setIcon(SavantIconFactory.getInstance().getIcon(SavantIconFactory.StandardIcon.SHIFT_LEFT));
+        if (mac) {
+            shiftLeft.putClientProperty( "JButton.buttonType", buttonStyle );
+            shiftLeft.putClientProperty( "JButton.segmentPosition", "middle" );
+        } else {
+            shiftLeft.setBorder(null);
+            shiftLeft.setBorderPainted(false);
+            shiftLeft.setContentAreaFilled(false);
+            shiftLeft.setFocusPainted(false);
+            shiftLeft.setPreferredSize(iconDimension);
+            shiftLeft.setMinimumSize(iconDimension);
+        }
         /////////
         shiftLeft.setToolTipText("Move left (Shift+Left)");
         shiftLeft.setPreferredSize(iconDimension);
@@ -2137,17 +2164,24 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
             }
         });
 
-        p.add(this.getRigidPadding());
+        if(!mac) {
+            p.add(this.getRigidPadding());
+        }
 
         JButton shiftRight = addButton(p, "");
         /////////
-        shiftRight.setIcon(new javax.swing.ImageIcon(getClass().getResource("/savant/images/right.png")));
-        shiftRight.setBorder(null);
-        shiftRight.setBorderPainted(false);
-        shiftRight.setContentAreaFilled(false);
-        shiftRight.setFocusPainted(false);
-        shiftRight.setPressedIcon(new javax.swing.ImageIcon(getClass().getResource("/savant/images/right_down.png")));
-        shiftRight.setRolloverIcon(new javax.swing.ImageIcon(getClass().getResource("/savant/images/right_over.png")));
+        shiftRight.setIcon(SavantIconFactory.getInstance().getIcon(SavantIconFactory.StandardIcon.SHIFT_RIGHT));
+        if (mac) {
+            shiftRight.putClientProperty( "JButton.buttonType", buttonStyle );
+            shiftRight.putClientProperty( "JButton.segmentPosition", "middle" );
+        } else {
+            shiftRight.setBorder(null);
+            shiftRight.setBorderPainted(false);
+            shiftRight.setContentAreaFilled(false);
+            shiftRight.setFocusPainted(false);
+            shiftRight.setPreferredSize(iconDimension);
+            shiftRight.setMinimumSize(iconDimension);
+        }
         /////////
         shiftRight.setToolTipText("Move right (Shift+Right)");
         shiftRight.setPreferredSize(iconDimension);
@@ -2161,17 +2195,25 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
             }
         });
 
-        p.add(this.getRigidPadding());
+        if (!mac) {
+            p.add(this.getRigidPadding());
+        }
 
         JButton shiftFarRight = addButton(p, "");
         /////////
         shiftFarRight.setIcon(new javax.swing.ImageIcon(getClass().getResource("/savant/images/rightfull.png")));
-        shiftFarRight.setBorder(null);
-        shiftFarRight.setBorderPainted(false);
-        shiftFarRight.setContentAreaFilled(false);
-        shiftFarRight.setFocusPainted(false);
-        shiftFarRight.setPressedIcon(new javax.swing.ImageIcon(getClass().getResource("/savant/images/rightfull_down.png")));
-        shiftFarRight.setRolloverIcon(new javax.swing.ImageIcon(getClass().getResource("/savant/images/rightfull_over.png")));
+        shiftFarRight.setIcon(SavantIconFactory.getInstance().getIcon(SavantIconFactory.StandardIcon.SHIFT_FARRIGHT));
+        if (mac) {
+            shiftFarRight.putClientProperty( "JButton.buttonType", buttonStyle );
+            shiftFarRight.putClientProperty( "JButton.segmentPosition", "last" );
+        } else {
+            shiftFarRight.setBorder(null);
+            shiftFarRight.setBorderPainted(false);
+            shiftFarRight.setContentAreaFilled(false);
+            shiftFarRight.setFocusPainted(false);
+            shiftFarRight.setPreferredSize(iconDimension);
+            shiftFarRight.setMinimumSize(iconDimension);
+        }
         /////////
         shiftFarRight.setToolTipText("Move to the end of the genome (End)");
         shiftFarRight.setPreferredSize(iconDimension);
