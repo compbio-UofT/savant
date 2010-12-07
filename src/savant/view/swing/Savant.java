@@ -593,7 +593,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         panelExtendedMiddle.setLayout(panelExtendedMiddleLayout);
         panelExtendedMiddleLayout.setHorizontalGroup(
             panelExtendedMiddleLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 894, Short.MAX_VALUE)
+            .addGap(0, 979, Short.MAX_VALUE)
         );
         panelExtendedMiddleLayout.setVerticalGroup(
             panelExtendedMiddleLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -611,7 +611,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         panel_main.setLayout(panel_mainLayout);
         panel_mainLayout.setHorizontalGroup(
             panel_mainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 894, Short.MAX_VALUE)
+            .addGap(0, 979, Short.MAX_VALUE)
         );
         panel_mainLayout.setVerticalGroup(
             panel_mainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -627,7 +627,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         label_mouseposition.setText("mouse over track");
         toolbar_bottom.add(label_mouseposition);
 
-        jLabel1.setText("Status: ");
+        jLabel1.setText("Time: ");
         toolbar_bottom.add(jLabel1);
 
         label_status.setMaximumSize(new java.awt.Dimension(300, 14));
@@ -646,7 +646,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         panel_toolbar.setLayout(panel_toolbarLayout);
         panel_toolbarLayout.setHorizontalGroup(
             panel_toolbarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 894, Short.MAX_VALUE)
+            .addGap(0, 979, Short.MAX_VALUE)
         );
         panel_toolbarLayout.setVerticalGroup(
             panel_toolbarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1037,12 +1037,12 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(panel_top, javax.swing.GroupLayout.DEFAULT_SIZE, 894, Short.MAX_VALUE)
+            .addComponent(panel_top, javax.swing.GroupLayout.DEFAULT_SIZE, 979, Short.MAX_VALUE)
             .addGroup(layout.createSequentialGroup()
-                .addComponent(toolbar_bottom, javax.swing.GroupLayout.DEFAULT_SIZE, 882, Short.MAX_VALUE)
+                .addComponent(toolbar_bottom, javax.swing.GroupLayout.DEFAULT_SIZE, 959, Short.MAX_VALUE)
                 .addContainerGap())
-            .addComponent(panel_toolbar, javax.swing.GroupLayout.DEFAULT_SIZE, 894, Short.MAX_VALUE)
-            .addComponent(panel_main, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 894, Short.MAX_VALUE)
+            .addComponent(panel_toolbar, javax.swing.GroupLayout.DEFAULT_SIZE, 979, Short.MAX_VALUE)
+            .addComponent(panel_main, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 979, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)

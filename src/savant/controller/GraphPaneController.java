@@ -72,7 +72,7 @@ public class GraphPaneController {
             long elapsedTimeMillis = System.currentTimeMillis()-start;
             // Get elapsed time in seconds
             float elapsedTimeSec = elapsedTimeMillis/1000F;
-            Savant.getInstance().updateStatus("ready (took " + elapsedTimeSec + " s)");
+            Savant.getInstance().updateStatus("took " + elapsedTimeSec + " s");
             RangeController.getInstance().fireRangeChangeCompletedEvent();
         }
     }
