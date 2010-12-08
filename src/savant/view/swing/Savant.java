@@ -2703,10 +2703,8 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
     }
 
     private void makeGUIVisible() {
-        auxDockingManager.showInitial();
-        trackDockingManager.showInitial();
-
-        this.setExtendedState(this.getExtendedState() | this.MAXIMIZED_BOTH);
+        setExtendedState(MAXIMIZED_BOTH);
+        setVisible(true);
     }
 
     private boolean askIfTrackShouldBeLoadedAsGenome() {
