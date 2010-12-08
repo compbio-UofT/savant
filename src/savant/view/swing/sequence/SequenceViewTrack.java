@@ -121,7 +121,7 @@ public class SequenceViewTrack extends ViewTrack {
     }
 
     @Override
-    public void prepareForRendering(String reference, Range range) throws Throwable {
+    public void prepareForRendering(String reference, Range range) throws IOException {
 
         if (range == null) { return; }
 
@@ -131,7 +131,7 @@ public class SequenceViewTrack extends ViewTrack {
         if (r == Resolution.VERY_HIGH) {
             data = retrieveAndSaveData(reference, range);
         } else {
-            this.saveNullData();
+            saveNullData();
         }
 
         for (TrackRenderer renderer: getTrackRenderers()) {

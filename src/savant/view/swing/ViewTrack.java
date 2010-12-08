@@ -17,6 +17,7 @@ package savant.view.swing;
 
 import savant.exception.SavantTrackCreationCancelledException;
 import java.awt.Color;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JPanel;
@@ -30,7 +31,6 @@ import savant.controller.ViewTrackController;
 import savant.data.types.Genome;
 import savant.data.sources.*;
 import savant.data.types.Record;
-import savant.file.DataFormat;
 import savant.util.ColorScheme;
 import savant.util.Mode;
 import savant.util.Range;
@@ -317,9 +317,9 @@ public abstract class ViewTrack implements ViewTrackAdapter {
      * Prepare this view track to render the given range.
      *
      * @param range
-     * @throws Exception
+     * @throws IOException
      */
-    public abstract void prepareForRendering(String reference, Range range) throws Throwable;
+    public abstract void prepareForRendering(String reference, Range range) throws IOException;
 
     /**
      * Method which plugins can use to force the ViewTrack to repaint itself.
@@ -341,7 +341,7 @@ public abstract class ViewTrack implements ViewTrackAdapter {
      * @return a list of data objects in the given range
      * @throws Exception
      */
-    public List<Record> retrieveAndSaveData(String reference, Range range) throws Throwable {
+    public List<Record> retrieveAndSaveData(String reference, Range range) throws IOException {
         Resolution resolution = getResolution(range);
 
         /*
@@ -369,7 +369,7 @@ public abstract class ViewTrack implements ViewTrackAdapter {
      *
      * @throws Exception
      */
-    public void saveNullData() throws Throwable {
+    public void saveNullData() {
         this.dataInRange = null;
     }
 
@@ -381,7 +381,7 @@ public abstract class ViewTrack implements ViewTrackAdapter {
      * @return a List of data objects from the given range and resolution
      * @throws Exception
      */
-    public abstract List<Record> retrieveData(String reference, RangeAdapter range, Resolution resolution) throws Throwable;
+    public abstract List<Record> retrieveData(String reference, RangeAdapter range, Resolution resolution) throws IOException;
 
     /**
      * Add a renderer to this view track

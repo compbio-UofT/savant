@@ -125,7 +125,7 @@ public class IntervalViewTrack extends ViewTrack {
     }
 
     @Override
-    public void prepareForRendering(String reference, Range range) throws Throwable {
+    public void prepareForRendering(String reference, Range range) throws IOException {
 
         Resolution r = getResolution(range);
 

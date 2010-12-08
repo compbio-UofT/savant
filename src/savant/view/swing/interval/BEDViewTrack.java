@@ -1,4 +1,8 @@
 /*
+ * BEDViewTrack.java
+ * Created on Feb 19, 2010
+ *
+ *
  *    Copyright 2010 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,32 +18,24 @@
  *    limitations under the License.
  */
 
-/*
- * BEDViewTrack.java
- * Created on Feb 19, 2010
- */
-
 package savant.view.swing.interval;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import savant.data.sources.file.BEDFileDataSource;
-import savant.exception.SavantTrackCreationCancelledException;
-import savant.file.DataFormat;
-import savant.util.*;
-import savant.util.ColorScheme;
-import savant.util.DrawingInstructions;
-import savant.util.Mode;
-import savant.view.swing.TrackRenderer;
-import savant.view.swing.ViewTrack;
 
-import java.util.ArrayList;
-import java.util.List;
 import savant.api.adapter.ModeAdapter;
 import savant.api.adapter.RangeAdapter;
 import savant.data.sources.DataSource;
 import savant.data.types.Record;
+import savant.exception.SavantTrackCreationCancelledException;
 import savant.settings.ColourSettings;
+import savant.util.*;
+import savant.view.swing.TrackRenderer;
+import savant.view.swing.ViewTrack;
 
 /**
  * View track for a BED interval file (containing BED Interval Records)
@@ -48,7 +44,7 @@ import savant.settings.ColourSettings;
  */
 public class BEDViewTrack extends ViewTrack {
 
-    private static Log log = LogFactory.getLog(BEDViewTrack.class);   
+    private static Log LOG = LogFactory.getLog(BEDViewTrack.class);
 
     public enum DrawingMode {
         STANDARD,
@@ -68,7 +64,7 @@ public class BEDViewTrack extends ViewTrack {
 
 
     @Override
-    public void prepareForRendering(String reference, Range range) throws Throwable {
+    public void prepareForRendering(String reference, Range range) throws IOException {
         Resolution r = getResolution(range);
         List<Record> data = retrieveAndSaveData(reference, range);
         for (TrackRenderer renderer : getTrackRenderers()) {
@@ -86,7 +82,7 @@ public class BEDViewTrack extends ViewTrack {
 
 
     @Override
-    public List<Record> retrieveData(String reference, RangeAdapter range, Resolution resolution) throws Exception {
+    public List<Record> retrieveData(String reference, RangeAdapter range, Resolution resolution) throws IOException {
         return getDataSource().getRecords(reference, range, resolution);
     }
 

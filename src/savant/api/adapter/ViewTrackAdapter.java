@@ -16,12 +16,10 @@
 
 package savant.api.adapter;
 
-import java.net.URI;
 import java.util.List;
 import javax.swing.JPanel;
 import savant.data.sources.DataSource;
 import savant.data.types.Record;
-import savant.file.DataFormat;
 import savant.util.Resolution;
 
 /**
@@ -41,7 +39,7 @@ public interface ViewTrackAdapter {
     public void setColor(String name, Color color);
     public DrawingInstructions getDrawingInstructions() {
     public void setDrawingInstructions(DrawingInstructions di) {
-    public abstract List<Object> retrieveData(String reference, Range range, Resolution resolution) throws Throwable;
+    public abstract List<Object> retrieveData(String reference, Range range, Resolution resolution);
     public void addTrackRenderer(TrackRenderer renderer) {
     public List<TrackRenderer> getTrackRenderers() {
     public void setColorScheme(ColorScheme cs);

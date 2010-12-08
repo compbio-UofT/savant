@@ -16,13 +16,12 @@
 
 package savant.view.swing.point;
 
+import java.io.IOException;
 import java.util.List;
 import savant.api.adapter.RangeAdapter;
 import savant.data.sources.DataSource;
-import savant.data.sources.file.GenericPointFileDataSource;
 import savant.data.types.Record;
 import savant.exception.SavantTrackCreationCancelledException;
-import savant.file.DataFormat;
 import savant.settings.ColourSettings;
 import savant.util.AxisRange;
 import savant.util.ColorScheme;
@@ -73,12 +72,12 @@ public class PointViewTrack extends ViewTrack {
     }
 
     @Override
-    public List<Record> retrieveData(String reference, RangeAdapter range, Resolution resolution) throws Exception {
+    public List<Record> retrieveData(String reference, RangeAdapter range, Resolution resolution) throws IOException {
         return getDataSource().getRecords(reference, range, resolution);
     }
 
     @Override
-    public void prepareForRendering(String reference, Range range) throws Throwable {
+    public void prepareForRendering(String reference, Range range) throws IOException {
         Resolution r = getResolution(range);
 
         List<Record> data = null;

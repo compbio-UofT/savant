@@ -20,6 +20,7 @@
 
 package savant.view.swing.interval;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,12 +31,10 @@ import org.apache.commons.logging.LogFactory;
 import savant.api.adapter.ModeAdapter;
 import savant.api.adapter.RangeAdapter;
 import savant.controller.RangeController;
-import savant.data.sources.file.BAMFileDataSource;
 import savant.data.sources.DataSource;
 import savant.data.types.BAMIntervalRecord;
 import savant.data.types.Record;
 import savant.exception.SavantTrackCreationCancelledException;
-import savant.file.DataFormat;
 import savant.settings.ColourSettings;
 import savant.util.AxisRange;
 import savant.util.ColorScheme;
@@ -125,7 +124,7 @@ public class BAMViewTrack extends ViewTrack {
     }
 
     @Override
-    public void prepareForRendering(String reference, Range range) throws Throwable {
+    public void prepareForRendering(String reference, Range range) throws IOException {
 
         Resolution r = getResolution(range);
         List<Record> data = null;
@@ -195,7 +194,7 @@ public class BAMViewTrack extends ViewTrack {
     }
 
     @Override
-    public List<Record> retrieveData(String reference, RangeAdapter range, Resolution resolution) throws Throwable {
+    public List<Record> retrieveData(String reference, RangeAdapter range, Resolution resolution) throws IOException {
         return getDataSource().getRecords(reference, range, resolution);
     }
 

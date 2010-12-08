@@ -1,4 +1,8 @@
 /*
+ * BAMCoverageViewTrack.java
+ * Created on Mar 4, 2010
+ *
+ *
  *    Copyright 2010 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,13 +18,9 @@
  *    limitations under the License.
  */
 
-/*
- * BAMCoverageViewTrack.java
- * Created on Mar 4, 2010
- */
-
 package savant.view.swing.interval;
 
+import java.io.IOException;
 import java.util.List;
 
 import savant.api.adapter.ModeAdapter;
@@ -29,13 +29,13 @@ import savant.data.sources.file.GenericContinuousFileDataSource;
 import savant.data.types.ContinuousRecord;
 import savant.data.types.Record;
 import savant.exception.SavantTrackCreationCancelledException;
-import savant.file.DataFormat;
 import savant.settings.ColourSettings;
 import savant.util.*;
 import savant.util.ColorScheme;
 import savant.util.DrawingInstructions;
 import savant.view.swing.TrackRenderer;
 import savant.view.swing.ViewTrack;
+
 
 public class BAMCoverageViewTrack extends ViewTrack {
 
@@ -56,7 +56,7 @@ public class BAMCoverageViewTrack extends ViewTrack {
     }
 
     @Override
-    public void prepareForRendering(String reference, Range range) throws Throwable {
+    public void prepareForRendering(String reference, Range range) throws IOException {
 
         List<Record> data = null;
         Resolution r = getResolution(range);
@@ -99,7 +99,7 @@ public class BAMCoverageViewTrack extends ViewTrack {
     }
 
     @Override
-    public List<Record> retrieveData(String reference, RangeAdapter range, Resolution resolution) throws Throwable {
+    public List<Record> retrieveData(String reference, RangeAdapter range, Resolution resolution) throws IOException {
         return getDataSource().getRecords(reference, range, resolution);
     }
 

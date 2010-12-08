@@ -21,41 +21,39 @@
 
 package savant.view.swing.interval;
 
-import net.sf.samtools.Cigar;
-import net.sf.samtools.CigarElement;
-import net.sf.samtools.CigarOperator;
-import net.sf.samtools.SAMRecord;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import savant.controller.RangeController;
-import savant.data.types.BAMIntervalRecord;
-import savant.data.types.Genome;
-import savant.data.types.Interval;
-import savant.data.types.IntervalRecord;
-import savant.util.*;
-import savant.view.swing.GraphPane;
-import savant.view.swing.Savant;
-import savant.view.swing.TrackRenderer;
-import savant.view.swing.util.GlassMessagePane;
 
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Arc2D;
 import java.awt.geom.Rectangle2D;
-import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JPanel;
 import javax.swing.JViewport;
+
+import net.sf.samtools.Cigar;
+import net.sf.samtools.CigarElement;
+import net.sf.samtools.CigarOperator;
+import net.sf.samtools.SAMRecord;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import savant.controller.RangeController;
 import savant.controller.ReferenceController;
+import savant.data.types.BAMIntervalRecord;
+import savant.data.types.Genome;
+import savant.data.types.Interval;
+import savant.data.types.IntervalRecord;
 import savant.data.types.Record;
 import savant.file.DataFormat;
 import savant.settings.ColourSettings;
+import savant.util.*;
+import savant.view.swing.GraphPane;
+import savant.view.swing.Savant;
+import savant.view.swing.TrackRenderer;
+import savant.view.swing.util.GlassMessagePane;
 import savant.view.swing.interval.Pileup.Nucleotide;
 
 /**
@@ -65,7 +63,7 @@ import savant.view.swing.interval.Pileup.Nucleotide;
  */
 public class BAMTrackRenderer extends TrackRenderer {
     
-    private static Log log = LogFactory.getLog(BAMTrackRenderer.class);
+    private static Log LOG = LogFactory.getLog(BAMTrackRenderer.class);
 
     private static Font smallFont = new Font("Sans-Serif", Font.PLAIN, 10);
     private static Stroke oneStroke = new BasicStroke(1.0f);
@@ -140,7 +138,7 @@ public class BAMTrackRenderer extends TrackRenderer {
                         refSeq = genome.getSequence(ReferenceController.getInstance().getReferenceName(), range);
                     } catch (IOException e) {
                         // FIXME: this exception should be propagated to someone who can alert the user
-                        log.warn("Unable to read reference sequence");
+                        LOG.warn("Unable to read reference sequence");
                         return;
                     }
                 }
@@ -266,7 +264,6 @@ public class BAMTrackRenderer extends TrackRenderer {
                     g2.setColor(linecolor);
                     g2.draw(strand);
                 }
-
             }
         }
 
@@ -688,7 +685,7 @@ public class BAMTrackRenderer extends TrackRenderer {
             try {
                 updatePileupsFromSAMRecord(pileups, genome, sr, startPosition);
             } catch (IOException ex) {
-                Logger.getLogger(BAMTrackRenderer.class.getName()).log(Level.SEVERE, null, ex);
+                LOG.error("Unable to update pileups.", ex);
             }
         }
 
@@ -871,14 +868,8 @@ public class BAMTrackRenderer extends TrackRenderer {
 
     @Override
     public boolean hasHorizontalGrid() {
-        Mode drawMode = (Mode)getDrawingInstructions().getInstruction(DrawingInstructions.InstructionName.MODE);
-        String modeName = drawMode.getName();
-        if (modeName == "MATE_PAIRS") {
-            return true;
-        }
-        else {
-            return false;
-        }
+        Mode m = (Mode)getDrawingInstructions().getInstruction(DrawingInstructions.InstructionName.MODE);
+        return m.getName().equals("MATE_PAIRS");
     }
 
     @Override

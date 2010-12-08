@@ -50,11 +50,7 @@ import savant.settings.ColourSettings;
  */
 public class GraphPane extends JPanel implements KeyListener, MouseWheelListener, MouseListener, MouseMotionListener, GraphPaneChangeListener {
 
-    /**
-     * VARIABLES
-     */
-
-    private static Log log = LogFactory.getLog(GraphPane.class);
+    private static final Log LOG = LogFactory.getLog(GraphPane.class);
 
     private List<TrackRenderer> trackRenderers;
     private List<ViewTrack> tracks;
@@ -218,7 +214,6 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
     }
 
     public Dimension render(Graphics g, Range xRange, Range yRange) {
-
         double oldUnitHeight = unitHeight;
         long oldYMax = yMax;
 
@@ -673,10 +668,6 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
     }
 
     /**
-     * FRAME DIMENSIONS AND X AND Y AXIS
-     */
-
-    /**
      * Set the graph units for the horizontal axis
      *
      * @param r an X range
@@ -691,6 +682,10 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
         this.xMin = r.getFrom();
         this.xMax = r.getTo();
         setUnitWidth();
+    }
+
+    public Range getXRange() {
+        return new Range(xMin, xMax);
     }
 
     /**
@@ -1247,8 +1242,8 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
             // TODO: this needs to get done in a separate thread and then schedule the repaint for later
             bamViewTrack.prepareForRendering(ReferenceController.getInstance().getReferenceName() , RangeController.getInstance().getRange());
             repaint();
-        } catch (Throwable e) {
-            log.error("Unexpected exception while preparing to render track " + e.getMessage());
+        } catch (Exception e) {
+            LOG.error("Unexpected exception while preparing to render track " + e.getMessage());
         }
 
 
