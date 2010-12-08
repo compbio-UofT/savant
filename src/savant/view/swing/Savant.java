@@ -380,7 +380,8 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
      * Range Controls
      */
     /** Controls (buttons, text fields etc.) for chosing current viewable range */
-    private List<JComponent> rangeControls;
+    private List<JComponent> rangeControls = new ArrayList<JComponent>();
+;
     /** reference dropdown menu */
     private JComboBox referenceDropdown;
     /** From and To textboxes */
@@ -1977,47 +1978,50 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
 
         p.add(Box.createGlue());
 
-        JButton button_undo = new JButton("");
-        button_undo.setIcon(SavantIconFactory.getInstance().getIcon(SavantIconFactory.StandardIcon.UNDO));
-        button_undo.setToolTipText("Undo range change (" + shortcutMod + "+Z)");
-        button_undo.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                RangeController.getInstance().undoRangeChange();
+        double screenwidth = Toolkit.getDefaultToolkit().getScreenSize().getWidth();
+
+        if (screenwidth > 800) {
+            JButton button_undo = new JButton("");
+            button_undo.setIcon(SavantIconFactory.getInstance().getIcon(SavantIconFactory.StandardIcon.UNDO));
+            button_undo.setToolTipText("Undo range change (" + shortcutMod + "+Z)");
+            button_undo.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    RangeController.getInstance().undoRangeChange();
+                }
+            });
+            if (mac) {
+                button_undo.putClientProperty( "JButton.buttonType", buttonStyle );
+                button_undo.putClientProperty( "JButton.segmentPosition", "first" );
             }
-        });
-        if (mac) {
-            button_undo.putClientProperty( "JButton.buttonType", buttonStyle );
-            button_undo.putClientProperty( "JButton.segmentPosition", "first" );
-        }
-            button_undo.setPreferredSize(iconDimension);
-            button_undo.setMinimumSize(iconDimension);
-            button_undo.setMaximumSize(iconDimension);
-        
+                button_undo.setPreferredSize(iconDimension);
+                button_undo.setMinimumSize(iconDimension);
+                button_undo.setMaximumSize(iconDimension);
 
-        p.add(button_undo);
+            p.add(button_undo);
 
-
-        JButton redo = new JButton("");
-        redo.setIcon(SavantIconFactory.getInstance().getIcon(SavantIconFactory.StandardIcon.REDO));
-        redo.setToolTipText("Redo range change (" + shortcutMod + "+Y)");
-        redo.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                RangeController.getInstance().redoRangeChange();
+            JButton redo = new JButton("");
+            redo.setIcon(SavantIconFactory.getInstance().getIcon(SavantIconFactory.StandardIcon.REDO));
+            redo.setToolTipText("Redo range change (" + shortcutMod + "+Y)");
+            redo.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    RangeController.getInstance().redoRangeChange();
+                }
+            });
+            if (mac) {
+                redo.putClientProperty( "JButton.buttonType", buttonStyle );
+                redo.putClientProperty( "JButton.segmentPosition", "last" );
             }
-        });
-        if (mac) {
-            redo.putClientProperty( "JButton.buttonType", buttonStyle );
-            redo.putClientProperty( "JButton.segmentPosition", "last" );
-        }
-            redo.setPreferredSize(iconDimension);
-            redo.setMinimumSize(iconDimension);
-            redo.setMaximumSize(iconDimension);
-        
+                redo.setPreferredSize(iconDimension);
+                redo.setMinimumSize(iconDimension);
+                redo.setMaximumSize(iconDimension);
 
-        p.add(redo);
-       
+            p.add(redo);
+
+            rangeControls.add(button_undo);
+            rangeControls.add(redo);
+        }
 
         p.add(this.getRigidPadding());
         p.add(this.getRigidPadding());
@@ -2155,7 +2159,6 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
 
         p.add(this.getRigidPadding());
 
-        rangeControls = new ArrayList<JComponent>();
         rangeControls.add(reftext);
         rangeControls.add(referenceDropdown);
         rangeControls.add(fromtext);
@@ -2178,8 +2181,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         rangeControls.add(loadFromFileItem);
         rangeControls.add(loadFromDataSourcePlugin);
         rangeControls.add(loadFromURLItem);
-        rangeControls.add(button_undo);
-        rangeControls.add(redo);
+        
         rangeControls.add(menuItemPanLeft);
         rangeControls.add(menuItemPanRight);
         rangeControls.add(menuItemZoomOut);
