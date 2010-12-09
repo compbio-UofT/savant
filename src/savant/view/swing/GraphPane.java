@@ -217,11 +217,25 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
         double oldUnitHeight = unitHeight;
         long oldYMax = yMax;
 
+        Graphics2D g2d0 = (Graphics2D)g;
+        // Paint a gradient from top to bottom
+            GradientPaint gp0 = new GradientPaint(
+                0, 0, ColourSettings.getGraphPaneBackgroundTop(),
+                0, this.getHeight(), ColourSettings.getGraphPaneBackgroundBottom());
+
+            g2d0.setPaint( gp0 );
+            g2d0.fillRect( 0, 0, this.getWidth(), this.getHeight() );
+
         GraphPaneController gpc = GraphPaneController.getInstance();
         int x1 = MiscUtils.transformPositionToPixel(gpc.getMouseDragRange().getFrom(), this.getWidth(), new Range(this.xMin, this.xMax));
         int x2 = MiscUtils.transformPositionToPixel(gpc.getMouseDragRange().getTo(), this.getWidth(), new Range(this.xMin, this.xMax));
 
-        if (gpc.isPanning() && !this.isLocked()) { g.translate(x2-x1, 0); }
+        int shiftamount = x2-x1;
+        if (gpc.isPanning() && !this.isLocked()) { g.translate(shiftamount, 0); }
+
+
+        //if (this.mouseInside) {
+        //}
 
         long minYRange = Long.MAX_VALUE;
         long maxYRange = Long.MIN_VALUE;
@@ -322,6 +336,8 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
             }
             
             g3 = this.bufferedImage.createGraphics();
+            g3.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                        RenderingHints.VALUE_ANTIALIAS_ON);
             prevRange = RangeController.getInstance().getRange();
             prevSize = this.getSize();
             prevDrawMode = this.parentFrame.getTracks().get(0).getDrawMode();

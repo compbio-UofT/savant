@@ -145,7 +145,7 @@ public class SequenceTrackRenderer extends TrackRenderer {
                     Rectangle2D charRect = font.getStringBounds(base, g2.getFontRenderContext());
                     // center the font rectangle in the coloured sequence rectangle
                     charX = (float) (rect.getX() + (rect.getWidth() - charRect.getWidth())/2);
-                    charY = (float) (rect.getY() + charRect.getHeight() + (rect.getHeight() - charRect.getHeight())/2);
+                    charY = (float) ((rect.getHeight()-5)/2 + g.getFontMetrics().getAscent()/2);
                     // draw character
                     g2.setColor(Color.black);
                     g2.drawString(base, charX, charY);

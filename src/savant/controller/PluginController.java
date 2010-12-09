@@ -137,7 +137,7 @@ public class PluginController {
             pluginManager.publishPlugins(locs);
             if (!activatePublishedPlugin()) {
                 LOG.warn("Unable to load plugin: " + pluginLocation.getAbsolutePath());
-                int result = DialogUtils.askYesNo("Unable to load plugin at " + pluginLocation.getAbsolutePath() + ". Please check if it is compatible with this version of Savant. Uninstall it?");
+                int result = DialogUtils.askYesNo("Unable to load plugin at " + pluginLocation.getAbsolutePath() + ".\nPlease check if it is compatible with this version of Savant.\nUninstall it?");
                 if (result == DialogUtils.YES) {
                     this.queuePluginForUnInstallation(pluginLocation);
                 }
@@ -232,8 +232,10 @@ public class PluginController {
                     oneLoaded = true;
                 } catch (java.lang.Error e) {
                     this.addToIgnoredBadPlugin(ext.getDeclaringPluginDescriptor());
+                    LOG.error(e);
                     error = true;
                 } catch (Exception e) {
+                    LOG.error(e);
                     this.addToIgnoredBadPlugin(ext.getDeclaringPluginDescriptor());
                     error = true;
                 }
