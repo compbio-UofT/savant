@@ -92,9 +92,12 @@ public class DataSheet implements RangeChangeCompletedListener, ViewTrackListCha
                 }
             }
         });
+        /*
         trackList.setMinimumSize(new Dimension(100,100));
         trackList.setMaximumSize(new Dimension(500,500));
         trackList.setPreferredSize(new Dimension(300,300));
+         * 
+         */
         trackList.setBackground(Color.lightGray);
         toolbar.add(trackList);
 
