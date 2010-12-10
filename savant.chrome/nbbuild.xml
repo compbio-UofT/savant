@@ -7,7 +7,7 @@
 <!-- the Compile on Save feature is turned off for the project. -->
 <!-- You can turn off the Compile on Save (or Deploy on Save) setting -->
 <!-- in the project's Project Properties dialog box.-->
-<project name="savant.data" default="default" basedir=".">
+<project name="savant.chromw" default="default" basedir=".">
     <description>Builds, tests, and runs the project savant.data.</description>
     <import file="nbproject/build-impl.xml"/>
     <!--
@@ -77,7 +77,12 @@
     </target>
 
     <target name="-post-jar">
+        <jar jarfile="${dist.jar}-all">
+            <zipfileset src="${dist.jar}" excludes="META-INF/*" />
+            <zipfileset src="lib/biojava.jar" excludes="META-INF/*" />
+        </jar>
         <delete dir="${dist.dir}/lib"/>
+        <move file="${dist.jar}-all" tofile="${dist.jar}"/>
     </target>
 
 </project>
