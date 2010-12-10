@@ -16,18 +16,6 @@
 
 package savant.view.swing;
 
-import savant.selection.PopupThread;
-import savant.selection.PopupPanel;
-import com.jidesoft.popup.JidePopup;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import savant.controller.DrawModeController;
-import savant.controller.RangeController;
-import savant.controller.event.GraphPaneChangeEvent;
-import savant.util.*;
-import savant.util.DrawingInstructions;
-import savant.view.swing.interval.BAMViewTrack;
-import savant.view.swing.util.GlassMessagePane;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -36,13 +24,26 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import com.jidesoft.popup.JidePopup;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import savant.api.adapter.ModeAdapter;
+import savant.controller.DrawModeController;
+import savant.controller.RangeController;
 import savant.controller.GraphPaneController;
 import savant.controller.ReferenceController;
+import savant.controller.event.GraphPaneChangeEvent;
 import savant.controller.event.GraphPaneChangeListener;
 import savant.data.types.GenericContinuousRecord;
 import savant.data.types.Record;
+import savant.selection.PopupThread;
+import savant.selection.PopupPanel;
 import savant.settings.ColourSettings;
+import savant.util.*;
+import savant.view.swing.interval.BAMTrack;
+import savant.view.swing.util.GlassMessagePane;
 
 /**
  *
@@ -53,7 +54,7 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
     private static final Log LOG = LogFactory.getLog(GraphPane.class);
 
     private List<TrackRenderer> trackRenderers;
-    private List<ViewTrack> tracks;
+    private List<Track> tracks;
     private Frame parentFrame;
 
     private int mouse_x = 0;
@@ -145,7 +146,7 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
         this.parentFrame = parent;
 
         trackRenderers = new ArrayList<TrackRenderer>();
-        tracks = new ArrayList<ViewTrack>();
+        tracks = new ArrayList<Track>();
         this.setDoubleBuffered(true);
         addMouseListener( this ); // listens for own mouse and
         addMouseMotionListener( this ); // mouse-motion events
@@ -189,9 +190,9 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
     /**
      * Add a view track to the graph pane
      *
-     * @param track - the ViewTrack to add
+     * @param track - the Track to add
      */
-    public void addTrack(ViewTrack track) {
+    public void addTrack(Track track) {
         tracks.add(track);
     }
 
@@ -1237,7 +1238,7 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
      * MODE SWITCHING
      */
 
-    private void switchMode(final ViewTrack track, final Mode mode) {
+    private void switchMode(final Track track, final Mode mode) {
 
         DrawModeController.getInstance().switchMode(track, mode);
         
@@ -1251,12 +1252,12 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
 
     }
 
-    public void getBAMParams(BAMViewTrack bamViewTrack) {
+    public void getBAMParams(BAMTrack bamTrack) {
         // capture parameters needed to adjust display
-        ViewTrack.captureBAMDisplayParameters(bamViewTrack);
+        Track.captureBAMDisplayParameters(bamTrack);
         try {
             // TODO: this needs to get done in a separate thread and then schedule the repaint for later
-            bamViewTrack.prepareForRendering(ReferenceController.getInstance().getReferenceName() , RangeController.getInstance().getRange());
+            bamTrack.prepareForRendering(ReferenceController.getInstance().getReferenceName() , RangeController.getInstance().getRange());
             repaint();
         } catch (Exception e) {
             LOG.error("Unexpected exception while preparing to render track " + e.getMessage());

@@ -22,7 +22,7 @@
 package savant.controller.event;
 
 import savant.util.Mode;
-import savant.view.swing.ViewTrack;
+import savant.view.swing.Track;
 
 /**
  * Event to signify that a view track has changed its drawing mode.
@@ -31,17 +31,17 @@ import savant.view.swing.ViewTrack;
  */
 public class DrawModeChangedEvent {
 
-    private ViewTrack viewTrack;
+    private Track track;
     private Mode mode;
 
-    public DrawModeChangedEvent(ViewTrack viewTrack, Mode mode) {
-        this.viewTrack = viewTrack;
+    public DrawModeChangedEvent(Track track, Mode mode) {
+        this.track = track;
         this.mode = mode;
 
     }
 
-    public ViewTrack getViewTrack() {
-        return viewTrack;
+    public Track getTrack() {
+        return track;
     }
 
     public Mode getMode() {

@@ -16,21 +16,24 @@
 
 package savant.view.swing;
 
-import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import javax.swing.*;
 
 import com.jidesoft.action.CommandBar;
 import com.jidesoft.docking.DockableFrame;
 import com.jidesoft.swing.JideButton;
 import com.jidesoft.swing.JideMenu;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import savant.api.adapter.ModeAdapter;
 import savant.controller.ReferenceController;
@@ -42,24 +45,25 @@ import savant.settings.ColourSettings;
 import savant.util.DrawingInstructions;
 import savant.util.Range;
 import savant.view.swing.continuous.ContinuousTrackRenderer;
-import savant.view.swing.interval.BAMCoverageViewTrack;
+import savant.view.swing.interval.BAMCoverageTrack;
 import savant.view.swing.interval.BAMTrackRenderer;
 import savant.view.swing.interval.BEDTrackRenderer;
 import savant.view.swing.interval.IntervalTrackRenderer;
 import savant.view.swing.point.PointTrackRenderer;
 import savant.view.swing.sequence.SequenceTrackRenderer;
-import savant.view.swing.interval.BAMViewTrack;
+import savant.view.swing.interval.BAMTrack;
 
 /**
  *
  * @author mfiume
  */
 public class Frame {
+    private static final Log LOG = LogFactory.getLog(Frame.class);
 
     private boolean isHidden = false;
     private GraphPane graphPane;
     private JLayeredPane frameLandscape;
-    private List<ViewTrack> tracks;
+    private List<Track> tracks;
     private boolean isLocked;
     private Range currentRange;
 
@@ -87,20 +91,20 @@ public class Frame {
 
     public GraphPane getGraphPane() { return this.graphPane; }
     public JComponent getFrameLandscape() { return this.frameLandscape; }
-    public final List<ViewTrack> getTracks() { return this.tracks; }
+    public final List<Track> getTracks() { return this.tracks; }
 
     public boolean isOpen() { return getGraphPane() != null; }
 
     //public Frame(JComponent frameLandscape) { this((JLayeredPane)frameLandscape, null, null); }
 
-    //public Frame(JComponent frameLandscape, List<ViewTrack> tracks, String name) { this((JLayeredPane)frameLandscape, tracks, new ArrayList<TrackRenderer>(), name); }
+    //public Frame(JComponent frameLandscape, List<Track> tracks, String name) { this((JLayeredPane)frameLandscape, tracks, new ArrayList<TrackRenderer>(), name); }
 
-    //public Frame(JLayeredPane frameLandscape, List<ViewTrack> tracks, List<TrackRenderer> renderers, String name)
+    //public Frame(JLayeredPane frameLandscape, List<Track> tracks, List<TrackRenderer> renderers, String name)
 
 
-    public Frame(List<ViewTrack> tracks, String name) {this(tracks, new ArrayList<TrackRenderer>(), name); }
+    public Frame(List<Track> tracks, String name) {this(tracks, new ArrayList<TrackRenderer>(), name); }
 
-    public Frame(List<ViewTrack> tracks, List<TrackRenderer> renderers, String name)
+    public Frame(List<Track> tracks, List<TrackRenderer> renderers, String name)
     {
 
         this.name = name;
@@ -110,7 +114,7 @@ public class Frame {
         arcLegend.setVisible(false);
 
         isLocked = false;
-        this.tracks = new ArrayList<ViewTrack>();
+        this.tracks = new ArrayList<Track>();
         this.frameLandscape = new JLayeredPane();
         initGraph();
 
@@ -121,7 +125,7 @@ public class Frame {
         scrollPane.setBorder(null);
 
         //hide commandBar while scrolling
-        MouseListener ml = new MouseAdapter(){
+        MouseAdapter ml = new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
                 tempHideCommands();
@@ -157,9 +161,9 @@ public class Frame {
 
         if (!tracks.isEmpty()) {
             int i=0;
-            Iterator<ViewTrack> it = tracks.iterator();
+            Iterator<Track> it = tracks.iterator();
             while ( it.hasNext()) {
-                ViewTrack track = (ViewTrack)it.next();
+                Track track = (Track)it.next();
                 // FIXME:
                 track.setFrame(this);
                 TrackRenderer renderer=null;
@@ -355,17 +359,14 @@ public class Frame {
         JideButton button = new JideButton();
         button.setIcon(new javax.swing.ImageIcon(getClass().getResource("/savant/images/arrow_left.png")));
         button.setToolTipText("Hide this toolbar");
-        button.addMouseListener(new MouseListener() {
-            public void mouseClicked(MouseEvent e) {
+        button.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
                 commandBar.setVisible(false);
                 commandBarHidden.setVisible(true);
                 commandBarActive = false;
                 ((JideButton)commandBarHidden.getComponent(commandBarHidden.getComponentCount()-1)).setFocusPainted(false);
             }
-            public void mousePressed(MouseEvent e) {}
-            public void mouseReleased(MouseEvent e) {}
-            public void mouseEntered(MouseEvent e) {}
-            public void mouseExited(MouseEvent e) {}
         });
         button.setFocusPainted(false);
         return button;
@@ -383,16 +384,13 @@ public class Frame {
         JLabel l2 = new JLabel(new javax.swing.ImageIcon(getClass().getResource("/savant/images/arrow_right.png")));
         button.add(l2, BorderLayout.EAST);
         button.setToolTipText("Show the toolbar");
-        button.addMouseListener(new MouseListener() {
-            public void mouseClicked(MouseEvent e) {
+        button.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
                 commandBar.setVisible(true);
                 commandBarHidden.setVisible(false);
                 commandBarActive = true;
             }
-            public void mousePressed(MouseEvent e) {}
-            public void mouseReleased(MouseEvent e) {}
-            public void mouseEntered(MouseEvent e) {}
-            public void mouseExited(MouseEvent e) {}
         });
         button.setFocusPainted(false);
         return button;
@@ -405,14 +403,11 @@ public class Frame {
         //TODO: This is temporary until there is an options menu
         JideButton button = new JideButton("Colour Settings  ");
         button.setToolTipText("Change the colour scheme for this track");
-        button.addMouseListener(new MouseListener() {
-            public void mouseClicked(MouseEvent e) {
+        button.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
                 tracks.get(0).captureColorParameters();
             }
-            public void mousePressed(MouseEvent e) {}
-            public void mouseReleased(MouseEvent e) {}
-            public void mouseEntered(MouseEvent e) {}
-            public void mouseExited(MouseEvent e) {}
         });
         button.setFocusPainted(false);
         return button;
@@ -426,7 +421,8 @@ public class Frame {
         //JMenu menu = new JideMenu("Settings");
         JMenu menu = new JMenu("Settings");
         item = new JCheckBoxMenuItem("Lock Track");
-        item.addActionListener(new AbstractAction() {
+        item.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 graphPane.switchLocked();
             }
@@ -435,7 +431,8 @@ public class Frame {
 
         JMenuItem item1;
         item1 = new JMenuItem("Colour Settings...");
-        item1.addActionListener(new AbstractAction() {
+        item1.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 tracks.get(0).captureColorParameters();
             }
@@ -451,8 +448,9 @@ public class Frame {
         //TODO: This is temporary until there is an options menu
         JideButton button = new JideButton("Lock Track  ");
         button.setToolTipText("Prevent range changes on this track");
-        button.addMouseListener(new MouseListener() {
-            public void mouseClicked(MouseEvent e) {
+        button.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
                 JideButton button = new JideButton();
                 for(int i = 0; i < commandBar.getComponentCount(); i++){
                     if(commandBar.getComponent(i).getClass() == JideButton.class){
@@ -470,10 +468,6 @@ public class Frame {
                 graphPane.switchLocked();
                 resetLayers();
             }
-            public void mousePressed(MouseEvent e) {}
-            public void mouseReleased(MouseEvent e) {}
-            public void mouseEntered(MouseEvent e) {}
-            public void mouseExited(MouseEvent e) {}
         });
         button.setFocusPainted(false);
         return button;
@@ -485,7 +479,8 @@ public class Frame {
     private JMenu createInfoMenu() {
         JMenu menu = new JideMenu("Info");
         JMenuItem item = new JMenuItem("Track Info...");
-        item.addActionListener(new AbstractAction() {
+        item.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 //TODO
             }
@@ -501,15 +496,12 @@ public class Frame {
     private JMenu createArcButton() {
         JMenu button = new JMenu("Arc Options");
         button.setToolTipText("Change mate pair parameters");
-        button.addMouseListener(new MouseListener() {
-            public void mouseClicked(MouseEvent e) {
-                final BAMViewTrack innerTrack = (BAMViewTrack)tracks.get(0);
+        button.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                final BAMTrack innerTrack = (BAMTrack)tracks.get(0);
                 graphPane.getBAMParams(innerTrack);
             }
-            public void mousePressed(MouseEvent e) {}
-            public void mouseReleased(MouseEvent e) {}
-            public void mouseEntered(MouseEvent e) {}
-            public void mouseExited(MouseEvent e) {}
         });
         button.setFocusPainted(false);
         return button;
@@ -521,14 +513,11 @@ public class Frame {
     private JMenu createIntervalButton() {
         JMenu button = new JMenu("Interval Options");
         button.setToolTipText("Change interval display parameters");
-        button.addMouseListener(new MouseListener() {
-            public void mouseClicked(MouseEvent e) {
+        button.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
                 tracks.get(0).captureIntervalParameters();
             }
-            public void mousePressed(MouseEvent e) {}
-            public void mouseReleased(MouseEvent e) {}
-            public void mouseEntered(MouseEvent e) {}
-            public void mouseExited(MouseEvent e) {}
         });
         button.setFocusPainted(false);
         return button;
@@ -585,7 +574,7 @@ public class Frame {
             menu.add(arcParam);
             arcParam.addActionListener(new AbstractAction() {
                 public void actionPerformed(ActionEvent e) {
-                    final BAMViewTrack innerTrack = (BAMViewTrack)tracks.get(0);
+                    final BAMTrack innerTrack = (BAMTrack)tracks.get(0);
                     graphPane.getBAMParams(innerTrack);
                 }
             });
@@ -598,7 +587,8 @@ public class Frame {
         visItems = new ArrayList<JCheckBoxMenuItem>();
         for(int i = 0; i < drawModes.size(); i++){
             final JCheckBoxMenuItem item = new JCheckBoxMenuItem(drawModes.get(i).getName());
-            item.addActionListener(new AbstractAction() {
+            item.addActionListener(new ActionListener() {
+                @Override
                 public void actionPerformed(ActionEvent e) {
                     if(item.getState()){
                         for(int j = 0; j < visItems.size(); j++){
@@ -626,7 +616,7 @@ public class Frame {
      * @param track The track to add
      * @param renderer to add for this track; if null, add default renderer for data type
      */
-    public void addTrack(ViewTrack track, TrackRenderer renderer) {
+    public void addTrack(Track track, TrackRenderer renderer) {
         tracks.add(track);
 
         if (renderer == null) {
@@ -663,12 +653,11 @@ public class Frame {
         renderer.getDrawingInstructions().addInstruction(
                 DrawingInstructions.InstructionName.TRACK_DATA_TYPE, df);
         track.addTrackRenderer(renderer);
-        GraphPane graphPane = getGraphPane();
         graphPane.addTrackRenderer(renderer);
         graphPane.addTrack(track);
     }
 
-    public void addTrack(ViewTrack track) {
+    public void addTrack(Track track) {
         addTrack(track, null);
     }
 
@@ -683,22 +672,22 @@ public class Frame {
     public void drawTracksInRange(String reference, Range range)
     {
         if (!isLocked()) { currentRange = range; }
-        if (this.graphPane.isLocked()) { return; }
+        if (graphPane.isLocked()) { return; }
 
         if (this.tracks.size() > 0) {
 
-            this.graphPane.setXRange(currentRange);
+            graphPane.setXRange(currentRange);
 
             try {
 
-                for (ViewTrack track : tracks) {
+                for (Track track : tracks) {
                     track.prepareForRendering(reference, range);
                 }
-                this.graphPane.repaint();
+                graphPane.repaint();
 
-            } catch (Throwable throwable) {
-                throwable.printStackTrace();
-                JOptionPane.showMessageDialog(graphPane, throwable.getMessage());
+            } catch (IOException iox) {
+                LOG.error("Error rendering track.", iox);
+                JOptionPane.showMessageDialog(graphPane, iox.getMessage());
             }
         }
         this.resetLayers();
@@ -730,11 +719,11 @@ public class Frame {
     // FIXME: this is a horrible kludge
     public void drawModeChanged(DrawModeChangedEvent evt) {
 
-        ViewTrack viewTrack = evt.getViewTrack();
+        Track track = evt.getTrack();
 
-//        if (getTracks().contains(viewTrack)) {
+//        if (getTracks().contains(track)) {
         boolean reRender = true;
-        if (viewTrack.getDataSource().getDataFormat() == DataFormat.INTERVAL_BAM) {
+        if (track.getDataSource().getDataFormat() == DataFormat.INTERVAL_BAM) {
             if (evt.getMode().getName().equals("MATE_PAIRS")) {
                 reRender = true;
                 setCoverageEnabled(false);
@@ -759,9 +748,9 @@ public class Frame {
 
     private void setCoverageEnabled(boolean enabled) {
 
-        for (ViewTrack track: getTracks()) {
-            if (track instanceof BAMCoverageViewTrack) {
-                ((BAMCoverageViewTrack) track).setEnabled(enabled);
+        for (Track track: getTracks()) {
+            if (track instanceof BAMCoverageTrack) {
+                ((BAMCoverageTrack) track).setEnabled(enabled);
             }
         }
     }
@@ -789,12 +778,12 @@ public class Frame {
      * Export this frame as an image.
      */
     public BufferedImage frameToImage(){
-        BufferedImage bufferedImage = new BufferedImage(getGraphPane().getWidth(), getGraphPane().getHeight(), BufferedImage.TYPE_INT_RGB);
+        BufferedImage bufferedImage = new BufferedImage(graphPane.getWidth(), graphPane.getHeight(), BufferedImage.TYPE_INT_RGB);
         Graphics2D g = bufferedImage.createGraphics();
-        this.getGraphPane().setRenderRequired();
-        this.getGraphPane().forceFullRender();
-        this.getGraphPane().render(g);
-        this.getGraphPane().unforceFullRender();
+        graphPane.setRenderRequired();
+        graphPane.forceFullRender();
+        graphPane.render(g);
+        graphPane.unforceFullRender();
         g.setColor(Color.black);
         g.setFont(new Font(null, Font.BOLD, 13));
         g.drawString(this.getTracks().get(0).getName(), 2, 15);
@@ -809,6 +798,6 @@ public class Frame {
     }
 
     public String getName(){
-        return this.name;
+        return name;
     }
 }

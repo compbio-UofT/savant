@@ -1,4 +1,8 @@
 /*
+ * DataSource.java
+ * Created on Aug 23, 2010
+ *
+ *
  *    Copyright 2010 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,22 +18,17 @@
  *    limitations under the License.
  */
 
-/*
- * DataSource.java
- * Created on Aug 23, 2010
- */
-
 package savant.data.sources;
 
+import java.io.IOException;
+import java.util.List;
+import java.util.Set;
+
+import savant.api.adapter.RangeAdapter;
 import savant.data.types.Record;
 import savant.file.DataFormat;
 import savant.util.Resolution;
 
-import java.io.IOException;
-import java.net.URI;
-import java.util.List;
-import java.util.Set;
-import savant.api.adapter.RangeAdapter;
 
 /**
  * Interface for a data source which contains records associated with a reference sequence.

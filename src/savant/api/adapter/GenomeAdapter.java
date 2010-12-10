@@ -20,8 +20,8 @@ public interface GenomeAdapter {
     public byte[] getSequence(String reference, RangeAdapter range) throws IOException;
     public long getLength();
     public long getLength(String reference);
-    public DataSource getTrack();
+    public DataSource getDataSource();
     public boolean isSequenceSet();
-    public ViewTrackAdapter getViewTrack();
+    public TrackAdapter getTrack();
 
 }

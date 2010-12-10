@@ -19,23 +19,22 @@ package savant.controller.event;
 import savant.view.swing.Track;
 
 import java.util.EventObject;
-import java.util.List;
 
 /**
  *
  * @author mfiume
  */
-public class TrackListChangedEvent extends EventObject {
+public class TrackAddedOrRemovedEvent extends EventObject {
 
-    private List<Track> tracks;
+    private Track track;
 
-    public TrackListChangedEvent( Object source, List<Track> tracks ) {
+    public TrackAddedOrRemovedEvent( Object source, Track track ) {
         super( source );
-        this.tracks = tracks;
+        this.track = track;
     }
 
-    public List<Track> getTracks() {
-        return tracks;
+    public Track getTrack() {
+        return track;
     }
 
 }

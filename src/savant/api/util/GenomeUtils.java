@@ -20,11 +20,11 @@ import java.io.File;
 import java.io.IOException;
 
 import savant.api.adapter.GenomeAdapter;
-import savant.api.adapter.ViewTrackAdapter;
+import savant.api.adapter.TrackAdapter;
 import savant.controller.ReferenceController;
 import savant.data.types.Genome;
 import savant.exception.SavantTrackCreationCancelledException;
-import savant.view.swing.ViewTrack;
+import savant.view.swing.Track;
 
 /**
  *
@@ -73,8 +73,8 @@ public class GenomeUtils {
      * @param seqTrack a track containing sequence information
      * @return a genome object for the given sequence
      */
-    public static GenomeAdapter createGenome(ViewTrackAdapter seqTrack) {
-        return ViewTrack.createGenome((ViewTrack)seqTrack);
+    public static GenomeAdapter createGenome(TrackAdapter seqTrack) {
+        return Track.createGenome((Track)seqTrack);
     }
 
 

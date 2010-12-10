@@ -55,17 +55,17 @@ Savant is designed under the {\bf Model-View-Controller software engineering par
 The UI Components are involved in receiving and responding to user input, in addition to visualizing data.
 
 \begin{itemize}
-\item{} {\bf Frame} A frame is a container for visualizing one or more tracks. Each frame contains its own Graphpane. Each frame is also associated with one or more Viewtracks.
+\item{} {\bf Frame} A frame is a container for visualizing one or more tracks. Each frame contains its own Graphpane. Each frame is also associated with one or more Tracks.
 \item{} {\bf Graphpane} A Graphpane is a canvas for drawing. Data is visualized on the graphpane, as well as other features such as gridlines and legends.
-\item{} {\bf Viewtrack} A Viewtrack is a lens into a track. It communicates with a DataTrack and delegates a renderer to draw the received data.
+\item{} {\bf Track} A Track is a lens into a track. It communicates with a DataSource and delegates a renderer to draw the received data.
 \end{itemize}
 
 \subsection{Data Components}
 
-The Data Components are involved reading data from track files as requested by its corresponding Viewtrack. 
+The Data Components are involved reading data from track files as requested by its corresponding Track.
 
 \begin{itemize}
-\item{} {\bf DataTrack} A Datatrack retrieves data from a track file in a specified range, usually requested by the Viewtrack upon a user's changing of the range. There is a DataTrack specific for each file type, since the file structures for the various track types differ. 
+\item{} {\bf DataSource} A DataSource retrieves data from a track file in a specified range, usually requested by the Track upon a user's changing of the range. There is a DataSource specific for each file type, since the file structures for the various track types differ.
 \end{itemize}
 
 \chapter{Plugin Development}
@@ -105,7 +105,7 @@ public class DataTab extends Plugin implements AuxData {
         DataSheet currentRangeDataSheet = new DataSheet(tablePanel, pluginAdapter);
         pluginAdapter.getRangeController().
             addRangeChangedListener(currentRangeDataSheet);
-        pluginAdapter.getViewTrackController().
+        pluginAdapter.getTrackController().
             addTracksChangedListener(currentRangeDataSheet);
     {
     
@@ -131,7 +131,7 @@ The plugin implementation class must extend org.java.plugin.Plugin. This require
 
 In addition, the plugin implementation must implement the interface savant.plugin.AuxData. AuxData is the only plugin interface currently available to Savant plugins. It contains a single method, init(), which is called by Savant after the plugin has been loaded. All the code required to initialize the plugin and its interface (if any) must be done here. 
 
-The init() method is passed two arguments: an instance of javax.swing.JTabbedPane and an instance of savant.plugin.PluginAdapter. The former provides a Swing pane in which the plugin can create a UI. The latter provides some convenience methods for the plugin's use, e.g. getRangeController() and getViewTrackController(). For a complete list of methods provided and their usage, consult the most recent JavaDoc documentation.
+The init() method is passed two arguments: an instance of javax.swing.JTabbedPane and an instance of savant.plugin.PluginAdapter. The former provides a Swing pane in which the plugin can create a UI. The latter provides some convenience methods for the plugin's use, e.g. getRangeController() and getTrackController(). For a complete list of methods provided and their usage, consult the most recent JavaDoc documentation.
 
 \subsection{Plugin Descriptor}
 

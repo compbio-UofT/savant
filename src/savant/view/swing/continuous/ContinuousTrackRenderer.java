@@ -70,7 +70,7 @@ public class ContinuousTrackRenderer extends TrackRenderer {
 
         List<Record> data = getData();
         if (data == null) {
-            // FIXME: a nasty hack to accommodate coverage; see BAMCoverageViewTrack
+            // FIXME: a nasty hack to accommodate coverage; see BAMCoverageTrack
             String message = (String) di.getInstruction(DrawingInstructions.InstructionName.MESSAGE);
             if (message != null) {
                 GlassMessagePane.draw(g2, gp, message, 500);

@@ -37,7 +37,7 @@ import savant.controller.event.FrameHiddenEvent;
 import savant.view.swing.Frame;
 import savant.view.swing.GraphPane;
 import savant.view.swing.Savant;
-import savant.view.swing.ViewTrack;
+import savant.view.swing.Track;
 
 
 /**
@@ -197,9 +197,9 @@ public class FrameController {
 
         try {
             
-            ViewTrackController vtc = ViewTrackController.getInstance();
+            TrackController vtc = TrackController.getInstance();
             SelectionController sc = SelectionController.getInstance();
-            for (ViewTrack t : frame.getTracks()) {
+            for (Track t : frame.getTracks()) {
                 vtc.removeTrack(t);
                 sc.removeAll(t.getName());
             }

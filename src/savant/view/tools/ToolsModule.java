@@ -60,15 +60,15 @@ import savant.controller.BookmarkController;
 import savant.controller.RangeController;
 import savant.controller.InformativeThread;
 import savant.controller.ThreadController;
-import savant.controller.ViewTrackController;
+import savant.controller.TrackController;
 import savant.controller.event.BookmarksChangedEvent;
 import savant.controller.event.BookmarksChangedListener;
 import savant.controller.event.RangeChangeCompletedListener;
 import savant.controller.event.RangeChangedEvent;
 import savant.controller.event.ThreadActivityChangedEvent;
 import savant.controller.event.ThreadActivityChangedListener;
-import savant.controller.event.ViewTrackListChangedEvent;
-import savant.controller.event.ViewTrackListChangedListener;
+import savant.controller.event.TrackListChangedEvent;
+import savant.controller.event.TrackListChangedListener;
 import savant.experimental.PluginTool;
 import savant.experimental.Tool;
 import savant.experimental.XMLTool;
@@ -86,7 +86,7 @@ import savant.view.swing.Savant;
  *
  * @author mfiume
  */
-public class ToolsModule implements BookmarksChangedListener, RangeChangeCompletedListener, ViewTrackListChangedListener, ThreadActivityChangedListener {
+public class ToolsModule implements BookmarksChangedListener, RangeChangeCompletedListener, TrackListChangedListener, ThreadActivityChangedListener {
 
     private static Map<String, List<Tool>> organizeToolsByCategory(List<Tool> tools) {
 
@@ -128,7 +128,7 @@ public class ToolsModule implements BookmarksChangedListener, RangeChangeComplet
      */
 
     @Override
-    public void viewTrackListChangeReceived(ViewTrackListChangedEvent event) {
+    public void trackListChangeReceived(TrackListChangedEvent event) {
         runTools(toolsSubscribedToTrackListChangeEvent);
     }
 
@@ -197,7 +197,7 @@ public class ToolsModule implements BookmarksChangedListener, RangeChangeComplet
         BookmarkController.getInstance().addFavoritesChangedListener(this);
         //RangeController.getInstance().addRangeChangedListener(this);
         RangeController.getInstance().addRangeChangeCompletedListener(this);
-        ViewTrackController.getInstance().addTracksChangedListener(this);
+        TrackController.getInstance().addTrackListChangedListener(this);
         ThreadController.getInstance().addThreadActivityListener(this);
     }
 

@@ -19,7 +19,7 @@ class Pileup {
 
     private long position;
 
-    private String viewTrackName;
+    private String trackName;
 
     //private int totalquality = 0;
     private List<Double> coverageA = new ArrayList<Double>();
@@ -38,14 +38,14 @@ class Pileup {
     private double totalCoverageOther = 0;
     //private double other_quality = 0;
 
-    public Pileup(String viewTrackName, long position, Nucleotide n) {
-        this.viewTrackName = viewTrackName;
+    public Pileup(String trackName, long position, Nucleotide n) {
+        this.trackName = trackName;
         this.position = position;
         this.referenceNucleotide = n;
     }
 
     public String getTrackName() {
-        return this.viewTrackName;
+        return this.trackName;
     }
 
     @Override
@@ -70,7 +70,7 @@ class Pileup {
         hash = 89 * hash + this.referenceNucleotide.hashCode();
         hash = 89 * hash + this.snpNucleotide.hashCode();
         hash = 89 * hash + (int) (this.position ^ (this.position >>> 32));
-        hash = 89 * hash + (this.viewTrackName != null ? this.viewTrackName.hashCode() : 0);
+        hash = 89 * hash + (this.trackName != null ? this.trackName.hashCode() : 0);
         return hash;
     }
 

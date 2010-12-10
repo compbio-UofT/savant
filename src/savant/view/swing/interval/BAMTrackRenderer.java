@@ -551,7 +551,7 @@ public class BAMTrackRenderer extends TrackRenderer {
         // set graph pane's range parameters
         gp.setIsOrdinal(false);
         gp.setXRange(axisRange.getXRange());
-        // Y range is given to us by BAMViewTrack for this mode
+        // Y range is given to us by BAMTrack for this mode
         gp.setYRange(axisRange.getYRange());
 
         this.clearShapes();
@@ -675,7 +675,7 @@ public class BAMTrackRenderer extends TrackRenderer {
         int startPosition = (int)axisRange.getXMin();
         for (long j = 0; j < length; j++) {
             pileups.add(new Pileup(startPosition + j));
-            //pileups.add(new Pileup(viewTrackName, startPosition + i, Pileup.getNucleotide(genome.getRecords(axisRange.getXRange()).charAt(i))));
+            //pileups.add(new Pileup(trackName, startPosition + i, Pileup.getNucleotide(genome.getRecords(axisRange.getXRange()).charAt(i))));
         }
 
         // go through the samrecords and edit the pileups

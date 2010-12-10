@@ -56,7 +56,7 @@ public class ColorSchemeDialog extends JDialog {
     //private static Map<DockableFrame,Frame> dockFrameToFrameMap;
 
     private static Frame frame;
-    private static ViewTrack viewTrack;
+    private static Track track;
 
    // private static Log log = LogFactory.getLog(BAMParametersDialog1.class);
 
@@ -137,7 +137,7 @@ public class ColorSchemeDialog extends JDialog {
         return checkBoxPanel;
     }*/
 
-    public Component getDemoPanel() {
+    public final Component getDemoPanel() {
         JPanel panel = new JPanel(new BorderLayout(12, 12));
         _table = createTable();
         _pane = new PropertyPane(_table) {
@@ -227,9 +227,9 @@ public class ColorSchemeDialog extends JDialog {
             if (!JideSwingUtilities.equals(old, value)) {
                 String name = this.getName();
                 
-                viewTrack.setColor(name, (Color)value);
-                viewTrack.getFrame().getGraphPane().setRenderRequired();
-                viewTrack.getFrame().getGraphPane().repaint();
+                track.setColor(name, (Color)value);
+                track.getFrame().getGraphPane().setRenderRequired();
+                track.getFrame().getGraphPane().repaint();
 
                 map.put(getFullName(), value);
                 firePropertyChange(PROPERTY_VALUE, old, value);
@@ -247,9 +247,9 @@ public class ColorSchemeDialog extends JDialog {
         }
     }
 
-    public void update(ViewTrack vt){
+    public void update(Track vt){
 
-        viewTrack = vt;
+        track = vt;
         _pane.setBorder(new JideTitledBorder(new PartialEtchedBorder(PartialEtchedBorder.LOWERED, PartialSide.NORTH), vt.getName(), JideTitledBorder.LEADING, JideTitledBorder.ABOVE_TOP));
 
         Dictionary<String, Color> dict = vt.getColorScheme().getColorSettings();

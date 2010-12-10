@@ -30,8 +30,8 @@ import com.jidesoft.swing.JideSwingUtilities;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import savant.controller.ViewTrackController;
-import savant.view.swing.ViewTrack;
+import savant.controller.TrackController;
+import savant.view.swing.Track;
 
 /**
  * SettingsDialog panel which lets the user screw up their colour settings.
@@ -101,12 +101,12 @@ public class ColourSchemeSettingsSection extends Section {
                 PersistentSettings.getInstance().store();
 
                 //modify existing colour schemes
-                java.util.List<ViewTrack> viewTracks = ViewTrackController.getInstance().getTracks();
-                for(int i = 0; i < viewTracks.size(); i++){
-                    viewTracks.get(i).resetColorScheme();
-                    viewTracks.get(i).getFrame().getGraphPane().setRenderRequired();
+                java.util.List<Track> tracks = TrackController.getInstance().getTracks();
+                for(int i = 0; i < tracks.size(); i++){
+                    tracks.get(i).resetColorScheme();
+                    tracks.get(i).getFrame().getGraphPane().setRenderRequired();
                     try {
-                        viewTracks.get(i).getFrame().redrawTracksInRange();
+                        tracks.get(i).getFrame().redrawTracksInRange();
                     } catch (Exception ex) {
                         LOG.error(null, ex);
                     }

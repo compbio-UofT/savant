@@ -28,13 +28,13 @@ import savant.api.util.DialogUtils;
 import savant.controller.BookmarkController;
 import savant.controller.ProjectController;
 import savant.controller.RangeController;
-import savant.controller.ViewTrackController;
+import savant.controller.TrackController;
 import savant.controller.event.BookmarksChangedEvent;
 import savant.controller.event.BookmarksChangedListener;
 import savant.controller.event.RangeChangedEvent;
 import savant.controller.event.RangeChangedListener;
-import savant.controller.event.ViewTrackListChangedEvent;
-import savant.controller.event.ViewTrackListChangedListener;
+import savant.controller.event.TrackListChangedEvent;
+import savant.controller.event.TrackListChangedListener;
 import savant.exception.SavantEmptySessionException;
 import savant.settings.DirectorySettings;
 import savant.util.MiscUtils;
@@ -46,7 +46,7 @@ import savant.util.MiscUtils;
 public class ProjectHandler implements
         BookmarksChangedListener,
         RangeChangedListener,
-        ViewTrackListChangedListener {
+        TrackListChangedListener {
 
     private static final Log LOG = LogFactory.getLog(ProjectHandler.class);
 
@@ -70,7 +70,7 @@ public class ProjectHandler implements
     private void addListeners() {
         BookmarkController.getInstance().addFavoritesChangedListener(this);
         RangeController.getInstance().addRangeChangedListener(this);
-        ViewTrackController.getInstance().addTracksChangedListener(this);
+        TrackController.getInstance().addTrackListChangedListener(this);
     }
 
     public boolean isProjectSaved() {
@@ -100,7 +100,7 @@ public class ProjectHandler implements
     }
 
     @Override
-    public void viewTrackListChangeReceived(ViewTrackListChangedEvent event) {
+    public void trackListChangeReceived(TrackListChangedEvent event) {
         setProjectSaved(false);
     }
 

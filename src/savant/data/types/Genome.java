@@ -29,8 +29,8 @@ import savant.data.sources.file.FASTAFileDataSource;
 import savant.util.Resolution;
 import savant.view.dialog.LoadGenomeDialog.BuildInfo;
 import savant.view.dialog.LoadGenomeDialog.ReferenceInfo;
-import savant.view.swing.ViewTrack;
-import savant.view.swing.sequence.SequenceViewTrack;
+import savant.view.swing.Track;
+import savant.view.swing.sequence.SequenceTrack;
 
 /**
  *
@@ -42,16 +42,16 @@ public class Genome implements Serializable, GenomeAdapter {
     private boolean isAssociatedWithTrack;
 
     // if associated with track
-    private SequenceViewTrack viewTrack;
+    private SequenceTrack track;
     private FASTAFileDataSource dataSource;
 
     // if not associated with track
     private Map<String,Long> referenceMap;
 
-    public Genome(String name, SequenceViewTrack t) {
+    public Genome(String name, SequenceTrack t) {
         isAssociatedWithTrack = true;
         setName(name);
-        viewTrack = t;
+        track = t;
         dataSource = (FASTAFileDataSource) t.getDataSource();//new FASTAFileDataSource(filename);
         setSequenceTrack(dataSource);
     }
@@ -113,7 +113,7 @@ public class Genome implements Serializable, GenomeAdapter {
     }
 
     @Override
-    public FASTAFileDataSource getTrack() {
+    public FASTAFileDataSource getDataSource() {
         return dataSource;
     }
 
@@ -123,8 +123,8 @@ public class Genome implements Serializable, GenomeAdapter {
     }
 
     @Override
-    public ViewTrack getViewTrack() {
-        return viewTrack;
+    public Track getTrack() {
+        return track;
     }
 
     @Override

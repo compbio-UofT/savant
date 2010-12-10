@@ -22,7 +22,7 @@ import savant.data.types.Genome;
 import savant.exception.SavantTrackCreationCancelledException;
 import savant.view.swing.Savant;
 import savant.view.swing.TrackFactory;
-import savant.view.swing.ViewTrack;
+import savant.view.swing.Track;
 
 /**
  *
@@ -317,7 +317,7 @@ public class LoadGenomeDialog extends javax.swing.JDialog {
 
         if (DataSourcePluginController.getInstance().hasOnlySavantRepoDataSource()) {
             DataSource s = DataSourcePluginController.getInstance().getDataSourcePlugins().get(0).getDataSource();
-            ViewTrack t;
+            Track t;
             try {
                 if (s == null) {
                     Savant.getInstance().showOpenGenomeDialog();

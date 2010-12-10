@@ -24,10 +24,10 @@ import javax.swing.JPanel;
 
 import savant.api.adapter.ModeAdapter;
 import savant.api.adapter.RangeAdapter;
-import savant.api.adapter.ViewTrackAdapter;
+import savant.api.adapter.TrackAdapter;
 import savant.controller.SelectionController;
+import savant.controller.DataSourceController;
 import savant.controller.TrackController;
-import savant.controller.ViewTrackController;
 import savant.data.types.Genome;
 import savant.data.sources.*;
 import savant.data.types.Record;
@@ -36,8 +36,8 @@ import savant.util.Mode;
 import savant.util.Range;
 import savant.util.Resolution;
 import savant.view.dialog.BAMParametersDialog;
-import savant.view.swing.interval.BAMViewTrack;
-import savant.view.swing.sequence.SequenceViewTrack;
+import savant.view.swing.interval.BAMTrack;
+import savant.view.swing.sequence.SequenceTrack;
 import savant.view.swing.util.DialogUtils;
 
 /**
@@ -48,7 +48,7 @@ import savant.view.swing.util.DialogUtils;
  *
  * @author mfiume
  */
-public abstract class ViewTrack implements ViewTrackAdapter {
+public abstract class Track implements TrackAdapter {
 
     private final String name;
     private ColorScheme colorScheme;
@@ -64,19 +64,19 @@ public abstract class ViewTrack implements ViewTrackAdapter {
     private Frame frame;
     private static BAMParametersDialog paramDialog = new BAMParametersDialog(Savant.getInstance(), true);
 
-    // TODO: put all of this in a ViewTrackFactory class
+    // TODO: put all of this in a TrackFactory class
     // TODO: inform the user when there is a problem
     
 
-    public static Genome createGenome(ViewTrack sequenceTrack) {
+    public static Genome createGenome(Track sequenceTrack) {
 
         if (sequenceTrack == null) {
             return null;
         }
 
-        if (!(sequenceTrack instanceof SequenceViewTrack)) {
+        if (!(sequenceTrack instanceof SequenceTrack)) {
             DialogUtils.displayMessage("Sorry", "Could not load this track as genome.");
-            ViewTrackController.getInstance().removeUnframedTrack(sequenceTrack);
+            TrackController.getInstance().removeUnframedTrack(sequenceTrack);
             return null;
         }
 
@@ -85,7 +85,7 @@ public abstract class ViewTrack implements ViewTrackAdapter {
         int lastSlashIndex = genomePath.lastIndexOf("/");
         String name = genomePath.substring(lastSlashIndex + 1, genomePath.length());
 
-        return new Genome(name, (SequenceViewTrack) sequenceTrack);
+        return new Genome(name, (SequenceTrack) sequenceTrack);
     }
 
     /**
@@ -93,7 +93,7 @@ public abstract class ViewTrack implements ViewTrackAdapter {
      * @param name track name (typically, the file name)
      * @param dataType FileFormat representing file type, e.g. INTERVAL_BED, CONTINUOUS_GENERIC
      */
-    public ViewTrack(/*DataFormat dataType,*/ DataSource dataSource) throws SavantTrackCreationCancelledException {
+    public Track(/*DataFormat dataType,*/ DataSource dataSource) throws SavantTrackCreationCancelledException {
 
         //this.dataType = dataType;
         drawModes = new ArrayList<ModeAdapter>();
@@ -115,7 +115,7 @@ public abstract class ViewTrack implements ViewTrackAdapter {
      * @deprecated use the correspeonding constructor without name argument
      * instead
      */
-    public ViewTrack(String name, /*DataFormat dataType,*/ DataSource dataSource) {
+    public Track(String name, /*DataFormat dataType,*/ DataSource dataSource) {
         //this.dataType = dataType;
         drawModes = new ArrayList<ModeAdapter>();
         trackRenderers = new ArrayList<TrackRenderer>();
@@ -125,7 +125,7 @@ public abstract class ViewTrack implements ViewTrackAdapter {
 
     private String getUniqueName(String name) {
         String result = name;
-        while (ViewTrackController.getInstance().containsTrack(result)) {
+        while (TrackController.getInstance().containsTrack(result)) {
             result = DialogUtils.displayInputMessage(
                     "A track with that name already exists. Please enter a new name:",
                     result);
@@ -136,11 +136,11 @@ public abstract class ViewTrack implements ViewTrackAdapter {
         return result;
     }
 
-    public void notifyViewTrackControllerOfCreation() {
-        ViewTrackController tc = ViewTrackController.getInstance();
+    public void notifyControllerOfCreation() {
+        TrackController tc = TrackController.getInstance();
         tc.addTrack(this);
         if (dataSource != null) {
-            TrackController.getInstance().addTrack(dataSource);
+            DataSourceController.getInstance().addDataSource(dataSource);
         }
     }
 
@@ -322,7 +322,7 @@ public abstract class ViewTrack implements ViewTrackAdapter {
     public abstract void prepareForRendering(String reference, Range range) throws IOException;
 
     /**
-     * Method which plugins can use to force the ViewTrack to repaint itself.
+     * Method which plugins can use to force the Track to repaint itself.
      */
     @Override
     public void repaint() {
@@ -416,12 +416,12 @@ public abstract class ViewTrack implements ViewTrackAdapter {
         return this.name;
     }
 
-    public static void captureBAMDisplayParameters(BAMViewTrack viewTrack) {
+    public static void captureBAMDisplayParameters(BAMTrack track) {
         paramDialog.setVisible(true);
         if (paramDialog.isAccepted()) {
-            viewTrack.setArcSizeVisibilityThreshold(paramDialog.getArcLengthThreshold());
-            viewTrack.setDiscordantMin(paramDialog.getDiscordantMin());
-            viewTrack.setDiscordantMax(paramDialog.getDiscordantMax());
+            track.setArcSizeVisibilityThreshold(paramDialog.getArcLengthThreshold());
+            track.setDiscordantMin(paramDialog.getDiscordantMin());
+            track.setDiscordantMax(paramDialog.getDiscordantMax());
         }
 
     }

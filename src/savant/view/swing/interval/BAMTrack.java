@@ -1,5 +1,5 @@
 /*
- * BAMViewTrack.java
+ * BAMTrack.java
  * Created on Feb 1, 2010
  *
  *
@@ -44,7 +44,7 @@ import savant.util.Mode;
 import savant.util.Range;
 import savant.util.Resolution;
 import savant.view.swing.TrackRenderer;
-import savant.view.swing.ViewTrack;
+import savant.view.swing.Track;
 
 
 /**
@@ -55,9 +55,9 @@ import savant.view.swing.ViewTrack;
  *
  * @author vwilliams
  */
-public class BAMViewTrack extends ViewTrack {
+public class BAMTrack extends Track {
     
-    private static Log log = LogFactory.getLog(BAMViewTrack.class);
+    private static Log log = LogFactory.getLog(BAMTrack.class);
 
     public enum DrawingMode {
         STANDARD,
@@ -86,12 +86,12 @@ public class BAMViewTrack extends ViewTrack {
      * @param name track name
      * @param bamTrack data track which this view track represents
      */
-    public BAMViewTrack(DataSource bamTrack) throws SavantTrackCreationCancelledException {
+    public BAMTrack(DataSource bamTrack) throws SavantTrackCreationCancelledException {
         super(bamTrack);
         setColorScheme(getDefaultColorScheme());
         setDrawModes(getDefaultDrawModes());
         setDrawMode(VARIANTS_MODE);
-        this.notifyViewTrackControllerOfCreation();
+        this.notifyControllerOfCreation();
     }
 
     private ColorScheme getDefaultColorScheme() {

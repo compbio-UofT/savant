@@ -16,7 +16,7 @@
 
 package savant.api.util;
 
-import savant.api.adapter.ViewTrackAdapter;
+import savant.api.adapter.TrackAdapter;
 import savant.controller.SelectionController;
 import savant.controller.event.SelectionChangedListener;
 import savant.data.types.Record;
@@ -35,7 +35,7 @@ public class SelectionUtils {
      * @param t The track for which to add the selection
      * @param data The data point to select
      */
-    public static void addSelection(ViewTrackAdapter t, Record data) {
+    public static void addSelection(TrackAdapter t, Record data) {
         sc.addSelection(t.getName(), data);
     }
 
@@ -44,7 +44,7 @@ public class SelectionUtils {
      * @param t The track for which to toggle the selection
      * @param data The data point to select/deselect
      */
-    public static void toggleSelection(ViewTrackAdapter t, Record data) {
+    public static void toggleSelection(TrackAdapter t, Record data) {
         sc.toggleSelection(t.getName(), data);
     }
 

@@ -26,7 +26,7 @@ import org.apache.commons.logging.LogFactory;
 import savant.controller.event.DrawModeChangedEvent;
 import savant.controller.event.DrawModeChangedListener;
 import savant.util.Mode;
-import savant.view.swing.ViewTrack;
+import savant.view.swing.Track;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,7 +60,7 @@ public class DrawModeController {
         listeners.remove(listener);
     }
 
-    public void switchMode(ViewTrack track, ModeAdapter mode) {
+    public void switchMode(Track track, ModeAdapter mode) {
         track.setDrawMode(mode);
         if (mode instanceof Mode) {
             DrawModeChangedEvent evt = new DrawModeChangedEvent(track, (Mode) mode);

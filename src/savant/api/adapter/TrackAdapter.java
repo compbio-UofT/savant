@@ -26,12 +26,12 @@ import savant.util.Resolution;
  *
  * @author mfiume
  */
-public interface ViewTrackAdapter {
+public interface TrackAdapter {
 
     // constructors
-    //public static List<ViewTrack> create(URI trackURI) throws IOException {
+    //public static List<Track> create(URI trackURI) throws IOException {
     //public static Genome createGenome(URI genomeURI) throws IOException, SavantFileNotFormattedException, SavantUnsupportedVersionException {
-    //public ViewTrack(String name, FileFormat dataType, DataSource dataSource) {
+    //public Track(String name, FileFormat dataType, DataSource dataSource) {
 
     // questionable
     /*

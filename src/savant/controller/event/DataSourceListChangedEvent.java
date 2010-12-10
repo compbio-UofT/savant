@@ -1,5 +1,5 @@
 /*
- *    Copyright 2009-2010 University of Toronto
+ *    Copyright 2010 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -14,28 +14,28 @@
  *    limitations under the License.
  */
 
+/*
+ * TrackListChangedEvent.java
+ * Created on Mar 11, 2010
+ */
+
 package savant.controller.event;
 
-import savant.view.swing.ViewTrack;
+import savant.data.sources.DataSource;
 
 import java.util.EventObject;
+import java.util.List;
 
-/**
- *
- * @author mfiume
- */
-public class ViewTrackAddedOrRemovedEvent extends EventObject {
+public class DataSourceListChangedEvent extends EventObject {
 
-    private ViewTrack track;
+    private List<DataSource> dataSources;
 
-    public ViewTrackAddedOrRemovedEvent( Object source, ViewTrack track ) {
-        super( source );
-        this.track = track;
+    public DataSourceListChangedEvent(Object source, List<DataSource> dataSources) {
+        super(source);
+        this.dataSources = dataSources;
     }
 
-    public ViewTrack getTrack() {
-        return track;
+    public List<DataSource> getDataSources() {
+        return this.dataSources;
     }
-
 }
-

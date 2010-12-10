@@ -16,32 +16,13 @@
 
 package savant.tool.export;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.FileDialog;
-import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.GridLayout;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.BufferedWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.JComponent;
-import javax.swing.JPanel;
-import savant.controller.BookmarkController;
-import savant.controller.ViewTrackController;
-import savant.plugin.PluginAdapter;
-import savant.plugin.ToolInformation;
-import savant.plugin.ToolPlugin;
-import savant.settings.DirectorySettings;
-import savant.util.Bookmark;
-import savant.util.Range;
-import savant.view.swing.GraphPane;
-import savant.view.swing.ViewTrack;
 import javax.imageio.ImageIO;
 import java.io.File;
 import java.io.FileWriter;
@@ -49,21 +30,21 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import javax.swing.BorderFactory;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
-import javax.swing.filechooser.FileFilter;
+import javax.swing.*;
+
+import savant.controller.BookmarkController;
+import savant.plugin.PluginAdapter;
+import savant.experimental.ToolInformation;
+import savant.plugin.ToolPlugin;
+import savant.settings.DirectorySettings;
+import savant.util.Bookmark;
+import savant.util.Range;
+import savant.view.swing.GraphPane;
+import savant.view.swing.Track;
 import savant.controller.FrameController;
 import savant.controller.ReferenceController;
-import savant.controller.TrackController;
-import savant.model.data.Track;
 import savant.swing.component.PathField;
 import savant.view.swing.Frame;
-import savant.view.swing.Savant;
 
 /**
  *
@@ -190,7 +171,7 @@ public class ExportFromBookmarks extends ToolPlugin {
                 }
 
                 //track info
-                ViewTrack vt = frame.getTracks().get(frame.getTracks().size() -1);
+                Track t = frame.getTracks().get(frame.getTracks().size() -1);
                 GraphPane gp = frame.getGraphPane();
 
 
@@ -200,7 +181,7 @@ public class ExportFromBookmarks extends ToolPlugin {
                     ReferenceController.getInstance().setReference(reference);
                 }
                 try {
-                    vt.prepareForRendering(reference, range);
+                    t.prepareForRendering(reference, range);
                 } catch (Throwable ex) {
                     Logger.getLogger(ExportFromBookmarks.class.getName()).log(Level.SEVERE, null, ex);
                 }

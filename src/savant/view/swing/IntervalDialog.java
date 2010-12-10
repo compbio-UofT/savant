@@ -56,7 +56,7 @@ public class IntervalDialog extends JDialog {
     //private static Map<DockableFrame,Frame> dockFrameToFrameMap;
 
     private static Frame frame;
-    private static ViewTrack viewTrack;
+    private static Track track;
 
     private static BAMTrackRenderer btr;
 
@@ -241,8 +241,8 @@ public class IntervalDialog extends JDialog {
                     btr.setMaximumHeight((Integer)value);
                 }
 
-                viewTrack.getFrame().getGraphPane().setRenderRequired();
-                viewTrack.getFrame().getGraphPane().repaint();
+                track.getFrame().getGraphPane().setRenderRequired();
+                track.getFrame().getGraphPane().repaint();
 
                 map.put(getFullName(), value);
                 firePropertyChange(PROPERTY_VALUE, old, value);
@@ -260,12 +260,12 @@ public class IntervalDialog extends JDialog {
         }
     }
 
-    public void update(ViewTrack vt){
+    public void update(Track vt){
 
-        viewTrack = vt;
+        track = vt;
         _pane.setBorder(new JideTitledBorder(new PartialEtchedBorder(PartialEtchedBorder.LOWERED, PartialSide.NORTH), vt.getName(), JideTitledBorder.LEADING, JideTitledBorder.ABOVE_TOP));
 
-        btr = ((BAMTrackRenderer)(viewTrack.getTrackRenderers().get(0)));
+        btr = ((BAMTrackRenderer)(track.getTrackRenderers().get(0)));
 
         addProperty("Minimum Height", "When intervals cannot be displayed at/over the minimum height, they will switch to fixed height. ", "Interval Height Settings", Integer.class);
         map.put("Minimum Height", btr.getMinimumHeight());

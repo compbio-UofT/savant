@@ -73,7 +73,7 @@ public class ReferenceController {
                 fireReferenceChangedEvent();
             }
         } else {
-            if (TrackController.getInstance().getDataSources().size() > 0) {
+            if (DataSourceController.getInstance().getDataSources().size() > 0) {
                 DialogUtils.displayMessage("Reference " + ref + " not found in loaded tracks.");
             }
         }
@@ -112,9 +112,9 @@ public class ReferenceController {
         Set<String> genomicReferences = getReferenceNames();
         Set<String> nonGenomicReferences = new HashSet<String>();
 
-        List<ViewTrack> tracks = ViewTrackController.getInstance().getTracks();
+        List<Track> tracks = TrackController.getInstance().getTracks();
 
-        for (ViewTrack t : tracks) {
+        for (Track t : tracks) {
 
             RecordTrack rt = t.getTrack();
 

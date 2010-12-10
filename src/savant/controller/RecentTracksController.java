@@ -22,20 +22,20 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import savant.api.util.DialogUtils;
-import savant.controller.event.ViewTrackAddedListener;
-import savant.controller.event.ViewTrackAddedOrRemovedEvent;
+import savant.controller.event.TrackAddedListener;
+import savant.controller.event.TrackAddedOrRemovedEvent;
 import savant.data.sources.file.FileDataSource;
 import savant.settings.DirectorySettings;
 import savant.util.MiscUtils;
 import savant.view.swing.Savant;
-import savant.view.swing.ViewTrack;
-import savant.view.swing.interval.BAMCoverageViewTrack;
+import savant.view.swing.Track;
+import savant.view.swing.interval.BAMCoverageTrack;
 
 /**
  *
  * @author mfiume
  */
-public class RecentTracksController implements ViewTrackAddedListener {
+public class RecentTracksController implements TrackAddedListener {
     private static final Log LOG = LogFactory.getLog(RecentTracksController.class);
 
     private static RecentTracksController instance;
@@ -49,7 +49,7 @@ public class RecentTracksController implements ViewTrackAddedListener {
     private File recentTracksFile;
 
     public RecentTracksController() throws IOException {
-        ViewTrackController.getInstance().addTracksAddedListener(this);
+        TrackController.getInstance().addTrackAddedListener(this);
         recentTracksFile = new File(DirectorySettings.getSavantDirectory(), RECENT_TRACKS_FILE);
         if (!recentTracksFile.exists()) { recentTracksFile.createNewFile(); }
         queue = new LinkedList<String>();
@@ -64,11 +64,11 @@ public class RecentTracksController implements ViewTrackAddedListener {
     }
 
     @Override
-    public void viewTrackAddedEventReceived(ViewTrackAddedOrRemovedEvent event) {
+    public void trackAddedReceived(TrackAddedOrRemovedEvent event) {
 
-        ViewTrack t = event.getTrack();
+        Track t = event.getTrack();
 
-        if (t instanceof BAMCoverageViewTrack) { return; }
+        if (t instanceof BAMCoverageTrack) { return; }
 
         if (t.getDataSource() == null) { return; }
 

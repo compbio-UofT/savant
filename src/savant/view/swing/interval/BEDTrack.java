@@ -1,5 +1,5 @@
 /*
- * BEDViewTrack.java
+ * BEDTrack.java
  * Created on Feb 19, 2010
  *
  *
@@ -35,16 +35,16 @@ import savant.exception.SavantTrackCreationCancelledException;
 import savant.settings.ColourSettings;
 import savant.util.*;
 import savant.view.swing.TrackRenderer;
-import savant.view.swing.ViewTrack;
+import savant.view.swing.Track;
 
 /**
  * View track for a BED interval file (containing BED Interval Records)
  * 
  * @author vwilliams
  */
-public class BEDViewTrack extends ViewTrack {
+public class BEDTrack extends Track {
 
-    private static Log LOG = LogFactory.getLog(BEDViewTrack.class);
+    private static Log LOG = LogFactory.getLog(BEDTrack.class);
 
     public enum DrawingMode {
         STANDARD,
@@ -54,12 +54,12 @@ public class BEDViewTrack extends ViewTrack {
     private static final Mode STANDARD_MODE = Mode.fromObject(DrawingMode.STANDARD, "Standard Gene View");
     private static final Mode SQUISH_MODE = Mode.fromObject(DrawingMode.SQUISH, "All on one line");
 
-    public BEDViewTrack(DataSource bedTrack) throws SavantTrackCreationCancelledException {
+    public BEDTrack(DataSource bedTrack) throws SavantTrackCreationCancelledException {
         super(bedTrack);
         setColorScheme(getDefaultColorScheme());
         setDrawModes(getDefaultDrawModes());
         setDrawMode(STANDARD_MODE);
-        this.notifyViewTrackControllerOfCreation();
+        this.notifyControllerOfCreation();
     }
 
 

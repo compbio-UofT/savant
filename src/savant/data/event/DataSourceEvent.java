@@ -1,5 +1,5 @@
 /*
- *    Copyright 2009-2010 University of Toronto
+ *    Copyright 2010 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -14,29 +14,23 @@
  *    limitations under the License.
  */
 
-package savant.controller.event;
+package savant.data.event;
 
-import savant.view.swing.Track;
-
-import java.util.EventObject;
-import java.util.List;
+import savant.data.sources.DataSource;
 
 /**
+ * Event class which allows DataSource objects to notify their listeners of changes.
  *
- * @author mfiume
+ * @author tarkvara
  */
-public class TrackListChangedEvent extends EventObject {
+public class DataSourceEvent {
+    DataSource source;
 
-    private List<Track> tracks;
-
-    public TrackListChangedEvent( Object source, List<Track> tracks ) {
-        super( source );
-        this.tracks = tracks;
+    public DataSourceEvent(DataSource source) {
+        this.source = source;
     }
 
-    public List<Track> getTracks() {
-        return tracks;
+    public DataSource getSource() {
+        return source;
     }
-
 }
-

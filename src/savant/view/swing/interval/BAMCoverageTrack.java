@@ -1,5 +1,5 @@
 /*
- * BAMCoverageViewTrack.java
+ * BAMCoverageTrack.java
  * Created on Mar 4, 2010
  *
  *
@@ -34,25 +34,25 @@ import savant.util.*;
 import savant.util.ColorScheme;
 import savant.util.DrawingInstructions;
 import savant.view.swing.TrackRenderer;
-import savant.view.swing.ViewTrack;
+import savant.view.swing.Track;
 
 
-public class BAMCoverageViewTrack extends ViewTrack {
+public class BAMCoverageTrack extends Track {
 
     private boolean enabled = true;
 
     // DO NOT DELETE THIS CONSTRUCTOR!!! THIS SHOULD BE THE DEFAULT
-    public BAMCoverageViewTrack(GenericContinuousFileDataSource track) throws SavantTrackCreationCancelledException {
+    public BAMCoverageTrack(GenericContinuousFileDataSource track) throws SavantTrackCreationCancelledException {
         super(track);
         setColorScheme(getDefaultColorScheme());
-        this.notifyViewTrackControllerOfCreation();
+        this.notifyControllerOfCreation();
     }
 
     // TODO: remove this constructor, should not need to pass a name!!
-    public BAMCoverageViewTrack(String name, GenericContinuousFileDataSource track) {
+    public BAMCoverageTrack(String name, GenericContinuousFileDataSource track) {
         super(name, track);
         setColorScheme(getDefaultColorScheme());
-        this.notifyViewTrackControllerOfCreation();
+        this.notifyControllerOfCreation();
     }
 
     @Override
@@ -156,7 +156,7 @@ public class BAMCoverageViewTrack extends ViewTrack {
         return (int)Math.ceil(max);
     }
 
-    // TODO: pull this property up into ViewTrack
+    // TODO: pull this property up into Track
     public boolean isEnabled() {
         return enabled;
     }

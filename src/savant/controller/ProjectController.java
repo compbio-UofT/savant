@@ -15,21 +15,13 @@
  */
 package savant.controller;
 
-import java.io.EOFException;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -45,8 +37,8 @@ import savant.util.MiscUtils;
 import savant.util.Range;
 import savant.view.swing.Savant;
 import savant.view.swing.TrackFactory;
-import savant.view.swing.ViewTrack;
-import savant.view.swing.interval.BAMCoverageViewTrack;
+import savant.view.swing.Track;
+import savant.view.swing.interval.BAMCoverageTrack;
 import savant.view.swing.util.DialogUtils;
 
 /**
@@ -56,24 +48,24 @@ import savant.view.swing.util.DialogUtils;
 public class ProjectController {
 
     private static final Log LOG = LogFactory.getLog(ProjectController.class);
+    private static final String KEY_GENOME = "GENOME";
+    private static final String KEY_GENOMEPATH = "GENOMEPATH";
+    private static final String KEY_SEQUENCESET = "SEQUENCESET";
+    private static final String KEY_BOOKMARKS = "BOOKMARKS";
+    private static final String KEY_TRACKS = "TRACKS";
+    private static final String KEY_REFERENCE = "REFERENCE";
+    private static final String KEY_RANGE = "RANGE";
+
     private static ProjectController instance;
-    private String KEY_GENOME = "GENOME";
-    private String KEY_GENOMEPATH = "GENOMEPATH";
-    private String KEY_SEQUENCESET = "SEQUENCESET";
-    private String KEY_BOOKMARKS = "BOOKMARKS";
-    private String KEY_TRACKS = "TRACKS";
-    private String KEY_REFERENCE = "REFERENCE";
-    private String KEY_RANGE = "RANGE";
 
     public static ProjectController getInstance() {
         if (instance == null) {
             instance = new ProjectController();
         }
-
         return instance;
     }
 
-    public ProjectController() {
+    private ProjectController() {
     }
 
     private void addToPersistenceMap(Persistent[] plist, Map<String, Object> persistentMap) {
@@ -144,7 +136,7 @@ public class ProjectController {
 
     private void clearExistingProject() {
         // close tracks, clear bookmarks
-        ViewTrackController.getInstance().closeTracks();
+        TrackController.getInstance().closeTracks();
         BookmarkController.getInstance().clearBookmarks(); //TODO: check if bookmark UI is actually updated by this
     }
 
@@ -192,7 +184,7 @@ public class ProjectController {
             trackpaths.remove(genomePath);
             try {
                 try {
-                    genome = ViewTrack.createGenome(TrackFactory.createTrack(new URI(genomePath)).get(0));
+                    genome = Track.createGenome(TrackFactory.createTrack(new URI(genomePath)).get(0));
                 } catch (SavantTrackCreationCancelledException ex) {
                     DialogUtils.displayMessage("Sorry", "Problem loading project.");
                     return;
@@ -200,13 +192,13 @@ public class ProjectController {
             } catch (URISyntaxException usx) {
                 try {
                     // A common cause of URISyntaxExceptions is a file-path containing spaces.
-                    genome = ViewTrack.createGenome(TrackFactory.createTrack(new File(genomePath).toURI()).get(0));
+                    genome = Track.createGenome(TrackFactory.createTrack(new File(genomePath).toURI()).get(0));
                 } catch (SavantTrackCreationCancelledException ex) {
                     DialogUtils.displayMessage("Sorry", "Problem loading project.");
                     return;
                 }
             }
-            genomeName = genome.getTrack().getURI().toString();
+            genomeName = genome.getDataSource().getURI().toString();
         } else {
             genomeName = genome.getName();
         }
@@ -237,8 +229,8 @@ public class ProjectController {
 
     private Persistent getTrackPersistence() {
         List<String> trackpaths = new ArrayList<String>();
-        for (ViewTrack t : ViewTrackController.getInstance().getTracks()) {
-            if (!(t instanceof BAMCoverageViewTrack) && (t.getDataSource() instanceof FileDataSource)) {
+        for (Track t : TrackController.getInstance().getTracks()) {
+            if (!(t instanceof BAMCoverageTrack) && (t.getDataSource() instanceof FileDataSource)) {
                 if (((FileDataSource) t.getDataSource()).getURI() != null) {
                     trackpaths.add(MiscUtils.getNeatPathFromURI(((FileDataSource) t.getDataSource()).getURI()));
                 }
@@ -267,7 +259,7 @@ public class ProjectController {
         result[0] = new Persistent(KEY_SEQUENCESET, isSequenceSet);
 
         if (isSequenceSet) {
-            result[1] = new Persistent(KEY_GENOMEPATH, MiscUtils.getNeatPathFromURI(ReferenceController.getInstance().getGenome().getTrack().getURI()));
+            result[1] = new Persistent(KEY_GENOMEPATH, MiscUtils.getNeatPathFromURI(ReferenceController.getInstance().getGenome().getDataSource().getURI()));
         } else {
             result[1] = new Persistent(KEY_GENOME, ReferenceController.getInstance().getGenome());
         }

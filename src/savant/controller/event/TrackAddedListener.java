@@ -9,7 +9,7 @@ package savant.controller.event;
  *
  * @author mfiume
  */
-public interface ViewTrackRemovedListener
+public interface TrackAddedListener
 {
-    public void viewTrackRemovedEventReceived( ViewTrackAddedOrRemovedEvent event );
+    public void trackAddedReceived( TrackAddedOrRemovedEvent event );
 }

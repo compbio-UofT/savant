@@ -17,16 +17,19 @@ package savant.view.swing;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLConnection;
+import java.net.URLEncoder;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.*;
 
 import com.apple.eawt.*;
@@ -38,27 +41,12 @@ import com.jidesoft.plaf.UIDefaultsLookup;
 import com.jidesoft.plaf.basic.ThemePainter;
 import com.jidesoft.status.MemoryStatusBarItem;
 import com.jidesoft.swing.JideSplitPane;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.net.URLConnection;
-import java.net.URLEncoder;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import javax.swing.border.EtchedBorder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jdom.JDOMException;
-import savant.api.adapter.ViewTrackAdapter;
 
 import savant.controller.*;
-import savant.controller.event.BookmarksChangedEvent;
-import savant.controller.event.BookmarksChangedListener;
-import savant.controller.event.RangeSelectionChangedEvent;
-import savant.controller.event.RangeSelectionChangedListener;
-import savant.controller.event.ReferenceChangedEvent;
-import savant.controller.event.ReferenceChangedListener;
-import savant.controller.event.TrackListChangedEvent;
-import savant.controller.event.TrackListChangedListener;
+import savant.controller.event.*;
 import savant.data.sources.DataSource;
 import savant.data.types.Genome;
 import savant.exception.SavantTrackCreationCancelledException;
@@ -74,11 +62,7 @@ import savant.swing.component.TrackChooser;
 import savant.util.DownloadFile;
 import savant.util.MiscUtils;
 import savant.util.Range;
-import savant.view.dialog.DataFormatForm;
-import savant.view.dialog.DataSourcePluginDialog;
-import savant.view.dialog.LoadGenomeDialog;
-import savant.view.dialog.OpenURLDialog;
-import savant.view.dialog.PluginManagerDialog;
+import savant.view.dialog.*;
 import savant.view.icon.SavantIconFactory;
 import savant.view.swing.util.DialogUtils;
 import savant.view.tools.ToolsModule;
@@ -92,7 +76,7 @@ import savant.xml.XMLVersion.Version;
  */
 public class Savant extends javax.swing.JFrame implements RangeSelectionChangedListener,
         /*RangeChangedListener, */ /*PropertyChangeListener,*/ BookmarksChangedListener,
-        ReferenceChangedListener, TrackListChangedListener {
+        ReferenceChangedListener, DataSourceListChangedListener {
 
     private static final Log LOG = LogFactory.getLog(Savant.class);
     public static boolean turnExperimentalFeaturesOff = true;
@@ -158,19 +142,19 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         Savant.log("Loading track " + selectedFileName, Savant.LOGMODE.NORMAL);
 
         try {
-            List<ViewTrack> tracks = TrackFactory.createTrack(uri);
+            List<Track> tracks = TrackFactory.createTrack(uri);
             createFrameForTracks(tracks);
         } catch (SavantTrackCreationCancelledException ex) {
         }
     }
 
-    public void createFrameForTracks(List<ViewTrack> tracks) {
+    public void createFrameForTracks(List<Track> tracks) {
         if (tracks != null && tracks.size() > 0) {
             createFrameForTrack(tracks.get(0).getName(), tracks);
         }
     }
 
-    public void createFrameForTrack(String name, List<ViewTrack> tracks) {
+    public void createFrameForTrack(String name, List<Track> tracks) {
 
         if (!ReferenceController.getInstance().isGenomeLoaded()) {
             if (tracks.get(0).getDataSource().getDataFormat() == DataFormat.SEQUENCE_FASTA) {
@@ -220,7 +204,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
             JLayeredPane layers = (JLayeredPane) frame.getFrameLandscape();
             panel.add(layers);
             frame.setDockableFrame(df);
-            for (ViewTrack t : tracks) {
+            for (Track t : tracks) {
                 t.setFrame(frame);
             }
             dockFrameToFrameMap.put(df, frame);
@@ -1305,11 +1289,11 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
     private void loadFromDataSourcePluginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loadFromDataSourcePluginActionPerformed
         if (DataSourcePluginController.getInstance().hasOnlySavantRepoDataSource()) {
             DataSource s = DataSourcePluginController.getInstance().getDataSourcePlugins().get(0).getDataSource();
-            ViewTrack t;
+            Track t;
             try {
                 if (s == null) { return; }
                 t = TrackFactory.createTrack(s);
-                    List<ViewTrack> tracks = new ArrayList<ViewTrack>(); // TODO: should not need to do this!!
+                    List<Track> tracks = new ArrayList<Track>(); // TODO: should not need to do this!!
                     tracks.add(t);
                     createFrameForTrack(t.getName(), tracks);
             } catch (SavantTrackCreationCancelledException ex) {
@@ -1412,7 +1396,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
             printout.close();
             urlConn.getInputStream();
         } catch (IOException ex) {
-            Logger.getLogger(Savant.class.getName()).log(Level.SEVERE, null, ex);
+           LOG.error("Error logging usage stats.", ex);
         }
     }
 
@@ -2288,7 +2272,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
             if (selectedFile != null) {
                 Savant.log("Loading genome " + selectedFile, Savant.LOGMODE.NORMAL);
                 try {
-                    List<ViewTrack> trks = TrackFactory.createTrack(selectedFile.toURI());
+                    List<Track> trks = TrackFactory.createTrack(selectedFile.toURI());
                     if (!trks.isEmpty()) {
                         setGenomeFromTrack(trks.get(0));
                         Savant.log("Genome loaded", Savant.LOGMODE.NORMAL);
@@ -2318,7 +2302,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
             // set the genome
             if (selectedFile != null) {
                 try {
-                    List<ViewTrack> trks = TrackFactory.createTrack(selectedFile.toURI());
+                    List<Track> trks = TrackFactory.createTrack(selectedFile.toURI());
                     if (!trks.isEmpty()) {
                         Savant.getInstance().setGenomeFromTrack(trks.get(0));
                     }
@@ -2408,8 +2392,8 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
      *
      * @param f path to the genome.
      */
-    public void setGenomeFromTrack(ViewTrack track) {
-        Genome g = ViewTrack.createGenome(track);
+    public void setGenomeFromTrack(Track track) {
+        Genome g = Track.createGenome(track);
         if (g != null) {
             setGenome(track.getName(), g);
         }
@@ -2436,8 +2420,8 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
             DockableFrame df = DockableFrameFactory.createGenomeFrame(genomeName);
             //MiscUtils.getFilenameFromPath(filename));
             JPanel panel = (JPanel) df.getContentPane();
-            List<ViewTrack> tracks = new ArrayList<ViewTrack>();
-            tracks.add(genome.getViewTrack());
+            List<Track> tracks = new ArrayList<Track>();
+            tracks.add(genome.getTrack());
             // layered pane
             panel.setLayout(new BorderLayout());
             Frame frame = new Frame(tracks, df.getName());
@@ -2668,7 +2652,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
     }
 
     @Override
-    public void trackListChangeReceived(TrackListChangedEvent evt) {
+    public void trackListChangeReceived(DataSourceListChangedEvent evt) {
         updateReferenceNamesList();
     }
 
@@ -2733,14 +2717,14 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         if (p != null) {
             System.out.println("Plugin selected: " + p.getTitle());
             DataSource s = p.getDataSource();
-            ViewTrack t;
+            Track t;
             try {
                 if (s == null) { return 2; }
                 t = TrackFactory.createTrack(s);
                 if (loadAsGenome) {
                     setGenomeFromTrack(t);
                 } else {
-                    List<ViewTrack> tracks = new ArrayList<ViewTrack>(); // TODO: should not need to do this!!
+                    List<Track> tracks = new ArrayList<Track>(); // TODO: should not need to do this!!
                     tracks.add(t);
                     createFrameForTrack(t.getName(), tracks);
                 }
@@ -2836,7 +2820,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
             }
             try {
 
-                List<ViewTrack> tracks = TrackFactory.createTrack(new URI(urlDialog.getUrlAsString()));
+                List<Track> tracks = TrackFactory.createTrack(new URI(urlDialog.getUrlAsString()));
 
                 if (loadAsGenome) {
                     setGenomeFromTrack(tracks.get(0));

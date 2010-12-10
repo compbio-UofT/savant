@@ -1,5 +1,5 @@
 /*
- * ContinuousViewTrack.java
+ * ContinuousTrack.java
  * Created on Jan 19, 2010
  *
  *
@@ -37,19 +37,19 @@ import savant.util.Range;
 import savant.util.Resolution;
 import savant.view.swing.Savant;
 import savant.view.swing.TrackRenderer;
-import savant.view.swing.ViewTrack;
+import savant.view.swing.Track;
 
 
 /**
  * A helper class to set up rendering of a ContinuousTrack
  * @author vwilliams
  */
- public class ContinuousViewTrack extends ViewTrack {
+ public class ContinuousTrack extends Track {
 
-    public ContinuousViewTrack(DataSource track) throws SavantTrackCreationCancelledException {
+    public ContinuousTrack(DataSource track) throws SavantTrackCreationCancelledException {
         super(track);
         setColorScheme(getDefaultColorScheme());
-        this.notifyViewTrackControllerOfCreation();
+        this.notifyControllerOfCreation();
     }
 
     @Override

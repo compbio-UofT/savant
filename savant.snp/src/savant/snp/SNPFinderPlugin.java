@@ -45,15 +45,15 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import savant.api.adapter.GenomeAdapter;
-import savant.api.adapter.ViewTrackAdapter;
+import savant.api.adapter.TrackAdapter;
 import savant.api.util.BookmarkUtils;
 import savant.api.util.GenomeUtils;
 import savant.api.util.NavigationUtils;
 import savant.api.util.TrackUtils;
 import savant.controller.event.RangeChangeCompletedListener;
 import savant.controller.event.RangeChangedEvent;
-import savant.controller.event.ViewTrackListChangedEvent;
-import savant.controller.event.ViewTrackListChangedListener;
+import savant.controller.event.TrackListChangedEvent;
+import savant.controller.event.TrackListChangedListener;
 import savant.data.types.BAMIntervalRecord;
 import savant.data.types.Record;
 import savant.file.DataFormat;
@@ -61,7 +61,7 @@ import savant.plugin.PluginAdapter;
 import savant.plugin.SavantPanelPlugin;
 import savant.snp.Pileup.Nucleotide;
 
-public class SNPFinderPlugin extends SavantPanelPlugin implements RangeChangeCompletedListener, ViewTrackListChangedListener {
+public class SNPFinderPlugin extends SavantPanelPlugin implements RangeChangeCompletedListener, TrackListChangedListener {
     private static final Log LOG = LogFactory.getLog(SNPFinderPlugin.class);
 
     private final int MAX_RANGE_TO_SEARCH = 5000;
@@ -71,14 +71,14 @@ public class SNPFinderPlugin extends SavantPanelPlugin implements RangeChangeCom
     private int transparency = 50;
     private byte[] sequence;
 
-    private Map<ViewTrackAdapter, JPanel> viewTrackToCanvasMap;
-    private Map<ViewTrackAdapter, List<Pileup>> viewTrackToPilesMap;
-    private Map<ViewTrackAdapter, List<Pileup>> viewTrackToSNPsMap;
-    private Map<ViewTrackAdapter, List<Pileup>> snpsFound;
+    private Map<TrackAdapter, JPanel> trackToCanvasMap;
+    private Map<TrackAdapter, List<Pileup>> trackToPilesMap;
+    private Map<TrackAdapter, List<Pileup>> trackToSNPsMap;
+    private Map<TrackAdapter, List<Pileup>> snpsFound;
 
 
 
-    //private Map<ViewTrack,JPanel> lastViewTrackToCanvasMapDrawn;
+    //private Map<Track,JPanel> lastTrackToCanvasMapDrawn;
 
     /* == INITIALIZATION == */
 
@@ -88,7 +88,7 @@ public class SNPFinderPlugin extends SavantPanelPlugin implements RangeChangeCom
     public void init(JPanel canvas, PluginAdapter pluginAdapter) {
         NavigationUtils.addRangeChangeListener(this);
         TrackUtils.addTracksChangedListener(this);
-        snpsFound = new HashMap<ViewTrackAdapter, List<Pileup>>();
+        snpsFound = new HashMap<TrackAdapter, List<Pileup>>();
         setupGUI(canvas);
         addMessage("SNP finder initialized");
     }
@@ -202,8 +202,8 @@ public class SNPFinderPlugin extends SavantPanelPlugin implements RangeChangeCom
      */
     private List<PileupPanel> getPileupPanels() {
         List<PileupPanel> panels = new ArrayList<PileupPanel>();
-        if (viewTrackToCanvasMap != null) {
-            for (JPanel p : this.viewTrackToCanvasMap.values()) {
+        if (trackToCanvasMap != null) {
+            for (JPanel p : this.trackToCanvasMap.values()) {
                 try {
                     panels.add((PileupPanel) p.getComponent(0));
                 } catch (ArrayIndexOutOfBoundsException e) {}
@@ -230,7 +230,7 @@ public class SNPFinderPlugin extends SavantPanelPlugin implements RangeChangeCom
      * Track change.
      */
     @Override
-    public void viewTrackListChangeReceived(ViewTrackListChangedEvent event) {
+    public void trackListChangeReceived(TrackListChangedEvent event) {
         //updateTrackCanvasMap();
     }
 
@@ -239,27 +239,27 @@ public class SNPFinderPlugin extends SavantPanelPlugin implements RangeChangeCom
      */
     private void updateTrackCanvasMap() {
 
-        if (viewTrackToCanvasMap == null) {
-            viewTrackToCanvasMap = new HashMap<ViewTrackAdapter, JPanel>();
+        if (trackToCanvasMap == null) {
+            trackToCanvasMap = new HashMap<TrackAdapter, JPanel>();
         }
 
         // TODO: should get rid of old JPanels here!
         // START
-        for (JPanel p : viewTrackToCanvasMap.values()) {
+        for (JPanel p : trackToCanvasMap.values()) {
             p.removeAll();
         }
-        viewTrackToCanvasMap.clear();
+        trackToCanvasMap.clear();
         // END
 
-        Map<ViewTrackAdapter, JPanel> newmap = new HashMap<ViewTrackAdapter, JPanel>();
+        Map<TrackAdapter, JPanel> newmap = new HashMap<TrackAdapter, JPanel>();
 
-        for (ViewTrackAdapter t : TrackUtils.getTracks()) {
+        for (TrackAdapter t : TrackUtils.getTracks()) {
 
             if (t.getDataSource().getDataFormat() == DataFormat.INTERVAL_BAM) {
 
-                if (viewTrackToCanvasMap.containsKey(t)) {
-                    newmap.put(t, viewTrackToCanvasMap.get(t));
-                    viewTrackToCanvasMap.remove(t);
+                if (trackToCanvasMap.containsKey(t)) {
+                    newmap.put(t, trackToCanvasMap.get(t));
+                    trackToCanvasMap.remove(t);
                 } else {
                     //System.out.println("putting " + t.getName() + " in BAM map");
                     newmap.put(t, t.getLayerCanvas());
@@ -267,7 +267,7 @@ public class SNPFinderPlugin extends SavantPanelPlugin implements RangeChangeCom
             }
         }
 
-        viewTrackToCanvasMap = newmap;
+        trackToCanvasMap = newmap;
     }
 
     /**
@@ -342,18 +342,18 @@ public class SNPFinderPlugin extends SavantPanelPlugin implements RangeChangeCom
      */
     private void createPileups() {
 
-        if (this.viewTrackToPilesMap != null) {
-            viewTrackToPilesMap.clear();
+        if (this.trackToPilesMap != null) {
+            trackToPilesMap.clear();
         }
-        viewTrackToPilesMap = new HashMap<ViewTrackAdapter, List<Pileup>>();
+        trackToPilesMap = new HashMap<TrackAdapter, List<Pileup>>();
 
-        for (ViewTrackAdapter t : viewTrackToCanvasMap.keySet()) {
+        for (TrackAdapter t : trackToCanvasMap.keySet()) {
             try {
                 //List<Integer> snps =
                 long startPosition = NavigationUtils.getCurrentRange().getFrom();
                 List<Pileup> piles = makePileupsFromSAMRecords(t.getName(), t.getDataInRange(), sequence, startPosition);
-                this.viewTrackToPilesMap.put(t, piles);
-                //drawPiles(piles, viewTrackToCanvasMap.get(t));
+                this.trackToPilesMap.put(t, piles);
+                //drawPiles(piles, trackToCanvasMap.get(t));
 
                 //addMessag(snps.)
             } catch (IOException ex) {
@@ -367,7 +367,7 @@ public class SNPFinderPlugin extends SavantPanelPlugin implements RangeChangeCom
     /**
      * Make pileups for SAM records.
      */
-    private List<Pileup> makePileupsFromSAMRecords(String viewTrackName, List<Record> samRecords, byte[] sequence, long startPosition) throws IOException {
+    private List<Pileup> makePileupsFromSAMRecords(String trackName, List<Record> samRecords, byte[] sequence, long startPosition) throws IOException {
 
         //addMessage("Examining each position");
 
@@ -376,7 +376,7 @@ public class SNPFinderPlugin extends SavantPanelPlugin implements RangeChangeCom
         // make the pileups
         int length = sequence.length;
         for (int i = 0; i < length; i++) {
-            pileups.add(new Pileup(viewTrackName, startPosition + i, Pileup.getNucleotide(sequence[i])));
+            pileups.add(new Pileup(trackName, startPosition + i, Pileup.getNucleotide(sequence[i])));
         }
 
         //System.out.println("Pileup start: " + startPosition);
@@ -494,16 +494,18 @@ public class SNPFinderPlugin extends SavantPanelPlugin implements RangeChangeCom
 
     }
 
-    /* CALL SNPS FOR ALL VIEWTRACKS*/
+    /**
+     * Call SNPs for all tracks.
+     */
     private void callSNPs() {
 
-        if (this.viewTrackToSNPsMap != null) { this.viewTrackToSNPsMap.clear(); }
-        this.viewTrackToSNPsMap = new HashMap<ViewTrackAdapter, List<Pileup>>();
+        if (this.trackToSNPsMap != null) { this.trackToSNPsMap.clear(); }
+        this.trackToSNPsMap = new HashMap<TrackAdapter, List<Pileup>>();
 
-        for (ViewTrackAdapter t : viewTrackToCanvasMap.keySet()) {
-            List<Pileup> piles = viewTrackToPilesMap.get(t);
+        for (TrackAdapter t : trackToCanvasMap.keySet()) {
+            List<Pileup> piles = trackToPilesMap.get(t);
             List<Pileup> snps = callSNPsFromPileups(piles, sequence);
-            this.viewTrackToSNPsMap.put(t, snps);
+            this.trackToSNPsMap.put(t, snps);
             addFoundSNPs(t, snps);
         }
     }
@@ -563,17 +565,17 @@ public class SNPFinderPlugin extends SavantPanelPlugin implements RangeChangeCom
     }
 
     /**
-     * Draw piles on panels for all ViewTracks.
+     * Draw piles on panels for all Tracks.
      */
     private void drawPiles() {
 
-        //lastViewTrackToCanvasMapDrawn = viewTrackToCanvasMap;
+        //lastTrackToCanvasMapDrawn = trackToCanvasMap;
 
         //System.out.println("Drawing annotations");
 
-        for (ViewTrackAdapter t : viewTrackToSNPsMap.keySet()) {
-            List<Pileup> pile = viewTrackToSNPsMap.get(t);
-            drawPiles(pile, viewTrackToCanvasMap.get(t));
+        for (TrackAdapter t : trackToSNPsMap.keySet()) {
+            List<Pileup> pile = trackToSNPsMap.get(t);
+            drawPiles(pile, trackToCanvasMap.get(t));
         }
 
         //System.out.println("Done drawing annotations");
@@ -612,7 +614,7 @@ public class SNPFinderPlugin extends SavantPanelPlugin implements RangeChangeCom
         }
     }
 
-    private boolean foundSNPAlready(ViewTrackAdapter t, Pileup p) {
+    private boolean foundSNPAlready(TrackAdapter t, Pileup p) {
         if (snpsFound.containsKey(t) && snpsFound.get(t).contains(p)) {
             //System.out.println(p.getPosition() + " found already");
             return true;
@@ -622,13 +624,13 @@ public class SNPFinderPlugin extends SavantPanelPlugin implements RangeChangeCom
         }
     }
 
-    private void addFoundSNPs(ViewTrackAdapter t, List<Pileup> snps) {
+    private void addFoundSNPs(TrackAdapter t, List<Pileup> snps) {
         for (Pileup snp : snps) {
             addFoundSNP(t,snp);
         }
     }
 
-    private void addFoundSNP(ViewTrackAdapter t, Pileup snp) {
+    private void addFoundSNP(TrackAdapter t, Pileup snp) {
         if (!this.foundSNPAlready(t, snp)) {
             if (!snpsFound.containsKey(t)) {
                 List<Pileup> snps = new ArrayList<Pileup>();

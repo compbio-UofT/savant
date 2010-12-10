@@ -16,50 +16,45 @@
 
 package savant.view.swing.sequence;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import savant.exception.SavantTrackCreationCancelledException;
-import savant.file.DataFormat;
-import savant.util.*;
-import savant.util.ColorScheme;
-import savant.util.DrawingInstructions;
-import savant.view.swing.TrackRenderer;
-import savant.view.swing.ViewTrack;
-
 import java.awt.*;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import savant.api.adapter.RangeAdapter;
-import savant.controller.ViewTrackController;
 import savant.data.sources.DataSource;
-import savant.data.sources.file.FASTAFileDataSource;
 import savant.data.types.Record;
 import savant.data.types.SequenceRecord;
+import savant.exception.SavantTrackCreationCancelledException;
 import savant.file.SavantROFile;
-
 import savant.settings.ColourSettings;
+import savant.util.*;
+import savant.view.swing.TrackRenderer;
+import savant.view.swing.Track;
+
 
 /**
  *
  * @author mfiume
  */
-public class SequenceViewTrack extends ViewTrack {
+public class SequenceTrack extends Track {
 
-    private static Log log = LogFactory.getLog(SequenceViewTrack.class);
+    private static Log log = LogFactory.getLog(SequenceTrack.class);
 
     SavantROFile dFile;
     //Genome genome;
     //String path;
 
-    public SequenceViewTrack(DataSource dataTrack) throws SavantTrackCreationCancelledException
+    public SequenceTrack(DataSource dataTrack) throws SavantTrackCreationCancelledException
     {
         super(dataTrack);
         //setGenome(g);
         //path = g.getFilename();
         setColorScheme(getDefaultColorScheme());
-        this.notifyViewTrackControllerOfCreation();
+        this.notifyControllerOfCreation();
     }
 
     private ColorScheme getDefaultColorScheme()

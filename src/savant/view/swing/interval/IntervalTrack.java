@@ -15,36 +15,33 @@
  */
 package savant.view.swing.interval;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import savant.data.types.GenericIntervalRecord;
-import savant.data.types.Interval;
-import savant.exception.SavantTrackCreationCancelledException;
-import savant.file.DataFormat;
-import savant.util.*;
-import savant.data.sources.file.GenericIntervalFileDataSource;
-import savant.util.ColorScheme;
-import savant.util.DrawingInstructions;
-import savant.util.Mode;
-import savant.view.swing.TrackRenderer;
-import savant.view.swing.ViewTrack;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import savant.api.adapter.ModeAdapter;
 import savant.api.adapter.RangeAdapter;
 import savant.data.sources.DataSource;
+import savant.data.types.GenericIntervalRecord;
+import savant.data.types.Interval;
 import savant.data.types.Record;
+import savant.exception.SavantTrackCreationCancelledException;
 import savant.settings.ColourSettings;
+import savant.util.*;
+import savant.view.swing.TrackRenderer;
+import savant.view.swing.Track;
+
 
 /**
  *
  * @author mfiume
  */
-public class IntervalViewTrack extends ViewTrack {
+public class IntervalTrack extends Track {
 
-    private static Log LOG = LogFactory.getLog(IntervalViewTrack.class);
+    private static Log LOG = LogFactory.getLog(IntervalTrack.class);
 
     public enum DrawingMode { SQUISH, PACK, ARC };
 
@@ -52,12 +49,12 @@ public class IntervalViewTrack extends ViewTrack {
     private static final Mode PACK_MODE = Mode.fromObject(DrawingMode.PACK, "Minimum number of lines");
     private static final Mode ARC_MODE = Mode.fromObject(DrawingMode.ARC, "Arcs");
 
-    public IntervalViewTrack(DataSource intervalTrack) throws SavantTrackCreationCancelledException {
+    public IntervalTrack(DataSource intervalTrack) throws SavantTrackCreationCancelledException {
         super(intervalTrack);
         setColorScheme(getDefaultColorScheme());
         setDrawModes(getDefaultDrawModes());
         setDrawMode(PACK_MODE);
-        this.notifyViewTrackControllerOfCreation();
+        this.notifyControllerOfCreation();
     }
 
     private ColorScheme getDefaultColorScheme() {

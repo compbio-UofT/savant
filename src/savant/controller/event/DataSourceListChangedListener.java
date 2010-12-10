@@ -1,5 +1,5 @@
 /*
- *    Copyright 2009-2010 University of Toronto
+ *    Copyright 2010 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -14,29 +14,17 @@
  *    limitations under the License.
  */
 
+/*
+ * TrackListChangedListener.java
+ * Created on Mar 11, 2010
+ */
+
 package savant.controller.event;
 
-import savant.view.swing.ViewTrack;
-
-import java.util.EventObject;
-import java.util.List;
-
 /**
- *
- * @author mfiume
+ * @author vwilliams
  */
-public class ViewTrackListChangedEvent extends EventObject {
+public interface DataSourceListChangedListener {
 
-    private List<ViewTrack> tracks;
-
-    public ViewTrackListChangedEvent( Object source, List<ViewTrack> tracks ) {
-        super( source );
-        this.tracks = tracks;
-    }
-
-    public List<ViewTrack> getTracks() {
-        return tracks;
-    }
-
+    public void trackListChangeReceived(DataSourceListChangedEvent evt);
 }
-

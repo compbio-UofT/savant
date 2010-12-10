@@ -22,27 +22,19 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.List;
-import javax.swing.DefaultListModel;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
+import javax.swing.*;
 import savant.controller.FrameController;
 import savant.file.DataFormat;
 import savant.view.swing.Frame;
-import savant.view.swing.Savant;
+
 
 /**
  *
  * @author AndrewBrook
  */
-public class TrackChooser extends javax.swing.JDialog {
+public class TrackChooser extends JDialog {
 
     private boolean multiple;
     private JPanel filler1;
@@ -74,7 +66,7 @@ public class TrackChooser extends javax.swing.JDialog {
         super.setVisible(isVisible);
     }
 
-    public TrackChooser(Savant parent, boolean multiple, String title){
+    public TrackChooser(JFrame parent, boolean multiple, String title){
         super(parent, true);
 
         //this.setVisible(true);
@@ -164,7 +156,7 @@ public class TrackChooser extends javax.swing.JDialog {
         c.gridx = 1;
         c.gridy = 1;
         c.gridwidth = 1;
-        c.anchor = c.CENTER;
+        c.anchor = GridBagConstraints.CENTER;
         this.add(leftLabel, c);
 
         //RIGHT LABEL
@@ -175,7 +167,7 @@ public class TrackChooser extends javax.swing.JDialog {
         c.gridx = 3;
         c.gridy = 1;
         c.gridwidth = 2;
-        c.anchor = c.CENTER;
+        c.anchor = GridBagConstraints.CENTER;
         this.add(rightLabel, c);
 
         //LEFT LIST
@@ -308,37 +300,32 @@ public class TrackChooser extends javax.swing.JDialog {
 
     private void createOkButton(){
         okButton = new JButton("OK");
-        okButton.addMouseListener(new MouseListener() {
-            public void mouseClicked(MouseEvent e) {
+        okButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
                 retVal = ((TrackListModel)rightList.getModel()).getAll();
                 dispose();
             }
-            public void mousePressed(MouseEvent e) {}
-            public void mouseReleased(MouseEvent e) {}
-            public void mouseEntered(MouseEvent e) {}
-            public void mouseExited(MouseEvent e) {}
         });    
     }
 
     private void createCancelButton(){
         cancelButton = new JButton("Cancel");
-        cancelButton.addMouseListener(new MouseListener() {
-            public void mouseClicked(MouseEvent e) {
+        cancelButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
                 retVal = null;
                 dispose();
             }
-            public void mousePressed(MouseEvent e) {}
-            public void mouseReleased(MouseEvent e) {}
-            public void mouseEntered(MouseEvent e) {}
-            public void mouseExited(MouseEvent e) {}
         });
     }
 
     private void createMoveRight(){
         moveRight = new JButton(">");
         moveRight.setToolTipText("Add item(s) to selected");
-        moveRight.addMouseListener(new MouseListener() {
-            public void mouseClicked(MouseEvent e) {
+        moveRight.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
                 Object[] selected = leftList.getSelectedValues();
                 if(selected.length > 1 && !multiple) return;
                 if(((TrackListModel)rightList.getModel()).getSize() > 0 && !multiple) return;
@@ -351,18 +338,15 @@ public class TrackChooser extends javax.swing.JDialog {
                 leftList.clearSelection();
                 rightList.clearSelection();
             }
-            public void mousePressed(MouseEvent e) {}
-            public void mouseReleased(MouseEvent e) {}
-            public void mouseEntered(MouseEvent e) {}
-            public void mouseExited(MouseEvent e) {}
         });
     }
 
     private void createMoveLeft(){
         moveLeft = new JButton("<");
         moveLeft.setToolTipText("Remove item(s) from selected");
-        moveLeft.addMouseListener(new MouseListener() {
-            public void mouseClicked(MouseEvent e) {
+        moveLeft.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
                 Object[] selected = rightList.getSelectedValues();
                 if(selected.length > 1 && !multiple) return;
                 for(int i = 0; i < selected.length; i++){
@@ -374,10 +358,6 @@ public class TrackChooser extends javax.swing.JDialog {
                 leftList.clearSelection();
                 rightList.clearSelection();
             }
-            public void mousePressed(MouseEvent e) {}
-            public void mouseReleased(MouseEvent e) {}
-            public void mouseEntered(MouseEvent e) {}
-            public void mouseExited(MouseEvent e) {}
         });
     }
 
@@ -385,8 +365,9 @@ public class TrackChooser extends javax.swing.JDialog {
         allRight = new JButton(">>");
         allRight.setToolTipText("Add all to selected");
         if(!this.multiple) allRight.setEnabled(false);
-        allRight.addMouseListener(new MouseListener() {
-            public void mouseClicked(MouseEvent e) {
+        allRight.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
                 String[] stringsLeft = ((TrackListModel)leftList.getModel()).getAll();
                 for(int i = 0; i < stringsLeft.length; i++){
                     ((TrackListModel)rightList.getModel()).add(stringsLeft[i]);
@@ -397,10 +378,6 @@ public class TrackChooser extends javax.swing.JDialog {
                 leftList.clearSelection();
                 rightList.clearSelection();
             }
-            public void mousePressed(MouseEvent e) {}
-            public void mouseReleased(MouseEvent e) {}
-            public void mouseEntered(MouseEvent e) {}
-            public void mouseExited(MouseEvent e) {}
         });
     }
 
@@ -408,8 +385,9 @@ public class TrackChooser extends javax.swing.JDialog {
         allLeft = new JButton("<<");
         allLeft.setToolTipText("Remove all from selected");
         if(!this.multiple) allLeft.setEnabled(false);
-        allLeft.addMouseListener(new MouseListener() {
-            public void mouseClicked(MouseEvent e) {
+        allLeft.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
                 String[] stringsRight = ((TrackListModel)rightList.getModel()).getAll();
                 for(int i = 0; i < stringsRight.length; i++){
                     ((TrackListModel)leftList.getModel()).add(stringsRight[i]);
@@ -420,10 +398,6 @@ public class TrackChooser extends javax.swing.JDialog {
                 leftList.clearSelection();
                 rightList.clearSelection();
             }
-            public void mousePressed(MouseEvent e) {}
-            public void mouseReleased(MouseEvent e) {}
-            public void mouseEntered(MouseEvent e) {}
-            public void mouseExited(MouseEvent e) {}
         });
     }
 
@@ -458,6 +432,7 @@ public class TrackChooser extends javax.swing.JDialog {
             filterCombo.addItem(fileFormats.get(i));
         }
         filterCombo.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 filter();
             }
@@ -466,10 +441,18 @@ public class TrackChooser extends javax.swing.JDialog {
         ((TrackListModel)leftList.getModel()).init(tracks);
     }
 
-    private class TrackListModel extends DefaultListModel{
+    private class TrackListModel extends DefaultListModel {
         String[] strings = {};
-        public int getSize() { return strings.length; }
-        public Object getElementAt(int i) { return strings[i]; }
+
+        @Override
+        public int getSize() {
+            return strings.length;
+        }
+
+        @Override
+        public Object getElementAt(int i) {
+            return strings[i];
+        }
 
         public void init(String[] strings1){
             strings = strings1;
@@ -477,7 +460,7 @@ public class TrackChooser extends javax.swing.JDialog {
 
         public void add(String s){
             String[] strings1 = new String[strings.length+1];
-            for(int i = 0; i < strings.length; i++) strings1[i] = strings[i];
+            System.arraycopy(strings, 0, strings1, 0, strings.length);
             strings1[strings.length] = s;
             strings = strings1;
         }
@@ -519,5 +502,4 @@ public class TrackChooser extends javax.swing.JDialog {
         }
 
     }
-
 }
