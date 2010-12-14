@@ -66,9 +66,15 @@ public class FastaFormatter extends SavantFileFormatter{
 
                     // set the correct output stream
                     if (strLine.length() > 0 && strLine.charAt(0) == '>') {
+
+                        if (outfile != null) {
+                            closeOutputForReference(refname);
+                        }
+
                         refname = strLine.substring(1).trim();
                         StringTokenizer st = new StringTokenizer(refname);
                         refname = st.nextToken();
+                        
                         outfile = this.getFileForReference(refname);
                         if (log.isDebugEnabled()) {
                             log.debug("New reference found: " + refname);
@@ -94,6 +100,8 @@ public class FastaFormatter extends SavantFileFormatter{
                 // update progress property for UI
                 this.setSubtaskProgress(this.getProgressAsInteger(byteCount, totalBytes));
             }
+
+            closeOutputForReference(refname);
 
             System.out.println("Done converting all chrs");
 

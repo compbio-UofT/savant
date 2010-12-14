@@ -18,6 +18,8 @@ package savant.format;
 
 import java.io.*;
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -199,6 +201,20 @@ public abstract class SavantFileFormatter {
         return f;
     }
 
+    public void closeOutputForReference(String refname) {
+        OutputStream o = referenceName2FileMap.get(refname);
+        //referenceName2FilenameMap.remove(refname);
+        
+        //OutputStream o = referenceName2FileMap.remove(refname);
+        //referenceName2FilenameMap.remove(refname);
+
+        try {
+            o.flush();
+            o.close();
+        } catch (IOException ex) {
+        }
+    }
+
     protected DataOutputStream getFileForReference(String referenceName) throws FileNotFoundException {
         if (this.referenceName2FileMap.containsKey(referenceName)) {
             return this.referenceName2FileMap.get(referenceName);
@@ -228,9 +244,11 @@ public abstract class SavantFileFormatter {
     }
      */
 
-    protected void closeOutputStreams() throws IOException {
+    protected void closeOutputStreams() {
         for (DataOutputStream o : referenceName2FileMap.values()) {
-            o.close();
+            try {
+                o.close();
+            } catch (Exception e) {}
         }
     }
 
