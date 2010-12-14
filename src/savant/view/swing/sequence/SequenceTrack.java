@@ -32,7 +32,6 @@ import savant.exception.SavantTrackCreationCancelledException;
 import savant.file.SavantROFile;
 import savant.settings.ColourSettings;
 import savant.util.*;
-import savant.view.swing.TrackRenderer;
 import savant.view.swing.Track;
 
 
@@ -48,13 +47,11 @@ public class SequenceTrack extends Track {
     //Genome genome;
     //String path;
 
-    public SequenceTrack(DataSource dataTrack) throws SavantTrackCreationCancelledException
-    {
-        super(dataTrack);
-        //setGenome(g);
-        //path = g.getFilename();
+    public SequenceTrack(DataSource dataTrack) throws SavantTrackCreationCancelledException {
+        super(dataTrack, new SequenceTrackRenderer());
+
         setColorScheme(getDefaultColorScheme());
-        this.notifyControllerOfCreation();
+        notifyControllerOfCreation();
     }
 
     private ColorScheme getDefaultColorScheme()
@@ -129,28 +126,20 @@ public class SequenceTrack extends Track {
             saveNullData();
         }
 
-        for (TrackRenderer renderer: getTrackRenderers()) {
-            boolean contains = (this.getDataSource().getReferenceNames().contains(reference) || this.getDataSource().getReferenceNames().contains(MiscUtils.homogenizeSequence(reference)));
-            renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.RESOLUTION, r);
-            renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.AXIS_RANGE, AxisRange.initWithRanges(range, getDefaultYRange()));
-            renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.REFERENCE_EXISTS, this.getDataSource().getReferenceNames().contains(reference));
-            renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.SELECTION_ALLOWED, false);
+        renderer.addInstruction(DrawingInstruction.RESOLUTION, r);
+        renderer.addInstruction(DrawingInstruction.AXIS_RANGE, AxisRange.initWithRanges(range, getDefaultYRange()));
+        renderer.addInstruction(DrawingInstruction.REFERENCE_EXISTS, this.getDataSource().getReferenceNames().contains(reference));
+        renderer.addInstruction(DrawingInstruction.SELECTION_ALLOWED, false);
 
-            if (r == Resolution.VERY_HIGH)
-            {
-                renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.RANGE, range);
-                renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.COLOR_SCHEME, this.getColorScheme());
-            }
-
-            renderer.setData(data);
-
+        if (r == Resolution.VERY_HIGH) {
+            renderer.addInstruction(DrawingInstruction.RANGE, range);
+            renderer.addInstruction(DrawingInstruction.COLOR_SCHEME, this.getColorScheme());
         }
 
+        renderer.setData(data);
     }
 
-    private Range getDefaultYRange()
-    {
+    private Range getDefaultYRange() {
         return new Range(0, 1);
     }
-
 }

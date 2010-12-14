@@ -16,12 +16,13 @@
 
 package savant.view.swing;
 
-import java.awt.*;
-import java.awt.geom.Ellipse2D;
+import java.awt.Graphics;
+import java.awt.Point;
+import java.awt.Shape;
 import java.awt.geom.Rectangle2D;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -31,51 +32,74 @@ import javax.swing.JViewport;
 
 import savant.controller.RangeController;
 import savant.controller.SelectionController;
-import savant.data.types.GenericContinuousRecord;
 import savant.data.types.Record;
+import savant.exception.RenderingException;
 import savant.file.DataFormat;
-import savant.util.DrawingInstructions;
+import savant.util.DrawingInstruction;
 import savant.util.Mode;
 import savant.util.Range;
-import savant.view.swing.continuous.ContinuousTrackRenderer;
 
 /**
  *
- * @author mfiume, AndrewBrook
+ * @author mfiume, AndrewBrook, tarkvara
  */
 public abstract class TrackRenderer {
 
-    private List<Record> data;
-    private DrawingInstructions instructions;
-    protected DataFormat dataType;
-    //private URI fileURI;
-    private String trackname;
+    protected List<Record> data;
+    protected final EnumMap<DrawingInstruction, Object> instructions = new EnumMap<DrawingInstruction, Object>(DrawingInstruction.class);
+    protected final DataFormat dataType;
+    protected String trackName;
 
     protected Map<Record, Shape> recordToShapeMap = new HashMap<Record, Shape>();
 
-    public TrackRenderer(DrawingInstructions instructions) {
-        this.instructions = instructions;
+    protected TrackRenderer(DataFormat dataType) {
+        this.dataType = dataType;
+        instructions.put(DrawingInstruction.TRACK_DATA_TYPE, dataType);
     }
 
     public void setTrackName(String name) {
-        this.trackname = name;
+        this.trackName = name;
     }
 
     public List<Record> getData() {
         return data == null ? null : Collections.unmodifiableList(data);
     }
 
-    public DrawingInstructions getDrawingInstructions() { return this.instructions; }
-    public DataFormat getDataType() { return this.dataType; }
+    public void addInstruction(DrawingInstruction key, Object value) {
+        instructions.put(key, value);
+    }
 
-    public abstract void render(Graphics g, GraphPane gp);
+    /**
+     * Retrieve the value of a specific drawing instruction for this renderer.
+     *
+     * @param key key identifying the drawing instruction to be retrieved
+     * @return the value of that drawing instruction
+     */
+    public Object getInstruction(DrawingInstruction key) {
+        return instructions.get(key);
+    }
+
+    /**
+     * Remove a drawing instruction from this renderer.
+     * 
+     * @param key the drawing instruction to be removed
+     */
+    public void removeInstruction(DrawingInstruction key) {
+        instructions.remove(key);
+    }
+
+    public DataFormat getDataType() {
+        return dataType;
+    }
+
+    public abstract void render(Graphics g, GraphPane gp) throws RenderingException;
 
     public abstract boolean isOrdinal();
 
     public abstract Range getDefaultYRange();
 
     public boolean selectionAllowed(){
-        Object instruction = this.instructions.getInstruction(DrawingInstructions.InstructionName.SELECTION_ALLOWED);
+        Object instruction = instructions.get(DrawingInstruction.SELECTION_ALLOWED);
         if(instruction == null || instruction.equals(false)) return false;
         return true;
     }
@@ -128,8 +152,8 @@ public abstract class TrackRenderer {
         
         //check for arcMode
         boolean isArc = false;
-        Mode instruction = (Mode) getDrawingInstructions().getInstruction(DrawingInstructions.InstructionName.MODE);
-        if(instruction != null && instruction.getName().equals("MATE_PAIRS")){
+        Mode instruction = (Mode)instructions.get(DrawingInstruction.MODE);
+        if (instruction != null && instruction.getName().equals("MATE_PAIRS")){
             isArc = true;
         }
         
@@ -169,7 +193,7 @@ public abstract class TrackRenderer {
         }
 
         if(repaint)
-            SelectionController.getInstance().addMultipleSelections(trackname, toAdd);
+            SelectionController.getInstance().addMultipleSelections(trackName, toAdd);
 
         return repaint;
     }
@@ -180,35 +204,23 @@ public abstract class TrackRenderer {
 
     public void addToSelected(Record i){
         if(selectionAllowed()){
-            SelectionController.getInstance().toggleSelection(trackname, i);
+            SelectionController.getInstance().toggleSelection(trackName, i);
         }
     }
 
 
-    // CURRENT SELECTED
-
+    /**
+     * Current selected shapes.
+     */
     public List<Shape> getCurrentSelectedShapes(GraphPane gp){
         List<Shape> shapes = new ArrayList<Shape>();
-        List<Record> currentSelected = SelectionController.getInstance().getSelectedFromList(trackname, RangeController.getInstance().getRange(), data);
+        List<Record> currentSelected = SelectionController.getInstance().getSelectedFromList(trackName, RangeController.getInstance().getRange(), data);
         for(int i = 0; i < currentSelected.size(); i++){
-            if(this.getClass().equals(ContinuousTrackRenderer.class)){
-                shapes.add(continuousRecordToEllipse(gp, currentSelected.get(i)));
-            } else {
-                Shape s = this.recordToShapeMap.get(currentSelected.get(i));
-                if(s != null){
-                    shapes.add(s);
-                }
+            Shape s = recordToShapeMap.get(currentSelected.get(i));
+            if (s != null){
+                shapes.add(s);
             }
         }
         return shapes;
     }
-
-    public static Shape continuousRecordToEllipse(GraphPane gp, Record o){
-        GenericContinuousRecord rec = (GenericContinuousRecord) o;
-        Double x = gp.transformXPos(rec.getPosition()) + (gp.getUnitWidth()/2) -4;
-        Double y = gp.transformYPos(rec.getValue().getValue()) -4;// + (this.getUnitWidth()/2);
-        Shape s = new Ellipse2D.Double(x, y, 8, 8);
-        return s;
-    }
-
 }

@@ -36,14 +36,7 @@ import savant.data.types.BAMIntervalRecord;
 import savant.data.types.Record;
 import savant.exception.SavantTrackCreationCancelledException;
 import savant.settings.ColourSettings;
-import savant.util.AxisRange;
-import savant.util.ColorScheme;
-import savant.util.DrawingInstructions;
-import savant.util.MiscUtils;
-import savant.util.Mode;
-import savant.util.Range;
-import savant.util.Resolution;
-import savant.view.swing.TrackRenderer;
+import savant.util.*;
 import savant.view.swing.Track;
 
 
@@ -57,7 +50,7 @@ import savant.view.swing.Track;
  */
 public class BAMTrack extends Track {
     
-    private static Log log = LogFactory.getLog(BAMTrack.class);
+    private static final Log LOG = LogFactory.getLog(BAMTrack.class);
 
     public enum DrawingMode {
         STANDARD,
@@ -83,11 +76,10 @@ public class BAMTrack extends Track {
     /**
      * Constructor.
      *
-     * @param name track name
-     * @param bamTrack data track which this view track represents
+     * @param dataSource data source which this track represents
      */
-    public BAMTrack(DataSource bamTrack) throws SavantTrackCreationCancelledException {
-        super(bamTrack);
+    public BAMTrack(DataSource dataSource) throws SavantTrackCreationCancelledException {
+        super(dataSource, new BAMTrackRenderer());
         setColorScheme(getDefaultColorScheme());
         setDrawModes(getDefaultDrawModes());
         setDrawMode(VARIANTS_MODE);
@@ -128,34 +120,33 @@ public class BAMTrack extends Track {
 
         Resolution r = getResolution(range);
         List<Record> data = null;
-        boolean zoomIn = false;
-        if ((getDrawMode().equals(MATE_PAIRS_MODE) && (r == Resolution.HIGH || r == Resolution.VERY_HIGH || r == Resolution.MEDIUM))
-                || (r == Resolution.VERY_HIGH || r == Resolution.HIGH)) {
+        String zoomInMessage = null;
+        if (r == Resolution.VERY_HIGH || r == Resolution.HIGH || (getDrawMode().equals(MATE_PAIRS_MODE) && r == Resolution.MEDIUM)) {
             data = retrieveAndSaveData(reference, range);
-        } else if(getDrawMode().equals(MATE_PAIRS_MODE)){
-            zoomIn = true;
+        } else if (getDrawMode().equals(MATE_PAIRS_MODE)){
+            zoomInMessage = "Zoom in to see data";
+        } else {
+            zoomInMessage = "No coverage file available";
         }
-        for (TrackRenderer renderer : getTrackRenderers()) {
-            renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.ZOOM_IN, zoomIn);
-            boolean contains = (this.getDataSource().getReferenceNames().contains(reference) || this.getDataSource().getReferenceNames().contains(MiscUtils.homogenizeSequence(reference)));
-            renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.RANGE, range);
-            renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.RESOLUTION, r);
-            renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.COLOR_SCHEME, this.getColorScheme());
-            // TODO: fix this (problem: references appear as 1 and not chr1)
-            renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.REFERENCE_EXISTS, contains); //this.getTrack().getReferenceNames().contains(reference));
+        renderer.addInstruction(DrawingInstruction.UNSUPPORTED_RESOLUTION, zoomInMessage);
 
-            if (getDrawMode().getName().equals("MATE_PAIRS") && !zoomIn) {
-                long maxDataValue = getMaxValue(data);
-                renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.AXIS_RANGE, AxisRange.initWithRanges(range, new Range(0,(int)Math.round(maxDataValue+maxDataValue*0.1))));
-                renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.ARC_MIN, getArcSizeVisibilityThreshold());
-                renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.DISCORDANT_MIN, getDiscordantMin());
-                renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.DISCORDANT_MAX, getDiscordantMax());
-            }
-            else renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.AXIS_RANGE, AxisRange.initWithRanges(range, getDefaultYRange()));
-            renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.SELECTION_ALLOWED, true);
-            renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.MODE, getDrawMode());
-            renderer.setData(data);
+        renderer.addInstruction(DrawingInstruction.RANGE, range);
+        renderer.addInstruction(DrawingInstruction.RESOLUTION, r);
+        renderer.addInstruction(DrawingInstruction.COLOR_SCHEME, getColorScheme());
+        renderer.addInstruction(DrawingInstruction.REFERENCE_EXISTS, containsReference(reference));
+
+        if (getDrawMode().getName().equals("MATE_PAIRS") && zoomInMessage != null) {
+            long maxDataValue = getMaxValue(data);
+            renderer.addInstruction(DrawingInstruction.AXIS_RANGE, AxisRange.initWithRanges(range, new Range(0,(int)Math.round(maxDataValue+maxDataValue*0.1))));
+            renderer.addInstruction(DrawingInstruction.ARC_MIN, getArcSizeVisibilityThreshold());
+            renderer.addInstruction(DrawingInstruction.DISCORDANT_MIN, getDiscordantMin());
+            renderer.addInstruction(DrawingInstruction.DISCORDANT_MAX, getDiscordantMax());
+        } else {
+            renderer.addInstruction(DrawingInstruction.AXIS_RANGE, AxisRange.initWithRanges(range, getDefaultYRange()));
         }
+        renderer.addInstruction(DrawingInstruction.SELECTION_ALLOWED, true);
+        renderer.addInstruction(DrawingInstruction.MODE, getDrawMode());
+        renderer.setData(data);
     }
 
     /*

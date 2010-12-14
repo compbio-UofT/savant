@@ -15,7 +15,6 @@
  */
 package savant.view.swing;
 
-import savant.exception.SavantTrackCreationCancelledException;
 import java.awt.Color;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -31,7 +30,10 @@ import savant.controller.TrackController;
 import savant.data.types.Genome;
 import savant.data.sources.*;
 import savant.data.types.Record;
+import savant.exception.SavantTrackCreationCancelledException;
+import savant.file.DataFormat;
 import savant.util.ColorScheme;
+import savant.util.MiscUtils;
 import savant.util.Mode;
 import savant.util.Range;
 import savant.util.Resolution;
@@ -52,12 +54,11 @@ public abstract class Track implements TrackAdapter {
 
     private final String name;
     private ColorScheme colorScheme;
-    //private final DataFormat dataType;
     private List<Record> dataInRange;
     private List<ModeAdapter> drawModes;
     private ModeAdapter drawMode;
-    private List<TrackRenderer> trackRenderers;
-    private DataSource dataSource;
+    protected final TrackRenderer renderer;
+    private final DataSource dataSource;
     private ColorSchemeDialog colorDialog = new ColorSchemeDialog();
     private IntervalDialog intervalDialog = new IntervalDialog();
     // FIXME:
@@ -90,16 +91,14 @@ public abstract class Track implements TrackAdapter {
 
     /**
      * Constructor
-     * @param name track name (typically, the file name)
-     * @param dataType FileFormat representing file type, e.g. INTERVAL_BED, CONTINUOUS_GENERIC
+     * @param source track data source; name, type, and will be derived from this
      */
-    public Track(/*DataFormat dataType,*/ DataSource dataSource) throws SavantTrackCreationCancelledException {
+    protected Track(DataSource dataSource, TrackRenderer renderer) throws SavantTrackCreationCancelledException {
 
-        //this.dataType = dataType;
         drawModes = new ArrayList<ModeAdapter>();
-        trackRenderers = new ArrayList<TrackRenderer>();
 
         this.dataSource = dataSource;
+        this.renderer = renderer;
 
         String n = getUniqueName(dataSource.getName());
 
@@ -107,20 +106,9 @@ public abstract class Track implements TrackAdapter {
             throw new SavantTrackCreationCancelledException();
         }
 
-        this.name = n;
-    }
+        name = n;
 
-    // TODO: remove this constructor!! should not need to pass a name
-    /*
-     * @deprecated use the correspeonding constructor without name argument
-     * instead
-     */
-    public Track(String name, /*DataFormat dataType,*/ DataSource dataSource) {
-        //this.dataType = dataType;
-        drawModes = new ArrayList<ModeAdapter>();
-        trackRenderers = new ArrayList<TrackRenderer>();
-        this.dataSource = dataSource;
-        this.name = name;
+        renderer.setTrackName(name);
     }
 
     private String getUniqueName(String name) {
@@ -269,9 +257,6 @@ public abstract class Track implements TrackAdapter {
         }
     }
 
-//    public void setDrawMode(Object o) {
-//        setDrawMode(o.toString());
-//    }
     /**
      * Set the list of valid draw modes
      *
@@ -289,6 +274,24 @@ public abstract class Track implements TrackAdapter {
     @Override
     public DataSource getDataSource() {
         return this.dataSource;
+    }
+
+    /**
+     * Convenience method to get a track's data format.
+     * 
+     * @return the DataFormat of the track's DataSource
+     */
+    public DataFormat getDataFormat() {
+        return dataSource.getDataFormat();
+    }
+
+    /**
+     * Utility method to determine whether this track has data for the given reference.
+     *
+     * @return
+     */
+    public boolean containsReference(String ref) {
+        return dataSource.getReferenceNames().contains(ref) || dataSource.getReferenceNames().contains(MiscUtils.homogenizeSequence(ref));
     }
 
     /**
@@ -314,6 +317,15 @@ public abstract class Track implements TrackAdapter {
     }
 
     /**
+     * Retrieve the renderer associated with this track.
+     *
+     * @return the track's renderer
+     */
+    public TrackRenderer getRenderer() {
+        return renderer;
+    }
+
+    /**
      * Prepare this view track to render the given range.
      *
      * @param range
@@ -331,7 +343,7 @@ public abstract class Track implements TrackAdapter {
 
     @Override
     public boolean isSelectionAllowed() {
-        return getTrackRenderers().get(0).selectionAllowed();
+        return renderer.selectionAllowed();
     }
 
     /**
@@ -384,24 +396,6 @@ public abstract class Track implements TrackAdapter {
     public abstract List<Record> retrieveData(String reference, RangeAdapter range, Resolution resolution) throws IOException;
 
     /**
-     * Add a renderer to this view track
-     *
-     * @param renderer
-     */
-    public void addTrackRenderer(TrackRenderer renderer) {
-        this.trackRenderers.add(renderer);
-    }
-
-    /**
-     * Get all renderers attached to this view track
-     *
-     * @return
-     */
-    public List<TrackRenderer> getTrackRenderers() {
-        return this.trackRenderers;
-    }
-
-    /**
      * Get the default draw mode.
      *
      * @return  the default draw mode
@@ -435,12 +429,4 @@ public abstract class Track implements TrackAdapter {
         intervalDialog.update(this);
         intervalDialog.setVisible(true);
     }
-    // FIXME: URI is not appropriate for this usage; 
-    /*
-    @Override
-    public URI getURI() {
-    return (this.getDataSource() == null) ? null : this.getDataSource().getURI();
-    }
-     * 
-     */
 }

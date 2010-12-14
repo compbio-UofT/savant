@@ -265,7 +265,7 @@ public class IntervalDialog extends JDialog {
         track = vt;
         _pane.setBorder(new JideTitledBorder(new PartialEtchedBorder(PartialEtchedBorder.LOWERED, PartialSide.NORTH), vt.getName(), JideTitledBorder.LEADING, JideTitledBorder.ABOVE_TOP));
 
-        btr = ((BAMTrackRenderer)(track.getTrackRenderers().get(0)));
+        btr = (BAMTrackRenderer)track.getRenderer();
 
         addProperty("Minimum Height", "When intervals cannot be displayed at/over the minimum height, they will switch to fixed height. ", "Interval Height Settings", Integer.class);
         map.put("Minimum Height", btr.getMinimumHeight());

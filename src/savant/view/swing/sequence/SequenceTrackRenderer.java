@@ -26,14 +26,14 @@ import java.util.List;
 
 import savant.data.types.Record;
 import savant.data.types.SequenceRecord;
+import savant.exception.RenderingException;
 import savant.file.DataFormat;
 import savant.util.AxisRange;
 import savant.util.ColorScheme;
-import savant.util.DrawingInstructions;
+import savant.util.DrawingInstruction;
 import savant.util.Range;
 import savant.view.swing.GraphPane;
 import savant.view.swing.TrackRenderer;
-import savant.view.swing.util.GlassMessagePane;
 
 
 /**
@@ -45,28 +45,20 @@ public class SequenceTrackRenderer extends TrackRenderer {
     private static final Font SMALL_FONT = new Font("Sans-Serif", Font.PLAIN, 12);
     private static final Font LARGE_FONT = new Font("Sans-Serif", Font.PLAIN, 36);
 
-    private static final int GLASS_PANE_WIDTH = 300;
-    private static final String GLASS_PANE_MESSAGE = "zoom in to see sequence";
-
-    public SequenceTrackRenderer() { this(new DrawingInstructions());}
-
-    public SequenceTrackRenderer(
-            DrawingInstructions drawingInstructions) {
-        super(drawingInstructions);
-        this.dataType = DataFormat.SEQUENCE_FASTA;
+    public SequenceTrackRenderer() {
+        super(DataFormat.SEQUENCE_FASTA);
     }
 
     @Override
-    public void render(Graphics g, GraphPane gp) {
+    public void render(Graphics g, GraphPane gp) throws RenderingException {
 
         Graphics2D g2 = (Graphics2D) g;
 
         gp.setIsOrdinal(true);
 
-        Boolean refexists = (Boolean) this.getDrawingInstructions().getInstruction(DrawingInstructions.InstructionName.REFERENCE_EXISTS);
+        Boolean refexists = (Boolean)instructions.get(DrawingInstruction.REFERENCE_EXISTS);
         if (!refexists) {
-            GlassMessagePane.draw(g2, gp, "no data for reference", GLASS_PANE_WIDTH);
-            return;
+            throw new RenderingException("No data for reference");
         }
 
         double unitWidth = gp.getUnitWidth();
@@ -77,9 +69,7 @@ public class SequenceTrackRenderer extends TrackRenderer {
         
         // Don't display sequence if data is too high resolution to see.
         if (data == null || unitWidth < 0.2) {
-            // display informational glass pane
-            renderGlassPane(g2, gp);
-            return;
+            throw new RenderingException("Zoom in to see sequence");
         }
 
         byte[] sequence = ((SequenceRecord)getData().get(0)).getSequence();
@@ -95,7 +85,7 @@ public class SequenceTrackRenderer extends TrackRenderer {
             baseRenderable = true;
         }
 
-        AxisRange axisRange = (AxisRange) getDrawingInstructions().getInstruction(DrawingInstructions.InstructionName.AXIS_RANGE);
+        AxisRange axisRange = (AxisRange)instructions.get(DrawingInstruction.AXIS_RANGE);
 
         int len = sequence.length;
         for (int i = 0; i < len; i++) {
@@ -106,7 +96,7 @@ public class SequenceTrackRenderer extends TrackRenderer {
 
             Rectangle2D.Double rect = new Rectangle2D.Double(x, y, w, h);
 
-            ColorScheme colorScheme = (ColorScheme)getDrawingInstructions().getInstruction(DrawingInstructions.InstructionName.COLOR_SCHEME);
+            ColorScheme colorScheme = (ColorScheme)instructions.get(DrawingInstruction.COLOR_SCHEME);
             Color c = colorScheme.getColor("Background");
             switch (sequence[i]) {
 
@@ -162,10 +152,6 @@ public class SequenceTrackRenderer extends TrackRenderer {
         Rectangle2D charRect = font.getStringBounds(baseChar, g2.getFontRenderContext());
         if (charRect.getWidth() > width) return false;
         else return true;
-    }
-
-    private void renderGlassPane(Graphics2D g2, GraphPane gp) {
-        GlassMessagePane.draw(g2, gp, GLASS_PANE_MESSAGE, GLASS_PANE_WIDTH);
     }
 
     @Override

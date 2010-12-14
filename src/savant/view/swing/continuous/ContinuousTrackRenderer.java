@@ -24,67 +24,61 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+import java.awt.Shape;
+import java.awt.geom.Ellipse2D;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Rectangle2D;
+import java.util.ArrayList;
 import java.util.List;
 
+import savant.controller.RangeController;
+import savant.controller.SelectionController;
 import savant.data.types.GenericContinuousRecord;
 import savant.data.types.Record;
+import savant.exception.RenderingException;
 import savant.file.DataFormat;
 import savant.util.AxisRange;
 import savant.util.ColorScheme;
-import savant.util.DrawingInstructions;
+import savant.util.DrawingInstruction;
 import savant.util.Range;
 import savant.view.swing.GraphPane;
 import savant.view.swing.TrackRenderer;
-import savant.view.swing.util.GlassMessagePane;
 
 
 /**
  * Class to render continuous tracks.
+ *
  * @author vwilliams
  */
 public class ContinuousTrackRenderer extends TrackRenderer {
 
     public ContinuousTrackRenderer() {
-        this(new DrawingInstructions());
-    }
-    public ContinuousTrackRenderer(DrawingInstructions drawingInstructions) {
-        super(drawingInstructions);
-        this.dataType = DataFormat.CONTINUOUS_GENERIC;
+        super(DataFormat.CONTINUOUS_GENERIC);
     }
 
     @Override
-    public void render(Graphics g, GraphPane gp) {
+    public void render(Graphics g, GraphPane gp) throws RenderingException {
 
-        DrawingInstructions di = this.getDrawingInstructions();
         Graphics2D g2 = (Graphics2D) g;
         this.clearShapes();
 
-        Boolean refexists = (Boolean) di.getInstruction(DrawingInstructions.InstructionName.REFERENCE_EXISTS);
+        Boolean refexists = (Boolean)instructions.get(DrawingInstruction.REFERENCE_EXISTS);
 
         if (!refexists) {
-            GlassMessagePane.draw(g2, gp, "no data for reference", 500);
-            return;
+            throw new RenderingException("No data for reference");
         }
 
         List<Record> data = getData();
         if (data == null) {
-            // FIXME: a nasty hack to accommodate coverage; see BAMCoverageTrack
-            String message = (String) di.getInstruction(DrawingInstructions.InstructionName.MESSAGE);
-            if (message != null) {
-                GlassMessagePane.draw(g2, gp, message, 500);
-
-            }
-            return;
+            throw new RenderingException((String)instructions.get(DrawingInstruction.MESSAGE));
         }
         
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         
 
-        ColorScheme cs = (ColorScheme) di.getInstruction(DrawingInstructions.InstructionName.COLOR_SCHEME.toString());
+        ColorScheme cs = (ColorScheme)instructions.get(DrawingInstruction.COLOR_SCHEME);
         Color linecolor = cs.getColor("Line");
-        AxisRange axisRange = (AxisRange) di.getInstruction(DrawingInstructions.InstructionName.AXIS_RANGE);
+        AxisRange axisRange = (AxisRange)instructions.get(DrawingInstruction.AXIS_RANGE);
 
         gp.setIsOrdinal(false);
         gp.setXRange(axisRange.getXRange());
@@ -140,4 +134,26 @@ public class ContinuousTrackRenderer extends TrackRenderer {
     public boolean hasHorizontalGrid() {
         return true;
     }
+
+    /**
+     * Current selected shapes.
+     */
+    @Override
+    public List<Shape> getCurrentSelectedShapes(GraphPane gp){
+        List<Shape> shapes = new ArrayList<Shape>();
+        List<Record> currentSelected = SelectionController.getInstance().getSelectedFromList(trackName, RangeController.getInstance().getRange(), data);
+        for(int i = 0; i < currentSelected.size(); i++){
+            shapes.add(continuousRecordToEllipse(gp, currentSelected.get(i)));
+        }
+        return shapes;
+    }
+
+    public static Shape continuousRecordToEllipse(GraphPane gp, Record o){
+        GenericContinuousRecord rec = (GenericContinuousRecord) o;
+        Double x = gp.transformXPos(rec.getPosition()) + (gp.getUnitWidth()/2) -4;
+        Double y = gp.transformYPos(rec.getValue().getValue()) -4;// + (this.getUnitWidth()/2);
+        Shape s = new Ellipse2D.Double(x, y, 8, 8);
+        return s;
+    }
+
 }

@@ -37,6 +37,7 @@ import savant.util.Bookmark;
 import savant.util.MiscUtils;
 import savant.util.Range;
 import savant.view.swing.GraphPane;
+import savant.view.swing.Track;
 
 /**
  *
@@ -120,9 +121,9 @@ public class PopupPanel extends JPanel {
         select.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                for(int i = 0; i < gp.getTrackRenderers().size(); i++){
-                    if(gp.getTrackRenderers().get(i).getDataType() == fileFormat){
-                        gp.getTrackRenderers().get(i).addToSelected(record);
+                for (Track t: gp.getTracks()) {
+                    if (t.getDataFormat() == fileFormat){
+                        t.getRenderer().addToSelected(record);
                         break;
                     }
                 }

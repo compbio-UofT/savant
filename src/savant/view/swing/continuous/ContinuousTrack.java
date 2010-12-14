@@ -29,25 +29,20 @@ import savant.data.types.ContinuousRecord;
 import savant.data.types.Record;
 import savant.exception.SavantTrackCreationCancelledException;
 import savant.settings.ColourSettings;
-import savant.util.AxisRange;
-import savant.util.ColorScheme;
-import savant.util.DrawingInstructions;
-import savant.util.MiscUtils;
-import savant.util.Range;
-import savant.util.Resolution;
+import savant.util.*;
 import savant.view.swing.Savant;
-import savant.view.swing.TrackRenderer;
 import savant.view.swing.Track;
 
 
 /**
  * A helper class to set up rendering of a ContinuousTrack
+ *
  * @author vwilliams
  */
  public class ContinuousTrack extends Track {
 
     public ContinuousTrack(DataSource track) throws SavantTrackCreationCancelledException {
-        super(track);
+        super(track, new ContinuousTrackRenderer());
         setColorScheme(getDefaultColorScheme());
         this.notifyControllerOfCreation();
     }
@@ -57,21 +52,17 @@ import savant.view.swing.Track;
 
         Resolution r = getResolution(range);
         List<Record> data = retrieveAndSaveData(reference, range);
-        //System.out.println("contin data: " + data);
-        for (TrackRenderer renderer : getTrackRenderers()) {
-            boolean contains = (this.getDataSource().getReferenceNames().contains(reference) || this.getDataSource().getReferenceNames().contains(MiscUtils.homogenizeSequence(reference)));
-            renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.RANGE, range);
-            renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.RESOLUTION, r);
-            renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.COLOR_SCHEME, this.getColorScheme());
-            renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.REFERENCE_EXISTS, contains);
-            renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.SELECTION_ALLOWED, true);
+        renderer.addInstruction(DrawingInstruction.RANGE, range);
+        renderer.addInstruction(DrawingInstruction.RESOLUTION, r);
+        renderer.addInstruction(DrawingInstruction.COLOR_SCHEME, getColorScheme());
+        renderer.addInstruction(DrawingInstruction.REFERENCE_EXISTS, containsReference(reference));
+        renderer.addInstruction(DrawingInstruction.SELECTION_ALLOWED, true);
 
-            int maxDataValue = getMaxValue(data);
-            renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.AXIS_RANGE, AxisRange.initWithRanges(range, new Range(0, maxDataValue)));
+        int maxDataValue = getMaxValue(data);
+        renderer.addInstruction(DrawingInstruction.AXIS_RANGE, AxisRange.initWithRanges(range, new Range(0, maxDataValue)));
 
-            Savant.log("Max Data Value is " + maxDataValue);
-            renderer.setData(data);
-        }
+        Savant.log("Max Data Value is " + maxDataValue);
+        renderer.setData(data);
     }
 
     @Override

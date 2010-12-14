@@ -47,6 +47,7 @@ import savant.data.types.Genome;
 import savant.data.types.Interval;
 import savant.data.types.IntervalRecord;
 import savant.data.types.Record;
+import savant.exception.RenderingException;
 import savant.file.DataFormat;
 import savant.settings.ColourSettings;
 import savant.util.*;
@@ -88,42 +89,31 @@ public class BAMTrackRenderer extends TrackRenderer {
 
     private Mode drawMode;
 
-    public BAMTrackRenderer() { this(new DrawingInstructions()); }
-
-    public BAMTrackRenderer(
-            DrawingInstructions drawingInstructions) {
-        super(drawingInstructions);
-        this.dataType = DataFormat.INTERVAL_BAM;
+    public BAMTrackRenderer() {
+        super(DataFormat.INTERVAL_BAM);
     }
     
     @Override
-    public void render(Graphics g, GraphPane gp) {
+    public void render(Graphics g, GraphPane gp) throws RenderingException {
 
         Graphics2D g2 = (Graphics2D) g;
 
         gp.setIsOrdinal(true);
         this.clearShapes();
         
-        DrawingInstructions di = this.getDrawingInstructions();
-
-        Boolean refexists = (Boolean) di.getInstruction(DrawingInstructions.InstructionName.REFERENCE_EXISTS);
+        Boolean refexists = (Boolean)instructions.get(DrawingInstruction.REFERENCE_EXISTS);
 
         if (!refexists) {
-            resizeFrame(gp);
-            GlassMessagePane.draw(g2, gp, "no data for reference", 500);
-            return;
-        // Don't display sequence if data is too high resolution to see.
+            throw new RenderingException("No data for reference");
         }
 
-        Boolean zoomIn = (Boolean) di.getInstruction(DrawingInstructions.InstructionName.ZOOM_IN);
-        if(zoomIn){
-            resizeFrame(gp);
-            GlassMessagePane.draw(g2, gp, "zoom in to see data", 500);
-            return;
+        String zoomInMessage = (String)instructions.get(DrawingInstruction.UNSUPPORTED_RESOLUTION);
+        if (zoomInMessage != null){
+            throw new RenderingException(zoomInMessage);
         }
 
-        drawMode = (Mode) di.getInstruction(DrawingInstructions.InstructionName.MODE);
-        Resolution r = (Resolution) di.getInstruction(DrawingInstructions.InstructionName.RESOLUTION.toString());
+        drawMode = (Mode)instructions.get(DrawingInstruction.MODE);
+        Resolution r = (Resolution)instructions.get(DrawingInstruction.RESOLUTION);
 
         String modeName = drawMode.getName();
 
@@ -132,14 +122,12 @@ public class BAMTrackRenderer extends TrackRenderer {
                 // fetch reference sequence for comparison with cigar string
                 Genome genome = ReferenceController.getInstance().getGenome();
                 if(genome.isSequenceSet()){
-                   AxisRange axisRange = (AxisRange) getDrawingInstructions().getInstruction(DrawingInstructions.InstructionName.AXIS_RANGE);
+                   AxisRange axisRange = (AxisRange)instructions.get(DrawingInstruction.AXIS_RANGE);
                     Range range = axisRange.getXRange();
                     try {
                         refSeq = genome.getSequence(ReferenceController.getInstance().getReferenceName(), range);
                     } catch (IOException e) {
-                        // FIXME: this exception should be propagated to someone who can alert the user
-                        LOG.warn("Unable to read reference sequence");
-                        return;
+                        throw new RenderingException(e.getMessage());
                     }
                 }
             }
@@ -167,15 +155,15 @@ public class BAMTrackRenderer extends TrackRenderer {
         }
     }
 
-    private void renderPackMode(Graphics2D g2, GraphPane gp, Resolution r) {
+    private void renderPackMode(Graphics2D g2, GraphPane gp, Resolution r) throws RenderingException {
 
         //set position offset for scrollpane
         this.offset = gp.getOffset();
 
         List<Record> data = this.getData();
 
-        AxisRange axisRange = (AxisRange) getDrawingInstructions().getInstruction(DrawingInstructions.InstructionName.AXIS_RANGE);
-        ColorScheme cs = (ColorScheme) getDrawingInstructions().getInstruction(DrawingInstructions.InstructionName.COLOR_SCHEME.toString());
+        AxisRange axisRange = (AxisRange) instructions.get(DrawingInstruction.AXIS_RANGE);
+        ColorScheme cs = (ColorScheme) instructions.get(DrawingInstruction.COLOR_SCHEME);
         Color linecolor = cs.getColor("Line");
         Range range = axisRange.getXRange();
 
@@ -199,9 +187,7 @@ public class BAMTrackRenderer extends TrackRenderer {
         if (drawMode.getName().equals("VARIANTS")) {
             Genome genome = ReferenceController.getInstance().getGenome();
             if (!genome.isSequenceSet()) {
-                this.resizeFrame(gp);
-                GlassMessagePane.draw(g2, gp, "No reference sequence loaded. Switch to standard view", 500);
-                return;
+                throw new RenderingException("No reference sequence loaded. Switch to standard view");
             }
         }
 
@@ -356,8 +342,7 @@ public class BAMTrackRenderer extends TrackRenderer {
 
     private void renderVariants(Graphics2D g2, GraphPane gp, SAMRecord samRecord, int level, byte[] refSeq, Range range) {
 
-        DrawingInstructions di = getDrawingInstructions();
-        ColorScheme cs = (ColorScheme) di.getInstruction(DrawingInstructions.InstructionName.COLOR_SCHEME.toString());
+        ColorScheme cs = (ColorScheme) instructions.get(DrawingInstruction.COLOR_SCHEME);
         Color linecolor = cs.getColor("Line");
 
 
@@ -532,11 +517,11 @@ public class BAMTrackRenderer extends TrackRenderer {
 
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-        AxisRange axisRange = (AxisRange) getDrawingInstructions().getInstruction(DrawingInstructions.InstructionName.AXIS_RANGE);
-        ColorScheme cs = (ColorScheme) getDrawingInstructions().getInstruction(DrawingInstructions.InstructionName.COLOR_SCHEME.toString());
-        double threshold = (Double) getDrawingInstructions().getInstruction(DrawingInstructions.InstructionName.ARC_MIN);
-        int discordantMin = (Integer) getDrawingInstructions().getInstruction(DrawingInstructions.InstructionName.DISCORDANT_MIN);
-        int discordantMax = (Integer) getDrawingInstructions().getInstruction(DrawingInstructions.InstructionName.DISCORDANT_MAX);
+        AxisRange axisRange = (AxisRange) instructions.get(DrawingInstruction.AXIS_RANGE);
+        ColorScheme cs = (ColorScheme) instructions.get(DrawingInstruction.COLOR_SCHEME);
+        double threshold = (Double) instructions.get(DrawingInstruction.ARC_MIN);
+        int discordantMin = (Integer) instructions.get(DrawingInstruction.DISCORDANT_MIN);
+        int discordantMax = (Integer) instructions.get(DrawingInstruction.DISCORDANT_MAX);
         Savant.log("discordantMin=" + discordantMin + " discordantMax=" + discordantMax);
 
         // set up colors
@@ -663,8 +648,8 @@ public class BAMTrackRenderer extends TrackRenderer {
         List<Record> data = getData();
         Genome genome = ReferenceController.getInstance().getGenome();
 
-        AxisRange axisRange = (AxisRange) getDrawingInstructions().getInstruction(DrawingInstructions.InstructionName.AXIS_RANGE);
-        ColorScheme cs = (ColorScheme) getDrawingInstructions().getInstruction(DrawingInstructions.InstructionName.COLOR_SCHEME.toString());
+        AxisRange axisRange = (AxisRange)instructions.get(DrawingInstruction.AXIS_RANGE);
+        ColorScheme cs = (ColorScheme)instructions.get(DrawingInstruction.COLOR_SCHEME);
         Color linecolor = cs.getColor("Line");
 
         List<Pileup> pileups = new ArrayList<Pileup>();
@@ -868,7 +853,7 @@ public class BAMTrackRenderer extends TrackRenderer {
 
     @Override
     public boolean hasHorizontalGrid() {
-        Mode m = (Mode)getDrawingInstructions().getInstruction(DrawingInstructions.InstructionName.MODE);
+        Mode m = (Mode)instructions.get(DrawingInstruction.MODE);
         return m.getName().equals("MATE_PAIRS");
     }
 
@@ -937,7 +922,7 @@ public class BAMTrackRenderer extends TrackRenderer {
         @Override
         public void paint(Graphics g){
 
-            ColorScheme cs = (ColorScheme) getDrawingInstructions().getInstruction(DrawingInstructions.InstructionName.COLOR_SCHEME.toString());
+            ColorScheme cs = (ColorScheme)instructions.get(DrawingInstruction.COLOR_SCHEME);
 
             // set up colors
             Color normalArcColor = cs.getColor("Reverse Strand");

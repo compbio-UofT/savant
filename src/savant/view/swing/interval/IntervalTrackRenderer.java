@@ -27,17 +27,11 @@ import java.util.List;
 import savant.data.types.Interval;
 import savant.data.types.IntervalRecord;
 import savant.data.types.Record;
+import savant.exception.RenderingException;
 import savant.file.DataFormat;
-import savant.util.AxisRange;
-import savant.util.ColorScheme;
-import savant.util.DrawingInstructions;
-import savant.util.IntervalPacker;
-import savant.util.Mode;
-import savant.util.Range;
-import savant.util.Resolution;
+import savant.util.*;
 import savant.view.swing.GraphPane;
 import savant.view.swing.TrackRenderer;
-import savant.view.swing.util.GlassMessagePane;
 
 
 /**
@@ -46,31 +40,24 @@ import savant.view.swing.util.GlassMessagePane;
  */
 public class IntervalTrackRenderer extends TrackRenderer {
 
-    public IntervalTrackRenderer() { this(new DrawingInstructions()); }
-
-    public IntervalTrackRenderer(
-            DrawingInstructions drawingInstructions) {
-        super(drawingInstructions);
-        this.dataType = DataFormat.INTERVAL_GENERIC;
+    public IntervalTrackRenderer() {
+        super(DataFormat.INTERVAL_GENERIC);
     }
 
     @Override
-    public void render(Graphics g, GraphPane gp) {
+    public void render(Graphics g, GraphPane gp) throws RenderingException {
 
         Graphics2D g2 = (Graphics2D) g;
         gp.setIsOrdinal(true);
         this.clearShapes();
 
-        DrawingInstructions di = this.getDrawingInstructions();
-
-        Boolean refexists = (Boolean) di.getInstruction(DrawingInstructions.InstructionName.REFERENCE_EXISTS);
+        Boolean refexists = (Boolean)instructions.get(DrawingInstruction.REFERENCE_EXISTS);
         if (!refexists) {
-            GlassMessagePane.draw(g2, gp, "no data for reference", 500);
-            return;
+            throw new RenderingException("No data for reference");
         }
 
-        Mode drawMode = (Mode) di.getInstruction(DrawingInstructions.InstructionName.MODE);
-        Resolution r = (Resolution) di.getInstruction(DrawingInstructions.InstructionName.RESOLUTION.toString());
+        Mode drawMode = (Mode)instructions.get(DrawingInstruction.MODE);
+        Resolution r = (Resolution)instructions.get(DrawingInstruction.RESOLUTION);
 
         if (drawMode.getName().equals("SQUISH")) {
             renderSquishMode(g2, gp, r);
@@ -83,16 +70,16 @@ public class IntervalTrackRenderer extends TrackRenderer {
         }
     }
 
-    private void renderSquishMode(Graphics2D g2, GraphPane gp, Resolution r) {
+    private void renderSquishMode(Graphics2D g2, GraphPane gp, Resolution r) throws RenderingException {
 
         List<Record> data = getData();
-        int numdata = getData().size();
+        int numdata = data.size();
 
-        ColorScheme cs = (ColorScheme) getDrawingInstructions().getInstruction(DrawingInstructions.InstructionName.COLOR_SCHEME.toString());
+        ColorScheme cs = (ColorScheme)instructions.get(DrawingInstruction.COLOR_SCHEME);
         Color bgcolor = cs.getColor("Translucent Graph");
         Color linecolor = cs.getColor("Line");
 
-        AxisRange axisRange = (AxisRange) getDrawingInstructions().getInstruction(DrawingInstructions.InstructionName.AXIS_RANGE);
+        AxisRange axisRange = (AxisRange)instructions.get(DrawingInstruction.AXIS_RANGE);
         
         if (r == Resolution.VERY_HIGH || r == Resolution.HIGH) {
 
@@ -126,11 +113,9 @@ public class IntervalTrackRenderer extends TrackRenderer {
                     g2.draw(rect);
                 }
             }
+        } else {
+            throw new RenderingException("Zoom in to see intervals");
         }
-        else {
-            GlassMessagePane.draw(g2, gp, "Zoom in to see intervals", 300);
-        }
-
     }
 
     private void renderArcMode(Graphics2D g2, GraphPane gp, Resolution r) {
@@ -139,10 +124,10 @@ public class IntervalTrackRenderer extends TrackRenderer {
         List<Record> data = getData();
         int numdata = getData().size();
 
-        ColorScheme cs = (ColorScheme) getDrawingInstructions().getInstruction(DrawingInstructions.InstructionName.COLOR_SCHEME.toString());
+        ColorScheme cs = (ColorScheme)instructions.get(DrawingInstruction.COLOR_SCHEME);
         Color bgcolor = cs.getColor("Opaque Graph");
 
-        AxisRange axisRange = (AxisRange) getDrawingInstructions().getInstruction(DrawingInstructions.InstructionName.AXIS_RANGE);
+        AxisRange axisRange = (AxisRange)instructions.get(DrawingInstruction.AXIS_RANGE);
 
         if (r == Resolution.VERY_HIGH || r == Resolution.HIGH) {
 
@@ -173,15 +158,15 @@ public class IntervalTrackRenderer extends TrackRenderer {
 
     }
 
-    private void renderPackMode(Graphics2D g2, GraphPane gp, Resolution r) {
+    private void renderPackMode(Graphics2D g2, GraphPane gp, Resolution r) throws RenderingException {
 
         List<Record> data = getData();
 
-        ColorScheme cs = (ColorScheme) getDrawingInstructions().getInstruction(DrawingInstructions.InstructionName.COLOR_SCHEME.toString());
+        ColorScheme cs = (ColorScheme)instructions.get(DrawingInstruction.COLOR_SCHEME);
         Color bgcolor = cs.getColor("Opaque Graph");
         Color linecolor = cs.getColor("Line");
 
-        AxisRange axisRange = (AxisRange) getDrawingInstructions().getInstruction(DrawingInstructions.InstructionName.AXIS_RANGE);
+        AxisRange axisRange = (AxisRange)instructions.get(DrawingInstruction.AXIS_RANGE);
 
         if (r == Resolution.VERY_HIGH || r == Resolution.HIGH) {
 
@@ -206,8 +191,7 @@ public class IntervalTrackRenderer extends TrackRenderer {
 
             // display only a message if intervals will not be visible at this resolution
             if (unitHeight < 1) {
-                GlassMessagePane.draw(g2, gp, "Increase height of window", 300);
-                return;
+                throw new RenderingException("Increase height of window");
             }
 
             // scan the map of intervals and draw the intervals for each level
@@ -252,12 +236,7 @@ public class IntervalTrackRenderer extends TrackRenderer {
 
     @Override
     public boolean hasHorizontalGrid() {
-        Mode drawMode = (Mode)getDrawingInstructions().getInstruction(DrawingInstructions.InstructionName.MODE);
-        String modeName = drawMode.getName();
-        if (modeName.equals("ARC")) {
-            return true;
-        } else {
-            return false;
-        }
+        Mode drawMode = (Mode)instructions.get(DrawingInstruction.MODE);
+        return drawMode.getName().equals("ARC");
     }
 }

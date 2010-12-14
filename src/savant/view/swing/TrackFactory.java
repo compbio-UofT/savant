@@ -5,7 +5,6 @@
 
 package savant.view.swing;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -28,7 +27,6 @@ import savant.file.SavantROFile;
 import savant.file.SavantUnsupportedFileTypeException;
 import savant.file.SavantUnsupportedVersionException;
 import savant.format.SavantFileFormatterUtils;
-import savant.util.MiscUtils;
 import savant.util.NetworkUtils;
 import savant.view.swing.continuous.ContinuousTrack;
 import savant.view.swing.interval.BAMCoverageTrack;
@@ -39,16 +37,18 @@ import savant.view.swing.point.PointTrack;
 import savant.view.swing.sequence.SequenceTrack;
 
 /**
+ * Factory class responsible for creating all flavours of Track objects.
  *
- * @author mfiume
+ * @author mfiume, tarkvara
  */
 public class TrackFactory {
 
     private static final Log LOG = LogFactory.getLog(Track.class);
 
     public static Track createTrack(DataSource ds) throws SavantTrackCreationCancelledException {
-
-        if (ds == null) { return null; }
+        if (ds == null) {
+            throw new IllegalArgumentException("DataSource cannot be null.");
+        }
 
         switch (ds.getDataFormat()) {
             case SEQUENCE_FASTA:
@@ -64,7 +64,7 @@ public class TrackFactory {
             case INTERVAL_GENERIC:
                 return new IntervalTrack(ds);
             default:
-                return null;
+                throw new IllegalArgumentException(String.format("Unknown data format: %s." + ds.getDataFormat()));
         }
     }
 
@@ -89,73 +89,42 @@ public class TrackFactory {
         Track track = null;
         DataSource ds = null;
 
-        /**
-         * TODO: Creating a list of view tracks, one of which may have a null DataSource,
-         * is very kludgy and causes many headaches downstream. It is very high priority
-         * to do this more elegantly.
-         */
+        try {
+            if (fileType == FileType.INTERVAL_BAM) {
 
-        // BAM
-        if (fileType == FileType.INTERVAL_BAM) {
+                LOG.info("Opening BAM file " + trackURI);
 
-            LOG.info("Opening BAM file " + trackURI);
-
-            try {
                 ds = BAMFileDataSource.fromURI(trackURI);
                 if (ds != null) {
-                    track = createTrack((BAMFileDataSource) ds);
-                    results.add(track);
+                    results.add(createTrack(ds));
                 } else {
                     DialogUtils.displayError("Error loading track", String.format("Could not create BAM track; check that index file exists and is named \"%1$s.bai\".", name));
                     return null;
                 }
 
-                // TODO: Only resolves coverage files for local data.  Should also work for network URIs.
-                track = null;
-                URI coverageURI = new URI(trackURI.toString() + ".cov.savant");
-                if (NetworkUtils.exists(coverageURI)) {
-                    ds = new GenericContinuousFileDataSource(coverageURI);
-                    track = new BAMCoverageTrack((GenericContinuousFileDataSource) ds);
-                } else {
-                    // Coverage file is missing.  Always the case for remote tracks.
-                    track = new BAMCoverageTrack(MiscUtils.getNeatPathFromURI(trackURI) + " (coverage)", null);
+                try {
+                    // TODO: Only resolves coverage files for local data.  Should also work for network URIs.
+                    trackURI = new URI(trackURI.toString() + ".cov.savant");
+                    if (NetworkUtils.exists(trackURI)) {
+                        results.add(new BAMCoverageTrack(new GenericContinuousFileDataSource(trackURI)));
+                    }
+                } catch (URISyntaxException ignored) {
                 }
-            } catch (IOException e) {
-                LOG.warn("Could not load coverage track", e);
-
-                //FIXME: this should not happen! plugins expect tracks to contain data, and not be vacuous
-                // create an empty Track that just displays an error message << see the above FIXME
-                track = new BAMCoverageTrack(MiscUtils.getNeatPathFromURI(trackURI) + " (coverage)", null);
-            } catch (SavantFileNotFormattedException e) {
-                LOG.warn("Coverage track appears to be unformatted", e);
-                track = new BAMCoverageTrack(MiscUtils.getNeatPathFromURI(trackURI) + " (coverage)", null);
-            } catch (SavantUnsupportedVersionException e) {
-                DialogUtils.displayMessage("Sorry", "This file was created using an older version of Savant. Please re-format the source.");
-            } catch (URISyntaxException e) {
-                DialogUtils.displayError("Savant Error", "Syntax error on URI; file URI is not valid");
-            }
-
-            results.add(track);
-
-        } else {
-
-            try {
-
+            } else {
                 ds = TrackFactory.createDataSource(trackURI);
-                if (ds != null && (track = createTrack(ds)) != null) {
-                    results.add(track);
-                }
-
-            } catch (SavantUnsupportedFileTypeException ex) {
-                DialogUtils.displayMessage("Sorry", "Files of this type are not supported.");
-            } catch (SavantFileNotFormattedException e) {
-                Savant s = Savant.getInstance();
-                s.promptUserToFormatFile(trackURI);
-            } catch (SavantUnsupportedVersionException e) {
-                DialogUtils.displayMessage("Sorry", "This file was created using an older version of Savant. Please re-format the source.");
-            } catch (IOException e) {
-                DialogUtils.displayException("Error opening track", "There was a problem opening this file.", e);
+                track = createTrack(ds);
+                results.add(track);
             }
+
+        } catch (SavantUnsupportedFileTypeException ex) {
+            DialogUtils.displayMessage("Sorry", "Files of this type are not supported.");
+        } catch (SavantFileNotFormattedException e) {
+            Savant s = Savant.getInstance();
+            s.promptUserToFormatFile(trackURI);
+        } catch (SavantUnsupportedVersionException e) {
+            DialogUtils.displayMessage("Sorry", "This file was created using an older version of Savant. Please re-format the source.");
+        } catch (IOException e) {
+            DialogUtils.displayException("Error opening track", "There was a problem opening this file.", e);
         }
 
         return results;

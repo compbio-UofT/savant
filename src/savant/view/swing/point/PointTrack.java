@@ -25,7 +25,6 @@ import savant.data.types.Record;
 import savant.exception.SavantTrackCreationCancelledException;
 import savant.settings.ColourSettings;
 import savant.util.*;
-import savant.view.swing.TrackRenderer;
 import savant.view.swing.Track;
 
 
@@ -37,8 +36,9 @@ public class PointTrack extends Track {
 
     public List<Record> savedList = null;
 
-    public PointTrack(DataSource pointTrack) throws SavantTrackCreationCancelledException {
-        super(pointTrack);
+    public PointTrack(DataSource dataSource) throws SavantTrackCreationCancelledException {
+        super(dataSource, new PointTrackRenderer());
+
         setColorScheme(getDefaultColorScheme());
         this.notifyControllerOfCreation();
     }
@@ -87,20 +87,16 @@ public class PointTrack extends Track {
                 break;
         }
 
-        for (TrackRenderer renderer : getTrackRenderers()) {
-            boolean contains = (this.getDataSource().getReferenceNames().contains(reference) || this.getDataSource().getReferenceNames().contains(MiscUtils.homogenizeSequence(reference)));
-            renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.RESOLUTION, r);
-            renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.COLOR_SCHEME, this.getColorScheme());
-            renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.AXIS_RANGE, AxisRange.initWithRanges(range, getDefaultYRange()));
-            renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.REFERENCE_EXISTS, contains);
-            renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.SELECTION_ALLOWED, true);
+        renderer.addInstruction(DrawingInstruction.RESOLUTION, r);
+        renderer.addInstruction(DrawingInstruction.COLOR_SCHEME, this.getColorScheme());
+        renderer.addInstruction(DrawingInstruction.AXIS_RANGE, AxisRange.initWithRanges(range, getDefaultYRange()));
+        renderer.addInstruction(DrawingInstruction.REFERENCE_EXISTS, containsReference(reference));
+        renderer.addInstruction(DrawingInstruction.SELECTION_ALLOWED, true);
 
-            renderer.setData(data);
-        }
+        renderer.setData(data);
     }
 
     private Range getDefaultYRange() {
         return new Range(0, 1);
     }
-
 }

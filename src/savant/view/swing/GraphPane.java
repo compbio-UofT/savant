@@ -38,10 +38,12 @@ import savant.controller.event.GraphPaneChangeEvent;
 import savant.controller.event.GraphPaneChangeListener;
 import savant.data.types.GenericContinuousRecord;
 import savant.data.types.Record;
+import savant.exception.RenderingException;
 import savant.selection.PopupThread;
 import savant.selection.PopupPanel;
 import savant.settings.ColourSettings;
 import savant.util.*;
+import savant.view.swing.continuous.ContinuousTrackRenderer;
 import savant.view.swing.interval.BAMTrack;
 import savant.view.swing.util.GlassMessagePane;
 
@@ -53,7 +55,6 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
 
     private static final Log LOG = LogFactory.getLog(GraphPane.class);
 
-    private List<TrackRenderer> trackRenderers;
     private List<Track> tracks;
     private Frame parentFrame;
 
@@ -135,17 +136,12 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
     private enum keyModifier { DEFAULT, CTRL, SHIFT, META, ALT; };
     private keyModifier keyMod = keyModifier.DEFAULT;
 
-    // let's behave nicely for the appropriate platform
-    private static String os = System.getProperty("os.name").toLowerCase();
-    private static boolean mac = os.contains("mac");
-
     /**
      * CONSTRUCTOR
      */
     public GraphPane(Frame parent) {
         this.parentFrame = parent;
 
-        trackRenderers = new ArrayList<TrackRenderer>();
         tracks = new ArrayList<Track>();
         this.setDoubleBuffered(true);
         addMouseListener( this ); // listens for own mouse and
@@ -166,25 +162,10 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
      * GRAPHPANE CHANGE LISTENER
      */
 
+    @Override
     public void graphpaneChangeReceived(GraphPaneChangeEvent event) {
         GraphPaneController gpc = GraphPaneController.getInstance();
         this.resetFrameLayers();
-    }
-
-    /**
-     * TRACKS AND RENDERERS
-     */
-    
-
-    /**
-     * Add a track renderer to the GraphPane
-     *
-     * @param trackRenderer the renderer to add
-     */
-    public void addTrackRenderer(TrackRenderer trackRenderer) {
-        trackRenderers.add(trackRenderer);
-        this.setIsOrdinal(trackRenderer.isOrdinal());
-        setYRange(trackRenderer.getDefaultYRange());
     }
 
     /**
@@ -194,6 +175,15 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
      */
     public void addTrack(Track track) {
         tracks.add(track);
+        setIsOrdinal(track.getRenderer().isOrdinal());
+        setYRange(track.getRenderer().getDefaultYRange());
+    }
+
+    /**
+     * Return the list of tracks associated with this GraphPane.
+     */
+    public List<Track> getTracks() {
+        return tracks;
     }
 
     /**
@@ -241,10 +231,10 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
         long minYRange = Long.MAX_VALUE;
         long maxYRange = Long.MIN_VALUE;
         isYGridOn = false;
-        for (TrackRenderer tr: trackRenderers) {
+        for (Track t: tracks) {
 
             // ask renderers for extra info on range; consolidate to maximum Y range
-            AxisRange axisRange = (AxisRange)tr.getDrawingInstructions().getInstruction(DrawingInstructions.InstructionName.AXIS_RANGE);
+            AxisRange axisRange = (AxisRange)t.getRenderer().getInstruction(DrawingInstruction.AXIS_RANGE);
 
             long axisYMin = axisRange.getYMin();
             long axisYMax = axisRange.getYMax();
@@ -252,7 +242,7 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
             if (axisYMax > maxYRange) maxYRange = axisYMax;
 
             // ask renders if they want horizontal lines; if any say yes, draw them
-            if (tr.hasHorizontalGrid()) {
+            if (t.getRenderer().hasHorizontalGrid()) {
                 isYGridOn = true;
             }
         }
@@ -352,15 +342,21 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
         long start = System.currentTimeMillis();
          */
 
-        for (TrackRenderer tr : trackRenderers) {
-
-
-            // change renderers' drawing instructions to reflect consolidated YRange
-            tr.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.AXIS_RANGE, AxisRange.initWithRanges(xRange, consolidatedYRange));
-
-            //System.out.println("\tRendering : " + tr.getClass());
-            tr.render(g3, this);
-            //System.out.println("\tDone");
+        // Call the actual render() methods.
+        boolean nothingRendered = true;
+        String message = null;
+        for (Track t: tracks) {
+            // Change renderers' drawing instructions to reflect consolidated YRange
+            t.getRenderer().addInstruction(DrawingInstruction.AXIS_RANGE, AxisRange.initWithRanges(xRange, consolidatedYRange));
+            try {
+                t.getRenderer().render(g3, this);
+                nothingRendered = false;
+            } catch (RenderingException rx) {
+                message = rx.getMessage();
+            }
+        }
+        if (nothingRendered && message != null) {
+            GlassMessagePane.draw(g3, this, message, 500);
         }
 
         drawMaxYPlotValue(g3);
@@ -422,40 +418,37 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
 
     private void renderCurrentSelected(Graphics g){
         //temporarily shift the origin
-        ((Graphics2D)g).translate(0, this.getOffset());
-        TrackRenderer tr = null;
-        for(int i = 0; i < this.trackRenderers.size(); i++){
-            tr = this.trackRenderers.get(i);
-            if(tr.hasMappedValues()){
+        Graphics2D g2 = (Graphics2D) g;
+        g2.translate(0, getOffset());
+        for (Track t: tracks) {
+            if (t.getRenderer().hasMappedValues()) {
+                List<Shape> currentSelected = t.getRenderer().getCurrentSelectedShapes(this);
+                if(!currentSelected.isEmpty()){
+                    boolean arcMode = false;
+                    if (t.getDrawMode() != null){
+                        arcMode = t.getDrawMode().getName().equals("MATE_PAIRS");
+                    }
+                    for(int i = 0; i < currentSelected.size(); i++){
+                        Shape selectedShape = currentSelected.get(i);
+                        if(arcMode){
+                            g2.setColor(Color.GREEN);
+                            g2.draw(selectedShape);
+                        } else {
+                            //g2.setColor(Color.GREEN);
+                            g2.setColor(new Color(0,255,0,150));
+                            g2.fill(selectedShape);
+                            if(selectedShape.getBounds().getWidth() > 5){
+                                g2.setColor(Color.BLACK);
+                                g2.draw(selectedShape);
+                            }
+                        }
+                    }
+                }
                 break;
             }
         }
-        if(!tr.hasMappedValues())return;
-        List<Shape> currentSelected = tr.getCurrentSelectedShapes(this);
-        if(!currentSelected.isEmpty()){
-            Graphics2D g2 = (Graphics2D) g;
-            boolean arcMode = false;
-            if(this.parentFrame.getTracks().get(0).getDrawMode() != null){
-                arcMode = this.parentFrame.getTracks().get(0).getDrawMode().getName().equals("MATE_PAIRS");
-            }
-            for(int i = 0; i < currentSelected.size(); i++){
-                Shape selectedShape = currentSelected.get(i);
-                if(arcMode){
-                    g2.setColor(Color.GREEN);
-                    g2.draw(selectedShape);
-                } else {
-                    //g2.setColor(Color.GREEN);
-                    g2.setColor(new Color(0,255,0,150));
-                    g2.fill(selectedShape);
-                    if(selectedShape.getBounds().getWidth() > 5){
-                        g2.setColor(Color.BLACK);
-                        g2.draw(selectedShape);
-                    }
-                }
-            }
-        }
         //shift the origin back
-        ((Graphics2D)g).translate(0, -1 * this.getOffset());
+        g2.translate(0, -1 * this.getOffset());
     }
 
     /*
@@ -599,8 +592,8 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
             }
         }
         
-        if (this.isLocked()) {
-            GlassMessagePane.draw((Graphics2D) g, this, "Locked", 300);
+        if (isLocked()) {
+            GlassMessagePane.draw((Graphics2D)g, this, "Locked", 300);
         }
 
         GraphPaneController.getInstance().delistRenderingGraphpane(this);
@@ -678,10 +671,6 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
             g2.drawString(maxPlotString, (int)(getWidth()-stringRect.getWidth()-5), (int)(stringRect.getHeight() + 5));*/
 
         }
-    }
-
-    public List<TrackRenderer> getTrackRenderers() {
-        return this.trackRenderers;
     }
 
     /**
@@ -777,7 +766,6 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
         return this.unitHeight * len;
     }
 
-    // TODO: why does one of these take an int and the other a double?
     /**
      * Transform a horizontal position in terms of graph units into a drawing coordinate
      *
@@ -835,12 +823,13 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
     /**
      * {@inheritDoc}
      */
+    @Override
     public void mouseWheelMoved(MouseWheelEvent e) {
 
         //this.setMouseWheel(true);
         int notches = e.getWheelRotation();
 
-        if (mac && e.isMetaDown() || e.isControlDown()) {
+        if (MiscUtils.MAC && e.isMetaDown() || e.isControlDown()) {
             if (notches < 0) {
                 RangeController rc = RangeController.getInstance();
                 rc.shiftRangeLeft();
@@ -896,7 +885,7 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
     }
 
     private boolean isZoomModifierPressed() {
-        if ((mac && isMetaModifierPressed()) || (!mac && isCtrlKeyModifierPressed())) return true;
+        if ((MiscUtils.MAC && isMetaModifierPressed()) || (!MiscUtils.MAC && isCtrlKeyModifierPressed())) return true;
         else return false;
     }
 
@@ -934,6 +923,7 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
     /**
      * {@inheritDoc}
      */
+    @Override
     public void mouseClicked( final MouseEvent event ) {
 
         if (event.getClickCount() == 2) {
@@ -956,6 +946,7 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
     /**
      * {@inheritDoc}
      */
+    @Override
     public void mousePressed( final MouseEvent event ) {
 
         setMouseModifier(event);
@@ -995,6 +986,7 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
     /**
      * {@inheritDoc}
      */
+    @Override
     public void mouseReleased( final MouseEvent event ) {
 
         GraphPaneController gpc = GraphPaneController.getInstance();
@@ -1037,16 +1029,13 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
 
             rc.setRange(newr);
         } else if (gpc.isSelecting()) {
-            TrackRenderer tr = null;
-            for(int i = 0; i < this.trackRenderers.size(); i++){
-                tr = this.trackRenderers.get(i);
-                if(tr.hasMappedValues()){
+            for (Track t: tracks) {
+                if (t.getRenderer().hasMappedValues()) {
+                    if (t.getRenderer().rectangleSelect(new Rectangle2D.Double(this.x, this.y, this.w, this.h))) {
+                        repaint();
+                    }
                     break;
                 }
-            }
-            if(tr.hasMappedValues()){
-                boolean repaintNeeded = tr.rectangleSelect(new Rectangle2D.Double(this.x, this.y, this.w, this.h));
-                if(repaintNeeded) this.repaint();
             }
         }
 
@@ -1063,6 +1052,7 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
     /**
      * {@inheritDoc}
      */
+    @Override
     public void mouseEntered( final MouseEvent event ) {
         resetCursor();
         mouseInside = true;
@@ -1074,6 +1064,7 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
     /**
      * {@inheritDoc}
      */
+    @Override
     public void mouseExited( final MouseEvent event ) {
         this.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
         setMouseModifier(event);
@@ -1087,6 +1078,7 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
     /**
      * {@inheritDoc}
      */
+    @Override
     public void mouseDragged( final MouseEvent event ) {
 
         setMouseModifier(event);
@@ -1148,6 +1140,7 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
     /**
      * {@inheritDoc}
      */
+    @Override
     public void mouseMoved( final MouseEvent event ) {
 
         mouse_x = event.getX();
@@ -1289,47 +1282,38 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
 
         Point p_offset = new Point(p.x, p.y - this.getOffset());
 
-        //get shape
-        int trackNum = 0;
-        Map<Record, Shape> map = null;
-        for(int i = 0; i < this.trackRenderers.size(); i++){
-            map = this.trackRenderers.get(i).searchPoint(p_offset);
-            if(map!=null){
-                trackNum = i;
-                break;
+        for (Track t: tracks) {
+            Map<Record, Shape> map = t.getRenderer().searchPoint(p_offset);
+            if (map != null) {
+                /** XXX: This line is here to get around what looks like a bug in the 1.6.0_20 JVM for Snow Leopard
+                 * which causes the mouseExited events not to be triggered sometimes. We hide the popup before
+                 * showing another. This needs to be done exactly here: after we know we have a new popup to show
+                 * and before we set currentOverRecord. Otherwise, it won't work.
+                 */
+                hidePopup();
+
+                currentOverRecord = (Record)map.keySet().toArray()[0];
+                currentOverShape = map.get(currentOverRecord);
+                if (currentOverRecord.getClass().equals(GenericContinuousRecord.class)){
+                    currentOverShape = ContinuousTrackRenderer.continuousRecordToEllipse(this, currentOverRecord);
+                }
+
+                createJidePopup();
+                PopupPanel pp = PopupPanel.create(this, tracks.get(0).getDrawMode(), t.getDataSource().getDataFormat(), currentOverRecord);
+                if (pp != null){
+                    popPanel.add(pp, BorderLayout.CENTER);
+                    Point p1 = (Point)p.clone();
+                    SwingUtilities.convertPointToScreen(p1, this);
+                    jp.showPopup(p1.x -2, p1.y -2);
+                    popupVisible = true;
+                }
+                repaint();
+                return;
             }
         }
-        if(map==null){
-            currentOverShape = null;
-            currentOverRecord = null;
-            return;
-        }
-
-        /** XXX: This line is here to get around what looks like a bug in the 1.6.0_20 JVM for Snow Leopard
-         * which causes the mouseExited events not to be triggered sometimes. We hide the popup before
-         * showing another. This needs to be done exactly here: after we know we have a new popup to show
-         * and before we set currentOverRecord. Otherwise, it won't work.
-         */
-        hidePopup();
-
-        currentOverRecord = (Record)map.keySet().toArray()[0];
-        currentOverShape = map.get(currentOverRecord);
-        if(currentOverRecord.getClass().equals(GenericContinuousRecord.class)){
-            currentOverShape = TrackRenderer.continuousRecordToEllipse(this, currentOverRecord);
-        }
-
-        this.createJidePopup();
-        PopupPanel pp = PopupPanel.create(this, this.tracks.get(0).getDrawMode(), this.tracks.get(trackNum).getDataSource().getDataFormat(), currentOverRecord);
-        if(pp != null){
-            popPanel.add(pp, BorderLayout.CENTER);
-            Point p1 = (Point)p.clone();
-            SwingUtilities.convertPointToScreen(p1, this);
-            this.jp.showPopup(p1.x -2, p1.y -2);
-            popupVisible = true;
-        }
-        this.repaint();
-        
-
+        // Didn't get a hit on any track.
+        currentOverShape = null;
+        currentOverRecord = null;
     }
 
     public void hidePopup(){
@@ -1344,26 +1328,17 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
 
     public void trySelect(Point p){
 
-        Point p_offset = new Point(p.x, p.y - this.getOffset());
+        Point p_offset = new Point(p.x, p.y - getOffset());
 
-        int trackNum = 0;
-        Map<Record, Shape> map = null;
-        for(int i = 0; i < this.trackRenderers.size(); i++){
-            map = this.trackRenderers.get(i).searchPoint(p_offset);
-            if(map!=null){
-                trackNum = i;
+        for (Track t: tracks) {
+            Map<Record, Shape> map = t.getRenderer().searchPoint(p_offset);
+            if (map != null) {
+                Record o = (Record)map.keySet().toArray()[0];
+                t.getRenderer().addToSelected(o);
+                repaint();
                 break;
             }
         }
-        if(map==null){
-            return;
-        }
-
-        Record o = (Record)map.keySet().toArray()[0];
-        this.trackRenderers.get(trackNum).addToSelected(o);
-        
-        this.repaint();
-
     }
 
     private void createJidePopup(){
@@ -1390,11 +1365,8 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
         jp.add(fill3, BorderLayout.EAST);
         jp.add(fill4, BorderLayout.WEST);
 
-        jp.addMouseListener(new MouseListener() {
-            public void mouseClicked(MouseEvent e) {}
-            public void mousePressed(MouseEvent e) {}
-            public void mouseReleased(MouseEvent e) {}
-            public void mouseEntered(MouseEvent e) {}
+        jp.addMouseListener(new MouseAdapter() {
+            @Override
             public void mouseExited(MouseEvent e) {
                 if(e.getX() < 0 || e.getY() < 0 || e.getX() >= e.getComponent().getWidth() || e.getY() >= e.getComponent().getHeight()){
                     hidePopup();

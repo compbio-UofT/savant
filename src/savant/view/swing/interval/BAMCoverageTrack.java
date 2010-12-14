@@ -25,16 +25,14 @@ import java.util.List;
 
 import savant.api.adapter.ModeAdapter;
 import savant.api.adapter.RangeAdapter;
-import savant.data.sources.file.GenericContinuousFileDataSource;
+import savant.data.sources.DataSource;
 import savant.data.types.ContinuousRecord;
 import savant.data.types.Record;
 import savant.exception.SavantTrackCreationCancelledException;
 import savant.settings.ColourSettings;
 import savant.util.*;
-import savant.util.ColorScheme;
-import savant.util.DrawingInstructions;
-import savant.view.swing.TrackRenderer;
 import savant.view.swing.Track;
+import savant.view.swing.continuous.ContinuousTrackRenderer;
 
 
 public class BAMCoverageTrack extends Track {
@@ -42,15 +40,8 @@ public class BAMCoverageTrack extends Track {
     private boolean enabled = true;
 
     // DO NOT DELETE THIS CONSTRUCTOR!!! THIS SHOULD BE THE DEFAULT
-    public BAMCoverageTrack(GenericContinuousFileDataSource track) throws SavantTrackCreationCancelledException {
-        super(track);
-        setColorScheme(getDefaultColorScheme());
-        this.notifyControllerOfCreation();
-    }
-
-    // TODO: remove this constructor, should not need to pass a name!!
-    public BAMCoverageTrack(String name, GenericContinuousFileDataSource track) {
-        super(name, track);
+    public BAMCoverageTrack(DataSource dataSource) throws SavantTrackCreationCancelledException {
+        super(dataSource, new ContinuousTrackRenderer());
         setColorScheme(getDefaultColorScheme());
         this.notifyControllerOfCreation();
     }
@@ -67,35 +58,23 @@ public class BAMCoverageTrack extends Track {
             }
         }
 
-        for (TrackRenderer renderer : getTrackRenderers()) {
-
-            renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.REFERENCE_EXISTS, true);
+        renderer.addInstruction(DrawingInstruction.REFERENCE_EXISTS, true);
 
 
-            //reference = "1";
-
-            // FIXME: another nasty hack to accommodate coverage
-            if (getDataSource() == null && isEnabled() && (r == Resolution.LOW || r == Resolution.VERY_LOW || r == Resolution.MEDIUM)) {
-                renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.MESSAGE, "no coverage file available");
-                renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.AXIS_RANGE, AxisRange.initWithRanges(range, getDefaultYRange()));
-            }
-            else if (isEnabled() && (r == Resolution.LOW || r == Resolution.VERY_LOW || r == Resolution.MEDIUM)) {
-                //FIXME: temporary fix for chrx != x issue
-                boolean contains = (this.getDataSource().getReferenceNames().contains(reference) || this.getDataSource().getReferenceNames().contains(MiscUtils.homogenizeSequence(reference)));
-                renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.REFERENCE_EXISTS, contains);
-                renderer.getDrawingInstructions().getInstructions().remove(DrawingInstructions.InstructionName.MESSAGE.toString());
-                int maxDataValue = getMaxValue(data);
-                renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.AXIS_RANGE, AxisRange.initWithRanges(range, new Range(0, maxDataValue)));
-            } else {
-                renderer.getDrawingInstructions().getInstructions().remove(DrawingInstructions.InstructionName.MESSAGE.toString());
-                renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.AXIS_RANGE, AxisRange.initWithRanges(range, getDefaultYRange()));            
-            }
-            renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.COLOR_SCHEME, this.getColorScheme());
-            renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.RANGE, range);
-            renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.RESOLUTION, r);
-            renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.SELECTION_ALLOWED, true);
-            renderer.setData(data);
+        if (isEnabled() && (r == Resolution.LOW || r == Resolution.VERY_LOW || r == Resolution.MEDIUM)) {
+            renderer.addInstruction(DrawingInstruction.REFERENCE_EXISTS, containsReference(reference));
+            renderer.removeInstruction(DrawingInstruction.MESSAGE);
+            int maxDataValue = getMaxValue(data);
+            renderer.addInstruction(DrawingInstruction.AXIS_RANGE, AxisRange.initWithRanges(range, new Range(0, maxDataValue)));
+        } else {
+            renderer.removeInstruction(DrawingInstruction.MESSAGE);
+            renderer.addInstruction(DrawingInstruction.AXIS_RANGE, AxisRange.initWithRanges(range, getDefaultYRange()));
         }
+        renderer.addInstruction(DrawingInstruction.COLOR_SCHEME, this.getColorScheme());
+        renderer.addInstruction(DrawingInstruction.RANGE, range);
+        renderer.addInstruction(DrawingInstruction.RESOLUTION, r);
+        renderer.addInstruction(DrawingInstruction.SELECTION_ALLOWED, true);
+        renderer.setData(data);
     }
 
     @Override

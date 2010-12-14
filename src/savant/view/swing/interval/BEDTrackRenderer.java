@@ -41,10 +41,11 @@ import savant.data.types.Block;
 import savant.data.types.Interval;
 import savant.data.types.IntervalRecord;
 import savant.data.types.Record;
+import savant.exception.RenderingException;
 import savant.file.DataFormat;
 import savant.util.AxisRange;
 import savant.util.ColorScheme;
-import savant.util.DrawingInstructions;
+import savant.util.DrawingInstruction;
 import savant.util.Mode;
 import savant.util.IntervalPacker;
 import savant.util.Range;
@@ -52,7 +53,6 @@ import savant.util.Resolution;
 import savant.util.Strand;
 import savant.view.swing.GraphPane;
 import savant.view.swing.TrackRenderer;
-import savant.view.swing.util.GlassMessagePane;
 
 
 /**
@@ -62,7 +62,7 @@ import savant.view.swing.util.GlassMessagePane;
  */
 public class BEDTrackRenderer extends TrackRenderer {
 
-    private static Log log = LogFactory.getLog(BAMTrackRenderer.class);
+    private static final Log LOG = LogFactory.getLog(BAMTrackRenderer.class);
 
     private static final Font TINY_FONT = new Font("Sans-Serif", Font.PLAIN, 8);
     private static final Font VERY_SMALL_FONT = new Font("Sans-Serif", Font.PLAIN, 10);
@@ -70,53 +70,43 @@ public class BEDTrackRenderer extends TrackRenderer {
     private static final Font LARGE_FONT = new Font("Sans-Serif", Font.PLAIN, 18);
 
     Mode drawMode;
-    DrawingInstructions drawingInstructions;
     Resolution resolution;
 
     public BEDTrackRenderer() {
-        this(new DrawingInstructions());
-    }
-
-    public BEDTrackRenderer(DrawingInstructions drawingInstructions) {
-        super(drawingInstructions);
-        this.dataType = DataFormat.INTERVAL_BED;
+        super(DataFormat.INTERVAL_BED);
     }
     
     @Override
-    public void render(Graphics g, GraphPane gp) {
+    public void render(Graphics g, GraphPane gp) throws RenderingException {
 
-        Graphics2D g2 = (Graphics2D) g;
+        Graphics2D g2 = (Graphics2D)g;
         gp.setIsOrdinal(true);
         this.clearShapes();
 
-        drawingInstructions = this.getDrawingInstructions();
-
-        Boolean refexists = (Boolean) drawingInstructions.getInstruction(DrawingInstructions.InstructionName.REFERENCE_EXISTS);
+        Boolean refexists = (Boolean)instructions.get(DrawingInstruction.REFERENCE_EXISTS);
         if (!refexists) {
-            GlassMessagePane.draw(g2, gp, "no data for reference", 500);
-            return;
+            throw new RenderingException("No data for reference");
         }
 
-        drawMode = (Mode) drawingInstructions.getInstruction(DrawingInstructions.InstructionName.MODE);
-        resolution = (Resolution) drawingInstructions.getInstruction(DrawingInstructions.InstructionName.RESOLUTION.toString());
+        drawMode = (Mode)instructions.get(DrawingInstruction.MODE);
+        resolution = (Resolution)instructions.get(DrawingInstruction.RESOLUTION);
 
         String modeName = drawMode.getName();
         if (modeName.equals("STANDARD")) {
 
             renderPackMode(g2, gp, resolution);
-        }
-        else if (modeName.equals("SQUISH")) {
+        } else if (modeName.equals("SQUISH")) {
 
             renderSquishMode(g2, gp, resolution);
         }
     }
 
-    private void renderPackMode(Graphics2D g2, GraphPane gp, Resolution resolution) {
+    private void renderPackMode(Graphics2D g2, GraphPane gp, Resolution resolution) throws RenderingException {
 
         List<Record> data = this.getData();
 
-        AxisRange axisRange = (AxisRange) getDrawingInstructions().getInstruction(DrawingInstructions.InstructionName.AXIS_RANGE);
-        ColorScheme cs = (ColorScheme) getDrawingInstructions().getInstruction(DrawingInstructions.InstructionName.COLOR_SCHEME.toString());
+        AxisRange axisRange = (AxisRange)instructions.get(DrawingInstruction.AXIS_RANGE);
+        ColorScheme cs = (ColorScheme)instructions.get(DrawingInstruction.COLOR_SCHEME);
         Color linecolor = cs.getColor("Line");
 
         IntervalPacker packer = new IntervalPacker(data);
@@ -138,9 +128,7 @@ public class BEDTrackRenderer extends TrackRenderer {
 
         // display only a message if intervals will not be visible at this resolution
         if (gp.getUnitHeight() < 1) {
-
-            GlassMessagePane.draw(g2, gp, "Too many intervals to display.\nIncrease vertical pane size", 300);
-            return;
+            throw new RenderingException("Too many intervals to display\nIncrease vertical pane size");
         }
 
         // scan the map of intervals and draw the intervals for each level
@@ -343,10 +331,10 @@ public class BEDTrackRenderer extends TrackRenderer {
         }
     }
 
-    private void renderSquishMode(Graphics2D g2, GraphPane gp, Resolution resolution) {
+    private void renderSquishMode(Graphics2D g2, GraphPane gp, Resolution resolution) throws RenderingException {
 
         // ranges, width, and height
-        AxisRange axisRange = (AxisRange) getDrawingInstructions().getInstruction(DrawingInstructions.InstructionName.AXIS_RANGE);
+        AxisRange axisRange = (AxisRange)instructions.get(DrawingInstruction.AXIS_RANGE);
         gp.setIsOrdinal(false);
         gp.setXRange(axisRange.getXRange());
         // y range is set where levels are sorted out, after block merging pass
@@ -355,7 +343,7 @@ public class BEDTrackRenderer extends TrackRenderer {
 
 
             // colours
-            ColorScheme cs = (ColorScheme) getDrawingInstructions().getInstruction(DrawingInstructions.InstructionName.COLOR_SCHEME.toString());
+            ColorScheme cs = (ColorScheme)instructions.get(DrawingInstruction.COLOR_SCHEME);
             Color fillColor = cs.getColor("Forward Strand");
             Color lineColor = cs.getColor("Line");
 
@@ -412,8 +400,7 @@ public class BEDTrackRenderer extends TrackRenderer {
             double unitHeight = gp.getUnitHeight();
             // display only a message if intervals will not be visible at this resolution
             if (unitHeight < 1) {
-                GlassMessagePane.draw(g2, gp, "Increase vertical pane size", 300);
-                return;
+                throw new RenderingException("Increase vertical pane size");
             }            
 
             for (int i = 0; i < numdata; i++) {
@@ -454,11 +441,9 @@ public class BEDTrackRenderer extends TrackRenderer {
             drawBlocks(posStrandBlocks, posStrandLevel, gp, fillColor, lineColor, g2);
             drawBlocks(negStrandBlocks, negStrandLevel, gp, fillColor, lineColor, g2);
             drawBlocks(noStrandBlocks, noStrandLevel, gp, fillColor, lineColor, g2);
+        } else {
+            throw new RenderingException("Zoom in to see genes/intervals");
         }
-        else {
-            GlassMessagePane.draw(g2, gp, "Zoom in to see genes/intervals", 300);
-        }
-
     }
 
     private boolean fontFits(String string, Font font, double height, Graphics2D g2) {

@@ -24,7 +24,6 @@ import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import javax.swing.*;
 
@@ -42,15 +41,8 @@ import savant.controller.RangeController;
 import savant.controller.event.DrawModeChangedEvent;
 import savant.file.DataFormat;
 import savant.settings.ColourSettings;
-import savant.util.DrawingInstructions;
 import savant.util.Range;
-import savant.view.swing.continuous.ContinuousTrackRenderer;
 import savant.view.swing.interval.BAMCoverageTrack;
-import savant.view.swing.interval.BAMTrackRenderer;
-import savant.view.swing.interval.BEDTrackRenderer;
-import savant.view.swing.interval.IntervalTrackRenderer;
-import savant.view.swing.point.PointTrackRenderer;
-import savant.view.swing.sequence.SequenceTrackRenderer;
 import savant.view.swing.interval.BAMTrack;
 
 /**
@@ -69,14 +61,11 @@ public class Frame {
 
     private JLayeredPane jlp;
 
-    //public CommandBar commandBar;
     public JMenuBar commandBar;
     public CommandBar commandBarHidden;
     private JPanel arcLegend;
-    //private boolean legend = false;
     private List<JCheckBoxMenuItem> visItems;
     private JMenu arcButton;
-    //private JMenu intervalMenu;
     private JMenu intervalButton;
 
     private boolean commandBarActive = true;
@@ -84,28 +73,8 @@ public class Frame {
     private String name;
 
     public JScrollPane scrollPane;
-    //private boolean tempCommandBar = true;
 
-    public boolean isHidden() { return this.isHidden; }
-    public void setHidden(boolean isHidden) { this.isHidden = isHidden; }
-
-    public GraphPane getGraphPane() { return this.graphPane; }
-    public JComponent getFrameLandscape() { return this.frameLandscape; }
-    public final List<Track> getTracks() { return this.tracks; }
-
-    public boolean isOpen() { return getGraphPane() != null; }
-
-    //public Frame(JComponent frameLandscape) { this((JLayeredPane)frameLandscape, null, null); }
-
-    //public Frame(JComponent frameLandscape, List<Track> tracks, String name) { this((JLayeredPane)frameLandscape, tracks, new ArrayList<TrackRenderer>(), name); }
-
-    //public Frame(JLayeredPane frameLandscape, List<Track> tracks, List<TrackRenderer> renderers, String name)
-
-
-    public Frame(List<Track> tracks, String name) {this(tracks, new ArrayList<TrackRenderer>(), name); }
-
-    public Frame(List<Track> tracks, List<TrackRenderer> renderers, String name)
-    {
+    public Frame(List<Track> tracks, String name) {
 
         this.name = name;
 
@@ -160,22 +129,16 @@ public class Frame {
 
 
         if (!tracks.isEmpty()) {
-            int i=0;
-            Iterator<Track> it = tracks.iterator();
-            while ( it.hasNext()) {
-                Track track = (Track)it.next();
+            for (Track t: tracks) {
                 // FIXME:
-                track.setFrame(this);
-                TrackRenderer renderer=null;
-                if (!renderers.isEmpty()) {
-                    renderer = renderers.get(i++);
-                }
-                addTrack(track, renderer);
+                t.setFrame(this);
+                this.tracks.add(t);
+
+                graphPane.addTrack(t);
 
                 //CREATE LEGEND PANEL
-                //TODO: check for null is another hack to get coverage to work...
-                if(track.getDataSource() != null && track.getDataSource().getDataFormat().toString().equals("INTERVAL_BAM")){
-                    arcLegend = track.getTrackRenderers().get(0).arcLegendPaint();
+                if (t.getDataSource().getDataFormat() == DataFormat.INTERVAL_BAM){
+                    arcLegend = t.getRenderer().arcLegendPaint();
                 }
             }
         }
@@ -311,6 +274,16 @@ public class Frame {
         //frameLandscape.setLayer(getGraphPane(), (Integer) JLayeredPane.DEFAULT_LAYER);
         frameLandscape.setLayer(scrollPane, (Integer) JLayeredPane.DEFAULT_LAYER);
     }
+
+    public boolean isHidden() { return this.isHidden; }
+    public void setHidden(boolean isHidden) { this.isHidden = isHidden; }
+
+    public GraphPane getGraphPane() { return this.graphPane; }
+    public JComponent getFrameLandscape() { return this.frameLandscape; }
+    public final List<Track> getTracks() { return this.tracks; }
+
+    public boolean isOpen() { return getGraphPane() != null; }
+
 
     public void setActiveFrame(){
         if(commandBarActive) commandBar.setVisible(true);
@@ -524,44 +497,6 @@ public class Frame {
     }
 
     /**
-     * Create the menu for interval options
-     */
-    /*private JMenu createIntervalMenu() {
-        JMenu menu = new JideMenu("Interval Options");
-        final JCheckBoxMenuItem dynamic = new JCheckBoxMenuItem("Dynamic Height");
-        final JCheckBoxMenuItem fixed = new JCheckBoxMenuItem("Fixed Height");
-
-        dynamic.addActionListener(new AbstractAction() {
-            public void actionPerformed(ActionEvent e) {
-                for(int i = 0; i < graphPane.getTrackRenderers().size(); i++){
-                    graphPane.getTrackRenderers().get(i).setIntervalMode("dynamic");
-                }
-                dynamic.setState(true);
-                fixed.setState(false);
-                graphPane.setRenderRequired();
-                graphPane.repaint();
-            }
-        });
-
-        fixed.addActionListener(new AbstractAction() {
-            public void actionPerformed(ActionEvent e) {
-                for(int i = 0; i < graphPane.getTrackRenderers().size(); i++){
-                    graphPane.getTrackRenderers().get(i).setIntervalMode("fixed");
-                }
-                fixed.setState(true);
-                dynamic.setState(false);
-                graphPane.setRenderRequired();
-                graphPane.repaint();
-            }
-        });
-
-        dynamic.setState(true);
-        menu.add(dynamic);
-        menu.add(fixed);
-        return menu;
-    }*/
-
-    /**
      * Create display menu for commandBar
      */
     private JMenu createDisplayMenu() {
@@ -610,63 +545,13 @@ public class Frame {
         return menu;
     }
 
-    /**
-     * Add a track to the list of tracks in
-     * this frame
-     * @param track The track to add
-     * @param renderer to add for this track; if null, add default renderer for data type
-     */
-    public void addTrack(Track track, TrackRenderer renderer) {
-        tracks.add(track);
-
-        if (renderer == null) {
-            if (track.getDataSource() == null) {
-                renderer = new ContinuousTrackRenderer();
-            } else {
-                switch(track.getDataSource().getDataFormat()) {
-                    case POINT_GENERIC:
-                        renderer = new PointTrackRenderer();
-                        break;
-                    case INTERVAL_GENERIC:
-                        renderer = new IntervalTrackRenderer();
-                        break;
-                    case CONTINUOUS_GENERIC:
-                        renderer = new ContinuousTrackRenderer();
-                        break;
-                    case INTERVAL_BAM:
-                        renderer = new BAMTrackRenderer();
-                        break;
-                    case INTERVAL_BED:
-                        renderer = new BEDTrackRenderer();
-                        break;
-                    case SEQUENCE_FASTA:
-                        renderer = new SequenceTrackRenderer();
-                        break;
-                }
-            }
-        }
-
-        // TODO: another hack to make coverage work ...
-        DataFormat df = (track.getDataSource() == null) ? DataFormat.CONTINUOUS_GENERIC : track.getDataSource().getDataFormat();
-
-        renderer.setTrackName(track.getName());
-        renderer.getDrawingInstructions().addInstruction(
-                DrawingInstructions.InstructionName.TRACK_DATA_TYPE, df);
-        track.addTrackRenderer(renderer);
-        graphPane.addTrackRenderer(renderer);
-        graphPane.addTrack(track);
-    }
-
-    public void addTrack(Track track) {
-        addTrack(track, null);
-    }
-
     public void redrawTracksInRange() throws Exception {
         drawTracksInRange(ReferenceController.getInstance().getReferenceName(), currentRange);
     }
 
     /**
-     * // TODO: comment
+     * Prepare the data for the tracks in range and fire off a repaint.
+     *
      * @param range
      */
     public void drawTracksInRange(String reference, Range range)

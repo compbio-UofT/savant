@@ -31,7 +31,6 @@ import savant.data.types.Record;
 import savant.exception.SavantTrackCreationCancelledException;
 import savant.settings.ColourSettings;
 import savant.util.*;
-import savant.view.swing.TrackRenderer;
 import savant.view.swing.Track;
 
 
@@ -50,7 +49,7 @@ public class IntervalTrack extends Track {
     private static final Mode ARC_MODE = Mode.fromObject(DrawingMode.ARC, "Arcs");
 
     public IntervalTrack(DataSource intervalTrack) throws SavantTrackCreationCancelledException {
-        super(intervalTrack);
+        super(intervalTrack, new IntervalTrackRenderer());
         setColorScheme(getDefaultColorScheme());
         setDrawModes(getDefaultDrawModes());
         setDrawMode(PACK_MODE);
@@ -72,6 +71,11 @@ public class IntervalTrack extends Track {
     @Override
     public void resetColorScheme() {
         setColorScheme(getDefaultColorScheme());
+    }
+
+    @Override
+    public Mode getDefaultDrawMode() {
+        return PACK_MODE;
     }
 
     @Override
@@ -135,22 +139,19 @@ public class IntervalTrack extends Track {
                 break;
         }
 
-        for (TrackRenderer renderer : getTrackRenderers()) {
-            boolean contains = (this.getDataSource().getReferenceNames().contains(reference) || this.getDataSource().getReferenceNames().contains(MiscUtils.homogenizeSequence(reference)));
-            renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.RESOLUTION, r);
-            renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.COLOR_SCHEME, this.getColorScheme());
-            renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.REFERENCE_EXISTS, contains);
+        renderer.addInstruction(DrawingInstruction.RESOLUTION, r);
+        renderer.addInstruction(DrawingInstruction.COLOR_SCHEME, getColorScheme());
+        renderer.addInstruction(DrawingInstruction.REFERENCE_EXISTS, containsReference(reference));
 
-            if (getDrawMode().getName().equals("ARC")) {
-                int maxDataValue = getMaxValue(data);
-                renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.AXIS_RANGE, AxisRange.initWithRanges(range, new Range(0,(int)Math.round(Math.log(maxDataValue)))));
-            }
-            else renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.AXIS_RANGE, AxisRange.initWithRanges(range, getDefaultYRange()));
-            renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.MODE, getDrawMode());
-            renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.SELECTION_ALLOWED, true);
-            renderer.setData(data);
+        if (getDrawMode().getName().equals("ARC")) {
+            int maxDataValue = getMaxValue(data);
+            renderer.addInstruction(DrawingInstruction.AXIS_RANGE, AxisRange.initWithRanges(range, new Range(0,(int)Math.round(Math.log(maxDataValue)))));
+        } else {
+            renderer.addInstruction(DrawingInstruction.AXIS_RANGE, AxisRange.initWithRanges(range, getDefaultYRange()));
         }
-
+        renderer.addInstruction(DrawingInstruction.MODE, getDrawMode());
+        renderer.addInstruction(DrawingInstruction.SELECTION_ALLOWED, true);
+        renderer.setData(data);
     }
 
     private Range getDefaultYRange() {
@@ -165,10 +166,5 @@ public class IntervalTrack extends Track {
             if (val > max) max = val;
         }
         return (int)Math.ceil(max);
-    }
-
-    @Override
-    public Mode getDefaultDrawMode() {
-        return PACK_MODE;
     }
 }

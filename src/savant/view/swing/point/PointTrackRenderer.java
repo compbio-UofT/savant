@@ -25,15 +25,15 @@ import java.util.List;
 
 import savant.data.types.PointRecord;
 import savant.data.types.Record;
+import savant.exception.RenderingException;
 import savant.file.DataFormat;
 
-import savant.util.DrawingInstructions;
+import savant.util.DrawingInstruction;
 import savant.util.Resolution;
 import savant.util.ColorScheme;
 import savant.util.Range;
 import savant.view.swing.GraphPane;
 import savant.view.swing.TrackRenderer;
-import savant.view.swing.util.GlassMessagePane;
 
 /**
  *
@@ -41,19 +41,12 @@ import savant.view.swing.util.GlassMessagePane;
  */
 public class PointTrackRenderer extends TrackRenderer {
 
-    private static final int GLASS_PANE_WIDTH = 300;
-    private static final String GLASS_PANE_MESSAGE = "Zoom in to see points";
-
-    public PointTrackRenderer() { this(new DrawingInstructions()); }
-
-    public PointTrackRenderer(
-            DrawingInstructions drawingInstructions) {
-        super(drawingInstructions);
-        this.dataType = DataFormat.POINT_GENERIC;
+    public PointTrackRenderer() {
+        super(DataFormat.POINT_GENERIC);
     }
 
     @Override
-    public void render(Graphics g, GraphPane gp) {
+    public void render(Graphics g, GraphPane gp) throws RenderingException {
 
         Graphics2D g2 = (Graphics2D) g;
         gp.setIsOrdinal(true);
@@ -61,31 +54,25 @@ public class PointTrackRenderer extends TrackRenderer {
 
         double width = gp.getUnitWidth();
 
-        DrawingInstructions di = this.getDrawingInstructions();
-
-        Boolean refexists = (Boolean) di.getInstruction(DrawingInstructions.InstructionName.REFERENCE_EXISTS);
+        Boolean refexists = (Boolean)instructions.get(DrawingInstruction.REFERENCE_EXISTS);
         if (!refexists) {
-            GlassMessagePane.draw(g2, gp, "no data for reference", GLASS_PANE_WIDTH);
-            return;
+            throw new RenderingException("No data for reference");
         }
 
-        Resolution r = (Resolution) di.getInstruction(DrawingInstructions.InstructionName.RESOLUTION.toString());
+        Resolution r = (Resolution)instructions.get(DrawingInstruction.RESOLUTION);
 
         List<Record> data = getData();
 
         // don't draw things which are too small to be seen: less than 1 pixel wide
         if (width < 1 || data == null) {
-            // display informational glass pane
-            GlassMessagePane.draw(g2, gp, GLASS_PANE_MESSAGE, GLASS_PANE_WIDTH);
-            return;
-
+            throw new RenderingException("Zoom in to see points");
         }
         int numdata = getData().size();
 
 
         if (r == Resolution.VERY_HIGH) {
             
-            ColorScheme cs = (ColorScheme) di.getInstruction(DrawingInstructions.InstructionName.COLOR_SCHEME.toString());
+            ColorScheme cs = (ColorScheme)instructions.get(DrawingInstruction.COLOR_SCHEME);
             Color bgcolor = cs.getColor("Background");
             Color linecolor = cs.getColor("Line");
 

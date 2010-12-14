@@ -34,7 +34,6 @@ import savant.data.types.Record;
 import savant.exception.SavantTrackCreationCancelledException;
 import savant.settings.ColourSettings;
 import savant.util.*;
-import savant.view.swing.TrackRenderer;
 import savant.view.swing.Track;
 
 /**
@@ -44,7 +43,7 @@ import savant.view.swing.Track;
  */
 public class BEDTrack extends Track {
 
-    private static Log LOG = LogFactory.getLog(BEDTrack.class);
+    private static final Log LOG = LogFactory.getLog(BEDTrack.class);
 
     public enum DrawingMode {
         STANDARD,
@@ -54,12 +53,12 @@ public class BEDTrack extends Track {
     private static final Mode STANDARD_MODE = Mode.fromObject(DrawingMode.STANDARD, "Standard Gene View");
     private static final Mode SQUISH_MODE = Mode.fromObject(DrawingMode.SQUISH, "All on one line");
 
-    public BEDTrack(DataSource bedTrack) throws SavantTrackCreationCancelledException {
-        super(bedTrack);
+    public BEDTrack(DataSource bedSource) throws SavantTrackCreationCancelledException {
+        super(bedSource, new BEDTrackRenderer());
         setColorScheme(getDefaultColorScheme());
         setDrawModes(getDefaultDrawModes());
         setDrawMode(STANDARD_MODE);
-        this.notifyControllerOfCreation();
+        notifyControllerOfCreation();
     }
 
 
@@ -67,17 +66,14 @@ public class BEDTrack extends Track {
     public void prepareForRendering(String reference, Range range) throws IOException {
         Resolution r = getResolution(range);
         List<Record> data = retrieveAndSaveData(reference, range);
-        for (TrackRenderer renderer : getTrackRenderers()) {
-            boolean contains = (this.getDataSource().getReferenceNames().contains(reference) || this.getDataSource().getReferenceNames().contains(MiscUtils.homogenizeSequence(reference)));
-            renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.RANGE, range);
-            renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.RESOLUTION, r);
-            renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.COLOR_SCHEME, this.getColorScheme());
-            renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.AXIS_RANGE, AxisRange.initWithRanges(range, getDefaultYRange()));
-            renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.REFERENCE_EXISTS, contains);
-            renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.MODE, getDrawMode());
-            renderer.getDrawingInstructions().addInstruction(DrawingInstructions.InstructionName.SELECTION_ALLOWED, true);
-            renderer.setData(data);
-        }
+        renderer.addInstruction(DrawingInstruction.RANGE, range);
+        renderer.addInstruction(DrawingInstruction.RESOLUTION, r);
+        renderer.addInstruction(DrawingInstruction.COLOR_SCHEME, getColorScheme());
+        renderer.addInstruction(DrawingInstruction.AXIS_RANGE, AxisRange.initWithRanges(range, getDefaultYRange()));
+        renderer.addInstruction(DrawingInstruction.REFERENCE_EXISTS, containsReference(reference));
+        renderer.addInstruction(DrawingInstruction.MODE, getDrawMode());
+        renderer.addInstruction(DrawingInstruction.SELECTION_ALLOWED, true);
+        renderer.setData(data);
     }
 
 
