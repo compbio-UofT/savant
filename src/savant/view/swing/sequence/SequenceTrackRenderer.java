@@ -65,14 +65,12 @@ public class SequenceTrackRenderer extends TrackRenderer {
         double unitHeight = gp.getUnitHeight();
 
 
-        List<Record> data = getData();
-        
         // Don't display sequence if data is too high resolution to see.
         if (data == null || unitWidth < 0.2) {
             throw new RenderingException("Zoom in to see sequence");
         }
 
-        byte[] sequence = ((SequenceRecord)getData().get(0)).getSequence();
+        byte[] sequence = ((SequenceRecord)data.get(0)).getSequence();
 
         // Set the font size, if base name is renderable at all.
         boolean baseRenderable = false;

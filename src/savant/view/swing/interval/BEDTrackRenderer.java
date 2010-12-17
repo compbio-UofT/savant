@@ -103,8 +103,6 @@ public class BEDTrackRenderer extends TrackRenderer {
 
     private void renderPackMode(Graphics2D g2, GraphPane gp, Resolution resolution) throws RenderingException {
 
-        List<Record> data = this.getData();
-
         AxisRange axisRange = (AxisRange)instructions.get(DrawingInstruction.AXIS_RANGE);
         ColorScheme cs = (ColorScheme)instructions.get(DrawingInstruction.COLOR_SCHEME);
         Color linecolor = cs.getColor("Line");
@@ -350,26 +348,19 @@ public class BEDTrackRenderer extends TrackRenderer {
             // antialising, for the chevrons
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-            // data
-            List<Record> data = getData();
-            int numdata = getData().size();
-
             // first pass through the data, merging Blocks
             List<Interval> posStrandBlocks = new ArrayList<Interval>();
             List<Interval> negStrandBlocks = new ArrayList<Interval>();
             List<Interval> noStrandBlocks = new ArrayList<Interval>();
-            for (int i = 0; i < numdata; i++) {
-                BEDIntervalRecord bedRecord = (BEDIntervalRecord) data.get(i);
-                Interval interval = bedRecord.getInterval();
+            for (Record record: data) {
+                BEDIntervalRecord bedRecord = (BEDIntervalRecord)record;
                 Strand strand =  bedRecord.getStrand();
 
                 if (strand == Strand.FORWARD) {
                     mergeBlocks(posStrandBlocks, bedRecord);
-                }
-                else if (strand == Strand.REVERSE) {
+                } else if (strand == Strand.REVERSE) {
                     mergeBlocks(negStrandBlocks, bedRecord);
-                }
-                else if (strand == null) {
+                } else if (strand == null) {
                     mergeBlocks(noStrandBlocks, bedRecord);
                 }
 
@@ -403,9 +394,9 @@ public class BEDTrackRenderer extends TrackRenderer {
                 throw new RenderingException("Increase vertical pane size");
             }            
 
-            for (int i = 0; i < numdata; i++) {
+            for (Record record: data) {
 
-                BEDIntervalRecord bedRecord = (BEDIntervalRecord) data.get(i);
+                BEDIntervalRecord bedRecord = (BEDIntervalRecord)record;
 
                 // we'll display different strands at different y positions
                 Strand strand =  bedRecord.getStrand();

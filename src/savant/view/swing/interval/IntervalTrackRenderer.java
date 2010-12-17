@@ -23,6 +23,7 @@ import java.awt.RenderingHints;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
+import savant.data.event.DataRetrievalEvent;
 
 import savant.data.types.Interval;
 import savant.data.types.IntervalRecord;
@@ -42,6 +43,17 @@ public class IntervalTrackRenderer extends TrackRenderer {
 
     public IntervalTrackRenderer() {
         super(DataFormat.INTERVAL_GENERIC);
+    }
+
+    @Override
+    public void dataRetrievalCompleted(DataRetrievalEvent evt) {
+        Mode mode = (Mode)instructions.get(DrawingInstruction.MODE);
+        if (mode.getName().equals("ARC")) {
+            int maxDataValue = IntervalTrack.getMaxValue(data);
+            Range range = (Range)instructions.get(DrawingInstruction.RANGE);
+            addInstruction(DrawingInstruction.AXIS_RANGE, AxisRange.initWithRanges(range, new Range(0,(int)Math.round(Math.log(maxDataValue)))));
+        }
+        super.dataRetrievalCompleted(evt);
     }
 
     @Override
@@ -72,9 +84,6 @@ public class IntervalTrackRenderer extends TrackRenderer {
 
     private void renderSquishMode(Graphics2D g2, GraphPane gp, Resolution r) throws RenderingException {
 
-        List<Record> data = getData();
-        int numdata = data.size();
-
         ColorScheme cs = (ColorScheme)instructions.get(DrawingInstruction.COLOR_SCHEME);
         Color bgcolor = cs.getColor("Translucent Graph");
         Color linecolor = cs.getColor("Line");
@@ -92,10 +101,8 @@ public class IntervalTrackRenderer extends TrackRenderer {
             unitWidth = gp.getUnitWidth();
             unitHeight = gp.getUnitHeight();
 
-            for (int i = 0; i < numdata; i++) {
-
-                IntervalRecord record = (IntervalRecord)data.get(i);
-                Interval inter = record.getInterval();
+            for (Record record: data) {
+                Interval inter = ((IntervalRecord)record).getInterval();
 
 
                 double x = gp.transformXPos(inter.getStart());
@@ -121,9 +128,6 @@ public class IntervalTrackRenderer extends TrackRenderer {
     private void renderArcMode(Graphics2D g2, GraphPane gp, Resolution r) {
 
 
-        List<Record> data = getData();
-        int numdata = getData().size();
-
         ColorScheme cs = (ColorScheme)instructions.get(DrawingInstruction.COLOR_SCHEME);
         Color bgcolor = cs.getColor("Opaque Graph");
 
@@ -137,10 +141,8 @@ public class IntervalTrackRenderer extends TrackRenderer {
             gp.setXRange(axisRange.getXRange());
             gp.setYRange(axisRange.getYRange());
 
-            for (int i = 0; i < numdata; i++) {
-
-                IntervalRecord record = (IntervalRecord)data.get(i);
-                Interval inter = record.getInterval();
+            for (Record record: data) {
+                Interval inter = ((IntervalRecord)record).getInterval();
 
                 long arcLength = inter.getLength();
                 int arcHeight = (int)(Math.log((double)arcLength));
@@ -159,8 +161,6 @@ public class IntervalTrackRenderer extends TrackRenderer {
     }
 
     private void renderPackMode(Graphics2D g2, GraphPane gp, Resolution r) throws RenderingException {
-
-        List<Record> data = getData();
 
         ColorScheme cs = (ColorScheme)instructions.get(DrawingInstruction.COLOR_SCHEME);
         Color bgcolor = cs.getColor("Opaque Graph");

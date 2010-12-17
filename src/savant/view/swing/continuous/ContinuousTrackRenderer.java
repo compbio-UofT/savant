@@ -33,6 +33,7 @@ import java.util.List;
 
 import savant.controller.RangeController;
 import savant.controller.SelectionController;
+import savant.data.event.DataRetrievalEvent;
 import savant.data.types.GenericContinuousRecord;
 import savant.data.types.Record;
 import savant.exception.RenderingException;
@@ -57,6 +58,14 @@ public class ContinuousTrackRenderer extends TrackRenderer {
     }
 
     @Override
+    public void dataRetrievalCompleted(DataRetrievalEvent evt) {
+        int maxDataValue = ContinuousTrack.getMaxValue(evt.getData());
+        Range range = (Range)instructions.get(DrawingInstruction.RANGE);
+        addInstruction(DrawingInstruction.AXIS_RANGE, AxisRange.initWithRanges(range, new Range(0, maxDataValue)));
+        super.dataRetrievalCompleted(evt);
+    }
+
+    @Override
     public void render(Graphics g, GraphPane gp) throws RenderingException {
 
         Graphics2D g2 = (Graphics2D) g;
@@ -68,7 +77,6 @@ public class ContinuousTrackRenderer extends TrackRenderer {
             throw new RenderingException("No data for reference");
         }
 
-        List<Record> data = getData();
         if (data == null) {
             throw new RenderingException((String)instructions.get(DrawingInstruction.MESSAGE));
         }

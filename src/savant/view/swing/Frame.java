@@ -22,7 +22,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.*;
@@ -39,6 +38,8 @@ import savant.controller.ReferenceController;
 import savant.controller.DrawModeController;
 import savant.controller.RangeController;
 import savant.controller.event.DrawModeChangedEvent;
+import savant.data.event.DataRetrievalEvent;
+import savant.data.event.DataRetrievalListener;
 import savant.file.DataFormat;
 import savant.settings.ColourSettings;
 import savant.util.Range;
@@ -49,7 +50,7 @@ import savant.view.swing.interval.BAMTrack;
  *
  * @author mfiume
  */
-public class Frame {
+public class Frame implements DataRetrievalListener {
     private static final Log LOG = LogFactory.getLog(Frame.class);
 
     private boolean isHidden = false;
@@ -563,16 +564,8 @@ public class Frame {
 
             graphPane.setXRange(currentRange);
 
-            try {
-
-                for (Track track : tracks) {
-                    track.prepareForRendering(reference, range);
-                }
-                graphPane.repaint();
-
-            } catch (IOException iox) {
-                LOG.error("Error rendering track.", iox);
-                JOptionPane.showMessageDialog(graphPane, iox.getMessage());
+            for (Track track : tracks) {
+                track.prepareForRendering(reference, range);
             }
         }
         this.resetLayers();
@@ -684,5 +677,22 @@ public class Frame {
 
     public String getName(){
         return name;
+    }
+
+    @Override
+    public void dataRetrievalStarted(DataRetrievalEvent evt) {
+    }
+
+    @Override
+    public void dataRetrievalCompleted(DataRetrievalEvent evt) {
+        LOG.debug("Frame received dataRetrievalCompleted.");
+        graphPane.forceFullRender();
+        graphPane.repaint();
+    }
+
+    @Override
+    public void dataRetrievalFailed(DataRetrievalEvent evt) {
+        graphPane.forceFullRender();
+        graphPane.repaint();
     }
 }

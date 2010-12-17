@@ -26,7 +26,6 @@ import java.util.List;
 import savant.api.adapter.ModeAdapter;
 import savant.api.adapter.RangeAdapter;
 import savant.data.sources.DataSource;
-import savant.data.types.ContinuousRecord;
 import savant.data.types.Record;
 import savant.exception.SavantTrackCreationCancelledException;
 import savant.settings.ColourSettings;
@@ -47,25 +46,20 @@ public class BAMCoverageTrack extends Track {
     }
 
     @Override
-    public void prepareForRendering(String reference, Range range) throws IOException {
+    public void prepareForRendering(String reference, Range range) {
 
-        List<Record> data = null;
         Resolution r = getResolution(range);
-        if (getDataSource() != null) {
-            if (isEnabled() && (r == Resolution.LOW || r == Resolution.VERY_LOW || r == Resolution.MEDIUM)) {
-                data = retrieveAndSaveData(reference, range);
-                //System.out.println("BAM data: " + data);
-            }
+        if (isEnabled() && (r == Resolution.LOW || r == Resolution.VERY_LOW || r == Resolution.MEDIUM)) {
+            renderer.addInstruction(DrawingInstruction.PROGRESS, "Loading coverage track...");
+            requestData(reference, range);
         }
 
-        renderer.addInstruction(DrawingInstruction.REFERENCE_EXISTS, true);
+        renderer.addInstruction(DrawingInstruction.REFERENCE_EXISTS, containsReference(reference));
 
 
         if (isEnabled() && (r == Resolution.LOW || r == Resolution.VERY_LOW || r == Resolution.MEDIUM)) {
             renderer.addInstruction(DrawingInstruction.REFERENCE_EXISTS, containsReference(reference));
             renderer.removeInstruction(DrawingInstruction.MESSAGE);
-            int maxDataValue = getMaxValue(data);
-            renderer.addInstruction(DrawingInstruction.AXIS_RANGE, AxisRange.initWithRanges(range, new Range(0, maxDataValue)));
         } else {
             renderer.removeInstruction(DrawingInstruction.MESSAGE);
             renderer.addInstruction(DrawingInstruction.AXIS_RANGE, AxisRange.initWithRanges(range, getDefaultYRange()));
@@ -74,12 +68,6 @@ public class BAMCoverageTrack extends Track {
         renderer.addInstruction(DrawingInstruction.RANGE, range);
         renderer.addInstruction(DrawingInstruction.RESOLUTION, r);
         renderer.addInstruction(DrawingInstruction.SELECTION_ALLOWED, true);
-        renderer.setData(data);
-    }
-
-    @Override
-    public List<Record> retrieveData(String reference, RangeAdapter range, Resolution resolution) throws IOException {
-        return getDataSource().getRecords(reference, range, resolution);
     }
 
     private ColorScheme getDefaultColorScheme() {
@@ -120,19 +108,6 @@ public class BAMCoverageTrack extends Track {
 
     private Range getDefaultYRange() {
         return new Range(0, 1);
-    }
-
-    private int getMaxValue(List<Record> data) {
-        
-        if (data == null) return 0;
-
-        float max = 0;
-        for (Record r: data) {
-            ContinuousRecord record = (ContinuousRecord)r;
-            float val = record.getValue().getValue();
-            if (val > max) max = val;
-        }
-        return (int)Math.ceil(max);
     }
 
     // TODO: pull this property up into Track

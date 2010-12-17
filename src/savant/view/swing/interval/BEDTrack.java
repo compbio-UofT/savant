@@ -63,9 +63,10 @@ public class BEDTrack extends Track {
 
 
     @Override
-    public void prepareForRendering(String reference, Range range) throws IOException {
+    public void prepareForRendering(String reference, Range range) {
         Resolution r = getResolution(range);
-        List<Record> data = retrieveAndSaveData(reference, range);
+        renderer.addInstruction(DrawingInstruction.PROGRESS, "Loading BED track...");
+        requestData(reference, range);
         renderer.addInstruction(DrawingInstruction.RANGE, range);
         renderer.addInstruction(DrawingInstruction.RESOLUTION, r);
         renderer.addInstruction(DrawingInstruction.COLOR_SCHEME, getColorScheme());
@@ -73,13 +74,6 @@ public class BEDTrack extends Track {
         renderer.addInstruction(DrawingInstruction.REFERENCE_EXISTS, containsReference(reference));
         renderer.addInstruction(DrawingInstruction.MODE, getDrawMode());
         renderer.addInstruction(DrawingInstruction.SELECTION_ALLOWED, true);
-        renderer.setData(data);
-    }
-
-
-    @Override
-    public List<Record> retrieveData(String reference, RangeAdapter range, Resolution resolution) throws IOException {
-        return getDataSource().getRecords(reference, range, resolution);
     }
 
     @Override

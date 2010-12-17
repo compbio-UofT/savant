@@ -23,19 +23,20 @@ package savant.util;
  */
 public enum DrawingInstruction {
 
-    TRACK_DATA_TYPE,
-    MODE,
-    AXIS_RANGE,
-    RESOLUTION,
-    RANGE,
-    COLOR_SCHEME,
-    GENOME,
-    ARC_MIN,
-    DISCORDANT_MIN,
-    DISCORDANT_MAX,
-    MESSAGE,
-    REFERENCE_EXISTS,
-    SELECTION_ALLOWED,
-    UNSUPPORTED_RESOLUTION
+    TRACK_DATA_TYPE,    // DataFormat
+    MODE,               // Mode
+    AXIS_RANGE,         // AxisRange
+    RESOLUTION,         // Resolution
+    RANGE,              // Range
+    COLOR_SCHEME,       // ColorScheme
+    GENOME,             // not used
+    ARC_MIN,            // double
+    DISCORDANT_MIN,     // int
+    DISCORDANT_MAX,     // int
+    MESSAGE,            // String (not used)
+    REFERENCE_EXISTS,   // boolean
+    SELECTION_ALLOWED,  // boolean
+    ERROR,              // String (error message)
+    PROGRESS            // String (progress message)
 }
 

@@ -61,13 +61,10 @@ public class PointTrackRenderer extends TrackRenderer {
 
         Resolution r = (Resolution)instructions.get(DrawingInstruction.RESOLUTION);
 
-        List<Record> data = getData();
-
         // don't draw things which are too small to be seen: less than 1 pixel wide
         if (width < 1 || data == null) {
             throw new RenderingException("Zoom in to see points");
         }
-        int numdata = getData().size();
 
 
         if (r == Resolution.VERY_HIGH) {
@@ -78,12 +75,10 @@ public class PointTrackRenderer extends TrackRenderer {
 
             float pointiness = 0.1F;
 
-            for (int i = 0; i < numdata; i++) {
-
+            for (Record record: data) {
                 Polygon p = new Polygon();
 
-                PointRecord record = (PointRecord)data.get(i);
-                savant.data.types.Point sp = record.getPoint();
+                savant.data.types.Point sp = ((PointRecord)record).getPoint();
 
                 Point2D.Double p1 = new Point2D.Double(gp.transformXPos(sp.getPosition()),0);
                 Point2D.Double p2 = new Point2D.Double(gp.transformXPos(sp.getPosition()+1),0);

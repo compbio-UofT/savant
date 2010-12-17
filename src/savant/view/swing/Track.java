@@ -16,10 +16,13 @@
 package savant.view.swing;
 
 import java.awt.Color;
+import java.awt.EventQueue;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JPanel;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import savant.api.adapter.ModeAdapter;
 import savant.api.adapter.RangeAdapter;
@@ -27,6 +30,8 @@ import savant.api.adapter.TrackAdapter;
 import savant.controller.SelectionController;
 import savant.controller.DataSourceController;
 import savant.controller.TrackController;
+import savant.data.event.DataRetrievalEvent;
+import savant.data.event.DataRetrievalListener;
 import savant.data.types.Genome;
 import savant.data.sources.*;
 import savant.data.types.Record;
@@ -51,6 +56,7 @@ import savant.view.swing.util.DialogUtils;
  * @author mfiume
  */
 public abstract class Track implements TrackAdapter {
+    private static final Log LOG = LogFactory.getLog(Track.class);
 
     private final String name;
     private ColorScheme colorScheme;
@@ -61,6 +67,8 @@ public abstract class Track implements TrackAdapter {
     private final DataSource dataSource;
     private ColorSchemeDialog colorDialog = new ColorSchemeDialog();
     private IntervalDialog intervalDialog = new IntervalDialog();
+    private final List<DataRetrievalListener> listeners = new ArrayList<DataRetrievalListener>();
+
     // FIXME:
     private Frame frame;
     private static BAMParametersDialog paramDialog = new BAMParametersDialog(Savant.getInstance(), true);
@@ -109,6 +117,7 @@ public abstract class Track implements TrackAdapter {
         name = n;
 
         renderer.setTrackName(name);
+        addDataRetrievalListener(renderer);
     }
 
     private String getUniqueName(String name) {
@@ -314,6 +323,7 @@ public abstract class Track implements TrackAdapter {
         this.frame = frame;
         colorDialog.setFrame(frame);
         intervalDialog.setFrame(frame);
+        addDataRetrievalListener(frame);
     }
 
     /**
@@ -326,12 +336,14 @@ public abstract class Track implements TrackAdapter {
     }
 
     /**
-     * Prepare this view track to render the given range.
+     * Prepare this track to render the given range.  Since the actual data-retrieval
+     * is now done on a separate thread, preparing to render should not throw any
+     * exceptions.
      *
-     * @param range
-     * @throws IOException
+     * @param reference the reference to be rendered
+     * @param range the range to be rendered
      */
-    public abstract void prepareForRendering(String reference, Range range) throws IOException;
+    public abstract void prepareForRendering(String reference, Range range);
 
     /**
      * Method which plugins can use to force the Track to repaint itself.
@@ -347,33 +359,99 @@ public abstract class Track implements TrackAdapter {
     }
 
     /**
-     * Retrieve data from the underlying data track at the current resolution and save it.
+     * Request data from the underlying data track at the current resolution.  A new
+     * thread will be started.
      *
+     * @param reference The reference within which to retrieve objects
      * @param range The range within which to retrieve objects
-     * @return a list of data objects in the given range
-     * @throws Exception
      */
-    public List<Record> retrieveAndSaveData(String reference, Range range) throws IOException {
-        Resolution resolution = getResolution(range);
+    public synchronized void requestData(final String reference, final Range range) {
+        new Thread() {
+            @Override
+            public void run() {
+                try {
+                    fireDataRetrievalStarted();
+                    synchronized (Track.this) {
+                        dataInRange = retrieveData(reference, range, getResolution(range));
+                        Track.this.notify();
+                    }
+                    fireDataRetrievalCompleted(dataInRange);
+                } catch (IOException iox) {
+                    LOG.error(iox);
+                    fireDataRetrievalFailed(iox);
+                }
+            }
+        }.start();
+        try {
+            wait(1000);
+        } catch (InterruptedException x) {
+            LOG.warn("Track.requestData interrupted.", x);
+        }
+    }
 
-        /*
-        // Get current time
-        long start = System.currentTimeMillis();
-         */
+    public final void addDataRetrievalListener(DataRetrievalListener l) {
+        synchronized (listeners) {
+            listeners.add(l);
+        }
+    }
 
-        dataInRange = retrieveData(reference, range, resolution);
+    public void removeDataRetrievalListener(DataRetrievalListener l) {
+        synchronized (listeners) {
+            listeners.remove(l);
+        }
+    }
 
-        /*
-        // Get elapsed time in milliseconds
-        long elapsedTimeMillis = System.currentTimeMillis()-start;
+    /**
+     * Fires a DataSource started event.  It will be posted to the AWT event-queue
+     * thread, so that UI code can function properly.
+     */
+    private void fireDataRetrievalStarted() {
+        EventQueue.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                synchronized (listeners) {
+                    for (DataRetrievalListener l: listeners) {
+                        l.dataRetrievalStarted(new DataRetrievalEvent());
+                    }
+                }
+            }
+        });
 
-        // Get elapsed time in seconds
-        float elapsedTimeSec = elapsedTimeMillis/1000F;
+    }
 
-        System.out.println("\tData retrieval for " + this.getName() + " took " + elapsedTimeSec + " seconds");
-         */
+    /**
+     * Fires a DataSource successful completion event.  It will be posted to the
+     * AWT event-queue thread, so that UI code can function properly.
+     */
+    private void fireDataRetrievalCompleted(final List<Record> data) {
+        EventQueue.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                synchronized (listeners) {
+                    for (DataRetrievalListener l: listeners) {
+                        l.dataRetrievalCompleted(new DataRetrievalEvent(data));
+                    }
+                }
+            }
+        });
 
-        return dataInRange;
+    }
+
+    /**
+     * Fires a DataSource error event.  It will be posted to the AWT event-queue
+     * thread, so that UI code can function properly.
+     */
+    private void fireDataRetrievalFailed(final IOException iox) {
+        EventQueue.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                synchronized (listeners) {
+                    for (DataRetrievalListener l: listeners) {
+                        l.dataRetrievalFailed(new DataRetrievalEvent(iox));
+                    }
+                }
+            }
+        });
     }
 
     /**
@@ -386,14 +464,18 @@ public abstract class Track implements TrackAdapter {
     }
 
     /**
-     * Retrieve data from the underlying data track.
+     * Retrieve data from the underlying data source.  The default behaviour is just
+     * to call getRecords on the track's data source.
      *
      * @param range The range within which to retrieve objects
      * @param resolution The resolution at which to get data
      * @return a List of data objects from the given range and resolution
-     * @throws Exception
+     * @throws IOException
      */
-    public abstract List<Record> retrieveData(String reference, RangeAdapter range, Resolution resolution) throws IOException;
+    protected List<Record> retrieveData(String reference, RangeAdapter range, Resolution resolution) throws IOException {
+        return getDataSource().getRecords(reference, range, resolution);
+    }
+
 
     /**
      * Get the default draw mode.

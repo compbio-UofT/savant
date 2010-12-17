@@ -158,7 +158,7 @@ public class SeekableFTPStream extends SeekableStream {
             position += n;
             return n;
         } else {
-            String msg = String.format("Unable to retrieve input stream for file (reply code %1).", client.getReplyCode());
+            String msg = String.format("Unable to retrieve input stream for file (reply code %d).", client.getReplyCode());
             LOG.error(msg);
             throw new IOException(msg);
         }

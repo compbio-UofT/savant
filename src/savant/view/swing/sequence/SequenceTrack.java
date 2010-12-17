@@ -84,12 +84,11 @@ public class SequenceTrack extends Track {
      *     Get data in the specified range at the specified resolution
      */
     @Override
-    public List<Record> retrieveData(String reference, RangeAdapter range, Resolution resolution)
-    {
+    protected List<Record> retrieveData(String reference, RangeAdapter range, Resolution resolution) {
 
         SequenceRecord subsequence = null;
         try {
-            List<Record> result = getDataSource().getRecords(reference, range, resolution);
+            List<Record> result = super.retrieveData(reference, range, resolution);
             if (result == null || result.isEmpty()) { return null; }
             subsequence = (SequenceRecord)getDataSource().getRecords(reference, range, resolution).get(0);
         } catch (IOException ex) {
@@ -113,30 +112,28 @@ public class SequenceTrack extends Track {
     }
 
     @Override
-    public void prepareForRendering(String reference, Range range) throws IOException {
+    public void prepareForRendering(String reference, Range range) {
 
         if (range == null) { return; }
 
         Resolution r = getResolution(range);
-        List<Record> data = null;
 
         if (r == Resolution.VERY_HIGH) {
-            data = retrieveAndSaveData(reference, range);
+            renderer.addInstruction(DrawingInstruction.PROGRESS, "Loading sequence track...");
+            requestData(reference, range);
         } else {
             saveNullData();
         }
 
         renderer.addInstruction(DrawingInstruction.RESOLUTION, r);
         renderer.addInstruction(DrawingInstruction.AXIS_RANGE, AxisRange.initWithRanges(range, getDefaultYRange()));
-        renderer.addInstruction(DrawingInstruction.REFERENCE_EXISTS, this.getDataSource().getReferenceNames().contains(reference));
+        renderer.addInstruction(DrawingInstruction.REFERENCE_EXISTS, containsReference(reference));
         renderer.addInstruction(DrawingInstruction.SELECTION_ALLOWED, false);
 
         if (r == Resolution.VERY_HIGH) {
             renderer.addInstruction(DrawingInstruction.RANGE, range);
             renderer.addInstruction(DrawingInstruction.COLOR_SCHEME, this.getColorScheme());
         }
-
-        renderer.setData(data);
     }
 
     private Range getDefaultYRange() {

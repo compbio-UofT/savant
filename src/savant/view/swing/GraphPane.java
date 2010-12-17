@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.jidesoft.popup.JidePopup;
+import javax.swing.border.EmptyBorder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -45,13 +46,12 @@ import savant.settings.ColourSettings;
 import savant.util.*;
 import savant.view.swing.continuous.ContinuousTrackRenderer;
 import savant.view.swing.interval.BAMTrack;
-import savant.view.swing.util.GlassMessagePane;
 
 /**
  *
  * @author mfiume
  */
-public class GraphPane extends JPanel implements KeyListener, MouseWheelListener, MouseListener, MouseMotionListener, GraphPaneChangeListener {
+public class GraphPane extends JPanel implements MouseWheelListener, MouseListener, MouseMotionListener, GraphPaneChangeListener {
 
     private static final Log LOG = LogFactory.getLog(GraphPane.class);
 
@@ -80,7 +80,7 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
 
     /** Selection Variables */
     private int y1, y2;
-    private int x, y, w, h;
+    private Rectangle selectionRect = new Rectangle();
     private boolean isDragging = false;
 
     //scrolling...
@@ -116,18 +116,10 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
     private JPanel popPanel;
     //private boolean mouseWheel = false; //used by popupThread
 
-    public void keyTyped(KeyEvent e) {
-    }
-
-    public void keyPressed(KeyEvent e) {
-        //System.out.println("Key pressed");
-        this.setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
-    }
-
-    public void keyReleased(KeyEvent e) {
-        //System.out.println("Key pressed");
-        resetCursor();
-    }
+    /**
+     * Provides progress indication when loading a track.
+     */
+    private ProgressPanel progressPanel;
 
     // mouse and key modifiers
     private enum mouseModifier { NONE, LEFT, MIDDLE, RIGHT };
@@ -143,19 +135,17 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
         this.parentFrame = parent;
 
         tracks = new ArrayList<Track>();
-        this.setDoubleBuffered(true);
-        addMouseListener( this ); // listens for own mouse and
+        setDoubleBuffered(true);
+        addMouseListener(this); // listens for own mouse and
         addMouseMotionListener( this ); // mouse-motion events
         //addKeyListener( this );
-        this.getInputMap().allKeys();
+        getInputMap().allKeys();
         addMouseWheelListener(this);
 
         popupThread = new Thread(new PopupThread(this));
         popupThread.start();
 
-        //initContextualMenu();
-
-        ((GraphPaneController) GraphPaneController.getInstance()).addBookmarksChangedListener(this);
+        GraphPaneController.getInstance().addBookmarksChangedListener(this);
     }
 
     /**
@@ -224,6 +214,19 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
         int shiftamount = x2-x1;
         if (gpc.isPanning() && !this.isLocked()) { g.translate(shiftamount, 0); }
 
+
+        // Deal with the progress-bar.
+        for (Track t: tracks) {
+            String progressMsg = (String)t.getRenderer().getInstruction(DrawingInstruction.PROGRESS);
+            if (progressMsg != null) {
+                showProgress(progressMsg);
+                return getSize();
+            }
+        }
+        if (progressPanel != null) {
+            remove(progressPanel);
+            progressPanel = null;
+        }
 
         //if (this.mouseInside) {
         //}
@@ -356,7 +359,7 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
             }
         }
         if (nothingRendered && message != null) {
-            GlassMessagePane.draw(g3, this, message, 500);
+            drawMessage(g3, message);
         }
 
         drawMaxYPlotValue(g3);
@@ -526,10 +529,10 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
         int width = x1 - x2;
         int height = this.getHeight();// this.y1 - this.y2;
 
-        this.w = Math.max(2 ,Math.abs( width ));
-        this.h = Math.abs( height );
-        this.x = width < 0 ? x1 : x2;
-        this.y = 0; //height < 0 ? this.y1 : this.y2;
+        selectionRect.width = Math.max(2 ,Math.abs( width ));
+        selectionRect.height = Math.abs( height );
+        selectionRect.x = width < 0 ? x1 : x2;
+        selectionRect.y = 0; //height < 0 ? this.y1 : this.y2;
 
         /** PANNING ADJUSTMENTS */
         if (gpc.isPanning()) {}
@@ -539,9 +542,7 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
 
             Graphics2D g2d = (Graphics2D)g;
 
-            Rectangle2D rectangle =
-              new Rectangle2D.Double (
-              this.x, this.y-10, this.w, this.h+10);
+            Rectangle2D rectangle = new Rectangle2D.Double(selectionRect.x, selectionRect.y - 10, selectionRect.width, selectionRect.height + 10);
             g2d.setColor (Color.gray);
             g2d.setStroke (new BasicStroke(
               1f,
@@ -557,7 +558,7 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
             } else if (gpc.isSelecting()) {
                 g.setColor(ColourSettings.getGraphPaneSelectionFill());
             }
-            g.fillRect(this.x, this.y, this.w, this.h);
+            g.fillRect(selectionRect.x, selectionRect.y, selectionRect.width, selectionRect.height);
         }
 
         /** PLUMBING ADJUSTMENTS */
@@ -593,7 +594,7 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
         }
         
         if (isLocked()) {
-            GlassMessagePane.draw((Graphics2D)g, this, "Locked", 300);
+            drawMessage((Graphics2D)g, "Locked");
         }
 
         GraphPaneController.getInstance().delistRenderingGraphpane(this);
@@ -1031,7 +1032,7 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
         } else if (gpc.isSelecting()) {
             for (Track t: tracks) {
                 if (t.getRenderer().hasMappedValues()) {
-                    if (t.getRenderer().rectangleSelect(new Rectangle2D.Double(this.x, this.y, this.w, this.h))) {
+                    if (t.getRenderer().rectangleSelect(new Rectangle2D.Double(selectionRect.x, selectionRect.y, selectionRect.width, selectionRect.height))) {
                         repaint();
                     }
                     break;
@@ -1248,15 +1249,9 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
     public void getBAMParams(BAMTrack bamTrack) {
         // capture parameters needed to adjust display
         Track.captureBAMDisplayParameters(bamTrack);
-        try {
-            // TODO: this needs to get done in a separate thread and then schedule the repaint for later
-            bamTrack.prepareForRendering(ReferenceController.getInstance().getReferenceName() , RangeController.getInstance().getRange());
-            repaint();
-        } catch (Exception e) {
-            LOG.error("Unexpected exception while preparing to render track " + e.getMessage());
-        }
-
-
+        // TODO: this needs to get done in a separate thread and then schedule the repaint for later
+        bamTrack.prepareForRendering(ReferenceController.getInstance().getReferenceName() , RangeController.getInstance().getRange());
+        repaint();
     }
 
     private void resetFrameLayers(){
@@ -1380,16 +1375,81 @@ public class GraphPane extends JPanel implements KeyListener, MouseWheelListener
         jp.packPopup();
     }
 
-    /*
-     * Set whether the mouseWheel recently used. 
-     * This is used by PopupThread to determine whether a popup should appear. 
+    /**
+     * Draw an informational message on top of this GraphPane.
+     * 
+     * @param g2 the graphics to be rendered
+     * @param message text of the message to be displayed
      */
-    /*public void setMouseWheel(boolean value){
-        this.mouseWheel = value;
+    private void drawMessage(Graphics2D g2, String message) {
+
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_ON);
+        Font font = g2.getFont();
+
+        int h = getSize().height/3;
+        int w = getWidth();
+
+        if (w > 500) {
+            font = font.deriveFont(Font.PLAIN, 36);
+        } else if (w > 150) {
+            font = font.deriveFont(Font.PLAIN, 24);
+        } else {
+            font = font.deriveFont(Font.PLAIN, 12);
+        }
+        g2.setFont(font);
+        FontMetrics metrics = g2.getFontMetrics();
+
+        Rectangle2D stringBounds = font.getStringBounds(message, g2.getFontRenderContext());
+
+        int preferredWidth = (int)stringBounds.getWidth()+metrics.getHeight();
+        int preferredHeight = (int)stringBounds.getHeight()+metrics.getHeight();
+
+        w = Math.min(preferredWidth,w);
+        h = Math.min(preferredHeight,h);
+
+        int x = (getWidth() - w) / 2;
+        int y = (getHeight() - h) / 2;
+
+        //Color vColor = new Color(0, 105, 134, 196);
+
+        //g2.setColor(vColor);
+        //g2.fillRoundRect(x, y, w, h, arc, arc);
+
+        g2.setColor(ColourSettings.getGlassPaneBackground());
+        x = (getWidth() - (int)stringBounds.getWidth()) / 2;
+        y = (getHeight() / 2) + ((metrics.getAscent()- metrics.getDescent()) / 2);
+
+        g2.drawString(message,x,y);
     }
 
-    public boolean getMouseWheel(){
-        return this.mouseWheel;
-    }*/
+    /**
+     * One of tracks is still loading.  Instead of rendering, put up a progress-bar.
+     *
+     * @param msg progress message to be displayed
+     */
+    private void showProgress(String msg) {
+        if (progressPanel == null) {
+            progressPanel = new ProgressPanel();
+            add(progressPanel);
+        }
+        progressPanel.setMessage(msg);
+    }
 
+    class ProgressPanel extends JPanel {
+        private JLabel message;
+
+        ProgressPanel() {
+            super(new BorderLayout());
+            setBorder(new EmptyBorder(10, 10, 10, 10));
+            setOpaque(false);
+            JProgressBar bar = new JProgressBar();
+            message = new JLabel();
+            add(bar, BorderLayout.CENTER);
+            add(message, BorderLayout.SOUTH);
+        }
+
+        void setMessage(String msg) {
+            message.setText(msg);
+        }
+    }
 }

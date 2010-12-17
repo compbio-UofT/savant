@@ -20,18 +20,17 @@ import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Shape;
 import java.awt.geom.Rectangle2D;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.EnumMap;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import javax.swing.JPanel;
 import javax.swing.JViewport;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import savant.controller.RangeController;
 import savant.controller.SelectionController;
+import savant.data.event.DataRetrievalEvent;
+import savant.data.event.DataRetrievalListener;
 import savant.data.types.Record;
 import savant.exception.RenderingException;
 import savant.file.DataFormat;
@@ -43,7 +42,8 @@ import savant.util.Range;
  *
  * @author mfiume, AndrewBrook, tarkvara
  */
-public abstract class TrackRenderer {
+public abstract class TrackRenderer implements DataRetrievalListener {
+    private static final Log LOG = LogFactory.getLog(TrackRenderer.class);
 
     protected List<Record> data;
     protected final EnumMap<DrawingInstruction, Object> instructions = new EnumMap<DrawingInstruction, Object>(DrawingInstruction.class);
@@ -61,8 +61,36 @@ public abstract class TrackRenderer {
         this.trackName = name;
     }
 
-    public List<Record> getData() {
-        return data == null ? null : Collections.unmodifiableList(data);
+    /**
+     * Renderers don't currently care about data retrieval starting.
+     *
+     * @param evt ignored
+     */
+    @Override
+    public void dataRetrievalStarted(DataRetrievalEvent evt) {
+    }
+
+    /**
+     * Default handler just calls setData() with the newly-received data.
+     *
+     * @param evt describes the data being received
+     */
+    @Override
+    public void dataRetrievalCompleted(DataRetrievalEvent evt) {
+        LOG.debug("TrackRenderer received dataRetrievalCompleted.");
+        instructions.remove(DrawingInstruction.PROGRESS);
+        data = evt.getData();
+    }
+
+    /**
+     * Data retrieval has failed for some reason.
+     *
+     * @param evt describes the error
+     */
+    @Override
+    public void dataRetrievalFailed(DataRetrievalEvent evt) {
+        instructions.remove(DrawingInstruction.PROGRESS);
+        instructions.put(DrawingInstruction.ERROR, evt.getError().getLocalizedMessage());
     }
 
     public void addInstruction(DrawingInstruction key, Object value) {
@@ -102,10 +130,6 @@ public abstract class TrackRenderer {
         Object instruction = instructions.get(DrawingInstruction.SELECTION_ALLOWED);
         if(instruction == null || instruction.equals(false)) return false;
         return true;
-    }
-
-    public void setData(List<Record> data) {
-        this.data = data;
     }
 
     public boolean hasHorizontalGrid() {

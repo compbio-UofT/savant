@@ -68,19 +68,15 @@ public class PointTrack extends Track {
     }
 
     @Override
-    public List<Record> retrieveData(String reference, RangeAdapter range, Resolution resolution) throws IOException {
-        return getDataSource().getRecords(reference, range, resolution);
-    }
-
-    @Override
-    public void prepareForRendering(String reference, Range range) throws IOException {
+    public void prepareForRendering(String reference, Range range) {
         Resolution r = getResolution(range);
 
         List<Record> data = null;
 
         switch (r) {
             case VERY_HIGH:
-                data = retrieveAndSaveData(reference, range);
+                renderer.addInstruction(DrawingInstruction.PROGRESS, "Loading track...");
+                requestData(reference, range);
                 break;
             default:
                 saveNullData();
@@ -92,8 +88,6 @@ public class PointTrack extends Track {
         renderer.addInstruction(DrawingInstruction.AXIS_RANGE, AxisRange.initWithRanges(range, getDefaultYRange()));
         renderer.addInstruction(DrawingInstruction.REFERENCE_EXISTS, containsReference(reference));
         renderer.addInstruction(DrawingInstruction.SELECTION_ALLOWED, true);
-
-        renderer.setData(data);
     }
 
     private Range getDefaultYRange() {

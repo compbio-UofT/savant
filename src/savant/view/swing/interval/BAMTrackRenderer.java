@@ -42,6 +42,7 @@ import org.apache.commons.logging.LogFactory;
 
 import savant.controller.RangeController;
 import savant.controller.ReferenceController;
+import savant.data.event.DataRetrievalEvent;
 import savant.data.types.BAMIntervalRecord;
 import savant.data.types.Genome;
 import savant.data.types.Interval;
@@ -54,7 +55,6 @@ import savant.util.*;
 import savant.view.swing.GraphPane;
 import savant.view.swing.Savant;
 import savant.view.swing.TrackRenderer;
-import savant.view.swing.util.GlassMessagePane;
 import savant.view.swing.interval.Pileup.Nucleotide;
 
 /**
@@ -92,7 +92,19 @@ public class BAMTrackRenderer extends TrackRenderer {
     public BAMTrackRenderer() {
         super(DataFormat.INTERVAL_BAM);
     }
-    
+
+    @Override
+    public void dataRetrievalCompleted(DataRetrievalEvent evt) {
+        Mode mode = (Mode)instructions.get(DrawingInstruction.MODE);
+
+        if (mode.getName().equals("MATE_PAIRS") && !instructions.containsKey(DrawingInstruction.ERROR)) {
+            long maxDataValue = BAMTrack.getMaxValue(evt.getData());
+            Range range = (Range)instructions.get(DrawingInstruction.RANGE);
+            addInstruction(DrawingInstruction.AXIS_RANGE, AxisRange.initWithRanges(range, new Range(0,(int)Math.round(maxDataValue+maxDataValue*0.1))));
+        }
+        super.dataRetrievalCompleted(evt);
+    }
+
     @Override
     public void render(Graphics g, GraphPane gp) throws RenderingException {
 
@@ -107,9 +119,9 @@ public class BAMTrackRenderer extends TrackRenderer {
             throw new RenderingException("No data for reference");
         }
 
-        String zoomInMessage = (String)instructions.get(DrawingInstruction.UNSUPPORTED_RESOLUTION);
-        if (zoomInMessage != null){
-            throw new RenderingException(zoomInMessage);
+        String errorMessage = (String)instructions.get(DrawingInstruction.ERROR);
+        if (errorMessage != null){
+            throw new RenderingException(errorMessage);
         }
 
         drawMode = (Mode)instructions.get(DrawingInstruction.MODE);
@@ -159,8 +171,6 @@ public class BAMTrackRenderer extends TrackRenderer {
 
         //set position offset for scrollpane
         this.offset = gp.getOffset();
-
-        List<Record> data = this.getData();
 
         AxisRange axisRange = (AxisRange) instructions.get(DrawingInstruction.AXIS_RANGE);
         ColorScheme cs = (ColorScheme) instructions.get(DrawingInstruction.COLOR_SCHEME);
@@ -512,9 +522,6 @@ public class BAMTrackRenderer extends TrackRenderer {
 
     private void renderArcMode(Graphics2D g2, GraphPane gp) {
 
-        List<Record> data = getData();
-        int numdata = getData().size();
-
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
         AxisRange axisRange = (AxisRange) instructions.get(DrawingInstruction.AXIS_RANGE);
@@ -542,13 +549,13 @@ public class BAMTrackRenderer extends TrackRenderer {
         this.clearShapes();
 
         // iterate through the data and draw
-        for (int i = 0; i < numdata; i++) {
-
-            BAMIntervalRecord record = (BAMIntervalRecord)data.get(i);
-            SAMRecord samRecord = record.getSamRecord();
+        for (Record record: data) {
+            BAMIntervalRecord bamRecord = (BAMIntervalRecord)record;
+            BAMIntervalRecord.PairType type = bamRecord.getType();
+            SAMRecord samRecord = bamRecord.getSamRecord();
 
             // skip reads with no mapped mate
-            if (!samRecord.getReadPairedFlag() || samRecord.getMateUnmappedFlag() || record.getType() == null) continue;
+            if (!samRecord.getReadPairedFlag() || samRecord.getMateUnmappedFlag() || bamRecord.getType() == null) continue;
 
             int arcLength = Math.abs(samRecord.getInferredInsertSize());
 
@@ -562,21 +569,17 @@ public class BAMTrackRenderer extends TrackRenderer {
                 if (!(mateAlignmentStart < RangeController.getInstance().getRangeStart())) {
                     // this is the second in the pair, and it doesn't span the beginning of the range, so don't draw anything
                     continue;
-                }
-                else {
+                } else {
                     // switch the mate start/end for the read start/end to deal with reversed position
                     alignmentStart = mateAlignmentStart;
                     alignmentEnd = mateAlignmentStart + samRecord.getReadLength();
                 }
-            }
-            else {
+            } else {
                 alignmentStart = samRecord.getAlignmentStart();
                 alignmentEnd = samRecord.getAlignmentEnd();
 
             }
             // at this point alignmentStart/End refers the the start end of the first occurrence in the pair
-
-            BAMIntervalRecord.PairType type = record.getType();
 
 
             int intervalStart;
@@ -645,7 +648,6 @@ public class BAMTrackRenderer extends TrackRenderer {
 
     private void renderSNPMode(Graphics2D g2, GraphPane gp, Resolution r){
 
-        List<Record> data = getData();
         Genome genome = ReferenceController.getInstance().getGenome();
 
         AxisRange axisRange = (AxisRange)instructions.get(DrawingInstruction.AXIS_RANGE);
@@ -663,12 +665,11 @@ public class BAMTrackRenderer extends TrackRenderer {
             //pileups.add(new Pileup(trackName, startPosition + i, Pileup.getNucleotide(genome.getRecords(axisRange.getXRange()).charAt(i))));
         }
 
-        // go through the samrecords and edit the pileups
-        for (int i = 0; i < data.size(); i++) {
-            BAMIntervalRecord bir = (BAMIntervalRecord) data.get(i);
-            SAMRecord sr = bir.getSamRecord();
+        // Go through the samrecords and edit the pileups
+        for (Record record: data) {
+            SAMRecord samRecord = ((BAMIntervalRecord)record).getSamRecord();
             try {
-                updatePileupsFromSAMRecord(pileups, genome, sr, startPosition);
+                updatePileupsFromSAMRecord(pileups, genome, samRecord, startPosition);
             } catch (IOException ex) {
                 LOG.error("Unable to update pileups.", ex);
             }

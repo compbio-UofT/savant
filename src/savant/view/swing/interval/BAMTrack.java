@@ -116,28 +116,26 @@ public class BAMTrack extends Track {
     }
 
     @Override
-    public void prepareForRendering(String reference, Range range) throws IOException {
+    public void prepareForRendering(String reference, Range range) {
 
         Resolution r = getResolution(range);
-        List<Record> data = null;
-        String zoomInMessage = null;
+        String errorMessage = null;
         if (r == Resolution.VERY_HIGH || r == Resolution.HIGH || (getDrawMode().equals(MATE_PAIRS_MODE) && r == Resolution.MEDIUM)) {
-            data = retrieveAndSaveData(reference, range);
+            renderer.addInstruction(DrawingInstruction.PROGRESS, "Loading BAM track...");
+            requestData(reference, range);
         } else if (getDrawMode().equals(MATE_PAIRS_MODE)){
-            zoomInMessage = "Zoom in to see data";
+            errorMessage = "Zoom in to see data";
         } else {
-            zoomInMessage = "No coverage file available";
+            errorMessage = "No coverage file available";
         }
-        renderer.addInstruction(DrawingInstruction.UNSUPPORTED_RESOLUTION, zoomInMessage);
+        renderer.addInstruction(DrawingInstruction.ERROR, errorMessage);
 
         renderer.addInstruction(DrawingInstruction.RANGE, range);
         renderer.addInstruction(DrawingInstruction.RESOLUTION, r);
         renderer.addInstruction(DrawingInstruction.COLOR_SCHEME, getColorScheme());
         renderer.addInstruction(DrawingInstruction.REFERENCE_EXISTS, containsReference(reference));
 
-        if (getDrawMode().getName().equals("MATE_PAIRS") && zoomInMessage != null) {
-            long maxDataValue = getMaxValue(data);
-            renderer.addInstruction(DrawingInstruction.AXIS_RANGE, AxisRange.initWithRanges(range, new Range(0,(int)Math.round(maxDataValue+maxDataValue*0.1))));
+        if (getDrawMode().getName().equals("MATE_PAIRS") && errorMessage != null) {
             renderer.addInstruction(DrawingInstruction.ARC_MIN, getArcSizeVisibilityThreshold());
             renderer.addInstruction(DrawingInstruction.DISCORDANT_MIN, getDiscordantMin());
             renderer.addInstruction(DrawingInstruction.DISCORDANT_MAX, getDiscordantMax());
@@ -146,13 +144,12 @@ public class BAMTrack extends Track {
         }
         renderer.addInstruction(DrawingInstruction.SELECTION_ALLOWED, true);
         renderer.addInstruction(DrawingInstruction.MODE, getDrawMode());
-        renderer.setData(data);
     }
 
-    /*
-    * Calculate the maximum (within reason) arc height to be used to set the Y axis for drawing.
+    /**
+     * Calculate the maximum (within reason) arc height to be used to set the Y axis for drawing.
      */
-    private long getMaxValue(List<Record> data) {
+    public static long getMaxValue(List<Record> data) {
 
         double max = 0;
         Range displayedRange = RangeController.getInstance().getRange();
@@ -182,11 +179,6 @@ public class BAMTrack extends Track {
 
     private Range getDefaultYRange() {
         return new Range(0, 1);
-    }
-
-    @Override
-    public List<Record> retrieveData(String reference, RangeAdapter range, Resolution resolution) throws IOException {
-        return getDataSource().getRecords(reference, range, resolution);
     }
 
     @Override

@@ -116,49 +116,37 @@ public class IntervalTrack extends Track {
         return modes;
     }
 
-    /**
-     * getData
-     *     Get data in the specified range at the specified resolution
-     */
     @Override
-    public List<Record> retrieveData(String reference, RangeAdapter range, Resolution resolution) throws IOException {
-        return getDataSource().getRecords(reference, range, resolution);
-    }
-
-    @Override
-    public void prepareForRendering(String reference, Range range) throws IOException {
+    public void prepareForRendering(String reference, Range range) {
 
         Resolution r = getResolution(range);
 
-        List<Record> data = null;
         switch (r) {
             case VERY_HIGH:
-                data = retrieveAndSaveData(reference, range);
+                renderer.addInstruction(DrawingInstruction.PROGRESS, "Loading track...");
+                requestData(reference, range);
                 break;
             default:
                 break;
         }
 
         renderer.addInstruction(DrawingInstruction.RESOLUTION, r);
+        renderer.addInstruction(DrawingInstruction.RANGE, range);
         renderer.addInstruction(DrawingInstruction.COLOR_SCHEME, getColorScheme());
         renderer.addInstruction(DrawingInstruction.REFERENCE_EXISTS, containsReference(reference));
 
-        if (getDrawMode().getName().equals("ARC")) {
-            int maxDataValue = getMaxValue(data);
-            renderer.addInstruction(DrawingInstruction.AXIS_RANGE, AxisRange.initWithRanges(range, new Range(0,(int)Math.round(Math.log(maxDataValue)))));
-        } else {
+        if (!getDrawMode().getName().equals("ARC")) {
             renderer.addInstruction(DrawingInstruction.AXIS_RANGE, AxisRange.initWithRanges(range, getDefaultYRange()));
         }
         renderer.addInstruction(DrawingInstruction.MODE, getDrawMode());
         renderer.addInstruction(DrawingInstruction.SELECTION_ALLOWED, true);
-        renderer.setData(data);
     }
 
     private Range getDefaultYRange() {
         return new Range(0, 1);
     }
 
-    private int getMaxValue(List<Record> data) {
+    public static int getMaxValue(List<Record> data) {
         double max = 0;
         for (Record r: data) {
             Interval interval = ((GenericIntervalRecord)r).getInterval();

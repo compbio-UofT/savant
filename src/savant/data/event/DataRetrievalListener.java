@@ -15,22 +15,20 @@
  */
 package savant.data.event;
 
-import java.io.IOException;
-
 /**
  * Classes can implement this interface if they are interested in monitoring data
  * coming from a DataSource.
  *
  * @author tarkvara
  */
-public interface DataSourceListener {
+public interface DataRetrievalListener {
 
     /**
      * A DataSource has started retrieving data.
      *
      * @param evt describes the data source which triggered the event
      */
-    public void dataRetrievalStarted(DataSourceEvent evt);
+    public void dataRetrievalStarted(DataRetrievalEvent evt);
 
 
     /**
@@ -38,7 +36,7 @@ public interface DataSourceListener {
      *
      * @param evt describes the data source which triggered the event
      */
-    public void dataRetrievalCompleted(DataSourceEvent evt);
+    public void dataRetrievalCompleted(DataRetrievalEvent evt);
 
 
     /**
@@ -47,5 +45,5 @@ public interface DataSourceListener {
      * @param evt describes the data source which triggered the event
      * @param iox an exception object describing the error
      */
-    public void dataRetrievalFailed(DataSourceEvent evt, IOException iox);
+    public void dataRetrievalFailed(DataRetrievalEvent evt);
 }
