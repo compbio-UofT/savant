@@ -21,6 +21,7 @@ public class DownloadFile {
         OutputStream out = null;
         InputStream in = null;
         File f = new File(destDir + System.getProperty("file.separator") + MiscUtils.getFilenameFromPath(u.getPath()));
+
         try {
             out = new FileOutputStream(f.getAbsolutePath());
             in = u.openStream();
@@ -42,5 +43,32 @@ public class DownloadFile {
         }
 
         return f;
+    }
+
+    public static String downloadFile(URL u) {
+
+        StringBuilder result = new StringBuilder();
+        InputStream in = null;
+
+        try {
+            in = u.openStream();
+            byte[] buf = new byte[4 * 1024]; // 4K buffer
+            int bytesRead;
+            while ((bytesRead = in.read(buf)) != -1) {
+                char [] r = (new String(buf)).toCharArray();
+                result.append(r, 0, bytesRead);
+            }
+        } catch (IOException ioe) {
+            return null;
+        } finally {
+            try {
+                in.close();
+            } catch (IOException ioe) {
+            } catch (NullPointerException n) {
+                return null;
+            }
+        }
+
+        return result.toString();
     }
 }

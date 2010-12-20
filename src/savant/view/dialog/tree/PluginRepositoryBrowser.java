@@ -80,7 +80,6 @@ public class PluginRepositoryBrowser extends JDialog {
             String dir) {
 
         super(parent, title, modal);
-        setLocationRelativeTo(parent);
 
         saveToDirectory = dir;
         p = parent;
@@ -106,6 +105,8 @@ public class PluginRepositoryBrowser extends JDialog {
 
         this.setPreferredSize(new Dimension(800, 500));
         this.pack();
+
+        setLocationRelativeTo(parent);
     }
 
     private void downloadSelectedItem(boolean ignoreBranchSelected) {
@@ -215,8 +216,8 @@ public class PluginRepositoryBrowser extends JDialog {
         table.setSelectRowWhenToggling(false);
 
         table.getColumnModel().getColumn(0).setPreferredWidth(200);
-        table.getColumnModel().getColumn(1).setPreferredWidth(300);
-        table.getColumnModel().getColumn(2).setPreferredWidth(50);
+        //table.getColumnModel().getColumn(1).setPreferredWidth(300);
+        //table.getColumnModel().getColumn(2).setPreferredWidth(50);
         //table.getColumnModel().getColumn(3).setPreferredWidth(100);
         //table.getColumnModel().getColumn(4).setPreferredWidth(50);
 

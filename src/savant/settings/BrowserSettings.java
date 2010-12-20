@@ -39,8 +39,11 @@ public class BrowserSettings {
     public static String url_logusagestats = url + "/scripts/logUsageStats.cgi";
     public static String url_tutorials = url + "/media.html";
     public static String url_manuals = url + "/documentation.html";
+    public static String safe = url + "/safe/savantsafe.php";
 
-    public static String version = "1.4.1";
+
+    public static String version = "1.4.2";
+    public static String build = "developer";
 
     public static boolean getCheckVersionOnStartup() {
         return settings.getBoolean(CHECKVERSION_KEY, true);

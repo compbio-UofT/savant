@@ -23,7 +23,7 @@ import java.awt.*;
 import java.util.List;
 
 public class TreeBrowserModel extends TreeTableModel implements StyleModel {
-    static final protected String[] COLUMN_NAMES = {"Name", "Description", "Type" /*, "Filename", "Size"*/}; //, "Download"};
+    static final protected String[] COLUMN_NAMES = {"Name", /*"Description", "Type" /*, "Filename", "Size"*/}; //, "Download"};
     static final Color BACKGROUND = new Color(247, 247, 247);
     static final CellStyle CELL_STYLE = new CellStyle();
 
@@ -65,10 +65,10 @@ public class TreeBrowserModel extends TreeTableModel implements StyleModel {
         switch (columnIndex) {
             case 0:
                 return TreeBrowserEntry.class;
-            case 1:
-                return String.class;
-            case 2:
-                return String.class;
+            //case 1:
+            //    return String.class;
+            //case 2:
+            //    return String.class;
             //case 3:
             //    return String.class;
             //case 4:

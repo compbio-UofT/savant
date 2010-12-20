@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import savant.data.sources.DataSource;
 import savant.plugin.SavantDataSourcePlugin;
-import savant.plugin.builtin.SavantFileRepositoryDataSource;
+import savant.plugin.builtin.SavantFileRepositoryDataSourcePlugin;
 
 /**
  *
@@ -29,7 +29,7 @@ public class DataSourcePluginController {
     }
 
     public boolean hasOnlySavantRepoDataSource() {
-        return datasources.size() == 1 && datasources.get(0) instanceof SavantFileRepositoryDataSource;
+        return datasources.size() == 1 && datasources.get(0) instanceof SavantFileRepositoryDataSourcePlugin;
     }
 
     public List<SavantDataSourcePlugin> getDataSourcePlugins() {

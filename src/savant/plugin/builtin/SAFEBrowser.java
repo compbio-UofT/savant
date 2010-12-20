@@ -19,7 +19,9 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -32,6 +34,8 @@ import com.jidesoft.grid.TreeTable;
 import com.jidesoft.swing.TableSearchable;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.net.URI;
 import java.net.URL;
 import org.apache.commons.logging.Log;
@@ -54,67 +58,30 @@ import savant.view.swing.TrackFactory;
  *
  * @author mfiume
  */
-public class SavantFileRepositoryBrowser extends JDialog {
+public class SAFEBrowser extends JDialog {
 
-    private static final Log LOG = LogFactory.getLog(SavantFileRepositoryBrowser.class);
+    private static final Log LOG = LogFactory.getLog(SAFEBrowser.class);
     private static final TableCellRenderer FILE_RENDERER = new FileRowCellRenderer();
     private Frame p;
     private TreeTable table;
     private String trackpath = null;
-    private static SavantFileRepositoryBrowser instance;
+    private static SAFEBrowser instance;
 
-    public static SavantFileRepositoryBrowser getInstance() throws JDOMException, IOException {
+    private boolean loggedIn = false;
+    private String username;
+    private String password;
+
+    public static SAFEBrowser getInstance() throws JDOMException, IOException {
         if (instance == null) {
-            instance = new SavantFileRepositoryBrowser();
+            instance = new SAFEBrowser();
         }
         instance.trackpath = null;
         return instance;
     }
 
-    private SavantFileRepositoryBrowser() throws JDOMException, IOException {
-        this(
-                Savant.getInstance(),
-                true,
-                "Public Savant File Repository Browser",
-                //getDownloadTreeRows(DownloadFile.downloadFile(new URL("http://savantbrowser.com/safe/savantsafe.php?username=mfiume&password=fiume3640"), System.getProperty("java.io.tmpdir"))));
-                getDownloadTreeRows(DownloadFile.downloadFile(new URL(BrowserSettings.url_data), System.getProperty("java.io.tmpdir"))));
-    }
-
-    private SavantFileRepositoryBrowser(
-            Frame parent,
-            boolean modal,
-            String title,
-            List<TreeBrowserEntry> roots) {
-
-        super(parent, title, modal);
-
-        this.setDefaultCloseOperation(JDialog.HIDE_ON_CLOSE);
-        p = parent;
-        this.setResizable(true);
-        this.setLayout(new BorderLayout());
-        this.add(getCenterPanel(roots), BorderLayout.CENTER);
-
-        JToolBar bottombar = new JToolBar();
-        bottombar.setFloatable(false);
-        bottombar.setAlignmentX(RIGHT_ALIGNMENT);
-        bottombar.add(Box.createHorizontalGlue());
-        JButton openbutt = new JButton("Load Track");
-        openbutt.putClientProperty( "JButton.buttonType", "default" );
-        openbutt.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                actOnSelectedItem(false);
-            }
-        });
-        bottombar.add(openbutt);
-
-        this.add(bottombar, BorderLayout.SOUTH);
-
-        this.setPreferredSize(new Dimension(800, 500));
-        this.pack();
-
-        setLocationRelativeTo(parent);
+    private SAFEBrowser() throws JDOMException, IOException {
+        super(Savant.getInstance(), "Savant File Exchange", true);
+        init();
     }
 
     private void actOnSelectedItem(boolean ignoreActionOnBranch) {
@@ -173,6 +140,143 @@ public class SavantFileRepositoryBrowser extends JDialog {
         }
     }
 
+    /*
+     * if (login()) {
+        File f = DownloadFile.downloadFile(new URL("http://savantbrowser.com/safe/savantsafe.php?username=mfiume&password=fiume3640"), System.getProperty("java.io.tmpdir"));
+
+     */
+
+    private JPanel loginCard;
+    private JPanel safeCard;
+    private CardLayout layout;
+    private JPanel container;
+
+    private void init() {
+        this.setDefaultCloseOperation(JDialog.HIDE_ON_CLOSE);
+        this.setResizable(true);
+
+        this.setLayout(new BorderLayout());
+        container = new JPanel();
+        this.add(container, BorderLayout.CENTER);
+
+
+        layout = new CardLayout();
+        container.setLayout(layout);
+        loginCard = new SAFELoginPanel(this);
+        safeCard = new JPanel();
+        container.add(loginCard,"login");
+        container.add(safeCard,"safe");
+
+        this.setPreferredSize(new Dimension(800, 500));
+        this.pack();
+
+        setLocationRelativeTo(Savant.getInstance());
+    }
+
+    void initSafe(final String username, final String password) throws MalformedURLException, JDOMException, IOException {
+
+        safeCard.removeAll();
+        safeCard.setLayout(new BorderLayout());
+
+        File f = DownloadFile.downloadFile(new URL(BrowserSettings.safe + "?type=list&username=" + username + "&password=" + password), System.getProperty("java.io.tmpdir"));
+
+        if (!wereCredentialsValid(f)) {
+            DialogUtils.displayMessage("Login failed.");
+            return;
+        }
+
+        final Component mainp = getCenterPanel(getDownloadTreeRows(f));
+        safeCard.add(mainp, BorderLayout.CENTER);
+
+        JToolBar bottombar = new JToolBar();
+        bottombar.setFloatable(false);
+        bottombar.setAlignmentX(RIGHT_ALIGNMENT);
+        bottombar.add(Box.createHorizontalGlue());
+
+        /*
+        JButton refbutt = new JButton("Refresh");
+        refbutt.putClientProperty( "JButton.buttonType", "default" );
+        refbutt.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    System.out.println("Refreshing");
+                    safeCard.remove(mainp);
+                    File f = DownloadFile.downloadFile(new URL("http://savantbrowser.com/safe/savantsafe.php?username=" + username + "&password=" + password), System.getProperty("java.io.tmpdir"));
+                    Component newmainp = getCenterPanel(getDownloadTreeRows(f));
+                    safeCard.add(newmainp, BorderLayout.CENTER);
+                    container.invalidate();
+                    System.out.println("Done Refreshing");
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }
+        });
+        bottombar.add(refbutt);
+         *
+         */
+
+        JButton addgroupbutt = new JButton("Create group");
+        addgroupbutt.putClientProperty( "JButton.buttonType", "default" );
+        addgroupbutt.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    addGroup(username, password);
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }
+        });
+        bottombar.add(addgroupbutt);
+
+        JButton logoutbutt = new JButton("Logout");
+        logoutbutt.putClientProperty( "JButton.buttonType", "default" );
+        logoutbutt.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                layout.show(container, "login");
+            }
+        });
+        bottombar.add(logoutbutt);
+
+        JButton openbutt = new JButton("Load Track");
+        openbutt.putClientProperty( "JButton.buttonType", "default" );
+        openbutt.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                actOnSelectedItem(false);
+            }
+        });
+        bottombar.add(openbutt);
+
+        safeCard.add(bottombar, BorderLayout.SOUTH);
+
+        layout.show(container, "safe");
+    }
+
+    private boolean wereCredentialsValid(File f) {
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(f));
+            String line = br.readLine();
+            if (line.contains("branch")){
+                return true;
+            } else {
+                return false;
+            }
+        } catch (Exception ex) {
+            return false;
+        }
+    }
+
+    public static void addGroup(String username, String password) {
+        (new AddSAFEGroup(Savant.getInstance(), true, username, password)).setVisible(true);
+    }
+
     public static class FileRowCellRenderer extends DefaultTableCellRenderer {
 
         @Override
@@ -205,7 +309,7 @@ public class SavantFileRepositoryBrowser extends JDialog {
 
     public final Component getCenterPanel(List<TreeBrowserEntry> roots) {
         table = new TreeTable(new TreeBrowserModel(roots));
-        table.setSortable(true);
+        table.setSortable(false);
         table.setRespectRenderPreferredHeight(true);
 
         // configure the TreeTable

@@ -41,6 +41,7 @@ import com.jidesoft.plaf.UIDefaultsLookup;
 import com.jidesoft.plaf.basic.ThemePainter;
 import com.jidesoft.status.MemoryStatusBarItem;
 import com.jidesoft.swing.JideSplitPane;
+import java.net.InetAddress;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jdom.JDOMException;
@@ -55,7 +56,8 @@ import savant.file.SavantUnsupportedVersionException;
 import savant.experimental.XMLTool;
 import savant.file.DataFormat;
 import savant.plugin.SavantDataSourcePlugin;
-import savant.plugin.builtin.SavantFileRepositoryDataSource;
+import savant.plugin.builtin.SAFEDataSourcePlugin;
+import savant.plugin.builtin.SavantFileRepositoryDataSourcePlugin;
 import savant.settings.*;
 import savant.startpage.StartPage;
 import savant.swing.component.TrackChooser;
@@ -1382,14 +1384,17 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
             String content =
                     post("time", dateFormat.format(date))
                     + "&" + post("language", locale.getDisplayLanguage())
+                    + "&" + post("user.timezone", System.getProperty("user.timezone"))
+                    + "&" + post("savant.version", BrowserSettings.version)
+                    + "&" + post("savant.build", BrowserSettings.build)
+                    //+ "&" + post("address", InetAddress.getLocalHost().getHostAddress())
                     + "&" + post("java.version", System.getProperty("java.version"))
                     + "&" + post("java.vendor", System.getProperty("java.vendor"))
                     + "&" + post("os.name", System.getProperty("os.name"))
                     + "&" + post("os.arch", System.getProperty("os.arch"))
                     + "&" + post("os.version", System.getProperty("os.version"))
-                    + "&" + post("user.region", System.getProperty("user.region"))
-                    + "&" + post("user.timezone", System.getProperty("user.timezone"))
-                    + "&" + post("savant.version", BrowserSettings.version);
+                    + "&" + post("user.region", System.getProperty("user.region")
+                    );
 
             printout.writeBytes(content);
             printout.flush();
@@ -2700,7 +2705,11 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
     }
 
     private void initDataSources() {
-        DataSourcePluginController.getInstance().addDataSourcePlugin(new SavantFileRepositoryDataSource());
+        DataSourcePluginController.getInstance().addDataSourcePlugin(new SavantFileRepositoryDataSourcePlugin());
+        
+        if (!turnExperimentalFeaturesOff) {
+            DataSourcePluginController.getInstance().addDataSourcePlugin(new SAFEDataSourcePlugin());
+        }
     }
 
     public int showLoadFromOtherDataSourceDialog(boolean loadAsGenome) {

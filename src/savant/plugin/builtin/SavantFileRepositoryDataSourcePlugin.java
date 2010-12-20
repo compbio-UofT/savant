@@ -25,7 +25,7 @@ import savant.data.sources.DataSource;
 import savant.plugin.PluginAdapter;
 import savant.plugin.SavantDataSourcePlugin;
 
-public class SavantFileRepositoryDataSource extends SavantDataSourcePlugin {
+public class SavantFileRepositoryDataSourcePlugin extends SavantDataSourcePlugin {
 
     @Override
     public void init(PluginAdapter pluginAdapter) {

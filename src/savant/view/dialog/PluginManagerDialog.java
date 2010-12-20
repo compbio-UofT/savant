@@ -90,14 +90,14 @@ public class PluginManagerDialog extends JDialog {
 
         jLabel1.setText("Installed Plugins");
 
-        button_add_from_file.setText("Install from file");
+        button_add_from_file.setText("Install from File");
         button_add_from_file.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 button_add_from_fileActionPerformed(evt);
             }
         });
 
-        button_add_from_url.setText("Install from server");
+        button_add_from_url.setText("Install from Repository");
         button_add_from_url.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 button_add_from_urlActionPerformed(evt);
@@ -129,7 +129,7 @@ public class PluginManagerDialog extends JDialog {
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(jLabel1)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 270, Short.MAX_VALUE))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 302, Short.MAX_VALUE))
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(button_add_from_url)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)))
