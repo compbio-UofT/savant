@@ -1545,8 +1545,9 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
                 fileMenu.remove(exitItem);
                 editMenu.remove(jSeparator7);
                 editMenu.remove(menuitem_preferences);
-            } catch (Exception e) {
-                LOG.error("Unable to load Apple eAWT classes.");
+            } catch (Throwable x) {
+                LOG.error("Unable to load Apple eAWT classes.", x);
+                DialogUtils.displayError("Warning", "Savant requires Java for Mac OS X 10.6 Update 3 (or later).\nPlease check Software Update for the latest version.");
             }
         }
         LookAndFeelFactory.UIDefaultsCustomizer uiDefaultsCustomizer = new LookAndFeelFactory.UIDefaultsCustomizer() {
