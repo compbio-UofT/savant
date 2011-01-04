@@ -21,9 +21,15 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.net.URI;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JOptionPane;
+import savant.controller.TrackController;
 import savant.settings.DirectorySettings;
+import savant.view.swing.Savant;
+import savant.view.swing.Track;
 
 /**
  *
@@ -32,6 +38,21 @@ import savant.settings.DirectorySettings;
 public class RemoteFileCache {
 
     public static void clearCache(){
+
+        //Make sure no remote files are currently open. If so, display warning. 
+        List<Track> tracks = TrackController.getInstance().getTracks();
+        for(int i = 0; i < tracks.size(); i++){
+            URI uri = tracks.get(i).getDataSource().getURI();
+            String scheme = uri.getScheme().toLowerCase();
+            if (!scheme.equals("file")) {
+                System.out.println("uri not file: " + uri);
+                JOptionPane.showMessageDialog(Savant.getInstance(), 
+                        "You have one or more remote files currently open. Close them and try again. ",
+                        "Cannot clear cache",
+                        JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+        }
 
         //check if index exists
         String dir = DirectorySettings.getCacheDirectory();

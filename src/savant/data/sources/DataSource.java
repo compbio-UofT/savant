@@ -21,6 +21,7 @@
 package savant.data.sources;
 
 import java.io.IOException;
+import java.net.URI;
 import java.util.List;
 import java.util.Set;
 
@@ -53,7 +54,7 @@ public interface DataSource<E extends Record> {
      */
     public List<E> getRecords(String reference, RangeAdapter range, Resolution resolution) throws IOException;
 
-    //public URI getURI();
+    public URI getURI();
 
     public String getName();
     
