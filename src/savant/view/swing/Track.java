@@ -355,7 +355,7 @@ public abstract class Track implements TrackAdapter {
 
     @Override
     public boolean isSelectionAllowed() {
-        return renderer.selectionAllowed();
+        return renderer.selectionAllowed(false);
     }
 
     /**

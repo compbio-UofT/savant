@@ -37,6 +37,7 @@ import savant.file.DataFormat;
 import savant.util.DrawingInstruction;
 import savant.util.Mode;
 import savant.util.Range;
+import savant.util.Resolution;
 
 /**
  *
@@ -126,9 +127,20 @@ public abstract class TrackRenderer implements DataRetrievalListener {
 
     public abstract Range getDefaultYRange();
 
-    public boolean selectionAllowed(){
-        Object instruction = instructions.get(DrawingInstruction.SELECTION_ALLOWED);
-        if(instruction == null || instruction.equals(false)) return false;
+    /**
+     * Check whether to perform selection for this track.
+     *
+     * @param checkRes if true, return true only if resolution is very high
+     * @return whether or not to allow selection at this time
+     */
+    public boolean selectionAllowed(boolean checkRes){
+        Object instr_select = instructions.get(DrawingInstruction.SELECTION_ALLOWED);
+        if(instr_select == null || instr_select.equals(false)) return false;
+        if(checkRes){
+            Object instr_res = instructions.get(DrawingInstruction.RESOLUTION);
+            if(instr_res == null || !instr_res.equals(Resolution.VERY_HIGH))
+                 return false;
+        }
         return true;
     }
 
@@ -172,7 +184,7 @@ public abstract class TrackRenderer implements DataRetrievalListener {
 
     public Map<Record, Shape> searchPoint(Point p){
 
-        if(!selectionAllowed() || !hasMappedValues() || data == null) return null;
+        if(!selectionAllowed(true) || !hasMappedValues() || data == null) return null;
         
         //check for arcMode
         boolean isArc = false;
@@ -200,7 +212,7 @@ public abstract class TrackRenderer implements DataRetrievalListener {
 
     public boolean rectangleSelect(Rectangle2D rect){
 
-        if(!selectionAllowed() || !hasMappedValues()) return false;
+        if(!selectionAllowed(false) || !hasMappedValues()) return false;
 
         boolean repaint = false;
         List<Record> toAdd = new ArrayList<Record>();
@@ -227,7 +239,7 @@ public abstract class TrackRenderer implements DataRetrievalListener {
     // GLOBAL SELECTED
 
     public void addToSelected(Record i){
-        if(selectionAllowed()){
+        if(selectionAllowed(false)){
             SelectionController.getInstance().toggleSelection(trackName, i);
         }
     }
