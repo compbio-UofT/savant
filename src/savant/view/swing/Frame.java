@@ -30,6 +30,8 @@ import com.jidesoft.action.CommandBar;
 import com.jidesoft.docking.DockableFrame;
 import com.jidesoft.swing.JideButton;
 import com.jidesoft.swing.JideMenu;
+import javax.swing.event.MenuEvent;
+import javax.swing.event.MenuListener;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -487,11 +489,13 @@ public class Frame implements DataRetrievalListener {
     private JMenu createIntervalButton() {
         JMenu button = new JMenu("Interval Options");
         button.setToolTipText("Change interval display parameters");
-        button.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
+        button.addMenuListener(new MenuListener() {
+            public void menuSelected(MenuEvent e) {
                 tracks.get(0).captureIntervalParameters();
+                ((JMenu)e.getSource()).setSelected(false);
             }
+            public void menuDeselected(MenuEvent e) {}
+            public void menuCanceled(MenuEvent e) {}
         });
         button.setFocusPainted(false);
         return button;
