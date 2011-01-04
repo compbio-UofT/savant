@@ -3,7 +3,7 @@
  * Created on Aug 4, 2010
  *
  *
- *    Copyright 2010 University of Toronto
+ *    Copyright 2010-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -76,20 +76,11 @@ public class BAMIndexCache {
         }
 
         if (hash == null) {
-            // file doesn't exist, try alternate
+            // File doesn't exist, try alternate.  If it doesn't exist, an exception
+            // will be thrown.
             indexURLString = uri.toString().replace("bam", "bai");
             indexURL = new URL(indexURLString);
-            try {
-                hash = NetworkUtils.getHash(indexURL);
-            } catch (IOException e1) {
-                // alternate file doesn't exist, either
-                LOG.warn("Remote file can't be accessed: "+ indexURL, e1);
-            }
-        }
-
-        if (hash == null) {
-            // no index file found
-            return null;
+            hash = NetworkUtils.getHash(indexURL);
         }
 
         String indexFilename = getIndexFileName(uri.toString(), indexURLString);

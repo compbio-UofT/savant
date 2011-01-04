@@ -1,5 +1,5 @@
 /*
- *    Copyright 2010 University of Toronto
+ *    Copyright 2010-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -23,13 +23,14 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
+
 import net.sf.samtools.util.SeekableFileStream;
 import net.sf.samtools.util.SeekableHTTPStream;
 import net.sf.samtools.util.SeekableStream;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.net.ftp.FTPFile;
+
 import savant.settings.BrowserSettings;
 
 
@@ -84,7 +85,11 @@ public class NetworkUtils {
 
             // List the files.  We should only get one match.
             FTPFile[] files = ftp.listFiles(url.getFile());
-            return String.format("%016x-%016x", files[0].getTimestamp().getTimeInMillis(), files[0].getSize());
+            if (files.length > 0) {
+                return String.format("%016x-%016x", files[0].getTimestamp().getTimeInMillis(), files[0].getSize());
+            } else {
+                throw new IOException("URL not found: " + url);
+            }
         } else {
             throw new IllegalArgumentException("Invalid argument; cannot get hash for " + proto + " URLs");
         }
