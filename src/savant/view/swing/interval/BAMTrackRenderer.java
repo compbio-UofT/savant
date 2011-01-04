@@ -210,7 +210,7 @@ public class BAMTrackRenderer extends TrackRenderer {
 
         if(renderFixed){
             int currentHeight = gp.getHeight();
-            int currentWidth = gp.getParentFrame().getFrameLandscape().getWidth()-2;
+            int currentWidth = gp.getParentFrame().getFrameLandscape().getWidth();
             int currentHeight1 = ((JViewport)gp.getParent().getParent()).getHeight();
             int expectedHeight = Math.max((int)((intervals.size() * maximumHeight) / 0.9), currentHeight1);
 

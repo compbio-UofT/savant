@@ -378,7 +378,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
             //change size of current frame
             Frame frame = this.getParentFrame();
             frame.getFrameLandscape().setPreferredSize(new Dimension(this.getWidth(), newHeight));
-            this.setPreferredSize(new Dimension(frame.getFrameLandscape().getWidth()-2, newHeight));
+            this.setPreferredSize(new Dimension(frame.getFrameLandscape().getWidth(), newHeight));
             frame.getFrameLandscape().setSize(new Dimension(frame.getFrameLandscape().getWidth(), newHeight));
             this.setSize(new Dimension(frame.getFrameLandscape().getWidth(), newHeight));
             this.revalidate();
@@ -386,7 +386,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
             //scroll so that bottom matches previous view
             newScroll = newHeight - oldViewHeight - oldBottomHeight;
 
-            return new Dimension(new Dimension(frame.getFrameLandscape().getWidth()-2, newHeight));
+            return new Dimension(frame.getFrameLandscape().getWidth(), newHeight);
 
         } else {
 
