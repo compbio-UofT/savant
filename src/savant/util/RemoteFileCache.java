@@ -45,7 +45,6 @@ public class RemoteFileCache {
             URI uri = tracks.get(i).getDataSource().getURI();
             String scheme = uri.getScheme().toLowerCase();
             if (!scheme.equals("file")) {
-                System.out.println("uri not file: " + uri);
                 JOptionPane.showMessageDialog(Savant.getInstance(), 
                         "You have one or more remote files currently open. Close them and try again. ",
                         "Cannot clear cache",
