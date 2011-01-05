@@ -265,7 +265,7 @@ public class TemporaryFilesSettingsSection extends Section {
 
         //CLEAR CACHE///////////////////////////////////
 
-        JButton clearButton = new JButton("Clear remote BAM index cache");
+        /*JButton clearButton = new JButton("Clear remote BAM index cache");
         c.fill = GridBagConstraints.NONE;
         c.anchor = GridBagConstraints.WEST;
         c.gridx = 0;
@@ -282,7 +282,7 @@ public class TemporaryFilesSettingsSection extends Section {
             public void actionPerformed(ActionEvent e) {
                 BAMIndexCache.getInstance().clearCache();
             }
-        });
+        });*/
 
         add(panel, BorderLayout.CENTER);
     }
