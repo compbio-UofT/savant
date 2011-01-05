@@ -1,5 +1,5 @@
 /*
- *    Copyright 2010 University of Toronto
+ *    Copyright 2010-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -44,6 +44,7 @@ import savant.selection.PopupThread;
 import savant.selection.PopupPanel;
 import savant.settings.ColourSettings;
 import savant.util.*;
+import savant.view.dialog.BAMParametersDialog;
 import savant.view.swing.continuous.ContinuousTrackRenderer;
 import savant.view.swing.interval.BAMTrack;
 
@@ -79,7 +80,6 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
     private Range lockedRange;
 
     /** Selection Variables */
-    private int y1, y2;
     private Rectangle selectionRect = new Rectangle();
     private boolean isDragging = false;
 
@@ -155,7 +155,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
     @Override
     public void graphpaneChangeReceived(GraphPaneChangeEvent event) {
         GraphPaneController gpc = GraphPaneController.getInstance();
-        this.resetFrameLayers();
+        parentFrame.resetLayers();
     }
 
     /**
@@ -217,8 +217,8 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
 
         // Deal with the progress-bar.
         for (Track t: tracks) {
-            String progressMsg = (String)t.getRenderer().getInstruction(DrawingInstruction.PROGRESS);
-            if (progressMsg != null) {
+            if (t.getRenderer().isWaitingForData()) {
+                String progressMsg = (String)t.getRenderer().getInstruction(DrawingInstruction.PROGRESS);
                 showProgress(progressMsg);
                 return getSize();
             }
@@ -227,9 +227,6 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
             remove(progressPanel);
             progressPanel = null;
         }
-
-        //if (this.mouseInside) {
-        //}
 
         long minYRange = Long.MAX_VALUE;
         long maxYRange = Long.MIN_VALUE;
@@ -280,8 +277,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         //on tracks where nothing has changed (panning, selection, plumbline,...)
 
         //if nothing has changed draw buffered image
-        if(sameRange && sameMode && sameSize && sameRef && !this.renderRequired && withinScrollBounds){
-
+        if(sameRange && sameMode && sameSize && sameRef && !renderRequired && withinScrollBounds){
             g.drawImage(bufferedImage, 0, this.getOffset(), this);
             
             if(this.currentOverShape != null){
@@ -313,11 +309,8 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
             this.parentFrame.commandBar.repaint();
 
             return this.getSize();
-
-
-        //otherwise prepare for new render
         } else {
-
+            // Otherwise prepare for new render.
             renderRequired = false;
             this.bufferedImage = new BufferedImage(this.getWidth(), Math.min(this.getHeight(), this.parentFrame.scrollPane.getViewport().getHeight()*3), BufferedImage.TYPE_INT_RGB);
             if(this.forcedHeight){
@@ -454,20 +447,22 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         g2.translate(0, -1 * this.getOffset());
     }
 
-    /*
+    /**
      * Call before a repaint to override bufferedImage repainting
      */
     public void setRenderRequired(){
         this.renderRequired = true;
     }
 
-    //Force the bufferedImage to contain entire height at current range
-    //Make sure you unforce immediately after!
-    public void forceFullRender(){
+    /**
+     * Force the bufferedImage to contain entire height at current range
+     * Make sure you unforce immediately after!
+     */
+    public void forceFullHeight(){
         this.forcedHeight = true;
     }
 
-    public void unforceFullRender(){
+    public void unforceFullHeight(){
         this.forcedHeight = false;
     }
 
@@ -534,10 +529,10 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         selectionRect.x = width < 0 ? x1 : x2;
         selectionRect.y = 0; //height < 0 ? this.y1 : this.y2;
 
-        /** PANNING ADJUSTMENTS */
+        /* PANNING ADJUSTMENTS */
         if (gpc.isPanning()) {}
         
-        /** ZOOMING ADJUSTMENTS */
+        /* ZOOMING ADJUSTMENTS */
         else if (gpc.isZooming() || gpc.isSelecting()) {
 
             Graphics2D g2d = (Graphics2D)g;
@@ -561,7 +556,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
             g.fillRect(selectionRect.x, selectionRect.y, selectionRect.width, selectionRect.height);
         }
 
-        /** PLUMBING ADJUSTMENTS */
+        /* PLUMBING ADJUSTMENTS */
         if (gpc.isPlumbing()) {
             g.setColor(Color.BLACK);
             int spos = MiscUtils.transformPositionToPixel(GraphPaneController.getInstance().getMouseXPosition(), this.getWidth(), this.getHorizontalPositionalRange());
@@ -570,7 +565,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
             g.drawLine(rpos, 0, rpos, this.getHeight());
         }
 
-        /** SPOTLIGHT */
+        /* SPOTLIGHT */
         if (gpc.isSpotlight() && !gpc.isZooming()) {
 
             long center = gpc.getMouseXPosition();
@@ -601,7 +596,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
     }
 
     /**
-     * Render the sides of this graphpane
+     * Render the sides of this GraphPane
      * @param g The graphics object to use
      */
     private void renderSides(Graphics g) {
@@ -616,13 +611,12 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
     }
 
     /**
-     * Render the background of this graphpane
+     * Render the background of this GraphPane
      * @param g The graphics object to use
      */
     public void renderBackground(Graphics g) {
 
         Graphics2D g2 = (Graphics2D) g;
-        Font smallFont = new Font("Sans-Serif", Font.PLAIN, 10);
 
         Graphics2D g2d0 = (Graphics2D)g;
 
@@ -848,7 +842,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
                 rc.zoomOutFromMouse();
            }
         }
-        this.resetFrameLayers();
+        parentFrame.resetLayers();
     }
 
         /** Mouse modifiers */
@@ -936,7 +930,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
 
         setMouseModifier(event);
 
-        this.resetFrameLayers();
+        parentFrame.resetLayers();
 
         /*if (mac && event.isControlDown() || this.isRightClick()) {
             menu.show(event.getComponent(), event.getX(), event.getY());
@@ -957,7 +951,6 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         int x1 = event.getX();
         if (x1 < 0) { x1 = 0; }
         if (x1 > this.getWidth()) { x1 = this.getWidth(); }
-        this.y1 = event.getY();
 
         baseX = MiscUtils.transformPixelToPosition(x1, this.getWidth(), this.getHorizontalPositionalRange());
         //initialScroll = ((JScrollPane)this.getParent().getParent()).getVerticalScrollBar().getValue();
@@ -967,12 +960,9 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         startX = l.x;
         startY = l.y;
 
-        //startX = event.getX();
-        //startY = event.getY();
-
         GraphPaneController gpc = GraphPaneController.getInstance();
         gpc.setMouseClickPosition(MiscUtils.transformPixelToPosition(x1, this.getWidth(), this.getHorizontalPositionalRange()));
-        this.resetFrameLayers();
+        parentFrame.resetLayers();
     }
 
     public void resetCursor() {
@@ -995,7 +985,6 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         int x2 = event.getX();
         if (x2 < 0) { x2 = 0; }
         if (x2 > this.getWidth()) { x2 = this.getWidth(); }
-        this.y2 = event.getY();
 
         resetCursor();
 
@@ -1045,7 +1034,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         setMouseModifier(event);
 
         gpc.setMouseReleasePosition(MiscUtils.transformPixelToPosition(x2, this.getWidth(), this.getHorizontalPositionalRange()));
-        this.resetFrameLayers();
+        parentFrame.resetLayers();
     }
 
 
@@ -1059,7 +1048,6 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         mouseInside = true;
         setMouseModifier(event);
         hidePopup();
-       // this.resetFrameLayers();
     }
 
     /**
@@ -1073,7 +1061,6 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         mouseInside = false;
         GraphPaneController.getInstance().setMouseXPosition(-1);
         GraphPaneController.getInstance().setMouseYPosition(-1);
-        //this.resetFrameLayers();
     }
 
     /**
@@ -1089,7 +1076,6 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         int x2 = event.getX();
         if (x2 < 0) { x2 = 0; }
         if (x2 > this.getWidth()) { x2 = this.getWidth(); }
-        this.y2 = event.getY();
 
         this.isDragging = true;
 
@@ -1135,7 +1121,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
             gpc.setMouseReleasePosition(MiscUtils.transformPixelToPosition(x2, this.getWidth(), this.getHorizontalPositionalRange()));
         }
         
-        this.resetFrameLayers();
+        parentFrame.resetLayers();
     }
 
     /**
@@ -1248,20 +1234,20 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
 
     public void getBAMParams(BAMTrack bamTrack) {
         // capture parameters needed to adjust display
-        Track.captureBAMDisplayParameters(bamTrack);
-        // TODO: this needs to get done in a separate thread and then schedule the repaint for later
-        bamTrack.prepareForRendering(ReferenceController.getInstance().getReferenceName() , RangeController.getInstance().getRange());
-        repaint();
-    }
+        BAMParametersDialog paramDialog = new BAMParametersDialog(Savant.getInstance(), true);
+        paramDialog.setVisible(true);
+        if (paramDialog.isAccepted()) {
+            bamTrack.setArcSizeVisibilityThreshold(paramDialog.getArcLengthThreshold());
+            bamTrack.setDiscordantMin(paramDialog.getDiscordantMin());
+            bamTrack.setDiscordantMax(paramDialog.getDiscordantMax());
 
-    private void resetFrameLayers(){
-        for(int i = 0; i < this.tracks.size(); i++){
-            this.tracks.get(i).getFrame().resetLayers();
+            bamTrack.prepareForRendering(ReferenceController.getInstance().getReferenceName() , RangeController.getInstance().getRange());
+            repaint();
         }
     }
 
     public Frame getParentFrame(){
-        return this.parentFrame;
+        return parentFrame;
     }
 
     public void setIsYGridOn(boolean value){
@@ -1443,6 +1429,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
             setBorder(new EmptyBorder(10, 10, 10, 10));
             setOpaque(false);
             JProgressBar bar = new JProgressBar();
+            bar.setIndeterminate(true);
             message = new JLabel();
             add(bar, BorderLayout.CENTER);
             add(message, BorderLayout.SOUTH);

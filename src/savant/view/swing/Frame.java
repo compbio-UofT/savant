@@ -1,5 +1,5 @@
 /*
- *    Copyright 2010 University of Toronto
+ *    Copyright 2010-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -133,8 +133,6 @@ public class Frame implements DataRetrievalListener {
 
         if (!tracks.isEmpty()) {
             for (Track t: tracks) {
-                // FIXME:
-                t.setFrame(this);
                 this.tracks.add(t);
 
                 graphPane.addTrack(t);
@@ -490,11 +488,14 @@ public class Frame implements DataRetrievalListener {
         JMenu button = new JMenu("Interval Options");
         button.setToolTipText("Change interval display parameters");
         button.addMenuListener(new MenuListener() {
+            @Override
             public void menuSelected(MenuEvent e) {
                 tracks.get(0).captureIntervalParameters();
                 ((JMenu)e.getSource()).setSelected(false);
             }
+            @Override
             public void menuDeselected(MenuEvent e) {}
+            @Override
             public void menuCanceled(MenuEvent e) {}
         });
         button.setFocusPainted(false);
@@ -550,7 +551,7 @@ public class Frame implements DataRetrievalListener {
         return menu;
     }
 
-    public void redrawTracksInRange() throws Exception {
+    public void redrawTracksInRange() {
         drawTracksInRange(ReferenceController.getInstance().getReferenceName(), currentRange);
     }
 
@@ -663,9 +664,9 @@ public class Frame implements DataRetrievalListener {
         BufferedImage bufferedImage = new BufferedImage(graphPane.getWidth(), graphPane.getHeight(), BufferedImage.TYPE_INT_RGB);
         Graphics2D g = bufferedImage.createGraphics();
         graphPane.setRenderRequired();
-        graphPane.forceFullRender();
+        graphPane.forceFullHeight();
         graphPane.render(g);
-        graphPane.unforceFullRender();
+        graphPane.unforceFullHeight();
         g.setColor(Color.black);
         g.setFont(new Font(null, Font.BOLD, 13));
         g.drawString(this.getTracks().get(0).getName(), 2, 15);
@@ -689,14 +690,15 @@ public class Frame implements DataRetrievalListener {
 
     @Override
     public void dataRetrievalCompleted(DataRetrievalEvent evt) {
-        LOG.debug("Frame received dataRetrievalCompleted.");
-        graphPane.forceFullRender();
+        LOG.debug("Frame received dataRetrievalCompleted.  Forcing full render.");
+        graphPane.setRenderRequired();
         graphPane.repaint();
     }
 
     @Override
     public void dataRetrievalFailed(DataRetrievalEvent evt) {
-        graphPane.forceFullRender();
+        LOG.debug("Frame received dataRetrievalFailed.  Forcing full render.");
+        graphPane.setRenderRequired();
         graphPane.repaint();
     }
 }

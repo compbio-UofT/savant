@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JPanel;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -42,8 +43,6 @@ import savant.util.MiscUtils;
 import savant.util.Mode;
 import savant.util.Range;
 import savant.util.Resolution;
-import savant.view.dialog.BAMParametersDialog;
-import savant.view.swing.interval.BAMTrack;
 import savant.view.swing.sequence.SequenceTrack;
 import savant.view.swing.util.DialogUtils;
 
@@ -71,11 +70,10 @@ public abstract class Track implements TrackAdapter {
 
     // FIXME:
     private Frame frame;
-    private static BAMParametersDialog paramDialog = new BAMParametersDialog(Savant.getInstance(), true);
 
     // TODO: put all of this in a TrackFactory class
     // TODO: inform the user when there is a problem
-    
+
 
     public static Genome createGenome(Track sequenceTrack) {
 
@@ -142,17 +140,6 @@ public abstract class Track implements TrackAdapter {
     }
 
     /**
-     * Get the type of file this view track represents
-     *
-     * @return  FileFormat
-     *
-    @Override
-    public DataFormat getDataFormat() {
-        return dataType;
-    }
-     */
-
-    /**
      * Get the current colour scheme.
      *
      * @return ColorScheme
@@ -196,11 +183,6 @@ public abstract class Track implements TrackAdapter {
         return SelectionController.getInstance().getSelections(getName());
     }
 
-    /*
-    public DrawingInstructions getDrawingInstructions() {
-    return this.DRAWING_INSTRUCTIONS;
-    }
-     */
     /**
      * Get current draw mode
      *
@@ -366,26 +348,33 @@ public abstract class Track implements TrackAdapter {
      * @param range The range within which to retrieve objects
      */
     public synchronized void requestData(final String reference, final Range range) {
-        new Thread() {
+        dataInRange = null;
+        fireDataRetrievalStarted();
+        Thread retriever = new Thread("DataRetriever") {
             @Override
             public void run() {
                 try {
-                    fireDataRetrievalStarted();
                     synchronized (Track.this) {
+                        LOG.debug("Retrieving data for " + name + "(" + reference + ", " + range + ")");
                         dataInRange = retrieveData(reference, range, getResolution(range));
-                        Track.this.notify();
+                        LOG.debug("Data retrieved for " + name + "(" + reference + ", " + range + ")");
                     }
-                    fireDataRetrievalCompleted(dataInRange);
+                    fireDataRetrievalCompleted();
                 } catch (IOException iox) {
                     LOG.error(iox);
                     fireDataRetrievalFailed(iox);
                 }
             }
-        }.start();
+        };
+        retriever.start();
         try {
-            wait(1000);
-        } catch (InterruptedException x) {
-            LOG.warn("Track.requestData interrupted.", x);
+            retriever.join(1000);
+            if (retriever.isAlive()) {
+                // Join timed out, but we are still waiting for data to arrive.
+                LOG.trace("Join timed out, putting up progress-bar.");
+            }
+        } catch (InterruptedException ix) {
+            LOG.error("DataRetriever interrupted during join.", ix);
         }
     }
 
@@ -402,34 +391,28 @@ public abstract class Track implements TrackAdapter {
     }
 
     /**
-     * Fires a DataSource started event.  It will be posted to the AWT event-queue
-     * thread, so that UI code can function properly.
+     * Fires a DataSource started event.  This is called from the AWT-EventQueue
+     * thread so it doesn't need to use invokeLater.
      */
     private void fireDataRetrievalStarted() {
-        EventQueue.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                synchronized (listeners) {
-                    for (DataRetrievalListener l: listeners) {
-                        l.dataRetrievalStarted(new DataRetrievalEvent());
-                    }
-                }
+        synchronized (listeners) {
+            for (DataRetrievalListener l: listeners) {
+                l.dataRetrievalStarted(new DataRetrievalEvent());
             }
-        });
-
+        }
     }
 
     /**
      * Fires a DataSource successful completion event.  It will be posted to the
      * AWT event-queue thread, so that UI code can function properly.
      */
-    private void fireDataRetrievalCompleted(final List<Record> data) {
+    private void fireDataRetrievalCompleted() {
         EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
                 synchronized (listeners) {
                     for (DataRetrievalListener l: listeners) {
-                        l.dataRetrievalCompleted(new DataRetrievalEvent(data));
+                        l.dataRetrievalCompleted(new DataRetrievalEvent(dataInRange));
                     }
                 }
             }
@@ -489,17 +472,7 @@ public abstract class Track implements TrackAdapter {
 
     @Override
     public String toString() {
-        return this.name;
-    }
-
-    public static void captureBAMDisplayParameters(BAMTrack track) {
-        paramDialog.setVisible(true);
-        if (paramDialog.isAccepted()) {
-            track.setArcSizeVisibilityThreshold(paramDialog.getArcLengthThreshold());
-            track.setDiscordantMin(paramDialog.getDiscordantMin());
-            track.setDiscordantMax(paramDialog.getDiscordantMax());
-        }
-
+        return name;
     }
 
     public void captureColorParameters() {

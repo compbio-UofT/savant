@@ -1,5 +1,5 @@
 /*
- *    Copyright 2009-2010 University of Toronto
+ *    Copyright 2009-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -48,18 +48,16 @@ public abstract class TrackRenderer implements DataRetrievalListener {
 
     protected List<Record> data;
     protected final EnumMap<DrawingInstruction, Object> instructions = new EnumMap<DrawingInstruction, Object>(DrawingInstruction.class);
-    protected final DataFormat dataType;
     protected String trackName;
 
     protected Map<Record, Shape> recordToShapeMap = new HashMap<Record, Shape>();
 
     protected TrackRenderer(DataFormat dataType) {
-        this.dataType = dataType;
         instructions.put(DrawingInstruction.TRACK_DATA_TYPE, dataType);
     }
 
     public void setTrackName(String name) {
-        this.trackName = name;
+        trackName = name;
     }
 
     /**
@@ -69,6 +67,7 @@ public abstract class TrackRenderer implements DataRetrievalListener {
      */
     @Override
     public void dataRetrievalStarted(DataRetrievalEvent evt) {
+        data = null;
     }
 
     /**
@@ -78,9 +77,13 @@ public abstract class TrackRenderer implements DataRetrievalListener {
      */
     @Override
     public void dataRetrievalCompleted(DataRetrievalEvent evt) {
-        LOG.debug("TrackRenderer received dataRetrievalCompleted.");
+        LOG.debug("TrackRenderer received dataRetrievalCompleted, removing PROGRESS.");
         instructions.remove(DrawingInstruction.PROGRESS);
         data = evt.getData();
+    }
+
+    public boolean isWaitingForData() {
+        return data == null && instructions.containsKey(DrawingInstruction.PROGRESS);
     }
 
     /**
@@ -115,10 +118,6 @@ public abstract class TrackRenderer implements DataRetrievalListener {
      */
     public void removeInstruction(DrawingInstruction key) {
         instructions.remove(key);
-    }
-
-    public DataFormat getDataType() {
-        return dataType;
     }
 
     public abstract void render(Graphics g, GraphPane gp) throws RenderingException;
@@ -169,8 +168,6 @@ public abstract class TrackRenderer implements DataRetrievalListener {
 
     public void setIntervalMode(String mode){};
 
-
-    
     // SHAPES
     // access shapes for current view
 
