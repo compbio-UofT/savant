@@ -1,5 +1,5 @@
 /*
- *    Copyright 2009-2010 University of Toronto
+ *    Copyright 2009-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -41,7 +41,6 @@ import com.jidesoft.plaf.UIDefaultsLookup;
 import com.jidesoft.plaf.basic.ThemePainter;
 import com.jidesoft.status.MemoryStatusBarItem;
 import com.jidesoft.swing.JideSplitPane;
-import java.net.InetAddress;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jdom.JDOMException;
@@ -141,11 +140,12 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
             uri = new File(selectedFileName).toURI();
         }
 
-        Savant.log("Loading track " + selectedFileName, Savant.LOGMODE.NORMAL);
+        LOG.info("Loading track " + selectedFileName);
 
         try {
             List<Track> tracks = TrackFactory.createTrack(uri);
             createFrameForTracks(tracks);
+
         } catch (SavantTrackCreationCancelledException ex) {
         }
     }
@@ -214,7 +214,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         FrameController.getInstance().addFrame(frame, panel);
         this.getTrackDockingManager().addFrame(df);
 
-        Savant.log("Track loaded", Savant.LOGMODE.NORMAL);
+        LOG.info("Track loaded.");
     }
 
     /** == [[ DOCKING ]] ==
@@ -1103,7 +1103,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
 
     private void formatItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_formatItemActionPerformed
         if (!dff.isVisible()) {
-            Savant.log("Showing format form...");
+            LOG.info("Showing format form...");
             dff.clear();
             dff.setLocationRelativeTo(this);
             dff.setVisible(true);
@@ -2745,53 +2745,6 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         } else {
             return 2;
         }
-    }
-
-    public enum LOGMODE {
-
-        NORMAL, DEBUG
-    };
-
-    /**
-     * log a message on the given text area
-     * @param rtb The text area on which to post the message
-     * @param msg The message to post
-     *
-    public static void log(JTextArea rtb, String msg) {
-    log(rtb, msg, LOGMODE.DEBUG);
-    //rtb.append(logMessage(msg));
-    //rtb.setCaretPosition(rtb.getText().length());
-    }
-
-    public static void log(JTextArea rtb, String msg, LOGMODE logmode) {
-    if (logmode == LOGMODE.DEBUG && isDebugging) {
-    rtb.append(logMessage(msg));
-    rtb.setCaretPosition(rtb.getText().length());
-    } else if (logmode != LOGMODE.DEBUG) {
-    rtb.append(logMessage(msg));
-    rtb.setCaretPosition(rtb.getText().length());
-    }
-    }
-     */
-    /**
-     * log a message on the default log text area
-     * @param msg The message to post
-     */
-    public static void log(String msg) {
-        log(msg, LOGMODE.DEBUG);
-    }
-
-    public static void log(String msg, LOGMODE logmode) {
-        /*
-        if (logmode == LOGMODE.DEBUG && isDebugging) {
-        log.append(logMessage(msg));
-        log.setCaretPosition(log.getText().length());
-        } else if (logmode != LOGMODE.DEBUG) {
-        log.append(logMessage(msg));
-        log.setCaretPosition(log.getText().length());
-        }
-         *
-         */
     }
 
     public void updateMousePosition() {

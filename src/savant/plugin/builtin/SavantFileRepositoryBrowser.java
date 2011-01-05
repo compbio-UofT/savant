@@ -1,5 +1,5 @@
 /*
- *    Copyright 2009-2010 University of Toronto
+ *    Copyright 2009-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -18,22 +18,20 @@ package savant.plugin.builtin;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 
 import com.jidesoft.grid.TreeTable;
 import com.jidesoft.swing.TableSearchable;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.net.URI;
-import java.net.URL;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jdom.Document;
@@ -121,7 +119,7 @@ public class SavantFileRepositoryBrowser extends JDialog {
         TreeBrowserEntry r = (TreeBrowserEntry) table.getRowAt(table.getSelectedRow());
         if (r != null && r.isLeaf()) {
             try {
-                System.out.println("Setting track path to " + r.getURL().toString());
+                LOG.info("Setting track path to " + r.getURL().toString());
                 trackpath = r.getURL().toString();
                 closeDialog();
             } catch (Exception ex) {
@@ -140,14 +138,14 @@ public class SavantFileRepositoryBrowser extends JDialog {
 
     public DataSource getDataSource() {
         if (trackpath == null) {
-            System.out.println("Trackpath is null");
+            LOG.info("Trackpath is null in getDataSource().");
             return null;
         } else {
             try {
                 DataSource d = TrackFactory.createDataSource(new URI(trackpath));
                 return d;
             } catch (Exception ex) {
-                ex.printStackTrace();
+                LOG.error("Unable to create data source for " + trackpath, ex);
                 return null;
             }
         }

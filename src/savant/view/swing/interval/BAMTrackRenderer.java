@@ -1,5 +1,9 @@
 /*
- *    Copyright 2010 University of Toronto
+ * BAMTrackRenderer.java
+ * Created on Feb 1, 2010
+ *
+ *
+ *    Copyright 2010-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -14,13 +18,7 @@
  *    limitations under the License.
  */
 
-/*
- * BAMTrackRenderer.java
- * Created on Feb 1, 2010
- */
-
 package savant.view.swing.interval;
-
 
 import java.awt.*;
 import java.awt.event.MouseAdapter;
@@ -53,7 +51,6 @@ import savant.file.DataFormat;
 import savant.settings.ColourSettings;
 import savant.util.*;
 import savant.view.swing.GraphPane;
-import savant.view.swing.Savant;
 import savant.view.swing.TrackRenderer;
 import savant.view.swing.interval.Pileup.Nucleotide;
 
@@ -529,7 +526,7 @@ public class BAMTrackRenderer extends TrackRenderer {
         double threshold = (Double) instructions.get(DrawingInstruction.ARC_MIN);
         int discordantMin = (Integer) instructions.get(DrawingInstruction.DISCORDANT_MIN);
         int discordantMax = (Integer) instructions.get(DrawingInstruction.DISCORDANT_MAX);
-        Savant.log("discordantMin=" + discordantMin + " discordantMax=" + discordantMax);
+        LOG.info("discordantMin=" + discordantMin + " discordantMax=" + discordantMax);
 
         // set up colors
         Color normalArcColor = cs.getColor("Reverse Strand");

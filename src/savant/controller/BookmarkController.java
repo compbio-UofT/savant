@@ -1,5 +1,9 @@
 /*
- *    Copyright 2010 University of Toronto
+ * BookmarkController.java
+ * Created on Jan 26, 2010
+ *
+ *
+ *    Copyright 2010-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -14,32 +18,28 @@
  *    limitations under the License.
  */
 
-/*
- * BookmarkController.java
- * Created on Jan 26, 2010
- */
-
 /**
  * Controller object to manage changes to bookmarks.
  * @author mfiume
  */
 package savant.controller;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import savant.controller.event.BookmarksChangedEvent;
 import savant.controller.event.BookmarksChangedListener;
 import savant.util.Bookmark;
 
-import java.util.ArrayList;
-import java.util.List;
-import savant.view.swing.Savant;
 
 public class BookmarkController {
+    private static final Log LOG = LogFactory.getLog(RangeController.class);
+
 
     private static BookmarkController instance;
-
-    private static Log log = LogFactory.getLog(RangeController.class);
 
     private List<Bookmark> bookmarks;
 
@@ -77,7 +77,7 @@ public class BookmarkController {
 
     public void removeBookmark(int index) {
         try {
-            Savant.log("Bookmark removed", Savant.LOGMODE.NORMAL);
+            LOG.info("Bookmark removed.");
             Bookmark b = this.bookmarks.get(index);
             this.bookmarks.remove(index);
             this.fireBookmarksChangedEvent("Bookmark removed at " + b.getReference() + ": " + b.getRange());

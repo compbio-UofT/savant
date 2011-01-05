@@ -1,5 +1,5 @@
 /*
- *    Copyright 2009-2010 University of Toronto
+ *    Copyright 2009-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -41,6 +41,9 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JToolBar;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import savant.controller.BookmarkController;
 import savant.controller.RangeController;
 import savant.controller.event.BookmarksChangedEvent;
@@ -56,6 +59,8 @@ import savant.view.swing.util.DialogUtils;
  * @author mfiume
  */
 public class BookmarkSheet implements BookmarksChangedListener /*, RangeChangedListener*/ {
+
+    private static final Log LOG = LogFactory.getLog(BookmarkSheet.class);
 
     private JTable table;
 
@@ -246,9 +251,9 @@ public class BookmarkSheet implements BookmarksChangedListener /*, RangeChangedL
     }
 
     private void refreshData(List<Bookmark> favorites) {
-        Savant.log("Setting data");
+        LOG.info("Setting data...");
         ((BookmarksTableModel) table.getModel()).setData(favorites);
-        Savant.log("Done data");
+        LOG.info("Data set.");
         ((BookmarksTableModel) table.getModel()).fireTableDataChanged();
     }
 
@@ -269,7 +274,7 @@ public class BookmarkSheet implements BookmarksChangedListener /*, RangeChangedL
 
         File selectedFile = DialogUtils.chooseFileForOpen(Savant.getInstance(), "Load Bookmarks", null);
 
-        Savant.log("load 0");
+        LOG.info("load 0");
 
         // set the genome
         if (selectedFile != null) {
@@ -312,7 +317,7 @@ public class BookmarkSheet implements BookmarksChangedListener /*, RangeChangedL
 
     private static void loadBookmarks(File f, List<Bookmark> bookmarks) throws FileNotFoundException, IOException {
 
-        Savant.log("load 1");
+        LOG.info("load 1");
 
         BufferedReader br = new BufferedReader(new FileReader(f));
 

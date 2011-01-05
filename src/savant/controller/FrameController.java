@@ -2,7 +2,7 @@
  * RangeController.java
  * Created on Jan 19, 2010
  *
- *    Copyright 2010 University of Toronto
+ *    Copyright 2010-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -36,7 +36,6 @@ import savant.controller.event.FrameHiddenListener;
 import savant.controller.event.FrameHiddenEvent;
 import savant.view.swing.Frame;
 import savant.view.swing.GraphPane;
-import savant.view.swing.Savant;
 import savant.view.swing.Track;
 
 
@@ -46,10 +45,9 @@ import savant.view.swing.Track;
  * @author vwilliams
  */
 public class FrameController {
+    private static final Log LOG = LogFactory.getLog(FrameController.class);
 
     private static FrameController instance;
-
-    private static final Log LOG = LogFactory.getLog(FrameController.class);
 
     /** The maximum and current viewable range */
     private HashMap<GraphPane,JComponent> graphpane2dockable;
@@ -109,7 +107,7 @@ public class FrameController {
     }
 
     private synchronized void fireFrameChangedEvent(Frame f) {
-        Savant.log("Frames changed event being fired");
+        LOG.info("Frames changed event being fired");
         FrameChangedEvent evt = new FrameChangedEvent(this, f);
         Iterator listeners = this.frameChangedListeners.iterator();
         while (listeners.hasNext()) {
@@ -151,19 +149,10 @@ public class FrameController {
         GraphPaneController.getInstance().clearRenderingList();
 
         for (Frame frame : frames) {
-            try {
-                // added to detect when rendering has completed
-                GraphPaneController.getInstance().enlistRenderingGraphpane(frame.getGraphPane());
+            // added to detect when rendering has completed
+            GraphPaneController.getInstance().enlistRenderingGraphpane(frame.getGraphPane());
 
-                frame.drawTracksInRange(ReferenceController.getInstance().getReferenceName(), rc.getRange());
-            } catch (Exception e) {
-                Savant.log("Error: could not draw frames (" + e.getMessage() + ")");
-                if (frame == null) {
-                    Savant.log("Frame is null");
-                } else if (rc == null) {
-                    Savant.log("RC is null");
-                }
-            }
+            frame.drawTracksInRange(ReferenceController.getInstance().getReferenceName(), rc.getRange());
         }
     }
 

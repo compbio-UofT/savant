@@ -2,7 +2,7 @@
  * RangeController.java
  * Created on Jan 19, 2010
  *
- *    Copyright 2010 University of Toronto
+ *    Copyright 2010-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -17,17 +17,15 @@
  *    limitations under the License.
  */
 
-/**
- * Controller object to manage changes to viewed range.
- * @author vwilliams
- */
 package savant.controller;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import savant.controller.event.RangeChangeCompletedListener;
 import savant.controller.event.RangeChangedEvent;
 import savant.controller.event.RangeChangedListener;
@@ -35,6 +33,10 @@ import savant.settings.BrowserSettings;
 import savant.util.Range;
 import savant.view.swing.Savant;
 
+/**
+ * Controller object to manage changes to viewed range.
+ * @author vwilliams
+ */
 public class RangeController {
 
     private static RangeController instance;
@@ -117,7 +119,6 @@ public class RangeController {
      */
     public void setRange(Range r) {
         LOG.debug("Setting range to " + r);
-        Savant.log("Setting range to " + r, Savant.LOGMODE.NORMAL);
 
         if (shouldClearRedoStack && currentViewableRange != null) {
             redoStack.clear();

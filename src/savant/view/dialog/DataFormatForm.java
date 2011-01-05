@@ -1,12 +1,20 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
-/*
  * DataFormatForm.java
- *
  * Created on Feb 11, 2010, 5:56:38 PM
+ *
+ *    Copyright 2010-2011 University of Toronto
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
  */
 
 package savant.view.dialog;
@@ -32,7 +40,7 @@ import savant.util.MiscUtils;
  */
 public class DataFormatForm extends JDialog {
 
-    private static final Log log = LogFactory.getLog(DataFormatForm.class);
+    private static final Log LOG = LogFactory.getLog(DataFormatForm.class);
 
     private static List<Boolean> defaultBases;
     private static List<Boolean> canChooseBaseStatus;
@@ -42,7 +50,6 @@ public class DataFormatForm extends JDialog {
 
     private static JTextArea formatDescriptionTextArea;
     private boolean success = false;
-    private File outFile;
 
     //private FormatTask formatTask;
 
@@ -349,7 +356,6 @@ public class DataFormatForm extends JDialog {
 
         File infile = new File(textfield_inPath.getText());
         File outfile = new File(textfield_outPath.getText());
-        this.outFile = outfile;
         FileType ft = formatTypeMap.get(formats.get(list_formats.getSelectedIndex()));
         boolean isInputOneBased = checkbox_chooseBase.isSelected();
         
@@ -422,12 +428,13 @@ public class DataFormatForm extends JDialog {
     private void initListActionHandler() {
         this.list_formats.addListSelectionListener(new ListSelectionListener() {
 
+            @Override
             public void valueChanged(ListSelectionEvent e) {
                 if (!e.getValueIsAdjusting()) {
                     JList jl = (JList) e.getSource();
                     if (!jl.isSelectionEmpty()) {
                         int index = jl.getSelectedIndex();
-                        Savant.log(index + " picked");
+                        LOG.info(index + " picked");
                         formatDescriptionTextArea.setText(formatDescriptionMap.get(formats.get(index)));
 
                         checkbox_chooseBase.setSelected(defaultBases.get(index));
