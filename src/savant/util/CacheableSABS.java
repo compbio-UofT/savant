@@ -40,7 +40,7 @@ import savant.settings.DirectorySettings;
  * @author AndrewBrook
  */
 public class CacheableSABS extends SeekableAdjustableBufferedStream {
-    public static final int DEFAULT_BLOCK_SIZE = 65536;
+    //public static final int DEFAULT_BLOCK_SIZE = 65536;
     private static final Log LOG = LogFactory.getLog(CacheableSABS.class);
 
     private String cacheFile = null;

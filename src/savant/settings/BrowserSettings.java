@@ -28,6 +28,12 @@ public class BrowserSettings {
     private static final String CHECKVERSION_KEY = "CHECKVERSION";
     private static final String COLLECTSTATS_KEY = "COLLECTSTATS";
     private static final String CACHINGENABLED_KEY = "CACHINGENABLED";
+    
+    /*
+     * Remote Files
+     */
+    private static final String REMOTE_BUFFER_SIZE = "REMOTE_BUFFER_SIZE";
+    public static final int DEFAULT_BUFFER_SIZE = 65536;
 
     /*
      * Website
@@ -57,6 +63,11 @@ public class BrowserSettings {
         return settings.getBoolean(CACHINGENABLED_KEY, true);
     }
 
+    public static int getRemoteBufferSize(){
+        String s = settings.getString(REMOTE_BUFFER_SIZE);
+        return s != null ? Integer.parseInt(s) : DEFAULT_BUFFER_SIZE;
+    }
+
     public static void setCheckVersionOnStartup(boolean b) {
         settings.setBoolean(CHECKVERSION_KEY, b);
     }
@@ -67,6 +78,10 @@ public class BrowserSettings {
 
     public static void setCachingEnabled(boolean b) {
         settings.setBoolean(CACHINGENABLED_KEY, b);
+    }
+
+    public static void setRemoteBufferSize(int size){
+        settings.setString(REMOTE_BUFFER_SIZE, String.valueOf(size));
     }
 
     /**

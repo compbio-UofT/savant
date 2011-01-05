@@ -116,4 +116,13 @@ public class PersistentSettings extends Properties {
     public void setFile(String key, File value) {
         setProperty(key, value.getAbsolutePath());
     }
+
+    public String getString(String key){
+        String value = getProperty(key);
+        return value;
+    }
+
+    public void setString(String key, String value){
+        setProperty(key, value);
+    }
 }

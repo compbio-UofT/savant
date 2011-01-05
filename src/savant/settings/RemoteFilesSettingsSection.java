@@ -44,6 +44,8 @@ public class RemoteFilesSettingsSection extends Section {
     private static final Log LOG = LogFactory.getLog(PersistentSettings.class);
 
     private JTextField directoryInput;
+    private JTextField buffSizeInput;
+    private String buffSize;
     private String directoryPath;
     JCheckBox enableCaching_cb;
 
@@ -156,6 +158,65 @@ public class RemoteFilesSettingsSection extends Section {
             }
         });
 
+        //BUFFER SIZE//////////////////////////////////
+
+        JLabel buffSizeLabel = new JLabel("Select buffer size (Bytes): ");
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.gridx = 0;
+        c.gridy = 6;
+        c.gridwidth = 2;
+        c.gridheight = 1;
+        c.weightx = 1.0;
+        c.weighty = 0;
+        panel.add(buffSizeLabel, c);
+
+        buffSizeInput = new JTextField();
+        buffSizeInput.setPreferredSize(new Dimension(20, 20));
+        buffSizeInput.setSize(new Dimension(20, 20));
+        c.gridx = 0;
+        c.gridy = 7;
+        c.gridwidth = 1;
+        c.weightx = 0.5;
+        panel.add(buffSizeInput, c);
+
+        JButton defaultSizeButton = new JButton("Default");
+        c.gridx = 1;
+        c.gridy = 7;
+        c.weightx = 0;
+        panel.add(defaultSizeButton, c);
+
+        JPanel spacer2 = new JPanel();
+        spacer2.setPreferredSize(new Dimension(20,20));
+        c.fill = GridBagConstraints.VERTICAL;
+        c.gridx = 0;
+        c.gridy = 8;
+        c.gridwidth = 2;
+        c.gridheight = 1;
+        c.weightx = 1.0;
+        c.weighty = 0;
+        panel.add(spacer2, c);
+
+        //initial buffer size
+        buffSize = String.valueOf(BrowserSettings.getRemoteBufferSize());
+        buffSizeInput.setText(buffSize);
+
+        //enable apply button if text changed
+        buffSizeInput.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+                enableApplyButton();
+            }
+        });
+
+        //default button action
+        defaultSizeButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                buffSizeInput.setText(String.valueOf(BrowserSettings.DEFAULT_BUFFER_SIZE));
+                enableApplyButton();
+            }
+        });
+
         //CLEAR CACHE///////////////////////////////////
 
         JButton clearButton = new JButton("Clear remote file cache");
@@ -187,12 +248,23 @@ public class RemoteFilesSettingsSection extends Section {
             directoryPath = directoryInput.getText();
             DirectorySettings.setCacheDirectory(directoryPath);
 
+            buffSize = buffSizeInput.getText();
+            int newVal;
+            try {
+                newVal = Integer.parseInt(buffSize);
+            } catch(NumberFormatException e){
+                newVal = BrowserSettings.DEFAULT_BUFFER_SIZE;
+            }
+            newVal = Math.max(newVal, 1024);
+            buffSizeInput.setText(String.valueOf(newVal));
+            BrowserSettings.setRemoteBufferSize(newVal);
+
             BrowserSettings.setCachingEnabled(this.enableCaching_cb.isSelected());
             
             try {
                 PersistentSettings.getInstance().store();
             } catch (IOException iox) {
-                LOG.error("Unable to save directory settings.", iox);
+                LOG.error("Unable to save remote file settings.", iox);
             }
         }
     }

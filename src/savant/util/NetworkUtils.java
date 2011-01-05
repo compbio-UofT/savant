@@ -116,7 +116,8 @@ public class NetworkUtils {
                 throw new IllegalArgumentException("Only file:, ftp:, and http: URIs are valid.");
             }
             if (BrowserSettings.getCachingEnabled()) {
-                result = new CacheableSABS(result, CacheableSABS.DEFAULT_BLOCK_SIZE, uri);
+                //result = new CacheableSABS(result, CacheableSABS.DEFAULT_BLOCK_SIZE, uri);
+                result = new CacheableSABS(result, BrowserSettings.getRemoteBufferSize(), uri);
             }
         }
         return result;
