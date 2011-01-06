@@ -94,7 +94,7 @@ public class BAMTrackRenderer extends TrackRenderer {
     public void dataRetrievalCompleted(DataRetrievalEvent evt) {
         Mode mode = (Mode)instructions.get(DrawingInstruction.MODE);
 
-        if (mode.getName().equals("Pair arc") && !instructions.containsKey(DrawingInstruction.ERROR)) {
+        if (mode.getName().equals("Read pair") && !instructions.containsKey(DrawingInstruction.ERROR)) {
             long maxDataValue = BAMTrack.getMaxValue(evt.getData());
             Range range = (Range)instructions.get(DrawingInstruction.RANGE);
             addInstruction(DrawingInstruction.AXIS_RANGE, AxisRange.initWithRanges(range, new Range(0,(int)Math.round(maxDataValue+maxDataValue*0.1))));
@@ -142,7 +142,7 @@ public class BAMTrackRenderer extends TrackRenderer {
             }
         }
 
-        if (modeName.equals("Standard") || modeName.equals("Mismatch") || modeName.equals("Mapping quality")) {
+        if (modeName.equals("Standard") || modeName.equals("Mismatch") || modeName.equals("Mapping quality") || modeName.equals("Base quality")) {
             if (r == Resolution.VERY_HIGH || r == Resolution.HIGH) {
                 renderPackMode(g2, gp, r);
             } else {
@@ -152,7 +152,7 @@ public class BAMTrackRenderer extends TrackRenderer {
 //                renderCoverageMode(g2, gp);
 //            }
         }
-        else if (modeName.equals("Pair arc")) {
+        else if (modeName.equals("Read pair")) {
             renderArcMode(g2, gp);
         }
         else if (modeName.equals("SNP")){
@@ -262,6 +262,8 @@ public class BAMTrackRenderer extends TrackRenderer {
                     alpha = alpha > 255 ? 255 : alpha;
                     
                     readcolor = new Color(basecolor.getRed(),basecolor.getGreen(),basecolor.getBlue(),alpha);
+                } else if (drawMode.getName().equals("Base quality")) {
+                    readcolor = new Color(0,0,0,0);
                 } else {
                     
                     if (strand == Strand.FORWARD) {
@@ -873,7 +875,7 @@ public class BAMTrackRenderer extends TrackRenderer {
     @Override
     public boolean hasHorizontalGrid() {
         Mode m = (Mode)instructions.get(DrawingInstruction.MODE);
-        return m.getName().equals("Pair arc");
+        return m.getName().equals("Read pair");
     }
 
     @Override

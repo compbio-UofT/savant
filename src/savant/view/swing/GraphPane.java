@@ -283,7 +283,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
             if(this.currentOverShape != null){
                 //temporarily shift the origin
                 ((Graphics2D)g).translate(0, this.getOffset());
-                if(currentMode != null && currentMode.getName().equals("Pair arc")){
+                if(currentMode != null && currentMode.getName().equals("Read pair")){
                     g.setColor(Color.red);
                     ((Graphics2D)g).draw(currentOverShape);
                 } else {
@@ -422,7 +422,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
                 if(!currentSelected.isEmpty()){
                     boolean arcMode = false;
                     if (t.getDrawMode() != null){
-                        arcMode = t.getDrawMode().getName().equals("Pair arc");
+                        arcMode = t.getDrawMode().getName().equals("Read pair");
                     }
                     for(int i = 0; i < currentSelected.size(); i++){
                         Shape selectedShape = currentSelected.get(i);

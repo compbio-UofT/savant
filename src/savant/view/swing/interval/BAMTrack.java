@@ -64,8 +64,9 @@ public class BAMTrack extends Track {
 
     private static final Mode STANDARD_MODE = Mode.fromObject("Standard", "Colour by strand");
     private static final Mode VARIANTS_MODE = Mode.fromObject("Mismatch", "Show indels and mismatches");
-    private static final Mode MATE_PAIRS_MODE = Mode.fromObject("Pair arc", "Join mate pairs with arcs");
+    private static final Mode MATE_PAIRS_MODE = Mode.fromObject("Read pair", "Join mate pairs with arcs");
     private static final Mode MAPPING_QUALITY_MODE = Mode.fromObject("Mapping quality", "Shade alignments by mapping quality");
+    private static final Mode BASE_QUALITY_MODE = Mode.fromObject("Base quality", "Shade read positions by base quality");
     private static final Mode SNP_MODE = Mode.fromObject("SNP", "Show values per position");
 
     // if > 1, treat as absolute size below which an arc will not be drawn
@@ -116,6 +117,7 @@ public class BAMTrack extends Track {
         modes.add(VARIANTS_MODE);
         modes.add(MATE_PAIRS_MODE);
         modes.add(MAPPING_QUALITY_MODE);
+        modes.add(BASE_QUALITY_MODE);
         modes.add(SNP_MODE);
         return modes;
     }
@@ -141,7 +143,7 @@ public class BAMTrack extends Track {
         renderer.addInstruction(DrawingInstruction.REFERENCE_EXISTS, containsReference(reference));
 
         if (errorMessage == null) {
-        if (getDrawMode().getName().equals("Pair arc") && errorMessage == null) {
+        if (getDrawMode().getName().equals("Read pair") && errorMessage == null) {
             renderer.addInstruction(DrawingInstruction.ARC_MIN, getArcSizeVisibilityThreshold());
             renderer.addInstruction(DrawingInstruction.DISCORDANT_MIN, getDiscordantMin());
             renderer.addInstruction(DrawingInstruction.DISCORDANT_MAX, getDiscordantMax());
