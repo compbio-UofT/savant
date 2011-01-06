@@ -186,7 +186,7 @@ public abstract class TrackRenderer implements DataRetrievalListener {
         //check for arcMode
         boolean isArc = false;
         Mode instruction = (Mode)instructions.get(DrawingInstruction.MODE);
-        if (instruction != null && instruction.getName().equals("MATE_PAIRS")){
+        if (instruction != null && instruction.getName().equals("Pair arc")){
             isArc = true;
         }
         

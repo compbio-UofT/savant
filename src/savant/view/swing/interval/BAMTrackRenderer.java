@@ -94,7 +94,7 @@ public class BAMTrackRenderer extends TrackRenderer {
     public void dataRetrievalCompleted(DataRetrievalEvent evt) {
         Mode mode = (Mode)instructions.get(DrawingInstruction.MODE);
 
-        if (mode.getName().equals("MATE_PAIRS") && !instructions.containsKey(DrawingInstruction.ERROR)) {
+        if (mode.getName().equals("Pair arc") && !instructions.containsKey(DrawingInstruction.ERROR)) {
             long maxDataValue = BAMTrack.getMaxValue(evt.getData());
             Range range = (Range)instructions.get(DrawingInstruction.RANGE);
             addInstruction(DrawingInstruction.AXIS_RANGE, AxisRange.initWithRanges(range, new Range(0,(int)Math.round(maxDataValue+maxDataValue*0.1))));
@@ -127,7 +127,7 @@ public class BAMTrackRenderer extends TrackRenderer {
         String modeName = drawMode.getName();
 
         if (r == Resolution.VERY_HIGH || r == Resolution.HIGH) {
-            if(modeName.equals("VARIANTS") || modeName.equals("SNP")){
+            if(modeName.equals("Mismatch") || modeName.equals("SNP")){
                 // fetch reference sequence for comparison with cigar string
                 Genome genome = ReferenceController.getInstance().getGenome();
                 if(genome.isSequenceSet()){
@@ -142,7 +142,7 @@ public class BAMTrackRenderer extends TrackRenderer {
             }
         }
 
-        if (modeName.equals("STANDARD") || modeName.equals("VARIANTS")) {
+        if (modeName.equals("Standard") || modeName.equals("Mismatch") || modeName.equals("Mapping quality")) {
             if (r == Resolution.VERY_HIGH || r == Resolution.HIGH) {
                 renderPackMode(g2, gp, r);
             } else {
@@ -152,7 +152,7 @@ public class BAMTrackRenderer extends TrackRenderer {
 //                renderCoverageMode(g2, gp);
 //            }
         }
-        else if (modeName.equals("MATE_PAIRS")) {
+        else if (modeName.equals("Pair arc")) {
             renderArcMode(g2, gp);
         }
         else if (modeName.equals("SNP")){
@@ -191,7 +191,7 @@ public class BAMTrackRenderer extends TrackRenderer {
         else maxYRange = numIntervals;
         gp.setYRange(new Range(0,maxYRange));
        
-        if (drawMode.getName().equals("VARIANTS")) {
+        if (drawMode.getName().equals("Mismatch")) {
             Genome genome = ReferenceController.getInstance().getGenome();
             if (!genome.isSequenceSet()) {
                 throw new RenderingException("No reference sequence loaded. Switch to standard view");
@@ -243,36 +243,61 @@ public class BAMTrackRenderer extends TrackRenderer {
                     continue;
                 }
 
-                Polygon strand = renderStrand(g2, gp, cs, samRecord, interval, level, range);
+                Color readcolor = null;
 
-                this.recordToShapeMap.put(intervalRecord, strand);
+                boolean strandFlag = samRecord.getReadNegativeStrandFlag();
+                Strand strand = strandFlag ? Strand.REVERSE : Strand.FORWARD ;
 
-                if (drawMode.getName().equals("VARIANTS")) {
+                if (drawMode.getName().equals("Mapping quality")) {
+                    Color basecolor = null;
+                    if (strand == Strand.FORWARD) {
+                        basecolor = cs.getColor("Forward Strand");
+                    }
+                    else {
+                        basecolor = cs.getColor("Reverse Strand");
+                    }
+
+                    int alpha = samRecord.getMappingQuality();
+                    alpha = alpha < 10 ? 10 : alpha;
+                    alpha = alpha > 255 ? 255 : alpha;
+                    
+                    readcolor = new Color(basecolor.getRed(),basecolor.getGreen(),basecolor.getBlue(),alpha);
+                } else {
+                    
+                    if (strand == Strand.FORWARD) {
+                        g2.setColor(cs.getColor("Forward Strand"));
+                    }
+                    else {
+                        g2.setColor(cs.getColor("Reverse Strand"));
+                    }
+                }
+
+                Polygon readshape = renderRead(g2, gp, cs, samRecord, interval, level, range, readcolor);
+
+                this.recordToShapeMap.put(intervalRecord, readshape);
+
+                if (drawMode.getName().equals("Mismatch")) {
                     // visualize variations (indels and mismatches)
                     renderVariants(g2, gp, samRecord, level, refSeq, range);
                 }
 
                 // draw outline, if there's room
-                if (strand.getBounds().getHeight() > 4) {
+                if (readshape.getBounds().getHeight() > 4) {
                     g2.setColor(linecolor);
-                    g2.draw(strand);
+                    g2.draw(readshape);
                 }
             }
         }
 
     }
 
-    private Polygon renderStrand(Graphics2D g2, GraphPane gp, ColorScheme cs, SAMRecord samRecord, Interval interval,
-                                 int level, Range range) {
-
-        Color forwardColor = cs.getColor("Forward Strand");
-        Color reverseColor = cs.getColor("Reverse Strand");
+    private Polygon renderRead(Graphics2D g2, GraphPane gp, ColorScheme cs, SAMRecord samRecord, Interval interval,
+                                 int level, Range range, Color c) {
 
         double x=0;
         double y=0;
         double w=0;
         double h=0;
-
 
         double unitHeight = gp.getUnitHeight();
         double unitWidth = gp.getUnitWidth();
@@ -335,12 +360,8 @@ public class BAMTrackRenderer extends TrackRenderer {
         if (strand == Strand.REVERSE && drawPoint && !cutoffLeft) {
             pointyBar.addPoint((int)(x-arrowWidth), (int)(y+arrowHeight));
         }
-        if (strand == Strand.FORWARD) {
-            g2.setColor(forwardColor);
-        }
-        else {
-            g2.setColor(reverseColor);
-        }
+        g2.setColor(c);
+        
         g2.fill(pointyBar);
 
         return pointyBar;
@@ -852,7 +873,7 @@ public class BAMTrackRenderer extends TrackRenderer {
     @Override
     public boolean hasHorizontalGrid() {
         Mode m = (Mode)instructions.get(DrawingInstruction.MODE);
-        return m.getName().equals("MATE_PAIRS");
+        return m.getName().equals("Pair arc");
     }
 
     @Override

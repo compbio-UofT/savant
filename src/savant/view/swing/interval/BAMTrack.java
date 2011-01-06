@@ -51,17 +51,22 @@ public class BAMTrack extends Track {
     
     private static final Log LOG = LogFactory.getLog(BAMTrack.class);
 
+    /*
     public enum DrawingMode {
         STANDARD,
         VARIANTS,
         MATE_PAIRS,
-        SNP
+        SNP,
+        MAPPING_QUALITY
     };
+     * 
+     */
 
-    private static final Mode STANDARD_MODE = Mode.fromObject(DrawingMode.STANDARD, "Colour by strand");
-    private static final Mode VARIANTS_MODE = Mode.fromObject(DrawingMode.VARIANTS, "Show indels and mismatches");
-    private static final Mode MATE_PAIRS_MODE = Mode.fromObject(DrawingMode.MATE_PAIRS, "Join mate pairs with arcs");
-    private static final Mode SNP_MODE = Mode.fromObject(DrawingMode.SNP, "Show values per position");
+    private static final Mode STANDARD_MODE = Mode.fromObject("Standard", "Colour by strand");
+    private static final Mode VARIANTS_MODE = Mode.fromObject("Mismatch", "Show indels and mismatches");
+    private static final Mode MATE_PAIRS_MODE = Mode.fromObject("Pair arc", "Join mate pairs with arcs");
+    private static final Mode MAPPING_QUALITY_MODE = Mode.fromObject("Mapping quality", "Shade alignments by mapping quality");
+    private static final Mode SNP_MODE = Mode.fromObject("SNP", "Show values per position");
 
     // if > 1, treat as absolute size below which an arc will not be drawn
     // if 0 < 1, treat as percentage of y range below which an arc will not be drawn
@@ -110,6 +115,7 @@ public class BAMTrack extends Track {
         modes.add(STANDARD_MODE);
         modes.add(VARIANTS_MODE);
         modes.add(MATE_PAIRS_MODE);
+        modes.add(MAPPING_QUALITY_MODE);
         modes.add(SNP_MODE);
         return modes;
     }
@@ -134,12 +140,14 @@ public class BAMTrack extends Track {
         renderer.addInstruction(DrawingInstruction.COLOR_SCHEME, getColorScheme());
         renderer.addInstruction(DrawingInstruction.REFERENCE_EXISTS, containsReference(reference));
 
-        if (getDrawMode().getName().equals("MATE_PAIRS") && errorMessage != null) {
+        if (errorMessage == null) {
+        if (getDrawMode().getName().equals("Pair arc") && errorMessage == null) {
             renderer.addInstruction(DrawingInstruction.ARC_MIN, getArcSizeVisibilityThreshold());
             renderer.addInstruction(DrawingInstruction.DISCORDANT_MIN, getDiscordantMin());
             renderer.addInstruction(DrawingInstruction.DISCORDANT_MAX, getDiscordantMax());
         } else {
             renderer.addInstruction(DrawingInstruction.AXIS_RANGE, AxisRange.initWithRanges(range, getDefaultYRange()));
+        }
         }
         renderer.addInstruction(DrawingInstruction.SELECTION_ALLOWED, true);
         renderer.addInstruction(DrawingInstruction.MODE, getDrawMode());

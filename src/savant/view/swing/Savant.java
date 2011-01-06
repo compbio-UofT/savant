@@ -1597,7 +1597,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         initDataSources();
 
 
-        //initStartPage();
+        initStartPage();
 
         dff = new DataFormatForm(this, false);
 
@@ -2828,10 +2828,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
             startPageDockableFrame = DockableFrameFactory.createFrame("Start Page", DockContext.STATE_AUTOHIDE_SHOWING, DockContext.DOCK_SIDE_NORTH);
             startPageDockableFrame.setAvailableButtons(DockableFrame.BUTTON_CLOSE);
             this.getTrackDockingManager().addFrame(startPageDockableFrame);
-            /*try {
-            df.setMaximized(true);
-            } catch (PropertyVetoException ex) {
-            }*/
+            
             startPageDockableFrame.getContentPane().setLayout(new BorderLayout());
             startPageDockableFrame.getContentPane().add(sp, BorderLayout.NORTH);
             MiscUtils.setFrameVisibility("Start Page", true, getTrackDockingManager());

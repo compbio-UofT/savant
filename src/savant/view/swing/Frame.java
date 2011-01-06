@@ -298,7 +298,7 @@ public class Frame implements DataRetrievalListener {
 
     public void resetLayers(){
         Frame f = this;
-        if(f.getTracks().get(0).getDrawModes().size() > 0 && f.getTracks().get(0).getDrawMode().getName().equals("MATE_PAIRS")){
+        if(f.getTracks().get(0).getDrawModes().size() > 0 && f.getTracks().get(0).getDrawMode().getName().equals("Pair arc")){
             f.arcLegend.setVisible(true);
         } else {
             f.arcLegend.setVisible(false);
@@ -607,7 +607,7 @@ public class Frame implements DataRetrievalListener {
 //        if (getTracks().contains(track)) {
         boolean reRender = true;
         if (track.getDataSource().getDataFormat() == DataFormat.INTERVAL_BAM) {
-            if (evt.getMode().getName().equals("MATE_PAIRS")) {
+            if (evt.getMode().getName().equals("Pair arc")) {
                 reRender = true;
                 setCoverageEnabled(false);
                 this.arcButton.setVisible(true);

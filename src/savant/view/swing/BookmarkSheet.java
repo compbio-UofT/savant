@@ -251,9 +251,7 @@ public class BookmarkSheet implements BookmarksChangedListener /*, RangeChangedL
     }
 
     private void refreshData(List<Bookmark> favorites) {
-        LOG.info("Setting data...");
         ((BookmarksTableModel) table.getModel()).setData(favorites);
-        LOG.info("Data set.");
         ((BookmarksTableModel) table.getModel()).fireTableDataChanged();
     }
 
