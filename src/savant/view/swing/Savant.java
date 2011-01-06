@@ -97,7 +97,6 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
     private static Map<DockableFrame, Frame> dockFrameToFrameMap = new HashMap<DockableFrame, Frame>();
     private DockableFrame genomeFrame = null;
     private DataFormatForm dff;
-    private OpenURLDialog urlDialog;
     private MemoryStatusBarItem memorystatusbar;
     private DockableFrame startPageDockableFrame;
     private Application macOSXApplication;
@@ -1123,7 +1122,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
     }//GEN-LAST:event_loadFromFileItemActionPerformed
 
     private void loadFromURLItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loadFromURLItemActionPerformed
-        this.showOpenURLDialog(false);
+        showOpenURLDialog(false);
     }//GEN-LAST:event_loadFromURLItemActionPerformed
 
     private void websiteItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_websiteItemActionPerformed
@@ -1601,7 +1600,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
 
         dff = new DataFormatForm(this, false);
 
-        urlDialog = new OpenURLDialog(this, true);
+        //urlDialog = new OpenURLDialog(this, true);
     }
 
     private void disableExperimentalFeatures() {
@@ -2766,6 +2765,9 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
     }
 
     public void showOpenURLDialog(boolean loadAsGenome) {
+
+        OpenURLDialog urlDialog = new OpenURLDialog(this, true);
+
         urlDialog.setLocationRelativeTo(this);
         urlDialog.setVisible(true);
 

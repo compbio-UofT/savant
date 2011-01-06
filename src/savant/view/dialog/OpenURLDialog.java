@@ -23,9 +23,9 @@ package savant.view.dialog;
 import java.awt.*;
 import java.net.MalformedURLException;
 import java.net.URL;
+import savant.api.util.DialogUtils;
 
 /**
- *
  * @author vwilliam
  */
 public class OpenURLDialog extends javax.swing.JDialog {
@@ -57,7 +57,7 @@ public class OpenURLDialog extends javax.swing.JDialog {
         javax.swing.JButton cancelButton = new javax.swing.JButton();
         okButton = new javax.swing.JButton();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Load Track from URL");
 
         urlLabel.setText("Track URL:");
@@ -123,6 +123,8 @@ public class OpenURLDialog extends javax.swing.JDialog {
         if (parseURL()) {
             setAccepted(true);
             this.setVisible(false);
+        } else  {
+            DialogUtils.displayError("Please enter a valid URL.");
         }
     }//GEN-LAST:event_okButtonActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
