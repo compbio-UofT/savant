@@ -60,7 +60,10 @@ import savant.view.swing.interval.Pileup.Nucleotide;
  * @author vwilliams
  */
 public class BAMTrackRenderer extends TrackRenderer {
-    
+
+    private static final int minTransparency = 20;
+    private static final int maxTransparency = 255;
+
     private static Log LOG = LogFactory.getLog(BAMTrackRenderer.class);
 
     private static Font smallFont = new Font("Sans-Serif", Font.PLAIN, 10);
@@ -258,8 +261,8 @@ public class BAMTrackRenderer extends TrackRenderer {
                     }
 
                     int alpha = samRecord.getMappingQuality();
-                    alpha = alpha < 10 ? 10 : alpha;
-                    alpha = alpha > 255 ? 255 : alpha;
+                    alpha = alpha < minTransparency ? minTransparency : alpha;
+                    alpha = alpha > maxTransparency ? maxTransparency : alpha;
                     
                     readcolor = new Color(basecolor.getRed(),basecolor.getGreen(),basecolor.getBlue(),alpha);
                 } else if (drawMode.getName().equals("Base quality")) {
@@ -278,10 +281,22 @@ public class BAMTrackRenderer extends TrackRenderer {
 
                 this.recordToShapeMap.put(intervalRecord, readshape);
 
+                if (drawMode.getName().equals("Base quality")) {
+                    Color col = null;
+                    if (strand == Strand.FORWARD) {
+                        col = cs.getColor("Forward Strand");
+                    }
+                    else {
+                        col = cs.getColor("Reverse Strand");
+                    }
+                    renderBaseQualities(g2, gp, samRecord, level, range, col);
+                }
+
                 if (drawMode.getName().equals("Mismatch")) {
                     // visualize variations (indels and mismatches)
                     renderVariants(g2, gp, samRecord, level, refSeq, range);
                 }
+
 
                 // draw outline, if there's room
                 if (readshape.getBounds().getHeight() > 4) {
@@ -367,6 +382,41 @@ public class BAMTrackRenderer extends TrackRenderer {
         g2.fill(pointyBar);
 
         return pointyBar;
+
+    }
+
+    private void renderBaseQualities(Graphics2D g2, GraphPane gp, SAMRecord samRecord, int level, Range range, Color baseColor) {
+        
+        double unitHeight;
+        double unitWidth;
+        unitHeight = gp.getUnitHeight();
+        unitWidth = gp.getUnitWidth();
+        
+        // cutoffs to determine when not to draw
+        double leftMostX = gp.transformXPos(range.getFrom());
+        double rightMostX = gp.transformXPos(range.getTo()) + unitWidth;
+
+        // visualize variations (indels and mismatches)
+        int alignmentStart = samRecord.getAlignmentStart();
+        //int alignmentEnd = samRecord.getAlignmentEnd();
+
+        int sequenceCursor = alignmentStart;
+
+        for (byte q : samRecord.getBaseQualities()) {
+            int alpha = (int) q;
+            alpha = (int) Math.round(((double) alpha/40)*255);
+            alpha = alpha < minTransparency ? minTransparency : alpha;
+            alpha = alpha > maxTransparency ? maxTransparency : alpha;
+
+            int xCoordinate = (int)gp.transformXPos(sequenceCursor);
+             Rectangle2D.Double opRect = new Rectangle2D.Double(xCoordinate,
+                                    gp.transformYPos(0)-((level + 1)*unitHeight) - offset,
+                                    unitWidth,
+                                    unitHeight);
+                            g2.setColor(new Color(baseColor.getRed(),baseColor.getGreen(),baseColor.getBlue(),alpha));
+                            g2.fill(opRect);
+            sequenceCursor++;
+        }
 
     }
 

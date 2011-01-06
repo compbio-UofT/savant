@@ -129,8 +129,16 @@ public class ThreadedURLDownload implements Runnable {
                     }
                 }
                 if (Thread.interrupted()) {
+                    out.close();
+                    destFile.delete();
                     return false;
                 }
+            }
+
+            if (totalread != totalsize) {
+                LOG.warn("Error downloading file");
+                out.close();
+                destFile.delete();
             }
         } catch (IOException ioe) {
             return false;
