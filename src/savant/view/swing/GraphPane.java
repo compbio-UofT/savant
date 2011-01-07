@@ -30,7 +30,6 @@ import javax.swing.border.EmptyBorder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import savant.api.adapter.ModeAdapter;
 import savant.controller.DrawModeController;
 import savant.controller.RangeController;
 import savant.controller.GraphPaneController;
@@ -47,6 +46,7 @@ import savant.util.*;
 import savant.view.dialog.BAMParametersDialog;
 import savant.view.swing.continuous.ContinuousTrackRenderer;
 import savant.view.swing.interval.BAMTrack;
+import savant.view.swing.interval.BAMTrackRenderer;
 
 /**
  *
@@ -86,7 +86,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
     //scrolling...
     private BufferedImage bufferedImage;
     private Range prevRange = null;
-    private ModeAdapter prevDrawMode = null;
+    private String prevDrawMode = null;
     private Dimension prevSize = null;
     private String prevRef = null;
     public boolean paneResize = false;
@@ -255,7 +255,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         yMax = maxYRange;
 
         Graphics2D g3;
-        ModeAdapter currentMode = this.parentFrame.getTracks().get(0).getDrawMode();
+        String currentMode = this.parentFrame.getTracks().get(0).getDrawMode();
         //BufferedImage bf1;
 
         //boolean sameRange = (prevRange != null && RangeController.getInstance().getRange().equals(prevRange));
@@ -283,7 +283,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
             if(this.currentOverShape != null){
                 //temporarily shift the origin
                 ((Graphics2D)g).translate(0, this.getOffset());
-                if(currentMode != null && currentMode.getName().equals("Read pair")){
+                if(currentMode != null && currentMode.equals(BAMTrackRenderer.MATE_PAIRS_MODE)){
                     g.setColor(Color.red);
                     ((Graphics2D)g).draw(currentOverShape);
                 } else {
@@ -422,7 +422,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
                 if(!currentSelected.isEmpty()){
                     boolean arcMode = false;
                     if (t.getDrawMode() != null){
-                        arcMode = t.getDrawMode().getName().equals("Read pair");
+                        arcMode = t.getDrawMode().equals(BAMTrackRenderer.MATE_PAIRS_MODE);
                     }
                     for(int i = 0; i < currentSelected.size(); i++){
                         Shape selectedShape = currentSelected.get(i);
@@ -1218,7 +1218,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
      * MODE SWITCHING
      */
 
-    private void switchMode(final Track track, final Mode mode) {
+    private void switchMode(final Track track, final String mode) {
 
         DrawModeController.getInstance().switchMode(track, mode);
         

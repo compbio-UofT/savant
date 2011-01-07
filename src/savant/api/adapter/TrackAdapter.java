@@ -84,22 +84,14 @@ public interface TrackAdapter {
      *
      * @return draw mode
      */
-    public ModeAdapter getDrawMode();
+    public String getDrawMode();
 
     /**
      * Set the current draw mode.
      *
      * @param mode
      */
-    public void setDrawMode(ModeAdapter mode);
-
-
-    /**
-     * Set the current draw mode by its name
-     *
-     * @param mode name
-     */
-    public void setDrawMode(String modename);
+    public void setDrawMode(String mode);
 
 
     /**
@@ -107,15 +99,16 @@ public interface TrackAdapter {
      *
      * @return List of draw Modes
      */
-    public List<ModeAdapter> getDrawModes();
+    public List<String> getDrawModes();
 
 
     /**
      * Get the default draw mode.
      *
      * @return  the default draw mode
+     *
+    public String getDefaultDrawMode();
      */
-    public ModeAdapter getDefaultDrawMode();
 
 
     /**

@@ -64,6 +64,14 @@ public class BAMTrackRenderer extends TrackRenderer {
     private static final int minTransparency = 20;
     private static final int maxTransparency = 255;
 
+    /** MODE */
+    public static final String STANDARD_MODE = "Standard";
+    public static final String MISMATCH_MODE = "Mismatch";
+    public static final String MATE_PAIRS_MODE = "Read pair";
+    public static final String MAPPING_QUALITY_MODE = "Mapping quality";
+    public static final String BASE_QUALITY_MODE = "Base quality";
+    public static final String SNP_MODE = "SNP";
+
     private static Log LOG = LogFactory.getLog(BAMTrackRenderer.class);
 
     private static Font smallFont = new Font("Sans-Serif", Font.PLAIN, 10);
@@ -85,9 +93,29 @@ public class BAMTrackRenderer extends TrackRenderer {
     // considered discordant
     private static int DISCORDANT_STD_DEV = 3;
 
+
+
+
+    @Override
+    public List<String> getRenderingModes() {
+        List<String> modes = new ArrayList<String>();
+        modes.add(STANDARD_MODE);
+        modes.add(MISMATCH_MODE);
+        modes.add(MATE_PAIRS_MODE);
+        modes.add(MAPPING_QUALITY_MODE);
+        modes.add(BASE_QUALITY_MODE);
+        modes.add(SNP_MODE);
+        return modes;
+    }
+
+    @Override
+    public String getDefaultRenderingMode() {
+        return MISMATCH_MODE;
+    }
+
     public enum Strand { FORWARD, REVERSE };
 
-    private Mode drawMode;
+    private String drawMode;
 
     public BAMTrackRenderer() {
         super(DataFormat.INTERVAL_BAM);
@@ -95,9 +123,9 @@ public class BAMTrackRenderer extends TrackRenderer {
 
     @Override
     public void dataRetrievalCompleted(DataRetrievalEvent evt) {
-        Mode mode = (Mode)instructions.get(DrawingInstruction.MODE);
+        String mode = (String)instructions.get(DrawingInstruction.MODE);
 
-        if (mode.getName().equals("Read pair") && !instructions.containsKey(DrawingInstruction.ERROR)) {
+        if (mode.equals("Read pair") && !instructions.containsKey(DrawingInstruction.ERROR)) {
             long maxDataValue = BAMTrack.getMaxValue(evt.getData());
             Range range = (Range)instructions.get(DrawingInstruction.RANGE);
             addInstruction(DrawingInstruction.AXIS_RANGE, AxisRange.initWithRanges(range, new Range(0,(int)Math.round(maxDataValue+maxDataValue*0.1))));
@@ -124,10 +152,10 @@ public class BAMTrackRenderer extends TrackRenderer {
             throw new RenderingException(errorMessage);
         }
 
-        drawMode = (Mode)instructions.get(DrawingInstruction.MODE);
+        drawMode = (String)instructions.get(DrawingInstruction.MODE);
         Resolution r = (Resolution)instructions.get(DrawingInstruction.RESOLUTION);
 
-        String modeName = drawMode.getName();
+        String modeName = drawMode;
 
         if (r == Resolution.VERY_HIGH || r == Resolution.HIGH) {
             if(modeName.equals("Mismatch") || modeName.equals("SNP")){
@@ -194,7 +222,7 @@ public class BAMTrackRenderer extends TrackRenderer {
         else maxYRange = numIntervals;
         gp.setYRange(new Range(0,maxYRange));
        
-        if (drawMode.getName().equals("Mismatch")) {
+        if (drawMode.equals(MISMATCH_MODE)) {
             Genome genome = ReferenceController.getInstance().getGenome();
             if (!genome.isSequenceSet()) {
                 throw new RenderingException("No reference sequence loaded. Switch to standard view");
@@ -251,7 +279,7 @@ public class BAMTrackRenderer extends TrackRenderer {
                 boolean strandFlag = samRecord.getReadNegativeStrandFlag();
                 Strand strand = strandFlag ? Strand.REVERSE : Strand.FORWARD ;
 
-                if (drawMode.getName().equals("Mapping quality")) {
+                if (drawMode.equals(MAPPING_QUALITY_MODE)) {
                     Color basecolor = null;
                     if (strand == Strand.FORWARD) {
                         basecolor = cs.getColor("Forward Strand");
@@ -265,7 +293,7 @@ public class BAMTrackRenderer extends TrackRenderer {
                     alpha = alpha > maxTransparency ? maxTransparency : alpha;
                     
                     readcolor = new Color(basecolor.getRed(),basecolor.getGreen(),basecolor.getBlue(),alpha);
-                } else if (drawMode.getName().equals("Base quality")) {
+                } else if (drawMode.equals(BASE_QUALITY_MODE)) {
                     readcolor = new Color(0,0,0,0);
                 } else {
                     
@@ -281,7 +309,7 @@ public class BAMTrackRenderer extends TrackRenderer {
 
                 this.recordToShapeMap.put(intervalRecord, readshape);
 
-                if (drawMode.getName().equals("Base quality")) {
+                if (drawMode.equals(BASE_QUALITY_MODE)) {
                     Color col = null;
                     if (strand == Strand.FORWARD) {
                         col = cs.getColor("Forward Strand");
@@ -292,7 +320,7 @@ public class BAMTrackRenderer extends TrackRenderer {
                     renderBaseQualities(g2, gp, samRecord, level, range, col);
                 }
 
-                if (drawMode.getName().equals("Mismatch")) {
+                if (drawMode.equals(MISMATCH_MODE)) {
                     // visualize variations (indels and mismatches)
                     renderVariants(g2, gp, samRecord, level, refSeq, range);
                 }
@@ -924,8 +952,8 @@ public class BAMTrackRenderer extends TrackRenderer {
 
     @Override
     public boolean hasHorizontalGrid() {
-        Mode m = (Mode)instructions.get(DrawingInstruction.MODE);
-        return m.getName().equals("Read pair");
+        String m = (String)instructions.get(DrawingInstruction.MODE);
+        return m.equals(MATE_PAIRS_MODE);
     }
 
     @Override

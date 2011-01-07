@@ -15,14 +15,12 @@
  */
 package savant.view.swing.interval;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import savant.api.adapter.ModeAdapter;
 import savant.api.adapter.RangeAdapter;
 import savant.data.sources.DataSource;
 import savant.data.types.GenericIntervalRecord;
@@ -44,15 +42,11 @@ public class IntervalTrack extends Track {
 
     public enum DrawingMode { SQUISH, PACK, ARC };
 
-    private static final Mode SQUISH_MODE = Mode.fromObject(DrawingMode.SQUISH, "All on one line");
-    private static final Mode PACK_MODE = Mode.fromObject(DrawingMode.PACK, "Minimum number of lines");
-    private static final Mode ARC_MODE = Mode.fromObject(DrawingMode.ARC, "Arcs");
-
     public IntervalTrack(DataSource intervalTrack) throws SavantTrackCreationCancelledException {
         super(intervalTrack, new IntervalTrackRenderer());
         setColorScheme(getDefaultColorScheme());
-        setDrawModes(getDefaultDrawModes());
-        setDrawMode(PACK_MODE);
+        setDrawModes(this.renderer.getRenderingModes());
+        setDrawMode(this.renderer.getDefaultRenderingMode());
         this.notifyControllerOfCreation();
     }
 
@@ -74,22 +68,17 @@ public class IntervalTrack extends Track {
     }
 
     @Override
-    public Mode getDefaultDrawMode() {
-        return PACK_MODE;
-    }
-
-    @Override
     public Resolution getResolution(RangeAdapter range) { return getResolution(range, getDrawMode()); }
 
-    public Resolution getResolution(RangeAdapter range, ModeAdapter mode) {
-        if (mode.getName().equals("SQUISH")) {
+    public Resolution getResolution(RangeAdapter range, String mode) {
+        if (mode.equals(IntervalTrackRenderer.SQUISH_MODE)) {
             return getSquishModeResolution(range);
-        } else if (mode.getName().equals("ARC")) {
+        } else if (mode.equals(IntervalTrackRenderer.ARC_MODE)) {
             return getArcModeResolution(range);
-        } else if (mode.getName().equals("PACK")) {
+        } else if (mode.equals(IntervalTrackRenderer.PACK_MODE)) {
             return getDefaultModeResolution(range);
         } else {
-            LOG.warn("Unrecognized draw mode " + mode.getName());
+            LOG.warn("Unrecognized draw mode " + mode);
             return getDefaultModeResolution(range);
         }
     }
@@ -105,15 +94,6 @@ public class IntervalTrack extends Track {
 
     public Resolution getSquishModeResolution(RangeAdapter range) {
         return Resolution.VERY_HIGH;
-    }
-    
-    public final List<ModeAdapter> getDefaultDrawModes() {
-        List<ModeAdapter> modes = new ArrayList<ModeAdapter>();
-
-        modes.add(SQUISH_MODE);
-        modes.add(PACK_MODE);
-        modes.add(ARC_MODE);
-        return modes;
     }
 
     @Override
@@ -135,7 +115,7 @@ public class IntervalTrack extends Track {
         renderer.addInstruction(DrawingInstruction.COLOR_SCHEME, getColorScheme());
         renderer.addInstruction(DrawingInstruction.REFERENCE_EXISTS, containsReference(reference));
 
-        if (!getDrawMode().getName().equals("ARC")) {
+        if (!getDrawMode().equals(IntervalTrackRenderer.ARC_MODE)) {
             renderer.addInstruction(DrawingInstruction.AXIS_RANGE, AxisRange.initWithRanges(range, getDefaultYRange()));
         }
         renderer.addInstruction(DrawingInstruction.MODE, getDrawMode());

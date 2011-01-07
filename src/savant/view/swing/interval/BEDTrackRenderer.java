@@ -46,7 +46,6 @@ import savant.file.DataFormat;
 import savant.util.AxisRange;
 import savant.util.ColorScheme;
 import savant.util.DrawingInstruction;
-import savant.util.Mode;
 import savant.util.IntervalPacker;
 import savant.util.Range;
 import savant.util.Resolution;
@@ -69,7 +68,10 @@ public class BEDTrackRenderer extends TrackRenderer {
     private static final Font SMALL_FONT = new Font("Sans-Serif", Font.PLAIN, 12);
     private static final Font LARGE_FONT = new Font("Sans-Serif", Font.PLAIN, 18);
 
-    Mode drawMode;
+    public static final String STANDARD_MODE = "Standard";
+    public static final String SQUISH_MODE = "Squish";
+
+    String drawMode;
     Resolution resolution;
 
     public BEDTrackRenderer() {
@@ -88,14 +90,14 @@ public class BEDTrackRenderer extends TrackRenderer {
             throw new RenderingException("No data for reference");
         }
 
-        drawMode = (Mode)instructions.get(DrawingInstruction.MODE);
+        drawMode = (String)instructions.get(DrawingInstruction.MODE);
         resolution = (Resolution)instructions.get(DrawingInstruction.RESOLUTION);
 
-        String modeName = drawMode.getName();
-        if (modeName.equals("STANDARD")) {
+        String modeName = drawMode;
+        if (modeName.equals(this.STANDARD_MODE)) {
 
             renderPackMode(g2, gp, resolution);
-        } else if (modeName.equals("SQUISH")) {
+        } else if (modeName.equals(this.SQUISH_MODE)) {
 
             renderSquishMode(g2, gp, resolution);
         }
@@ -538,5 +540,18 @@ public class BEDTrackRenderer extends TrackRenderer {
             }
         }
 
+    }
+
+    @Override
+    public List<String> getRenderingModes() {
+        List<String> modes = new ArrayList<String>();
+        modes.add(STANDARD_MODE);
+        modes.add(SQUISH_MODE);
+        return modes;
+    }
+
+    @Override
+    public String getDefaultRenderingMode() {
+        return STANDARD_MODE;
     }
 }

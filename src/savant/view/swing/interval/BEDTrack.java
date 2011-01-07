@@ -20,17 +20,14 @@
 
 package savant.view.swing.interval;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import savant.api.adapter.ModeAdapter;
 import savant.api.adapter.RangeAdapter;
 import savant.data.sources.DataSource;
-import savant.data.types.Record;
 import savant.exception.SavantTrackCreationCancelledException;
 import savant.settings.ColourSettings;
 import savant.util.*;
@@ -45,19 +42,21 @@ public class BEDTrack extends Track {
 
     private static final Log LOG = LogFactory.getLog(BEDTrack.class);
 
+    /*
     public enum DrawingMode {
         STANDARD,
         SQUISH
     };
+     * 
+     */
 
-    private static final Mode STANDARD_MODE = Mode.fromObject(DrawingMode.STANDARD, "Standard Gene View");
-    private static final Mode SQUISH_MODE = Mode.fromObject(DrawingMode.SQUISH, "All on one line");
+
 
     public BEDTrack(DataSource bedSource) throws SavantTrackCreationCancelledException {
         super(bedSource, new BEDTrackRenderer());
         setColorScheme(getDefaultColorScheme());
-        setDrawModes(getDefaultDrawModes());
-        setDrawMode(STANDARD_MODE);
+        setDrawModes(this.renderer.getRenderingModes());
+        setDrawMode(this.renderer.getDefaultRenderingMode());
         notifyControllerOfCreation();
     }
 
@@ -81,7 +80,7 @@ public class BEDTrack extends Track {
         return getResolution(range, getDrawMode());
     }
 
-    public Resolution getResolution(RangeAdapter range, ModeAdapter mode)
+    public Resolution getResolution(RangeAdapter range, String mode)
     {
         return getDefaultModeResolution(range);
     }
@@ -98,11 +97,6 @@ public class BEDTrack extends Track {
         else { return Resolution.VERY_HIGH; }
     }
 
-    @Override
-    public Mode getDefaultDrawMode() {
-        return STANDARD_MODE;
-    }
-
     private ColorScheme getDefaultColorScheme() {
         ColorScheme c = new ColorScheme();
 
@@ -113,14 +107,6 @@ public class BEDTrack extends Track {
         c.addColorSetting("Line", ColourSettings.getLine());
 
         return c;
-    }
-
-    private List<ModeAdapter> getDefaultDrawModes()
-    {
-        List<ModeAdapter> modes = new ArrayList<ModeAdapter>();
-        modes.add(STANDARD_MODE);
-        modes.add(SQUISH_MODE);
-        return modes;
     }
 
     @Override

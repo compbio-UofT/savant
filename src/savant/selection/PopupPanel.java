@@ -22,17 +22,14 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.util.Iterator;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
-import savant.api.adapter.ModeAdapter;
 import savant.controller.BookmarkController;
 import savant.controller.ReferenceController;
 import savant.data.types.*;
 import savant.file.DataFormat;
-import savant.util.Mode;
 import savant.util.Bookmark;
 import savant.util.MiscUtils;
 import savant.util.Range;
@@ -46,7 +43,7 @@ import savant.view.swing.Track;
 public class PopupPanel extends JPanel {
 
     protected GraphPane gp;
-    protected ModeAdapter mode;
+    protected String mode;
     protected DataFormat fileFormat;
     protected Record record;
 
@@ -56,7 +53,7 @@ public class PopupPanel extends JPanel {
     protected long start;
     protected long end;
 
-    public static PopupPanel create(GraphPane parent, ModeAdapter mode, DataFormat ff, Record rec){
+    public static PopupPanel create(GraphPane parent, String mode, DataFormat ff, Record rec){
 
         PopupPanel p = null;
         switch(ff){
@@ -64,12 +61,12 @@ public class PopupPanel extends JPanel {
                 p = new PointGenericPopup((GenericPointRecord) rec);
                 break;
             case INTERVAL_BAM:
-                if(!mode.getName().equals("SNP")){
+                if(!mode.equals("SNP")){
                     p = new IntervalBamPopup((BAMIntervalRecord)rec);
                 }
                 break;
             case INTERVAL_BED:
-                if(!mode.getName().equals("SQUISH")){
+                if(!mode.equals("SQUISH")){
                     p = new IntervalBedPopup((BEDIntervalRecord)rec);
                 }
                 break;
@@ -87,7 +84,7 @@ public class PopupPanel extends JPanel {
         return p;
     }
 
-    protected void init(GraphPane parent, ModeAdapter mode, DataFormat ff, Record rec){
+    protected void init(GraphPane parent, String mode, DataFormat ff, Record rec){
 
         this.fileFormat = ff;
         this.mode = mode;

@@ -21,6 +21,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Polygon;
 import java.awt.geom.Point2D;
+import java.util.ArrayList;
 import java.util.List;
 
 import savant.data.types.PointRecord;
@@ -40,6 +41,8 @@ import savant.view.swing.TrackRenderer;
  * @author mfiume
  */
 public class PointTrackRenderer extends TrackRenderer {
+
+    public static final String STANDARD_MODE = "Standard";
 
     public PointTrackRenderer() {
         super(DataFormat.POINT_GENERIC);
@@ -113,5 +116,17 @@ public class PointTrackRenderer extends TrackRenderer {
     @Override
     public Range getDefaultYRange() {
         return new Range(0,1);
+    }
+
+    @Override
+    public List<String> getRenderingModes() {
+        List<String> modes = new ArrayList<String>();
+        modes.add(STANDARD_MODE);
+        return modes;
+    }
+
+    @Override
+    public String getDefaultRenderingMode() {
+        return STANDARD_MODE;
     }
 }

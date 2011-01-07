@@ -25,7 +25,6 @@ import javax.swing.JPanel;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import savant.api.adapter.ModeAdapter;
 import savant.api.adapter.RangeAdapter;
 import savant.api.adapter.TrackAdapter;
 import savant.controller.SelectionController;
@@ -40,7 +39,6 @@ import savant.exception.SavantTrackCreationCancelledException;
 import savant.file.DataFormat;
 import savant.util.ColorScheme;
 import savant.util.MiscUtils;
-import savant.util.Mode;
 import savant.util.Range;
 import savant.util.Resolution;
 import savant.view.swing.sequence.SequenceTrack;
@@ -60,8 +58,8 @@ public abstract class Track implements TrackAdapter {
     private final String name;
     private ColorScheme colorScheme;
     private List<Record> dataInRange;
-    private List<ModeAdapter> drawModes;
-    private ModeAdapter drawMode;
+    private List<String> drawModes;
+    private String drawMode;
     protected final TrackRenderer renderer;
     private final DataSource dataSource;
     private ColorSchemeDialog colorDialog = new ColorSchemeDialog();
@@ -101,7 +99,7 @@ public abstract class Track implements TrackAdapter {
      */
     protected Track(DataSource dataSource, TrackRenderer renderer) throws SavantTrackCreationCancelledException {
 
-        drawModes = new ArrayList<ModeAdapter>();
+        drawModes = new ArrayList<String>();
 
         this.dataSource = dataSource;
         this.renderer = renderer;
@@ -189,7 +187,7 @@ public abstract class Track implements TrackAdapter {
      * @return draw mode as Mode
      */
     @Override
-    public ModeAdapter getDrawMode() {
+    public String getDrawMode() {
         return drawMode;
     }
 
@@ -199,7 +197,7 @@ public abstract class Track implements TrackAdapter {
      * @return List of draw Modes
      */
     @Override
-    public List<ModeAdapter> getDrawModes() {
+    public List<String> getDrawModes() {
         return drawModes;
     }
 
@@ -229,7 +227,7 @@ public abstract class Track implements TrackAdapter {
      * @param mode
      */
     @Override
-    public void setDrawMode(ModeAdapter mode) {
+    public void setDrawMode(String mode) {
         drawMode = mode;
     }
 
@@ -237,23 +235,24 @@ public abstract class Track implements TrackAdapter {
      * Set the current draw mode by its name
      *
      * @param modename
-     */
+     *
     @Override
     public void setDrawMode(String modename) {
-        for (ModeAdapter m : drawModes) {
+        for (String m : drawModes) {
             if (m.getName().equals(modename)) {
                 setDrawMode(m);
                 break;
             }
         }
     }
+     */
 
     /**
      * Set the list of valid draw modes
      *
      * @param modes
      */
-    public final void setDrawModes(List<ModeAdapter> modes) {
+    public final void setDrawModes(List<String> modes) {
         this.drawModes = modes;
     }
 
@@ -457,17 +456,6 @@ public abstract class Track implements TrackAdapter {
      */
     protected List<Record> retrieveData(String reference, RangeAdapter range, Resolution resolution) throws IOException {
         return getDataSource().getRecords(reference, range, resolution);
-    }
-
-
-    /**
-     * Get the default draw mode.
-     *
-     * @return  the default draw mode
-     */
-    @Override
-    public Mode getDefaultDrawMode() {
-        return null;
     }
 
     @Override

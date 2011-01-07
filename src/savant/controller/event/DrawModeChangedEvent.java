@@ -21,7 +21,6 @@
 
 package savant.controller.event;
 
-import savant.util.Mode;
 import savant.view.swing.Track;
 
 /**
@@ -32,9 +31,9 @@ import savant.view.swing.Track;
 public class DrawModeChangedEvent {
 
     private Track track;
-    private Mode mode;
+    private String mode;
 
-    public DrawModeChangedEvent(Track track, Mode mode) {
+    public DrawModeChangedEvent(Track track, String mode) {
         this.track = track;
         this.mode = mode;
 
@@ -44,7 +43,7 @@ public class DrawModeChangedEvent {
         return track;
     }
 
-    public Mode getMode() {
+    public String getMode() {
         return mode;
     }
 }

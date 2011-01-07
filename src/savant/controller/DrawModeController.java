@@ -25,12 +25,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import savant.controller.event.DrawModeChangedEvent;
 import savant.controller.event.DrawModeChangedListener;
-import savant.util.Mode;
 import savant.view.swing.Track;
 
 import java.util.ArrayList;
 import java.util.List;
-import savant.api.adapter.ModeAdapter;
 
 /**
  * Controller to manage switching view track draw modes and alerting listeners.
@@ -60,12 +58,10 @@ public class DrawModeController {
         listeners.remove(listener);
     }
 
-    public void switchMode(Track track, ModeAdapter mode) {
+    public void switchMode(Track track, String mode) {
         track.setDrawMode(mode);
-        if (mode instanceof Mode) {
-            DrawModeChangedEvent evt = new DrawModeChangedEvent(track, (Mode) mode);
-            track.getFrame().drawModeChanged(evt);
-        }
+        DrawModeChangedEvent evt = new DrawModeChangedEvent(track, (String) mode);
+        track.getFrame().drawModeChanged(evt);
     }
     
     private synchronized void fireDrawModeChangedEvent(DrawModeChangedEvent evt) {

@@ -20,13 +20,8 @@
 
 package savant.view.swing.interval;
 
-import java.io.IOException;
-import java.util.List;
-
-import savant.api.adapter.ModeAdapter;
 import savant.api.adapter.RangeAdapter;
 import savant.data.sources.DataSource;
-import savant.data.types.Record;
 import savant.exception.SavantTrackCreationCancelledException;
 import savant.settings.ColourSettings;
 import savant.util.*;
@@ -89,7 +84,7 @@ public class BAMCoverageTrack extends Track {
         return getResolution(range, getDrawMode());
     }
 
-    public Resolution getResolution(RangeAdapter range, ModeAdapter mode)
+    public Resolution getResolution(RangeAdapter range, String mode)
     {
         return getDefaultModeResolution(range);
     }

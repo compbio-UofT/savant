@@ -2034,7 +2034,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         zoomIn.addMouseListener(new MouseAdapter() {
 
             @Override
-            public void mouseClicked(MouseEvent e) {
+                   public void mouseClicked(MouseEvent e) {
                 rangeController.zoomIn();
             }
         });

@@ -35,7 +35,6 @@ import javax.swing.event.MenuListener;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import savant.api.adapter.ModeAdapter;
 import savant.controller.ReferenceController;
 import savant.controller.DrawModeController;
 import savant.controller.RangeController;
@@ -47,6 +46,7 @@ import savant.settings.ColourSettings;
 import savant.util.Range;
 import savant.view.swing.interval.BAMCoverageTrack;
 import savant.view.swing.interval.BAMTrack;
+import savant.view.swing.interval.BAMTrackRenderer;
 
 /**
  *
@@ -178,7 +178,7 @@ public class Frame implements DataRetrievalListener {
             intervalButton = createIntervalButton();
             commandBar.add(intervalButton);
             intervalButton.setVisible(false);
-            String drawMode = getTracks().get(0).getDrawMode().getName();
+            String drawMode = getTracks().get(0).getDrawMode();
             if(drawMode.equals("STANDARD") || drawMode.equals("VARIANTS")){
                 intervalButton.setVisible(true);
             }
@@ -298,7 +298,7 @@ public class Frame implements DataRetrievalListener {
 
     public void resetLayers(){
         Frame f = this;
-        if(f.getTracks().get(0).getDrawModes().size() > 0 && f.getTracks().get(0).getDrawMode().getName().equals("Read pair")){
+        if(f.getTracks().get(0).getDrawModes().size() > 0 && f.getTracks().get(0).getDrawMode().equals(BAMTrackRenderer.MATE_PAIRS_MODE)){
             f.arcLegend.setVisible(true);
         } else {
             f.arcLegend.setVisible(false);
@@ -524,17 +524,17 @@ public class Frame implements DataRetrievalListener {
         }*/
 
         //display modes
-        List<ModeAdapter> drawModes = this.tracks.get(0).getDrawModes();
+        List<String> drawModes = this.tracks.get(0).getDrawModes();
         visItems = new ArrayList<JCheckBoxMenuItem>();
         for(int i = 0; i < drawModes.size(); i++){
-            final JCheckBoxMenuItem item = new JCheckBoxMenuItem(drawModes.get(i).getName());
+            final JCheckBoxMenuItem item = new JCheckBoxMenuItem(drawModes.get(i));
             item.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     if(item.getState()){
                         for(int j = 0; j < visItems.size(); j++){
                             visItems.get(j).setState(false);
-                            if(item.getText().equals(tracks.get(0).getDrawModes().get(j).getName())){
+                            if(item.getText().equals(tracks.get(0).getDrawModes().get(j))){
                                 DrawModeController.getInstance().switchMode(tracks.get(0), tracks.get(0).getDrawModes().get(j));
                             }
                         }
@@ -607,13 +607,13 @@ public class Frame implements DataRetrievalListener {
 //        if (getTracks().contains(track)) {
         boolean reRender = true;
         if (track.getDataSource().getDataFormat() == DataFormat.INTERVAL_BAM) {
-            if (evt.getMode().getName().equals("Read pair")) {
+            if (evt.getMode().equals(BAMTrackRenderer.MATE_PAIRS_MODE)) {
                 reRender = true;
                 setCoverageEnabled(false);
                 this.arcButton.setVisible(true);
                 this.intervalButton.setVisible(false);
             }else {
-                if(evt.getMode().getName().equals("STANDARD") || evt.getMode().getName().equals("VARIANTS")){
+                if(evt.getMode().equals(BAMTrackRenderer.STANDARD_MODE) || evt.getMode().equals(BAMTrackRenderer.MISMATCH_MODE)){
                     this.intervalButton.setVisible(true);
                 } else {
                     this.intervalButton.setVisible(false);

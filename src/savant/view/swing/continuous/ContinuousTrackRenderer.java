@@ -53,6 +53,8 @@ import savant.view.swing.TrackRenderer;
  */
 public class ContinuousTrackRenderer extends TrackRenderer {
 
+    public static final String STANDARD_MODE = "Standard";
+
     public ContinuousTrackRenderer() {
         super(DataFormat.CONTINUOUS_GENERIC);
     }
@@ -162,6 +164,18 @@ public class ContinuousTrackRenderer extends TrackRenderer {
         Double y = gp.transformYPos(rec.getValue().getValue()) -4;// + (this.getUnitWidth()/2);
         Shape s = new Ellipse2D.Double(x, y, 8, 8);
         return s;
+    }
+
+    @Override
+    public List<String> getRenderingModes() {
+        List<String> modes = new ArrayList<String>();
+        modes.add(STANDARD_MODE);
+        return modes;
+    }
+
+    @Override
+    public String getDefaultRenderingMode() {
+        return STANDARD_MODE;
     }
 
 }

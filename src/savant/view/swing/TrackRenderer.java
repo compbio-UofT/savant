@@ -35,7 +35,6 @@ import savant.data.types.Record;
 import savant.exception.RenderingException;
 import savant.file.DataFormat;
 import savant.util.DrawingInstruction;
-import savant.util.Mode;
 import savant.util.Range;
 import savant.util.Resolution;
 
@@ -59,6 +58,10 @@ public abstract class TrackRenderer implements DataRetrievalListener {
     public void setTrackName(String name) {
         trackName = name;
     }
+
+    public abstract List<String> getRenderingModes();
+    public abstract String getDefaultRenderingMode();
+
 
     /**
      * Renderers don't currently care about data retrieval starting.
@@ -185,8 +188,8 @@ public abstract class TrackRenderer implements DataRetrievalListener {
         
         //check for arcMode
         boolean isArc = false;
-        Mode instruction = (Mode)instructions.get(DrawingInstruction.MODE);
-        if (instruction != null && instruction.getName().equals("Read pair")){
+        String mode = (String)instructions.get(DrawingInstruction.MODE);
+        if (mode != null && mode.equals("Read pair")){
             isArc = true;
         }
         

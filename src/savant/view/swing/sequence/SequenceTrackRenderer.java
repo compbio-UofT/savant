@@ -22,6 +22,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.geom.Rectangle2D;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.List;
 
 import savant.data.types.Record;
@@ -41,6 +42,8 @@ import savant.view.swing.TrackRenderer;
  * @author mfiume
  */
 public class SequenceTrackRenderer extends TrackRenderer {
+
+    public static final String STANDARD_MODE = "Standard";
 
     private static final Font SMALL_FONT = new Font("Sans-Serif", Font.PLAIN, 12);
     private static final Font LARGE_FONT = new Font("Sans-Serif", Font.PLAIN, 36);
@@ -160,5 +163,17 @@ public class SequenceTrackRenderer extends TrackRenderer {
     @Override
     public Range getDefaultYRange() {
         return new Range(0,1);
+    }
+
+    @Override
+    public List<String> getRenderingModes() {
+        List<String> modes = new ArrayList<String>();
+        modes.add(STANDARD_MODE);
+        return modes;
+    }
+
+    @Override
+    public String getDefaultRenderingMode() {
+        return STANDARD_MODE;
     }
 }

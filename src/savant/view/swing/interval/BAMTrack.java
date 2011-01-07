@@ -20,14 +20,12 @@
 
 package savant.view.swing.interval;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import net.sf.samtools.SAMRecord;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import savant.api.adapter.ModeAdapter;
 import savant.api.adapter.RangeAdapter;
 import savant.controller.RangeController;
 import savant.data.sources.DataSource;
@@ -62,12 +60,15 @@ public class BAMTrack extends Track {
      * 
      */
 
+    /*
     private static final Mode STANDARD_MODE = Mode.fromObject("Standard", "Colour by strand");
     private static final Mode VARIANTS_MODE = Mode.fromObject("Mismatch", "Show indels and mismatches");
     private static final Mode MATE_PAIRS_MODE = Mode.fromObject("Read pair", "Join mate pairs with arcs");
     private static final Mode MAPPING_QUALITY_MODE = Mode.fromObject("Mapping quality", "Shade alignments by mapping quality");
     private static final Mode BASE_QUALITY_MODE = Mode.fromObject("Base quality", "Shade read positions by base quality");
     private static final Mode SNP_MODE = Mode.fromObject("SNP", "Show values per position");
+     * 
+     */
 
     // if > 1, treat as absolute size below which an arc will not be drawn
     // if 0 < 1, treat as percentage of y range below which an arc will not be drawn
@@ -86,8 +87,8 @@ public class BAMTrack extends Track {
     public BAMTrack(DataSource dataSource) throws SavantTrackCreationCancelledException {
         super(dataSource, new BAMTrackRenderer());
         setColorScheme(getDefaultColorScheme());
-        setDrawModes(getDefaultDrawModes());
-        setDrawMode(VARIANTS_MODE);
+        setDrawModes(this.renderer.getRenderingModes());
+        setDrawMode(this.renderer.getDefaultRenderingMode());
         this.notifyControllerOfCreation();
     }
 
@@ -110,27 +111,15 @@ public class BAMTrack extends Track {
         setColorScheme(getDefaultColorScheme());
     }
 
-    private List<ModeAdapter> getDefaultDrawModes()
-    {
-        List<ModeAdapter> modes = new ArrayList<ModeAdapter>();
-        modes.add(STANDARD_MODE);
-        modes.add(VARIANTS_MODE);
-        modes.add(MATE_PAIRS_MODE);
-        modes.add(MAPPING_QUALITY_MODE);
-        modes.add(BASE_QUALITY_MODE);
-        modes.add(SNP_MODE);
-        return modes;
-    }
-
     @Override
     public void prepareForRendering(String reference, Range range) {
 
         Resolution r = getResolution(range);
         String errorMessage = null;
-        if (r == Resolution.VERY_HIGH || r == Resolution.HIGH || (getDrawMode().equals(MATE_PAIRS_MODE) && r == Resolution.MEDIUM)) {
+        if (r == Resolution.VERY_HIGH || r == Resolution.HIGH || (getDrawMode().equals(BAMTrackRenderer.MATE_PAIRS_MODE) && r == Resolution.MEDIUM)) {
             renderer.addInstruction(DrawingInstruction.PROGRESS, "Loading BAM track...");
             requestData(reference, range);
-        } else if (getDrawMode().equals(MATE_PAIRS_MODE)){
+        } else if (getDrawMode().equals(BAMTrackRenderer.MATE_PAIRS_MODE)){
             errorMessage = "Zoom in to see data";
         } else {
             errorMessage = "No coverage file available";
@@ -143,13 +132,13 @@ public class BAMTrack extends Track {
         renderer.addInstruction(DrawingInstruction.REFERENCE_EXISTS, containsReference(reference));
 
         if (errorMessage == null) {
-        if (getDrawMode().getName().equals("Read pair") && errorMessage == null) {
-            renderer.addInstruction(DrawingInstruction.ARC_MIN, getArcSizeVisibilityThreshold());
-            renderer.addInstruction(DrawingInstruction.DISCORDANT_MIN, getDiscordantMin());
-            renderer.addInstruction(DrawingInstruction.DISCORDANT_MAX, getDiscordantMax());
-        } else {
-            renderer.addInstruction(DrawingInstruction.AXIS_RANGE, AxisRange.initWithRanges(range, getDefaultYRange()));
-        }
+            if (getDrawMode().equals(BAMTrackRenderer.MATE_PAIRS_MODE) && errorMessage == null) {
+                renderer.addInstruction(DrawingInstruction.ARC_MIN, getArcSizeVisibilityThreshold());
+                renderer.addInstruction(DrawingInstruction.DISCORDANT_MIN, getDiscordantMin());
+                renderer.addInstruction(DrawingInstruction.DISCORDANT_MAX, getDiscordantMax());
+            } else {
+                renderer.addInstruction(DrawingInstruction.AXIS_RANGE, AxisRange.initWithRanges(range, getDefaultYRange()));
+            }
         }
         renderer.addInstruction(DrawingInstruction.SELECTION_ALLOWED, true);
         renderer.addInstruction(DrawingInstruction.MODE, getDrawMode());
@@ -195,7 +184,7 @@ public class BAMTrack extends Track {
         return getResolution(range, getDrawMode());
     }
 
-    private Resolution getResolution(RangeAdapter range, ModeAdapter mode)
+    private Resolution getResolution(RangeAdapter range, String mode)
     {
         return getDefaultModeResolution(range);       
     }
@@ -210,11 +199,6 @@ public class BAMTrack extends Track {
         else if (length < 10000000) { return Resolution.LOW; }
         else if (length >= 10000000) { return Resolution.VERY_LOW; }
         else { return Resolution.VERY_HIGH; }
-    }
-
-    @Override
-    public Mode getDefaultDrawMode() {
-        return VARIANTS_MODE;
     }
 
     public double getArcSizeVisibilityThreshold() {

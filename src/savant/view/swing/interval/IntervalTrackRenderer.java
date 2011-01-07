@@ -41,14 +41,18 @@ import savant.view.swing.TrackRenderer;
  */
 public class IntervalTrackRenderer extends TrackRenderer {
 
+    public static final String SQUISH_MODE = "Squish";
+    public static final String PACK_MODE = "Pack";
+    public static final String ARC_MODE = "Arc";
+
     public IntervalTrackRenderer() {
         super(DataFormat.INTERVAL_GENERIC);
     }
 
     @Override
     public void dataRetrievalCompleted(DataRetrievalEvent evt) {
-        Mode mode = (Mode)instructions.get(DrawingInstruction.MODE);
-        if (mode.getName().equals("ARC")) {
+        String mode = (String)instructions.get(DrawingInstruction.MODE);
+        if (mode.equals(ARC_MODE)) {
             int maxDataValue = IntervalTrack.getMaxValue(data);
             Range range = (Range)instructions.get(DrawingInstruction.RANGE);
             addInstruction(DrawingInstruction.AXIS_RANGE, AxisRange.initWithRanges(range, new Range(0,(int)Math.round(Math.log(maxDataValue)))));
@@ -68,16 +72,16 @@ public class IntervalTrackRenderer extends TrackRenderer {
             throw new RenderingException("No data for reference");
         }
 
-        Mode drawMode = (Mode)instructions.get(DrawingInstruction.MODE);
+        String drawMode = (String)instructions.get(DrawingInstruction.MODE);
         Resolution r = (Resolution)instructions.get(DrawingInstruction.RESOLUTION);
 
-        if (drawMode.getName().equals("SQUISH")) {
+        if (drawMode.equals(SQUISH_MODE)) {
             renderSquishMode(g2, gp, r);
         }
-        else if (drawMode.getName().equals("ARC")) {
+        else if (drawMode.equals(this.ARC_MODE)) {
             renderArcMode(g2, gp, r);
         }
-        else if (drawMode.getName().equals("PACK")) {
+        else if (drawMode.equals(this.PACK_MODE)) {
             renderPackMode(g2, gp, r);
         }
     }
@@ -236,7 +240,21 @@ public class IntervalTrackRenderer extends TrackRenderer {
 
     @Override
     public boolean hasHorizontalGrid() {
-        Mode drawMode = (Mode)instructions.get(DrawingInstruction.MODE);
-        return drawMode.getName().equals("ARC");
+        String drawMode = (String)instructions.get(DrawingInstruction.MODE);
+        return drawMode.equals(this.ARC_MODE);
+    }
+
+    @Override
+    public List<String> getRenderingModes() {
+        List<String> modes = new ArrayList<String>();
+        modes.add(PACK_MODE);
+        modes.add(SQUISH_MODE);
+        modes.add(ARC_MODE);
+        return modes;
+    }
+
+    @Override
+    public String getDefaultRenderingMode() {
+        return PACK_MODE;
     }
 }
