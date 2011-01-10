@@ -26,13 +26,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import javax.swing.*;
-import javax.swing.event.MenuEvent;
-import javax.swing.event.MenuListener;
 
 import com.jidesoft.action.CommandBar;
 import com.jidesoft.docking.DockableFrame;
 import com.jidesoft.swing.JideButton;
 import com.jidesoft.swing.JideMenu;
+import java.awt.event.MouseListener;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -481,12 +480,15 @@ public class Frame extends DockableFrame implements DataRetrievalListener {
     private JMenu createArcButton() {
         JMenu button = new JMenu("Arc Options");
         button.setToolTipText("Change mate pair parameters");
-        button.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
+        button.addMouseListener(new MouseListener() {
+            public void mouseClicked(MouseEvent e) {
                 final BAMTrack innerTrack = (BAMTrack)tracks.get(0);
                 graphPane.getBAMParams(innerTrack);
             }
+            public void mousePressed(MouseEvent e) {}
+            public void mouseReleased(MouseEvent e) {}
+            public void mouseEntered(MouseEvent e) {}
+            public void mouseExited(MouseEvent e) {}
         });
         button.setFocusPainted(false);
         return button;
@@ -498,16 +500,14 @@ public class Frame extends DockableFrame implements DataRetrievalListener {
     private JMenu createIntervalButton() {
         JMenu button = new JMenu("Interval Options");
         button.setToolTipText("Change interval display parameters");
-        button.addMenuListener(new MenuListener() {
-            @Override
-            public void menuSelected(MenuEvent e) {
+        button.addMouseListener(new MouseListener() {
+            public void mouseClicked(MouseEvent e) {
                 tracks.get(0).captureIntervalParameters();
-                ((JMenu)e.getSource()).setSelected(false);
             }
-            @Override
-            public void menuDeselected(MenuEvent e) {}
-            @Override
-            public void menuCanceled(MenuEvent e) {}
+            public void mousePressed(MouseEvent e) {}
+            public void mouseReleased(MouseEvent e) {}
+            public void mouseEntered(MouseEvent e) {}
+            public void mouseExited(MouseEvent e) {}
         });
         button.setFocusPainted(false);
         return button;
@@ -517,23 +517,8 @@ public class Frame extends DockableFrame implements DataRetrievalListener {
      * Create display menu for commandBar
      */
     private JMenu createDisplayMenu() {
-        JMenu menu = new JMenu("Display Mode");//new JideMenu("Display Mode");
-
-        //Arc params (if bam file)
-        /*if(this.tracks.get(0).getDataType() == FileFormat.INTERVAL_BAM){
-            JMenuItem arcParam = new JMenuItem();
-            arcParam.setText("Change Arc Parameters...");
-            menu.add(arcParam);
-            arcParam.addActionListener(new AbstractAction() {
-                public void actionPerformed(ActionEvent e) {
-                    final BAMTrack innerTrack = (BAMTrack)tracks.get(0);
-                    graphPane.getBAMParams(innerTrack);
-                }
-            });
-            JSeparator jSeparator1 = new JSeparator();
-            menu.add(jSeparator1);
-        }*/
-
+        JMenu menu = new JMenu("Display Mode");
+        
         //display modes
         List<String> drawModes = this.tracks.get(0).getDrawModes();
         visItems = new ArrayList<JCheckBoxMenuItem>();
