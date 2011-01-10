@@ -16,16 +16,7 @@
 
 package savant.view.tools;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.FileDialog;
-import java.awt.Font;
-import java.awt.GridLayout;
-import java.awt.Insets;
-import java.awt.Toolkit;
+import java.awt.*;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
@@ -475,7 +466,7 @@ public class ToolsModule implements BookmarksChangedListener, RangeChangeComplet
     public static void saveTextToFile(String text) {
         JFrame jf = new JFrame();
         String selectedFileName;
-        if (Savant.mac) {
+        if (MiscUtils.MAC) {
             FileDialog fd = new FileDialog(jf, "Export Data", FileDialog.SAVE);
             fd.setVisible(true);
             jf.setAlwaysOnTop(true);

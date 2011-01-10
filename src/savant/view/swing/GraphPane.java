@@ -195,6 +195,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
     }
 
     public Dimension render(Graphics g, Range xRange, Range yRange) {
+        LOG.trace("GraphPane.render(" + xRange + "), clipBounds=" + g.getClipBounds());
         double oldUnitHeight = unitHeight;
         long oldYMax = yMax;
 
@@ -254,7 +255,6 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         yMin = minYRange;
         yMax = maxYRange;
 
-        Graphics2D g3;
         String currentMode = this.parentFrame.getTracks().get(0).getDrawMode();
         //BufferedImage bf1;
 
@@ -278,11 +278,12 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
 
         //if nothing has changed draw buffered image
         if(sameRange && sameMode && sameSize && sameRef && !renderRequired && withinScrollBounds){
-            g.drawImage(bufferedImage, 0, this.getOffset(), this);
+            LOG.trace("Blitting " + bufferedImage.getWidth() + "x" + bufferedImage.getHeight() + " bufferedImage at (0, " + getOffset() + ")");
+            g.drawImage(bufferedImage, 0, getOffset(), this);
             
             if(this.currentOverShape != null){
                 //temporarily shift the origin
-                ((Graphics2D)g).translate(0, this.getOffset());
+                ((Graphics2D)g).translate(0, getOffset());
                 if(currentMode != null && currentMode.equals(BAMTrackRenderer.MATE_PAIRS_MODE)){
                     g.setColor(Color.red);
                     ((Graphics2D)g).draw(currentOverShape);
@@ -306,30 +307,32 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
             unitHeight = oldUnitHeight;
             yMax = oldYMax;
 
-            this.parentFrame.commandBar.repaint();
+            parentFrame.commandBar.repaint();
 
             return this.getSize();
-        } else {
-            // Otherwise prepare for new render.
-            renderRequired = false;
-            this.bufferedImage = new BufferedImage(this.getWidth(), Math.min(this.getHeight(), this.parentFrame.scrollPane.getViewport().getHeight()*3), BufferedImage.TYPE_INT_RGB);
-            if(this.forcedHeight){
-                this.bufferedImage = new BufferedImage(this.getWidth(), this.getHeight(), BufferedImage.TYPE_INT_RGB);
-            }
-            if(this.bufferedImage.getHeight() == this.getHeight()){
-                setOffset(0);
-            } else {
-                setOffset(((JScrollPane)this.getParent().getParent().getParent()).getVerticalScrollBar().getValue() - this.parentFrame.scrollPane.getViewport().getHeight());
-            }
-            
-            g3 = this.bufferedImage.createGraphics();
-            g3.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                        RenderingHints.VALUE_ANTIALIAS_ON);
-            prevRange = RangeController.getInstance().getRange();
-            prevSize = this.getSize();
-            prevDrawMode = this.parentFrame.getTracks().get(0).getDrawMode();
-            prevRef = ReferenceController.getInstance().getReferenceName();
         }
+
+        // Otherwise prepare for new render.
+        renderRequired = false;
+
+        int h = getHeight();
+        if (!forcedHeight) {
+            h = Math.min(h, parentFrame.scrollPane.getViewport().getHeight() * 3);
+        }
+        bufferedImage = new BufferedImage(getWidth(), h, BufferedImage.TYPE_INT_RGB);
+        if (bufferedImage.getHeight() == getHeight()){
+            setOffset(0);
+        } else {
+            setOffset(((JScrollPane)getParent().getParent().getParent()).getVerticalScrollBar().getValue() - parentFrame.scrollPane.getViewport().getHeight());
+        }
+        LOG.trace("Rendering fresh " + bufferedImage.getWidth() + "x" + bufferedImage.getHeight() + " bufferedImage at (0, " + getOffset() + ")");
+
+        Graphics2D g3 = bufferedImage.createGraphics();
+        g3.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        prevRange = RangeController.getInstance().getRange();
+        prevSize = this.getSize();
+        prevDrawMode = this.parentFrame.getTracks().get(0).getDrawMode();
+        prevRef = ReferenceController.getInstance().getReferenceName();
 
         renderBackground(g3);
 
@@ -359,8 +362,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         renderSides(g3);
 
         //if a change has occured that affects scrollbar...
-        if(this.paneResize){
-
+        if (paneResize) {
             paneResize = false;
 
             //get old scroll position
@@ -381,16 +383,15 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
 
             return new Dimension(frame.getFrameLandscape().getWidth(), newHeight);
 
-        } else {
-
-            if(newScroll != -1){
-                ((JScrollPane)this.getParent().getParent().getParent()).getVerticalScrollBar().setValue(newScroll);
-                newScroll = -1;
-            }
         }
 
-        oldWidth = this.getParentFrame().getFrameLandscape().getWidth();
-        oldHeight = this.getParentFrame().getFrameLandscape().getHeight();
+        if(newScroll != -1){
+            ((JScrollPane)this.getParent().getParent().getParent()).getVerticalScrollBar().setValue(newScroll);
+            newScroll = -1;
+        }
+
+        oldWidth = getParentFrame().getFrameLandscape().getWidth();
+        oldHeight = getParentFrame().getFrameLandscape().getHeight();
 
         /*
         // Get elapsed time in milliseconds
@@ -402,13 +403,11 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         System.out.println("\tRendering of " + tracks.get(0).getName() + " took " + elapsedTimeSec + " seconds");
          */
 
-        //bufferedImage = bf1;
-        g.drawImage(bufferedImage, 0, this.getOffset(), this);
+        g.drawImage(bufferedImage, 0, getOffset(), this);
         renderCurrentSelected(g);
-        //drawMaxYPlotValue(g3);
-        this.parentFrame.commandBar.repaint();
+        parentFrame.commandBar.repaint();
 
-        return this.getSize();
+        return getSize();
 
     }
 
@@ -452,6 +451,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
      */
     public void setRenderRequired(){
         this.renderRequired = true;
+
     }
 
     /**

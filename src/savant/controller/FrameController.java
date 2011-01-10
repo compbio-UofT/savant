@@ -19,6 +19,7 @@
 
 package savant.controller;
 
+import java.beans.PropertyVetoException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -159,8 +160,11 @@ public class FrameController {
 
     public void hideFrame(Frame frame) {
         JComponent jc = this.graphpane2dockable.get(frame.getGraphPane());
-        frame.setHidden(true);
-        fireFrameHiddenEvent(frame);
+        try {
+            frame.setHidden(true);
+            fireFrameHiddenEvent(frame);
+        } catch (PropertyVetoException ignored) {
+        }
     }
 
     public void hideFrame(GraphPane graphpane) {
@@ -169,8 +173,11 @@ public class FrameController {
 
     public void showFrame(Frame frame) {
         JComponent jc = this.graphpane2dockable.get(frame.getGraphPane());
-        frame.setHidden(false);
-        fireFrameShownEvent(frame);
+        try {
+            frame.setHidden(false);
+            fireFrameShownEvent(frame);
+        } catch (PropertyVetoException ignored) {
+        }
     }
 
     public void showFrame(GraphPane graphpane) {

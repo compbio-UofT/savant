@@ -1,6 +1,17 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ *    Copyright 2010-2011 University of Toronto
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
  */
 
 package savant.api.util;
@@ -9,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -52,9 +64,7 @@ public class TrackUtils {
      * @param track The track to add
      */
     public static void addTrack(TrackAdapter track) {
-        List<TrackAdapter> tracks = new ArrayList<TrackAdapter>();
-        tracks.add(track);
-        addTracks(tracks);
+        addTracks(Arrays.asList(new TrackAdapter[] { track }));
     }
 
     /**
@@ -66,7 +76,7 @@ public class TrackUtils {
         for (TrackAdapter t : tracks) {
             myTracks.add((Track)t);
         }
-        Savant.getInstance().createFrameForTracks(myTracks);
+        Savant.getInstance().createFrameForExistingTracks(myTracks);
     }
 
     /**
@@ -75,9 +85,9 @@ public class TrackUtils {
      * @return A list of tracks based on the path (some paths, e.g. to BAM files, can create multiple tracks)
      * @throws IOException Exception opening the track at path
      */
-    public static List<TrackAdapter> createTrack(URI uri) throws IOException, SavantTrackCreationCancelledException {
+    public static List<TrackAdapter> createTrack(URI uri) throws SavantTrackCreationCancelledException {
         List<TrackAdapter> r = new ArrayList<TrackAdapter>();
-        for (Track t : TrackFactory.createTrack(uri)) {
+        for (Track t : TrackFactory.createTrackSync(uri)) {
             r.add((TrackAdapter) t);
         }
         return r;
@@ -89,9 +99,9 @@ public class TrackUtils {
      * @return A list of tracks based on the path (some paths, e.g. to BAM files, can create multiple tracks)
      * @throws IOException Exception opening the track at path
      */
-    public static List<TrackAdapter> createTrack(File file) throws IOException, SavantTrackCreationCancelledException {
+    public static List<TrackAdapter> createTrack(File file) throws SavantTrackCreationCancelledException {
         List<TrackAdapter> r = new ArrayList<TrackAdapter>();
-        for (Track t : TrackFactory.createTrack(file.toURI())) {
+        for (Track t : TrackFactory.createTrackSync(file.toURI())) {
             r.add((TrackAdapter) t);
         }
         return r;

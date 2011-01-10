@@ -23,15 +23,16 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import javax.swing.*;
+import javax.swing.event.MenuEvent;
+import javax.swing.event.MenuListener;
 
 import com.jidesoft.action.CommandBar;
 import com.jidesoft.docking.DockableFrame;
 import com.jidesoft.swing.JideButton;
 import com.jidesoft.swing.JideMenu;
-import javax.swing.event.MenuEvent;
-import javax.swing.event.MenuListener;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -44,6 +45,7 @@ import savant.data.event.DataRetrievalListener;
 import savant.file.DataFormat;
 import savant.settings.ColourSettings;
 import savant.util.Range;
+import savant.view.icon.SavantIconFactory;
 import savant.view.swing.interval.BAMCoverageTrack;
 import savant.view.swing.interval.BAMTrack;
 import savant.view.swing.interval.BAMTrackRenderer;
@@ -52,7 +54,7 @@ import savant.view.swing.interval.BAMTrackRenderer;
  *
  * @author mfiume
  */
-public class Frame implements DataRetrievalListener {
+public class Frame extends DockableFrame implements DataRetrievalListener {
     private static final Log LOG = LogFactory.getLog(Frame.class);
 
     private boolean isHidden = false;
@@ -72,14 +74,11 @@ public class Frame implements DataRetrievalListener {
     private JMenu intervalButton;
 
     private boolean commandBarActive = true;
-    private DockableFrame parent;
-    private String name;
 
     public JScrollPane scrollPane;
 
-    public Frame(List<Track> tracks, String name) {
-
-        this.name = name;
+    public Frame() {
+        super(SavantIconFactory.getInstance().getIcon(SavantIconFactory.StandardIcon.TRACK));
 
         //INIT LEGEND PANEL
         arcLegend = new JPanel();
@@ -129,20 +128,6 @@ public class Frame implements DataRetrievalListener {
         //scrollPane.getViewport().add(this.graphPane);
         scrollPane.getViewport().add(jlp);
 
-
-
-        if (!tracks.isEmpty()) {
-            for (Track t: tracks) {
-                this.tracks.add(t);
-
-                graphPane.addTrack(t);
-
-                //CREATE LEGEND PANEL
-                if (t.getDataSource().getDataFormat() == DataFormat.INTERVAL_BAM){
-                    arcLegend = t.getRenderer().arcLegendPaint();
-                }
-            }
-        }
         //frameLandscape.setLayout(new BorderLayout());
         //frameLandscape.add(getGraphPane());
 
@@ -166,31 +151,6 @@ public class Frame implements DataRetrievalListener {
         //commandBar.add(lockButton);
         //commandBar.add(colorButton);
         commandBar.add(optionsMenu);
-        if(this.tracks.get(0).getDrawModes().size() > 0){
-            JMenu displayMenu = createDisplayMenu();
-            commandBar.add(displayMenu);
-        }
-         if (this.tracks.get(0).getDataSource().getDataFormat() == DataFormat.INTERVAL_BAM) {
-            arcButton = createArcButton();
-            commandBar.add(arcButton);
-            arcButton.setVisible(false);
-
-            intervalButton = createIntervalButton();
-            commandBar.add(intervalButton);
-            intervalButton.setVisible(false);
-            String drawMode = getTracks().get(0).getDrawMode();
-            if(drawMode.equals("STANDARD") || drawMode.equals("VARIANTS")){
-                intervalButton.setVisible(true);
-            }
-
-            //intervalMenu = createIntervalMenu();
-            //commandBar.add(intervalMenu);
-            //intervalMenu.setVisible(false);
-            //String drawMode = this.getTracks().get(0).getDrawMode().getName();
-            //if(drawMode.equals("STANDARD") || drawMode.equals("VARIANTS")){
-            //    intervalMenu.setVisible(true);
-            //}
-        }
         commandBar.add(new JSeparator(SwingConstants.VERTICAL));
         commandBar.add(hideButton);
         commandBar.setVisible(false);
@@ -272,23 +232,84 @@ public class Frame implements DataRetrievalListener {
         frameLandscape.add(scrollPane, c, 0);
 
         frameLandscape.setLayer(commandBar, (Integer) JLayeredPane.PALETTE_LAYER);
-        //frameLandscape.setLayer(getGraphPane(), (Integer) JLayeredPane.DEFAULT_LAYER);
         frameLandscape.setLayer(scrollPane, (Integer) JLayeredPane.DEFAULT_LAYER);
     }
 
-    public boolean isHidden() { return this.isHidden; }
-    public void setHidden(boolean isHidden) { this.isHidden = isHidden; }
+    public JLayeredPane getFrameLandscape() {
+        return frameLandscape;
+    }
 
-    public GraphPane getGraphPane() { return this.graphPane; }
-    public JComponent getFrameLandscape() { return this.frameLandscape; }
-    public final List<Track> getTracks() { return this.tracks; }
+    public GraphPane getGraphPane() {
+        return graphPane;
+    }
+
+    public final List<Track> getTracks() {
+        return tracks;
+    }
+
+    /**
+     * Set the tracks associated with this frame.  Normally, this should only be done
+     * once, since the Frame also uses this opportunity to set up some GUI elements
+     * which depend on the presence of loaded tracks.
+     *
+     * @param newTracks the tracks to be displayed in this frame
+     */
+    public void setTracks(List<Track> newTracks) {
+        for (Track t: newTracks) {
+            tracks.add(t);
+            t.setFrame(this);
+            graphPane.addTrack(t);
+
+            //CREATE LEGEND PANEL
+            if (t.getDataSource().getDataFormat() == DataFormat.INTERVAL_BAM) {
+                arcLegend = t.getRenderer().arcLegendPaint();
+            }
+        }
+
+        // We get the name and other properties from the zero'th track.
+        Track t0 = newTracks.get(0);
+        setName(t0.getName());
+        setKey(t0.getName());
+        if (t0.getDrawModes().size() > 0){
+            JMenu displayMenu = createDisplayMenu();
+            commandBar.add(displayMenu);
+        }
+
+        // TODO: Should we be doing BAM-specific stuff in this class?
+        if (t0.getDataSource().getDataFormat() == DataFormat.INTERVAL_BAM) {
+            arcButton = createArcButton();
+            commandBar.add(arcButton);
+            arcButton.setVisible(false);
+
+            intervalButton = createIntervalButton();
+            commandBar.add(intervalButton);
+            intervalButton.setVisible(false);
+            String drawMode = t0.getDrawMode();
+            if (drawMode.equals("STANDARD") || drawMode.equals("VARIANTS")){
+                intervalButton.setVisible(true);
+            }
+        }
+    }
+
+    /**
+     * Convenience method.  More often than not, we just want the frame to host a single track.
+     *
+     * @param newTrack the track to be used for this frame.
+     */
+    public void setTrack(Track newTrack) {
+        setTracks(Arrays.asList(new Track[] { newTrack }));
+    }
+
 
     public boolean isOpen() { return getGraphPane() != null; }
 
 
     public void setActiveFrame(){
-        if(commandBarActive) commandBar.setVisible(true);
-        else commandBarHidden.setVisible(true);
+        if (commandBarActive) {
+            commandBar.setVisible(true);
+        } else {
+            commandBarHidden.setVisible(true);
+        }
     }
 
     public void setInactiveFrame(){
@@ -297,32 +318,22 @@ public class Frame implements DataRetrievalListener {
     }
 
     public void resetLayers(){
-        Frame f = this;
-        if(f.getTracks().get(0).getDrawModes().size() > 0 && f.getTracks().get(0).getDrawMode().equals(BAMTrackRenderer.MATE_PAIRS_MODE)){
-            f.arcLegend.setVisible(true);
-        } else {
-            f.arcLegend.setVisible(false);
-        }
-
-        ((JLayeredPane) this.getFrameLandscape()).moveToBack(this.getGraphPane());
+        arcLegend.setVisible(tracks.get(0).getDrawModes().size() > 0 && tracks.get(0).getDrawMode().equals(BAMTrackRenderer.MATE_PAIRS_MODE));
+        // TODO: When this line is uncommented, it causes flicker in the GraphPane.  Do we need it?
+ //       frameLandscape.moveToBack(graphPane);
     }
 
     private void tempHideCommands(){
-        if(!parent.isActive())
-            return;
-        commandBar.setVisible(false);
-        commandBarHidden.setVisible(false);
+        if (isActive()) {
+            commandBar.setVisible(false);
+            commandBarHidden.setVisible(false);
+        }
     }
 
     public void tempShowCommands(){
-        if(!parent.isActive())
-            return;
-        if(commandBarActive){
-            commandBar.setVisible(true);
-            commandBarHidden.setVisible(false);
-        } else {
-            commandBarHidden.setVisible(true);
-            commandBar.setVisible(false);
+        if (isActive()) {
+            commandBar.setVisible(commandBarActive);
+            commandBarHidden.setVisible(!commandBarActive);
         }
     }
 
@@ -542,7 +553,7 @@ public class Frame implements DataRetrievalListener {
                     item.setState(true);
                 }
             });
-            if(drawModes.get(i) == this.tracks.get(0).getDrawMode()){
+            if(drawModes.get(i).equals(tracks.get(0).getDrawMode())) {
                 item.setState(true);
             }
             visItems.add(item);
@@ -673,31 +684,20 @@ public class Frame implements DataRetrievalListener {
         return bufferedImage;
     }
 
-    /**
-     * Give reference to DockableFrame container.
-     */
-    public void setDockableFrame(DockableFrame df){
-        this.parent = df;
-    }
-
-    public String getName(){
-        return name;
-    }
-
     @Override
     public void dataRetrievalStarted(DataRetrievalEvent evt) {
     }
 
     @Override
     public void dataRetrievalCompleted(DataRetrievalEvent evt) {
-        LOG.debug("Frame received dataRetrievalCompleted.  Forcing full render.");
+        LOG.trace("Frame received dataRetrievalCompleted.  Forcing full render.");
         graphPane.setRenderRequired();
         graphPane.repaint();
     }
 
     @Override
     public void dataRetrievalFailed(DataRetrievalEvent evt) {
-        LOG.debug("Frame received dataRetrievalFailed.  Forcing full render.");
+        LOG.trace("Frame received dataRetrievalFailed.  Forcing full render.");
         graphPane.setRenderRequired();
         graphPane.repaint();
     }

@@ -1,23 +1,33 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ *    Copyright 2010-2011 University of Toronto
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
  */
-
 package savant.view.swing;
 
-import java.util.ArrayList;
-import java.util.List;
-import savant.controller.FrameController;
-
-import javax.imageio.ImageIO;
-import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import javax.imageio.ImageIO;
+import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
+
+import savant.controller.FrameController;
 import savant.controller.RangeController;
-//import savant.util.DataFormatUtils;
+import savant.util.MiscUtils;
 
 /**
  *
@@ -27,22 +37,22 @@ public class ExportImage {
 
     public ExportImage(){
 
-        String[] tracks = Savant.getInstance().getSelectedTracks(true, "Select Tracks to Export");
-        if(tracks == null) return;
+        String[] trackNames = Savant.getInstance().getSelectedTracks(true, "Select Tracks to Export");
+        if(trackNames == null) return;
 
         List<Frame> frames = FrameController.getInstance().getFrames();
 
         List<BufferedImage> images = new ArrayList<BufferedImage>();
         int totalWidth = 0;
         int totalHeight = 45;
-        for(int j = 0; j <tracks.length; j++){
+        for(int j = 0; j <trackNames.length; j++){
             for(int i = 0; i <frames.size(); i++){
-                if(frames.get(i).getName().equals(tracks[j])){
+                if(frames.get(i).getName().equals(trackNames[j])){
                     BufferedImage im = frames.get(i).frameToImage();
                     images.add(im);
                     totalWidth = Math.max(totalWidth, im.getWidth());
                     totalHeight += im.getHeight();
-                    tracks[j] = null;
+                    trackNames[j] = null;
                     break;
                 }
             }
@@ -83,7 +93,7 @@ public class ExportImage {
         }
 
         //write message at bottom
-        toWrite = "Generated using the Savant Genome Browser - http://compbio.cs.toronto.edu/savant/";
+        toWrite = "Generated using the Savant Genome Browser - http://savantbrowser.com";
         g.setColor(Color.white);
         g.setFont(new Font(null, Font.BOLD, 10));
         g.drawString(toWrite, 2, outY+14);
@@ -96,7 +106,8 @@ public class ExportImage {
 
         JFrame jf = new JFrame();
         String selectedFileName;
-        if (Savant.mac) {
+        // TODO: Switch this to use DialogUtils.chooseFileForSave.
+        if (MiscUtils.MAC) {
             FileDialog fd = new FileDialog(jf, "Output File", FileDialog.SAVE);
             fd.setVisible(true);
             jf.setAlwaysOnTop(true);
@@ -105,8 +116,7 @@ public class ExportImage {
             if (selectedFileName != null) {
                 selectedFileName = fd.getDirectory() + selectedFileName;
             }
-        }
-        else {
+        } else {
             JFileChooser fd = new JFileChooser();
             fd.setDialogTitle("Output File");
             fd.setDialogType(JFileChooser.SAVE_DIALOG);

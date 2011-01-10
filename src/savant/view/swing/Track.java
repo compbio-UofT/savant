@@ -1,5 +1,5 @@
 /*
- *    Copyright 2009-2010 University of Toronto
+ *    Copyright 2009-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -353,11 +353,9 @@ public abstract class Track implements TrackAdapter {
             @Override
             public void run() {
                 try {
-                    synchronized (Track.this) {
-                        LOG.debug("Retrieving data for " + name + "(" + reference + ", " + range + ")");
-                        dataInRange = retrieveData(reference, range, getResolution(range));
-                        LOG.debug("Data retrieved for " + name + "(" + reference + ", " + range + ")");
-                    }
+                    LOG.debug("Retrieving data for " + name + "(" + reference + ", " + range + ")");
+                    dataInRange = retrieveData(reference, range, getResolution(range));
+                    LOG.debug("Data retrieved for " + name + "(" + reference + ", " + range + ")");
                     fireDataRetrievalCompleted();
                 } catch (IOException iox) {
                     LOG.error(iox);
@@ -378,9 +376,7 @@ public abstract class Track implements TrackAdapter {
     }
 
     public final void addDataRetrievalListener(DataRetrievalListener l) {
-        synchronized (listeners) {
-            listeners.add(l);
-        }
+        listeners.add(l);
     }
 
     public void removeDataRetrievalListener(DataRetrievalListener l) {
@@ -394,10 +390,8 @@ public abstract class Track implements TrackAdapter {
      * thread so it doesn't need to use invokeLater.
      */
     private void fireDataRetrievalStarted() {
-        synchronized (listeners) {
-            for (DataRetrievalListener l: listeners) {
-                l.dataRetrievalStarted(new DataRetrievalEvent());
-            }
+        for (DataRetrievalListener l: listeners) {
+            l.dataRetrievalStarted(new DataRetrievalEvent());
         }
     }
 
@@ -409,10 +403,8 @@ public abstract class Track implements TrackAdapter {
         EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
-                synchronized (listeners) {
-                    for (DataRetrievalListener l: listeners) {
-                        l.dataRetrievalCompleted(new DataRetrievalEvent(dataInRange));
-                    }
+                for (DataRetrievalListener l: listeners) {
+                    l.dataRetrievalCompleted(new DataRetrievalEvent(dataInRange));
                 }
             }
         });
@@ -442,7 +434,7 @@ public abstract class Track implements TrackAdapter {
      * @throws Exception
      */
     public void saveNullData() {
-        this.dataInRange = null;
+        dataInRange = null;
     }
 
     /**

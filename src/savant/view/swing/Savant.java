@@ -34,8 +34,8 @@ import javax.swing.*;
 
 import com.apple.eawt.*;
 import com.jidesoft.docking.*;
+import com.jidesoft.docking.event.DockableFrameAdapter;
 import com.jidesoft.docking.event.DockableFrameEvent;
-import com.jidesoft.docking.event.DockableFrameListener;
 import com.jidesoft.plaf.LookAndFeelFactory;
 import com.jidesoft.plaf.UIDefaultsLookup;
 import com.jidesoft.plaf.basic.ThemePainter;
@@ -91,11 +91,8 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
     private ToolsModule savantTools;
     private static boolean showNonGenomicReferenceDialog = true;
     private static boolean showBookmarksChangedDialog = false; // turned off, its kind of annoying
-    public static final String os = System.getProperty("os.name").toLowerCase();
-    public static final boolean mac = os.contains("mac");
-    public static final int osSpecificModifier = (mac ? java.awt.event.InputEvent.META_MASK : java.awt.event.InputEvent.CTRL_MASK);
-    private static Map<DockableFrame, Frame> dockFrameToFrameMap = new HashMap<DockableFrame, Frame>();
-    private DockableFrame genomeFrame = null;
+    public static final int osSpecificModifier = (MiscUtils.MAC ? java.awt.event.InputEvent.META_MASK : java.awt.event.InputEvent.CTRL_MASK);
+    private Frame genomeFrame = null;
     private DataFormatForm dff;
     private MemoryStatusBarItem memorystatusbar;
     private DockableFrame startPageDockableFrame;
@@ -142,20 +139,20 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         LOG.info("Loading track " + selectedFileName);
 
         try {
-            List<Track> tracks = TrackFactory.createTrack(uri);
-            createFrameForTracks(tracks);
+            List<Track> tracks = TrackFactory.createTrackSync(uri);
+            createFrameForExistingTracks(tracks);
 
         } catch (SavantTrackCreationCancelledException ex) {
         }
     }
 
-    public void createFrameForTracks(List<Track> tracks) {
-        if (tracks != null && tracks.size() > 0) {
-            createFrameForTrack(tracks.get(0).getName(), tracks);
-        }
-    }
-
-    public void createFrameForTrack(String name, List<Track> tracks) {
+    /**
+     * Create a frame for a track (or bundled tracks) which already exists.
+     *
+     * @param name the name for the new frame
+     * @param tracks the tracks to be added to the frame
+     */
+    public void createFrameForExistingTracks(List<Track> tracks) {
 
         if (!ReferenceController.getInstance().isGenomeLoaded()) {
             if (tracks.get(0).getDataSource().getDataFormat() == DataFormat.SEQUENCE_FASTA) {
@@ -166,54 +163,12 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
             return;
         }
 
-        /*
-         if (!ReferenceController.getInstance().isGenomeLoaded()) {
-            if (askIfTrackShouldBeLoadedAsGenome()) {
-                setGenomeFromTrack(tracks.get(0));
-            }
-            return;
-        }
-         *
-         */
+        Frame frame = DockableFrameFactory.createTrackFrame();
+        frame.setTracks(tracks);
+        FrameController.getInstance().addFrame(frame, (JPanel)frame.getContentPane());
+        trackDockingManager.addFrame(frame);
 
-        /*
-        if (!ReferenceController.getInstance().isGenomeLoaded()) {
-            int result = JOptionPane.showConfirmDialog(this, "No genome is loaded yet. Load file as genome?", "No genome loaded", JOptionPane.YES_NO_OPTION);
-            if (result == JOptionPane.YES_OPTION) {
-            }
-            return null;
-        }
-         * 
-         */
-
-        Frame frame = null;
-        DockableFrame df = DockableFrameFactory.createTrackFrame(name);
-        JPanel panel = (JPanel) df.getContentPane();
-        if (!tracks.isEmpty()) {
-
-            //////////////////////////////////////////////////
-
-            panel.setLayout(new BorderLayout());
-            //JLayeredPane layers = new JLayeredPane();
-            //layers.setLayout(new BorderLayout());
-            //panel.add(layers);
-
-            //////////////////////////////////////////////////
-
-
-            frame = new Frame(tracks, df.getName());
-            JLayeredPane layers = (JLayeredPane) frame.getFrameLandscape();
-            panel.add(layers);
-            frame.setDockableFrame(df);
-            for (Track t : tracks) {
-                t.setFrame(frame);
-            }
-            dockFrameToFrameMap.put(df, frame);
-        }
-        FrameController.getInstance().addFrame(frame, panel);
-        this.getTrackDockingManager().addFrame(df);
-
-        LOG.info("Track loaded.");
+        LOG.info("Frame created for track " + frame.getName());
     }
 
     /** == [[ DOCKING ]] ==
@@ -280,69 +235,20 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         JPanel p = new JPanel();
         p.setBackground(Color.darkGray);
         trackDockingManager.getWorkspace().add(p);
-        trackDockingManager.addDockableFrameListener(new DockableFrameListener() {
-
-            @Override
-            public void dockableFrameAdded(DockableFrameEvent arg0) {
-            }
-
+        trackDockingManager.addDockableFrameListener(new DockableFrameAdapter() {
             @Override
             public void dockableFrameRemoved(DockableFrameEvent arg0) {
-                FrameController.getInstance().closeFrame(dockFrameToFrameMap.get(arg0.getDockableFrame()));
-            }
-
-            @Override
-            public void dockableFrameShown(DockableFrameEvent arg0) {
-            }
-
-            @Override
-            public void dockableFrameHidden(DockableFrameEvent arg0) {
-            }
-
-            @Override
-            public void dockableFrameDocked(DockableFrameEvent arg0) {
-            }
-
-            @Override
-            public void dockableFrameFloating(DockableFrameEvent arg0) {
-            }
-
-            @Override
-            public void dockableFrameAutohidden(DockableFrameEvent arg0) {
-            }
-
-            @Override
-            public void dockableFrameAutohideShowing(DockableFrameEvent arg0) {
+                FrameController.getInstance().closeFrame((Frame)arg0.getDockableFrame());
             }
 
             @Override
             public void dockableFrameActivated(DockableFrameEvent arg0) {
-                dockFrameToFrameMap.get(arg0.getDockableFrame()).setActiveFrame();
+                ((Frame)arg0.getDockableFrame()).setActiveFrame();
             }
 
             @Override
             public void dockableFrameDeactivated(DockableFrameEvent arg0) {
-                dockFrameToFrameMap.get(arg0.getDockableFrame()).setInactiveFrame();
-            }
-
-            @Override
-            public void dockableFrameTabShown(DockableFrameEvent arg0) {
-            }
-
-            @Override
-            public void dockableFrameTabHidden(DockableFrameEvent arg0) {
-            }
-
-            @Override
-            public void dockableFrameMaximized(DockableFrameEvent arg0) {
-            }
-
-            @Override
-            public void dockableFrameRestored(DockableFrameEvent arg0) {
-            }
-
-            @Override
-            public void dockableFrameTransferred(DockableFrameEvent arg0) {
+                ((Frame)arg0.getDockableFrame()).setInactiveFrame();
             }
         });
         trackDockingManager.setAllowedDockSides(DockContext.DOCK_SIDE_HORIZONTAL);
@@ -1290,13 +1196,10 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
     private void loadFromDataSourcePluginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loadFromDataSourcePluginActionPerformed
         if (DataSourcePluginController.getInstance().hasOnlySavantRepoDataSource()) {
             DataSource s = DataSourcePluginController.getInstance().getDataSourcePlugins().get(0).getDataSource();
-            Track t;
             try {
                 if (s == null) { return; }
-                t = TrackFactory.createTrack(s);
-                    List<Track> tracks = new ArrayList<Track>(); // TODO: should not need to do this!!
-                    tracks.add(t);
-                    createFrameForTrack(t.getName(), tracks);
+                Track t = TrackFactory.createTrack(s);
+                createFrameForExistingTracks(Arrays.asList(new Track[] { t }));
             } catch (SavantTrackCreationCancelledException ex) {
             }
         } else {
@@ -1505,7 +1408,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
      * Customize the UI.  This includes doing any platform-specific customization.
      */
     private void customizeUI() {
-        if (mac) {
+        if (MiscUtils.MAC) {
             try {
                 macOSXApplication = Application.getApplication();
                 macOSXApplication.setAboutHandler(new AboutHandler() {
@@ -1791,22 +1694,10 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         //p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
 
         Dimension comboboxDimension = new Dimension(130, 23);
-        Dimension iconDimension = null;
+        Dimension iconDimension = MiscUtils.MAC ? new Dimension(50, 23) : new Dimension(27, 27);
+        String shortcutMod = MiscUtils.MAC ? "Cmd" : "Ctrl";
 
-        if (mac) {
-            iconDimension = new Dimension(50, 23);
-        } else {
-            iconDimension = new Dimension(27, 27);
-        }
-
-        String shortcutMod;
-        if (mac) {
-            shortcutMod = "Cmd";
-        } else {
-            shortcutMod = "Ctrl";
-        }
-
-        p.add(this.getRigidPadding());
+        p.add(getRigidPadding());
 
         JLabel reftext = new JLabel();
         reftext.setText("Reference: ");
@@ -1938,16 +1829,13 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         p.add(this.getRigidPadding());
 
         goButton = addButton(p, "  Go  ");
-        goButton.putClientProperty( "JButton.buttonType", buttonStyle );
-        goButton.putClientProperty( "JButton.segmentPosition", "only" );
+        goButton.putClientProperty("JButton.buttonType", buttonStyle);
+        goButton.putClientProperty("JButton.segmentPosition", "only");
         goButton.setToolTipText("Go to specified range (Enter)");
-        goButton.addMouseListener(new MouseAdapter() {
-
+        goButton.addActionListener(new ActionListener() {
             @Override
-            public void mouseReleased(MouseEvent e) {
-                if (goButton.contains(e.getPoint())) {
-                    setRangeFromTextBoxes();
-                }
+            public void actionPerformed(ActionEvent e) {
+                setRangeFromTextBoxes();
             }
         });
 
@@ -1981,13 +1869,11 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
                     RangeController.getInstance().undoRangeChange();
                 }
             });
-            if (mac) {
-                button_undo.putClientProperty( "JButton.buttonType", buttonStyle );
-                button_undo.putClientProperty( "JButton.segmentPosition", "first" );
-            }
-                button_undo.setPreferredSize(iconDimension);
-                button_undo.setMinimumSize(iconDimension);
-                button_undo.setMaximumSize(iconDimension);
+            button_undo.putClientProperty("JButton.buttonType", buttonStyle);
+            button_undo.putClientProperty("JButton.segmentPosition", "first");
+            button_undo.setPreferredSize(iconDimension);
+            button_undo.setMinimumSize(iconDimension);
+            button_undo.setMaximumSize(iconDimension);
 
             p.add(button_undo);
 
@@ -2000,13 +1886,11 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
                     RangeController.getInstance().redoRangeChange();
                 }
             });
-            if (mac) {
-                redo.putClientProperty( "JButton.buttonType", buttonStyle );
-                redo.putClientProperty( "JButton.segmentPosition", "last" );
-            }
-                redo.setPreferredSize(iconDimension);
-                redo.setMinimumSize(iconDimension);
-                redo.setMaximumSize(iconDimension);
+            redo.putClientProperty("JButton.buttonType", buttonStyle);
+            redo.putClientProperty("JButton.segmentPosition", "last");
+            redo.setPreferredSize(iconDimension);
+            redo.setMinimumSize(iconDimension);
+            redo.setMaximumSize(iconDimension);
 
             p.add(redo);
 
@@ -2014,34 +1898,23 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
             rangeControls.add(redo);
         }
 
-        p.add(this.getRigidPadding());
-        p.add(this.getRigidPadding());
+        p.add(getRigidPadding());
+        p.add(getRigidPadding());
 
         JButton zoomIn = addButton(p, "");
-        /////////
         zoomIn.setIcon(SavantIconFactory.getInstance().getIcon(SavantIconFactory.StandardIcon.ZOOMIN));
-        if (mac) {
-            zoomIn.putClientProperty( "JButton.buttonType", buttonStyle );
-            zoomIn.putClientProperty( "JButton.segmentPosition", "first" );
-        }
-            zoomIn.setPreferredSize(iconDimension);
-            zoomIn.setMinimumSize(iconDimension);
-            zoomIn.setMaximumSize(iconDimension);
-        
-        /////////
+        zoomIn.putClientProperty("JButton.buttonType", buttonStyle);
+        zoomIn.putClientProperty("JButton.segmentPosition", "first");
+        zoomIn.setPreferredSize(iconDimension);
+        zoomIn.setMinimumSize(iconDimension);
+        zoomIn.setMaximumSize(iconDimension);
         zoomIn.setToolTipText("Zoom in (Shift+Up)");
-
-        zoomIn.addMouseListener(new MouseAdapter() {
-
+        zoomIn.addActionListener(new ActionListener() {
             @Override
-                   public void mouseClicked(MouseEvent e) {
+            public void actionPerformed(ActionEvent e) {
                 rangeController.zoomIn();
             }
         });
-
-        if (!mac) {
-            //p.add(this.getRigidPadding());
-        }
 
         JButton zoomOut = new JButton("");
         zoomOut.setIcon(SavantIconFactory.getInstance().getIcon(SavantIconFactory.StandardIcon.ZOOMOUT));
@@ -2052,98 +1925,73 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
                 rangeController.zoomOut();
             }
         });
-        if (mac) {
-            zoomOut.putClientProperty( "JButton.buttonType", buttonStyle );
-            zoomOut.putClientProperty( "JButton.segmentPosition", "last" );
-        }
-            zoomOut.setPreferredSize(iconDimension);
-            zoomOut.setMinimumSize(iconDimension);
-            zoomOut.setMaximumSize(iconDimension);
+        zoomOut.putClientProperty("JButton.buttonType", buttonStyle);
+        zoomOut.putClientProperty("JButton.segmentPosition", "last");
+        zoomOut.setPreferredSize(iconDimension);
+        zoomOut.setMinimumSize(iconDimension);
+        zoomOut.setMaximumSize(iconDimension);
 
         p.add(zoomOut);
 
         p.add(getRigidPadding());
-        p.add(this.getRigidPadding());
+        p.add(getRigidPadding());
 
         JButton shiftFarLeft = addButton(p, "");
-        /////////
         shiftFarLeft.setIcon(SavantIconFactory.getInstance().getIcon(SavantIconFactory.StandardIcon.SHIFT_FARLEFT));
-        if (mac) {
-            shiftFarLeft.putClientProperty( "JButton.buttonType", buttonStyle );
-            shiftFarLeft.putClientProperty( "JButton.segmentPosition", "first" );
-        }
+        shiftFarLeft.putClientProperty("JButton.buttonType", buttonStyle);
+        shiftFarLeft.putClientProperty("JButton.segmentPosition", "first");
         shiftFarLeft.setToolTipText("Move to the beginning of the genome (Home)");
         shiftFarLeft.setPreferredSize(iconDimension);
         shiftFarLeft.setMinimumSize(iconDimension);
         shiftFarLeft.setMaximumSize(iconDimension);
-        shiftFarLeft.addMouseListener(new MouseAdapter() {
-
+        shiftFarLeft.addActionListener(new ActionListener() {
             @Override
-            public void mouseClicked(MouseEvent e) {
+            public void actionPerformed(ActionEvent e) {
                 rangeController.shiftRangeFarLeft();
             }
         });
 
         JButton shiftLeft = addButton(p, "");
-        /////////
         shiftLeft.setIcon(SavantIconFactory.getInstance().getIcon(SavantIconFactory.StandardIcon.SHIFT_LEFT));
-        if (mac) {
-            shiftLeft.putClientProperty( "JButton.buttonType", buttonStyle );
-            shiftLeft.putClientProperty( "JButton.segmentPosition", "middle" );
-        }
-        /////////
+        shiftLeft.putClientProperty("JButton.buttonType", buttonStyle);
+        shiftLeft.putClientProperty("JButton.segmentPosition", "middle");
         shiftLeft.setToolTipText("Move left (Shift+Left)");
         shiftLeft.setPreferredSize(iconDimension);
         shiftLeft.setMinimumSize(iconDimension);
         shiftLeft.setMaximumSize(iconDimension);
-        shiftLeft.addMouseListener(new MouseAdapter() {
-
+        shiftLeft.addActionListener(new ActionListener() {
             @Override
-            public void mouseClicked(MouseEvent e) {
+            public void actionPerformed(ActionEvent e) {
                 rangeController.shiftRangeLeft();
             }
         });
 
-        if(!mac) {
-            //p.add(this.getRigidPadding());
-        }
-
         JButton shiftRight = addButton(p, "");
-        /////////
         shiftRight.setIcon(SavantIconFactory.getInstance().getIcon(SavantIconFactory.StandardIcon.SHIFT_RIGHT));
-        if (mac) {
-            shiftRight.putClientProperty( "JButton.buttonType", buttonStyle );
-            shiftRight.putClientProperty( "JButton.segmentPosition", "middle" );
-        }
-        /////////
+        shiftRight.putClientProperty("JButton.buttonType", buttonStyle);
+        shiftRight.putClientProperty("JButton.segmentPosition", "middle");
         shiftRight.setToolTipText("Move right (Shift+Right)");
         shiftRight.setPreferredSize(iconDimension);
         shiftRight.setMinimumSize(iconDimension);
         shiftRight.setMaximumSize(iconDimension);
-        shiftRight.addMouseListener(new MouseAdapter() {
-
+        shiftRight.addActionListener(new ActionListener() {
             @Override
-            public void mouseClicked(MouseEvent e) {
+            public void actionPerformed(ActionEvent e) {
                 rangeController.shiftRangeRight();
             }
         });
 
         JButton shiftFarRight = addButton(p, "");
-        /////////
         shiftFarRight.setIcon(SavantIconFactory.getInstance().getIcon(SavantIconFactory.StandardIcon.SHIFT_FARRIGHT));
-        if (mac) {
-            shiftFarRight.putClientProperty( "JButton.buttonType", buttonStyle );
-            shiftFarRight.putClientProperty( "JButton.segmentPosition", "last" );
-        }
-        /////////
+        shiftFarRight.putClientProperty("JButton.buttonType", buttonStyle);
+        shiftFarRight.putClientProperty("JButton.segmentPosition", "last");
         shiftFarRight.setToolTipText("Move to the end of the genome (End)");
         shiftFarRight.setPreferredSize(iconDimension);
         shiftFarRight.setMinimumSize(iconDimension);
         shiftFarRight.setMaximumSize(iconDimension);
-        shiftFarRight.addMouseListener(new MouseAdapter() {
-
+        shiftFarRight.addActionListener(new ActionListener() {
             @Override
-            public void mouseClicked(MouseEvent e) {
+            public void actionPerformed(ActionEvent e) {
                 rangeController.shiftRangeFarRight();
             }
         });
@@ -2303,19 +2151,19 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
     public void showOpenTracksDialog(boolean loadAsGenome) {
 
         if (loadAsGenome) {
-            File selectedFile = DialogUtils.chooseFileForOpen(Savant.getInstance(), "Load Genome", null);
+            File selectedFile = DialogUtils.chooseFileForOpen(this, "Load Genome", null);
             // set the genome
             if (selectedFile != null) {
                 try {
-                    List<Track> trks = TrackFactory.createTrack(selectedFile.toURI());
+                    List<Track> trks = TrackFactory.createTrackSync(selectedFile.toURI());
                     if (!trks.isEmpty()) {
-                        Savant.getInstance().setGenomeFromTrack(trks.get(0));
+                        setGenomeFromTrack(trks.get(0));
                     }
                 } catch (Exception x) {
                     DialogUtils.displayException("Error Loading Genome", String.format("Unable to load genome from %s.", selectedFile.getName()), x);
                 }
             } else {
-                Savant.getInstance().showOpenGenomeDialog();
+                showOpenGenomeDialog();
             }
         } else {
 
@@ -2413,31 +2261,19 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
 
         boolean someGenomeSetAlready = ReferenceController.getInstance().isGenomeLoaded();
 
-        if (someGenomeSetAlready && this.genomeFrame != null) {
-            this.getTrackDockingManager().removeFrame(this.genomeFrame.getTitle());
-            this.genomeFrame = null;
+        if (someGenomeSetAlready && genomeFrame != null) {
+            getTrackDockingManager().removeFrame(genomeFrame.getTitle());
+            genomeFrame = null;
         }
 
         ReferenceController.getInstance().setGenome(genome);
         loadGenomeItem.setText("Change genome...");
 
         if (genome.isSequenceSet()) {
-            DockableFrame df = DockableFrameFactory.createGenomeFrame(genomeName);
-            //MiscUtils.getFilenameFromPath(filename));
-            JPanel panel = (JPanel) df.getContentPane();
-            List<Track> tracks = new ArrayList<Track>();
-            tracks.add(genome.getTrack());
-            // layered pane
-            panel.setLayout(new BorderLayout());
-            Frame frame = new Frame(tracks, df.getName());
-            JLayeredPane layers = (JLayeredPane) frame.getFrameLandscape();
-            panel.add(layers);
-            frame.setDockableFrame(df);
-            FrameController.getInstance().addFrame(frame, panel);
-            this.getTrackDockingManager().addFrame(df);
-
-            dockFrameToFrameMap.put(df, frame);
-            this.genomeFrame = df;
+            genomeFrame = DockableFrameFactory.createTrackFrame();
+            genomeFrame.setTrack(genome.getTrack());
+            FrameController.getInstance().addFrame(genomeFrame, (JPanel)genomeFrame.getContentPane());
+            trackDockingManager.addFrame(genomeFrame);
         }
 
         showBrowserControls();
@@ -2561,24 +2397,6 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
      */
     void setRulerFromRange() {
         ruler.setRulerRange(rangeController.getRange());
-    }
-
-    /**
-     * Get a string formatted for the log (with a new line).
-     * @param s The message to format
-     * @return A string based on the given message to be logged
-     */
-    private static String logMessage(String s) {
-        return "[" + MiscUtils.now() + "]\t" + s + "\n";
-    }
-
-    /**
-     * Get a string formatted for the log (without a new line).
-     * @param s The message to format
-     * @return A string based on the given message to be logged
-     */
-    private static String logMessageN(String s) {
-        return "[" + MiscUtils.now() + "]\t" + s;
     }
 
     public void updateStatus(String msg) {
@@ -2724,18 +2542,15 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         // 2 = error
 
         if (p != null) {
-            System.out.println("Plugin selected: " + p.getTitle());
+            LOG.info("Plugin selected: " + p.getTitle());
             DataSource s = p.getDataSource();
-            Track t;
             try {
                 if (s == null) { return 2; }
-                t = TrackFactory.createTrack(s);
+                Track t = TrackFactory.createTrack(s);
                 if (loadAsGenome) {
                     setGenomeFromTrack(t);
                 } else {
-                    List<Track> tracks = new ArrayList<Track>(); // TODO: should not need to do this!!
-                    tracks.add(t);
-                    createFrameForTrack(t.getName(), tracks);
+                    createFrameForExistingTracks(Arrays.asList(new Track[] { t }));
                 }
                 return 0;
             } catch (SavantTrackCreationCancelledException ex) {
@@ -2785,12 +2600,12 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
             }
             try {
 
-                List<Track> tracks = TrackFactory.createTrack(new URI(urlDialog.getUrlAsString()));
+                List<Track> tracks = TrackFactory.createTrackSync(new URI(urlDialog.getUrlAsString()));
 
                 if (loadAsGenome) {
                     setGenomeFromTrack(tracks.get(0));
                 } else {
-                    createFrameForTrack(tracks.get(0).getName(), tracks);
+                    createFrameForExistingTracks(tracks);
                 }
 
             } catch (Exception ex) {

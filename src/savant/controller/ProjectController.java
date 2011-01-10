@@ -184,7 +184,7 @@ public class ProjectController {
             trackpaths.remove(genomePath);
             try {
                 try {
-                    genome = Track.createGenome(TrackFactory.createTrack(new URI(genomePath)).get(0));
+                    genome = Track.createGenome(TrackFactory.createTrackSync(new URI(genomePath)).get(0));
                 } catch (SavantTrackCreationCancelledException ex) {
                     DialogUtils.displayMessage("Sorry", "Problem loading project.");
                     return;
@@ -192,7 +192,7 @@ public class ProjectController {
             } catch (URISyntaxException usx) {
                 try {
                     // A common cause of URISyntaxExceptions is a file-path containing spaces.
-                    genome = Track.createGenome(TrackFactory.createTrack(new File(genomePath).toURI()).get(0));
+                    genome = Track.createGenome(TrackFactory.createTrackSync(new File(genomePath).toURI()).get(0));
                 } catch (SavantTrackCreationCancelledException ex) {
                     DialogUtils.displayMessage("Sorry", "Problem loading project.");
                     return;

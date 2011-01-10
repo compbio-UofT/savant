@@ -16,6 +16,7 @@
 
 package savant.util;
 
+import java.awt.EventQueue;
 import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -38,8 +39,9 @@ import org.apache.commons.logging.LogFactory;
 
 
 /**
+ * Various utility methods and constants of general usefulness.
  *
- * @author mfiume
+ * @author mfiume, tarkvara
  */
 public class MiscUtils {
 
@@ -320,6 +322,19 @@ public class MiscUtils {
             f.setTitle(title + UNSAVED_MARK);
         } else {
             f.setTitle(title);
+        }
+    }
+
+    /**
+     * Invoke the given runnable on the AWT event thread.
+     *
+     * @param r the action to be invoked
+     */
+    public static void invokeLaterIfNecessary(Runnable r) {
+        if (EventQueue.isDispatchThread()) {
+            r.run();
+        } else {
+            EventQueue.invokeLater(r);
         }
     }
 }

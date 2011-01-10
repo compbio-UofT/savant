@@ -19,20 +19,25 @@
 
 package savant.view.dialog;
 
-import savant.file.FileType;
-import savant.view.swing.*;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import savant.format.DataFormatter;
-
-import javax.swing.*;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
-import java.awt.*;
+import java.awt.FileDialog;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import javax.swing.DefaultListModel;
+import javax.swing.JDialog;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JList;
+import javax.swing.JTextArea;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import savant.file.FileType;
+import savant.format.DataFormatter;
 import savant.util.MiscUtils;
 
 /**
@@ -287,7 +292,8 @@ public class DataFormatForm extends JDialog {
     private void button_openInPathActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_openInPathActionPerformed
         JFrame jf = new JFrame();
         String selectedFileName;
-        if (Savant.mac) {
+        // TODO: Migrate this to DialogUtils.chooseFileForOpen.
+        if (MiscUtils.MAC) {
             FileDialog fd = new FileDialog(jf, "Input File", FileDialog.LOAD);
             fd.setVisible(true);
             jf.setAlwaysOnTop(true);
@@ -296,8 +302,7 @@ public class DataFormatForm extends JDialog {
             if (selectedFileName != null) {
                 selectedFileName = fd.getDirectory() + selectedFileName;
             }
-        }
-        else {
+        } else {
             JFileChooser fd = new JFileChooser();
             fd.setDialogTitle("Input File");
             fd.setDialogType(JFileChooser.OPEN_DIALOG);
@@ -324,7 +329,7 @@ public class DataFormatForm extends JDialog {
     private void button_openOutFileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_openOutFileActionPerformed
         JFrame jf = new JFrame();
         String selectedFileName;
-        if (Savant.mac) {
+        if (MiscUtils.MAC) {
             FileDialog fd = new FileDialog(jf, "Output File", FileDialog.SAVE);
             fd.setVisible(true);
             jf.setAlwaysOnTop(true);
@@ -333,8 +338,7 @@ public class DataFormatForm extends JDialog {
             if (selectedFileName != null) {
                 selectedFileName = fd.getDirectory() + selectedFileName;
             }
-        }
-        else {
+        } else {
             JFileChooser fd = new JFileChooser();
             fd.setDialogTitle("Output File");
             fd.setDialogType(JFileChooser.SAVE_DIALOG);
