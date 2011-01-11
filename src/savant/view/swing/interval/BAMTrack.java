@@ -129,17 +129,23 @@ public class BAMTrack extends Track {
         renderer.addInstruction(DrawingInstruction.RANGE, range);
         renderer.addInstruction(DrawingInstruction.RESOLUTION, r);
         renderer.addInstruction(DrawingInstruction.COLOR_SCHEME, getColorScheme());
+
+        boolean f = containsReference(reference);
+        System.out.println("Contains reference? " + f);
         renderer.addInstruction(DrawingInstruction.REFERENCE_EXISTS, containsReference(reference));
 
-        if (errorMessage == null) {
-            if (getDrawMode().equals(BAMTrackRenderer.MATE_PAIRS_MODE) && errorMessage == null) {
+
+        System.out.println("Checking paired mode");
+
+        //if (errorMessage == null) {
+            if (getDrawMode().equals(BAMTrackRenderer.MATE_PAIRS_MODE)) {
                 renderer.addInstruction(DrawingInstruction.ARC_MIN, getArcSizeVisibilityThreshold());
                 renderer.addInstruction(DrawingInstruction.DISCORDANT_MIN, getDiscordantMin());
                 renderer.addInstruction(DrawingInstruction.DISCORDANT_MAX, getDiscordantMax());
             } else {
                 renderer.addInstruction(DrawingInstruction.AXIS_RANGE, AxisRange.initWithRanges(range, getDefaultYRange()));
             }
-        }
+        //}
         renderer.addInstruction(DrawingInstruction.SELECTION_ALLOWED, true);
         renderer.addInstruction(DrawingInstruction.MODE, getDrawMode());
     }
@@ -160,16 +166,10 @@ public class BAMTrack extends Track {
             double val;
             int alignmentStart = samRecord.getAlignmentStart();
             int mateAlignmentStart = samRecord.getMateAlignmentStart();
-            if (alignmentStart < mateAlignmentStart) {
 
-                val = samRecord.getInferredInsertSize();
-                // throw away, for purposes of calculating the max y axis, any insert sizes larger than the displayed range.
-                if (val > displayedRangeLength) continue;
-            }
-            else {
-                continue;
-            }
-            if (val > max) max = val;
+            val = Math.abs(samRecord.getInferredInsertSize());
+
+            if (val > max) { max = val; }
 
         }
         return (long)Math.ceil(max);

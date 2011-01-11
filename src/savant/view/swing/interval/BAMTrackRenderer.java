@@ -125,9 +125,12 @@ public class BAMTrackRenderer extends TrackRenderer {
     public void dataRetrievalCompleted(DataRetrievalEvent evt) {
         String mode = (String)instructions.get(DrawingInstruction.MODE);
 
-        if (mode.equals("Read pair") && !instructions.containsKey(DrawingInstruction.ERROR)) {
+        System.out.println("Data retrieval completed");
+        if (mode.equals("Read pair")){// && !instructions.containsKey(DrawingInstruction.ERROR)) {
             long maxDataValue = BAMTrack.getMaxValue(evt.getData());
             Range range = (Range)instructions.get(DrawingInstruction.RANGE);
+            System.out.println("max: " + maxDataValue);
+            System.out.println("Setting read pair axis range to " + new Range(0,(int)Math.round(maxDataValue+maxDataValue*0.1)));
             addInstruction(DrawingInstruction.AXIS_RANGE, AxisRange.initWithRanges(range, new Range(0,(int)Math.round(maxDataValue+maxDataValue*0.1))));
         }
         super.dataRetrievalCompleted(evt);
@@ -622,6 +625,7 @@ public class BAMTrackRenderer extends TrackRenderer {
 
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
+        LOG.debug("YMAX for ARC mode: " + ((AxisRange) instructions.get(DrawingInstruction.AXIS_RANGE)).getYMax());
         AxisRange axisRange = (AxisRange) instructions.get(DrawingInstruction.AXIS_RANGE);
         ColorScheme cs = (ColorScheme) instructions.get(DrawingInstruction.COLOR_SCHEME);
         double threshold = (Double) instructions.get(DrawingInstruction.ARC_MIN);

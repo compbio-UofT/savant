@@ -20,6 +20,7 @@
 
 package savant.view.swing.interval;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
@@ -275,7 +276,6 @@ public class BEDTrackRenderer extends TrackRenderer {
     }
 
     private void drawChevrons(Graphics2D g2, double start, double end, double y, double height, Color color, Strand strand, Area area) {
-
 
         final int SCALE_FACTOR = 40;
         final int interval = ((int)height/SCALE_FACTOR+1) * SCALE_FACTOR;
