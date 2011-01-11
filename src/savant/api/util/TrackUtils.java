@@ -76,7 +76,7 @@ public class TrackUtils {
         for (TrackAdapter t : tracks) {
             myTracks.add((Track)t);
         }
-        Savant.getInstance().createFrameForExistingTracks(myTracks);
+        Savant.getInstance().createFrameForExistingTrack(myTracks);
     }
 
     /**

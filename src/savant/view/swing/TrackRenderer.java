@@ -64,7 +64,7 @@ public abstract class TrackRenderer implements DataRetrievalListener {
 
 
     /**
-     * Renderers don't currently care about data retrieval starting.
+     * Sets the data to null so we know that there's nothing to render.
      *
      * @param evt ignored
      */

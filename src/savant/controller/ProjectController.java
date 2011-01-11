@@ -202,7 +202,7 @@ public class ProjectController {
         } else {
             genomeName = genome.getName();
         }
-        Savant.getInstance().setGenome(genomeName, genome);
+        Savant.getInstance().setGenome(genomeName, genome, null);
 
         ReferenceController.getInstance().setReference(referencename);
         RangeController.getInstance().setRange(range);

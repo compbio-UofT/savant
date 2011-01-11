@@ -347,7 +347,7 @@ public abstract class Track implements TrackAdapter {
      * @param reference The reference within which to retrieve objects
      * @param range The range within which to retrieve objects
      */
-    public synchronized void requestData(final String reference, final Range range) {
+    public void requestData(final String reference, final Range range) {
         dataInRange = null;
         fireDataRetrievalStarted();
         Thread retriever = new Thread("DataRetriever") {
@@ -447,7 +447,7 @@ public abstract class Track implements TrackAdapter {
      * @return a List of data objects from the given range and resolution
      * @throws IOException
      */
-    protected List<Record> retrieveData(String reference, RangeAdapter range, Resolution resolution) throws IOException {
+    protected synchronized List<Record> retrieveData(String reference, RangeAdapter range, Resolution resolution) throws IOException {
         return getDataSource().getRecords(reference, range, resolution);
     }
 

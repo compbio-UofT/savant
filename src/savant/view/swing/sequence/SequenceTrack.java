@@ -84,7 +84,7 @@ public class SequenceTrack extends Track {
      *     Get data in the specified range at the specified resolution
      */
     @Override
-    protected List<Record> retrieveData(String reference, RangeAdapter range, Resolution resolution) {
+    protected synchronized List<Record> retrieveData(String reference, RangeAdapter range, Resolution resolution) {
 
         SequenceRecord subsequence = null;
         try {

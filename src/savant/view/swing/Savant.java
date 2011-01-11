@@ -138,12 +138,11 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
 
         LOG.info("Loading track " + selectedFileName);
 
-        try {
-            List<Track> tracks = TrackFactory.createTrackSync(uri);
-            createFrameForExistingTracks(tracks);
-
-        } catch (SavantTrackCreationCancelledException ex) {
-        }
+        Frame frame = DockableFrameFactory.createTrackFrame();
+        frame.setKey("Loading " + selectedFileName);
+        TrackFactory.createTrack(uri, frame);
+        LOG.trace("Savant.addTrackFromFile calling trackDockingManager.addFrame");
+        trackDockingManager.addFrame(frame);
     }
 
     /**
@@ -152,20 +151,11 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
      * @param name the name for the new frame
      * @param tracks the tracks to be added to the frame
      */
-    public void createFrameForExistingTracks(List<Track> tracks) {
-
-        if (!ReferenceController.getInstance().isGenomeLoaded()) {
-            if (tracks.get(0).getDataSource().getDataFormat() == DataFormat.SEQUENCE_FASTA) {
-                setGenomeFromTrack(tracks.get(0));
-            } else {
-                DialogUtils.displayError("Sorry", "This does not appear to be a genome track. Please load a genome first.");
-            }
-            return;
-        }
+    public void createFrameForExistingTrack(List<Track> tracks) {
 
         Frame frame = DockableFrameFactory.createTrackFrame();
         frame.setTracks(tracks);
-        FrameController.getInstance().addFrame(frame, (JPanel)frame.getContentPane());
+        LOG.trace("Savant.createFrameForExistingTrack calling trackDockingManager.addFrame");
         trackDockingManager.addFrame(frame);
 
         LOG.info("Frame created for track " + frame.getName());
@@ -1199,7 +1189,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
             try {
                 if (s == null) { return; }
                 Track t = TrackFactory.createTrack(s);
-                createFrameForExistingTracks(Arrays.asList(new Track[] { t }));
+                createFrameForExistingTrack(Arrays.asList(new Track[] { t }));
             } catch (SavantTrackCreationCancelledException ex) {
             }
         } else {
@@ -1515,21 +1505,6 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         if (startPageDockableFrame != null) {
             startPageDockableFrame.setVisible(false);
         }
-    }
-
-    private JPanel addDockableFrame(String key, int mode, int side) {
-        DockableFrame dockableFrame = new DockableFrame(key);
-
-        dockableFrame.getContext().setInitIndex(1);
-        dockableFrame.getContext().setInitMode(mode);
-        dockableFrame.getContext().setInitSide(side);
-
-        JPanel p = new JPanel();
-        dockableFrame.getContentPane().add(p);
-
-        this.auxDockingManager.addFrame(dockableFrame);
-
-        return p;
     }
 
     public DockingManager getAuxDockingManager() {
@@ -2157,7 +2132,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
                 try {
                     List<Track> trks = TrackFactory.createTrackSync(selectedFile.toURI());
                     if (!trks.isEmpty()) {
-                        setGenomeFromTrack(trks.get(0));
+                        setGenomeFromTrack(trks.get(0), null);
                     }
                 } catch (Exception x) {
                     DialogUtils.displayException("Error Loading Genome", String.format("Unable to load genome from %s.", selectedFile.getName()), x);
@@ -2243,12 +2218,13 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
     /**
      * Set the genome to the specified file.
      *
-     * @param f path to the genome.
+     * @param track the track to be used
+     * @param existingFrame the frame to display the genome (null to create a fresh one)
      */
-    public void setGenomeFromTrack(Track track) {
+    public void setGenomeFromTrack(Track track, Frame existingFrame) {
         Genome g = Track.createGenome(track);
         if (g != null) {
-            setGenome(track.getName(), g);
+            setGenome(track.getName(), g, existingFrame);
         }
     }
 
@@ -2257,7 +2233,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
      * @param name name of the genome (will be a full path if the sequence is set)
      * @param genome the genome to set
      */
-    public void setGenome(String genomeName, Genome genome) {
+    public void setGenome(String genomeName, Genome genome, Frame existingFrame) {
 
         boolean someGenomeSetAlready = ReferenceController.getInstance().isGenomeLoaded();
 
@@ -2270,10 +2246,14 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         loadGenomeItem.setText("Change genome...");
 
         if (genome.isSequenceSet()) {
-            genomeFrame = DockableFrameFactory.createTrackFrame();
-            genomeFrame.setTrack(genome.getTrack());
-            FrameController.getInstance().addFrame(genomeFrame, (JPanel)genomeFrame.getContentPane());
-            trackDockingManager.addFrame(genomeFrame);
+            if (existingFrame != null) {
+                genomeFrame = existingFrame;
+                genomeFrame.setTrack(genome.getTrack());
+            } else {
+                genomeFrame = DockableFrameFactory.createTrackFrame();
+                genomeFrame.setTrack(genome.getTrack());
+                trackDockingManager.addFrame(genomeFrame);
+            }
         }
 
         showBrowserControls();
@@ -2548,9 +2528,9 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
                 if (s == null) { return 2; }
                 Track t = TrackFactory.createTrack(s);
                 if (loadAsGenome) {
-                    setGenomeFromTrack(t);
+                    setGenomeFromTrack(t, null);
                 } else {
-                    createFrameForExistingTracks(Arrays.asList(new Track[] { t }));
+                    createFrameForExistingTrack(Arrays.asList(new Track[] { t }));
                 }
                 return 0;
             } catch (SavantTrackCreationCancelledException ex) {
@@ -2603,9 +2583,9 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
                 List<Track> tracks = TrackFactory.createTrackSync(new URI(urlDialog.getUrlAsString()));
 
                 if (loadAsGenome) {
-                    setGenomeFromTrack(tracks.get(0));
+                    setGenomeFromTrack(tracks.get(0), null);
                 } else {
-                    createFrameForExistingTracks(tracks);
+                    createFrameForExistingTrack(tracks);
                 }
 
             } catch (Exception ex) {

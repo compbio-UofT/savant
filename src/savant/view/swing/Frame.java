@@ -23,7 +23,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import javax.swing.*;
 
@@ -34,15 +33,21 @@ import com.jidesoft.swing.JideMenu;
 import java.awt.event.MouseListener;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import savant.api.util.DialogUtils;
+import savant.controller.DockableFrameController;
 
 import savant.controller.ReferenceController;
 import savant.controller.DrawModeController;
+import savant.controller.FrameController;
 import savant.controller.RangeController;
 import savant.controller.event.DrawModeChangedEvent;
 import savant.data.event.DataRetrievalEvent;
 import savant.data.event.DataRetrievalListener;
+import savant.data.event.TrackCreationEvent;
+import savant.data.event.TrackCreationListener;
 import savant.file.DataFormat;
 import savant.settings.ColourSettings;
+import savant.swing.component.ProgressPanel;
 import savant.util.Range;
 import savant.view.icon.SavantIconFactory;
 import savant.view.swing.interval.BAMCoverageTrack;
@@ -53,21 +58,20 @@ import savant.view.swing.interval.BAMTrackRenderer;
  *
  * @author mfiume
  */
-public class Frame extends DockableFrame implements DataRetrievalListener {
+public class Frame extends DockableFrame implements DataRetrievalListener, TrackCreationListener {
     private static final Log LOG = LogFactory.getLog(Frame.class);
 
-    private boolean isHidden = false;
     private GraphPane graphPane;
     private JLayeredPane frameLandscape;
-    private List<Track> tracks;
+    private Track[] tracks = new Track[0];
     private boolean isLocked;
     private Range currentRange;
 
     private JLayeredPane jlp;
 
-    public JMenuBar commandBar;
-    public CommandBar commandBarHidden;
-    private JPanel arcLegend;
+    JMenuBar commandBar;
+    CommandBar commandBarHidden;
+    JPanel arcLegend;
     private List<JCheckBoxMenuItem> visItems;
     private JMenu arcButton;
     private JMenu intervalButton;
@@ -81,14 +85,16 @@ public class Frame extends DockableFrame implements DataRetrievalListener {
 
         //INIT LEGEND PANEL
         arcLegend = new JPanel();
+        arcLegend.setLayout(new BorderLayout());
         arcLegend.setVisible(false);
 
         isLocked = false;
-        this.tracks = new ArrayList<Track>();
-        this.frameLandscape = new JLayeredPane();
-        initGraph();
 
-        //scrollpane
+        frameLandscape = new JLayeredPane();
+        graphPane = new GraphPane(this);
+        graphPane.setBackground(ColourSettings.getFrameBackground());
+
+                //scrollpane
         scrollPane = new JScrollPane();
         scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         scrollPane.setWheelScrollingEnabled(false);
@@ -121,7 +127,7 @@ public class Frame extends DockableFrame implements DataRetrievalListener {
         gbc.weighty = 1.0;
         gbc.gridx = 0;
         gbc.gridy = 0;
-        jlp.add(this.graphPane, gbc, 0);
+        jlp.add(graphPane, gbc, 0);
 
 
         //scrollPane.getViewport().add(this.graphPane);
@@ -138,9 +144,9 @@ public class Frame extends DockableFrame implements DataRetrievalListener {
         //commandBar.setStretch(false);
         //commandBar.setPaintBackground(false);
         //commandBar.setChevronAlwaysVisible(false);
-        
+
         commandBar.setOpaque(true);
-        
+
         JMenu optionsMenu = createOptionsMenu();
         //JMenu infoMenu = createInfoMenu();
         //JideButton lockButton = createLockButton();
@@ -167,7 +173,6 @@ public class Frame extends DockableFrame implements DataRetrievalListener {
         //GRID FRAMEWORK AND COMPONENT ADDING...
         frameLandscape.setLayout(new GridBagLayout());
         GridBagConstraints c = new GridBagConstraints();
-        JLabel l;
         c.fill = GridBagConstraints.HORIZONTAL;
 
         //force commandBars to be full size
@@ -203,7 +208,7 @@ public class Frame extends DockableFrame implements DataRetrievalListener {
         frameLandscape.add(a, c, 5);
 
         //add filler to top middle
-        l = new JLabel();
+        JLabel l = new JLabel();
         //l.setOpaque(false);
         c.fill = GridBagConstraints.HORIZONTAL;
         c.weightx = 1.0;
@@ -230,8 +235,12 @@ public class Frame extends DockableFrame implements DataRetrievalListener {
         c.gridheight = 2;
         frameLandscape.add(scrollPane, c, 0);
 
-        frameLandscape.setLayer(commandBar, (Integer) JLayeredPane.PALETTE_LAYER);
-        frameLandscape.setLayer(scrollPane, (Integer) JLayeredPane.DEFAULT_LAYER);
+        frameLandscape.setLayer(commandBar, JLayeredPane.PALETTE_LAYER);
+        frameLandscape.setLayer(scrollPane, JLayeredPane.DEFAULT_LAYER);
+
+        // Add our progress-panel.  If setTracks is called promptly, it will be cleared
+        // away before it ever has a chance to draw.
+        getContentPane().add(new ProgressPanel());
     }
 
     public JLayeredPane getFrameLandscape() {
@@ -242,8 +251,12 @@ public class Frame extends DockableFrame implements DataRetrievalListener {
         return graphPane;
     }
 
-    public final List<Track> getTracks() {
+    public final Track[] getTracks() {
         return tracks;
+    }
+
+    public void setTracks(List<Track> newTracks) {
+        setTracks(newTracks.toArray(tracks));
     }
 
     /**
@@ -253,20 +266,32 @@ public class Frame extends DockableFrame implements DataRetrievalListener {
      *
      * @param newTracks the tracks to be displayed in this frame
      */
-    public void setTracks(List<Track> newTracks) {
-        for (Track t: newTracks) {
-            tracks.add(t);
+    public void setTracks(Track[] newTracks) {
+        if (!ReferenceController.getInstance().isGenomeLoaded()) {
+            if (newTracks[0].getDataFormat() == DataFormat.SEQUENCE_FASTA) {
+                Savant.getInstance().setGenomeFromTrack(newTracks[0], this);
+            } else {
+                trackCreationFailed(null);
+                DialogUtils.displayError("Sorry", "This does not appear to be a genome track. Please load a genome first.");
+            }
+            return;
+        }
+
+        LOG.trace("Frame being set up with " + newTracks.length + " tracks.");
+        tracks = newTracks;
+        graphPane.setTracks(tracks);
+
+        for (Track t: tracks) {
             t.setFrame(this);
-            graphPane.addTrack(t);
 
             //CREATE LEGEND PANEL
             if (t.getDataSource().getDataFormat() == DataFormat.INTERVAL_BAM) {
-                arcLegend = t.getRenderer().arcLegendPaint();
+                arcLegend.add(t.getRenderer().arcLegendPaint());
             }
         }
 
         // We get the name and other properties from the zero'th track.
-        Track t0 = newTracks.get(0);
+        Track t0 = tracks[0];
         setName(t0.getName());
         setKey(t0.getName());
         if (t0.getDrawModes().size() > 0){
@@ -274,7 +299,7 @@ public class Frame extends DockableFrame implements DataRetrievalListener {
             commandBar.add(displayMenu);
         }
 
-        // TODO: Should we be doing BAM-specific stuff in this class?
+        // TODO: Should we really be doing BAM-specific stuff in this class?
         if (t0.getDataSource().getDataFormat() == DataFormat.INTERVAL_BAM) {
             arcButton = createArcButton();
             commandBar.add(arcButton);
@@ -288,6 +313,14 @@ public class Frame extends DockableFrame implements DataRetrievalListener {
                 intervalButton.setVisible(true);
             }
         }
+
+        JPanel contentPane = (JPanel)getContentPane();
+
+        // This calls drawFrames() which sets up the initial render.
+        FrameController.getInstance().addFrame(this, contentPane);
+
+        contentPane.setLayout(new BorderLayout());
+        contentPane.add(frameLandscape);
     }
 
     /**
@@ -296,7 +329,7 @@ public class Frame extends DockableFrame implements DataRetrievalListener {
      * @param newTrack the track to be used for this frame.
      */
     public void setTrack(Track newTrack) {
-        setTracks(Arrays.asList(new Track[] { newTrack }));
+        setTracks(new Track[] { newTrack });
     }
 
 
@@ -317,15 +350,17 @@ public class Frame extends DockableFrame implements DataRetrievalListener {
     }
 
     public void resetLayers(){
-        arcLegend.setVisible(tracks.get(0).getDrawModes().size() > 0 && tracks.get(0).getDrawMode().equals(BAMTrackRenderer.MATE_PAIRS_MODE));
-        // TODO: When this line is uncommented, it causes flicker in the GraphPane.  Do we need it?
- //       frameLandscape.moveToBack(graphPane);
+        if (tracks.length > 0) {
+            arcLegend.setVisible(tracks[0].getDrawModes().size() > 0 && tracks[0].getDrawMode().equals(BAMTrackRenderer.MATE_PAIRS_MODE));
+        }
+        frameLandscape.moveToBack(graphPane);
     }
 
     private void tempHideCommands(){
         if (isActive()) {
             commandBar.setVisible(false);
             commandBarHidden.setVisible(false);
+            arcLegend.setVisible(false);
         }
     }
 
@@ -333,6 +368,7 @@ public class Frame extends DockableFrame implements DataRetrievalListener {
         if (isActive()) {
             commandBar.setVisible(commandBarActive);
             commandBarHidden.setVisible(!commandBarActive);
+            arcLegend.setVisible(tracks[0].getDrawModes().size() > 0 && tracks[0].getDrawMode().equals(BAMTrackRenderer.MATE_PAIRS_MODE));
         }
     }
 
@@ -390,7 +426,7 @@ public class Frame extends DockableFrame implements DataRetrievalListener {
         button.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                tracks.get(0).captureColorParameters();
+                tracks[0].captureColorParameters();
             }
         });
         button.setFocusPainted(false);
@@ -418,7 +454,7 @@ public class Frame extends DockableFrame implements DataRetrievalListener {
         item1.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                tracks.get(0).captureColorParameters();
+                tracks[0].captureColorParameters();
             }
         });
         menu.add(item1);
@@ -482,8 +518,7 @@ public class Frame extends DockableFrame implements DataRetrievalListener {
         button.setToolTipText("Change mate pair parameters");
         button.addMouseListener(new MouseListener() {
             public void mouseClicked(MouseEvent e) {
-                final BAMTrack innerTrack = (BAMTrack)tracks.get(0);
-                graphPane.getBAMParams(innerTrack);
+                graphPane.getBAMParams((BAMTrack)tracks[0]);
             }
             public void mousePressed(MouseEvent e) {}
             public void mouseReleased(MouseEvent e) {}
@@ -502,7 +537,7 @@ public class Frame extends DockableFrame implements DataRetrievalListener {
         button.setToolTipText("Change interval display parameters");
         button.addMouseListener(new MouseListener() {
             public void mouseClicked(MouseEvent e) {
-                tracks.get(0).captureIntervalParameters();
+                tracks[0].captureIntervalParameters();
             }
             public void mousePressed(MouseEvent e) {}
             public void mouseReleased(MouseEvent e) {}
@@ -520,7 +555,7 @@ public class Frame extends DockableFrame implements DataRetrievalListener {
         JMenu menu = new JMenu("Display Mode");
         
         //display modes
-        List<String> drawModes = this.tracks.get(0).getDrawModes();
+        List<String> drawModes = this.tracks[0].getDrawModes();
         visItems = new ArrayList<JCheckBoxMenuItem>();
         for(int i = 0; i < drawModes.size(); i++){
             final JCheckBoxMenuItem item = new JCheckBoxMenuItem(drawModes.get(i));
@@ -530,15 +565,15 @@ public class Frame extends DockableFrame implements DataRetrievalListener {
                     if(item.getState()){
                         for(int j = 0; j < visItems.size(); j++){
                             visItems.get(j).setState(false);
-                            if(item.getText().equals(tracks.get(0).getDrawModes().get(j))){
-                                DrawModeController.getInstance().switchMode(tracks.get(0), tracks.get(0).getDrawModes().get(j));
+                            if(item.getText().equals(tracks[0].getDrawModes().get(j))){
+                                DrawModeController.getInstance().switchMode(tracks[0], tracks[0].getDrawModes().get(j));
                             }
                         }
                     }
                     item.setState(true);
                 }
             });
-            if(drawModes.get(i).equals(tracks.get(0).getDrawMode())) {
+            if(drawModes.get(i).equals(tracks[0].getDrawMode())) {
                 item.setState(true);
             }
             visItems.add(item);
@@ -556,28 +591,16 @@ public class Frame extends DockableFrame implements DataRetrievalListener {
      *
      * @param range
      */
-    public void drawTracksInRange(String reference, Range range)
-    {
+    public void drawTracksInRange(String reference, Range range) {
         if (!isLocked()) { currentRange = range; }
         if (graphPane.isLocked()) { return; }
 
-        if (this.tracks.size() > 0) {
+        graphPane.setXRange(currentRange);
 
-            graphPane.setXRange(currentRange);
-
-            for (Track track : tracks) {
-                track.prepareForRendering(reference, range);
-            }
+        for (Track t : tracks) {
+            t.prepareForRendering(reference, range);
         }
-        this.resetLayers();
-    }
-
-    private GraphPane getNewZedGraphControl() {
-        GraphPane zgc = new GraphPane(this);
-
-        // TODO: set properties
-
-        return zgc;
+        resetLayers();
     }
 
     // TODO: what is locking for?
@@ -589,11 +612,6 @@ public class Frame extends DockableFrame implements DataRetrievalListener {
     }
 
     public boolean isLocked() { return this.isLocked; }
-
-    private void initGraph() {
-        graphPane = getNewZedGraphControl();
-        graphPane.setBackground(ColourSettings.getFrameBackground());
-    }
 
     // FIXME: this is a horrible kludge
     public void drawModeChanged(DrawModeChangedEvent evt) {
@@ -665,7 +683,7 @@ public class Frame extends DockableFrame implements DataRetrievalListener {
         graphPane.unforceFullHeight();
         g.setColor(Color.black);
         g.setFont(new Font(null, Font.BOLD, 13));
-        g.drawString(this.getTracks().get(0).getName(), 2, 15);
+        g.drawString(tracks[0].getName(), 2, 15);
         return bufferedImage;
     }
 
@@ -685,5 +703,19 @@ public class Frame extends DockableFrame implements DataRetrievalListener {
         LOG.trace("Frame received dataRetrievalFailed.  Forcing full render.");
         graphPane.setRenderRequired();
         graphPane.repaint();
+    }
+
+    @Override
+    public void trackCreationStarted(TrackCreationEvent evt) {
+    }
+
+    @Override
+    public void trackCreationCompleted(TrackCreationEvent evt) {
+        setTracks(evt.getTracks());
+    }
+
+    @Override
+    public void trackCreationFailed(TrackCreationEvent evt) {
+        DockableFrameController.getInstance().closeDockableFrame(this, false);
     }
 }

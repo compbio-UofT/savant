@@ -286,7 +286,7 @@ public class LoadGenomeDialog extends javax.swing.JDialog {
                 loadedGenome = new Genome((BuildInfo) buildCombo.getSelectedItem());
             }
 
-            Savant.getInstance().setGenome(loadedGenome.getName(), loadedGenome);
+            Savant.getInstance().setGenome(loadedGenome.getName(), loadedGenome, null);
         } catch (IOException ex) {
             JOptionPane.showMessageDialog(this, "Error creating genome.");
             return;
@@ -324,7 +324,7 @@ public class LoadGenomeDialog extends javax.swing.JDialog {
                     return;
                 }
                 t = TrackFactory.createTrack(s);
-                Savant.getInstance().setGenomeFromTrack(t);
+                Savant.getInstance().setGenomeFromTrack(t, null);
             } catch (SavantTrackCreationCancelledException ex) {
                 Savant.getInstance().showOpenGenomeDialog();
                 return;

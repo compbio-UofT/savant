@@ -63,7 +63,7 @@ class FrameSheet implements FrameAddedListener, FrameRemovedListener {
     private void updateFrameSheetList() {
         DefaultListModel model = (DefaultListModel) this.list.getModel();
         for (int i = 0; i < FrameController.getInstance().getFrames().size(); i++) {
-            model.add(i, FrameController.getInstance().getFrames().get(i).getTracks().get(0).getName());
+            model.add(i, FrameController.getInstance().getFrames().get(i).getTracks()[0].getName());
         }
     }
 
@@ -109,9 +109,9 @@ class FrameSheet implements FrameAddedListener, FrameRemovedListener {
 
         for (int j = 0; j < frames.size(); j++) {
             Frame fr = frames.get(j);
-            String[] trackNames = new String[fr.getTracks().size()];
-            for (int i = 0; i < fr.getTracks().size(); i++) {
-                trackNames[i] = fr.getTracks().get(i).getName();
+            String[] trackNames = new String[fr.getTracks().length];
+            for (int i = 0; i < fr.getTracks().length; i++) {
+                trackNames[i] = fr.getTracks()[i].getName();
             }
             framesTree.put("Frame " + (j+1), trackNames);
         }

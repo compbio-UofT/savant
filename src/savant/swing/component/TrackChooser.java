@@ -1,5 +1,5 @@
 /*
- *    Copyright 2010 University of Toronto
+ *    Copyright 2010-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.*;
+
 import savant.controller.FrameController;
 import savant.file.DataFormat;
 import savant.view.swing.Frame;
@@ -110,7 +111,7 @@ public class TrackChooser extends JDialog {
             String current = leftTracks[i];
             for(int j = 0; j <frames.size(); j++){
                 if(frames.get(j).getName().equals(current)){
-                    if(!frames.get(j).getTracks().get(0).getDataSource().getDataFormat().equals(ff)){
+                    if(!frames.get(j).getTracks()[0].getDataSource().getDataFormat().equals(ff)){
                         remove[count] = i;
                         removed[count] = current;
                         count++;
@@ -419,12 +420,12 @@ public class TrackChooser extends JDialog {
         rightList.setModel(new TrackListModel());
 
         List<Frame> frames = FrameController.getInstance().getFrames();
-        String[] tracks = new String[frames.size()];
+        String[] trackNames = new String[frames.size()];
         List<DataFormat> fileFormats = new ArrayList<DataFormat>();
         for(int i = 0; i <frames.size(); i++){
             //tracks[i] = frames.get(i).getTracks().get(0).getName();
-            tracks[i] = frames.get(i).getName();
-            DataFormat ff = frames.get(i).getTracks().get(0).getDataSource().getDataFormat();
+            trackNames[i] = frames.get(i).getName();
+            DataFormat ff = frames.get(i).getTracks()[0].getDataSource().getDataFormat();
             if(!fileFormats.contains(ff)) fileFormats.add(ff);
         }
         filterCombo.addItem("ALL");
@@ -438,7 +439,7 @@ public class TrackChooser extends JDialog {
             }
         });
 
-        ((TrackListModel)leftList.getModel()).init(tracks);
+        ((TrackListModel)leftList.getModel()).init(trackNames);
     }
 
     private class TrackListModel extends DefaultListModel {

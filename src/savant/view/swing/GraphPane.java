@@ -16,17 +16,15 @@
 
 package savant.view.swing;
 
-import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import javax.swing.*;
 
 import com.jidesoft.popup.JidePopup;
-import javax.swing.border.EmptyBorder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -42,6 +40,7 @@ import savant.exception.RenderingException;
 import savant.selection.PopupThread;
 import savant.selection.PopupPanel;
 import savant.settings.ColourSettings;
+import savant.swing.component.ProgressPanel;
 import savant.util.*;
 import savant.view.dialog.BAMParametersDialog;
 import savant.view.swing.continuous.ContinuousTrackRenderer;
@@ -56,7 +55,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
 
     private static final Log LOG = LogFactory.getLog(GraphPane.class);
 
-    private List<Track> tracks;
+    private Track[] tracks;
     private Frame parentFrame;
 
     private int mouse_x = 0;
@@ -134,8 +133,6 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
     public GraphPane(Frame parent) {
         this.parentFrame = parent;
 
-        tracks = new ArrayList<Track>();
-        setDoubleBuffered(true);
         addMouseListener(this); // listens for own mouse and
         addMouseMotionListener( this ); // mouse-motion events
         //addKeyListener( this );
@@ -163,22 +160,18 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
      *
      * @param track - the Track to add
      */
-    public void addTrack(Track track) {
-        tracks.add(track);
-        setIsOrdinal(track.getRenderer().isOrdinal());
-        setYRange(track.getRenderer().getDefaultYRange());
+    public void setTracks(Track[] tracks) {
+        this.tracks = tracks;
+        setIsOrdinal(tracks[0].getRenderer().isOrdinal());
+        setYRange(tracks[0].getRenderer().getDefaultYRange());
     }
 
     /**
      * Return the list of tracks associated with this GraphPane.
      */
-    public List<Track> getTracks() {
+    public Track[] getTracks() {
         return tracks;
     }
-
-    /**
-     * DRAWING
-     */
 
     /**
      * Render the contents of the graphpane. Includes drawing a common
@@ -187,7 +180,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
      * @param g The Graphics object into which to draw.
      */
     public Dimension render(Graphics g) {
-        return render(g, new Range(xMin,xMax), null);
+        return render(g, new Range(xMin, xMax), null);
     }
 
     public Dimension render(Graphics g, Range xRange) {
@@ -195,18 +188,17 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
     }
 
     public Dimension render(Graphics g, Range xRange, Range yRange) {
-        LOG.trace("GraphPane.render(" + xRange + "), clipBounds=" + g.getClipBounds());
         double oldUnitHeight = unitHeight;
         long oldYMax = yMax;
 
         Graphics2D g2d0 = (Graphics2D)g;
-        // Paint a gradient from top to bottom
-            GradientPaint gp0 = new GradientPaint(
-                0, 0, ColourSettings.getGraphPaneBackgroundTop(),
-                0, this.getHeight(), ColourSettings.getGraphPaneBackgroundBottom());
 
-            g2d0.setPaint( gp0 );
-            g2d0.fillRect( 0, 0, this.getWidth(), this.getHeight() );
+        // Paint a gradient from top to bottom
+        GradientPaint gp0 = new GradientPaint(
+            0, 0, ColourSettings.getGraphPaneBackgroundTop(),
+            0, this.getHeight(), ColourSettings.getGraphPaneBackgroundBottom());
+        g2d0.setPaint( gp0 );
+        g2d0.fillRect( 0, 0, getWidth(), getHeight() );
 
         GraphPaneController gpc = GraphPaneController.getInstance();
         int x1 = MiscUtils.transformPositionToPixel(gpc.getMouseDragRange().getFrom(), this.getWidth(), new Range(this.xMin, this.xMax));
@@ -217,11 +209,16 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
 
 
         // Deal with the progress-bar.
-        for (Track t: tracks) {
-            if (t.getRenderer().isWaitingForData()) {
-                String progressMsg = (String)t.getRenderer().getInstruction(DrawingInstruction.PROGRESS);
-                showProgress(progressMsg);
-                return getSize();
+        if (tracks == null) {
+            showProgress("Creating track...");
+            return getSize();
+        } else {
+            for (Track t: tracks) {
+                if (t.getRenderer().isWaitingForData()) {
+                    String progressMsg = (String)t.getRenderer().getInstruction(DrawingInstruction.PROGRESS);
+                    showProgress(progressMsg);
+                    return getSize();
+                }
             }
         }
         if (progressPanel != null) {
@@ -255,8 +252,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         yMin = minYRange;
         yMax = maxYRange;
 
-        String currentMode = this.parentFrame.getTracks().get(0).getDrawMode();
-        //BufferedImage bf1;
+        String currentMode = tracks[0].getDrawMode();
 
         //boolean sameRange = (prevRange != null && RangeController.getInstance().getRange().equals(prevRange));
         boolean sameRange = (prevRange != null && xRange.equals(prevRange));
@@ -278,7 +274,6 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
 
         //if nothing has changed draw buffered image
         if(sameRange && sameMode && sameSize && sameRef && !renderRequired && withinScrollBounds){
-            LOG.trace("Blitting " + bufferedImage.getWidth() + "x" + bufferedImage.getHeight() + " bufferedImage at (0, " + getOffset() + ")");
             g.drawImage(bufferedImage, 0, getOffset(), this);
             
             if(this.currentOverShape != null){
@@ -306,105 +301,103 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
             //force unitHeight from last render
             unitHeight = oldUnitHeight;
             yMax = oldYMax;
-
-            parentFrame.commandBar.repaint();
-
-            return this.getSize();
-        }
-
-        // Otherwise prepare for new render.
-        renderRequired = false;
-
-        int h = getHeight();
-        if (!forcedHeight) {
-            h = Math.min(h, parentFrame.scrollPane.getViewport().getHeight() * 3);
-        }
-        bufferedImage = new BufferedImage(getWidth(), h, BufferedImage.TYPE_INT_RGB);
-        if (bufferedImage.getHeight() == getHeight()){
-            setOffset(0);
         } else {
-            setOffset(((JScrollPane)getParent().getParent().getParent()).getVerticalScrollBar().getValue() - parentFrame.scrollPane.getViewport().getHeight());
-        }
-        LOG.trace("Rendering fresh " + bufferedImage.getWidth() + "x" + bufferedImage.getHeight() + " bufferedImage at (0, " + getOffset() + ")");
 
-        Graphics2D g3 = bufferedImage.createGraphics();
-        g3.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        prevRange = RangeController.getInstance().getRange();
-        prevSize = this.getSize();
-        prevDrawMode = this.parentFrame.getTracks().get(0).getDrawMode();
-        prevRef = ReferenceController.getInstance().getReferenceName();
+            // Otherwise prepare for new render.
+            renderRequired = false;
 
-        renderBackground(g3);
-
-        /*
-        // Get current time
-        long start = System.currentTimeMillis();
-         */
-
-        // Call the actual render() methods.
-        boolean nothingRendered = true;
-        String message = null;
-        for (Track t: tracks) {
-            // Change renderers' drawing instructions to reflect consolidated YRange
-            t.getRenderer().addInstruction(DrawingInstruction.AXIS_RANGE, AxisRange.initWithRanges(xRange, consolidatedYRange));
-            try {
-                t.getRenderer().render(g3, this);
-                nothingRendered = false;
-            } catch (RenderingException rx) {
-                message = rx.getMessage();
+            int h = getHeight();
+            if (!forcedHeight) {
+                h = Math.min(h, parentFrame.scrollPane.getViewport().getHeight() * 3);
             }
+            bufferedImage = new BufferedImage(getWidth(), h, BufferedImage.TYPE_INT_RGB);
+            if (bufferedImage.getHeight() == getHeight()){
+                setOffset(0);
+            } else {
+                setOffset(((JScrollPane)getParent().getParent().getParent()).getVerticalScrollBar().getValue() - parentFrame.scrollPane.getViewport().getHeight());
+            }
+            LOG.trace("Rendering fresh " + bufferedImage.getWidth() + "x" + bufferedImage.getHeight() + " bufferedImage at (0, " + getOffset() + ")");
+
+            Graphics2D g3 = bufferedImage.createGraphics();
+            g3.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            prevRange = RangeController.getInstance().getRange();
+            prevSize = this.getSize();
+            prevDrawMode = tracks[0].getDrawMode();
+            prevRef = ReferenceController.getInstance().getReferenceName();
+
+            renderBackground(g3);
+
+            /*
+            // Get current time
+            long start = System.currentTimeMillis();
+             */
+
+            // Call the actual render() methods.
+            boolean nothingRendered = true;
+            String message = null;
+            for (Track t: tracks) {
+                // Change renderers' drawing instructions to reflect consolidated YRange
+                t.getRenderer().addInstruction(DrawingInstruction.AXIS_RANGE, AxisRange.initWithRanges(xRange, consolidatedYRange));
+                try {
+                    t.getRenderer().render(g3, this);
+                    nothingRendered = false;
+                } catch (RenderingException rx) {
+                    message = rx.getMessage();
+                }
+            }
+            if (nothingRendered && message != null) {
+                drawMessage(g3, message);
+            }
+
+            drawMaxYPlotValue(g3);
+            renderSides(g3);
+
+            //if a change has occured that affects scrollbar...
+            if (paneResize) {
+                paneResize = false;
+
+                //get old scroll position
+                int oldScroll = ((JScrollPane)this.getParent().getParent().getParent()).getVerticalScrollBar().getValue();
+                int oldViewHeight = ((JViewport)this.getParent().getParent()).getHeight();
+                int oldBottomHeight = oldHeight - oldScroll - oldViewHeight;
+
+                //change size of current frame
+                Frame frame = this.getParentFrame();
+                frame.getFrameLandscape().setPreferredSize(new Dimension(this.getWidth(), newHeight));
+                this.setPreferredSize(new Dimension(frame.getFrameLandscape().getWidth(), newHeight));
+                frame.getFrameLandscape().setSize(new Dimension(frame.getFrameLandscape().getWidth(), newHeight));
+                this.setSize(new Dimension(frame.getFrameLandscape().getWidth(), newHeight));
+                this.revalidate();
+
+                //scroll so that bottom matches previous view
+                newScroll = newHeight - oldViewHeight - oldBottomHeight;
+
+                return new Dimension(frame.getFrameLandscape().getWidth(), newHeight);
+
+            }
+
+            if(newScroll != -1){
+                ((JScrollPane)this.getParent().getParent().getParent()).getVerticalScrollBar().setValue(newScroll);
+                newScroll = -1;
+            }
+
+            oldWidth = getParentFrame().getFrameLandscape().getWidth();
+            oldHeight = getParentFrame().getFrameLandscape().getHeight();
+
+            /*
+            // Get elapsed time in milliseconds
+            long elapsedTimeMillis = System.currentTimeMillis()-start;
+
+            // Get elapsed time in seconds
+            float elapsedTimeSec = elapsedTimeMillis/1000F;
+
+            System.out.println("\tRendering of " + tracks.get(0).getName() + " took " + elapsedTimeSec + " seconds");
+             */
+
+            g.drawImage(bufferedImage, 0, getOffset(), this);
         }
-        if (nothingRendered && message != null) {
-            drawMessage(g3, message);
-        }
-
-        drawMaxYPlotValue(g3);
-        renderSides(g3);
-
-        //if a change has occured that affects scrollbar...
-        if (paneResize) {
-            paneResize = false;
-
-            //get old scroll position
-            int oldScroll = ((JScrollPane)this.getParent().getParent().getParent()).getVerticalScrollBar().getValue();
-            int oldViewHeight = ((JViewport)this.getParent().getParent()).getHeight();
-            int oldBottomHeight = oldHeight - oldScroll - oldViewHeight;
-
-            //change size of current frame
-            Frame frame = this.getParentFrame();
-            frame.getFrameLandscape().setPreferredSize(new Dimension(this.getWidth(), newHeight));
-            this.setPreferredSize(new Dimension(frame.getFrameLandscape().getWidth(), newHeight));
-            frame.getFrameLandscape().setSize(new Dimension(frame.getFrameLandscape().getWidth(), newHeight));
-            this.setSize(new Dimension(frame.getFrameLandscape().getWidth(), newHeight));
-            this.revalidate();
-
-            //scroll so that bottom matches previous view
-            newScroll = newHeight - oldViewHeight - oldBottomHeight;
-
-            return new Dimension(frame.getFrameLandscape().getWidth(), newHeight);
-
-        }
-
-        if(newScroll != -1){
-            ((JScrollPane)this.getParent().getParent().getParent()).getVerticalScrollBar().setValue(newScroll);
-            newScroll = -1;
-        }
-
-        oldWidth = getParentFrame().getFrameLandscape().getWidth();
-        oldHeight = getParentFrame().getFrameLandscape().getHeight();
-
-        /*
-        // Get elapsed time in milliseconds
-        long elapsedTimeMillis = System.currentTimeMillis()-start;
-
-        // Get elapsed time in seconds
-        float elapsedTimeSec = elapsedTimeMillis/1000F;
-
-        System.out.println("\tRendering of " + tracks.get(0).getName() + " took " + elapsedTimeSec + " seconds");
-         */
-
-        g.drawImage(bufferedImage, 0, getOffset(), this);
         renderCurrentSelected(g);
+        parentFrame.arcLegend.repaint();
         parentFrame.commandBar.repaint();
 
         return getSize();
@@ -487,7 +480,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
     }
 
     public void setPaneResize(boolean resized){
-        this.paneResize = resized;
+        paneResize = resized;
     }
 
     int rendercount = 0;
@@ -1077,7 +1070,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         if (x2 < 0) { x2 = 0; }
         if (x2 > this.getWidth()) { x2 = this.getWidth(); }
 
-        this.isDragging = true;
+        isDragging = true;
 
         if (gpc.isPanning()) {
             this.setCursor(new Cursor(Cursor.HAND_CURSOR));
@@ -1280,7 +1273,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
                 }
 
                 createJidePopup();
-                PopupPanel pp = PopupPanel.create(this, tracks.get(0).getDrawMode(), t.getDataSource().getDataFormat(), currentOverRecord);
+                PopupPanel pp = PopupPanel.create(this, tracks[0].getDrawMode(), t.getDataSource().getDataFormat(), currentOverRecord);
                 if (pp != null){
                     popPanel.add(pp, BorderLayout.CENTER);
                     Point p1 = (Point)p.clone();
@@ -1419,24 +1412,5 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
             add(progressPanel);
         }
         progressPanel.setMessage(msg);
-    }
-
-    class ProgressPanel extends JPanel {
-        private JLabel message;
-
-        ProgressPanel() {
-            super(new BorderLayout());
-            setBorder(new EmptyBorder(10, 10, 10, 10));
-            setOpaque(false);
-            JProgressBar bar = new JProgressBar();
-            bar.setIndeterminate(true);
-            message = new JLabel();
-            add(bar, BorderLayout.CENTER);
-            add(message, BorderLayout.SOUTH);
-        }
-
-        void setMessage(String msg) {
-            message.setText(msg);
-        }
     }
 }
