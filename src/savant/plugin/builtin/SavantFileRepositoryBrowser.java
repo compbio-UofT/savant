@@ -97,15 +97,23 @@ public class SavantFileRepositoryBrowser extends JDialog {
         bottombar.setAlignmentX(RIGHT_ALIGNMENT);
         bottombar.add(Box.createHorizontalGlue());
         JButton openbutt = new JButton("Load Track");
-        openbutt.putClientProperty( "JButton.buttonType", "default" );
+        openbutt.putClientProperty("JButton.buttonType", "default");
         openbutt.addActionListener(new ActionListener() {
-
             @Override
             public void actionPerformed(ActionEvent e) {
                 actOnSelectedItem(false);
             }
         });
         bottombar.add(openbutt);
+        JButton cancelButton = new JButton("Cancel");
+        cancelButton.putClientProperty("JButton.buttonType", "default");
+        cancelButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                closeDialog();
+            }
+        });
+        bottombar.add(cancelButton);
 
         this.add(bottombar, BorderLayout.SOUTH);
 
@@ -133,7 +141,7 @@ public class SavantFileRepositoryBrowser extends JDialog {
     }
 
     private void closeDialog() {
-        this.setVisible(false);
+        setVisible(false);
     }
 
     public DataSource getDataSource() {
