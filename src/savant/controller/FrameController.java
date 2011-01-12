@@ -1,5 +1,5 @@
 /*
- * RangeController.java
+ * FrameController.java
  * Created on Jan 19, 2010
  *
  *    Copyright 2010-2011 University of Toronto
@@ -41,7 +41,7 @@ import savant.view.swing.Track;
 
 
 /**
- * Controller object to manage changes to viewed range.
+ * Controller object to manage our collection of track frames.
  *
  * @author vwilliams
  */
@@ -81,8 +81,7 @@ public class FrameController {
         graphpane2dockable.put(f.getGraphPane(), panel);
         graphpane2frame.put(f.getGraphPane(), f);
 
-        //System.out.println("Drawing Frames");
-        this.drawFrames(); // crucially important, prepares initial renderer
+        drawFrames(); // crucially important, prepares initial renderer
         fireFrameChangedEvent(f);
     }
 
@@ -149,11 +148,13 @@ public class FrameController {
 
         GraphPaneController.getInstance().clearRenderingList();
 
-        for (Frame frame : frames) {
-            // added to detect when rendering has completed
-            GraphPaneController.getInstance().enlistRenderingGraphpane(frame.getGraphPane());
+        for (Frame f : frames) {
+            if (f.getTracks() != null) {
+                // added to detect when rendering has completed
+                GraphPaneController.getInstance().enlistRenderingGraphpane(f.getGraphPane());
 
-            frame.drawTracksInRange(ReferenceController.getInstance().getReferenceName(), rc.getRange());
+                f.drawTracksInRange(ReferenceController.getInstance().getReferenceName(), rc.getRange());
+            }
         }
     }
 

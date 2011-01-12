@@ -132,7 +132,6 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
      */
     public GraphPane(Frame parent) {
         this.parentFrame = parent;
-
         addMouseListener(this); // listens for own mouse and
         addMouseMotionListener( this ); // mouse-motion events
         //addKeyListener( this );
@@ -151,7 +150,6 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
 
     @Override
     public void graphpaneChangeReceived(GraphPaneChangeEvent event) {
-        GraphPaneController gpc = GraphPaneController.getInstance();
         parentFrame.resetLayers();
     }
 
@@ -873,8 +871,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
     }
 
     private boolean isZoomModifierPressed() {
-        if ((MiscUtils.MAC && isMetaModifierPressed()) || (!MiscUtils.MAC && isCtrlKeyModifierPressed())) return true;
-        else return false;
+        return (MiscUtils.MAC && isMetaModifierPressed()) || (!MiscUtils.MAC && isCtrlKeyModifierPressed());
     }
 
     private boolean isSelectModifierPressed() {
@@ -919,16 +916,10 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
             return;
         }
 
-        this.trySelect(event.getPoint());
+        trySelect(event.getPoint());
 
         setMouseModifier(event);
-
         parentFrame.resetLayers();
-
-        /*if (mac && event.isControlDown() || this.isRightClick()) {
-            menu.show(event.getComponent(), event.getX(), event.getY());
-        }*/
-
     }
 
     /**
@@ -994,8 +985,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
                 rc.setRange(newr);
             }
 
-            this.getParentFrame().commandBar.setVisible(true);
-
+            parentFrame.tempShowCommands();
         } else if (gpc.isZooming()) {
 
             RangeController rc = RangeController.getInstance();
@@ -1073,18 +1063,17 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         isDragging = true;
 
         if (gpc.isPanning()) {
-            this.setCursor(new Cursor(Cursor.HAND_CURSOR));
+            setCursor(new Cursor(Cursor.HAND_CURSOR));
         } else if (gpc.isZooming() || gpc.isSelecting()) {
-            this.setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
+            setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
         }
 
-        this.getParentFrame().commandBar.setVisible(false);
+        parentFrame.tempHideCommands();
 
-        //check if scrollbar is present (only vertical pan if present)
-        //boolean scroll = ((JScrollPane)this.getParent().getParent()).getVerticalScrollBar().isVisible();
-        boolean scroll = ((JScrollPane)this.getParent().getParent().getParent()).getVerticalScrollBar().isVisible();
+        // Check if scrollbar is present (only vertical pan if present)
+        boolean scroll = parentFrame.getVerticalScrollBar().isVisible();
 
-        if(scroll){
+        if (scroll){
 
             //get new points
             Point l = event.getLocationOnScreen();
@@ -1095,25 +1084,23 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
             int magX = Math.abs(currX - startX);
             int magY = Math.abs(currY - startY);
 
-            if(magX >= magY){
+            if (magX >= magY){
                 //pan horizontally, reset vertical pan
                 panVert = false;
                 gpc.setMouseReleasePosition(MiscUtils.transformPixelToPosition(x2, this.getWidth(), this.getHorizontalPositionalRange()));
-                //((JScrollPane)this.getParent().getParent()).getVerticalScrollBar().setValue(initialScroll);
-                ((JScrollPane)this.getParent().getParent().getParent()).getVerticalScrollBar().setValue(initialScroll);
+                parentFrame.getVerticalScrollBar().setValue(initialScroll);
             } else {
                 //pan vertically, reset horizontal pan
                 panVert = true;
                 gpc.setMouseReleasePosition(baseX);
-                //((JScrollPane)this.getParent().getParent()).getVerticalScrollBar().setValue(initialScroll - (currY - startY));
-                ((JScrollPane)this.getParent().getParent().getParent()).getVerticalScrollBar().setValue(initialScroll - (currY - startY));
+                parentFrame.getVerticalScrollBar().setValue(initialScroll - (currY - startY));
             }
         } else {
             //pan horizontally
             panVert = false;
             gpc.setMouseReleasePosition(MiscUtils.transformPixelToPosition(x2, this.getWidth(), this.getHorizontalPositionalRange()));
         }
-        
+
         parentFrame.resetLayers();
     }
 
@@ -1126,9 +1113,9 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         mouse_x = event.getX();
         mouse_y = event.getY();
 
-        // update the GraphPaneController's record of the mouse position
+        // Update the GraphPaneController's record of the mouse position
         GraphPaneController.getInstance().setMouseXPosition(MiscUtils.transformPixelToPosition(event.getX(), this.getWidth(), this.getHorizontalPositionalRange()));
-        if (this.isOrdinal()) {
+        if (isOrdinal()) {
             GraphPaneController.getInstance().setMouseYPosition(-1);
         } else {
             GraphPaneController.getInstance().setMouseYPosition(MiscUtils.transformPixelToPosition(this.getHeight() - event.getY(), this.getHeight(), new Range(this.yMin, this.yMax)));
@@ -1148,49 +1135,33 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
     }
 
     private void setZooming(GraphPaneController gpc) {
-        gpc.setZooming(this.isDragging &&  ((isLeftClick() && isZoomModifierPressed()) || (isRightClick() && isZoomModifierPressed())));
+        gpc.setZooming(isDragging &&  ((isLeftClick() && isZoomModifierPressed()) || (isRightClick() && isZoomModifierPressed())));
     }
 
     private void setSelecting(GraphPaneController gpc) {
-        gpc.setSelecting(this.isDragging &&  ((isLeftClick() && isSelectModifierPressed()) || (isRightClick() && isSelectModifierPressed())));
+        gpc.setSelecting(isDragging &&  ((isLeftClick() && isSelectModifierPressed()) || (isRightClick() && isSelectModifierPressed())));
     }
 
     private void setPanning(GraphPaneController gpc) {
-        gpc.setPanning(this.isDragging && isNoKeyModifierPressed());
+        gpc.setPanning(isDragging && isNoKeyModifierPressed());
     }
-
-    /**
-     * TRACK LOCKING
-     */
 
     /**
      *
      * @return true if the track is locked, false o/w
      */
     public boolean isLocked() {
-        return this.isLocked;
+        return isLocked;
     }
 
-    public void lock() {
-        setIsLocked(true);
-    }
-    public void unLock() {
-        setIsLocked(false);
-    }
-    
-    public void switchLocked() {
-        setIsLocked(!this.isLocked);
-    }
-
-    public void setIsLocked(boolean b) {
-        this.isLocked = b;
+    public void setLocked(boolean b) {
+        isLocked = b;
         if (b) {
-            RangeController rc = RangeController.getInstance();
-            this.lockedRange = rc.getRange();
+            lockedRange = RangeController.getInstance().getRange();
         } else {
-            this.lockedRange = null;
+            lockedRange = null;
         }
-        this.repaint();
+        repaint();
     }
 
     /**
@@ -1199,11 +1170,11 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
      */
 
     public Range getHorizontalPositionalRange() {
-        return new Range(this.xMin, this.xMax);
+        return new Range(xMin, xMax);
     }
 
     public Range getVerticalPositionalRange() {
-        return new Range(this.yMin, this.yMax);
+        return new Range(yMin, yMax);
     }
 
 

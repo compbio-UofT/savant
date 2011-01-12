@@ -71,10 +71,10 @@ public class BAMTrackRenderer extends TrackRenderer {
     /** MODE */
     public static final String STANDARD_MODE = "Standard";
     public static final String MISMATCH_MODE = "Mismatch";
-    public static final String STANDARD_PAIRED_MODE = "Read pair (Standard)";
-    public static final String ARC_PAIRED_MODE = "Read pair (Arc)";
-    public static final String MAPPING_QUALITY_MODE = "Mapping quality";
-    public static final String BASE_QUALITY_MODE = "Base quality";
+    public static final String STANDARD_PAIRED_MODE = "Read Pair (Standard)";
+    public static final String ARC_PAIRED_MODE = "Read Pair (Arc)";
+    public static final String MAPPING_QUALITY_MODE = "Mapping Quality";
+    public static final String BASE_QUALITY_MODE = "Base Quality";
     public static final String SNP_MODE = "SNP";
 
     private static Log LOG = LogFactory.getLog(BAMTrackRenderer.class);

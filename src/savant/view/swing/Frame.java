@@ -70,7 +70,7 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
     private JLayeredPane jlp;
 
     JMenuBar commandBar;
-    CommandBar commandBarHidden;
+    private CommandBar commandBarHidden;
     JPanel arcLegend;
     private List<JCheckBoxMenuItem> visItems;
     private JMenu arcButton;
@@ -83,7 +83,7 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
     public Frame() {
         super(SavantIconFactory.getInstance().getIcon(SavantIconFactory.StandardIcon.TRACK));
 
-        //INIT LEGEND PANEL
+        // Panel which holds the legend component (when present).
         arcLegend = new JPanel();
         arcLegend.setLayout(new BorderLayout());
         arcLegend.setVisible(false);
@@ -129,8 +129,6 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
         gbc.gridy = 0;
         jlp.add(graphPane, gbc, 0);
 
-
-        //scrollPane.getViewport().add(this.graphPane);
         scrollPane.getViewport().add(jlp);
 
         //frameLandscape.setLayout(new BorderLayout());
@@ -236,6 +234,7 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
         frameLandscape.add(scrollPane, c, 0);
 
         frameLandscape.setLayer(commandBar, JLayeredPane.PALETTE_LAYER);
+        frameLandscape.setLayer(arcLegend, JLayeredPane.PALETTE_LAYER);
         frameLandscape.setLayer(scrollPane, JLayeredPane.DEFAULT_LAYER);
 
         // Add our progress-panel.  If setTracks is called promptly, it will be cleared
@@ -249,6 +248,10 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
 
     public GraphPane getGraphPane() {
         return graphPane;
+    }
+
+    public JScrollBar getVerticalScrollBar() {
+        return scrollPane.getVerticalScrollBar();
     }
 
     public final Track[] getTracks() {
@@ -350,26 +353,23 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
     }
 
     public void resetLayers(){
-        if (tracks.length > 0) {
-            arcLegend.setVisible(tracks[0].getDrawModes().size() > 0 && tracks[0].getDrawMode().equals(BAMTrackRenderer.ARC_PAIRED_MODE));
-        }
         frameLandscape.moveToBack(graphPane);
     }
 
-    private void tempHideCommands(){
+    public void tempHideCommands(){
         if (isActive()) {
             commandBar.setVisible(false);
             commandBarHidden.setVisible(false);
-            arcLegend.setVisible(false);
         }
+        arcLegend.setVisible(false);
     }
 
     public void tempShowCommands(){
         if (isActive()) {
             commandBar.setVisible(commandBarActive);
             commandBarHidden.setVisible(!commandBarActive);
-            arcLegend.setVisible(tracks[0].getDrawModes().size() > 0 && tracks[0].getDrawMode().equals(BAMTrackRenderer.ARC_PAIRED_MODE));
         }
+        arcLegend.setVisible(tracks[0].getDrawModes().size() > 0 && tracks[0].getDrawMode().equals(BAMTrackRenderer.ARC_PAIRED_MODE));
     }
 
     /**
@@ -444,7 +444,7 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
         item.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                graphPane.switchLocked();
+                graphPane.setLocked(!graphPane.isLocked());
             }
         });
         menu.add(item);
@@ -473,7 +473,7 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
             public void actionPerformed(ActionEvent e) {
                 JideButton button = new JideButton();
                 for(int i = 0; i < commandBar.getComponentCount(); i++){
-                    if(commandBar.getComponent(i).getClass() == JideButton.class){
+                    if (commandBar.getComponent(i) instanceof JideButton){
                         button = (JideButton)commandBar.getComponent(i);
                         if(button.getText().equals("Lock Track  ") || button.getText().equals("Unlock Track  ")) break;
                     }
@@ -485,7 +485,7 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
                     button.setText("Lock Track  ");
                     button.setToolTipText("Prevent range changes on this track");
                 }
-                graphPane.switchLocked();
+                graphPane.setLocked(!graphPane.isLocked());
                 resetLayers();
             }
         });
@@ -618,29 +618,24 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
 
         Track track = evt.getTrack();
 
-//        if (getTracks().contains(track)) {
         boolean reRender = true;
         if (track.getDataSource().getDataFormat() == DataFormat.INTERVAL_BAM) {
             if (evt.getMode().equals(BAMTrackRenderer.ARC_PAIRED_MODE)) {
-                reRender = true;
                 setCoverageEnabled(false);
-                this.arcButton.setVisible(true);
-                this.intervalButton.setVisible(false);
-            }else {
-                if(evt.getMode().equals(BAMTrackRenderer.STANDARD_MODE) || evt.getMode().equals(BAMTrackRenderer.MISMATCH_MODE)){
-                    this.intervalButton.setVisible(true);
-                } else {
-                    this.intervalButton.setVisible(false);
-                }
+                intervalButton.setVisible(false);
+                arcButton.setVisible(true);
+                arcLegend.setVisible(true);
+            } else {
                 setCoverageEnabled(true);
-                reRender = true;
-                this.arcButton.setVisible(false);
+                intervalButton.setVisible(evt.getMode().equals(BAMTrackRenderer.STANDARD_MODE) || evt.getMode().equals(BAMTrackRenderer.MISMATCH_MODE));
+                arcButton.setVisible(false);
+                arcLegend.setVisible(false);
             }
         }
         if (reRender) {
+            validate();
             drawTracksInRange(ReferenceController.getInstance().getReferenceName(), RangeController.getInstance().getRange());
         }
-//        }
     }
 
     private void setCoverageEnabled(boolean enabled) {
