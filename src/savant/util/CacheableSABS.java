@@ -133,6 +133,7 @@ public class CacheableSABS extends SeekableAdjustableBufferedStream {
             //cache block
             byte[] b = new byte[bufferSize];
             bufferedStream.read(b, 0, bufferSize); //read buffer into byte[] b
+            if(cache == null) openCache(); //sometimes cache is null after above read... TODO: solve this?
             int storeOffset = (int)((cache.length() - (numBlocks * 4))/this.bufferSize)+1; //offset to data in cache
             long actualOffset = cache.length(); //actual pointer to data in cache            
             cache.seek(block * 4); //seek to write offset
