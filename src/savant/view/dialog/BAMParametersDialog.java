@@ -23,6 +23,8 @@
 package savant.view.dialog;
 
 import java.awt.*;
+import savant.util.SAMReadUtils;
+import savant.view.swing.interval.BAMTrack;
 
 /**
  *
@@ -33,6 +35,7 @@ public class BAMParametersDialog extends javax.swing.JDialog {
     private int discordantMin;
     private int discordantMax;
     private double arcLengthThreshold;
+    private SAMReadUtils.PairedSequencingProtocol prot;
 
     private boolean cancelled = false;
     private boolean accepted  = true;
@@ -42,8 +45,9 @@ public class BAMParametersDialog extends javax.swing.JDialog {
         super(parent, modal);
         initComponents();
         
-        this.setModal(true);
+        this.setModal(modal);
         this.getRootPane().setDefaultButton(buttonOK);
+        this.setLocationRelativeTo(parent);
     }
 
     /** This method is called from within the constructor to
@@ -55,6 +59,7 @@ public class BAMParametersDialog extends javax.swing.JDialog {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        buttonGroup1 = new javax.swing.ButtonGroup();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
@@ -64,15 +69,21 @@ public class BAMParametersDialog extends javax.swing.JDialog {
         buttonCancel = new javax.swing.JButton();
         buttonOK = new javax.swing.JButton();
         jLabel4 = new javax.swing.JLabel();
+        jLabel5 = new javax.swing.JLabel();
+        pairedend_button = new javax.swing.JRadioButton();
+        matepair_button = new javax.swing.JRadioButton();
+
+        buttonGroup1.add(pairedend_button);
+        buttonGroup1.add(matepair_button);
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
-        setTitle("BAM Arc Parameters");
+        setTitle("Read Pair Settings");
 
         jLabel1.setText("Min normal insert size:");
 
         jLabel2.setText("Max normal insert size:");
 
-        jLabel3.setText("Don't display insert sizes smaller than:");
+        jLabel3.setText("Ignore sizes smaller than:");
 
         textDiscordantMin.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -108,6 +119,13 @@ public class BAMParametersDialog extends javax.swing.JDialog {
 
         jLabel4.setText("eg. 100 or 10%");
 
+        jLabel5.setText("Sequencing Protocol:");
+
+        pairedend_button.setText("Paired-end");
+
+        matepair_button.setSelected(true);
+        matepair_button.setText("Matepair");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -123,21 +141,31 @@ public class BAMParametersDialog extends javax.swing.JDialog {
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel3)
                             .addComponent(jLabel2)
-                            .addComponent(jLabel1))
+                            .addComponent(jLabel1)
+                            .addComponent(jLabel5))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(textDiscordantMax, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 318, Short.MAX_VALUE)
                             .addGroup(layout.createSequentialGroup()
-                                .addComponent(textArcThreshold, javax.swing.GroupLayout.DEFAULT_SIZE, 224, Short.MAX_VALUE)
+                                .addComponent(matepair_button)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(pairedend_button))
+                            .addComponent(textDiscordantMax, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 174, Short.MAX_VALUE)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(textArcThreshold, javax.swing.GroupLayout.DEFAULT_SIZE, 80, Short.MAX_VALUE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(jLabel4))
-                            .addComponent(textDiscordantMin, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 318, Short.MAX_VALUE))))
+                            .addComponent(textDiscordantMin, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 174, Short.MAX_VALUE))))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 14, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(matepair_button)
+                    .addComponent(pairedend_button))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(textDiscordantMin, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 14, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -175,10 +203,11 @@ public class BAMParametersDialog extends javax.swing.JDialog {
     private void buttonCancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonCancelActionPerformed
         setCancelled(true);
         this.setVisible(false);
+        this.dispose();
     }//GEN-LAST:event_buttonCancelActionPerformed
 
     private void buttonOKActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonOKActionPerformed
-        if (parseDiscordantMin() && parseDiscordantMax() && parseArcThreshold()) {
+        if (parseProtocol() && parseDiscordantMin() && parseDiscordantMax() && parseArcThreshold()) {
             setAccepted(true);
             this.setVisible(false);
         }
@@ -226,6 +255,15 @@ public class BAMParametersDialog extends javax.swing.JDialog {
         return result;
     }
 
+    private boolean parseProtocol() {
+        if (pairedend_button.isSelected()) {
+            prot = SAMReadUtils.PairedSequencingProtocol.PAIREDEND;
+        } else if (matepair_button.isSelected()) {
+            prot = SAMReadUtils.PairedSequencingProtocol.MATEPAIR;
+        }
+        return true;
+    }
+
     private boolean parseArcThreshold() {
 
         boolean result = false;
@@ -260,11 +298,15 @@ public class BAMParametersDialog extends javax.swing.JDialog {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton buttonCancel;
+    private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.JButton buttonOK;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
+    private javax.swing.JRadioButton matepair_button;
+    private javax.swing.JRadioButton pairedend_button;
     private javax.swing.JTextField textArcThreshold;
     private javax.swing.JTextField textDiscordantMax;
     private javax.swing.JTextField textDiscordantMin;
@@ -285,6 +327,10 @@ public class BAMParametersDialog extends javax.swing.JDialog {
 
     public void setDiscordantMax(int discordantMax) {
         this.discordantMax = discordantMax;
+    }
+
+    public SAMReadUtils.PairedSequencingProtocol getSequencingProtocol() {
+        return prot;
     }
 
     public double getArcLengthThreshold() {
@@ -310,4 +356,6 @@ public class BAMParametersDialog extends javax.swing.JDialog {
     public void setAccepted(boolean accepted) {
         this.accepted = accepted;
     }
+
+
 }

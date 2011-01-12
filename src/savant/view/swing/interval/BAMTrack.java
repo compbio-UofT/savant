@@ -34,6 +34,7 @@ import savant.data.types.Record;
 import savant.exception.SavantTrackCreationCancelledException;
 import savant.settings.ColourSettings;
 import savant.util.*;
+import savant.util.SAMReadUtils.PairedSequencingProtocol;
 import savant.view.swing.Track;
 
 
@@ -49,26 +50,8 @@ public class BAMTrack extends Track {
     
     private static final Log LOG = LogFactory.getLog(BAMTrack.class);
 
-    /*
-    public enum DrawingMode {
-        STANDARD,
-        VARIANTS,
-        MATE_PAIRS,
-        SNP,
-        MAPPING_QUALITY
-    };
-     * 
-     */
 
-    /*
-    private static final Mode STANDARD_MODE = Mode.fromObject("Standard", "Colour by strand");
-    private static final Mode VARIANTS_MODE = Mode.fromObject("Mismatch", "Show indels and mismatches");
-    private static final Mode MATE_PAIRS_MODE = Mode.fromObject("Read pair", "Join mate pairs with arcs");
-    private static final Mode MAPPING_QUALITY_MODE = Mode.fromObject("Mapping quality", "Shade alignments by mapping quality");
-    private static final Mode BASE_QUALITY_MODE = Mode.fromObject("Base quality", "Shade read positions by base quality");
-    private static final Mode SNP_MODE = Mode.fromObject("SNP", "Show values per position");
-     * 
-     */
+    private SAMReadUtils.PairedSequencingProtocol pairedProtocol = SAMReadUtils.PairedSequencingProtocol.MATEPAIR;
 
     // if > 1, treat as absolute size below which an arc will not be drawn
     // if 0 < 1, treat as percentage of y range below which an arc will not be drawn
@@ -116,10 +99,10 @@ public class BAMTrack extends Track {
 
         Resolution r = getResolution(range);
         String errorMessage = null;
-        if (r == Resolution.VERY_HIGH || r == Resolution.HIGH || (getDrawMode().equals(BAMTrackRenderer.MATE_PAIRS_MODE) && r == Resolution.MEDIUM)) {
+        if (r == Resolution.VERY_HIGH || r == Resolution.HIGH || (getDrawMode().equals(BAMTrackRenderer.ARC_PAIRED_MODE) && r == Resolution.MEDIUM)) {
             renderer.addInstruction(DrawingInstruction.PROGRESS, "Loading BAM track...");
             requestData(reference, range);
-        } else if (getDrawMode().equals(BAMTrackRenderer.MATE_PAIRS_MODE)){
+        } else if (getDrawMode().equals(BAMTrackRenderer.ARC_PAIRED_MODE)){
             errorMessage = "Zoom in to see data";
         } else {
             errorMessage = "No coverage file available";
@@ -129,16 +112,13 @@ public class BAMTrack extends Track {
         renderer.addInstruction(DrawingInstruction.RANGE, range);
         renderer.addInstruction(DrawingInstruction.RESOLUTION, r);
         renderer.addInstruction(DrawingInstruction.COLOR_SCHEME, getColorScheme());
+        renderer.addInstruction(DrawingInstruction.PAIREDPROTOCOL, pairedProtocol);
 
         boolean f = containsReference(reference);
-        System.out.println("Contains reference? " + f);
         renderer.addInstruction(DrawingInstruction.REFERENCE_EXISTS, containsReference(reference));
 
-
-        System.out.println("Checking paired mode");
-
         //if (errorMessage == null) {
-            if (getDrawMode().equals(BAMTrackRenderer.MATE_PAIRS_MODE)) {
+            if (getDrawMode().equals(BAMTrackRenderer.ARC_PAIRED_MODE)) {
                 renderer.addInstruction(DrawingInstruction.ARC_MIN, getArcSizeVisibilityThreshold());
                 renderer.addInstruction(DrawingInstruction.DISCORDANT_MIN, getDiscordantMin());
                 renderer.addInstruction(DrawingInstruction.DISCORDANT_MAX, getDiscordantMax());
@@ -153,7 +133,7 @@ public class BAMTrack extends Track {
     /**
      * Calculate the maximum (within reason) arc height to be used to set the Y axis for drawing.
      */
-    public static long getMaxValue(List<Record> data) {
+    public static long getArcYMax(List<Record> data) {
 
         double max = 0;
         Range displayedRange = RangeController.getInstance().getRange();
@@ -169,6 +149,11 @@ public class BAMTrack extends Track {
 
             val = Math.abs(samRecord.getInferredInsertSize());
 
+            //TODO: make this value user settable
+            // never adjust max greater than this value
+            if (val > 10000) { continue; }
+
+            // adjust the max if this value is larger
             if (val > max) { max = val; }
 
         }
@@ -219,6 +204,14 @@ public class BAMTrack extends Track {
 
     public int getDiscordantMax() {
         return discordantMax;
+    }
+
+    public void setPairedProtocol(PairedSequencingProtocol t) {
+        this.pairedProtocol = t;
+    }
+
+    public PairedSequencingProtocol getPairedSequencingProtocol() {
+        return this.pairedProtocol;
     }
 
     public void setDiscordantMax(int discordantMax) {

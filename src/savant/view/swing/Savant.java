@@ -2568,6 +2568,9 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
 
         if (urlDialog.isAccepted()) {
             String urlString = urlDialog.getUrlAsString();
+
+            LOG.info("Opening url: " + urlString);
+
             try {
                 URL url = new URL(urlString);
                 String proto = url.getProtocol().toLowerCase();
@@ -2590,6 +2593,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
 
             } catch (Exception ex) {
                 DialogUtils.displayException("Load Track from URL", "Error opening remote file", ex);
+                return;
             }
         } else {
             if (loadAsGenome) {

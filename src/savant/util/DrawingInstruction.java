@@ -37,6 +37,7 @@ public enum DrawingInstruction {
     REFERENCE_EXISTS,   // boolean
     SELECTION_ALLOWED,  // boolean
     ERROR,              // String (error message)
-    PROGRESS            // String (progress message)
+    PROGRESS,            // String (progress message)
+    PAIREDPROTOCOL      // PairedProtocol enum, how paired sequencing is done
 }
 

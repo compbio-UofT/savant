@@ -128,7 +128,6 @@ public class BAMFileDataSource extends BAMDataSource implements FileDataSource {
     @Override
     public List<BAMIntervalRecord> getRecords(String reference, RangeAdapter range, Resolution resolution) throws OutOfMemoryError {
 
-
         //CloseableIterator<SAMRecord> recordIterator=null;
         SAMRecordIterator recordIterator=null;
         List<BAMIntervalRecord> result = new ArrayList<BAMIntervalRecord>();
@@ -147,20 +146,15 @@ public class BAMFileDataSource extends BAMDataSource implements FileDataSource {
             recordIterator = samFileReader.query(ref, range.getFromAsInt(), range.getToAsInt(), false);
 
             SAMRecord samRecord;
-            BAMIntervalRecord bamRecord;
+            BAMIntervalRecord record;
             while (recordIterator.hasNext()) {
                 samRecord = recordIterator.next();
                 // don't keep unmapped reads
                 if (samRecord.getReadUnmappedFlag()) continue;
 
-                // find out the type of the pair
-                BAMIntervalRecord.PairType type = null;
-                if (samRecord.getReadPairedFlag() && !samRecord.getMateUnmappedFlag()) {
-                    type = getPairType(samRecord.getAlignmentStart(), samRecord.getMateAlignmentStart(), samRecord.getReadNegativeStrandFlag(), samRecord.getMateNegativeStrandFlag());
-                }
-                bamRecord = BAMIntervalRecord.valueOf(samRecord, type);
+                record = BAMIntervalRecord.valueOf(samRecord);
 
-                result.add(bamRecord);
+                result.add(record);
             }
 
         } finally {
@@ -203,10 +197,10 @@ public class BAMFileDataSource extends BAMDataSource implements FileDataSource {
 
     /*
      * Determine the pair type: NORMAL, INVERTED_READ, INVERTED_MATE, EVERTED pair.
-     */
-    private BAMIntervalRecord.PairType getPairType(int readStart, int mateStart, boolean readNegative, boolean mateNegative) {
+     *
+    private SAMIntervalRecord.PairType getPairType(int readStart, int mateStart, boolean readNegative, boolean mateNegative) {
 
-        BAMIntervalRecord.PairType type=null;
+        SAMIntervalRecord.PairType type=null;
         boolean readNegativeStrand, mateNegativeStrand;
 
         // by switching the negative strand flags based on which read comes first, we can reduce 8 cases to 4
@@ -222,25 +216,27 @@ public class BAMFileDataSource extends BAMDataSource implements FileDataSource {
         // now is the first read pointing forward & mate pointing backward?
         if (!readNegativeStrand && mateNegativeStrand) {
             // congratulations, it's a normal pair!
-            type = BAMIntervalRecord.PairType.NORMAL;
+            type = SAMIntervalRecord.PairType.NORMAL;
         }
         // or are both reversed?
         else if (readNegativeStrand && mateNegativeStrand) {
             // this is a case of the read being inverted
-            type = BAMIntervalRecord.PairType.INVERTED_READ;
+            type = SAMIntervalRecord.PairType.INVERTED_READ;
         }
         // or are both forward?
         else if (!readNegativeStrand && !mateNegativeStrand) {
             // this is a case of the mate being inverted
-            type = BAMIntervalRecord.PairType.INVERTED_MATE;
+            type = SAMIntervalRecord.PairType.INVERTED_MATE;
         }
         // are the strands pointing away from each other?
         else if (readNegativeStrand && !mateNegativeStrand) {
             // the pair is everted
-            type = BAMIntervalRecord.PairType.EVERTED;
+            type = SAMIntervalRecord.PairType.EVERTED;
         }
         return type;
     }
+     *
+     */
 
     /**
      * Get the name of the sequence we are querying.

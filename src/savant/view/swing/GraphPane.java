@@ -279,7 +279,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
             if(this.currentOverShape != null){
                 //temporarily shift the origin
                 ((Graphics2D)g).translate(0, getOffset());
-                if(currentMode != null && currentMode.equals(BAMTrackRenderer.MATE_PAIRS_MODE)){
+                if(currentMode != null && currentMode.equals(BAMTrackRenderer.ARC_PAIRED_MODE)){
                     g.setColor(Color.red);
                     ((Graphics2D)g).draw(currentOverShape);
                 } else {
@@ -414,7 +414,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
                 if(!currentSelected.isEmpty()){
                     boolean arcMode = false;
                     if (t.getDrawMode() != null){
-                        arcMode = t.getDrawMode().equals(BAMTrackRenderer.MATE_PAIRS_MODE);
+                        arcMode = t.getDrawMode().equals(BAMTrackRenderer.ARC_PAIRED_MODE);
                     }
                     for(int i = 0; i < currentSelected.size(); i++){
                         Shape selectedShape = currentSelected.get(i);
@@ -1225,12 +1225,17 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
 
     }
 
+    private BAMParametersDialog paramDialog;
+
     public void getBAMParams(BAMTrack bamTrack) {
         // capture parameters needed to adjust display
-        BAMParametersDialog paramDialog = new BAMParametersDialog(Savant.getInstance(), true);
+        if (paramDialog == null) {
+            paramDialog = new BAMParametersDialog(Savant.getInstance(), true);
+        }
         paramDialog.setVisible(true);
         if (paramDialog.isAccepted()) {
             bamTrack.setArcSizeVisibilityThreshold(paramDialog.getArcLengthThreshold());
+            bamTrack.setPairedProtocol(paramDialog.getSequencingProtocol());
             bamTrack.setDiscordantMin(paramDialog.getDiscordantMin());
             bamTrack.setDiscordantMax(paramDialog.getDiscordantMax());
 

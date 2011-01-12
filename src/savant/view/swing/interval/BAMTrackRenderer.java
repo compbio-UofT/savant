@@ -27,7 +27,10 @@ import java.awt.geom.Arc2D;
 import java.awt.geom.Rectangle2D;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.swing.JPanel;
 import javax.swing.JViewport;
 
@@ -45,6 +48,7 @@ import savant.data.types.BAMIntervalRecord;
 import savant.data.types.Genome;
 import savant.data.types.Interval;
 import savant.data.types.IntervalRecord;
+import savant.data.types.ReadPairIntervalRecord;
 import savant.data.types.Record;
 import savant.exception.RenderingException;
 import savant.file.DataFormat;
@@ -67,7 +71,8 @@ public class BAMTrackRenderer extends TrackRenderer {
     /** MODE */
     public static final String STANDARD_MODE = "Standard";
     public static final String MISMATCH_MODE = "Mismatch";
-    public static final String MATE_PAIRS_MODE = "Read pair";
+    public static final String STANDARD_PAIRED_MODE = "Read pair (Standard)";
+    public static final String ARC_PAIRED_MODE = "Read pair (Arc)";
     public static final String MAPPING_QUALITY_MODE = "Mapping quality";
     public static final String BASE_QUALITY_MODE = "Base quality";
     public static final String SNP_MODE = "SNP";
@@ -93,15 +98,13 @@ public class BAMTrackRenderer extends TrackRenderer {
     // considered discordant
     private static int DISCORDANT_STD_DEV = 3;
 
-
-
-
     @Override
     public List<String> getRenderingModes() {
         List<String> modes = new ArrayList<String>();
         modes.add(STANDARD_MODE);
         modes.add(MISMATCH_MODE);
-        modes.add(MATE_PAIRS_MODE);
+        //modes.add(STANDARD_PAIRED_MODE);
+        modes.add(ARC_PAIRED_MODE);
         modes.add(MAPPING_QUALITY_MODE);
         modes.add(BASE_QUALITY_MODE);
         modes.add(SNP_MODE);
@@ -124,13 +127,9 @@ public class BAMTrackRenderer extends TrackRenderer {
     @Override
     public void dataRetrievalCompleted(DataRetrievalEvent evt) {
         String mode = (String)instructions.get(DrawingInstruction.MODE);
-
-        System.out.println("Data retrieval completed");
-        if (mode.equals("Read pair")){// && !instructions.containsKey(DrawingInstruction.ERROR)) {
-            long maxDataValue = BAMTrack.getMaxValue(evt.getData());
+        if (mode.equals(ARC_PAIRED_MODE)){// && !instructions.containsKey(DrawingInstruction.ERROR)) {
+            long maxDataValue = BAMTrack.getArcYMax(evt.getData());
             Range range = (Range)instructions.get(DrawingInstruction.RANGE);
-            System.out.println("max: " + maxDataValue);
-            System.out.println("Setting read pair axis range to " + new Range(0,(int)Math.round(maxDataValue+maxDataValue*0.1)));
             addInstruction(DrawingInstruction.AXIS_RANGE, AxisRange.initWithRanges(range, new Range(0,(int)Math.round(maxDataValue+maxDataValue*0.1))));
         }
         super.dataRetrievalCompleted(evt);
@@ -176,7 +175,7 @@ public class BAMTrackRenderer extends TrackRenderer {
             }
         }
 
-        if (modeName.equals("Standard") || modeName.equals("Mismatch") || modeName.equals("Mapping quality") || modeName.equals("Base quality")) {
+        if (modeName.equals(STANDARD_MODE) || modeName.equals(MISMATCH_MODE) || modeName.equals(MAPPING_QUALITY_MODE) || modeName.equals(BASE_QUALITY_MODE)) {
             if (r == Resolution.VERY_HIGH || r == Resolution.HIGH) {
                 renderPackMode(g2, gp, r);
             } else {
@@ -185,15 +184,141 @@ public class BAMTrackRenderer extends TrackRenderer {
 //            else {
 //                renderCoverageMode(g2, gp);
 //            }
+        } else if (modeName.equals(STANDARD_PAIRED_MODE)) {
+            if (r == Resolution.VERY_HIGH || r == Resolution.HIGH) {
+                renderStandardMatepairMode(g2, gp, r);
+            } else {
+                this.resizeFrame(gp);
+            }
         }
-        else if (modeName.equals("Read pair")) {
-            renderArcMode(g2, gp);
+        else if (modeName.equals(ARC_PAIRED_MODE)) {
+            renderArcMatepairMode(g2, gp);
         }
-        else if (modeName.equals("SNP")){
+        else if (modeName.equals(SNP_MODE)){
             if (r == Resolution.VERY_HIGH || r == Resolution.HIGH) {
                 renderSNPMode(g2, gp, r);
             } else {
                 this.resizeFrame(gp);
+            }
+        }
+    }
+
+    private void renderStandardMatepairMode(Graphics2D g2, GraphPane gp, Resolution resolution) throws RenderingException {
+        //set position offset for scrollpane
+        this.offset = gp.getOffset();
+
+        AxisRange axisRange = (AxisRange) instructions.get(DrawingInstruction.AXIS_RANGE);
+        ColorScheme cs = (ColorScheme) instructions.get(DrawingInstruction.COLOR_SCHEME);
+        Color linecolor = cs.getColor("Line");
+        Range range = axisRange.getXRange();
+
+        List mates = ReadPairIntervalRecord.getMatePairs(data);
+        Collections.sort(mates);
+
+        for (Object o : mates) {
+            System.out.println(o);
+        }
+
+        System.out.println("Found " + mates.size() + " mates from " + data.size() + " alignments");
+
+        IntervalPacker packer = new IntervalPacker(mates);
+        // TODO: when it becomes possible, choose an appropriate number for breathing room parameter
+//        Map<Integer, ArrayList<IntervalRecord>> intervals = packer.pack(10);
+        ArrayList<List<IntervalRecord>> intervals = packer.pack(10);
+
+        int levelnum = 0;
+        int numpacked = 0;
+        System.out.println("Pack:");
+        for (List<IntervalRecord> list : intervals) {
+            System.out.println(levelnum + ". " + list.size());
+            levelnum++;
+            numpacked+= list.size();
+        }
+        System.out.println("Num packed: " + numpacked);
+
+        gp.setIsOrdinal(false);
+        gp.setXRange(axisRange.getXRange());
+        int maxYRange;
+        int numIntervals = intervals.size();
+        // Set the Y range to the closest value of 10, 20, 50, 100, n*100
+        if (numIntervals <= 10) maxYRange = 10;
+        else if (numIntervals <= 20) maxYRange = 20;
+        else if (numIntervals <=50) maxYRange = 50;
+        else if (numIntervals <= 100) maxYRange = 100;
+        else maxYRange = numIntervals;
+        gp.setYRange(new Range(0,maxYRange));
+
+        renderFixed = false;
+        renderFixed = gp.getUnitHeight() < minimumHeight;
+        if(!renderFixed){
+            double unitHeight = (double) ((JViewport)gp.getParent().getParent()).getHeight() / (maxYRange);
+            if(unitHeight < minimumHeight) renderFixed = true;
+        }
+
+        if(renderFixed){
+            int currentHeight = gp.getHeight();
+            int currentWidth = gp.getParentFrame().getFrameLandscape().getWidth();
+            int currentHeight1 = ((JViewport)gp.getParent().getParent()).getHeight();
+            int expectedHeight = Math.max((int)((intervals.size() * maximumHeight) / 0.9), currentHeight1);
+
+            if(expectedHeight != currentHeight || currentWidth != gp.getWidth()){
+//                gp.setBufferedImage(new BufferedImage(currentWidth, expectedHeight, BufferedImage.TYPE_INT_RGB));
+                gp.newHeight = expectedHeight;
+                gp.setPaneResize(true);
+                return;
+            }
+            gp.setUnitHeight(maximumHeight);
+            gp.setYRange(new Range(0,(int)Math.ceil(expectedHeight/maximumHeight)));
+        } else if (gp.getSize() != ((JViewport)gp.getParent().getParent()).getSize()){
+            this.resizeFrame(gp);
+        }
+
+        // scan the map of intervals and draw the intervals for each level
+        for (int level=0; level<intervals.size(); level++) {
+
+//            ArrayList<IntervalRecord> intervalsThisLevel = intervals.get(level);
+            List<IntervalRecord> intervalsThisLevel = intervals.get(level);
+
+            for (IntervalRecord intervalRecord : intervalsThisLevel) {
+
+                //Interval interval = intervalRecord.getInterval();
+
+                ReadPairIntervalRecord mrecord = (ReadPairIntervalRecord) intervalRecord;
+
+                if (mrecord.isSingleton()) {
+
+                    SAMRecord samRecord = mrecord.getSingletonRecord();
+
+                    if (samRecord.getReadUnmappedFlag()) { // this read is unmapped, don't visualize it
+
+                        this.recordToShapeMap.put(intervalRecord, null);
+
+                        continue;
+                    }
+
+                    Color readcolor = null;
+
+                    boolean strandFlag = samRecord.getReadNegativeStrandFlag();
+                    Strand strand = strandFlag ? Strand.REVERSE : Strand.FORWARD ;
+
+                        if (strand == Strand.FORWARD) {
+                            g2.setColor(cs.getColor("Forward Strand"));
+                        }
+                        else {
+                            g2.setColor(cs.getColor("Reverse Strand"));
+                        }
+
+
+                    Polygon readshape = renderRead(g2, gp, cs, samRecord, new Interval(samRecord.getAlignmentStart(), samRecord.getAlignmentEnd()), level, range, readcolor);
+
+                    this.recordToShapeMap.put(intervalRecord, readshape);
+
+                    // draw outline, if there's room
+                    if (readshape.getBounds().getHeight() > 4) {
+                        g2.setColor(linecolor);
+                        g2.draw(readshape);
+                    }
+                }
             }
         }
     }
@@ -621,7 +746,7 @@ public class BAMTrackRenderer extends TrackRenderer {
 
     }
 
-    private void renderArcMode(Graphics2D g2, GraphPane gp) {
+    private void renderArcMatepairMode(Graphics2D g2, GraphPane gp) {
 
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
@@ -631,7 +756,7 @@ public class BAMTrackRenderer extends TrackRenderer {
         double threshold = (Double) instructions.get(DrawingInstruction.ARC_MIN);
         int discordantMin = (Integer) instructions.get(DrawingInstruction.DISCORDANT_MIN);
         int discordantMax = (Integer) instructions.get(DrawingInstruction.DISCORDANT_MAX);
-        LOG.info("discordantMin=" + discordantMin + " discordantMax=" + discordantMax);
+        //LOG.info("discordantMin=" + discordantMin + " discordantMax=" + discordantMax);
 
         // set up colors
         Color normalArcColor = cs.getColor("Reverse Strand");
@@ -653,11 +778,12 @@ public class BAMTrackRenderer extends TrackRenderer {
         // iterate through the data and draw
         for (Record record: data) {
             BAMIntervalRecord bamRecord = (BAMIntervalRecord)record;
-            BAMIntervalRecord.PairType type = bamRecord.getType();
             SAMRecord samRecord = bamRecord.getSamRecord();
+            SAMReadUtils.PairedSequencingProtocol prot = (SAMReadUtils.PairedSequencingProtocol) instructions.get(DrawingInstruction.PAIREDPROTOCOL);
+            SAMReadUtils.PairMappingType type = SAMReadUtils.getPairType(samRecord,prot);
 
             // skip reads with no mapped mate
-            if (!samRecord.getReadPairedFlag() || samRecord.getMateUnmappedFlag() || bamRecord.getType() == null) continue;
+            if (!samRecord.getReadPairedFlag() || samRecord.getMateUnmappedFlag() || type == null) continue;
 
             int arcLength = Math.abs(samRecord.getInferredInsertSize());
 
@@ -957,7 +1083,7 @@ public class BAMTrackRenderer extends TrackRenderer {
     @Override
     public boolean hasHorizontalGrid() {
         String m = (String)instructions.get(DrawingInstruction.MODE);
-        return m.equals(MATE_PAIRS_MODE);
+        return m.equals(ARC_PAIRED_MODE);
     }
 
     @Override

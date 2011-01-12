@@ -351,7 +351,7 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
 
     public void resetLayers(){
         if (tracks.length > 0) {
-            arcLegend.setVisible(tracks[0].getDrawModes().size() > 0 && tracks[0].getDrawMode().equals(BAMTrackRenderer.MATE_PAIRS_MODE));
+            arcLegend.setVisible(tracks[0].getDrawModes().size() > 0 && tracks[0].getDrawMode().equals(BAMTrackRenderer.ARC_PAIRED_MODE));
         }
         frameLandscape.moveToBack(graphPane);
     }
@@ -368,7 +368,7 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
         if (isActive()) {
             commandBar.setVisible(commandBarActive);
             commandBarHidden.setVisible(!commandBarActive);
-            arcLegend.setVisible(tracks[0].getDrawModes().size() > 0 && tracks[0].getDrawMode().equals(BAMTrackRenderer.MATE_PAIRS_MODE));
+            arcLegend.setVisible(tracks[0].getDrawModes().size() > 0 && tracks[0].getDrawMode().equals(BAMTrackRenderer.ARC_PAIRED_MODE));
         }
     }
 
@@ -514,7 +514,7 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
      * Create the button to show the arc params dialog
      */
     private JMenu createArcButton() {
-        JMenu button = new JMenu("Arc Options");
+        JMenu button = new JMenu("Read Pair Settings");
         button.setToolTipText("Change mate pair parameters");
         button.addMouseListener(new MouseListener() {
             public void mouseClicked(MouseEvent e) {
@@ -621,7 +621,7 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
 //        if (getTracks().contains(track)) {
         boolean reRender = true;
         if (track.getDataSource().getDataFormat() == DataFormat.INTERVAL_BAM) {
-            if (evt.getMode().equals(BAMTrackRenderer.MATE_PAIRS_MODE)) {
+            if (evt.getMode().equals(BAMTrackRenderer.ARC_PAIRED_MODE)) {
                 reRender = true;
                 setCoverageEnabled(false);
                 this.arcButton.setVisible(true);

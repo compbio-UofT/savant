@@ -37,6 +37,7 @@ import savant.file.DataFormat;
 import savant.util.DrawingInstruction;
 import savant.util.Range;
 import savant.util.Resolution;
+import savant.view.swing.interval.BAMTrackRenderer;
 
 /**
  *
@@ -189,7 +190,7 @@ public abstract class TrackRenderer implements DataRetrievalListener {
         //check for arcMode
         boolean isArc = false;
         String mode = (String)instructions.get(DrawingInstruction.MODE);
-        if (mode != null && mode.equals("Read pair")){
+        if (mode != null && mode.equals(BAMTrackRenderer.ARC_PAIRED_MODE)){
             isArc = true;
         }
         

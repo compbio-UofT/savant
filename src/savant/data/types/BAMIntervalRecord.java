@@ -33,11 +33,11 @@ import net.sf.samtools.SAMRecord;
  */
 public class BAMIntervalRecord implements IntervalRecord {
 
-    public enum PairType { NORMAL, INVERTED_MATE, INVERTED_READ, EVERTED };
+    //public enum PairType { NORMAL, INVERTED_MATE, INVERTED_READ, EVERTED };
 
     private final Interval interval;
     private final SAMRecord samRecord;
-    private final PairType type;
+    //private final PairType type;
 
     /**
      * Constructor. Clients should use static factory method valueOf() instead.
@@ -45,13 +45,13 @@ public class BAMIntervalRecord implements IntervalRecord {
      * @param samRecord samRecord the SAMRecord associated with the read; may not be null
      * @param type type the pair type; may be null if read is unpaired or mate is unmapped
      */
-    BAMIntervalRecord(SAMRecord samRecord, PairType type) {
+    BAMIntervalRecord(SAMRecord samRecord) {
 
         if (samRecord == null) throw new IllegalArgumentException("samRecord must not be null");
 
         this.interval = Interval.valueOf(samRecord.getAlignmentStart(), samRecord.getAlignmentEnd()+1);
         this.samRecord = samRecord;
-        this.type = type;
+        //this.type = type;
 
     }
 
@@ -62,8 +62,8 @@ public class BAMIntervalRecord implements IntervalRecord {
      * @param type the pair type; may be null if read is unpaired or mate is unmapped
      * @return a newly constructed BAMIntervalRecord
      */
-    public static BAMIntervalRecord valueOf(SAMRecord samRecord, PairType type) {
-        return new BAMIntervalRecord(samRecord, type);
+    public static BAMIntervalRecord valueOf(SAMRecord samRecord) {
+        return new BAMIntervalRecord(samRecord);
     }
 
     public Interval getInterval() {
@@ -72,10 +72,6 @@ public class BAMIntervalRecord implements IntervalRecord {
 
     public SAMRecord getSamRecord() {
         return samRecord;
-    }
-
-    public PairType getType() {
-        return type;
     }
 
     public String getReference() {
@@ -108,7 +104,6 @@ public class BAMIntervalRecord implements IntervalRecord {
         sb.append("BAMIntervalRecord");
         sb.append("{interval=").append(interval);
         sb.append(", samRecord=").append(samRecord);
-        sb.append(", type=").append(type);
         sb.append('}');
         return sb.toString();
     }
