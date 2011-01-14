@@ -124,8 +124,6 @@ public class BAMTrackRenderer extends TrackRenderer {
 
         boolean revstrand = samRecord.getReadNegativeStrandFlag();
 
-        System.out.println(readseq);
-
         if (samRecord.getReadNegativeStrandFlag()) {
             readseq = MiscUtils.reverseString(readseq);
         }
@@ -214,8 +212,6 @@ public class BAMTrackRenderer extends TrackRenderer {
                             xCoordinate = (int) gp.transformXPos(samRecord.getAlignmentStart() + i + deladvance - insadvance);
                         }
                         yCoordinate = (int) (gp.transformYPos(0)-((level)*unitHeight) - offset);
-
-                        System.out.println("ins: " + insadvance + " deladvance: " + deladvance);
 
                         if (askForIndex >= 0 && (
                                 (revstrand && ((samRecord.getAlignmentEnd() - askForIndex + 2*insadvance ) >= range.getFrom() - 1))
