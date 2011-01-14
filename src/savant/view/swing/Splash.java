@@ -27,6 +27,7 @@ import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JProgressBar;
 import savant.settings.BrowserSettings;
 
 /**
@@ -37,6 +38,9 @@ public class Splash extends javax.swing.JDialog {
 
     JLabel status;
     String pad = "  ";
+    int currentprogress;
+    int totalprogress = 5;
+    JProgressBar progress;
 
     /**
      * Creates new form Splash
@@ -79,12 +83,24 @@ public class Splash extends javax.swing.JDialog {
 
         textPanel.add(getPadding(6));
 
-        status = new JLabel(modal ? "" : pad + "Status: Initializing ...");
+        status = new JLabel(modal ? "" : pad + "Initializing ...");
         formatLabel(status, true);
         textPanel.add(status);
 
         //textPanel.add(getHorizontalPad());
+
         textPanel.add(getPadding(8));
+
+        /*
+        progress = new JProgressBar();
+        Dimension d = new Dimension(300,23);
+        progress.setMinimumSize(d);
+        progress.setMaximumSize(d);
+        textPanel.add(progress);
+         * 
+         */
+
+        //textPanel.add(getPadding(3));
 
         ip.add(textPanel,BorderLayout.SOUTH);
     }
@@ -165,7 +181,7 @@ public class Splash extends javax.swing.JDialog {
     // End of variables declaration//GEN-END:variables
 
     void setStatus(String msg) {
-        this.status.setText(pad + "Status: " + msg);
+        this.status.setText(pad + msg);
     }
 
     private void formatLabel(JLabel label, boolean isBold) {

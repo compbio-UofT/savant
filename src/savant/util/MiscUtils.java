@@ -337,4 +337,13 @@ public class MiscUtils {
             EventQueue.invokeLater(r);
         }
     }
+
+    public static String reverseString(String str) {
+        int strlen = str.length();
+        char[] result = new char[strlen];
+        for (int i = 1; i <= strlen; i++) {
+            result[strlen-i] = str.charAt(i-1);
+        }
+        return new String(result);
+    }
 }
