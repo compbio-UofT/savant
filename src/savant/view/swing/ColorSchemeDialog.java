@@ -16,6 +16,21 @@
 
 package savant.view.swing;
 
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Dictionary;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.List;
+import javax.swing.BorderFactory;
+import javax.swing.JComponent;
+import javax.swing.JDialog;
+import javax.swing.JPanel;
+import javax.swing.table.TableCellRenderer;
+
 import com.jidesoft.action.CommandBar;
 import com.jidesoft.converter.*;
 import com.jidesoft.grid.*;
@@ -23,15 +38,6 @@ import com.jidesoft.swing.JideSwingUtilities;
 import com.jidesoft.swing.JideTitledBorder;
 import com.jidesoft.swing.PartialEtchedBorder;
 import com.jidesoft.swing.PartialSide;
-import javax.swing.*;
-import javax.swing.table.TableCellRenderer;
-import java.awt.*;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Dictionary;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.List;
 
 /**
  *
@@ -43,36 +49,64 @@ public class ColorSchemeDialog extends JDialog {
     protected static final Color BACKGROUND1 = new Color(253, 253, 244);
     protected static final Color BACKGROUND2 = new Color(255, 255, 255);
 
-    private PropertyTable _table;
-    private PropertyPane _pane;
     private PropertyTableModel model;
 
     private static PropertyTable table;
 
-    //private Savant parent;
-    //private Container c;
-
-    //private static DockingManager trackDockingManager;
-    //private static Map<DockableFrame,Frame> dockFrameToFrameMap;
-
-    private static Frame frame;
     private static Track track;
 
-   // private static Log log = LogFactory.getLog(BAMParametersDialog1.class);
+    public ColorSchemeDialog(Track t){
+        setPreferredSize(new Dimension(300,500));
+        setMinimumSize(new Dimension(300,500));
+        setModal(true);
+        setTitle("Change Colour Scheme");
+
+        JPanel panel = new JPanel(new BorderLayout(12, 12));
+        PropertyPane p = new PropertyPane(createTable()) {
+            @Override
+            protected JComponent createToolBarComponent() {
+                CommandBar toolBar = new CommandBar();
+                toolBar.setBorder(BorderFactory.createEmptyBorder(2, 0, 0, 0));
+                toolBar.setFloatable(false);
+                toolBar.setStretch(true);
+                toolBar.setPaintBackground(false);
+                toolBar.setChevronAlwaysVisible(false);
+                return toolBar;
+            }
+        };
+
+        p.setShowDescription(false);
 
 
-    public ColorSchemeDialog(){
-        this.setPreferredSize(new Dimension(300,500));
-        this.setMinimumSize(new Dimension(300,500));
-        this.setModal(true);
-        this.setTitle("Change Colour Scheme");
-        Component panel = getDemoPanel();
-        this.add(panel);
-    }
+        /*JPanel quickSearchPanel = new JPanel(new FlowLayout(FlowLayout.LEADING));
+        QuickTableFilterField filterField = new QuickTableFilterField(_table.getModel());
+        filterField.setHintText("Type here to filter properties");
+        filterField.setObjectConverterManagerEnabled(true);
+        quickSearchPanel.add(filterField);
+        quickSearchPanel.setBorder(new JideTitledBorder(new PartialEtchedBorder(PartialEtchedBorder.LOWERED, PartialSide.NORTH), "Filter Properties", JideTitledBorder.LEADING, JideTitledBorder.ABOVE_TOP));
 
-    public void setFrame(Frame f){
-        frame = f;
-    }
+        _table.setModel(filterField.getDisplayTableModel());
+        panel.add(quickSearchPanel, BorderLayout.BEFORE_FIRST_LINE);*/
+
+        panel.add(p, BorderLayout.CENTER);
+        add(panel);
+
+        track = t;
+        p.setBorder(new JideTitledBorder(new PartialEtchedBorder(PartialEtchedBorder.LOWERED, PartialSide.NORTH), t.getName(), JideTitledBorder.LEADING, JideTitledBorder.ABOVE_TOP));
+
+        Dictionary<String, Color> dict = t.getColorScheme().getColorSettings();
+        Enumeration<String> keys = dict.keys();
+        List<String> keysList = new ArrayList<String>();
+        while(keys.hasMoreElements()){
+            keysList.add(keys.nextElement());
+        }
+        Collections.sort(keysList);
+        for(int i = 0; i < keysList.size(); i++){
+            addProperty(keysList.get(i), "TODO", "Colour Settings", Color.class);
+            map.put(keysList.get(i), dict.get(keysList.get(i)));
+        }
+        model.expandAll();
+}
 
     /*public Component getOptionsPanel() {
 
@@ -136,40 +170,6 @@ public class ColorSchemeDialog extends JDialog {
 
         return checkBoxPanel;
     }*/
-
-    public final Component getDemoPanel() {
-        JPanel panel = new JPanel(new BorderLayout(12, 12));
-        _table = createTable();
-        _pane = new PropertyPane(_table) {
-            @Override
-            protected JComponent createToolBarComponent() {
-                CommandBar toolBar = new CommandBar();
-                toolBar.setBorder(BorderFactory.createEmptyBorder(2, 0, 0, 0));
-                toolBar.setFloatable(false);
-                toolBar.setStretch(true);
-                toolBar.setPaintBackground(false);
-                toolBar.setChevronAlwaysVisible(false);
-                return toolBar;
-            }
-        };
-
-        _pane.setShowDescription(false);
-
-
-        /*JPanel quickSearchPanel = new JPanel(new FlowLayout(FlowLayout.LEADING));
-        QuickTableFilterField filterField = new QuickTableFilterField(_table.getModel());
-        filterField.setHintText("Type here to filter properties");
-        filterField.setObjectConverterManagerEnabled(true);
-        quickSearchPanel.add(filterField);
-        quickSearchPanel.setBorder(new JideTitledBorder(new PartialEtchedBorder(PartialEtchedBorder.LOWERED, PartialSide.NORTH), "Filter Properties", JideTitledBorder.LEADING, JideTitledBorder.ABOVE_TOP));
-
-        _table.setModel(filterField.getDisplayTableModel());
-        panel.add(quickSearchPanel, BorderLayout.BEFORE_FIRST_LINE);*/
-        
-        _pane.setBorder(new JideTitledBorder(new PartialEtchedBorder(PartialEtchedBorder.LOWERED, PartialSide.NORTH), "PropertyPane", JideTitledBorder.LEADING, JideTitledBorder.ABOVE_TOP));
-        panel.add(_pane, BorderLayout.CENTER);
-        return panel;
-    }
 
     // create property table
     private PropertyTable createTable() {
@@ -245,25 +245,6 @@ public class ColorSchemeDialog extends JDialog {
         public boolean hasValue() {
             return map.get(getFullName()) != null;
         }
-    }
-
-    public void update(Track vt){
-
-        track = vt;
-        _pane.setBorder(new JideTitledBorder(new PartialEtchedBorder(PartialEtchedBorder.LOWERED, PartialSide.NORTH), vt.getName(), JideTitledBorder.LEADING, JideTitledBorder.ABOVE_TOP));
-
-        Dictionary<String, Color> dict = vt.getColorScheme().getColorSettings();
-        Enumeration<String> keys = dict.keys();
-        List<String> keysList = new ArrayList<String>();
-        while(keys.hasMoreElements()){
-            keysList.add(keys.nextElement());            
-        }
-        Collections.sort(keysList);
-        for(int i = 0; i < keysList.size(); i++){
-            addProperty(keysList.get(i), "TODO", "Colour Settings", Color.class);
-            map.put(keysList.get(i), dict.get(keysList.get(i)));
-        }        
-        model.expandAll();
     }
 
     private void addProperty(String name, String description, String category, Class type){

@@ -28,7 +28,6 @@ import com.jidesoft.popup.JidePopup;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import savant.controller.DrawModeController;
 import savant.controller.RangeController;
 import savant.controller.GraphPaneController;
 import savant.controller.ReferenceController;
@@ -157,9 +156,9 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
     }
 
     /**
-     * Add a view track to the graph pane
+     * Set the tracks to be displayed in this GraphPane
      *
-     * @param track - the Track to add
+     * @param track an array of Track objects to be added
      */
     public void setTracks(Track[] tracks) {
         this.tracks = tracks;
@@ -175,7 +174,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
     }
 
     /**
-     * Render the contents of the graphpane. Includes drawing a common
+     * Render the contents of the GraphPane. Includes drawing a common
      * background for all tracks.
      *
      * @param g The Graphics object into which to draw.
@@ -446,8 +445,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
      * Call before a repaint to override bufferedImage repainting
      */
     public void setRenderRequired(){
-        this.renderRequired = true;
-
+        renderRequired = true;
     }
 
     /**
@@ -455,32 +453,20 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
      * Make sure you unforce immediately after!
      */
     public void forceFullHeight(){
-        this.forcedHeight = true;
+        forcedHeight = true;
     }
 
     public void unforceFullHeight(){
-        this.forcedHeight = false;
+        forcedHeight = false;
     }
 
     private void setOffset(int offset){
-        this.posOffset = offset;
+        posOffset = offset;
     }
 
     public int getOffset(){
-        return this.posOffset;
+        return posOffset;
     }
-
-    /*private void drawMaxYPlotValue(Graphics g){
-        if (this.isYGridOn && this.getOffset() == 0) {
-            Graphics2D g2 = (Graphics2D) g;
-            Font smallFont = new Font("Sans-Serif", Font.PLAIN, 10);
-            g2.setColor(ColourSettings.getPointLine());
-            String maxPlotString = "ymax=" + yMax;
-            g2.setFont(smallFont);
-            Rectangle2D stringRect = smallFont.getStringBounds(maxPlotString, g2.getFontRenderContext());
-            g2.drawString(maxPlotString, (int)(getWidth()-stringRect.getWidth()-20), (int)(stringRect.getHeight() + 5));
-        }
-    }*/
 
     public void setPaneResize(boolean resized){
         paneResize = resized;
@@ -654,13 +640,6 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
                 }
 
             }
-            // draw max Y plot value
-            /*g2.setColor(BrowserDefaults.colorAccent);
-            String maxPlotString = "ymax=" + Integer.toString(yMax);
-            g2.setFont(smallFont);
-            Rectangle2D stringRect = smallFont.getStringBounds(maxPlotString, g2.getFontRenderContext());
-            g2.drawString(maxPlotString, (int)(getWidth()-stringRect.getWidth()-5), (int)(stringRect.getHeight() + 5));*/
-
         }
     }
 
@@ -955,12 +934,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
     }
 
     public void resetCursor() {
-        //GraphPaneController gpc = GraphPaneController.getInstance();
-        //if (gpc.isAiming()) {
-        //    this.setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
-        //} else {
-            this.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        //}
+        setCursor(new Cursor(Cursor.HAND_CURSOR));
     }
 
     /**
@@ -1180,25 +1154,6 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
 
     public Range getVerticalPositionalRange() {
         return new Range(yMin, yMax);
-    }
-
-
-    /**
-     * MODE SWITCHING
-     */
-
-    private void switchMode(final Track track, final String mode) {
-
-        DrawModeController.getInstance().switchMode(track, mode);
-        
-//        try {
-//            // TODO: this needs to get done in a separate thread and then schedule the repaint for later
-//            track.prepareForRendering(RangeController.getInstance().getRange());
-//            repaint();
-//        } catch (Throwable e) {
-//            log.error("Unexpected exception while preparing to render track " + e.getMessage());
-//        }
-
     }
 
     private BAMParametersDialog paramDialog;

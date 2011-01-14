@@ -20,7 +20,6 @@ import java.awt.EventQueue;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import javax.swing.JPanel;
 
 import org.apache.commons.logging.Log;
@@ -63,8 +62,6 @@ public abstract class Track implements TrackAdapter {
     private String drawMode;
     protected final TrackRenderer renderer;
     private final DataSource dataSource;
-    private ColorSchemeDialog colorDialog = new ColorSchemeDialog();
-    private IntervalDialog intervalDialog = new IntervalDialog();
     private final List<DataRetrievalListener> listeners = new ArrayList<DataRetrievalListener>();
 
     // FIXME:
@@ -303,8 +300,6 @@ public abstract class Track implements TrackAdapter {
     // FIXME:
     public void setFrame(Frame frame) {
         this.frame = frame;
-        colorDialog.setFrame(frame);
-        intervalDialog.setFrame(frame);
         addDataRetrievalListener(frame);
     }
 
@@ -457,12 +452,14 @@ public abstract class Track implements TrackAdapter {
     }
 
     public void captureColorParameters() {
-        colorDialog.update(this);
-        colorDialog.setVisible(true);
+        ColorSchemeDialog dlg = new ColorSchemeDialog(this);
+        dlg.setLocationRelativeTo(frame);
+        dlg.setVisible(true);
     }
 
     public void captureIntervalParameters() {
-        intervalDialog.update(this);
-        intervalDialog.setVisible(true);
+        IntervalDialog dlg = new IntervalDialog(this);
+        dlg.setLocationRelativeTo(frame);
+        dlg.setVisible(true);
     }
 }
