@@ -466,6 +466,7 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
         graphPane.setXRange(currentRange);
 
         for (Track t : tracks) {
+            t.getRenderer().clearInstructions();
             t.prepareForRendering(reference, range);
         }
         resetLayers();

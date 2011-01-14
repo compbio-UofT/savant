@@ -86,19 +86,16 @@ public class BEDTrackRenderer extends TrackRenderer {
         gp.setIsOrdinal(true);
         this.clearShapes();
 
-        Boolean refexists = (Boolean)instructions.get(DrawingInstruction.REFERENCE_EXISTS);
-        if (!refexists) {
-            throw new RenderingException("No data for reference");
-        }
+        renderPreCheck();
 
         drawMode = (String)instructions.get(DrawingInstruction.MODE);
         resolution = (Resolution)instructions.get(DrawingInstruction.RESOLUTION);
 
         String modeName = drawMode;
-        if (modeName.equals(this.STANDARD_MODE)) {
+        if (modeName.equals(STANDARD_MODE)) {
 
             renderPackMode(g2, gp, resolution);
-        } else if (modeName.equals(this.SQUISH_MODE)) {
+        } else if (modeName.equals(SQUISH_MODE)) {
 
             renderSquishMode(g2, gp, resolution);
         }

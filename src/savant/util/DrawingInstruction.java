@@ -1,5 +1,5 @@
 /*
- *    Copyright 2009-2010 University of Toronto
+ *    Copyright 2009-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -33,11 +33,10 @@ public enum DrawingInstruction {
     ARC_MIN,            // double
     DISCORDANT_MIN,     // int
     DISCORDANT_MAX,     // int
-    MESSAGE,            // String (not used)
     REFERENCE_EXISTS,   // boolean
     SELECTION_ALLOWED,  // boolean
     ERROR,              // String (error message)
-    PROGRESS,            // String (progress message)
-    PAIREDPROTOCOL      // PairedProtocol enum, how paired sequencing is done
+    PROGRESS,           // String (progress message)
+    PAIRED_PROTOCOL     // PairedProtocol enum, how paired sequencing is done
 }
 

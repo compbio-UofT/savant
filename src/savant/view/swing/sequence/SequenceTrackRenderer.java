@@ -56,19 +56,13 @@ public class SequenceTrackRenderer extends TrackRenderer {
     public void render(Graphics g, GraphPane gp) throws RenderingException {
 
         Graphics2D g2 = (Graphics2D) g;
-
         gp.setIsOrdinal(true);
 
-        Boolean refexists = (Boolean)instructions.get(DrawingInstruction.REFERENCE_EXISTS);
-        if (!refexists) {
-            throw new RenderingException("No data for reference");
-        }
-
-        double unitWidth = gp.getUnitWidth();
-        double unitHeight = gp.getUnitHeight();
-
+        renderPreCheck();
 
         // Don't display sequence if data is too high resolution to see.
+        double unitWidth = gp.getUnitWidth();
+        double unitHeight = gp.getUnitHeight();
         if (data == null || unitWidth < 0.2) {
             throw new RenderingException("Zoom in to see sequence");
         }

@@ -71,18 +71,10 @@ public class ContinuousTrackRenderer extends TrackRenderer {
     public void render(Graphics g, GraphPane gp) throws RenderingException {
 
         Graphics2D g2 = (Graphics2D) g;
-        this.clearShapes();
+        clearShapes();
 
-        Boolean refexists = (Boolean)instructions.get(DrawingInstruction.REFERENCE_EXISTS);
+        renderPreCheck();
 
-        if (!refexists) {
-            throw new RenderingException("No data for reference");
-        }
-
-        if (data == null) {
-            throw new RenderingException((String)instructions.get(DrawingInstruction.MESSAGE));
-        }
-        
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         
 

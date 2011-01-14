@@ -98,21 +98,23 @@ public class BAMTrack extends Track {
     public void prepareForRendering(String reference, Range range) {
 
         Resolution r = getResolution(range);
-        String errorMessage = null;
         if (r == Resolution.VERY_HIGH || r == Resolution.HIGH || (getDrawMode().equals(BAMTrackRenderer.ARC_PAIRED_MODE) && r == Resolution.MEDIUM)) {
             renderer.addInstruction(DrawingInstruction.PROGRESS, "Loading BAM track...");
             requestData(reference, range);
-        } else if (getDrawMode().equals(BAMTrackRenderer.ARC_PAIRED_MODE)){
-            errorMessage = "Zoom in to see data";
         } else {
-            errorMessage = "No coverage file available";
+            saveNullData();
+            if (getDrawMode().equals(BAMTrackRenderer.ARC_PAIRED_MODE)){
+                renderer.addInstruction(DrawingInstruction.ERROR, "Zoom in to see data");
+            } else {
+                // If there is an actual coverage track, this error message will never be drawn.
+                renderer.addInstruction(DrawingInstruction.ERROR, "No coverage file available");
+            }
         }
-        renderer.addInstruction(DrawingInstruction.ERROR, errorMessage);
 
         renderer.addInstruction(DrawingInstruction.RANGE, range);
         renderer.addInstruction(DrawingInstruction.RESOLUTION, r);
         renderer.addInstruction(DrawingInstruction.COLOR_SCHEME, getColorScheme());
-        renderer.addInstruction(DrawingInstruction.PAIREDPROTOCOL, pairedProtocol);
+        renderer.addInstruction(DrawingInstruction.PAIRED_PROTOCOL, pairedProtocol);
 
         boolean f = containsReference(reference);
         renderer.addInstruction(DrawingInstruction.REFERENCE_EXISTS, containsReference(reference));

@@ -436,17 +436,9 @@ public class BAMTrackRenderer extends TrackRenderer {
 
         gp.setIsOrdinal(true);
         this.clearShapes();
-        
-        Boolean refexists = (Boolean)instructions.get(DrawingInstruction.REFERENCE_EXISTS);
 
-        if (!refexists) {
-            throw new RenderingException("No data for reference");
-        }
-
-        String errorMessage = (String)instructions.get(DrawingInstruction.ERROR);
-        if (errorMessage != null){
-            throw new RenderingException(errorMessage);
-        }
+        // Put up an error message if we don't want to do any rendering.
+        renderPreCheck();
 
         drawMode = (String)instructions.get(DrawingInstruction.MODE);
         Resolution r = (Resolution)instructions.get(DrawingInstruction.RESOLUTION);
@@ -1116,7 +1108,7 @@ public class BAMTrackRenderer extends TrackRenderer {
         for (Record record: data) {
             BAMIntervalRecord bamRecord = (BAMIntervalRecord)record;
             SAMRecord samRecord = bamRecord.getSamRecord();
-            SAMReadUtils.PairedSequencingProtocol prot = (SAMReadUtils.PairedSequencingProtocol) instructions.get(DrawingInstruction.PAIREDPROTOCOL);
+            SAMReadUtils.PairedSequencingProtocol prot = (SAMReadUtils.PairedSequencingProtocol) instructions.get(DrawingInstruction.PAIRED_PROTOCOL);
             SAMReadUtils.PairMappingType type = SAMReadUtils.getPairType(samRecord,prot);
 
             // skip reads with no mapped mate

@@ -57,10 +57,7 @@ public class PointTrackRenderer extends TrackRenderer {
 
         double width = gp.getUnitWidth();
 
-        Boolean refexists = (Boolean)instructions.get(DrawingInstruction.REFERENCE_EXISTS);
-        if (!refexists) {
-            throw new RenderingException("No data for reference");
-        }
+        renderPreCheck();
 
         Resolution r = (Resolution)instructions.get(DrawingInstruction.RESOLUTION);
 

@@ -235,10 +235,12 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
             // ask renderers for extra info on range; consolidate to maximum Y range
             AxisRange axisRange = (AxisRange)t.getRenderer().getInstruction(DrawingInstruction.AXIS_RANGE);
 
-            long axisYMin = axisRange.getYMin();
-            long axisYMax = axisRange.getYMax();
-            if (axisYMin < minYRange) minYRange = axisYMin;
-            if (axisYMax > maxYRange) maxYRange = axisYMax;
+            if (axisRange != null) {
+                long axisYMin = axisRange.getYMin();
+                long axisYMax = axisRange.getYMax();
+                if (axisYMin < minYRange) minYRange = axisYMin;
+                if (axisYMax > maxYRange) maxYRange = axisYMax;
+            }
 
             // ask renders if they want horizontal lines; if any say yes, draw them
             if (t.getRenderer().hasHorizontalGrid()) {

@@ -46,19 +46,14 @@ public class BAMCoverageTrack extends Track {
         Resolution r = getResolution(range);
         if (isEnabled() && (r == Resolution.LOW || r == Resolution.VERY_LOW || r == Resolution.MEDIUM)) {
             renderer.addInstruction(DrawingInstruction.PROGRESS, "Loading coverage track...");
+            renderer.addInstruction(DrawingInstruction.AXIS_RANGE, AxisRange.initWithRanges(range, getDefaultYRange()));
             requestData(reference, range);
+        } else {
+            saveNullData();
+            renderer.addInstruction(DrawingInstruction.ERROR, "This message will never be shown");
         }
 
         renderer.addInstruction(DrawingInstruction.REFERENCE_EXISTS, containsReference(reference));
-
-
-        if (isEnabled() && (r == Resolution.LOW || r == Resolution.VERY_LOW || r == Resolution.MEDIUM)) {
-            renderer.addInstruction(DrawingInstruction.REFERENCE_EXISTS, containsReference(reference));
-            renderer.removeInstruction(DrawingInstruction.MESSAGE);
-        } else {
-            renderer.removeInstruction(DrawingInstruction.MESSAGE);
-            renderer.addInstruction(DrawingInstruction.AXIS_RANGE, AxisRange.initWithRanges(range, getDefaultYRange()));
-        }
         renderer.addInstruction(DrawingInstruction.COLOR_SCHEME, this.getColorScheme());
         renderer.addInstruction(DrawingInstruction.RANGE, range);
         renderer.addInstruction(DrawingInstruction.RESOLUTION, r);

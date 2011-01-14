@@ -1,5 +1,5 @@
 /*
- *    Copyright 2010 University of Toronto
+ *    Copyright 2010-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -23,8 +23,8 @@ import java.awt.RenderingHints;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
-import savant.data.event.DataRetrievalEvent;
 
+import savant.data.event.DataRetrievalEvent;
 import savant.data.types.Interval;
 import savant.data.types.IntervalRecord;
 import savant.data.types.Record;
@@ -67,21 +67,16 @@ public class IntervalTrackRenderer extends TrackRenderer {
         gp.setIsOrdinal(true);
         this.clearShapes();
 
-        Boolean refexists = (Boolean)instructions.get(DrawingInstruction.REFERENCE_EXISTS);
-        if (!refexists) {
-            throw new RenderingException("No data for reference");
-        }
+        renderPreCheck();
 
         String drawMode = (String)instructions.get(DrawingInstruction.MODE);
         Resolution r = (Resolution)instructions.get(DrawingInstruction.RESOLUTION);
 
         if (drawMode.equals(SQUISH_MODE)) {
             renderSquishMode(g2, gp, r);
-        }
-        else if (drawMode.equals(this.ARC_MODE)) {
+        } else if (drawMode.equals(ARC_MODE)) {
             renderArcMode(g2, gp, r);
-        }
-        else if (drawMode.equals(this.PACK_MODE)) {
+        } else if (drawMode.equals(PACK_MODE)) {
             renderPackMode(g2, gp, r);
         }
     }
