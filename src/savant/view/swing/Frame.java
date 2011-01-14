@@ -69,14 +69,12 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
 
     private JLayeredPane jlp;
 
-    JMenuBar commandBar;
-    private CommandBar commandBarHidden;
-    JPanel arcLegend;
+    private JMenuBar commandBar;
+    private JPanel arcLegend;
     private List<JCheckBoxMenuItem> visItems;
     private JMenu arcButton;
     private JMenu intervalButton;
-
-    private boolean commandBarActive = true;
+    private FrameSidePanel sidePanel;
 
     public JScrollPane scrollPane;
 
@@ -101,7 +99,7 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
         scrollPane.setBorder(null);
 
         //hide commandBar while scrolling
-        MouseAdapter ml = new MouseAdapter() {
+        /*MouseAdapter ml = new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
                 tempHideCommands();
@@ -115,8 +113,7 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
         JScrollBar vsb = scrollPane.getVerticalScrollBar();
         for(int i = 0; i < vsb.getComponentCount(); i++){
             vsb.getComponent(i).addMouseListener(ml);
-        }
-
+        }*/
 
         //add graphPane -> jlp -> scrollPane
         jlp = new JLayeredPane();
@@ -131,97 +128,35 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
 
         scrollPane.getViewport().add(jlp);
 
-        //frameLandscape.setLayout(new BorderLayout());
-        //frameLandscape.add(getGraphPane());
-
-        //COMMAND BAR
-        commandBar = new JMenuBar();
-
-        //THE FOLLOWING BLOCK ONLY APPLIED TO JIDE COMMANDBAR
-        //commandBar = new CommandBar();
-        //commandBar.setStretch(false);
-        //commandBar.setPaintBackground(false);
-        //commandBar.setChevronAlwaysVisible(false);
-
-        commandBar.setOpaque(true);
-
-        JMenu optionsMenu = createOptionsMenu();
-        //JMenu infoMenu = createInfoMenu();
-        //JideButton lockButton = createLockButton();
-        JideButton hideButton = createHideButton();
-        //JideButton colorButton = createColorButton();
-        //commandBar.add(infoMenu);
-        //commandBar.add(lockButton);
-        //commandBar.add(colorButton);
-        commandBar.add(optionsMenu);
-        commandBar.add(new JSeparator(SwingConstants.VERTICAL));
-        commandBar.add(hideButton);
-        commandBar.setVisible(false);
-
-        //COMMAND BAR HIDDEN
-        //commandBarHidden.setVisible(false);
-        commandBarHidden = new CommandBar();
-        //commandBarHidden.setVisible(false);
-        commandBarHidden.setOpaque(true);
-        commandBarHidden.setChevronAlwaysVisible(false);
-        JideButton showButton = createShowButton();
-        commandBarHidden.add(showButton);
-        commandBarHidden.setVisible(false);
-
         //GRID FRAMEWORK AND COMPONENT ADDING...
         frameLandscape.setLayout(new GridBagLayout());
         GridBagConstraints c = new GridBagConstraints();
         c.fill = GridBagConstraints.HORIZONTAL;
 
-        //force commandBars to be full size
-        JPanel contain1 = new JPanel();
-        contain1.setOpaque(false);
-        contain1.setLayout(new BorderLayout());
-        contain1.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        contain1.add(commandBar, BorderLayout.WEST);
-        JPanel contain2 = new JPanel();
-        contain2.setOpaque(false);
-        contain2.setLayout(new BorderLayout());
-        contain2.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        contain2.add(commandBarHidden, BorderLayout.WEST);
-
-        //add commandBar/hidden to top left
-        c.weightx = 0;
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.gridx = 0;
-        c.gridy = 0;
-        frameLandscape.add(contain1, c, 5);
-        frameLandscape.add(contain2, c, 6);
-        //commandBarHidden.setVisible(true);
-
-        //filler to extend commandBars
-        JPanel a = new JPanel();
-        a.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        a.setMinimumSize(new Dimension(400,30));
-        a.setOpaque(false);
-        c.weightx = 0;
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.gridx = 0;
-        c.gridy = 1;
-        frameLandscape.add(a, c, 5);
-
-        //add filler to top middle
-        JLabel l = new JLabel();
-        //l.setOpaque(false);
-        c.fill = GridBagConstraints.HORIZONTAL;
+        //add sidepanel
+        sidePanel = new FrameSidePanel();
+        sidePanel.setVisible(false);
         c.weightx = 1.0;
+        c.weighty = 0;
+        c.fill = GridBagConstraints.BOTH;
         c.gridx = 1;
         c.gridy = 0;
-        frameLandscape.add(l, c);
+        frameLandscape.add(sidePanel, c, 5);
 
-        //add arcLegend to bottom right
+        
+        initCommandBar();
+        sidePanel.addPanel(commandBar);
+        sidePanel.addPanel(arcLegend);
+
+        //add filler to left
+        JLabel l = new JLabel();
+        l.setOpaque(false);
         c.fill = GridBagConstraints.HORIZONTAL;
-        c.weightx = 0;
-        c.weighty = 0;
-        c.gridx = 2;
-        c.gridy = 1;
-        c.anchor = GridBagConstraints.NORTHEAST;
-        frameLandscape.add(arcLegend, c, 6);
+        c.weightx = 1.0;
+        c.weighty = 1.0;
+        c.gridx = 0;
+        c.gridy = 0;
+        frameLandscape.add(l, c);
 
         //add graphPane to all cells
         c.fill = GridBagConstraints.BOTH;
@@ -229,12 +164,11 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
         c.weighty = 1.0;
         c.gridx = 0;
         c.gridy = 0;
-        c.gridwidth = 3;
-        c.gridheight = 2;
+        c.gridwidth = 2;
+        c.gridheight = 1;
         frameLandscape.add(scrollPane, c, 0);
 
-        frameLandscape.setLayer(commandBar, JLayeredPane.PALETTE_LAYER);
-        frameLandscape.setLayer(arcLegend, JLayeredPane.PALETTE_LAYER);
+        frameLandscape.setLayer(sidePanel, JLayeredPane.PALETTE_LAYER);
         frameLandscape.setLayer(scrollPane, JLayeredPane.DEFAULT_LAYER);
 
         // Add our progress-panel.  If setTracks is called promptly, it will be cleared
@@ -340,42 +274,42 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
 
 
     public void setActiveFrame(){
-        if (commandBarActive) {
-            commandBar.setVisible(true);
-        } else {
-            commandBarHidden.setVisible(true);
-        }
+        sidePanel.setVisible(true);
     }
 
     public void setInactiveFrame(){
-        commandBarHidden.setVisible(false);
-        commandBar.setVisible(false);
+        sidePanel.setVisible(false);
     }
 
     public void resetLayers(){
         frameLandscape.moveToBack(graphPane);
     }
 
-    public void tempHideCommands(){
-        if (isActive()) {
-            commandBar.setVisible(false);
-            commandBarHidden.setVisible(false);
-        }
-        arcLegend.setVisible(false);
+    /**
+     * Create command bar
+     */
+    private void initCommandBar() {
+        commandBar = new JMenuBar();
+        JMenu optionsMenu = createOptionsMenu();
+        commandBar.add(optionsMenu);
+        commandBar.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY));
     }
 
-    public void tempShowCommands(){
-        if (isActive()) {
-            commandBar.setVisible(commandBarActive);
-            commandBarHidden.setVisible(!commandBarActive);
-        }
-        arcLegend.setVisible(tracks[0].getDrawModes().size() > 0 && tracks[0].getDrawMode().equals(BAMTrackRenderer.ARC_PAIRED_MODE));
+    public void redrawSidePanel(){
+        this.sidePanel.repaint();
+    }
+
+    /**
+     * Add a component to the set of panels on side
+     */
+    public void addToSidePanel(JComponent comp){
+        this.sidePanel.addPanel(comp);
     }
 
     /**
      * Create the button to hide the commandBar
      */
-    private JideButton createHideButton() {
+    /*private JideButton createHideButton() {
         JideButton button = new JideButton();
         button.setIcon(new javax.swing.ImageIcon(getClass().getResource("/savant/images/arrow_left.png")));
         button.setToolTipText("Hide this toolbar");
@@ -390,12 +324,12 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
         });
         button.setFocusPainted(false);
         return button;
-    }
+    }*/
 
     /**
      * Create the button to show the commandBar
      */
-    private JideButton createShowButton() {
+    /*private JideButton createShowButton() {
         JideButton button = new JideButton();
         button.setLayout(new BorderLayout());
         JLabel l1 = new JLabel("Settings");
@@ -414,24 +348,7 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
         });
         button.setFocusPainted(false);
         return button;
-    }
-
-    /**
-     * Create lock button for commandBar
-     */
-    private JideButton createColorButton() {
-        //TODO: This is temporary until there is an options menu
-        JideButton button = new JideButton("Colour Settings  ");
-        button.setToolTipText("Change the colour scheme for this track");
-        button.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                tracks[0].captureColorParameters();
-            }
-        });
-        button.setFocusPainted(false);
-        return button;
-    }
+    }*/
 
     /**
      * Create options menu for commandBar
@@ -458,55 +375,6 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
             }
         });
         menu.add(item1);
-        return menu;
-    }
-
-    /**
-     * Create lock button for commandBar
-     */
-    private JideButton createLockButton() {
-        //TODO: This is temporary until there is an options menu
-        JideButton button = new JideButton("Lock Track  ");
-        button.setToolTipText("Prevent range changes on this track");
-        button.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                JideButton button = new JideButton();
-                for(int i = 0; i < commandBar.getComponentCount(); i++){
-                    if (commandBar.getComponent(i) instanceof JideButton){
-                        button = (JideButton)commandBar.getComponent(i);
-                        if(button.getText().equals("Lock Track  ") || button.getText().equals("Unlock Track  ")) break;
-                    }
-                }
-                if(button.getText().equals("Lock Track  ")){
-                    button.setText("Unlock Track  ");
-                    button.setToolTipText("Allow range changes on this track");
-                } else {
-                    button.setText("Lock Track  ");
-                    button.setToolTipText("Prevent range changes on this track");
-                }
-                graphPane.setLocked(!graphPane.isLocked());
-                resetLayers();
-            }
-        });
-        button.setFocusPainted(false);
-        return button;
-    }
-
-    /**
-     * Create info menu for commandBar
-     */
-    private JMenu createInfoMenu() {
-        JMenu menu = new JideMenu("Info");
-        JMenuItem item = new JMenuItem("Track Info...");
-        item.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                //TODO
-            }
-        });
-        menu.add(item);
-
         return menu;
     }
 

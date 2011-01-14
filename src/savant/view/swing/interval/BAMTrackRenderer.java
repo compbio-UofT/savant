@@ -1461,13 +1461,13 @@ public class BAMTrackRenderer extends TrackRenderer {
         private boolean isHidden = false;
 
         public LegendPanel(){
-            this.setToolTipText("Hide Legend");
+            /*this.setToolTipText("Hide Legend");
             addMouseListener(new MouseAdapter() {
                 @Override
                 public void mousePressed(MouseEvent me) {
                     changeMode();
                 }
-            });
+            });*/
         }
 
         private void changeMode(){
@@ -1523,7 +1523,7 @@ public class BAMTrackRenderer extends TrackRenderer {
 
 
             g2.setColor(Color.BLACK);
-            g2.draw(new Rectangle2D.Double(0, 0, 125, 60));
+            g2.draw(new Rectangle2D.Double(0, 0, 124, 60));
 
             int x = 30;
             int y = 15;
@@ -1555,7 +1555,7 @@ public class BAMTrackRenderer extends TrackRenderer {
             g2.setPaint(gp);
             g2.fillRect(0, 0, 125, 60);
 
-            g2.setColor(Color.BLACK);
+            g2.setColor(Color.darkGray);
             g2.draw(new Rectangle2D.Double(0, 0, 22, 22));
 
             int[] xp = {8,14,14};

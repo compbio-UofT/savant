@@ -115,6 +115,9 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
     private JPanel popPanel;
     //private boolean mouseWheel = false; //used by popupThread
 
+    private JLabel yMaxPanel;
+    private boolean yMaxInit = false;
+
     /**
      * Provides progress indication when loading a track.
      */
@@ -347,7 +350,8 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
                 drawMessage(g3, message);
             }
 
-            drawMaxYPlotValue(g3);
+            //drawMaxYPlotValue(g3);
+            this.YMaxPanel();
             renderSides(g3);
 
             //if a change has occured that affects scrollbar...
@@ -395,8 +399,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
             g.drawImage(bufferedImage, 0, getOffset(), this);
         }
         renderCurrentSelected(g);
-        parentFrame.arcLegend.repaint();
-        parentFrame.commandBar.repaint();
+        parentFrame.redrawSidePanel();
 
         return getSize();
 
@@ -465,7 +468,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         return this.posOffset;
     }
 
-    private void drawMaxYPlotValue(Graphics g){
+    /*private void drawMaxYPlotValue(Graphics g){
         if (this.isYGridOn && this.getOffset() == 0) {
             Graphics2D g2 = (Graphics2D) g;
             Font smallFont = new Font("Sans-Serif", Font.PLAIN, 10);
@@ -475,7 +478,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
             Rectangle2D stringRect = smallFont.getStringBounds(maxPlotString, g2.getFontRenderContext());
             g2.drawString(maxPlotString, (int)(getWidth()-stringRect.getWidth()-20), (int)(stringRect.getHeight() + 5));
         }
-    }
+    }*/
 
     public void setPaneResize(boolean resized){
         paneResize = resized;
@@ -985,7 +988,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
                 rc.setRange(newr);
             }
 
-            parentFrame.tempShowCommands();
+            //parentFrame.tempShowCommands();
         } else if (gpc.isZooming()) {
 
             RangeController rc = RangeController.getInstance();
@@ -1012,7 +1015,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
             }
         }
 
-        this.parentFrame.tempShowCommands();
+        //this.parentFrame.tempShowCommands();
         this.isDragging = false;
         setMouseModifier(event);
 
@@ -1068,7 +1071,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
             setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
         }
 
-        parentFrame.tempHideCommands();
+        //parentFrame.tempHideCommands();
 
         // Check if scrollbar is present (only vertical pan if present)
         boolean scroll = parentFrame.getVerticalScrollBar().isVisible();
@@ -1388,5 +1391,19 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
             add(progressPanel);
         }
         progressPanel.setMessage(msg);
+    }
+
+    private void YMaxPanel(){
+        if (!this.isYGridOn || this.getOffset() != 0) return;
+        if(!yMaxInit){
+            yMaxPanel = new JLabel();
+            yMaxPanel.setBorder(BorderFactory.createLineBorder(Color.darkGray));
+            yMaxPanel.setBackground(new Color(240,240,240));
+            yMaxPanel.setOpaque(true);
+            parentFrame.addToSidePanel(yMaxPanel);
+            yMaxInit = true;
+        }
+        String maxPlotString = " ymax=" + yMax + " ";
+        yMaxPanel.setText(maxPlotString);
     }
 }
