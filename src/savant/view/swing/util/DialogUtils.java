@@ -1,5 +1,9 @@
 /*
- *    Copyright 2010 University of Toronto
+ * DialogUtils.java
+ * Created on Aug 5, 2010
+ *
+ *
+ *    Copyright 2010-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -12,11 +16,6 @@
  *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
- */
-
-/*
- * DialogUtils.java
- * Created on Aug 5, 2010
  */
 
 package savant.view.swing.util;
@@ -38,7 +37,7 @@ import savant.view.swing.Savant;
 /**
  * Some utility methods for displaying message dialogs to the user.
  *
- * @author vwilliams
+ * @author vwilliams, tarkvara
  */
 public class DialogUtils {
 
@@ -111,7 +110,7 @@ public class DialogUtils {
     }
 
     /**
-     * Open-dialog variant which lets user select multiple files on Windows and
+     * Open-file dialog variant which lets user select multiple files on Windows and
      * Linux.
      * 
      * @param parent the parent frame (typically the Savant main frame)
@@ -122,7 +121,10 @@ public class DialogUtils {
     public static File[] chooseFilesForOpen(Frame parent, String title, FileFilter filter) {
         if (MiscUtils.MAC) {
             // Mac AWT FileDialog doesn't support multiple selection.
-            return new File[] { chooseFileForOpen(parent, title, filter) };
+            File f = chooseFileForOpen(parent, title, filter);
+            if (f != null) {
+                return new File[] { f };
+            }
         } else {
             JFileChooser fd = new JFileChooser();
             fd.setDialogTitle(title);
