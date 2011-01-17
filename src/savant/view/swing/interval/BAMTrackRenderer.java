@@ -116,184 +116,6 @@ public class BAMTrackRenderer extends TrackRenderer {
         return MISMATCH_MODE;
     }
 
-     private void drawMismatchesWithColors(SAMRecord samRecord, GraphPane gp, int level, Range range, Graphics2D g2) {
-
-         // colours
-        String colors = samRecord.getStringAttribute("CS");
-        String readseq = samRecord.getReadString();
-
-        boolean revstrand = samRecord.getReadNegativeStrandFlag();
-
-        if (samRecord.getReadNegativeStrandFlag()) {
-            readseq = MiscUtils.reverseString(readseq);
-        }
-
-        String modreadseq = colors.charAt(0) + readseq.trim();
-
-        /*
-        //if (revstrand) {
-        System.out.println(readseq);
-            System.out.println(colors);
-            System.out.println(modreadseq);
-         //}
-         * 
-         */
-
-        if (colors == null || colors.equals("")) { return; }
-
-        double unitHeight = gp.getUnitHeight();
-        double unitWidth = gp.getUnitWidth();
-        int xCoordinate;
-        int yCoordinate;
-        int cursor = 0;
-        int deladvance = 0;
-        int insadvance = 0;
-        Cigar cigar = samRecord.getCigar();
-        CigarOperator operator;
-        int operatorLength;
-
-        char currentState = colors.charAt(0);
-        char nextState;
-
-        colors = colors.substring(1);
-
-        List<CigarElement> cigars = cigar.getCigarElements();
-        List<CigarElement> cigsclone = new ArrayList<CigarElement>();
-        cigsclone.addAll(cigars);
-        if (revstrand) {
-            Collections.reverse(cigsclone);
-        }
-
-        for (CigarElement cigarElement : cigsclone) {
-            operatorLength = cigarElement.getLength();
-            operator = cigarElement.getOperator();
-            //System.out.println("OP=" + operator + "\tL=" + operatorLength + "\tRD=" + operator.consumesReadBases() + "\tRF=" + operator.consumesReferenceBases());
-            if (operator.consumesReadBases()) {
-                if (operator == CigarOperator.I) {
-
-                    cursor += operatorLength;
-                    insadvance += operatorLength;
-
-                    g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                    g2.setColor(Color.white);
-                    if (revstrand) {
-                        xCoordinate = (int)gp.transformXPos(samRecord.getAlignmentEnd() - cursor + operatorLength + 1);
-                    } else {
-                        xCoordinate = (int)gp.transformXPos(samRecord.getAlignmentStart() + cursor);
-                    }
-                    yCoordinate = (int)(gp.transformYPos(0)-((level + 1)*unitHeight)) + 1 - offset;
-                    if((int)unitWidth/3 < 4 || (int)(unitHeight/2) < 6){
-                        yCoordinate = yCoordinate - 1;
-                        int lineWidth = Math.max((int)(unitWidth * (2.0/3.0)), 1);
-                        int xCoordinate1 = (int)(xCoordinate - Math.floor(lineWidth/2));
-                        int xCoordinate2 = (int)(xCoordinate - Math.floor(lineWidth/2)) + lineWidth - 1;
-                        if(xCoordinate1 == xCoordinate2) xCoordinate2++;
-                        int[] xPoints = {xCoordinate1, xCoordinate2, xCoordinate2, xCoordinate1};
-                        int[] yPoints = {yCoordinate, yCoordinate, yCoordinate+(int)unitHeight, yCoordinate+(int)unitHeight};
-                        g2.fillPolygon(xPoints, yPoints, 4);
-                    } else {
-                        int[] xPoints = {xCoordinate, xCoordinate+(int)(unitWidth/3), xCoordinate, xCoordinate-(int)(unitWidth/3)};
-                        int[] yPoints = {yCoordinate, yCoordinate+(int)(unitHeight/2), yCoordinate+(int)unitHeight-1, yCoordinate+(int)(unitHeight/2)};
-                        g2.fillPolygon(xPoints, yPoints, 4);
-                        if((int)unitWidth/3 >= 7 && (int)(unitHeight/2) >= 5){
-                            g2.setColor(ColourSettings.getLine());
-                            g2.drawLine(xCoordinate, (int)yCoordinate, xCoordinate, (int)(yCoordinate+unitHeight)-1);
-                        }
-                    }
-
-                    
-                } else {
-                    for (int i = cursor;(i < cursor + operatorLength); i++) {
-                        int askForIndex = i - deladvance + insadvance;
-
-                        if (revstrand) {
-                            xCoordinate = (int) gp.transformXPos(samRecord.getAlignmentEnd() - i - deladvance + insadvance);
-                        } else {
-                            xCoordinate = (int) gp.transformXPos(samRecord.getAlignmentStart() + i + deladvance - insadvance);
-                        }
-                        yCoordinate = (int) (gp.transformYPos(0)-((level)*unitHeight) - offset);
-
-                        if (askForIndex >= 0 && (
-                                (revstrand && ((samRecord.getAlignmentEnd() - askForIndex + 2*insadvance ) >= range.getFrom() - 1))
-                                || (!revstrand && ((askForIndex + samRecord.getAlignmentStart() - 2*insadvance) <= range.getTo() + 1))
-                                )) {
-
-                            /*
-                            if (revstrand) {
-                                     System.out.println(
-                                        (i+1) + "."
-                                        + "x=" + (samRecord.getAlignmentStart() + i + deladvance - insadvance) + "\t"
-                                        + modreadseq.charAt(i) + "->" + modreadseq.charAt(i+1)
-                                        + " = " + getColor(modreadseq.charAt(i),modreadseq.charAt(i+1))
-                                        + " ? " + colors.charAt(i)
-                                        + " of length " + modreadseq.length());
-                                }
-                             * 
-                             */
-
-                            if (getColor(modreadseq.charAt(i),modreadseq.charAt(i+1)) != colors.charAt(i)) {
-
-                                Rectangle.Double rect = new Rectangle.Double(xCoordinate, yCoordinate - unitHeight, unitWidth, unitHeight);
-                                Color fillcol;
-                                switch (this.translateColor(modreadseq.charAt(i), colors.charAt(i))) {
-                                    case 'A':
-                                        fillcol = ColourSettings.getA();
-                                        break;
-                                    case 'C':
-                                        fillcol = ColourSettings.getC();
-                                        break;
-                                    case 'G':
-                                        fillcol = ColourSettings.getG();
-                                        break;
-                                    case 'T':
-                                        fillcol = ColourSettings.getT();
-                                        break;
-                                    default:
-                                        fillcol = Color.orange;
-                                        break;
-                                }
-                                g2.setPaint(fillcol);
-                                g2.fill(rect);
-
-                                if (unitWidth > 10 && unitHeight > 10) {
-                                    g2.setPaint(Color.black);
-                                    if (revstrand) {
-                                        g2.drawString("" + colors.charAt(i), xCoordinate + (int) unitWidth - 3, yCoordinate - (int) (unitHeight/2) + 3);
-                                    } else {
-                                        g2.drawString("" + colors.charAt(i), xCoordinate - 3, yCoordinate - (int) (unitHeight/2) + 4);
-                                    }
-                                }
-                            }
-
-                            if (unitWidth > 10 && unitHeight > 10) {
-                                    g2.setPaint(Color.black);
-                                    if (revstrand) {
-                                        g2.drawString("" + colors.charAt(i), xCoordinate + (int) unitWidth - 3, yCoordinate - (int) (unitHeight/2) + 3);
-                                    } else {
-                                        g2.drawString("" + colors.charAt(i), xCoordinate - 3, yCoordinate - (int) (unitHeight/2) + 4);
-                                    }
-                                }
-                        }
-                    }
-                    cursor += operatorLength;
-                }
-            } else if (operator.consumesReferenceBases()) {
-                deladvance += operatorLength;
-                if (operator == CigarOperator.D) {
-                    if (revstrand) {
-                        xCoordinate = (int) gp.transformXPos(samRecord.getAlignmentEnd() - cursor - operatorLength + 1);
-                    } else {
-                        xCoordinate = (int) gp.transformXPos(samRecord.getAlignmentStart() + cursor);
-                    }
-                        yCoordinate = (int) (gp.transformYPos(0)-((level)*unitHeight) - offset);
-                        Rectangle.Double rect = new Rectangle.Double(xCoordinate, yCoordinate - unitHeight, unitWidth*operatorLength, unitHeight);
-                        g2.setColor(Color.black);
-                        g2.fill(rect);
-               }
-            }
-        }
-    }
-
      private char getColor(char fromstate, char tostate) {
          switch(fromstate) {
              case 'A':
@@ -410,6 +232,30 @@ public class BAMTrackRenderer extends TrackRenderer {
         }
     }
 
+    private String complement(String str) {
+        char[] result = new char[str.length()];
+        for (int i = 0; i < str.length(); i++) {
+            result[i] = complement(str.charAt(i));
+        }
+        return new String(result);
+    }
+
+    private char complement(char c) {
+        switch(c) {
+            case 'A':
+                return 'T';
+            case 'T':
+                return 'A';
+            case 'C':
+                return 'G';
+            case 'G':
+                return 'C';
+            default:
+                LOG.error("BAMTrackRenderer.complement : unsupported character " + c);
+                return 'N';
+        }
+    }
+
     public enum Strand { FORWARD, REVERSE };
 
     private String drawMode;
@@ -512,10 +358,9 @@ public class BAMTrackRenderer extends TrackRenderer {
         System.out.println("Found " + mates.size() + " mates from " + data.size() + " alignments");
 
         IntervalPacker packer = new IntervalPacker(mates);
-        // TODO: when it becomes possible, choose an appropriate number for breathing room parameter
-//        Map<Integer, ArrayList<IntervalRecord>> intervals = packer.pack(10);
         ArrayList<List<IntervalRecord>> intervals = packer.pack(10);
 
+        /*
         int levelnum = 0;
         int numpacked = 0;
         System.out.println("Pack:");
@@ -525,6 +370,8 @@ public class BAMTrackRenderer extends TrackRenderer {
             numpacked+= list.size();
         }
         System.out.println("Num packed: " + numpacked);
+         *
+         */
 
         gp.setIsOrdinal(false);
         gp.setXRange(axisRange.getXRange());
@@ -753,6 +600,9 @@ public class BAMTrackRenderer extends TrackRenderer {
                 if (readshape.getBounds().getHeight() > 4) {
                     g2.setColor(linecolor);
                     g2.draw(readshape);
+
+                    //g2.setColor(Color.black);
+                    //g2.drawString(samRecord.getReadName(), (int) readshape.getBounds().getX(), (int) readshape.getBounds().getY() + 10);
                 }
             }
         }
@@ -871,39 +721,195 @@ public class BAMTrackRenderer extends TrackRenderer {
 
     }
 
-    private Color COLOR_0 = new Color(240,65,85);
-    private Color COLOR_1 = new Color(255,130,58);
-    private Color COLOR_2 = new Color(242,242,111);
-    private Color COLOR_3 = new Color(149,207,183);
-
     private void renderColors(Graphics2D g2, GraphPane gp, SAMRecord samRecord, int level, byte[] refSeq, Range range) {
 
-        // colours
+         // colours
+        String colors = samRecord.getStringAttribute("CS");
+        String readseq = samRecord.getReadString();
+
+        boolean revstrand = samRecord.getReadNegativeStrandFlag();
+
+        if (samRecord.getReadNegativeStrandFlag()) {
+            readseq = MiscUtils.reverseString(readseq);
+        }
+
+        String modreadseq;
+        
+        if (revstrand) {
+            modreadseq = colors.charAt(0) + complement(readseq.trim());
+        } else {
+            modreadseq = colors.charAt(0) + readseq.trim();
+        }
 
         /*
-        String colors = samRecord.getStringAttribute("CS");
-
-        //System.out.println("CS:" + colors);
-
-        if (colors == null || colors.equals("")) { return; }
-
-        String letters = translateColorSpaceToLetterSpace(colors);
-        System.out.println(colors);
-        System.out.println(" " + letters);
-
-        int indexofread = Math.max(0,(int)(alignmentStart-range.getFrom()));
-        String ref = (new String(refSeq)).substring(indexofread);
-        //System.out.println(samRecord.getAlignmentStart());
-        System.out.println("length of ref: " + (new String(refSeq)).length());
-        System.out.println("index of read: " + indexofread);
-        System.out.println(ref);
+        //if (revstrand) {
+        System.out.println(readseq);
+            System.out.println(colors);
+            System.out.println(modreadseq);
+         //}
          * 
          */
 
-        drawMismatchesWithColors(samRecord, gp, level, range, g2);
-        
-        //drawColors(samRecord, colors, gp, alignmentStart, level, range, g2);
-        //drawHalfLetters(samRecord, letters, gp, alignmentStart, level, range, g2);
+        if (colors == null || colors.equals("")) { return; }
+
+        double unitHeight = gp.getUnitHeight();
+        double unitWidth = gp.getUnitWidth();
+        int xCoordinate;
+        int yCoordinate;
+        int cursor = 0;
+        int deladvance = 0;
+        int insadvance = 0;
+        int clipOffset = 0;
+        Cigar cigar = samRecord.getCigar();
+        CigarOperator operator;
+        int operatorLength;
+
+        char currentState = colors.charAt(0);
+        char nextState;
+
+        colors = colors.substring(1);
+
+        List<CigarElement> cigars = cigar.getCigarElements();
+        List<CigarElement> cigsclone = new ArrayList<CigarElement>();
+        cigsclone.addAll(cigars);
+        if (revstrand) {
+            Collections.reverse(cigsclone);
+        }
+
+        for (CigarElement cigarElement : cigsclone) {
+            operatorLength = cigarElement.getLength();
+            operator = cigarElement.getOperator();
+
+            if (operator == CigarOperator.H) {
+                clipOffset += operatorLength;
+            }
+
+            //System.out.println("OP=" + operator + "\tL=" + operatorLength + "\tRD=" + operator.consumesReadBases() + "\tRF=" + operator.consumesReferenceBases());
+            if (operator.consumesReadBases()) {
+                if (operator == CigarOperator.I) {
+
+                    cursor += operatorLength;
+                    insadvance += operatorLength;
+
+                    g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                    g2.setColor(Color.white);
+                    if (revstrand) {
+                        xCoordinate = (int)gp.transformXPos(samRecord.getAlignmentEnd() - cursor + operatorLength + 1);
+                    } else {
+                        xCoordinate = (int)gp.transformXPos(samRecord.getAlignmentStart() + cursor);
+                    }
+                    yCoordinate = (int)(gp.transformYPos(0)-((level + 1)*unitHeight)) + 1 - offset;
+                    if((int)unitWidth/3 < 4 || (int)(unitHeight/2) < 6){
+                        yCoordinate = yCoordinate - 1;
+                        int lineWidth = Math.max((int)(unitWidth * (2.0/3.0)), 1);
+                        int xCoordinate1 = (int)(xCoordinate - Math.floor(lineWidth/2));
+                        int xCoordinate2 = (int)(xCoordinate - Math.floor(lineWidth/2)) + lineWidth - 1;
+                        if(xCoordinate1 == xCoordinate2) xCoordinate2++;
+                        int[] xPoints = {xCoordinate1, xCoordinate2, xCoordinate2, xCoordinate1};
+                        int[] yPoints = {yCoordinate, yCoordinate, yCoordinate+(int)unitHeight, yCoordinate+(int)unitHeight};
+                        g2.fillPolygon(xPoints, yPoints, 4);
+                    } else {
+                        int[] xPoints = {xCoordinate, xCoordinate+(int)(unitWidth/3), xCoordinate, xCoordinate-(int)(unitWidth/3)};
+                        int[] yPoints = {yCoordinate, yCoordinate+(int)(unitHeight/2), yCoordinate+(int)unitHeight-1, yCoordinate+(int)(unitHeight/2)};
+                        g2.fillPolygon(xPoints, yPoints, 4);
+                        if((int)unitWidth/3 >= 7 && (int)(unitHeight/2) >= 5){
+                            g2.setColor(ColourSettings.getLine());
+                            g2.drawLine(xCoordinate, (int)yCoordinate, xCoordinate, (int)(yCoordinate+unitHeight)-1);
+                        }
+                    }
+
+                    
+                } else {
+
+                    for (int i = cursor;(i < cursor + operatorLength); i++) {
+                        int askForIndex = i - deladvance + insadvance;
+
+                        if (revstrand) {
+                            xCoordinate = (int) gp.transformXPos(samRecord.getAlignmentEnd() - i - deladvance + insadvance);
+                        } else {
+                            xCoordinate = (int) gp.transformXPos(samRecord.getAlignmentStart() + i + deladvance - insadvance);
+                        }
+                        yCoordinate = (int) (gp.transformYPos(0)-((level)*unitHeight) - offset);
+
+                        if (askForIndex >= 0 && (
+                                (revstrand && ((samRecord.getAlignmentEnd() - askForIndex + 2*insadvance ) >= range.getFrom() - 1))
+                                || (!revstrand && ((askForIndex + samRecord.getAlignmentStart() - 2*insadvance) <= range.getTo() + 1))
+                                )) {
+
+                            /*
+                            if (revstrand) {
+                                     System.out.println(
+                                        (i+1) + "."
+                                        + "x=" + (samRecord.getAlignmentStart() + i + deladvance - insadvance) + "\t"
+                                        + modreadseq.charAt(i) + "->" + modreadseq.charAt(i+1)
+                                        + " = " + getColor(modreadseq.charAt(i),modreadseq.charAt(i+1))
+                                        + " ? " + colors.charAt(i)
+                                        + " of length " + modreadseq.length());
+                                }
+                             * 
+                             */
+
+                            if (getColor(modreadseq.charAt(i),modreadseq.charAt(i+1)) != colors.charAt(i + clipOffset)) {
+
+                                Rectangle.Double rect = new Rectangle.Double(xCoordinate, yCoordinate - unitHeight, unitWidth, unitHeight);
+                                Color fillcol;
+                                switch (this.translateColor(modreadseq.charAt(i), colors.charAt(i + clipOffset))) {
+                                    case 'A':
+                                        fillcol = ColourSettings.getA();
+                                        break;
+                                    case 'C':
+                                        fillcol = ColourSettings.getC();
+                                        break;
+                                    case 'G':
+                                        fillcol = ColourSettings.getG();
+                                        break;
+                                    case 'T':
+                                        fillcol = ColourSettings.getT();
+                                        break;
+                                    default:
+                                        fillcol = Color.orange;
+                                        break;
+                                }
+                                g2.setPaint(fillcol);
+                                g2.fill(rect);
+
+                                if (unitWidth > 10 && unitHeight > 10) {
+                                    g2.setPaint(Color.black);
+                                    if (revstrand) {
+                                        g2.drawString("" + colors.charAt(i+clipOffset), xCoordinate + (int) unitWidth - 3, yCoordinate - (int) (unitHeight/2) + 3);
+                                    } else {
+                                        g2.drawString("" + colors.charAt(i+clipOffset), xCoordinate - 3, yCoordinate - (int) (unitHeight/2) + 4);
+                                    }
+                                }
+                            }
+
+                            if (unitWidth > 10 && unitHeight > 10) {
+                                    g2.setPaint(Color.black);
+                                    if (revstrand) {
+                                        g2.drawString("" + colors.charAt(i), xCoordinate + (int) unitWidth - 3, yCoordinate - (int) (unitHeight/2) + 3);
+                                    } else {
+                                        g2.drawString("" + colors.charAt(i), xCoordinate - 3, yCoordinate - (int) (unitHeight/2) + 4);
+                                    }
+                                }
+                        }
+                    }
+                    cursor += operatorLength;
+                }
+            } else if (operator.consumesReferenceBases()) {
+                deladvance += operatorLength;
+                if (operator == CigarOperator.D) {
+                    if (revstrand) {
+                        xCoordinate = (int) gp.transformXPos(samRecord.getAlignmentEnd() - cursor - operatorLength + 1);
+                    } else {
+                        xCoordinate = (int) gp.transformXPos(samRecord.getAlignmentStart() + cursor);
+                    }
+                        yCoordinate = (int) (gp.transformYPos(0)-((level)*unitHeight) - offset);
+                        Rectangle.Double rect = new Rectangle.Double(xCoordinate, yCoordinate - unitHeight, unitWidth*operatorLength, unitHeight);
+                        g2.setColor(Color.black);
+                        g2.fill(rect);
+                }
+            }
+        }
     }
 
     private void renderMismatches(Graphics2D g2, GraphPane gp, SAMRecord samRecord, int level, byte[] refSeq, Range range) {
@@ -1375,7 +1381,6 @@ public class BAMTrackRenderer extends TrackRenderer {
             else if (operator == CigarOperator.S) {
                 // draw nothing
             }
-
 
             if (operator.consumesReadBases()) {
                 readCursor += operatorLength;

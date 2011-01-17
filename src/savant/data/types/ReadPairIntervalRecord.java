@@ -30,6 +30,9 @@ public class ReadPairIntervalRecord implements IntervalRecord {
             qname = s.getReadName();
             List<SAMRecord> unpairedlist;
             removeindex = -1;
+
+            System.out.println(qname);
+
             if (unpaired.containsKey(qname)) {
                 unpairedlist = unpaired.get(qname);
                 for (int j = 0; j < unpairedlist.size(); j++) {
@@ -55,6 +58,8 @@ public class ReadPairIntervalRecord implements IntervalRecord {
 
     private static boolean isPair(SAMRecord one, SAMRecord two) {
 
+        System.out.println("Checking pair: " + one.getReadName() + " and " + two.getReadName());
+
         if (!one.getReadPairedFlag() || !two.getReadPairedFlag()) {
             return false;
         }
@@ -67,6 +72,10 @@ public class ReadPairIntervalRecord implements IntervalRecord {
         if (one.getMateAlignmentStart() != two.getAlignmentStart()) {
             return false;
         }
+
+
+        System.out.println("*** YES ***");
+
         return true;
     }
     private SAMRecord first;
