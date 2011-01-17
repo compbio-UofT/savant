@@ -1185,12 +1185,13 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
 
     private void loadFromDataSourcePluginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loadFromDataSourcePluginActionPerformed
         if (DataSourcePluginController.getInstance().hasOnlySavantRepoDataSource()) {
-            DataSource s = DataSourcePluginController.getInstance().getDataSourcePlugins().get(0).getDataSource();
             try {
-                if (s == null) { return; }
+                DataSource s = DataSourcePluginController.getInstance().getDataSourcePlugins().get(0).getDataSource();
                 Track t = TrackFactory.createTrack(s);
                 createFrameForExistingTrack(Arrays.asList(new Track[] { t }));
-            } catch (SavantTrackCreationCancelledException ex) {
+            } catch (Exception x) {
+                LOG.error("Unable to create track from DataSource plugin", x);
+                DialogUtils.displayException("Track Creation Failed", "Unable to create track.", x);
             }
         } else {
             showLoadFromOtherDataSourceDialog(false);
@@ -2523,8 +2524,8 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
 
         if (p != null) {
             LOG.info("Plugin selected: " + p.getTitle());
-            DataSource s = p.getDataSource();
             try {
+                DataSource s = p.getDataSource();
                 if (s == null) { return 2; }
                 Track t = TrackFactory.createTrack(s);
                 if (loadAsGenome) {
@@ -2533,7 +2534,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
                     createFrameForExistingTrack(Arrays.asList(new Track[] { t }));
                 }
                 return 0;
-            } catch (SavantTrackCreationCancelledException ex) {
+            } catch (Exception ex) {
                 return 1;
             }
         } else {

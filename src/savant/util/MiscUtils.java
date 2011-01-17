@@ -33,6 +33,7 @@ import javax.swing.JFrame;
 
 import com.jidesoft.docking.DockableFrame;
 import com.jidesoft.docking.DockingManager;
+import java.net.URL;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -120,18 +121,41 @@ public class MiscUtils {
     }
 
     /**
-     * Extract the extension from the given path
+     * Extract the extension from the given path.
+     *
      * @param path The path from which to extract the extension
      * @return The extension of the file at the given path
      */
     public static String getExtension(String path) {
-        int indexOfDot = path.lastIndexOf(".");
+        int dotIndex = path.lastIndexOf(".");
 
-        if (indexOfDot == -1 || indexOfDot == path.length() - 1) {
+        if (dotIndex == -1 || dotIndex == path.length() - 1) {
             return "";
         } else {
-            return path.substring(indexOfDot + 1);
+            return path.substring(dotIndex + 1);
         }
+    }
+
+    /**
+     * Extract the extension from the given URI.
+     *
+     * @param uri The URI from which to extract the extension
+     * @return The extension of the URI
+     */
+    public static String getExtension(URL url) {
+        return getExtension(url.toString());
+    }
+
+    /**
+     * Extract the file-name portion of a URI.
+     * 
+     * @param uri the URI to be processed
+     * @return the file-name portion of the URI
+     */
+    public static String getFileName(URI uri) {
+        String path = uri.toString();
+        int lastSlashIndex = path.lastIndexOf("/");
+        return path.substring(lastSlashIndex + 1, path.length());
     }
 
     public static String getTemporaryDirectory() {

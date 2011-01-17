@@ -1,5 +1,5 @@
 /*
- *    Copyright 2009-2010 University of Toronto
+ *    Copyright 2009-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -18,26 +18,22 @@ package savant.plugin.builtin;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 
 import com.jidesoft.grid.TreeTable;
 import com.jidesoft.swing.TableSearchable;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.net.URI;
-import java.net.URL;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jdom.Document;
@@ -64,7 +60,7 @@ public class SAFEBrowser extends JDialog {
     private static final TableCellRenderer FILE_RENDERER = new FileRowCellRenderer();
     private Frame p;
     private TreeTable table;
-    private String trackpath = null;
+    private URL trackPath = null;
     private static SAFEBrowser instance;
 
     private boolean loggedIn = false;
@@ -75,7 +71,7 @@ public class SAFEBrowser extends JDialog {
         if (instance == null) {
             instance = new SAFEBrowser();
         }
-        instance.trackpath = null;
+        instance.trackPath = null;
         return instance;
     }
 
@@ -88,15 +84,15 @@ public class SAFEBrowser extends JDialog {
         TreeBrowserEntry r = (TreeBrowserEntry) table.getRowAt(table.getSelectedRow());
         if (r != null && r.isLeaf()) {
             try {
-                System.out.println("Setting track path to " + r.getURL().toString());
-                trackpath = r.getURL().toString();
+                LOG.debug("Setting track path to " + r.getURL().toString());
+                trackPath = r.getURL();
                 closeDialog();
             } catch (Exception ex) {
-                DialogUtils.displayMessage("Error opening URL: " + r.getURL());
+                DialogUtils.displayMessage(String.format("Error opening URL %s: %s.", r.getURL(), ex.getLocalizedMessage()));
             }
         } else {
             if (!ignoreActionOnBranch) {
-                DialogUtils.displayMessage("Please select a track");
+                DialogUtils.displayMessage("Please select a track.");
             }
         }
     }
@@ -106,15 +102,15 @@ public class SAFEBrowser extends JDialog {
     }
 
     public DataSource getDataSource() {
-        if (trackpath == null) {
-            System.out.println("Trackpath is null");
+        if (trackPath == null) {
+            LOG.error("Trackpath is null");
             return null;
         } else {
             try {
-                DataSource d = TrackFactory.createDataSource(new URI(trackpath));
+                DataSource d = TrackFactory.createDataSource(trackPath.toURI());
                 return d;
             } catch (Exception ex) {
-                ex.printStackTrace();
+                LOG.error(String.format("Unable to create data source for %s: %s.", trackPath, ex));
                 return null;
             }
         }
@@ -129,15 +125,18 @@ public class SAFEBrowser extends JDialog {
             }
             return new TreeBrowserEntry(root.getAttributeValue("name"), children);
         } else if (root.getName().equals("leaf")) {
-            return new TreeBrowserEntry(
-                    root.getAttributeValue("name"),
-                    root.getChildText("type"),
-                    root.getChildText("description"),
-                    root.getChildText("url"),
-                    root.getChildText("size"));
-        } else {
-            return null;
+            try {
+                return new TreeBrowserEntry(
+                        root.getAttributeValue("name"),
+                        root.getChildText("type"),
+                        root.getChildText("description"),
+                        new URL(root.getChildText("url")),
+                        root.getChildText("size"));
+            } catch (MalformedURLException x) {
+                LOG.error(x);
+            }
         }
+        return null;
     }
 
     /*
@@ -226,7 +225,7 @@ public class SAFEBrowser extends JDialog {
                 try {
                     addGroup(username, password);
                 } catch (Exception ex) {
-                    ex.printStackTrace();
+                    LOG.error("Unable to create group: " + ex.getLocalizedMessage());
                 }
             }
         });

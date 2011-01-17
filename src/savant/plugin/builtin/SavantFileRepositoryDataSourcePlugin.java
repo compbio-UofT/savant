@@ -1,5 +1,5 @@
 /*
- *    Copyright 2010 University of Toronto
+ *    Copyright 2010-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -14,16 +14,12 @@
  *    limitations under the License.
  */
 
-/*
- * DataTab.java
- * Created on Feb 25, 2010
- */
-
 package savant.plugin.builtin;
 
 import savant.data.sources.DataSource;
 import savant.plugin.PluginAdapter;
 import savant.plugin.SavantDataSourcePlugin;
+import savant.view.swing.TrackFactory;
 
 public class SavantFileRepositoryDataSourcePlugin extends SavantDataSourcePlugin {
 
@@ -37,17 +33,11 @@ public class SavantFileRepositoryDataSourcePlugin extends SavantDataSourcePlugin
         return "Savant File Repository";
     }
 
-    private static int tracknum = 0;
-
     @Override
-    public DataSource getDataSource() {
-        try {
-            SavantFileRepositoryBrowser d = SavantFileRepositoryBrowser.getInstance();
-            d.setVisible(true);
-            return d.getDataSource();
-        } catch (Exception ex) {
-            return null;
-        }
+    public DataSource getDataSource() throws Exception {
+        SavantFileRepositoryBrowser d = SavantFileRepositoryBrowser.getInstance();
+        d.setVisible(true);
+        return TrackFactory.createDataSource(d.getTrackPath().toURI());
     }
 
     @Override

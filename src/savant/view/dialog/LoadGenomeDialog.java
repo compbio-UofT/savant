@@ -316,16 +316,16 @@ public class LoadGenomeDialog extends javax.swing.JDialog {
         this.setVisible(false);
 
         if (DataSourcePluginController.getInstance().hasOnlySavantRepoDataSource()) {
-            DataSource s = DataSourcePluginController.getInstance().getDataSourcePlugins().get(0).getDataSource();
-            Track t;
             try {
+                Track t;
+                DataSource s = DataSourcePluginController.getInstance().getDataSourcePlugins().get(0).getDataSource();
                 if (s == null) {
                     Savant.getInstance().showOpenGenomeDialog();
                     return;
                 }
                 t = TrackFactory.createTrack(s);
                 Savant.getInstance().setGenomeFromTrack(t, null);
-            } catch (SavantTrackCreationCancelledException ex) {
+            } catch (Exception ex) {
                 Savant.getInstance().showOpenGenomeDialog();
                 return;
             }

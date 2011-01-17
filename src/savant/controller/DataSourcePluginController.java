@@ -39,8 +39,4 @@ public class DataSourcePluginController {
     public void addDataSourcePlugin(SavantDataSourcePlugin p) {
         datasources.add(p);
     }
-
-    public DataSource getDataSourceFromPlugin(SavantDataSourcePlugin p) {
-        return p.getDataSource();
-    }
 }

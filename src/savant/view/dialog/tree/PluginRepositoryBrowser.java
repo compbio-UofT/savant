@@ -16,10 +16,6 @@
 package savant.view.dialog.tree;
 
 import java.awt.event.MouseEvent;
-import savant.view.dialog.tree.TreeBrowserModel;
-import savant.view.dialog.tree.TreeBrowserEntry;
-import com.jidesoft.grid.TreeTable;
-import com.jidesoft.swing.TableSearchable;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -30,26 +26,24 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseListener;
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.JToolBar;
+import javax.swing.*;
 import javax.swing.ListSelectionModel;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
+
+import com.jidesoft.grid.TreeTable;
+import com.jidesoft.swing.TableSearchable;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
-import savant.api.util.DialogUtils;
+
 import savant.net.DownloadController;
 
 /**
@@ -57,8 +51,9 @@ import savant.net.DownloadController;
  * @author mfiume
  */
 public class PluginRepositoryBrowser extends JDialog {
-
+    private static final Log LOG = LogFactory.getLog(PluginRepositoryBrowser.class);
     private static final TableCellRenderer FILE_RENDERER = new FileRowCellRenderer();
+
     private Frame p;
     private String saveToDirectory;
     private TreeTable table;
@@ -112,8 +107,7 @@ public class PluginRepositoryBrowser extends JDialog {
     private void downloadSelectedItem(boolean ignoreBranchSelected) {
         TreeBrowserEntry r = (TreeBrowserEntry) table.getRowAt(table.getSelectedRow());
         if (r != null && r.isLeaf()) {
-            DownloadController.getInstance().enqueueDownload(r.getURL(), new File(saveToDirectory));
-            System.out.println(r.getURL());
+            DownloadController.getInstance().enqueueDownload(r.getURL(), new File(saveToDirectory), null);
         } else {
             if (!ignoreBranchSelected) {
                 JOptionPane.showMessageDialog(p, "Please select a file");
@@ -130,15 +124,13 @@ public class PluginRepositoryBrowser extends JDialog {
             }
             return new TreeBrowserEntry(root.getAttributeValue("name"), children);
         } else if (root.getName().equals("leaf")) {
-            return new TreeBrowserEntry(
-                    root.getAttributeValue("name"),
-                    root.getChildText("type"),
-                    root.getChildText("description"),
-                    root.getChildText("url"),
-                    root.getChildText("size"));
-        } else {
-            return null;
+            try {
+                return new TreeBrowserEntry(root.getAttributeValue("name"), root.getChildText("type"), root.getChildText("description"), new URL(root.getChildText("url")), root.getChildText("size"));
+            } catch (MalformedURLException ex) {
+                LOG.error(ex);
+            }
         }
+        return null;
     }
 
     public static class FileRowCellRenderer extends DefaultTableCellRenderer {

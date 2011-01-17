@@ -1,5 +1,5 @@
 /*
- *    Copyright 2009-2010 University of Toronto
+ *    Copyright 2009-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -15,15 +15,24 @@
  */
 package savant.view.dialog.tree;
 
-import com.jidesoft.grid.AbstractExpandableRow;
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.List;
-import javax.swing.*;
+import javax.swing.Icon;
 import javax.swing.filechooser.FileSystemView;
+
+import com.jidesoft.grid.AbstractExpandableRow;
+
 import savant.settings.DirectorySettings;
 import savant.util.MiscUtils;
 
+/**
+ * Class which represents an entry in a tree-like display.  Used for the repository
+ * browser.
+ *
+ * @author mfiume
+ */
 public class TreeBrowserEntry extends AbstractExpandableRow implements Comparable<TreeBrowserEntry> {
 
     static FileSystemView _fileSystemView;
@@ -33,7 +42,7 @@ public class TreeBrowserEntry extends AbstractExpandableRow implements Comparabl
     private String name;
     private String type;
     private String description;
-    private String url;
+    private URL url;
     private String size;
 
     public TreeBrowserEntry(String name, List<TreeBrowserEntry> r) {
@@ -45,7 +54,7 @@ public class TreeBrowserEntry extends AbstractExpandableRow implements Comparabl
                 String name,
                 String type,
                 String description,
-                String url,
+                URL url,
                 String size) {
             isLeaf = true;
             this.type = type;
@@ -70,7 +79,7 @@ public class TreeBrowserEntry extends AbstractExpandableRow implements Comparabl
             case 2:
                 return type;
             case 3:
-                return isLeaf ? MiscUtils.getFilenameFromPath(this.getURL()) : null;
+                return isLeaf ? url.getFile() : null;
             case 4:
                 return isLeaf ? size : null;
         }
@@ -111,15 +120,9 @@ public class TreeBrowserEntry extends AbstractExpandableRow implements Comparabl
 
     public Icon getIcon() {
         if (isLeaf) {
-            int ind = url.lastIndexOf(".");
-            if (ind == -1) { return null; }
-            String ext = url.substring(ind+1);
-            String fn = DirectorySettings.getSavantDirectory()
-                    + System.getProperty("file.separator")
-                    + "." + ext;
-            File f;
+            String ext = MiscUtils.getExtension(url);
             try {
-                f = File.createTempFile("savant_icon.", "." +ext);
+                File f = File.createTempFile("savant_icon.", "." +ext);
                 Icon i = getFileSystemView().getSystemIcon(f);
                 f.delete();
                 return i;
@@ -149,7 +152,7 @@ public class TreeBrowserEntry extends AbstractExpandableRow implements Comparabl
         return type;
     }
 
-    public String getURL() {
+    public URL getURL() {
         return url;
     }
 

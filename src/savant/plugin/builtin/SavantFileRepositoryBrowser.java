@@ -22,7 +22,6 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,6 +31,7 @@ import javax.swing.table.TableCellRenderer;
 
 import com.jidesoft.grid.TreeTable;
 import com.jidesoft.swing.TableSearchable;
+import java.net.MalformedURLException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jdom.Document;
@@ -40,13 +40,11 @@ import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 
 import savant.api.util.DialogUtils;
-import savant.data.sources.DataSource;
 import savant.view.dialog.tree.TreeBrowserModel;
 import savant.view.dialog.tree.TreeBrowserEntry;
 import savant.settings.BrowserSettings;
 import savant.util.DownloadFile;
 import savant.view.swing.Savant;
-import savant.view.swing.TrackFactory;
 
 /**
  *
@@ -56,16 +54,16 @@ public class SavantFileRepositoryBrowser extends JDialog {
 
     private static final Log LOG = LogFactory.getLog(SavantFileRepositoryBrowser.class);
     private static final TableCellRenderer FILE_RENDERER = new FileRowCellRenderer();
-    private Frame p;
+
     private TreeTable table;
-    private String trackpath = null;
+    private URL trackPath = null;
     private static SavantFileRepositoryBrowser instance;
 
     public static SavantFileRepositoryBrowser getInstance() throws JDOMException, IOException {
         if (instance == null) {
             instance = new SavantFileRepositoryBrowser();
         }
-        instance.trackpath = null;
+        instance.trackPath = null;
         return instance;
     }
 
@@ -87,7 +85,6 @@ public class SavantFileRepositoryBrowser extends JDialog {
         super(parent, title, modal);
 
         this.setDefaultCloseOperation(JDialog.HIDE_ON_CLOSE);
-        p = parent;
         this.setResizable(true);
         this.setLayout(new BorderLayout());
         this.add(getCenterPanel(roots), BorderLayout.CENTER);
@@ -127,15 +124,15 @@ public class SavantFileRepositoryBrowser extends JDialog {
         TreeBrowserEntry r = (TreeBrowserEntry) table.getRowAt(table.getSelectedRow());
         if (r != null && r.isLeaf()) {
             try {
-                LOG.info("Setting track path to " + r.getURL().toString());
-                trackpath = r.getURL().toString();
+                LOG.info("Setting track path to " + r.getURL());
+                trackPath = r.getURL();
                 closeDialog();
             } catch (Exception ex) {
-                DialogUtils.displayMessage("Error opening URL: " + r.getURL());
+                DialogUtils.displayMessage(String.format("Error opening URL %s: %s.", r.getURL(), ex));
             }
         } else {
             if (!ignoreActionOnBranch) {
-                DialogUtils.displayMessage("Please select a track");
+                DialogUtils.displayMessage("Please select a track.");
             }
         }
     }
@@ -144,19 +141,8 @@ public class SavantFileRepositoryBrowser extends JDialog {
         setVisible(false);
     }
 
-    public DataSource getDataSource() {
-        if (trackpath == null) {
-            LOG.info("Trackpath is null in getDataSource().");
-            return null;
-        } else {
-            try {
-                DataSource d = TrackFactory.createDataSource(new URI(trackpath));
-                return d;
-            } catch (Exception ex) {
-                LOG.error("Unable to create data source for " + trackpath, ex);
-                return null;
-            }
-        }
+    public URL getTrackPath() {
+        return trackPath;
     }
 
     private static TreeBrowserEntry parseDocumentTreeRow(Element root) {
@@ -168,15 +154,18 @@ public class SavantFileRepositoryBrowser extends JDialog {
             }
             return new TreeBrowserEntry(root.getAttributeValue("name"), children);
         } else if (root.getName().equals("leaf")) {
-            return new TreeBrowserEntry(
-                    root.getAttributeValue("name"),
-                    root.getChildText("type"),
-                    root.getChildText("description"),
-                    root.getChildText("url"),
-                    root.getChildText("size"));
-        } else {
-            return null;
+            try {
+                return new TreeBrowserEntry(
+                        root.getAttributeValue("name"),
+                        root.getChildText("type"),
+                        root.getChildText("description"),
+                        new URL(root.getChildText("url")),
+                        root.getChildText("size"));
+            } catch (MalformedURLException x) {
+                LOG.error(x);
+            }
         }
+        return null;
     }
 
     public static class FileRowCellRenderer extends DefaultTableCellRenderer {
