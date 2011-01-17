@@ -1,5 +1,5 @@
 /*
- *    Copyright 2010 University of Toronto
+ *    Copyright 2010-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -18,8 +18,7 @@ package savant.view.swing;
 
 import java.io.File;
 import java.io.IOException;
-import javax.swing.JFileChooser;
-import javax.swing.JOptionPane;
+import javax.swing.filechooser.FileFilter;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -49,11 +48,31 @@ public class ProjectHandler implements
         TrackListChangedListener {
 
     private static final Log LOG = LogFactory.getLog(ProjectHandler.class);
+    private static final FileFilter PROJECT_FILTER = new FileFilter() {
+        @Override
+        public boolean accept(File f) {
+            if (f.isDirectory()) {
+                return true;
+            }
+
+            String extension = MiscUtils.getExtension(f.getAbsolutePath());
+            if (extension != null) {
+                return extension.equalsIgnoreCase("svp");
+            }
+            return false;
+        }
+
+        @Override
+        public String getDescription() {
+            return "Savant project files (*.svp)";
+        }
+    };
+    private static final File UNTITLED_PROJECT_PATH = new File(DirectorySettings.getProjectsDirectory(), "UntitledProject.svp");
+
 
     private static ProjectHandler instance;
     private boolean isOpenProjectSaved = true;
-    private String openProjectPath = null;
-    private String untitledProjectPath = DirectorySettings.getProjectsDirectory() + System.getProperty("file.separator") + "UntitledProject.svp";
+    private File openProjectPath = null;
     private boolean isLoading = false;
 
     public ProjectHandler() {
@@ -85,7 +104,7 @@ public class ProjectHandler implements
     }
 
     public void setProjectInfo() {
-        String path = getCurrentPath();
+        File path = getCurrentPath();
         String base = "Savant Genome Browser - ";
         if (isLoading) {
             Savant.getInstance().setTitle(base + "Opening " + path + " ...");
@@ -113,97 +132,89 @@ public class ProjectHandler implements
 
         if (ProjectController.getInstance().isProjectOpen()) {
             if (!isOpenProjectSaved) {
-                int result = JOptionPane.showConfirmDialog(Savant.getInstance(), "Save current session?");
-                if (result == JOptionPane.YES_OPTION) {
+                int result = DialogUtils.askYesNoCancel("Save current session?");
+                if (result == DialogUtils.YES) {
                     promptUserToSaveSession();
-                } else if (result == JOptionPane.CANCEL_OPTION) {
+                } else if (result == DialogUtils.CANCEL) {
                     return;
                 }
             }
         }
 
-        JFileChooser jfc = new JFileChooser();
-        jfc.setCurrentDirectory(new File(DirectorySettings.getProjectsDirectory()));
-        int result = jfc.showOpenDialog(Savant.getInstance());
-        if (result == JFileChooser.APPROVE_OPTION) {
-            String filename = jfc.getSelectedFile().getAbsolutePath();
-            loadProjectFrom(filename);
+        File f = DialogUtils.chooseFileForOpen("Open Project File", PROJECT_FILTER, new File(DirectorySettings.getProjectsDirectory()));
+        if (f != null) {
+            loadProjectFrom(f);
         }
     }
 
-    public void promptUserToSaveProjectAs() {
+    public boolean promptUserToSaveProjectAs() {
 
         if (!ProjectController.getInstance().isProjectOpen()) {
             DialogUtils.displayMessage("No project to save.");
-            return;
+            return false;
         }
 
-        JFileChooser jfc = new JFileChooser();
-        jfc.setCurrentDirectory(new File(DirectorySettings.getSavantDirectory()));
-        jfc.setDialogTitle("Save Project");
-        jfc.setDialogType(JFileChooser.SAVE_DIALOG);
+        File selectedFile = DialogUtils.chooseFileForSave("Save Project", getCurrentPath().getName(), PROJECT_FILTER, new File(DirectorySettings.getProjectsDirectory()));
 
-        jfc.setSelectedFile(new File(this.getCurrentPath()));
-
-        if (jfc.showSaveDialog(Savant.getInstance()) == JFileChooser.APPROVE_OPTION) {
+        if (selectedFile != null) {
             try {
-                File selectedFile = jfc.getSelectedFile();
-                int result = -1;
+                int result = DialogUtils.YES;
                 if (selectedFile.exists()) {
-                    result = JOptionPane.showConfirmDialog(Savant.getInstance(), "Overwrite existing file?");
+                    result = DialogUtils.askYesNo("Overwrite existing file?");
                 }
-                if (result == -1 || result == JOptionPane.OK_OPTION) {
+                if (result == DialogUtils.YES) {
                     ProjectController.getInstance().saveProjectAs(selectedFile);
-                    openProjectPath = selectedFile.getAbsolutePath();
+                    openProjectPath = selectedFile;
                     setProjectSaved(true);
+                    return true;
                 }
             } catch (IOException ex) {
-                ex.printStackTrace();
-                if (JOptionPane.showConfirmDialog(Savant.getInstance(),
-                        "Error saving project to "
-                        + jfc.getSelectedFile().getAbsolutePath()
-                        + ". Try another location?") == JOptionPane.YES_OPTION) {
-                    promptUserToSaveProjectAs();
+                LOG.error(ex);
+                if (DialogUtils.askYesNo("Error saving project to " + selectedFile.getAbsolutePath() + ". Try another location?") == DialogUtils.YES) {
+                    return promptUserToSaveProjectAs();
                 }
-            } catch (Exception e) {
-                JOptionPane.showMessageDialog(Savant.getInstance(), "Error saving project.");
-                e.printStackTrace();
+            } catch (Exception ex) {
+                LOG.error(ex);
+                DialogUtils.displayError("Error saving project.");
             }
         }
+        return false;
     }
 
-    void promptUserToSaveSession() {
-        if (this.openProjectPath == null) {
-            this.promptUserToSaveProjectAs();
-        } else {
-            try {
-                ProjectController.getInstance().saveProjectAs(getCurrentPath());
-                openProjectPath = getCurrentPath();
-                setProjectSaved(true);
-            } catch (IOException ex) {
-                LOG.error(String.format("Unable to save %s.", openProjectPath), ex);
-                if (DialogUtils.askYesNo("Error saving project to " + getCurrentPath() + ". Try another location?") == DialogUtils.YES) {
-                    promptUserToSaveProjectAs();
-                }
-            } catch (SavantEmptySessionException ex) {
-                LOG.error(String.format("Unable to save %s.", openProjectPath), ex);
-            }
+    /**
+     * Prompt the user to save the current project.
+     *
+     * @return true if the project was saved
+     */
+    boolean promptUserToSaveSession() {
+        if (openProjectPath == null) {
+            return promptUserToSaveProjectAs();
         }
-    }
-
-    private String getCurrentPath() {
-        if (this.openProjectPath == null) {
-            return this.untitledProjectPath;
-        } else {
-            return this.openProjectPath;
-        }
-    }
-
-    public void loadProjectFrom(String filename) {
-        isLoading = true;
-        openProjectPath = filename;
         try {
-            ProjectController.getInstance().loadProjectFrom(filename);
+            ProjectController.getInstance().saveProjectAs(getCurrentPath());
+            openProjectPath = getCurrentPath();
+            setProjectSaved(true);
+            return true;
+        } catch (IOException ex) {
+            LOG.error(String.format("Unable to save %s.", openProjectPath), ex);
+            if (DialogUtils.askYesNo("Error saving project to " + getCurrentPath() + ". Try another location?") == DialogUtils.YES) {
+                return promptUserToSaveProjectAs();
+            }
+        } catch (SavantEmptySessionException ex) {
+            LOG.error(String.format("Unable to save %s.", openProjectPath), ex);
+        }
+        return false;
+    }
+
+    private File getCurrentPath() {
+        return openProjectPath != null ? openProjectPath : UNTITLED_PROJECT_PATH;
+    }
+
+    public void loadProjectFrom(File f) {
+        isLoading = true;
+        openProjectPath = f;
+        try {
+            ProjectController.getInstance().loadProjectFrom(f);
             isLoading = false;
             setProjectSaved(true);
         } catch (Exception x) {

@@ -120,7 +120,7 @@ public class TrackFactory {
      * @param trackURI
      * @return the newly-created tracks corresponding to this URI
      */
-    public static List<Track> createTrackSync(URI trackURI) throws SavantTrackCreationCancelledException {
+    public static List<Track> createTrackSync(URI trackURI) throws Exception {
         // Just run the track-creator in the current thread (presumably the AWT thread),
         // instead of spawning a new one.
         SyncTrackCreationListener listener = new SyncTrackCreationListener();
@@ -282,7 +282,7 @@ public class TrackFactory {
      */
     static class SyncTrackCreationListener implements TrackCreationListener {
         List<Track> result;
-        SavantTrackCreationCancelledException error;
+        Exception error;
 
         @Override
         public void trackCreationStarted(TrackCreationEvent evt) {
@@ -295,7 +295,7 @@ public class TrackFactory {
 
         @Override
         public void trackCreationFailed(TrackCreationEvent evt) {
-            error = new SavantTrackCreationCancelledException(evt.getError());
+            error = evt.getError();
         }
     }
 }

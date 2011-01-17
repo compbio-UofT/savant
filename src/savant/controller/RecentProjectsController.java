@@ -62,10 +62,10 @@ public class RecentProjectsController {
         loadRecents(recentProjectsFile);
     }
 
-    public void addProjectFile(String filename) {
-        queue.remove(filename);
+    public void addProjectFile(File filename) {
+        queue.remove(filename.getAbsolutePath());
         resizeQueue(queue, NUM_RECENTS_TO_SAVE);
-        queue.add(0,filename);
+        queue.add(0,filename.getAbsolutePath());
         try { saveRecents(queue); } catch (IOException ex) {}
         updateMenuList();
     }
@@ -109,7 +109,7 @@ public class RecentProjectsController {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     try {
-                        ProjectHandler.getInstance().loadProjectFrom(s);
+                        ProjectHandler.getInstance().loadProjectFrom(new File(s));
                     } catch (Exception ex) {
                         DialogUtils.displayMessage("Error opening project from file " + s);
                     }

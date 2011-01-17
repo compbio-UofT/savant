@@ -35,12 +35,12 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jdom.JDOMException;
 
+import savant.api.util.DialogUtils;
 import savant.settings.BrowserSettings;
 import savant.settings.DirectorySettings;
 import savant.util.DownloadFile;
 import savant.view.dialog.tree.PluginRepositoryBrowser;
 import savant.view.swing.Savant;
-import savant.view.swing.util.DialogUtils;
 
 /**
  *
@@ -220,7 +220,7 @@ public class PluginManagerDialog extends JDialog {
 
     private void addPlugin() {
 
-        File selectedFile = DialogUtils.chooseFileForOpen(Savant.getInstance(), "Select Plugin JAR", null);
+        File selectedFile = DialogUtils.chooseFileForOpen("Select Plugin JAR", null, null);
 
         // copy the plugin
         if (selectedFile != null) {

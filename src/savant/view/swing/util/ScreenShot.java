@@ -1,5 +1,5 @@
 /*
- *    Copyright 2010 University of Toronto
+ *    Copyright 2010-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -29,6 +29,9 @@ import savant.util.MiscUtils;
 import savant.view.swing.Savant;
 
 
+/**
+ * Utility class to take a snapshot of the screen.
+ */
 public class ScreenShot {
     private static int saveCount = 0;
     private static boolean showCompletionDialog = true;
@@ -56,7 +59,7 @@ public class ScreenShot {
 
     private static String save(BufferedImage screen) {
 
-        File selectedFile = DialogUtils.chooseFileForSave(Savant.getInstance(), "Output File", "Screenshot.png", new FileFilter() {
+        File selectedFile = savant.api.util.DialogUtils.chooseFileForSave("Output File", "Screenshot.png", new FileFilter() {
             @Override
             public boolean accept(File f) {
                 if (f.isDirectory()) {

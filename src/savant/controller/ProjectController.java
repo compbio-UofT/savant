@@ -1,5 +1,5 @@
 /*
- *    Copyright 2010 University of Toronto
+ *    Copyright 2010-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -25,11 +25,10 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import savant.data.sources.file.FileDataSource;
 
+import savant.data.sources.file.FileDataSource;
 import savant.data.types.Genome;
 import savant.exception.SavantEmptySessionException;
-import savant.exception.SavantTrackCreationCancelledException;
 import savant.file.SavantFileNotFormattedException;
 import savant.file.SavantUnsupportedVersionException;
 import savant.util.Bookmark;
@@ -89,7 +88,7 @@ public class ProjectController {
         return persistentMap;
     }
 
-    private void writeMap(Map<String, Object> persistentMap, String filename) throws IOException {
+    private void writeMap(Map<String, Object> persistentMap, File filename) throws IOException {
         ObjectOutputStream outStream = null;
         try {
             outStream = new ObjectOutputStream(new FileOutputStream(filename));
@@ -105,7 +104,7 @@ public class ProjectController {
         }
     }
 
-    private Map<String, Object> readMap(String filename) throws ClassNotFoundException, IOException {
+    private Map<String, Object> readMap(File filename) throws ClassNotFoundException, IOException {
 
         Map<String, Object> map = new HashMap<String, Object>();
 
@@ -151,11 +150,7 @@ public class ProjectController {
         }
     }
 
-    public void saveProjectAs(File f) throws IOException, SavantEmptySessionException {
-        saveProjectAs(f.getAbsolutePath());
-    }
-
-    public void saveProjectAs(String filename) throws IOException, SavantEmptySessionException {
+    public void saveProjectAs(File filename) throws IOException, SavantEmptySessionException {
         Map<String, Object> persistentMap = getCurrentPersistenceMap();
         writeMap(persistentMap, filename);
         RecentProjectsController.getInstance().addProjectFile(filename);
@@ -165,7 +160,7 @@ public class ProjectController {
         return ReferenceController.getInstance().isGenomeLoaded();
     }
 
-    public void loadProjectFrom(String filename) throws ClassNotFoundException, IOException, URISyntaxException, SavantFileNotFormattedException, SavantUnsupportedVersionException {
+    public void loadProjectFrom(File filename) throws ClassNotFoundException, IOException, URISyntaxException, SavantFileNotFormattedException, SavantUnsupportedVersionException {
 
         clearExistingProject();
 
@@ -185,18 +180,13 @@ public class ProjectController {
             try {
                 try {
                     genome = Track.createGenome(TrackFactory.createTrackSync(new URI(genomePath)).get(0));
-                } catch (SavantTrackCreationCancelledException ex) {
-                    DialogUtils.displayMessage("Sorry", "Problem loading project.");
-                    return;
-                }
-            } catch (URISyntaxException usx) {
-                try {
+                } catch (URISyntaxException usx) {
                     // A common cause of URISyntaxExceptions is a file-path containing spaces.
                     genome = Track.createGenome(TrackFactory.createTrackSync(new File(genomePath).toURI()).get(0));
-                } catch (SavantTrackCreationCancelledException ex) {
-                    DialogUtils.displayMessage("Sorry", "Problem loading project.");
-                    return;
                 }
+            } catch (Exception ex) {
+                DialogUtils.displayException("Sorry", "Problem loading project.", ex);
+                return;
             }
             genomeName = genome.getDataSource().getURI().toString();
         } else {

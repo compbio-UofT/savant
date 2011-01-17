@@ -1,5 +1,5 @@
 /*
- *    Copyright 2010 University of Toronto
+ *    Copyright 2010-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -22,7 +22,9 @@ import javax.swing.filechooser.FileFilter;
 import savant.view.swing.Savant;
 
 /**
- * Utility methods to allow plugins to make Savant display a dialog.
+ * Utility methods to allow plugins to make Savant display a dialog.  Among other
+ * things, this is supposed to insulate code from knowing about whether we're operating
+ * as a Swing application or not.
  *
  * @author tarkvara
  */
@@ -60,6 +62,13 @@ public class DialogUtils {
      */
     public static int askYesNo(String prompt) {
         return askYesNo("Savant", prompt);
+    }
+
+    /**
+     * Display a Savant dialog to ask a yes/no/cancel question with the title "Savant".
+     */
+    public static int askYesNoCancel(String prompt) {
+        return savant.view.swing.util.DialogUtils.askYesNoCancel("Savant", prompt);
     }
 
     /**
@@ -120,6 +129,31 @@ public class DialogUtils {
     }
 
     /**
+     * Prompt the user to open a file.
+     *
+     * @param title title of the dialog
+     * @param filter filter for determining which files to display
+     * @param initialDir initial directory for the dialog (null to use system default)
+     * @return a File, or null if cancelled
+     */
+    public static File chooseFileForOpen(String title, FileFilter filter, File initialDir) {
+        return savant.view.swing.util.DialogUtils.chooseFileForOpen(Savant.getInstance(), title, filter, initialDir);
+    }
+
+    /**
+     * Open-file dialog variant which lets user select multiple files on Windows and
+     * Linux.
+     *
+     * @param title title for the dialog
+     * @param filter controls which files to display (null for no filtering)
+     * @param initialDir initial directory for the dialog (null to use system default)
+     * @return an array of selected files; an empty array if nothing is selected
+     */
+    public static File[] chooseFilesForOpen(String title, FileFilter filter, File initialDir) {
+        return savant.view.swing.util.DialogUtils.chooseFilesForOpen(Savant.getInstance(), title, filter, initialDir);
+    }
+
+    /**
      * Prompt the user to save a file.
      *
      * @param title title of the dialog
@@ -127,7 +161,7 @@ public class DialogUtils {
      * @return a File, or null if cancelled
      */
     public static File chooseFileForSave(String title, String defaultName) {
-        return savant.view.swing.util.DialogUtils.chooseFileForSave(Savant.getInstance(), title, defaultName, null);
+        return savant.view.swing.util.DialogUtils.chooseFileForSave(Savant.getInstance(), title, defaultName, null, null);
     }
 
     /**
@@ -138,6 +172,18 @@ public class DialogUtils {
      * @return a File, or null if cancelled
      */
     public static File chooseFileForSave(String title, String defaultName, FileFilter filter) {
-        return savant.view.swing.util.DialogUtils.chooseFileForSave(Savant.getInstance(), title, defaultName, filter);
+        return savant.view.swing.util.DialogUtils.chooseFileForSave(Savant.getInstance(), title, defaultName, filter, null);
+    }
+
+    /**
+     * Prompt the user to save a file.
+     *
+     * @param title title of the dialog
+     * @param filter file-filter for controlling what appears in the dialog
+     * @param dir the default directory
+     * @return a File, or null if cancelled
+     */
+    public static File chooseFileForSave(String title, String defaultName, FileFilter filter, File dir) {
+        return savant.view.swing.util.DialogUtils.chooseFileForSave(Savant.getInstance(), title, defaultName, filter, dir);
     }
 }

@@ -45,15 +45,14 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jdom.JDOMException;
 
+import savant.api.util.DialogUtils;
 import savant.controller.*;
 import savant.controller.event.*;
 import savant.data.sources.DataSource;
 import savant.data.types.Genome;
-import savant.exception.SavantTrackCreationCancelledException;
 import savant.file.SavantFileNotFormattedException;
 import savant.file.SavantUnsupportedVersionException;
 import savant.experimental.XMLTool;
-import savant.file.DataFormat;
 import savant.plugin.SavantDataSourcePlugin;
 import savant.plugin.builtin.SAFEDataSourcePlugin;
 import savant.plugin.builtin.SavantFileRepositoryDataSourcePlugin;
@@ -65,7 +64,6 @@ import savant.util.MiscUtils;
 import savant.util.Range;
 import savant.view.dialog.*;
 import savant.view.icon.SavantIconFactory;
-import savant.view.swing.util.DialogUtils;
 import savant.view.tools.ToolsModule;
 import savant.xml.XMLVersion;
 import savant.xml.XMLVersion.Version;
@@ -1573,15 +1571,15 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
 
         if (!projectHandler.isProjectSaved()) {
 
-            int answer = JOptionPane.showConfirmDialog(
-                    Savant.getInstance(),
-                    "Save project before quitting?");
+            int answer = DialogUtils.askYesNoCancel("Save project before quitting?");
 
             if (answer == JOptionPane.CANCEL_OPTION) {
                 return;
             }
             if (answer == JOptionPane.YES_OPTION) {
-                projectHandler.promptUserToSaveSession();
+                if (!projectHandler.promptUserToSaveSession()) {
+                    return;
+                }
             }
         }
 
@@ -2127,7 +2125,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
     public void showOpenTracksDialog(boolean loadAsGenome) {
 
         if (loadAsGenome) {
-            File selectedFile = DialogUtils.chooseFileForOpen(this, "Load Genome", null);
+            File selectedFile = DialogUtils.chooseFileForOpen("Load Genome", null, null);
             // set the genome
             if (selectedFile != null) {
                 try {
@@ -2135,6 +2133,8 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
                     if (!trks.isEmpty()) {
                         setGenomeFromTrack(trks.get(0), null);
                     }
+                } catch (SavantFileNotFormattedException ignored) {
+                    // Already handled.
                 } catch (Exception x) {
                     DialogUtils.displayException("Error Loading Genome", String.format("Unable to load genome from %s.", selectedFile.getName()), x);
                 }
@@ -2148,7 +2148,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
                 return;
             }
 
-            File[] selectedFiles = DialogUtils.chooseFilesForOpen(this, "Open Tracks", null);
+            File[] selectedFiles = DialogUtils.chooseFilesForOpen("Open Tracks", null, null);
             for (File f : selectedFiles) {
                 try {
                     addTrackFromFile(f.getAbsolutePath());

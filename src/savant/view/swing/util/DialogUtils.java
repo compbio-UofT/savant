@@ -45,6 +45,10 @@ public class DialogUtils {
         return JOptionPane.showConfirmDialog(Savant.getInstance(), prompt, title, JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
     }
 
+    public static int askYesNoCancel(String title, String prompt) {
+        return JOptionPane.showConfirmDialog(Savant.getInstance(), prompt, title, JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
+    }
+
     public static void displayError(String title, String message) {
         JOptionPane.showMessageDialog(Savant.getInstance(), message, title, JOptionPane.ERROR_MESSAGE);
     }
@@ -80,13 +84,17 @@ public class DialogUtils {
      * @param parent the parent frame (typically the Savant main frame)
      * @param title title for the dialog
      * @param filter controls which files to display (null for no filtering)
+     * @param initialDir initial directory for the dialog
      * @return the selected file, or null if nothing was selected
      */
-    public static File chooseFileForOpen(Frame parent, String title, FileFilter filter) {
+    public static File chooseFileForOpen(Frame parent, String title, FileFilter filter, File initialDir) {
         if (MiscUtils.MAC) {
             FileDialog fd = new FileDialog(parent, title, FileDialog.LOAD);
             if (filter != null) {
                 fd.setFilenameFilter(new FilenameFilterAdapter(filter));
+            }
+            if (initialDir != null) {
+                fd.setDirectory(initialDir.getAbsolutePath());
             }
             fd.setVisible(true);
             fd.setAlwaysOnTop(true);
@@ -100,6 +108,9 @@ public class DialogUtils {
             fd.setDialogType(JFileChooser.OPEN_DIALOG);
             if (filter != null) {
                 fd.setFileFilter(filter);
+            }
+            if (initialDir != null) {
+                fd.setCurrentDirectory(initialDir);
             }
             int result = fd.showOpenDialog(parent);
             if (result == JFileChooser.APPROVE_OPTION) {
@@ -116,12 +127,13 @@ public class DialogUtils {
      * @param parent the parent frame (typically the Savant main frame)
      * @param title title for the dialog
      * @param filter controls which files to display (null for no filtering)
+     * @param initialDir initial directory for the dialog
      * @return an array of selected files; an empty array if nothing is selected
      */
-    public static File[] chooseFilesForOpen(Frame parent, String title, FileFilter filter) {
+    public static File[] chooseFilesForOpen(Frame parent, String title, FileFilter filter, File initialDir) {
         if (MiscUtils.MAC) {
             // Mac AWT FileDialog doesn't support multiple selection.
-            File f = chooseFileForOpen(parent, title, filter);
+            File f = chooseFileForOpen(parent, title, filter, initialDir);
             if (f != null) {
                 return new File[] { f };
             }
@@ -150,7 +162,7 @@ public class DialogUtils {
      * @return a File, or null if cancelled
      */
     public static File chooseFileForSave(Frame parent, String title, String defaultName) {
-        return chooseFileForSave(parent, title, defaultName, null);
+        return chooseFileForSave(parent, title, defaultName, null, null);
     }
 
     /**
@@ -160,12 +172,16 @@ public class DialogUtils {
      * @param title title of the dialog
      * @param defaultName default file-name to appear in the dialog
      * @param filter file-filter for controlling what appears in the dialog
+     * @param initialDir initial directory for the dialog
      * @return a File, or null if cancelled
      */
-    public static File chooseFileForSave(Frame parent, String title, String defaultName, FileFilter filter) {
+    public static File chooseFileForSave(Frame parent, String title, String defaultName, FileFilter filter, File initialDir) {
         FileDialog fd = new FileDialog(parent, title, FileDialog.SAVE);
         if (filter != null) {
             fd.setFilenameFilter(new FilenameFilterAdapter(filter));
+        }
+        if (initialDir != null) {
+            fd.setDirectory(initialDir.getAbsolutePath());
         }
         fd.setFile(defaultName);
         fd.setAlwaysOnTop(true);

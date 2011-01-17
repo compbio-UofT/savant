@@ -23,7 +23,6 @@ import savant.api.adapter.GenomeAdapter;
 import savant.api.adapter.TrackAdapter;
 import savant.controller.ReferenceController;
 import savant.data.types.Genome;
-import savant.exception.SavantTrackCreationCancelledException;
 import savant.view.swing.Track;
 
 /**
@@ -84,7 +83,7 @@ public class GenomeUtils {
      * @param f a file containing sequence information
      * @return a genome object for the given sequence
      */
-    public static GenomeAdapter createGenome(File f) throws IOException, SavantTrackCreationCancelledException {
+    public static GenomeAdapter createGenome(File f) throws Exception {
         return createGenome(TrackUtils.createTrack(f).get(0));
     }
 }

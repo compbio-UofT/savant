@@ -85,7 +85,7 @@ public class TrackUtils {
      * @return A list of tracks based on the path (some paths, e.g. to BAM files, can create multiple tracks)
      * @throws IOException Exception opening the track at path
      */
-    public static List<TrackAdapter> createTrack(URI uri) throws SavantTrackCreationCancelledException {
+    public static List<TrackAdapter> createTrack(URI uri) throws Exception {
         List<TrackAdapter> r = new ArrayList<TrackAdapter>();
         for (Track t : TrackFactory.createTrackSync(uri)) {
             r.add((TrackAdapter) t);
@@ -99,7 +99,7 @@ public class TrackUtils {
      * @return A list of tracks based on the path (some paths, e.g. to BAM files, can create multiple tracks)
      * @throws IOException Exception opening the track at path
      */
-    public static List<TrackAdapter> createTrack(File file) throws SavantTrackCreationCancelledException {
+    public static List<TrackAdapter> createTrack(File file) throws Exception {
         List<TrackAdapter> r = new ArrayList<TrackAdapter>();
         for (Track t : TrackFactory.createTrackSync(file.toURI())) {
             r.add((TrackAdapter) t);

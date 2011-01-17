@@ -44,6 +44,7 @@ import javax.swing.JToolBar;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import savant.api.util.DialogUtils;
 import savant.controller.BookmarkController;
 import savant.controller.RangeController;
 import savant.controller.event.BookmarksChangedEvent;
@@ -52,7 +53,6 @@ import savant.util.Bookmark;
 import savant.util.Range;
 import savant.view.icon.SavantIconFactory;
 import savant.view.swing.model.BookmarksTableModel;
-import savant.view.swing.util.DialogUtils;
 
 /**
  *
@@ -270,7 +270,7 @@ public class BookmarkSheet implements BookmarksChangedListener /*, RangeChangedL
             }
         }
 
-        File selectedFile = DialogUtils.chooseFileForOpen(Savant.getInstance(), "Load Bookmarks", null);
+        File selectedFile = DialogUtils.chooseFileForOpen("Load Bookmarks", null, null);
 
         LOG.info("load 0");
 
@@ -291,7 +291,7 @@ public class BookmarkSheet implements BookmarksChangedListener /*, RangeChangedL
         List<Bookmark> bookmarks = btm.getData();
 
         // get the path (null if none selected)
-        File selectedFile = DialogUtils.chooseFileForSave(Savant.getInstance(), "Save Bookmarks", "Bookmarks.txt");
+        File selectedFile = DialogUtils.chooseFileForSave("Save Bookmarks", "Bookmarks.txt", null);
 
         // set the genome
         if (selectedFile != null) {
