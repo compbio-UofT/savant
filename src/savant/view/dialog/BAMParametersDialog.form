@@ -30,35 +30,41 @@
   <Layout>
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Group type="102" alignment="0" attributes="0">
+          <Group type="102" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="1" attributes="0">
                       <Component id="buttonOK" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="buttonCancel" min="-2" max="-2" attributes="0"/>
+                      <Component id="buttonCancel" min="-2" pref="71" max="-2" attributes="0"/>
                   </Group>
                   <Group type="102" alignment="0" attributes="0">
                       <Group type="103" groupAlignment="0" attributes="0">
+                          <Component id="jLabel5" alignment="0" min="-2" max="-2" attributes="0"/>
                           <Component id="jLabel3" alignment="0" min="-2" max="-2" attributes="0"/>
                           <Component id="jLabel2" alignment="0" min="-2" max="-2" attributes="0"/>
                           <Component id="jLabel1" alignment="0" min="-2" max="-2" attributes="0"/>
-                          <Component id="jLabel5" alignment="0" min="-2" max="-2" attributes="0"/>
                       </Group>
-                      <EmptySpace max="-2" attributes="0"/>
+                      <EmptySpace type="unrelated" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Group type="102" alignment="0" attributes="0">
-                              <Component id="matepair_button" min="-2" max="-2" attributes="0"/>
+                              <Component id="textArcThreshold" pref="162" max="32767" attributes="1"/>
                               <EmptySpace max="-2" attributes="0"/>
-                              <Component id="pairedend_button" min="-2" max="-2" attributes="0"/>
+                              <Component id="jLabel4" min="-2" pref="89" max="-2" attributes="0"/>
                           </Group>
-                          <Component id="textDiscordantMax" alignment="1" pref="174" max="32767" attributes="1"/>
                           <Group type="102" alignment="0" attributes="0">
-                              <Component id="textArcThreshold" pref="80" max="32767" attributes="1"/>
+                              <Group type="103" groupAlignment="0" attributes="0">
+                                  <Component id="matepair_button" min="-2" max="-2" attributes="0"/>
+                                  <Component id="pairedend_button" min="-2" max="-2" attributes="0"/>
+                              </Group>
                               <EmptySpace max="-2" attributes="0"/>
-                              <Component id="jLabel4" min="-2" max="-2" attributes="0"/>
+                              <Group type="103" groupAlignment="0" attributes="0">
+                                  <Component id="reads_opposite_container" pref="130" max="32767" attributes="0"/>
+                                  <Component id="reads_same_container" alignment="0" pref="130" max="32767" attributes="0"/>
+                              </Group>
                           </Group>
-                          <Component id="textDiscordantMin" alignment="1" pref="174" max="32767" attributes="1"/>
+                          <Component id="textDiscordantMin" alignment="0" pref="256" max="32767" attributes="1"/>
+                          <Component id="textDiscordantMax" alignment="0" pref="256" max="32767" attributes="1"/>
                       </Group>
                   </Group>
               </Group>
@@ -68,12 +74,27 @@
     </DimensionLayout>
     <DimensionLayout dim="1">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Group type="102" alignment="0" attributes="0">
+          <Group type="102" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="jLabel5" alignment="3" min="-2" pref="14" max="-2" attributes="0"/>
-                  <Component id="matepair_button" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="pairedend_button" alignment="3" min="-2" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Group type="102" attributes="0">
+                      <Group type="103" groupAlignment="1" attributes="0">
+                          <Group type="102" attributes="0">
+                              <Component id="jLabel5" min="-2" pref="14" max="-2" attributes="0"/>
+                              <EmptySpace min="-2" pref="14" max="-2" attributes="0"/>
+                          </Group>
+                          <Group type="102" attributes="0">
+                              <Component id="reads_opposite_container" min="-2" pref="20" max="-2" attributes="0"/>
+                              <EmptySpace min="-2" pref="8" max="-2" attributes="0"/>
+                          </Group>
+                      </Group>
+                      <Component id="reads_same_container" min="-2" pref="19" max="-2" attributes="0"/>
+                  </Group>
+                  <Group type="102" attributes="0">
+                      <Component id="matepair_button" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="pairedend_button" min="-2" max="-2" attributes="0"/>
+                  </Group>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
@@ -155,19 +176,65 @@
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel5">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Sequencing Protocol:"/>
+        <Property name="text" type="java.lang.String" value="Pairs are sequenced from:"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JRadioButton" name="pairedend_button">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Paired-end"/>
+        <Property name="text" type="java.lang.String" value="same strand"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JRadioButton" name="matepair_button">
       <Properties>
         <Property name="selected" type="boolean" value="true"/>
-        <Property name="text" type="java.lang.String" value="Matepair"/>
+        <Property name="text" type="java.lang.String" value="opposite strands"/>
       </Properties>
     </Component>
+    <Container class="javax.swing.JPanel" name="reads_opposite_container">
+      <Properties>
+        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="cc" green="cc" red="ff" type="rgb"/>
+        </Property>
+        <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+          <Dimension value="[144, 14]"/>
+        </Property>
+      </Properties>
+
+      <Layout>
+        <DimensionLayout dim="0">
+          <Group type="103" groupAlignment="0" attributes="0">
+              <EmptySpace min="0" pref="130" max="32767" attributes="0"/>
+          </Group>
+        </DimensionLayout>
+        <DimensionLayout dim="1">
+          <Group type="103" groupAlignment="0" attributes="0">
+              <EmptySpace min="0" pref="20" max="32767" attributes="0"/>
+          </Group>
+        </DimensionLayout>
+      </Layout>
+    </Container>
+    <Container class="javax.swing.JPanel" name="reads_same_container">
+      <Properties>
+        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="cc" green="cc" red="ff" type="rgb"/>
+        </Property>
+        <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+          <Dimension value="[144, 14]"/>
+        </Property>
+      </Properties>
+
+      <Layout>
+        <DimensionLayout dim="0">
+          <Group type="103" groupAlignment="0" attributes="0">
+              <EmptySpace min="0" pref="130" max="32767" attributes="0"/>
+          </Group>
+        </DimensionLayout>
+        <DimensionLayout dim="1">
+          <Group type="103" groupAlignment="0" attributes="0">
+              <EmptySpace min="0" pref="19" max="32767" attributes="0"/>
+          </Group>
+        </DimensionLayout>
+      </Layout>
+    </Container>
   </SubComponents>
 </Form>
