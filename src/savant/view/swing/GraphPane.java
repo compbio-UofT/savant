@@ -1163,7 +1163,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         if (paramDialog == null) {
             paramDialog = new BAMParametersDialog(Savant.getInstance(), true);
         }
-        paramDialog.setVisible(true);
+        paramDialog.showDialog(bamTrack);
         if (paramDialog.isAccepted()) {
             bamTrack.setArcSizeVisibilityThreshold(paramDialog.getArcLengthThreshold());
             bamTrack.setPairedProtocol(paramDialog.getSequencingProtocol());

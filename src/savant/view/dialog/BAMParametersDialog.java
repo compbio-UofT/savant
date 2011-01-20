@@ -26,6 +26,7 @@ import java.awt.*;
 import javax.swing.ImageIcon;
 import savant.util.SAMReadUtils;
 import savant.view.swing.ImagePanel;
+import savant.view.swing.interval.BAMTrack;
 
 /**
  *
@@ -64,10 +65,10 @@ public class BAMParametersDialog extends javax.swing.JDialog {
         this.reads_same_container.setLayout(new BorderLayout());
         this.reads_same_container.add(ip, BorderLayout.CENTER);
 
-
         this.setModal(modal);
         this.getRootPane().setDefaultButton(buttonOK);
         this.setLocationRelativeTo(parent);
+        this.setVisible(false);
     }
 
     /** This method is called from within the constructor to
@@ -423,6 +424,28 @@ public class BAMParametersDialog extends javax.swing.JDialog {
 
     public void setAccepted(boolean accepted) {
         this.accepted = accepted;
+    }
+
+    /*
+     * Show dialog with values set to those of bamTrack
+     */
+    public void showDialog(BAMTrack bamTrack){
+
+        setArcLengthThreshold(bamTrack.getArcSizeVisibilityThreshold());
+        setDiscordantMin(bamTrack.getDiscordantMin());
+        setDiscordantMax(bamTrack.getDiscordantMax());
+        prot = bamTrack.getPairedSequencingProtocol();
+
+        textArcThreshold.setText(String.valueOf(bamTrack.getArcSizeVisibilityThreshold()));
+        textDiscordantMin.setText(String.valueOf(bamTrack.getDiscordantMin()));
+        textDiscordantMax.setText(String.valueOf(bamTrack.getDiscordantMax()));
+        if(prot == SAMReadUtils.PairedSequencingProtocol.PAIREDEND){
+            pairedend_button.setSelected(true);
+        } else {
+            matepair_button.setSelected(true);
+        }
+
+        this.setVisible(true);
     }
 
 
