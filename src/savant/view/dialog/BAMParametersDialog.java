@@ -266,6 +266,7 @@ public class BAMParametersDialog extends javax.swing.JDialog {
 
     private void buttonCancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonCancelActionPerformed
         setCancelled(true);
+        setAccepted(false);
         this.setVisible(false);
         this.dispose();
     }//GEN-LAST:event_buttonCancelActionPerformed
@@ -273,6 +274,7 @@ public class BAMParametersDialog extends javax.swing.JDialog {
     private void buttonOKActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonOKActionPerformed
         if (parseProtocol() && parseDiscordantMin() && parseDiscordantMax() && parseArcThreshold()) {
             setAccepted(true);
+            setCancelled(false);
             this.setVisible(false);
         }
     }//GEN-LAST:event_buttonOKActionPerformed

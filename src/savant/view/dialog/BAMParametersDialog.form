@@ -48,7 +48,7 @@
                       <EmptySpace type="unrelated" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Group type="102" alignment="0" attributes="0">
-                              <Component id="textArcThreshold" pref="162" max="32767" attributes="1"/>
+                              <Component id="textArcThreshold" pref="163" max="32767" attributes="1"/>
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="jLabel4" min="-2" pref="89" max="-2" attributes="0"/>
                           </Group>
@@ -59,8 +59,8 @@
                               </Group>
                               <EmptySpace max="-2" attributes="0"/>
                               <Group type="103" groupAlignment="0" attributes="0">
-                                  <Component id="reads_opposite_container" pref="130" max="32767" attributes="0"/>
-                                  <Component id="reads_same_container" alignment="0" pref="130" max="32767" attributes="0"/>
+                                  <Component id="reads_opposite_container" pref="149" max="32767" attributes="0"/>
+                                  <Component id="reads_same_container" alignment="0" pref="149" max="32767" attributes="0"/>
                               </Group>
                           </Group>
                           <Component id="textDiscordantMin" alignment="0" pref="256" max="32767" attributes="1"/>
@@ -203,7 +203,7 @@
       <Layout>
         <DimensionLayout dim="0">
           <Group type="103" groupAlignment="0" attributes="0">
-              <EmptySpace min="0" pref="130" max="32767" attributes="0"/>
+              <EmptySpace min="0" pref="149" max="32767" attributes="0"/>
           </Group>
         </DimensionLayout>
         <DimensionLayout dim="1">
@@ -226,7 +226,7 @@
       <Layout>
         <DimensionLayout dim="0">
           <Group type="103" groupAlignment="0" attributes="0">
-              <EmptySpace min="0" pref="130" max="32767" attributes="0"/>
+              <EmptySpace min="0" pref="149" max="32767" attributes="0"/>
           </Group>
         </DimensionLayout>
         <DimensionLayout dim="1">
