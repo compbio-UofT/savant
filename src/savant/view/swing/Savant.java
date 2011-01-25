@@ -1038,6 +1038,18 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         gpc.setPlumbing(this.menuitem_view_plumbline.isSelected());
     }//GEN-LAST:event_menuitem_view_plumblineActionPerformed
 
+    public void setPlumbingMenutItemSelected(boolean isSelected) {
+        this.menuitem_view_plumbline.setSelected(isSelected);
+    }
+
+    public void setSpotlightMenutItemSelected(boolean isSelected) {
+        this.menuitem_view_spotlight.setSelected(isSelected);
+    }
+
+    public void setCrosshairMenutItemSelected(boolean isSelected) {
+        this.menuitem_aim.setSelected(isSelected);
+    }
+
     private void menuitem_view_spotlightActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuitem_view_spotlightActionPerformed
         GraphPaneController gpc = GraphPaneController.getInstance();
         gpc.setSpotlight(this.menuitem_view_spotlight.isSelected());

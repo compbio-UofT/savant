@@ -132,8 +132,14 @@ public class GraphPaneController {
     }
 
     public void setPlumbing(boolean isPlumbing) {
+        if (isPlumbing) {
+            this.isSpotlight = false;
+            this.isAiming = false;
+        }
+
         this.isPlumbing = isPlumbing;
         changeMade = true;
+        updateMenuItems();
         forceRefresh();
         changeMade = false;
     }
@@ -143,8 +149,13 @@ public class GraphPaneController {
     }
 
     public void setSpotlight(boolean isSpotlight) {
+        if (isSpotlight) {
+            this.isPlumbing = false;
+            this.isAiming = false;
+        }
         this.isSpotlight = isSpotlight;
         changeMade = true;
+        updateMenuItems();
         forceRefresh();
         changeMade = false;
     }
@@ -159,7 +170,12 @@ public class GraphPaneController {
 
     public void setAiming(boolean isAiming) {
         this.isAiming = isAiming;
+        if (isAiming) {
+            this.isPlumbing = false;
+            this.isSpotlight = false;
+        }
         changeMade = true;
+        updateMenuItems();
         forceRefresh();
         changeMade = false;
     }
@@ -229,5 +245,11 @@ public class GraphPaneController {
 
     public long getSpotlightSize() {
         return this.spotlightSize;
+    }
+
+    private void updateMenuItems() {
+        Savant.getInstance().setPlumbingMenutItemSelected(isPlumbing);
+        Savant.getInstance().setSpotlightMenutItemSelected(isSpotlight);
+        Savant.getInstance().setCrosshairMenutItemSelected(isAiming);
     }
 }
