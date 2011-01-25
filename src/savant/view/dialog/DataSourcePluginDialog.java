@@ -1,37 +1,56 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
-/*
  * DataSourcePluginDialog.java
  *
  * Created on Nov 25, 2010, 11:17:14 PM
+ *
+ *
+ *    Copyright 2010 University of Toronto
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
  */
 
 package savant.view.dialog;
 
+import java.awt.Window;
 import java.util.List;
 import javax.swing.DefaultListModel;
+import javax.swing.JDialog;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import savant.controller.DataSourcePluginController;
+import savant.data.sources.DataSource;
 import savant.plugin.SavantDataSourcePlugin;
 
 /**
  *
  * @author mfiume
  */
-public class DataSourcePluginDialog extends javax.swing.JDialog {
+public class DataSourcePluginDialog extends JDialog {
+    private static final Log LOG = LogFactory.getLog(DataSourcePluginDialog.class);
 
-    List<SavantDataSourcePlugin> datasources;
+    List<SavantDataSourcePlugin> dataSources;
 
     SavantDataSourcePlugin selectedPlugin;
 
     /** Creates new form DataSourcePluginDialog */
-    public DataSourcePluginDialog(java.awt.Frame parent, boolean modal, List<SavantDataSourcePlugin> datasources) {
-        super(parent, modal);
+    private DataSourcePluginDialog(Window parent, List<SavantDataSourcePlugin> dataSources) {
+        super(parent, ModalityType.APPLICATION_MODAL);
         initComponents();
         setLocationRelativeTo(parent);
-        this.datasources = datasources;
-        initList(datasources);
+        this.dataSources = dataSources;
+        initList(dataSources);
     }
 
     /** This method is called from within the constructor to
@@ -43,26 +62,31 @@ public class DataSourcePluginDialog extends javax.swing.JDialog {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        button_load = new javax.swing.JButton();
+        loadButton = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
-        list_datasources = new javax.swing.JList();
-        jLabel1 = new javax.swing.JLabel();
+        dataSourceList = new javax.swing.JList();
+        javax.swing.JLabel promptLabel = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Load from Other Datasource");
         setModal(true);
 
-        button_load.setText("Load track");
-        button_load.addActionListener(new java.awt.event.ActionListener() {
+        loadButton.setText("Load track");
+        loadButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                button_loadActionPerformed(evt);
+                loadButtonActionPerformed(evt);
             }
         });
 
-        list_datasources.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
-        jScrollPane1.setViewportView(list_datasources);
+        dataSourceList.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        dataSourceList.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                dataSourceListMouseClicked(evt);
+            }
+        });
+        jScrollPane1.setViewportView(dataSourceList);
 
-        jLabel1.setText("Select a datasource to load from:");
+        promptLabel.setText("Select a datasource to load from:");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -71,42 +95,51 @@ public class DataSourcePluginDialog extends javax.swing.JDialog {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(button_load, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(loadButton, javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 456, Short.MAX_VALUE)
-                    .addComponent(jLabel1))
+                    .addComponent(promptLabel))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jLabel1)
+                .addComponent(promptLabel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 281, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(button_load)
+                .addComponent(loadButton)
                 .addContainerGap())
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void button_loadActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_loadActionPerformed
-        String title = (String) this.list_datasources.getSelectedValue();
-        for (SavantDataSourcePlugin p : datasources) {
+    private void loadButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loadButtonActionPerformed
+        String title = (String) this.dataSourceList.getSelectedValue();
+        for (SavantDataSourcePlugin p : dataSources) {
             if (p.getTitle().equals(title)) {
                 selectedPlugin = p;
                 break;
             }
         }
         this.dispose();
-    }//GEN-LAST:event_button_loadActionPerformed
+    }//GEN-LAST:event_loadButtonActionPerformed
+
+    /**
+     * Double-clicking an item in the list is equivalent to selecting an item and
+     * clicking Load Track.
+     */
+    private void dataSourceListMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_dataSourceListMouseClicked
+        if (evt.getClickCount() == 2) {
+            loadButtonActionPerformed(null);
+        }
+    }//GEN-LAST:event_dataSourceListMouseClicked
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton button_load;
-    private javax.swing.JLabel jLabel1;
+    private javax.swing.JList dataSourceList;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JList list_datasources;
+    private javax.swing.JButton loadButton;
     // End of variables declaration//GEN-END:variables
 
     private void initList(List<SavantDataSourcePlugin> datasources) {
@@ -117,8 +150,8 @@ public class DataSourcePluginDialog extends javax.swing.JDialog {
             listModel.addElement(p.getTitle());
         }
 
-        this.list_datasources.setModel(listModel);
-        this.list_datasources.setSelectedIndex(0);
+        this.dataSourceList.setModel(listModel);
+        this.dataSourceList.setSelectedIndex(0);
 
     }
 
@@ -126,4 +159,22 @@ public class DataSourcePluginDialog extends javax.swing.JDialog {
          return selectedPlugin;
     }
 
+    /**
+     * Display the DataSourcePluginDialog to configure a DataSource.
+     *
+     * @param parent parent window
+     * @return the DataSource selected (null if dialog cancelled)
+     */
+    public static DataSource getDataSource(Window parent) throws Exception {
+        List<SavantDataSourcePlugin> ps = DataSourcePluginController.getInstance().getDataSourcePlugins();
+        DataSourcePluginDialog d = new DataSourcePluginDialog(parent, ps);
+        d.setVisible(true);
+        SavantDataSourcePlugin p = d.getSelectedPlugin();
+        d.dispose();
+
+        if (p != null) {
+            return p.getDataSource();
+        }
+        return null;
+    }
 }

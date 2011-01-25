@@ -37,7 +37,7 @@ public class SavantFileRepositoryDataSourcePlugin extends SavantDataSourcePlugin
     public DataSource getDataSource() throws Exception {
         SavantFileRepositoryBrowser d = SavantFileRepositoryBrowser.getInstance();
         d.setVisible(true);
-        return TrackFactory.createDataSource(d.getTrackPath().toURI());
+        return d.getTrackPath() != null ? TrackFactory.createDataSource(d.getTrackPath().toURI()) : null;
     }
 
     @Override

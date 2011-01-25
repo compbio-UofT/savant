@@ -53,7 +53,6 @@ import savant.data.types.Genome;
 import savant.file.SavantFileNotFormattedException;
 import savant.file.SavantUnsupportedVersionException;
 import savant.experimental.XMLTool;
-import savant.plugin.SavantDataSourcePlugin;
 import savant.plugin.builtin.SAFEDataSourcePlugin;
 import savant.plugin.builtin.SavantFileRepositoryDataSourcePlugin;
 import savant.settings.*;
@@ -1194,17 +1193,20 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
     }//GEN-LAST:event_menuitem_startpageActionPerformed
 
     private void loadFromDataSourcePluginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loadFromDataSourcePluginActionPerformed
-        if (DataSourcePluginController.getInstance().hasOnlySavantRepoDataSource()) {
-            try {
-                DataSource s = DataSourcePluginController.getInstance().getDataSourcePlugins().get(0).getDataSource();
+        try {
+            DataSource s;
+            if (DataSourcePluginController.getInstance().hasOnlySavantRepoDataSource()) {
+                s = DataSourcePluginController.getInstance().getDataSourcePlugins().get(0).getDataSource();
+            } else {
+                s = DataSourcePluginDialog.getDataSource(this);
+            }
+            if (s != null) {
                 Track t = TrackFactory.createTrack(s);
                 createFrameForExistingTrack(Arrays.asList(new Track[] { t }));
-            } catch (Exception x) {
-                LOG.error("Unable to create track from DataSource plugin", x);
-                DialogUtils.displayException("Track Creation Failed", "Unable to create track.", x);
             }
-        } else {
-            showLoadFromOtherDataSourceDialog(false);
+        } catch (Exception x) {
+            LOG.error("Unable to create track from DataSource plugin", x);
+            DialogUtils.displayException("Track Creation Failed", "Unable to create track.", x);
         }
     }//GEN-LAST:event_loadFromDataSourcePluginActionPerformed
 
@@ -2523,34 +2525,21 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         }
     }
 
-    public int showLoadFromOtherDataSourceDialog(boolean loadAsGenome) {
-        List<SavantDataSourcePlugin> ps = DataSourcePluginController.getInstance().getDataSourcePlugins();
-        DataSourcePluginDialog d = new DataSourcePluginDialog(this, true, DataSourcePluginController.getInstance().getDataSourcePlugins());
-        d.setVisible(true);
-        SavantDataSourcePlugin p = d.getSelectedPlugin();
-        d.dispose();
-
-        // 0 = loaded fine
-        // 1 = cancelled
-        // 2 = error
-
-        if (p != null) {
-            LOG.info("Plugin selected: " + p.getTitle());
-            try {
-                DataSource s = p.getDataSource();
-                if (s == null) { return 2; }
-                Track t = TrackFactory.createTrack(s);
-                if (loadAsGenome) {
-                    setGenomeFromTrack(t, null);
-                } else {
-                    createFrameForExistingTrack(Arrays.asList(new Track[] { t }));
-                }
-                return 0;
-            } catch (Exception ex) {
-                return 1;
+    /**
+     * Display the DataSourcePluginDialog to select a DataSource.
+     *
+     * @param loadAsGenome we want to load this track as a Genome
+     * @return true if accepted, false if cancelled
+     */
+    public void showLoadFromOtherDataSourceDialog(boolean loadAsGenome) throws Exception {
+        DataSource s = DataSourcePluginDialog.getDataSource(this);
+        if (s != null) {
+            Track t = TrackFactory.createTrack(s);
+            if (loadAsGenome) {
+                setGenomeFromTrack(t, null);
+            } else {
+                createFrameForExistingTrack(Arrays.asList(new Track[] { t }));
             }
-        } else {
-            return 2;
         }
     }
 

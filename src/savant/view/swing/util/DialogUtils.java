@@ -66,16 +66,21 @@ public class DialogUtils {
         }
     }
 
-    public static void displayException(String title, String message, Throwable t) {
-        JideOptionPane optionPane = new JideOptionPane(message, JOptionPane.ERROR_MESSAGE, JideOptionPane.CLOSE_OPTION);
-        optionPane.setTitle(title);
-        JDialog dialog = optionPane.createDialog(Savant.getInstance(),"Error encountered");
-        dialog.setResizable(true);
-        String details = t.getMessage() + "\r\n" + MiscUtils.getStackTrace(t);
-        optionPane.setDetails(details);
-        //optionPane.setDetailsVisible(true);
-        dialog.pack();
-        dialog.setVisible(true);
+    public static void displayException(final String title, final String message, final Throwable t) {
+        MiscUtils.invokeLaterIfNecessary(new Runnable() {
+            @Override
+            public void run() {
+                JideOptionPane optionPane = new JideOptionPane(message, JOptionPane.ERROR_MESSAGE, JideOptionPane.CLOSE_OPTION);
+                optionPane.setTitle(title);
+                JDialog dialog = optionPane.createDialog(Savant.getInstance(),"Error encountered");
+                dialog.setResizable(true);
+                String details = t.getMessage() + "\r\n" + MiscUtils.getStackTrace(t);
+                optionPane.setDetails(details);
+                //optionPane.setDetailsVisible(true);
+                dialog.pack();
+                dialog.setVisible(true);
+            }
+        });
     }
 
     /**

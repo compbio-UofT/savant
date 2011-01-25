@@ -15,27 +15,27 @@ import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import javax.swing.JOptionPane;
+import javax.swing.JDialog;
+
+import savant.api.util.DialogUtils;
 import savant.controller.DataSourcePluginController;
 import savant.data.sources.DataSource;
 import savant.data.types.Genome;
-import savant.exception.SavantTrackCreationCancelledException;
 import savant.view.swing.Savant;
 import savant.view.swing.TrackFactory;
-import savant.view.swing.Track;
 
 /**
  *
  * @author mfiume
  */
-public class LoadGenomeDialog extends javax.swing.JDialog {
+public class LoadGenomeDialog extends JDialog {
 
     /** Creates new form LoadGenomeDialog */
     public LoadGenomeDialog(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
         if (DataSourcePluginController.getInstance().hasOnlySavantRepoDataSource()) {
-            button_fromother.setText("Repository");
+            fromOtherButton.setText("Repository");
         }
 
         initGenomeInformation();
@@ -55,7 +55,7 @@ public class LoadGenomeDialog extends javax.swing.JDialog {
     private void initComponents() {
 
         withoutSequenceButtonGroup = new javax.swing.ButtonGroup();
-        jPanel1 = new javax.swing.JPanel();
+        javax.swing.JPanel withoutSequencePanel = new javax.swing.JPanel();
         javax.swing.JLabel nameLabel = new javax.swing.JLabel();
         okButton = new javax.swing.JButton();
         nameField = new javax.swing.JTextField();
@@ -67,11 +67,12 @@ public class LoadGenomeDialog extends javax.swing.JDialog {
         javax.swing.JLabel speciesLabel = new javax.swing.JLabel();
         commonGenomeRadio = new javax.swing.JRadioButton();
         userSpecifiedRadio = new javax.swing.JRadioButton();
-        jPanel2 = new javax.swing.JPanel();
-        button_fromfile = new javax.swing.JButton();
-        jButton2 = new javax.swing.JButton();
-        button_fromother = new javax.swing.JButton();
-        jLabel1 = new javax.swing.JLabel();
+        javax.swing.JButton cancelButton = new javax.swing.JButton();
+        javax.swing.JPanel withSequencePanel = new javax.swing.JPanel();
+        fromFileButton = new javax.swing.JButton();
+        fromURLButton = new javax.swing.JButton();
+        fromOtherButton = new javax.swing.JButton();
+        javax.swing.JLabel fromLabel = new javax.swing.JLabel();
 
         withoutSequenceButtonGroup.add(commonGenomeRadio);
         withoutSequenceButtonGroup.add(userSpecifiedRadio);
@@ -79,8 +80,8 @@ public class LoadGenomeDialog extends javax.swing.JDialog {
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Load Genome");
 
-        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder("Load Genome without Sequence"));
-        jPanel1.setEnabled(false);
+        withoutSequencePanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Load Genome without Sequence"));
+        withoutSequencePanel.setEnabled(false);
 
         nameLabel.setText("Name:");
 
@@ -128,117 +129,129 @@ public class LoadGenomeDialog extends javax.swing.JDialog {
             }
         });
 
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
+        cancelButton.setText("Cancel");
+        cancelButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cancelButtonActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout withoutSequencePanelLayout = new javax.swing.GroupLayout(withoutSequencePanel);
+        withoutSequencePanel.setLayout(withoutSequencePanelLayout);
+        withoutSequencePanelLayout.setHorizontalGroup(
+            withoutSequencePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(withoutSequencePanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(withoutSequencePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(commonGenomeRadio)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jPanel1Layout.createSequentialGroup()
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, withoutSequencePanelLayout.createSequentialGroup()
+                        .addGroup(withoutSequencePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(withoutSequencePanelLayout.createSequentialGroup()
                                 .addGap(21, 21, 21)
-                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addGroup(withoutSequencePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(lengthLabel)
                                     .addComponent(nameLabel)))
                             .addComponent(userSpecifiedRadio)
-                            .addGroup(jPanel1Layout.createSequentialGroup()
+                            .addGroup(withoutSequencePanelLayout.createSequentialGroup()
                                 .addGap(19, 19, 19)
-                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addGroup(withoutSequencePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(buildLabel)
                                     .addComponent(speciesLabel))))
                         .addGap(23, 23, 23)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(withoutSequencePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(nameField, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 291, Short.MAX_VALUE)
                             .addComponent(lengthField, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 291, Short.MAX_VALUE)
                             .addComponent(speciesCombo, 0, 291, Short.MAX_VALUE)
                             .addComponent(buildCombo, javax.swing.GroupLayout.Alignment.TRAILING, 0, 291, Short.MAX_VALUE)))
-                    .addComponent(okButton, javax.swing.GroupLayout.Alignment.TRAILING))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, withoutSequencePanelLayout.createSequentialGroup()
+                        .addComponent(cancelButton)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(okButton)))
                 .addContainerGap())
         );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
+        withoutSequencePanelLayout.setVerticalGroup(
+            withoutSequencePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(withoutSequencePanelLayout.createSequentialGroup()
                 .addComponent(commonGenomeRadio)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addGroup(withoutSequencePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(speciesLabel)
                     .addComponent(speciesCombo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addGroup(withoutSequencePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(buildCombo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(buildLabel))
                 .addGap(9, 9, 9)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGroup(withoutSequencePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(withoutSequencePanelLayout.createSequentialGroup()
                         .addComponent(userSpecifiedRadio)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(nameLabel))
                     .addComponent(nameField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addGroup(withoutSequencePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(lengthLabel)
                     .addComponent(lengthField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 13, Short.MAX_VALUE)
-                .addComponent(okButton)
+                .addGroup(withoutSequencePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(okButton)
+                    .addComponent(cancelButton))
                 .addContainerGap())
         );
 
-        jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder("Load Genome with Sequence"));
+        withSequencePanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Load Genome with Sequence"));
 
-        button_fromfile.setText("File");
-        button_fromfile.setPreferredSize(new java.awt.Dimension(135, 25));
-        button_fromfile.addActionListener(new java.awt.event.ActionListener() {
+        fromFileButton.setText("File");
+        fromFileButton.setPreferredSize(new java.awt.Dimension(135, 25));
+        fromFileButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                button_fromfileActionPerformed(evt);
+                fromFileButtonActionPerformed(evt);
             }
         });
 
-        jButton2.setText("URL");
-        jButton2.setPreferredSize(new java.awt.Dimension(135, 25));
-        jButton2.addActionListener(new java.awt.event.ActionListener() {
+        fromURLButton.setText("URL");
+        fromURLButton.setPreferredSize(new java.awt.Dimension(135, 25));
+        fromURLButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton2ActionPerformed(evt);
+                fromURLButtonActionPerformed(evt);
             }
         });
 
-        button_fromother.setText("Other Datasource");
-        button_fromother.setPreferredSize(new java.awt.Dimension(135, 25));
-        button_fromother.addActionListener(new java.awt.event.ActionListener() {
+        fromOtherButton.setText("Other Datasource");
+        fromOtherButton.setPreferredSize(new java.awt.Dimension(135, 25));
+        fromOtherButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                button_fromotherActionPerformed(evt);
+                fromOtherButtonActionPerformed(evt);
             }
         });
 
-        jLabel1.setText("Load from:");
+        fromLabel.setText("Load from:");
 
-        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
-        jPanel2.setLayout(jPanel2Layout);
-        jPanel2Layout.setHorizontalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel2Layout.createSequentialGroup()
+        javax.swing.GroupLayout withSequencePanelLayout = new javax.swing.GroupLayout(withSequencePanel);
+        withSequencePanel.setLayout(withSequencePanelLayout);
+        withSequencePanelLayout.setHorizontalGroup(
+            withSequencePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(withSequencePanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addComponent(button_fromfile, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(withSequencePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(withSequencePanelLayout.createSequentialGroup()
+                        .addComponent(fromFileButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(fromURLButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(button_fromother, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(jLabel1))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addComponent(fromOtherButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(fromLabel))
+                .addContainerGap(39, Short.MAX_VALUE))
         );
-        jPanel2Layout.setVerticalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
-                .addComponent(jLabel1)
+        withSequencePanelLayout.setVerticalGroup(
+            withSequencePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, withSequencePanelLayout.createSequentialGroup()
+                .addComponent(fromLabel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(button_fromfile, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(button_fromother, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(withSequencePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(fromFileButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(fromURLButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(fromOtherButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -249,17 +262,17 @@ public class LoadGenomeDialog extends javax.swing.JDialog {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jPanel2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jPanel1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(withSequencePanel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(withoutSequencePanel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(withSequencePanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(withoutSequencePanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
 
@@ -288,7 +301,7 @@ public class LoadGenomeDialog extends javax.swing.JDialog {
 
             Savant.getInstance().setGenome(loadedGenome.getName(), loadedGenome, null);
         } catch (IOException ex) {
-            JOptionPane.showMessageDialog(this, "Error creating genome.");
+            DialogUtils.displayException("Error", "Unable to create genome.", ex);
             return;
         }
 
@@ -307,51 +320,45 @@ public class LoadGenomeDialog extends javax.swing.JDialog {
         updateEnabledControls();
 }//GEN-LAST:event_userSpecifiedRadioActionPerformed
 
-    private void button_fromfileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_fromfileActionPerformed
-        this.setVisible(false);
+    private void fromFileButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fromFileButtonActionPerformed
+        setVisible(false);
         Savant.getInstance().showOpenTracksDialog(true);
-    }//GEN-LAST:event_button_fromfileActionPerformed
+    }//GEN-LAST:event_fromFileButtonActionPerformed
 
-    private void button_fromotherActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_fromotherActionPerformed
-        this.setVisible(false);
-
-        if (DataSourcePluginController.getInstance().hasOnlySavantRepoDataSource()) {
-            try {
-                Track t;
-                DataSource s = DataSourcePluginController.getInstance().getDataSourcePlugins().get(0).getDataSource();
-                if (s == null) {
-                    Savant.getInstance().showOpenGenomeDialog();
-                    return;
-                }
-                t = TrackFactory.createTrack(s);
-                Savant.getInstance().setGenomeFromTrack(t, null);
-            } catch (Exception ex) {
-                Savant.getInstance().showOpenGenomeDialog();
+    private void fromOtherButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fromOtherButtonActionPerformed
+        setVisible(false);
+        DataSource s;
+        try {
+            if (DataSourcePluginController.getInstance().hasOnlySavantRepoDataSource()) {
+                s = DataSourcePluginController.getInstance().getDataSourcePlugins().get(0).getDataSource();
+            } else {
+                s = DataSourcePluginDialog.getDataSource(this);
+            }
+            if (s != null) {
+                Savant.getInstance().setGenomeFromTrack(TrackFactory.createTrack(s), null);
                 return;
             }
-        } else {
-
-            int result = Savant.getInstance().showLoadFromOtherDataSourceDialog(true);
-            if (result != 0) {
-                Savant.getInstance().showOpenGenomeDialog();
-            }
+        } catch (Exception x) {
+            DialogUtils.displayException("Error", "Unable to load genome from the plugin datasource.", x);
         }
-    }//GEN-LAST:event_button_fromotherActionPerformed
+        Savant.getInstance().showOpenGenomeDialog();
+    }//GEN-LAST:event_fromOtherButtonActionPerformed
 
-    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        this.setVisible(false);
+    private void fromURLButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fromURLButtonActionPerformed
+        setVisible(false);
         Savant.getInstance().showOpenURLDialog(true);
-    }//GEN-LAST:event_jButton2ActionPerformed
+    }//GEN-LAST:event_fromURLButtonActionPerformed
+
+    private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelButtonActionPerformed
+        setVisible(false);
+    }//GEN-LAST:event_cancelButtonActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JComboBox buildCombo;
-    private javax.swing.JButton button_fromfile;
-    private javax.swing.JButton button_fromother;
     private javax.swing.JRadioButton commonGenomeRadio;
-    private javax.swing.JButton jButton2;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JPanel jPanel1;
-    private javax.swing.JPanel jPanel2;
+    private javax.swing.JButton fromFileButton;
+    private javax.swing.JButton fromOtherButton;
+    private javax.swing.JButton fromURLButton;
     private javax.swing.JTextField lengthField;
     private javax.swing.JTextField nameField;
     private javax.swing.JButton okButton;
@@ -521,6 +528,7 @@ public class LoadGenomeDialog extends javax.swing.JDialog {
 
         speciesCombo.addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
                 updateBuildList();
             }
@@ -568,7 +576,7 @@ public class LoadGenomeDialog extends javax.swing.JDialog {
     private boolean validateUserSpecifiedLength() {
         String refname = nameField.getText();
         if (refname.equals("")) {
-            JOptionPane.showMessageDialog(this, "Invalid name.");
+            DialogUtils.displayError("Invalid name.");
             nameField.requestFocus();
             return false;
         }
@@ -580,7 +588,7 @@ public class LoadGenomeDialog extends javax.swing.JDialog {
                 throw new Exception();
             }
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Invalid length.");
+            DialogUtils.displayError("Invalid length.");
             lengthField.requestFocus();
             return false;
         }
