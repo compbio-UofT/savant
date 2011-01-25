@@ -4,9 +4,10 @@
     <requires><import plugin-id="savant.core"/></requires>
 	<runtime>
 		<library id="root" path="/" type="code"></library>
+                <library id="mysql" path="lib/mysql-connector-java-5.1.13-bin.jar" type="code"/>
 	</runtime>
     <extension plugin-id="savant.core" point-id="AuxData" id="extensionCore">
 	<parameter id="class" value="savant.sql.SQLDataSourcePlugin"/>
-	<parameter id="name" value="SQL DataSource"/>
+	<parameter id="name" value="SQL Datasource"/>
     </extension>
 </plugin>
