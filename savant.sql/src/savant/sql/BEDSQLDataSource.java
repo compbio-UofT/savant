@@ -52,15 +52,21 @@ public class BEDSQLDataSource extends SQLDataSource<BEDIntervalRecord> {
         try {
             ResultSet rs = table.executeQuery("SELECT * FROM %s WHERE %s = '%s' AND %s >= '%d' AND %s <= '%d'", table, columns.get(Field.CHROM), reference, columns.get(Field.START), range.getFrom(), columns.get(Field.END), range.getTo());
             while (rs.next()) {
-                List<Block> blocks = extractBlocks(rs.getBlob(columns.get(Field.BLOCK_STARTS).name),  rs.getBlob(columns.get(Field.BLOCK_ENDS).name));
+                List<Integer> blockStarts = extractBlocks(rs.getBlob(columns.get(Field.BLOCK_STARTS).name));
+                List<Integer> blockEnds = extractBlocks(rs.getBlob(columns.get(Field.BLOCK_ENDS).name));
+
+                if (blockStarts.size() != blockEnds.size()) {
+                    throw new IOException(String.format("Mismatch: found %d block starts and %d block ends.", blockStarts.size(), blockEnds.size()));
+                }
+                int start = rs.getInt(columns.get(Field.START).name);
+                List<Block> blocks = new ArrayList<Block>(blockStarts.size());
+                for (int i = 0; i < blockStarts.size(); i++) {
+                    blocks.add(new Block(blockStarts.get(i) - start, blockEnds.get(i) - blockStarts.get(i)));
+                }
 
                 Strand strand = rs.getString(columns.get(Field.STRAND).name).charAt(0) == '+' ? Strand.FORWARD : Strand.REVERSE;
-                LOG.info(String.format("Adding %s at (%d,%d), %s with %d blocks:", rs.getString(columns.get(Field.NAME).name), rs.getInt(columns.get(Field.START).name), rs.getInt(columns.get(Field.END).name), strand, blocks.size()));
-                for (Block b: blocks) {
-                    LOG.info(String.format("{%d, %d}", b.getPosition(), b.getSize()));
-                }
                 result.add(new BEDIntervalRecord(reference,
-                                                 new Interval(rs.getInt(columns.get(Field.START).name), rs.getInt(columns.get(Field.END).name)),
+                                                 new Interval(start, rs.getInt(columns.get(Field.END).name)),
                                                  rs.getString(columns.get(Field.NAME).name),
                                                  rs.getFloat(columns.get(Field.SCORE).name),
                                                  strand,
@@ -77,31 +83,12 @@ public class BEDSQLDataSource extends SQLDataSource<BEDIntervalRecord> {
     }
 
     /**
-     * Given two blobs full of exon starts and end, retrieve the associated blocks.
-     *
-     * @param startsBlob  blob containing comma-separated list of block starts
-     * @param endsBlob    blob containing comma-separated list of block ends
-     * @return
-     */
-    private List<Block> extractBlocks(Blob startsBlob, Blob endsBlob) throws IOException, SQLException {
-        List<Integer> starts = unpackBlob(startsBlob);
-        List<Integer> ends = unpackBlob(endsBlob);
-        if (starts.size() != ends.size()) {
-            throw new IOException(String.format("Mismatch: found %d block starts and %d block ends.", starts.size(), ends.size()));
-        }
-        List<Block> result = new ArrayList<Block>(starts.size());
-        for (int i = 0; i < starts.size(); i++) {
-            result.add(new Block(starts.get(i), ends.get(i) - starts.get(i)));
-        }
-        return result;
-    }
-
-    /**
      * UCSC stores exon starts and ends as a comma-separated list of numbers packed into a blob.
-     * @param b
+     *
+     * @param b the blob to be unpacked
      * @return
      */
-    private List<Integer> unpackBlob(Blob b) throws IOException, SQLException {
+    private List<Integer> extractBlocks(Blob b) throws IOException, SQLException {
         List<Integer> result = new ArrayList<Integer>();
         InputStream input = b.getBinaryStream();
         StringBuilder sb = new StringBuilder();
