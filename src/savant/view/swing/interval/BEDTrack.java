@@ -65,7 +65,12 @@ public class BEDTrack extends Track {
     public void prepareForRendering(String reference, Range range) {
         Resolution r = getResolution(range);
         renderer.addInstruction(DrawingInstruction.PROGRESS, "Loading BED track...");
-        requestData(reference, range);
+        if (r == Resolution.VERY_HIGH || r == Resolution.HIGH){
+            requestData(reference, range);
+        } else {
+            renderer.addInstruction(DrawingInstruction.ERROR, "Zoom in to see genes/intervals");
+        }
+        
         renderer.addInstruction(DrawingInstruction.RANGE, range);
         renderer.addInstruction(DrawingInstruction.RESOLUTION, r);
         renderer.addInstruction(DrawingInstruction.COLOR_SCHEME, getColorScheme());
