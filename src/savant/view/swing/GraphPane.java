@@ -1191,7 +1191,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
     public void tryPopup(Point p){
 
         Point p_offset = new Point(p.x, p.y - this.getOffset());
-
+        if(tracks == null) return;
         for (Track t: tracks) {
             Map<Record, Shape> map = t.getRenderer().searchPoint(p_offset);
             if (map != null) {
