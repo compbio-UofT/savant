@@ -21,7 +21,7 @@
 
 package savant.sql;
 
-import java.sql.Connection;
+import java.net.URI;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -41,11 +41,11 @@ public class Table {
 
     private String name;
     private Column[] columns;
-    private Connection connection;
+    private Database database;
 
-    Table(String name, Connection conn) {
+    Table(String name, Database database) {
         this.name = name;
-        this.connection = conn;
+        this.database = database;
     }
 
     /**
@@ -59,15 +59,10 @@ public class Table {
     }
 
     /**
-     * Close the associated JDBC connection.  This is done when the plugin itself
-     * is being closed.
+     * As part of the plugin's cleanup, it should close the JDBC connection.
      */
-    void closeConnection() {
-        try {
-            connection.close();
-        } catch (SQLException sqlx) {
-            LOG.error("Error closing SQL connection for " + name, sqlx);
-        }
+    public void closeConnection() {
+        database.closeConnection();
     }
 
     synchronized Column[] getColumns() throws SQLException {
@@ -78,15 +73,18 @@ public class Table {
             columns = new Column[numCols];
             for (int i = 0; i < numCols; i++) {
                 columns[i] = new Column(md.getColumnName(i + 1), md.getColumnType(i + 1));
-                LOG.info(name + " " + i + ": " + columns[i] + ": " + columns[i].type);
             }
         }
         return columns;
     }
 
     ResultSet executeQuery(String format, Object... args) throws SQLException {
-        Statement st = connection.createStatement();
+        Statement st = database.getConnection().createStatement();
         return st.executeQuery(String.format(format, args));
+    }
+
+    public URI getURI() {
+        return URI.create(database.uri + "/" + name);
     }
 
     /**

@@ -1,9 +1,4 @@
 /*
- * Database.java
- *
- * Created on Jan 24, 2011, 01:16:20 PM
- *
- *
  *    Copyright 2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
@@ -30,12 +25,18 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+
 /**
  * Small class which provides information about a database.
  *
  * @author tarkvara
  */
 class Database {
+    private static final Log LOG = LogFactory.getLog(Database.class);
+
     private String name;
     URI uri;
     String userName;
@@ -59,10 +60,10 @@ class Database {
     synchronized List<Table> getTables() throws SQLException {
         if (tables == null) {
             tables = new ArrayList<Table>();
-            DatabaseMetaData md = getConnection(name).getMetaData();
+            DatabaseMetaData md = getConnection().getMetaData();
             ResultSet rs = md.getTables(null, null, "%", new String[] { "TABLE" });
             while (rs.next()) {
-                tables.add(new Table(rs.getString("TABLE_NAME"), connection));
+                tables.add(new Table(rs.getString("TABLE_NAME"), this));
             }
         }
         return tables;
@@ -79,17 +80,27 @@ class Database {
         return tables != null ? tables.contains(t) : false;
     }
 
-    private Connection getConnection(String database) throws SQLException {
+    Connection getConnection() throws SQLException {
+        if (connection != null && !connection.isValid(0)) {
+            // Connection no longer valid.  Close it and recreate.
+            LOG.info("Connection to " + uri + " no longer valid; recreating.");
+            connection.close();
+            connection = null;
+        }
         if (connection == null) {
-            connection = DriverManager.getConnection(uri + "/" + database, userName, password);
+            connection = DriverManager.getConnection(uri + "/" + name, userName, password);
         }
         return connection;
     }
 
 
-    void closeConnection() throws SQLException {
+    void closeConnection() {
         if (connection != null) {
-            connection.close();
+            try {
+                connection.close();
+            } catch (SQLException sqlx) {
+                LOG.warn("Error closing connection to " + uri, sqlx);
+            }
             connection = null;
         }
     }

@@ -29,6 +29,7 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import savant.api.util.SettingsUtils;
 
 import savant.data.sources.DataSource;
 import savant.file.DataFormat;
@@ -91,15 +92,10 @@ public class SQLDataSourcePlugin extends SavantDataSourcePlugin {
 
     @Override
     public void init(PluginAdapter pluginAdapter) {
-        LOG.info("Pretending to load database config.");
-        try {
-            driverName = "com.mysql.jdbc.Driver";
-            uri = new URI("jdbc:mysql://ucscmirror.db.7053764.hostedresource.com:3306");
-            userName = "ucscmirror";
-            password = "Watson1";
-        } catch (URISyntaxException ignored) {
-            LOG.error(ignored);
-        }
+/*        driverName = SettingsUtils.getString(this, "DriverName");
+        uri = new URI("jdbc:mysql://ucscmirror.db.7053764.hostedresource.com:3306");
+        userName = "ucscmirror";
+        password = "Watson1";*/
     }
 
     @Override

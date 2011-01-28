@@ -1,9 +1,4 @@
 /*
- * MappingDialog.java
- *
- * Created on Jan 19, 2011, 5:55:49 PM
- *
- *
  *    Copyright 2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
@@ -38,6 +33,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import savant.api.util.DialogUtils;
+import savant.api.util.SettingsUtils;
 import savant.file.DataFormat;
 import savant.sql.SQLDataSourcePlugin.Field;
 import savant.sql.Table.Column;
@@ -398,6 +394,7 @@ public class MappingDialog extends JDialog {
                 plugin.mappings.put(Field.VALUE, (Column)valueCombo.getSelectedItem());
                 break;
         }
+        saveMappings();
         setVisible(false);
     }//GEN-LAST:event_okButtonActionPerformed
 
@@ -412,7 +409,6 @@ public class MappingDialog extends JDialog {
      */
     private void tableComboActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tableComboActionPerformed
         final Table t = (Table)tableCombo.getSelectedItem();
-        LOG.info("tableComboActionPerformed, selectedItem=" + t);
         if (t != null) {
             new SwingWorker() {
                 Column[] columns;
@@ -441,21 +437,21 @@ public class MappingDialog extends JDialog {
                         });
                         switch (formatCombo.getSelectedIndex()) {
                             case 0: // BED
-                                populateFieldCombo(chromCombo, columns, Types.CHAR);
-                                populateFieldCombo(startCombo, columns, Types.INTEGER);
-                                populateFieldCombo(endCombo, columns, Types.INTEGER);
-                                populateFieldCombo(nameCombo, columns, Types.CHAR);
-                                populateFieldCombo(scoreCombo, columns, Types.REAL);
-                                populateFieldCombo(strandCombo, columns, Types.CHAR);
-                                populateFieldCombo(thickStartCombo, columns, Types.INTEGER);
-                                populateFieldCombo(thickEndCombo, columns, Types.INTEGER);
-                                populateFieldCombo(blockStartsCombo, columns, Types.BLOB);
-                                populateFieldCombo(blockEndsCombo, columns, Types.BLOB);
+                                populateFieldCombo(chromCombo, columns, Types.CHAR, Field.CHROM);
+                                populateFieldCombo(startCombo, columns, Types.INTEGER, Field.START);
+                                populateFieldCombo(endCombo, columns, Types.INTEGER, Field.END);
+                                populateFieldCombo(nameCombo, columns, Types.CHAR, Field.NAME);
+                                populateFieldCombo(scoreCombo, columns, Types.REAL, Field.SCORE);
+                                populateFieldCombo(strandCombo, columns, Types.CHAR, Field.STRAND);
+                                populateFieldCombo(thickStartCombo, columns, Types.INTEGER, Field.THICK_START);
+                                populateFieldCombo(thickEndCombo, columns, Types.INTEGER, Field.THICK_END);
+                                populateFieldCombo(blockStartsCombo, columns, Types.BLOB, Field.BLOCK_STARTS);
+                                populateFieldCombo(blockEndsCombo, columns, Types.BLOB, Field.BLOCK_ENDS);
                                 break;
                             case 1: // Generic continuous
-                                populateFieldCombo(referenceCombo, columns, Types.CHAR);
-                                populateFieldCombo(positionCombo, columns, Types.INTEGER);
-                                populateFieldCombo(valueCombo, columns, Types.REAL);
+                                populateFieldCombo(referenceCombo, columns, Types.CHAR, Field.CHROM);
+                                populateFieldCombo(positionCombo, columns, Types.INTEGER, Field.POSITION);
+                                populateFieldCombo(valueCombo, columns, Types.REAL, Field.VALUE);
                                 break;
                         }
                     }
@@ -546,46 +542,64 @@ public class MappingDialog extends JDialog {
      * @param combo
      * @param columns
      * @param desiredType one of Types.CHAR, Types.INTEGER, Types.REAL, or Types.BLOB to indicate the general type of data desired
+     * @param f the field corresponding to this combo
      */
-    private void populateFieldCombo(JComboBox combo, Column[] columns, int desiredType) {
+    private void populateFieldCombo(JComboBox combo, Column[] columns, int desiredType, Field f) {
         combo.removeAllItems();
+        
+        // If we have mappings defined for this field, use it to determine the selected item.
+        String mappedName = SettingsUtils.getString(plugin, f.toString());
+        Column mappedCol = null;
         for (Column c: columns) {
+            boolean include = false;
             switch (c.type) {
                 case Types.CHAR:
                 case Types.LONGNVARCHAR:
                 case Types.NCHAR:
                 case Types.NVARCHAR:
                 case Types.VARCHAR:
-                    if (desiredType == Types.CHAR) {
-                        combo.addItem(c);
-                    }
+                    include = desiredType == Types.CHAR;
                     break;
                 case Types.BIGINT:
                 case Types.INTEGER:
                 case Types.SMALLINT:
                 case Types.TINYINT:
-                    if (desiredType == Types.INTEGER || desiredType == Types.REAL) {
-                        combo.addItem(c);
-                    }
+                    include = desiredType == Types.INTEGER || desiredType == Types.REAL;
                     break;
                 case Types.DECIMAL:
                 case Types.DOUBLE:
                 case Types.FLOAT:
                 case Types.NUMERIC:
                 case Types.REAL:
-                    if (desiredType == Types.REAL) {
-                        combo.addItem(c);
-                    }
+                    include = desiredType == Types.REAL;
                     break;
                 case Types.BINARY:
                 case Types.BLOB:
                 case Types.LONGVARBINARY:
                 case Types.VARBINARY:
-                    if (desiredType == Types.BLOB) {
-                        combo.addItem(c);
-                    }
+                    include = desiredType == Types.BLOB;
                     break;
             }
+            if (include) {
+                combo.addItem(c);
+                if (c.name.equals(mappedName)) {
+                    mappedCol = c;
+                }
+            }
         }
+        if (mappedCol != null) {
+            combo.setSelectedItem(mappedCol);
+        }
+    }
+
+    /**
+     * Mappings have been set up.  Save them to savant.settings so they will be available
+     * as defaults for subsequent runs.
+     */
+    private void saveMappings() {
+        for (Field f: plugin.mappings.keySet()) {
+            SettingsUtils.setString(plugin, f.toString(), plugin.mappings.get(f).name);
+        }
+        SettingsUtils.store();
     }
 }

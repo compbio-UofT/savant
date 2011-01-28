@@ -24,12 +24,17 @@ package savant.sql;
 import java.awt.Window;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.sql.Driver;
+import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.Enumeration;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import savant.api.util.DialogUtils;
+import savant.api.util.SettingsUtils;
+import savant.util.CryptoUtils;
 
 
 /**
@@ -39,6 +44,10 @@ import savant.api.util.DialogUtils;
  */
 public class LoginDialog extends javax.swing.JDialog {
     private static final Log LOG = LogFactory.getLog(LoginDialog.class);
+    private static final String DRIVER_NAME_SETTING = "DRIVER_NAME";
+    private static final String URI_SETTING = "URI";
+    private static final String USER_SETTING = "USER";
+    private static final String PASSWORD_SETTING = "PASSWORD";
 
     private SQLDataSourcePlugin plugin;
 
@@ -48,6 +57,21 @@ public class LoginDialog extends javax.swing.JDialog {
         initComponents();
         setLocationRelativeTo(parent);
         this.plugin = plugin;
+
+        Enumeration<Driver> drivers = DriverManager.getDrivers();
+        while (drivers.hasMoreElements()) {
+            driverCombo.addItem(drivers.nextElement().getClass().getName());
+        }
+
+        String s = SettingsUtils.getString(plugin, DRIVER_NAME_SETTING);
+        if (s == null) {
+            driverCombo.setSelectedIndex(0);
+        } else {
+            driverCombo.setSelectedItem(s);
+        }
+        uriField.setText(SettingsUtils.getString(plugin, URI_SETTING));
+        userField.setText(SettingsUtils.getString(plugin, USER_SETTING));
+        passwordField.setText(SettingsUtils.getPassword(plugin, PASSWORD_SETTING));
     }
 
     /** This method is called from within the constructor to
@@ -75,19 +99,17 @@ public class LoginDialog extends javax.swing.JDialog {
 
         typeLabel.setText("Database Type");
 
-        driverCombo.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "com.mysql.jdbc.Driver" }));
-
         uriLabel.setText("Database URI");
 
-        uriField.setText("jdbc:mysql://ucscmirror.db.7053764.hostedresource.com:3306");
+        uriField.setColumns(80);
 
         userLabel.setText("User");
 
-        userField.setText("ucscmirror");
+        userField.setColumns(12);
 
         passwordLabel.setText("Password");
 
-        passwordField.setText("Watson1");
+        passwordField.setColumns(12);
 
         cancelButton.setText("Cancel");
         cancelButton.addActionListener(new java.awt.event.ActionListener() {
@@ -107,28 +129,25 @@ public class LoginDialog extends javax.swing.JDialog {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(typeLabel)
-                        .addGap(18, 18, 18)
-                        .addComponent(driverCombo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(uriLabel)
-                            .addComponent(userLabel)
-                            .addComponent(passwordLabel))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 27, Short.MAX_VALUE)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(userField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(passwordField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                .addGroup(layout.createSequentialGroup()
-                                    .addComponent(cancelButton)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                    .addComponent(okButton))
-                                .addComponent(uriField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))))
+                    .addComponent(passwordLabel)
+                    .addComponent(userLabel)
+                    .addComponent(uriLabel)
+                    .addComponent(typeLabel))
+                .addGap(18, 18, 18)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(driverCombo, 0, 508, Short.MAX_VALUE)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                        .addComponent(passwordField, javax.swing.GroupLayout.Alignment.LEADING)
+                        .addComponent(userField, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 192, Short.MAX_VALUE))
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                        .addGroup(layout.createSequentialGroup()
+                            .addComponent(cancelButton)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addComponent(okButton))
+                        .addComponent(uriField, javax.swing.GroupLayout.PREFERRED_SIZE, 505, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -136,8 +155,8 @@ public class LoginDialog extends javax.swing.JDialog {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(driverCombo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(typeLabel))
+                    .addComponent(typeLabel)
+                    .addComponent(driverCombo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(uriLabel)
@@ -150,11 +169,11 @@ public class LoginDialog extends javax.swing.JDialog {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(passwordField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(passwordLabel))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(okButton)
                     .addComponent(cancelButton))
-                .addContainerGap())
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         pack();
@@ -174,6 +193,9 @@ public class LoginDialog extends javax.swing.JDialog {
 
             // Try connecting.
             plugin.getConnection();
+
+            // Everything worked, so save our settings.
+            saveSettings();
         } catch (ClassNotFoundException cnfx) {
             LOG.error(cnfx);
             DialogUtils.displayError("Database Driver Error", "Unable to load driver for " + plugin.driverName);
@@ -195,4 +217,11 @@ public class LoginDialog extends javax.swing.JDialog {
     private javax.swing.JTextField userField;
     // End of variables declaration//GEN-END:variables
 
+    private void saveSettings() {
+        SettingsUtils.setString(plugin, DRIVER_NAME_SETTING, plugin.driverName);
+        SettingsUtils.setString(plugin, URI_SETTING, plugin.uri.toString());
+        SettingsUtils.setString(plugin, USER_SETTING, plugin.userName);
+        SettingsUtils.setPassword(plugin, PASSWORD_SETTING, plugin.password);
+        SettingsUtils.store();
+    }
 }

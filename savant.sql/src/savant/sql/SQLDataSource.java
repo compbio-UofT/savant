@@ -6,6 +6,7 @@
 package savant.sql;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashSet;
@@ -60,6 +61,6 @@ abstract class SQLDataSource<E extends Record> implements DataSource<E> {
 
     @Override
     public URI getURI() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return table.getURI();
     }
 }
