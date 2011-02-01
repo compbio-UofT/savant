@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -37,7 +38,6 @@ import javax.swing.JPanel;
 
 import com.jidesoft.docking.DockableFrame;
 import com.jidesoft.docking.DockingManager;
-import java.util.Collection;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.java.plugin.JpfException;
@@ -75,6 +75,7 @@ public class PluginController {
 
     private Set<String> pluginsToUnInstall = new HashSet<String>();
 
+    private Map<String, Extension> pluginIDToExtensionMap = new HashMap<String, Extension>();
     private Map<String, Plugin> pluginIDToPluginMap = new HashMap<String, Plugin>();
 
 
@@ -191,6 +192,7 @@ public class PluginController {
                 initSavantDataSourcePlugin((SavantDataSourcePlugin)pluginInstance);
             }
             pluginIDToPluginMap.put(pluginInstance.getDescriptor().getId(), pluginInstance);
+            pluginIDToExtensionMap.put(pluginInstance.getDescriptor().getId(), ext);
             return true;
 
         } catch (Exception ex) {
@@ -207,7 +209,7 @@ public class PluginController {
         boolean error = false;
 
         for (Extension ext : coreExtPt.getConnectedExtensions()) {
-            if (!isPluginQueuedForDeletion(ext.getDeclaringPluginDescriptor().getId()) && !this.isIgnoredBadPlugin(ext.getDeclaringPluginDescriptor()) ) {
+            if (!pluginIDToExtensionMap.containsValue(ext) && !isPluginQueuedForDeletion(ext.getDeclaringPluginDescriptor().getId()) && !isIgnoredBadPlugin(ext.getDeclaringPluginDescriptor()) ) {
 
                 try {
                     LOG.info("Activating new plugin: " + ext);
