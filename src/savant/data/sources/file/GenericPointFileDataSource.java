@@ -1,5 +1,5 @@
 /*
- *    Copyright 2010 University of Toronto
+ *    Copyright 2010-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -12,11 +12,6 @@
  *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
- */
-
-/*
- * GenericPointDataSource.java
- * Created on Jan 7, 2010
  */
 
 package savant.data.sources.file;
@@ -46,7 +41,7 @@ import savant.util.SavantFileUtils;
  * 
  * @author mfiume, vwilliams
  */
-public class GenericPointFileDataSource extends GenericPointDataSource implements FileDataSource {
+public class GenericPointFileDataSource extends GenericPointDataSource {
 
     private SavantROFile savantFile;
 

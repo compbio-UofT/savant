@@ -27,6 +27,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import savant.api.util.DialogUtils;
+import savant.controller.PluginController;
 import savant.data.event.TrackCreationEvent;
 import savant.data.event.TrackCreationListener;
 import savant.data.sources.DataSource;
@@ -37,12 +38,14 @@ import savant.data.sources.file.GenericContinuousFileDataSource;
 import savant.data.sources.file.GenericIntervalFileDataSource;
 import savant.data.sources.file.GenericPointFileDataSource;
 import savant.exception.SavantTrackCreationCancelledException;
+import savant.exception.UnknownSchemeException;
 import savant.file.FileType;
 import savant.file.SavantFileNotFormattedException;
 import savant.file.SavantROFile;
 import savant.file.SavantUnsupportedFileTypeException;
 import savant.file.SavantUnsupportedVersionException;
 import savant.format.SavantFileFormatterUtils;
+import savant.plugin.SavantDataSourcePlugin;
 import savant.util.MiscUtils;
 import savant.util.NetworkUtils;
 import savant.view.swing.continuous.ContinuousTrack;
@@ -63,7 +66,7 @@ public class TrackFactory {
     private static final Log LOG = LogFactory.getLog(Track.class);
 
     /**
-     * Create a track from an existing data-source.  This method is synchronous, because
+     * Create a track from an existing DataSource.  This method is synchronous, because
      * it's assumed that creating the DataSource is the time-consuming part of the process.
      *
      * @param ds the DataSource for the track
@@ -135,40 +138,41 @@ public class TrackFactory {
 
     public static DataSource createDataSource(URI trackURI) throws IOException, SavantFileNotFormattedException, SavantUnsupportedVersionException, SavantUnsupportedFileTypeException {
 
-        DataSource dataTrack = null;
+        try {
+            // Read file header to determine file type.
+            SavantROFile trkFile = new SavantROFile(trackURI);
+            trkFile.close();
 
-        // read file header
-        SavantROFile trkFile = new SavantROFile(trackURI);
+            if (trkFile.getFileType() == null) {
+                throw new SavantFileNotFormattedException();
+            }
 
-        trkFile.close();
-
-        if (trkFile.getFileType() == null) {
-            throw new SavantFileNotFormattedException();
+            switch (trkFile.getFileType()) {
+                case SEQUENCE_FASTA:
+                    return new FASTAFileDataSource(trackURI);
+                case POINT_GENERIC:
+                    return new GenericPointFileDataSource(trackURI);
+                case CONTINUOUS_GENERIC:
+                    return new GenericContinuousFileDataSource(trackURI);
+                case INTERVAL_GENERIC:
+                    return new GenericIntervalFileDataSource(trackURI);
+                case INTERVAL_GFF:
+                    return new GenericIntervalFileDataSource(trackURI);
+                case INTERVAL_BED:
+                    return new BEDFileDataSource(trackURI);
+                default:
+                    throw new SavantUnsupportedFileTypeException("This version of Savant does not support file type " + trkFile.getFileType());
+            }
+        } catch (UnknownSchemeException usx) {
+            // Not one of our known URI schemes, so see if any of our plugins can handle it.
+            for (SavantDataSourcePlugin p: PluginController.getInstance().getDataSourcePlugins()) {
+                DataSource ds = p.getDataSource(trackURI);
+                if (ds != null) {
+                    return ds;
+                }
+            }
+            throw usx;
         }
-
-        switch (trkFile.getFileType()) {
-            case SEQUENCE_FASTA:
-                dataTrack = new FASTAFileDataSource(trackURI);
-                break;
-            case POINT_GENERIC:
-                dataTrack = new GenericPointFileDataSource(trackURI);
-                break;
-            case CONTINUOUS_GENERIC:
-                dataTrack = new GenericContinuousFileDataSource(trackURI);
-                break;
-            case INTERVAL_GENERIC:
-                dataTrack = new GenericIntervalFileDataSource(trackURI);
-                break;
-            case INTERVAL_GFF:
-                dataTrack = new GenericIntervalFileDataSource(trackURI);
-                break;
-            case INTERVAL_BED:
-                dataTrack = new BEDFileDataSource(trackURI);
-                break;
-            default:
-                throw new SavantUnsupportedFileTypeException("This version of Savant does not support file type " + trkFile.getFileType());
-        }
-        return dataTrack;
     }
 
     static class TrackCreator implements Runnable {
@@ -185,11 +189,11 @@ public class TrackFactory {
         @Override
         public void run() {
             // determine default track name from filename
-            String trackPath = trackURI.getPath();
-            int lastSlashIndex = trackPath.lastIndexOf(System.getProperty("file.separator"));
-            String name = trackPath.substring(lastSlashIndex + 1, trackPath.length());
+            String uriString = trackURI.toString();
+            int lastSlashIndex = uriString.lastIndexOf(System.getProperty("file.separator"));
+            String name = uriString.substring(lastSlashIndex + 1);
 
-            FileType fileType = SavantFileFormatterUtils.guessFileTypeFromPath(trackPath);
+            FileType fileType = SavantFileFormatterUtils.guessFileTypeFromPath(uriString);
 
             DataSource ds = null;
             List<Track> tracks = new ArrayList<Track>();

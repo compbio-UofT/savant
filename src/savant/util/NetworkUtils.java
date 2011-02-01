@@ -19,7 +19,6 @@ package savant.util;
 import java.io.File;
 import java.io.IOException;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
@@ -31,6 +30,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.net.ftp.FTPFile;
 
+import savant.exception.UnknownSchemeException;
 import savant.settings.BrowserSettings;
 
 
@@ -102,7 +102,7 @@ public class NetworkUtils {
      *
      * @return a SeekableStream which can be passed to SavantROFile or BAMDataSource
      */
-    public static SeekableStream getSeekableStreamForURI(URI uri) throws IOException, MalformedURLException {
+    public static SeekableStream getSeekableStreamForURI(URI uri) throws IOException {
         String scheme = uri.getScheme().toLowerCase();
         SeekableStream result;
         if (scheme.equals("file")) {
@@ -113,7 +113,7 @@ public class NetworkUtils {
             } else if (scheme.equals("ftp")) {
                 result = new SeekableFTPStream(uri.toURL());
             } else {
-                throw new IllegalArgumentException("Only file:, ftp:, and http: URIs are valid.");
+                throw new UnknownSchemeException(uri);
             }
             if (BrowserSettings.getCachingEnabled()) {
                 //result = new CacheableSABS(result, CacheableSABS.DEFAULT_BLOCK_SIZE, uri);

@@ -1,9 +1,5 @@
 /*
- * GenericContinuousDataSource.java
- * Created on Jan 11, 2010
- *
- *
- *    Copyright 2010 University of Toronto
+ *    Copyright 2010-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -26,17 +22,21 @@ import java.util.*;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import savant.api.adapter.RangeAdapter;
 import savant.data.sources.GenericContinuousDataSource;
-
 import savant.data.types.Continuous;
 import savant.data.types.GenericContinuousRecord;
-import savant.file.*;
+import savant.file.FileType;
+import savant.file.SavantFileNotFormattedException;
+import savant.file.SavantROFile;
+import savant.file.SavantUnsupportedVersionException;
 import savant.format.ContinuousFormatterHelper;
 import savant.format.ContinuousFormatterHelper.Level;
 import savant.util.MiscUtils;
 import savant.util.Resolution;
 import savant.util.SavantFileUtils;
+
 
 /**
  * A data track containing ContinuousRecords. Depending on the range requested, data
@@ -44,7 +44,7 @@ import savant.util.SavantFileUtils;
  * 
  * @author vwilliams
  */
-public class GenericContinuousFileDataSource extends GenericContinuousDataSource implements FileDataSource {
+public class GenericContinuousFileDataSource extends GenericContinuousDataSource {
 
     private static final Log LOG = LogFactory.getLog(GenericContinuousFileDataSource.class);
 

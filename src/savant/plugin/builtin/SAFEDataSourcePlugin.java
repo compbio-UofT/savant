@@ -1,5 +1,5 @@
 /*
- *    Copyright 2010 University of Toronto
+ *    Copyright 2010-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -14,17 +14,11 @@
  *    limitations under the License.
  */
 
-/*
- * DataTab.java
- * Created on Feb 25, 2010
- */
-
 package savant.plugin.builtin;
 
 import savant.data.sources.DataSource;
 import savant.plugin.PluginAdapter;
 import savant.plugin.SavantDataSourcePlugin;
-import savant.view.swing.Savant;
 
 public class SAFEDataSourcePlugin extends SavantDataSourcePlugin {
 
@@ -39,6 +33,7 @@ public class SAFEDataSourcePlugin extends SavantDataSourcePlugin {
     }
 
     private boolean gotCredentials = false;
+
     @Override
     public DataSource getDataSource() {
 

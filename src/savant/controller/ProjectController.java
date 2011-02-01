@@ -26,7 +26,7 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import savant.data.sources.file.FileDataSource;
+import savant.data.sources.DataSource;
 import savant.data.types.Genome;
 import savant.exception.SavantEmptySessionException;
 import savant.file.SavantFileNotFormattedException;
@@ -42,18 +42,19 @@ import savant.view.swing.util.DialogUtils;
 
 /**
  *
- * @author mfiume
+ * @author mfiume, tarkvara
  */
 public class ProjectController {
 
     private static final Log LOG = LogFactory.getLog(ProjectController.class);
-    private static final String KEY_GENOME = "GENOME";
-    private static final String KEY_GENOMEPATH = "GENOMEPATH";
-    private static final String KEY_SEQUENCESET = "SEQUENCESET";
-    private static final String KEY_BOOKMARKS = "BOOKMARKS";
-    private static final String KEY_TRACKS = "TRACKS";
-    private static final String KEY_REFERENCE = "REFERENCE";
-    private static final String KEY_RANGE = "RANGE";
+
+    private static final String GENOME_KEY = "GENOME";
+    private static final String GENOMEPATH_KEY = "GENOMEPATH";
+    private static final String SEQUENCESET_KEY = "SEQUENCESET";
+    private static final String BOOKMARKS_KEY = "BOOKMARKS";
+    private static final String TRACKS_KEY = "TRACKS";
+    private static final String REFERENCE_KEY = "REFERENCE";
+    private static final String RANGE_KEY = "RANGE";
 
     private static ProjectController instance;
 
@@ -166,13 +167,13 @@ public class ProjectController {
 
         Map<String, Object> m = readMap(filename);
 
-        Boolean isSequenceSet = (Boolean) m.get(KEY_SEQUENCESET);
-        Genome genome = (Genome) m.get(KEY_GENOME);
-        String genomePath = (String) m.get(KEY_GENOMEPATH);
-        List bookmarks = (List) m.get(KEY_BOOKMARKS);
-        List trackpaths = (List) m.get(KEY_TRACKS);
-        String referencename = (String) m.get(KEY_REFERENCE);
-        Range range = (Range) m.get(KEY_RANGE);
+        Boolean isSequenceSet = (Boolean) m.get(SEQUENCESET_KEY);
+        Genome genome = (Genome) m.get(GENOME_KEY);
+        String genomePath = (String) m.get(GENOMEPATH_KEY);
+        List bookmarks = (List) m.get(BOOKMARKS_KEY);
+        List trackpaths = (List) m.get(TRACKS_KEY);
+        String referencename = (String) m.get(REFERENCE_KEY);
+        Range range = (Range) m.get(RANGE_KEY);
 
         String genomeName;
         if (isSequenceSet) {
@@ -211,8 +212,8 @@ public class ProjectController {
 
         Persistent[] result = new Persistent[2];
 
-        result[0] = new Persistent(KEY_REFERENCE, ReferenceController.getInstance().getReferenceName());
-        result[1] = new Persistent(KEY_RANGE, RangeController.getInstance().getRange());
+        result[0] = new Persistent(REFERENCE_KEY, ReferenceController.getInstance().getReferenceName());
+        result[1] = new Persistent(RANGE_KEY, RangeController.getInstance().getRange());
 
         return result;
     }
@@ -220,17 +221,19 @@ public class ProjectController {
     private Persistent getTrackPersistence() {
         List<String> trackpaths = new ArrayList<String>();
         for (Track t : TrackController.getInstance().getTracks()) {
-            if (!(t instanceof BAMCoverageTrack) && (t.getDataSource() instanceof FileDataSource)) {
-                if (((FileDataSource) t.getDataSource()).getURI() != null) {
-                    trackpaths.add(MiscUtils.getNeatPathFromURI(((FileDataSource) t.getDataSource()).getURI()));
+            if (!(t instanceof BAMCoverageTrack)) {
+                DataSource ds = t.getDataSource();
+                URI uri = ds.getURI();
+                if (uri != null) {
+                    trackpaths.add(MiscUtils.getNeatPathFromURI(uri));
                 }
             }
         }
-        return new Persistent(KEY_TRACKS, trackpaths);
+        return new Persistent(TRACKS_KEY, trackpaths);
     }
 
     private Persistent getBookmarkPersistence() {
-        return new Persistent(KEY_BOOKMARKS, BookmarkController.getInstance().getBookmarks());
+        return new Persistent(BOOKMARKS_KEY, BookmarkController.getInstance().getBookmarks());
     }
 
     private void writeHeader(String header, ObjectOutputStream outStream) throws IOException {
@@ -246,12 +249,12 @@ public class ProjectController {
         }
 
         boolean isSequenceSet = ReferenceController.getInstance().getGenome().isSequenceSet();
-        result[0] = new Persistent(KEY_SEQUENCESET, isSequenceSet);
+        result[0] = new Persistent(SEQUENCESET_KEY, isSequenceSet);
 
         if (isSequenceSet) {
-            result[1] = new Persistent(KEY_GENOMEPATH, MiscUtils.getNeatPathFromURI(ReferenceController.getInstance().getGenome().getDataSource().getURI()));
+            result[1] = new Persistent(GENOMEPATH_KEY, MiscUtils.getNeatPathFromURI(ReferenceController.getInstance().getGenome().getDataSource().getURI()));
         } else {
-            result[1] = new Persistent(KEY_GENOME, ReferenceController.getInstance().getGenome());
+            result[1] = new Persistent(GENOME_KEY, ReferenceController.getInstance().getGenome());
         }
 
         return result;

@@ -1,5 +1,5 @@
 /*
- *    Copyright 2010 University of Toronto
+ *    Copyright 2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -14,17 +14,19 @@
  *    limitations under the License.
  */
 
-/*
- * DataSource.java
- * Created on Aug 23, 2010
- */
+package savant.exception;
 
-package savant.data.sources.file;
-
+import java.net.MalformedURLException;
 import java.net.URI;
 
-public interface FileDataSource {
 
-    public URI getURI();
-
+/**
+ * Thrown if the URI does not have a known scheme.
+ *
+ * @author tarkvara
+ */
+public class UnknownSchemeException extends MalformedURLException {
+    public UnknownSchemeException(URI uri) {
+        super(String.format("%s not recognised as a known URI scheme.", uri));
+    }
 }

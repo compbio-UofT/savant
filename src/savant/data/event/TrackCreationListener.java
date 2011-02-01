@@ -26,7 +26,7 @@ package savant.data.event;
 public interface TrackCreationListener {
 
     /**
-     * We have started creating tracks for the given data-source.
+     * We have started creating tracks for the given DataSource.
      *
      * @param evt describes the data source which triggered the event
      */

@@ -80,6 +80,15 @@ public class TrackUtils {
     }
 
     /**
+     * Create a track from an existing DataSource.
+     *
+     * @param ds a DataSource object which has already been created
+     */
+    public static TrackAdapter createTrack(DataSource ds) throws Exception {
+        return TrackFactory.createTrack(ds);
+    }
+
+    /**
      * Create a track from a path (either file or from web).
      * @param path Path to the track (can be either local or remote, e.g. on http or ftp server)
      * @return A list of tracks based on the path (some paths, e.g. to BAM files, can create multiple tracks)

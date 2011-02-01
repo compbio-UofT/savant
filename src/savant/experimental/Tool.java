@@ -1,7 +1,5 @@
-package savant.experimental;
-
 /*
- *    Copyright 2010 University of Toronto
+ *    Copyright 2010-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -16,24 +14,20 @@ package savant.experimental;
  *    limitations under the License.
  */
 
-/*
- * savant.plugin.AuxData.java
- * Created on Feb 23, 2010
- */
+package savant.experimental;
 
-
-import savant.experimental.ProgramInformation;
 import java.io.PrintStream;
 import javax.swing.*;
+
 import org.java.plugin.Plugin;
+
 import savant.controller.event.ThreadActivityChangedEvent;
-import savant.view.tools.ToolRunInformation;
 import savant.controller.ThreadController;
+import savant.view.tools.ToolRunInformation;
 import savant.view.tools.ToolRunInformation.TerminationStatus;
 
-public abstract class Tool extends Plugin implements Runnable {
 
-    private JTextArea outputTextArea;
+public abstract class Tool extends Plugin implements Runnable {
 
     public abstract ProgramInformation getToolInformation();
 

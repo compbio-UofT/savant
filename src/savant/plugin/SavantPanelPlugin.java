@@ -1,9 +1,5 @@
 /*
- * GUIPlugin.java
- * Created on Feb 23, 2010
- *
- *
- *    Copyright 2010 University of Toronto
+ *    Copyright 2010-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -23,6 +19,13 @@ package savant.plugin;
 import javax.swing.JPanel;
 import org.java.plugin.Plugin;
 
+
+/**
+ * Plugin which displays its contents in a JPanel managed by the Savant user-interface.
+ * The canonical example is our own data table plugin.
+ *
+ * @author mfiume
+ */
 public abstract class SavantPanelPlugin extends Plugin {
 
     /**

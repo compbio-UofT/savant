@@ -1,5 +1,5 @@
 /*
- *    Copyright 2010 University of Toronto
+ *    Copyright 2010-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -14,23 +14,7 @@
  *    limitations under the License.
  */
 
-/*
- * FASTAFileDataSource.java
- * Created on Jan 12, 2010
- */
-
 package savant.data.sources.file;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import savant.data.types.SequenceRecord;
-import savant.file.DataFormat;
-import savant.file.FileType;
-import savant.file.SavantFileNotFormattedException;
-import savant.file.SavantROFile;
-import savant.file.SavantUnsupportedVersionException;
-import savant.format.SavantFileFormatterUtils;
-import savant.util.Resolution;
 
 import java.io.IOException;
 import java.net.URI;
@@ -38,16 +22,28 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import savant.api.adapter.RangeAdapter;
-import savant.data.sources.DataSource;
 import savant.data.sources.FASTADataSource;
+import savant.data.types.SequenceRecord;
+import savant.file.FileType;
+import savant.file.SavantFileNotFormattedException;
+import savant.file.SavantROFile;
+import savant.file.SavantUnsupportedVersionException;
+import savant.format.SavantFileFormatterUtils;
 import savant.util.MiscUtils;
+import savant.util.Resolution;
+
 
 /**
- * TODO:
+ * Class which represents a FASTA file serving as a data source.
+ *
  * @author vwilliams
  */
-public class FASTAFileDataSource extends FASTADataSource implements FileDataSource {
+public class FASTAFileDataSource extends FASTADataSource {
 
     private static Log log = LogFactory.getLog(FASTAFileDataSource.class);
 

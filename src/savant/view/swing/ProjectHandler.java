@@ -218,7 +218,7 @@ public class ProjectHandler implements
             isLoading = false;
             setProjectSaved(true);
         } catch (Exception x) {
-            DialogUtils.displayError("Error Loading Project", x.getMessage());
+            DialogUtils.displayException("Error Loading Project", String.format("Unable to load %s.", f), x);
         }
     }
 }

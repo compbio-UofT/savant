@@ -83,8 +83,24 @@ public class Table {
         return st.executeQuery(String.format(format, args));
     }
 
-    public URI getURI() {
-        return URI.create(database.uri + "/" + name);
+    /**
+     * Does this table contain a column with the given name?
+     */
+    Column findColumnByName(String colName) throws SQLException {
+        for (Column col: getColumns()) {
+            if (col.name.equals(colName)) {
+                return col;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Return the table-specific URI.  This will include the full database URI with
+     * the table name appended as the last component.
+     */
+    URI getURI() {
+        return URI.create(database.serverURI + "/" + database.name + "/" + name);
     }
 
     /**
@@ -105,4 +121,3 @@ public class Table {
         }
     }
 }
-

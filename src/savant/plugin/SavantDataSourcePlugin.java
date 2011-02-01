@@ -16,6 +16,7 @@
 
 package savant.plugin;
 
+import java.net.URI;
 import org.java.plugin.Plugin;
 import savant.data.sources.DataSource;
 
@@ -43,4 +44,15 @@ public abstract class SavantDataSourcePlugin extends Plugin {
 
 
     public abstract DataSource getDataSource() throws Exception;
+
+    /**
+     * Give the data source plugin an opportunity to handle URIs which aren't recognised
+     * by Savant.
+     *
+     * @param uri the URI to be tested
+     * @return a DataSource created from the given URI; if it's not a URI this plugin can handle, null is a perfectly good answer.
+     */
+    public DataSource getDataSource(URI uri) {
+        return null;
+    }
 }

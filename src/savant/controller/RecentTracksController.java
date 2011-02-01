@@ -1,6 +1,17 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ *    Copyright 2010-2011 University of Toronto
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
  */
 
 package savant.controller;
@@ -24,7 +35,7 @@ import org.apache.commons.logging.LogFactory;
 import savant.api.util.DialogUtils;
 import savant.controller.event.TrackAddedListener;
 import savant.controller.event.TrackAddedOrRemovedEvent;
-import savant.data.sources.file.FileDataSource;
+import savant.data.sources.DataSource;
 import savant.settings.DirectorySettings;
 import savant.util.MiscUtils;
 import savant.view.swing.Savant;
@@ -70,22 +81,13 @@ public class RecentTracksController implements TrackAddedListener {
 
         if (t instanceof BAMCoverageTrack) { return; }
 
-        if (t.getDataSource() == null) { return; }
+        DataSource ds = t.getDataSource();
 
-        if (t.getDataSource() instanceof FileDataSource) {
-            if (((FileDataSource) t.getDataSource()).getURI() == null) {
-                return;
-            }
-        } else {
+        if (ds == null || ds.getURI() == null) {
             return;
         }
 
-        FileDataSource fds = (FileDataSource) t.getDataSource();
-
-        String path = fds.getURI().toASCIIString();
-        if (path == null) { return; }
-
-        path = MiscUtils.getNeatPathFromURI(fds.getURI());
+        String path = MiscUtils.getNeatPathFromURI(ds.getURI());
         
         queue.remove(path);
         resizeQueue(queue, NUM_RECENTS_TO_SAVE);

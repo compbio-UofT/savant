@@ -37,17 +37,25 @@ import org.apache.commons.logging.LogFactory;
 class Database {
     private static final Log LOG = LogFactory.getLog(Database.class);
 
-    private String name;
-    URI uri;
+    String name;
+    URI serverURI;
     String userName;
     String password;
 
     private List<Table> tables;
     private Connection connection;
 
-    Database(String name, URI uri, String userName, String password) {
+    /**
+     * Create a new database access object (but don't connect yet).
+     *
+     * @param name database name
+     * @param serverURI URI to the server (without database name portion)
+     * @param userName user name for SQL login
+     * @param password password for SQL login
+     */
+    Database(String name, URI serverURI, String userName, String password) {
         this.name = name;
-        this.uri = uri;
+        this.serverURI = serverURI;
         this.userName = userName;
         this.password = password;
     }
@@ -83,12 +91,12 @@ class Database {
     Connection getConnection() throws SQLException {
         if (connection != null && !connection.isValid(0)) {
             // Connection no longer valid.  Close it and recreate.
-            LOG.info("Connection to " + uri + " no longer valid; recreating.");
+            LOG.info("Connection to " + serverURI + " no longer valid; recreating.");
             connection.close();
             connection = null;
         }
         if (connection == null) {
-            connection = DriverManager.getConnection(uri + "/" + name, userName, password);
+            connection = DriverManager.getConnection(serverURI + "/" + name, userName, password);
         }
         return connection;
     }
@@ -99,7 +107,7 @@ class Database {
             try {
                 connection.close();
             } catch (SQLException sqlx) {
-                LOG.warn("Error closing connection to " + uri, sqlx);
+                LOG.warn("Error closing connection to " + serverURI, sqlx);
             }
             connection = null;
         }

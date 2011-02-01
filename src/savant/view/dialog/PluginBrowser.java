@@ -1,27 +1,44 @@
+/*
+ *    Copyright 2010-2011 University of Toronto
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
+ */
 package savant.view.dialog;
 
-import com.jidesoft.grid.*;
-import com.jidesoft.plaf.UIDefaultsLookup;
-import com.jidesoft.swing.NullButton;
-import com.jidesoft.swing.NullJideButton;
-import com.jidesoft.swing.NullLabel;
-import com.jidesoft.swing.NullPanel;
 import java.awt.*;
 import java.awt.event.*;
-import java.io.File;
-import java.util.List;
-
+import java.util.Collection;
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.filechooser.FileSystemView;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableModel;
+
+import com.jidesoft.grid.*;
+import com.jidesoft.plaf.UIDefaultsLookup;
+import com.jidesoft.swing.NullJideButton;
+import com.jidesoft.swing.NullLabel;
+import com.jidesoft.swing.NullPanel;
 import org.java.plugin.registry.PluginDescriptor;
-import savant.api.util.DialogUtils;
+
 import savant.controller.PluginController;
 
+/**
+ * Class which lets user select which plugins are available.
+ *
+ * @author mfiume, vwilliams
+ */
 public class PluginBrowser {
     private TableModel _programTableModel;
 
@@ -57,6 +74,7 @@ public class PluginBrowser {
         table.getColumnModel().getColumn(0).setCellRenderer(new ProgramCellRenderer());
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         table.setComponentFactory(new HierarchicalTableComponentFactory() {
+            @Override
             public Component createChildComponent(HierarchicalTable table, Object value, int row) {
                 if (value instanceof PluginStub) {
                     return new ProgramPanel((PluginStub) value);
@@ -64,10 +82,12 @@ public class PluginBrowser {
                 return null;
             }
 
+            @Override
             public void destroyChildComponent(HierarchicalTable table, Component component, int row) {
             }
         });
         table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+            @Override
             public void valueChanged(ListSelectionEvent e) {
                 int row = table.getSelectedRow();
                 if (row != -1) {
@@ -91,7 +111,7 @@ public class PluginBrowser {
             setForeground(UIDefaultsLookup.getColor("Table.selectionForeground"));
         }
 
-        JComponent createTextPanel() {
+        private JComponent createTextPanel() {
             NullPanel panel = new NullPanel(new GridLayout(2, 1, 5, 0));
 
             panel.add(new NullLabel(PluginController.getInstance().getPluginName(program.id), null, JLabel.LEADING));
@@ -100,10 +120,9 @@ public class PluginBrowser {
             return panel;
         }
 
-        JComponent createControlPanel() {
+        private JComponent createControlPanel() {
             NullPanel panel = new NullPanel(new GridLayout(2, 2, 5, 0));
-
-            panel.add(new NullLabel("Version:", NullLabel.TRAILING));
+            Component add = panel.add(new NullLabel("Version:", NullLabel.TRAILING));
             NullJideButton versionButton = new NullJideButton(program.version);
             versionButton.setHorizontalAlignment(SwingConstants.TRAILING);
             versionButton.setButtonStyle(NullJideButton.HYPERLINK_STYLE);
@@ -138,6 +157,7 @@ public class PluginBrowser {
             this.button = button;
         }
 
+        @Override
         public void actionPerformed(ActionEvent e) {
             JOptionPane.showMessageDialog(button, "\"" + buttonName + "\" in Program \"" + program.id + "\" is clicked.");
         }
@@ -149,14 +169,17 @@ public class PluginBrowser {
             refreshPrograms();
         }
 
+        @Override
         public int getRowCount() {
             return pluginStubs.length;
         }
 
+        @Override
         public int getColumnCount() {
             return 3;
         }
 
+        @Override
         public Object getValueAt(int rowIndex, int columnIndex) {
             PluginStub program = pluginStubs[rowIndex];
             switch (columnIndex) {
@@ -175,32 +198,38 @@ public class PluginBrowser {
             return false;
         }
 
+        @Override
         public boolean hasChild(int row) {
             return true;
         }
 
+        @Override
         public boolean isExpandable(int row) {
             return true;
         }
 
+        @Override
         public boolean isHierarchical(int row) {
             return false;
         }
 
+        @Override
         public Object getChildValueAt(int row) {
             return pluginStubs[row];
         }
 
+        @Override
         public boolean isCellStyleOn() {
             return true;
         }
 
-        static CellStyle _cellStyle = new CellStyle();
+        private final static CellStyle _cellStyle = new CellStyle();
 
         static {
             _cellStyle.setHorizontalAlignment(SwingConstants.TRAILING);
         }
 
+        @Override
         public CellStyle getCellStyleAt(int rowIndex, int columnIndex) {
             if (columnIndex == 2) {
                 return _cellStyle;
@@ -251,16 +280,20 @@ public class PluginBrowser {
             removeMouseWheelListeners();
         }
 
+        @Override
         public void componentResized(ComponentEvent e) {
             setSize(getSize().width, getPreferredSize().height);
         }
 
+        @Override
         public void componentMoved(ComponentEvent e) {
         }
 
+        @Override
         public void componentShown(ComponentEvent e) {
         }
 
+        @Override
         public void componentHidden(ComponentEvent e) {
         }
 
@@ -284,15 +317,11 @@ public class PluginBrowser {
     static PluginStub[] pluginStubs;
 
     private static void refreshPrograms() {
-        PluginController pc = PluginController.getInstance();
-        List<PluginDescriptor> pds = pc.getPluginDescriptors();
-
+        Collection<PluginDescriptor> pds = PluginController.getInstance().getPluginDescriptors();
         pluginStubs = new PluginStub[pds.size()];
-        for (int i = 0; i < pds.size(); i++) {
-            PluginDescriptor pd = pds.get(i);
-            pluginStubs[i] = new PluginStub(
-                    pd.getUniqueId(),
-                    pd.getVersion().toString());
+        int i = 0;
+        for (PluginDescriptor pd: pds) {
+            pluginStubs[i++] = new PluginStub(pd.getUniqueId(), pd.getVersion().toString());
         }
     }
 

@@ -1,5 +1,5 @@
 /*
- *    Copyright 2010 University of Toronto
+ *    Copyright 2010-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -12,11 +12,6 @@
  *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
- */
-
-/*
- * GenericIntervalDataSource.java
- * Created on Jan 12, 2010
  */
 
 package savant.data.sources.file;
@@ -44,12 +39,13 @@ import savant.api.adapter.RangeAdapter;
 import savant.data.sources.BEDDataSource;
 import savant.util.MiscUtils;
 
+
 /**
  * Class to represent an track of generic intervals. Responsible for reading records within a given range.
  *
  * @author vwilliams
  */
-public class BEDFileDataSource extends BEDDataSource implements FileDataSource  {
+public class BEDFileDataSource extends BEDDataSource {
 
     private SavantROFile dFile;
 

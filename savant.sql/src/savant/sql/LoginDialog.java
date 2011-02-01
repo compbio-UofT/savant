@@ -34,7 +34,6 @@ import org.apache.commons.logging.LogFactory;
 
 import savant.api.util.DialogUtils;
 import savant.api.util.SettingsUtils;
-import savant.util.CryptoUtils;
 
 
 /**
@@ -44,10 +43,6 @@ import savant.util.CryptoUtils;
  */
 public class LoginDialog extends javax.swing.JDialog {
     private static final Log LOG = LogFactory.getLog(LoginDialog.class);
-    private static final String DRIVER_NAME_SETTING = "DRIVER_NAME";
-    private static final String URI_SETTING = "URI";
-    private static final String USER_SETTING = "USER";
-    private static final String PASSWORD_SETTING = "PASSWORD";
 
     private SQLDataSourcePlugin plugin;
 
@@ -63,15 +58,14 @@ public class LoginDialog extends javax.swing.JDialog {
             driverCombo.addItem(drivers.nextElement().getClass().getName());
         }
 
-        String s = SettingsUtils.getString(plugin, DRIVER_NAME_SETTING);
-        if (s == null) {
+        if (plugin.driverName == null) {
             driverCombo.setSelectedIndex(0);
         } else {
-            driverCombo.setSelectedItem(s);
+            driverCombo.setSelectedItem(plugin.driverName);
         }
-        uriField.setText(SettingsUtils.getString(plugin, URI_SETTING));
-        userField.setText(SettingsUtils.getString(plugin, USER_SETTING));
-        passwordField.setText(SettingsUtils.getPassword(plugin, PASSWORD_SETTING));
+        uriField.setText(plugin.uri.toString());
+        userField.setText(plugin.userName);
+        passwordField.setText(plugin.password);
     }
 
     /** This method is called from within the constructor to
@@ -194,8 +188,8 @@ public class LoginDialog extends javax.swing.JDialog {
             // Try connecting.
             plugin.getConnection();
 
-            // Everything worked, so save our settings.
-            saveSettings();
+            // Everything went okay, so save the settings.
+            plugin.saveSettings();
         } catch (ClassNotFoundException cnfx) {
             LOG.error(cnfx);
             DialogUtils.displayError("Database Driver Error", "Unable to load driver for " + plugin.driverName);
@@ -216,12 +210,4 @@ public class LoginDialog extends javax.swing.JDialog {
     private javax.swing.JTextField uriField;
     private javax.swing.JTextField userField;
     // End of variables declaration//GEN-END:variables
-
-    private void saveSettings() {
-        SettingsUtils.setString(plugin, DRIVER_NAME_SETTING, plugin.driverName);
-        SettingsUtils.setString(plugin, URI_SETTING, plugin.uri.toString());
-        SettingsUtils.setString(plugin, USER_SETTING, plugin.userName);
-        SettingsUtils.setPassword(plugin, PASSWORD_SETTING, plugin.password);
-        SettingsUtils.store();
-    }
 }

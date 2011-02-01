@@ -1,5 +1,5 @@
 /*
- *    Copyright 2010 University of Toronto
+ *    Copyright 2010-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -26,23 +26,18 @@ import java.io.FileWriter;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JPanel;
 
 import com.jidesoft.docking.DockableFrame;
 import com.jidesoft.docking.DockingManager;
-import java.net.URI;
-import java.net.URL;
+import java.util.Collection;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.java.plugin.JpfException;
@@ -53,12 +48,10 @@ import org.java.plugin.registry.Extension;
 import org.java.plugin.registry.ExtensionPoint;
 import org.java.plugin.registry.PluginDescriptor;
 import org.java.plugin.standard.StandardPluginLocation;
-import savant.api.util.DialogUtils;
 
+import savant.api.util.DialogUtils;
 import savant.experimental.PluginTool;
-import savant.plugin.SavantPanelPlugin;
-import savant.plugin.PluginAdapter;
-import savant.plugin.SavantDataSourcePlugin;
+import savant.plugin.*;
 import savant.settings.DirectorySettings;
 import savant.util.MiscUtils;
 import savant.view.swing.DockableFrameFactory;
@@ -82,8 +75,6 @@ public class PluginController {
 
     private Set<String> pluginsToUnInstall = new HashSet<String>();
 
-    private Map<String, PluginDescriptor> pluginIDToDescriptorMap = new HashMap<String, PluginDescriptor>();
-    private Map<String, Extension> pluginIDToExtensionMap = new HashMap<String, Extension>();
     private Map<String, Plugin> pluginIDToPluginMap = new HashMap<String, Plugin>();
 
 
@@ -189,22 +180,17 @@ public class PluginController {
     private boolean activatePlugin(PluginDescriptor desc, Extension ext) {
 
         try {
-            pluginManager.activatePlugin(desc.getId());
-            ClassLoader classLoader = pluginManager.getPluginClassLoader(desc);
-
-            Plugin plugininstance = (Plugin) (classLoader.loadClass(ext.getParameter("class").valueAsString())).newInstance();
+            Plugin pluginInstance = pluginManager.getPlugin(desc.getId());
 
             // init the plugin based on its type
-            if (plugininstance instanceof SavantPanelPlugin) {
-                initGUIPlugin(plugininstance);
-            } else if (plugininstance instanceof PluginTool) {
-                initPluginTool(plugininstance);
-            } else if (plugininstance instanceof SavantDataSourcePlugin) {
-                initSavantDataSourcePlugin(plugininstance);
+            if (pluginInstance instanceof SavantPanelPlugin) {
+                initGUIPlugin((SavantPanelPlugin)pluginInstance);
+            } else if (pluginInstance instanceof PluginTool) {
+                initPluginTool((PluginTool)pluginInstance);
+            } else if (pluginInstance instanceof SavantDataSourcePlugin) {
+                initSavantDataSourcePlugin((SavantDataSourcePlugin)pluginInstance);
             }
-
-            addToPluginMaps(desc.getUniqueId(), desc, ext, plugininstance);
-
+            pluginIDToPluginMap.put(pluginInstance.getDescriptor().getId(), pluginInstance);
             return true;
 
         } catch (Exception ex) {
@@ -221,10 +207,7 @@ public class PluginController {
         boolean error = false;
 
         for (Extension ext : coreExtPt.getConnectedExtensions()) {
-            if (!pluginIDToExtensionMap.containsValue(ext)
-                    && !this.isPluginQueuedForDeletion(ext.getDeclaringPluginDescriptor().getId())
-                    && !this.isIgnoredBadPlugin(ext.getDeclaringPluginDescriptor())
-                    ) {
+            if (!isPluginQueuedForDeletion(ext.getDeclaringPluginDescriptor().getId()) && !this.isIgnoredBadPlugin(ext.getDeclaringPluginDescriptor()) ) {
 
                 try {
                     LOG.info("Activating new plugin: " + ext);
@@ -249,27 +232,6 @@ public class PluginController {
     public void installPlugin(String path) throws JpfException, MalformedURLException, InstantiationException, IllegalAccessException {
         loadPlugin(new File(path));
     }
-
-    private void addToPluginMaps(String id, PluginDescriptor d, Extension e, Plugin p) {
-        this.pluginIDToDescriptorMap.put(id, d);
-        this.pluginIDToExtensionMap.put(id, e);
-        this.pluginIDToPluginMap.put(id, p);
-    }
-
-    private void removeFromPluginMaps(String id) {
-        this.pluginIDToDescriptorMap.remove(id);
-        this.pluginIDToExtensionMap.remove(id);
-        this.pluginIDToPluginMap.remove(id);
-    }
-
-    /*
-    public String getPluginPath(String id) {
-        System.out.println("Getting path for " + id);
-        String rawLocation = this.pluginIDToDescriptorMap.get(id).getLocation().getPath();
-        return getFilePathOfPlugin(rawLocation);
-    }
-     * 
-     */
 
     public String getFilePathOfPlugin(String pluginPath) {
         pluginPath = pluginPath.replaceAll("!/plugin.xml", "");
@@ -303,28 +265,35 @@ public class PluginController {
         }
     }
 
-    /** GETTERS **/
-    public List<PluginDescriptor> getPluginDescriptors() {
-        return new ArrayList<PluginDescriptor>(this.pluginIDToDescriptorMap.values());
+    public Collection<PluginDescriptor> getPluginDescriptors() {
+        return pluginManager.getRegistry().getPluginDescriptors();
     }
 
-    public List<Extension> getExtensions() {
-        return new ArrayList<Extension>(this.pluginIDToExtensionMap.values());
+    public Collection<Plugin> getPlugins() {
+        return pluginIDToPluginMap.values();
     }
 
-    public List<Plugin> getPlugins() {
-        return new ArrayList<Plugin>(this.pluginIDToPluginMap.values());
+    public Collection<SavantDataSourcePlugin> getDataSourcePlugins() {
+        Set<SavantDataSourcePlugin> result = new HashSet<SavantDataSourcePlugin>();
+        for (Plugin p: pluginIDToPluginMap.values()) {
+            if (p instanceof SavantDataSourcePlugin) {
+                result.add((SavantDataSourcePlugin)p);
+            }
+        }
+        return result;
+    }
+
+    public Plugin getPluginByID(String id) {
+        return pluginIDToPluginMap.get(id);
     }
 
     /** INIT PLUGIN TYPES **/
-    private void initPluginTool(Object plugininstance) {
-        PluginTool p = (PluginTool) plugininstance;
-        p.init(new PluginAdapter());
-        ToolsModule.addTool(p);
+    private void initPluginTool(PluginTool plugin) {
+        plugin.init(new PluginAdapter());
+        ToolsModule.addTool(plugin);
     }
 
-    private void initGUIPlugin(Object plugininstance) {
-        SavantPanelPlugin plugin = (SavantPanelPlugin) plugininstance;
+    private void initGUIPlugin(SavantPanelPlugin plugin) {
         final DockableFrame f = DockableFrameFactory.createGUIPluginFrame(plugin.getTitle());
         JPanel p = (JPanel) f.getContentPane();
         p.setLayout(new BorderLayout());
@@ -381,7 +350,7 @@ public class PluginController {
     }
 
     public String getPluginName(String id) {
-        Plugin p = this.pluginIDToPluginMap.get(id);
+        Plugin p = pluginIDToPluginMap.get(id);
         if (p instanceof SavantPanelPlugin) {
             SavantPanelPlugin pp = (SavantPanelPlugin) p;
             return pp.getTitle();
@@ -393,11 +362,10 @@ public class PluginController {
     }
 
     public PluginDescriptor getPluginDescriptor(String id) {
-        return this.pluginIDToDescriptorMap.get(id);
+        return pluginManager.getRegistry().getPluginDescriptor(id);
     }
 
-    private void initSavantDataSourcePlugin(Plugin plugininstance) {
-        SavantDataSourcePlugin plugin = (SavantDataSourcePlugin) plugininstance;
+    private void initSavantDataSourcePlugin(SavantDataSourcePlugin plugin) {
         DataSourcePluginController.getInstance().addDataSourcePlugin(plugin);
         plugin.init(new PluginAdapter());
     }

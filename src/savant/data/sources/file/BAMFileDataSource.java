@@ -1,9 +1,5 @@
 /*
- * BAMDataSource.java
- * Created on Jan 28, 2010
- *
- *
- *    Copyright 2010 University of Toronto
+ *    Copyright 2010-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -37,9 +33,7 @@ import savant.api.adapter.RangeAdapter;
 import savant.controller.RangeController;
 import savant.controller.ReferenceController;
 import savant.data.sources.BAMDataSource;
-import savant.data.sources.DataSource;
 import savant.data.types.BAMIntervalRecord;
-import savant.file.DataFormat;
 import savant.util.MiscUtils;
 import savant.util.Resolution;
 import savant.util.NetworkUtils;
@@ -49,16 +43,13 @@ import savant.util.NetworkUtils;
  * 
  * @author vwilliams
  */
-public class BAMFileDataSource extends BAMDataSource implements FileDataSource {
+public class BAMFileDataSource extends BAMDataSource {
 
-    private static Log log = LogFactory.getLog(BAMFileDataSource.class);
+    private static final Log LOG = LogFactory.getLog(BAMFileDataSource.class);
     
     private SAMFileReader samFileReader;
     private SAMFileHeader samFileHeader;
     private URI uri;
-    //private String sequenceName;
-
-//    private String fileNameOrURL;
 
     public static BAMFileDataSource fromURI(URI uri) throws IOException {
 
@@ -78,37 +69,13 @@ public class BAMFileDataSource extends BAMDataSource implements FileDataSource {
         File bamFile = new File(uri);
         indexFile = getIndexFileLocal(bamFile);
         if (indexFile != null) {
-            return new BAMFileDataSource(bamFile, indexFile);
+            return new BAMFileDataSource(bamFile.toURI(), indexFile);
         }
 
         // no success
         return null;
     }
 
-    public BAMFileDataSource(File file) {
-        this(file, getIndexFileLocal(file));
-
-    }
-
-    public BAMFileDataSource(File file, File index) {
-
-        if (file == null) throw new IllegalArgumentException("File must not be null.");
-        if (index == null) throw new IllegalArgumentException("Index file must not be null");
-
-        this.uri = file.toURI().normalize();
-
-//        this.fileNameOrURL = path.getAbsolutePath();
-        
-        //this.sequenceName = guessSequence(path, index);
-        samFileReader = new SAMFileReader(file, index);
-        samFileReader.setValidationStringency(SAMFileReader.ValidationStringency.SILENT);
-        samFileHeader = samFileReader.getFileHeader();
-    }
-
-    public BAMFileDataSource(URI uri) throws IOException {
-        this(uri, getIndexFileCached(uri));
-    }
-    
     public BAMFileDataSource(URI uri, File index) throws IOException {
 
         if (uri == null) throw new IllegalArgumentException("URI must not be null");
