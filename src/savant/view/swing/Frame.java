@@ -244,8 +244,10 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
 
             intervalButton = createIntervalButton();
             commandBar.add(intervalButton);
-            intervalButton.setVisible(false);
             String drawMode = t0.getDrawMode();
+            if(drawMode.equals(BAMTrackRenderer.ARC_PAIRED_MODE) || drawMode.equals(BAMTrackRenderer.SNP_MODE)){
+                intervalButton.setVisible(false);
+            }
             if (drawMode.equals("STANDARD") || drawMode.equals("VARIANTS")){
                 intervalButton.setVisible(true);
             }
@@ -496,7 +498,8 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
                 arcLegend.setVisible(true);
             } else {
                 setCoverageEnabled(true);
-                intervalButton.setVisible(evt.getMode().equals(BAMTrackRenderer.STANDARD_MODE) || evt.getMode().equals(BAMTrackRenderer.MISMATCH_MODE));
+                //show interval options button unless in snp or arc modes
+                intervalButton.setVisible(!evt.getMode().equals(BAMTrackRenderer.SNP_MODE));
                 arcButton.setVisible(false);
                 arcLegend.setVisible(false);
             }
