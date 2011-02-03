@@ -52,7 +52,7 @@ import savant.view.swing.Track;
 
         Resolution r = getResolution(range);
         renderer.addInstruction(DrawingInstruction.PROGRESS, "Loading track...");
-        requestData(reference, range);
+        requestData(reference, new Range(range.getFrom(), range.getTo()+2));
         renderer.addInstruction(DrawingInstruction.RANGE, range);
         renderer.addInstruction(DrawingInstruction.RESOLUTION, r);
         renderer.addInstruction(DrawingInstruction.COLOR_SCHEME, getColorScheme());

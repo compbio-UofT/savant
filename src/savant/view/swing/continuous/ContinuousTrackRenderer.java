@@ -103,7 +103,7 @@ public class ContinuousTrackRenderer extends TrackRenderer {
             GenericContinuousRecord continuousRecord = (GenericContinuousRecord)data.get(i);
             xPos = continuousRecord.getPosition();
             yPos = continuousRecord.getValue().getValue();
-            xFormXPos = gp.transformXPos(xPos)+gp.getUnitWidth()/2;
+            xFormXPos = gp.transformXPos(xPos);//+gp.getUnitWidth()/2;
             xFormYPos = gp.transformYPos(yPos);
             if (yPos > maxData) maxData = yPos;
             //Rectangle2D rec = new Rectangle2D.Double(xFormXPos - (gp.getUnitWidth()/2),0,Math.max(gp.getUnitWidth(), 1),gp.getHeight());
