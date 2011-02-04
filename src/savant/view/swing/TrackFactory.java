@@ -37,6 +37,7 @@ import savant.data.sources.file.FASTAFileDataSource;
 import savant.data.sources.file.GenericContinuousFileDataSource;
 import savant.data.sources.file.GenericIntervalFileDataSource;
 import savant.data.sources.file.GenericPointFileDataSource;
+import savant.data.sources.file.TabixFileDataSource;
 import savant.exception.SavantTrackCreationCancelledException;
 import savant.exception.UnknownSchemeException;
 import savant.file.FileType;
@@ -53,6 +54,7 @@ import savant.view.swing.interval.BAMCoverageTrack;
 import savant.view.swing.interval.BAMTrack;
 import savant.view.swing.interval.BEDTrack;
 import savant.view.swing.interval.IntervalTrack;
+import savant.view.swing.interval.TabixTrack;
 import savant.view.swing.point.PointTrack;
 import savant.view.swing.sequence.SequenceTrack;
 
@@ -91,6 +93,8 @@ public class TrackFactory {
                 return new BAMTrack(ds);
             case INTERVAL_GENERIC:
                 return new IntervalTrack(ds);
+            case TABIX:
+                return new TabixTrack(ds);
             default:
                 throw new IllegalArgumentException(String.format("Unknown data format: %s." + ds.getDataFormat()));
         }
@@ -199,7 +203,21 @@ public class TrackFactory {
             List<Track> tracks = new ArrayList<Track>();
 
             try {
-                if (fileType == FileType.INTERVAL_BAM) {
+
+                if (fileType == FileType.TABIX) {
+                    LOG.info("Opening Tabix file " + trackURI);
+                    ds = TabixFileDataSource.fromURI(trackURI);
+                    LOG.info("Tabix datasource=" + ds);
+                    if (ds != null) {
+                        tracks.add(createTrack(ds));
+                        LOG.trace("BAM Track created.");
+                    } else {
+                        throw new FileNotFoundException(String.format("Could not create Tabix track; check that index file exists and is named \"%1$s.tbi\".", name));
+                    }
+                    fireTrackCreationCompleted(tracks, "");
+                }
+
+                else if(fileType == FileType.INTERVAL_BAM) {
                     LOG.info("Opening BAM file " + trackURI);
 
                     ds = BAMFileDataSource.fromURI(trackURI);
@@ -227,6 +245,8 @@ public class TrackFactory {
                     fireTrackCreationCompleted(tracks, "");
                 }
             } catch (Exception x) {
+                LOG.error("Track creation failed");
+                x.printStackTrace();
                 fireTrackCreationFailed(x);
             }
         }

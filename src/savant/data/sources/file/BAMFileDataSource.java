@@ -265,7 +265,7 @@ public class BAMFileDataSource extends BAMDataSource {
     }
 
     private static File getIndexFileCached(URI bamURI) throws IOException {
-        return BAMIndexCache.getInstance().getBAMIndex(bamURI);
+        return IndexCache.getInstance().getIndex(bamURI,"bai","bam");
     }
 
     @Override

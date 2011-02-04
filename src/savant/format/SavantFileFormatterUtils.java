@@ -87,6 +87,10 @@ public class SavantFileFormatterUtils {
             return FileType.SEQUENCE_FASTA;
         }
 
+        if (extension.equals("GZ")) {
+            return FileType.TABIX;
+        }
+
         // None of the generic formats have any kind of standard extension.
         return null;
     }

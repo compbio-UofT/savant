@@ -279,7 +279,7 @@ public abstract class Track implements TrackAdapter {
      * @return
      */
     public boolean containsReference(String ref) {
-        return dataSource.getReferenceNames().contains(ref) || dataSource.getReferenceNames().contains(MiscUtils.homogenizeSequence(ref));
+        return true;//dataSource.getReferenceNames().contains(ref) || dataSource.getReferenceNames().contains(MiscUtils.homogenizeSequence(ref));
     }
 
     /**

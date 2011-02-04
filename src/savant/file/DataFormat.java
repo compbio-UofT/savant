@@ -7,6 +7,7 @@ public enum DataFormat {
     CONTINUOUS_GENERIC,
     INTERVAL_GENERIC,
     INTERVAL_BED,
-    INTERVAL_BAM;
+    INTERVAL_BAM,
+    TABIX;
 
 }

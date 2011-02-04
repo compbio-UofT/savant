@@ -33,7 +33,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import savant.data.sources.file.BAMIndexCache;
+import savant.data.sources.file.IndexCache;
 
 /**
  *

@@ -1,5 +1,5 @@
 /*
- * BAMIndexCache.java
+ * IndexCache.java
  * Created on Aug 4, 2010
  *
  *
@@ -33,17 +33,17 @@ import savant.util.MiscUtils;
 import savant.util.NetworkUtils;
 
 /**
- * Singleton class to manage a cache of indices for remote BAM files.
+ * Singleton class to manage a cache of indices for remote files.
  *
  * @author vwilliams
  */
-public class BAMIndexCache {
+public class IndexCache {
 
-    private static final Log LOG = LogFactory.getLog(BAMIndexCache.class);
+    private static final Log LOG = LogFactory.getLog(IndexCache.class);
 
     private static int BUF_SIZE = 8 * 1024; // 8K is optimal size for HTTP transfer
     
-    private static BAMIndexCache instance;
+    private static IndexCache instance;
 
     private File cacheDir;
 
@@ -53,18 +53,18 @@ public class BAMIndexCache {
     private File tagPropFile = new File(getCacheDir(), "etags");
     private File indexPropFile = new File(getCacheDir(), "indices");
 
-    public static synchronized BAMIndexCache getInstance() {
+    public static synchronized IndexCache getInstance() {
         if (instance == null) {
-            instance = new BAMIndexCache();
+            instance = new IndexCache();
         }
         return instance;
     }
 
-    private BAMIndexCache() {}
+    private IndexCache() {}
 
-    public File getBAMIndex(URI uri) throws IOException {
+    public File getIndex(URI uri, String extension, String alternate) throws IOException {
 
-        String indexURLString = uri.toString() + ".bai";
+        String indexURLString = uri.toString() + extension;
         URL indexURL = new URL(indexURLString);
         String hash = null;
 
@@ -78,7 +78,7 @@ public class BAMIndexCache {
         if (hash == null) {
             // File doesn't exist, try alternate.  If it doesn't exist, an exception
             // will be thrown.
-            indexURLString = uri.toString().replace("bam", "bai");
+            indexURLString = uri.toString().replace(alternate, extension);
             indexURL = new URL(indexURLString);
             hash = NetworkUtils.getHash(indexURL);
         }
@@ -140,7 +140,7 @@ public class BAMIndexCache {
     
     private File getCacheDir() {
         if (cacheDir == null) {
-            cacheDir = new File(DirectorySettings.getSavantDirectory(), "bam");
+            cacheDir = new File(DirectorySettings.getSavantDirectory(), "index");
             if (!cacheDir.exists()) {
                 cacheDir.mkdir();
             }
@@ -151,11 +151,11 @@ public class BAMIndexCache {
     private synchronized String getIndexFileName(String url, String indexURL) {
         String indexFilename = getIndexForURL(url);
         if (indexFilename == null) {
+            String extension = MiscUtils.getExtension(indexFilename);
+            indexFilename = indexFilename.substring(0,indexFilename.lastIndexOf("."));
             int offset = indexURL.lastIndexOf("/");
             String name = indexURL.substring(offset+1);
-            offset = name.lastIndexOf(".bai");
-            name = (offset > 0) ? name.substring(0,offset)+"_" : name+"_";
-            indexFilename = name + System.currentTimeMillis() + ".bai";
+            indexFilename = name + System.currentTimeMillis() + extension;
             setIndexForURL(indexFilename, url);
         }
         return indexFilename;
@@ -189,9 +189,9 @@ public class BAMIndexCache {
             os = new FileOutputStream(propFile);
             props.store(os,null);
         } catch (FileNotFoundException e) {
-            LOG.error("Unable to save BAM Cache properties file",e);
+            LOG.error("Unable to save Cache properties file",e);
         } catch (IOException e) {
-            LOG.error("Unable to save BAM Cache properties file",e);
+            LOG.error("Unable to save Cache properties file",e);
         } finally {
             if (os != null) try { os.close(); } catch (IOException ignore) {}
         }
