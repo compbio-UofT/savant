@@ -92,6 +92,7 @@ public class WIGFormatter extends SavantFileFormatter {
                         break;
                     }
 
+                
                     // split line up into tokens
                     tokens = strLine.split("\\s");
 
@@ -172,6 +173,7 @@ public class WIGFormatter extends SavantFileFormatter {
                         this.fillWithZeros(nextWrite,dest,outfile);
                         float val = Float.parseFloat(tokens[1]);
                         for (int i = 0; i < span; i++){
+                            System.out.println("writing:\t" + val);
                             outfile.writeFloat(val);
                         }
                         nextWrite = dest + span;

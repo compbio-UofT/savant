@@ -92,7 +92,7 @@ public class ColourSchemeSettingsSection extends Section {
                 ColourSettings.setLine(map.get(LINE_NAME));
 
                 //continuous
-                ColourSettings.setContinuousLine(map.get(CONTINUOUS_LINE_NAME));
+                ColourSettings.setContinuousFill(map.get(CONTINUOUS_LINE_NAME));
 
                 //point
                 ColourSettings.setPointFill(map.get(POINT_FILL_NAME));
@@ -180,7 +180,7 @@ public class ColourSchemeSettingsSection extends Section {
         addProperty(LINE_NAME, "Colour of lines", "Interval", ColourSettings.getLine());
 
         //continuous
-        addProperty(CONTINUOUS_LINE_NAME, "Colour of continuous lines", "Continuous", ColourSettings.getContinuousLine());
+        addProperty(CONTINUOUS_LINE_NAME, "Colour of continuous lines", "Continuous", ColourSettings.getContinuousFill());
 
         //point
         addProperty(POINT_FILL_NAME, "Colour of point fill", "Point", ColourSettings.getPointFill());

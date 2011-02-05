@@ -61,9 +61,9 @@ public class ContinuousTrackRenderer extends TrackRenderer {
 
     @Override
     public void dataRetrievalCompleted(DataRetrievalEvent evt) {
-        int maxDataValue = ContinuousTrack.getMaxValue(evt.getData());
+        float[] extremes = ContinuousTrack.getExtremeValues(evt.getData());
         Range range = (Range)instructions.get(DrawingInstruction.RANGE);
-        addInstruction(DrawingInstruction.AXIS_RANGE, AxisRange.initWithRanges(range, new Range(0, maxDataValue)));
+        addInstruction(DrawingInstruction.AXIS_RANGE, AxisRange.initWithRanges(range, new Range(Math.min(0, (int) Math.floor(extremes[0]*1.05)), Math.max(0,(int) Math.ceil(extremes[1]*1.05)))));
         super.dataRetrievalCompleted(evt);
     }
 
@@ -76,9 +76,9 @@ public class ContinuousTrackRenderer extends TrackRenderer {
         renderPreCheck();
 
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        
 
         ColorScheme cs = (ColorScheme)instructions.get(DrawingInstruction.COLOR_SCHEME);
+        Color fillcolor = cs.getColor("Fill");
         Color linecolor = cs.getColor("Line");
         AxisRange axisRange = (AxisRange)instructions.get(DrawingInstruction.AXIS_RANGE);
 
@@ -106,20 +106,23 @@ public class ContinuousTrackRenderer extends TrackRenderer {
             xFormXPos = gp.transformXPos(xPos);//+gp.getUnitWidth()/2;
             xFormYPos = gp.transformYPos(yPos);
             if (yPos > maxData) maxData = yPos;
-            //Rectangle2D rec = new Rectangle2D.Double(xFormXPos - (gp.getUnitWidth()/2),0,Math.max(gp.getUnitWidth(), 1),gp.getHeight());
-            //Rectangle2D rec = new Rectangle2D.Double(xFormXPos - (gp.getUnitWidth()/2),0,Math.max(xFormXPos-path.getCurrentPoint().getX(), 1),gp.getHeight());
             Rectangle2D rec = new Rectangle2D.Double(xFormXPos - ((xFormXPos-path.getCurrentPoint().getX())/2),0,Math.max(xFormXPos-path.getCurrentPoint().getX(), 1),gp.getHeight());
             this.recordToShapeMap.put(continuousRecord, rec);
-            path.lineTo(xFormXPos, xFormYPos);            
+            path.lineTo(xFormXPos, xFormYPos);         
         }
         xFormYPos = gp.transformYPos(0.0);
         path.lineTo(xFormXPos, xFormYPos);
         path.closePath();
         
+        g2.setColor(fillcolor);
+        g2.fill(path);
         g2.setColor(linecolor);
         g2.draw(path);
-        g2.fill(path);
 
+        if (axisRange.getYRange().getFrom() < 0) {
+            g2.setColor(Color.darkGray);
+            g2.drawLine(0, (int) gp.transformYPos(0), gp.getWidth(), (int) gp.transformYPos(0));
+        }
     }
 
     @Override

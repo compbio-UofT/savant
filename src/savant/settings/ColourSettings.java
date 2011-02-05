@@ -39,6 +39,7 @@ public class ColourSettings {
     private static final String EVERTED_PAIR_KEY = "EvertedPair";
     private static final String DISCORDANT_LENGTH_KEY = "DiscordantLength";
     private static final String LINE_KEY = "Line";
+    private static final String CONTINUOUS_FILL_KEY = "ContinuousFill";
     private static final String CONTINUOUS_LINE_KEY = "ContinuousLine";
     private static final String OPAQUE_GRAPH_KEY = "OpaqueGraph";
     private static final String TRANSLUCENT_GRAPH_KEY = "TranslucentGraph";
@@ -232,8 +233,22 @@ public class ColourSettings {
     /**
      * @return the colour for continuous lines
      */
+    public static Color getContinuousFill() {
+        return settings.getColour(CONTINUOUS_FILL_KEY, new Color(0, 174, 255, 200));
+    }
+
+    /**
+     * @param value the colour for continuous lines
+     */
+    public static void setContinuousFill(Color value) {
+        settings.setColour(CONTINUOUS_FILL_KEY, value);
+    }
+
+    /**
+     * @return the colour for continuous lines
+     */
     public static Color getContinuousLine() {
-        return settings.getColour(CONTINUOUS_LINE_KEY, new Color(0, 174, 255, 200));
+        return settings.getColour(CONTINUOUS_LINE_KEY, new Color(0, 50, 50, 50));
     }
 
     /**

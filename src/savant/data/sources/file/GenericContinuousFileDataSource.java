@@ -105,14 +105,17 @@ public class GenericContinuousFileDataSource extends GenericContinuousDataSource
         LOG.debug("Chose " + lev.resolution + " as the best for range (" + r.getFrom() + "-" + r.getTo() + ")");
 
         long seekPos = lev.offset + (r.getFrom() - 1) / lev.resolution * recordSize;
+
         if (savantFile.seek(ref, seekPos) >= 0) {
             LOG.debug("Sought to " + seekPos + " to find data for " + r.getFrom());
             for (long pos = r.getFrom(); pos < r.getTo(); pos += lev.resolution) {
+
                 data.add(GenericContinuousRecord.valueOf(ref, pos, Continuous.valueOf(savantFile.readFloat())));
-                if (savantFile.getFilePointer() >= savantFile.getReferenceOffset(ref) + lev.offset + lev.size) {
+
+                if (savantFile.getFilePointer() >= savantFile.getHeaderOffset() + savantFile.getReferenceOffset(ref) + lev.offset + lev.size) {
                     // We've read all the data available for this level.  The rest of the
                     // range will have no data.
-                    LOG.debug("File position " + savantFile.getFilePointer() + " was past end of level (" + (lev.offset + lev.size) + ").");
+                    LOG.debug("File position " + savantFile.getFilePointer() + " was past end of level (" + (savantFile.getHeaderOffset() + savantFile.getReferenceOffset(ref) + lev.offset + lev.size) + ").");
                     break;
                 }
             }

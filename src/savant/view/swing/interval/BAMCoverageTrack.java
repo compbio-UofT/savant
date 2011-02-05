@@ -64,7 +64,7 @@ public class BAMCoverageTrack extends Track {
         ColorScheme c = new ColorScheme();
 
         /* add settings here */
-        c.addColorSetting("Line", ColourSettings.getContinuousLine());
+        c.addColorSetting("Line", ColourSettings.getContinuousFill());
 
         return c;
     }

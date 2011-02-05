@@ -77,6 +77,8 @@ import savant.view.swing.Track;
         ColorScheme c = new ColorScheme();
 
         /* add settings here */
+
+        c.addColorSetting("Fill", ColourSettings.getContinuousFill());
         c.addColorSetting("Line", ColourSettings.getContinuousLine());
 
         return c;
@@ -91,13 +93,20 @@ import savant.view.swing.Track;
         return new Range(0, 1);
     }
 
-    public static int getMaxValue(List<Record> data) {
-        float max = 0f;
+    public static float[] getExtremeValues(List<Record> data) {
+        float max = Float.MIN_VALUE;
+        float min = Float.MAX_VALUE;
         for (Record r: data) {
             float val = ((ContinuousRecord)r).getValue().getValue();
             if (val > max) max = val;
+            if (val < min) min = val;
         }
-        return (int)Math.ceil(max);
+
+        float[] result = new float[2];
+        result[0] = min;
+        result[1] = max;
+
+        return result;
     }
 
 }
