@@ -25,6 +25,7 @@ import javax.swing.table.TableCellRenderer;
 public class SearchableTablePanel extends JPanel {
 
     private SortableTable table;
+    private JPanel fieldPanel;
 
     public SearchableTablePanel(Vector data, Vector columnNames) {
         this(data, columnNames, null);
@@ -39,21 +40,44 @@ public class SearchableTablePanel extends JPanel {
     public void updateData(Vector data) {
         model.getDataVector().removeAllElements();
         model.getDataVector().addAll(data);
-        table.invalidate();
+        model.fireTableDataChanged();
+
+        System.out.println("Actually Searching columns: ");
+        for (int i : filterField.getActualSearchingColumnIndices()) {
+            System.out.println("\t" + i);
+        }
+        System.out.println("Searching columns: ");
+        for (int i : filterField.getColumnIndices()) {
+            System.out.println("\t" + i);
+        }
     }
 
     public void setTableModel(Vector data, Vector columnNames, Vector columnClasses) {
         model = new GenericTableModel(data, columnNames, columnClasses);
+
+        int[] columns = new int[data.size()];
+        for (int i = 0; i < columns.length; i++) {
+            columns[i] = i;
+        }
+
         if (filterField == null) {
             filterField = new LuceneQuickTableFilterField(model);
             filterField.setHintText("Type here to filter");
-            filterField.setObjectConverterManagerEnabled(true);
+            filterField.setColumnIndices(columns);
+            //filterField.setObjectConverterManagerEnabled(true);
         } else {
             filterField.setTableModel(model);
         }
 
         //table.setModel(model);
         table.setModel(new LuceneFilterableTableModel(filterField.getDisplayTableModel()));
+        /*
+        System.out.println("Searching columns: ");
+        for (int i : filterField.getActualSearchingColumnIndices()) {
+            System.out.println("\t" + i);
+        }
+         * 
+         */
     }
 
     public SearchableTablePanel(
@@ -97,7 +121,7 @@ public class SearchableTablePanel extends JPanel {
         setTableModel(data, columnNames, columnClasses);
 
         this.setLayout(new BorderLayout(3, 3));
-        JPanel fieldPanel = new JPanel(new FlowLayout(FlowLayout.LEADING));
+        fieldPanel = new JPanel(new FlowLayout(FlowLayout.LEADING));
         fieldPanel.add(filterField);
 
         JPanel tablePanel = new JPanel(new BorderLayout(3, 3));
