@@ -1,0 +1,12 @@
+<?xml version="1.0" ?>
+<!DOCTYPE plugin PUBLIC "-//JPF//Java Plug-in Manifest 1.0" "http://jpf.sourceforge.net/plugin_1_0.dtd">
+<plugin id="savant.tableview" version="1.0.0" class="savant.tableview.TableView">
+    <requires><import plugin-id="savant.core"/></requires>
+	<runtime>
+		<library id="root" path="/" type="code"></library>
+	</runtime>
+    <extension plugin-id="savant.core" point-id="AuxData" id="extensionCore">
+	<parameter id="class" value="savant.tableview.TableView"/>
+	<parameter id="name" value="Table View"/>
+    </extension>
+</plugin>
