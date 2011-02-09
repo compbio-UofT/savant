@@ -18,8 +18,6 @@ package savant.format;
 
 import java.io.*;
 import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -223,27 +221,6 @@ public abstract class SavantFileFormatter {
         }
     }
 
-    /*
-    protected void addReferenceFile(String referenceName, DataOutputStream file) {
-        referenceName2FileMap.put(referenceName, file);
-    }
-     * 
-     */
-
-    /*
-    protected void closeOutputFiles() {
-        for (String ref : this.referenceName2FileMap.keySet()) {
-            DataOutputStream f = this.referenceName2FileMap.get(ref);
-            try {
-                f.close();
-            } catch (IOException ex) {
-                log.warn("could not close output file: "
-                        + this.referenceName2FilenameMap.get(ref));
-            }
-        }
-    }
-     */
-
     protected void closeOutputStreams() {
         for (DataOutputStream o : referenceName2FileMap.values()) {
             try {
@@ -251,41 +228,6 @@ public abstract class SavantFileFormatter {
             } catch (Exception e) {}
         }
     }
-
-    /*
-    protected DataOutputStream initOutput() throws FileNotFoundException {
-
-        // open output stream
-        DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(outFilePath), OUTPUT_BUFFER_SIZE));
-
-        // write file type header
-        FileTypeHeader fileTypeHeader = new FileTypeHeader(FileType.CONTINUOUS_GENERIC, 1);
-        out.writeInt(fileTypeHeader.fileType.getMagicNumber());
-        out.writeInt(fileTypeHeader.version);
-
-        // prepare and write fields header
-        fields = new ArrayList<FieldType>();
-        fields.add(FieldType.FLOAT);
-        modifiers = new ArrayList<Object>();
-        modifiers.add(null);
-        out.writeInt(fields.size());
-        for (FieldType ft : fields) {
-            out.writeInt(ft.ordinal());
-        }
-
-        return out;
-    }
-     */
-
-    /*
-    protected void closeOutput() {
-        try {
-            if (out != null) out.close();
-        } catch (IOException e) {
-            log.warn("Error closing output file", e);
-        }
-    }
-     */
 
     /**
      * Open the input file
@@ -306,31 +248,6 @@ public abstract class SavantFileFormatter {
                 new FileOutputStream(outFile), OUTPUT_BUFFER_SIZE));
         return outFileStream;
     }
-
-    /*
-    protected DataOutputStream openNewTmpOutputFile() throws IOException {
-        deleteTmpOutputFile();
-        return openTmpOutputFile();
-    }
-     */
-     
-
-    /**
-     * Open the output file
-     * @return
-     * @throws FileNotFoundException
-     *
-    protected DataOutputStream openTmpOutputFile() throws IOException {
-        return new DataOutputStream(new BufferedOutputStream(new FileOutputStream(tmpOutputPath)));
-    }
-
-    protected void deleteTmpOutputFile() {
-        File f = new File(tmpOutputPath);
-        if (f.exists()) {
-            f.delete();
-        }
-    }
-     */
 
     protected void deleteOutputFile() {
         if (outFile.exists()) {

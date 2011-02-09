@@ -42,9 +42,9 @@ public class IntervalFormatter extends SavantFileFormatter {
     List<FieldType> writeOrderFields;
     List<Object> writeOrderModifiers;
 
-    public IntervalFormatter(File inFile, File outFile, boolean baseOffset, FileType ft, Integer refnameindex, Integer startcoordindex, Integer endcoordindex, String comment){
-        super(inFile, outFile, ft); //FileType.INTERVAL_GENERIC);
-        this.setInputOneBased(baseOffset);
+    public IntervalFormatter(File inFile, File outFile, boolean isOneBased, FileType ft, Integer refnameindex, Integer startcoordindex, Integer endcoordindex, String comment){
+        super(inFile, outFile, ft);
+        this.setInputOneBased(isOneBased);
         this.refnameindex = refnameindex;
         this.startcoordindex = startcoordindex;
         this.endcoordindex = endcoordindex;
@@ -53,7 +53,9 @@ public class IntervalFormatter extends SavantFileFormatter {
 
     private ArrayList rearrangeList(Object l) {
 
-        ArrayList cpy = (ArrayList) ((ArrayList) l).clone(); //new ArrayList<FieldType>(l.size());
+        ArrayList cpy = (ArrayList) ((ArrayList) l).clone();
+
+        //new ArrayList<FieldType>(l.size());
         //System.out.println(cpy.size());
         //System.out.println(l.size());
         //Collections.copy(cpy, l);
@@ -74,27 +76,6 @@ public class IntervalFormatter extends SavantFileFormatter {
         
         return cpy;
     }
-
-    /*
-    private List<Object> rearrangeRecordList(List<Object> l) {
-
-        List<Object> cpy = new ArrayList<Object>(l.size());
-        Collections.copy(cpy, l);
-
-        Object ref = cpy.get(refnameindex);
-        Object strt = cpy.get(startcoordindex);
-        Object end = cpy.get(endcoordindex);
-        
-        cpy.remove(refnameindex);
-        cpy.add(0, ref);
-        cpy.remove(startcoordindex);
-        cpy.add(1,strt);
-        cpy.remove(endcoordindex);
-        cpy.add(2,end);
-            
-        return cpy;
-    }
-     */
 
     private int countFields() throws FileNotFoundException, IOException {
         //System.out.println("Counting fields");
@@ -144,17 +125,11 @@ public class IntervalFormatter extends SavantFileFormatter {
         // set the input file size (for tracking progress)
         this.totalBytes = inFile.length();
 
-       // System.out.println("File contains " + numFields + " fields");
-
         fields = chopOffFields((ArrayList) fields, numFields);
         modifiers = chopOffFields((ArrayList) modifiers, numFields);
 
         writeOrderFields = rearrangeList(fields);
         writeOrderModifiers = rearrangeList(modifiers);
-
-        //for (FieldType f : fields) {
-        //    SavantDebugger.debug("Field: " + f + "");
-        //}
 
         // the reference names
         List<String> refnames = new ArrayList<String>();
@@ -170,13 +145,6 @@ public class IntervalFormatter extends SavantFileFormatter {
 
         // split the input file by chromosome
         Map<String, String> refToinFileMap = SavantFileFormatterUtils.splitFile(inFile, 0);
-
-        //List<String> indexFiles = new ArrayList<String>();
-        //List<String> outFiles = new ArrayList<String>();
-        //List<String> outIndexFiles = new ArrayList<String>();
-
-        // counter
-        //int splitfilenum = 0;
 
         // output file (one per split file)
         DataOutputStream outfile;
@@ -195,8 +163,6 @@ public class IntervalFormatter extends SavantFileFormatter {
             // get the input file for this reference
             String file = refToinFileMap.get(refname);
 
-            // increment ref number
-            //String refname = "ref" + (++splitfilenum);
             refnames.add(refname);
 
             // make and save path to tmp output files
@@ -205,9 +171,6 @@ public class IntervalFormatter extends SavantFileFormatter {
             String indexPath = outPath + indexExtension;
             refnameToDataFileNameMap.put(refname, outPath);
             refnameToIndexFileNameMap.put(refname, indexPath);
-
-            //outFiles.add(outPath);
-            //outIndexFiles.add(indexPath);
 
             // make the output and index files
             outfile = new DataOutputStream(
@@ -218,8 +181,6 @@ public class IntervalFormatter extends SavantFileFormatter {
                     new BufferedOutputStream(
                             new FileOutputStream(indexPath),
                             OUTPUT_BUFFER_SIZE));
-
-            //System.out.println("Index file " + indexPath + " opened at byte position " + indexOutFile.getFilePointer());
 
             // format the file, storing output in outfile and indexOutFile
             formatFile(file, outfile, indexOutFile);
@@ -357,26 +318,11 @@ public class IntervalFormatter extends SavantFileFormatter {
 
         List<LinePlusRange> linesPlusRanges = nodeIndex2IntervalIndices.get(n.index);
 
-        //System.out.println("D " + n.index + "\t" + n.range);
-
-        //System.out.println(n.index + " " + n.size + " " +  node2startByte.get(n.index));
-
         if (linesPlusRanges != null) {
             for (LinePlusRange lr : linesPlusRanges) {
 
                 int intervalIndex = lr.lineNum;
                 long startByte = intevalIndex2StartByte.get(intervalIndex);
-
-                /*
-                System.out.println("<<D" + "\t"
-                //+ this.inFilePath + "\t"
-                + currrefname + "\t"
-                + n.index + "\t"
-                + lr.range + "\t"
-                + outFile.size());
-                 */
-
-                //System.out.println(">> DATA : range=" + lr.range + " pos=" + outFile.size());
 
                 srcFile.seek(startByte);
                 List<Object> rec = SavantFileFormatterUtils.readBinaryRecord(srcFile, fields);
@@ -389,26 +335,12 @@ public class IntervalFormatter extends SavantFileFormatter {
 
     private void writeIntervalTreeNode(IntervalTreeNode n, DataOutputStream indexOutFile) throws IOException {
 
-        /*
-        System.out.println("<<I" + "\t"
-                //+ this.inFilePath + "\t"
-                + currrefname + "\t"
-                + n.index + "\t"
-                + n.range + "\t"
-                + n.startByte + "\t"
-                + indexOutFile.getFilePointer());
-         */
         
-        //System.out.println(">> INDEX: node=" + n.index + " range=" + n.range + " pos=" + indexOutFile.getFilePointer());
-
         List<Object> record;
-        //List<FieldType> fields;
-        //List<Object> modifiers;
 
         record = new ArrayList<Object>();
         List<FieldType> indexNodeFields = new ArrayList<FieldType>();
         List<Object> indexNodeModifiers = new ArrayList<Object>();
-        //System.outFile.print(n.index + " " + n.range + " " + node2startByte.get(n.index) + " " + n.size + " " + n.subtreeSize + " ");
         // the index
         record.add(n.index);
         indexNodeFields.add(FieldType.INTEGER);
@@ -507,11 +439,6 @@ public class IntervalFormatter extends SavantFileFormatter {
             // tokenize the line into the respective fields
             line = SavantFileFormatterUtils.parseTxtLine(strLine, fields, isGFF);
 
-
-            //for (Object o : line) {
-            //    System.out.println(o);
-            //}
-
             // Adjust the start byte and endbyte offsets (for 0 vs. 1-based)
             // TODO: #306 These fields should really be cast to Long rather than Integer.
             line.set(startcoordindex, (Integer)line.get(startcoordindex) + this.baseOffset);
@@ -540,9 +467,6 @@ public class IntervalFormatter extends SavantFileFormatter {
 
         // close the tmp data file
         tmpOutFile.close();
-
-        //System.out.println("Min: " + minRange);
-        //System.out.println("Max: " + maxRange);
 
         /*
          * STEP 2:

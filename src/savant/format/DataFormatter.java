@@ -79,7 +79,7 @@ public class DataFormatter /* implements FormatProgressListener */ {
     //private static final int currentVersion = 2;
 
     // used to generalize 0 vs 1-based input files
-    boolean baseOffset = true; // 0 if 1-based; 1 if 0-based
+    boolean isOneBased = true; // TRUE if 1-based; FALSE if 0-based
 
     /**
      * CONSTRUCTORS
@@ -252,13 +252,13 @@ public class DataFormatter /* implements FormatProgressListener */ {
         IntervalFormatter inf;
 
         if(type.equals("GEN")){
-            inf = new IntervalFormatter(inFile, outFile,baseOffset, FileType.INTERVAL_GENERIC, 0, 1, 2, "#");
+            inf = new IntervalFormatter(inFile, outFile,isOneBased, FileType.INTERVAL_GENERIC, 0, 1, 2, "#");
             inf.formatAsIntervalGeneric();
         } else if(type.equals("GFF")){
-            inf = new IntervalFormatter(inFile, outFile,baseOffset, FileType.INTERVAL_GFF, 0, 3, 4, "#");
+            inf = new IntervalFormatter(inFile, outFile,isOneBased, FileType.INTERVAL_GFF, 0, 3, 4, "#");
             inf.formatAsIntervalGFF();
         } else if(type.equals("BED")){
-            inf = new IntervalFormatter(inFile, outFile,baseOffset, FileType.INTERVAL_BED, 0, 1, 2, "#");
+            inf = new IntervalFormatter(inFile, outFile,isOneBased, FileType.INTERVAL_BED, 0, 1, 2, "#");
             inf.formatAsIntervalBED();
         } else {
             return;
@@ -281,7 +281,7 @@ public class DataFormatter /* implements FormatProgressListener */ {
      * @throws IOException
      */
     private void formatAsPointGeneric() throws IOException, InterruptedException, SavantFileFormattingException {
-        PointGenericFormatter pgf = new PointGenericFormatter(this.inFile, this.outFile, this.baseOffset);
+        PointGenericFormatter pgf = new PointGenericFormatter(this.inFile, this.outFile, this.isOneBased);
         subscribeProgressListeners(pgf, this.progressListeners);
         runFormatter(pgf);
         unsubscribeProgressListeners(pgf, this.progressListeners);
@@ -502,8 +502,8 @@ public class DataFormatter /* implements FormatProgressListener */ {
     }
 
     private void setInputOneBased(boolean inputOneBased) {
-        if (inputOneBased) { this.baseOffset = true; }
-        else { this.baseOffset = false; }
+        if (inputOneBased) { this.isOneBased = true; }
+        else { this.isOneBased = false; }
     }
 
     public void addProgressListener(FormatProgressListener listener) {

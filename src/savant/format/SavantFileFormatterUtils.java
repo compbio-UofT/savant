@@ -531,7 +531,9 @@ public class SavantFileFormatterUtils {
 
     private static IntervalRecord convertRecordToBEDInterval(List<Object> record, List<FieldType> fields) {
 
-        Interval interval = Interval.valueOf((Integer) record.get(1), (Integer) record.get(2));
+        long start = (Integer) record.get(1);
+        long end = (Integer) record.get(2);
+        
         String ref = (String) record.get(0);
         
         int numFields = record.size();
@@ -553,19 +555,22 @@ public class SavantFileFormatterUtils {
                 score = (Float) record.get(4);
             }
         }
+
+        long intervallength = new Interval(start,end).getLength();
         if (numFields > 5) { strand = SavantFileFormatterUtils.getStrand((String) record.get(5)); }
         // TODO: #306 The next two fields should really be Longs, not Integers.
         if (numFields > 6) { thickStart = (Integer)record.get(6); }
-        if (numFields > 7) { thickEnd = (Integer)record.get(7); } else { thickEnd = interval.getLength(); }
+        if (numFields > 7) { thickEnd = (Integer)record.get(7); } else { thickEnd = intervallength; }
         if (numFields > 8) { rgb = (ItemRGB) record.get(8); }
         if (numFields > 9) { blocks = (List<Block>) record.get(9); } else {
             blocks = new ArrayList<Block>();
-            blocks.add(Block.valueOf(0,interval.getLength()));
+            blocks.add(Block.valueOf(0,intervallength));
         }
 
         BEDIntervalRecord ir = BEDIntervalRecord.valueOf(
                 ref,
-                interval,
+                start,
+                end,
                 name,
                 score,
                 strand,
@@ -588,7 +593,7 @@ public class SavantFileFormatterUtils {
 
             while(numBlocks-- > 0) {
                 long nextPos = Long.parseLong(posTokenizer.nextToken());
-                long nextSize = Long.parseLong(sizeTokenizer.nextToken()) -1;
+                long nextSize = Long.parseLong(sizeTokenizer.nextToken());
                 blocks.add(Block.valueOf(nextPos,nextSize));
             }
         }

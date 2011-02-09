@@ -28,18 +28,31 @@ public final class Interval {
     private final long end;
 
 
+    /**
+     * An interval
+     * VERY IMPORTANT: The coordinates for intervals must be 1-based!
+     * @param start
+     * @param end
+     */
     public Interval(long start, long end) {
         this.start = start;
         this.end = end;
     }
 
+    /**
+     * An interval
+     * VERY IMPORTANT: The coordinates for intervals must be 1-based!
+     * @param start
+     * @param end
+     * @return an interval
+     */
     public static Interval valueOf(long start, long end) {
         return new Interval(start, end);
     }
 
     public long getStart() { return this.start; }
     public long getEnd() { return this.end; }
-    public long getLength() { return end - start;}
+    public long getLength() { return end - start + 1;}
 
     public boolean intersects(Interval interval) {
         return this.start < interval.getEnd()-1 && interval.getStart() < this.end-1;

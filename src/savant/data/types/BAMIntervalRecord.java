@@ -49,7 +49,7 @@ public class BAMIntervalRecord implements IntervalRecord {
 
         if (samRecord == null) throw new IllegalArgumentException("samRecord must not be null");
 
-        this.interval = Interval.valueOf(samRecord.getAlignmentStart(), samRecord.getAlignmentEnd()+1);
+        this.interval = Interval.valueOf(samRecord.getAlignmentStart(), samRecord.getAlignmentEnd());
         this.samRecord = samRecord;
         //this.type = type;
 

@@ -88,11 +88,9 @@ public final class ItemRGB {
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder();
-        sb.append("ItemRGB");
-        sb.append("{red=").append(red);
+        sb.append("red=").append(red);
         sb.append(", blue=").append(blue);
         sb.append(", green=").append(green);
-        sb.append('}');
         return sb.toString();
     }
 }

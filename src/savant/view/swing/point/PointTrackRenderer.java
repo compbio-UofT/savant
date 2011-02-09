@@ -80,10 +80,10 @@ public class PointTrackRenderer extends TrackRenderer {
 
                 savant.data.types.Point sp = ((PointRecord)record).getPoint();
 
-                Point2D.Double p1 = new Point2D.Double(gp.transformXPos(sp.getPosition()),0);
-                Point2D.Double p2 = new Point2D.Double(gp.transformXPos(sp.getPosition()+1),0);
-                Point2D.Double p3 = new Point2D.Double(gp.transformXPos(sp.getPosition()+1),gp.getHeight());
-                Point2D.Double p4 = new Point2D.Double(gp.transformXPos(sp.getPosition()),gp.getHeight());
+                Point2D.Double p1 = new Point2D.Double(gp.transformXExclusive(sp.getPosition()),0);
+                Point2D.Double p2 = new Point2D.Double(gp.transformXExclusive(sp.getPosition()+1),0);
+                Point2D.Double p3 = new Point2D.Double(gp.transformXExclusive(sp.getPosition()+1),gp.getHeight());
+                Point2D.Double p4 = new Point2D.Double(gp.transformXExclusive(sp.getPosition()),gp.getHeight());
 
                 p.addPoint((int)p1.x, (int)p1.y);
                 p.addPoint((int)p2.x, (int)p2.y);

@@ -105,7 +105,6 @@ public class BEDTrackRenderer extends TrackRenderer {
 
         AxisRange axisRange = (AxisRange)instructions.get(DrawingInstruction.AXIS_RANGE);
         ColorScheme cs = (ColorScheme)instructions.get(DrawingInstruction.COLOR_SCHEME);
-        Color linecolor = cs.getColor("Line");
 
         IntervalPacker packer = new IntervalPacker(data);
         // TODO: when it becomes possible, choose an appropriate number for breathing room parameter
@@ -165,7 +164,6 @@ public class BEDTrackRenderer extends TrackRenderer {
         }
         Color lineColor = cs.getColor("Line");
 
-        int startXPos = (int)gp.transformXPos(interval.getStart());
 
         boolean isInsertion = false;
 
@@ -174,7 +172,7 @@ public class BEDTrackRenderer extends TrackRenderer {
         if(interval.getLength() == 0){
 
             g2.setColor(Color.white);
-            int xCoordinate = (int)gp.transformXPos(interval.getStart());
+            int xCoordinate = (int)gp.transformXExclusive(interval.getStart());
             int yCoordinate = (int)(gp.transformYPos(0)-((level + 1)*unitHeight)) + 1;
             if((int)unitWidth/3 < 4 || (int)(unitHeight/2) < 6){
                 yCoordinate = yCoordinate - 1;
@@ -219,6 +217,9 @@ public class BEDTrackRenderer extends TrackRenderer {
             }
         }
 
+        int startXPos = (int)gp.transformXExclusive(interval.getStart());
+        int endXPos = (int) gp.transformXInclusive(interval.getEnd());
+
         if (drawName) {
             Rectangle2D nameRect = g2.getFont().getStringBounds(geneName, g2.getFontRenderContext());
             double topMargin = (unitHeight - nameRect.getHeight());
@@ -231,19 +232,19 @@ public class BEDTrackRenderer extends TrackRenderer {
         // draw a line in the middle, the full length of the interval
         int yPos = (int) (gp.transformYPos(level)-unitHeight/2);
         g2.setColor(lineColor);
-        g2.drawLine(startXPos, yPos, startXPos + (int)gp.getWidth(interval.getLength()), yPos);
+        g2.drawLine(startXPos, yPos, endXPos, yPos);
 
-        Area area = new Area(new Line2D.Double(startXPos, yPos, startXPos + (int)gp.getWidth(interval.getLength()), yPos));
+        Area area = new Area(new Line2D.Double(startXPos, yPos, endXPos, yPos));
 
         // for each block, draw a rectangle
         List<Block> blocks = bedRecord.getBlocks();
-        double chevronIntervalStart = gp.transformXPos(interval.getStart());
+        double chevronIntervalStart = gp.transformXExclusive(interval.getStart());
 
         for (Block block : blocks) {
 
             chevronIntervalStart = Math.max(chevronIntervalStart, 0);
 
-            double x = gp.transformXPos(interval.getStart() + block.getPosition());
+            double x = gp.transformXExclusive(interval.getStart() + block.getPosition());
             double y = gp.transformYPos(level)-unitHeight;
 
             double chevronIntervalEnd = x;
@@ -406,7 +407,7 @@ public class BEDTrackRenderer extends TrackRenderer {
 
                 Interval interval = bedRecord.getInterval();
 
-                int startXPos = (int)gp.transformXPos(interval.getStart());
+                int startXPos = (int)gp.transformXExclusive(interval.getStart());
 
                 //If length is 0, draw insertion rhombus.
                 if(interval.getLength() == 0){
@@ -493,7 +494,7 @@ public class BEDTrackRenderer extends TrackRenderer {
         double x, y, w, h;
         for (Interval block: blocks) {
             if (block.getLength() == 0) continue;
-            x = gp.transformXPos(block.getStart());
+            x = gp.transformXExclusive(block.getStart());
             y = gp.transformYPos(level)-gp.getUnitHeight();
             w = gp.getWidth(block.getLength());
             h = gp.getUnitHeight();
@@ -516,7 +517,7 @@ public class BEDTrackRenderer extends TrackRenderer {
         double unitWidth = gp.getUnitWidth();
 
         g2.setColor(Color.white);
-        int xCoordinate = (int)gp.transformXPos(interval.getStart());
+        int xCoordinate = (int)gp.transformXExclusive(interval.getStart());
         int yCoordinate = (int)(gp.transformYPos(0)-((level + 1)*unitHeight)) + 1;
         if((int)unitWidth/3 < 4 || (int)(unitHeight/2) < 6){
             yCoordinate = yCoordinate - 1;

@@ -73,6 +73,7 @@ public class DataFormatForm extends JDialog {
         // in the future
         checkbox_tempOut.setVisible(false);
 
+
         //checkbox_chooseBase.setVisible(false);
 
         formatDescriptionTextArea = this.textarea_formatDescription;
@@ -198,8 +199,7 @@ public class DataFormatForm extends JDialog {
             }
         });
 
-        checkbox_chooseBase.setSelected(true);
-        checkbox_chooseBase.setText("Input file is 1-based");
+        checkbox_chooseBase.setText("Input file is 0-based");
         checkbox_chooseBase.setToolTipText("Checked for 1-based; unchecked for 0-based.");
         checkbox_chooseBase.setEnabled(false);
         checkbox_chooseBase.addActionListener(new java.awt.event.ActionListener() {
@@ -229,18 +229,18 @@ public class DataFormatForm extends JDialog {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 366, Short.MAX_VALUE)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 450, Short.MAX_VALUE)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(textfield_inPath, javax.swing.GroupLayout.DEFAULT_SIZE, 315, Short.MAX_VALUE)
+                        .addComponent(textfield_inPath, javax.swing.GroupLayout.DEFAULT_SIZE, 398, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(button_openInPath))
                     .addComponent(jLabel1)
                     .addComponent(jLabel2)
                     .addComponent(jLabel4)
-                    .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 366, Short.MAX_VALUE)
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 450, Short.MAX_VALUE)
                     .addComponent(button_format, javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(textfield_outPath, javax.swing.GroupLayout.DEFAULT_SIZE, 315, Short.MAX_VALUE)
+                        .addComponent(textfield_outPath, javax.swing.GroupLayout.DEFAULT_SIZE, 398, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(button_openOutFile))
                     .addGroup(layout.createSequentialGroup()
@@ -361,22 +361,13 @@ public class DataFormatForm extends JDialog {
         File infile = new File(textfield_inPath.getText());
         File outfile = new File(textfield_outPath.getText());
         FileType ft = formatTypeMap.get(formats.get(list_formats.getSelectedIndex()));
-        boolean isInputOneBased = checkbox_chooseBase.isSelected();
+        boolean isInputOneBased = !checkbox_chooseBase.isSelected();
         
         DataFormatter df = new DataFormatter(infile, outfile, ft, isInputOneBased);
         FormatFrame fpd = new FormatFrame(df);
         fpd.setLocationRelativeTo(this);
         fpd.setVisible(true);
         this.dispose();
-
-        // make sure the user can't interact with anything while formatting
-        //this.textfield_inPath.setEnabled(false);
-        //this.textfield_outPath.setEnabled(false);
-        //this.button_openInPath.setEnabled(false);
-        //this.button_openOutFile.setEnabled(false);
-        //this.list_formats.setEnabled(false);
-
-        //formatTask.execute();
 
     }//GEN-LAST:event_button_formatActionPerformed
 
@@ -391,24 +382,8 @@ public class DataFormatForm extends JDialog {
     private void list_formatsValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_list_formatsValueChanged
         this.setOutputPath(this.textfield_inPath.getText());
         validateReadyToFormat();
-
-//        String ff = (String) ((JList) evt.getSource()).getSelectedValue();
-//        System.out.println(ff);
-//        if (ff.equals("BAM Coverage")) {
-//            this.button_openOutFile.setEnabled(false);
-//        } else {
-//            this.button_openOutFile.setEnabled(true);
-//        }
     }//GEN-LAST:event_list_formatsValueChanged
 
-    /*
-    public void cancelFormatTask() {
-        if (formatTask != null) formatTask.cancel(true);
-        setVisible(false);
-        DataFormatForm.this.getParent().requestFocus();
-    }
-     * 
-     */
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton button_format;
@@ -441,7 +416,7 @@ public class DataFormatForm extends JDialog {
                         LOG.info(index + " picked");
                         formatDescriptionTextArea.setText(formatDescriptionMap.get(formats.get(index)));
 
-                        checkbox_chooseBase.setSelected(defaultBases.get(index));
+                        checkbox_chooseBase.setSelected(!defaultBases.get(index));
                         checkbox_chooseBase.setEnabled(canChooseBaseStatus.get(index));
                     }
                     //checkbox_chooseBase.setVisible(canChooseBaseStatus.get(index));
@@ -478,11 +453,11 @@ public class DataFormatForm extends JDialog {
         return formatTypeMap.get(formats.get(list_formats.getSelectedIndex()));
     }
 
-    private void addFormat(String fname, boolean defaultIsOneBase, boolean canChooseBase, FileType ft, String fdescription) {
+    private void addFormat(String fname, boolean defaultIsZeroBased, boolean canChooseBase, FileType ft, String fdescription) {
         formats.add(fname);
         formatTypeMap.put(fname, ft);
         formatDescriptionMap.put(fname, fdescription);
-        defaultBases.add(defaultIsOneBase);
+        defaultBases.add(defaultIsZeroBased);
         canChooseBaseStatus.add(canChooseBase);
     }
 

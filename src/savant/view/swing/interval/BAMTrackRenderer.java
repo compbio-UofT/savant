@@ -627,8 +627,8 @@ public class BAMTrackRenderer extends TrackRenderer {
         double arrowWidth = unitHeight/4;
 
         // cutoffs to determine when not to draw
-        double leftMostX = gp.transformXPos(range.getFrom());
-        double rightMostX = gp.transformXPos(range.getTo()) + unitWidth;
+        double leftMostX = gp.transformXExclusive(range.getFrom());
+        double rightMostX = gp.transformXExclusive(range.getTo()) + unitWidth;
 
         boolean drawPoint = false;
         //y = gp.transformYPos(0) - (level + 1)*unitHeight;
@@ -643,7 +643,7 @@ public class BAMTrackRenderer extends TrackRenderer {
             drawPoint = true;
         }
         h = unitHeight;
-        x = gp.transformXPos(interval.getStart());
+        x = gp.transformXExclusive(interval.getStart());
 
         // cut off x and w so no drawing happens off-screen
 //        double x2 = Math.min(rightMostX, x+w);
@@ -696,8 +696,8 @@ public class BAMTrackRenderer extends TrackRenderer {
         unitWidth = gp.getUnitWidth();
         
         // cutoffs to determine when not to draw
-        double leftMostX = gp.transformXPos(range.getFrom());
-        double rightMostX = gp.transformXPos(range.getTo()) + unitWidth;
+        double leftMostX = gp.transformXExclusive(range.getFrom());
+        double rightMostX = gp.transformXExclusive(range.getTo()) + unitWidth;
 
         // visualize variations (indels and mismatches)
         int alignmentStart = samRecord.getAlignmentStart();
@@ -711,7 +711,7 @@ public class BAMTrackRenderer extends TrackRenderer {
             alpha = alpha < minTransparency ? minTransparency : alpha;
             alpha = alpha > maxTransparency ? maxTransparency : alpha;
 
-            int xCoordinate = (int)gp.transformXPos(sequenceCursor);
+            int xCoordinate = (int)gp.transformXExclusive(sequenceCursor);
              Rectangle2D.Double opRect = new Rectangle2D.Double(xCoordinate,
                                     gp.transformYPos(0)-((level + 1)*unitHeight) - offset,
                                     unitWidth,
@@ -787,9 +787,9 @@ public class BAMTrackRenderer extends TrackRenderer {
                     g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                     g2.setColor(Color.white);
                     if (revstrand) {
-                        xCoordinate = (int)gp.transformXPos(samRecord.getAlignmentEnd() - cursor + operatorLength + 1);
+                        xCoordinate = (int)gp.transformXExclusive(samRecord.getAlignmentEnd() - cursor + operatorLength + 1);
                     } else {
-                        xCoordinate = (int)gp.transformXPos(samRecord.getAlignmentStart() + cursor);
+                        xCoordinate = (int)gp.transformXExclusive(samRecord.getAlignmentStart() + cursor);
                     }
                     yCoordinate = (int)(gp.transformYPos(0)-((level + 1)*unitHeight)) + 1 - offset;
                     if((int)unitWidth/3 < 4 || (int)(unitHeight/2) < 6){
@@ -818,9 +818,9 @@ public class BAMTrackRenderer extends TrackRenderer {
                         int askForIndex = i - deladvance + insadvance;
 
                         if (revstrand) {
-                            xCoordinate = (int) gp.transformXPos(samRecord.getAlignmentEnd() - i - deladvance + insadvance);
+                            xCoordinate = (int) gp.transformXExclusive(samRecord.getAlignmentEnd() - i - deladvance + insadvance);
                         } else {
-                            xCoordinate = (int) gp.transformXPos(samRecord.getAlignmentStart() + i + deladvance - insadvance);
+                            xCoordinate = (int) gp.transformXExclusive(samRecord.getAlignmentStart() + i + deladvance - insadvance);
                         }
                         yCoordinate = (int) (gp.transformYPos(0)-((level)*unitHeight) - offset);
 
@@ -879,9 +879,9 @@ public class BAMTrackRenderer extends TrackRenderer {
                 deladvance += operatorLength;
                 if (operator == CigarOperator.D) {
                     if (revstrand) {
-                        xCoordinate = (int) gp.transformXPos(samRecord.getAlignmentEnd() - cursor - operatorLength + 1);
+                        xCoordinate = (int) gp.transformXExclusive(samRecord.getAlignmentEnd() - cursor - operatorLength + 1);
                     } else {
-                        xCoordinate = (int) gp.transformXPos(samRecord.getAlignmentStart() + cursor);
+                        xCoordinate = (int) gp.transformXExclusive(samRecord.getAlignmentStart() + cursor);
                     }
                         yCoordinate = (int) (gp.transformYPos(0)-((level)*unitHeight) - offset);
                         Rectangle.Double rect = new Rectangle.Double(xCoordinate, yCoordinate - unitHeight, unitWidth*operatorLength, unitHeight);
@@ -904,8 +904,8 @@ public class BAMTrackRenderer extends TrackRenderer {
         //unitHeight = intervalHeight;
 
         // cutoffs to determine when not to draw
-        double leftMostX = gp.transformXPos(range.getFrom());
-        double rightMostX = gp.transformXPos(range.getTo()) + unitWidth;
+        double leftMostX = gp.transformXExclusive(range.getFrom());
+        double rightMostX = gp.transformXExclusive(range.getTo()) + unitWidth;
 
         // visualize variations (indels and mismatches)
         int alignmentStart = samRecord.getAlignmentStart();
@@ -927,7 +927,7 @@ public class BAMTrackRenderer extends TrackRenderer {
             operator = cigarElement.getOperator();
             Rectangle2D.Double opRect = null;
 
-            double opStart = gp.transformXPos(sequenceCursor);
+            double opStart = gp.transformXExclusive(sequenceCursor);
             double opWidth = gp.getWidth(operatorLength);
 
             // cut off start and width so no drawing happens off-screen, must be done in the order w, then x, since w depends on first value of x
@@ -952,7 +952,7 @@ public class BAMTrackRenderer extends TrackRenderer {
             else if (operator == CigarOperator.I) {
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 g2.setColor(Color.white);
-                int xCoordinate = (int)gp.transformXPos(sequenceCursor);
+                int xCoordinate = (int)gp.transformXExclusive(sequenceCursor);
                 int yCoordinate = (int)(gp.transformYPos(0)-((level + 1)*unitHeight)) + 1 - offset;
                 if((int)unitWidth/3 < 4 || (int)(unitHeight/2) < 6){
                     yCoordinate = yCoordinate - 1;
@@ -1005,7 +1005,7 @@ public class BAMTrackRenderer extends TrackRenderer {
                             else if (base.equals("T")) {
                                 mismatchColor = ColourSettings.getT();
                             }
-                            double xCoordinate = gp.transformXPos(sequenceCursor+i);
+                            double xCoordinate = gp.transformXExclusive(sequenceCursor+i);
                             double width = gp.getUnitWidth();
                             if (width < 1) width = 1;
                             opRect = new Rectangle2D.Double(xCoordinate,
@@ -1073,8 +1073,8 @@ public class BAMTrackRenderer extends TrackRenderer {
         //unitHeight = intervalHeight;
 
         // cutoffs to determine when not to draw
-        double leftMostX = gp.transformXPos(range.getFrom());
-        double rightMostX = gp.transformXPos(range.getTo()) + unitWidth;
+        double leftMostX = gp.transformXExclusive(range.getFrom());
+        double rightMostX = gp.transformXExclusive(range.getTo()) + unitWidth;
 
         // visualize variations (indels and mismatches)
         int alignmentStart = samRecord.getAlignmentStart();
@@ -1096,7 +1096,7 @@ public class BAMTrackRenderer extends TrackRenderer {
             operator = cigarElement.getOperator();
             Rectangle2D.Double opRect = null;
 
-            double opStart = gp.transformXPos(sequenceCursor);
+            double opStart = gp.transformXExclusive(sequenceCursor);
             double opWidth = gp.getWidth(operatorLength);
 
             // cut off start and width so no drawing happens off-screen, must be done in the order w, then x, since w depends on first value of x
@@ -1121,7 +1121,7 @@ public class BAMTrackRenderer extends TrackRenderer {
             else if (operator == CigarOperator.I) {
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 g2.setColor(Color.white);
-                int xCoordinate = (int)gp.transformXPos(sequenceCursor);
+                int xCoordinate = (int)gp.transformXExclusive(sequenceCursor);
                 int yCoordinate = (int)(gp.transformYPos(0)-((level + 1)*unitHeight)) + 1 - offset;
                 if((int)unitWidth/3 < 4 || (int)(unitHeight/2) < 6){
                     yCoordinate = yCoordinate - 1;
@@ -1174,7 +1174,7 @@ public class BAMTrackRenderer extends TrackRenderer {
                             else if (base.equals("T")) {
                                 mismatchColor = ColourSettings.getT();
                             }
-                            double xCoordinate = gp.transformXPos(sequenceCursor+i);
+                            double xCoordinate = gp.transformXExclusive(sequenceCursor+i);
                             double width = gp.getUnitWidth();
                             if (width < 1) width = 1;
                             opRect = new Rectangle2D.Double(xCoordinate,
@@ -1337,7 +1337,7 @@ public class BAMTrackRenderer extends TrackRenderer {
             int rectWidth = (int)(gp.getWidth(arcLength));
             int rectHeight = (int)(gp.getHeight(arcHeight*2));
 
-            int xOrigin = (int)(gp.transformXPos(intervalStart));
+            int xOrigin = (int)(gp.transformXExclusive(intervalStart));
             int yOrigin = (int)(gp.transformYPos(arcHeight));
 
             Arc2D.Double arc = new Arc2D.Double(xOrigin, yOrigin, rectWidth, rectHeight, -180, -180, Arc2D.OPEN);
@@ -1422,7 +1422,7 @@ public class BAMTrackRenderer extends TrackRenderer {
 
             while((genome.isSequenceSet() && p.getCoverage(snpNuc) > 0) || (snpNuc = p.getLargestNucleotide()) != null){
 
-                double x = gp.transformXPos(p.getPosition());
+                double x = gp.transformXExclusive(p.getPosition());
                 double coverage = p.getCoverage(snpNuc);
 
                 Color subPileColor = null;
