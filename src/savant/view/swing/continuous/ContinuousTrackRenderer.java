@@ -103,7 +103,7 @@ public class ContinuousTrackRenderer extends TrackRenderer {
             GenericContinuousRecord continuousRecord = (GenericContinuousRecord)data.get(i);
             xPos = continuousRecord.getPosition();
             yPos = continuousRecord.getValue().getValue();
-            xFormXPos = gp.transformXExclusive(xPos);//+gp.getUnitWidth()/2;
+            xFormXPos = gp.transformXPosExclusive(xPos);//+gp.getUnitWidth()/2;
             xFormYPos = gp.transformYPos(yPos);
             if (yPos > maxData) maxData = yPos;
             Rectangle2D rec = new Rectangle2D.Double(xFormXPos - ((xFormXPos-path.getCurrentPoint().getX())/2),0,Math.max(xFormXPos-path.getCurrentPoint().getX(), 1),gp.getHeight());
@@ -155,7 +155,7 @@ public class ContinuousTrackRenderer extends TrackRenderer {
 
     public static Shape continuousRecordToEllipse(GraphPane gp, Record o){
         GenericContinuousRecord rec = (GenericContinuousRecord) o;
-        Double x = gp.transformXExclusive(rec.getPosition()) + (gp.getUnitWidth()/2) -4;
+        Double x = gp.transformXPosExclusive(rec.getPosition()) + (gp.getUnitWidth()/2) -4;
         Double y = gp.transformYPos(rec.getValue().getValue()) -4;// + (this.getUnitWidth()/2);
         Shape s = new Ellipse2D.Double(x, y, 8, 8);
         return s;

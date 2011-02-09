@@ -84,7 +84,7 @@ public class SequenceTrackRenderer extends TrackRenderer {
 
         int len = sequence.length;
         for (int i = 0; i < len; i++) {
-            double x = gp.transformXExclusive(axisRange.getXMin()+i);
+            double x = gp.transformXPosExclusive(axisRange.getXMin()+i);
             double y = 0;//gp.transformYPos(1);
             double w = Math.ceil(gp.getUnitWidth());
             double h = gp.getUnitHeight();

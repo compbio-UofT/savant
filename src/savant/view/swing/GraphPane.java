@@ -742,13 +742,13 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
      * @param pos position in graph coordinates
      * @return a corresponding drawing coordinate
      */
-    public double transformXExclusive(long pos) {
+    public double transformXPosExclusive(long pos) {
         pos -= xMin;
         return pos * getUnitWidth();
     }
 
-    public double transformXInclusive(long pos) {
-        return transformXExclusive(pos+1);
+    public double transformXPosInclusive(long pos) {
+        return transformXPosExclusive(pos+1);
     }
 
     /**

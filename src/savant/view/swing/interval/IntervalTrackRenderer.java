@@ -104,7 +104,7 @@ public class IntervalTrackRenderer extends TrackRenderer {
                 Interval inter = ((IntervalRecord)record).getInterval();
 
 
-                double x = gp.transformXExclusive(inter.getStart());
+                double x = gp.transformXPosExclusive(inter.getStart());
                 double y = 0;
                 double w = unitWidth*inter.getLength();
                 double h = unitHeight;
@@ -149,7 +149,7 @@ public class IntervalTrackRenderer extends TrackRenderer {
                 int rectWidth = (int)(gp.getWidth(arcLength));
                 int rectHeight = (int)(gp.getHeight(arcHeight)*2);
 
-                int xOrigin = (int)(gp.transformXExclusive(inter.getStart()));
+                int xOrigin = (int)(gp.transformXPosExclusive(inter.getStart()));
                 int yOrigin = (int)(gp.transformYPos(arcHeight));
 
                 g2.setColor(bgcolor);
@@ -201,7 +201,7 @@ public class IntervalTrackRenderer extends TrackRenderer {
 
                 for (IntervalRecord intervalRecord : intervalsThisLevel) {
                     Interval interval = intervalRecord.getInterval();
-                    double x = gp.transformXExclusive(interval.getStart());
+                    double x = gp.transformXPosExclusive(interval.getStart());
                     double y = gp.transformYPos(k)-unitHeight;
                     double w = gp.getWidth(interval.getLength());
                     if (w < 1) continue; // don't draw intervals less than one pixel wide
