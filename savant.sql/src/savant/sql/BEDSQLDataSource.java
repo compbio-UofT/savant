@@ -28,7 +28,6 @@ import java.util.Map;
 import savant.api.adapter.RangeAdapter;
 import savant.data.types.BEDIntervalRecord;
 import savant.data.types.Block;
-import savant.data.types.Interval;
 import savant.file.DataFormat;
 import savant.sql.SQLDataSourcePlugin.Field;
 import savant.sql.Table.Column;
@@ -50,7 +49,10 @@ public class BEDSQLDataSource extends SQLDataSource<BEDIntervalRecord> {
     public List<BEDIntervalRecord> getRecords(String reference, RangeAdapter range, Resolution resolution) throws IOException {
         List<BEDIntervalRecord> result = new ArrayList<BEDIntervalRecord>();
         try {
-            ResultSet rs = table.executeQuery("SELECT * FROM %s WHERE %s = '%s' AND %s >= '%d' AND %s <= '%d'", table, columns.get(Field.CHROM), reference, columns.get(Field.START), range.getFrom(), columns.get(Field.END), range.getTo());
+            ResultSet rs = table.executeQuery("SELECT * FROM %s WHERE %s = '%s' AND ((%s >= '%d' AND %s <= '%d') OR (%s >= '%d' AND %s <= '%d') OR (%s < '%d' AND %s > '%d'))", table, columns.get(Field.CHROM), reference,
+                    columns.get(Field.START), range.getFrom(), columns.get(Field.START), range.getTo(),
+                    columns.get(Field.END), range.getFrom(), columns.get(Field.END), range.getTo(),
+                    columns.get(Field.START), range.getFrom(), columns.get(Field.END), range.getTo());
             while (rs.next()) {
                 List<Integer> blockStarts = extractBlocks(rs.getBlob(columns.get(Field.BLOCK_STARTS).name));
                 List<Integer> blockEnds = extractBlocks(rs.getBlob(columns.get(Field.BLOCK_ENDS).name));
@@ -61,19 +63,20 @@ public class BEDSQLDataSource extends SQLDataSource<BEDIntervalRecord> {
                 int start = rs.getInt(columns.get(Field.START).name);
                 List<Block> blocks = new ArrayList<Block>(blockStarts.size());
                 for (int i = 0; i < blockStarts.size(); i++) {
-                    blocks.add(new Block(blockStarts.get(i) - start, blockEnds.get(i) - blockStarts.get(i)));
+                    blocks.add(new Block(blockStarts.get(i) - start, blockEnds.get(i) - blockStarts.get(i) - 1));
                 }
 
                 Strand strand = rs.getString(columns.get(Field.STRAND).name).charAt(0) == '+' ? Strand.FORWARD : Strand.REVERSE;
-                result.add(new BEDIntervalRecord(reference,
-                                                 new Interval(start, rs.getInt(columns.get(Field.END).name)),
-                                                 rs.getString(columns.get(Field.NAME).name),
-                                                 rs.getFloat(columns.get(Field.SCORE).name),
-                                                 strand,
-                                                 rs.getInt(columns.get(Field.THICK_START).name),
-                                                 rs.getInt(columns.get(Field.THICK_END).name),
-                                                 null,
-                                                 blocks));
+                result.add(BEDIntervalRecord.valueOf(reference,
+                                                     start,
+                                                     rs.getInt(columns.get(Field.END).name) - 1,
+                                                     rs.getString(columns.get(Field.NAME).name),
+                                                     rs.getFloat(columns.get(Field.SCORE).name),
+                                                     strand,
+                                                     rs.getInt(columns.get(Field.THICK_START).name),
+                                                     rs.getInt(columns.get(Field.THICK_END).name) - 1,
+                                                     null,
+                                                     blocks));
             }
         } catch (SQLException sqlx) {
             LOG.error(sqlx);

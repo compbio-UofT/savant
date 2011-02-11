@@ -122,43 +122,44 @@ public class SQLDataSourcePlugin extends SavantDataSourcePlugin {
 
     @Override
     public DataSource getDataSource() throws Exception {
+        DataSource result = null;
         closeConnection();
 
-        // By default log in using the last-used URI.
+        // By default, log in using the last-used URI.
         uri = new URI(SettingsUtils.getString(this, URI_SETTING));
-        LoginDialog login = new LoginDialog(Savant.getInstance(), this);
-        login.setVisible(true);
+        tryToLogin(false);
 
+        // Connection will be null if user cancelled login dialog.
         if (connection != null) {
             getMappings();
 
             // Table will be null if user cancelled mapping dialog.
             if (table != null) {
-                switch (format) {
-                    case INTERVAL_BED:
-                        return new BEDSQLDataSource(table, mappings);
-                }
+                result = createCachedDataSource();
             }
         }
-        return null;
+        return result;
     }
 
     /**
      * Try to make a connection using the saved login info.  If that fails, put up
      * the login dialog.
      */
-    private void tryToLogin() throws ClassNotFoundException, SQLException {
+    private void tryToLogin(boolean silent) throws ClassNotFoundException, SQLException {
         driverName = SettingsUtils.getString(this, DRIVER_NAME_SETTING);
         userName = SettingsUtils.getString(this, USER_SETTING);
         password = SettingsUtils.getPassword(this, PASSWORD_SETTING);
 
-        // If possible, open the database connection without a dialog.
-        try {
-            getConnection();
-        } catch (Exception ignored) {
-            LoginDialog login = new LoginDialog(Savant.getInstance(), this);
-            login.setVisible(true);
+        if (silent) {
+            // If possible, open the database connection without a dialog.
+            try {
+                getConnection();
+                return;
+            } catch (Exception ignored) {
+            }
         }
+        LoginDialog login = new LoginDialog(Savant.getInstance(), this);
+        login.setVisible(true);
     }
 
 
@@ -227,6 +228,7 @@ public class SQLDataSourcePlugin extends SavantDataSourcePlugin {
 
     @Override
     public DataSource getDataSource(URI uri) {
+        DataSource result = null;
         if (uri.getScheme().equals("jdbc")) {
             try {
                 closeConnection();
@@ -241,7 +243,7 @@ public class SQLDataSourcePlugin extends SavantDataSourcePlugin {
 
                 // Try to log in to the given URI using credentials from the
                 this.uri = new URI(uriString.substring(0, penultimateSlash));
-                tryToLogin();
+                tryToLogin(true);
 
                 if (connection != null) {
                     table = new Table(tableName, new Database(dbName, this.uri, userName, password));
@@ -251,17 +253,14 @@ public class SQLDataSourcePlugin extends SavantDataSourcePlugin {
                     }
 
                     if (mappings != null) {
-                        switch (format) {
-                            case INTERVAL_BED:
-                                return new BEDSQLDataSource(table, mappings);
-                        }
+                        result = createCachedDataSource();
                     }
                 }
             } catch (Exception x) {
                 LOG.warn("SQLDataSourcePlugin unable to open " + uri, x);
             }
         }
-        return null;
+        return result;
     }
 
     @Override
@@ -292,6 +291,24 @@ public class SQLDataSourcePlugin extends SavantDataSourcePlugin {
             connection.close();
             connection = null;
         }
+    }
+
+    /**
+     * Everything is set up to create the new data source.  Do it.
+     * @return
+     * @throws SQLException
+     */
+    private DataSource createCachedDataSource() throws SQLException {
+        DataSource result = null;
+        switch (format) {
+            case INTERVAL_BED:
+                result = new BEDSQLDataSource(table, mappings);
+                break;
+        }
+        if (result != null) {
+            result = new RecordCachingDataSource(result);
+        }
+        return result;
     }
 
     /**
