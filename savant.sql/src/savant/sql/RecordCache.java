@@ -19,6 +19,8 @@ package savant.sql;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -57,7 +59,7 @@ public class RecordCache<E extends Record> {
         List<RangeAdapter> missing = getMissingRanges(range);
         for (RangeAdapter r: missing) {
             List<E> subFetch = source.getRecords(reference, r, resolution);
-            LOG.info("Fetched " + subFetch.size() + " records from DataSource for " + r);
+            LOG.debug("Fetched " + subFetch.size() + " records from DataSource for " + r);
 
             if (subFetch.size() > 0) {
                 if (rootNode == null) {
@@ -75,8 +77,13 @@ public class RecordCache<E extends Record> {
             }
         }
 
-        LOG.info("Assembling records for " + range);
-        return rootNode != null ? rootNode.getRecords(range) : new ArrayList<E>();
+        if (rootNode != null) {
+            LOG.debug("Assembling records for " + range);
+            List<E> result = rootNode.getRecords(range);
+            rootNode.postProcess(result, range);
+            return result;
+        }
+        return new ArrayList<E>();
     }
 
     /**
@@ -183,10 +190,16 @@ public class RecordCache<E extends Record> {
                     }
                 }
                 result.addAll(data);
-                LOG.info("   assembled " + data.size() + " records from " + range);
+                LOG.debug("   assembled " + data.size() + " records from " + range);
                 return result;
             }
             return null;
+        }
+
+        /**
+         * Give derived classes an opportunity to filter and sort the results.
+         */
+        void postProcess(List<E> result, RangeAdapter r) {
         }
 
         /**
@@ -199,7 +212,7 @@ public class RecordCache<E extends Record> {
                     recordDump += " (" + ((IntervalRecord)rec).getInterval() + ")";
                 }
             }
-            LOG.info(header + range + " had " + recordDump);
+            LOG.debug(header + range + " had " + recordDump);
             if (children != null) {
                 for (CacheNode<E> child: children) {
                     child.dump(header + "   ");
@@ -247,7 +260,7 @@ public class RecordCache<E extends Record> {
                         spanningTo = Math.max(spanningTo, child.range.getTo());
                         accumulatedSpanningRecords.addAll(spanningRecords);
                         spanningChildren.add(child);
-                        LOG.info("Found " + spanningRecords.size() + " spanning records, pushing them from " + child.range + " up to " + spanningFrom + "-" + spanningTo);
+                        LOG.debug("Found " + spanningRecords.size() + " spanning records, pushing them from " + child.range + " up to " + spanningFrom + "-" + spanningTo);
                     }
                 }
                 if (spanningChildren.size() > 0) {
@@ -255,7 +268,7 @@ public class RecordCache<E extends Record> {
                     // the insertion of a new parent.
                     if (spanningFrom > range.getFrom() || spanningTo < range.getTo()) {
                         // New range differs from our current range.  Insert a new parent.
-                        LOG.info("Inserting new parent with range " + spanningFrom + "-" + spanningTo + ", " + spanningChildren.size() + " children, and " + accumulatedSpanningRecords.size() + " records.");
+                        LOG.debug("Inserting new parent with range " + spanningFrom + "-" + spanningTo + ", " + spanningChildren.size() + " children, and " + accumulatedSpanningRecords.size() + " records.");
                         children.removeAll(spanningChildren);
                         IntervalCacheNode<E> newParent = new IntervalCacheNode<E>(RangeUtils.createRange(spanningFrom, spanningTo), accumulatedSpanningRecords);
                         children.add(newParent);
@@ -263,13 +276,48 @@ public class RecordCache<E extends Record> {
                         newParent.children.add(newChild);
                     } else {
                         // Let's just push these records into the current parent.
-                        LOG.info("No new parent, just adding 1 child and " + accumulatedSpanningRecords.size() + " records to " + range);
+                        LOG.debug("No new parent, just adding 1 child and " + accumulatedSpanningRecords.size() + " records to " + range);
                         data.addAll(accumulatedSpanningRecords);
                         children.add(newChild);
                     }
                 }
             }
             span = null;
+        }
+
+        /**
+         * Build up a list of records for the given range.
+         *
+         * @param r
+         * @return
+         */
+        @Override
+        void postProcess(List<E> result, RangeAdapter r) {
+            if (result != null) {
+                List<E> outOfRange = new ArrayList<E>();
+                for (E rec: result) {
+                    if (!((IntervalRecord)rec).getInterval().intersectsRange(r)) {
+                        outOfRange.add(rec);
+                    }
+                }
+                result.removeAll(outOfRange);
+                LOG.debug("Reduced to " + result.size() + " records after pruning range.");
+                Collections.sort(result, new Comparator() {
+                    @Override
+                    public int compare(Object o1, Object o2) {
+                        Interval i1 = ((IntervalRecord)o1).getInterval();
+                        Interval i2 = ((IntervalRecord)o2).getInterval();
+
+                        if (i1.getStart() < i2.getStart()) {
+                            return -1;
+                        } else if (i1.getStart() > i2.getStart()) {
+                            return 1;
+                        } else {
+                            return 0;
+                        }
+                    }
+                });
+            }
         }
 
         private RangeAdapter getSpan() {
@@ -289,7 +337,7 @@ public class RecordCache<E extends Record> {
                     }
                 }
                 span = RangeUtils.createRange(min, max);
-                LOG.info("For " + range + " data-span was " + foo + ", child-span was " + span);
+                LOG.debug("For " + range + " data-span was " + foo + ", child-span was " + span);
             }
             return span;
         }

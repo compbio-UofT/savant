@@ -62,7 +62,7 @@ abstract class SQLDataSource<E extends Record> implements DataSource<E> {
 
     @Override
     public String getName() {
-        return "SQL Datasource";
+        return getURI().toString();
     }
 
     @Override
