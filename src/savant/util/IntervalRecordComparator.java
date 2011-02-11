@@ -1,5 +1,5 @@
 /*
- *    Copyright 2010 University of Toronto
+ *    Copyright 2010-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -16,26 +16,28 @@
 
 package savant.util;
 
-import savant.data.types.IntervalRecord;
-import savant.util.Range;
-
 import java.util.Comparator;
+import savant.data.types.Interval;
+
+import savant.data.types.IntervalRecord;
+
 
 /**
  * Comparator to sort intervals by their left position.
  * 
  * @author mfiume
  */
-public class IntervalRecordComparator implements Comparator{
+public class IntervalRecordComparator implements Comparator<IntervalRecord> {
 
-    public int compare(Object o1, Object o2){
+    @Override
+    public int compare(IntervalRecord o1, IntervalRecord o2) {
 
-        Range r1 = ((IntervalRecord) o1).getInterval().getRange();
-        Range r2 = ((IntervalRecord) o2).getInterval().getRange();
+        Interval i1 = o1.getInterval();
+        Interval i2 = o2.getInterval();
 
-        if (r1.getFrom() < r2.getFrom()) {
+        if (i1.getStart() < i2.getStart()) {
             return -1;
-        } else if (r1.getFrom() > r2.getFrom()) {
+        } else if (i1.getStart() > i2.getStart()) {
             return 1;
         } else {
             return 0;

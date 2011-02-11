@@ -1,8 +1,5 @@
 /*
- * GenericIntervalRecord.java
- * Created on Jan 8, 2010
- *
- *    Copyright 2010 University of Toronto
+ *    Copyright 2010-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -19,14 +16,14 @@
 package savant.data.types;
 
 import java.util.ArrayList;
-
 import java.util.List;
 import java.util.StringTokenizer;
 
+
 /**
- * Immutable class to represent one line of a BED file and all the fields therein.
+ * Immutable class to represent an interval record pulled from a Tabix file.
  * 
- * @author mfiume, vwilliams
+ * @author mfiume
  */
 public final class TabixIntervalRecord implements IntervalRecord {
 
@@ -34,14 +31,10 @@ public final class TabixIntervalRecord implements IntervalRecord {
     private final String chrom;
     private final List<String> otherFields;
 
-    public TabixIntervalRecord(String s) {
-        this(s,0,1,2);
-    }
-
     /**
      * Constructor. Clients should use static factory method valueOf() instead.
      */
-    public TabixIntervalRecord(String s, int chrIndex, int startIndex, int endIndex) {
+    TabixIntervalRecord(String s, int chrIndex, int startIndex, int endIndex) {
         StringTokenizer st = new StringTokenizer(s);
         int numTokens = st.countTokens();
         
@@ -77,6 +70,13 @@ public final class TabixIntervalRecord implements IntervalRecord {
      */
     public static TabixIntervalRecord valueOf(String s, int chrIndex, int startIndex, int endIndex) {
         return new TabixIntervalRecord(s, chrIndex, startIndex, endIndex);
+    }
+
+    /**
+     * Static factory method to construct a TabixIntervalRecord
+     */
+    public static TabixIntervalRecord valueOf(String s) {
+        return new TabixIntervalRecord(s, 0, 1, 2);
     }
 
     @Override

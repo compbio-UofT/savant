@@ -556,7 +556,7 @@ public class SavantFileFormatterUtils {
             }
         }
 
-        long intervallength = new Interval(start,end).getLength();
+        long intervallength = Interval.valueOf(start,end).getLength();
         if (numFields > 5) { strand = SavantFileFormatterUtils.getStrand((String) record.get(5)); }
         // TODO: #306 The next two fields should really be Longs, not Integers.
         if (numFields > 6) { thickStart = (Integer)record.get(6); }

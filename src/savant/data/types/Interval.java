@@ -1,5 +1,5 @@
 /*
- *    Copyright 2009-2010 University of Toronto
+ *    Copyright 2009-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -15,10 +15,13 @@
  */
 package savant.data.types;
 
-import savant.util.Range;
+import savant.api.adapter.RangeAdapter;
+
 
 /**
- * Immutable value class to represent an abstract interval.
+ * Immutable value class to represent an abstract interval.  Between versions 1.2
+ * and 1.4.2 of Savant, intervals were half-open, excluding the end-point.  In version
+ * 1.4.3, we reverted to the old semantics, where Intervals were always closed.
  *
  * @author mfiume, vwilliams
  */
@@ -34,7 +37,7 @@ public final class Interval {
      * @param start
      * @param end
      */
-    public Interval(long start, long end) {
+    Interval(long start, long end) {
         this.start = start;
         this.end = end;
     }
@@ -50,18 +53,24 @@ public final class Interval {
         return new Interval(start, end);
     }
 
-    public long getStart() { return this.start; }
-    public long getEnd() { return this.end; }
+    public long getStart() { return start; }
+    public long getEnd() { return end; }
     public long getLength() { return end - start + 1;}
 
-    public boolean intersects(Interval interval) {
-        return this.start < interval.getEnd()-1 && interval.getStart() < this.end-1;
+    // TODO: Make sure that this is actually the correct calculation when packing intervals.
+    public boolean intersects(Interval i2) {
+        return start < i2.end && i2.start < end;
     }
 
-    public Interval merge(Interval interval) {
-        if (interval.intersects(this)) {
-            return Interval.valueOf(this.start < interval.getStart() ? this.start : interval.getStart(),
-                                    this.end > interval.getEnd() ? this.end : interval.getEnd());
+
+    // TODO: Make sure this is actually the correct calculation when merging blocks.
+    public boolean intersectsOrAbuts(Interval i2) {
+        return start < i2.end - 1 && i2.start < end - 1;
+    }
+
+    public Interval merge(Interval i2) {
+        if (intersectsOrAbuts(i2)) {
+            return Interval.valueOf(Math.min(start, i2.start), Math.max(end, i2.end));
         }
         return this;
     }
@@ -92,7 +101,13 @@ public final class Interval {
 
     }
 
-    public Range getRange() {
-        return new Range(this.start, this.end);
+    /**
+     * Calculate the intersection between this Interval and a Range.
+     *
+     * @param r the range to be compared against
+     * @return true if this Interval intersects with r
+     */
+    public boolean intersectsRange(RangeAdapter r) {
+        return start <= r.getTo() && end >= r.getFrom();
     }
 }

@@ -44,10 +44,12 @@ public class GenericIntervalRecord implements IntervalRecord {
         return new GenericIntervalRecord(reference, interval, description);
     }
 
+    @Override
     public String getReference() {
         return reference;
     }
 
+    @Override
     public Interval getInterval() {
         return this.interval;
     }

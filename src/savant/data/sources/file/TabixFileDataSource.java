@@ -115,7 +115,7 @@ public class TabixFileDataSource extends TabixDataSource {
             if (i != null) {
                 String n = null;
                 while ((n = i.next()) != null) {
-                    result.add(new TabixIntervalRecord(n));
+                    result.add(TabixIntervalRecord.valueOf(n));
                 }
             }
         } catch (IOException ex) {

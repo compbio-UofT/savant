@@ -447,7 +447,7 @@ public class BAMTrackRenderer extends TrackRenderer {
                         }
 
 
-                    Polygon readshape = renderRead(g2, gp, cs, samRecord, new Interval(samRecord.getAlignmentStart(), samRecord.getAlignmentEnd()), level, range, readcolor);
+                    Polygon readshape = renderRead(g2, gp, cs, samRecord, intervalRecord.getInterval(), level, range, readcolor);
 
                     this.recordToShapeMap.put(intervalRecord, readshape);
 

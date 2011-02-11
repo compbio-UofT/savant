@@ -102,19 +102,13 @@ public class IntervalPacker {
 
     }
 
-    public boolean intersects(Interval i1, Interval i2) {
-        // FIXME: i think this should be i1.getStart() < i2.getEnd()-1 && i2.getStart() < i1.getEnd()-1;
-        return i1.getStart() < i2.getEnd() && i2.getStart() < i1.getEnd();
-    }
-
     private boolean intersectsOne(List<Interval> intervalList, Interval inter, int gap) {
-        for (Interval i1 : intervalList) {
-            if (intersects(i1,inter)) {
+        for (Interval i2 : intervalList) {
+            if (i2.intersects(inter)) {
                 return true;
-            }
-            else {
+            } else {
                 // check for breathing room
-                if ((Math.abs(inter.getStart() - i1.getEnd()) < gap) || (Math.abs(i1.getStart() - inter.getEnd()) < 5)) {
+                if ((Math.abs(inter.getStart() - i2.getEnd()) < gap) || (Math.abs(i2.getStart() - inter.getEnd()) < 5)) {
                     return true; // not enough space between the intervals
 
                 }

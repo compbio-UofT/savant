@@ -475,7 +475,7 @@ public class BEDTrackRenderer extends TrackRenderer {
                 boolean merged = false;
                 while (intervalIt.hasNext() && !merged) {
                     Interval interval = intervalIt.next();
-                    if (blockInterval.intersects(interval)) {
+                    if (blockInterval.intersectsOrAbuts(interval)) {
                         intervalIt.set(blockInterval.merge(interval));
                         merged = true;
                     }
