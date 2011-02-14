@@ -1,5 +1,5 @@
 /*
- *    Copyright 2010 University of Toronto
+ *    Copyright 2010-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -16,7 +16,10 @@
 
 package savant.format;
 
-import java.io.*;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -25,8 +28,8 @@ import savant.file.FileType;
 import savant.file.FieldType;
 import savant.util.MiscUtils;
 
-public class WIGFormatter extends SavantFileFormatter {
 
+public class WIGFormatter extends SavantFileFormatter {
     private static final int RECORDS_PER_INTERRUPT_CHECK = 100;
 
     public WIGFormatter(File inFile, File outFile) {
@@ -173,7 +176,7 @@ public class WIGFormatter extends SavantFileFormatter {
                         this.fillWithZeros(nextWrite,dest,outfile);
                         float val = Float.parseFloat(tokens[1]);
                         for (int i = 0; i < span; i++){
-                            System.out.println("writing:\t" + val);
+                            LOG.debug("writing:\t" + val);
                             outfile.writeFloat(val);
                         }
                         nextWrite = dest + span;
