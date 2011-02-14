@@ -1,8 +1,4 @@
 /*
- * IndexCache.java
- * Created on Aug 4, 2010
- *
- *
  *    Copyright 2010-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
@@ -32,16 +28,15 @@ import savant.settings.DirectorySettings;
 import savant.util.MiscUtils;
 import savant.util.NetworkUtils;
 
+
 /**
  * Singleton class to manage a cache of indices for remote files.
  *
  * @author vwilliams
  */
 public class IndexCache {
-
     private static final Log LOG = LogFactory.getLog(IndexCache.class);
-
-    private static int BUF_SIZE = 8 * 1024; // 8K is optimal size for HTTP transfer
+    private static final int BUF_SIZE = 8 * 1024; // 8K is optimal size for HTTP transfer
     
     private static IndexCache instance;
 
@@ -62,9 +57,16 @@ public class IndexCache {
 
     private IndexCache() {}
 
+    /**
+     * Get the local index file corresponding to the given URI.
+     *
+     * @param uri the URI for which we're providing the index
+     * @param extension index extension ("bai" or "tbi")
+     * @param alternate alternate index extension ("bam" or "gz")
+     */
     public File getIndex(URI uri, String extension, String alternate) throws IOException {
 
-        String indexURLString = uri.toString() + extension;
+        String indexURLString = uri.toString() + "." + extension;
         URL indexURL = new URL(indexURLString);
         String hash = null;
 
@@ -78,7 +80,7 @@ public class IndexCache {
         if (hash == null) {
             // File doesn't exist, try alternate.  If it doesn't exist, an exception
             // will be thrown.
-            indexURLString = uri.toString().replace(alternate, extension);
+            indexURLString = uri.toString().replace("." + alternate, "." + extension);
             indexURL = new URL(indexURLString);
             hash = NetworkUtils.getHash(indexURL);
         }
@@ -151,11 +153,11 @@ public class IndexCache {
     private synchronized String getIndexFileName(String url, String indexURL) {
         String indexFilename = getIndexForURL(url);
         if (indexFilename == null) {
-            String extension = MiscUtils.getExtension(indexFilename);
-            indexFilename = indexFilename.substring(0,indexFilename.lastIndexOf("."));
+            String extension = MiscUtils.getExtension(indexURL);
+            indexFilename = indexURL.substring(0,indexURL.lastIndexOf("."));
             int offset = indexURL.lastIndexOf("/");
             String name = indexURL.substring(offset+1);
-            indexFilename = name + System.currentTimeMillis() + extension;
+            indexFilename = name + System.currentTimeMillis() + "." + extension;
             setIndexForURL(indexFilename, url);
         }
         return indexFilename;
