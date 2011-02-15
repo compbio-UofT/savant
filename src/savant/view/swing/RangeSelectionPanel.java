@@ -28,6 +28,7 @@ import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.awt.image.BufferedImageOp;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -197,6 +198,11 @@ public class RangeSelectionPanel extends JPanel implements MouseListener, MouseM
         repaint();
     }
 
+ private AlphaComposite makeComposite(float alpha) {
+    int type = AlphaComposite.SRC_OVER;
+    return(AlphaComposite.getInstance(type, alpha));
+ }
+
 // handle event when user moves mouse
     public void mouseMoved(final MouseEvent event) {
         //this.mousePos.setText( "At [" + event.getX() + "]" );
@@ -220,17 +226,30 @@ public class RangeSelectionPanel extends JPanel implements MouseListener, MouseM
         Image image_bar_selected_glossy = null;
         Image image_left_cap = null;
         Image image_right_cap = null;
+        Image image_dnabg = null;
 
         try {
             image_bar_unselected_glossy = javax.imageio.ImageIO.read(getClass().getResource("/savant/images/bar_unselected_glossy.PNG"));
             image_bar_selected_glossy = javax.imageio.ImageIO.read(getClass().getResource("/savant/images/bar_selected_glossy.png"));
             image_left_cap = javax.imageio.ImageIO.read(getClass().getResource("/savant/images/round_cap_left_bordered.png"));
             image_right_cap = javax.imageio.ImageIO.read(getClass().getResource("/savant/images/round_cap_right_bordered.png"));
+            image_dnabg = javax.imageio.ImageIO.read(getClass().getResource("/savant/images/dnabg.png"));
         } catch (IOException e) {}
 
-        // draw background
-        g.drawImage(image_bar_unselected_glossy, 0,0,this.getWidth(),this.getHeight(),this);
+        
+        int dnawidth = 40;//image_dnabg.getWidth(this);
+        int repeatdnatimes = this.getWidth()/dnawidth + 1;
+        for (int i = 0; i < repeatdnatimes; i++) {
+            g.drawImage(image_dnabg, i*dnawidth,0,dnawidth,this.getHeight(),this);
+        }
 
+        // draw background
+        Graphics2D g2d = (Graphics2D) g;
+        Composite originalComposite = g2d.getComposite();
+        g2d.setComposite(makeComposite(0.75F));
+        g.drawImage(image_bar_unselected_glossy, 0,0,this.getWidth(),this.getHeight(),this);
+        g2d.setComposite(originalComposite);
+        
         int width = this.x1 - this.x2;
         int height = this.getHeight();// this.y1 - this.y2;
 
@@ -247,7 +266,9 @@ public class RangeSelectionPanel extends JPanel implements MouseListener, MouseM
         if (this.isDragging) {
 
             // draw selected region
+            g2d.setComposite(makeComposite(0.5F));
             g.drawImage(image_bar_selected_glossy, this.x,this.y,this.w,this.h,this);
+            g2d.setComposite(originalComposite);
 
             g.setColor(new Color(100, 100, 100));
             g.drawRect(
@@ -262,9 +283,13 @@ public class RangeSelectionPanel extends JPanel implements MouseListener, MouseM
             long endrange = rc.getRangeEnd();
             int startx = MiscUtils.transformPositionToPixel(startrange, this.getWidth(), rc.getMaxRange());
             int endx = MiscUtils.transformPositionToPixel(endrange, this.getWidth(), rc.getMaxRange());
-            int widpixels = Math.max(2, endx-startx);
+            int widpixels = Math.max(5, endx-startx);
 
+            //Graphics2D g2d = (Graphics2D) g;
+            //Composite originalComposite = g2d.getComposite();
+            g2d.setComposite(makeComposite(0.5F));
             g.drawImage(image_bar_selected_glossy, startx,this.y,widpixels,this.h,this);
+            g2d.setComposite(originalComposite);
 
             g.setColor(new Color(100, 100, 100));
             g.drawRect(

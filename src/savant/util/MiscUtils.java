@@ -66,9 +66,22 @@ public class MiscUtils {
      * @param num The number to format
      * @return A formatted string
      */
-    public static String numToString(long num) {
+     public static String numToString(float num) {
+         return numToString(num,0);
+     }
+
+    public static String numToString(float num, int significantdigits) {
         //TODO: implement formatter
-        DecimalFormat df = new DecimalFormat("###,###");
+        String formatString = "###,###";
+
+        if (significantdigits > 0) {
+            formatString += ".";
+            for (int i = 0; i < significantdigits; i++) {
+                formatString += "#";
+            }
+        }
+
+        DecimalFormat df = new DecimalFormat(formatString);
         return df.format(num);
     }
 
@@ -215,17 +228,45 @@ public class MiscUtils {
     }
 
     public static String posToShortString(long genomepos) {
+        return posToShortString(genomepos,0);
+    }
+
+     public static String posToShortString(long separation, long genomepos) {
+
+         int backdigits = (int) Math.floor(Math.log10(separation));
+         int significantdigits = 0;
+
+         float gp = ((float) genomepos);
+         float quotient;
+
+         if ((quotient = gp / 1000000000) > 1) {
+            significantdigits = 9-backdigits;
+        } else if ((quotient = gp / 1000000) > 1) {
+            significantdigits = 6-backdigits;
+        } else if ((quotient = gp / 1000) > 1) {
+            significantdigits = 3-backdigits;
+        } else {
+            significantdigits = 0;
+        }
+
+        return posToShortString(genomepos,significantdigits);
+
+     }
+
+    public static String posToShortString(long genomepos, int significantdigits) {
         String mousePos;
 
-        long quotient;
-        if ((quotient = genomepos / 1000000000) > 1) {
-            mousePos = MiscUtils.numToString(quotient) + " G";
-        } else if ((quotient = genomepos / 1000000) > 1) {
-            mousePos = MiscUtils.numToString(quotient) + " M";
-        } else if ((quotient = genomepos / 1000) > 1) {
-            mousePos = MiscUtils.numToString(quotient) + " K";
+        float gp = ((float) genomepos);
+
+        float quotient;
+        if ((quotient =  gp / 1000000000) > 1) {
+            mousePos = MiscUtils.numToString(quotient,significantdigits) + " G";
+        } else if ((quotient = gp / 1000000) > 1) {
+            mousePos = MiscUtils.numToString(quotient,significantdigits) + " M";
+        } else if ((quotient = gp / 1000) > 1) {
+            mousePos = MiscUtils.numToString(quotient,significantdigits) + " K";
         } else {
-            mousePos = MiscUtils.numToString(genomepos) + "";
+            mousePos = MiscUtils.numToString(gp,significantdigits) + "";
         }
 
         return mousePos;

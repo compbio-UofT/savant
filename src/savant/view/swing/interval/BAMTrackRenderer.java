@@ -359,7 +359,7 @@ public class BAMTrackRenderer extends TrackRenderer {
         System.out.println("Found " + mates.size() + " mates from " + data.size() + " alignments");
 
         IntervalPacker packer = new IntervalPacker(mates);
-        ArrayList<List<IntervalRecord>> intervals = packer.pack(10);
+        ArrayList<List<IntervalRecord>> intervals = packer.pack(2);
 
         /*
         int levelnum = 0;
@@ -474,7 +474,7 @@ public class BAMTrackRenderer extends TrackRenderer {
         IntervalPacker packer = new IntervalPacker(data);
         // TODO: when it becomes possible, choose an appropriate number for breathing room parameter
 //        Map<Integer, ArrayList<IntervalRecord>> intervals = packer.pack(10);
-        ArrayList<List<IntervalRecord>> intervals = packer.pack(10);
+        ArrayList<List<IntervalRecord>> intervals = packer.pack(2);
 
         gp.setIsOrdinal(false);
         gp.setXRange(axisRange.getXRange());
@@ -725,6 +725,7 @@ public class BAMTrackRenderer extends TrackRenderer {
 
     private void renderColorMismatches(Graphics2D g2, GraphPane gp, SAMRecord samRecord, int level, byte[] refSeq, Range range) {
 
+
          // colours
         String colors = samRecord.getStringAttribute("CS");
         String readseq = samRecord.getReadString();
@@ -742,6 +743,13 @@ public class BAMTrackRenderer extends TrackRenderer {
         } else {
             modreadseq = colors.charAt(0) + readseq.trim();
         }
+
+
+        System.out.println(samRecord.getReadName());
+        System.out.println(colors);
+        System.out.println(modreadseq);
+        System.out.println(new String(refSeq));
+
 
         if (colors == null || colors.equals("")) { return; }
 
@@ -829,10 +837,16 @@ public class BAMTrackRenderer extends TrackRenderer {
                                 || (!revstrand && ((askForIndex + samRecord.getAlignmentStart() - 2*insadvance) <= range.getTo() + 1))
                                 )) {
 
+                            System.out.println("index: " + askForIndex);
+                            System.out.println(modreadseq.charAt(i) + "-" + colors.charAt(i + clipOffset) + ">" + this.translateColor(modreadseq.charAt(i), colors.charAt(i + clipOffset)));
+                            System.out.println("expected " + getColor(modreadseq.charAt(i),modreadseq.charAt(i+1)) + " got " + colors.charAt(i + clipOffset));
+
                             if (getColor(modreadseq.charAt(i),modreadseq.charAt(i+1)) != colors.charAt(i + clipOffset)) {
 
                                 Rectangle.Double rect = new Rectangle.Double(xCoordinate, yCoordinate - unitHeight, unitWidth, unitHeight);
                                 Color fillcol;
+                                
+                                
                                 switch (this.translateColor(modreadseq.charAt(i), colors.charAt(i + clipOffset))) {
                                     case 'A':
                                         fillcol = ColourSettings.getA();

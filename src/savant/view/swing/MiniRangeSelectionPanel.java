@@ -278,12 +278,16 @@ public class MiniRangeSelectionPanel extends JPanel implements MouseListener, Mo
         try {
 
             Image image = javax.imageio.ImageIO.read(getClass().getResource("/savant/images/bar_selected_glossy.png"));
+            Composite originalComposite = ((Graphics2D) g).getComposite();
+            ((Graphics2D) g).setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.75F));
             g.drawImage(image, 0,0,this.getWidth(),this.getHeight(),this);
+            ((Graphics2D) g).setComposite(originalComposite);
         } catch (Exception e) {
             System.err.println("Error drawing image background");
         }
 
         int numseparators = (int) Math.ceil(Math.log(this.maximum-this.minimum));
+        long genomicSeparation = (this.maximum-this.minimum)/numseparators;
 
         if (numseparators != 0) {
             int width = this.getWidth();
@@ -292,9 +296,13 @@ public class MiniRangeSelectionPanel extends JPanel implements MouseListener, Mo
             int minstringseparation = 200;
             int skipstring = (int) Math.round(minstringseparation / barseparation);
 
+            int startbarsfrom = MiscUtils.transformPositionToPixel(
+                    (long) (Math.floor((RangeController.getInstance().getRange().getFrom()/genomicSeparation))*genomicSeparation),
+                    width, (RangeController.getInstance()).getRange());
+
             for (int i = 0; i <= numseparators; i++) {
                 g2.setColor(new Color(50,50,50,50)); //BrowserDefaults.colorAxisGrid);
-                int xOne = (int)Math.ceil(i*barseparation)+1;
+                int xOne = startbarsfrom + (int)Math.ceil(i*barseparation)+1;
                 int xTwo = xOne;
                 int yOne = this.getHeight();
                 int yTwo = 0;
@@ -310,7 +318,8 @@ public class MiniRangeSelectionPanel extends JPanel implements MouseListener, Mo
                         } else {
                             a = MiscUtils.transformPixelToPosition(xOne, width, (RangeController.getInstance()).getRange());
                         }
-                        g2.drawString(MiscUtils.numToString(a), (float) (xOne + 3), (float) ((this.getHeight()*0.5)+3));
+
+                        g2.drawString(MiscUtils.posToShortString(genomicSeparation,a), (float) (xOne + 3), (float) ((this.getHeight()*0.5)+3));
                     }
                 } else {
                     g2.setColor(Color.black);

@@ -616,12 +616,16 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
 
             if (numseparators != 0) {
                 int width = this.getWidth();
-                double separation = width / numseparators;
+                double pixelSeparation = width / numseparators;
+                long genomicSeparation = (xMax-xMin)/numseparators;
 
+                int startbarsfrom = MiscUtils.transformPositionToPixel(
+                    (long) (Math.floor(RangeController.getInstance().getRange().getFrom()/genomicSeparation)*genomicSeparation),
+                    width, (RangeController.getInstance()).getRange());
 
                 g2.setColor(ColourSettings.getAxisGrid());
                 for (int i = 0; i <= numseparators; i++) {
-                    g2.drawLine((int)Math.ceil(i*separation)+1, this.getHeight(), (int) Math.ceil(i*separation)+1, 0);
+                    g2.drawLine(startbarsfrom + (int)Math.ceil(i*pixelSeparation)+1, this.getHeight(), startbarsfrom + (int) Math.ceil(i*pixelSeparation)+1, 0);
                 }
             }
         }
@@ -629,6 +633,8 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         if (this.isYGridOn) {
 
             int numseparators = (int) Math.ceil(Math.log(yMax-yMin));
+
+
 
             if (numseparators != 0) {
                 int height = this.getHeight();

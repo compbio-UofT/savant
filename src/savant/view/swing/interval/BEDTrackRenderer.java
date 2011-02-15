@@ -109,7 +109,7 @@ public class BEDTrackRenderer extends TrackRenderer {
         IntervalPacker packer = new IntervalPacker(data);
         // TODO: when it becomes possible, choose an appropriate number for breathing room parameter
 //        Map<Integer, ArrayList<IntervalRecord>> intervals = packer.pack(10);
-        ArrayList<List<IntervalRecord>> intervals = packer.pack(10);
+        ArrayList<List<IntervalRecord>> intervals = packer.pack(2);
 
         gp.setIsOrdinal(false);
         gp.setXRange(axisRange.getXRange());
