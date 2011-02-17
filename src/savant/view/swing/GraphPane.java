@@ -25,6 +25,7 @@ import java.util.Map;
 import javax.swing.*;
 
 import com.jidesoft.popup.JidePopup;
+import java.util.ArrayList;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -33,6 +34,8 @@ import savant.controller.GraphPaneController;
 import savant.controller.ReferenceController;
 import savant.controller.event.GraphPaneChangeEvent;
 import savant.controller.event.GraphPaneChangeListener;
+import savant.data.event.ExportEvent;
+import savant.data.event.ExportEventListener;
 import savant.data.types.GenericContinuousRecord;
 import savant.data.types.Record;
 import savant.exception.RenderingException;
@@ -128,6 +131,9 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
 
     private enum keyModifier { DEFAULT, CTRL, SHIFT, META, ALT; };
     private keyModifier keyMod = keyModifier.DEFAULT;
+
+    //awaiting exported images
+    private final List<ExportEventListener> listeners = new ArrayList<ExportEventListener>();
 
     /**
      * CONSTRUCTOR
@@ -260,7 +266,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         boolean sameRange = (prevRange != null && xRange.equals(prevRange));
         boolean sameMode = ((currentMode == null && prevDrawMode == null) ||
                 (prevDrawMode != null && currentMode.equals(prevDrawMode)));
-        boolean sameSize = (prevSize != null && this.getSize().equals(prevSize) && 
+        boolean sameSize = (prevSize != null && this.getSize().equals(prevSize) &&
                 this.parentFrame.getFrameLandscape().getWidth() == oldWidth &&
                 this.getParentFrame().getFrameLandscape().getHeight() == oldHeight);
         boolean sameRef = prevRef != null && ReferenceController.getInstance().getReferenceName().equals(prevRef);
@@ -277,7 +283,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         //if nothing has changed draw buffered image
         if(sameRange && sameMode && sameSize && sameRef && !renderRequired && withinScrollBounds){
             g.drawImage(bufferedImage, 0, getOffset(), this);
-            
+
             if(this.currentOverShape != null){
                 //temporarily shift the origin
                 ((Graphics2D)g).translate(0, getOffset());
@@ -398,6 +404,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
              */
 
             g.drawImage(bufferedImage, 0, getOffset(), this);
+            this.fireExportReady(xRange, bufferedImage);
         }
         renderCurrentSelected(g);
         parentFrame.redrawSidePanel();
@@ -473,7 +480,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
     }
 
     int rendercount = 0;
-    
+
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -513,7 +520,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
 
         /* PANNING ADJUSTMENTS */
         if (gpc.isPanning()) {}
-        
+
         /* ZOOMING ADJUSTMENTS */
         else if (gpc.isZooming() || gpc.isSelecting()) {
 
@@ -553,7 +560,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
             long center = gpc.getMouseXPosition();
             long left = center - gpc.getSpotlightSize()/2;
             long right = left + gpc.getSpotlightSize();
-            
+
             g.setColor(new Color(0,0,0,200));
 
             int xt = MiscUtils.transformPositionToPixel(left, this.getWidth(), this.getHorizontalPositionalRange());
@@ -569,7 +576,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
                 g.fillRect(pix, 0, this.getWidth()-pix, this.getHeight());
             }
         }
-        
+
         if (isLocked()) {
             drawMessage((Graphics2D)g, "Locked");
         }
@@ -923,9 +930,9 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
     public void mousePressed( final MouseEvent event ) {
 
         setMouseModifier(event);
-        
+
         this.requestFocus();
-        
+
         int x1 = event.getX();
         if (x1 < 0) { x1 = 0; }
         if (x1 > this.getWidth()) { x1 = this.getWidth(); }
@@ -933,7 +940,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         baseX = MiscUtils.transformPixelToPosition(x1, this.getWidth(), this.getHorizontalPositionalRange());
         //initialScroll = ((JScrollPane)this.getParent().getParent()).getVerticalScrollBar().getValue();
         initialScroll = ((JScrollPane)this.getParent().getParent().getParent()).getVerticalScrollBar().getValue();
-        
+
         Point l = event.getLocationOnScreen();
         startX = l.x;
         startY = l.y;
@@ -954,7 +961,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
     public void mouseReleased( final MouseEvent event ) {
 
         GraphPaneController gpc = GraphPaneController.getInstance();
-        
+
         int x2 = event.getX();
         if (x2 < 0) { x2 = 0; }
         if (x2 > this.getWidth()) { x2 = this.getWidth(); }
@@ -964,7 +971,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         int x1 = MiscUtils.transformPositionToPixel(gpc.getMouseDragRange().getFrom(), this.getWidth(), this.getHorizontalPositionalRange());
 
         if (gpc.isPanning()) {
-            
+
             if(!panVert){
                 RangeController rc = RangeController.getInstance();
                 Range r = rc.getRange();
@@ -1302,7 +1309,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
 
     /**
      * Draw an informational message on top of this GraphPane.
-     * 
+     *
      * @param g2 the graphics to be rendered
      * @param message text of the message to be displayed
      */
@@ -1373,4 +1380,25 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         String maxPlotString = " ymax=" + yMax + " ";
         yMaxPanel.setText(maxPlotString);
     }
+
+    public void addExportEventListener(ExportEventListener eel){
+        synchronized (listeners) {
+            listeners.add(eel);
+        }
+    }
+
+    public void removeExportListener(ExportEventListener eel){
+        synchronized (listeners) {
+            listeners.remove(eel);
+        }
+    }
+
+    public void fireExportReady(Range range, BufferedImage image){
+        int size = listeners.size();
+        for (int i = 0; i < size; i++){
+            listeners.get(i).exportCompleted(new ExportEvent(range, image));
+            size = listeners.size(); //a listener may get removed
+        }
+    }
+
 }
