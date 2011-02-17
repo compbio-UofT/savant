@@ -21,16 +21,14 @@
 package savant.export;
 
 import java.awt.event.MouseEvent;
+import savant.data.event.ExportEvent;
 import savant.plugin.PluginAdapter;
-
 import javax.swing.*;
 import savant.plugin.SavantPanelPlugin;
-
 import java.awt.*;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.io.BufferedWriter;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -43,21 +41,39 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import savant.api.adapter.RangeAdapter;
 import savant.controller.BookmarkController;
-import savant.settings.DirectorySettings;
 import savant.util.Bookmark;
 import savant.util.Range;
 import savant.view.swing.GraphPane;
 import savant.view.swing.Track;
 import savant.controller.FrameController;
+import savant.controller.RangeController;
 import savant.controller.ReferenceController;
+import savant.data.event.ExportEventListener;
 import savant.swing.component.PathField;
 import savant.view.swing.Frame;
 
 public class ExportPlugin extends SavantPanelPlugin {
 
+    //interface
     private PathField pf;
+    private JLabel outputLabel;
+
+    //file string
+    private String baseFolder = "";
     private String baseFile = "";
     private String indexFile = "";
+    
+    //export variables
+    private int currentBookmark;
+    private int numBookmarks;
+    private int numFrames;
+    private int framesDone;
+    private List<Bookmark> bookmarks;
+    private BufferedImage[] images;
+
+    //these will be stored to return to later
+    private String currentReference;
+    private Range currentRange;
 
     @Override
     public void init(JPanel canvas, PluginAdapter pluginAdapter) {
@@ -96,12 +112,12 @@ public class ExportPlugin extends SavantPanelPlugin {
         panel.add(fill1, gbc);
 
         //create path chooser
-        JLabel htmlLabel = new JLabel("<html>Choose file to save html index.<br>The index displays links to each saved file.</html>");
+        JLabel htmlLabel = new JLabel("<html>Choose folder to save files.<br>An html index file will be created here.</html>");
         gbc.gridwidth = 2;
         gbc.gridx = 1;
         gbc.gridy = 1;
         panel.add(htmlLabel, gbc);
-        pf = new PathField(JFileChooser.OPEN_DIALOG, false, false);
+        pf = new PathField(JFileChooser.OPEN_DIALOG, false, true);
         gbc.gridx = 1;
         gbc.gridy = 2;
         panel.add(pf, gbc);
@@ -132,6 +148,14 @@ public class ExportPlugin extends SavantPanelPlugin {
         gbc.gridy = 3;
         panel.add(runButton, gbc);
 
+        //create output label
+        outputLabel = new JLabel();
+        Font f = outputLabel.getFont();
+        outputLabel.setFont(f.deriveFont(f.getStyle() ^ Font.BOLD));
+        gbc.gridx = 2;
+        gbc.gridy = 3;
+        panel.add(outputLabel, gbc);
+
         //create padding
         JPanel fill2 = new JPanel();
         fill2.setPreferredSize(new Dimension(10,10));
@@ -149,171 +173,172 @@ public class ExportPlugin extends SavantPanelPlugin {
         gbc.gridx = 0;
         gbc.gridy = 4;
         panel.add(fill3, gbc);
-        
-    
     }
 
     public void runTool() throws InterruptedException {
 
+        //store current location
+        currentReference = ReferenceController.getInstance().getReferenceName();
+        currentRange = RangeController.getInstance().getRange();
+    
         //output init
-        indexFile = pf.getPath();
-        if(indexFile.equals("")){
-            //this.getOutputStream().println("html index file required.");
+        baseFolder = pf.getPath();
+        if(baseFolder.equals("")){
+            outputLabel.setText("     Please enter a filename for index.");
             return;
         }
-        //this.getOutputStream().println("Using index file: " + indexFile);
+
         DateFormat dateFormat = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss");
         Date date = new Date();
-        baseFile = dateFormat.format(date);
-       // this.getOutputStream().println("Base filename: " + baseFile);
-        this.initIndex();
-
-        
-
-        List<Bookmark> bookmarks = BookmarkController.getInstance().getBookmarks();
-        //Frame frames = FrameController.getInstance().getFrames().get(0);
-        //List<Track> tracks = TrackController.getInstance().getTracks();
-        //List<Frame> frames1 = FrameController.getInstance().getFrames();
-
-        if(bookmarks.isEmpty() || FrameController.getInstance().getFrames().isEmpty()){
-            //this.getOutputStream().println("No bookmarks or tracks loaded.");
+        baseFile =  baseFolder + System.getProperty("file.separator") + dateFormat.format(date);
+        indexFile = baseFile + ".html";
+        boolean createdIndex = this.initIndex();
+        if(!createdIndex){
+            endRun(false);
             return;
         }
 
-        for(int i = 0; i < bookmarks.size(); i++){
 
-           // this.getOutputStream().print("Exporting bookmark: " + (i + 1) + " of " + bookmarks.size());
-
-            //bookmark info
-            Bookmark bm = bookmarks.get(i);
-            String reference = bm.getReference();
-            //Range range = bm.getRange();
-            RangeAdapter rangeAd = bm.getRange();
-            Range range = new Range(rangeAd.getFrom(), rangeAd.getTo());
-            String annotation = bm.getAnnotation();
-
-            //for output
-            int totalWidth = 0;
-            int totalHeight = 45;
-            List<BufferedImage> images = new ArrayList<BufferedImage>();
-
-            for(int j = 0; j < FrameController.getInstance().getFrames().size(); j++){
-
-                //discard initial tracks if there are more than 1
-                Frame frame = FrameController.getInstance().getFrames().get(j);
-                if(frame.getTracks().length > 1){
-                    for(int k = 0; k < frame.getTracks().length - 1; k++){
-                        try {
-                            frame.getTracks()[k].prepareForRendering(reference, range);
-                        } catch (Throwable ex) {
-                            Logger.getLogger(ExportPlugin.class.getName()).log(Level.SEVERE, null, ex);
-                        }
-                        Graphics g = new BufferedImage(1,1,BufferedImage.TYPE_INT_RGB).createGraphics();
-                        frame.getGraphPane().render(g, range);
-                    }
-                }
-
-                //track info
-                Track t = frame.getTracks()[frame.getTracks().length -1];
-                GraphPane gp = frame.getGraphPane();
-
-
-
-                //prepare for rendering
-                if(!ReferenceController.getInstance().getReferenceName().equals(reference)){
-                    ReferenceController.getInstance().setReference(reference);
-                }
-                try {
-                    t.prepareForRendering(reference, range);
-                } catch (Throwable ex) {
-                    Logger.getLogger(ExportPlugin.class.getName()).log(Level.SEVERE, null, ex);
-                }
-
-                //create image
-                int width = gp.getWidth();
-                int height = gp.getHeight();
-                BufferedImage bufferedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-                Graphics2D g = bufferedImage.createGraphics();
-                Dimension dim = gp.render(g, range);
-                if(!dim.equals(new Dimension(width, height))){
-                    width = dim.width;
-                    height = dim.height;
-                    bufferedImage = new BufferedImage(dim.width, dim.height, BufferedImage.TYPE_INT_RGB);
-                    g = bufferedImage.createGraphics();
-                    gp.render(g, range);
-                }
-
-                //add file name
-                g.setColor(Color.black);
-                g.setFont(new Font(null, Font.BOLD, 13));
-                g.drawString(frame.getTracks()[0].getName(), 2, 15);
-
-                //modify out image size
-                totalHeight += height;
-                totalWidth = Math.max(totalWidth, width);
-
-                images.add(bufferedImage);
-
-            }
-
-            //create output image
-            BufferedImage out = new BufferedImage(totalWidth, totalHeight, BufferedImage.TYPE_INT_RGB);
-
-            //write range at top
-            long start = range.getFrom();
-            long end = range.getTo();
-            String toWrite = "Reference: " + reference + "    Range:  " + start + " - " + end;
-            if(!annotation.equals("")){
-                toWrite = toWrite + "    Annotation: " + annotation;
-            }
-            Graphics2D g = out.createGraphics();
-            g.setColor(Color.white);
-            g.setFont(new Font(null, Font.BOLD, 13));
-            g.drawString(toWrite, 2, 17);
-
-            //copy images to output image
-            int outX = 0;
-            int outY = 25;
-            for(int k = 0; k < images.size(); k++){
-                BufferedImage current = images.get(k);
-                for(int y = 0; y < current.getHeight(); y++){
-                    for(int x = 0; x < current.getWidth(); x++){
-                        int color = current.getRGB(x, y);
-                        out.setRGB(outX, outY, color);
-                        outX++;
-                    }
-                    outX = 0;
-                    outY++;
-                }
-            }
-
-            //write message at bottom
-            toWrite = "Generated using the Savant Genome Browser - http://compbio.cs.toronto.edu/savant/";
-            g.setColor(Color.white);
-            g.setFont(new Font(null, Font.BOLD, 10));
-            g.drawString(toWrite, 2, outY+14);
-
-            //save image
-            boolean success = save(out, i, bm);
-            if(!success){
-               // this.getOutputStream().println(" - Could not save!");
-            } else {
-             //   this.getOutputStream().println(" - Done");
-            }
-
+        //init bookmarks
+        bookmarks = BookmarkController.getInstance().getBookmarks();
+        if(bookmarks.isEmpty() || FrameController.getInstance().getFrames().isEmpty()){
+            outputLabel.setText("     There is nothing to export.");
+            return;
         }
-        this.closeIndex();
+
+        //store export info
+        numFrames = FrameController.getInstance().getFrames().size();
+        numBookmarks = bookmarks.size() -1;
+        currentBookmark = 0;
+
+        run();
     }
 
+    /*
+     * Update the progress of export
+     */
+    private void updateRunLabel(){
+        outputLabel.setText("     Running: " + (currentBookmark+1) + "/" + (numBookmarks+1));
+    }
+
+    private void run(){
+
+        updateRunLabel();
+
+        framesDone = 0;
+        images = new BufferedImage[numFrames];
+
+        final Bookmark bm = bookmarks.get(currentBookmark);
+        final String reference = bm.getReference();
+        RangeAdapter rangeAd = bm.getRange();
+        final Range range = new Range(rangeAd.getFrom(), rangeAd.getTo());
+        String annotation = bm.getAnnotation();
+
+        //TODO: multiple tracks per frame??
+        for(int i = 0; i < numFrames; i++){
+            final int index = i;
+            Frame frame = FrameController.getInstance().getFrames().get(i);
+
+            //track info
+            Track t = frame.getTracks()[0];
+            final GraphPane gp = frame.getGraphPane();
+
+            ExportEventListener eel = new ExportEventListener() {
+
+                @Override
+                public void exportCompleted(ExportEvent evt) {
+                    if(evt.getRange().equals(range)){
+                        images[index] = evt.getImage();
+                        gp.removeExportListener(this);
+                        nextBookmark();
+                    }
+                }
+            };
+            gp.addExportEventListener(eel);
+            
+        }
+        RangeController.getInstance().setRange(reference, range);
+    }
+
+    /*
+     * If another bookmark exists, begin exporting it
+     */
+    public void nextBookmark(){
+        framesDone++;
+        if(framesDone == numFrames){
+            createImage(images, currentBookmark, bookmarks.get(currentBookmark));
+            currentBookmark++;
+            if(currentBookmark > numBookmarks){
+                closeIndex();
+                return;
+            }
+            run();
+        }
+    }
+
+    public void createImage(BufferedImage[] images, int increment, Bookmark bm){
+
+        int totalWidth = 0;
+        int totalHeight = 45;
+        for(int i = 0; i <images.length; i++){
+            totalWidth = Math.max(totalWidth, images[i].getWidth());
+            totalHeight += images[i].getHeight();
+        }
+
+         //create output image
+        BufferedImage out = new BufferedImage(totalWidth, totalHeight, BufferedImage.TYPE_INT_RGB);
+
+        //write range at top
+        RangeAdapter range = bm.getRange();
+        long start = range.getFrom();
+        long end = range.getTo();
+        String toWrite = "Reference: " + bm.getReference() + "    Range:  " + start + " - " + end;
+        if(!bm.getAnnotation().equals("")){
+            toWrite = toWrite + "    Annotation: " + bm.getAnnotation();
+        }
+        Graphics2D g = out.createGraphics();
+        g.setColor(Color.white);
+        g.setFont(new Font(null, Font.BOLD, 13));
+        g.drawString(toWrite, 2, 17);
+
+        //copy images to output image
+        int outX = 0;
+        int outY = 25;
+        for(int k = 0; k < images.length; k++){
+            BufferedImage current = images[k];
+            for(int y = 0; y < current.getHeight(); y++){
+                for(int x = 0; x < current.getWidth(); x++){
+                    int color = current.getRGB(x, y);
+                    out.setRGB(outX, outY, color);
+                    outX++;
+                }
+                outX = 0;
+                outY++;
+            }
+        }
+
+        //write message at bottom
+        toWrite = "Generated using the Savant Genome Browser - http://genomesavant.com";
+        g.setColor(Color.white);
+        g.setFont(new Font(null, Font.BOLD, 10));
+        g.drawString(toWrite, 2, outY+14);
+
+        //save image
+        boolean success = save(out, increment, bm);
+        endRun(success);
+       
+    }
+    
     private boolean save(BufferedImage image, int increment, Bookmark bm){
-        String outputDir = DirectorySettings.getPluginsDirectory();
-        String fileSeparator = System.getProperty("file.separator");
-        String filename = outputDir + fileSeparator + this.baseFile + increment + ".png";
+        String filename = this.baseFile + increment + ".png";
+
+        File file = new File(filename);
         try {
             ImageIO.write(image, "PNG", new File(filename));
         } catch (IOException ex) {
             return false;
         }
+
         String reference = bm.getReference();
         //Range range = bm.getRange();
         RangeAdapter range = bm.getRange();
@@ -325,6 +350,7 @@ public class ExportPlugin extends SavantPanelPlugin {
     }
 
     private boolean initIndex(){
+        new File(baseFolder).mkdirs();
         try {
             BufferedWriter out = new BufferedWriter(new FileWriter(this.indexFile, false));
             String s = "<html>";
@@ -359,5 +385,17 @@ public class ExportPlugin extends SavantPanelPlugin {
         }
         return true;
     }
-    
+
+    private void endRun(boolean success){
+        //Return browser to original location
+        RangeController.getInstance().setRange(currentReference, currentRange);
+
+        //reset output
+        if(success){
+            outputLabel.setText("     Created file " + indexFile);
+        } else {
+            outputLabel.setText("     Export failed. Make sure output path is correct.");
+        }
+    }
+
 }
