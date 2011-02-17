@@ -135,8 +135,23 @@ public final class TabixIntervalRecord implements IntervalRecord {
         long a = this.getInterval().getStart();
         long b = other.getInterval().getStart();
         if(a == b){
-            return 0;
+            //return 0;
         } else if(a < b) return -1;
         else return 1;
+        
+        //compare other fields (for intervals in the exact same location)
+        if(this.otherFields.size() < other.otherFields.size()){
+            return -1;
+        } else if(this.otherFields.size() > other.otherFields.size()){
+            return 1;
+        }
+        for(int i = 0; i < this.otherFields.size(); i++){
+            int compare = this.otherFields.get(i).compareTo(other.otherFields.get(i));
+            if(compare == 0) continue;
+            return compare;
+        }
+
+        //all checks yield exact same value...give up and return equal
+        return 0;
     }
 }

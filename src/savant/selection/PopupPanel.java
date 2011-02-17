@@ -76,6 +76,9 @@ public class PopupPanel extends JPanel {
             case CONTINUOUS_GENERIC:
                 p = new ContinuousPopup((GenericContinuousRecord)rec);
                 break;
+            case TABIX:
+                p = new TabixPopup((TabixIntervalRecord)rec);
+                break;
             default:
                 break;
         }
