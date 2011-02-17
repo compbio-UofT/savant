@@ -620,7 +620,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
                 long genomicSeparation = (xMax-xMin)/numseparators;
 
                 int startbarsfrom = MiscUtils.transformPositionToPixel(
-                    (long) (Math.floor(RangeController.getInstance().getRange().getFrom()/genomicSeparation)*genomicSeparation),
+                    (long) (Math.floor(RangeController.getInstance().getRange().getFrom()/Math.max(1, genomicSeparation))*genomicSeparation),
                     width, (RangeController.getInstance()).getRange());
 
                 g2.setColor(ColourSettings.getAxisGrid());

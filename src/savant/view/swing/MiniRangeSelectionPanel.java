@@ -287,7 +287,7 @@ public class MiniRangeSelectionPanel extends JPanel implements MouseListener, Mo
         }
 
         int numseparators = (int) Math.ceil(Math.log(this.maximum-this.minimum));
-        long genomicSeparation = (this.maximum-this.minimum)/numseparators;
+        long genomicSeparation = (this.maximum-this.minimum)/Math.max(1, numseparators);
 
         if (numseparators != 0) {
             int width = this.getWidth();
@@ -297,7 +297,7 @@ public class MiniRangeSelectionPanel extends JPanel implements MouseListener, Mo
             int skipstring = (int) Math.round(minstringseparation / barseparation);
 
             int startbarsfrom = MiscUtils.transformPositionToPixel(
-                    (long) (Math.floor((RangeController.getInstance().getRange().getFrom()/genomicSeparation))*genomicSeparation),
+                    (long) (Math.floor((RangeController.getInstance().getRange().getFrom()/Math.max(1, genomicSeparation)))*genomicSeparation),
                     width, (RangeController.getInstance()).getRange());
 
             for (int i = 0; i <= numseparators; i++) {
