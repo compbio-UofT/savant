@@ -30,6 +30,7 @@ public final class TabixIntervalRecord implements IntervalRecord {
     private final Interval interval;
     private final String chrom;
     private final List<String> otherFields;
+    private int count = 0;
 
     /**
      * Constructor. Clients should use static factory method valueOf() instead.
@@ -114,6 +115,11 @@ public final class TabixIntervalRecord implements IntervalRecord {
         return true;
     }
 
+    //note: count is a made up to differentiate between intervals in same position
+    public void setCount(int count){
+        this.count = count;
+    }
+
     @Override
     public int compareTo(Object o) {
 
@@ -151,7 +157,15 @@ public final class TabixIntervalRecord implements IntervalRecord {
             return compare;
         }
 
-        //all checks yield exact same value...give up and return equal
+        //compare count
+        //note: count is a made up to differentiate between intervals in same position
+        if(this.count < other.count){
+            return -1;
+        } else if(this.count > other.count){
+            return 1;
+        }
+        
+        //all checks yield exact same value
         return 0;
     }
 }

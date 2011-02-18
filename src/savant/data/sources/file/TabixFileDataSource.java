@@ -114,8 +114,22 @@ public class TabixFileDataSource extends TabixDataSource {
             
             if (i != null) {
                 String n = null;
+                int count = 0;
+                long start = -1;
                 while ((n = i.next()) != null) {
-                    result.add(TabixIntervalRecord.valueOf(n));
+                    //Note: count is used to uniquely identify records in same location
+                    //Assumption is that iterator will always give records in same order
+                    TabixIntervalRecord tir = TabixIntervalRecord.valueOf(n);
+                    if(tir.getInterval().getStart() == start){
+                        count++;
+                        tir.setCount(count);
+                    } else {
+                        count = 0;
+                        start = tir.getInterval().getStart();
+                        tir.setCount(count);
+                    }                   
+                    result.add(tir);
+                    //result.add(TabixIntervalRecord.valueOf(n));
                 }
             }
         } catch (IOException ex) {
