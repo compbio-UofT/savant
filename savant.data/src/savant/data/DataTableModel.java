@@ -18,7 +18,6 @@ package savant.data;
 
 import java.util.List;
 import javax.swing.table.AbstractTableModel;
-
 import net.sf.samtools.SAMRecord;
 import savant.data.types.BAMIntervalRecord;
 import savant.data.types.BEDIntervalRecord;
@@ -27,6 +26,7 @@ import savant.data.types.GenericIntervalRecord;
 import savant.data.types.GenericPointRecord;
 import savant.data.types.Record;
 import savant.data.types.SequenceRecord;
+import savant.data.types.TabixIntervalRecord;
 
 import savant.file.DataFormat;
 
@@ -68,6 +68,9 @@ public class DataTableModel extends AbstractTableModel {
     protected Class[] continuousColumnClasses = { String.class, Integer.class, Double.class };
     protected String[] continuousColumnNames = { "Reference", "Position", "Value" };
 
+    protected Class[] tabixColumnClasses = { String.class, Integer.class, Integer.class };
+    protected String[] tabixColumnNames = { "Reference", "Start", "End" };
+
     protected List<Record> data;
 
     public DataTableModel(DataFormat dataType, List<Record> data) {
@@ -95,6 +98,9 @@ public class DataTableModel extends AbstractTableModel {
              case INTERVAL_BED:
                  columnNames = bedColumnNames;
                  break;
+             case TABIX:
+                 columnNames = tabixColumnNames;
+                 break;
              default:
                  assert false;
          }
@@ -117,6 +123,8 @@ public class DataTableModel extends AbstractTableModel {
                      return bamColumnNames[column];
                  case INTERVAL_BED:
                      return bedColumnNames[column];
+                 case TABIX:
+                     return tabixColumnNames[column];
                  default:
                      return "Unknown";
              }
@@ -144,6 +152,8 @@ public class DataTableModel extends AbstractTableModel {
                      return bamColumnClasses[column];
                  case INTERVAL_BED:
                      return bedColumnClasses[column];
+                 case TABIX:
+                     return tabixColumnClasses[column];
                  default:
                      return String.class;
              }
@@ -232,6 +242,16 @@ public class DataTableModel extends AbstractTableModel {
                      case 4:
                          return ((BEDIntervalRecord)datum).getBlocks().size();
                  }
+             case TABIX:
+                 switch(column) {
+                     case 0:
+                         return ((TabixIntervalRecord)datum).getReference();
+                     case 1:
+                         return ((TabixIntervalRecord)datum).getInterval().getStart();
+                     case 2:
+                         return ((TabixIntervalRecord)datum).getInterval().getEnd();
+                 }
+
              default:
                  return "?";
          }
@@ -333,6 +353,18 @@ public class DataTableModel extends AbstractTableModel {
 //                         ((BEDIntervalRecord) datum).setName((String) value);
                          break;
                      case 4:
+                         break;
+                 }
+             case TABIX:
+                 switch(column) {
+                     case 0:
+//                         ((BEDIntervalRecord) datum).setChrom((String) value);
+                         break;
+                     case 1:
+//                         ((BEDIntervalRecord) datum).getInterval().setStart(Integer.parseInt((String) value));
+                         break;
+                     case 2:
+//                         ((BEDIntervalRecord) datum).getInterval().setEnd(Integer.parseInt((String) value));
                          break;
                  }
              default:
