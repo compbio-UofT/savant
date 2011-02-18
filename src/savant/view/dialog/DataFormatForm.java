@@ -342,7 +342,7 @@ public class DataFormatForm extends JDialog {
             JFileChooser fd = new JFileChooser();
             fd.setDialogTitle("Output File");
             fd.setDialogType(JFileChooser.SAVE_DIALOG);
-            int result = fd.showOpenDialog(jf);
+            int result = fd.showSaveDialog(jf);
             if (result == JFileChooser.CANCEL_OPTION || result == JFileChooser.ERROR_OPTION ) return;
             selectedFileName = fd.getSelectedFile().getPath();
         }
