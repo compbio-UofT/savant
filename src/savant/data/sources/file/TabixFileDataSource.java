@@ -24,8 +24,10 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
@@ -114,19 +116,29 @@ public class TabixFileDataSource extends TabixDataSource {
             
             if (i != null) {
                 String n = null;
-                int count = 0;
                 long start = -1;
+                long end = -1;
+                Map<Long, Integer> ends = new HashMap<Long, Integer>();
                 while ((n = i.next()) != null) {
                     //Note: count is used to uniquely identify records in same location
                     //Assumption is that iterator will always give records in same order
                     TabixIntervalRecord tir = TabixIntervalRecord.valueOf(n);
                     if(tir.getInterval().getStart() == start){
-                        count++;
-                        tir.setCount(count);
+                        end = tir.getInterval().getEnd();
+                        if(ends.get(end) == null){
+                            ends.put(end, 0);
+                        } else {
+                            int count = ends.get(end)+1;
+                            ends.put(end, count);
+                            tir.setCount(count);
+                        }                      
                     } else {
-                        count = 0;
                         start = tir.getInterval().getStart();
-                        tir.setCount(count);
+                        end = tir.getInterval().getEnd();
+                        //FIXME: is the overhead of doing this high?
+                        ends = new HashMap<Long, Integer>();
+                        ends.put(end, 0);
+                        tir.setCount(0);
                     }                   
                     result.add(tir);
                     //result.add(TabixIntervalRecord.valueOf(n));
