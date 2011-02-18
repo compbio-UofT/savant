@@ -111,8 +111,19 @@ public final class TabixIntervalRecord implements IntervalRecord {
         for (int i = 0; i < this.otherFields.size(); i++) {
             if (!this.otherFields.get(i).equals(that.otherFields.get(i))) return false;
         }
+        if(this.count != that.count) return false;
 
         return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 47 * hash + (this.interval != null ? this.interval.hashCode() : 0);
+        hash = 47 * hash + (this.chrom != null ? this.chrom.hashCode() : 0);
+        hash = 47 * hash + (this.otherFields != null ? this.otherFields.hashCode() : 0);
+        hash = 47 * hash + this.count;
+        return hash;
     }
 
     //note: count is a made up to differentiate between intervals in same position
