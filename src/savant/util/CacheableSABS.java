@@ -174,6 +174,7 @@ public class CacheableSABS extends SeekableAdjustableBufferedStream {
         //check for entry
         String newETag = NetworkUtils.getHash(uri.toURL());
         boolean entryFound = false;
+        int count = 0; //number of instance already in cache (at different buffer sizes)
         BufferedReader bufferedReader = null;
         bufferedReader = new BufferedReader(new FileReader(indexName));
         String line = null;
@@ -192,7 +193,9 @@ public class CacheableSABS extends SeekableAdjustableBufferedStream {
 
                 //compare buffer size
                 if(this.bufferSize != Integer.parseInt(lineArray[3])){
+                    count++;
                     continue;
+                    //TODO: remove line/delete cache file??
                 }
 
                 //equivalent entry found
@@ -209,7 +212,7 @@ public class CacheableSABS extends SeekableAdjustableBufferedStream {
         //add entry
         if(!entryFound){
             BufferedWriter out = new BufferedWriter(new FileWriter(indexName, true));
-            cacheFile = dir + sep + this.getSource().replaceAll("[\\:/]", "+");
+            cacheFile = dir + sep + this.getSource().replaceAll("[\\:/]", "+") + String.valueOf(count);
             out.write(this.getSource() + "," +
                     newETag + "," +   
                     this.length() + "," +
