@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import savant.controller.RangeController;
+import savant.controller.event.GraphPaneChangeEvent;
 import savant.controller.event.RangeChangedEvent;
 import savant.controller.event.RangeChangedListener;
 import savant.controller.event.RangeSelectionChangedEvent;
@@ -34,12 +35,14 @@ import java.awt.event.MouseMotionListener;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import savant.controller.GraphPaneController;
+import savant.controller.event.GraphPaneChangeListener;
 
 /**
  *
  * @author mfiume
  */
-public class MiniRangeSelectionPanel extends JPanel implements MouseListener, MouseMotionListener, RangeChangedListener {
+public class MiniRangeSelectionPanel extends JPanel implements MouseListener, MouseMotionListener, RangeChangedListener, GraphPaneChangeListener {
 
     private boolean isDragging = false;
     private boolean isActive = false;
@@ -56,6 +59,8 @@ public class MiniRangeSelectionPanel extends JPanel implements MouseListener, Mo
     /** Range Selection Changed Listeners */
     private List rangeSelectionChangedListeners = new ArrayList();
     private boolean rangeChangedExternally;
+
+    public static MiniRangeSelectionPanel instance;
 
     public MiniRangeSelectionPanel() {
 
@@ -77,6 +82,7 @@ public class MiniRangeSelectionPanel extends JPanel implements MouseListener, Mo
 
         addMouseListener(this); // listens for own mouse and
         addMouseMotionListener(this); // mouse-motion events
+        GraphPaneController.getInstance().addGraphPaneChangedListener(this);
 
         //Border loweredetched = BorderFactory.createEtchedBorder(EtchedBorder.RAISED);
         //this.setBorder(loweredetched);
@@ -176,94 +182,30 @@ public class MiniRangeSelectionPanel extends JPanel implements MouseListener, Mo
 
         if (!this.isActive()) { return ; }
 
-        //Savant.log("Painting component");
+        GraphPaneController gpc = GraphPaneController.getInstance();
+        if (gpc.isPanning()) {
+            long fromx = MiscUtils.transformPositionToPixel(gpc.getMouseDragRange().getFrom(), this.getWidth(), RangeController.getInstance().getRange());
+            long tox = MiscUtils.transformPositionToPixel(gpc.getMouseDragRange().getTo(), this.getWidth(), RangeController.getInstance().getRange());
+
+            double shiftamount = fromx-tox;
+
+            // shifting left
+            if (shiftamount < 0) {
+                shiftamount = -shiftamount;
+                long maxlefttranslation = (RangeController.getInstance().getRangeStart()-1)*MiscUtils.transformPositionToPixel(RangeController.getInstance().getRangeStart()+1, this.getWidth(), RangeController.getInstance().getRange());
+                shiftamount = Math.min(maxlefttranslation,shiftamount);
+                g.translate((int) shiftamount, 0);
+                //System.out.println("LEFT: " + " m=" + maxlefttranslation + " s=" + shiftamount);
+            // shifting right
+            } else {
+                long maxrighttranslation = (RangeController.getInstance().getMaxRangeEnd() - RangeController.getInstance().getRangeEnd())*MiscUtils.transformPositionToPixel(RangeController.getInstance().getRangeStart()+1, this.getWidth(), RangeController.getInstance().getRange());
+                shiftamount = Math.min(maxrighttranslation,shiftamount);
+                g.translate((int) -shiftamount, 0);
+                //System.out.println("RIGHT: " + " m=" + maxrighttranslation + " s=" + shiftamount);
+            }
+        }
 
         renderBackground(g);
-        if (true) { return; }
-
-        /*
-        int wid = getWidth();
-        int hei = getHeight();
-
-        Graphics2D g2d0 = (Graphics2D) g;
-
-        // Paint a gradient from top to bottom
-        GradientPaint gp0 = new GradientPaint(
-                0, 0, new Color(95, 161, 241),
-                0, h, new Color(75, 144, 228));
-
-        g2d0.setPaint(gp0);
-        g2d0.fillRect(0, 0, wid, hei);
-
-        int width = this.x1 - this.x2;
-        int height = this.getHeight();// this.y1 - this.y2;
-
-        this.w = Math.max(2, Math.abs(width));
-        this.h = Math.abs(height);
-        this.x = width < 0 ? this.x1 : this.x2;
-        this.y = 0; //height < 0 ? this.y1 : this.y2;
-
-        g.setColor(new Color(100, 100, 100, 100));
-        g.drawRect(this.x, this.y, this.w, this.h);
-
-        Graphics2D g2d = (Graphics2D) g;
-
-        if (this.isDragging) {
-            // Paint a gradient from top to bottom
-            GradientPaint gp = new GradientPaint(
-                    0, 0, Color.white,
-                    0, h, Color.lightGray);
-
-            g2d.setPaint(gp);
-            g2d.fillRect(this.x, this.y, this.w, this.h);
-        }
-        
-
-        int numlines = 20;
-        double space = ((double) this.getWidth()) / numlines;
-
-        g.setColor(new Color(70,70,70,100));
-        for (int i = 1; i <= numlines; i++) {
-            g.drawLine((int) Math.round(i * space), 0, (int) Math.round(i * space), this.getHeight());
-        }
-
-        if (this.isDragging) {
-            g.setColor(Color.black);
-
-            int fromX = this.x1 > this.x2 ? this.x2 : this.x1;
-            int toX = this.x1 > this.x2 ? this.x1 : this.x2;
-            String from, to;
-            int startFrom, startTo;
-            int ypos = this.getHeight() / 2 + 4;
-
-            if (this.rangeChangedExternally) {
-                Range r = RangeController.getInstance().getRange();
-                from = MiscUtils.intToString(r.getFrom());
-                to = MiscUtils.intToString(r.getTo());
-            } else {
-                from = MiscUtils.intToString(translatePixelToPosition(fromX));
-                to = MiscUtils.intToString(translatePixelToPosition(toX));
-            }
-
-            FontMetrics metrics = g.getFontMetrics(g.getFont());
-            // get the advance of my text in this font and render context
-            int fromWidth = metrics.stringWidth(from);
-            int toWidth = metrics.stringWidth(to);
-
-            startFrom = fromX - 5 - fromWidth;
-            startTo = toX + 5;
-
-            if (startFrom + fromWidth + 5 < startTo) {
-                if (startFrom > 0) {
-                    g.drawString(from, startFrom, ypos);
-                }
-                if (startTo + toWidth < this.getWidth()) {
-                    g.drawString(to, startTo, ypos);
-                }
-            }
-        }
-         * 
-         */
     }
 
     /**
@@ -279,14 +221,14 @@ public class MiniRangeSelectionPanel extends JPanel implements MouseListener, Mo
 
             Image image = javax.imageio.ImageIO.read(getClass().getResource("/savant/images/bar_selected_glossy.png"));
             Composite originalComposite = ((Graphics2D) g).getComposite();
-            ((Graphics2D) g).setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.75F));
-            g.drawImage(image, 0,0,this.getWidth(),this.getHeight(),this);
+            ((Graphics2D) g).setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.85F));
+            g.drawImage(image, 0-this.getWidth(),0,this.getWidth()*3,this.getHeight(),this);
             ((Graphics2D) g).setComposite(originalComposite);
         } catch (Exception e) {
             System.err.println("Error drawing image background");
         }
 
-        int numseparators = (int) Math.ceil(Math.log(this.maximum-this.minimum));
+        int numseparators = (int) Math.max(Math.ceil(Math.log(this.maximum-this.minimum)),2);
         long genomicSeparation = (this.maximum-this.minimum)/Math.max(1, numseparators);
 
         if (numseparators != 0) {
@@ -300,9 +242,9 @@ public class MiniRangeSelectionPanel extends JPanel implements MouseListener, Mo
                     (long) (Math.floor((RangeController.getInstance().getRange().getFrom()/Math.max(1, genomicSeparation)))*genomicSeparation),
                     width, (RangeController.getInstance()).getRange());
 
-            for (int i = 0; i <= numseparators; i++) {
+            for (int i = 0; i <= numseparators*3; i++) {
                 g2.setColor(new Color(50,50,50,50)); //BrowserDefaults.colorAxisGrid);
-                int xOne = startbarsfrom + (int)Math.ceil(i*barseparation)+1;
+                int xOne = startbarsfrom + (int)Math.ceil(i*barseparation)+1 - this.getWidth();
                 int xTwo = xOne;
                 int yOne = this.getHeight();
                 int yTwo = 0;
@@ -311,15 +253,10 @@ public class MiniRangeSelectionPanel extends JPanel implements MouseListener, Mo
                 if (skipstring != 0) {
                     if (i % skipstring == 0) {
                         g2.setColor(Color.black);
-                        long a;
-                        if (xOne < 5) {
-                            a = RangeController.getInstance().getRangeStart();
-                        // todo: add same sort of catching on the right side
-                        } else {
-                            a = MiscUtils.transformPixelToPosition(xOne, width, (RangeController.getInstance()).getRange());
+                        long a = MiscUtils.transformPixelToPosition(xOne, width, (RangeController.getInstance()).getRange());
+                        if (a >= 1 && a <= (RangeController.getInstance()).getMaxRangeEnd()) {
+                            g2.drawString(MiscUtils.posToShortString(genomicSeparation,a), (float) (xOne + 3), (float) ((this.getHeight()*0.5)+3));
                         }
-
-                        g2.drawString(MiscUtils.posToShortString(genomicSeparation,a), (float) (xOne + 3), (float) ((this.getHeight()*0.5)+3));
                     }
                 } else {
                     g2.setColor(Color.black);
@@ -420,6 +357,14 @@ public class MiniRangeSelectionPanel extends JPanel implements MouseListener, Mo
 
     private boolean isActive() {
         return this.isActive;
+    }
+
+    @Override
+    public void graphpaneChangeReceived(GraphPaneChangeEvent event) {
+        GraphPaneController gpc = GraphPaneController.getInstance();
+        if (gpc.isPanning()) {
+            this.repaint();
+        }
     }
 } // end class MouseTracker
 

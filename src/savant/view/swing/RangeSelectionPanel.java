@@ -287,7 +287,7 @@ public class RangeSelectionPanel extends JPanel implements MouseListener, MouseM
 
             //Graphics2D g2d = (Graphics2D) g;
             //Composite originalComposite = g2d.getComposite();
-            g2d.setComposite(makeComposite(0.5F));
+            g2d.setComposite(makeComposite(0.8F));
             g.drawImage(image_bar_selected_glossy, startx,this.y,widpixels,this.h,this);
             g2d.setComposite(originalComposite);
 

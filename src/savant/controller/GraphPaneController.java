@@ -89,7 +89,7 @@ public class GraphPaneController {
         return instance;
     }
 
-    public synchronized void addBookmarksChangedListener(GraphPaneChangeListener l) {
+    public synchronized void addGraphPaneChangedListener(GraphPaneChangeListener l) {
         graphpaneChangeListeners.add(l);
     }
 

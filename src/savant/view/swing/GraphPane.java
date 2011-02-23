@@ -149,7 +149,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         popupThread = new Thread(new PopupThread(this));
         popupThread.start();
 
-        GraphPaneController.getInstance().addBookmarksChangedListener(this);
+        GraphPaneController.getInstance().addGraphPaneChangedListener(this);
     }
 
     /**
@@ -207,12 +207,38 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         g2d0.fillRect( 0, 0, getWidth(), getHeight() );
 
         GraphPaneController gpc = GraphPaneController.getInstance();
-        int x1 = MiscUtils.transformPositionToPixel(gpc.getMouseDragRange().getFrom(), this.getWidth(), new Range(this.xMin, this.xMax));
-        int x2 = MiscUtils.transformPositionToPixel(gpc.getMouseDragRange().getTo(), this.getWidth(), new Range(this.xMin, this.xMax));
 
-        int shiftamount = x2-x1;
-        if (gpc.isPanning() && !this.isLocked()) { g.translate(shiftamount, 0); }
+        if (gpc.isPanning() && !this.isLocked()) {
+            int x1 = MiscUtils.transformPositionToPixel(gpc.getMouseDragRange().getFrom(), this.getWidth(), new Range(this.xMin, this.xMax));
+            int x2 = MiscUtils.transformPositionToPixel(gpc.getMouseDragRange().getTo(), this.getWidth(), new Range(this.xMin, this.xMax));
 
+            double shiftamount = x1-x2;
+
+            // shifting left
+            if (shiftamount < 0) {
+                shiftamount = -shiftamount;
+                long maxlefttranslation = (RangeController.getInstance().getRangeStart()-1)*MiscUtils.transformPositionToPixel(RangeController.getInstance().getRangeStart()+1, this.getWidth(), RangeController.getInstance().getRange());
+                shiftamount = Math.min(maxlefttranslation,shiftamount);
+                g.translate((int) shiftamount, 0);
+            // shifting right
+            } else {
+                long maxrighttranslation = (RangeController.getInstance().getMaxRangeEnd() - RangeController.getInstance().getRangeEnd())*MiscUtils.transformPositionToPixel(RangeController.getInstance().getRangeStart()+1, this.getWidth(), RangeController.getInstance().getRange());
+                shiftamount = Math.min(maxrighttranslation,shiftamount);
+                g.translate((int) -shiftamount, 0);
+            }
+
+            /*
+            long pixelshiftamount = x1-x2;
+            //System.out.println("shift: " + pixelshiftamount + " rangestart: " + RangeController.getInstance().getRangeStart());
+            if (pixelshiftamount <= RangeController.getInstance().getRangeStart()) {
+                pixelshiftamount = RangeController.getInstance().getRangeStart();
+            } else if (RangeController.getInstance().getMaxRangeEnd() - RangeController.getInstance().getRangeEnd() <= pixelshiftamount ) {
+                pixelshiftamount = -(RangeController.getInstance().getMaxRangeEnd() - RangeController.getInstance().getRangeEnd());
+            }
+            g.translate((int) -pixelshiftamount, 0);
+             * 
+             */
+        }
 
         // Deal with the progress-bar.
         if (tracks == null) {
@@ -619,7 +645,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
 
         if (this.isXGridOn) {
 
-            int numseparators = (int) Math.ceil(Math.log(xMax-xMin));
+            int numseparators = (int) Math.max(Math.ceil(Math.log(xMax-xMin)),2);
 
             if (numseparators != 0) {
                 int width = this.getWidth();
