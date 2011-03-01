@@ -77,7 +77,7 @@ public class Chrome extends SavantPanelPlugin implements RangeChangeCompletedLis
     public void rangeChangeCompletedReceived(RangeChangedEvent event) {
         if (canvas == null) {
             if (GenomeUtils.isGenomeLoaded() && GenomeUtils.getGenome().isSequenceSet()) {
-                canvas = GenomeUtils.getGenome().getViewTrack().getLayerCanvas();
+                canvas = GenomeUtils.getGenome().getTrack().getLayerCanvas();
                 canvas.setLayout(new BorderLayout());
                 canvas.add(new ChromePanel(c), BorderLayout.CENTER);
             }
