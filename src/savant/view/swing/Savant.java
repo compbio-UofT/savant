@@ -2457,7 +2457,6 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         referenceDropdown.setMinimumSize(dim);
         referenceDropdown.setMaximumSize(dim);
         referenceDropdown.invalidate();
-        System.out.println("Setting dropdown width to " + maxwidth);
 
         //this.referenceDropdown.addItem("[ NON-GENOMIC (" + nongenomicrefnames.size() + ") ]");
         List<String> nongenomicrefnames = MiscUtils.set2List(ReferenceController.getInstance().getNonGenomicReferenceNames());

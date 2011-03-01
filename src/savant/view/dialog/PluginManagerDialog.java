@@ -187,37 +187,6 @@ public class PluginManagerDialog extends JDialog {
     private javax.swing.JPanel panel_plugincanvas;
     // End of variables declaration//GEN-END:variables
 
-    /*
-    private void updatePluginList() {
-        log.info("Updating plugin list");
-        
-        DefaultListModel model = (DefaultListModel) this.list_installedplugins.getModel();
-        model.removeAllElements();
-
-        File dir = new File(pluginDir);
-
-        // It is also possible to filter the list of returned files.
-        // This example does not return any files that start with `.'.
-        FilenameFilter filter = new FilenameFilter() {
-            @Override
-            public boolean accept(File dir, String name) {
-                return name.endsWith(".jar");
-            }
-        };
-        String[] children  = dir.list(filter);
-
-        if (children == null) {
-            // Either dir does not exist or is not a directory
-        } else {
-            for (int i=0; i<children.length; i++) {
-                // Get filename of file or directory
-                 model.add(i, children[i]);
-            }
-        }
-    }
-     * 
-     */
-
     private void addPlugin() {
 
         File selectedFile = DialogUtils.chooseFileForOpen("Select Plugin JAR", null, null);
@@ -241,56 +210,6 @@ public class PluginManagerDialog extends JDialog {
 
         }
     }
-
-    /*
-    private void removePlugin() {
-
-        int reply = JOptionPane.showConfirmDialog(this, "Are you sure you want to remove \n" +
-                "this plugin?", "Remove Plugin?", JOptionPane.YES_NO_OPTION);
-        if (reply == JOptionPane.YES_OPTION) {
-            try {
-                String pluginFileName = (String) this.list_installedplugins.getSelectedValue();
-
-                if (pluginFileName.equals("SavantCore.jar") || pluginFileName.equals("SavantData.jar")) {
-                    JOptionPane.showMessageDialog(this, "This plugin provides core functionality and \n" +
-                            "cannot be uninstalled.");
-                    return;
-                }
-
-                DefaultListModel model = (DefaultListModel) this.list_installedplugins.getModel();
-
-                log.info("Trying to uninstall " + pluginDir + System.getProperty("file.separator") + pluginFileName);
-
-                File f = new File(pluginDir + System.getProperty("file.separator") + pluginFileName);
-
-                boolean success = f.delete();
-
-                if (success) {
-                    model.removeElement(pluginFileName);
-                    updatePluginList();
-                    JOptionPane.showMessageDialog(this, "Plugin successfully uninstalled. Restart Savant \n" +
-                     "for changes to take effect.");
-                } else {
-                    f.deleteOnExit();
-                    model.removeElement(pluginFileName);
-                    updatePluginList();
-                    JOptionPane.showMessageDialog(this, "Plugin queued for uninstallation. Restart Savant \n" +
-                     "for changes to take effect. If the plugin remains \n" +
-                     "installed, you can manually remove it by deleting the \n" +
-                     "appropriate .jar file from the plugins directory.");
-                }
-            } catch (Exception e) {
-                JOptionPane.showMessageDialog(this, "Error removing plugin." +
-                        "\nYou can manually remove it by deleting the appropriate \n" +
-                        ".jar file from the plugins directory.");
-                return;
-            }
-
-             
-        }
-    }
-     * 
-     */
 
     public static void copyFile(File in, File out) throws Exception {
 

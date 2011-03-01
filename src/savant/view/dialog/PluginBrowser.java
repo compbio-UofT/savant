@@ -318,10 +318,12 @@ public class PluginBrowser {
 
     private static void refreshPrograms() {
         Collection<PluginDescriptor> pds = PluginController.getInstance().getPluginDescriptors();
-        pluginStubs = new PluginStub[pds.size()];
+        pluginStubs = new PluginStub[pds.size()-1]; // -1 for the core, which shouldnt appear in the list
         int i = 0;
         for (PluginDescriptor pd: pds) {
-            pluginStubs[i++] = new PluginStub(pd.getUniqueId(), pd.getVersion().toString());
+            if (!pd.getId().startsWith("SavantCore") && !pd.getId().startsWith("savant.core")) {
+                pluginStubs[i++] = new PluginStub(pd.getUniqueId(), pd.getVersion().toString());
+            }
         }
     }
 

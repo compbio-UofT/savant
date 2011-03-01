@@ -38,6 +38,8 @@ import javax.swing.JPanel;
 
 import com.jidesoft.docking.DockableFrame;
 import com.jidesoft.docking.DockingManager;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.java.plugin.JpfException;
@@ -46,12 +48,14 @@ import org.java.plugin.Plugin;
 import org.java.plugin.PluginManager;
 import org.java.plugin.registry.Extension;
 import org.java.plugin.registry.ExtensionPoint;
+import org.java.plugin.registry.PluginAttribute;
 import org.java.plugin.registry.PluginDescriptor;
 import org.java.plugin.standard.StandardPluginLocation;
 
 import savant.api.util.DialogUtils;
 import savant.experimental.PluginTool;
 import savant.plugin.*;
+import savant.settings.BrowserSettings;
 import savant.settings.DirectorySettings;
 import savant.util.MiscUtils;
 import savant.view.swing.DockableFrameFactory;
@@ -213,16 +217,34 @@ public class PluginController {
 
                 try {
                     LOG.info("Activating new plugin: " + ext);
-                    activatePlugin(ext.getDeclaringPluginDescriptor(), ext);
-                    oneLoaded = true;
+                    try {
+                        PluginAttribute sdkatt = ext.getDeclaringPluginDescriptor().getAttribute("sdk-version");
+                        if (sdkatt == null) {
+                            error = true;
+                            LOG.error("No SDK-version attribute");
+                        } else {
+                            String sdk = sdkatt.getValue();
+                            if (isSDKCompatibleWithThisVersion(sdk)) {
+                                LOG.info("Compatible with this version of Savant");
+                                activatePlugin(ext.getDeclaringPluginDescriptor(), ext);
+                                oneLoaded = true;
+                            } else {
+                                LOG.info("Compatible with SDK-version: " + sdkatt.getValue());
+                                error = true;
+                            }
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 } catch (java.lang.Error e) {
-                    this.addToIgnoredBadPlugin(ext.getDeclaringPluginDescriptor());
                     LOG.error(e);
                     error = true;
                 } catch (Exception e) {
                     LOG.error(e);
-                    this.addToIgnoredBadPlugin(ext.getDeclaringPluginDescriptor());
                     error = true;
+                }
+                if (error) {
+                    this.addToIgnoredBadPlugin(ext.getDeclaringPluginDescriptor());
                 }
             }
         }
@@ -380,6 +402,29 @@ public class PluginController {
 
     private boolean isIgnoredBadPlugin(PluginDescriptor d) {
         return ignoredbadplugins.contains(d);
+    }
+
+
+    Map<String,List<String>> sdkToSavantVersionsMap;
+    
+    private boolean isSDKCompatibleWithThisVersion(String sdk) {
+
+        if (sdkToSavantVersionsMap == null) {
+            sdkToSavantVersionsMap = new HashMap<String,List<String>>();
+
+            // list of Savant versions compatible with sdk version 1.4.3
+            List<String> sdk143list = new ArrayList<String>();
+            sdk143list.add("1.4.3");
+            sdkToSavantVersionsMap.put("1.4.3",sdk143list);
+        }
+
+        List<String> acceptableSavantVersions = sdkToSavantVersionsMap.get(sdk);
+
+        if (acceptableSavantVersions != null && acceptableSavantVersions.contains(BrowserSettings.version)) {
+            return true;
+        }
+        
+        return false;
     }
 
 }
