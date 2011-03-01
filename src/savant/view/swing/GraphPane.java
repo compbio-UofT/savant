@@ -226,18 +226,6 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
                 shiftamount = Math.min(maxrighttranslation,shiftamount);
                 g.translate((int) -shiftamount, 0);
             }
-
-            /*
-            long pixelshiftamount = x1-x2;
-            //System.out.println("shift: " + pixelshiftamount + " rangestart: " + RangeController.getInstance().getRangeStart());
-            if (pixelshiftamount <= RangeController.getInstance().getRangeStart()) {
-                pixelshiftamount = RangeController.getInstance().getRangeStart();
-            } else if (RangeController.getInstance().getMaxRangeEnd() - RangeController.getInstance().getRangeEnd() <= pixelshiftamount ) {
-                pixelshiftamount = -(RangeController.getInstance().getMaxRangeEnd() - RangeController.getInstance().getRangeEnd());
-            }
-            g.translate((int) -pixelshiftamount, 0);
-             * 
-             */
         }
 
         // Deal with the progress-bar.

@@ -102,7 +102,14 @@ public class TabixFileDataSource extends TabixDataSource {
 
         this.uri = uri.normalize();
 
-        tr = new TabixReader(uri.getPath());
+        /*
+        System.out.println("Opening Tabix File");
+        System.out.println("Path: " + uri.getPath());
+        System.out.println("Index: " + index.getAbsolutePath());
+         *
+         */
+
+        tr = new TabixReader(uri.toURL(), index);
     }
 
     /**

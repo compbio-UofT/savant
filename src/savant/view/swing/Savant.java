@@ -17,6 +17,7 @@ package savant.view.swing;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.beans.PropertyChangeEvent;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -41,6 +42,7 @@ import com.jidesoft.plaf.UIDefaultsLookup;
 import com.jidesoft.plaf.basic.ThemePainter;
 import com.jidesoft.status.MemoryStatusBarItem;
 import com.jidesoft.swing.JideSplitPane;
+import java.beans.PropertyChangeListener;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jdom.JDOMException;
@@ -1681,7 +1683,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
 
         //p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
 
-        Dimension comboboxDimension = new Dimension(130, 23);
+        Dimension comboboxDimension = new Dimension(200, 23);
         Dimension iconDimension = MiscUtils.MAC ? new Dimension(50, 23) : new Dimension(27, 27);
         String shortcutMod = MiscUtils.MAC ? "Cmd" : "Ctrl";
 
@@ -2443,9 +2445,19 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         referenceDropdown.removeAllItems();
 
         //this.referenceDropdown.addItem("[ GENOMIC (" + genomicrefnames.size() + ") ]");
+
+        int maxwidth = 0;
         for (String s : genomicrefnames) {
             this.referenceDropdown.addItem(s);
+            maxwidth = Math.max(maxwidth, s.length());
         }
+        maxwidth = Math.max(200, maxwidth*8+20);
+        Dimension dim = new Dimension(maxwidth,23);
+        referenceDropdown.setPreferredSize(dim);
+        referenceDropdown.setMinimumSize(dim);
+        referenceDropdown.setMaximumSize(dim);
+        referenceDropdown.invalidate();
+        System.out.println("Setting dropdown width to " + maxwidth);
 
         //this.referenceDropdown.addItem("[ NON-GENOMIC (" + nongenomicrefnames.size() + ") ]");
         List<String> nongenomicrefnames = MiscUtils.set2List(ReferenceController.getInstance().getNonGenomicReferenceNames());

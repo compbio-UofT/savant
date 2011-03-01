@@ -45,15 +45,23 @@ public class TabixPopup extends PopupPanel {
         //String readName = "Description: " + name;
         //this.add(new JLabel(readName));
 
-        String readStart = "Start: " + start;
+        String readStart = "Start:\t" + rec.getInterval().getStart();
         this.add(new JLabel(readStart));
 
-        String readEnd = "End: " + end;
+        String readEnd = "End:\t" + rec.getInterval().getEnd();
         this.add(new JLabel(readEnd));
 
-        String readLength = "Length: " + (end - start);
+        String readLength = "Length:\t" + rec.getInterval().getLength();
         this.add(new JLabel(readLength));
 
+        int fieldnum = 3;
+        for (String s : rec.getOtherValues()) {
+            this.add(new JLabel("Field" + (++fieldnum) + ":\t" + s));
+            if (fieldnum == 10) {
+                this.add(new JLabel("..."));
+                break;
+            }
+        }
     }
 
 }

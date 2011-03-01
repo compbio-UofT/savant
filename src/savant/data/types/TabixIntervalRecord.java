@@ -36,7 +36,7 @@ public final class TabixIntervalRecord implements IntervalRecord {
      * Constructor. Clients should use static factory method valueOf() instead.
      */
     TabixIntervalRecord(String s, int chrIndex, int startIndex, int endIndex) {
-        StringTokenizer st = new StringTokenizer(s);
+        StringTokenizer st = new StringTokenizer(s,"\t");
         int numTokens = st.countTokens();
         
         String token = null;
@@ -56,7 +56,7 @@ public final class TabixIntervalRecord implements IntervalRecord {
                  start = Long.parseLong(token);
             }
             else if (i == endIndex) {
-                end = Long.parseLong(token);
+                end = Long.parseLong(token)-1; // tabix is not end-inclusive; our intervals are end inclusive
             } else {
                 otherFields.add(token);
             }

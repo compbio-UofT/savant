@@ -35,6 +35,7 @@ import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.lang.StringBuffer;
+import java.net.URL;
 
 public class TabixReader
 {
@@ -91,6 +92,12 @@ public class TabixReader
 		mFn = fn;
 		mFp = new BlockCompressedInputStream(new File(fn));
 		readIndex();
+	}
+
+        public TabixReader(final URL url,final File index) throws IOException {
+		mFn = url.toString();
+		mFp = new BlockCompressedInputStream(url);
+		readIndex(index);
 	}
 
 	private static int reg2bins(final int beg, final int _end, final int[] list) {

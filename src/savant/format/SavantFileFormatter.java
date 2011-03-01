@@ -186,9 +186,11 @@ public abstract class SavantFileFormatter {
      * FILE MANAGEMENT
      */
 
+    private static int partsMade = 0;
     protected DataOutputStream addReferenceFile(String referenceName) throws FileNotFoundException {
 
-        String fn = DirectorySettings.getTmpDirectory() + System.getProperty("file.separator") + inFile.getName() + ".part_" + referenceName;
+        partsMade++;
+        String fn = DirectorySettings.getTmpDirectory() + System.getProperty("file.separator") + inFile.getName() + ".part_" + partsMade;
         //String fn = inFilePath + ".part_" + referenceName;
 
         DataOutputStream f = new DataOutputStream(

@@ -157,7 +157,8 @@ public class IntervalFormatter extends SavantFileFormatter {
         // format each split file individually
         for (String refname : refToinFileMap.keySet()) {
 
-            this.setSubtaskStatus("Formatting sections (part " + (++part) + " of " + totalparts + ") ..." );
+            part++;
+            this.setSubtaskStatus("Formatting sections (part " + part + " of " + totalparts + ") ..." );
             //currrefname = refname;
 
             // get the input file for this reference
@@ -166,8 +167,7 @@ public class IntervalFormatter extends SavantFileFormatter {
             refnames.add(refname);
 
             // make and save path to tmp output files
-            String outPath = DirectorySettings.getTmpDirectory() + System.getProperty("file.separator") + inFile.getName() + ".part_" + refname;
-
+            String outPath = DirectorySettings.getTmpDirectory() + System.getProperty("file.separator") + inFile.getName() + ".part_" + part;
             String indexPath = outPath + indexExtension;
             refnameToDataFileNameMap.put(refname, outPath);
             refnameToIndexFileNameMap.put(refname, indexPath);
@@ -335,7 +335,6 @@ public class IntervalFormatter extends SavantFileFormatter {
 
     private void writeIntervalTreeNode(IntervalTreeNode n, DataOutputStream indexOutFile) throws IOException {
 
-        
         List<Object> record;
 
         record = new ArrayList<Object>();
