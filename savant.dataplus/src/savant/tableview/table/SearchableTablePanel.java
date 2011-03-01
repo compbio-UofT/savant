@@ -41,15 +41,7 @@ public class SearchableTablePanel extends JPanel {
         model.getDataVector().removeAllElements();
         model.getDataVector().addAll(data);
         model.fireTableDataChanged();
-
-        System.out.println("Actually Searching columns: ");
-        for (int i : filterField.getActualSearchingColumnIndices()) {
-            System.out.println("\t" + i);
-        }
-        System.out.println("Searching columns: ");
-        for (int i : filterField.getColumnIndices()) {
-            System.out.println("\t" + i);
-        }
+        table.repaint();
     }
 
     public void setTableModel(Vector data, Vector columnNames, Vector columnClasses) {
@@ -62,22 +54,14 @@ public class SearchableTablePanel extends JPanel {
 
         if (filterField == null) {
             filterField = new LuceneQuickTableFilterField(model);
-            filterField.setHintText("Type here to filter");
+            filterField.setHintText("Type to search");
             filterField.setColumnIndices(columns);
-            //filterField.setObjectConverterManagerEnabled(true);
+            filterField.setObjectConverterManagerEnabled(true);
         } else {
             filterField.setTableModel(model);
         }
 
-        //table.setModel(model);
         table.setModel(new LuceneFilterableTableModel(filterField.getDisplayTableModel()));
-        /*
-        System.out.println("Searching columns: ");
-        for (int i : filterField.getActualSearchingColumnIndices()) {
-            System.out.println("\t" + i);
-        }
-         * 
-         */
     }
 
     public SearchableTablePanel(

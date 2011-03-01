@@ -82,6 +82,7 @@
             <zipfileset src="lib/jide-common.jar" excludes="META-INF/*" />
             <zipfileset src="lib/jide-grids.jar" excludes="META-INF/*" />
             <zipfileset src="lib/lucene-core-2.4.1.jar" excludes="META-INF/*" />
+            <zipfileset src="lib/commons-lang-2.6.jar" excludes="META-INF/*" />
         </jar>
         <delete dir="${dist.dir}/lib"/>
         <move file="${dist.jar}-all" tofile="${dist.jar}"/>
