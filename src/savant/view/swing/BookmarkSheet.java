@@ -272,8 +272,6 @@ public class BookmarkSheet implements BookmarksChangedListener /*, RangeChangedL
 
         File selectedFile = DialogUtils.chooseFileForOpen("Load Bookmarks", null, null);
 
-        LOG.info("load 0");
-
         // set the genome
         if (selectedFile != null) {
             try {
@@ -314,8 +312,6 @@ public class BookmarkSheet implements BookmarksChangedListener /*, RangeChangedL
     }
 
     private static void loadBookmarks(File f, List<Bookmark> bookmarks) throws FileNotFoundException, IOException {
-
-        LOG.info("load 1");
 
         BufferedReader br = new BufferedReader(new FileReader(f));
 
