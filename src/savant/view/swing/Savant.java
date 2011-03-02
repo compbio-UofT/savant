@@ -2434,6 +2434,29 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         //JOptionPane.showMessageDialog(this, , , JOptionPane.INFORMATION_MESSAGE);
     }
 
+    private class ReferenceComparable implements Comparable {
+
+        public String refname;
+        public Long reflength;
+
+        public ReferenceComparable(String refname, Long reflength) {
+            this.refname = refname;
+            this.reflength = reflength;
+        }
+
+        @Override
+        public int compareTo(Object o) {
+            if (o instanceof ReferenceComparable) {
+                ReferenceComparable r2 = (ReferenceComparable) o;
+                if (this.reflength < r2.reflength) { return -1;}
+                else if (this.reflength > r2.reflength) { return 1; }
+                else { return 0; }
+            } else {
+                return -1;
+            }
+        }
+    }
+
     private void updateReferenceNamesList() {
 
         LOG.debug("Updating reference names list");
@@ -2442,14 +2465,23 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
 
         List<String> genomicrefnames = MiscUtils.set2List(ReferenceController.getInstance().getReferenceNames());
 
+        
         referenceDropdown.removeAllItems();
 
         //this.referenceDropdown.addItem("[ GENOMIC (" + genomicrefnames.size() + ") ]");
 
         int maxwidth = 0;
-        for (String s : genomicrefnames) {
-            this.referenceDropdown.addItem(s);
-            maxwidth = Math.max(maxwidth, s.length());
+        List<ReferenceComparable> refs = new ArrayList<ReferenceComparable>();
+        ReferenceController rc = ReferenceController.getInstance();
+        for (String ref : genomicrefnames) {
+            maxwidth = Math.max(maxwidth, ref.length());
+            refs.add(new ReferenceComparable(ref,rc.getReferenceLength(ref)));
+        }
+
+        Collections.sort(refs);
+        Collections.reverse(refs);
+        for (ReferenceComparable s : refs) {
+            this.referenceDropdown.addItem(s.refname);
         }
         maxwidth = Math.max(200, maxwidth*8+20);
         Dimension dim = new Dimension(maxwidth,23);

@@ -101,7 +101,7 @@ public class BAMTrackRenderer extends TrackRenderer {
         List<String> modes = new ArrayList<String>();
         modes.add(STANDARD_MODE);
         modes.add(MISMATCH_MODE);
-        modes.add(COLORSPACE_MODE);
+        //modes.add(COLORSPACE_MODE);
         modes.add(SEQUENCE_MODE);
         //modes.add(STANDARD_PAIRED_MODE);
         modes.add(ARC_PAIRED_MODE);

@@ -54,6 +54,12 @@ public class Genome implements Serializable, GenomeAdapter {
         track = t;
         dataSource = (FASTAFileDataSource) t.getDataSource();//new FASTAFileDataSource(filename);
         setSequenceTrack(dataSource);
+
+        referenceMap = new HashMap<String,Long>();
+
+        for (String refname : this.dataSource.getReferenceNames()) {
+            referenceMap.put(refname, (long) this.dataSource.getLength(refname));
+        }
     }
 
     public Genome(BuildInfo bi) throws IOException {
@@ -130,6 +136,17 @@ public class Genome implements Serializable, GenomeAdapter {
     @Override
     public String toString() {
         return getName();
+    }
+
+    public Long getReferenceLength(String refname) {
+
+        System.out.println("requesting length of reference: " + refname);
+
+        if (this.referenceMap.containsKey(refname)) {
+            return this.referenceMap.get(refname);
+        } else {
+            return (long) -1;
+        }
     }
 
 }

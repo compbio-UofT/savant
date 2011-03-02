@@ -104,6 +104,10 @@ public class ReferenceController {
         return this.loadedGenome.getReferenceNames();
     }
 
+    public Long getReferenceLength(String refname) {
+        return this.loadedGenome.getReferenceLength(refname);
+    }
+
     public Set<String> getNonGenomicReferenceNames() {
 
         return new HashSet<String>();
