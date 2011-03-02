@@ -17,9 +17,15 @@
 
 package savant.selection;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import javax.swing.JButton;
 import javax.swing.JLabel;
 import net.sf.samtools.SAMRecord;
+import savant.controller.RangeController;
+import savant.controller.ReferenceController;
 import savant.data.types.BAMIntervalRecord;
+import savant.util.Range;
 
 /**
  *
@@ -55,8 +61,27 @@ public class IntervalBamPopup extends PopupPanel {
         String readLength = "Read Length: " + samRec.getReadLength();
         this.add(new JLabel(readLength));
 
-        String matePosition = "Mate Position: " + homogenizeRef(samRec.getMateReferenceName()) + ": " + samRec.getMateAlignmentStart();
-        this.add(new JLabel(matePosition));
+        if (samRec.getReadPairedFlag()) {
+            String matePosition = "Mate Position: " + homogenizeRef(samRec.getMateReferenceName()) + ": " + samRec.getMateAlignmentStart();
+            this.add(new JLabel(matePosition));
+
+            final long matepos = samRec.getMateAlignmentStart();
+
+            JButton matebutton = new JButton("Jump to mate");
+            matebutton.addActionListener(new ActionListener() {
+
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    RangeController rc = RangeController.getInstance();
+                    long offset = (long) Math.ceil(((float) rc.getRange().getLength())/2);
+                    long start = samRec.getMateAlignmentStart()-offset;
+                    long end = start + rc.getRange().getLength() - 1;
+                    RangeController.getInstance().setRange(samRec.getMateReferenceName(), new Range(start, end));
+                }
+            });
+
+            this.add(matebutton);
+        }
     }
 
     @Override
