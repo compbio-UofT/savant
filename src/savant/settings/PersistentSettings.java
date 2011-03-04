@@ -1,5 +1,5 @@
 /*
- *    Copyright 2010 University of Toronto
+ *    Copyright 2010-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -123,6 +123,10 @@ public class PersistentSettings extends Properties {
     }
 
     public void setString(String key, String value){
-        setProperty(key, value);
+        if (value == null) {
+            remove(key);
+        } else {
+            setProperty(key, value);
+        }
     }
 }
