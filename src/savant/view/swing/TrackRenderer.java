@@ -16,6 +16,7 @@
 
 package savant.view.swing;
 
+import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Shape;
@@ -31,6 +32,7 @@ import savant.controller.RangeController;
 import savant.controller.SelectionController;
 import savant.data.event.DataRetrievalEvent;
 import savant.data.event.DataRetrievalListener;
+import savant.data.types.BAMIntervalRecord;
 import savant.data.types.Record;
 import savant.exception.RenderingException;
 import savant.file.DataFormat;
@@ -51,6 +53,8 @@ public abstract class TrackRenderer implements DataRetrievalListener {
     protected String trackName;
 
     protected Map<Record, Shape> recordToShapeMap = new HashMap<Record, Shape>();
+
+    protected Boolean dataCurrent = false;
 
     protected TrackRenderer(DataFormat dataType) {
         instructions.put(DrawingInstruction.TRACK_DATA_TYPE, dataType);
@@ -83,7 +87,10 @@ public abstract class TrackRenderer implements DataRetrievalListener {
     public void dataRetrievalCompleted(DataRetrievalEvent evt) {
         LOG.debug("TrackRenderer received dataRetrievalCompleted, removing PROGRESS.");
         instructions.remove(DrawingInstruction.PROGRESS);
-        data = evt.getData();
+        if(!dataCurrent){
+            data = evt.getData();            
+        }
+        dataCurrent = false;
     }
 
     public boolean isWaitingForData() {
@@ -283,5 +290,16 @@ public abstract class TrackRenderer implements DataRetrievalListener {
             }
         }
         return shapes;
+    }
+
+    /*
+     * Override the current data after a data retrieval in order to add more
+     * information (ie. color override).
+     * This will prevent data being set when renderer receives next
+     * DataReceived event, so use with care. 
+     */
+    public void setData(List<Record> records){
+        data = records;
+        dataCurrent = true;
     }
 }

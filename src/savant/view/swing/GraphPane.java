@@ -36,6 +36,8 @@ import savant.controller.event.GraphPaneChangeEvent;
 import savant.controller.event.GraphPaneChangeListener;
 import savant.data.event.ExportEvent;
 import savant.data.event.ExportEventListener;
+import savant.data.event.PopupEvent;
+import savant.data.event.PopupEventListener;
 import savant.data.types.GenericContinuousRecord;
 import savant.data.types.Record;
 import savant.exception.RenderingException;
@@ -133,7 +135,8 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
     private keyModifier keyMod = keyModifier.DEFAULT;
 
     //awaiting exported images
-    private final List<ExportEventListener> listeners = new ArrayList<ExportEventListener>();
+    private final List<ExportEventListener> exportListeners = new ArrayList<ExportEventListener>();
+    private final List<PopupEventListener> popupListeners = new ArrayList<PopupEventListener>();
 
     /**
      * CONSTRUCTOR
@@ -1241,6 +1244,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
 
                 createJidePopup();
                 PopupPanel pp = PopupPanel.create(this, tracks[0].getDrawMode(), t.getDataSource().getDataFormat(), currentOverRecord);
+                fireNewPopup(pp);
                 if (pp != null){
                     popPanel.add(pp, BorderLayout.CENTER);
                     Point p1 = (Point)p.clone();
@@ -1396,23 +1400,44 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
     }
 
     public void addExportEventListener(ExportEventListener eel){
-        synchronized (listeners) {
-            listeners.add(eel);
+        synchronized (exportListeners) {
+            exportListeners.add(eel);
         }
     }
 
     public void removeExportListener(ExportEventListener eel){
-        synchronized (listeners) {
-            listeners.remove(eel);
+        synchronized (exportListeners) {
+            exportListeners.remove(eel);
         }
     }
 
     public void fireExportReady(Range range, BufferedImage image){
-        int size = listeners.size();
+        int size = exportListeners.size();
         for (int i = 0; i < size; i++){
-            listeners.get(i).exportCompleted(new ExportEvent(range, image));
-            size = listeners.size(); //a listener may get removed
+            exportListeners.get(i).exportCompleted(new ExportEvent(range, image));
+            size = exportListeners.size(); //a listener may get removed
         }
     }
+    
+    public void addPopupEventListener(PopupEventListener pel){
+        synchronized (popupListeners) {
+            popupListeners.add(pel);
+        }
+    }
+
+    public void removePopupListener(PopupEventListener eel){
+        synchronized (popupListeners) {
+            popupListeners.remove(eel);
+        }
+    }
+
+    public void fireNewPopup(PopupPanel popup){
+        int size = popupListeners.size();
+        for (int i = 0; i < size; i++){
+            popupListeners.get(i).newPopup(new PopupEvent(popup));
+            size = popupListeners.size(); //a listener may get removed
+        }
+    }
+
 
 }

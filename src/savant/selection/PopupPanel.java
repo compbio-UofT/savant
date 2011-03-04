@@ -22,7 +22,9 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
@@ -52,6 +54,9 @@ public class PopupPanel extends JPanel {
     protected String ref;
     protected long start;
     protected long end;
+
+    //additional fields
+   // protected List<String> addedFields;
 
     public static PopupPanel create(GraphPane parent, String mode, DataFormat ff, Record rec){
 
@@ -178,6 +183,15 @@ public class PopupPanel extends JPanel {
             }
         }
         return orig;
+    }
+
+    public void addField(String text){
+        this.add(new JSeparator());
+        this.add(new JLabel(text));
+    }
+
+    public Record getRecord(){
+        return record;
     }
 
 }

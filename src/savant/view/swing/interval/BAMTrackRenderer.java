@@ -571,6 +571,11 @@ public class BAMTrackRenderer extends TrackRenderer {
                     }
                 }
 
+                Color override = ((BAMIntervalRecord)intervalRecord).getColor();
+                if(override != null){
+                    g2.setColor(override);
+                }
+                
                 Polygon readshape = renderRead(g2, gp, cs, samRecord, interval, level, range, readcolor);
 
                 this.recordToShapeMap.put(intervalRecord, readshape);

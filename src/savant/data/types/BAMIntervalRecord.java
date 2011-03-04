@@ -21,6 +21,7 @@
 
 package savant.data.types;
 
+import java.awt.Color;
 import net.sf.samtools.SAMRecord;
 
 /**
@@ -38,6 +39,7 @@ public class BAMIntervalRecord implements IntervalRecord {
     private final Interval interval;
     private final SAMRecord samRecord;
     //private final PairType type;
+    private Color overrideColor = null;
 
     /**
      * Constructor. Clients should use static factory method valueOf() instead.
@@ -147,4 +149,14 @@ public class BAMIntervalRecord implements IntervalRecord {
         } else if(a < b) return -1;
           else return 1;
     }
+
+    public Color getColor(){
+        return overrideColor;
+    }
+
+    public void setColor(Color color){
+        this.overrideColor = color;
+    }
+
 }
+
