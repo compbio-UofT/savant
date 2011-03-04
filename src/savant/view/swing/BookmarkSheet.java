@@ -326,7 +326,7 @@ public class BookmarkSheet implements BookmarksChangedListener /*, RangeChangedL
             newBookmarks.add(parseBookmark(line));
         }
 
-        bookmarks.addAll(newBookmarks);
+        //bookmarks.addAll(newBookmarks);
         bmc.addBookmarks(newBookmarks);
 
         br.close();
