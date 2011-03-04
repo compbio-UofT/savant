@@ -28,6 +28,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
 import java.util.Arrays;
@@ -247,7 +248,7 @@ public class BookmarkSheet implements BookmarksChangedListener /*, RangeChangedL
 
     @Override
     public void bookmarksChangeReceived(BookmarksChangedEvent event) {
-        this.refreshData(event.favorites());
+        this.refreshData(BookmarkController.getInstance().getBookmarks());
     }
 
     private void refreshData(List<Bookmark> favorites) {
@@ -319,11 +320,14 @@ public class BookmarkSheet implements BookmarksChangedListener /*, RangeChangedL
 
         String line = "";
 
+        List<Bookmark> newBookmarks = new ArrayList<Bookmark>();
+
         while ((line = br.readLine()) != null) {
-            Bookmark bm = parseBookmark(line);
-            bookmarks.add(bm);
-            bmc.addBookmarkSilent(bm);
+            newBookmarks.add(parseBookmark(line));
         }
+
+        bookmarks.addAll(newBookmarks);
+        bmc.addBookmarks(newBookmarks);
 
         br.close();
     }

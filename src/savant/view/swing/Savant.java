@@ -2420,7 +2420,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         Object[] options = {"OK",
             "Don't show again"};
         int n = JOptionPane.showOptionDialog(Savant.getInstance(),
-                event.message(),
+                event.isAdded() ? "Bookmark added at " + event.getBookmark().getReference() + ":" + event.getBookmark().getRange() : "Bookmark removed at " + event.getBookmark().getRange(),
                 "Bookmarks changed",
                 JOptionPane.YES_NO_CANCEL_OPTION,
                 JOptionPane.INFORMATION_MESSAGE,

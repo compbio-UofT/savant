@@ -26,20 +26,38 @@ import java.util.List;
  */
 public class BookmarksChangedEvent extends EventObject {
 
-    private List<Bookmark> bookmarks;
-    private String message;
+    //private List<Bookmark> bookmarks;
+    //private String message;
+    private Bookmark changedbkmk;
+    private boolean isAdded;
+    //private boolean isSilent;
 
-    public BookmarksChangedEvent(Object source, List<Bookmark> bms, String message) {
+    /**
+     *
+     * @param source
+     * @param changedbkmk
+     * @param isAdded true iff bookmark was added, false if removed
+     * @param isSilent
+     */
+    public BookmarksChangedEvent(Object source, Bookmark changedbkmk, boolean isAdded) {
         super(source);
-        this.bookmarks = bms;
-        this.message = message;
+        this.changedbkmk = changedbkmk;
+        this.isAdded = isAdded;
+       // this.isSilent = isSilent;
     }
 
-    public List<Bookmark> favorites() {
-        return bookmarks;
+    public boolean isAdded() {
+        return this.isAdded;
     }
 
-    public String message() {
-        return this.message;
+    public Bookmark getBookmark() {
+        return this.changedbkmk;
     }
+
+    /*
+    public boolean isSilent() {
+        return this.isSilent();
+    }
+     * 
+     */
 }

@@ -139,7 +139,6 @@ public class Genome implements Serializable, GenomeAdapter {
     }
 
     public Long getReferenceLength(String refname) {
-
         if (this.referenceMap.containsKey(refname)) {
             return this.referenceMap.get(refname);
         } else {

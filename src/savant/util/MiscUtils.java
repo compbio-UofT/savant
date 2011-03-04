@@ -66,11 +66,11 @@ public class MiscUtils {
      * @param num The number to format
      * @return A formatted string
      */
-     public static String numToString(float num) {
+     public static String numToString(double num) {
          return numToString(num,0);
      }
 
-    public static String numToString(float num, int significantdigits) {
+    public static String numToString(double num, int significantdigits) {
         //TODO: implement formatter
         String formatString = "###,###";
 

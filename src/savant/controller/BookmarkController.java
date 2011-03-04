@@ -62,13 +62,17 @@ public class BookmarkController {
     }
 
     public void addBookmark(Bookmark f) {
-        if(this.bookmarks == null || this.bookmarks.isEmpty())this.bookmarks = new ArrayList<Bookmark>();
+        if(this.bookmarks == null || this.bookmarks.isEmpty()) { this.bookmarks = new ArrayList<Bookmark>(); }
         this.bookmarks.add(f);
-        this.fireBookmarksChangedEvent("Bookmark added at " + f.getReference() + ": " +  f.getRange());
+        this.fireBookmarksChangedEvent(f,true);
     }
 
-    public void addBookmarkSilent(Bookmark f){
-        this.bookmarks.add(f);
+    public void addBookmarks(List<Bookmark> bkmks){
+        for (Bookmark b : bkmks) {
+            addBookmark(b);
+        }
+        //System.out.println("Adding bookmark : " + f.getRange() );
+        //this.bookmarks.add(f);
     }
 
     public void removeBookmark() {
@@ -80,15 +84,15 @@ public class BookmarkController {
             LOG.info("Bookmark removed.");
             Bookmark b = this.bookmarks.get(index);
             this.bookmarks.remove(index);
-            this.fireBookmarksChangedEvent("Bookmark removed at " + b.getReference() + ": " + b.getRange());
+            this.fireBookmarksChangedEvent(b,false);
         } catch(Exception e) {}
     }
 
     /**
      * Fire the RangeChangedEvent
      */
-    private synchronized void fireBookmarksChangedEvent(String message) {
-        BookmarksChangedEvent evt = new BookmarksChangedEvent(this, this.bookmarks, message);
+    private synchronized void fireBookmarksChangedEvent(Bookmark bkmk, boolean isAdded) {
+        BookmarksChangedEvent evt = new BookmarksChangedEvent(this, bkmk, isAdded);
         for (BookmarksChangedListener listener : this.favoritesChangedListeners) {
             listener.bookmarksChangeReceived(evt);
         }

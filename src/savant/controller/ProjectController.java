@@ -200,10 +200,7 @@ public class ProjectController {
         for (Object path : trackpaths) {
             Savant.getInstance().addTrackFromFile((String) path);
         }
-        BookmarkController bc = BookmarkController.getInstance();
-        for (Object bkmk : bookmarks) {
-            bc.addBookmark((Bookmark) bkmk);
-        }
+        BookmarkController.getInstance().addBookmarks(bookmarks);
 
         RecentProjectsController.getInstance().addProjectFile(filename);
     }
