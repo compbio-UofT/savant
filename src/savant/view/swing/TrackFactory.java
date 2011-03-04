@@ -245,8 +245,7 @@ public class TrackFactory {
                     fireTrackCreationCompleted(tracks, "");
                 }
             } catch (Exception x) {
-                LOG.error("Track creation failed");
-                x.printStackTrace();
+                LOG.error("Track creation failed.", x);
                 fireTrackCreationFailed(x);
             }
         }
