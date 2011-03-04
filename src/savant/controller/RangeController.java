@@ -321,7 +321,6 @@ public class RangeController {
      * Zoom out one level
      */
     public void zoomOut() {
-        System.out.println("current len = " + currentViewableRange.getLength() + " to length: " + currentViewableRange.getLength() * BrowserSettings.zoomAmount);
         long length = Math.min(maximumViewableRange.getLength(), currentViewableRange.getLength() * BrowserSettings.zoomAmount);
         zoomToLength(length);
     }
