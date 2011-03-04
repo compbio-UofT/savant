@@ -295,7 +295,7 @@ public class RangeController {
      * @param length The length to which to zoom
      */
     public void zoomToLength(long length) {
-        zoomToLength(length, (getRangeEnd() + getRangeStart()) / 2);
+        zoomToLength(length, (getRangeEnd()+ 1 + getRangeStart()) / 2); // + 1 because ranges are inclusive
     }
     
     public void zoomToLength(long length, long center) {
@@ -321,6 +321,7 @@ public class RangeController {
      * Zoom out one level
      */
     public void zoomOut() {
+        System.out.println("current len = " + currentViewableRange.getLength() + " to length: " + currentViewableRange.getLength() * BrowserSettings.zoomAmount);
         long length = Math.min(maximumViewableRange.getLength(), currentViewableRange.getLength() * BrowserSettings.zoomAmount);
         zoomToLength(length);
     }
