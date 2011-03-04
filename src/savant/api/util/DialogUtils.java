@@ -16,6 +16,7 @@
 
 package savant.api.util;
 
+import java.awt.Window;
 import java.io.File;
 import javax.swing.filechooser.FileFilter;
 
@@ -185,5 +186,12 @@ public class DialogUtils {
      */
     public static File chooseFileForSave(String title, String defaultName, FileFilter filter, File dir) {
         return savant.view.swing.util.DialogUtils.chooseFileForSave(Savant.getInstance(), title, defaultName, filter, dir);
+    }
+
+    /**
+     * For purposes of centring dialogs, here's the Savant main window.
+     */
+    public static Window getMainWindow() {
+        return Savant.getInstance();
     }
 }
