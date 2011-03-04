@@ -439,9 +439,9 @@ public class DataFormatForm extends JDialog {
         addFormat("GFF", true, false, FileType.INTERVAL_GFF , "GFF is a format for locating & describing genes and other localized features associated with DNA, RNA and Protein sequences.");
         addFormat("BAM Coverage", true, false, FileType.INTERVAL_BAM , "SAM format (binary, for BAM) is a generic format for storing large nucleotide sequence alignments.");
         addFormat("WIG/BedGraph", true, false, FileType.CONTINUOUS_WIG , "WIG format allows display of continuous-valued data in track format. This display type is useful for GC percent, probability scores, and transcriptome data.");
-        addFormat("Generic Interval", true, true, FileType.INTERVAL_GENERIC , "Generic intervals can be used to display any number of from to pairs, each with an associated description.");
+        addFormat("Generic Interval", true, true, FileType.INTERVAL_GENERIC , "Generic intervals can be used to display any number of from-to pairs, each with an associated description.");
         addFormat("Generic Point", true, true, FileType.POINT_GENERIC ,"Generic points can be used to display any number of positional elements, each with an associated description.");
-        addFormat("Generic Continuous", true, true, FileType.CONTINUOUS_GENERIC ,"Generic intervals can be used to display continuous values.");
+        addFormat("Generic Continuous", true, true, FileType.CONTINUOUS_GENERIC ,"Generic continuous can be used to display continuous values.");
 
         DefaultListModel model = (DefaultListModel) this.list_formats.getModel();
         for (int i = 0; i < formats.size(); i++) {
