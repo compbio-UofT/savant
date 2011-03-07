@@ -23,14 +23,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import savant.api.adapter.RangeAdapter;
 import savant.data.types.BEDIntervalRecord;
 import savant.data.types.Block;
+import savant.data.types.ItemRGB;
 import savant.file.DataFormat;
-import savant.sql.SQLDataSourcePlugin.Field;
-import savant.sql.Table.Column;
 import savant.util.Resolution;
 import savant.util.Strand;
 
@@ -41,7 +39,7 @@ import savant.util.Strand;
  */
 public class BEDSQLDataSource extends SQLDataSource<BEDIntervalRecord> {
 
-    BEDSQLDataSource(Table table, Map<Field, Column> columns) throws SQLException {
+    BEDSQLDataSource(Table table, ColumnMapping columns) throws SQLException {
         super(table, columns);
     }
 
@@ -49,34 +47,53 @@ public class BEDSQLDataSource extends SQLDataSource<BEDIntervalRecord> {
     public List<BEDIntervalRecord> getRecords(String reference, RangeAdapter range, Resolution resolution) throws IOException {
         List<BEDIntervalRecord> result = new ArrayList<BEDIntervalRecord>();
         try {
-            ResultSet rs = table.executeQuery("SELECT * FROM %s WHERE %s = '%s' AND ((%s >= '%d' AND %s <= '%d') OR (%s >= '%d' AND %s <= '%d') OR (%s < '%d' AND %s > '%d'))", table, columns.get(Field.CHROM), reference,
-                    columns.get(Field.START), range.getFrom(), columns.get(Field.START), range.getTo(),
-                    columns.get(Field.END), range.getFrom(), columns.get(Field.END), range.getTo(),
-                    columns.get(Field.START), range.getFrom(), columns.get(Field.END), range.getTo());
+            ResultSet rs = table.database.executeQuery("SELECT * FROM %s WHERE %s = '%s' AND ((%s >= '%d' AND %s <= '%d') OR (%s >= '%d' AND %s <= '%d') OR (%s < '%d' AND %s > '%d'))", table, columns.chrom, reference,
+                    columns.start, range.getFrom(), columns.start, range.getTo(),
+                    columns.end, range.getFrom(), columns.end, range.getTo(),
+                    columns.start, range.getFrom(), columns.end, range.getTo());
             while (rs.next()) {
-                List<Integer> blockStarts = extractBlocks(rs.getBlob(columns.get(Field.BLOCK_STARTS).name));
-                List<Integer> blockEnds = extractBlocks(rs.getBlob(columns.get(Field.BLOCK_ENDS).name));
-
-                if (blockStarts.size() != blockEnds.size()) {
-                    throw new IOException(String.format("Mismatch: found %d block starts and %d block ends.", blockStarts.size(), blockEnds.size()));
+                int start = rs.getInt(columns.start);
+                String name = rs.getString(columns.name);
+                float score = 0.0F;
+                if (columns.score != null) {
+                    score = rs.getFloat(columns.score);
                 }
-                int start = rs.getInt(columns.get(Field.START).name);
-                List<Block> blocks = new ArrayList<Block>(blockStarts.size());
-                for (int i = 0; i < blockStarts.size(); i++) {
-                    blocks.add(new Block(blockStarts.get(i) - start, blockEnds.get(i) - blockStarts.get(i) - 1));
+                Strand strand = null;
+                if (columns.strand != null) {
+                    strand = rs.getString(columns.strand).charAt(0) == '+' ? Strand.FORWARD : Strand.REVERSE;
                 }
-
-                Strand strand = rs.getString(columns.get(Field.STRAND).name).charAt(0) == '+' ? Strand.FORWARD : Strand.REVERSE;
-                result.add(BEDIntervalRecord.valueOf(reference,
-                                                     start,
-                                                     rs.getInt(columns.get(Field.END).name) - 1,
-                                                     rs.getString(columns.get(Field.NAME).name),
-                                                     rs.getFloat(columns.get(Field.SCORE).name),
-                                                     strand,
-                                                     rs.getInt(columns.get(Field.THICK_START).name),
-                                                     rs.getInt(columns.get(Field.THICK_END).name) - 1,
-                                                     null,
-                                                     blocks));
+                int thickStart = -1;
+                if (columns.thickStart != null) {
+                    thickStart = rs.getInt(columns.thickStart);
+                }
+                int thickEnd = -1;
+                if (columns.thickEnd != null) {
+                    thickEnd = rs.getInt(columns.thickEnd) - 1;
+                }
+                ItemRGB itemRGB = null;
+                if (columns.itemRGB != null) {
+                    int rgb = rs.getInt(columns.itemRGB);
+                    itemRGB = ItemRGB.valueOf((rgb >> 16) & 0xFF, (rgb >> 8) & 0xFF, rgb & 0xFF);
+                }
+                List<Block> blocks = null;
+                if (columns.blockStarts != null) {
+                    List<Integer> blockStarts = extractBlocks(rs.getBlob(columns.blockStarts));
+                    blocks = new ArrayList<Block>(blockStarts.size());
+                    if (columns.blockEnds != null) {
+                        List<Integer> blockEnds = extractBlocks(rs.getBlob(columns.blockEnds));
+                        for (int i = 0; i < blockEnds.size(); i++) {
+                            blocks.add(new Block(blockStarts.get(i) - start, blockEnds.get(i) - blockStarts.get(i) - 1));
+                        }
+                    } else if (columns.blockSizes != null) {
+                        List<Integer> blockSizes = extractBlocks(rs.getBlob(columns.blockSizes));
+                        for (int i = 0; i < blockSizes.size(); i++) {
+                            blocks.add(new Block(blockStarts.get(i) - start, blockSizes.get(i) - 1));
+                        }
+                    } else {
+                        throw new IOException("No column provided for block ends/sizes.");
+                    }
+                }
+                result.add(BEDIntervalRecord.valueOf(reference, start, rs.getInt(columns.end) - 1, name, score, strand, thickStart, thickEnd, itemRGB, blocks));
             }
         } catch (SQLException sqlx) {
             LOG.error(sqlx);

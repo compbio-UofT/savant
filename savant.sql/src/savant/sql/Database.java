@@ -22,6 +22,7 @@ import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,13 +35,13 @@ import org.apache.commons.logging.LogFactory;
  *
  * @author tarkvara
  */
-class Database {
+public class Database {
     private static final Log LOG = LogFactory.getLog(Database.class);
 
-    String name;
-    URI serverURI;
-    String userName;
-    String password;
+    final String name;
+    final URI serverURI;
+    private final String userName;
+    private final String password;
 
     private List<Table> tables;
     private Connection connection;
@@ -53,7 +54,7 @@ class Database {
      * @param userName user name for SQL login
      * @param password password for SQL login
      */
-    Database(String name, URI serverURI, String userName, String password) {
+    public Database(String name, URI serverURI, String userName, String password) {
         this.name = name;
         this.serverURI = serverURI;
         this.userName = userName;
@@ -65,17 +66,29 @@ class Database {
         return name;
     }
 
-    synchronized List<Table> getTables() throws SQLException {
+    public synchronized List<Table> getTables() throws SQLException {
         if (tables == null) {
             tables = new ArrayList<Table>();
             DatabaseMetaData md = getConnection().getMetaData();
             ResultSet rs = md.getTables(null, null, "%", new String[] { "TABLE" });
+            int numTables = 0;
             while (rs.next()) {
-                tables.add(new Table(rs.getString("TABLE_NAME"), this));
+                String s = rs.getString("TABLE_NAME");
+                tables.add(new Table(s, this));
+                numTables++;
+                LOG.debug(numTables + ": " + s);
             }
+            LOG.info("Retrieved " + numTables + " tables for " + name);
         }
         return tables;
     }
+
+    public ResultSet executeQuery(String format, Object... args) throws SQLException {
+        Statement st = getConnection().createStatement();
+        String query = String.format(format, args);
+        return st.executeQuery(query);
+    }
+
 
     /**
      * Is the database currently using the given table?  If the database has not queried
@@ -84,11 +97,11 @@ class Database {
      * @param t the table we're looking for
      * @return true if the table is in use.
      */
-    boolean containsTable(Table t) {
+    public boolean containsTable(Table t) {
         return tables != null ? tables.contains(t) : false;
     }
 
-    Connection getConnection() throws SQLException {
+    public Connection getConnection() throws SQLException {
         if (connection != null && !connection.isValid(0)) {
             // Connection no longer valid.  Close it and recreate.
             LOG.info("Connection to " + serverURI + " no longer valid; recreating.");
@@ -102,7 +115,7 @@ class Database {
     }
 
 
-    void closeConnection() {
+    public void closeConnection() {
         if (connection != null) {
             try {
                 connection.close();
@@ -111,5 +124,9 @@ class Database {
             }
             connection = null;
         }
+    }
+
+    public String getName() {
+        return name;
     }
 }

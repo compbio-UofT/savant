@@ -13,30 +13,23 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-
 package savant.sql;
 
-import java.awt.CardLayout;
+import java.awt.GridBagConstraints;
+import java.awt.Insets;
 import java.awt.Window;
 import java.sql.SQLException;
-import java.sql.Types;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.EnumMap;
 import java.util.List;
-import javax.swing.JComboBox;
-import javax.swing.JDialog;
-import javax.swing.SwingWorker;
+import javax.swing.DefaultComboBoxModel;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import savant.api.util.DialogUtils;
-import savant.api.util.SettingsUtils;
+
 import savant.file.DataFormat;
-import savant.sql.SQLDataSourcePlugin.Field;
-import savant.sql.Table.Column;
 
 /**
  * Dialog which lets user specify the mapping between database columns and our record
@@ -44,30 +37,35 @@ import savant.sql.Table.Column;
  *
  * @author tarkvara
  */
-public class MappingDialog extends JDialog {
+public class MappingDialog extends javax.swing.JDialog {
     private static final Log LOG = LogFactory.getLog(MappingDialog.class);
-
+    public static final DefaultComboBoxModel FORMAT_COMBO_MODEL = new DefaultComboBoxModel(new FormatDef[] { new FormatDef("BED", DataFormat.INTERVAL_BED), new FormatDef("Generic Interval", DataFormat.INTERVAL_GENERIC), new FormatDef("Generic Continuous", DataFormat.CONTINUOUS_GENERIC) });
     private SQLDataSourcePlugin plugin;
+    private MappingPanel mappingPanel;
 
-    /**
-     * Display a dialog to let the user set up the field-to-column mappings.
-     *
-     * @param parent parent dialog
-     * @param plugin associated DataSourcePlugin which is being configured.
-     * @throws SQLException
-     */
     public MappingDialog(Window parent, SQLDataSourcePlugin plugin) throws SQLException {
         super(parent, ModalityType.APPLICATION_MODAL);
         initComponents();
         this.plugin = plugin;
-        formatComboActionPerformed(null);   // So that the correct card is displayed.
+        mappingPanel = new MappingPanel();
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.insets = new Insets(8, 8, 8, 8);
+        add(mappingPanel, gbc);
+
         populateDatabaseCombo();
-        populateTableCombo();
+        formatCombo.setModel(FORMAT_COMBO_MODEL);
+        formatCombo.setSelectedIndex(0);
+        formatComboActionPerformed(null);   // So that the correct components are displayed.
+        pack();
         setLocationRelativeTo(parent);
         plugin.table = null;
-        plugin.mappings = null;
+        plugin.mapping = null;
     }
-
 
     /** This method is called from within the constructor to
      * initialize the form.
@@ -77,218 +75,88 @@ public class MappingDialog extends JDialog {
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
+        java.awt.GridBagConstraints gridBagConstraints;
 
-        jLabel1 = new javax.swing.JLabel();
-        formatCombo = new javax.swing.JComboBox();
+        javax.swing.JPanel navigationPanel = new javax.swing.JPanel();
         javax.swing.JLabel formatLabel = new javax.swing.JLabel();
+        formatCombo = new javax.swing.JComboBox();
         javax.swing.JLabel databaseLabel = new javax.swing.JLabel();
         databaseCombo = new javax.swing.JComboBox();
-        mappingsPanel = new javax.swing.JPanel();
-        javax.swing.JPanel bedPanel = new javax.swing.JPanel();
-        javax.swing.JLabel chromLabel = new javax.swing.JLabel();
-        chromCombo = new javax.swing.JComboBox();
-        javax.swing.JLabel startLabel = new javax.swing.JLabel();
-        startCombo = new javax.swing.JComboBox();
-        javax.swing.JLabel endLabel = new javax.swing.JLabel();
-        endCombo = new javax.swing.JComboBox();
-        javax.swing.JLabel nameLabel = new javax.swing.JLabel();
-        nameCombo = new javax.swing.JComboBox();
-        javax.swing.JLabel scoreLabel = new javax.swing.JLabel();
-        scoreCombo = new javax.swing.JComboBox();
-        javax.swing.JLabel strandLabel = new javax.swing.JLabel();
-        strandCombo = new javax.swing.JComboBox();
-        javax.swing.JLabel thickStartLabel = new javax.swing.JLabel();
-        thickStartCombo = new javax.swing.JComboBox();
-        javax.swing.JLabel thickEndLabel = new javax.swing.JLabel();
-        thickEndCombo = new javax.swing.JComboBox();
-        javax.swing.JLabel blockStarts = new javax.swing.JLabel();
-        blockStartsCombo = new javax.swing.JComboBox();
-        javax.swing.JLabel blockEndsLabel = new javax.swing.JLabel();
-        blockEndsCombo = new javax.swing.JComboBox();
-        javax.swing.JPanel continuousPanel = new javax.swing.JPanel();
-        javax.swing.JLabel referenceLabel = new javax.swing.JLabel();
-        javax.swing.JLabel positionLabel = new javax.swing.JLabel();
-        referenceCombo = new javax.swing.JComboBox();
-        valueCombo = new javax.swing.JComboBox();
-        positionCombo = new javax.swing.JComboBox();
-        javax.swing.JLabel valueLabel = new javax.swing.JLabel();
-        cancelButton = new javax.swing.JButton();
-        okButton = new javax.swing.JButton();
         javax.swing.JLabel tableLabel = new javax.swing.JLabel();
         tableCombo = new javax.swing.JComboBox();
-
-        jLabel1.setText("jLabel1");
+        javax.swing.JButton okButton = new javax.swing.JButton();
+        javax.swing.JButton cancelButton = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        getContentPane().setLayout(new java.awt.GridBagLayout());
 
-        formatCombo.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "BED", "Generic Continuous" }));
+        navigationPanel.setLayout(new java.awt.GridBagLayout());
+
+        formatLabel.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
+        formatLabel.setText("Format:");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
+        gridBagConstraints.insets = new java.awt.Insets(8, 8, 8, 8);
+        navigationPanel.add(formatLabel, gridBagConstraints);
+
         formatCombo.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 formatComboActionPerformed(evt);
             }
         });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.weightx = 1.0;
+        navigationPanel.add(formatCombo, gridBagConstraints);
 
-        formatLabel.setText("Format");
-
-        databaseLabel.setText("Database");
+        databaseLabel.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
+        databaseLabel.setText("Database:");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
+        gridBagConstraints.insets = new java.awt.Insets(8, 8, 8, 8);
+        navigationPanel.add(databaseLabel, gridBagConstraints);
 
         databaseCombo.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 databaseComboActionPerformed(evt);
             }
         });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.weightx = 1.0;
+        navigationPanel.add(databaseCombo, gridBagConstraints);
 
-        mappingsPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Field Mappings"));
-        mappingsPanel.setLayout(new java.awt.CardLayout());
+        tableLabel.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
+        tableLabel.setText("Table:");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
+        gridBagConstraints.insets = new java.awt.Insets(8, 8, 8, 8);
+        navigationPanel.add(tableLabel, gridBagConstraints);
 
-        chromLabel.setText("Chromosome");
-
-        startLabel.setText("Interval Start");
-
-        endLabel.setText("Interval End");
-
-        nameLabel.setText("Name");
-
-        scoreLabel.setText("Score");
-
-        strandLabel.setText("Strand");
-
-        thickStartLabel.setText("Thick Start");
-
-        thickEndLabel.setText("Thick End");
-
-        blockStarts.setText("Block Starts");
-
-        blockEndsLabel.setText("Block Ends");
-
-        javax.swing.GroupLayout bedPanelLayout = new javax.swing.GroupLayout(bedPanel);
-        bedPanel.setLayout(bedPanelLayout);
-        bedPanelLayout.setHorizontalGroup(
-            bedPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(bedPanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(bedPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(chromLabel)
-                    .addComponent(startLabel)
-                    .addComponent(endLabel)
-                    .addComponent(nameLabel)
-                    .addComponent(scoreLabel)
-                    .addComponent(strandLabel)
-                    .addComponent(thickStartLabel)
-                    .addComponent(thickEndLabel)
-                    .addComponent(blockStarts)
-                    .addComponent(blockEndsLabel))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(bedPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(blockEndsCombo, 0, 270, Short.MAX_VALUE)
-                    .addComponent(blockStartsCombo, javax.swing.GroupLayout.Alignment.TRAILING, 0, 270, Short.MAX_VALUE)
-                    .addComponent(thickEndCombo, javax.swing.GroupLayout.Alignment.TRAILING, 0, 270, Short.MAX_VALUE)
-                    .addComponent(thickStartCombo, javax.swing.GroupLayout.Alignment.TRAILING, 0, 270, Short.MAX_VALUE)
-                    .addComponent(strandCombo, javax.swing.GroupLayout.Alignment.TRAILING, 0, 270, Short.MAX_VALUE)
-                    .addComponent(scoreCombo, javax.swing.GroupLayout.Alignment.TRAILING, 0, 270, Short.MAX_VALUE)
-                    .addComponent(nameCombo, javax.swing.GroupLayout.Alignment.TRAILING, 0, 270, Short.MAX_VALUE)
-                    .addComponent(endCombo, javax.swing.GroupLayout.Alignment.TRAILING, 0, 270, Short.MAX_VALUE)
-                    .addComponent(startCombo, javax.swing.GroupLayout.Alignment.TRAILING, 0, 270, Short.MAX_VALUE)
-                    .addComponent(chromCombo, javax.swing.GroupLayout.Alignment.TRAILING, 0, 270, Short.MAX_VALUE))
-                .addContainerGap())
-        );
-        bedPanelLayout.setVerticalGroup(
-            bedPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(bedPanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(bedPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(chromLabel)
-                    .addComponent(chromCombo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(bedPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(startLabel)
-                    .addComponent(startCombo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(bedPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(endLabel)
-                    .addComponent(endCombo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(bedPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(nameLabel)
-                    .addComponent(nameCombo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(bedPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(scoreLabel)
-                    .addComponent(scoreCombo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(bedPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(strandLabel)
-                    .addComponent(strandCombo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(bedPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(thickStartLabel)
-                    .addComponent(thickStartCombo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(bedPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(thickEndLabel)
-                    .addComponent(thickEndCombo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(bedPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(blockStarts)
-                    .addComponent(blockStartsCombo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 8, Short.MAX_VALUE)
-                .addGroup(bedPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(blockEndsLabel)
-                    .addComponent(blockEndsCombo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap())
-        );
-
-        mappingsPanel.add(bedPanel, "BED");
-
-        referenceLabel.setText("Reference");
-
-        positionLabel.setText("Position");
-
-        valueLabel.setText("Value");
-
-        javax.swing.GroupLayout continuousPanelLayout = new javax.swing.GroupLayout(continuousPanel);
-        continuousPanel.setLayout(continuousPanelLayout);
-        continuousPanelLayout.setHorizontalGroup(
-            continuousPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(continuousPanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(continuousPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(valueLabel)
-                    .addComponent(positionLabel)
-                    .addComponent(referenceLabel))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 18, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGroup(continuousPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(valueCombo, javax.swing.GroupLayout.Alignment.TRAILING, 0, 286, Short.MAX_VALUE)
-                    .addComponent(positionCombo, javax.swing.GroupLayout.Alignment.TRAILING, 0, 286, Short.MAX_VALUE)
-                    .addComponent(referenceCombo, javax.swing.GroupLayout.Alignment.TRAILING, 0, 286, Short.MAX_VALUE))
-                .addContainerGap())
-        );
-        continuousPanelLayout.setVerticalGroup(
-            continuousPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(continuousPanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(continuousPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(referenceCombo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(referenceLabel))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(continuousPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(positionCombo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(positionLabel))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(continuousPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(valueCombo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(valueLabel))
-                .addContainerGap(269, Short.MAX_VALUE))
-        );
-
-        mappingsPanel.add(continuousPanel, "Generic Continuous");
-
-        cancelButton.setText("Cancel");
-        cancelButton.addActionListener(new java.awt.event.ActionListener() {
+        tableCombo.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                cancelButtonActionPerformed(evt);
+                tableComboActionPerformed(evt);
             }
         });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.ipadx = 23;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.weightx = 1.0;
+        navigationPanel.add(tableCombo, gridBagConstraints);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.insets = new java.awt.Insets(8, 8, 8, 8);
+        getContentPane().add(navigationPanel, gridBagConstraints);
 
         okButton.setText("OK");
         okButton.addActionListener(new java.awt.event.ActionListener() {
@@ -296,206 +164,109 @@ public class MappingDialog extends JDialog {
                 okButtonActionPerformed(evt);
             }
         });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.insets = new java.awt.Insets(8, 8, 8, 8);
+        getContentPane().add(okButton, gridBagConstraints);
 
-        tableLabel.setText("Table");
-
-        tableCombo.addActionListener(new java.awt.event.ActionListener() {
+        cancelButton.setText("Cancel");
+        cancelButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                tableComboActionPerformed(evt);
+                cancelButtonActionPerformed(evt);
             }
         });
-
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-        getContentPane().setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addGroup(layout.createSequentialGroup()
-                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                .addComponent(formatLabel)
-                                .addComponent(databaseLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 63, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addComponent(tableLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                .addComponent(tableCombo, 0, 349, Short.MAX_VALUE)
-                                .addComponent(databaseCombo, 0, 349, Short.MAX_VALUE)
-                                .addComponent(formatCombo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addContainerGap())
-                        .addGroup(layout.createSequentialGroup()
-                            .addComponent(mappingsPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 414, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(cancelButton)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(okButton)
-                        .addContainerGap())))
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(formatCombo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(formatLabel))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(databaseCombo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(databaseLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 21, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(tableCombo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(tableLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 21, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(mappingsPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(cancelButton)
-                    .addComponent(okButton))
-                .addContainerGap())
-        );
-
-        pack();
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(8, 8, 8, 8);
+        getContentPane().add(cancelButton, gridBagConstraints);
     }// </editor-fold>//GEN-END:initComponents
 
     private void formatComboActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_formatComboActionPerformed
-        CardLayout l = (CardLayout)mappingsPanel.getLayout();
-        l.show(mappingsPanel, formatCombo.getSelectedItem().toString());
+        mappingPanel.setFormat(((FormatDef)formatCombo.getSelectedItem()).format);
 }//GEN-LAST:event_formatComboActionPerformed
-
-    private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelButtonActionPerformed
-        setVisible(false);
-    }//GEN-LAST:event_cancelButtonActionPerformed
-
-    private void okButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_okButtonActionPerformed
-
-        plugin.table = (Table)tableCombo.getSelectedItem();
-        plugin.mappings = new EnumMap<Field, Column>(Field.class);
-        switch (formatCombo.getSelectedIndex()) {
-            case 0: // BED
-                plugin.format = DataFormat.INTERVAL_BED;
-                plugin.mappings.put(Field.CHROM, (Column)chromCombo.getSelectedItem());
-                plugin.mappings.put(Field.START, (Column)startCombo.getSelectedItem());
-                plugin.mappings.put(Field.END, (Column)endCombo.getSelectedItem());
-                plugin.mappings.put(Field.NAME, (Column)nameCombo.getSelectedItem());
-                plugin.mappings.put(Field.SCORE, (Column)scoreCombo.getSelectedItem());
-                plugin.mappings.put(Field.STRAND, (Column)strandCombo.getSelectedItem());
-                plugin.mappings.put(Field.THICK_START, (Column)thickStartCombo.getSelectedItem());
-                plugin.mappings.put(Field.THICK_END, (Column)thickEndCombo.getSelectedItem());
-                plugin.mappings.put(Field.BLOCK_STARTS, (Column)blockStartsCombo.getSelectedItem());
-                plugin.mappings.put(Field.BLOCK_ENDS, (Column)blockEndsCombo.getSelectedItem());
-                break;
-            case 1: // Generic Continuous
-                plugin.format = DataFormat.CONTINUOUS_GENERIC;
-                plugin.mappings.put(Field.CHROM, (Column)referenceCombo.getSelectedItem());
-                plugin.mappings.put(Field.POSITION, (Column)positionCombo.getSelectedItem());
-                plugin.mappings.put(Field.VALUE, (Column)valueCombo.getSelectedItem());
-                break;
-        }
-        saveMappings();
-        setVisible(false);
-    }//GEN-LAST:event_okButtonActionPerformed
 
     private void databaseComboActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_databaseComboActionPerformed
         populateTableCombo();
-    }//GEN-LAST:event_databaseComboActionPerformed
+}//GEN-LAST:event_databaseComboActionPerformed
 
-    /**
-     * When the user selects a table from the combo, update the field-combos to reflect
-     * the columns in the database.  Since this process can be time-consuming, the
-     * actual database access is done in a SwingWorker.
-     */
     private void tableComboActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tableComboActionPerformed
-        final Table t = (Table)tableCombo.getSelectedItem();
+        final Table t = (Table) tableCombo.getSelectedItem();
         if (t != null) {
-            new SwingWorker() {
+            new SQLWorker(this, "Fetching database columns...", "Unable to fetch database columns.") {
                 Column[] columns;
 
                 @Override
-                public Object doInBackground() {
-                    try {
-                        columns = t.getColumns();
-                    } catch (SQLException sqlx) {
-                        LOG.error(sqlx);
-                        DialogUtils.displayException("SQL Error", "Unable to get list of columns.", sqlx);
-                    }
-                    return null;
+                public void doInBackground() throws SQLException {
+                    // The first call to getColumns() can require a lengthy query.
+                    columns = t.getColumns();
                 }
-
 
                 @Override
                 public void done() {
                     if (columns != null) {
                         Arrays.sort(columns, new Comparator<Column>() {
+
                             @Override
                             public int compare(Column t, Column t1) {
                                 return t.toString().compareTo(t1.toString());
                             }
-
                         });
-                        switch (formatCombo.getSelectedIndex()) {
-                            case 0: // BED
-                                populateFieldCombo(chromCombo, columns, Types.CHAR, Field.CHROM);
-                                populateFieldCombo(startCombo, columns, Types.INTEGER, Field.START);
-                                populateFieldCombo(endCombo, columns, Types.INTEGER, Field.END);
-                                populateFieldCombo(nameCombo, columns, Types.CHAR, Field.NAME);
-                                populateFieldCombo(scoreCombo, columns, Types.REAL, Field.SCORE);
-                                populateFieldCombo(strandCombo, columns, Types.CHAR, Field.STRAND);
-                                populateFieldCombo(thickStartCombo, columns, Types.INTEGER, Field.THICK_START);
-                                populateFieldCombo(thickEndCombo, columns, Types.INTEGER, Field.THICK_END);
-                                populateFieldCombo(blockStartsCombo, columns, Types.BLOB, Field.BLOCK_STARTS);
-                                populateFieldCombo(blockEndsCombo, columns, Types.BLOB, Field.BLOCK_ENDS);
-                                break;
-                            case 1: // Generic continuous
-                                populateFieldCombo(referenceCombo, columns, Types.CHAR, Field.CHROM);
-                                populateFieldCombo(positionCombo, columns, Types.INTEGER, Field.POSITION);
-                                populateFieldCombo(valueCombo, columns, Types.REAL, Field.VALUE);
-                                break;
-                        }
+                        mappingPanel.populate(columns, ColumnMapping.getSavedMapping(plugin, columns));
                     }
                 }
-            }.execute();
+            };
         }
-    }//GEN-LAST:event_tableComboActionPerformed
+}//GEN-LAST:event_tableComboActionPerformed
+
+    private void okButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_okButtonActionPerformed
+
+        plugin.table = (Table) tableCombo.getSelectedItem();
+        plugin.mapping = mappingPanel.getMapping();
+        plugin.mapping.save(plugin);
+        setVisible(false);
+}//GEN-LAST:event_okButtonActionPerformed
+
+    private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelButtonActionPerformed
+        setVisible(false);
+}//GEN-LAST:event_cancelButtonActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JComboBox blockEndsCombo;
-    private javax.swing.JComboBox blockStartsCombo;
-    private javax.swing.JButton cancelButton;
-    private javax.swing.JComboBox chromCombo;
     private javax.swing.JComboBox databaseCombo;
-    private javax.swing.JComboBox endCombo;
     private javax.swing.JComboBox formatCombo;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JPanel mappingsPanel;
-    private javax.swing.JComboBox nameCombo;
-    private javax.swing.JButton okButton;
-    private javax.swing.JComboBox positionCombo;
-    private javax.swing.JComboBox referenceCombo;
-    private javax.swing.JComboBox scoreCombo;
-    private javax.swing.JComboBox startCombo;
-    private javax.swing.JComboBox strandCombo;
     private javax.swing.JComboBox tableCombo;
-    private javax.swing.JComboBox thickEndCombo;
-    private javax.swing.JComboBox thickStartCombo;
-    private javax.swing.JComboBox valueCombo;
     // End of variables declaration//GEN-END:variables
-
 
     /**
      * Populate the database combo with all databases on the server, excluding
      * system databases which contain no tables.
      */
-    private void populateDatabaseCombo() throws SQLException {
-        List<Database> databases = plugin.getDatabases();
-        for (Database db: databases) {
-            List<Table> tables = db.getTables();
-            if (tables.size() > 0) {
-                databaseCombo.addItem(db);
+    private void populateDatabaseCombo() {
+        new SQLWorker(DialogUtils.getMainWindow(), "Fetching database list...", "Unable to get list of databases.") {
+            List<Database> databases;
+            @Override
+            public void doInBackground() throws SQLException {
+                 databases = plugin.getDatabases();
             }
-        }
+
+            @Override
+            public void done() {
+                if (databases != null) {
+                    for (Database db : databases) {
+                        databaseCombo.addItem(db);
+                    }
+                    // Setting the selected index will populate the table combo.
+                    if (plugin.table != null) {
+                        databaseCombo.setSelectedItem(plugin.table.database);
+                    } else {
+                        databaseCombo.setSelectedIndex(0);
+                    }
+                }
+            }
+        };
     }
 
     /**
@@ -503,18 +274,12 @@ public class MappingDialog extends JDialog {
      * Table combo.
      */
     private void populateTableCombo() {
-        new SwingWorker() {
+        new SQLWorker(this, "Fetching table list...", "Unable to get list of tables.") {
             List<Table> tables;
 
             @Override
-            public Object doInBackground() {
-                try {
-                    tables = ((Database)databaseCombo.getSelectedItem()).getTables();
-                } catch (SQLException sqlx) {
-                    LOG.error(sqlx);
-                    DialogUtils.displayException("SQL Error", "Unable to get list of tables.", sqlx);
-                }
-                return null;
+            public void doInBackground() throws SQLException{
+                tables = ((Database) databaseCombo.getSelectedItem()).getTables();
             }
 
             @Override
@@ -522,84 +287,35 @@ public class MappingDialog extends JDialog {
                 tableCombo.removeAllItems();
                 if (tables != null) {
                     Collections.sort(tables, new Comparator<Table>() {
+
                         @Override
                         public int compare(Table t, Table t1) {
                             return t.toString().compareTo(t1.toString());
                         }
-
                     });
-                    for (Table t: tables) {
-                            tableCombo.addItem(t);
-                        }
+                    for (Table t : tables) {
+                        tableCombo.addItem(t);
+                    }
+                    if (plugin.table != null) {
+                        tableCombo.setSelectedItem(plugin.table);
                     }
                 }
-        }.execute();
+            }
+        };
     }
 
-    /**
-     * Populate the field combo columns of the appropriate type.
-     *
-     * @param combo
-     * @param columns
-     * @param desiredType one of Types.CHAR, Types.INTEGER, Types.REAL, or Types.BLOB to indicate the general type of data desired
-     * @param f the field corresponding to this combo
-     */
-    private void populateFieldCombo(JComboBox combo, Column[] columns, int desiredType, Field f) {
-        combo.removeAllItems();
-        
-        // If we have mappings defined for this field, use it to determine the selected item.
-        String mappedName = SettingsUtils.getString(plugin, f.toString());
-        Column mappedCol = null;
-        for (Column c: columns) {
-            boolean include = false;
-            switch (c.type) {
-                case Types.CHAR:
-                case Types.LONGNVARCHAR:
-                case Types.NCHAR:
-                case Types.NVARCHAR:
-                case Types.VARCHAR:
-                    include = desiredType == Types.CHAR;
-                    break;
-                case Types.BIGINT:
-                case Types.INTEGER:
-                case Types.SMALLINT:
-                case Types.TINYINT:
-                    include = desiredType == Types.INTEGER || desiredType == Types.REAL;
-                    break;
-                case Types.DECIMAL:
-                case Types.DOUBLE:
-                case Types.FLOAT:
-                case Types.NUMERIC:
-                case Types.REAL:
-                    include = desiredType == Types.REAL;
-                    break;
-                case Types.BINARY:
-                case Types.BLOB:
-                case Types.LONGVARBINARY:
-                case Types.VARBINARY:
-                    include = desiredType == Types.BLOB;
-                    break;
-            }
-            if (include) {
-                combo.addItem(c);
-                if (c.name.equals(mappedName)) {
-                    mappedCol = c;
-                }
-            }
-        }
-        if (mappedCol != null) {
-            combo.setSelectedItem(mappedCol);
-        }
-    }
+    public static class FormatDef {
+        String name;
+        public DataFormat format;
 
-    /**
-     * Mappings have been set up.  Save them to savant.settings so they will be available
-     * as defaults for subsequent runs.
-     */
-    private void saveMappings() {
-        for (Field f: plugin.mappings.keySet()) {
-            SettingsUtils.setString(plugin, f.toString(), plugin.mappings.get(f).name);
+        FormatDef(String name, DataFormat format) {
+            this.name = name;
+            this.format = format;
         }
-        SettingsUtils.store();
+
+        @Override
+        public String toString() {
+            return name;
+        }
     }
 }

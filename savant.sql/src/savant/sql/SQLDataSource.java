@@ -20,7 +20,6 @@ import java.net.URI;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
@@ -28,8 +27,6 @@ import org.apache.commons.logging.LogFactory;
 
 import savant.data.sources.DataSource;
 import savant.data.types.Record;
-import savant.sql.SQLDataSourcePlugin.Field;
-import savant.sql.Table.Column;
 
 
 /**
@@ -43,13 +40,13 @@ abstract class SQLDataSource<E extends Record> implements DataSource<E> {
     protected static final Log LOG = LogFactory.getLog(SQLDataSource.class);
 
     protected Table table;
-    protected Map<Field, Column> columns;
+    protected ColumnMapping columns;
     private Set<String> references = new HashSet<String>();
 
-    protected SQLDataSource(Table table, Map<Field, Column> columns) throws SQLException {
+    protected SQLDataSource(Table table, ColumnMapping columns) throws SQLException {
         this.table = table;
         this.columns = columns;
-        ResultSet rs = table.executeQuery("SELECT DISTINCT %s FROM %s", columns.get(Field.CHROM), table);
+        ResultSet rs = table.database.executeQuery("SELECT DISTINCT %s FROM %s", columns.chrom, table);
         while (rs.next()) {
             references.add(rs.getString(1));
         }

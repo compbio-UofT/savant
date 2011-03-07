@@ -23,20 +23,17 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.EnumMap;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import savant.api.util.SettingsUtils;
 
+import savant.api.util.DialogUtils;
+import savant.api.util.SettingsUtils;
 import savant.data.sources.DataSource;
-import savant.file.DataFormat;
 import savant.plugin.PluginAdapter;
 import savant.plugin.SavantDataSourcePlugin;
-import savant.sql.Table.Column;
-import savant.view.swing.Savant;
+
 
 /**
  * Plugin class which exposes data retrieved from an SQL database.
@@ -44,16 +41,16 @@ import savant.view.swing.Savant;
  * @author tarkvara
  */
 public class SQLDataSourcePlugin extends SavantDataSourcePlugin {
-    private static final Log LOG = LogFactory.getLog(SQLDataSourcePlugin.class);
-    private static final String DRIVER_NAME_SETTING = "DRIVER_NAME";
-    private static final String URI_SETTING = "URI";
-    private static final String USER_SETTING = "USER";
-    private static final String PASSWORD_SETTING = "PASSWORD";
+    protected static final Log LOG = LogFactory.getLog(SQLDataSourcePlugin.class);
+    protected static final String DRIVER_NAME_SETTING = "DRIVER_NAME";
+    protected static final String URI_SETTING = "URI";
+    protected static final String USER_SETTING = "USER";
+    protected static final String PASSWORD_SETTING = "PASSWORD";
 
-    String driverName;
-    URI uri;
-    String userName;
-    String password;
+    protected String driverName;
+    protected URI uri;
+    protected String userName;
+    protected String password;
 
     List<Database> databases;
 
@@ -63,56 +60,14 @@ public class SQLDataSourcePlugin extends SavantDataSourcePlugin {
     Table table;
 
     /**
-     * Identifies fields within the Savant record type.
-     */
-    enum Field {
-        // Shared by all record types
-        CHROM,
-
-        // Fields for BED interval format
-        START,
-        END,
-        NAME,
-        SCORE,
-        STRAND,
-        THICK_START,
-        THICK_END,
-        BLOCK_STARTS,
-        BLOCK_ENDS,
-
-        // Fields for generic continuous.
-        POSITION,
-        VALUE
-    };
-
-    /**
-     * Table which keeps track of which fields we expect to find in the mappings for
-     * a given data format.
-     */
-    private static final Field[][] EXPECTED_FIELDS = new Field[][] {
-        null, // SEQUENCE_FASTA
-        null, // POINT_GENERIC
-        new Field[] { Field.CHROM, Field.POSITION, Field.VALUE },
-        null, // INTERVAL_GENERIC
-        new Field[] { Field.CHROM, Field.START, Field.END, Field.NAME, Field.SCORE, Field.STRAND, Field.THICK_START, Field.THICK_END, Field.BLOCK_STARTS, Field.BLOCK_ENDS },
-        null  // INTERVAL_BAM
-    };
-
-    /**
      * Keeps track of which database columns are mapped to fields in the records we're returning.
      */
-    Map<Field, Column> mappings;
-
-    DataFormat format;
+    ColumnMapping mapping;
 
     private Connection connection;
 
     @Override
     public void init(PluginAdapter pluginAdapter) {
-/*        driverName = SettingsUtils.getString(this, "DriverName");
-        uri = new URI("jdbc:mysql://ucscmirror.db.7053764.hostedresource.com:3306");
-        userName = "ucscmirror";
-        password = "Watson1";*/
     }
 
     @Override
@@ -127,11 +82,11 @@ public class SQLDataSourcePlugin extends SavantDataSourcePlugin {
 
         // By default, log in using the last-used URI.
         uri = new URI(SettingsUtils.getString(this, URI_SETTING));
-        tryToLogin(false);
+        tryToLogin();
 
         // Connection will be null if user cancelled login dialog.
         if (connection != null) {
-            getMappings();
+            requestMapping();
 
             // Table will be null if user cancelled mapping dialog.
             if (table != null) {
@@ -145,21 +100,18 @@ public class SQLDataSourcePlugin extends SavantDataSourcePlugin {
      * Try to make a connection using the saved login info.  If that fails, put up
      * the login dialog.
      */
-    private void tryToLogin(boolean silent) throws ClassNotFoundException, SQLException {
+    protected void tryToLogin() throws ClassNotFoundException, SQLException {
         driverName = SettingsUtils.getString(this, DRIVER_NAME_SETTING);
         userName = SettingsUtils.getString(this, USER_SETTING);
         password = SettingsUtils.getPassword(this, PASSWORD_SETTING);
 
-        if (silent) {
-            // If possible, open the database connection without a dialog.
-            try {
-                getConnection();
-                return;
-            } catch (Exception ignored) {
-            }
+        // If possible, open the database connection without a dialog.
+        try {
+            getConnection();
+        } catch (Exception ignored) {
+            LoginDialog login = new LoginDialog(DialogUtils.getMainWindow(), this);
+            login.setVisible(true);
         }
-        LoginDialog login = new LoginDialog(Savant.getInstance(), this);
-        login.setVisible(true);
     }
 
 
@@ -167,7 +119,7 @@ public class SQLDataSourcePlugin extends SavantDataSourcePlugin {
      * After a successful login, save the login settings.
      * TODO: Saving password should be optional.
      */
-    void saveSettings() {
+    protected void saveSettings() {
         SettingsUtils.setString(this, SQLDataSourcePlugin.DRIVER_NAME_SETTING, driverName);
         SettingsUtils.setString(this, URI_SETTING, uri.toString());
         SettingsUtils.setString(this, USER_SETTING, userName);
@@ -176,46 +128,14 @@ public class SQLDataSourcePlugin extends SavantDataSourcePlugin {
     }
 
     /**
-     * Try to use existing mappings to figure out the table.  If that fails, put up
-     * the mappings dialog.
-     */
-    private void tryToMap() throws SQLException {
-        format = null;
-        mappings = null;
-        for (int i = 0; i < EXPECTED_FIELDS.length; i++) {
-            if (EXPECTED_FIELDS[i] != null) {
-                Map<Field, Column> m = new EnumMap<Field, Column>(Field.class);
-                for (Field f: EXPECTED_FIELDS[i]) {
-                    String colName = SettingsUtils.getString(this, f.toString());
-                    if (colName != null) {
-                        Column col = table.findColumnByName(colName);
-                        if (col != null) {
-                            m.put(f, col);
-                            continue;
-                        }
-                    }
-                    // No saved mapping found for this required field.
-                    m = null;
-                    break;
-                }
-                if (m != null) {
-                    format = DataFormat.values()[i];
-                    mappings = m;
-                    break;
-                }
-            }
-        }
-    }
-
-    /**
      * No field mappings found.  We'll have to put up a dialog to ask for them.
      *
      * @throws SQLException
      */
-    private void getMappings() throws SQLException {
+    protected void requestMapping() throws SQLException {
         // No field mappings established.  Have to fall back on the mapping dialog.
-        MappingDialog mapping = new MappingDialog(Savant.getInstance(), this);
-        mapping.setVisible(true);
+        MappingDialog dlg = new MappingDialog(DialogUtils.getMainWindow(), this);
+        dlg.setVisible(true);
 
         // Now that we've got the relevant info about databases, clean up connections
         // to the tables we're not using.
@@ -226,10 +146,18 @@ public class SQLDataSourcePlugin extends SavantDataSourcePlugin {
         }
     }
 
+    public void setMapping(ColumnMapping mapping) {
+        this.mapping = mapping;
+    }
+
+    public void setTable(Table table) {
+        this.table = table;
+    }
+
     @Override
     public DataSource getDataSource(URI uri) {
         DataSource result = null;
-        if (uri.getScheme().equals("jdbc")) {
+        if (canOpen(uri)) {
             try {
                 closeConnection();
 
@@ -243,16 +171,16 @@ public class SQLDataSourcePlugin extends SavantDataSourcePlugin {
 
                 // Try to log in to the given URI using credentials from the
                 this.uri = new URI(uriString.substring(0, penultimateSlash));
-                tryToLogin(true);
+                tryToLogin();
 
                 if (connection != null) {
                     table = new Table(tableName, new Database(dbName, this.uri, userName, password));
-                    tryToMap();
-                    if (mappings == null) {
-                        getMappings();
+                    mapping = ColumnMapping.getSavedMapping(this, table.getColumns());
+                    if (mapping.format == null) {
+                        requestMapping();
                     }
 
-                    if (mappings != null) {
+                    if (mapping.format != null) {
                         result = createCachedDataSource();
                     }
                 }
@@ -272,13 +200,37 @@ public class SQLDataSourcePlugin extends SavantDataSourcePlugin {
     }
 
     /**
+     * The base-class SQL plugin can open any jdbc URIs, but leaves UCSC database
+     * URIs for the UCSC plugin to handle
+     *
+     * @param uri
+     * @return true if the plugin is willing to open the given URI
+     */
+    public boolean canOpen(URI uri) {
+        if (uri.getScheme().equals("jdbc")) {
+            if (!uri.toString().contains("genome-mysql.cse.ucsc.edu")) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public Database getDatabase() {
+        return table != null ? table.database : null;
+    }
+
+    public Table getTable() {
+        return table;
+    }
+
+    /**
      * Connect to the database URI without worrying about a specific database.
      *
      * @return a JDBC connection
      * @throws ClassNotFoundException
      * @throws SQLException
      */
-    Connection getConnection() throws ClassNotFoundException, SQLException {
+    protected Connection getConnection() throws ClassNotFoundException, SQLException {
         if (connection == null) {
             Class.forName(driverName);
             connection = DriverManager.getConnection(uri.toString(), userName, password);
@@ -300,15 +252,31 @@ public class SQLDataSourcePlugin extends SavantDataSourcePlugin {
      */
     private DataSource createCachedDataSource() throws SQLException {
         DataSource result = null;
-        switch (format) {
+        switch (mapping.format) {
+            case CONTINUOUS_GENERIC:
+                result = new ContinuousSQLDataSource(table, mapping);
+                break;
+            case INTERVAL_GENERIC:
+                result = new IntervalSQLDataSource(table, mapping);
+                break;
             case INTERVAL_BED:
-                result = new BEDSQLDataSource(table, mappings);
+                result = new BEDSQLDataSource(table, mapping);
+                break;
+            case TABIX:
+                result = new TabixSQLDataSource(table, mapping);
                 break;
         }
         if (result != null) {
             result = new RecordCachingDataSource(result);
         }
         return result;
+    }
+
+    /**
+     * Get a connection to a particular database.
+     */
+    public synchronized Database getDatabase(String name) throws SQLException {
+        return new Database(name, uri, userName, password);
     }
 
     /**
@@ -321,14 +289,21 @@ public class SQLDataSourcePlugin extends SavantDataSourcePlugin {
     synchronized List<Database> getDatabases() throws SQLException {
         if (databases == null) {
             databases = new ArrayList<Database>();
+            LOG.info("Calling SHOW DATABASES...");
             PreparedStatement ps = connection.prepareStatement("SHOW DATABASES");
             ResultSet rs = ps.executeQuery();
+            int numDBs = 0;
             while (rs.next()) {
-                databases.add(new Database(rs.getString(1), uri, userName, password));
+                String name = rs.getString(1);
+                if (!name.equals("information_schema")) {
+                    databases.add(new Database(name, uri, userName, password));
+                    numDBs++;
+                    LOG.info(numDBs + ": " + name);
+                }
             }
+            LOG.info("Retrieved " + numDBs + " databases.");
             closeConnection();
         }
         return databases;
     }
-
 }
