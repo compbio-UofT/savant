@@ -48,8 +48,8 @@ public class BrowserSettings {
     public static String safe = url + "/safe/savantsafe.php";
 
 
-    public static String version = "1.4.3";
-    public static String build = "release";
+    public static String version = "1.4.4";
+    public static String build = "developer";
 
     public static boolean getCheckVersionOnStartup() {
         return settings.getBoolean(CHECKVERSION_KEY, true);

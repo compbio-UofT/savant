@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -38,8 +39,6 @@ import javax.swing.JPanel;
 
 import com.jidesoft.docking.DockableFrame;
 import com.jidesoft.docking.DockingManager;
-import java.util.ArrayList;
-import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.java.plugin.JpfException;
@@ -217,30 +216,23 @@ public class PluginController {
 
                 try {
                     LOG.info("Activating new plugin: " + ext);
-                    try {
-                        PluginAttribute sdkatt = ext.getDeclaringPluginDescriptor().getAttribute("sdk-version");
-                        if (sdkatt == null) {
-                            error = true;
-                            LOG.error("No SDK-version attribute");
+                    PluginAttribute sdkatt = ext.getDeclaringPluginDescriptor().getAttribute("sdk-version");
+                    if (sdkatt == null) {
+                        error = true;
+                        LOG.error("No SDK-version attribute");
+                    } else {
+                        String sdk = sdkatt.getValue();
+                        if (isSDKCompatibleWithThisVersion(sdk)) {
+                            LOG.info("Compatible with this version of Savant");
+                            activatePlugin(ext.getDeclaringPluginDescriptor(), ext);
+                            oneLoaded = true;
                         } else {
-                            String sdk = sdkatt.getValue();
-                            if (isSDKCompatibleWithThisVersion(sdk)) {
-                                LOG.info("Compatible with this version of Savant");
-                                activatePlugin(ext.getDeclaringPluginDescriptor(), ext);
-                                oneLoaded = true;
-                            } else {
-                                LOG.info("Compatible with SDK-version: " + sdkatt.getValue());
-                                error = true;
-                            }
+                            LOG.info("Compatible with SDK-version: " + sdkatt.getValue());
+                            error = true;
                         }
-                    } catch (Exception e) {
-                        e.printStackTrace();
                     }
-                } catch (java.lang.Error e) {
-                    LOG.error(e);
-                    error = true;
-                } catch (Exception e) {
-                    LOG.error(e);
+                } catch (Throwable e) {
+                    LOG.error("Unable to load plugin: " + ext, e);
                     error = true;
                 }
                 if (error) {
@@ -405,22 +397,20 @@ public class PluginController {
     }
 
 
-    Map<String,List<String>> sdkToSavantVersionsMap;
+    Map<String, String[]> sdkToSavantVersionsMap;
     
     private boolean isSDKCompatibleWithThisVersion(String sdk) {
 
         if (sdkToSavantVersionsMap == null) {
-            sdkToSavantVersionsMap = new HashMap<String,List<String>>();
+            sdkToSavantVersionsMap = new HashMap<String, String[]>();
 
             // list of Savant versions compatible with sdk version 1.4.3
-            List<String> sdk143list = new ArrayList<String>();
-            sdk143list.add("1.4.3");
-            sdkToSavantVersionsMap.put("1.4.3",sdk143list);
+            sdkToSavantVersionsMap.put("1.4.3", new String[] { "1.4.3", "1.4.4" });
         }
 
-        List<String> acceptableSavantVersions = sdkToSavantVersionsMap.get(sdk);
+        String[] acceptableSavantVersions = sdkToSavantVersionsMap.get(sdk);
 
-        if (acceptableSavantVersions != null && acceptableSavantVersions.contains(BrowserSettings.version)) {
+        if (acceptableSavantVersions != null && Arrays.asList(acceptableSavantVersions).contains(BrowserSettings.version)) {
             return true;
         }
         
