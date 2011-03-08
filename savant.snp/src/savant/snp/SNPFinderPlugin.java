@@ -50,6 +50,7 @@ import savant.api.util.BookmarkUtils;
 import savant.api.util.GenomeUtils;
 import savant.api.util.NavigationUtils;
 import savant.api.util.TrackUtils;
+import savant.controller.RangeController;
 import savant.controller.event.RangeChangeCompletedListener;
 import savant.controller.event.RangeChangedEvent;
 import savant.controller.event.TrackListChangedEvent;
@@ -601,7 +602,7 @@ public class SNPFinderPlugin extends SavantPanelPlugin implements RangeChangeCom
      */
     private void setSequence() {
         sequence = null;
-        if (GenomeUtils.isGenomeLoaded()) {
+        if (GenomeUtils.isGenomeLoaded() && RangeController.getInstance().getRange().getLength() < this.MAX_RANGE_TO_SEARCH) {
             try {
                 sequence = GenomeUtils.getGenome().getSequence(NavigationUtils.getCurrentReferenceName(), NavigationUtils.getCurrentRange());
             } catch (IOException ex) {
