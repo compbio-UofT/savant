@@ -60,12 +60,7 @@ public class SequenceTrackRenderer extends TrackRenderer {
 
         renderPreCheck();
 
-        // Don't display sequence if data is too high resolution to see.
         double unitWidth = gp.getUnitWidth();
-        double unitHeight = gp.getUnitHeight();
-        if (data == null || unitWidth < 0.2) {
-            throw new RenderingException("Zoom in to see sequence");
-        }
 
         byte[] sequence = ((SequenceRecord)data.get(0)).getSequence();
 

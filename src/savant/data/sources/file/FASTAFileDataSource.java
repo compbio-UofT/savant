@@ -70,6 +70,7 @@ public class FASTAFileDataSource extends FASTADataSource {
         int rangeLength = range.getLengthAsInt();
         byte[] sequence = new byte[rangeLength];
         if (this.getReferenceMap().containsKey(reference)) {
+            // -1 because the file is 0 based
             dFile.seek(reference, SavantFileFormatterUtils.BYTE_FIELD_SIZE*range.getFrom()-1);
 
             for (int i = 0; i < rangeLength; i++) {

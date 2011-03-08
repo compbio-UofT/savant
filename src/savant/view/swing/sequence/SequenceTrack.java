@@ -122,6 +122,7 @@ public class SequenceTrack extends Track {
             renderer.addInstruction(DrawingInstruction.PROGRESS, "Loading sequence track...");
             requestData(reference, range);
         } else {
+            renderer.addInstruction(DrawingInstruction.ERROR, "zoom in to see data");
             saveNullData();
         }
 

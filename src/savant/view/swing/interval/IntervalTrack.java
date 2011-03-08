@@ -107,6 +107,7 @@ public class IntervalTrack extends Track {
                 requestData(reference, range);
                 break;
             default:
+                renderer.addInstruction(DrawingInstruction.ERROR, "zoom in to see data");
                 break;
         }
 

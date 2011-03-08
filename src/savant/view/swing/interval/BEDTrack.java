@@ -68,7 +68,7 @@ public class BEDTrack extends Track {
         if (r == Resolution.VERY_HIGH || r == Resolution.HIGH){
             requestData(reference, range);
         } else {
-            renderer.addInstruction(DrawingInstruction.ERROR, "Zoom in to see genes/intervals");
+            renderer.addInstruction(DrawingInstruction.ERROR, "zoom in to see data");
         }
         
         renderer.addInstruction(DrawingInstruction.RANGE, range);

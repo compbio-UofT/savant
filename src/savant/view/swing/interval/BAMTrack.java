@@ -104,10 +104,10 @@ public class BAMTrack extends Track {
         } else {
             saveNullData();
             if (getDrawMode().equals(BAMTrackRenderer.ARC_PAIRED_MODE)){
-                renderer.addInstruction(DrawingInstruction.ERROR, "Zoom in to see data");
+                renderer.addInstruction(DrawingInstruction.ERROR, "zoom in to see data");
             } else {
                 // If there is an actual coverage track, this error message will never be drawn.
-                renderer.addInstruction(DrawingInstruction.ERROR, "No coverage file available");
+                renderer.addInstruction(DrawingInstruction.ERROR, "no coverage file available");
             }
         }
 

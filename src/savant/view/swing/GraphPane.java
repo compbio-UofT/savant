@@ -200,6 +200,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         double oldUnitHeight = unitHeight;
         long oldYMax = yMax;
 
+
         Graphics2D g2d0 = (Graphics2D)g;
 
         // Paint a gradient from top to bottom
@@ -211,11 +212,17 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
 
         GraphPaneController gpc = GraphPaneController.getInstance();
 
+        System.out.println(MiscUtils.now() + ": rendering " + (gpc.isPanning() && !this.isLocked()));
+
+
         if (gpc.isPanning() && !this.isLocked()) {
+
             int x1 = MiscUtils.transformPositionToPixel(gpc.getMouseDragRange().getFrom(), this.getWidth(), new Range(this.xMin, this.xMax));
             int x2 = MiscUtils.transformPositionToPixel(gpc.getMouseDragRange().getTo(), this.getWidth(), new Range(this.xMin, this.xMax));
 
             double shiftamount = x1-x2;
+
+            System.out.println("Translating " + shiftamount);
 
             // shifting left
             if (shiftamount < 0) {
