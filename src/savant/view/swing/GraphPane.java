@@ -212,30 +212,41 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
 
         GraphPaneController gpc = GraphPaneController.getInstance();
 
-        System.out.println(MiscUtils.now() + ": rendering " + (gpc.isPanning() && !this.isLocked()));
-
-
         if (gpc.isPanning() && !this.isLocked()) {
 
-            int x1 = MiscUtils.transformPositionToPixel(gpc.getMouseDragRange().getFrom(), this.getWidth(), new Range(this.xMin, this.xMax));
-            int x2 = MiscUtils.transformPositionToPixel(gpc.getMouseDragRange().getTo(), this.getWidth(), new Range(this.xMin, this.xMax));
+            int fromx = MiscUtils.transformPositionToPixel(gpc.getMouseDragRange().getFrom(), this.getWidth(), new Range(this.xMin, this.xMax));
+            int tox = MiscUtils.transformPositionToPixel(gpc.getMouseDragRange().getTo(), this.getWidth(), new Range(this.xMin, this.xMax));
 
-            double shiftamount = x1-x2;
+            double pixelshiftamount = tox-fromx;
+            g.translate((int) pixelshiftamount, 0);
 
-            System.out.println("Translating " + shiftamount);
-
+            /*
             // shifting left
-            if (shiftamount < 0) {
-                shiftamount = -shiftamount;
-                long maxlefttranslation = (RangeController.getInstance().getRangeStart()-1)*MiscUtils.transformPositionToPixel(RangeController.getInstance().getRangeStart()+1, this.getWidth(), RangeController.getInstance().getRange());
-                shiftamount = Math.min(maxlefttranslation,shiftamount);
-                g.translate((int) shiftamount, 0);
+            if (pixelshiftamount < 0) {
+                pixelshiftamount = -pixelshiftamount;
+                long maxlefttranslation = (RangeController.getInstance().getRangeStart()-1)
+                        *MiscUtils.transformPositionToPixel(
+                            RangeController.getInstance().getRangeStart()+1,
+                            this.getWidth(),
+                            RangeController.getInstance().getRange());
+                System.out.println("Max left = " + maxlefttranslation);
+                System.out.println("before shifting " + (pixelshiftamount)) ;
+                System.out.println("after shifting " + (pixelshiftamount)) ;
+                pixelshiftamount = Math.min(maxlefttranslation,pixelshiftamount);
+                g.translate((int) (pixelshiftamount*unitWidth), 0);
+                System.out.println("shifting " + pixelshiftamount);
             // shifting right
             } else {
                 long maxrighttranslation = (RangeController.getInstance().getMaxRangeEnd() - RangeController.getInstance().getRangeEnd())*MiscUtils.transformPositionToPixel(RangeController.getInstance().getRangeStart()+1, this.getWidth(), RangeController.getInstance().getRange());
-                shiftamount = Math.min(maxrighttranslation,shiftamount);
-                g.translate((int) -shiftamount, 0);
+                System.out.println("Max right = " + maxrighttranslation);
+                System.out.println("before shifting " + (-pixelshiftamount)) ;
+                pixelshiftamount = Math.min(maxrighttranslation,pixelshiftamount);
+                System.out.println("after shifting " + (-pixelshiftamount)) ;
+                g.translate((int) -(pixelshiftamount*unitWidth), 0);
+                System.out.println("after shifting " + (-pixelshiftamount)) ;
             }
+             * 
+             */
         }
 
         // Deal with the progress-bar.

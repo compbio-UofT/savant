@@ -187,8 +187,9 @@ public class MiniRangeSelectionPanel extends JPanel implements MouseListener, Mo
             long fromx = MiscUtils.transformPositionToPixel(gpc.getMouseDragRange().getFrom(), this.getWidth(), RangeController.getInstance().getRange());
             long tox = MiscUtils.transformPositionToPixel(gpc.getMouseDragRange().getTo(), this.getWidth(), RangeController.getInstance().getRange());
 
-            double shiftamount = fromx-tox;
-
+            double shiftamount = tox-fromx;
+            g.translate((int) shiftamount, 0);
+            /*
             // shifting left
             if (shiftamount < 0) {
                 shiftamount = -shiftamount;
@@ -203,6 +204,8 @@ public class MiniRangeSelectionPanel extends JPanel implements MouseListener, Mo
                 g.translate((int) -shiftamount, 0);
                 //System.out.println("RIGHT: " + " m=" + maxrighttranslation + " s=" + shiftamount);
             }
+             *
+             */
         }
 
         renderBackground(g);
@@ -242,6 +245,8 @@ public class MiniRangeSelectionPanel extends JPanel implements MouseListener, Mo
                     (long) (Math.floor((RangeController.getInstance().getRange().getFrom()/Math.max(1, genomicSeparation)))*genomicSeparation),
                     width, (RangeController.getInstance()).getRange());
 
+            FontMetrics fm = g2.getFontMetrics();
+
             for (int i = 0; i <= numseparators*3; i++) {
                 g2.setColor(new Color(50,50,50,50)); //BrowserDefaults.colorAxisGrid);
                 int xOne = startbarsfrom + (int)Math.ceil(i*barseparation)+1 - this.getWidth();
@@ -255,31 +260,41 @@ public class MiniRangeSelectionPanel extends JPanel implements MouseListener, Mo
                         g2.setColor(Color.black);
                         long a = MiscUtils.transformPixelToPosition(xOne, width, (RangeController.getInstance()).getRange());
                         if (a >= 1 && a <= (RangeController.getInstance()).getMaxRangeEnd()) {
-                            g2.drawString(MiscUtils.posToShortString(genomicSeparation,a), (float) (xOne + 3), (float) ((this.getHeight()*0.5)+3));
+                            String numstr = MiscUtils.posToShortString(genomicSeparation,a);
+                            g2.setColor(Color.black);
+                             g2.drawString(numstr, (float) (xOne + 3), (float) ((this.getHeight()*0.5)+3));
                         }
                     }
                 } else {
-                    g2.setColor(Color.black);
                     long a = MiscUtils.transformPixelToPosition(xOne, width, (RangeController.getInstance()).getRange());
-                    g2.drawString(MiscUtils.numToString(a), (float) (xOne + 3), (float) ((this.getHeight()*0.5)+3));
+                    String numstr = MiscUtils.numToString(a);
+                    g2.setColor(Color.black);
+                    g2.drawString(numstr, (float) (xOne + 3), (float) ((this.getHeight()*0.5)+3));
                 }
             }
 
-            if (RangeController.getInstance().getRangeStart() == RangeController.getInstance().getMaxRangeStart()) {
+            if (RangeController.getInstance().getRange().getLength() >= RangeController.getInstance().getRangeStart()) {
                 try {
                     Image image_left_cap = javax.imageio.ImageIO.read(getClass().getResource("/savant/images/round_cap_left_bordered.png"));
                     int capwidth = 20;
-                    g.drawImage(image_left_cap, 0,0,capwidth,23,this);
+                    int pos = MiscUtils.transformPositionToPixel(1, this.getWidth(), RangeController.getInstance().getRange());
+                    g.drawImage(image_left_cap, pos,0,capwidth,23,this);
+                    g.setColor(Savant.getInstance().getBackground());
+                    g.fillRect(pos,0, -this.getWidth(), this.getHeight());
                 } catch (IOException ex) {
                     Logger.getLogger(MiniRangeSelectionPanel.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
 
-            if (RangeController.getInstance().getRangeEnd() == RangeController.getInstance().getMaxRangeEnd()) {
+            if (RangeController.getInstance().getRange().getLength() >= RangeController.getInstance().getMaxRangeEnd() - RangeController.getInstance().getRangeEnd()) {
                 try {
                     Image image_right_cap = javax.imageio.ImageIO.read(getClass().getResource("/savant/images/round_cap_right_bordered.png"));
                     int capwidth = 20;
-                    g.drawImage(image_right_cap, this.getWidth()-capwidth,0,capwidth,23,this);
+                    int pos = MiscUtils.transformPositionToPixel(RangeController.getInstance().getMaxRangeEnd(), this.getWidth(), RangeController.getInstance().getRange());
+                    g.drawImage(image_right_cap, pos-capwidth,0,capwidth,23,this);
+                    g.setColor(Savant.getInstance().getBackground());
+                    g.fillRect(pos,0, this.getWidth(), this.getHeight());
+                    
                 } catch (IOException ex) {
                     Logger.getLogger(MiniRangeSelectionPanel.class.getName()).log(Level.SEVERE, null, ex);
                 } 
