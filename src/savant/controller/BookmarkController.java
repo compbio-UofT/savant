@@ -24,8 +24,14 @@
  */
 package savant.controller;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.StringTokenizer;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -33,6 +39,7 @@ import org.apache.commons.logging.LogFactory;
 import savant.controller.event.BookmarksChangedEvent;
 import savant.controller.event.BookmarksChangedListener;
 import savant.util.Bookmark;
+import savant.util.Range;
 
 
 public class BookmarkController {
@@ -73,6 +80,41 @@ public class BookmarkController {
         }
         //System.out.println("Adding bookmark : " + f.getRange() );
         //this.bookmarks.add(f);
+    }
+    
+     private static Bookmark parseBookmark(String line) {
+
+        StringTokenizer st = new StringTokenizer(line,"\t");
+
+        String ref = st.nextToken();
+        long from = Long.parseLong(st.nextToken());
+        long to = Long.parseLong(st.nextToken());
+        String annotation = "";
+
+        while (st.hasMoreElements()) {
+            annotation += st.nextToken() + " ";
+        }
+        annotation.trim();
+
+        return new Bookmark(ref, new Range(from,to), annotation);
+    }
+
+     public void addBookmarksFromFile(File f) throws FileNotFoundException, IOException {
+
+        BufferedReader br = new BufferedReader(new FileReader(f));
+
+        String line = "";
+
+        List<Bookmark> newBookmarks = new ArrayList<Bookmark>();
+
+        while ((line = br.readLine()) != null) {
+            newBookmarks.add(parseBookmark(line));
+        }
+
+        //bookmarks.addAll(newBookmarks);
+        addBookmarks(newBookmarks);
+
+        br.close();
     }
 
     public void removeBookmark() {

@@ -92,7 +92,7 @@ public class DocumentViewer extends JFrame {
 
         JToolBar bar = new JToolBar();
         bar.setFloatable(false);
-        bar.add(new JLabel("Max line count: "));
+        bar.add(new JLabel("Show at most this many lines: "));
 
         textNumLines = new JTextField(maxLineCount + "");
         textNumLines.setMaximumSize(new Dimension(100,20));

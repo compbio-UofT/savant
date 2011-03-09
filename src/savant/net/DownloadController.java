@@ -20,6 +20,8 @@ import java.io.File;
 import java.net.URL;
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JDialog;
 
 /**
@@ -58,9 +60,11 @@ public class DownloadController {
         }
     }
 
-    private void download(DownloadInfo i, boolean d) {
+    private Thread download(DownloadInfo i, boolean d) {
         ThreadedURLDownload t = new ThreadedURLDownload(i.url, i.dir, d);
-        (new Thread (t)).start();
+        Thread thr = new Thread (t);
+        thr.start();
+        return thr;
     }
 
     public static class DownloadInfo {
@@ -78,5 +82,14 @@ public class DownloadController {
     public void enqueueDownload(URL url, File destination, JDialog parent) {
         downloadQueue.add(new DownloadInfo(url, destination, parent));
         downloadQueuedFiles();
+    }
+
+    public void download(URL url, File destination, JDialog parent) {
+        try {
+            Thread t = download(new DownloadInfo(url, destination, parent), false);
+            t.join();
+        } catch (InterruptedException ex) {
+            Logger.getLogger(DownloadController.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 }

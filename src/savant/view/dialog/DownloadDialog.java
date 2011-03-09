@@ -194,7 +194,7 @@ public class DownloadDialog extends JDialog {
         this.b_cancel.setText("Close");
         this.complete = true;
         this.dispose();
-        DialogUtils.displayMessage("Installation Complete", "Please restart Savant for changes to take effect.");
+        DialogUtils.displayMessage("Download complete", "Download finished successfully.");
     }
 
 }

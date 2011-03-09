@@ -16,6 +16,8 @@
 
 package savant.net;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import savant.view.dialog.DownloadDialog;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -75,16 +77,16 @@ public class ThreadedURLDownload implements Runnable {
                 JProgressBar b = dd.getProgressBar();
                 b.setIndeterminate(false);
                 b.setValue(100);
+                dd.setComplete();
             }
-
-            dd.setComplete();
 
             //DialogUtils.displayMessage("Download Complete", "Download of " + url.toExternalForm() + " complete");
         } else {
             if (destFile != null && destFile.exists()) {
                 destFile.delete();
             }
-            DialogUtils.displayError("Sorry", "Error downloading " + url.toExternalForm() + ". Please ensure you have a working connection to the internet.");
+            DialogUtils.displayError("Sorry", "Error downloading " + url.toExternalForm() + ".\n"
+                    + "Please ensure you have a working connection to the internet.");
             if (showDownloadDialog) {
                 dd.dispose();
             }
@@ -101,6 +103,17 @@ public class ThreadedURLDownload implements Runnable {
         OutputStream out = null;
         InputStream in = null;
         destFile = new File(destination);
+        try {
+            destFile.createNewFile();
+            if (!destFile.exists()) {
+                DialogUtils.displayError("Sorry", "Could not create output file: " + destFile.getAbsolutePath());
+                return false;
+            }
+        } catch (IOException ex) {
+            DialogUtils.displayError("Sorry", "Could not create output file: " + destFile.getAbsolutePath());
+            return false;
+        }
+        
         try {
             out = new FileOutputStream(destFile.getAbsolutePath());
 

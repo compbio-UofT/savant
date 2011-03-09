@@ -276,7 +276,7 @@ public class BookmarkSheet implements BookmarksChangedListener /*, RangeChangedL
         // set the genome
         if (selectedFile != null) {
             try {
-                loadBookmarks(selectedFile, bookmarks);
+                BookmarkController.getInstance().addBookmarksFromFile(selectedFile);
                 btm.fireTableDataChanged();
             } catch (IOException ex) {
                 DialogUtils.displayError("Error", "Unable to load bookmarks: " + ex.getMessage());
@@ -310,43 +310,6 @@ public class BookmarkSheet implements BookmarksChangedListener /*, RangeChangedL
         }
 
         bw.close();
-    }
-
-    private static void loadBookmarks(File f, List<Bookmark> bookmarks) throws FileNotFoundException, IOException {
-
-        BufferedReader br = new BufferedReader(new FileReader(f));
-
-        BookmarkController bmc = BookmarkController.getInstance();
-
-        String line = "";
-
-        List<Bookmark> newBookmarks = new ArrayList<Bookmark>();
-
-        while ((line = br.readLine()) != null) {
-            newBookmarks.add(parseBookmark(line));
-        }
-
-        //bookmarks.addAll(newBookmarks);
-        bmc.addBookmarks(newBookmarks);
-
-        br.close();
-    }
-
-    private static Bookmark parseBookmark(String line) {
-
-        StringTokenizer st = new StringTokenizer(line,"\t");
-
-        String ref = st.nextToken();
-        long from = Long.parseLong(st.nextToken());
-        long to = Long.parseLong(st.nextToken());
-        String annotation = "";
-
-        while (st.hasMoreElements()) {
-            annotation += st.nextToken() + " ";
-        }
-        annotation.trim();
-
-        return new Bookmark(ref, new Range(from,to), annotation);
     }
 
     public void goToSelectedBookmark() {
