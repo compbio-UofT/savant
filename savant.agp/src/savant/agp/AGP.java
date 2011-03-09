@@ -16,10 +16,16 @@
 
 package savant.agp;
 
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
 import java.io.IOException;
 import java.net.URL;
+import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JToolBar;
+import javax.swing.border.LineBorder;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -35,8 +41,9 @@ public class AGP extends SavantPanelPlugin {
     @Override
     public void init(JPanel parent, PluginAdapter adapter) {
         try {
+            parent.setLayout(new BorderLayout());
             browser = new HTTPBrowser(new URL("http://compbio.cs.utoronto.ca/savant/data/asdexome/"));
-            parent.add(browser);
+            parent.add(browser, BorderLayout.CENTER);
         } catch (IOException x) {
             parent.add(new JLabel("Unable to load 1000 genomes plugin: " + x.getMessage()));
         }

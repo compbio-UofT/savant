@@ -17,7 +17,11 @@ package savant.agp;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Point;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.BufferedReader;
@@ -35,10 +39,13 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.Icon;
+import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.JToolBar;
+import javax.swing.border.LineBorder;
 import javax.swing.filechooser.FileSystemView;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableColumnModel;
@@ -55,8 +62,12 @@ import org.w3c.dom.Element;
 import savant.api.adapter.TrackAdapter;
 import savant.api.util.DialogUtils;
 import savant.api.util.TrackUtils;
+import savant.controller.BookmarkController;
+import savant.net.DownloadController;
+import savant.settings.DirectorySettings;
 import savant.util.MiscUtils;
 import savant.view.icon.SavantIconFactory;
+import savant.view.swing.util.DocumentViewer;
 
 /**
  * FTP browser for loading tracks from 1000genomes.org.
@@ -87,6 +98,7 @@ public class HTTPBrowser extends JPanel {
 
         addressLabel = new JLabel();
         add(addressLabel, BorderLayout.NORTH);
+        add(getToolBar(), BorderLayout.SOUTH);
 
         table = new JTable();
 
@@ -97,28 +109,21 @@ public class HTTPBrowser extends JPanel {
             @Override
             public void mouseClicked(MouseEvent evt) {
                 if (evt.getClickCount() == 2) {
-                    int row = table.rowAtPoint(evt.getPoint());
-                    try {
-                        String f = ((HTTPTableModel) table.getModel()).getEntry(row);
+                    String f = ((HTTPTableModel) table.getModel()).getEntry(table.rowAtPoint(evt.getPoint()));
 
-                        if (f.equals("..")) {
-                            // Going up a directory.
-                            curDir = curDir.getParentFile();
-                            updateDirectory();
-                        } else if (!f.contains(".")) {
-                            if (f.startsWith("/")) {
-                                curDir = new File(f);
-                            } else {
-                                curDir = new File(curDir,f);
-                            }
-                            updateDirectory();
+                    if (f.equals("..")) {
+                        // Going up a directory.
+                        curDir = curDir.getParentFile();
+                        updateDirectory();
+                    } else if (!f.contains(".")) {
+                        if (f.startsWith("/")) {
+                            curDir = new File(f);
                         } else {
-
-                            List<TrackAdapter> tracks = TrackUtils.createTrack(new URI(getPath() + "/" + f.replace("\\", "/")));
-                            TrackUtils.addTracks(tracks);
+                            curDir = new File(curDir, f);
                         }
-                    } catch (Exception x) {
-                        DialogUtils.displayException("AGP Plugin Error", "Unable to process request.", x);
+                        updateDirectory();
+                    } else {
+                        openIndexAs(table.rowAtPoint(evt.getPoint()),OpenAsOption.TRACK);
                     }
                 }
             }
@@ -132,16 +137,71 @@ public class HTTPBrowser extends JPanel {
         this.setPreferredSize(new Dimension(800, 500));
     }
 
-    private void updateDirectory() throws IOException {
+    private void openSelectedIndexAs(OpenAsOption opt) {
+        openIndexAs(table.getSelectedRow(), opt);
+    }
 
-        List<String> files = listFiles();
-        addressLabel.setText("http://" + host + curDir.getPath().replace("\\", "/"));
-        table.setModel(new HTTPTableModel(files, !curDir.equals(rootDir)));
+    private static DocumentViewer v = new DocumentViewer();
 
-        TableColumnModel columns = table.getColumnModel();
-        columns.getColumn(0).setMaxWidth(40);           // icon
-        columns.getColumn(1).setPreferredWidth(400);    // name
-        //columns.getColumn(2).setPreferredWidth(60);     // size
+    private void openIndexAs(int row, OpenAsOption opt) {
+        try {
+            String shortpath = ((HTTPTableModel) table.getModel()).getEntry(row);
+            URI fullpath = new URI(getPath() + "/" + shortpath.replace("\\", "/"));
+
+            String outputDir;
+            String fileSeparator;
+            String filename;
+
+            switch(opt) {
+                case TRACK:
+                    List<TrackAdapter> tracks = TrackUtils.createTrack(fullpath);
+                    TrackUtils.addTracks(tracks);
+                    break;
+                case BOOKMARK:
+                    outputDir = DirectorySettings.getTmpDirectory();
+                    fileSeparator = System.getProperty("file.separator");
+                    filename = outputDir + fileSeparator + shortpath;
+                    if (!(new File(filename)).exists()) {
+                        DownloadController.getInstance().download(fullpath.toURL(), new File(outputDir), null);
+                    }
+                    BookmarkController.getInstance().addBookmarksFromFile(new File(filename));
+                    break;
+                case DOCUMENT:
+                    outputDir = DirectorySettings.getTmpDirectory();
+                    fileSeparator = System.getProperty("file.separator");
+                    filename = outputDir + fileSeparator + shortpath;
+                    if (!(new File(filename)).exists()) {
+                        DownloadController.getInstance().download(fullpath.toURL(), new File(outputDir), null);
+                    }
+                    v.addDocument(filename);
+                    v.setExtendedState(v.getExtendedState() | v.MAXIMIZED_BOTH);
+                    v.setVisible(true);
+                    break;
+                default:
+                    break;
+            }
+        } catch (Exception x) {
+            DialogUtils.displayException("AGP Plugin Error", "Unable to process request.", x);
+        }
+    }
+
+    private enum OpenAsOption {
+
+        TRACK, BOOKMARK, DOCUMENT
+    };
+
+    private void updateDirectory() {
+        try {
+            List<String> files = listFiles();
+            addressLabel.setText("Current directory: http://" + host + curDir.getPath().replace("\\", "/"));
+            table.setModel(new HTTPTableModel(files, !curDir.equals(rootDir)));
+            TableColumnModel columns = table.getColumnModel();
+            columns.getColumn(0).setMaxWidth(40); // icon
+            columns.getColumn(1).setPreferredWidth(400); // name
+            //columns.getColumn(2).setPreferredWidth(60);     // size
+        } catch (IOException ex) {
+            Logger.getLogger(HTTPBrowser.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     public static String getPath() {
@@ -163,7 +223,7 @@ public class HTTPBrowser extends JPanel {
                     if (!href.startsWith("/")) {
                         files.add(href);
                     } else {
-                       // System.out.println("not adding " + href);
+                        // System.out.println("not adding " + href);
                     }
                 } else {
                     atRoot = true;
@@ -172,7 +232,7 @@ public class HTTPBrowser extends JPanel {
         }
 
         if (!atRoot) {
-            files.add(0,"..");
+            files.add(0, "..");
         }
 
         return files;
@@ -186,6 +246,42 @@ public class HTTPBrowser extends JPanel {
         if (ftp != null) {
             ftp.disconnect();
         }
+    }
+
+    private Component getToolBar() {
+        JToolBar bar = new JToolBar();
+        bar.setFloatable(false);
+        JButton butt_track = new JButton("Open as track");
+        butt_track.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                openSelectedIndexAs(OpenAsOption.TRACK);
+            }
+        });
+        butt_track.setBorder(new LineBorder(Color.gray, 1));
+        JButton butt_bkmks = new JButton("Open as bookmarks");
+        butt_bkmks.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                openSelectedIndexAs(OpenAsOption.BOOKMARK);
+            }
+        });
+        butt_bkmks.setBorder(new LineBorder(Color.gray, 1));
+        JButton butt_doc = new JButton("Open as document");
+        butt_doc.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                openSelectedIndexAs(OpenAsOption.DOCUMENT);
+            }
+        });
+        butt_doc.setBorder(new LineBorder(Color.gray, 1));
+        bar.add(butt_track);
+        bar.addSeparator(new Dimension(5, 5));
+        bar.add(butt_bkmks);
+        bar.addSeparator(new Dimension(5, 5));
+        bar.add(butt_doc);
+
+        return bar;
     }
 }
 
@@ -250,24 +346,24 @@ class HTTPTableModel extends AbstractTableModel {
                 return getIcon(f);
             case 1:
                 return f;
-                /*
+            /*
             case 2:
-                if (f.equals("..") || !f.contains(".")) {
-                    return "";
-                } else {
-                    try {
-                        //HttpURLConnection httpConn = (HttpURLConnection) (new URL(HTTPBrowser.getPath() + "/" + f)).openConnection();
-                        //httpConn.get
-                        //long totalsize = httpConn.getContentLength();
-                        //System.out.println(f + " " + totalsize);
-                        //return MiscUtils.getSophisticatedByteString(totalsize);
-                        return "";
-                    } catch (Exception ex) {
-                        return "?" + ex.getMessage();
-                    }
-                }
-                 *
-                 */
+            if (f.equals("..") || !f.contains(".")) {
+            return "";
+            } else {
+            try {
+            //HttpURLConnection httpConn = (HttpURLConnection) (new URL(HTTPBrowser.getPath() + "/" + f)).openConnection();
+            //httpConn.get
+            //long totalsize = httpConn.getContentLength();
+            //System.out.println(f + " " + totalsize);
+            //return MiscUtils.getSophisticatedByteString(totalsize);
+            return "";
+            } catch (Exception ex) {
+            return "?" + ex.getMessage();
+            }
+            }
+             *
+             */
         }
         return null;
     }
