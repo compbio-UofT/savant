@@ -16,6 +16,7 @@
 package savant.data;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -354,6 +355,12 @@ public class DataSheet implements RangeChangeCompletedListener, TrackListChanged
 
         private List<Integer> selectedRows = new ArrayList<Integer>();
 
+        public ExtendedTable(){
+            super();
+            TableCellRenderer booleanRenderer = new BooleanRenderer(this);
+            this.setDefaultRenderer(Boolean.class, booleanRenderer);
+        }
+
         public void clearSelectedRows(){
             selectedRows.clear();
         }
@@ -366,6 +373,10 @@ public class DataSheet implements RangeChangeCompletedListener, TrackListChanged
             return selectedRows;
         }
 
+        public boolean getRowSelected(int row){
+            return selectedRows.contains(row);
+        }
+
         @Override
         public TableCellRenderer getCellRenderer (int row, int column){
             int modRow = table.getRowSorter().convertRowIndexToModel(row);
@@ -375,6 +386,35 @@ public class DataSheet implements RangeChangeCompletedListener, TrackListChanged
                 super.getCellRenderer(row, column).getTableCellRendererComponent(this, null, false, false, row, column).setBackground(Color.WHITE);
             }
             return super.getCellRenderer(row, column);
+        }
+
+    }
+
+    /*
+     * This class is used to override background colour of selected Boolean cells
+     * in table, which cannot be done as other cells are (JCheckBox). 
+     */
+    private class BooleanRenderer implements TableCellRenderer {
+
+        private ExtendedTable extendedTable;
+        private TableCellRenderer defaultRenderer;
+
+        public BooleanRenderer (ExtendedTable table){
+            super();
+            defaultRenderer = table.getDefaultRenderer(Boolean.class);
+            extendedTable = table;
+        }
+
+        @Override
+        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+            
+            Component comp = defaultRenderer.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+            if(extendedTable.getRowSelected(row) && !isSelected){
+                comp.setBackground(Color.green);
+            }
+
+            return comp;
+
         }
 
     }
