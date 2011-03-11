@@ -156,11 +156,17 @@ public class BEDTrackRenderer extends TrackRenderer {
 
         // chose the color for the strand
         Color fillColor;
-        if (bedRecord.getStrand() == Strand.FORWARD) {
-            fillColor = cs.getColor("Forward Strand");
-        }
-        else {
-            fillColor = cs.getColor("Reverse Strand");
+        if(!bedRecord.getItemRGB().isNull()){
+            //if an RGB value was supplied, use it
+            fillColor = bedRecord.getItemRGB().createColor();
+        } else {
+            //otherwise use the default color value
+            if (bedRecord.getStrand() == Strand.FORWARD) {
+                fillColor = cs.getColor("Forward Strand");
+            }
+            else {
+                fillColor = cs.getColor("Reverse Strand");
+            }
         }
         Color lineColor = cs.getColor("Line");
 

@@ -543,7 +543,7 @@ public class SavantFileFormatterUtils {
         Strand strand = SavantFileFormatterUtils.getStrand("+");
         long thickStart = 0;
         long thickEnd = 0;
-        ItemRGB rgb = ItemRGB.valueOf(0,0,0);
+        ItemRGB rgb = ItemRGB.valueOf(-1,-1,-1);
         List<Block> blocks = null;
         
         if (numFields > 3) { name = (String) record.get(3); }
@@ -610,9 +610,18 @@ public class SavantFileFormatterUtils {
         }
     }
 
-    // TODO: actually parse
     private static ItemRGB parseItemRGB(String token) {
-        return ItemRGB.valueOf(0,0,0);
+        String[] values = token.split(",");
+        if(values.length==3){
+            try {
+                return ItemRGB.valueOf(
+                        Integer.parseInt(values[0].trim()),
+                        Integer.parseInt(values[1].trim()),
+                        Integer.parseInt(values[2].trim()));
+            } catch (NumberFormatException e){}
+        }
+        //if null or bad info, denote with negative values
+        return ItemRGB.valueOf(-1, -1, -1);
     }
 
     public static void writeString(DataOutputStream out, String s) throws IOException {

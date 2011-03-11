@@ -16,6 +16,8 @@
 
 package savant.data.types;
 
+import java.awt.Color;
+
 /**
  * Immutable lightweight class to represent an RGB colour.
  *
@@ -61,6 +63,14 @@ public final class ItemRGB {
 
     public int getBlue() {
         return blue;
+    }
+
+    public boolean isNull(){
+        return red < 0 || green < 0 || blue < 0;
+    }
+
+    public Color createColor(){
+        return new Color(red, green, blue);
     }
 
     @Override
