@@ -156,7 +156,7 @@ public class BEDTrackRenderer extends TrackRenderer {
 
         // chose the color for the strand
         Color fillColor;
-        if(!bedRecord.getItemRGB().isNull()){
+        if((Boolean)(instructions.get(DrawingInstruction.ITEMRGB)) && !bedRecord.getItemRGB().isNull()){
             //if an RGB value was supplied, use it
             fillColor = bedRecord.getItemRGB().createColor();
         } else {
@@ -168,6 +168,12 @@ public class BEDTrackRenderer extends TrackRenderer {
                 fillColor = cs.getColor("Reverse Strand");
             }
         }
+
+        //set alpha if score is enabled
+        if((Boolean)(instructions.get(DrawingInstruction.SCORE))){
+            fillColor = new Color(fillColor.getRed(), fillColor.getGreen(), fillColor.getBlue(), (int)(bedRecord.getScore() * 0.255));
+        }
+
         Color lineColor = cs.getColor("Line");
 
 

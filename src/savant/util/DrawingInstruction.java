@@ -37,6 +37,8 @@ public enum DrawingInstruction {
     SELECTION_ALLOWED,  // boolean
     ERROR,              // String (error message)
     PROGRESS,           // String (progress message)
-    PAIRED_PROTOCOL     // PairedProtocol enum, how paired sequencing is done
+    PAIRED_PROTOCOL,     // PairedProtocol enum, how paired sequencing is done
+    ITEMRGB,            //itemRGB color for BED
+    SCORE               //score tint for BED
 }
 

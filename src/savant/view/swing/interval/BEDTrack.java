@@ -41,6 +41,8 @@ import savant.view.swing.Track;
 public class BEDTrack extends Track {
 
     private static final Log LOG = LogFactory.getLog(BEDTrack.class);
+    private boolean itemRGBEnabled = false;
+    private boolean scoreEnabled = false;
 
     /*
     public enum DrawingMode {
@@ -82,6 +84,8 @@ public class BEDTrack extends Track {
             renderer.addInstruction(DrawingInstruction.MODE, getDrawMode());
         }   
         renderer.addInstruction(DrawingInstruction.SELECTION_ALLOWED, true);
+        renderer.addInstruction(DrawingInstruction.ITEMRGB, this.itemRGBEnabled);
+        renderer.addInstruction(DrawingInstruction.SCORE, this.scoreEnabled);
     }
 
     @Override
@@ -125,6 +129,16 @@ public class BEDTrack extends Track {
     
     private Range getDefaultYRange() {
         return new Range(0, 1);
+    }
+
+    public void toggleItemRGBEnabled(){
+        this.itemRGBEnabled = !this.itemRGBEnabled;
+        renderer.addInstruction(DrawingInstruction.ITEMRGB, this.itemRGBEnabled);
+    }
+
+    public void toggleScoreEnabled(){
+        this.scoreEnabled = !this.scoreEnabled;
+        renderer.addInstruction(DrawingInstruction.SCORE, this.scoreEnabled);
     }
  
 }

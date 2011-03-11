@@ -30,6 +30,8 @@ import com.jidesoft.action.CommandBar;
 import com.jidesoft.docking.DockableFrame;
 import com.jidesoft.swing.JideButton;
 import com.jidesoft.swing.JideMenu;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.MouseListener;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -53,6 +55,7 @@ import savant.view.icon.SavantIconFactory;
 import savant.view.swing.interval.BAMCoverageTrack;
 import savant.view.swing.interval.BAMTrack;
 import savant.view.swing.interval.BAMTrackRenderer;
+import savant.view.swing.interval.BEDTrack;
 
 /**
  *
@@ -74,6 +77,7 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
     private List<JCheckBoxMenuItem> visItems;
     private JMenu arcButton;
     private JMenu intervalButton;
+    private JMenu bedButton;
     private FrameSidePanel sidePanel;
 
     public JScrollPane scrollPane;
@@ -251,6 +255,9 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
             if (drawMode.equals("STANDARD") || drawMode.equals("VARIANTS")){
                 intervalButton.setVisible(true);
             }
+        } else if (t0.getDataSource().getDataFormat() == DataFormat.INTERVAL_BED) {
+            bedButton = createBEDButton();
+            commandBar.add(bedButton);
         }
 
         JPanel contentPane = (JPanel)getContentPane();
@@ -414,6 +421,43 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
             public void mouseEntered(MouseEvent e) {}
             public void mouseExited(MouseEvent e) {}
         });
+        button.setFocusPainted(false);
+        return button;
+    }
+
+    /**
+     * Create interval button for commandBar
+     */
+    private JMenu createBEDButton() {
+        JMenu button = new JMenu("BED Options");
+        button.setToolTipText("Change BED display parameters");
+
+        final JCheckBoxMenuItem itemRGB = new JCheckBoxMenuItem("Enable ItemRGB");
+        final JCheckBoxMenuItem score = new JCheckBoxMenuItem("Enable Score"){};
+        
+        itemRGB.setState(false);
+        score.setState(false);
+
+        itemRGB.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                ((BEDTrack)tracks[0]).toggleItemRGBEnabled();
+                graphPane.setRenderRequired();
+                graphPane.repaint();
+            }
+        });
+        score.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                ((BEDTrack)tracks[0]).toggleScoreEnabled();
+                graphPane.setRenderRequired();
+                graphPane.repaint();
+            }
+        });
+
+        button.add(itemRGB);
+        button.add(score);
+
         button.setFocusPainted(false);
         return button;
     }
