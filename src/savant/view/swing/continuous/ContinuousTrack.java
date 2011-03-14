@@ -61,16 +61,22 @@ import savant.view.swing.Track;
     }
 
     /**
-     * Continuous tracks no longer use the Resolution enum.
+     * With multi-level rendering, continuous tracks no longer have much use for the
+     * Resolution enum.  However, it remains useful for Continuous tracks which are
+     * lacking the level information (e.g. Wig tracks fetched from UCSC).
      *
      * @param range
-     * @return
-     * @deprecated
      */
     @Override
-    @Deprecated
     public Resolution getResolution(RangeAdapter range) {
-        return Resolution.VERY_HIGH;
+        long length = range.getLength();
+
+        if (length < 10000) { return Resolution.VERY_HIGH; }
+        else if (length < 50000) { return Resolution.HIGH; }
+        else if (length < 1000000) { return Resolution.MEDIUM; }
+        else if (length < 10000000) { return Resolution.LOW; }
+        else if (length >= 10000000) { return Resolution.VERY_LOW; }
+        else { return Resolution.VERY_HIGH; }
     }
 
     private ColorScheme getDefaultColorScheme() {
