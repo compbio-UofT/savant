@@ -26,7 +26,7 @@ import java.util.Hashtable;
  */
 public class ColorScheme {
 
-    private Color defaultColor = Color.PINK;
+    private Color defaultColor = new Color(0,174,255);
     private Dictionary<String, Color> colorSettings;
 
     public ColorScheme()

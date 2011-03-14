@@ -83,7 +83,4 @@
             <fileset dir="plugins"/>
         </copy>
     </target>
-
-    <target  name="mac-bundle">
-    </target>
 </project>

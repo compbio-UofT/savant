@@ -104,7 +104,7 @@ public class ColourSchemeSettingsSection extends Section {
                 java.util.List<Track> tracks = TrackController.getInstance().getTracks();
                 for(int i = 0; i < tracks.size(); i++){
                     tracks.get(i).resetColorScheme();
-                    tracks.get(i).getFrame().getGraphPane().setRenderRequired();
+                    tracks.get(i).getFrame().getGraphPane().setRenderForced();
                     try {
                         tracks.get(i).getFrame().redrawTracksInRange();
                     } catch (Exception ex) {

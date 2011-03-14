@@ -327,7 +327,10 @@ public abstract class Track implements TrackAdapter {
      */
     @Override
     public void repaint() {
+        boolean b = frame.getGraphPane().isRenderForced();
+        frame.getGraphPane().setRenderForced();
         frame.getGraphPane().repaint();
+        //frame.getGraphPane().setRenderForced(b);
     }
 
     @Override

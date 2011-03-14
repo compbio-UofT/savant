@@ -228,7 +228,7 @@ public class ColorSchemeDialog extends JDialog {
                 String name = this.getName();
                 
                 track.setColor(name, (Color)value);
-                track.getFrame().getGraphPane().setRenderRequired();
+                track.getFrame().getGraphPane().setRenderForced();
                 track.getFrame().getGraphPane().repaint();
 
                 map.put(getFullName(), value);

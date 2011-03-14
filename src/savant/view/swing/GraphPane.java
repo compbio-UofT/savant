@@ -483,11 +483,19 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         g2.translate(0, -1 * this.getOffset());
     }
 
+    public void setRenderForced(){
+        renderRequired = true;
+    }
+
     /**
      * Call before a repaint to override bufferedImage repainting
      */
-    public void setRenderRequired(){
-        renderRequired = true;
+    public void setRenderForced(boolean b){
+        renderRequired = b;
+    }
+
+    public boolean isRenderForced() {
+        return renderRequired;
     }
 
     /**

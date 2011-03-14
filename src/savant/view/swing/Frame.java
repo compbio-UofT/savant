@@ -442,7 +442,7 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
             @Override
             public void actionPerformed(ActionEvent e) {
                 ((BEDTrack)tracks[0]).toggleItemRGBEnabled();
-                graphPane.setRenderRequired();
+                graphPane.setRenderForced();
                 graphPane.repaint();
             }
         });
@@ -450,7 +450,7 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
             @Override
             public void actionPerformed(ActionEvent e) {
                 ((BEDTrack)tracks[0]).toggleScoreEnabled();
-                graphPane.setRenderRequired();
+                graphPane.setRenderForced();
                 graphPane.repaint();
             }
         });
@@ -588,7 +588,7 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
     public BufferedImage frameToImage(){
         BufferedImage bufferedImage = new BufferedImage(graphPane.getWidth(), graphPane.getHeight(), BufferedImage.TYPE_INT_RGB);
         Graphics2D g = bufferedImage.createGraphics();
-        graphPane.setRenderRequired();
+        graphPane.setRenderForced();
         graphPane.forceFullHeight();
         graphPane.render(g);
         graphPane.unforceFullHeight();
@@ -605,14 +605,14 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
     @Override
     public void dataRetrievalCompleted(DataRetrievalEvent evt) {
         LOG.trace("Frame received dataRetrievalCompleted.  Forcing full render.");
-        graphPane.setRenderRequired();
+        graphPane.setRenderForced();
         graphPane.repaint();
     }
 
     @Override
     public void dataRetrievalFailed(DataRetrievalEvent evt) {
         LOG.trace("Frame received dataRetrievalFailed.  Forcing full render.");
-        graphPane.setRenderRequired();
+        graphPane.setRenderForced();
         graphPane.repaint();
     }
 
