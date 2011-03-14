@@ -21,6 +21,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import savant.api.adapter.RangeAdapter;
 import savant.data.types.Continuous;
@@ -30,14 +31,15 @@ import savant.util.Resolution;
 
 
 /**
- * DataSource class which retrieves generic interval data from an SQL database.
+ * DataSource class which retrieves continuous data from an SQL database.  This assumes
+ * that the data in question is stored in a "value" column within the database.
  *
  * @author tarkvara
  */
 public class ContinuousSQLDataSource extends SQLDataSource<GenericContinuousRecord> {
 
-    ContinuousSQLDataSource(Table table, ColumnMapping columns) throws SQLException {
-        super(table, columns);
+    ContinuousSQLDataSource(MappedTable table, Set<String> references) throws SQLException {
+        super(table, references);
     }
 
     @Override
@@ -67,6 +69,6 @@ public class ContinuousSQLDataSource extends SQLDataSource<GenericContinuousReco
 
     @Override
     public DataFormat getDataFormat() {
-        return DataFormat.INTERVAL_GENERIC;
+        return DataFormat.CONTINUOUS_GENERIC;
     }
 }

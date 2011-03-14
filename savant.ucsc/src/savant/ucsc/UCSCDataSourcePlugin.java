@@ -17,15 +17,20 @@
 package savant.ucsc;
 
 import java.net.URI;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import savant.api.util.DialogUtils;
 import savant.plugin.PluginAdapter;
 import savant.sql.ColumnMapping;
 import savant.sql.Database;
+import savant.sql.MappedTable;
 import savant.sql.SQLDataSourcePlugin;
+import savant.sql.Table;
 
 
 /**
@@ -65,29 +70,32 @@ public class UCSCDataSourcePlugin extends SQLDataSourcePlugin {
         KNOWN_MAPPINGS.put("narrowPeak", bed4Mapping);
 
         // bed 8, like BED, but with no ItemRgb or blocks.
-        ColumnMapping bed8Mapping = ColumnMapping.getBEDMapping("chrom", "chromStart", "chromEnd", "name", "score", "strand", "thickStart", "thickEnd", null, null, null, null);
+        ColumnMapping bed8Mapping = ColumnMapping.getBedMapping("chrom", "chromStart", "chromEnd", "name", "score", "strand", "thickStart", "thickEnd", null, null, null, null);
         KNOWN_MAPPINGS.put("bed 8", bed8Mapping);
         KNOWN_MAPPINGS.put("bed 8 +", bed8Mapping);
         KNOWN_MAPPINGS.put("bed 8 .", bed8Mapping);
 
         // bed 9, like BED, but with no blocks.  Note that in bed 9, the itemRGB column is usually called "reserved".
-        ColumnMapping bed9Mapping = ColumnMapping.getBEDMapping("chrom", "chromStart", "chromEnd", "name", "score", "strand", "thickStart", "thickEnd", "reserved", null, null, null);
+        ColumnMapping bed9Mapping = ColumnMapping.getBedMapping("chrom", "chromStart", "chromEnd", "name", "score", "strand", "thickStart", "thickEnd", "reserved", null, null, null);
         KNOWN_MAPPINGS.put("bed 9", bed9Mapping);
         KNOWN_MAPPINGS.put("bed 9 +", bed9Mapping);
         KNOWN_MAPPINGS.put("bed 9 .", bed9Mapping);
 
-        ColumnMapping bed12Mapping = ColumnMapping.getBEDMapping("chrom", "chromStart", "chromEnd", "name", "score", "strand", "thickStart", "thickEnd", "reserved", "chromStarts", null, "blockSizes");
+        ColumnMapping bed12Mapping = ColumnMapping.getBedMapping("chrom", "chromStart", "chromEnd", "name", "score", "strand", "thickStart", "thickEnd", "reserved", "chromStarts", null, "blockSizes");
         KNOWN_MAPPINGS.put("bed 12", bed12Mapping);
         KNOWN_MAPPINGS.put("bed 12 +", bed12Mapping);
         KNOWN_MAPPINGS.put("bed 12 .", bed12Mapping);
         KNOWN_MAPPINGS.put("expRatio", bed12Mapping);
 
-        ColumnMapping geneMapping = ColumnMapping.getBEDMapping("chrom", "txStart", "txEnd", "name", "score", "strand", "cdsStart", "cdsEnd", "reserved", "exonStarts", "exonEnds", null);
+        ColumnMapping geneMapping = ColumnMapping.getBedMapping("chrom", "txStart", "txEnd", "name", "score", "strand", "cdsStart", "cdsEnd", "reserved", "exonStarts", "exonEnds", null);
         KNOWN_MAPPINGS.put("genePred", geneMapping);
 
         // TODO: What to do with qStart and qEnd?
         ColumnMapping chainMapping = ColumnMapping.getIntervalMapping("tName", "tStart", "tEnd", "qName");
         KNOWN_MAPPINGS.put("chain", chainMapping);
+
+        ColumnMapping netAlignMapping = ColumnMapping.getIntervalMapping("tName", "tStart", "tEnd", "qName");
+        KNOWN_MAPPINGS.put("netAlign", netAlignMapping);
 
         ColumnMapping bedGraph4Mapping = ColumnMapping.getContinuousMapping("chrom", "chromStart", "chromEnd", "value");
         KNOWN_MAPPINGS.put("bedGraph 4", bedGraph4Mapping);
@@ -100,6 +108,9 @@ public class UCSCDataSourcePlugin extends SQLDataSourcePlugin {
 
         ColumnMapping rmskMapping = ColumnMapping.getIntervalMapping("genoName", "genoStart", "genoEnd", "repName");
         KNOWN_MAPPINGS.put("rmsk", rmskMapping);
+
+        ColumnMapping wigMapping = ColumnMapping.getWigMapping("chrom", "chromStart", "chromEnd", "span", "count", "offset", "file", "lowerLimit", "dataRange");
+        KNOWN_MAPPINGS.put("wig", wigMapping);
     }
 
     @Override
@@ -136,17 +147,38 @@ public class UCSCDataSourcePlugin extends SQLDataSourcePlugin {
      * @throws SQLException
      */
     @Override
-    protected void requestMapping() throws SQLException {
+    protected MappedTable requestMapping(Table t) throws SQLException {
         if (hgcentral == null) {
             hgcentral = new Database("hgcentral", uri, userName, password);
         }
-        UCSCNavigationDialog dlg = new UCSCNavigationDialog(DialogUtils.getMainWindow(), this);
+        UCSCNavigationDialog dlg = new UCSCNavigationDialog(DialogUtils.getMainWindow(), this, t);
         dlg.setVisible(true);
+        return dlg.getMapping();
     }
 
     @Override
     public String getTitle() {
         return "UCSC Datasource Plugin";
+    }
+
+    /**
+     * Get a list of references for this data-source.  If there is a mapping for the chrom
+     * field, use that.  If not, use the chromInfo table to determine the list of
+     * chromosomes for this genome.  This is necessary to support certain UCSC tracks
+     * where the data is spread over one chromosome per table.
+     */
+    @Override
+    public Set<String> getReferences(MappedTable table) throws SQLException {
+        return getReferences(table.getDatabase());
+    }
+
+    Set<String> getReferences(Database db) throws SQLException {
+        Set<String> references = new HashSet<String>();
+        ResultSet rs = db.executeQuery("SELECT chrom FROM chromInfo");
+        while (rs.next()) {
+            references.add(rs.getString(1));
+        }
+        return references;
     }
 
     /**
@@ -162,6 +194,10 @@ public class UCSCDataSourcePlugin extends SQLDataSourcePlugin {
                 result = KNOWN_MAPPINGS.get("chain");
             } else if (type.startsWith("genePred")) {
                 result = KNOWN_MAPPINGS.get("genePred");
+            } else if (type.startsWith("netAlign")) {
+                result = KNOWN_MAPPINGS.get("netAlign");
+            } else if (type.startsWith("wig ")) {  // Note trailing space on string, to avoid catching wigMaf tracks.
+                result = KNOWN_MAPPINGS.get("wig");
             }
         }
         return result;

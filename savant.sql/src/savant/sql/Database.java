@@ -101,6 +101,18 @@ public class Database {
         return tables != null ? tables.contains(t) : false;
     }
 
+    /**
+     * Get the table corresponding to the given name.
+     */
+    public Table findTable(String name) throws SQLException {
+        for (Table t: getTables()) {
+            if (t.getName().equals(name)) {
+                return t;
+            }
+        }
+        return null;
+    }
+
     public Connection getConnection() throws SQLException {
         if (connection != null && !connection.isValid(0)) {
             // Connection no longer valid.  Close it and recreate.

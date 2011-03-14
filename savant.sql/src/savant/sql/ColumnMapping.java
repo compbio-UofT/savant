@@ -17,8 +17,6 @@
 package savant.sql;
 
 import savant.api.util.SettingsUtils;
-import savant.file.DataFormat;
-
 
 /**
  * Keeps track of the mapping between Savant's own internal fields and SQL column names.
@@ -26,7 +24,7 @@ import savant.file.DataFormat;
  * @author tarkvara
  */
 public class ColumnMapping implements SQLConstants {
-    public final DataFormat format;
+    public final MappingFormat format;
     public final String chrom;
     public final String start;
     public final String end;
@@ -41,7 +39,15 @@ public class ColumnMapping implements SQLConstants {
     public final String blockEnds;
     public final String blockSizes;
 
-    private ColumnMapping(DataFormat format, String chrom, String start, String end, String value, String name, String score, String strand, String thickStart, String thickEnd, String itemRGB, String blockStarts, String blockEnds, String blockSizes) {
+    // Wig/Wib fields
+    public final String span;
+    public final String count;
+    public final String offset;
+    public final String file;
+    public final String lowerLimit;
+    public final String dataRange;
+
+    private ColumnMapping(MappingFormat format, String chrom, String start, String end, String value, String name, String score, String strand, String thickStart, String thickEnd, String itemRGB, String blockStarts, String blockEnds, String blockSizes, String span, String count, String offset, String file, String lowerLimit, String dataRange) {
         this.format = format;
         this.chrom = chrom;
         this.start = start;
@@ -56,27 +62,40 @@ public class ColumnMapping implements SQLConstants {
         this.blockStarts = NO_COLUMN.equals(blockStarts) ? null : blockStarts;
         this.blockEnds = NO_COLUMN.equals(blockEnds) ? null : blockEnds;
         this.blockSizes = NO_COLUMN.equals(blockSizes) ? null : blockSizes;
+        this.span = NO_COLUMN.equals(span) ? null : span;
+        this.count = NO_COLUMN.equals(count) ? null : count;
+        this.offset = NO_COLUMN.equals(offset) ? null : offset;
+        this.file = NO_COLUMN.equals(file) ? null : file;
+        this.lowerLimit = NO_COLUMN.equals(lowerLimit) ? null : lowerLimit;
+        this.dataRange = NO_COLUMN.equals(dataRange) ? null : dataRange;
     }
 
     /**
      * Constructor used to map GenericContinuous formats.
      */
     public static ColumnMapping getContinuousMapping(String chrom, String start, String end, String value) {
-        return new ColumnMapping(DataFormat.CONTINUOUS_GENERIC, chrom, start, end, value, null, null, null, null, null, null, null, null, null);
+        return new ColumnMapping(MappingFormat.CONTINUOUS_VALUE_COLUMN, chrom, start, end, value, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
     }
 
     /**
      * Constructor used to map GenericInterval formats.
      */
     public static ColumnMapping getIntervalMapping(String chrom, String start, String end, String name) {
-        return new ColumnMapping(DataFormat.INTERVAL_GENERIC, chrom, start, end, null, name, null, null, null, null, null, null, null, null);
+        return new ColumnMapping(MappingFormat.INTERVAL_GENERIC, chrom, start, end, null, name, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
     }
 
     /**
      * Constructor used to map BEDInterval formats.
      */
-    public static ColumnMapping getBEDMapping(String chrom, String start, String end, String name, String score, String strand, String thickStart, String thickEnd, String itemRGB, String blockStarts, String blockEnds, String blockSizes) {
-        return new ColumnMapping(DataFormat.INTERVAL_BED, chrom, start, end, null, name, score, strand, thickStart, thickEnd, itemRGB, blockStarts, blockEnds, blockSizes);
+    public static ColumnMapping getBedMapping(String chrom, String start, String end, String name, String score, String strand, String thickStart, String thickEnd, String itemRGB, String blockStarts, String blockEnds, String blockSizes) {
+        return new ColumnMapping(MappingFormat.INTERVAL_BED, chrom, start, end, null, name, score, strand, thickStart, thickEnd, itemRGB, blockStarts, blockEnds, blockSizes, null, null, null, null, null, null);
+    }
+
+    /**
+     * Constructor used to map GenericContinuous formats.
+     */
+    public static ColumnMapping getWigMapping(String chrom, String start, String end, String span, String count, String offset, String file, String lowerLimit, String dataRange) {
+        return new ColumnMapping(MappingFormat.CONTINUOUS_WIG, chrom, start, end, null, null, null, null, null, null, null, null, null, null, span, count, offset, file, lowerLimit, dataRange);
     }
 
     private static String findColumn(SQLDataSourcePlugin plugin, String settingName, Column[] columns) {
@@ -103,30 +122,40 @@ public class ColumnMapping implements SQLConstants {
         String start = findColumn(plugin, START, columns);
         String end = findColumn(plugin, END, columns);
         if (chrom != null && start != null && end != null) {
-            String name = findColumn(plugin, NAME, columns);
-            if (name != null) {
-                // We have a name field, but beyond that the division between INTERVAL_GENERIC and INTERVAL_BED is a little vague.
-                // Arbitrarily, we will decide that if there is a SCORE or STRAND column, we'll call it INTERVAL_BED.
-                String score = findColumn(plugin, SCORE, columns);
-                String strand = findColumn(plugin, STRAND, columns);
-                if (score != null || strand != null) {
-                    return getBEDMapping(chrom, start, end, name, score, strand,
-                                         findColumn(plugin, THICK_START, columns), findColumn(plugin, THICK_END, columns),
-                                         findColumn(plugin, ITEM_RGB, columns),
-                                         findColumn(plugin, BLOCK_STARTS, columns), findColumn(plugin, BLOCK_ENDS, columns), findColumn(plugin, BLOCK_ENDS, columns));
-                } else {
-                    // No score or strand fields.  We'll fall back on generic interval.
-                    return getIntervalMapping(chrom, start, end, name);
-                }
+            // First check for Wig columns, which are unambiguous.
+            String count = findColumn(plugin, COUNT, columns);
+            String offset = findColumn(plugin, OFFSET, columns);
+            String file = findColumn(plugin, FILE, columns);
+            String lowerLimit = findColumn(plugin, LOWER_LIMIT, columns);
+            String dataRange = findColumn(plugin, DATA_RANGE, columns);
+            if (count != null && offset != null && file != null && lowerLimit != null && dataRange != null) {
+                return getWigMapping(chrom, start, end, findColumn(plugin, SPAN, columns), count, offset, file, lowerLimit, dataRange);
             } else {
-                // No name field.  Maybe it's generic continuous.
-                String value = findColumn(plugin, VALUE, columns);
-                if (value != null) {
-                    return getContinuousMapping(chrom, start, end, value);
+                String name = findColumn(plugin, NAME, columns);
+                if (name != null) {
+                    // We have a name field, but beyond that the division between INTERVAL_GENERIC and INTERVAL_BED is a little vague.
+                    // Arbitrarily, we will decide that if there is a SCORE or STRAND column, we'll call it INTERVAL_BED.
+                    String score = findColumn(plugin, SCORE, columns);
+                    String strand = findColumn(plugin, STRAND, columns);
+                    if (score != null || strand != null) {
+                        return getBedMapping(chrom, start, end, name, score, strand,
+                                             findColumn(plugin, THICK_START, columns), findColumn(plugin, THICK_END, columns),
+                                             findColumn(plugin, ITEM_RGB, columns),
+                                             findColumn(plugin, BLOCK_STARTS, columns), findColumn(plugin, BLOCK_ENDS, columns), findColumn(plugin, BLOCK_ENDS, columns));
+                    } else {
+                        // No score or strand fields.  We'll fall back on generic interval.
+                        return getIntervalMapping(chrom, start, end, name);
+                    }
+                } else {
+                    // No name field.  Maybe it's generic continuous.
+                    String value = findColumn(plugin, VALUE, columns);
+                    if (value != null) {
+                        return getContinuousMapping(chrom, start, end, value);
+                    }
                 }
             }
         }
-        return new ColumnMapping(null, chrom, start, end, null, null, null, null, null, null, null, null, null, null);
+        return new ColumnMapping(null, chrom, start, end, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
     }
 
     /**
@@ -147,6 +176,12 @@ public class ColumnMapping implements SQLConstants {
         saveValue(plugin, BLOCK_STARTS, blockStarts);
         saveValue(plugin, BLOCK_ENDS, blockEnds);
         saveValue(plugin, BLOCK_SIZES, blockSizes);
+        saveValue(plugin, SPAN, span);
+        saveValue(plugin, COUNT, count);
+        saveValue(plugin, OFFSET, offset);
+        saveValue(plugin, FILE, file);
+        saveValue(plugin, LOWER_LIMIT, lowerLimit);
+        saveValue(plugin, DATA_RANGE, dataRange);
         SettingsUtils.store();
     }
 

@@ -67,6 +67,9 @@ public class Table {
         return columns;
     }
 
+    public Database getDatabase() {
+        return database;
+    }
 
     public String getName() {
         return name;

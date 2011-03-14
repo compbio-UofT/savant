@@ -29,7 +29,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import savant.api.util.DialogUtils;
 
-import savant.file.DataFormat;
 
 /**
  * Dialog which lets user specify the mapping between database columns and our record
@@ -39,14 +38,16 @@ import savant.file.DataFormat;
  */
 public class MappingDialog extends javax.swing.JDialog {
     private static final Log LOG = LogFactory.getLog(MappingDialog.class);
-    public static final DefaultComboBoxModel FORMAT_COMBO_MODEL = new DefaultComboBoxModel(new FormatDef[] { new FormatDef("BED", DataFormat.INTERVAL_BED), new FormatDef("Generic Interval", DataFormat.INTERVAL_GENERIC), new FormatDef("Generic Continuous", DataFormat.CONTINUOUS_GENERIC) });
+    public static final DefaultComboBoxModel FORMAT_COMBO_MODEL = new DefaultComboBoxModel(new FormatDef[] { new FormatDef("BED", MappingFormat.INTERVAL_BED), new FormatDef("Generic Interval", MappingFormat.INTERVAL_GENERIC), new FormatDef("Generic Continuous", MappingFormat.CONTINUOUS_VALUE_COLUMN), new FormatDef("WIG", MappingFormat.CONTINUOUS_WIG) });
     private SQLDataSourcePlugin plugin;
+    private Table table;
     private MappingPanel mappingPanel;
 
-    public MappingDialog(Window parent, SQLDataSourcePlugin plugin) throws SQLException {
+    public MappingDialog(Window parent, SQLDataSourcePlugin plugin, Table table) throws SQLException {
         super(parent, ModalityType.APPLICATION_MODAL);
         initComponents();
         this.plugin = plugin;
+        this.table = table;
         mappingPanel = new MappingPanel();
 
         GridBagConstraints gbc = new GridBagConstraints();
@@ -63,8 +64,6 @@ public class MappingDialog extends javax.swing.JDialog {
         formatComboActionPerformed(null);   // So that the correct components are displayed.
         pack();
         setLocationRelativeTo(parent);
-        plugin.table = null;
-        plugin.mapping = null;
     }
 
     /** This method is called from within the constructor to
@@ -196,17 +195,15 @@ public class MappingDialog extends javax.swing.JDialog {
     private void tableComboActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tableComboActionPerformed
         final Table t = (Table) tableCombo.getSelectedItem();
         if (t != null) {
-            new SQLWorker(this, "Fetching database columns...", "Unable to fetch database columns.") {
-                Column[] columns;
-
+            new SQLWorker<Column[]>(this, "Fetching database columns...", "Unable to fetch database columns.") {
                 @Override
-                public void doInBackground() throws SQLException {
+                public Column[] doInBackground() throws SQLException {
                     // The first call to getColumns() can require a lengthy query.
-                    columns = t.getColumns();
+                    return t.getColumns();
                 }
 
                 @Override
-                public void done() {
+                public void done(Column[] columns) {
                     if (columns != null) {
                         Arrays.sort(columns, new Comparator<Column>() {
 
@@ -223,14 +220,14 @@ public class MappingDialog extends javax.swing.JDialog {
 }//GEN-LAST:event_tableComboActionPerformed
 
     private void okButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_okButtonActionPerformed
-
-        plugin.table = (Table) tableCombo.getSelectedItem();
-        plugin.mapping = mappingPanel.getMapping();
-        plugin.mapping.save(plugin);
+        ColumnMapping mapping = mappingPanel.getMapping();
+        mapping.save(plugin);
+        table = (Table)tableCombo.getSelectedItem();
         setVisible(false);
 }//GEN-LAST:event_okButtonActionPerformed
 
     private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelButtonActionPerformed
+        table = null;
         setVisible(false);
 }//GEN-LAST:event_cancelButtonActionPerformed
 
@@ -245,22 +242,21 @@ public class MappingDialog extends javax.swing.JDialog {
      * system databases which contain no tables.
      */
     private void populateDatabaseCombo() {
-        new SQLWorker(DialogUtils.getMainWindow(), "Fetching database list...", "Unable to get list of databases.") {
-            List<Database> databases;
+        new SQLWorker<List<Database>>(DialogUtils.getMainWindow(), "Fetching database list...", "Unable to get list of databases.") {
             @Override
-            public void doInBackground() throws SQLException {
-                 databases = plugin.getDatabases();
+            public List<Database> doInBackground() throws SQLException {
+                 return plugin.getDatabases();
             }
 
             @Override
-            public void done() {
+            public void done(List<Database> databases) {
                 if (databases != null) {
                     for (Database db : databases) {
                         databaseCombo.addItem(db);
                     }
                     // Setting the selected index will populate the table combo.
-                    if (plugin.table != null) {
-                        databaseCombo.setSelectedItem(plugin.table.database);
+                    if (table != null) {
+                        databaseCombo.setSelectedItem(table.database);
                     } else {
                         databaseCombo.setSelectedIndex(0);
                     }
@@ -274,16 +270,14 @@ public class MappingDialog extends javax.swing.JDialog {
      * Table combo.
      */
     private void populateTableCombo() {
-        new SQLWorker(this, "Fetching table list...", "Unable to get list of tables.") {
-            List<Table> tables;
-
+        new SQLWorker<List<Table>>(this, "Fetching table list...", "Unable to get list of tables.") {
             @Override
-            public void doInBackground() throws SQLException{
-                tables = ((Database) databaseCombo.getSelectedItem()).getTables();
+            public List<Table> doInBackground() throws SQLException{
+                return ((Database) databaseCombo.getSelectedItem()).getTables();
             }
 
             @Override
-            public void done() {
+            public void done(List<Table> tables) {
                 tableCombo.removeAllItems();
                 if (tables != null) {
                     Collections.sort(tables, new Comparator<Table>() {
@@ -296,19 +290,26 @@ public class MappingDialog extends javax.swing.JDialog {
                     for (Table t : tables) {
                         tableCombo.addItem(t);
                     }
-                    if (plugin.table != null) {
-                        tableCombo.setSelectedItem(plugin.table);
+                    if (table != null) {
+                        tableCombo.setSelectedItem(table);
                     }
                 }
             }
         };
     }
 
+    public MappedTable getMapping() {
+        if (table != null) {
+            return new MappedTable(table, mappingPanel.getMapping());
+        }
+        return null;
+    }
+
     public static class FormatDef {
         String name;
-        public DataFormat format;
+        public MappingFormat format;
 
-        FormatDef(String name, DataFormat format) {
+        FormatDef(String name, MappingFormat format) {
             this.name = name;
             this.format = format;
         }

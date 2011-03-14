@@ -36,6 +36,12 @@ public interface SQLConstants {
     public static final String BLOCK_STARTS = "BLOCK_STARTS";
     public static final String BLOCK_ENDS = "BLOCK_ENDS";
     public static final String BLOCK_SIZES = "BLOCK_SIZES";
+    public static final String SPAN = "SPAN";
+    public static final String COUNT = "COUNT";
+    public static final String OFFSET = "OFFSET";
+    public static final String FILE = "FILE";
+    public static final String LOWER_LIMIT = "LOWER_LIMIT";
+    public static final String DATA_RANGE = "DATA_RANGE";
 
     public static final String NO_COLUMN = "(none)";
 }

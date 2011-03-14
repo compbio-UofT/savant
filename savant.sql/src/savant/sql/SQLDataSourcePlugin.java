@@ -23,7 +23,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -54,16 +56,6 @@ public class SQLDataSourcePlugin extends SavantDataSourcePlugin {
 
     List<Database> databases;
 
-    /**
-     * Which table is being used as the source for the records?
-     */
-    Table table;
-
-    /**
-     * Keeps track of which database columns are mapped to fields in the records we're returning.
-     */
-    ColumnMapping mapping;
-
     private Connection connection;
 
     @Override
@@ -86,11 +78,11 @@ public class SQLDataSourcePlugin extends SavantDataSourcePlugin {
 
         // Connection will be null if user cancelled login dialog.
         if (connection != null) {
-            requestMapping();
+            MappedTable table = requestMapping(null);
 
             // Table will be null if user cancelled mapping dialog.
             if (table != null) {
-                result = createCachedDataSource();
+                result = createCachedDataSource(table);
             }
         }
         return result;
@@ -132,26 +124,20 @@ public class SQLDataSourcePlugin extends SavantDataSourcePlugin {
      *
      * @throws SQLException
      */
-    protected void requestMapping() throws SQLException {
+    protected MappedTable requestMapping(Table t) throws SQLException {
         // No field mappings established.  Have to fall back on the mapping dialog.
-        MappingDialog dlg = new MappingDialog(DialogUtils.getMainWindow(), this);
+        MappingDialog dlg = new MappingDialog(DialogUtils.getMainWindow(), this, t);
         dlg.setVisible(true);
 
         // Now that we've got the relevant info about databases, clean up connections
         // to the tables we're not using.
+        MappedTable result = dlg.getMapping();
         for (Database db: databases) {
-            if (!db.containsTable(table)) {
+            if (!db.containsTable(result)) {
                 db.closeConnection();
             }
         }
-    }
-
-    public void setMapping(ColumnMapping mapping) {
-        this.mapping = mapping;
-    }
-
-    public void setTable(Table table) {
-        this.table = table;
+        return result;
     }
 
     @Override
@@ -174,14 +160,14 @@ public class SQLDataSourcePlugin extends SavantDataSourcePlugin {
                 tryToLogin();
 
                 if (connection != null) {
-                    table = new Table(tableName, new Database(dbName, this.uri, userName, password));
-                    mapping = ColumnMapping.getSavedMapping(this, table.getColumns());
-                    if (mapping.format == null) {
-                        requestMapping();
+                    Table t = new Table(tableName, new Database(dbName, this.uri, userName, password));
+                    MappedTable table = new MappedTable(t, ColumnMapping.getSavedMapping(this, t.getColumns()));
+                    if (table.mapping.format == null) {
+                        table = requestMapping(t);
                     }
 
-                    if (mapping.format != null) {
-                        result = createCachedDataSource();
+                    if (table.mapping.format != null) {
+                        result = createCachedDataSource(table);
                     }
                 }
             } catch (Exception x) {
@@ -215,14 +201,6 @@ public class SQLDataSourcePlugin extends SavantDataSourcePlugin {
         return false;
     }
 
-    public Database getDatabase() {
-        return table != null ? table.database : null;
-    }
-
-    public Table getTable() {
-        return table;
-    }
-
     /**
      * Connect to the database URI without worrying about a specific database.
      *
@@ -250,20 +228,28 @@ public class SQLDataSourcePlugin extends SavantDataSourcePlugin {
      * @return
      * @throws SQLException
      */
-    private DataSource createCachedDataSource() throws SQLException {
+    private DataSource createCachedDataSource(MappedTable table) throws SQLException {
         DataSource result = null;
-        switch (mapping.format) {
-            case CONTINUOUS_GENERIC:
-                result = new ContinuousSQLDataSource(table, mapping);
+        Set<String> references = getReferences(table);
+        switch (table.mapping.format) {
+            case CONTINUOUS_VALUE_COLUMN:
+                result = new ContinuousSQLDataSource(table, references);
                 break;
+            case CONTINUOUS_WIG:
+                result = new WigSQLDataSource(table, references);
+                break;
+            case CONTINUOUS_BIGWIG:
+                throw new UnsupportedOperationException("BigWig SQL access not yet implemented.");
+//                result = new BigWigSQLDataSource(table, references);
+//                break;
             case INTERVAL_GENERIC:
-                result = new IntervalSQLDataSource(table, mapping);
+                result = new IntervalSQLDataSource(table, references);
                 break;
             case INTERVAL_BED:
-                result = new BEDSQLDataSource(table, mapping);
+                result = new BedSQLDataSource(table, references);
                 break;
-            case TABIX:
-                result = new TabixSQLDataSource(table, mapping);
+            case INTERVAL_TABIX:
+                result = new TabixSQLDataSource(table, references);
                 break;
         }
         if (result != null) {
@@ -305,5 +291,20 @@ public class SQLDataSourcePlugin extends SavantDataSourcePlugin {
             closeConnection();
         }
         return databases;
+    }
+
+    /**
+     * Get a list of references for this data-source.  For the basic SQLDataSource,
+     * this is not needed.  For UCSC, it will use the chromInfo table to determine
+     * the list of chromosomes for this genome.  This is necessary to support certain
+     * UCSC tracks where the data is spread over one chromosome per table.
+     */
+    public Set<String> getReferences(MappedTable table) throws SQLException {
+        Set<String> references = new HashSet<String>();
+        ResultSet rs = table.database.executeQuery("SELECT DISTINCT %s FROM %s", table.mapping.chrom, table);
+        while (rs.next()) {
+            references.add(rs.getString(1));
+        }
+        return references;
     }
 }

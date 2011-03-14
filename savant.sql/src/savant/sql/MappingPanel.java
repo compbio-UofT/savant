@@ -1,12 +1,17 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
-/*
- * MappingPanel.java
+ *    Copyright 2011 University of Toronto
  *
- * Created on Feb 23, 2011, 5:51:36 PM
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
  */
 
 package savant.sql;
@@ -15,20 +20,37 @@ import java.sql.Types;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
 
-import savant.file.DataFormat;
 
 /**
+ * Shared by MappingDialog and UCSCNavigationDialog, to set up specific mappings between
+ * Savant fields and database columns.
  *
  * @author tarkvara
  */
 public class MappingPanel extends JPanel implements SQLConstants {
-    private DataFormat format;
+    private MappingFormat format;
     private JComboBox valueCombo;
+    private JComboBox spanCombo;
+    private JComboBox countCombo;
+    private JComboBox offsetCombo;
+    private JComboBox fileCombo;
+    private JComboBox lowerLimitCombo;
+    private JComboBox dataRangeCombo;
 
     /** Creates new form MappingPanel */
     public MappingPanel() {
         initComponents();
-        valueCombo = nameCombo;     // They're the same widget, but code makes more sense this way.
+
+        // In Designer, we lay out all the combo-boxes as for a BED file (because
+        // it has the most columns.
+        valueCombo = nameCombo;
+
+        spanCombo = nameCombo;
+        countCombo = scoreCombo;
+        offsetCombo = strandCombo;
+        fileCombo = thickStartCombo;
+        lowerLimitCombo = thickEndCombo;
+        dataRangeCombo = itemRGBCombo;
     }
 
     /** This method is called from within the constructor to
@@ -258,19 +280,24 @@ public class MappingPanel extends JPanel implements SQLConstants {
     private javax.swing.JLabel thickStartLabel;
     // End of variables declaration//GEN-END:variables
 
-    public void setFormat(DataFormat format) {
+    public void setFormat(MappingFormat format) {
         this.format = format;
-        nameLabel.setText(format == DataFormat.CONTINUOUS_GENERIC ? "Value:" : "Name:");
         switch (format) {
             case INTERVAL_BED:
+                nameLabel.setText("Name:");
+                scoreLabel.setText("Score:");
                 scoreLabel.setVisible(true);
                 scoreCombo.setVisible(true);
+                strandLabel.setText("Strand:");
                 strandLabel.setVisible(true);
                 strandCombo.setVisible(true);
+                thickStartLabel.setText("Thick Start:");
                 thickStartLabel.setVisible(true);
                 thickStartCombo.setVisible(true);
+                thickEndLabel.setText("Thick End:");
                 thickEndLabel.setVisible(true);
                 thickEndCombo.setVisible(true);
+                itemRGBLabel.setText("Item RGB:");
                 itemRGBLabel.setVisible(true);
                 itemRGBCombo.setVisible(true);
                 blockStartsLabel.setVisible(true);
@@ -280,7 +307,32 @@ public class MappingPanel extends JPanel implements SQLConstants {
                 blockSizesLabel.setVisible(true);
                 blockSizesCombo.setVisible(true);
                 break;
+            case CONTINUOUS_WIG:
+                nameLabel.setText("Span:");
+                scoreLabel.setText("Count:");
+                scoreLabel.setVisible(true);
+                scoreCombo.setVisible(true);
+                strandLabel.setText("Offset:");
+                strandLabel.setVisible(true);
+                strandCombo.setVisible(true);
+                thickStartLabel.setText("File:");
+                thickStartLabel.setVisible(true);
+                thickStartCombo.setVisible(true);
+                thickEndLabel.setText("Lower Limit:");
+                thickEndLabel.setVisible(true);
+                thickEndCombo.setVisible(true);
+                itemRGBLabel.setText("Data Range:");
+                itemRGBLabel.setVisible(true);
+                itemRGBCombo.setVisible(true);
+                blockStartsLabel.setVisible(false);
+                blockStartsCombo.setVisible(false);
+                blockEndsLabel.setVisible(false);
+                blockEndsCombo.setVisible(false);
+                blockSizesLabel.setVisible(false);
+                blockSizesCombo.setVisible(false);
+                break;
             default:
+                nameLabel.setText(format == MappingFormat.CONTINUOUS_VALUE_COLUMN ? "Value:" : "Name:");
                 scoreLabel.setVisible(false);
                 scoreCombo.setVisible(false);
                 strandLabel.setVisible(false);
@@ -306,8 +358,8 @@ public class MappingPanel extends JPanel implements SQLConstants {
         populateFieldCombo(startCombo, columns, Types.INTEGER, mapping.start);
         populateFieldCombo(endCombo, columns, Types.INTEGER, mapping.end);
         switch (format) {
-            case CONTINUOUS_GENERIC:
-                populateFieldCombo(nameCombo, columns, Types.REAL, mapping.value);
+            case CONTINUOUS_VALUE_COLUMN:
+                populateFieldCombo(valueCombo, columns, Types.REAL, mapping.value);
                 break;
             case INTERVAL_GENERIC:
                 populateFieldCombo(nameCombo, columns, Types.CHAR, mapping.name);
@@ -322,6 +374,14 @@ public class MappingPanel extends JPanel implements SQLConstants {
                 populateFieldCombo(blockStartsCombo, columns, Types.BLOB, mapping.blockStarts);
                 populateFieldCombo(blockEndsCombo, columns, Types.BLOB, mapping.blockEnds);
                 populateFieldCombo(blockSizesCombo, columns, Types.BLOB, mapping.blockSizes);
+                break;
+            case CONTINUOUS_WIG:
+                populateFieldCombo(spanCombo, columns, Types.INTEGER, mapping.span);
+                populateFieldCombo(countCombo, columns, Types.INTEGER, mapping.count);
+                populateFieldCombo(offsetCombo, columns, Types.INTEGER, mapping.offset);
+                populateFieldCombo(fileCombo, columns, Types.CHAR, mapping.file);
+                populateFieldCombo(lowerLimitCombo, columns, Types.REAL, mapping.lowerLimit);
+                populateFieldCombo(dataRangeCombo, columns, Types.REAL, mapping.dataRange);
                 break;
         }
     }
@@ -389,7 +449,7 @@ public class MappingPanel extends JPanel implements SQLConstants {
 
     public ColumnMapping getMapping() {
         switch (format) {
-            case CONTINUOUS_GENERIC:
+            case CONTINUOUS_VALUE_COLUMN:
                 return ColumnMapping.getContinuousMapping(chromCombo.getSelectedItem().toString(),
                         startCombo.getSelectedItem().toString(),
                         endCombo.getSelectedItem().toString(),
@@ -400,7 +460,7 @@ public class MappingPanel extends JPanel implements SQLConstants {
                         endCombo.getSelectedItem().toString(),
                         nameCombo.getSelectedItem().toString());
             case INTERVAL_BED:
-                return ColumnMapping.getBEDMapping(chromCombo.getSelectedItem().toString(),
+                return ColumnMapping.getBedMapping(chromCombo.getSelectedItem().toString(),
                                                    startCombo.getSelectedItem().toString(),
                                                    endCombo.getSelectedItem().toString(),
                                                    nameCombo.getSelectedItem().toString(),
@@ -412,6 +472,16 @@ public class MappingPanel extends JPanel implements SQLConstants {
                                                    blockStartsCombo.getSelectedItem().toString(),
                                                    blockEndsCombo.getSelectedItem().toString(),
                                                    blockSizesCombo.getSelectedItem().toString());
+            case CONTINUOUS_WIG:
+                return ColumnMapping.getWigMapping(chromCombo.getSelectedItem().toString(),
+                                                   startCombo.getSelectedItem().toString(),
+                                                   endCombo.getSelectedItem().toString(),
+                                                   spanCombo.getSelectedItem().toString(),
+                                                   countCombo.getSelectedItem().toString(),
+                                                   offsetCombo.getSelectedItem().toString(),
+                                                   fileCombo.getSelectedItem().toString(),
+                                                   lowerLimitCombo.getSelectedItem().toString(),
+                                                   dataRangeCombo.getSelectedItem().toString());
             default:
                 return null;
         }

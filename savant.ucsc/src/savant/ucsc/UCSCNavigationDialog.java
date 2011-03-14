@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JDialog;
 
@@ -32,8 +33,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import savant.api.util.DialogUtils;
+import savant.api.util.SettingsUtils;
 import savant.sql.ColumnMapping;
 import savant.sql.Database;
+import savant.sql.MappedTable;
 import savant.sql.MappingDialog;
 import savant.sql.MappingDialog.FormatDef;
 import savant.sql.MappingPanel;
@@ -50,16 +53,15 @@ import savant.sql.Table;
 public class UCSCNavigationDialog extends JDialog implements SQLConstants {
     private static final Log LOG = LogFactory.getLog(UCSCNavigationDialog.class);
 
-    private final UCSCDataSourcePlugin plugin;
     private MappingPanel mappingPanel;
     private ColumnMapping knownMapping;
 
-    private Map<String, ArrayList<String>> cladeGenomeMap = new HashMap<String, ArrayList<String>>();
-    private Map<String, String> genomeDBMap = new HashMap<String, String>();
-    private Map<String, ArrayList<TrackDef>> groupTrackMap = new HashMap<String, ArrayList<TrackDef>>();
-
+    private Map<String, List<GenomeDef>> cladeGenomeMap = new HashMap<String, List<GenomeDef>>();
     private Database genomeDB = null;
-    private Table trackTable = null;
+    private Set<String> references = null;
+    private UCSCDataSourcePlugin plugin = null;
+    private Table table = null;
+
 
     /**
      * Dialog which lets the user navigate through the UCSC hierarchy and select
@@ -67,9 +69,10 @@ public class UCSCNavigationDialog extends JDialog implements SQLConstants {
      *
      * @param parent can be null
      */
-    public UCSCNavigationDialog(Window parent, UCSCDataSourcePlugin plugin) throws SQLException {
+    public UCSCNavigationDialog(Window parent, UCSCDataSourcePlugin plugin, Table table) throws SQLException {
         super(parent, ModalityType.APPLICATION_MODAL);
         this.plugin = plugin;
+        this.table = table;
         initComponents();
 
         mappingPanel = new MappingPanel();
@@ -113,6 +116,7 @@ public class UCSCNavigationDialog extends JDialog implements SQLConstants {
         formatCombo = new javax.swing.JComboBox();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setTitle("UCSC Genome Database");
         getContentPane().setLayout(new java.awt.GridBagLayout());
 
         okButton.setText("OK");
@@ -274,14 +278,12 @@ public class UCSCNavigationDialog extends JDialog implements SQLConstants {
 
     private void okButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_okButtonActionPerformed
         ColumnMapping mapping = mappingPanel.getMapping();
-        if (mapping != null) {
-            plugin.setTable(trackTable);
-            plugin.setMapping(mapping);
-            setVisible(false);
-        }
+        mapping.save(plugin);
+        setVisible(false);
 }//GEN-LAST:event_okButtonActionPerformed
 
     private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelButtonActionPerformed
+        table = null;
         if (genomeDB != null) {
             genomeDB.closeConnection();
         }
@@ -303,7 +305,7 @@ public class UCSCNavigationDialog extends JDialog implements SQLConstants {
     private void trackComboActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_trackComboActionPerformed
         TrackDef track = (TrackDef)trackCombo.getSelectedItem();
         knownMapping = UCSCDataSourcePlugin.getKnownMapping(track.type);
-        trackTable = new Table(track.table, genomeDB);
+        table = new Table(track.table, genomeDB);
         formatLabel.setText(track.type);
         if (knownMapping != null) {
             switch (knownMapping.format) {
@@ -313,8 +315,11 @@ public class UCSCNavigationDialog extends JDialog implements SQLConstants {
                 case INTERVAL_GENERIC:
                     formatCombo.setSelectedIndex(1);
                     break;
-                case CONTINUOUS_GENERIC:
+                case CONTINUOUS_VALUE_COLUMN:
                     formatCombo.setSelectedIndex(2);
+                    break;
+                case CONTINUOUS_WIG:
+                    formatCombo.setSelectedIndex(3);
                     break;
             }
         }
@@ -323,7 +328,7 @@ public class UCSCNavigationDialog extends JDialog implements SQLConstants {
     private void formatComboActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_formatComboActionPerformed
         mappingPanel.setFormat(((FormatDef)formatCombo.getSelectedItem()).format);
         try {
-            mappingPanel.populate(trackTable.getColumns(), knownMapping);
+            mappingPanel.populate(table.getColumns(), knownMapping);
         } catch (SQLException sqlx) {
             LOG.error(sqlx);
             DialogUtils.displayException("SQL Error", "Unable to get list of columns.", sqlx);
@@ -342,20 +347,24 @@ public class UCSCNavigationDialog extends JDialog implements SQLConstants {
     // End of variables declaration//GEN-END:variables
 
     private void populateCladeCombo() throws SQLException {
-        new SQLWorker(DialogUtils.getMainWindow(), "Fetching track list...", "Unable to fetch track list from UCSC.") {
-            String selectedClade = null;
-
+        new SQLWorker<String>(DialogUtils.getMainWindow(), "Fetching track list...", "Unable to fetch track list from UCSC.") {
             @Override
-            public void doInBackground() throws SQLException {
-                String selectedDB = null;
-                if (plugin.getTable() != null) {
-                    selectedDB = plugin.getDatabase().getName();
+            public String doInBackground() throws SQLException {
+                if (table != null) {
+                    genomeDB = table.getDatabase();
+                } else {
+                    String selectedDB = SettingsUtils.getString(plugin, "GENOME");
+                    if (selectedDB != null) {
+                        genomeDB = plugin.getDatabase(selectedDB);
+                    }
                 }
                 ResultSet rs = plugin.hgcentral.executeQuery("SELECT DISTINCT name,description,genome,clade FROM dbDb NATURAL JOIN genomeClade WHERE active='1' ORDER by clade,orderKey");
                 String lastClade = null;
-                ArrayList<String> cladeGenomes = new ArrayList<String>();
+                String selectedClade = null;
+                List<GenomeDef> cladeGenomes = new ArrayList<GenomeDef>();
                 while (rs.next()) {
-                    String genome = rs.getString("genome") + " - " + rs.getString("description");
+                    String dbName = rs.getString("name");
+                    GenomeDef genome = new GenomeDef(dbName, rs.getString("genome") + " - " + rs.getString("description"));
 
                     // In the database, clades are stored in lowercase, and Nematodes are called worms.
                     String clade = rs.getString("clade");
@@ -364,26 +373,25 @@ public class UCSCNavigationDialog extends JDialog implements SQLConstants {
                     } else {
                         clade = Character.toUpperCase(clade.charAt(0)) + clade.substring(1);
                     }
-                    String dbName = rs.getString("name");
-                    if (dbName.equals(selectedDB)) {
+                    if (genomeDB != null && dbName.equals(genomeDB.getName())) {
                         selectedClade = clade;
                     }
 
                     if (!clade.equals(lastClade)) {
                         if (lastClade != null) {
                             cladeGenomeMap.put(lastClade, cladeGenomes);
-                            cladeGenomes = new ArrayList<String>();
+                            cladeGenomes = new ArrayList<GenomeDef>();
                         }
                         lastClade = clade;
                     }
-                    genomeDBMap.put(genome, dbName);
                     cladeGenomes.add(genome);
                 }
                 cladeGenomeMap.put(lastClade, cladeGenomes);
+                return selectedClade;
             }
 
             @Override
-            public void done() throws SQLException {
+            public void done(String selectedClade) throws SQLException {
                 cladeCombo.setModel(new DefaultComboBoxModel(new String[] { "Mammal", "Vertebrate", "Deuterostome", "Insect", "Nematode", "Other" }));
                 if (selectedClade != null) {
                     cladeCombo.setSelectedItem(selectedClade);
@@ -397,28 +405,61 @@ public class UCSCNavigationDialog extends JDialog implements SQLConstants {
     private void populateGenomeCombo() {
         String clade = (String)cladeCombo.getSelectedItem();
         genomeCombo.setModel(new DefaultComboBoxModel(cladeGenomeMap.get(clade).toArray()));
-        genomeCombo.setSelectedIndex(0);
+        int index = 0;
+        if (genomeDB != null) {
+            for (int i = 0; i < genomeCombo.getItemCount(); i++) {
+                GenomeDef defI = (GenomeDef)genomeCombo.getItemAt(i);
+                if (defI.database.equals(genomeDB.getName())) {
+                    index = i;
+                    break;
+                }
+            }
+        }
+        genomeCombo.setSelectedIndex(index);
+    }
+
+    /**
+     * Look through the database's tables for one representing this track.  It can
+     * be:
+     * 1) an exact match for the track name
+     * 2) equal to "all_"  plus the track name (e.g. "all_mrna")
+     * 3) equal to the chromosome name plus the track name (e.g. "chr1_rmsk" and friends)
+     * @param trackName
+     */
+    private Table findTable(String trackName) throws SQLException {
+       Table t = genomeDB.findTable(trackName);
+       if (t == null) {
+           t = genomeDB.findTable("all_" + trackName);
+           if (t == null) {
+               if (references == null) {
+                   // The table here is irrelevant, since the actual query will be against the chromInfo table.
+                    references = plugin.getReferences(genomeDB);
+               }
+               t = genomeDB.findTable(references.iterator().next() + "_" + trackName);
+           }
+       }
+       return t;
     }
 
     private void populateGroupCombo() {
-        final String genome = (String)genomeCombo.getSelectedItem();
-        new SQLWorker(this, String.format("Fetching tables for %s...", genome), "Unable to fetch table list from UCSC.") {
-            ArrayList<String> groups;
-
+        final GenomeDef genome = (GenomeDef)genomeCombo.getSelectedItem();
+        new SQLWorker<List<GroupDef>>(this, String.format("Fetching tables for %s...", genome.label), "Unable to fetch table list from UCSC.") {
             @Override
-            public void doInBackground() throws SQLException {
+            public List<GroupDef> doInBackground() throws SQLException {
                 if (genomeDB != null) {
-                    genomeDB.closeConnection();
+                    if (!genomeDB.getName().equals(genome.database)) {
+                        genomeDB.closeConnection();
+                    }
+                    references = null;
+                    genomeDB = plugin.getDatabase(genome.database);
+                } else {
+                    genomeDB = plugin.getDatabase(genome.database);
                 }
-                genomeDB = plugin.getDatabase(genomeDBMap.get(genome));
 
-                List<Table> tables = genomeDB.getTables();
-                groupTrackMap.clear();
-                groups = new ArrayList<String>();
+                List<GroupDef> groups = new ArrayList<GroupDef>();
     //            ResultSet rs = genomeDB.executeQuery("SELECT label,tableName,shortLabel,type FROM trackDb,grp WHERE trackDb.grp = grp.name AND trackDb.type LIKE 'bed%%' ORDER BY trackDb.grp,trackDb.priority");
                 ResultSet rs = genomeDB.executeQuery("SELECT label,tableName,shortLabel,type FROM trackDb,grp WHERE trackDb.grp = grp.name ORDER BY grp.priority,trackDb.priority,trackDb.tableName");
-                String lastGroup = null;
-                ArrayList<TrackDef> groupTracks = new ArrayList<TrackDef>();
+                GroupDef lastGroup = null;
                 while (rs.next()) {
                     String track = rs.getString("tableName");
                     String group = rs.getString("label");
@@ -426,29 +467,23 @@ public class UCSCNavigationDialog extends JDialog implements SQLConstants {
                     String type = rs.getString("type");
                     TrackDef def = null;
                     String error = null;
-                    for (Table t: tables) {
-                        if (t.getName().equals(track)) {
-                            if (UCSCDataSourcePlugin.getKnownMapping(type) != null) {
-                                def = new TrackDef(track, label, type);
-                            } else {
-                                error = "Unmapped track type " + type + " for table " + track;
-                            }
-                            break;
+                    Table t = findTable(track);
+                    if (t != null) {
+                        if (UCSCDataSourcePlugin.getKnownMapping(type) != null) {
+                            def = new TrackDef(track, t.getName(), label, type);
+                        } else {
+                            error = "Unmapped track type " + type + " for table " + track;
                         }
                     }
 
                     if (def != null) {
-                        if (!group.equals(lastGroup)) {
-                            if (lastGroup != null && groupTracks.size() > 0) {
-                                groupTrackMap.put(lastGroup, groupTracks);
-                                groupTracks = new ArrayList<TrackDef>();
-                            }
-                            groups.add(group);
-                            lastGroup = group;
+                        if (lastGroup == null || !group.equals(lastGroup.name)) {
+                            lastGroup = new GroupDef(group);
+                            groups.add(lastGroup);
                         }
-                        groupTracks.add(def);
+                        lastGroup.tracks.add(def);
                     } else {
-                        if (!type.startsWith("bigWig") && !type.startsWith("wig") && !type.equals("bam") && !type.startsWith("bigBed")) {
+                        if (!type.startsWith("bigWig") && !type.startsWith("wigMaf") && !type.equals("bam") && !type.startsWith("bigBed")) {
                             if (error == null) {
                                 error = "Unknown track " + track + " not found in table list for " + genomeDB;
                             }
@@ -456,31 +491,70 @@ public class UCSCNavigationDialog extends JDialog implements SQLConstants {
                         }
                     }
                 }
-                if (groupTracks.size() > 0) {
-                    groupTrackMap.put(lastGroup, groupTracks);
-                }
+                return groups;
             }
 
             @Override
-            public void done() {
-                groupCombo.setModel(new DefaultComboBoxModel(groups.toArray()));
-                groupCombo.setSelectedIndex(0);
+            public void done(List<GroupDef> groups) {
+                if (groups != null) {
+                    groupCombo.setModel(new DefaultComboBoxModel(groups.toArray()));
+                    groupCombo.setSelectedIndex(0);
+                }
             }
         };
     }
 
     private void populateTrackCombo() {
-        String group = (String)groupCombo.getSelectedItem();
-        trackCombo.setModel(new DefaultComboBoxModel(groupTrackMap.get(group).toArray()));
+        GroupDef group = (GroupDef)groupCombo.getSelectedItem();
+        trackCombo.setModel(new DefaultComboBoxModel(group.tracks.toArray()));
         trackCombo.setSelectedIndex(0);
     }
 
+    public MappedTable getMapping() {
+        if (table != null) {
+            SettingsUtils.setString(plugin, "GENOME", genomeDB.getName());
+            return new MappedTable(table, mappingPanel.getMapping());
+        }
+        return null;
+    }
+
+    class GenomeDef {
+        String database;
+        String label;
+
+        GenomeDef(String database, String label) {
+            this.database = database;
+            this.label = label;
+        }
+
+        @Override
+        public String toString() {
+            return database + " - " + label;
+        }
+    }
+
+    class GroupDef {
+        String name;
+        List<TrackDef> tracks = new ArrayList<TrackDef>();
+
+        GroupDef(String name) {
+            this.name = name;
+        }
+
+        @Override
+        public String toString() {
+            return name;
+        }
+    }
+
     class TrackDef {
+        String track;
         String table;
         String label;
         String type;
 
-        TrackDef(String table, String label, String type) {
+        TrackDef(String track, String table, String label, String type) {
+            this.track = track;
             this.table = table;
             this.label = label;
             this.type = type;
@@ -488,8 +562,7 @@ public class UCSCNavigationDialog extends JDialog implements SQLConstants {
 
         @Override
         public String toString() {
-            return table + " - " + label;
+            return track + " - " + label;
         }
     }
-
 }

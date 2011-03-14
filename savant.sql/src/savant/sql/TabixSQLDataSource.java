@@ -22,6 +22,7 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import savant.api.adapter.RangeAdapter;
 import savant.data.types.TabixIntervalRecord;
@@ -36,8 +37,8 @@ import savant.util.Resolution;
  */
 public class TabixSQLDataSource extends SQLDataSource<TabixIntervalRecord> {
 
-    TabixSQLDataSource(Table table, ColumnMapping columns) throws SQLException {
-        super(table, columns);
+    TabixSQLDataSource(MappedTable table, Set<String> references) throws SQLException {
+        super(table, references);
     }
 
     @Override

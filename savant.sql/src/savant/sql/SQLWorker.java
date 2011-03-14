@@ -16,15 +16,17 @@ import savant.api.util.DialogUtils;
  *
  * @author tarkvara
  */
-public abstract class SQLWorker {
+public abstract class SQLWorker<T> {
     private static final Log LOG = LogFactory.getLog(SQLWorker.class);
 
     public SQLWorker(Window parent, String progress, final String failure) {
         new SwingWorker() {
+            private T result;
+
             @Override
             public Object doInBackground() {
                 try {
-                    SQLWorker.this.doInBackground();
+                    result = SQLWorker.this.doInBackground();
                 } catch (Exception x) {
                     LOG.error(x);
                     DialogUtils.showProgress(null, null, 1.0);
@@ -37,7 +39,7 @@ public abstract class SQLWorker {
             public void done() {
                 try {
                     DialogUtils.showProgress(null, null, 1.0);
-                    SQLWorker.this.done();
+                    SQLWorker.this.done(result);
                 } catch (Exception x) {
                     LOG.error(x);
                     DialogUtils.displayException("SQL Error", failure, x);
@@ -47,7 +49,7 @@ public abstract class SQLWorker {
         DialogUtils.showProgress(parent, progress, -1.0);
     }
 
-    public abstract void doInBackground() throws Exception;
+    public abstract T doInBackground() throws Exception;
 
-    public abstract void done() throws Exception;
+    public abstract void done(T value) throws Exception;
 }

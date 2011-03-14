@@ -17,8 +17,6 @@
 package savant.sql;
 
 import java.net.URI;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -39,17 +37,14 @@ import savant.data.types.Record;
 abstract class SQLDataSource<E extends Record> implements DataSource<E> {
     protected static final Log LOG = LogFactory.getLog(SQLDataSource.class);
 
-    protected Table table;
+    protected MappedTable table;
     protected ColumnMapping columns;
     private Set<String> references = new HashSet<String>();
 
-    protected SQLDataSource(Table table, ColumnMapping columns) throws SQLException {
+    protected SQLDataSource(MappedTable table, Set<String> references) {
         this.table = table;
-        this.columns = columns;
-        ResultSet rs = table.database.executeQuery("SELECT DISTINCT %s FROM %s", columns.chrom, table);
-        while (rs.next()) {
-            references.add(rs.getString(1));
-        }
+        this.columns = table.mapping;
+        this.references = references;
     }
 
     @Override
