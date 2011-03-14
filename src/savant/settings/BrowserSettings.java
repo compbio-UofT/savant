@@ -49,7 +49,7 @@ public class BrowserSettings {
 
 
     public static String version = "1.4.4";
-    public static String build = "developer";
+    public static String build = "beta";
 
     public static boolean getCheckVersionOnStartup() {
         return settings.getBoolean(CHECKVERSION_KEY, true);

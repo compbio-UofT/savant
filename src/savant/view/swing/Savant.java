@@ -1219,7 +1219,10 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
     public static void main(String args[]) {
 
         if (args.length > 0) {
-            if (args[0].equals("--debug")) {
+            
+            String build = args[0];
+            BrowserSettings.build = build.replaceAll("-", "");
+            if (build.equals("--debug")) {
                 turnExperimentalFeaturesOff = false;
             }
         }
