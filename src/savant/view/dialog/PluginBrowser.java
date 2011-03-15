@@ -322,7 +322,7 @@ public class PluginBrowser {
         int i = 0;
         for (PluginDescriptor pd: pds) {
             if (!pd.getId().startsWith("SavantCore") && !pd.getId().startsWith("savant.core")) {
-                pluginStubs[i++] = new PluginStub(pd.getUniqueId(), pd.getVersion().toString());
+                pluginStubs[i++] = new PluginStub(pd.getId(), pd.getVersion().toString());
             }
         }
     }

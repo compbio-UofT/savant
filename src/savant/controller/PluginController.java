@@ -96,6 +96,8 @@ public class PluginController {
 
             pluginManager = ObjectFactory.newInstance().createManager();
             uninstallFile = new File(DirectorySettings.getSavantDirectory(), UNINSTALL_FILENAME);
+
+            LOG.info("Uninstall list " + UNINSTALL_FILENAME);
             if (uninstallFile.exists()) {
                 deleteFileList(uninstallFile);
             }
@@ -150,6 +152,8 @@ public class PluginController {
     public void queuePluginForUnInstallation(File path) {
         FileWriter fstream = null;
         try {
+            LOG.info("Adding plugin " + path.getAbsolutePath() + " to uninstall list " + uninstallFile.getPath());
+
             if (!uninstallFile.exists()) {
                 uninstallFile.createNewFile();
             }
@@ -215,7 +219,7 @@ public class PluginController {
             if (!pluginIDToExtensionMap.containsValue(ext) && !isPluginQueuedForDeletion(ext.getDeclaringPluginDescriptor().getId()) && !isIgnoredBadPlugin(ext.getDeclaringPluginDescriptor()) ) {
 
                 try {
-                    LOG.info("Activating new plugin: " + ext);
+                    LOG.info("Activating new plugin: " + ext.getDeclaringPluginDescriptor());
                     PluginAttribute sdkatt = ext.getDeclaringPluginDescriptor().getAttribute("sdk-version");
                     if (sdkatt == null) {
                         error = true;
@@ -378,6 +382,10 @@ public class PluginController {
     }
 
     public PluginDescriptor getPluginDescriptor(String id) {
+        System.out.println("Plugins in registry:");
+        for (PluginDescriptor pd : pluginManager.getRegistry().getPluginDescriptors()) {
+            System.out.println(pd);
+        }
         return pluginManager.getRegistry().getPluginDescriptor(id);
     }
 
