@@ -382,10 +382,6 @@ public class PluginController {
     }
 
     public PluginDescriptor getPluginDescriptor(String id) {
-        System.out.println("Plugins in registry:");
-        for (PluginDescriptor pd : pluginManager.getRegistry().getPluginDescriptors()) {
-            System.out.println(pd);
-        }
         return pluginManager.getRegistry().getPluginDescriptor(id);
     }
 
