@@ -17,7 +17,6 @@ package savant.view.swing;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.beans.PropertyChangeEvent;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -42,7 +41,6 @@ import com.jidesoft.plaf.UIDefaultsLookup;
 import com.jidesoft.plaf.basic.ThemePainter;
 import com.jidesoft.status.MemoryStatusBarItem;
 import com.jidesoft.swing.JideSplitPane;
-import java.beans.PropertyChangeListener;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jdom.JDOMException;
@@ -85,10 +83,10 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
     private JPanel masterPlaceholderPanel;
     private DockingManager trackDockingManager;
     private JPanel trackPanel;
-    private JToolBar menuPanel;
+    private NavigationBar navigationBar;
     private JButton goButton;
     private ToolsModule savantTools;
-    private static boolean showNonGenomicReferenceDialog = true;
+    static boolean showNonGenomicReferenceDialog = true;
     private static boolean showBookmarksChangedDialog = false; // turned off, its kind of annoying
     public static final int osSpecificModifier = (MiscUtils.MAC ? java.awt.event.InputEvent.META_MASK : java.awt.event.InputEvent.CTRL_MASK);
     private Frame genomeFrame = null;
@@ -256,21 +254,9 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
     //private Genome loadedGenome;
     /** The log */
     private static JTextArea log;
-    /**
-     * Range Controls
-     */
-    /** Controls (buttons, text fields etc.) for chosing current viewable range */
-    private List<JComponent> rangeControls = new ArrayList<JComponent>();
-;
-    /** reference dropdown menu */
-    private JComboBox referenceDropdown;
-    /** From and To textboxes */
-    private JTextField textboxFrom, textboxTo;
     /** Click and drag control for range selection */
     private RangeSelectionPanel rangeSelector;
     private MiniRangeSelectionPanel ruler;
-    /** Length being displayed */
-    private JLabel label_length;
     /** Information & Analysis Tabbed Pane (for plugin use) */
     private JTabbedPane auxTabbedPane;
     /**
@@ -1675,409 +1661,11 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
     }
 
     private void initBrowseMenu() {
-
-        String buttonStyle = "segmentedTextured";
-
-        this.menuPanel = new JToolBar();
-        this.panelExtendedMiddle.setLayout(new BorderLayout());
-        this.panelExtendedMiddle.add(menuPanel);
-        JToolBar p = this.menuPanel;
-        p.setFloatable(false);
-
-        //p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
-
-        Dimension comboboxDimension = new Dimension(200, 23);
-        Dimension iconDimension = MiscUtils.MAC ? new Dimension(50, 23) : new Dimension(27, 27);
-        String shortcutMod = MiscUtils.MAC ? "Cmd" : "Ctrl";
-
-        p.add(getRigidPadding());
-
-        JLabel reftext = new JLabel();
-        reftext.setText("Reference: ");
-        reftext.setToolTipText("Reference sequence");
-        p.add(reftext);
-
-        referenceDropdown = new JComboBox();
-        referenceDropdown.setPreferredSize(comboboxDimension);
-        referenceDropdown.setMinimumSize(comboboxDimension);
-        referenceDropdown.setMaximumSize(comboboxDimension);
-        referenceDropdown.setToolTipText("Reference sequence");
-        referenceDropdown.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                // the first item is a header and not allowed to be selected
-                if (referenceDropdown.getItemCount() <= 1) {
-                    return;
-                }
-
-                int index = referenceDropdown.getSelectedIndex();
-                String ref = (String) referenceDropdown.getItemAt(index);
-                if (ref.contains("[")) {
-                    int size = referenceDropdown.getItemCount();
-                    for (int i = 1; i < size; i++) {
-                        int newindex = (index + i) % size;
-                        String newref = (String) referenceDropdown.getItemAt(newindex);
-                        if (!((String) referenceDropdown.getItemAt(newindex)).contains("[")) {
-                            index = newindex;
-                            referenceDropdown.setSelectedIndex(index);
-                            break;
-                        }
-                    }
-                }
-                switchReference(index);
-            }
-
-            private void switchReference(int index) {
-
-                String ref = (String) referenceDropdown.getItemAt(index);
-
-                if (!ReferenceController.getInstance().getReferenceNames().contains(ref)) {
-                    if (!showNonGenomicReferenceDialog) {
-                        return;
-                    }
-                    //Custom button text
-                    Object[] options = {"OK",
-                        "Don't show again"};
-                    int n = JOptionPane.showOptionDialog(Savant.getInstance(),
-                            "This reference is nongenomic (i.e. it appears in a loaded track but it is not found in the loaded genome)",
-                            "Non-Genomic Reference",
-                            JOptionPane.YES_NO_CANCEL_OPTION,
-                            JOptionPane.INFORMATION_MESSAGE,
-                            null,
-                            options,
-                            options[0]);
-
-                    if (n == 1) {
-                        showNonGenomicReferenceDialog = false;
-                    } else if (n == 0) {
-                        return;
-                    }
-                }
-
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Actually changing reference to " + ref);
-                }
-                ReferenceController.getInstance().setReference(ref);
-            }
-        });
-        p.add(referenceDropdown);
-
-        p.add(getRigidPadding());
-
-        JLabel fromtext = new JLabel();
-        fromtext.setText("From: ");
-        fromtext.setToolTipText("Start position of range");
-        p.add(fromtext);
-        //p.add(this.getRigidPadding());
-
-        int tfwidth = 100;
-        int labwidth = 100;
-        int tfheight = 22;
-        textboxFrom = addTextField(p, "");
-        textboxFrom.setToolTipText("Start position of range");
-        textboxFrom.setHorizontalAlignment(JTextField.CENTER);
-        textboxFrom.setPreferredSize(new Dimension(tfwidth, tfheight));
-        textboxFrom.setMaximumSize(new Dimension(tfwidth, tfheight));
-        textboxFrom.setMinimumSize(new Dimension(tfwidth, tfheight));
-
-        textboxFrom.addKeyListener(new KeyAdapter() {
-
-            @Override
-            public void keyPressed(KeyEvent evt) {
-                RangeTextBoxKeypressed(evt);
-            }
-        });
-
-        /*
-        JLabel sepr = new JLabel();
-        sepr.setText(" - ");
-        p.add(sepr);
-         * 
-         */
-
-        p.add(this.getRigidPadding());
-        JLabel totext = new JLabel();
-        totext.setToolTipText("End position of range");
-        totext.setText("To: ");
-        p.add(totext);
-        //p.add(this.getRigidPadding());
-
-        textboxTo = addTextField(p, "");
-        textboxTo.setToolTipText("End position of range");
-        textboxTo.setHorizontalAlignment(JTextField.CENTER);
-        textboxTo.setPreferredSize(new Dimension(tfwidth, tfheight));
-        textboxTo.setMaximumSize(new Dimension(tfwidth, tfheight));
-        textboxTo.setMinimumSize(new Dimension(tfwidth, tfheight));
-
-        textboxTo.addKeyListener(new KeyAdapter() {
-
-            @Override
-            public void keyPressed(java.awt.event.KeyEvent evt) {
-                RangeTextBoxKeypressed(evt);
-            }
-        });
-
-        p.add(this.getRigidPadding());
-
-        goButton = addButton(p, "  Go  ");
-        goButton.putClientProperty("JButton.buttonType", buttonStyle);
-        goButton.putClientProperty("JButton.segmentPosition", "only");
-        goButton.setToolTipText("Go to specified range (Enter)");
-        goButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                setRangeFromTextBoxes();
-            }
-        });
-
-        p.add(this.getRigidPadding());
-
-
-        JLabel sepl = new JLabel();
-        sepl.setText("Length: ");
-        sepl.setToolTipText("Length of the current range");
-        p.add(sepl);
-
-        label_length = new JLabel();
-        label_length.setToolTipText("Length of the current range");
-
-        label_length.setPreferredSize(new Dimension(labwidth, tfheight));
-        label_length.setMaximumSize(new Dimension(labwidth, tfheight));
-        label_length.setMinimumSize(new Dimension(labwidth, tfheight));
-        p.add(label_length);
-
-        p.add(Box.createGlue());
-
-        double screenwidth = Toolkit.getDefaultToolkit().getScreenSize().getWidth();
-
-        if (screenwidth > 800) {
-            JButton button_undo = new JButton("");
-            button_undo.setIcon(SavantIconFactory.getInstance().getIcon(SavantIconFactory.StandardIcon.UNDO));
-            button_undo.setToolTipText("Undo range change (" + shortcutMod + "+Z)");
-            button_undo.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    RangeController.getInstance().undoRangeChange();
-                }
-            });
-            button_undo.putClientProperty("JButton.buttonType", buttonStyle);
-            button_undo.putClientProperty("JButton.segmentPosition", "first");
-            button_undo.setPreferredSize(iconDimension);
-            button_undo.setMinimumSize(iconDimension);
-            button_undo.setMaximumSize(iconDimension);
-
-            p.add(button_undo);
-
-            JButton redo = new JButton("");
-            redo.setIcon(SavantIconFactory.getInstance().getIcon(SavantIconFactory.StandardIcon.REDO));
-            redo.setToolTipText("Redo range change (" + shortcutMod + "+Y)");
-            redo.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    RangeController.getInstance().redoRangeChange();
-                }
-            });
-            redo.putClientProperty("JButton.buttonType", buttonStyle);
-            redo.putClientProperty("JButton.segmentPosition", "last");
-            redo.setPreferredSize(iconDimension);
-            redo.setMinimumSize(iconDimension);
-            redo.setMaximumSize(iconDimension);
-
-            p.add(redo);
-
-            rangeControls.add(button_undo);
-            rangeControls.add(redo);
-        }
-
-        p.add(getRigidPadding());
-        p.add(getRigidPadding());
-
-        JButton zoomIn = addButton(p, "");
-        zoomIn.setIcon(SavantIconFactory.getInstance().getIcon(SavantIconFactory.StandardIcon.ZOOMIN));
-        zoomIn.putClientProperty("JButton.buttonType", buttonStyle);
-        zoomIn.putClientProperty("JButton.segmentPosition", "first");
-        zoomIn.setPreferredSize(iconDimension);
-        zoomIn.setMinimumSize(iconDimension);
-        zoomIn.setMaximumSize(iconDimension);
-        zoomIn.setToolTipText("Zoom in (Shift+Up)");
-        zoomIn.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                rangeController.zoomIn();
-            }
-        });
-
-        JButton zoomOut = new JButton("");
-        zoomOut.setIcon(SavantIconFactory.getInstance().getIcon(SavantIconFactory.StandardIcon.ZOOMOUT));
-        zoomOut.setToolTipText("Zoom out (Shift+Down)");
-        zoomOut.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                rangeController.zoomOut();
-            }
-        });
-        zoomOut.putClientProperty("JButton.buttonType", buttonStyle);
-        zoomOut.putClientProperty("JButton.segmentPosition", "last");
-        zoomOut.setPreferredSize(iconDimension);
-        zoomOut.setMinimumSize(iconDimension);
-        zoomOut.setMaximumSize(iconDimension);
-
-        p.add(zoomOut);
-
-        p.add(getRigidPadding());
-        p.add(getRigidPadding());
-
-        JButton shiftFarLeft = addButton(p, "");
-        shiftFarLeft.setIcon(SavantIconFactory.getInstance().getIcon(SavantIconFactory.StandardIcon.SHIFT_FARLEFT));
-        shiftFarLeft.putClientProperty("JButton.buttonType", buttonStyle);
-        shiftFarLeft.putClientProperty("JButton.segmentPosition", "first");
-        shiftFarLeft.setToolTipText("Move to the beginning of the genome (Home)");
-        shiftFarLeft.setPreferredSize(iconDimension);
-        shiftFarLeft.setMinimumSize(iconDimension);
-        shiftFarLeft.setMaximumSize(iconDimension);
-        shiftFarLeft.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                rangeController.shiftRangeFarLeft();
-            }
-        });
-
-        JButton shiftLeft = addButton(p, "");
-        shiftLeft.setIcon(SavantIconFactory.getInstance().getIcon(SavantIconFactory.StandardIcon.SHIFT_LEFT));
-        shiftLeft.putClientProperty("JButton.buttonType", buttonStyle);
-        shiftLeft.putClientProperty("JButton.segmentPosition", "middle");
-        shiftLeft.setToolTipText("Move left (Shift+Left)");
-        shiftLeft.setPreferredSize(iconDimension);
-        shiftLeft.setMinimumSize(iconDimension);
-        shiftLeft.setMaximumSize(iconDimension);
-        shiftLeft.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                rangeController.shiftRangeLeft();
-            }
-        });
-
-        JButton shiftRight = addButton(p, "");
-        shiftRight.setIcon(SavantIconFactory.getInstance().getIcon(SavantIconFactory.StandardIcon.SHIFT_RIGHT));
-        shiftRight.putClientProperty("JButton.buttonType", buttonStyle);
-        shiftRight.putClientProperty("JButton.segmentPosition", "middle");
-        shiftRight.setToolTipText("Move right (Shift+Right)");
-        shiftRight.setPreferredSize(iconDimension);
-        shiftRight.setMinimumSize(iconDimension);
-        shiftRight.setMaximumSize(iconDimension);
-        shiftRight.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                rangeController.shiftRangeRight();
-            }
-        });
-
-        JButton shiftFarRight = addButton(p, "");
-        shiftFarRight.setIcon(SavantIconFactory.getInstance().getIcon(SavantIconFactory.StandardIcon.SHIFT_FARRIGHT));
-        shiftFarRight.putClientProperty("JButton.buttonType", buttonStyle);
-        shiftFarRight.putClientProperty("JButton.segmentPosition", "last");
-        shiftFarRight.setToolTipText("Move to the end of the genome (End)");
-        shiftFarRight.setPreferredSize(iconDimension);
-        shiftFarRight.setMinimumSize(iconDimension);
-        shiftFarRight.setMaximumSize(iconDimension);
-        shiftFarRight.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                rangeController.shiftRangeFarRight();
-            }
-        });
-
-        p.add(this.getRigidPadding());
-
-        rangeControls.add(reftext);
-        rangeControls.add(referenceDropdown);
-        rangeControls.add(fromtext);
-        rangeControls.add(totext);
-        rangeControls.add(sepl);
-        //rangeControls.add(sepr);
-        rangeControls.add(label_length);
-        rangeControls.add(textboxFrom);
-        rangeControls.add(textboxTo);
-        rangeControls.add(menuitem_deselectall);
-        rangeControls.add(shiftFarLeft);
-        rangeControls.add(shiftFarRight);
-        rangeControls.add(shiftLeft);
-        rangeControls.add(shiftRight);
-        rangeControls.add(zoomIn);
-        rangeControls.add(zoomOut);
-        rangeControls.add(rangeSelector);
-        rangeControls.add(ruler);
-        //rangeControls.add(trackButton);
-        rangeControls.add(loadFromFileItem);
-        rangeControls.add(loadFromDataSourcePlugin);
-        rangeControls.add(loadFromURLItem);
-        
-        rangeControls.add(menuItemPanLeft);
-        rangeControls.add(menuItemPanRight);
-        rangeControls.add(menuItemZoomOut);
-        rangeControls.add(menuItemZoomIn);
-        rangeControls.add(menuItemShiftStart);
-        rangeControls.add(menuItemShiftEnd);
-        rangeControls.add(menuItemAddToFaves);
-        rangeControls.add(menuitem_undo);
-        rangeControls.add(menuitem_redo);
-        rangeControls.add(menuitem_view_plumbline);
-        rangeControls.add(menuitem_view_spotlight);
-        rangeControls.add(menuitem_aim);
-        rangeControls.add(label_mouseposition);
-        rangeControls.add(label_mouseposition_title);
-        rangeControls.add(goButton);
-        //rangeControls.add(label_status); rangeControls.add(label_status_title);
-
-        hideRangeControls();
-
-        this.panel_top.setVisible(false);
-    }
-
-    private JTextField addTextField(JToolBar p, String msg) {
-        JTextField f = new JTextField(msg);
-        p.add(f);
-        return f;
-    }
-
-    private void RangeTextBoxKeypressed(java.awt.event.KeyEvent evt) {
-        if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
-            this.setRangeFromTextBoxes();
-        }
-    }
-
-    private void hideRangeControls() {
-        changeVisibility(rangeControls, false);
-    }
-
-    private void showRangeControls() {
-        changeVisibility(rangeControls, true);
-    }
-
-    private static void changeVisibility(List<JComponent> components, boolean isVisible) {
-        for (JComponent j : components) {
-            j.setEnabled(isVisible);
-        }
-    }
-
-    private JPanel createTabPanel(JTabbedPane jtp, String name) {
-        JPanel pan = new JPanel();
-        pan.setLayout(new BorderLayout());
-        pan.setBackground(ColourSettings.getTabBackground());
-        jtp.addTab(name, pan);
-        return pan;
-    }
-
-    private Component getRigidPadding() {
-        return Box.createRigidArea(new Dimension(BrowserSettings.padding, BrowserSettings.padding));
-    }
-
-    private JButton addButton(JToolBar p, String label) {
-        JButton b = new JButton(label);
-        p.add(b);
-        return b;
+        navigationBar = new NavigationBar();
+        panelExtendedMiddle.setLayout(new BorderLayout());
+        panelExtendedMiddle.add(navigationBar);
+        navigationBar.setVisible(false);
+        panel_top.setVisible(false);
     }
 
     /**
@@ -2194,7 +1782,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
      */
     public void updateRange() {
         // adjust descriptions
-        setRangeDescription(RangeController.getInstance().getRange());
+        navigationBar.setRangeDescription(rangeController.getRange());
 
         // adjust range controls
         setRangeSelectorFromRange();
@@ -2282,7 +1870,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         //menuitem_genome.setEnabled(false);
 
         updateReferenceNamesList();
-        referenceDropdown.setSelectedIndex(0);
+        navigationBar.setSelectedReference(0);
         //referenceDropdown.setSelectedIndex(1); // dont set it to 0 because that item is not allowed to be selected
     }
     private boolean browserControlsShown = false;
@@ -2307,24 +1895,13 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         this.menuitem_ruler.setSelected(true);
 
         //setStartPageVisible(false);
-        showRangeControls();
+        navigationBar.setVisible(true);
         browserControlsShown = true;
     }
 
     private void setStartPageVisible(boolean b) {
         MiscUtils.setFrameVisibility("Start Page", b, this.getTrackDockingManager());
         this.menuitem_startpage.setSelected(b);
-    }
-
-    /**
-     * Set range description.
-     *  - Change the from and to textboxes.
-     * @param range
-     */
-    void setRangeDescription(Range range) {
-        textboxFrom.setText(MiscUtils.numToString(range.getFrom()));
-        textboxTo.setText(MiscUtils.numToString(range.getTo()));
-        label_length.setText(MiscUtils.numToString(range.getLength()));
     }
 
     /**
@@ -2335,53 +1912,6 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         long maxRange = rangeSelector.getUpperPosition();
 
         rangeController.setRange(minRange, maxRange);
-    }
-
-    /**
-     * Set the current range from the Zoom track bar.
-     */
-    void setRangeFromTextBoxes() {
-
-        String fromtext = textboxFrom.getText().trim();
-        String totext = textboxTo.getText().trim();
-
-        int from, to;
-
-        if (fromtext.startsWith("-")) {
-            fromtext = MiscUtils.removeChar(fromtext, '-');
-            int diff = MiscUtils.stringToInt(MiscUtils.removeChar(fromtext, ','));
-            to = MiscUtils.stringToInt(MiscUtils.removeChar(textboxTo.getText(), ','));
-            from = to - diff + 1;
-        } else if (totext.startsWith("+")) {
-            totext = MiscUtils.removeChar(totext, '+');
-            int diff = MiscUtils.stringToInt(MiscUtils.removeChar(totext, ','));
-            from = MiscUtils.stringToInt(MiscUtils.removeChar(textboxFrom.getText(), ','));
-            to = from + diff - 1;
-        } else {
-            from = MiscUtils.stringToInt(MiscUtils.removeChar(textboxFrom.getText(), ','));
-            to = MiscUtils.stringToInt(MiscUtils.removeChar(textboxTo.getText(), ','));
-        }
-
-        if (from <= 0) {
-            JOptionPane.showMessageDialog(this, "Invalid start value.");
-            textboxFrom.requestFocus();
-            return;
-        }
-
-        if (to <= 0) {
-            JOptionPane.showMessageDialog(this, "Invalid end value.");
-            textboxTo.requestFocus();
-            return;
-        }
-
-        if (from > to) {
-            //MessageBox.Show("INVALID RANGE");
-            JOptionPane.showMessageDialog(this, "Invalid range.");
-            textboxTo.requestFocus();
-            return;
-        }
-
-        rangeController.setRange(from, to);
     }
 
     /**
@@ -2439,24 +1969,29 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
 
     private class ReferenceComparable implements Comparable {
 
-        public String refname;
-        public Long reflength;
+        public String refName;
+        public Long refLength;
 
         public ReferenceComparable(String refname, Long reflength) {
-            this.refname = refname;
-            this.reflength = reflength;
+            this.refName = refname;
+            this.refLength = reflength;
         }
 
         @Override
         public int compareTo(Object o) {
             if (o instanceof ReferenceComparable) {
                 ReferenceComparable r2 = (ReferenceComparable) o;
-                if (this.reflength < r2.reflength) { return -1;}
-                else if (this.reflength > r2.reflength) { return 1; }
+                if (this.refLength < r2.refLength) { return -1;}
+                else if (this.refLength > r2.refLength) { return 1; }
                 else { return 0; }
             } else {
                 return -1;
             }
+        }
+
+        @Override
+        public String toString() {
+            return refName;
         }
     }
 
@@ -2464,12 +1999,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
 
         LOG.debug("Updating reference names list");
 
-        Object curRef = referenceDropdown.getSelectedItem();
-
         List<String> genomicrefnames = MiscUtils.set2List(ReferenceController.getInstance().getReferenceNames());
-
-        
-        referenceDropdown.removeAllItems();
 
         //this.referenceDropdown.addItem("[ GENOMIC (" + genomicrefnames.size() + ") ]");
 
@@ -2483,31 +2013,12 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
 
         Collections.sort(refs);
         Collections.reverse(refs);
-        for (ReferenceComparable s : refs) {
-            this.referenceDropdown.addItem(s.refname);
-        }
-        maxwidth = Math.max(200, maxwidth*8+20);
-        Dimension dim = new Dimension(maxwidth,23);
-        referenceDropdown.setPreferredSize(dim);
-        referenceDropdown.setMinimumSize(dim);
-        referenceDropdown.setMaximumSize(dim);
-        referenceDropdown.invalidate();
-
-        //this.referenceDropdown.addItem("[ NON-GENOMIC (" + nongenomicrefnames.size() + ") ]");
-        List<String> nongenomicrefnames = MiscUtils.set2List(ReferenceController.getInstance().getNonGenomicReferenceNames());
-        if (nongenomicrefnames.size() > 0) {
-            for (String s : nongenomicrefnames) {
-                this.referenceDropdown.addItem(s);
-            }
-        }
-
-        if (curRef != null) {
-            this.referenceDropdown.setSelectedItem(curRef);
-        }
+        navigationBar.setReferences(refs);
     }
 
+    @Override
     public void referenceChangeReceived(ReferenceChangedEvent event) {
-        this.referenceDropdown.setSelectedItem(event.getReferenceName());
+        navigationBar.setSelectedReference(event.getReferenceName());
         Genome loadedGenome = ReferenceController.getInstance().getGenome();
         rangeController.setMaxRange(new Range(1, loadedGenome.getLength()));
         rangeSelector.setMaximum(loadedGenome.getLength());
