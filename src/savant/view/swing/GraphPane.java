@@ -1229,6 +1229,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
             bamTrack.setPairedProtocol(paramDialog.getSequencingProtocol());
             bamTrack.setDiscordantMin(paramDialog.getDiscordantMin());
             bamTrack.setDiscordantMax(paramDialog.getDiscordantMax());
+            bamTrack.setmaxBPForYMax(paramDialog.getMaxBPForYMax());
 
             bamTrack.prepareForRendering(ReferenceController.getInstance().getReferenceName() , RangeController.getInstance().getRange());
             repaint();

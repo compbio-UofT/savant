@@ -37,6 +37,7 @@ public class BAMParametersDialog extends javax.swing.JDialog {
     private int discordantMin;
     private int discordantMax;
     private double arcLengthThreshold;
+    private double maxBPForYMax;
     private SAMReadUtils.PairedSequencingProtocol prot;
 
     private boolean cancelled = false;
@@ -95,6 +96,9 @@ public class BAMParametersDialog extends javax.swing.JDialog {
         matepair_button = new javax.swing.JRadioButton();
         reads_opposite_container = new javax.swing.JPanel();
         reads_same_container = new javax.swing.JPanel();
+        textArcYMaxThreshold = new javax.swing.JTextField();
+        jLabel6 = new javax.swing.JLabel();
+        jLabel7 = new javax.swing.JLabel();
 
         buttonGroup1.add(pairedend_button);
         buttonGroup1.add(matepair_button);
@@ -156,7 +160,7 @@ public class BAMParametersDialog extends javax.swing.JDialog {
         reads_opposite_container.setLayout(reads_opposite_containerLayout);
         reads_opposite_containerLayout.setHorizontalGroup(
             reads_opposite_containerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 130, Short.MAX_VALUE)
+            .addGap(0, 133, Short.MAX_VALUE)
         );
         reads_opposite_containerLayout.setVerticalGroup(
             reads_opposite_containerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -170,12 +174,22 @@ public class BAMParametersDialog extends javax.swing.JDialog {
         reads_same_container.setLayout(reads_same_containerLayout);
         reads_same_containerLayout.setHorizontalGroup(
             reads_same_containerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 130, Short.MAX_VALUE)
+            .addGap(0, 133, Short.MAX_VALUE)
         );
         reads_same_containerLayout.setVerticalGroup(
             reads_same_containerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGap(0, 19, Short.MAX_VALUE)
         );
+
+        textArcYMaxThreshold.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                textArcYMaxActionPerformed(evt);
+            }
+        });
+
+        jLabel6.setText("Don't adjust ymax for arcs larger than (bp):");
+
+        jLabel7.setText("eg. 10000");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -191,13 +205,14 @@ public class BAMParametersDialog extends javax.swing.JDialog {
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel5)
-                            .addComponent(jLabel3)
                             .addComponent(jLabel2)
-                            .addComponent(jLabel1))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                            .addComponent(jLabel1)
+                            .addComponent(jLabel3)
+                            .addComponent(jLabel6))
+                        .addGap(10, 10, 10)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
-                                .addComponent(textArcThreshold, javax.swing.GroupLayout.DEFAULT_SIZE, 162, Short.MAX_VALUE)
+                                .addComponent(textArcThreshold, javax.swing.GroupLayout.DEFAULT_SIZE, 147, Short.MAX_VALUE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addGroup(layout.createSequentialGroup()
@@ -206,10 +221,14 @@ public class BAMParametersDialog extends javax.swing.JDialog {
                                     .addComponent(pairedend_button))
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(reads_opposite_container, javax.swing.GroupLayout.DEFAULT_SIZE, 130, Short.MAX_VALUE)
-                                    .addComponent(reads_same_container, javax.swing.GroupLayout.DEFAULT_SIZE, 130, Short.MAX_VALUE)))
-                            .addComponent(textDiscordantMin, javax.swing.GroupLayout.DEFAULT_SIZE, 256, Short.MAX_VALUE)
-                            .addComponent(textDiscordantMax, javax.swing.GroupLayout.DEFAULT_SIZE, 256, Short.MAX_VALUE))))
+                                    .addComponent(reads_opposite_container, javax.swing.GroupLayout.DEFAULT_SIZE, 133, Short.MAX_VALUE)
+                                    .addComponent(reads_same_container, javax.swing.GroupLayout.DEFAULT_SIZE, 133, Short.MAX_VALUE)))
+                            .addComponent(textDiscordantMin, javax.swing.GroupLayout.DEFAULT_SIZE, 240, Short.MAX_VALUE)
+                            .addComponent(textDiscordantMax, javax.swing.GroupLayout.DEFAULT_SIZE, 240, Short.MAX_VALUE)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(textArcYMaxThreshold, javax.swing.GroupLayout.DEFAULT_SIZE, 147, Short.MAX_VALUE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE)))))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -239,14 +258,21 @@ public class BAMParametersDialog extends javax.swing.JDialog {
                     .addComponent(textDiscordantMax, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel2))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(textArcThreshold, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel3)
-                    .addComponent(jLabel4))
+                    .addComponent(jLabel4)
+                    .addComponent(jLabel3))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(buttonCancel)
-                    .addComponent(buttonOK))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel7)
+                            .addComponent(textArcYMaxThreshold, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(buttonCancel)
+                            .addComponent(buttonOK)))
+                    .addComponent(jLabel6))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -273,12 +299,16 @@ public class BAMParametersDialog extends javax.swing.JDialog {
     }//GEN-LAST:event_buttonCancelActionPerformed
 
     private void buttonOKActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonOKActionPerformed
-        if (parseProtocol() && parseDiscordantMin() && parseDiscordantMax() && parseArcThreshold()) {
+        if (parseProtocol() && parseDiscordantMin() && parseDiscordantMax() && parseArcThreshold() && parseArcYMaxThreshold()) {
             setAccepted(true);
             setCancelled(false);
             this.setVisible(false);
         }
     }//GEN-LAST:event_buttonOKActionPerformed
+
+    private void textArcYMaxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_textArcYMaxActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_textArcYMaxActionPerformed
 
     private boolean parseDiscordantMin() {
 
@@ -363,6 +393,26 @@ public class BAMParametersDialog extends javax.swing.JDialog {
         return result;
     }
 
+    private boolean parseArcYMaxThreshold() {
+        boolean result = false;
+        String maxStr = textArcYMaxThreshold.getText();
+        if (maxStr == null || maxStr.equals("")) {
+            setMaxBPForYMax(10000);
+            result = true;
+        }
+        else {
+            try {
+                setMaxBPForYMax(Double.parseDouble(maxStr));
+                result = true;
+            } catch (NumberFormatException e) {
+                Toolkit.getDefaultToolkit().beep();
+                textArcYMaxThreshold.setText("0");
+                textArcYMaxThreshold.grabFocus();
+            }
+        }
+        return result;
+    }
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton buttonCancel;
     private javax.swing.ButtonGroup buttonGroup1;
@@ -372,11 +422,14 @@ public class BAMParametersDialog extends javax.swing.JDialog {
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel7;
     private javax.swing.JRadioButton matepair_button;
     private javax.swing.JRadioButton pairedend_button;
     private javax.swing.JPanel reads_opposite_container;
     private javax.swing.JPanel reads_same_container;
     private javax.swing.JTextField textArcThreshold;
+    private javax.swing.JTextField textArcYMaxThreshold;
     private javax.swing.JTextField textDiscordantMax;
     private javax.swing.JTextField textDiscordantMin;
     // End of variables declaration//GEN-END:variables
@@ -410,6 +463,14 @@ public class BAMParametersDialog extends javax.swing.JDialog {
         this.arcLengthThreshold = arcLengthThreshold;
     }
 
+    public double getMaxBPForYMax(){
+        return this.maxBPForYMax;
+    }
+
+    public void setMaxBPForYMax(double max){
+        this.maxBPForYMax = max;
+    }
+
     public boolean isCancelled() {
         return cancelled;
     }
@@ -439,6 +500,7 @@ public class BAMParametersDialog extends javax.swing.JDialog {
         textArcThreshold.setText(String.valueOf(bamTrack.getArcSizeVisibilityThreshold()));
         textDiscordantMin.setText(String.valueOf(bamTrack.getDiscordantMin()));
         textDiscordantMax.setText(String.valueOf(bamTrack.getDiscordantMax()));
+        textArcYMaxThreshold.setText(String.valueOf(bamTrack.getmaxBPForYMax()));
         if(prot == SAMReadUtils.PairedSequencingProtocol.PAIREDEND){
             pairedend_button.setSelected(true);
         } else {

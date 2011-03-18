@@ -61,6 +61,7 @@ public class BAMTrack extends Track {
     // arcs below discordantMin or above discordantMax are coloured as discordant-by-length
     private int discordantMin=Integer.MIN_VALUE;
     private int discordantMax=Integer.MAX_VALUE;
+    private static double maxBPForYMax = 10000;
 
     /**
      * Constructor.
@@ -153,7 +154,7 @@ public class BAMTrack extends Track {
 
             //TODO: make this value user settable
             // never adjust max greater than this value
-            if (val > 10000) { continue; }
+            if (val > maxBPForYMax) { continue; }
 
             // adjust the max if this value is larger
             if (val > max) { max = val; }
@@ -218,5 +219,13 @@ public class BAMTrack extends Track {
 
     public void setDiscordantMax(int discordantMax) {
         this.discordantMax = discordantMax;
+    }
+
+    public double getmaxBPForYMax(){
+        return maxBPForYMax;
+    }
+
+    public void setmaxBPForYMax(double max){
+        maxBPForYMax = max;
     }
 }
