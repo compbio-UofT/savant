@@ -53,12 +53,16 @@ public class PopupThread implements Runnable {
                     retry = false;
                     //Point p1 = gp.getMousePosition();
                     Point p1 = gp.getParentFrame().getLayeredPane().getMousePosition();
+                    if(p1 != null)
+                        p1.y += gp.getParentFrame().scrollPane.getVerticalScrollBar().getValue();
 
                     try {
                         //sleep for 1 sec and then compare
                         Thread.sleep(1000);
                         //Point p2 = gp.getMousePosition();
                         Point p2 = gp.getParentFrame().getLayeredPane().getMousePosition();
+                        if(p2 != null)
+                            p2.y += gp.getParentFrame().scrollPane.getVerticalScrollBar().getValue();
 
                         if(p1 != null && p2 != null && p1.equals(p2))
                             gp.tryPopup(p2);
