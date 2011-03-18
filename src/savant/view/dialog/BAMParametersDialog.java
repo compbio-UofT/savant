@@ -406,7 +406,7 @@ public class BAMParametersDialog extends javax.swing.JDialog {
                 result = true;
             } catch (NumberFormatException e) {
                 Toolkit.getDefaultToolkit().beep();
-                textArcYMaxThreshold.setText("0");
+                textArcYMaxThreshold.setText("10000");
                 textArcYMaxThreshold.grabFocus();
             }
         }
