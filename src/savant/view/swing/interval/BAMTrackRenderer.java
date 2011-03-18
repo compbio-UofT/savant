@@ -284,7 +284,7 @@ public class BAMTrackRenderer extends TrackRenderer {
         this.clearShapes();
 
         // Put up an error message if we don't want to do any rendering.
-        renderPreCheck();
+        renderPreCheck(gp);
 
         drawMode = (String)instructions.get(DrawingInstruction.MODE);
         Resolution r = (Resolution)instructions.get(DrawingInstruction.RESOLUTION);
