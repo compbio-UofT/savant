@@ -32,12 +32,12 @@ public class DataFormatterThread implements Runnable {
         try {
             df.format();
             notifyFormatFrameOfTermination(true, null);
-        } catch (Exception ex) {
+        } catch (Throwable ex) {
             notifyFormatFrameOfTermination(false, ex);
         }
     }
 
-    private void notifyFormatFrameOfTermination(boolean wasFormatSuccessful, Exception e) {
+    private void notifyFormatFrameOfTermination(boolean wasFormatSuccessful, Throwable e) {
         if (ff != null) {
             ff.notifyOfTermination(wasFormatSuccessful, e);
         }
