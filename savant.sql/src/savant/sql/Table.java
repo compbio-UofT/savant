@@ -74,12 +74,4 @@ public class Table {
     public String getName() {
         return name;
     }
-
-    /**
-     * Return the table-specific URI.  This will include the full database URI with
-     * the table name appended as the last component.
-     */
-    public URI getURI() {
-        return URI.create(database.serverURI + "/" + database.name + "/" + name);
-    }
 }

@@ -56,6 +56,11 @@ public class SQLDataSourcePlugin extends SavantDataSourcePlugin {
 
     List<Database> databases;
 
+    /**
+     * For performance reasons, keep track of the last database used.
+     */
+    Database lastDatabase;
+
     private Connection connection;
 
     @Override
@@ -160,10 +165,9 @@ public class SQLDataSourcePlugin extends SavantDataSourcePlugin {
                 tryToLogin();
 
                 if (connection != null) {
-                    Table t = new Table(tableName, new Database(dbName, this.uri, userName, password));
-                    MappedTable table = new MappedTable(t, ColumnMapping.getSavedMapping(this, t.getColumns()));
+                    MappedTable table = getTableByName(tableName, dbName, tableName);
                     if (table.mapping.format == null) {
-                        table = requestMapping(t);
+                        table = requestMapping(table);
                     }
 
                     if (table.mapping.format != null) {
@@ -262,7 +266,12 @@ public class SQLDataSourcePlugin extends SavantDataSourcePlugin {
      * Get a connection to a particular database.
      */
     public synchronized Database getDatabase(String name) throws SQLException {
-        return new Database(name, uri, userName, password);
+        if (lastDatabase == null || !name.equals(lastDatabase.name)) {
+            lastDatabase = new Database(name, uri, userName, password);
+        } else {
+            LOG.info("Reusing existing database " + lastDatabase.name);
+        }
+        return lastDatabase;
     }
 
     /**
@@ -306,5 +315,19 @@ public class SQLDataSourcePlugin extends SavantDataSourcePlugin {
             references.add(rs.getString(1));
         }
         return references;
+    }
+
+    /**
+     * Restore all the information about a table, given information from a JDBC URI.
+     *
+     * @param tableName name of the MySQL table (e.g. knownGene or chr6_mrna)
+     * @param dbName name of the MySQL database (e.g. hg18)
+     * @param trackName name of the UCSC track (e.g. knownGene or mrna)
+     * @return a database table with associated column mapping
+     * @throws SQLException
+     */
+    public MappedTable getTableByName(String tableName, String dbName, String trackName) throws SQLException {
+        Table t = new Table(tableName, new Database(dbName, uri, userName, password));
+        return new MappedTable(t, ColumnMapping.getSavedMapping(this, t.getColumns(), false), trackName);
     }
 }

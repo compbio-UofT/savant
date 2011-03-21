@@ -33,7 +33,8 @@ public interface SQLConstants {
     public static final String THICK_START = "THICK_START";
     public static final String THICK_END = "THICK_END";
     public static final String ITEM_RGB = "ITEM_RGB";
-    public static final String BLOCK_STARTS = "BLOCK_STARTS";
+    public static final String BLOCK_STARTS_RELATIVE = "BLOCK_STARTS_RELATIVE";
+    public static final String BLOCK_STARTS_ABSOLUTE = "BLOCK_STARTS_ABSOLUTE";
     public static final String BLOCK_ENDS = "BLOCK_ENDS";
     public static final String BLOCK_SIZES = "BLOCK_SIZES";
     public static final String SPAN = "SPAN";

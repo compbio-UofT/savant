@@ -50,6 +50,9 @@ public class WigSQLDataSource extends SQLDataSource<GenericContinuousRecord> {
 
     @Override
     public List<GenericContinuousRecord> getRecords(String reference, RangeAdapter range, Resolution resolution) throws IOException {
+        if (resolution != Resolution.VERY_HIGH) {
+            throw new IOException("Zoom in to see data");
+        }
         // TODO: This is wrong.  We should be stuffing in NaNs, not zeroes.
         GenericContinuousRecord[] result = new GenericContinuousRecord[range.getLengthAsInt()];
         for (int i = 0; i < range.getLengthAsInt(); i++) {

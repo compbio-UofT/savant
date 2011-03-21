@@ -22,6 +22,7 @@ import java.awt.Window;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -61,7 +62,6 @@ public class UCSCNavigationDialog extends JDialog implements SQLConstants {
     private Set<String> references = null;
     private UCSCDataSourcePlugin plugin = null;
     private Table table = null;
-
 
     /**
      * Dialog which lets the user navigate through the UCSC hierarchy and select
@@ -328,7 +328,8 @@ public class UCSCNavigationDialog extends JDialog implements SQLConstants {
     private void formatComboActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_formatComboActionPerformed
         mappingPanel.setFormat(((FormatDef)formatCombo.getSelectedItem()).format);
         try {
-            mappingPanel.populate(table.getColumns(), knownMapping);
+            TrackDef trackDef = (TrackDef)trackCombo.getSelectedItem();
+            mappingPanel.populate(table.getColumns(), knownMapping, !table.getName().equals(trackDef.track) && !table.getName().equals("all_" + trackDef.track));
         } catch (SQLException sqlx) {
             LOG.error(sqlx);
             DialogUtils.displayException("SQL Error", "Unable to get list of columns.", sqlx);
@@ -347,7 +348,7 @@ public class UCSCNavigationDialog extends JDialog implements SQLConstants {
     // End of variables declaration//GEN-END:variables
 
     private void populateCladeCombo() throws SQLException {
-        new SQLWorker<String>(DialogUtils.getMainWindow(), "Fetching track list...", "Unable to fetch track list from UCSC.") {
+        new SQLWorker<String>(DialogUtils.getMainWindow(), "Fetching database list...", "Unable to fetch database list from UCSC.") {
             @Override
             public String doInBackground() throws SQLException {
                 if (table != null) {
@@ -418,29 +419,6 @@ public class UCSCNavigationDialog extends JDialog implements SQLConstants {
         genomeCombo.setSelectedIndex(index);
     }
 
-    /**
-     * Look through the database's tables for one representing this track.  It can
-     * be:
-     * 1) an exact match for the track name
-     * 2) equal to "all_"  plus the track name (e.g. "all_mrna")
-     * 3) equal to the chromosome name plus the track name (e.g. "chr1_rmsk" and friends)
-     * @param trackName
-     */
-    private Table findTable(String trackName) throws SQLException {
-       Table t = genomeDB.findTable(trackName);
-       if (t == null) {
-           t = genomeDB.findTable("all_" + trackName);
-           if (t == null) {
-               if (references == null) {
-                   // The table here is irrelevant, since the actual query will be against the chromInfo table.
-                    references = plugin.getReferences(genomeDB);
-               }
-               t = genomeDB.findTable(references.iterator().next() + "_" + trackName);
-           }
-       }
-       return t;
-    }
-
     private void populateGroupCombo() {
         final GenomeDef genome = (GenomeDef)genomeCombo.getSelectedItem();
         new SQLWorker<List<GroupDef>>(this, String.format("Fetching tables for %s...", genome.label), "Unable to fetch table list from UCSC.") {
@@ -457,38 +435,66 @@ public class UCSCNavigationDialog extends JDialog implements SQLConstants {
                 }
 
                 List<GroupDef> groups = new ArrayList<GroupDef>();
+                List<String> unknownTracks = new ArrayList<String>();
     //            ResultSet rs = genomeDB.executeQuery("SELECT label,tableName,shortLabel,type FROM trackDb,grp WHERE trackDb.grp = grp.name AND trackDb.type LIKE 'bed%%' ORDER BY trackDb.grp,trackDb.priority");
                 ResultSet rs = genomeDB.executeQuery("SELECT label,tableName,shortLabel,type FROM trackDb,grp WHERE trackDb.grp = grp.name ORDER BY grp.priority,trackDb.priority,trackDb.tableName");
                 GroupDef lastGroup = null;
                 while (rs.next()) {
-                    String track = rs.getString("tableName");
-                    String group = rs.getString("label");
-                    String label = rs.getString("shortLabel");
                     String type = rs.getString("type");
-                    TrackDef def = null;
-                    String error = null;
-                    Table t = findTable(track);
-                    if (t != null) {
-                        if (UCSCDataSourcePlugin.getKnownMapping(type) != null) {
-                            def = new TrackDef(track, t.getName(), label, type);
+                    if (isSupportedType(type)) {
+                        String track = rs.getString("tableName");
+                        String group = rs.getString("label");
+                        String label = rs.getString("shortLabel");
+                        TrackDef def = null;
+
+                        // Look through the database's tables for one representing this track.  It can be:
+                        // 1) an exact match for the track name
+                        // 2) equal to "all_" plus the track name
+                        // 2) equal to the chromosome name plus the track name (e.g. "chr1_rmsk" and friends)
+                        Table t = genomeDB.findTable(track);
+                        if (t == null) {
+                            t = genomeDB.findTable("all_" + track);
+                            if (t == null) {
+                                if (references == null) {
+                                   // The table here is irrelevant, since the actual query to fetch references will be against the chromInfo table.
+                                    references = plugin.getReferences(genomeDB);
+                                }
+                                t = genomeDB.findTable(references.iterator().next() + "_" + track);
+                            }
+                        }
+                        if (t != null) {
+                            if (UCSCDataSourcePlugin.getKnownMapping(type) != null) {
+                                def = new TrackDef(track, t.getName(), label, type);
+                            } else {
+                                LOG.debug("Track type " + type + " unmapped for table " + track);
+                                continue;
+                            }
+                        }
+
+                        if (def != null) {
+                            if (lastGroup == null || !group.equals(lastGroup.name)) {
+                                lastGroup = new GroupDef(group);
+                                groups.add(lastGroup);
+                            }
+                            lastGroup.tracks.add(def);
                         } else {
-                            error = "Unmapped track type " + type + " for table " + track;
+                            if (track.contains("View")) {
+                                // Not a real track.  May imply that the last unknown track is actually a composite, in which
+                                // case we can get rid of it.
+                                if (unknownTracks.size() > 0 && track.startsWith(unknownTracks.get(unknownTracks.size() - 1))) {
+                                    LOG.debug("Removing composite track " + unknownTracks.get(unknownTracks.size() - 1) + " on evidence from " + track);
+                                    unknownTracks.remove(unknownTracks.size() - 1);
+                                }
+                            } else {
+                                unknownTracks.add(track);
+                            }
                         }
                     }
-
-                    if (def != null) {
-                        if (lastGroup == null || !group.equals(lastGroup.name)) {
-                            lastGroup = new GroupDef(group);
-                            groups.add(lastGroup);
-                        }
-                        lastGroup.tracks.add(def);
-                    } else {
-                        if (!type.startsWith("bigWig") && !type.startsWith("wigMaf") && !type.equals("bam") && !type.startsWith("bigBed")) {
-                            if (error == null) {
-                                error = "Unknown track " + track + " not found in table list for " + genomeDB;
-                            }
-                            LOG.info(error);
-                        }
+                }
+                if (LOG.isDebugEnabled()) {
+                    Collections.sort(unknownTracks);
+                    for (String s: unknownTracks) {
+                        LOG.debug("Unknown track " + s + " not found in " + genomeDB);
                     }
                 }
                 return groups;
@@ -502,6 +508,7 @@ public class UCSCNavigationDialog extends JDialog implements SQLConstants {
                 }
             }
         };
+
     }
 
     private void populateTrackCombo() {
@@ -513,9 +520,37 @@ public class UCSCNavigationDialog extends JDialog implements SQLConstants {
     public MappedTable getMapping() {
         if (table != null) {
             SettingsUtils.setString(plugin, "GENOME", genomeDB.getName());
-            return new MappedTable(table, mappingPanel.getMapping());
+            return new MappedTable(table, mappingPanel.getMapping(), ((TrackDef)trackCombo.getSelectedItem()).track);
         }
         return null;
+    }
+
+    /**
+     * Some track types we just don't have the mechanism to handle.
+     */
+    boolean isSupportedType(String type) {
+        // No bigBed support yet (but it's coming).
+        if (type.startsWith("bigBed")) {
+            return false;
+        }
+
+        // No bigWig support yet (but it's coming).
+        if (type.startsWith("bigWig")) {
+            return false;
+        }
+
+        // Actual data is contained in an external file, but the file is identified by a number, not a path.
+        if (type.startsWith("wigMaf")) {
+            return false;
+        }
+
+        // We can probably the support BAM, but not implemented yet.
+        if (type.equals("bam")) {
+            return false;
+        }
+
+        // Not one of our rejected types.
+        return true;
     }
 
     class GenomeDef {
@@ -548,8 +583,8 @@ public class UCSCNavigationDialog extends JDialog implements SQLConstants {
     }
 
     class TrackDef {
-        String track;
-        String table;
+        String track;   // Name of track as seen by user (e.g. refGene, mrna, est).
+        String table;   // Only occasionally different from track (e.g. all_mrna, chr1_est).
         String label;
         String type;
 

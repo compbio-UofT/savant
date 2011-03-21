@@ -1,14 +1,27 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ *    Copyright 2011 University of Toronto
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
  */
 
 package savant.sql;
 
 import java.awt.Window;
 import javax.swing.SwingWorker;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import savant.api.util.DialogUtils;
 
 /**
@@ -19,7 +32,14 @@ import savant.api.util.DialogUtils;
 public abstract class SQLWorker<T> {
     private static final Log LOG = LogFactory.getLog(SQLWorker.class);
 
-    public SQLWorker(Window parent, String progress, final String failure) {
+    /**
+     * Delay in milliseconds before we put up a progress dialog.
+     */
+    private static final int PROGRESS_DELAY = 1000;
+    private boolean workerDone = false;
+    private final Object waiter = new Object();
+
+    public SQLWorker(final Window parent, final String progress, final String failure) {
         new SwingWorker() {
             private T result;
 
@@ -38,6 +58,10 @@ public abstract class SQLWorker<T> {
             @Override
             public void done() {
                 try {
+                    synchronized(waiter) {
+                        workerDone = true;
+                        waiter.notifyAll();
+                    }
                     DialogUtils.showProgress(null, null, 1.0);
                     SQLWorker.this.done(result);
                 } catch (Exception x) {
@@ -46,7 +70,16 @@ public abstract class SQLWorker<T> {
                 }
             }
         }.execute();
-        DialogUtils.showProgress(parent, progress, -1.0);
+
+        synchronized (waiter) {
+            try {
+                waiter.wait(PROGRESS_DELAY);
+                if (!workerDone) {
+                    DialogUtils.showProgress(parent, progress, -1.0);
+                }
+            } catch (InterruptedException ignored) {
+            }
+        }
     }
 
     public abstract T doInBackground() throws Exception;

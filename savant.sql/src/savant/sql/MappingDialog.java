@@ -212,7 +212,7 @@ public class MappingDialog extends javax.swing.JDialog {
                                 return t.toString().compareTo(t1.toString());
                             }
                         });
-                        mappingPanel.populate(columns, ColumnMapping.getSavedMapping(plugin, columns));
+                        mappingPanel.populate(columns, ColumnMapping.getSavedMapping(plugin, columns, false), false);
                     }
                 }
             };

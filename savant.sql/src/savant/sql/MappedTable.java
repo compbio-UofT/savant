@@ -16,6 +16,8 @@
 
 package savant.sql;
 
+import java.net.URI;
+
 
 /**
  * From our MappingDialog, we want to return both a selected table and the set of
@@ -25,9 +27,28 @@ package savant.sql;
  */
 public class MappedTable extends Table {
     ColumnMapping mapping;
+    String trackName;
 
-    public MappedTable(Table t, ColumnMapping mapping) {
+    public MappedTable(Table t, ColumnMapping mapping, String trackName) {
         super(t.name, t.database);
         this.mapping = mapping;
+        this.trackName = trackName;
     }
+
+    /**
+     * In most cases, the table name and the track name are identical.
+     */
+    public MappedTable(Table t, ColumnMapping mapping) {
+        this(t, mapping, t.name);
+    }
+
+
+    /**
+     * Return the table-specific URI.  This will include the full database URI with
+     * the table name appended as the last component.
+     */
+    public URI getURI() {
+        return URI.create(database.serverURI + "/" + database.name + "/" + trackName);
+    }
+
 }

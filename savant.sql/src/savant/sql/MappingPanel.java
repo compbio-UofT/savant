@@ -85,9 +85,10 @@ public class MappingPanel extends JPanel implements SQLConstants {
         blockStartsCombo = new javax.swing.JComboBox();
         blockEndsLabel = new javax.swing.JLabel();
         blockEndsCombo = new javax.swing.JComboBox();
-        blockSizesLabel = new javax.swing.JLabel();
-        blockSizesCombo = new javax.swing.JComboBox();
         jPanel1 = new javax.swing.JPanel();
+        treatAsAbsoluteCheck = new javax.swing.JCheckBox();
+        treatAsSizeCheck = new javax.swing.JCheckBox();
+        byChromosomeCheck = new javax.swing.JCheckBox();
 
         setBorder(javax.swing.BorderFactory.createTitledBorder("Field Mappings"));
         setMinimumSize(new java.awt.Dimension(400, 412));
@@ -102,6 +103,7 @@ public class MappingPanel extends JPanel implements SQLConstants {
         add(chromLabel, gridBagConstraints);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.weightx = 1.0;
         add(chromCombo, gridBagConstraints);
@@ -234,34 +236,55 @@ public class MappingPanel extends JPanel implements SQLConstants {
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.weightx = 1.0;
         add(blockEndsCombo, gridBagConstraints);
-
-        blockSizesLabel.setText("Block Sizes:");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
-        gridBagConstraints.insets = new java.awt.Insets(8, 8, 8, 8);
-        add(blockSizesLabel, gridBagConstraints);
-
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-        gridBagConstraints.weightx = 1.0;
-        add(blockSizesCombo, gridBagConstraints);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.weighty = 1.0;
         add(jPanel1, gridBagConstraints);
+
+        treatAsAbsoluteCheck.setText("Treat as absolute");
+        treatAsAbsoluteCheck.setToolTipText("Select if block-starts are stored as absolute offsets within the chromosome.\nLeave unchecked if block-starts are relative to the start of the feature.\n");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 9;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.weightx = 1.0;
+        add(treatAsAbsoluteCheck, gridBagConstraints);
+
+        treatAsSizeCheck.setText("Treat as size");
+        treatAsSizeCheck.setToolTipText("Select if this column contains block sizes.\nLeave unchecked if block-ends are specified as positions.");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 10;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.weightx = 1.0;
+        add(treatAsSizeCheck, gridBagConstraints);
+
+        byChromosomeCheck.setText("One table per chromosome");
+        byChromosomeCheck.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                byChromosomeCheckActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.weightx = 1.0;
+        add(byChromosomeCheck, gridBagConstraints);
     }// </editor-fold>//GEN-END:initComponents
+
+    private void byChromosomeCheckActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_byChromosomeCheckActionPerformed
+        chromCombo.setEnabled(!byChromosomeCheck.isSelected());
+    }//GEN-LAST:event_byChromosomeCheckActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JComboBox blockEndsCombo;
     private javax.swing.JLabel blockEndsLabel;
-    private javax.swing.JComboBox blockSizesCombo;
-    private javax.swing.JLabel blockSizesLabel;
     private javax.swing.JComboBox blockStartsCombo;
     private javax.swing.JLabel blockStartsLabel;
+    private javax.swing.JCheckBox byChromosomeCheck;
     private javax.swing.JComboBox chromCombo;
     private javax.swing.JComboBox endCombo;
     private javax.swing.JComboBox itemRGBCombo;
@@ -278,6 +301,8 @@ public class MappingPanel extends JPanel implements SQLConstants {
     private javax.swing.JLabel thickEndLabel;
     private javax.swing.JComboBox thickStartCombo;
     private javax.swing.JLabel thickStartLabel;
+    private javax.swing.JCheckBox treatAsAbsoluteCheck;
+    private javax.swing.JCheckBox treatAsSizeCheck;
     // End of variables declaration//GEN-END:variables
 
     public void setFormat(MappingFormat format) {
@@ -302,10 +327,10 @@ public class MappingPanel extends JPanel implements SQLConstants {
                 itemRGBCombo.setVisible(true);
                 blockStartsLabel.setVisible(true);
                 blockStartsCombo.setVisible(true);
+                treatAsAbsoluteCheck.setVisible(true);
                 blockEndsLabel.setVisible(true);
                 blockEndsCombo.setVisible(true);
-                blockSizesLabel.setVisible(true);
-                blockSizesCombo.setVisible(true);
+                treatAsSizeCheck.setVisible(true);
                 break;
             case CONTINUOUS_WIG:
                 nameLabel.setText("Span:");
@@ -326,10 +351,10 @@ public class MappingPanel extends JPanel implements SQLConstants {
                 itemRGBCombo.setVisible(true);
                 blockStartsLabel.setVisible(false);
                 blockStartsCombo.setVisible(false);
+                treatAsAbsoluteCheck.setVisible(false);
                 blockEndsLabel.setVisible(false);
                 blockEndsCombo.setVisible(false);
-                blockSizesLabel.setVisible(false);
-                blockSizesCombo.setVisible(false);
+                treatAsSizeCheck.setVisible(false);
                 break;
             default:
                 nameLabel.setText(format == MappingFormat.CONTINUOUS_VALUE_COLUMN ? "Value:" : "Name:");
@@ -345,16 +370,20 @@ public class MappingPanel extends JPanel implements SQLConstants {
                 itemRGBCombo.setVisible(false);
                 blockStartsLabel.setVisible(false);
                 blockStartsCombo.setVisible(false);
+                treatAsAbsoluteCheck.setVisible(false);
                 blockEndsLabel.setVisible(false);
                 blockEndsCombo.setVisible(false);
-                blockSizesLabel.setVisible(false);
-                blockSizesCombo.setVisible(false);
+                treatAsSizeCheck.setVisible(false);
                 break;
         }
     }
 
-    public void populate(Column[] columns, ColumnMapping mapping) {
-        populateFieldCombo(chromCombo, columns, Types.CHAR, mapping.chrom);
+    public void populate(Column[] columns, ColumnMapping mapping, boolean byChromosome) {
+        if (!byChromosome) {
+            populateFieldCombo(chromCombo, columns, Types.CHAR, mapping.chrom);
+        }
+        byChromosomeCheck.setSelected(byChromosome);
+        chromCombo.setEnabled(!byChromosome);
         populateFieldCombo(startCombo, columns, Types.INTEGER, mapping.start);
         populateFieldCombo(endCombo, columns, Types.INTEGER, mapping.end);
         switch (format) {
@@ -371,9 +400,20 @@ public class MappingPanel extends JPanel implements SQLConstants {
                 populateFieldCombo(thickStartCombo, columns, Types.INTEGER, mapping.thickStart);
                 populateFieldCombo(thickEndCombo, columns, Types.INTEGER, mapping.thickEnd);
                 populateFieldCombo(itemRGBCombo, columns, Types.INTEGER, mapping.itemRGB);
-                populateFieldCombo(blockStartsCombo, columns, Types.BLOB, mapping.blockStarts);
-                populateFieldCombo(blockEndsCombo, columns, Types.BLOB, mapping.blockEnds);
-                populateFieldCombo(blockSizesCombo, columns, Types.BLOB, mapping.blockSizes);
+                if (mapping.blockStartsAbsolute != null) {
+                    treatAsAbsoluteCheck.setSelected(true);
+                    populateFieldCombo(blockStartsCombo, columns, Types.BLOB,  mapping.blockStartsAbsolute);
+                } else {
+                    treatAsAbsoluteCheck.setSelected(false);
+                    populateFieldCombo(blockStartsCombo, columns, Types.BLOB,  mapping.blockStartsRelative);
+                }
+                if (mapping.blockSizes != null) {
+                    treatAsSizeCheck.setSelected(true);
+                    populateFieldCombo(blockEndsCombo, columns, Types.BLOB, mapping.blockSizes);
+                } else {
+                    treatAsSizeCheck.setSelected(false);
+                    populateFieldCombo(blockEndsCombo, columns, Types.BLOB, mapping.blockEnds);
+                }
                 break;
             case CONTINUOUS_WIG:
                 populateFieldCombo(spanCombo, columns, Types.INTEGER, mapping.span);
@@ -448,19 +488,35 @@ public class MappingPanel extends JPanel implements SQLConstants {
     }
 
     public ColumnMapping getMapping() {
+        String chrom = null;
+        if (!byChromosomeCheck.isSelected()) {
+            chrom = chromCombo.getSelectedItem().toString();
+        }
         switch (format) {
             case CONTINUOUS_VALUE_COLUMN:
-                return ColumnMapping.getContinuousMapping(chromCombo.getSelectedItem().toString(),
+                return ColumnMapping.getContinuousMapping(chrom,
                         startCombo.getSelectedItem().toString(),
                         endCombo.getSelectedItem().toString(),
                         valueCombo.getSelectedItem().toString());
             case INTERVAL_GENERIC:
-                return ColumnMapping.getIntervalMapping(chromCombo.getSelectedItem().toString(),
+                return ColumnMapping.getIntervalMapping(chrom,
                         startCombo.getSelectedItem().toString(),
                         endCombo.getSelectedItem().toString(),
                         nameCombo.getSelectedItem().toString());
             case INTERVAL_BED:
-                return ColumnMapping.getBedMapping(chromCombo.getSelectedItem().toString(),
+                String relativeStarts = blockStartsCombo.getSelectedItem().toString();
+                String absoluteStarts = null;
+                if (treatAsAbsoluteCheck.isSelected()) {
+                    absoluteStarts = relativeStarts;
+                    relativeStarts = null;
+                }
+                String ends = blockEndsCombo.getSelectedItem().toString();
+                String sizes = null;
+                if (treatAsSizeCheck.isSelected()) {
+                    sizes = ends;
+                    ends = null;
+                }
+                return ColumnMapping.getBedMapping(chrom,
                                                    startCombo.getSelectedItem().toString(),
                                                    endCombo.getSelectedItem().toString(),
                                                    nameCombo.getSelectedItem().toString(),
@@ -469,11 +525,10 @@ public class MappingPanel extends JPanel implements SQLConstants {
                                                    thickStartCombo.getSelectedItem().toString(),
                                                    thickEndCombo.getSelectedItem().toString(),
                                                    itemRGBCombo.getSelectedItem().toString(),
-                                                   blockStartsCombo.getSelectedItem().toString(),
-                                                   blockEndsCombo.getSelectedItem().toString(),
-                                                   blockSizesCombo.getSelectedItem().toString());
+                                                   relativeStarts, absoluteStarts,
+                                                   ends, sizes);
             case CONTINUOUS_WIG:
-                return ColumnMapping.getWigMapping(chromCombo.getSelectedItem().toString(),
+                return ColumnMapping.getWigMapping(chrom,
                                                    startCombo.getSelectedItem().toString(),
                                                    endCombo.getSelectedItem().toString(),
                                                    spanCombo.getSelectedItem().toString(),

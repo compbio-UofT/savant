@@ -29,6 +29,7 @@ import savant.plugin.PluginAdapter;
 import savant.sql.ColumnMapping;
 import savant.sql.Database;
 import savant.sql.MappedTable;
+import savant.sql.SQLConstants;
 import savant.sql.SQLDataSourcePlugin;
 import savant.sql.Table;
 
@@ -39,7 +40,7 @@ import savant.sql.Table;
  *
  * @author tarkvara
  */
-public class UCSCDataSourcePlugin extends SQLDataSourcePlugin {
+public class UCSCDataSourcePlugin extends SQLDataSourcePlugin implements SQLConstants {
     private static final Map<String, ColumnMapping> KNOWN_MAPPINGS = new HashMap<String, ColumnMapping>();
 
     Database hgcentral;
@@ -49,45 +50,56 @@ public class UCSCDataSourcePlugin extends SQLDataSourcePlugin {
         KNOWN_MAPPINGS.put("bed 3", bed3Mapping);
         KNOWN_MAPPINGS.put("bed 3 +", bed3Mapping);
         KNOWN_MAPPINGS.put("bed 3 .", bed3Mapping);
+        KNOWN_MAPPINGS.put("bed .", bed3Mapping);
 
         ColumnMapping bed4Mapping = ColumnMapping.getIntervalMapping("chrom", "chromStart", "chromEnd", "name");
         KNOWN_MAPPINGS.put("bed 4", bed4Mapping);
         KNOWN_MAPPINGS.put("bed 4 +", bed4Mapping);
         KNOWN_MAPPINGS.put("bed 4 .", bed4Mapping);
         KNOWN_MAPPINGS.put("ctgPos", bed4Mapping);
+        KNOWN_MAPPINGS.put("ld2", bed4Mapping);
 
-        // TODO: bed 5 formats have a score column which we don't currently use.  For now, treat them as bed 4.
-        KNOWN_MAPPINGS.put("bed 5", bed4Mapping);
-        KNOWN_MAPPINGS.put("bed 5 +", bed4Mapping);
-        KNOWN_MAPPINGS.put("bed 5 .", bed4Mapping);
-        KNOWN_MAPPINGS.put("bed5FloatScore", bed4Mapping);
+        // Like bed 4, but we'll use the finished/draft/predraft column as the name field.
+        ColumnMapping clonePosMapping = ColumnMapping.getIntervalMapping("chrom", "chromStart", "chromEnd", "stage");
+        KNOWN_MAPPINGS.put("clonePos", clonePosMapping);
 
-        // TODO: bed 6 formats have score and strand columns which we don't currently use.  For now, treat them as bed 4.
-        KNOWN_MAPPINGS.put("bed 6", bed4Mapping);
-        KNOWN_MAPPINGS.put("bed 6 +", bed4Mapping);
-        KNOWN_MAPPINGS.put("bed 6 .", bed4Mapping);
-        KNOWN_MAPPINGS.put("broadPeak", bed4Mapping);
-        KNOWN_MAPPINGS.put("narrowPeak", bed4Mapping);
+        // Our generic interval format lacks a score field, so treat these as Bed with no blocks or strand.
+        ColumnMapping bed5Mapping = ColumnMapping.getBedMapping("chrom", "chromStart", "chromEnd", "name", "score", null, null, null, null, null, null, null, null);
+        KNOWN_MAPPINGS.put("bed 5", bed5Mapping);
+        KNOWN_MAPPINGS.put("bed 5 +", bed5Mapping);
+        KNOWN_MAPPINGS.put("bed 5 .", bed5Mapping);
+        KNOWN_MAPPINGS.put("bed5FloatScore", bed5Mapping);
+        KNOWN_MAPPINGS.put("bed5FloatScoreWithFdr", bed5Mapping);
+
+        // Our generic interval format lacks a score field, so treat these as Bed with no blocks.
+        ColumnMapping bed6Mapping = ColumnMapping.getBedMapping("chrom", "chromStart", "chromEnd", "name", "score", "strand", null, null, null, null, null, null, null);
+        KNOWN_MAPPINGS.put("bed 6", bed6Mapping);
+        KNOWN_MAPPINGS.put("bed 6 +", bed6Mapping);
+        KNOWN_MAPPINGS.put("bed 6 .", bed6Mapping);
+        KNOWN_MAPPINGS.put("broadPeak", bed6Mapping);
+        KNOWN_MAPPINGS.put("narrowPeak", bed6Mapping);
 
         // bed 8, like BED, but with no ItemRgb or blocks.
-        ColumnMapping bed8Mapping = ColumnMapping.getBedMapping("chrom", "chromStart", "chromEnd", "name", "score", "strand", "thickStart", "thickEnd", null, null, null, null);
+        ColumnMapping bed8Mapping = ColumnMapping.getBedMapping("chrom", "chromStart", "chromEnd", "name", "score", "strand", "thickStart", "thickEnd", null, null, null, null, null);
         KNOWN_MAPPINGS.put("bed 8", bed8Mapping);
         KNOWN_MAPPINGS.put("bed 8 +", bed8Mapping);
         KNOWN_MAPPINGS.put("bed 8 .", bed8Mapping);
 
         // bed 9, like BED, but with no blocks.  Note that in bed 9, the itemRGB column is usually called "reserved".
-        ColumnMapping bed9Mapping = ColumnMapping.getBedMapping("chrom", "chromStart", "chromEnd", "name", "score", "strand", "thickStart", "thickEnd", "reserved", null, null, null);
+        ColumnMapping bed9Mapping = ColumnMapping.getBedMapping("chrom", "chromStart", "chromEnd", "name", "score", "strand", "thickStart", "thickEnd", "reserved", null, null, null, null);
         KNOWN_MAPPINGS.put("bed 9", bed9Mapping);
         KNOWN_MAPPINGS.put("bed 9 +", bed9Mapping);
         KNOWN_MAPPINGS.put("bed 9 .", bed9Mapping);
 
-        ColumnMapping bed12Mapping = ColumnMapping.getBedMapping("chrom", "chromStart", "chromEnd", "name", "score", "strand", "thickStart", "thickEnd", "reserved", "chromStarts", null, "blockSizes");
+        ColumnMapping bed12Mapping = ColumnMapping.getBedMapping("chrom", "chromStart", "chromEnd", "name", "score", "strand", "thickStart", "thickEnd", "reserved", "chromStarts", null, null, "blockSizes");
         KNOWN_MAPPINGS.put("bed 12", bed12Mapping);
         KNOWN_MAPPINGS.put("bed 12 +", bed12Mapping);
         KNOWN_MAPPINGS.put("bed 12 .", bed12Mapping);
         KNOWN_MAPPINGS.put("expRatio", bed12Mapping);
+        KNOWN_MAPPINGS.put("factorSource", bed12Mapping);
+        KNOWN_MAPPINGS.put("coloredExon", bed12Mapping);    // Colour is actually stored on a per-block level, but we have no way of representing this.
 
-        ColumnMapping geneMapping = ColumnMapping.getBedMapping("chrom", "txStart", "txEnd", "name", "score", "strand", "cdsStart", "cdsEnd", "reserved", "exonStarts", "exonEnds", null);
+        ColumnMapping geneMapping = ColumnMapping.getBedMapping("chrom", "txStart", "txEnd", "name", "score", "strand", "cdsStart", "cdsEnd", "reserved", "exonStarts", null, "exonEnds", null);
         KNOWN_MAPPINGS.put("genePred", geneMapping);
 
         // TODO: What to do with qStart and qEnd?
@@ -97,13 +109,16 @@ public class UCSCDataSourcePlugin extends SQLDataSourcePlugin {
         ColumnMapping netAlignMapping = ColumnMapping.getIntervalMapping("tName", "tStart", "tEnd", "qName");
         KNOWN_MAPPINGS.put("netAlign", netAlignMapping);
 
-        ColumnMapping bedGraph4Mapping = ColumnMapping.getContinuousMapping("chrom", "chromStart", "chromEnd", "value");
+        ColumnMapping bedGraph4Mapping = ColumnMapping.getContinuousMapping("chrom", "chromStart", "chromEnd", "dataValue");
         KNOWN_MAPPINGS.put("bedGraph 4", bedGraph4Mapping);
+        KNOWN_MAPPINGS.put("bedGraph 5", bedGraph4Mapping);
 
         //TODO: What do do with qStart, qEnd, and blocks.
-        ColumnMapping pslMapping = ColumnMapping.getIntervalMapping("tName", "tStart", "tEnd", "qName");
+        ColumnMapping pslMapping = ColumnMapping.getBedMapping("tName", "tStart", "tEnd", "qName", null, "strand", null, null, null, null, "tStarts", null, "blockSizes");
         KNOWN_MAPPINGS.put("psl", pslMapping);
         KNOWN_MAPPINGS.put("psl .", pslMapping);
+        KNOWN_MAPPINGS.put("psl est", pslMapping);
+        KNOWN_MAPPINGS.put("psl protein", pslMapping);
         KNOWN_MAPPINGS.put("psl xeno", pslMapping);
 
         ColumnMapping rmskMapping = ColumnMapping.getIntervalMapping("genoName", "genoStart", "genoEnd", "repName");
@@ -181,6 +196,20 @@ public class UCSCDataSourcePlugin extends SQLDataSourcePlugin {
         return references;
     }
 
+    @Override
+    public MappedTable getTableByName(String tableName, String dbName, String trackName) throws SQLException {
+        try {
+            return super.getTableByName(tableName, dbName, trackName);
+        } catch (SQLException sqlx) {
+            // Must be one of our fake composite tables (e.g. "intronEst" when the actual MySQL tables are "chr1_intronEst" et al).
+            // Substitute in an actual table (which one doesn't matter) so we can get column names and such.
+            Database db = getDatabase(dbName);
+            Table t = new Table(getReferences(db).iterator().next() + "_" + tableName, db);
+            return new MappedTable(t, ColumnMapping.getSavedMapping(this, t.getColumns(), true), trackName);
+        }
+    }
+
+
     /**
      * Given a UCSC table format string, return the best mapping we have for it.
      *
@@ -202,4 +231,5 @@ public class UCSCDataSourcePlugin extends SQLDataSourcePlugin {
         }
         return result;
     }
+
 }
