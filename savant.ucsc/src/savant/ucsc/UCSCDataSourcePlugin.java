@@ -99,7 +99,7 @@ public class UCSCDataSourcePlugin extends SQLDataSourcePlugin implements SQLCons
         KNOWN_MAPPINGS.put("factorSource", bed12Mapping);
         KNOWN_MAPPINGS.put("coloredExon", bed12Mapping);    // Colour is actually stored on a per-block level, but we have no way of representing this.
 
-        ColumnMapping geneMapping = ColumnMapping.getBedMapping("chrom", "txStart", "txEnd", "name", "score", "strand", "cdsStart", "cdsEnd", "reserved", "exonStarts", null, "exonEnds", null);
+        ColumnMapping geneMapping = ColumnMapping.getBedMapping("chrom", "txStart", "txEnd", "name", "score", "strand", "cdsStart", "cdsEnd", "reserved", null, "exonStarts", "exonEnds", null);
         KNOWN_MAPPINGS.put("genePred", geneMapping);
 
         // TODO: What to do with qStart and qEnd?
