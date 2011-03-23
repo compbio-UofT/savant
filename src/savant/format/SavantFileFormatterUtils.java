@@ -655,7 +655,7 @@ public class SavantFileFormatterUtils {
 
         while((line = br.readLine()) != null) {
 
-            // TODO: this should be specific to Generic Interval files
+            // TODO: this should be specific to Generic Interval and BED files separately
             // currently all file types are affected
             try {
                 if (line.equals("\n")) {
@@ -664,10 +664,13 @@ public class SavantFileFormatterUtils {
                 if (line.substring(0, 2).equals("##")) {
                     continue;
                 }
+                if (line.startsWith("track")) {
+                    continue;
+                }
             } catch (IndexOutOfBoundsException e) {}
 
             try {
-                StringTokenizer st = new StringTokenizer(line,"\t");
+                StringTokenizer st = new StringTokenizer(line);
                 for (int i = 0; i < columnNumber; i++) {
                     st.nextToken();
                 }

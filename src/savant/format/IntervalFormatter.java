@@ -49,6 +49,9 @@ public class IntervalFormatter extends SavantFileFormatter {
         this.startcoordindex = startcoordindex;
         this.endcoordindex = endcoordindex;
         this.comment = comment;
+        if (ft == FileType.INTERVAL_BED) {
+            this.delimiter = "\\s+";
+        }
     }
 
     private ArrayList rearrangeList(Object l) {
