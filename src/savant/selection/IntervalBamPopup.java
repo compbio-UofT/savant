@@ -61,6 +61,12 @@ public class IntervalBamPopup extends PopupPanel {
         String readLength = "Read Length: " + samRec.getReadLength();
         this.add(new JLabel(readLength));
 
+        String mq = "Mapping Quality: " + samRec.getMappingQuality();
+        this.add(new JLabel(mq));
+
+        String bq = "Base Quality: " + samRec.getBaseQualityString();
+        this.add(new JLabel(bq));
+
         if (samRec.getReadPairedFlag()) {
             String matePosition = "Mate Position: " + homogenizeRef(samRec.getMateReferenceName()) + ": " + samRec.getMateAlignmentStart();
             this.add(new JLabel(matePosition));
