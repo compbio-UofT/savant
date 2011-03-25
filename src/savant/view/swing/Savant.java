@@ -41,6 +41,8 @@ import com.jidesoft.plaf.UIDefaultsLookup;
 import com.jidesoft.plaf.basic.ThemePainter;
 import com.jidesoft.status.MemoryStatusBarItem;
 import com.jidesoft.swing.JideSplitPane;
+import java.io.FileOutputStream;
+import java.io.InputStream;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jdom.JDOMException;
@@ -1222,38 +1224,37 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
     public static void main(String args[]) {
 
         boolean loadProject = false;
-        String toLoad = null;
+        boolean loadPlugin = false;
+        String loadProjectUrl = null;
+        List<String> loadPluginUrls = new ArrayList<String>();
         for(int i = 0; i < args.length; i++){
             String s = args[i];
-
-            //build
-            if(s.startsWith("--")){
+            if(s.startsWith("--")){ //build
+                loadProject = false;
+                loadPlugin = false;
                 BrowserSettings.build = s.replaceAll("-", "");
                 if (s.equals("--debug")) {
                     turnExperimentalFeaturesOff = false;
                 }
-            }
-            //load project on startup
-            else if (s.equals("-p")){
-                loadProject = true;
-            }
-            //url of project to load
-            else if (loadProject){
-                toLoad = s;
+            } else if (s.startsWith("-")){
+                if(s.equals("-project")){
+                    loadProject = true;
+                    loadPlugin = false;
+                } else if (s.equals("-plugins")){
+                    loadPlugin = true;
+                    loadProject = false;
+                }
+            } else if (loadProject){
+                loadProjectUrl = s;
                 loadProject = false;
+            } else if (loadPlugin){
+                loadPluginUrls.add(s);
             } else {
-                continue;
+                //bad argument, skip
             }
         }
 
-       /* if (args.length > 0) {
-            
-            String build = args[0];
-            BrowserSettings.build = build.replaceAll("-", "");
-            if (build.equals("--debug")) {
-                turnExperimentalFeaturesOff = false;
-            }
-        }*/
+        installMissingPlugins(loadPluginUrls);
 
         //java.awt.EventQueue.invokeLater(new Runnable() {
 
@@ -1281,8 +1282,8 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         Savant instance = Savant.getInstance();
 
         //load project immediately if argument exists
-        if(toLoad != null){
-            instance.projectHandler.loadProjectFromUrl(toLoad);
+        if(instance.isWebStart() && loadProjectUrl != null){
+            instance.projectHandler.loadProjectFromUrl(loadProjectUrl);
         }
 
     }
@@ -2249,5 +2250,39 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
 
     public boolean isWebStart(){
         return webStart;
+    }
+
+    public static void installMissingPlugins(List<String> pluginUrls){
+        String localFile = null;
+        for(String stringUrl : pluginUrls){
+
+            try{
+                URL url  = new URL(stringUrl);
+                InputStream is = url.openStream();
+                FileOutputStream fos=null;
+
+                StringTokenizer st=new StringTokenizer(url.getFile(), "/");
+                while (st.hasMoreTokens()){
+                    localFile=st.nextToken();
+                }
+
+                localFile = DirectorySettings.getPluginsDirectory() + System.getProperty("file.separator") + localFile;
+                fos = new FileOutputStream(localFile);
+
+                int oneChar, count=0;
+                while ((oneChar=is.read()) != -1)
+                {
+                    fos.write(oneChar);
+                    count++;
+                }
+                is.close();
+                fos.close();
+
+            }catch (MalformedURLException e){
+                System.err.println(e.toString());
+            }catch (IOException e){
+                System.err.println(e.toString());
+            }
+        }
     }
 }

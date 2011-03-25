@@ -80,7 +80,7 @@ public class DirectorySettings {
      * its default location is <b>not</b> inside the <i>.savant</i> directory.
      * @return
      */
-    public static String getPluginsDirectory() {
+    /*public static String getPluginsDirectory() {
         File result = settings.getFile(PLUGINS_DIR_KEY);
         if (result == null) {
             // First, determine whether we're a Mac application bundle by looking
@@ -94,6 +94,10 @@ public class DirectorySettings {
             result.mkdirs();
         }
         return result.getAbsolutePath();
+    }*/
+
+    public static String getPluginsDirectory(){
+        return getDirectory(PLUGINS_DIR_KEY, "plugins");
     }
 
     public static String getProjectsDirectory() {
