@@ -67,6 +67,8 @@ import savant.view.tools.ToolsModule;
 import savant.xml.XMLVersion;
 import savant.xml.XMLVersion.Version;
 
+import javax.jnlp.*;
+
 /**
  * Main application Window (Frame).
  *
@@ -95,6 +97,10 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
     private DockableFrame startPageDockableFrame;
     private Application macOSXApplication;
     private ProjectHandler projectHandler;
+
+    //web start
+    static BasicService basicService = null;
+    static boolean webStart = false;
 
     public void addToolBar(JToolBar b) {
         this.panel_toolbar.setLayout(new BoxLayout(this.panel_toolbar, BoxLayout.X_AXIS));
@@ -278,6 +284,14 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
 
     /** Creates new form Savant */
     private Savant() {
+
+        try {
+            basicService = (BasicService)ServiceManager.lookup("javax.jnlp.BasicService");
+            webStart = true;
+        } catch (UnavailableServiceException e) {
+            //System.err.println("Lookup failed: " + e);
+            webStart = false;
+        }
 
         instance = this;
 
@@ -1207,14 +1221,39 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
      */
     public static void main(String args[]) {
 
-        if (args.length > 0) {
+        boolean loadProject = false;
+        String toLoad = null;
+        for(int i = 0; i < args.length; i++){
+            String s = args[i];
+
+            //build
+            if(s.startsWith("--")){
+                BrowserSettings.build = s.replaceAll("-", "");
+                if (s.equals("--debug")) {
+                    turnExperimentalFeaturesOff = false;
+                }
+            }
+            //load project on startup
+            else if (s.equals("-p")){
+                loadProject = true;
+            }
+            //url of project to load
+            else if (loadProject){
+                toLoad = s;
+                loadProject = false;
+            } else {
+                continue;
+            }
+        }
+
+       /* if (args.length > 0) {
             
             String build = args[0];
             BrowserSettings.build = build.replaceAll("-", "");
             if (build.equals("--debug")) {
                 turnExperimentalFeaturesOff = false;
             }
-        }
+        }*/
 
         //java.awt.EventQueue.invokeLater(new Runnable() {
 
@@ -1239,10 +1278,13 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
             // handle exception
         }
 
-
         Savant instance = Savant.getInstance();
-        //}
-        //});
+
+        //load project immediately if argument exists
+        if(toLoad != null){
+            instance.projectHandler.loadProjectFromUrl(toLoad);
+        }
+
     }
 
     public static void loadPreferences() {
@@ -2203,5 +2245,9 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         } catch (IOException ex) {
             LOG.error("Unable to load start page.", ex);
         }
+    }
+
+    public boolean isWebStart(){
+        return webStart;
     }
 }

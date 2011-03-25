@@ -17,7 +17,18 @@
 package savant.view.swing;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLConnection;
+import java.util.List;
+import java.util.StringTokenizer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.filechooser.FileFilter;
 
 import org.apache.commons.logging.Log;
@@ -219,6 +230,45 @@ public class ProjectHandler implements
             setProjectSaved(true);
         } catch (Exception x) {
             DialogUtils.displayException("Error Loading Project", String.format("Unable to load %s.", f), x);
+        }
+    }
+
+    public void loadProjectFromUrl(String urlString){
+
+        String localFile = null;
+        boolean success = false;
+        try{
+            URL url  = new URL(urlString);
+            InputStream is = url.openStream();
+            FileOutputStream fos=null;
+
+            StringTokenizer st=new StringTokenizer(url.getFile(), "/");
+            while (st.hasMoreTokens()){
+                localFile=st.nextToken();
+            }
+            //TODO: where should we store this? currently in tmp dir
+            localFile = DirectorySettings.getTmpDirectory() + System.getProperty("file.separator") + localFile;
+            fos = new FileOutputStream(localFile);
+
+            int oneChar, count=0;
+            while ((oneChar=is.read()) != -1)
+            {
+                fos.write(oneChar);
+                count++;
+            }
+            is.close();
+            fos.close();
+            success = true;
+            
+        }catch (MalformedURLException e){
+            System.err.println(e.toString());
+        }catch (IOException e){
+            System.err.println(e.toString());
+        }
+
+        if(success){
+            File f = new File(localFile);
+            loadProjectFrom(f);
         }
     }
 }
