@@ -15,10 +15,11 @@
  */
 package savant.data.types;
 
-import savant.util.Strand;
-
 import java.util.Collections;
 import java.util.List;
+
+import savant.util.Strand;
+
 
 /**
  * Immutable class to represent one line of a BED file and all the fields therein.
@@ -90,7 +91,7 @@ public final class BEDIntervalRecord implements IntervalRecord {
     }
 
     public List<Block> getBlocks() {
-        return Collections.unmodifiableList(blocks);
+        return blocks != null ? Collections.unmodifiableList(blocks) : null;
     }
 
     public String getChrom() {

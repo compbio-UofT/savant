@@ -1788,7 +1788,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
                     }
                 } catch (SavantFileNotFormattedException ignored) {
                     // Already handled.
-                } catch (Exception x) {
+                } catch (Throwable x) {
                     DialogUtils.displayException("Error Loading Genome", String.format("Unable to load genome from %s.", selectedFile.getName()), x);
                 }
             } else {
@@ -2200,8 +2200,9 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
                     createFrameForExistingTrack(tracks);
                 }
 
-            } catch (Exception ex) {
-                DialogUtils.displayException("Load Track from URL", "Error opening remote file", ex);
+            } catch (Throwable ex) {
+                // displayException should already have been displayed in createTrack.
+                // DialogUtils.displayException("Load Track from URL", "Error opening remote file", ex);
                 return;
             }
         } else {

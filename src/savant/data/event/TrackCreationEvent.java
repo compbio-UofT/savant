@@ -35,7 +35,7 @@ public class TrackCreationEvent {
     Type type;
     List<Track> tracks;
     String name;
-    Exception error;
+    Throwable error;
 
     /**
      * Constructor for event which is fired as track-creation begins.
@@ -61,7 +61,7 @@ public class TrackCreationEvent {
      *
      * @param error
      */
-    public TrackCreationEvent(Exception error) {
+    public TrackCreationEvent(Throwable error) {
         this.type = Type.FAILED;
         this.error = error;
     }
@@ -74,7 +74,7 @@ public class TrackCreationEvent {
         return name;
     }
 
-    public Exception getError() {
+    public Throwable getError() {
         return error;
     }
 }

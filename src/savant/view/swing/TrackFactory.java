@@ -22,6 +22,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
+import net.sf.samtools.util.RuntimeIOException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -127,7 +128,7 @@ public class TrackFactory {
      * @param trackURI
      * @return the newly-created tracks corresponding to this URI
      */
-    public static List<Track> createTrackSync(URI trackURI) throws Exception {
+    public static List<Track> createTrackSync(URI trackURI) throws Throwable {
         // Just run the track-creator in the current thread (presumably the AWT thread),
         // instead of spawning a new one.
         SyncTrackCreationListener listener = new SyncTrackCreationListener();
@@ -244,6 +245,10 @@ public class TrackFactory {
                     tracks.add(createTrack(ds));
                     fireTrackCreationCompleted(tracks, "");
                 }
+            } catch (RuntimeIOException riox) {
+                // Special case: SamTools I/O Exception which contains the real exception nested within.
+                LOG.error("Track creation failed.", riox);
+                fireTrackCreationFailed(riox.getCause());
             } catch (Exception x) {
                 LOG.error("Track creation failed.", x);
                 fireTrackCreationFailed(x);
@@ -267,7 +272,7 @@ public class TrackFactory {
          * Fires a track-creation error event.  It will be posted to the AWT event-queue
          * thread, so that UI code can function properly.
          */
-        private void fireTrackCreationFailed(final Exception x) {
+        private void fireTrackCreationFailed(final Throwable x) {
             MiscUtils.invokeLaterIfNecessary(new Runnable() {
                 @Override
                 public void run() {
@@ -284,7 +289,7 @@ public class TrackFactory {
          *
          * @param x
          */
-        public void trackCreationFailed(Exception x) {
+        public void trackCreationFailed(Throwable x) {
             if (x instanceof SavantUnsupportedFileTypeException) {
                 DialogUtils.displayMessage("Sorry", "Files of this type are not supported.");
             } else if (x instanceof SavantFileNotFormattedException) {
@@ -305,7 +310,7 @@ public class TrackFactory {
      */
     static class SyncTrackCreationListener implements TrackCreationListener {
         List<Track> result;
-        Exception error;
+        Throwable error;
 
         @Override
         public void trackCreationStarted(TrackCreationEvent evt) {

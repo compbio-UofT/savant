@@ -1,9 +1,5 @@
 /*
- * BEDTrackRenderer.java
- * Created on Feb 19, 2010
- *
- *
- *    Copyright 2010 University of Toronto
+ *    Copyright 2010-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -20,7 +16,6 @@
 
 package savant.view.swing.interval;
 
-import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
@@ -252,6 +247,11 @@ public class BEDTrackRenderer extends TrackRenderer {
         List<Block> blocks = bedRecord.getBlocks();
         double chevronIntervalStart = gp.transformXPosExclusive(interval.getStart());
 
+        if (blocks == null) {
+            // When blocks are null, we fake it out by drawing a single block with the full interval of the feature.
+            blocks = new ArrayList<Block>();
+            blocks.add(Block.valueOf(interval.getStart(), interval.getLength()));
+        }
         for (Block block : blocks) {
 
             chevronIntervalStart = Math.max(chevronIntervalStart, 0);
@@ -282,7 +282,7 @@ public class BEDTrackRenderer extends TrackRenderer {
             chevronIntervalStart = x + w;
         }
 
-        this.recordToShapeMap.put(bedRecord, area);
+        recordToShapeMap.put(bedRecord, area);
     }
 
     private void drawChevrons(Graphics2D g2, double start, double end, double y, double height, Color color, Strand strand, Area area) {
@@ -469,31 +469,31 @@ public class BEDTrackRenderer extends TrackRenderer {
     private void mergeBlocks(List<Interval> intervals, BEDIntervalRecord bedRecord) {
 
         List<Block> blocks = bedRecord.getBlocks();
-        Interval gene = bedRecord.getInterval();
-        if (intervals.isEmpty()) {
-            for (Block block: blocks) {
-                long blockStart = gene.getStart() + block.getPosition();
-                Interval blockInterval = Interval.valueOf(blockStart, blockStart+block.getSize());
-                intervals.add(blockInterval);
-            }
-        }
-        else {
-
-            for (Block block: blocks) {
-                // merging only works on intervals, so convert block to interval
-                long blockStart = gene.getStart() + block.getPosition();
-                Interval blockInterval = Interval.valueOf(blockStart, blockStart+block.getSize());
-                ListIterator<Interval> intervalIt = intervals.listIterator();
-                boolean merged = false;
-                while (intervalIt.hasNext() && !merged) {
-                    Interval interval = intervalIt.next();
-                    if (blockInterval.intersectsOrAbuts(interval)) {
-                        intervalIt.set(blockInterval.merge(interval));
-                        merged = true;
-                    }
-                }
-                if (!merged) {
+        if (blocks != null) {
+            Interval gene = bedRecord.getInterval();
+            if (intervals.isEmpty()) {
+                for (Block block: blocks) {
+                    long blockStart = gene.getStart() + block.getPosition();
+                    Interval blockInterval = Interval.valueOf(blockStart, blockStart+block.getSize());
                     intervals.add(blockInterval);
+                }
+            } else {
+                for (Block block: blocks) {
+                    // merging only works on intervals, so convert block to interval
+                    long blockStart = gene.getStart() + block.getPosition();
+                    Interval blockInterval = Interval.valueOf(blockStart, blockStart+block.getSize());
+                    ListIterator<Interval> intervalIt = intervals.listIterator();
+                    boolean merged = false;
+                    while (intervalIt.hasNext() && !merged) {
+                        Interval interval = intervalIt.next();
+                        if (blockInterval.intersectsOrAbuts(interval)) {
+                            intervalIt.set(blockInterval.merge(interval));
+                            merged = true;
+                        }
+                    }
+                    if (!merged) {
+                        intervals.add(blockInterval);
+                    }
                 }
             }
         }
@@ -501,7 +501,7 @@ public class BEDTrackRenderer extends TrackRenderer {
 
     private void drawBlocks(List<Interval> blocks, int level, GraphPane gp, Color fillColor, Color lineColor, Graphics2D g2) {
 
-        if (blocks.isEmpty()) return;
+        if (blocks == null || blocks.isEmpty()) return;
 
         double x, y, w, h;
         for (Interval block: blocks) {

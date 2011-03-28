@@ -20,7 +20,9 @@ public enum FileType {
         CONTINUOUS_GENERIC(0xFACEBE07),
         SEQUENCE_FASTA(0xFACEBE08),
         POINT_GENERIC(0xFACEBE09),
-        TABIX(0xFACEBE10);
+        TABIX(0xFACEBE10),
+        INTERVAL_BIGBED(0xFACEBE11),
+        CONTINUOUS_BIGWIG(0xFACEBE12);
 
     int magicNumber;
 

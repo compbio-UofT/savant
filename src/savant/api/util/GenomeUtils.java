@@ -83,7 +83,7 @@ public class GenomeUtils {
      * @param f a file containing sequence information
      * @return a genome object for the given sequence
      */
-    public static GenomeAdapter createGenome(File f) throws Exception {
+    public static GenomeAdapter createGenome(File f) throws Throwable {
         return createGenome(TrackUtils.createTrack(f).get(0));
     }
 }
