@@ -23,29 +23,29 @@
   <Layout>
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Group type="102" attributes="0">
+          <Group type="102" alignment="1" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="0" attributes="0">
+              <Group type="103" groupAlignment="1" attributes="0">
                   <Component id="jScrollPane1" alignment="0" pref="483" max="32767" attributes="0"/>
                   <Group type="102" alignment="1" attributes="0">
-                      <Component id="textfield_inPath" pref="399" max="32767" attributes="0"/>
+                      <Component id="inputField" pref="399" max="32767" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="button_openInPath" min="-2" max="-2" attributes="0"/>
+                      <Component id="inputButton" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <Component id="jLabel1" alignment="0" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel2" alignment="0" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel4" alignment="0" min="-2" max="-2" attributes="0"/>
                   <Component id="jScrollPane2" alignment="0" pref="483" max="32767" attributes="0"/>
-                  <Component id="button_format" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="formatButton" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Group type="102" alignment="1" attributes="0">
-                      <Component id="textfield_outPath" pref="399" max="32767" attributes="0"/>
+                      <Component id="outputField" pref="399" max="32767" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="button_openOutFile" min="-2" max="-2" attributes="0"/>
+                      <Component id="outputButton" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <Group type="102" alignment="0" attributes="0">
-                      <Component id="checkbox_chooseBase" min="-2" max="-2" attributes="0"/>
+                      <Component id="zeroBasedCheck" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="checkbox_tempOut" min="-2" max="-2" attributes="0"/>
+                      <Component id="tempOutputCheck" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="jPanel1" min="-2" max="-2" attributes="0"/>
                   </Group>
@@ -62,41 +62,41 @@
               <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
               <EmptySpace min="-2" pref="2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="textfield_inPath" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="button_openInPath" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="inputField" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="inputButton" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Component id="jLabel2" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
-              <Component id="jScrollPane1" min="-2" max="-2" attributes="0"/>
+              <Component id="jScrollPane1" min="-2" pref="160" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
               <Component id="jLabel4" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
-              <Component id="jScrollPane2" pref="70" max="32767" attributes="0"/>
+              <Component id="jScrollPane2" pref="67" max="32767" attributes="0"/>
               <EmptySpace type="unrelated" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="1" attributes="0">
                   <Component id="jPanel1" min="-2" max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="3" attributes="0">
-                      <Component id="checkbox_chooseBase" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="checkbox_tempOut" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="zeroBasedCheck" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="tempOutputCheck" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Component id="jLabel3" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="textfield_outPath" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="button_openOutFile" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="outputField" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="outputButton" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace min="-2" pref="26" max="-2" attributes="0"/>
-              <Component id="button_format" min="-2" max="-2" attributes="0"/>
+              <Component id="formatButton" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
   </Layout>
   <SubComponents>
-    <Component class="javax.swing.JTextField" name="textfield_inPath">
+    <Component class="javax.swing.JTextField" name="inputField">
       <Properties>
         <Property name="editable" type="boolean" value="false"/>
         <Property name="disabledTextColor" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
@@ -111,7 +111,7 @@
 
       <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
       <SubComponents>
-        <Component class="javax.swing.JTextArea" name="textarea_formatDescription">
+        <Component class="javax.swing.JTextArea" name="descriptionArea">
           <Properties>
             <Property name="columns" type="int" value="20"/>
             <Property name="editable" type="boolean" value="false"/>
@@ -137,7 +137,7 @@
 
       <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
       <SubComponents>
-        <Component class="javax.swing.JList" name="list_formats">
+        <Component class="javax.swing.JList" name="formatList">
           <Properties>
             <Property name="model" type="javax.swing.ListModel" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
               <Connection code="new DefaultListModel()" type="code"/>
@@ -145,17 +145,17 @@
             <Property name="selectionMode" type="int" value="0"/>
           </Properties>
           <Events>
-            <EventHandler event="valueChanged" listener="javax.swing.event.ListSelectionListener" parameters="javax.swing.event.ListSelectionEvent" handler="list_formatsValueChanged"/>
+            <EventHandler event="valueChanged" listener="javax.swing.event.ListSelectionListener" parameters="javax.swing.event.ListSelectionEvent" handler="formatListValueChanged"/>
           </Events>
         </Component>
       </SubComponents>
     </Container>
-    <Component class="javax.swing.JButton" name="button_openInPath">
+    <Component class="javax.swing.JButton" name="inputButton">
       <Properties>
         <Property name="text" type="java.lang.String" value="..."/>
       </Properties>
       <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="button_openInPathActionPerformed"/>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="inputButtonActionPerformed"/>
       </Events>
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel1">
@@ -168,21 +168,21 @@
         <Property name="text" type="java.lang.String" value="Output File"/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JButton" name="button_openOutFile">
+    <Component class="javax.swing.JButton" name="outputButton">
       <Properties>
         <Property name="text" type="java.lang.String" value="..."/>
         <Property name="enabled" type="boolean" value="false"/>
       </Properties>
       <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="button_openOutFileActionPerformed"/>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="outputButtonActionPerformed"/>
       </Events>
     </Component>
-    <Component class="javax.swing.JButton" name="button_format">
+    <Component class="javax.swing.JButton" name="formatButton">
       <Properties>
         <Property name="text" type="java.lang.String" value="Format"/>
       </Properties>
       <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="button_formatActionPerformed"/>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="formatButtonActionPerformed"/>
       </Events>
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel4">
@@ -190,7 +190,7 @@
         <Property name="text" type="java.lang.String" value="Format Description"/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JTextField" name="textfield_outPath">
+    <Component class="javax.swing.JTextField" name="outputField">
       <Properties>
         <Property name="editable" type="boolean" value="false"/>
         <Property name="disabledTextColor" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
@@ -198,26 +198,26 @@
         </Property>
       </Properties>
       <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="textfield_outPathActionPerformed"/>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="outputFieldActionPerformed"/>
       </Events>
     </Component>
-    <Component class="javax.swing.JCheckBox" name="checkbox_tempOut">
+    <Component class="javax.swing.JCheckBox" name="tempOutputCheck">
       <Properties>
         <Property name="text" type="java.lang.String" value="Store output temporarily"/>
         <Property name="toolTipText" type="java.lang.String" value="Store the formatted file just for this session"/>
       </Properties>
       <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="checkbox_tempOutActionPerformed"/>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="tempOutputCheckActionPerformed"/>
       </Events>
     </Component>
-    <Component class="javax.swing.JCheckBox" name="checkbox_chooseBase">
+    <Component class="javax.swing.JCheckBox" name="zeroBasedCheck">
       <Properties>
         <Property name="text" type="java.lang.String" value="Input file is 0-based"/>
         <Property name="toolTipText" type="java.lang.String" value="Checked for 1-based; unchecked for 0-based."/>
         <Property name="enabled" type="boolean" value="false"/>
       </Properties>
       <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="checkbox_chooseBaseActionPerformed"/>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="zeroBasedCheckActionPerformed"/>
       </Events>
     </Component>
     <Container class="javax.swing.JPanel" name="jPanel1">

@@ -35,4 +35,9 @@ public abstract class GenericPointDataSource implements DataSource<GenericPointR
     public final DataFormat getDataFormat() {
         return DataFormat.POINT_GENERIC;
     }
+
+    @Override
+    public Object getExtraData() {
+        return null;
+    }
 }

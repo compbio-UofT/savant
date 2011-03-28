@@ -35,4 +35,9 @@ public abstract class GenericIntervalDataSource implements DataSource<GenericInt
     public final DataFormat getDataFormat() {
         return DataFormat.INTERVAL_GENERIC;
     }
+
+    @Override
+    public Object getExtraData() {
+        return null;
+    }
 }

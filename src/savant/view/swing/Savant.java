@@ -1855,7 +1855,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
             if (reply == JOptionPane.YES_OPTION) {
                 if (!dff.isVisible()) {
                     dff.clear();
-                    dff.setInFile(uri.getPath());
+                    dff.setInFile(new File(uri));
                     dff.setLocationRelativeTo(this);
                     dff.setVisible(true);
                 }

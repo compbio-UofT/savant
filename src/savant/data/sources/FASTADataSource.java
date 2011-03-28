@@ -35,4 +35,9 @@ public abstract class FASTADataSource implements DataSource<SequenceRecord> {
     public final DataFormat getDataFormat() {
         return DataFormat.SEQUENCE_FASTA;
     }
+
+    @Override
+    public Object getExtraData() {
+        return null;
+    }
 }

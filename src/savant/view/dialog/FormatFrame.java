@@ -43,19 +43,17 @@ public class FormatFrame extends javax.swing.JFrame implements FormatProgressLis
     /** Creates new form FormatFrame */
     public FormatFrame(DataFormatter df) {
         initComponents();
-         this.setIconImage(SavantIconFactory.getInstance().getIcon(SavantIconFactory.StandardIcon.LOGO).getImage());
+        setIconImage(SavantIconFactory.getInstance().getIcon(SavantIconFactory.StandardIcon.LOGO).getImage());
 
         DataFormatterThread dft = new DataFormatterThread(df);
         dft.setFormatFrame(this);
-        this.formatThread = new Thread(dft);
+        formatThread = new Thread(dft);
 
-        df.addProgressListener(this);
+        inputFile = df.getInputFile();
+        outputFile = df.getOutputFile();
 
-        this.inputFile = df.getInputFile();
-        this.outputFile = df.getOutputFile();
-
-        this.label_src.setText(shorten(this.inputFile.getPath()));
-        this.label_dest.setText(shorten(this.outputFile.getPath()));
+        label_src.setText(shorten(this.inputFile.getPath()));
+        label_dest.setText(shorten(this.outputFile.getPath()));
         //this.label_type.setText(df.getInputFileType().toString());
 
         setSubtaskStatus("");
@@ -108,16 +106,6 @@ public class FormatFrame extends javax.swing.JFrame implements FormatProgressLis
     }
 
 
-    /*public void setOverallProgress(int at, int total) {
-        if (at != overallprogress_at) {
-            setSubtaskProgress(0);
-        }
-        overallprogress_at = at;
-        overallprogress_total = total;
-        setTitle();
-        this.label_overallstatus.setText("Performing task " + at + " of " + total + " ...");
-    }*/
-
     private void cancelTask() {
         int result =JOptionPane.showConfirmDialog(
                 this,
@@ -140,20 +128,6 @@ public class FormatFrame extends javax.swing.JFrame implements FormatProgressLis
     public void incrementOverallProgress() {
         this.setOverallProgress(overallprogress_at+1);
     }
-
-    /*
-    @Override
-    public void overallProgressUpdate(int at, int total) {
-        //setOverallProgress(at, total);
-        setOverallProgress(at);
-    }
-
-    @Override
-    public void overallProgressUpdate(int at) {
-        setOverallProgress(at);
-    }
-     * 
-     */
 
     /** This method is called from within the constructor to
      * initialize the form.

@@ -36,4 +36,9 @@ public abstract class TabixDataSource implements DataSource<TabixIntervalRecord>
     public final DataFormat getDataFormat() {
         return DataFormat.TABIX;
     }
+
+    @Override
+    public Object getExtraData() {
+        return null;
+    }
 }

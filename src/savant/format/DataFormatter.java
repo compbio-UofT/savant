@@ -16,16 +16,26 @@
 
 package savant.format;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.io.BufferedReader;
+import java.io.EOFException;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import savant.file.*;
-import savant.util.*;
-import java.io.*;
-import java.net.URI;
-import java.text.ParseException;
-import java.util.*;
+
+import savant.file.FieldType;
+import savant.file.FileType;
+import savant.file.SavantROFile;
+import savant.util.Range;
+import savant.util.SavantFileUtils;
 
 
 /**
@@ -35,11 +45,8 @@ import java.util.*;
  *
  * @author mfiume
  */
-public class DataFormatter /* implements FormatProgressListener */ {
-
-    private static Log LOG = LogFactory.getLog(DataFormatter.class);
-
-    private SavantFileFormatter sff;
+public class DataFormatter {
+    private static final Log LOG = LogFactory.getLog(DataFormatter.class);
 
     /**
      * Input path
@@ -68,22 +75,8 @@ public class DataFormatter /* implements FormatProgressListener */ {
      */
     private FileType inputFileType;
 
-    // property change support to make progress changes visible to UI
-    // FIXME: figure out why PropertyChangeSupport does not work. Then get rid of FormatProgressListener and related stuff.
-    // private PropertyChangeSupport propertyChangeSupport = new PropertyChangeSupport(this);
-    private List<FormatProgressListener> progressListeners = new ArrayList<FormatProgressListener>();
-
-
-    // curent version of the formatter
-    // TODO: this should be in a property file
-    //private static final int currentVersion = 2;
-
     // used to generalize 0 vs 1-based input files
     boolean isOneBased = true; // TRUE if 1-based; FALSE if 0-based
-
-    /**
-     * CONSTRUCTORS
-     */
 
     /**
      * Establishes a data formatter which can be run by
@@ -96,12 +89,10 @@ public class DataFormatter /* implements FormatProgressListener */ {
      * as in zero-based scheme)
      */
     public DataFormatter(File inFile, File outFile, FileType fileType, boolean isInputOneBased) {
-
         this.inFile = inFile;   // set the desired input file path
         this.outFile = outFile; // set the desired output file path
         this.inputFileType = fileType;  // set the input file type (e.g. interval, point, etc)
-
-        setInputOneBased(isInputOneBased); // set the base offset
+        this.isOneBased = isInputOneBased;
     }
 
     /**
@@ -129,120 +120,49 @@ public class DataFormatter /* implements FormatProgressListener */ {
      */
     public boolean format() throws InterruptedException, IOException, ParseException, SavantFileFormattingException {
 
-        // start a timer
-        long start = System.currentTimeMillis();
-
-        try{
-
+        if (inputFileType == FileType.INTERVAL_BAM) {
             // format a BAM file
             // (different than others because it has no Savant header)
-            if (this.inputFileType == FileType.INTERVAL_BAM) {
-                formatAsBAM();
-
+            new BAMToCoverage(inFile).format();
+        } else {
             // format files with Savant header
-            } else {
 
-                // check that it really is a text file
-                if (!verifyTextFile(inFile)) {
-                    throw new IOException("Input file is not a text file");
-                }
+            // If necessary, check that it really is a text file
+            if (inputFileType != FileType.INTERVAL_BIGBED && inputFileType != FileType.CONTINUOUS_BIGWIG && !verifyTextFile(inFile)) {
+                throw new IOException("Input file is not a text file");
+            }
 
-                // format the input file in the appropriate way
-                switch (inputFileType) {
-                    case POINT_GENERIC:
-                        formatAsPointGeneric();
-                        break;
-                    case INTERVAL_GENERIC:
-                        formatAsInterval("GEN");
-                        break;
-                    case INTERVAL_BED:
-                        formatAsInterval("BED");
-                        break;
-                    case INTERVAL_GFF:
-                        formatAsInterval("GFF");
-                        break;
-                    case CONTINUOUS_GENERIC:
-                        formatAsContinuousGeneric();
-                        break;
-                    case CONTINUOUS_WIG:
-                        formatAsContinuousWIG();
-                        break;
-                    case SEQUENCE_FASTA:
-                        formatAsSequenceFasta();
-                        break;
-                    default:
-                        return false;
-                }
-
-                // create output file and write header
-                //outFile = this.openNewOutputFile();
-                //DataFormatUtils.writeFileTypeHeader(outFile, new FileTypeHeader(this.inputFileType,this.currentVersion));
+            // format the input file in the appropriate way
+            switch (inputFileType) {
+                case POINT_GENERIC:
+                    new PointGenericFormatter(inFile, outFile, isOneBased).format();
+                    break;
+                case INTERVAL_GENERIC:
+                    formatAsInterval("GEN");
+                    break;
+                case INTERVAL_BED:
+                    formatAsInterval("BED");
+                    break;
+                case INTERVAL_GFF:
+                    formatAsInterval("GFF");
+                    break;
+                case CONTINUOUS_GENERIC:
+                    new ContinuousGenericFormatter(inFile, outFile).format();
+                    break;
+                case CONTINUOUS_WIG:
+                    new WIGFormatter(inFile, outFile).format();
+                    break;
+                case SEQUENCE_FASTA:
+                    new FastaFormatter(inFile, outFile).format();
+                    break;
+                case CONTINUOUS_BIGWIG:
+                    new BigWigFormatter(inFile, outFile).format();
+                    break;
+                default:
+                    return false;
             }
         }
-        finally {
-            //deleteOutputFiles();
-            //this.setProgress(false, 100);
-        }
-
-        // Get elapsed time in milliseconds
-        long elapsedTimeMillis = System.currentTimeMillis()-start;
-
-        // Get elapsed time in seconds
-        float elapsedTimeSec = elapsedTimeMillis/1000F;
-
         return true;
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-    public void progressUpdate(boolean isSubtask, int progress, String status) {
-        setProgress(isSubtask, progress);
-    }
-     */
-
-    /*
-     * SEQUENCE : FASTA
-     * @return
-     */
-    private void formatAsSequenceFasta() throws IOException, InterruptedException, SavantFileFormattingException {
-        FastaFormatter ff = new FastaFormatter(inFile, outFile);
-        subscribeProgressListeners(ff, this.progressListeners);
-        runFormatter(ff);
-        unsubscribeProgressListeners(ff, this.progressListeners);
-    }
-
-    /*
-     * CONTINUOUS : GENERIC
-     * @return
-     */
-    private void formatAsContinuousGeneric() throws IOException, InterruptedException, SavantFileFormattingException {
-        ContinuousGenericFormatter cgf = new ContinuousGenericFormatter(inFile, outFile);
-        subscribeProgressListeners(cgf, this.progressListeners);
-        runFormatter(cgf);
-        unsubscribeProgressListeners(cgf, this.progressListeners);
-    }
-
-    /*
-     * CONTINUOUS : WIG
-     * @return
-     */
-    private void formatAsContinuousWIG() throws IOException, InterruptedException, ParseException, SavantFileFormattingException {
-        WIGFormatter wtc = new WIGFormatter(this.inFile, this.outFile);
-        subscribeProgressListeners(wtc, this.progressListeners);
-        runFormatter(wtc);
-        unsubscribeProgressListeners(wtc, this.progressListeners);
-    }
-
-    /*
-     * CONTINUOUS : BAM
-     * @return
-     */
-    private void formatAsBAM() throws IOException, InterruptedException, SavantFileFormattingException {
-            BAMToCoverage btc = new BAMToCoverage(inFile);
-            subscribeProgressListeners(btc, this.progressListeners);
-            runFormatter(btc);
-            unsubscribeProgressListeners(btc, this.progressListeners);
     }
 
     /*
@@ -251,40 +171,22 @@ public class DataFormatter /* implements FormatProgressListener */ {
     private void formatAsInterval(String type) throws IOException, InterruptedException, SavantFileFormattingException {
         IntervalFormatter inf;
 
-        if(type.equals("GEN")){
-            inf = new IntervalFormatter(inFile, outFile,isOneBased, FileType.INTERVAL_GENERIC, 0, 1, 2, "#");
+        if (type.equals("GEN")){
+            inf = new IntervalFormatter(inFile, outFile, isOneBased, FileType.INTERVAL_GENERIC, 0, 1, 2, "#");
             inf.formatAsIntervalGeneric();
         } else if(type.equals("GFF")){
-            inf = new IntervalFormatter(inFile, outFile,isOneBased, FileType.INTERVAL_GFF, 0, 3, 4, "#");
+            inf = new IntervalFormatter(inFile, outFile, isOneBased, FileType.INTERVAL_GFF, 0, 3, 4, "#");
             inf.formatAsIntervalGFF();
         } else if(type.equals("BED")){
-            inf = new IntervalFormatter(inFile, outFile,isOneBased, FileType.INTERVAL_BED, 0, 1, 2, "#");
+            inf = new IntervalFormatter(inFile, outFile, isOneBased, FileType.INTERVAL_BED, 0, 1, 2, "#");
             inf.formatAsIntervalBED();
         } else {
             return;
         }
 
-        subscribeProgressListeners(inf, this.progressListeners);
-
         LOG.info("Beginning formatting");
-
-        runFormatter(inf);
-
+        inf.format();
         LOG.info("Formatting complete");
-
-        unsubscribeProgressListeners(inf, this.progressListeners);
-    }
-
-    /**
-     * POINT : GENERIC
-     * @return
-     * @throws IOException
-     */
-    private void formatAsPointGeneric() throws IOException, InterruptedException, SavantFileFormattingException {
-        PointGenericFormatter pgf = new PointGenericFormatter(this.inFile, this.outFile, this.isOneBased);
-        subscribeProgressListeners(pgf, this.progressListeners);
-        runFormatter(pgf);
-        unsubscribeProgressListeners(pgf, this.progressListeners);
     }
 
     public static Map<String,IntervalSearchTree> readIntervalBSTs(SavantROFile dFile) throws IOException {
@@ -452,33 +354,6 @@ public class DataFormatter /* implements FormatProgressListener */ {
     }
 
 
-    /** FILE OPENING **/
-
-    private DataOutputStream openNewOutputFile() throws IOException {
-        return new DataOutputStream(new BufferedOutputStream(new FileOutputStream(outFile)));
-    }
-
-
-    /**
-     * Open the output file
-     * @return
-     * @throws FileNotFoundException
-     */
-    private RandomAccessFile openOutputRAFFile(String path) throws IOException {
-        RandomAccessFile f = new RandomAccessFile(path, "rw");
-        if (f != null) f.seek(f.length());
-        return f;
-    }
-
-    /*
-    private void deleteTmpOutputFile() {
-        File f = new File(tmpOutPath);
-        if (f.exists()) {
-            f.delete();
-        }
-    }
-     */
-
     private boolean verifyTextFile(File fileName) {
         boolean result = false;
         BufferedReader reader=null;
@@ -499,35 +374,5 @@ public class DataFormatter /* implements FormatProgressListener */ {
             try { if (reader != null) reader.close(); } catch (IOException ignore) {}
         }
         return result;
-    }
-
-    private void setInputOneBased(boolean inputOneBased) {
-        if (inputOneBased) { this.isOneBased = true; }
-        else { this.isOneBased = false; }
-    }
-
-    public void addProgressListener(FormatProgressListener listener) {
-        progressListeners.add(listener);
-    }
-
-    public void removeProgressListener(FormatProgressListener listener) {
-        progressListeners.remove(listener);
-    }
-
-    private void subscribeProgressListeners(SavantFileFormatter ff, List<FormatProgressListener> progressListeners) {
-        for (FormatProgressListener listener : progressListeners) {
-            ff.addProgressListener(listener);
-        }
-    }
-
-    private void unsubscribeProgressListeners(SavantFileFormatter ff, List<FormatProgressListener> progressListeners) {
-        for (FormatProgressListener listener : progressListeners) {
-            ff.removeProgressListener(listener);
-        }
-    }
-
-    private void runFormatter(SavantFileFormatter ff) throws IOException, InterruptedException, SavantFileFormattingException {
-        sff = ff;
-        ff.format();
     }
 }

@@ -35,4 +35,9 @@ public abstract class GenericContinuousDataSource implements DataSource<GenericC
     public final DataFormat getDataFormat() {
         return DataFormat.CONTINUOUS_GENERIC;
     }
+
+    @Override
+    public Object getExtraData() {
+        return null;
+    }
 }
