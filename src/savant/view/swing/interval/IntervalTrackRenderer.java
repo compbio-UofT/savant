@@ -53,7 +53,7 @@ public class IntervalTrackRenderer extends TrackRenderer {
     public void dataRetrievalCompleted(DataRetrievalEvent evt) {
         String mode = (String)instructions.get(DrawingInstruction.MODE);
         if (mode.equals(ARC_MODE)) {
-            int maxDataValue = IntervalTrack.getMaxValue(data);
+            int maxDataValue = IntervalTrack.getMaxValue(evt.getData());
             Range range = (Range)instructions.get(DrawingInstruction.RANGE);
             addInstruction(DrawingInstruction.AXIS_RANGE, AxisRange.initWithRanges(range, new Range(0,(int)Math.round(Math.log(maxDataValue)))));
         }
