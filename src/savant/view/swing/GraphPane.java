@@ -192,11 +192,8 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         return render(g, new Range(xMin, xMax), null);
     }
 
-    public Dimension render(Graphics g, Range xRange) {
-        return render(g, xRange, null);
-    }
-
     public Dimension render(Graphics g, Range xRange, Range yRange) {
+        LOG.debug("GraphPane.render(g, " + xRange + ", " + yRange + ")");
         double oldUnitHeight = unitHeight;
         long oldYMax = yMax;
 
@@ -344,6 +341,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
             //force unitHeight from last render
             unitHeight = oldUnitHeight;
             yMax = oldYMax;
+
         } else {
 
             // Otherwise prepare for new render.
@@ -439,10 +437,11 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
              */
 
             g.drawImage(bufferedImage, 0, getOffset(), this);
-            this.fireExportReady(xRange, bufferedImage);
+            fireExportReady(xRange, bufferedImage);
+
+            renderCurrentSelected(g);
+            parentFrame.redrawSidePanel();
         }
-        renderCurrentSelected(g);
-        parentFrame.redrawSidePanel();
 
         return getSize();
 
@@ -1294,7 +1293,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
             jp.hidePopupImmediately();
             currentOverShape = null;
             currentOverRecord = null;
-            this.repaint();
+            repaint();
         }
     }
 
