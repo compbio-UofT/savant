@@ -17,6 +17,9 @@
 package savant.sql;
 
 import java.net.URI;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -40,11 +43,27 @@ abstract class SQLDataSource<E extends Record> implements DataSource<E> {
     protected MappedTable table;
     protected ColumnMapping columns;
     private Set<String> references = new HashSet<String>();
+    private PreparedStatement prep;
+    private String lastChrom;
 
     protected SQLDataSource(MappedTable table, Set<String> references) {
         this.table = table;
         this.columns = table.mapping;
         this.references = references;
+    }
+
+    public ResultSet executeQuery(String chrom, long start, long end) throws SQLException {
+        if (columns.chrom == null) {
+            return table.database.executeQuery("SELECT * FROM %s WHERE ((%s >= '%d' AND %s <= '%d') OR (%s >= '%d' AND %s <= '%d') OR (%s < '%d' AND %s > '%d')) ORDER BY %s", chrom + "_" + table.trackName,
+                columns.start, start, columns.start, end,
+                columns.end, start, columns.end, end,
+                columns.start, start, columns.end, end, columns.start);
+        } else {
+            return table.database.executeQuery("SELECT * FROM %s WHERE %s = '%s' AND ((%s >= '%d' AND %s <= '%d') OR (%s >= '%d' AND %s <= '%d') OR (%s < '%d' AND %s > '%d')) ORDER BY %s", table.name, columns.chrom, chrom,
+                columns.start, start, columns.start, end,
+                columns.end, start, columns.end, end,
+                columns.start, start, columns.end, end, columns.start);
+        }
     }
 
     @Override
@@ -66,4 +85,10 @@ abstract class SQLDataSource<E extends Record> implements DataSource<E> {
     public URI getURI() {
         return table.getURI();
     }
+
+    @Override
+    public Object getExtraData() {
+        return null;
+    }
+
 }

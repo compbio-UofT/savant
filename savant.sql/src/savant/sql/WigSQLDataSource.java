@@ -31,7 +31,6 @@ import savant.api.adapter.RangeAdapter;
 import savant.data.types.Continuous;
 import savant.data.types.GenericContinuousRecord;
 import savant.file.DataFormat;
-import savant.util.NetworkUtils;
 import savant.util.Resolution;
 
 
@@ -59,15 +58,10 @@ public class WigSQLDataSource extends SQLDataSource<GenericContinuousRecord> {
             result[i] = GenericContinuousRecord.valueOf(reference, range.getFrom() + i, Continuous.valueOf(0.0F));
         }
         try {
-            ResultSet rs = table.database.executeQuery("SELECT * FROM %s WHERE %s = '%s' AND ((%s >= '%d' AND %s <= '%d') OR (%s >= '%d' AND %s <= '%d') OR (%s < '%d' AND %s > '%d')) ORDER BY %s", table, columns.chrom, reference,
-                    columns.start, range.getFrom(), columns.start, range.getTo(),
-                    columns.end, range.getFrom(), columns.end, range.getTo(),
-                    columns.start, range.getFrom(), columns.end, range.getTo(),
-                    columns.start);
+            ResultSet rs = executeQuery(reference, range.getFrom(), range.getTo());
             URI wibURI = null;
             SeekableStream wibStream = null;
             while (rs.next()) {
-                String chrom = rs.getString(columns.chrom);
                 int start = rs.getInt(columns.start);
                 int span = columns.span != null ? rs.getInt(columns.span) : 1;
                 int count = rs.getInt(columns.count);

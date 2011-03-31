@@ -20,6 +20,7 @@ import java.net.URI;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -89,6 +90,11 @@ public class Database {
         return st.executeQuery(query);
     }
 
+
+    public PreparedStatement prepareStatement(String format, Object... args) throws SQLException {
+        String query = String.format(format, args);
+        return getConnection().prepareStatement(query);
+    }
 
     /**
      * Is the database currently using the given table?  If the database has not queried

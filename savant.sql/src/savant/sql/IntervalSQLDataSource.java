@@ -18,7 +18,6 @@ package savant.sql;
 
 import java.io.IOException;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -46,13 +45,9 @@ public class IntervalSQLDataSource extends SQLDataSource<GenericIntervalRecord> 
     public List<GenericIntervalRecord> getRecords(String reference, RangeAdapter range, Resolution resolution) throws IOException {
         List<GenericIntervalRecord> result = new ArrayList<GenericIntervalRecord>();
         try {
-            ResultSet rs = table.database.executeQuery("SELECT * FROM %s WHERE %s = '%s' AND ((%s >= '%d' AND %s <= '%d') OR (%s >= '%d' AND %s <= '%d') OR (%s < '%d' AND %s > '%d'))", table, columns.chrom, reference,
-                    columns.start, range.getFrom(), columns.start, range.getTo(),
-                    columns.end, range.getFrom(), columns.end, range.getTo(),
-                    columns.start, range.getFrom(), columns.end, range.getTo());
-            ResultSetMetaData rsmd = rs.getMetaData();
+            ResultSet rs = executeQuery(reference, range.getFrom(), range.getTo());
             while (rs.next()) {
-                result.add(GenericIntervalRecord.valueOf(rs.getString(columns.chrom), Interval.valueOf(rs.getInt(columns.start), rs.getInt(columns.end)), rs.getString(columns.name)));
+                result.add(GenericIntervalRecord.valueOf(reference, Interval.valueOf(rs.getInt(columns.start) + 1, rs.getInt(columns.end)), rs.getString(columns.name)));
             }
         } catch (SQLException sqlx) {
             LOG.error(sqlx);

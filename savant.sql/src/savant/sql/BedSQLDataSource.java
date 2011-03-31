@@ -19,10 +19,13 @@ package savant.sql;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Blob;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import savant.api.adapter.RangeAdapter;
@@ -39,6 +42,7 @@ import savant.util.Strand;
  * @author tarkvara
  */
 public class BedSQLDataSource extends SQLDataSource<BEDIntervalRecord> {
+    private Map extraData;
 
     BedSQLDataSource(MappedTable table, Set<String> references) throws SQLException {
         super(table, references);
@@ -48,21 +52,23 @@ public class BedSQLDataSource extends SQLDataSource<BEDIntervalRecord> {
     public List<BEDIntervalRecord> getRecords(String reference, RangeAdapter range, Resolution resolution) throws IOException {
         List<BEDIntervalRecord> result = new ArrayList<BEDIntervalRecord>();
         try {
-            ResultSet rs;
-            if (columns.chrom == null) {
-                rs = table.database.executeQuery("SELECT * FROM %s WHERE ((%s >= '%d' AND %s <= '%d') OR (%s >= '%d' AND %s <= '%d') OR (%s < '%d' AND %s > '%d'))", reference + "_" + table.trackName,
-                    columns.start, range.getFrom(), columns.start, range.getTo(),
-                    columns.end, range.getFrom(), columns.end, range.getTo(),
-                    columns.start, range.getFrom(), columns.end, range.getTo());
-            } else {
-                rs = table.database.executeQuery("SELECT * FROM %s WHERE %s = '%s' AND ((%s >= '%d' AND %s <= '%d') OR (%s >= '%d' AND %s <= '%d') OR (%s < '%d' AND %s > '%d'))", table.name, columns.chrom, reference,
-                    columns.start, range.getFrom(), columns.start, range.getTo(),
-                    columns.end, range.getFrom(), columns.end, range.getTo(),
-                    columns.start, range.getFrom(), columns.end, range.getTo());
+            ResultSet rs = executeQuery(reference, range.getFrom(), range.getTo());
+
+            // Hack for Aziz.
+            extraData = null;
+            for (Column col: table.getColumns()) {
+                if (col.name.equals("name2")) {
+                    extraData = new HashMap();
+                    break;
+                }
             }
+
             while (rs.next()) {
                 int start = rs.getInt(columns.start) + 1;
                 String name = rs.getString(columns.name);
+                if (extraData != null) {
+                    extraData.put(name, rs.getString("name2"));
+                }
                 float score = 0.0F;
                 if (columns.score != null) {
                     score = rs.getFloat(columns.score);
@@ -143,5 +149,10 @@ public class BedSQLDataSource extends SQLDataSource<BEDIntervalRecord> {
     @Override
     public DataFormat getDataFormat() {
         return DataFormat.INTERVAL_BED;
+    }
+
+    @Override
+    public Object getExtraData() {
+        return extraData;
     }
 }

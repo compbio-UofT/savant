@@ -46,11 +46,7 @@ public class ContinuousSQLDataSource extends SQLDataSource<GenericContinuousReco
     public List<GenericContinuousRecord> getRecords(String reference, RangeAdapter range, Resolution resolution) throws IOException {
         List<GenericContinuousRecord> result = new ArrayList<GenericContinuousRecord>();
         try {
-            ResultSet rs = table.database.executeQuery("SELECT * FROM %s WHERE %s = '%s' AND ((%s >= '%d' AND %s <= '%d') OR (%s >= '%d' AND %s <= '%d') OR (%s < '%d' AND %s > '%d')) ORDER BY %s", table, columns.chrom, reference,
-                    columns.start, range.getFrom(), columns.start, range.getTo(),
-                    columns.end, range.getFrom(), columns.end, range.getTo(),
-                    columns.start, range.getFrom(), columns.end, range.getTo(),
-                    columns.start);
+            ResultSet rs = executeQuery(reference, range.getFrom(), range.getTo());
             while (rs.next()) {
                 String chrom = rs.getString(columns.chrom);
                 int start = rs.getInt(columns.start);

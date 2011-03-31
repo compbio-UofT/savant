@@ -45,32 +45,22 @@ public class TabixSQLDataSource extends SQLDataSource<TabixIntervalRecord> {
     public List<TabixIntervalRecord> getRecords(String reference, RangeAdapter range, Resolution resolution) throws IOException {
         List<TabixIntervalRecord> result = new ArrayList<TabixIntervalRecord>();
         try {
-            ResultSet rs = table.database.executeQuery("SELECT * FROM %s WHERE %s = '%s' AND ((%s >= '%d' AND %s <= '%d') OR (%s >= '%d' AND %s <= '%d') OR (%s < '%d' AND %s > '%d')) ORDER BY %s", table, columns.chrom, reference,
-                    columns.start, range.getFrom(), columns.start, range.getTo(),
-                    columns.end, range.getFrom(), columns.end, range.getTo(),
-                    columns.start, range.getFrom(), columns.end, range.getTo(),
-                    columns.start);
+            ResultSet rs = executeQuery(reference, range.getFrom(), range.getTo());
             ResultSetMetaData rsmd = rs.getMetaData();
-            int chromPos = -1;
             int startPos = -1;
             int endPos = -1;
             int numCols = rsmd.getColumnCount();
-            for (int i = 1; i <= numCols && chromPos < 0 && startPos < 0 && endPos < 0; i++) {
+            for (int i = 1; i <= numCols && startPos < 0 && endPos < 0; i++) {
                 String colName = rsmd.getColumnName(i);
-                if (chromPos < 0 && colName.equals(columns.chrom)) {
-                    chromPos = i;
-                } else if (startPos < 0 && colName.equals(columns.start)) {
+                if (startPos < 0 && colName.equals(columns.start)) {
                     startPos = i;
                 } else if (endPos < 0 && colName.equals(columns.end)) {
                     endPos = i;
                 }
             }
             while (rs.next()) {
-                StringBuilder tabDelimited = new StringBuilder(rs.getString(1));
-                for (int i = 2; i < numCols; i++) {
-                    tabDelimited.append('\t').append(rs.getString(i));
-                }
-                result.add(TabixIntervalRecord.valueOf(tabDelimited.toString(), chromPos, startPos, endPos));
+                String tabDelimited = String.format("%s\t%d\t%d", reference, rs.getInt(startPos) + 1, rs.getInt(endPos));
+                result.add(TabixIntervalRecord.valueOf(tabDelimited.toString(), 0, 1, 2));
             }
         } catch (SQLException sqlx) {
             LOG.error(sqlx);

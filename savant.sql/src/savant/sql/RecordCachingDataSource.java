@@ -98,4 +98,9 @@ public class RecordCachingDataSource<E extends Record> implements DataSource<E> 
     public DataFormat getDataFormat() {
         return source.getDataFormat();
     }
+
+    @Override
+    public Object getExtraData() {
+        return source.getExtraData();
+    }
 }
