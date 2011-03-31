@@ -1,8 +1,4 @@
 /*
- * DialogUtils.java
- * Created on Aug 5, 2010
- *
- *
  *    Copyright 2010-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
@@ -70,7 +66,11 @@ public class DialogUtils {
         MiscUtils.invokeLaterIfNecessary(new Runnable() {
             @Override
             public void run() {
-                JideOptionPane optionPane = new JideOptionPane(message, JOptionPane.ERROR_MESSAGE, JideOptionPane.CLOSE_OPTION);
+                String msg = message;
+                if (t.getCause() != null) {
+                    msg += "\r\nCause: " + t.getCause().getMessage() + ".";
+                }
+                JideOptionPane optionPane = new JideOptionPane(msg, JOptionPane.ERROR_MESSAGE, JideOptionPane.CLOSE_OPTION);
                 optionPane.setTitle(title);
                 JDialog dialog = optionPane.createDialog(Savant.getInstance(),"Error encountered");
                 dialog.setResizable(true);
