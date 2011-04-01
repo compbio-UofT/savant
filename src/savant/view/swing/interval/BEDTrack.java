@@ -78,11 +78,7 @@ public class BEDTrack extends Track {
         renderer.addInstruction(DrawingInstruction.COLOR_SCHEME, getColorScheme());
         renderer.addInstruction(DrawingInstruction.AXIS_RANGE, AxisRange.initWithRanges(range, getDefaultYRange()));
         renderer.addInstruction(DrawingInstruction.REFERENCE_EXISTS, containsReference(reference));
-        if(r == Resolution.HIGH){
-            renderer.addInstruction(DrawingInstruction.MODE, "Squish");
-        } else {
-            renderer.addInstruction(DrawingInstruction.MODE, getDrawMode());
-        }   
+        renderer.addInstruction(DrawingInstruction.MODE, getDrawMode());
         renderer.addInstruction(DrawingInstruction.SELECTION_ALLOWED, true);
         renderer.addInstruction(DrawingInstruction.ITEMRGB, this.itemRGBEnabled);
         renderer.addInstruction(DrawingInstruction.SCORE, this.scoreEnabled);
