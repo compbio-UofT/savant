@@ -75,6 +75,11 @@ public class DataFormatter {
      */
     private FileType inputFileType;
 
+    // property change support to make progress changes visible to UI
+    // FIXME: figure out why PropertyChangeSupport does not work. Then get rid of FormatProgressListener and related stuff.
+    // private PropertyChangeSupport propertyChangeSupport = new PropertyChangeSupport(this);
+    private List<FormatProgressListener> progressListeners = new ArrayList<FormatProgressListener>();
+
     // used to generalize 0 vs 1-based input files
     boolean isOneBased = true; // TRUE if 1-based; FALSE if 0-based
 
@@ -135,7 +140,7 @@ public class DataFormatter {
             // format the input file in the appropriate way
             switch (inputFileType) {
                 case POINT_GENERIC:
-                    new PointGenericFormatter(inFile, outFile, isOneBased).format();
+                    runFormatter(new PointGenericFormatter(inFile, outFile, isOneBased));
                     break;
                 case INTERVAL_GENERIC:
                     formatAsInterval("GEN");
@@ -147,16 +152,16 @@ public class DataFormatter {
                     formatAsInterval("GFF");
                     break;
                 case CONTINUOUS_GENERIC:
-                    new ContinuousGenericFormatter(inFile, outFile).format();
+                    runFormatter(new ContinuousGenericFormatter(inFile, outFile));
                     break;
                 case CONTINUOUS_WIG:
-                    new WIGFormatter(inFile, outFile).format();
+                    runFormatter(new WIGFormatter(inFile, outFile));
                     break;
                 case SEQUENCE_FASTA:
-                    new FastaFormatter(inFile, outFile).format();
+                    runFormatter(new FastaFormatter(inFile, outFile));
                     break;
                 case CONTINUOUS_BIGWIG:
-                    new BigWigFormatter(inFile, outFile).format();
+                    runFormatter(new BigWigFormatter(inFile, outFile));
                     break;
                 default:
                     return false;
@@ -184,9 +189,7 @@ public class DataFormatter {
             return;
         }
 
-        LOG.info("Beginning formatting");
-        inf.format();
-        LOG.info("Formatting complete");
+        runFormatter(inf);
     }
 
     public static Map<String,IntervalSearchTree> readIntervalBSTs(SavantROFile dFile) throws IOException {
@@ -374,5 +377,24 @@ public class DataFormatter {
             try { if (reader != null) reader.close(); } catch (IOException ignore) {}
         }
         return result;
+    }
+
+    public void addProgressListener(FormatProgressListener listener) {
+        progressListeners.add(listener);
+    }
+
+    public void removeProgressListener(FormatProgressListener listener) {
+        progressListeners.remove(listener);
+    }
+
+    private void runFormatter(SavantFileFormatter ff) throws IOException, InterruptedException, SavantFileFormattingException {
+        for (FormatProgressListener listener : progressListeners) {
+            ff.addProgressListener(listener);
+        }
+        ff.format();
+
+        for (FormatProgressListener listener : progressListeners) {
+            ff.removeProgressListener(listener);
+        }
     }
 }

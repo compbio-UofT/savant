@@ -37,23 +37,22 @@ public class FormatFrame extends javax.swing.JFrame implements FormatProgressLis
 
     //DataFormatter dataFormatter;
     Thread formatThread;
-    File inputFile;
-    File outputFile;
+    DataFormatter dataFormatter;
 
     /** Creates new form FormatFrame */
     public FormatFrame(DataFormatter df) {
         initComponents();
+        dataFormatter = df;
         setIconImage(SavantIconFactory.getInstance().getIcon(SavantIconFactory.StandardIcon.LOGO).getImage());
 
         DataFormatterThread dft = new DataFormatterThread(df);
         dft.setFormatFrame(this);
         formatThread = new Thread(dft);
 
-        inputFile = df.getInputFile();
-        outputFile = df.getOutputFile();
+        dataFormatter.addProgressListener(this);
 
-        label_src.setText(shorten(this.inputFile.getPath()));
-        label_dest.setText(shorten(this.outputFile.getPath()));
+        label_src.setText(shorten(dataFormatter.getInputFile().getPath()));
+        label_dest.setText(shorten(dataFormatter.getOutputFile().getPath()));
         //this.label_type.setText(df.getInputFileType().toString());
 
         setSubtaskStatus("");
@@ -62,6 +61,12 @@ public class FormatFrame extends javax.swing.JFrame implements FormatProgressLis
         //setOverallProgress(0,1);
 
         formatThread.start();
+    }
+
+    @Override
+    public void dispose() {
+        dataFormatter.removeProgressListener(this);
+        super.dispose();
     }
 
     public final void setSubtaskStatus(String msg) {
@@ -74,7 +79,7 @@ public class FormatFrame extends javax.swing.JFrame implements FormatProgressLis
     //int overallprogress_total;
 
     private void setTitle() {
-        this.setTitle("("  + subtaskprogress + "% done current task" + /*"/" + overallprogress_total +*/ ") Formatting " + inputFile);
+        setTitle("("  + subtaskprogress + "% done current task" + /*"/" + overallprogress_total +*/ ") Formatting " + dataFormatter.getInputFile());
     }
     
     int subtaskprogress;
@@ -91,7 +96,7 @@ public class FormatFrame extends javax.swing.JFrame implements FormatProgressLis
     }
 
     public void setFormatComplete() {
-        this.setTitle("(100%) Format of " + this.inputFile + " complete");
+        this.setTitle("(100%) Format of " + dataFormatter.getInputFile() + " complete");
         this.label_overallstatus.setText("Format complete.");
     }
 
@@ -245,12 +250,13 @@ public class FormatFrame extends javax.swing.JFrame implements FormatProgressLis
     // End of variables declaration//GEN-END:variables
 
     public void notifyOfTermination(boolean wasFormatSuccessful, Throwable e) {
+
         if (wasFormatSuccessful) {
             int result = JOptionPane.showConfirmDialog(this, "Format successful. Open track now?", "Format Successful", JOptionPane.YES_NO_OPTION);
             this.setVisible(false);
             if (result == JOptionPane.YES_OPTION) {
                 try {
-                    Savant.getInstance().addTrackFromFile(outputFile.getAbsolutePath());
+                    Savant.getInstance().addTrackFromFile(dataFormatter.getOutputFile().getAbsolutePath());
                 } catch (Exception ex) {
                 }
             }
