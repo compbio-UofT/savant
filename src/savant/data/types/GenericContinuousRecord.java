@@ -1,8 +1,5 @@
 /*
- * GenericContinuousRecord.java
- * Created on Aug 18, 2010
- *
- *    Copyright 2010 University of Toronto
+ *    Copyright 2010-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -25,18 +22,17 @@ package savant.data.types;
 public class GenericContinuousRecord implements ContinuousRecord {
 
     private final String reference;
-    private final Continuous value;
+    private final float value;
     private final long position;
 
-    GenericContinuousRecord(String reference, long position, Continuous value) {
+    GenericContinuousRecord(String reference, long position, float value) {
         if (reference == null) throw new IllegalArgumentException("Reference may not be null.");
-        if (value == null) throw new IllegalArgumentException("Value may not be null.");
         this.reference = reference;
         this.position = position;
         this.value = value;
     }
 
-    public static GenericContinuousRecord valueOf(String reference, long position, Continuous value) {
+    public static GenericContinuousRecord valueOf(String reference, long position, float value) {
         return new GenericContinuousRecord(reference, position, value);
     }
 
@@ -46,7 +42,7 @@ public class GenericContinuousRecord implements ContinuousRecord {
     }
 
     @Override
-    public Continuous getValue() {
+    public float getValue() {
         return value;
     }
 
@@ -63,7 +59,7 @@ public class GenericContinuousRecord implements ContinuousRecord {
 
         if (position != that.position) return false;
         if (!reference.equals(that.reference)) return false;
-        if (!value.equals(that.value)) return false;
+        if (value != that.value) return false;
 
         return true;
     }
@@ -71,7 +67,7 @@ public class GenericContinuousRecord implements ContinuousRecord {
     @Override
     public int hashCode() {
         int result = reference.hashCode();
-        result = 31 * result + value.hashCode();
+        result = 31 * result + Float.floatToIntBits(value);
         result = 31 * result + (int)position;
         return result;
     }

@@ -86,9 +86,11 @@ public class SavantFileFormatterUtils {
         if (extension.equals("FA") || extension.equals("FASTA")) {
             return FileType.SEQUENCE_FASTA;
         }
-
         if (extension.equals("GZ")) {
             return FileType.TABIX;
+        }
+        if (extension.equals("TDF")) {
+            return FileType.CONTINUOUS_TDF;
         }
 
         // None of the generic formats have any kind of standard extension.

@@ -25,7 +25,6 @@ import org.apache.commons.logging.LogFactory;
 
 import savant.api.adapter.RangeAdapter;
 import savant.data.sources.GenericContinuousDataSource;
-import savant.data.types.Continuous;
 import savant.data.types.GenericContinuousRecord;
 import savant.file.FileType;
 import savant.file.SavantFileNotFormattedException;
@@ -110,7 +109,7 @@ public class GenericContinuousFileDataSource extends GenericContinuousDataSource
             LOG.debug("Sought to " + seekPos + " to find data for " + r.getFrom());
             for (long pos = r.getFrom(); pos < r.getTo(); pos += lev.resolution) {
 
-                data.add(GenericContinuousRecord.valueOf(ref, pos, Continuous.valueOf(savantFile.readFloat())));
+                data.add(GenericContinuousRecord.valueOf(ref, pos, savantFile.readFloat()));
 
                 if (savantFile.getFilePointer() >= savantFile.getHeaderOffset() + savantFile.getReferenceOffset(ref) + lev.offset + lev.size) {
                     // We've read all the data available for this level.  The rest of the
@@ -171,10 +170,5 @@ public class GenericContinuousFileDataSource extends GenericContinuousDataSource
     @Override
     public URI getURI() {
         return savantFile.getURI();
-    }
-
-    @Override
-    public String getName() {
-        return MiscUtils.getNeatPathFromURI(getURI());
     }
 }

@@ -103,7 +103,7 @@ import savant.view.swing.Track;
         float max = Float.MIN_VALUE;
         float min = Float.MAX_VALUE;
         for (Record r: data) {
-            float val = ((ContinuousRecord)r).getValue().getValue();
+            float val = ((ContinuousRecord)r).getValue();
             if (val > max) max = val;
             if (val < min) min = val;
         }

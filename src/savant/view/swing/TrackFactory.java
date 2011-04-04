@@ -32,6 +32,7 @@ import savant.controller.PluginController;
 import savant.data.event.TrackCreationEvent;
 import savant.data.event.TrackCreationListener;
 import savant.data.sources.DataSource;
+import savant.data.sources.TDFContinuousDataSource;
 import savant.data.sources.file.BAMFileDataSource;
 import savant.data.sources.file.BEDFileDataSource;
 import savant.data.sources.file.FASTAFileDataSource;
@@ -204,21 +205,19 @@ public class TrackFactory {
             List<Track> tracks = new ArrayList<Track>();
 
             try {
-
+                // A switch statement might be nice here, except for the possibility that fileType == null.
                 if (fileType == FileType.TABIX) {
                     LOG.info("Opening Tabix file " + trackURI);
                     ds = TabixFileDataSource.fromURI(trackURI);
                     LOG.info("Tabix datasource=" + ds);
                     if (ds != null) {
                         tracks.add(createTrack(ds));
-                        LOG.trace("BAM Track created.");
+                        LOG.trace("Tabix track created.");
                     } else {
                         throw new FileNotFoundException(String.format("Could not create Tabix track; check that index file exists and is named \"%1$s.tbi\".", name));
                     }
                     fireTrackCreationCompleted(tracks, "");
-                }
-
-                else if(fileType == FileType.INTERVAL_BAM) {
+                } else if (fileType == FileType.INTERVAL_BAM) {
                     LOG.info("Opening BAM file " + trackURI);
 
                     ds = BAMFileDataSource.fromURI(trackURI);
@@ -240,6 +239,13 @@ public class TrackFactory {
                     } catch (URISyntaxException ignored) {
                     }
                     LOG.info("Finished trying to load coverage file.");
+                } else if (fileType == FileType.CONTINUOUS_TDF) {
+                    LOG.info("Opening TDF file " + trackURI);
+                    ds = new TDFContinuousDataSource(trackURI);
+                    LOG.info("TDF datasource=" + ds);
+                    tracks.add(createTrack(ds));
+                    LOG.trace("TDF track created.");
+                    fireTrackCreationCompleted(tracks, "");
                 } else {
                     ds = TrackFactory.createDataSource(trackURI);
                     tracks.add(createTrack(ds));

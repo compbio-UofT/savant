@@ -1,11 +1,24 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ *    Copyright 2010-2011 University of Toronto
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
  */
-
 package savant.file;
 
+
 /**
+ * Enumeration defining the file-types recognised by Savant.  For Savant's native
+ * file-types, the magic number associated with the file-type is store in the file's header.
  *
  * @author mfiume
  */
@@ -22,8 +35,9 @@ public enum FileType {
         POINT_GENERIC(0xFACEBE09),
         TABIX(0xFACEBE10),
         INTERVAL_BIGBED(0xFACEBE11),
-        CONTINUOUS_BIGWIG(0xFACEBE12);
-
+        CONTINUOUS_BIGWIG(0xFACEBE12),
+        CONTINUOUS_TDF(0xFACEBE13),
+        INTERVAL_TDF(0xFACEBE14);   // Not supported yet.  May never be supported.
     int magicNumber;
 
     FileType(int magicNumber) {

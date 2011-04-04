@@ -37,7 +37,7 @@ public class ContinuousPopup extends PopupPanel {
         ref = rec.getReference();
         start = rec.getPosition();
         end = rec.getPosition();
-        name = "Value: " + rec.getValue().getValue(); //for bookmarking annotation
+        name = "Value: " + rec.getValue(); //for bookmarking annotation
     }
 
     @Override
@@ -46,7 +46,7 @@ public class ContinuousPopup extends PopupPanel {
         String readPosition = "Position: " + start;
         this.add(new JLabel(readPosition));
 
-        String readValue = "Value: " + rec.getValue().getValue();
+        String readValue = "Value: " + rec.getValue();
         this.add(new JLabel(readValue));
 
     }

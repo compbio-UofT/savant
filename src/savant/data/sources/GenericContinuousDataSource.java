@@ -20,6 +20,7 @@ import java.util.List;
 import savant.api.adapter.RangeAdapter;
 import savant.data.types.GenericContinuousRecord;
 import savant.file.DataFormat;
+import savant.util.MiscUtils;
 import savant.util.Resolution;
 
 /**
@@ -39,5 +40,10 @@ public abstract class GenericContinuousDataSource implements DataSource<GenericC
     @Override
     public Object getExtraData() {
         return null;
+    }
+
+    @Override
+    public String getName() {
+        return MiscUtils.getNeatPathFromURI(getURI());
     }
 }

@@ -1,8 +1,5 @@
 /*
- * ContinuousRecord.java
- * Created on Jan 11, 2010
- *
- *    Copyright 2010 University of Toronto
+ *    Copyright 2010-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -20,12 +17,12 @@
 package savant.data.types;
 
 /**
- * Interface to represent an object containing a Continuous value.
+ * Interface to represent an object containing a continuous value.
  *
  * @author vwilliams
  */
 public interface ContinuousRecord extends Record {
 
-    public Continuous getValue();
+    public float getValue();
 
 }
