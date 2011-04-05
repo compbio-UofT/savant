@@ -305,7 +305,7 @@ public class TrackFactory {
                 DialogUtils.displayMessage("Sorry", "This file was created using an older version of Savant. Please re-format the source.");
             } else if (x instanceof FileNotFoundException) {
                 DialogUtils.displayMessage("File not found", x.getMessage());
-            } else if (x instanceof IOException) {
+            } else {
                 DialogUtils.displayException("Error opening track", "There was a problem opening this file.", x);
             }
         }
