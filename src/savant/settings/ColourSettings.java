@@ -467,4 +467,8 @@ public class ColourSettings {
     public static void setPointFill(Color value) {
         settings.setColour(POINT_FILL_KEY, value);
     }
+
+    public static Color getText() {
+        return Color.darkGray;
+    }
 }

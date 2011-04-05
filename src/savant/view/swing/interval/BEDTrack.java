@@ -114,6 +114,7 @@ public class BEDTrack extends Track {
         c.addColorSetting("Reverse Strand", ColourSettings.getReverseStrand());
         c.addColorSetting("Translucent Graph", ColourSettings.getTranslucentGraph());
         c.addColorSetting("Line", ColourSettings.getLine());
+        c.addColorSetting("Text", ColourSettings.getText());
 
         return c;
     }

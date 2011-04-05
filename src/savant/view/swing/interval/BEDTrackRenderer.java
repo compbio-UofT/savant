@@ -22,6 +22,7 @@ import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Polygon;
+import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.geom.Area;
 import java.awt.geom.Line2D;
@@ -182,6 +183,7 @@ public class BEDTrackRenderer extends TrackRenderer {
         }
 
         Color lineColor = cs.getColor("Line");
+        Color textColor = cs.getColor("Text");
 
 
         boolean isInsertion = false;
@@ -221,13 +223,6 @@ public class BEDTrackRenderer extends TrackRenderer {
 
         int startXPos = (int)gp.transformXPosExclusive(interval.getStart());
         int endXPos = (int) gp.transformXPosInclusive(interval.getEnd());
-
-        if (drawName) {
-            FontMetrics fm = g2.getFontMetrics();
-            //Rectangle2D nameRect = g2.getFont().getStringBounds(geneName, g2.getFontRenderContext());
-            g2.setColor(lineColor);
-            g2.drawString(geneName, (int)(startXPos - fm.stringWidth(geneName) - 5), (int)(gp.transformYPos(level) - unitHeight/2 + (fm.getHeight()-fm.getDescent())/2));
-        }
 
         if(isInsertion) return;
 
@@ -275,6 +270,26 @@ public class BEDTrackRenderer extends TrackRenderer {
             area.add(new Area(blockRect));
 
             chevronIntervalStart = x + w;
+        }
+
+                if (drawName) {
+            FontMetrics fm = g2.getFontMetrics();
+            int stringstartx = startXPos - fm.stringWidth(geneName) - 5;
+
+            System.out.println("Start position of " + geneName + ": " + startXPos);
+            g2.setColor(textColor);
+
+            if (stringstartx <= 0) {
+                Rectangle2D r = fm.getStringBounds(geneName, g2);
+                int b = 2;
+                g2.setColor(new Color(255,255,255,200));
+                g2.fillRoundRect(5-2,(int)(gp.transformYPos(level) - unitHeight/2 - (fm.getHeight()-fm.getDescent())/2) - b, (int)r.getWidth()+2*b, (int)r.getHeight()+2*b, 5,5);
+                g2.setColor(textColor);
+                g2.drawString(geneName, 5, (int)(gp.transformYPos(level) - unitHeight/2 + (fm.getHeight()-fm.getDescent())/2));
+            } else {
+                 g2.setColor(textColor);
+                g2.drawString(geneName, stringstartx, (int)(gp.transformYPos(level) - unitHeight/2 + (fm.getHeight()-fm.getDescent())/2));
+            }
         }
 
         recordToShapeMap.put(bedRecord, area);
