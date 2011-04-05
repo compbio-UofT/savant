@@ -38,6 +38,7 @@ public class GeneralSettingsSection extends Section {
 
     JCheckBox checkversion_cb;
     JCheckBox collectrstats_cb;
+    private JCheckBox startpage_cb;
 
     @Override
     public String getSectionName() {
@@ -68,6 +69,15 @@ public class GeneralSettingsSection extends Section {
         });
         panel.add(checkversion_cb);
 
+        startpage_cb = new JCheckBox("Show Start Page");
+        startpage_cb.setSelected(BrowserSettings.getShowStartPage());
+        startpage_cb.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                enableApplyButton();
+            }
+        });
+        panel.add(startpage_cb);
 
         collectrstats_cb = new JCheckBox("Collect anonymous statistics about usage");
         collectrstats_cb.setSelected(BrowserSettings.getCollectAnonymousUsage());
@@ -96,6 +106,7 @@ public class GeneralSettingsSection extends Section {
         // Only save anything if this panel has gone through lazy initialization.
         if (checkversion_cb != null) {
             BrowserSettings.setCheckVersionOnStartup(this.checkversion_cb.isSelected());
+            BrowserSettings.setShowStartPage(this.startpage_cb.isSelected());
             BrowserSettings.setCollectAnonymousUsage(this.collectrstats_cb.isSelected());
             
             try {

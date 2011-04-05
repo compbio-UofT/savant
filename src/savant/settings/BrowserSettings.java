@@ -28,6 +28,8 @@ public class BrowserSettings {
     private static final String CHECKVERSION_KEY = "CHECKVERSION";
     private static final String COLLECTSTATS_KEY = "COLLECTSTATS";
     private static final String CACHINGENABLED_KEY = "CACHINGENABLED";
+    private static final String SHOWSTARTPAGE_KEY = "SHOWSTARTPAGE";
+
     
     /*
      * Remote Files
@@ -45,11 +47,14 @@ public class BrowserSettings {
     public static String url_logusagestats = url + "/scripts/logUsageStats.cgi";
     public static String url_tutorials = url + "/media.html";
     public static String url_manuals = url + "/documentation.html";
+    public static String url_shortcuts = url + "/docs/SavantShortcuts.pdf";
+    public static String url_news = url + "/serve/start/news.xml";
     public static String safe = url + "/safe/savantsafe.php";
 
 
     public static String version = "1.4.4";
     public static String build = "beta";
+
 
     public static boolean getCheckVersionOnStartup() {
         return settings.getBoolean(CHECKVERSION_KEY, true);
@@ -63,10 +68,16 @@ public class BrowserSettings {
         return settings.getBoolean(CACHINGENABLED_KEY, true);
     }
 
+    public static boolean getShowStartPage() {
+        return settings.getBoolean(SHOWSTARTPAGE_KEY, true);
+    }
+
     public static int getRemoteBufferSize(){
         String s = settings.getString(REMOTE_BUFFER_SIZE);
         return s != null ? Integer.parseInt(s) : DEFAULT_BUFFER_SIZE;
     }
+
+
 
     public static void setCheckVersionOnStartup(boolean b) {
         settings.setBoolean(CHECKVERSION_KEY, b);
@@ -82,6 +93,10 @@ public class BrowserSettings {
 
     public static void setRemoteBufferSize(int size){
         settings.setString(REMOTE_BUFFER_SIZE, String.valueOf(size));
+    }
+
+    public static void setShowStartPage(boolean b) {
+        settings.setBoolean(SHOWSTARTPAGE_KEY, b);
     }
 
     /**
@@ -104,5 +119,9 @@ public class BrowserSettings {
      * Fonts
      */
     public static String fontName = "Verdana";
+
+
+
+    
 
 }

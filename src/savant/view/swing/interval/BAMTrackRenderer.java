@@ -64,6 +64,8 @@ public class BAMTrackRenderer extends TrackRenderer {
     private static final int minTransparency = 20;
     private static final int maxTransparency = 255;
 
+    private static final Font letterfont = new Font("Serif", Font.PLAIN, 12);
+
     /** MODE */
     public static final String STANDARD_MODE = "Standard";
     public static final String MISMATCH_MODE = "Mismatch";
@@ -254,6 +256,13 @@ public class BAMTrackRenderer extends TrackRenderer {
                 LOG.error("BAMTrackRenderer.complement : unsupported character " + c);
                 return 'N';
         }
+    }
+
+    private boolean fontFits(Font f, double width, double height, Graphics2D g2) {
+        String baseChar = "G";
+        Rectangle2D charRect = f.getStringBounds(baseChar, g2.getFontRenderContext());
+        if (charRect.getWidth() > width || charRect.getHeight() > height) return false;
+        else return true;
     }
 
     public enum Strand { FORWARD, REVERSE };
@@ -1203,6 +1212,13 @@ public class BAMTrackRenderer extends TrackRenderer {
                             g2.setColor(mismatchColor);
                             g2.fill(opRect);
 
+                            /*
+                            if (fontFits(letterfont,unitWidth,unitHeight,g2)) {
+                                g2.setColor(Color.black);
+                                g2.drawString(base, (int) xCoordinate, (int) (gp.transformYPos(0)-((level)*unitHeight) - offset));
+                            }
+                             * 
+                             */
                             /*
                             if (unitWidth > 10 && unitHeight > 10) {
                             g2.setColor(Color.BLACK);

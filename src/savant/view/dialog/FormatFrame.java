@@ -16,11 +16,15 @@
 
 package savant.view.dialog;
 
+import java.awt.event.ActionEvent;
 import java.io.File;
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 
 import com.jidesoft.dialog.JideOptionPane;
+import java.awt.event.ActionListener;
+import javax.swing.JButton;
+import javax.swing.JComponent;
 
 import savant.format.DataFormatter;
 import savant.format.DataFormatterThread;
@@ -249,7 +253,7 @@ public class FormatFrame extends javax.swing.JFrame implements FormatProgressLis
     private javax.swing.JProgressBar progress_current;
     // End of variables declaration//GEN-END:variables
 
-    public void notifyOfTermination(boolean wasFormatSuccessful, Throwable e) {
+    public void notifyOfTermination(boolean wasFormatSuccessful, final Throwable e) {
 
         if (wasFormatSuccessful) {
             int result = JOptionPane.showConfirmDialog(this, "Format successful. Open track now?", "Format Successful", JOptionPane.YES_NO_OPTION);
@@ -265,17 +269,46 @@ public class FormatFrame extends javax.swing.JFrame implements FormatProgressLis
             JOptionPane.showMessageDialog(this, "Format cancelled.", "Format Cancelled", 0);
         } else {
                 JideOptionPane optionPane = new JideOptionPane("Click \"Details\" button to see more information ... \n\n"
-                        + "Problems formatting files? Please copy these details and email them to savant@cs.toronto.edu \n"
-                        + "along with the file you are trying to format (if it is under 10MB in size). The Savant Team will \n"
-                        + "be happy to help troubleshoot the issue with you.", JOptionPane.ERROR_MESSAGE, JideOptionPane.CLOSE_OPTION);
+                        + "Please report any issues you experience to the to the development team.\n", JOptionPane.ERROR_MESSAGE, JideOptionPane.CLOSE_OPTION);
                 optionPane.setTitle("A problem was encountered while formatting.");
-                JDialog dialog = optionPane.createDialog(this, "Format unsuccessful");
+                optionPane.setOptions(new String[] {});
+                JButton reportButton = new JButton("Report Issue");
+                ((JComponent) optionPane.getComponent(optionPane.getComponentCount()-1)).add(reportButton);
+                final JDialog dialog = optionPane.createDialog(this, "Format unsuccessful");
                 dialog.setModal(true);
                 dialog.setResizable(true);
                 optionPane.setDetails(MiscUtils.getStackTrace(e));
                 //optionPane.setDetailsVisible(true);
                 dialog.pack();
+
+                reportButton.addActionListener(new ActionListener() {
+
+                @Override
+                public void actionPerformed(ActionEvent e2) {
+                    String issue = "Hey Savant Developers,\n\n";
+                    issue += "I am having trouble formatting my file for use with Savant. I have provided additional diagnostic information below.\n\n";
+
+                    issue += "=== TO BE COMPLETED BY USER ===\n";
+                    issue += "- SOURCE OF FILE: [e.g. UCSC]\n";
+                    issue += "- TYPE: [e.g. BED]\n";
+                    issue += "- CONTENTS: [e.g. human genes]\n";
+                    issue += "- PATH: " + dataFormatter.getInputFile().getAbsolutePath() + "\n";
+                    issue += "- ADDITIONAL COMMENTS:\n\n";
+
+                    issue += "=== ERROR DETAILS ===\n";
+                    issue += MiscUtils.getStackTrace(e);
+
+                    dialog.dispose();
+                    (new BugReportDialog(Savant.getInstance(),true,issue,dataFormatter.getInputFile().getAbsolutePath())).setVisible(true);
+                    
+                }
+
+                });
+
                 dialog.setVisible(true);
+
+                //System.out.println("Option chosen: " + optionPane.get)
+
                 this.dispose();
         }
     }

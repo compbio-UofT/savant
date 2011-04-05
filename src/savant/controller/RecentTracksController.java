@@ -25,6 +25,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.LinkedList;
+import java.util.List;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JSeparator;
@@ -72,6 +73,10 @@ public class RecentTracksController implements TrackAddedListener {
             instance = new RecentTracksController();
         }
         return instance;
+    }
+
+    public List<String> getRecentTracks() {
+        return this.queue;
     }
 
     @Override

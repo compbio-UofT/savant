@@ -26,8 +26,13 @@ import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileFilter;
 
 import com.jidesoft.dialog.JideOptionPane;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import javax.swing.JButton;
+import javax.swing.JComponent;
 
 import savant.util.MiscUtils;
+import savant.view.dialog.BugReportDialog;
 import savant.view.swing.Savant;
 
 /**
@@ -72,12 +77,34 @@ public class DialogUtils {
                 }
                 JideOptionPane optionPane = new JideOptionPane(msg, JOptionPane.ERROR_MESSAGE, JideOptionPane.CLOSE_OPTION);
                 optionPane.setTitle(title);
-                JDialog dialog = optionPane.createDialog(Savant.getInstance(),"Error encountered");
+                 optionPane.setOptions(new String[] {});
+                JButton reportButton = new JButton("Report Issue");
+                ((JComponent) optionPane.getComponent(optionPane.getComponentCount()-1)).add(reportButton);
+                final JDialog dialog = optionPane.createDialog(Savant.getInstance(),"Error encountered");
                 dialog.setResizable(true);
                 String details = t.getMessage() + "\r\n" + MiscUtils.getStackTrace(t);
                 optionPane.setDetails(details);
-                //optionPane.setDetailsVisible(true);
                 dialog.pack();
+
+                reportButton.addActionListener(new ActionListener() {
+
+                @Override
+                public void actionPerformed(ActionEvent e2) {
+                    String issue = "Hey Savant Developers,\n\n";
+                    issue += "I am encountering an error in Savant. I have provided additional diagnostic information below.\n\n";
+
+                    issue += "=== DESCRIBE THE ISSUE BELOW ===\n\n\n";
+
+
+                    issue += "=== ERROR DETAILS ===\n";
+                    issue += MiscUtils.getStackTrace(t);
+
+                    dialog.dispose();
+                    (new BugReportDialog(Savant.getInstance(),true,issue)).setVisible(true);
+                }
+
+                });
+
                 dialog.setVisible(true);
             }
         });

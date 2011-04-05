@@ -15,6 +15,7 @@
  */
 package savant.view.swing;
 
+import savant.view.swing.start.StartPanel;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.DataOutputStream;
@@ -85,6 +86,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
     private static boolean isDebugging = false;
     private DockingManager auxDockingManager;
     private JPanel masterPlaceholderPanel;
+    private JPanel trackBackground;
     private DockingManager trackDockingManager;
     private JPanel trackPanel;
     private NavigationBar navigationBar;
@@ -227,9 +229,17 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
 
         trackPanel.add(selectorsContainer, BorderLayout.NORTH);
 
-        JPanel p = new JPanel();
-        p.setBackground(Color.darkGray);
-        trackDockingManager.getWorkspace().add(p);
+        trackBackground = new JPanel();
+        trackBackground.setBackground(Color.darkGray);
+
+        trackBackground.setLayout(new BorderLayout());
+
+        if (BrowserSettings.getShowStartPage()) {
+            StartPanel start = new StartPanel();
+            trackBackground.add(start, BorderLayout.CENTER);
+        }
+
+        trackDockingManager.getWorkspace().add(trackBackground);
         trackDockingManager.addDockableFrameListener(new DockableFrameAdapter() {
             @Override
             public void dockableFrameRemoved(DockableFrameEvent arg0) {
@@ -457,6 +467,8 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         userManualItem = new javax.swing.JMenuItem();
         tutorialsItem = new javax.swing.JMenuItem();
         javax.swing.JMenuItem checkForUpdatesItem = new javax.swing.JMenuItem();
+        jMenuItem2 = new javax.swing.JMenuItem();
+        jMenuItem1 = new javax.swing.JMenuItem();
         javax.swing.JSeparator jSeparator11 = new javax.swing.JSeparator();
         websiteItem = new javax.swing.JMenuItem();
 
@@ -905,6 +917,22 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
             }
         });
         helpMenu.add(checkForUpdatesItem);
+
+        jMenuItem2.setText("Report an issue");
+        jMenuItem2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem2ActionPerformed(evt);
+            }
+        });
+        helpMenu.add(jMenuItem2);
+
+        jMenuItem1.setText("Request a feature");
+        jMenuItem1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem1ActionPerformed(evt);
+            }
+        });
+        helpMenu.add(jMenuItem1);
         helpMenu.add(jSeparator11);
 
         websiteItem.setText("Website");
@@ -1217,6 +1245,14 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         }
     }//GEN-LAST:event_loadFromDataSourcePluginActionPerformed
 
+    private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
+        (new FeatureRequestDialog(this,false)).setVisible(true);
+    }//GEN-LAST:event_jMenuItem1ActionPerformed
+
+    private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem2ActionPerformed
+        (new BugReportDialog(this,false)).setVisible(true);
+    }//GEN-LAST:event_jMenuItem2ActionPerformed
+
     /**
      * Starts an instance of the Savant Browser
      * @param args the command line arguments
@@ -1388,6 +1424,8 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
     private javax.swing.JMenuItem formatItem;
     private javax.swing.JMenu helpMenu;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JMenuItem jMenuItem1;
+    private javax.swing.JMenuItem jMenuItem2;
     private javax.swing.JPopupMenu.Separator jSeparator10;
     private javax.swing.JPopupMenu.Separator jSeparator4;
     private javax.swing.JPopupMenu.Separator jSeparator7;
@@ -1925,6 +1963,8 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         if (browserControlsShown) {
             return;
         }
+
+        trackBackground.removeAll();
 
         // This line of code hangs Savant after formatting a genome
         //rangeController.setRange(50, 550);

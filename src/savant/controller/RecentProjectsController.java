@@ -25,6 +25,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.LinkedList;
+import java.util.List;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JSeparator;
@@ -135,6 +136,11 @@ public class RecentProjectsController {
             item.setText("Clear Recents");
             menu.add(item);
     }
+
+
+     public List<String> getRecentProjects() {
+         return this.queue;
+     }
 
     private void clearRecents() {
         while (!queue.isEmpty()) {
