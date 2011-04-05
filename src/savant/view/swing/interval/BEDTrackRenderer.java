@@ -276,7 +276,6 @@ public class BEDTrackRenderer extends TrackRenderer {
             FontMetrics fm = g2.getFontMetrics();
             int stringstartx = startXPos - fm.stringWidth(geneName) - 5;
 
-            System.out.println("Start position of " + geneName + ": " + startXPos);
             g2.setColor(textColor);
 
             if (stringstartx <= 0) {
