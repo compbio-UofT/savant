@@ -100,7 +100,7 @@ public class FTPBrowser extends JPanel {
                             List<TrackAdapter> tracks = TrackUtils.createTrack(new URI("ftp://" + host + new File(curDir, f.getName()).getPath().replace("\\", "/")));
                             TrackUtils.addTracks(tracks);
                         }
-                    } catch (Exception x) {
+                    } catch (Throwable x) {
                         DialogUtils.displayException("FTP Error", "Unable to process FTP request.", x);
                     }
                 }
