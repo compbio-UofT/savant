@@ -15,6 +15,7 @@
  */
 package savant.settings;
 
+import java.awt.Font;
 import javax.swing.*;
 
 /**
@@ -30,6 +31,7 @@ public class BrowserSettings {
     private static final String CACHINGENABLED_KEY = "CACHINGENABLED";
     private static final String SHOWSTARTPAGE_KEY = "SHOWSTARTPAGE";
 
+    private static final Font TRACK_FONT = new Font("Sans-Serif", Font.BOLD, 12);
     
     /*
      * Remote Files
@@ -118,8 +120,12 @@ public class BrowserSettings {
     /**
      * Fonts
      */
-    public static String fontName = "Verdana";
+    public static String fontName = "Arial";
 
+
+    public static Font getTrackFont() {
+        return TRACK_FONT;
+    }
 
 
     
