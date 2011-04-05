@@ -89,8 +89,7 @@ public class SavantFileRepositoryBrowser extends JDialog {
         this.setLayout(new BorderLayout());
         this.add(getCenterPanel(roots), BorderLayout.CENTER);
 
-        JToolBar bottombar = new JToolBar();
-        bottombar.setFloatable(false);
+        JMenuBar bottombar = new JMenuBar();
         bottombar.setAlignmentX(RIGHT_ALIGNMENT);
         bottombar.add(Box.createHorizontalGlue());
         JButton openbutt = new JButton("Load Track");

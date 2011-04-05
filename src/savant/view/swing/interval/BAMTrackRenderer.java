@@ -48,6 +48,7 @@ import savant.data.types.ReadPairIntervalRecord;
 import savant.data.types.Record;
 import savant.exception.RenderingException;
 import savant.file.DataFormat;
+import savant.settings.BrowserSettings;
 import savant.settings.ColourSettings;
 import savant.util.*;
 import savant.view.swing.GraphPane;
@@ -63,8 +64,6 @@ public class BAMTrackRenderer extends TrackRenderer {
 
     private static final int minTransparency = 20;
     private static final int maxTransparency = 255;
-
-    private static final Font letterfont = new Font("Serif", Font.PLAIN, 12);
 
     /** MODE */
     public static final String STANDARD_MODE = "Standard";
@@ -1212,13 +1211,12 @@ public class BAMTrackRenderer extends TrackRenderer {
                             g2.setColor(mismatchColor);
                             g2.fill(opRect);
 
-                            /*
-                            if (fontFits(letterfont,unitWidth,unitHeight,g2)) {
-                                g2.setColor(Color.black);
-                                g2.drawString(base, (int) xCoordinate, (int) (gp.transformYPos(0)-((level)*unitHeight) - offset));
+                            if (fontFits(BrowserSettings.getTrackFont(),unitWidth,unitHeight,g2)) {
+                                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                                g2.setColor(new Color(10,10,10));
+                                g2.setFont(new Font("Sans-Serif", Font.PLAIN, 12));
+                                g2.drawString(base, (int) (xCoordinate + unitWidth/2 - g2.getFontMetrics().stringWidth(base)/2), (int) ((gp.transformYPos(0)-((level)*unitHeight))-unitHeight/2+g2.getFontMetrics().getMaxAscent()/2));
                             }
-                             * 
-                             */
                             /*
                             if (unitWidth > 10 && unitHeight > 10) {
                             g2.setColor(Color.BLACK);

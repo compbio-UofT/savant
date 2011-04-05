@@ -5,6 +5,7 @@
 
 package savant.view.swing;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Toolkit;
@@ -17,6 +18,7 @@ import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
+import javax.swing.JMenuBar;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 import javax.swing.JToolBar;
@@ -60,7 +62,6 @@ public class NavigationBar extends JToolBar {
     NavigationBar() {
 
         String buttonStyle = "segmentedTextured";
-        setFloatable(false);
 
         //p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
 

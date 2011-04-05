@@ -36,6 +36,7 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JMenuBar;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -81,8 +82,7 @@ public class BookmarkSheet implements BookmarksChangedListener /*, RangeChangedL
         /**
          * Create a toolbar. 
          */
-        JToolBar toolbar = new JToolBar();
-        toolbar.setFloatable(false);
+        JMenuBar toolbar = new JMenuBar();
         toolbar.setLayout(new BoxLayout(toolbar,BoxLayout.X_AXIS));
         c.add(toolbar, BorderLayout.NORTH);
 

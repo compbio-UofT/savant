@@ -41,6 +41,7 @@ import savant.data.types.IntervalRecord;
 import savant.data.types.Record;
 import savant.exception.RenderingException;
 import savant.file.DataFormat;
+import savant.settings.BrowserSettings;
 import savant.util.AxisRange;
 import savant.util.ColorScheme;
 import savant.util.DrawingInstruction;
@@ -60,8 +61,6 @@ import savant.view.swing.TrackRenderer;
 public class BEDTrackRenderer extends TrackRenderer {
 
     private static final Log LOG = LogFactory.getLog(BAMTrackRenderer.class);
-
-    private static final Font TRACK_FONT = new Font("Sans-Serif", Font.BOLD, 12);
 
     public static final String STANDARD_MODE = "Standard";
     public static final String SQUISH_MODE = "Squish";
@@ -159,7 +158,7 @@ public class BEDTrackRenderer extends TrackRenderer {
         double unitHeight = gp.getUnitHeight();
 
 
-        g2.setFont(TRACK_FONT);
+        g2.setFont(BrowserSettings.getTrackFont());
 
 
         // chose the color for the strand

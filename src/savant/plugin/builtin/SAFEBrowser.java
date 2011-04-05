@@ -187,8 +187,7 @@ public class SAFEBrowser extends JDialog {
         final Component mainp = getCenterPanel(getDownloadTreeRows(f));
         safeCard.add(mainp, BorderLayout.CENTER);
 
-        JToolBar bottombar = new JToolBar();
-        bottombar.setFloatable(false);
+        JMenuBar bottombar = new JMenuBar();
         bottombar.setAlignmentX(RIGHT_ALIGNMENT);
         bottombar.add(Box.createHorizontalGlue());
 
