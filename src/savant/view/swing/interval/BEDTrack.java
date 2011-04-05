@@ -98,11 +98,11 @@ public class BEDTrack extends Track {
     {
         long length = range.getLength();
 
-        if (length < 10000) { return Resolution.VERY_HIGH; }
-        else if (length < 50000) { return Resolution.HIGH; }
-        else if (length < 1000000) { return Resolution.MEDIUM; }
-        else if (length < 10000000) { return Resolution.LOW; }
-        else if (length >= 10000000) { return Resolution.VERY_LOW; }
+        if (length <= 100000) { return Resolution.VERY_HIGH; }
+        else if (length <= 1000000) { return Resolution.HIGH; }
+        else if (length <= 100000000) { return Resolution.MEDIUM; }
+        else if (length <= 1000000000) { return Resolution.LOW; }
+        //else if (length >= 1000000000) { return Resolution.VERY_LOW; }
         else { return Resolution.VERY_HIGH; }
     }
 

@@ -91,6 +91,7 @@ public class GenericIntervalRecord implements IntervalRecord {
         return sb.toString();
     }
 
+    @Override
     public int compareTo(Object o) {
 
         GenericIntervalRecord other = (GenericIntervalRecord) o;

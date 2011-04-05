@@ -18,6 +18,7 @@ package savant.view.swing.interval;
 
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Polygon;
@@ -59,10 +60,7 @@ public class BEDTrackRenderer extends TrackRenderer {
 
     private static final Log LOG = LogFactory.getLog(BAMTrackRenderer.class);
 
-    private static final Font TINY_FONT = new Font("Sans-Serif", Font.PLAIN, 8);
-    private static final Font VERY_SMALL_FONT = new Font("Sans-Serif", Font.PLAIN, 10);
-    private static final Font SMALL_FONT = new Font("Sans-Serif", Font.PLAIN, 12);
-    private static final Font LARGE_FONT = new Font("Sans-Serif", Font.PLAIN, 18);
+    private static final Font TRACK_FONT = new Font("Sans-Serif", Font.BOLD, 12);
 
     public static final String STANDARD_MODE = "Standard";
     public static final String SQUISH_MODE = "Squish";
@@ -101,10 +99,20 @@ public class BEDTrackRenderer extends TrackRenderer {
         AxisRange axisRange = (AxisRange)instructions.get(DrawingInstruction.AXIS_RANGE);
         ColorScheme cs = (ColorScheme)instructions.get(DrawingInstruction.COLOR_SCHEME);
 
-        IntervalPacker packer = new IntervalPacker(data);
+        double unitWidth = gp.getUnitWidth();
+
+        FontMetrics fm = g2.getFontMetrics();
+        List<Record> stuffedRecords = new ArrayList<Record>();
+        for (Record r : data) {
+            BEDIntervalRecord ir = (BEDIntervalRecord) r;
+            int padamount = fm.stringWidth(ir.getName()) + 5;
+            stuffedRecords.add(new StuffedIntervalRecord(ir,(int)(padamount/unitWidth),(int)(0*unitWidth)));
+        }
+
+        IntervalPacker packer = new IntervalPacker(stuffedRecords);
         // TODO: when it becomes possible, choose an appropriate number for breathing room parameter
 //        Map<Integer, ArrayList<IntervalRecord>> intervals = packer.pack(10);
-        ArrayList<List<IntervalRecord>> intervals = packer.pack(2);
+        List<List<IntervalRecord>> intervals = StuffedIntervalRecord.getOriginalIntervals(packer.pack(2));
 
         gp.setIsOrdinal(false);
         gp.setXRange(axisRange.getXRange());
@@ -148,6 +156,10 @@ public class BEDTrackRenderer extends TrackRenderer {
 
         double unitWidth = gp.getUnitWidth();
         double unitHeight = gp.getUnitHeight();
+
+
+        g2.setFont(TRACK_FONT);
+
 
         // chose the color for the strand
         Color fillColor;
@@ -206,32 +218,15 @@ public class BEDTrackRenderer extends TrackRenderer {
         // draw the gene name, if possible
         String geneName = bedRecord.getName();
         boolean drawName = (geneName != null);
-        if (drawName) {
-            if (fontFits(geneName, LARGE_FONT, unitHeight, g2)) {
-                g2.setFont(LARGE_FONT);
-            }
-            else if (fontFits(geneName, SMALL_FONT, unitHeight, g2)) {
-                g2.setFont(SMALL_FONT);
-            }
-            else if (fontFits(geneName, VERY_SMALL_FONT, unitHeight, g2)) {
-                g2.setFont(VERY_SMALL_FONT);
-            }
-            else if (fontFits(geneName, TINY_FONT, unitHeight, g2)) {
-                g2.setFont(TINY_FONT);
-            }
-            else {
-                drawName = false;
-            }
-        }
 
         int startXPos = (int)gp.transformXPosExclusive(interval.getStart());
         int endXPos = (int) gp.transformXPosInclusive(interval.getEnd());
 
         if (drawName) {
-            Rectangle2D nameRect = g2.getFont().getStringBounds(geneName, g2.getFontRenderContext());
-            double topMargin = (unitHeight - nameRect.getHeight());
+            FontMetrics fm = g2.getFontMetrics();
+            //Rectangle2D nameRect = g2.getFont().getStringBounds(geneName, g2.getFontRenderContext());
             g2.setColor(lineColor);
-            g2.drawString(geneName, (int)(startXPos - nameRect.getWidth() - 5), (int)(gp.transformYPos(level) - topMargin));
+            g2.drawString(geneName, (int)(startXPos - fm.stringWidth(geneName) - 5), (int)(gp.transformYPos(level) - unitHeight/2 + (fm.getHeight()-fm.getDescent())/2));
         }
 
         if(isInsertion) return;

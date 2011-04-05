@@ -1,0 +1,655 @@
+INFO [2011-04-05 13:07:42,982]  [Savant.java:1394] [main]  Saved version file to: C:\Users\mfiume\savant\version.xml
+INFO [2011-04-05 13:07:43,253]  [ManifestParser.java:108] [main]  got SAX parser factory - com.sun.org.apache.xerces.internal.jaxp.SAXParserFactoryImpl@162f16
+INFO [2011-04-05 13:07:43,254]  [PluginRegistryImpl.java:109] [main]  configured, stopOnError=false, isValidating=true
+INFO [2011-04-05 13:07:43,261]  [PluginController.java:100] [main]  Uninstall list .uninstall_plugins
+INFO [2011-04-05 13:07:43,262]  [PluginController.java:106] [main]  coreLocation=C:\Users\mfiume\savant\plugins\SavantCore.jar
+INFO [2011-04-05 13:07:43,297]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 13:07:43,312]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 13:07:43,314]  [PluginController.java:222] [main]  Activating new plugin: {PluginDescriptor: uid=savant.snp@1.2.0}
+INFO [2011-04-05 13:07:43,314]  [PluginController.java:230] [main]  Compatible with this version of Savant
+INFO [2011-04-05 13:07:43,320]  [StandardPluginManager.java:421] [main]  plug-in started - savant.core@1.0.0 (active/total: 1 of 2)
+INFO [2011-04-05 13:07:43,405]  [StandardPluginManager.java:421] [main]  plug-in started - savant.snp@1.2.0 (active/total: 2 of 2)
+INFO [2011-04-05 13:07:43,520]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 13:07:43,521]  [PluginController.java:222] [main]  Activating new plugin: {PluginDescriptor: uid=savant.sql@1.0.0}
+INFO [2011-04-05 13:07:43,521]  [PluginController.java:230] [main]  Compatible with this version of Savant
+INFO [2011-04-05 13:07:43,524]  [StandardPluginManager.java:421] [main]  plug-in started - savant.sql@1.0.0 (active/total: 3 of 3)
+INFO [2011-04-05 13:07:43,529]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 13:07:43,530]  [PluginController.java:222] [main]  Activating new plugin: {PluginDescriptor: uid=savant.data@1.0.0}
+INFO [2011-04-05 13:07:43,530]  [PluginController.java:230] [main]  Compatible with this version of Savant
+INFO [2011-04-05 13:07:43,532]  [StandardPluginManager.java:421] [main]  plug-in started - savant.data@1.0.0 (active/total: 4 of 4)
+INFO [2011-04-05 13:07:43,567]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 13:07:43,568]  [PluginController.java:222] [main]  Activating new plugin: {PluginDescriptor: uid=savant.ucsc@1.0.0}
+INFO [2011-04-05 13:07:43,568]  [PluginController.java:230] [main]  Compatible with this version of Savant
+INFO [2011-04-05 13:07:43,573]  [StandardPluginManager.java:421] [main]  plug-in started - savant.ucsc@1.0.0 (active/total: 5 of 5)
+INFO [2011-04-05 13:08:05,406]  [Savant.java:1033] [AWT-EventQueue-0]  Showing format form...
+INFO [2011-04-05 13:08:30,371]  [IntervalFormatter.java:232] [Thread-6]  Formatting as BED
+INFO [2011-04-05 13:09:25,074]  [Savant.java:146] [AWT-EventQueue-0]  Loading track http://compbio.cs.toronto.edu/savant/data/Sequences/hg18/hg18.fa.savant
+INFO [2011-04-05 13:09:25,912]  [FrameController.java:110] [AWT-EventQueue-0]  Frames changed event being fired
+INFO [2011-04-05 13:09:45,840]  [Savant.java:146] [AWT-EventQueue-0]  Loading track C:\Users\mfiume\Desktop\human.hg18.refseq.bed.2.savant
+INFO [2011-04-05 13:09:48,421]  [FrameController.java:110] [AWT-EventQueue-0]  Frames changed event being fired
+INFO [2011-04-05 13:16:32,467]  [Savant.java:1394] [main]  Saved version file to: C:\Users\mfiume\savant\version.xml
+INFO [2011-04-05 13:16:32,762]  [ManifestParser.java:108] [main]  got SAX parser factory - com.sun.org.apache.xerces.internal.jaxp.SAXParserFactoryImpl@d1e07c
+INFO [2011-04-05 13:16:32,762]  [PluginRegistryImpl.java:109] [main]  configured, stopOnError=false, isValidating=true
+INFO [2011-04-05 13:16:32,770]  [PluginController.java:100] [main]  Uninstall list .uninstall_plugins
+INFO [2011-04-05 13:16:32,772]  [PluginController.java:106] [main]  coreLocation=C:\Users\mfiume\savant\plugins\SavantCore.jar
+INFO [2011-04-05 13:16:32,812]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 13:16:32,830]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 13:16:32,831]  [PluginController.java:222] [main]  Activating new plugin: {PluginDescriptor: uid=savant.snp@1.2.0}
+INFO [2011-04-05 13:16:32,831]  [PluginController.java:230] [main]  Compatible with this version of Savant
+INFO [2011-04-05 13:16:32,839]  [StandardPluginManager.java:421] [main]  plug-in started - savant.core@1.0.0 (active/total: 1 of 2)
+INFO [2011-04-05 13:16:32,916]  [StandardPluginManager.java:421] [main]  plug-in started - savant.snp@1.2.0 (active/total: 2 of 2)
+INFO [2011-04-05 13:16:33,019]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 13:16:33,019]  [PluginController.java:222] [main]  Activating new plugin: {PluginDescriptor: uid=savant.sql@1.0.0}
+INFO [2011-04-05 13:16:33,020]  [PluginController.java:230] [main]  Compatible with this version of Savant
+INFO [2011-04-05 13:16:33,023]  [StandardPluginManager.java:421] [main]  plug-in started - savant.sql@1.0.0 (active/total: 3 of 3)
+INFO [2011-04-05 13:16:33,028]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 13:16:33,028]  [PluginController.java:222] [main]  Activating new plugin: {PluginDescriptor: uid=savant.data@1.0.0}
+INFO [2011-04-05 13:16:33,028]  [PluginController.java:230] [main]  Compatible with this version of Savant
+INFO [2011-04-05 13:16:33,030]  [StandardPluginManager.java:421] [main]  plug-in started - savant.data@1.0.0 (active/total: 4 of 4)
+INFO [2011-04-05 13:16:33,064]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 13:16:33,065]  [PluginController.java:222] [main]  Activating new plugin: {PluginDescriptor: uid=savant.ucsc@1.0.0}
+INFO [2011-04-05 13:16:33,065]  [PluginController.java:230] [main]  Compatible with this version of Savant
+INFO [2011-04-05 13:16:33,070]  [StandardPluginManager.java:421] [main]  plug-in started - savant.ucsc@1.0.0 (active/total: 5 of 5)
+INFO [2011-04-05 13:16:35,186]  [Savant.java:146] [AWT-EventQueue-0]  Loading track http://compbio.cs.toronto.edu/savant/data/Sequences/hg18/hg18.fa.savant
+INFO [2011-04-05 13:16:35,651]  [FrameController.java:110] [AWT-EventQueue-0]  Frames changed event being fired
+INFO [2011-04-05 13:16:40,625]  [Savant.java:146] [AWT-EventQueue-0]  Loading track C:\Users\mfiume\Desktop\human.hg18.refseq.bed.2.savant
+INFO [2011-04-05 13:16:43,342]  [FrameController.java:110] [AWT-EventQueue-0]  Frames changed event being fired
+INFO [2011-04-05 13:17:28,060]  [Savant.java:1394] [main]  Saved version file to: C:\Users\mfiume\savant\version.xml
+INFO [2011-04-05 13:17:28,641]  [ManifestParser.java:108] [main]  got SAX parser factory - com.sun.org.apache.xerces.internal.jaxp.SAXParserFactoryImpl@2942da
+INFO [2011-04-05 13:17:28,641]  [PluginRegistryImpl.java:109] [main]  configured, stopOnError=false, isValidating=true
+INFO [2011-04-05 13:17:28,649]  [PluginController.java:100] [main]  Uninstall list .uninstall_plugins
+INFO [2011-04-05 13:17:28,649]  [PluginController.java:106] [main]  coreLocation=C:\Users\mfiume\savant\plugins\SavantCore.jar
+INFO [2011-04-05 13:17:28,689]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 13:17:28,705]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 13:17:28,706]  [PluginController.java:222] [main]  Activating new plugin: {PluginDescriptor: uid=savant.snp@1.2.0}
+INFO [2011-04-05 13:17:28,707]  [PluginController.java:230] [main]  Compatible with this version of Savant
+INFO [2011-04-05 13:17:28,713]  [StandardPluginManager.java:421] [main]  plug-in started - savant.core@1.0.0 (active/total: 1 of 2)
+INFO [2011-04-05 13:17:28,789]  [StandardPluginManager.java:421] [main]  plug-in started - savant.snp@1.2.0 (active/total: 2 of 2)
+INFO [2011-04-05 13:17:28,898]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 13:17:28,899]  [PluginController.java:222] [main]  Activating new plugin: {PluginDescriptor: uid=savant.sql@1.0.0}
+INFO [2011-04-05 13:17:28,899]  [PluginController.java:230] [main]  Compatible with this version of Savant
+INFO [2011-04-05 13:17:28,902]  [StandardPluginManager.java:421] [main]  plug-in started - savant.sql@1.0.0 (active/total: 3 of 3)
+INFO [2011-04-05 13:17:28,907]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 13:17:28,908]  [PluginController.java:222] [main]  Activating new plugin: {PluginDescriptor: uid=savant.data@1.0.0}
+INFO [2011-04-05 13:17:28,908]  [PluginController.java:230] [main]  Compatible with this version of Savant
+INFO [2011-04-05 13:17:28,910]  [StandardPluginManager.java:421] [main]  plug-in started - savant.data@1.0.0 (active/total: 4 of 4)
+INFO [2011-04-05 13:17:28,958]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 13:17:28,959]  [PluginController.java:222] [main]  Activating new plugin: {PluginDescriptor: uid=savant.ucsc@1.0.0}
+INFO [2011-04-05 13:17:28,959]  [PluginController.java:230] [main]  Compatible with this version of Savant
+INFO [2011-04-05 13:17:28,964]  [StandardPluginManager.java:421] [main]  plug-in started - savant.ucsc@1.0.0 (active/total: 5 of 5)
+INFO [2011-04-05 13:17:31,979]  [FrameController.java:110] [AWT-EventQueue-0]  Frames changed event being fired
+INFO [2011-04-05 13:17:32,070]  [Savant.java:146] [AWT-EventQueue-0]  Loading track C:\Users\mfiume\Desktop\human.hg18.refseq.bed.2.savant
+INFO [2011-04-05 13:17:34,827]  [FrameController.java:110] [AWT-EventQueue-0]  Frames changed event being fired
+INFO [2011-04-05 13:17:54,457]  [Savant.java:1394] [main]  Saved version file to: C:\Users\mfiume\savant\version.xml
+INFO [2011-04-05 13:17:55,090]  [ManifestParser.java:108] [main]  got SAX parser factory - com.sun.org.apache.xerces.internal.jaxp.SAXParserFactoryImpl@510dc2
+INFO [2011-04-05 13:17:55,093]  [PluginRegistryImpl.java:109] [main]  configured, stopOnError=false, isValidating=true
+INFO [2011-04-05 13:17:55,101]  [PluginController.java:100] [main]  Uninstall list .uninstall_plugins
+INFO [2011-04-05 13:17:55,102]  [PluginController.java:106] [main]  coreLocation=C:\Users\mfiume\savant\plugins\SavantCore.jar
+INFO [2011-04-05 13:17:55,143]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 13:17:55,160]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 13:17:55,161]  [PluginController.java:222] [main]  Activating new plugin: {PluginDescriptor: uid=savant.snp@1.2.0}
+INFO [2011-04-05 13:17:55,162]  [PluginController.java:230] [main]  Compatible with this version of Savant
+INFO [2011-04-05 13:17:55,168]  [StandardPluginManager.java:421] [main]  plug-in started - savant.core@1.0.0 (active/total: 1 of 2)
+INFO [2011-04-05 13:17:55,246]  [StandardPluginManager.java:421] [main]  plug-in started - savant.snp@1.2.0 (active/total: 2 of 2)
+INFO [2011-04-05 13:17:55,351]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 13:17:55,352]  [PluginController.java:222] [main]  Activating new plugin: {PluginDescriptor: uid=savant.sql@1.0.0}
+INFO [2011-04-05 13:17:55,352]  [PluginController.java:230] [main]  Compatible with this version of Savant
+INFO [2011-04-05 13:17:55,356]  [StandardPluginManager.java:421] [main]  plug-in started - savant.sql@1.0.0 (active/total: 3 of 3)
+INFO [2011-04-05 13:17:55,360]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 13:17:55,361]  [PluginController.java:222] [main]  Activating new plugin: {PluginDescriptor: uid=savant.data@1.0.0}
+INFO [2011-04-05 13:17:55,361]  [PluginController.java:230] [main]  Compatible with this version of Savant
+INFO [2011-04-05 13:17:55,363]  [StandardPluginManager.java:421] [main]  plug-in started - savant.data@1.0.0 (active/total: 4 of 4)
+INFO [2011-04-05 13:17:55,408]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 13:17:55,409]  [PluginController.java:222] [main]  Activating new plugin: {PluginDescriptor: uid=savant.ucsc@1.0.0}
+INFO [2011-04-05 13:17:55,409]  [PluginController.java:230] [main]  Compatible with this version of Savant
+INFO [2011-04-05 13:17:55,414]  [StandardPluginManager.java:421] [main]  plug-in started - savant.ucsc@1.0.0 (active/total: 5 of 5)
+INFO [2011-04-05 13:17:57,669]  [FrameController.java:110] [AWT-EventQueue-0]  Frames changed event being fired
+INFO [2011-04-05 13:17:57,769]  [Savant.java:146] [AWT-EventQueue-0]  Loading track C:\Users\mfiume\Desktop\human.hg18.refseq.bed.2.savant
+INFO [2011-04-05 13:18:00,721]  [FrameController.java:110] [AWT-EventQueue-0]  Frames changed event being fired
+INFO [2011-04-05 13:48:07,833]  [Savant.java:1394] [main]  Saved version file to: C:\Users\mfiume\savant\version.xml
+INFO [2011-04-05 13:48:08,430]  [ManifestParser.java:108] [main]  got SAX parser factory - com.sun.org.apache.xerces.internal.jaxp.SAXParserFactoryImpl@87e9bf
+INFO [2011-04-05 13:48:08,431]  [PluginRegistryImpl.java:109] [main]  configured, stopOnError=false, isValidating=true
+INFO [2011-04-05 13:48:08,439]  [PluginController.java:100] [main]  Uninstall list .uninstall_plugins
+INFO [2011-04-05 13:48:08,440]  [PluginController.java:106] [main]  coreLocation=C:\Users\mfiume\savant\plugins\SavantCore.jar
+INFO [2011-04-05 13:48:08,479]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 13:48:08,498]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 13:48:08,500]  [PluginController.java:222] [main]  Activating new plugin: {PluginDescriptor: uid=savant.snp@1.2.0}
+INFO [2011-04-05 13:48:08,500]  [PluginController.java:230] [main]  Compatible with this version of Savant
+INFO [2011-04-05 13:48:08,507]  [StandardPluginManager.java:421] [main]  plug-in started - savant.core@1.0.0 (active/total: 1 of 2)
+INFO [2011-04-05 13:48:08,597]  [StandardPluginManager.java:421] [main]  plug-in started - savant.snp@1.2.0 (active/total: 2 of 2)
+INFO [2011-04-05 13:48:08,718]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 13:48:08,718]  [PluginController.java:222] [main]  Activating new plugin: {PluginDescriptor: uid=savant.sql@1.0.0}
+INFO [2011-04-05 13:48:08,719]  [PluginController.java:230] [main]  Compatible with this version of Savant
+INFO [2011-04-05 13:48:08,722]  [StandardPluginManager.java:421] [main]  plug-in started - savant.sql@1.0.0 (active/total: 3 of 3)
+INFO [2011-04-05 13:48:08,727]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 13:48:08,728]  [PluginController.java:222] [main]  Activating new plugin: {PluginDescriptor: uid=savant.data@1.0.0}
+INFO [2011-04-05 13:48:08,730]  [PluginController.java:230] [main]  Compatible with this version of Savant
+INFO [2011-04-05 13:48:08,733]  [StandardPluginManager.java:421] [main]  plug-in started - savant.data@1.0.0 (active/total: 4 of 4)
+INFO [2011-04-05 13:48:08,779]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 13:48:08,779]  [PluginController.java:222] [main]  Activating new plugin: {PluginDescriptor: uid=savant.ucsc@1.0.0}
+INFO [2011-04-05 13:48:08,780]  [PluginController.java:230] [main]  Compatible with this version of Savant
+INFO [2011-04-05 13:48:08,785]  [StandardPluginManager.java:421] [main]  plug-in started - savant.ucsc@1.0.0 (active/total: 5 of 5)
+INFO [2011-04-05 13:57:27,922]  [Savant.java:1394] [main]  Saved version file to: C:\Users\mfiume\savant\version.xml
+INFO [2011-04-05 13:57:28,322]  [ManifestParser.java:108] [main]  got SAX parser factory - com.sun.org.apache.xerces.internal.jaxp.SAXParserFactoryImpl@87e9bf
+INFO [2011-04-05 13:57:28,323]  [PluginRegistryImpl.java:109] [main]  configured, stopOnError=false, isValidating=true
+INFO [2011-04-05 13:57:28,331]  [PluginController.java:100] [main]  Uninstall list .uninstall_plugins
+INFO [2011-04-05 13:57:28,332]  [PluginController.java:106] [main]  coreLocation=C:\Users\mfiume\savant\plugins\SavantCore.jar
+INFO [2011-04-05 13:57:28,371]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 13:57:28,391]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 13:57:28,393]  [PluginController.java:222] [main]  Activating new plugin: {PluginDescriptor: uid=savant.snp@1.2.0}
+INFO [2011-04-05 13:57:28,393]  [PluginController.java:230] [main]  Compatible with this version of Savant
+INFO [2011-04-05 13:57:28,400]  [StandardPluginManager.java:421] [main]  plug-in started - savant.core@1.0.0 (active/total: 1 of 2)
+INFO [2011-04-05 13:57:28,487]  [StandardPluginManager.java:421] [main]  plug-in started - savant.snp@1.2.0 (active/total: 2 of 2)
+INFO [2011-04-05 13:57:28,601]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 13:57:28,601]  [PluginController.java:222] [main]  Activating new plugin: {PluginDescriptor: uid=savant.sql@1.0.0}
+INFO [2011-04-05 13:57:28,602]  [PluginController.java:230] [main]  Compatible with this version of Savant
+INFO [2011-04-05 13:57:28,605]  [StandardPluginManager.java:421] [main]  plug-in started - savant.sql@1.0.0 (active/total: 3 of 3)
+INFO [2011-04-05 13:57:28,612]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 13:57:28,612]  [PluginController.java:222] [main]  Activating new plugin: {PluginDescriptor: uid=savant.data@1.0.0}
+INFO [2011-04-05 13:57:28,613]  [PluginController.java:230] [main]  Compatible with this version of Savant
+INFO [2011-04-05 13:57:28,615]  [StandardPluginManager.java:421] [main]  plug-in started - savant.data@1.0.0 (active/total: 4 of 4)
+INFO [2011-04-05 13:57:28,673]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 13:57:28,673]  [PluginController.java:222] [main]  Activating new plugin: {PluginDescriptor: uid=savant.ucsc@1.0.0}
+INFO [2011-04-05 13:57:28,673]  [PluginController.java:230] [main]  Compatible with this version of Savant
+INFO [2011-04-05 13:57:28,679]  [StandardPluginManager.java:421] [main]  plug-in started - savant.ucsc@1.0.0 (active/total: 5 of 5)
+INFO [2011-04-05 13:57:35,538]  [FrameController.java:110] [AWT-EventQueue-0]  Frames changed event being fired
+INFO [2011-04-05 13:57:35,634]  [Savant.java:146] [AWT-EventQueue-0]  Loading track C:\Users\mfiume\Desktop\human.hg18.refseq.bed.2.savant
+INFO [2011-04-05 13:57:38,436]  [FrameController.java:110] [AWT-EventQueue-0]  Frames changed event being fired
+INFO [2011-04-05 13:59:20,147]  [Savant.java:1394] [main]  Saved version file to: C:\Users\mfiume\savant\version.xml
+INFO [2011-04-05 13:59:21,089]  [ManifestParser.java:108] [main]  got SAX parser factory - com.sun.org.apache.xerces.internal.jaxp.SAXParserFactoryImpl@e90e23
+INFO [2011-04-05 13:59:21,090]  [PluginRegistryImpl.java:109] [main]  configured, stopOnError=false, isValidating=true
+INFO [2011-04-05 13:59:21,098]  [PluginController.java:100] [main]  Uninstall list .uninstall_plugins
+INFO [2011-04-05 13:59:21,099]  [PluginController.java:106] [main]  coreLocation=C:\Users\mfiume\savant\plugins\SavantCore.jar
+INFO [2011-04-05 13:59:21,136]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 13:59:21,152]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 13:59:21,153]  [PluginController.java:222] [main]  Activating new plugin: {PluginDescriptor: uid=savant.snp@1.2.0}
+INFO [2011-04-05 13:59:21,154]  [PluginController.java:230] [main]  Compatible with this version of Savant
+INFO [2011-04-05 13:59:21,160]  [StandardPluginManager.java:421] [main]  plug-in started - savant.core@1.0.0 (active/total: 1 of 2)
+INFO [2011-04-05 13:59:21,246]  [StandardPluginManager.java:421] [main]  plug-in started - savant.snp@1.2.0 (active/total: 2 of 2)
+INFO [2011-04-05 13:59:21,358]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 13:59:21,358]  [PluginController.java:222] [main]  Activating new plugin: {PluginDescriptor: uid=savant.sql@1.0.0}
+INFO [2011-04-05 13:59:21,358]  [PluginController.java:230] [main]  Compatible with this version of Savant
+INFO [2011-04-05 13:59:21,362]  [StandardPluginManager.java:421] [main]  plug-in started - savant.sql@1.0.0 (active/total: 3 of 3)
+INFO [2011-04-05 13:59:21,367]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 13:59:21,367]  [PluginController.java:222] [main]  Activating new plugin: {PluginDescriptor: uid=savant.data@1.0.0}
+INFO [2011-04-05 13:59:21,368]  [PluginController.java:230] [main]  Compatible with this version of Savant
+INFO [2011-04-05 13:59:21,370]  [StandardPluginManager.java:421] [main]  plug-in started - savant.data@1.0.0 (active/total: 4 of 4)
+INFO [2011-04-05 13:59:21,409]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 13:59:21,410]  [PluginController.java:222] [main]  Activating new plugin: {PluginDescriptor: uid=savant.ucsc@1.0.0}
+INFO [2011-04-05 13:59:21,410]  [PluginController.java:230] [main]  Compatible with this version of Savant
+INFO [2011-04-05 13:59:21,415]  [StandardPluginManager.java:421] [main]  plug-in started - savant.ucsc@1.0.0 (active/total: 5 of 5)
+INFO [2011-04-05 13:59:27,424]  [FrameController.java:110] [AWT-EventQueue-0]  Frames changed event being fired
+INFO [2011-04-05 13:59:27,519]  [Savant.java:146] [AWT-EventQueue-0]  Loading track C:\Users\mfiume\Desktop\human.hg18.refseq.bed.2.savant
+INFO [2011-04-05 13:59:30,286]  [FrameController.java:110] [AWT-EventQueue-0]  Frames changed event being fired
+INFO [2011-04-05 14:00:35,568]  [Savant.java:1394] [main]  Saved version file to: C:\Users\mfiume\savant\version.xml
+INFO [2011-04-05 14:00:36,216]  [ManifestParser.java:108] [main]  got SAX parser factory - com.sun.org.apache.xerces.internal.jaxp.SAXParserFactoryImpl@1ce9f9d
+INFO [2011-04-05 14:00:36,217]  [PluginRegistryImpl.java:109] [main]  configured, stopOnError=false, isValidating=true
+INFO [2011-04-05 14:00:36,226]  [PluginController.java:100] [main]  Uninstall list .uninstall_plugins
+INFO [2011-04-05 14:00:36,227]  [PluginController.java:106] [main]  coreLocation=C:\Users\mfiume\savant\plugins\SavantCore.jar
+INFO [2011-04-05 14:00:36,268]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 14:00:36,284]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 14:00:36,285]  [PluginController.java:222] [main]  Activating new plugin: {PluginDescriptor: uid=savant.snp@1.2.0}
+INFO [2011-04-05 14:00:36,285]  [PluginController.java:230] [main]  Compatible with this version of Savant
+INFO [2011-04-05 14:00:36,292]  [StandardPluginManager.java:421] [main]  plug-in started - savant.core@1.0.0 (active/total: 1 of 2)
+INFO [2011-04-05 14:00:36,371]  [StandardPluginManager.java:421] [main]  plug-in started - savant.snp@1.2.0 (active/total: 2 of 2)
+INFO [2011-04-05 14:00:36,477]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 14:00:36,477]  [PluginController.java:222] [main]  Activating new plugin: {PluginDescriptor: uid=savant.sql@1.0.0}
+INFO [2011-04-05 14:00:36,477]  [PluginController.java:230] [main]  Compatible with this version of Savant
+INFO [2011-04-05 14:00:36,481]  [StandardPluginManager.java:421] [main]  plug-in started - savant.sql@1.0.0 (active/total: 3 of 3)
+INFO [2011-04-05 14:00:36,486]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 14:00:36,486]  [PluginController.java:222] [main]  Activating new plugin: {PluginDescriptor: uid=savant.data@1.0.0}
+INFO [2011-04-05 14:00:36,487]  [PluginController.java:230] [main]  Compatible with this version of Savant
+INFO [2011-04-05 14:00:36,489]  [StandardPluginManager.java:421] [main]  plug-in started - savant.data@1.0.0 (active/total: 4 of 4)
+INFO [2011-04-05 14:00:36,523]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 14:00:36,523]  [PluginController.java:222] [main]  Activating new plugin: {PluginDescriptor: uid=savant.ucsc@1.0.0}
+INFO [2011-04-05 14:00:36,523]  [PluginController.java:230] [main]  Compatible with this version of Savant
+INFO [2011-04-05 14:00:36,528]  [StandardPluginManager.java:421] [main]  plug-in started - savant.ucsc@1.0.0 (active/total: 5 of 5)
+INFO [2011-04-05 14:00:45,849]  [FrameController.java:110] [AWT-EventQueue-0]  Frames changed event being fired
+INFO [2011-04-05 14:00:45,936]  [Savant.java:146] [AWT-EventQueue-0]  Loading track C:\Users\mfiume\Desktop\human.hg18.refseq.bed.2.savant
+INFO [2011-04-05 14:00:48,520]  [FrameController.java:110] [AWT-EventQueue-0]  Frames changed event being fired
+INFO [2011-04-05 14:02:12,529]  [Savant.java:1394] [main]  Saved version file to: C:\Users\mfiume\savant\version.xml
+INFO [2011-04-05 14:02:13,088]  [ManifestParser.java:108] [main]  got SAX parser factory - com.sun.org.apache.xerces.internal.jaxp.SAXParserFactoryImpl@87e9bf
+INFO [2011-04-05 14:02:13,090]  [PluginRegistryImpl.java:109] [main]  configured, stopOnError=false, isValidating=true
+INFO [2011-04-05 14:02:13,099]  [PluginController.java:100] [main]  Uninstall list .uninstall_plugins
+INFO [2011-04-05 14:02:13,100]  [PluginController.java:106] [main]  coreLocation=C:\Users\mfiume\savant\plugins\SavantCore.jar
+INFO [2011-04-05 14:02:13,150]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 14:02:13,169]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 14:02:13,170]  [PluginController.java:222] [main]  Activating new plugin: {PluginDescriptor: uid=savant.snp@1.2.0}
+INFO [2011-04-05 14:02:13,171]  [PluginController.java:230] [main]  Compatible with this version of Savant
+INFO [2011-04-05 14:02:13,179]  [StandardPluginManager.java:421] [main]  plug-in started - savant.core@1.0.0 (active/total: 1 of 2)
+INFO [2011-04-05 14:02:13,278]  [StandardPluginManager.java:421] [main]  plug-in started - savant.snp@1.2.0 (active/total: 2 of 2)
+INFO [2011-04-05 14:02:13,404]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 14:02:13,405]  [PluginController.java:222] [main]  Activating new plugin: {PluginDescriptor: uid=savant.sql@1.0.0}
+INFO [2011-04-05 14:02:13,405]  [PluginController.java:230] [main]  Compatible with this version of Savant
+INFO [2011-04-05 14:02:13,409]  [StandardPluginManager.java:421] [main]  plug-in started - savant.sql@1.0.0 (active/total: 3 of 3)
+INFO [2011-04-05 14:02:13,414]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 14:02:13,414]  [PluginController.java:222] [main]  Activating new plugin: {PluginDescriptor: uid=savant.data@1.0.0}
+INFO [2011-04-05 14:02:13,415]  [PluginController.java:230] [main]  Compatible with this version of Savant
+INFO [2011-04-05 14:02:13,417]  [StandardPluginManager.java:421] [main]  plug-in started - savant.data@1.0.0 (active/total: 4 of 4)
+INFO [2011-04-05 14:02:13,456]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 14:02:13,457]  [PluginController.java:222] [main]  Activating new plugin: {PluginDescriptor: uid=savant.ucsc@1.0.0}
+INFO [2011-04-05 14:02:13,457]  [PluginController.java:230] [main]  Compatible with this version of Savant
+INFO [2011-04-05 14:02:13,463]  [StandardPluginManager.java:421] [main]  plug-in started - savant.ucsc@1.0.0 (active/total: 5 of 5)
+INFO [2011-04-05 14:02:27,998]  [FrameController.java:110] [AWT-EventQueue-0]  Frames changed event being fired
+INFO [2011-04-05 14:02:28,095]  [Savant.java:146] [AWT-EventQueue-0]  Loading track C:\Users\mfiume\Desktop\human.hg18.refseq.bed.2.savant
+INFO [2011-04-05 14:02:30,807]  [FrameController.java:110] [AWT-EventQueue-0]  Frames changed event being fired
+INFO [2011-04-05 14:04:01,926]  [Savant.java:1394] [main]  Saved version file to: C:\Users\mfiume\savant\version.xml
+INFO [2011-04-05 14:04:02,287]  [ManifestParser.java:108] [main]  got SAX parser factory - com.sun.org.apache.xerces.internal.jaxp.SAXParserFactoryImpl@104eabb
+INFO [2011-04-05 14:04:02,288]  [PluginRegistryImpl.java:109] [main]  configured, stopOnError=false, isValidating=true
+INFO [2011-04-05 14:04:02,296]  [PluginController.java:100] [main]  Uninstall list .uninstall_plugins
+INFO [2011-04-05 14:04:02,297]  [PluginController.java:106] [main]  coreLocation=C:\Users\mfiume\savant\plugins\SavantCore.jar
+INFO [2011-04-05 14:04:02,331]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 14:04:02,347]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 14:04:02,348]  [PluginController.java:222] [main]  Activating new plugin: {PluginDescriptor: uid=savant.snp@1.2.0}
+INFO [2011-04-05 14:04:02,361]  [PluginController.java:230] [main]  Compatible with this version of Savant
+INFO [2011-04-05 14:04:02,367]  [StandardPluginManager.java:421] [main]  plug-in started - savant.core@1.0.0 (active/total: 1 of 2)
+INFO [2011-04-05 14:04:02,445]  [StandardPluginManager.java:421] [main]  plug-in started - savant.snp@1.2.0 (active/total: 2 of 2)
+INFO [2011-04-05 14:04:02,547]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 14:04:02,548]  [PluginController.java:222] [main]  Activating new plugin: {PluginDescriptor: uid=savant.sql@1.0.0}
+INFO [2011-04-05 14:04:02,548]  [PluginController.java:230] [main]  Compatible with this version of Savant
+INFO [2011-04-05 14:04:02,552]  [StandardPluginManager.java:421] [main]  plug-in started - savant.sql@1.0.0 (active/total: 3 of 3)
+INFO [2011-04-05 14:04:02,556]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 14:04:02,557]  [PluginController.java:222] [main]  Activating new plugin: {PluginDescriptor: uid=savant.data@1.0.0}
+INFO [2011-04-05 14:04:02,557]  [PluginController.java:230] [main]  Compatible with this version of Savant
+INFO [2011-04-05 14:04:02,559]  [StandardPluginManager.java:421] [main]  plug-in started - savant.data@1.0.0 (active/total: 4 of 4)
+INFO [2011-04-05 14:04:02,603]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 14:04:02,604]  [PluginController.java:222] [main]  Activating new plugin: {PluginDescriptor: uid=savant.ucsc@1.0.0}
+INFO [2011-04-05 14:04:02,604]  [PluginController.java:230] [main]  Compatible with this version of Savant
+INFO [2011-04-05 14:04:02,610]  [StandardPluginManager.java:421] [main]  plug-in started - savant.ucsc@1.0.0 (active/total: 5 of 5)
+INFO [2011-04-05 14:04:06,318]  [FrameController.java:110] [AWT-EventQueue-0]  Frames changed event being fired
+INFO [2011-04-05 14:04:06,412]  [Savant.java:146] [AWT-EventQueue-0]  Loading track C:\Users\mfiume\Desktop\human.hg18.refseq.bed.2.savant
+INFO [2011-04-05 14:04:09,105]  [FrameController.java:110] [AWT-EventQueue-0]  Frames changed event being fired
+INFO [2011-04-05 14:05:57,958]  [Savant.java:1394] [main]  Saved version file to: C:\Users\mfiume\savant\version.xml
+INFO [2011-04-05 14:05:58,213]  [ManifestParser.java:108] [main]  got SAX parser factory - com.sun.org.apache.xerces.internal.jaxp.SAXParserFactoryImpl@87e9bf
+INFO [2011-04-05 14:05:58,213]  [PluginRegistryImpl.java:109] [main]  configured, stopOnError=false, isValidating=true
+INFO [2011-04-05 14:05:58,221]  [PluginController.java:100] [main]  Uninstall list .uninstall_plugins
+INFO [2011-04-05 14:05:58,221]  [PluginController.java:106] [main]  coreLocation=C:\Users\mfiume\savant\plugins\SavantCore.jar
+INFO [2011-04-05 14:05:58,259]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 14:05:58,275]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 14:05:58,276]  [PluginController.java:222] [main]  Activating new plugin: {PluginDescriptor: uid=savant.snp@1.2.0}
+INFO [2011-04-05 14:05:58,277]  [PluginController.java:230] [main]  Compatible with this version of Savant
+INFO [2011-04-05 14:05:58,283]  [StandardPluginManager.java:421] [main]  plug-in started - savant.core@1.0.0 (active/total: 1 of 2)
+INFO [2011-04-05 14:05:58,358]  [StandardPluginManager.java:421] [main]  plug-in started - savant.snp@1.2.0 (active/total: 2 of 2)
+INFO [2011-04-05 14:05:58,457]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 14:05:58,457]  [PluginController.java:222] [main]  Activating new plugin: {PluginDescriptor: uid=savant.sql@1.0.0}
+INFO [2011-04-05 14:05:58,457]  [PluginController.java:230] [main]  Compatible with this version of Savant
+INFO [2011-04-05 14:05:58,461]  [StandardPluginManager.java:421] [main]  plug-in started - savant.sql@1.0.0 (active/total: 3 of 3)
+INFO [2011-04-05 14:05:58,465]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 14:05:58,466]  [PluginController.java:222] [main]  Activating new plugin: {PluginDescriptor: uid=savant.data@1.0.0}
+INFO [2011-04-05 14:05:58,466]  [PluginController.java:230] [main]  Compatible with this version of Savant
+INFO [2011-04-05 14:05:58,468]  [StandardPluginManager.java:421] [main]  plug-in started - savant.data@1.0.0 (active/total: 4 of 4)
+INFO [2011-04-05 14:05:58,501]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 14:05:58,501]  [PluginController.java:222] [main]  Activating new plugin: {PluginDescriptor: uid=savant.ucsc@1.0.0}
+INFO [2011-04-05 14:05:58,502]  [PluginController.java:230] [main]  Compatible with this version of Savant
+INFO [2011-04-05 14:05:58,506]  [StandardPluginManager.java:421] [main]  plug-in started - savant.ucsc@1.0.0 (active/total: 5 of 5)
+INFO [2011-04-05 14:06:01,625]  [FrameController.java:110] [AWT-EventQueue-0]  Frames changed event being fired
+INFO [2011-04-05 14:06:01,724]  [Savant.java:146] [AWT-EventQueue-0]  Loading track C:\Users\mfiume\Desktop\human.hg18.refseq.bed.2.savant
+INFO [2011-04-05 14:06:04,476]  [FrameController.java:110] [AWT-EventQueue-0]  Frames changed event being fired
+INFO [2011-04-05 14:06:56,365]  [Savant.java:1394] [main]  Saved version file to: C:\Users\mfiume\savant\version.xml
+INFO [2011-04-05 14:06:56,749]  [ManifestParser.java:108] [main]  got SAX parser factory - com.sun.org.apache.xerces.internal.jaxp.SAXParserFactoryImpl@514f7f
+INFO [2011-04-05 14:06:56,749]  [PluginRegistryImpl.java:109] [main]  configured, stopOnError=false, isValidating=true
+INFO [2011-04-05 14:06:56,758]  [PluginController.java:100] [main]  Uninstall list .uninstall_plugins
+INFO [2011-04-05 14:06:56,758]  [PluginController.java:106] [main]  coreLocation=C:\Users\mfiume\savant\plugins\SavantCore.jar
+INFO [2011-04-05 14:06:56,799]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 14:06:56,816]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 14:06:56,818]  [PluginController.java:222] [main]  Activating new plugin: {PluginDescriptor: uid=savant.snp@1.2.0}
+INFO [2011-04-05 14:06:56,818]  [PluginController.java:230] [main]  Compatible with this version of Savant
+INFO [2011-04-05 14:06:56,824]  [StandardPluginManager.java:421] [main]  plug-in started - savant.core@1.0.0 (active/total: 1 of 2)
+INFO [2011-04-05 14:06:56,908]  [StandardPluginManager.java:421] [main]  plug-in started - savant.snp@1.2.0 (active/total: 2 of 2)
+INFO [2011-04-05 14:06:57,043]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 14:06:57,044]  [PluginController.java:222] [main]  Activating new plugin: {PluginDescriptor: uid=savant.sql@1.0.0}
+INFO [2011-04-05 14:06:57,044]  [PluginController.java:230] [main]  Compatible with this version of Savant
+INFO [2011-04-05 14:06:57,048]  [StandardPluginManager.java:421] [main]  plug-in started - savant.sql@1.0.0 (active/total: 3 of 3)
+INFO [2011-04-05 14:06:57,054]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 14:06:57,055]  [PluginController.java:222] [main]  Activating new plugin: {PluginDescriptor: uid=savant.data@1.0.0}
+INFO [2011-04-05 14:06:57,055]  [PluginController.java:230] [main]  Compatible with this version of Savant
+INFO [2011-04-05 14:06:57,057]  [StandardPluginManager.java:421] [main]  plug-in started - savant.data@1.0.0 (active/total: 4 of 4)
+INFO [2011-04-05 14:06:57,118]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 14:06:57,119]  [PluginController.java:222] [main]  Activating new plugin: {PluginDescriptor: uid=savant.ucsc@1.0.0}
+INFO [2011-04-05 14:06:57,119]  [PluginController.java:230] [main]  Compatible with this version of Savant
+INFO [2011-04-05 14:06:57,124]  [StandardPluginManager.java:421] [main]  plug-in started - savant.ucsc@1.0.0 (active/total: 5 of 5)
+INFO [2011-04-05 14:07:06,060]  [FrameController.java:110] [AWT-EventQueue-0]  Frames changed event being fired
+INFO [2011-04-05 14:07:06,149]  [Savant.java:146] [AWT-EventQueue-0]  Loading track C:\Users\mfiume\Desktop\human.hg18.refseq.bed.2.savant
+INFO [2011-04-05 14:07:08,753]  [FrameController.java:110] [AWT-EventQueue-0]  Frames changed event being fired
+INFO [2011-04-05 14:08:05,935]  [Savant.java:1394] [main]  Saved version file to: C:\Users\mfiume\savant\version.xml
+INFO [2011-04-05 14:08:06,311]  [ManifestParser.java:108] [main]  got SAX parser factory - com.sun.org.apache.xerces.internal.jaxp.SAXParserFactoryImpl@6d670a
+INFO [2011-04-05 14:08:06,311]  [PluginRegistryImpl.java:109] [main]  configured, stopOnError=false, isValidating=true
+INFO [2011-04-05 14:08:06,319]  [PluginController.java:100] [main]  Uninstall list .uninstall_plugins
+INFO [2011-04-05 14:08:06,320]  [PluginController.java:106] [main]  coreLocation=C:\Users\mfiume\savant\plugins\SavantCore.jar
+INFO [2011-04-05 14:08:06,358]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 14:08:06,380]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 14:08:06,382]  [PluginController.java:222] [main]  Activating new plugin: {PluginDescriptor: uid=savant.snp@1.2.0}
+INFO [2011-04-05 14:08:06,382]  [PluginController.java:230] [main]  Compatible with this version of Savant
+INFO [2011-04-05 14:08:06,389]  [StandardPluginManager.java:421] [main]  plug-in started - savant.core@1.0.0 (active/total: 1 of 2)
+INFO [2011-04-05 14:08:06,466]  [StandardPluginManager.java:421] [main]  plug-in started - savant.snp@1.2.0 (active/total: 2 of 2)
+INFO [2011-04-05 14:08:06,575]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 14:08:06,576]  [PluginController.java:222] [main]  Activating new plugin: {PluginDescriptor: uid=savant.sql@1.0.0}
+INFO [2011-04-05 14:08:06,576]  [PluginController.java:230] [main]  Compatible with this version of Savant
+INFO [2011-04-05 14:08:06,580]  [StandardPluginManager.java:421] [main]  plug-in started - savant.sql@1.0.0 (active/total: 3 of 3)
+INFO [2011-04-05 14:08:06,586]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 14:08:06,586]  [PluginController.java:222] [main]  Activating new plugin: {PluginDescriptor: uid=savant.data@1.0.0}
+INFO [2011-04-05 14:08:06,586]  [PluginController.java:230] [main]  Compatible with this version of Savant
+INFO [2011-04-05 14:08:06,588]  [StandardPluginManager.java:421] [main]  plug-in started - savant.data@1.0.0 (active/total: 4 of 4)
+INFO [2011-04-05 14:08:06,624]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 14:08:06,625]  [PluginController.java:222] [main]  Activating new plugin: {PluginDescriptor: uid=savant.ucsc@1.0.0}
+INFO [2011-04-05 14:08:06,625]  [PluginController.java:230] [main]  Compatible with this version of Savant
+INFO [2011-04-05 14:08:06,630]  [StandardPluginManager.java:421] [main]  plug-in started - savant.ucsc@1.0.0 (active/total: 5 of 5)
+INFO [2011-04-05 14:08:08,691]  [Savant.java:146] [AWT-EventQueue-0]  Loading track C:\Users\mfiume\Desktop\human.hg18.refseq.bed.2.savant
+INFO [2011-04-05 14:08:11,557]  [FrameController.java:110] [AWT-EventQueue-0]  Frames changed event being fired
+INFO [2011-04-05 14:08:15,000]  [FrameController.java:110] [AWT-EventQueue-0]  Frames changed event being fired
+INFO [2011-04-05 14:08:15,104]  [Savant.java:146] [AWT-EventQueue-0]  Loading track C:\Users\mfiume\Desktop\human.hg18.refseq.bed.2.savant
+INFO [2011-04-05 14:08:20,813]  [FrameController.java:110] [AWT-EventQueue-0]  Frames changed event being fired
+INFO [2011-04-05 14:10:11,546]  [Savant.java:1394] [main]  Saved version file to: C:\Users\mfiume\savant\version.xml
+INFO [2011-04-05 14:10:11,933]  [ManifestParser.java:108] [main]  got SAX parser factory - com.sun.org.apache.xerces.internal.jaxp.SAXParserFactoryImpl@5b6d00
+INFO [2011-04-05 14:10:11,934]  [PluginRegistryImpl.java:109] [main]  configured, stopOnError=false, isValidating=true
+INFO [2011-04-05 14:10:11,943]  [PluginController.java:100] [main]  Uninstall list .uninstall_plugins
+INFO [2011-04-05 14:10:11,943]  [PluginController.java:106] [main]  coreLocation=C:\Users\mfiume\savant\plugins\SavantCore.jar
+INFO [2011-04-05 14:10:11,982]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 14:10:11,998]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 14:10:11,999]  [PluginController.java:222] [main]  Activating new plugin: {PluginDescriptor: uid=savant.snp@1.2.0}
+INFO [2011-04-05 14:10:12,000]  [PluginController.java:230] [main]  Compatible with this version of Savant
+INFO [2011-04-05 14:10:12,006]  [StandardPluginManager.java:421] [main]  plug-in started - savant.core@1.0.0 (active/total: 1 of 2)
+INFO [2011-04-05 14:10:12,084]  [StandardPluginManager.java:421] [main]  plug-in started - savant.snp@1.2.0 (active/total: 2 of 2)
+INFO [2011-04-05 14:10:12,188]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 14:10:12,188]  [PluginController.java:222] [main]  Activating new plugin: {PluginDescriptor: uid=savant.sql@1.0.0}
+INFO [2011-04-05 14:10:12,189]  [PluginController.java:230] [main]  Compatible with this version of Savant
+INFO [2011-04-05 14:10:12,192]  [StandardPluginManager.java:421] [main]  plug-in started - savant.sql@1.0.0 (active/total: 3 of 3)
+INFO [2011-04-05 14:10:12,197]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 14:10:12,197]  [PluginController.java:222] [main]  Activating new plugin: {PluginDescriptor: uid=savant.data@1.0.0}
+INFO [2011-04-05 14:10:12,198]  [PluginController.java:230] [main]  Compatible with this version of Savant
+INFO [2011-04-05 14:10:12,200]  [StandardPluginManager.java:421] [main]  plug-in started - savant.data@1.0.0 (active/total: 4 of 4)
+INFO [2011-04-05 14:10:12,236]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 14:10:12,237]  [PluginController.java:222] [main]  Activating new plugin: {PluginDescriptor: uid=savant.ucsc@1.0.0}
+INFO [2011-04-05 14:10:12,237]  [PluginController.java:230] [main]  Compatible with this version of Savant
+INFO [2011-04-05 14:10:12,242]  [StandardPluginManager.java:421] [main]  plug-in started - savant.ucsc@1.0.0 (active/total: 5 of 5)
+INFO [2011-04-05 14:10:16,997]  [FrameController.java:110] [AWT-EventQueue-0]  Frames changed event being fired
+INFO [2011-04-05 14:10:17,096]  [Savant.java:146] [AWT-EventQueue-0]  Loading track C:\Users\mfiume\Desktop\human.hg18.refseq.bed.2.savant
+INFO [2011-04-05 14:10:19,838]  [FrameController.java:110] [AWT-EventQueue-0]  Frames changed event being fired
+INFO [2011-04-05 14:11:06,660]  [Savant.java:1394] [main]  Saved version file to: C:\Users\mfiume\savant\version.xml
+INFO [2011-04-05 14:11:06,942]  [ManifestParser.java:108] [main]  got SAX parser factory - com.sun.org.apache.xerces.internal.jaxp.SAXParserFactoryImpl@510dc2
+INFO [2011-04-05 14:11:06,942]  [PluginRegistryImpl.java:109] [main]  configured, stopOnError=false, isValidating=true
+INFO [2011-04-05 14:11:06,950]  [PluginController.java:100] [main]  Uninstall list .uninstall_plugins
+INFO [2011-04-05 14:11:06,951]  [PluginController.java:106] [main]  coreLocation=C:\Users\mfiume\savant\plugins\SavantCore.jar
+INFO [2011-04-05 14:11:06,985]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 14:11:07,001]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 14:11:07,003]  [PluginController.java:222] [main]  Activating new plugin: {PluginDescriptor: uid=savant.snp@1.2.0}
+INFO [2011-04-05 14:11:07,003]  [PluginController.java:230] [main]  Compatible with this version of Savant
+INFO [2011-04-05 14:11:07,009]  [StandardPluginManager.java:421] [main]  plug-in started - savant.core@1.0.0 (active/total: 1 of 2)
+INFO [2011-04-05 14:11:07,086]  [StandardPluginManager.java:421] [main]  plug-in started - savant.snp@1.2.0 (active/total: 2 of 2)
+INFO [2011-04-05 14:11:07,191]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 14:11:07,191]  [PluginController.java:222] [main]  Activating new plugin: {PluginDescriptor: uid=savant.sql@1.0.0}
+INFO [2011-04-05 14:11:07,191]  [PluginController.java:230] [main]  Compatible with this version of Savant
+INFO [2011-04-05 14:11:07,195]  [StandardPluginManager.java:421] [main]  plug-in started - savant.sql@1.0.0 (active/total: 3 of 3)
+INFO [2011-04-05 14:11:07,200]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 14:11:07,200]  [PluginController.java:222] [main]  Activating new plugin: {PluginDescriptor: uid=savant.data@1.0.0}
+INFO [2011-04-05 14:11:07,200]  [PluginController.java:230] [main]  Compatible with this version of Savant
+INFO [2011-04-05 14:11:07,202]  [StandardPluginManager.java:421] [main]  plug-in started - savant.data@1.0.0 (active/total: 4 of 4)
+INFO [2011-04-05 14:11:07,235]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 14:11:07,236]  [PluginController.java:222] [main]  Activating new plugin: {PluginDescriptor: uid=savant.ucsc@1.0.0}
+INFO [2011-04-05 14:11:07,236]  [PluginController.java:230] [main]  Compatible with this version of Savant
+INFO [2011-04-05 14:11:07,241]  [StandardPluginManager.java:421] [main]  plug-in started - savant.ucsc@1.0.0 (active/total: 5 of 5)
+INFO [2011-04-05 14:11:10,361]  [FrameController.java:110] [AWT-EventQueue-0]  Frames changed event being fired
+INFO [2011-04-05 14:11:10,465]  [Savant.java:146] [AWT-EventQueue-0]  Loading track C:\Users\mfiume\Desktop\human.hg18.refseq.bed.2.savant
+INFO [2011-04-05 14:11:13,193]  [FrameController.java:110] [AWT-EventQueue-0]  Frames changed event being fired
+INFO [2011-04-05 14:16:04,992]  [Savant.java:1394] [main]  Saved version file to: C:\Users\mfiume\savant\version.xml
+INFO [2011-04-05 14:16:05,248]  [ManifestParser.java:108] [main]  got SAX parser factory - com.sun.org.apache.xerces.internal.jaxp.SAXParserFactoryImpl@1033450
+INFO [2011-04-05 14:16:05,249]  [PluginRegistryImpl.java:109] [main]  configured, stopOnError=false, isValidating=true
+INFO [2011-04-05 14:16:05,257]  [PluginController.java:100] [main]  Uninstall list .uninstall_plugins
+INFO [2011-04-05 14:16:05,258]  [PluginController.java:106] [main]  coreLocation=C:\Users\mfiume\savant\plugins\SavantCore.jar
+INFO [2011-04-05 14:16:05,297]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 14:16:05,315]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 14:16:05,316]  [PluginController.java:222] [main]  Activating new plugin: {PluginDescriptor: uid=savant.snp@1.2.0}
+INFO [2011-04-05 14:16:05,316]  [PluginController.java:230] [main]  Compatible with this version of Savant
+INFO [2011-04-05 14:16:05,323]  [StandardPluginManager.java:421] [main]  plug-in started - savant.core@1.0.0 (active/total: 1 of 2)
+INFO [2011-04-05 14:16:05,410]  [StandardPluginManager.java:421] [main]  plug-in started - savant.snp@1.2.0 (active/total: 2 of 2)
+INFO [2011-04-05 14:16:05,512]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 14:16:05,513]  [PluginController.java:222] [main]  Activating new plugin: {PluginDescriptor: uid=savant.sql@1.0.0}
+INFO [2011-04-05 14:16:05,513]  [PluginController.java:230] [main]  Compatible with this version of Savant
+INFO [2011-04-05 14:16:05,516]  [StandardPluginManager.java:421] [main]  plug-in started - savant.sql@1.0.0 (active/total: 3 of 3)
+INFO [2011-04-05 14:16:05,521]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 14:16:05,522]  [PluginController.java:222] [main]  Activating new plugin: {PluginDescriptor: uid=savant.data@1.0.0}
+INFO [2011-04-05 14:16:05,522]  [PluginController.java:230] [main]  Compatible with this version of Savant
+INFO [2011-04-05 14:16:05,524]  [StandardPluginManager.java:421] [main]  plug-in started - savant.data@1.0.0 (active/total: 4 of 4)
+INFO [2011-04-05 14:16:05,559]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 14:16:05,560]  [PluginController.java:222] [main]  Activating new plugin: {PluginDescriptor: uid=savant.ucsc@1.0.0}
+INFO [2011-04-05 14:16:05,560]  [PluginController.java:230] [main]  Compatible with this version of Savant
+INFO [2011-04-05 14:16:05,565]  [StandardPluginManager.java:421] [main]  plug-in started - savant.ucsc@1.0.0 (active/total: 5 of 5)
+INFO [2011-04-05 14:16:09,057]  [FrameController.java:110] [AWT-EventQueue-0]  Frames changed event being fired
+INFO [2011-04-05 14:16:09,157]  [Savant.java:146] [AWT-EventQueue-0]  Loading track C:\Users\mfiume\Desktop\human.hg18.refseq.bed.2.savant
+INFO [2011-04-05 14:16:11,933]  [FrameController.java:110] [AWT-EventQueue-0]  Frames changed event being fired
+INFO [2011-04-05 14:17:34,808]  [Savant.java:1394] [main]  Saved version file to: C:\Users\mfiume\savant\version.xml
+INFO [2011-04-05 14:17:35,399]  [ManifestParser.java:108] [main]  got SAX parser factory - com.sun.org.apache.xerces.internal.jaxp.SAXParserFactoryImpl@6d670a
+INFO [2011-04-05 14:17:35,399]  [PluginRegistryImpl.java:109] [main]  configured, stopOnError=false, isValidating=true
+INFO [2011-04-05 14:17:35,410]  [PluginController.java:100] [main]  Uninstall list .uninstall_plugins
+INFO [2011-04-05 14:17:35,410]  [PluginController.java:106] [main]  coreLocation=C:\Users\mfiume\savant\plugins\SavantCore.jar
+INFO [2011-04-05 14:17:35,449]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 14:17:35,466]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 14:17:35,467]  [PluginController.java:222] [main]  Activating new plugin: {PluginDescriptor: uid=savant.snp@1.2.0}
+INFO [2011-04-05 14:17:35,467]  [PluginController.java:230] [main]  Compatible with this version of Savant
+INFO [2011-04-05 14:17:35,473]  [StandardPluginManager.java:421] [main]  plug-in started - savant.core@1.0.0 (active/total: 1 of 2)
+INFO [2011-04-05 14:17:35,556]  [StandardPluginManager.java:421] [main]  plug-in started - savant.snp@1.2.0 (active/total: 2 of 2)
+INFO [2011-04-05 14:17:35,664]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 14:17:35,664]  [PluginController.java:222] [main]  Activating new plugin: {PluginDescriptor: uid=savant.sql@1.0.0}
+INFO [2011-04-05 14:17:35,665]  [PluginController.java:230] [main]  Compatible with this version of Savant
+INFO [2011-04-05 14:17:35,668]  [StandardPluginManager.java:421] [main]  plug-in started - savant.sql@1.0.0 (active/total: 3 of 3)
+INFO [2011-04-05 14:17:35,672]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 14:17:35,673]  [PluginController.java:222] [main]  Activating new plugin: {PluginDescriptor: uid=savant.data@1.0.0}
+INFO [2011-04-05 14:17:35,673]  [PluginController.java:230] [main]  Compatible with this version of Savant
+INFO [2011-04-05 14:17:35,675]  [StandardPluginManager.java:421] [main]  plug-in started - savant.data@1.0.0 (active/total: 4 of 4)
+INFO [2011-04-05 14:17:35,714]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 14:17:35,714]  [PluginController.java:222] [main]  Activating new plugin: {PluginDescriptor: uid=savant.ucsc@1.0.0}
+INFO [2011-04-05 14:17:35,715]  [PluginController.java:230] [main]  Compatible with this version of Savant
+INFO [2011-04-05 14:17:35,719]  [StandardPluginManager.java:421] [main]  plug-in started - savant.ucsc@1.0.0 (active/total: 5 of 5)
+INFO [2011-04-05 14:17:42,895]  [FrameController.java:110] [AWT-EventQueue-0]  Frames changed event being fired
+INFO [2011-04-05 14:17:42,997]  [Savant.java:146] [AWT-EventQueue-0]  Loading track C:\Users\mfiume\Desktop\human.hg18.refseq.bed.2.savant
+INFO [2011-04-05 14:17:45,719]  [FrameController.java:110] [AWT-EventQueue-0]  Frames changed event being fired
+INFO [2011-04-05 14:25:02,020]  [Savant.java:1394] [main]  Saved version file to: C:\Users\mfiume\savant\version.xml
+INFO [2011-04-05 14:25:02,875]  [ManifestParser.java:108] [main]  got SAX parser factory - com.sun.org.apache.xerces.internal.jaxp.SAXParserFactoryImpl@d1e07c
+INFO [2011-04-05 14:25:02,875]  [PluginRegistryImpl.java:109] [main]  configured, stopOnError=false, isValidating=true
+INFO [2011-04-05 14:25:02,884]  [PluginController.java:100] [main]  Uninstall list .uninstall_plugins
+INFO [2011-04-05 14:25:02,885]  [PluginController.java:106] [main]  coreLocation=C:\Users\mfiume\savant\plugins\SavantCore.jar
+INFO [2011-04-05 14:25:02,920]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 14:25:02,936]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 14:25:02,937]  [PluginController.java:222] [main]  Activating new plugin: {PluginDescriptor: uid=savant.snp@1.2.0}
+INFO [2011-04-05 14:25:02,938]  [PluginController.java:230] [main]  Compatible with this version of Savant
+INFO [2011-04-05 14:25:02,944]  [StandardPluginManager.java:421] [main]  plug-in started - savant.core@1.0.0 (active/total: 1 of 2)
+INFO [2011-04-05 14:25:03,026]  [StandardPluginManager.java:421] [main]  plug-in started - savant.snp@1.2.0 (active/total: 2 of 2)
+INFO [2011-04-05 14:25:03,136]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 14:25:03,136]  [PluginController.java:222] [main]  Activating new plugin: {PluginDescriptor: uid=savant.sql@1.0.0}
+INFO [2011-04-05 14:25:03,136]  [PluginController.java:230] [main]  Compatible with this version of Savant
+INFO [2011-04-05 14:25:03,140]  [StandardPluginManager.java:421] [main]  plug-in started - savant.sql@1.0.0 (active/total: 3 of 3)
+INFO [2011-04-05 14:25:03,144]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 14:25:03,145]  [PluginController.java:222] [main]  Activating new plugin: {PluginDescriptor: uid=savant.data@1.0.0}
+INFO [2011-04-05 14:25:03,145]  [PluginController.java:230] [main]  Compatible with this version of Savant
+INFO [2011-04-05 14:25:03,147]  [StandardPluginManager.java:421] [main]  plug-in started - savant.data@1.0.0 (active/total: 4 of 4)
+INFO [2011-04-05 14:25:03,186]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 14:25:03,187]  [PluginController.java:222] [main]  Activating new plugin: {PluginDescriptor: uid=savant.ucsc@1.0.0}
+INFO [2011-04-05 14:25:03,187]  [PluginController.java:230] [main]  Compatible with this version of Savant
+INFO [2011-04-05 14:25:03,192]  [StandardPluginManager.java:421] [main]  plug-in started - savant.ucsc@1.0.0 (active/total: 5 of 5)
+INFO [2011-04-05 14:25:06,047]  [FrameController.java:110] [AWT-EventQueue-0]  Frames changed event being fired
+INFO [2011-04-05 14:25:06,144]  [Savant.java:146] [AWT-EventQueue-0]  Loading track C:\Users\mfiume\Desktop\human.hg18.refseq.bed.2.savant
+INFO [2011-04-05 14:25:08,951]  [FrameController.java:110] [AWT-EventQueue-0]  Frames changed event being fired
+INFO [2011-04-05 14:26:01,727]  [Savant.java:1394] [main]  Saved version file to: C:\Users\mfiume\savant\version.xml
+INFO [2011-04-05 14:26:02,168]  [ManifestParser.java:108] [main]  got SAX parser factory - com.sun.org.apache.xerces.internal.jaxp.SAXParserFactoryImpl@1033450
+INFO [2011-04-05 14:26:02,168]  [PluginRegistryImpl.java:109] [main]  configured, stopOnError=false, isValidating=true
+INFO [2011-04-05 14:26:02,177]  [PluginController.java:100] [main]  Uninstall list .uninstall_plugins
+INFO [2011-04-05 14:26:02,177]  [PluginController.java:106] [main]  coreLocation=C:\Users\mfiume\savant\plugins\SavantCore.jar
+INFO [2011-04-05 14:26:02,211]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 14:26:02,227]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 14:26:02,228]  [PluginController.java:222] [main]  Activating new plugin: {PluginDescriptor: uid=savant.snp@1.2.0}
+INFO [2011-04-05 14:26:02,228]  [PluginController.java:230] [main]  Compatible with this version of Savant
+INFO [2011-04-05 14:26:02,234]  [StandardPluginManager.java:421] [main]  plug-in started - savant.core@1.0.0 (active/total: 1 of 2)
+INFO [2011-04-05 14:26:02,311]  [StandardPluginManager.java:421] [main]  plug-in started - savant.snp@1.2.0 (active/total: 2 of 2)
+INFO [2011-04-05 14:26:02,414]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 14:26:02,414]  [PluginController.java:222] [main]  Activating new plugin: {PluginDescriptor: uid=savant.sql@1.0.0}
+INFO [2011-04-05 14:26:02,415]  [PluginController.java:230] [main]  Compatible with this version of Savant
+INFO [2011-04-05 14:26:02,418]  [StandardPluginManager.java:421] [main]  plug-in started - savant.sql@1.0.0 (active/total: 3 of 3)
+INFO [2011-04-05 14:26:02,423]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 14:26:02,423]  [PluginController.java:222] [main]  Activating new plugin: {PluginDescriptor: uid=savant.data@1.0.0}
+INFO [2011-04-05 14:26:02,423]  [PluginController.java:230] [main]  Compatible with this version of Savant
+INFO [2011-04-05 14:26:02,425]  [StandardPluginManager.java:421] [main]  plug-in started - savant.data@1.0.0 (active/total: 4 of 4)
+INFO [2011-04-05 14:26:02,465]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 14:26:02,466]  [PluginController.java:222] [main]  Activating new plugin: {PluginDescriptor: uid=savant.ucsc@1.0.0}
+INFO [2011-04-05 14:26:02,466]  [PluginController.java:230] [main]  Compatible with this version of Savant
+INFO [2011-04-05 14:26:02,471]  [StandardPluginManager.java:421] [main]  plug-in started - savant.ucsc@1.0.0 (active/total: 5 of 5)
+INFO [2011-04-05 14:26:06,219]  [FrameController.java:110] [AWT-EventQueue-0]  Frames changed event being fired
+INFO [2011-04-05 14:26:06,317]  [Savant.java:146] [AWT-EventQueue-0]  Loading track C:\Users\mfiume\Desktop\human.hg18.refseq.bed.2.savant
+INFO [2011-04-05 14:26:09,013]  [FrameController.java:110] [AWT-EventQueue-0]  Frames changed event being fired
+INFO [2011-04-05 14:27:14,151]  [Savant.java:1394] [main]  Saved version file to: C:\Users\mfiume\savant\version.xml
+INFO [2011-04-05 14:27:14,534]  [ManifestParser.java:108] [main]  got SAX parser factory - com.sun.org.apache.xerces.internal.jaxp.SAXParserFactoryImpl@6d670a
+INFO [2011-04-05 14:27:14,534]  [PluginRegistryImpl.java:109] [main]  configured, stopOnError=false, isValidating=true
+INFO [2011-04-05 14:27:14,542]  [PluginController.java:100] [main]  Uninstall list .uninstall_plugins
+INFO [2011-04-05 14:27:14,544]  [PluginController.java:106] [main]  coreLocation=C:\Users\mfiume\savant\plugins\SavantCore.jar
+INFO [2011-04-05 14:27:14,579]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 14:27:14,596]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 14:27:14,597]  [PluginController.java:222] [main]  Activating new plugin: {PluginDescriptor: uid=savant.snp@1.2.0}
+INFO [2011-04-05 14:27:14,597]  [PluginController.java:230] [main]  Compatible with this version of Savant
+INFO [2011-04-05 14:27:14,603]  [StandardPluginManager.java:421] [main]  plug-in started - savant.core@1.0.0 (active/total: 1 of 2)
+INFO [2011-04-05 14:27:14,685]  [StandardPluginManager.java:421] [main]  plug-in started - savant.snp@1.2.0 (active/total: 2 of 2)
+INFO [2011-04-05 14:27:14,794]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 14:27:14,795]  [PluginController.java:222] [main]  Activating new plugin: {PluginDescriptor: uid=savant.sql@1.0.0}
+INFO [2011-04-05 14:27:14,795]  [PluginController.java:230] [main]  Compatible with this version of Savant
+INFO [2011-04-05 14:27:14,798]  [StandardPluginManager.java:421] [main]  plug-in started - savant.sql@1.0.0 (active/total: 3 of 3)
+INFO [2011-04-05 14:27:14,803]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 14:27:14,804]  [PluginController.java:222] [main]  Activating new plugin: {PluginDescriptor: uid=savant.data@1.0.0}
+INFO [2011-04-05 14:27:14,807]  [PluginController.java:230] [main]  Compatible with this version of Savant
+INFO [2011-04-05 14:27:14,810]  [StandardPluginManager.java:421] [main]  plug-in started - savant.data@1.0.0 (active/total: 4 of 4)
+INFO [2011-04-05 14:27:14,853]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 14:27:14,854]  [PluginController.java:222] [main]  Activating new plugin: {PluginDescriptor: uid=savant.ucsc@1.0.0}
+INFO [2011-04-05 14:27:14,854]  [PluginController.java:230] [main]  Compatible with this version of Savant
+INFO [2011-04-05 14:27:14,859]  [StandardPluginManager.java:421] [main]  plug-in started - savant.ucsc@1.0.0 (active/total: 5 of 5)
+INFO [2011-04-05 14:27:19,707]  [Savant.java:146] [AWT-EventQueue-0]  Loading track C:\Users\mfiume\Desktop\human.hg18.refseq.bed.2.savant
+INFO [2011-04-05 14:27:22,557]  [FrameController.java:110] [AWT-EventQueue-0]  Frames changed event being fired
+INFO [2011-04-05 14:27:25,633]  [FrameController.java:110] [AWT-EventQueue-0]  Frames changed event being fired
+INFO [2011-04-05 14:27:25,736]  [Savant.java:146] [AWT-EventQueue-0]  Loading track C:\Users\mfiume\Desktop\human.hg18.refseq.bed.2.savant
+INFO [2011-04-05 14:27:31,835]  [FrameController.java:110] [AWT-EventQueue-0]  Frames changed event being fired
+INFO [2011-04-05 14:28:24,833]  [Savant.java:1394] [main]  Saved version file to: C:\Users\mfiume\savant\version.xml
+INFO [2011-04-05 14:28:25,370]  [ManifestParser.java:108] [main]  got SAX parser factory - com.sun.org.apache.xerces.internal.jaxp.SAXParserFactoryImpl@104eabb
+INFO [2011-04-05 14:28:25,370]  [PluginRegistryImpl.java:109] [main]  configured, stopOnError=false, isValidating=true
+INFO [2011-04-05 14:28:25,378]  [PluginController.java:100] [main]  Uninstall list .uninstall_plugins
+INFO [2011-04-05 14:28:25,378]  [PluginController.java:106] [main]  coreLocation=C:\Users\mfiume\savant\plugins\SavantCore.jar
+INFO [2011-04-05 14:28:25,415]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 14:28:25,430]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 14:28:25,431]  [PluginController.java:222] [main]  Activating new plugin: {PluginDescriptor: uid=savant.snp@1.2.0}
+INFO [2011-04-05 14:28:25,432]  [PluginController.java:230] [main]  Compatible with this version of Savant
+INFO [2011-04-05 14:28:25,438]  [StandardPluginManager.java:421] [main]  plug-in started - savant.core@1.0.0 (active/total: 1 of 2)
+INFO [2011-04-05 14:28:25,512]  [StandardPluginManager.java:421] [main]  plug-in started - savant.snp@1.2.0 (active/total: 2 of 2)
+INFO [2011-04-05 14:28:25,614]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 14:28:25,615]  [PluginController.java:222] [main]  Activating new plugin: {PluginDescriptor: uid=savant.sql@1.0.0}
+INFO [2011-04-05 14:28:25,615]  [PluginController.java:230] [main]  Compatible with this version of Savant
+INFO [2011-04-05 14:28:25,618]  [StandardPluginManager.java:421] [main]  plug-in started - savant.sql@1.0.0 (active/total: 3 of 3)
+INFO [2011-04-05 14:28:25,623]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 14:28:25,623]  [PluginController.java:222] [main]  Activating new plugin: {PluginDescriptor: uid=savant.data@1.0.0}
+INFO [2011-04-05 14:28:25,624]  [PluginController.java:230] [main]  Compatible with this version of Savant
+INFO [2011-04-05 14:28:25,626]  [StandardPluginManager.java:421] [main]  plug-in started - savant.data@1.0.0 (active/total: 4 of 4)
+INFO [2011-04-05 14:28:25,658]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 14:28:25,659]  [PluginController.java:222] [main]  Activating new plugin: {PluginDescriptor: uid=savant.ucsc@1.0.0}
+INFO [2011-04-05 14:28:25,659]  [PluginController.java:230] [main]  Compatible with this version of Savant
+INFO [2011-04-05 14:28:25,664]  [StandardPluginManager.java:421] [main]  plug-in started - savant.ucsc@1.0.0 (active/total: 5 of 5)
+INFO [2011-04-05 14:28:28,677]  [FrameController.java:110] [AWT-EventQueue-0]  Frames changed event being fired
+INFO [2011-04-05 14:28:28,780]  [Savant.java:146] [AWT-EventQueue-0]  Loading track C:\Users\mfiume\Desktop\human.hg18.refseq.bed.2.savant
+INFO [2011-04-05 14:28:31,576]  [FrameController.java:110] [AWT-EventQueue-0]  Frames changed event being fired
+INFO [2011-04-05 14:29:08,470]  [Savant.java:1394] [main]  Saved version file to: C:\Users\mfiume\savant\version.xml
+INFO [2011-04-05 14:29:08,960]  [ManifestParser.java:108] [main]  got SAX parser factory - com.sun.org.apache.xerces.internal.jaxp.SAXParserFactoryImpl@1033450
+INFO [2011-04-05 14:29:08,960]  [PluginRegistryImpl.java:109] [main]  configured, stopOnError=false, isValidating=true
+INFO [2011-04-05 14:29:08,968]  [PluginController.java:100] [main]  Uninstall list .uninstall_plugins
+INFO [2011-04-05 14:29:08,968]  [PluginController.java:106] [main]  coreLocation=C:\Users\mfiume\savant\plugins\SavantCore.jar
+INFO [2011-04-05 14:29:09,004]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 14:29:09,020]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 14:29:09,021]  [PluginController.java:222] [main]  Activating new plugin: {PluginDescriptor: uid=savant.snp@1.2.0}
+INFO [2011-04-05 14:29:09,021]  [PluginController.java:230] [main]  Compatible with this version of Savant
+INFO [2011-04-05 14:29:09,027]  [StandardPluginManager.java:421] [main]  plug-in started - savant.core@1.0.0 (active/total: 1 of 2)
+INFO [2011-04-05 14:29:09,108]  [StandardPluginManager.java:421] [main]  plug-in started - savant.snp@1.2.0 (active/total: 2 of 2)
+INFO [2011-04-05 14:29:09,223]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 14:29:09,224]  [PluginController.java:222] [main]  Activating new plugin: {PluginDescriptor: uid=savant.sql@1.0.0}
+INFO [2011-04-05 14:29:09,224]  [PluginController.java:230] [main]  Compatible with this version of Savant
+INFO [2011-04-05 14:29:09,228]  [StandardPluginManager.java:421] [main]  plug-in started - savant.sql@1.0.0 (active/total: 3 of 3)
+INFO [2011-04-05 14:29:09,233]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 14:29:09,233]  [PluginController.java:222] [main]  Activating new plugin: {PluginDescriptor: uid=savant.data@1.0.0}
+INFO [2011-04-05 14:29:09,233]  [PluginController.java:230] [main]  Compatible with this version of Savant
+INFO [2011-04-05 14:29:09,235]  [StandardPluginManager.java:421] [main]  plug-in started - savant.data@1.0.0 (active/total: 4 of 4)
+INFO [2011-04-05 14:29:09,275]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 14:29:09,276]  [PluginController.java:222] [main]  Activating new plugin: {PluginDescriptor: uid=savant.ucsc@1.0.0}
+INFO [2011-04-05 14:29:09,276]  [PluginController.java:230] [main]  Compatible with this version of Savant
+INFO [2011-04-05 14:29:09,281]  [StandardPluginManager.java:421] [main]  plug-in started - savant.ucsc@1.0.0 (active/total: 5 of 5)
+INFO [2011-04-05 14:29:11,839]  [FrameController.java:110] [AWT-EventQueue-0]  Frames changed event being fired
+INFO [2011-04-05 14:29:11,934]  [Savant.java:146] [AWT-EventQueue-0]  Loading track C:\Users\mfiume\Desktop\human.hg18.refseq.bed.2.savant
+INFO [2011-04-05 14:29:14,729]  [FrameController.java:110] [AWT-EventQueue-0]  Frames changed event being fired
+INFO [2011-04-05 14:32:30,277]  [Savant.java:1394] [main]  Saved version file to: C:\Users\mfiume\savant\version.xml
+INFO [2011-04-05 14:32:30,785]  [ManifestParser.java:108] [main]  got SAX parser factory - com.sun.org.apache.xerces.internal.jaxp.SAXParserFactoryImpl@2942da
+INFO [2011-04-05 14:32:30,787]  [PluginRegistryImpl.java:109] [main]  configured, stopOnError=false, isValidating=true
+INFO [2011-04-05 14:32:30,796]  [PluginController.java:100] [main]  Uninstall list .uninstall_plugins
+INFO [2011-04-05 14:32:30,797]  [PluginController.java:106] [main]  coreLocation=C:\Users\mfiume\savant\plugins\SavantCore.jar
+INFO [2011-04-05 14:32:30,833]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 14:32:30,852]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 14:32:30,855]  [PluginController.java:222] [main]  Activating new plugin: {PluginDescriptor: uid=savant.snp@1.2.0}
+INFO [2011-04-05 14:32:30,856]  [PluginController.java:230] [main]  Compatible with this version of Savant
+INFO [2011-04-05 14:32:30,862]  [StandardPluginManager.java:421] [main]  plug-in started - savant.core@1.0.0 (active/total: 1 of 2)
+INFO [2011-04-05 14:32:30,946]  [StandardPluginManager.java:421] [main]  plug-in started - savant.snp@1.2.0 (active/total: 2 of 2)
+INFO [2011-04-05 14:32:31,073]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 14:32:31,073]  [PluginController.java:222] [main]  Activating new plugin: {PluginDescriptor: uid=savant.sql@1.0.0}
+INFO [2011-04-05 14:32:31,073]  [PluginController.java:230] [main]  Compatible with this version of Savant
+INFO [2011-04-05 14:32:31,077]  [StandardPluginManager.java:421] [main]  plug-in started - savant.sql@1.0.0 (active/total: 3 of 3)
+INFO [2011-04-05 14:32:31,083]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 14:32:31,083]  [PluginController.java:222] [main]  Activating new plugin: {PluginDescriptor: uid=savant.data@1.0.0}
+INFO [2011-04-05 14:32:31,086]  [PluginController.java:230] [main]  Compatible with this version of Savant
+INFO [2011-04-05 14:32:31,088]  [StandardPluginManager.java:421] [main]  plug-in started - savant.data@1.0.0 (active/total: 4 of 4)
+INFO [2011-04-05 14:32:31,133]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 14:32:31,133]  [PluginController.java:222] [main]  Activating new plugin: {PluginDescriptor: uid=savant.ucsc@1.0.0}
+INFO [2011-04-05 14:32:31,133]  [PluginController.java:230] [main]  Compatible with this version of Savant
+INFO [2011-04-05 14:32:31,141]  [StandardPluginManager.java:421] [main]  plug-in started - savant.ucsc@1.0.0 (active/total: 5 of 5)
+INFO [2011-04-05 14:32:36,886]  [FrameController.java:110] [AWT-EventQueue-0]  Frames changed event being fired
+INFO [2011-04-05 14:32:36,990]  [Savant.java:146] [AWT-EventQueue-0]  Loading track C:\Users\mfiume\Desktop\human.hg18.refseq.bed.2.savant
+INFO [2011-04-05 14:32:39,774]  [FrameController.java:110] [AWT-EventQueue-0]  Frames changed event being fired
+INFO [2011-04-05 14:36:06,367]  [Savant.java:1394] [main]  Saved version file to: C:\Users\mfiume\savant\version.xml
+INFO [2011-04-05 14:36:07,168]  [ManifestParser.java:108] [main]  got SAX parser factory - com.sun.org.apache.xerces.internal.jaxp.SAXParserFactoryImpl@590510
+INFO [2011-04-05 14:36:07,168]  [PluginRegistryImpl.java:109] [main]  configured, stopOnError=false, isValidating=true
+INFO [2011-04-05 14:36:07,177]  [PluginController.java:100] [main]  Uninstall list .uninstall_plugins
+INFO [2011-04-05 14:36:07,178]  [PluginController.java:106] [main]  coreLocation=C:\Users\mfiume\savant\plugins\SavantCore.jar
+INFO [2011-04-05 14:36:07,220]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 14:36:07,236]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 14:36:07,237]  [PluginController.java:222] [main]  Activating new plugin: {PluginDescriptor: uid=savant.snp@1.2.0}
+INFO [2011-04-05 14:36:07,238]  [PluginController.java:230] [main]  Compatible with this version of Savant
+INFO [2011-04-05 14:36:07,246]  [StandardPluginManager.java:421] [main]  plug-in started - savant.core@1.0.0 (active/total: 1 of 2)
+INFO [2011-04-05 14:36:07,335]  [StandardPluginManager.java:421] [main]  plug-in started - savant.snp@1.2.0 (active/total: 2 of 2)
+INFO [2011-04-05 14:36:07,445]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 14:36:07,445]  [PluginController.java:222] [main]  Activating new plugin: {PluginDescriptor: uid=savant.sql@1.0.0}
+INFO [2011-04-05 14:36:07,445]  [PluginController.java:230] [main]  Compatible with this version of Savant
+INFO [2011-04-05 14:36:07,449]  [StandardPluginManager.java:421] [main]  plug-in started - savant.sql@1.0.0 (active/total: 3 of 3)
+INFO [2011-04-05 14:36:07,454]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 14:36:07,454]  [PluginController.java:222] [main]  Activating new plugin: {PluginDescriptor: uid=savant.data@1.0.0}
+INFO [2011-04-05 14:36:07,455]  [PluginController.java:230] [main]  Compatible with this version of Savant
+INFO [2011-04-05 14:36:07,456]  [StandardPluginManager.java:421] [main]  plug-in started - savant.data@1.0.0 (active/total: 4 of 4)
+INFO [2011-04-05 14:36:07,493]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 14:36:07,493]  [PluginController.java:222] [main]  Activating new plugin: {PluginDescriptor: uid=savant.ucsc@1.0.0}
+INFO [2011-04-05 14:36:07,493]  [PluginController.java:230] [main]  Compatible with this version of Savant
+INFO [2011-04-05 14:36:07,498]  [StandardPluginManager.java:421] [main]  plug-in started - savant.ucsc@1.0.0 (active/total: 5 of 5)
+INFO [2011-04-05 14:36:10,191]  [FrameController.java:110] [AWT-EventQueue-0]  Frames changed event being fired
+INFO [2011-04-05 14:36:10,285]  [Savant.java:146] [AWT-EventQueue-0]  Loading track C:\Users\mfiume\Desktop\human.hg18.refseq.bed.2.savant
+INFO [2011-04-05 14:36:13,144]  [FrameController.java:110] [AWT-EventQueue-0]  Frames changed event being fired
+INFO [2011-04-05 14:36:52,371]  [Savant.java:1394] [main]  Saved version file to: C:\Users\mfiume\savant\version.xml
+INFO [2011-04-05 14:36:52,863]  [ManifestParser.java:108] [main]  got SAX parser factory - com.sun.org.apache.xerces.internal.jaxp.SAXParserFactoryImpl@e3fd79
+INFO [2011-04-05 14:36:52,863]  [PluginRegistryImpl.java:109] [main]  configured, stopOnError=false, isValidating=true
+INFO [2011-04-05 14:36:52,874]  [PluginController.java:100] [main]  Uninstall list .uninstall_plugins
+INFO [2011-04-05 14:36:52,874]  [PluginController.java:106] [main]  coreLocation=C:\Users\mfiume\savant\plugins\SavantCore.jar
+INFO [2011-04-05 14:36:52,910]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 14:36:52,928]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 14:36:52,930]  [PluginController.java:222] [main]  Activating new plugin: {PluginDescriptor: uid=savant.snp@1.2.0}
+INFO [2011-04-05 14:36:52,931]  [PluginController.java:230] [main]  Compatible with this version of Savant
+INFO [2011-04-05 14:36:52,938]  [StandardPluginManager.java:421] [main]  plug-in started - savant.core@1.0.0 (active/total: 1 of 2)
+INFO [2011-04-05 14:36:53,028]  [StandardPluginManager.java:421] [main]  plug-in started - savant.snp@1.2.0 (active/total: 2 of 2)
+INFO [2011-04-05 14:36:53,147]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 14:36:53,148]  [PluginController.java:222] [main]  Activating new plugin: {PluginDescriptor: uid=savant.sql@1.0.0}
+INFO [2011-04-05 14:36:53,148]  [PluginController.java:230] [main]  Compatible with this version of Savant
+INFO [2011-04-05 14:36:53,152]  [StandardPluginManager.java:421] [main]  plug-in started - savant.sql@1.0.0 (active/total: 3 of 3)
+INFO [2011-04-05 14:36:53,157]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 14:36:53,158]  [PluginController.java:222] [main]  Activating new plugin: {PluginDescriptor: uid=savant.data@1.0.0}
+INFO [2011-04-05 14:36:53,158]  [PluginController.java:230] [main]  Compatible with this version of Savant
+INFO [2011-04-05 14:36:53,160]  [StandardPluginManager.java:421] [main]  plug-in started - savant.data@1.0.0 (active/total: 4 of 4)
+INFO [2011-04-05 14:36:53,194]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-05 14:36:53,195]  [PluginController.java:222] [main]  Activating new plugin: {PluginDescriptor: uid=savant.ucsc@1.0.0}
+INFO [2011-04-05 14:36:53,195]  [PluginController.java:230] [main]  Compatible with this version of Savant
+INFO [2011-04-05 14:36:53,201]  [StandardPluginManager.java:421] [main]  plug-in started - savant.ucsc@1.0.0 (active/total: 5 of 5)
+INFO [2011-04-05 14:36:57,819]  [FrameController.java:110] [AWT-EventQueue-0]  Frames changed event being fired
+INFO [2011-04-05 14:36:57,915]  [Savant.java:146] [AWT-EventQueue-0]  Loading track C:\Users\mfiume\Desktop\human.hg18.refseq.bed.2.savant
+INFO [2011-04-05 14:37:00,588]  [FrameController.java:110] [AWT-EventQueue-0]  Frames changed event being fired

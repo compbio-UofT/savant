@@ -37,7 +37,7 @@ public final class Interval {
      * @param start
      * @param end
      */
-    Interval(long start, long end) {
+    public Interval(long start, long end) {
         this.start = start;
         this.end = end;
     }
