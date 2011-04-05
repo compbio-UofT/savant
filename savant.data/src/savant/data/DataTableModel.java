@@ -21,6 +21,7 @@ import javax.swing.table.AbstractTableModel;
 import net.sf.samtools.SAMRecord;
 import savant.data.types.BAMIntervalRecord;
 import savant.data.types.BEDIntervalRecord;
+import savant.data.types.Block;
 import savant.data.types.GenericContinuousRecord;
 import savant.data.types.GenericIntervalRecord;
 import savant.data.types.GenericPointRecord;
@@ -182,7 +183,7 @@ public class DataTableModel extends AbstractTableModel {
                      case 1:
                          return ((GenericContinuousRecord)datum).getPosition();
                      case 2:
-                         return ((GenericContinuousRecord)datum).getValue().getValue();
+                         return ((GenericContinuousRecord)datum).getValue();
                  }
              case INTERVAL_GENERIC:
                  switch (column) {
@@ -240,7 +241,8 @@ public class DataTableModel extends AbstractTableModel {
                      case 3:
                          return ((BEDIntervalRecord)datum).getName();
                      case 4:
-                         return ((BEDIntervalRecord)datum).getBlocks().size();
+                         List<Block> blocks = ((BEDIntervalRecord)datum).getBlocks();
+                         return blocks != null ? blocks.size() : 0;
                  }
              case TABIX:
                  switch(column) {
