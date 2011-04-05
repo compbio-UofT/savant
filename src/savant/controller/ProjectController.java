@@ -31,7 +31,6 @@ import savant.data.types.Genome;
 import savant.exception.SavantEmptySessionException;
 import savant.file.SavantFileNotFormattedException;
 import savant.file.SavantUnsupportedVersionException;
-import savant.util.Bookmark;
 import savant.util.MiscUtils;
 import savant.util.Range;
 import savant.view.swing.Savant;
@@ -182,7 +181,7 @@ public class ProjectController {
                 try {
                     genome = Track.createGenome(TrackFactory.createTrack(TrackFactory.createDataSource(new URI(genomePath))));
                     //genome = Track.createGenome(TrackFactory.createTrackSync(new URI(genomePath)).get(0));
-                } catch (URISyntaxException usx) {
+                } catch (Exception x) {
                     // A common cause of URISyntaxExceptions is a file-path containing spaces.
                     genome = Track.createGenome(TrackFactory.createTrack(TrackFactory.createDataSource(new File(genomePath).toURI())));
                     //genome = Track.createGenome(TrackFactory.createTrackSync(new File(genomePath).toURI()).get(0));
