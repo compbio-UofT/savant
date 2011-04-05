@@ -20,12 +20,14 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
@@ -89,10 +91,9 @@ import savant.view.swing.Savant;
  */
 public class StartPanel extends javax.swing.JPanel implements ComponentListener {
 
-
-    static Color bgcolor = new Color(15,15,15);
-    static Color textcolor = Color.white;
-    static Color outlinecolor = Color.white;
+    static Color bgcolor = new Color(30,30,30);//new Color(15,15,15);
+    static Color textcolor = new Color(245,245,245);
+    static Color outlinecolor = Color.lightGray;
 
     private StartSubPanel recentTracksPanel;
     private StartSubPanel recentProjectsPanel;
@@ -169,10 +170,41 @@ public class StartPanel extends javax.swing.JPanel implements ComponentListener 
     ImageIcon hint_activeplugins = SavantIconFactory.getInstance().getIcon("/savant/images/hint_activeplugins.png");
     ImageIcon hint_bookmarks = SavantIconFactory.getInstance().getIcon("/savant/images/hint_bookmarks.png");
 
+    private void drawScaledImage(Graphics g, Image img, int startx, int starty, int width, int height) {
+            g.drawImage(img,
+                           startx, starty, startx+width, starty+height,
+                           0, 0, logo.getImage().getWidth(this), logo.getImage().getHeight(this),
+                           this);
+    }
+
     @Override
     public void paintComponent(Graphics g) {
+        
+        ((Graphics2D)g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, // Anti-alias!
+        RenderingHints.VALUE_ANTIALIAS_ON);
+
         // g.fillRect(0, 0, this.getWidth(), this.getHeight());
         //centerImage(g, logo.getImage()/*scaleImage(logo.getImage(),0.7)*/, new Point(this.getWidth()/2, this.getHeight()/2));
+
+        int totalwidth = this.getWidth();
+        int totalheight = this.getHeight();
+
+        int sideoffset = (int) (totalwidth * percentsidemargin);
+        int topoffset = (int) (totalheight * percenttopmargin);
+
+        int unitheight = (int) (totalheight - (2 * topoffset) - vertsep) / 2;
+        int unitwidth = (int) (totalwidth - (2 * sideoffset) - horsep) / 2;
+
+        
+        g.setFont(new Font("Georgia", Font.PLAIN, 60));
+        FontMetrics fm = g.getFontMetrics();
+        g.setColor(Color.white);
+        int bannershift = fm.stringWidth("Savant Genome Browser")/2;
+        g.drawString("Savant Genome Browser", totalwidth/2 + - bannershift, topoffset+pushdownoffset- 20);
+        //drawScaledImage(g, logo.getImage(), totalwidth/2 - bannershift, topoffset-5, pushdownoffset, pushdownoffset);
+
+        //g.drawImage(logo.getImage().getScaledInstance(10, 10, Image.SCALE_SMOOTH), sideoffset, topoffset, this);
+
         g.drawImage(hint_loadtracks.getImage(), buffer, buffer, this);
         g.drawImage(hint_activeplugins.getImage(), buffer, this.getHeight() - hint_activeplugins.getIconHeight() - buffer, this);
         g.drawImage(hint_bookmarks.getImage(), this.getWidth() - hint_bookmarks.getIconWidth() - buffer, buffer, this);
@@ -197,9 +229,11 @@ public class StartPanel extends javax.swing.JPanel implements ComponentListener 
         System.out.println("Width: " + image.getWidth(null) + " scaled width: " + ((int) (image.getHeight(null) * d)));
         return image.getScaledInstance((int) (image.getWidth(null) * d), (int) (image.getHeight(null) * d), Image.SCALE_SMOOTH);
     }
+    
     int vertsep = 10;
     int horsep = 10;
-    double percenttopmargin = 0.1;
+    int pushdownoffset = 40;
+    double percenttopmargin = 0.2;
     double percentsidemargin = 0.15;
 
     private void configureSizes() {
@@ -214,10 +248,10 @@ public class StartPanel extends javax.swing.JPanel implements ComponentListener 
 
         Dimension unitDim = new Dimension(unitwidth, unitheight);
 
-        placeComponent(recentTracksPanel, new Point(sideoffset, topoffset), unitDim);
-        placeComponent(recentProjectsPanel, new Point(sideoffset, totalheight - topoffset - unitheight), unitDim);
-        placeComponent(newsPanel, new Point(sideoffset + unitwidth + horsep, topoffset), unitDim);
-        placeComponent(helpPanel, new Point(sideoffset + unitwidth + horsep, totalheight - topoffset - unitheight), unitDim);
+        placeComponent(recentTracksPanel, new Point(sideoffset, pushdownoffset+topoffset), unitDim);
+        placeComponent(recentProjectsPanel, new Point(sideoffset, pushdownoffset+totalheight - topoffset - unitheight), unitDim);
+        placeComponent(newsPanel, new Point(sideoffset + unitwidth + horsep, pushdownoffset + topoffset), unitDim);
+        placeComponent(helpPanel, new Point(sideoffset + unitwidth + horsep, pushdownoffset + totalheight - topoffset - unitheight), unitDim);
         placeComponent(dontShowStartPageButton, new Point(totalwidth-(int) dontShowStartPageButton.getWidth()-5,totalheight-(int) dontShowStartPageButton.getHeight()-5), dontShowStartPageButton.getPreferredSize() );
         //placeComponent(dontShowStartPageButton, new Point(totalwidth - (int) dontShowStartPageButton.getWidth() - sideoffset, totalheight - (int) dontShowStartPageButton.getHeight() - sideoffset), dontShowStartPageButton.getPreferredSize() );
     }
@@ -254,7 +288,7 @@ public class StartPanel extends javax.swing.JPanel implements ComponentListener 
             List<String> tracks = RecentTracksController.getInstance().getRecentTracks();
             for (final String t : tracks) {
 
-                pan.add(HyperlinkButton.createHyperlinkButton(t, Color.white, new ActionListener() {
+                pan.add(HyperlinkButton.createHyperlinkButton(t, StartPanel.textcolor, new ActionListener() {
 
                     @Override
                     public void actionPerformed(ActionEvent e) {
