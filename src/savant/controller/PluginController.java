@@ -56,6 +56,7 @@ import savant.experimental.PluginTool;
 import savant.plugin.*;
 import savant.settings.BrowserSettings;
 import savant.settings.DirectorySettings;
+import savant.util.FileUtils;
 import savant.util.MiscUtils;
 import savant.view.swing.DockableFrameFactory;
 import savant.view.swing.Savant;
@@ -93,7 +94,6 @@ public class PluginController {
     /** CONSTRUCTOR **/
     public PluginController() {
         try {
-
             pluginManager = ObjectFactory.newInstance().createManager();
             uninstallFile = new File(DirectorySettings.getSavantDirectory(), UNINSTALL_FILENAME);
 
@@ -102,7 +102,16 @@ public class PluginController {
                 deleteFileList(uninstallFile);
             }
             File pluginsDir = new File(DirectorySettings.getPluginsDirectory());
+
             coreLocation = new File(pluginsDir, "SavantCore.jar");
+
+            // On a fresh install, the Mac version may want to copy its default plugins
+            // from within the application bundle to the .savant/plugins directory.
+            if (MiscUtils.MAC && !coreLocation.exists()) {
+                pluginsDir.mkdirs();
+                FileUtils.copyDir(new File("Savant.app/Contents/Plugins"), pluginsDir);
+            }
+
             LOG.info("coreLocation=" + coreLocation.getAbsolutePath());
             loadCorePlugin();
             loadPlugins(pluginsDir);

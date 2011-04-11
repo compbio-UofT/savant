@@ -67,7 +67,7 @@ import savant.util.MiscUtils;
 import savant.view.icon.SavantIconFactory;
 import savant.settings.ColourSettings;
 import savant.settings.DirectorySettings;
-import savant.util.CopyFile;
+import savant.util.FileUtils;
 import savant.view.dialog.NewXMLToolDialog;
 import savant.view.dialog.PluginManagerDialog;
 import savant.view.swing.DockableFrameFactory;
@@ -585,10 +585,7 @@ public class ToolsModule implements BookmarksChangedListener, RangeChangeComplet
                 pd.setVisible(true);
                 break;
             case 1:
-                JFileChooser fd = new JFileChooser();
-                 fd.setDialogTitle("Add Plugin");
-                fd.setDialogType(JFileChooser.OPEN_DIALOG);
-                fd.setFileFilter(new FileFilter() {
+                File selectedFile = DialogUtils.chooseFileForOpen("Add Plugin", new FileFilter() {
                     @Override
                     public boolean accept(File f) {
                         return f.isDirectory() || (f.isFile() && f.getAbsolutePath().toLowerCase().endsWith(".xml"));
@@ -597,14 +594,16 @@ public class ToolsModule implements BookmarksChangedListener, RangeChangeComplet
                     public String getDescription() {
                         return "XML files (*.xml)";
                     }
-                });
-                int result = fd.showOpenDialog(Savant.getInstance());
-                if (result == JFileChooser.CANCEL_OPTION || result == JFileChooser.ERROR_OPTION || (fd.getSelectedFile() == null) ) showAddToolDialog();
-                String fromFile = fd.getSelectedFile().getPath();
-                String todir = DirectorySettings.getXMLToolDescriptionsDirectory();
-                CopyFile.copyfile(fromFile, todir + System.getProperty("file.separator") +
-                        MiscUtils.getFilenameFromPath(fromFile));
-                JOptionPane.showMessageDialog(Savant.getInstance(), "Installation of tool complete. Please restart Savant.");
+                }, null);
+                if (selectedFile != null) {
+                    String todir = DirectorySettings.getXMLToolDescriptionsDirectory();
+                    try {
+                        FileUtils.copyFile(selectedFile, new File(todir, selectedFile.getName()));
+                        JOptionPane.showMessageDialog(Savant.getInstance(), "Installation of tool complete. Please restart Savant.");
+                    } catch (IOException iox) {
+                        DialogUtils.displayException("Add Plugin", "Unable to add plugin " + selectedFile, iox);
+                    }
+                }
                 break;
             case 2:
                 NewXMLToolDialog d = new NewXMLToolDialog(Savant.getInstance(), true);
