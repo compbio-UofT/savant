@@ -171,6 +171,8 @@ public class BAMToCoverage extends SavantFileFormatter {
 
                 }
 
+                System.out.println("At " +  positionCount + " of " + totalLength + " = " + this.getProgressAsInteger(positionCount, totalLength));
+
                 // check to see if format has been cancelled
                 if (Thread.interrupted()) throw new InterruptedException();
                 this.setSubtaskProgress(this.getProgressAsInteger(positionCount, totalLength));

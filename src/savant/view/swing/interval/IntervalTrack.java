@@ -28,6 +28,7 @@ import savant.data.types.Interval;
 import savant.data.types.Record;
 import savant.exception.SavantTrackCreationCancelledException;
 import savant.settings.ColourSettings;
+import savant.settings.TrackResolutionSettings;
 import savant.util.*;
 import savant.view.swing.Track;
 
@@ -83,17 +84,20 @@ public class IntervalTrack extends Track {
         }
     }
 
-    public Resolution getDefaultModeResolution(RangeAdapter range) {
-        return Resolution.VERY_HIGH;
+    public static Resolution getDefaultModeResolution(RangeAdapter range) {
+        if (range.getLength() > TrackResolutionSettings.getIntervalLowToHighThresh()) { return Resolution.LOW; }
+        else { return Resolution.VERY_HIGH; }
     }
 
-    public Resolution getArcModeResolution(RangeAdapter range)
+    public static Resolution getArcModeResolution(RangeAdapter range)
     {
-        return Resolution.VERY_HIGH;
+        if (range.getLength() > TrackResolutionSettings.getIntervalLowToHighThresh()) { return Resolution.LOW; }
+        else { return Resolution.VERY_HIGH; }
     }
 
-    public Resolution getSquishModeResolution(RangeAdapter range) {
-        return Resolution.VERY_HIGH;
+    public static Resolution getSquishModeResolution(RangeAdapter range) {
+        if (range.getLength() > TrackResolutionSettings.getIntervalLowToHighThresh()) { return Resolution.LOW; }
+        else { return Resolution.VERY_HIGH; }
     }
 
     @Override

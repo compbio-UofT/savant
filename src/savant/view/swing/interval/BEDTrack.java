@@ -84,6 +84,7 @@ public class BEDTrack extends Track {
         renderer.addInstruction(DrawingInstruction.SCORE, this.scoreEnabled);
     }
 
+    /*
     @Override
     public Resolution getResolution(RangeAdapter range) {
         return getResolution(range, getDrawMode());
@@ -98,13 +99,11 @@ public class BEDTrack extends Track {
     {
         long length = range.getLength();
 
-        if (length <= 100000) { return Resolution.VERY_HIGH; }
-        else if (length <= 1000000) { return Resolution.HIGH; }
-        else if (length <= 100000000) { return Resolution.MEDIUM; }
-        else if (length <= 1000000000) { return Resolution.LOW; }
-        //else if (length >= 1000000000) { return Resolution.VERY_LOW; }
+        if (length > 1000000) { return Resolution.LOW; }
         else { return Resolution.VERY_HIGH; }
     }
+     * 
+     */
 
     private ColorScheme getDefaultColorScheme() {
         ColorScheme c = new ColorScheme();
@@ -136,6 +135,11 @@ public class BEDTrack extends Track {
     public void toggleScoreEnabled(){
         this.scoreEnabled = !this.scoreEnabled;
         renderer.addInstruction(DrawingInstruction.SCORE, this.scoreEnabled);
+    }
+
+    @Override
+    public Resolution getResolution(RangeAdapter range) {
+        return IntervalTrack.getDefaultModeResolution(range);
     }
  
 }

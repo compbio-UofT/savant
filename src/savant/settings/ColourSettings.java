@@ -122,7 +122,7 @@ public class ColourSettings {
      * @return the colour for N bases
      */
     public static Color getN() {
-        return settings.getColour(N_KEY, new Color(100,100,100,50));
+        return settings.getColour(N_KEY, new Color(100,100,100));
     }
 
     /**

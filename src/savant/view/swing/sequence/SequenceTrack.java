@@ -31,6 +31,7 @@ import savant.data.types.SequenceRecord;
 import savant.exception.SavantTrackCreationCancelledException;
 import savant.file.SavantROFile;
 import savant.settings.ColourSettings;
+import savant.settings.TrackResolutionSettings;
 import savant.util.*;
 import savant.view.swing.Track;
 
@@ -107,8 +108,8 @@ public class SequenceTrack extends Track {
     {
         long length = range.getLength();
 
-        if (length > 50000) { return Resolution.VERY_LOW; }
-        return Resolution.VERY_HIGH;
+        if (length > TrackResolutionSettings.getSequenceLowToHighThresh()) { return Resolution.VERY_LOW; }
+            return Resolution.VERY_HIGH;
     }
 
     @Override

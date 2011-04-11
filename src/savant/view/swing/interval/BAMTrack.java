@@ -33,6 +33,7 @@ import savant.data.types.BAMIntervalRecord;
 import savant.data.types.Record;
 import savant.exception.SavantTrackCreationCancelledException;
 import savant.settings.ColourSettings;
+import savant.settings.TrackResolutionSettings;
 import savant.util.*;
 import savant.util.SAMReadUtils.PairedSequencingProtocol;
 import savant.view.swing.Track;
@@ -98,8 +99,8 @@ public class BAMTrack extends Track {
     @Override
     public void prepareForRendering(String reference, Range range) {
 
-        Resolution r = getResolution(range);
-        if (r == Resolution.VERY_HIGH || r == Resolution.HIGH || (getDrawMode().equals(BAMTrackRenderer.ARC_PAIRED_MODE) && r == Resolution.MEDIUM)) {
+        Resolution r = getResolution(range, this.getDrawMode());
+        if (r == Resolution.VERY_HIGH) {
             renderer.addInstruction(DrawingInstruction.PROGRESS, "Loading BAM track...");
             requestData(reference, range);
         } else {
@@ -174,18 +175,26 @@ public class BAMTrack extends Track {
 
     private Resolution getResolution(RangeAdapter range, String mode)
     {
-        return getDefaultModeResolution(range);       
+        if (mode.equals(BAMTrackRenderer.ARC_PAIRED_MODE)) {
+            return getArcModeResolution(range);
+        } else {
+            return getDefaultModeResolution(range);
+        }
+    }
+
+    private Resolution getArcModeResolution(RangeAdapter range)
+    {
+        long length = range.getLength();
+
+        if (length > TrackResolutionSettings.getBAMArcModeLowToHighThresh()) { return Resolution.LOW; }
+        else { return Resolution.VERY_HIGH; }
     }
 
     private Resolution getDefaultModeResolution(RangeAdapter range)
     {
         long length = range.getLength();
 
-        if (length < 5000) { return Resolution.VERY_HIGH; }
-        else if (length < 10000) { return Resolution.HIGH; }
-        else if (length < 20000) { return Resolution.MEDIUM; }
-        else if (length < 10000000) { return Resolution.LOW; }
-        else if (length >= 10000000) { return Resolution.VERY_LOW; }
+        if (length > TrackResolutionSettings.getBAMDefaultModeLowToHighThresh()) { return Resolution.LOW; }
         else { return Resolution.VERY_HIGH; }
     }
 

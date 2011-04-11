@@ -30,6 +30,7 @@ import savant.settings.DirectorySettings;
 import savant.util.MiscUtils;
 
 public abstract class SavantFileFormatter {
+    
     protected static final Log LOG = LogFactory.getLog(SavantFileFormatter.class);
 
     /**
