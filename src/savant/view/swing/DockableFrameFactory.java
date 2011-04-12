@@ -44,8 +44,6 @@ import savant.view.icon.SavantIconFactory;
  */
 public class DockableFrameFactory {
 
-    private static int numTracks = 0;
-
     public static DockableFrame createFrame(String name, int mode, int side) {
         DockableFrame frame = new DockableFrame(name, null);
         frame.setSlidingAutohide(true);
@@ -68,8 +66,6 @@ public class DockableFrameFactory {
 
     public static Frame createTrackFrame(boolean allowClose) {
 
-        numTracks++;
-        
         final Frame frame = new Frame();
         
         //frame.setInitIndex(numTracks);
@@ -81,7 +77,7 @@ public class DockableFrameFactory {
         
         frame.setInitMode(DockContext.STATE_FRAMEDOCKED);
         frame.setInitSide(DockContext.DOCK_SIDE_NORTH);
-        frame.setSlidingAutohide(true);
+        frame.setSlidingAutohide(false);
         //frame.setShowTitleBar(false);
         //frame.setShowGripper(true);
         //frame.setPreferredAutohideSide(DockContext.DOCK_SIDE_SOUTH);
