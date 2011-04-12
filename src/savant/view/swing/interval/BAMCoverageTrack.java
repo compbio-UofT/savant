@@ -24,6 +24,7 @@ import savant.api.adapter.RangeAdapter;
 import savant.data.sources.DataSource;
 import savant.exception.SavantTrackCreationCancelledException;
 import savant.settings.ColourSettings;
+import savant.settings.TrackResolutionSettings;
 import savant.util.*;
 import savant.view.swing.Track;
 import savant.view.swing.continuous.ContinuousTrackRenderer;
@@ -44,7 +45,7 @@ public class BAMCoverageTrack extends Track {
     public void prepareForRendering(String reference, Range range) {
 
         Resolution r = getResolution(range);
-        if (isEnabled() && (r == Resolution.LOW || r == Resolution.VERY_LOW || r == Resolution.MEDIUM)) {
+        if (isEnabled() && (r != Resolution.VERY_HIGH)) {
             renderer.addInstruction(DrawingInstruction.PROGRESS, "Loading coverage track...");
             renderer.addInstruction(DrawingInstruction.AXIS_RANGE, AxisRange.initWithRanges(range, getDefaultYRange()));
             requestData(reference, range);
@@ -88,11 +89,7 @@ public class BAMCoverageTrack extends Track {
     {
         long length = range.getLength();
 
-        if (length < 5000) { return Resolution.VERY_HIGH; }
-        else if (length < 10000) { return Resolution.HIGH; }
-        else if (length < 20000) { return Resolution.MEDIUM; }
-        else if (length < 10000000) { return Resolution.LOW; }
-        else if (length >= 10000000) { return Resolution.VERY_LOW; }
+        if (length > TrackResolutionSettings.getBAMDefaultModeLowToHighThresh()) { return Resolution.LOW; }
         else { return Resolution.VERY_HIGH; }
     }
 
