@@ -73,8 +73,10 @@ public class DockableFrameFactory {
             frame.setAvailableButtons(DockableFrame.BUTTON_AUTOHIDE | DockableFrame.BUTTON_FLOATING | DockableFrame.BUTTON_MAXIMIZE );
         }
         
-        frame.getContext().setInitMode(DockContext.STATE_FRAMEDOCKED);
-        frame.getContext().setInitSide(DockContext.DOCK_SIDE_NORTH);
+        //frame.getContext().setInitMode(DockContext.STATE_HIDDEN);
+        //frame.getContext().setInitSide(DockContext.DOCK_SIDE_NORTH);
+        frame.setInitMode(DockContext.STATE_FRAMEDOCKED);
+        frame.setInitSide(DockContext.DOCK_SIDE_NORTH);
         frame.setSlidingAutohide(false);
         frame.add(new JPanel());
         frame.setPreferredSize(new Dimension(200, 200));

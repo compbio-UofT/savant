@@ -35,6 +35,7 @@ import javax.swing.*;
 
 import com.apple.eawt.*;
 import com.jidesoft.docking.*;
+import com.jidesoft.docking.DockingManager.FrameHandle;
 import com.jidesoft.docking.event.DockableFrameAdapter;
 import com.jidesoft.docking.event.DockableFrameEvent;
 import com.jidesoft.plaf.LookAndFeelFactory;
@@ -146,10 +147,12 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         LOG.info("Loading track " + selectedFileName);
 
         Frame frame = DockableFrameFactory.createTrackFrame();
-        frame.setKey("Loading " + selectedFileName);
+        frame.setKey(selectedFileName);
         TrackFactory.createTrack(uri, frame);
         LOG.trace("Savant.addTrackFromFile calling trackDockingManager.addFrame");
-        trackDockingManager.addFrame(frame);
+        addTrackFrame(frame);
+        
+
     }
 
     /**
@@ -163,7 +166,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         Frame frame = DockableFrameFactory.createTrackFrame();
         frame.setTracks(tracks);
         LOG.trace("Savant.createFrameForExistingTrack calling trackDockingManager.addFrame");
-        trackDockingManager.addFrame(frame);
+        addTrackFrame(frame);
 
         LOG.info("Frame created for track " + frame.getName());
     }
@@ -1944,7 +1947,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
             } else {
                 genomeFrame = DockableFrameFactory.createTrackFrame();
                 genomeFrame.setTrack(genome.getTrack());
-                trackDockingManager.addFrame(genomeFrame);
+                addTrackFrame(genomeFrame);
             }
         }
 
@@ -2055,6 +2058,33 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
             showBookmarksChangedDialog = false;
         }
         //JOptionPane.showMessageDialog(this, , , JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    private void addTrackFrame(savant.view.swing.Frame frame) {
+
+        // remove bogus "#Workspace" frame
+        List<FrameHandle> simpleFrames = getCleanedOrderedFrames(trackDockingManager);
+
+        // the number of frames, currently
+        int numframes = simpleFrames.size();
+
+        trackDockingManager.addFrame(frame);
+
+        // move the frame to the bottom of the stack
+        if (numframes != 0) {
+            FrameHandle lastFrame = simpleFrames.get(0);
+            trackDockingManager.moveFrame(frame.getKey(), lastFrame.getKey(),DockContext.DOCK_SIDE_SOUTH);
+        }
+    }
+
+    private List<FrameHandle> getCleanedOrderedFrames(DockingManager dm) {
+        List<FrameHandle> cleanFrames = new ArrayList<FrameHandle>();
+        for (FrameHandle h : dm.getOrderedFrames()) {
+            if (!h.getKey().startsWith("#")) {
+                cleanFrames.add(h);
+            }
+        }
+        return cleanFrames;
     }
 
     private class ReferenceComparable implements Comparable {
