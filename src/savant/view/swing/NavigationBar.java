@@ -61,6 +61,8 @@ public class NavigationBar extends JToolBar {
 
     NavigationBar() {
 
+        this.setFloatable(false);
+
         String buttonStyle = "segmentedTextured";
 
         //p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
