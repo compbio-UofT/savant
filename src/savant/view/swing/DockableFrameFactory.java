@@ -68,13 +68,11 @@ public class DockableFrameFactory {
         final Frame frame = new Frame();
         frame.setInitIndex(numTracks);
         if (allowClose) {
-            frame.setAvailableButtons(DockableFrame.BUTTON_AUTOHIDE | DockableFrame.BUTTON_FLOATING | DockableFrame.BUTTON_MAXIMIZE | DockableFrame.BUTTON_CLOSE );
+            frame.setAvailableButtons(DockableFrame.BUTTON_AUTOHIDE | DockableFrame.BUTTON_MAXIMIZE | DockableFrame.BUTTON_CLOSE );
         } else {
-            frame.setAvailableButtons(DockableFrame.BUTTON_AUTOHIDE | DockableFrame.BUTTON_FLOATING | DockableFrame.BUTTON_MAXIMIZE );
+            frame.setAvailableButtons(DockableFrame.BUTTON_AUTOHIDE | DockableFrame.BUTTON_MAXIMIZE );
         }
         
-        //frame.getContext().setInitMode(DockContext.STATE_HIDDEN);
-        //frame.getContext().setInitSide(DockContext.DOCK_SIDE_NORTH);
         frame.setInitMode(DockContext.STATE_FRAMEDOCKED);
         frame.setInitSide(DockContext.DOCK_SIDE_NORTH);
         frame.setSlidingAutohide(false);
