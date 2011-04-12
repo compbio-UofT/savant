@@ -21,8 +21,11 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeListener;
+import java.beans.PropertyVetoException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.Action;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -30,8 +33,10 @@ import javax.swing.JScrollPane;
 import com.jidesoft.docking.DockContext;
 import com.jidesoft.docking.DockableFrame;
 import com.jidesoft.swing.JideScrollPane;
+import savant.api.util.DialogUtils;
 
 import savant.controller.DockableFrameController;
+import savant.view.icon.SavantIconFactory;
 
 /**
  * Factory for creating dockable frames.  This come in two flavours: one for tracks
@@ -43,9 +48,9 @@ public class DockableFrameFactory {
 
     public static DockableFrame createFrame(String name, int mode, int side) {
         DockableFrame frame = new DockableFrame(name, null);
+        frame.setSlidingAutohide(true);
         frame.getContext().setInitMode(mode);
         frame.getContext().setInitSide(side);
-        frame.setSlidingAutohide(false);
         frame.add(new JPanel());
         frame.setPreferredSize(new Dimension(400, 400));
         return frame;
@@ -66,7 +71,8 @@ public class DockableFrameFactory {
         numTracks++;
         
         final Frame frame = new Frame();
-        frame.setInitIndex(numTracks);
+        
+        //frame.setInitIndex(numTracks);
         if (allowClose) {
             frame.setAvailableButtons(DockableFrame.BUTTON_AUTOHIDE | DockableFrame.BUTTON_MAXIMIZE | DockableFrame.BUTTON_CLOSE );
         } else {
@@ -75,7 +81,11 @@ public class DockableFrameFactory {
         
         frame.setInitMode(DockContext.STATE_FRAMEDOCKED);
         frame.setInitSide(DockContext.DOCK_SIDE_NORTH);
-        frame.setSlidingAutohide(false);
+        frame.setSlidingAutohide(true);
+        //frame.setShowTitleBar(false);
+        //frame.setShowGripper(true);
+        //frame.setPreferredAutohideSide(DockContext.DOCK_SIDE_SOUTH);
+        
         frame.add(new JPanel());
         frame.setPreferredSize(new Dimension(200, 200));
 
@@ -117,6 +127,7 @@ public class DockableFrameFactory {
         });
 
 
+        // TODO: this seems cyclical. What's going on here?
         JPanel panel = (JPanel)frame.getContentPane();
         panel.setLayout(new BorderLayout());
         panel.add(frame.getFrameLandscape());
