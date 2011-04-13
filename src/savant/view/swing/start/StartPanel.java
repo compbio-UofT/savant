@@ -416,15 +416,16 @@ public class StartPanel extends javax.swing.JPanel implements ComponentListener 
             c.gridy = 0;
 
         try {
-            Document d = new SAXBuilder().build(newsFile);
-            Element root = d.getRootElement();
-
-            List<Element> newsEntries = root.getChildren("entry");
 
             p = new JPanel();
             p.setOpaque(false);
             //p.setBackground(Color.red);
             p.setLayout(new GridBagLayout());
+
+            Document d = new SAXBuilder().build(newsFile);
+            Element root = d.getRootElement();
+
+            List<Element> newsEntries = root.getChildren("entry");
 
             for (Element e : newsEntries) {
 
@@ -484,6 +485,9 @@ public class StartPanel extends javax.swing.JPanel implements ComponentListener 
                 c.gridy++;
             }
         } catch (Exception e) {
+            JLabel l = new JLabel("Problem getting news");
+            l.setForeground(StartPanel.textcolor);
+            p.add(l);
         }
 
         p.add(Box.createVerticalGlue(),c);
