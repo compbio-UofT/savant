@@ -46,7 +46,7 @@ public class SettingsDialog extends MultiplePageDialog {
 
         JPanel headerPanel = new JPanel(new BorderLayout(4, 4));
         JLabel label = new JLabel(title);
-        headerPanel.add(label, BorderLayout.BEFORE_FIRST_LINE);
+        headerPanel.add(label, BorderLayout.NORTH);
         JPanel panel = new JPanel();
         panel.setBorder(createSeparatorBorder());
         headerPanel.add(panel, BorderLayout.CENTER);

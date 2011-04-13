@@ -150,6 +150,7 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
         
         initCommandBar();
         sidePanel.addPanel(commandBar);
+        //sidePanel.addPanel(new TrackSettingsMenu());
         sidePanel.addPanel(arcLegend);
 
         //add filler to left

@@ -19,6 +19,7 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontMetrics;
+import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
@@ -91,9 +92,12 @@ import savant.view.swing.Savant;
  */
 public class StartPanel extends javax.swing.JPanel implements ComponentListener {
 
-    static Color bgcolor = new Color(30,30,30);//new Color(15,15,15);
-    static Color textcolor = new Color(245,245,245);
-    static Color outlinecolor = Color.lightGray;
+    static Color bgcolor = Color.darkGray;
+    static Color subpanelbgcolortop = new Color(50,50,50);//
+    static Color subpanelbgcolor = new Color(10,10,10);
+    static Color textcolortop = new Color(0,77,250); //new Color(0,47,125);
+    static Color textcolor = new Color(240,240,240);
+    static Color outlinecolor = new Color(10,10,10);
 
     private StartSubPanel recentTracksPanel;
     private StartSubPanel recentProjectsPanel;
@@ -133,18 +137,18 @@ public class StartPanel extends javax.swing.JPanel implements ComponentListener 
     }// </editor-fold>//GEN-END:initComponents
 
     private void init() {
-        this.setBackground(Color.darkGray);
+        this.setBackground(bgcolor);
         this.setOpaque(false);
 
         recentTracksPanel = new StartSubPanel("Recent Tracks", getRecentTracksInnerPanel());
         recentProjectsPanel = new StartSubPanel("Recent Projects", getRecentProjectsInnerPanel());
-        newsPanel = new StartSubPanel("News", getNewsInnerPanel());
+        newsPanel = new StartSubPanel("Latest News", getNewsInnerPanel());
         helpPanel = new StartSubPanel("Become a Genome Savant", getHelpPanel());
 
         this.add(recentTracksPanel);
         this.add(recentProjectsPanel);
         this.add(newsPanel);
-        this.add(helpPanel);
+        //this.add(helpPanel);
 
         dontShowStartPageButton = new JCheckBox("Don't show Start Page");
         dontShowStartPageButton.setOpaque(false);
@@ -183,7 +187,10 @@ public class StartPanel extends javax.swing.JPanel implements ComponentListener 
         ((Graphics2D)g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, // Anti-alias!
         RenderingHints.VALUE_ANTIALIAS_ON);
 
-        // g.fillRect(0, 0, this.getWidth(), this.getHeight());
+        g.setColor(bgcolor);
+        g.fillRect(0, 0, this.getWidth(), this.getHeight());
+        //centerImage(g, logo.getImage(), new Point(this.getWidth()/2, 50));
+
         //centerImage(g, logo.getImage()/*scaleImage(logo.getImage(),0.7)*/, new Point(this.getWidth()/2, this.getHeight()/2));
 
         int totalwidth = this.getWidth();
@@ -195,12 +202,17 @@ public class StartPanel extends javax.swing.JPanel implements ComponentListener 
         int unitheight = (int) (totalheight - (2 * topoffset) - vertsep) / 2;
         int unitwidth = (int) (totalwidth - (2 * sideoffset) - horsep) / 2;
 
-        
-        g.setFont(new Font("Georgia", Font.PLAIN, 60));
+        g.setFont(new Font("Tahoma", Font.BOLD, 60));
         FontMetrics fm = g.getFontMetrics();
-        g.setColor(Color.white);
-        int bannershift = fm.stringWidth("Savant Genome Browser")/2;
-        g.drawString("Savant Genome Browser", totalwidth/2 + - bannershift, topoffset+pushdownoffset- 20);
+        String bannerstr = "Savant Genome Browser";
+        int bannershift = fm.stringWidth(bannerstr)/2;
+
+        int stringx = totalwidth/2 + - bannershift;
+        int stringy = topoffset+pushdownoffset- 20;
+        //GradientPaint gp = new GradientPaint(stringx,stringy-fm.getMaxAscent(),textcolortop,stringx,stringy-fm.getMaxAscent()+40,textcolor);
+        //((Graphics2D)g).setPaint(gp);
+        g.setColor(textcolor);
+        g.drawString(bannerstr, stringx, stringy);
         //drawScaledImage(g, logo.getImage(), totalwidth/2 - bannershift, topoffset-5, pushdownoffset, pushdownoffset);
 
         //g.drawImage(logo.getImage().getScaledInstance(10, 10, Image.SCALE_SMOOTH), sideoffset, topoffset, this);
@@ -232,7 +244,7 @@ public class StartPanel extends javax.swing.JPanel implements ComponentListener 
     
     int vertsep = 10;
     int horsep = 10;
-    int pushdownoffset = 40;
+    int pushdownoffset = 60;
     double percenttopmargin = 0.2;
     double percentsidemargin = 0.15;
 
@@ -247,10 +259,11 @@ public class StartPanel extends javax.swing.JPanel implements ComponentListener 
         int unitwidth = (int) (totalwidth - (2 * sideoffset) - horsep) / 2;
 
         Dimension unitDim = new Dimension(unitwidth, unitheight);
+        Dimension bigUnitDim = new Dimension(unitwidth, unitheight*2 + vertsep);
 
         placeComponent(recentTracksPanel, new Point(sideoffset, pushdownoffset+topoffset), unitDim);
         placeComponent(recentProjectsPanel, new Point(sideoffset, pushdownoffset+totalheight - topoffset - unitheight), unitDim);
-        placeComponent(newsPanel, new Point(sideoffset + unitwidth + horsep, pushdownoffset + topoffset), unitDim);
+        placeComponent(newsPanel, new Point(sideoffset + unitwidth + horsep, pushdownoffset + topoffset), bigUnitDim);
         placeComponent(helpPanel, new Point(sideoffset + unitwidth + horsep, pushdownoffset + totalheight - topoffset - unitheight), unitDim);
         placeComponent(dontShowStartPageButton, new Point(totalwidth-(int) dontShowStartPageButton.getWidth()-5,totalheight-(int) dontShowStartPageButton.getHeight()-5), dontShowStartPageButton.getPreferredSize() );
         //placeComponent(dontShowStartPageButton, new Point(totalwidth - (int) dontShowStartPageButton.getWidth() - sideoffset, totalheight - (int) dontShowStartPageButton.getHeight() - sideoffset), dontShowStartPageButton.getPreferredSize() );
@@ -397,6 +410,8 @@ public class StartPanel extends javax.swing.JPanel implements ComponentListener 
         GridBagConstraints c = new GridBagConstraints();
 
             c.fill = GridBagConstraints.HORIZONTAL;
+            c.weightx = 1.0;
+            c.anchor = GridBagConstraints.NORTH;
             c.gridx = 0;
             c.gridy = 0;
 
@@ -450,10 +465,9 @@ public class StartPanel extends javax.swing.JPanel implements ComponentListener 
                 ta.setOpaque(false);
                 ta.setWrapStyleWord(true);
                 ta.setEditable(false);
-                //ta.setPreferredSize(new Dimension(1,1));
 
                 JLabel title = new JLabel(e.getChildText("title"));
-                title.setFont(new Font("Georgia", Font.BOLD, 16));
+                title.setFont(new Font("Arial", Font.BOLD, 16));
                 title.setForeground(StartPanel.textcolor);
 
                 JLabel date = new JLabel(e.getChildText("date"));

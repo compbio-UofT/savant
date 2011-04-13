@@ -15,6 +15,9 @@
  */
 package savant.view.swing;
 
+import java.beans.PropertyVetoException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import savant.view.swing.start.StartPanel;
 import java.awt.*;
 import java.awt.event.*;
@@ -1178,7 +1181,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
             SettingsDialog.addSection(new TemporaryFilesSettingsSection());
             SettingsDialog.addSection(new GeneralSettingsSection());
             SettingsDialog.addSection(new RemoteFilesSettingsSection());
-            //SettingsDialog.addSection(new ResolutionSettingsSection());
+            SettingsDialog.addSection(new ResolutionSettingsSection());
             arePreferencesInitialized = true;
         }
 
