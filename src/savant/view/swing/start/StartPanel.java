@@ -391,13 +391,11 @@ public class StartPanel extends javax.swing.JPanel implements ComponentListener 
             File newsFile = DownloadFile.downloadFile(new URL(BrowserSettings.url_news), DirectorySettings.getTmpDirectory());
             if (newsFile != null) {
                 p = parseNewsFile(newsFile);
-            } else {
-                p.add(this.createLabel("Problem getting news"));
             }
-            newsFile.delete();
+            if (newsFile.exists()) { newsFile.delete(); }
 
         } catch (Exception ex) {
-            ex.printStackTrace();
+            p.add(this.createLabel("Problem getting news"));
         }
 
         return p;
