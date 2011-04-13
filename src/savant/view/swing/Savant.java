@@ -63,7 +63,6 @@ import savant.experimental.XMLTool;
 import savant.plugin.builtin.SAFEDataSourcePlugin;
 import savant.plugin.builtin.SavantFileRepositoryDataSourcePlugin;
 import savant.settings.*;
-import savant.startpage.StartPage;
 import savant.swing.component.TrackChooser;
 import savant.util.DownloadFile;
 import savant.util.MiscUtils;
@@ -109,6 +108,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
     //web start
     static BasicService basicService = null;
     static boolean webStart = false;
+    private StartPanel startpage;
 
     public void addToolBar(JToolBar b) {
         this.panel_toolbar.setLayout(new BoxLayout(this.panel_toolbar, BoxLayout.X_AXIS));
@@ -239,11 +239,6 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         trackBackground.setBackground(Color.darkGray);
 
         trackBackground.setLayout(new BorderLayout());
-
-        if (BrowserSettings.getShowStartPage()) {
-            StartPanel start = new StartPanel();
-            trackBackground.add(start, BorderLayout.CENTER);
-        }
 
         trackDockingManager.getWorkspace().add(trackBackground);
         trackDockingManager.addDockableFrameListener(new DockableFrameAdapter() {
@@ -494,7 +489,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         panelExtendedMiddle.setLayout(panelExtendedMiddleLayout);
         panelExtendedMiddleLayout.setHorizontalGroup(
             panelExtendedMiddleLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 987, Short.MAX_VALUE)
+            .addGap(0, 989, Short.MAX_VALUE)
         );
         panelExtendedMiddleLayout.setVerticalGroup(
             panelExtendedMiddleLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -505,14 +500,14 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
 
         panel_main.setBackground(new java.awt.Color(153, 153, 153));
         panel_main.setMaximumSize(new java.awt.Dimension(99999, 99999));
-        panel_main.setMinimumSize(new java.awt.Dimension(500, 500));
+        panel_main.setMinimumSize(new java.awt.Dimension(1, 1));
         panel_main.setPreferredSize(new java.awt.Dimension(99999, 99999));
 
         javax.swing.GroupLayout panel_mainLayout = new javax.swing.GroupLayout(panel_main);
         panel_main.setLayout(panel_mainLayout);
         panel_mainLayout.setHorizontalGroup(
             panel_mainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 987, Short.MAX_VALUE)
+            .addGap(0, 989, Short.MAX_VALUE)
         );
         panel_mainLayout.setVerticalGroup(
             panel_mainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -547,7 +542,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         panel_toolbar.setLayout(panel_toolbarLayout);
         panel_toolbarLayout.setHorizontalGroup(
             panel_toolbarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 987, Short.MAX_VALUE)
+            .addGap(0, 989, Short.MAX_VALUE)
         );
         panel_toolbarLayout.setVerticalGroup(
             panel_toolbarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -957,12 +952,12 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(panel_top, javax.swing.GroupLayout.DEFAULT_SIZE, 987, Short.MAX_VALUE)
+            .addComponent(panel_top, javax.swing.GroupLayout.DEFAULT_SIZE, 989, Short.MAX_VALUE)
             .addGroup(layout.createSequentialGroup()
-                .addComponent(toolbar_bottom, javax.swing.GroupLayout.DEFAULT_SIZE, 975, Short.MAX_VALUE)
+                .addComponent(toolbar_bottom, javax.swing.GroupLayout.DEFAULT_SIZE, 977, Short.MAX_VALUE)
                 .addContainerGap())
-            .addComponent(panel_toolbar, javax.swing.GroupLayout.DEFAULT_SIZE, 987, Short.MAX_VALUE)
-            .addComponent(panel_main, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 987, Short.MAX_VALUE)
+            .addComponent(panel_toolbar, javax.swing.GroupLayout.DEFAULT_SIZE, 989, Short.MAX_VALUE)
+            .addComponent(panel_main, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 989, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1575,14 +1570,12 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
 
         initGUIFrame();
         initDocking();
-        initToolsPanel();
+        //initToolsPanel();
         initMenu();
         initStatusBar();
         initGUIHandlers();
         initBookmarksPanel();
         initDataSources();
-
-
         initStartPage();
 
         dff = new DataFormatForm(this, false);
@@ -1592,13 +1585,12 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
 
     private void disableExperimentalFeatures() {
         menuitem_tools.setVisible(false);
-        MiscUtils.setFrameVisibility("Start Page", false, trackDockingManager);
-        menuitem_startpage.setVisible(false);
+        //menuitem_startpage.setVisible(false);
 
         // Start page may be null if there was a problem loading the page.
-        if (startPageDockableFrame != null) {
-            startPageDockableFrame.setVisible(false);
-        }
+        //if (startPageDockableFrame != null) {
+        //    startPageDockableFrame.setVisible(false);
+        //}
     }
 
     public DockingManager getAuxDockingManager() {
@@ -1970,7 +1962,8 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
             return;
         }
 
-        trackBackground.removeAll();
+        //TODO: remove start page
+        //trackBackground.removeAll();
 
         // This line of code hangs Savant after formatting a genome
         //rangeController.setRange(50, 550);
@@ -2063,7 +2056,12 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         //JOptionPane.showMessageDialog(this, , , JOptionPane.INFORMATION_MESSAGE);
     }
 
+
     private void addTrackFrame(savant.view.swing.Frame frame) {
+
+        if (startpage.isVisible()) {
+            startpage.setVisible(false);
+        }
 
         // remove bogus "#Workspace" frame
         List<FrameHandle> simpleFrames = getCleanedOrderedFrames(trackDockingManager);
@@ -2289,12 +2287,15 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
 
         List<String> names = this.getAuxDockingManager().getAllFrameNames();
         for (int i = 0; i < names.size(); i++) {
-            MiscUtils.setFrameVisibility(names.get(i), false, this.getAuxDockingManager());
+            MiscUtils.setFrameVisibility(names.get(i), true, this.getAuxDockingManager());
+            this.getAuxDockingManager().toggleAutohideState(names.get(i));
         }
 
-        MiscUtils.setFrameVisibility("Bookmarks", true, this.getAuxDockingManager());
-        this.getAuxDockingManager().toggleAutohideState("Bookmarks");
+        //MiscUtils.setFrameVisibility("Bookmarks", true, this.getAuxDockingManager());
+        //this.getAuxDockingManager().toggleAutohideState("Bookmarks");
         menu_bookmarks.setState(true);
+
+        this.getAuxDockingManager().setActive(false);
     }
 
     public SelectionController getSelectionController() {
@@ -2303,23 +2304,35 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
 
     private void initStartPage() {
 
+        if (BrowserSettings.getShowStartPage()) {
+
+/*            DockableFrame df = DockableFrameFactory.createFrame("Start Page", DockContext.STATE_FRAMEDOCKED, DockContext.DOCK_SIDE_NORTH);
+            //df.setAvailableButtons(DockableFrame.BUTTON_CLOSE);
+            df.setShowTitleBar(false);
+            JPanel canvas = (JPanel) df.getContentPane();
+            canvas.setLayout(new BorderLayout());
+            canvas.add(new StartPanel(), BorderLayout.CENTER);
+
+            trackDockingManager.addFrame(df);
+            MiscUtils.setFrameVisibility("Start Page", true,trackDockingManager);
         try {
-            StartPage sp = new StartPage();
-            sp.setMaximumSize(new java.awt.Dimension(99999, 99999));
-            sp.setMinimumSize(new java.awt.Dimension(500, 500));
-            sp.setPreferredSize(new java.awt.Dimension(99999, 99999));
-
-            startPageDockableFrame = DockableFrameFactory.createFrame("Start Page", DockContext.STATE_AUTOHIDE_SHOWING, DockContext.DOCK_SIDE_NORTH);
-            startPageDockableFrame.setAvailableButtons(DockableFrame.BUTTON_CLOSE);
-            this.getTrackDockingManager().addFrame(startPageDockableFrame);
-            
-            startPageDockableFrame.getContentPane().setLayout(new BorderLayout());
-            startPageDockableFrame.getContentPane().add(sp, BorderLayout.NORTH);
-            MiscUtils.setFrameVisibility("Start Page", true, getTrackDockingManager());
-
-        } catch (IOException ex) {
-            LOG.error("Unable to load start page.", ex);
+            df.setMaximized(true);
+        } catch (PropertyVetoException ex) {
+            Logger.getLogger(Savant.class.getName()).log(Level.SEVERE, null, ex);
         }
+
+            //df.getContentPane().setLayout(new BorderLayout());
+
+            //
+            //df.getContentPane().add(start,BorderLayout.CENTER);
+
+            startPageDockableFrame = df;
+ *
+ */
+            startpage = new StartPanel();
+            trackBackground.add(startpage, BorderLayout.CENTER);
+        }
+
     }
 
     public boolean isWebStart(){

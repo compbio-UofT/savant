@@ -331,7 +331,7 @@ public class PluginController {
         canvas.setLayout(new BorderLayout());
         plugin.init(canvas, new PluginAdapter());
         Savant.getInstance().getAuxDockingManager().addFrame(f);
-        boolean isIntiallyVisible = false;
+        boolean isIntiallyVisible = true;
         MiscUtils.setFrameVisibility(f.getTitle(), isIntiallyVisible, Savant.getInstance().getAuxDockingManager());
         final JCheckBoxMenuItem cb = new JCheckBoxMenuItem(plugin.getTitle());
         cb.addActionListener(new ActionListener() {
