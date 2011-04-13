@@ -51,7 +51,7 @@ public class BAMCoverageTrack extends Track {
             requestData(reference, range);
         } else {
             saveNullData();
-            renderer.addInstruction(DrawingInstruction.ERROR, "This message will never be shown");
+            renderer.addInstruction(DrawingInstruction.ERROR, "Zoom in to see data");
         }
 
         renderer.addInstruction(DrawingInstruction.REFERENCE_EXISTS, containsReference(reference));
