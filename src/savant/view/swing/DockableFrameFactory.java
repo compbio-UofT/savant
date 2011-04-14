@@ -51,11 +51,13 @@ public class DockableFrameFactory {
         frame.getContext().setInitSide(side);
         frame.add(new JPanel());
         frame.setPreferredSize(new Dimension(400, 400));
+        frame.setAutohideWidth(400);
+        frame.setAutohideHeight(400);
         return frame;
     }
 
     public static DockableFrame createGUIPluginFrame(String name) {
-        DockableFrame f = createFrame(name, DockContext.MODE_DOCKABLE, DockContext.DOCK_SIDE_SOUTH);
+        DockableFrame f = createFrame(name, DockContext.STATE_AUTOHIDE, DockContext.DOCK_SIDE_SOUTH);
         f.setAvailableButtons(DockableFrame.BUTTON_AUTOHIDE | DockableFrame.BUTTON_FLOATING | DockableFrame.BUTTON_MAXIMIZE );
         return f;
     }

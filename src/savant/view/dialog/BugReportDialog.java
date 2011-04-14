@@ -375,7 +375,7 @@ public class BugReportDialog extends javax.swing.JDialog {
             DialogUtils.displayMessage("Enter a valid email address.");
             this.field_email.requestFocus();
             return false;
-        } else if (!(new File(this.pf.getPath()).exists())) {
+        } else if (!this.pf.getPath().equals("") && !(new File(this.pf.getPath()).exists())) {
             DialogUtils.displayMessage("The attachment does not exist at that path.");
             this.pf.requestFocus();
             return false;

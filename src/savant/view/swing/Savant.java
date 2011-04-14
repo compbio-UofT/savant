@@ -1379,8 +1379,8 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
             printout.flush();
             printout.close();
             urlConn.getInputStream();
-        } catch (IOException ex) {
-           LOG.error("Error logging usage stats.", ex);
+        } catch (Exception ex) {
+           //LOG.error("Error logging usage stats.", ex);
         }
     }
 
@@ -1610,7 +1610,6 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         MiscUtils.setFrameVisibility(frameTitle, false, this.getAuxDockingManager());
 
         JPanel canvas = new JPanel();
-        canvas.setBackground(Color.red);
 
         savantTools = new ToolsModule(canvas);
 
@@ -2289,6 +2288,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         for (int i = 0; i < names.size(); i++) {
             MiscUtils.setFrameVisibility(names.get(i), true, this.getAuxDockingManager());
             this.getAuxDockingManager().toggleAutohideState(names.get(i));
+            break;
         }
 
         //MiscUtils.setFrameVisibility("Bookmarks", true, this.getAuxDockingManager());
