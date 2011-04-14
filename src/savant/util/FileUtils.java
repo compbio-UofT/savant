@@ -49,4 +49,11 @@ public class FileUtils {
             copyFile(f, new File(destDir, f.getName()));
         }
     }
+
+    public static void copyDirSilently(File srcDir, File destDir) {
+        File[] files = srcDir.listFiles();
+        for (File f : files) {
+            try { copyFile(f, new File(destDir, f.getName())); } catch (Exception e) {}
+        }
+    }
 }

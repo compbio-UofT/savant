@@ -101,16 +101,21 @@ public class PluginController {
             if (uninstallFile.exists()) {
                 deleteFileList(uninstallFile);
             }
+            File libDir = new File(DirectorySettings.getLibsDirectory());
+            coreLocation = new File(libDir, "SavantCore.jar");
             File pluginsDir = new File(DirectorySettings.getPluginsDirectory());
 
-            coreLocation = new File(pluginsDir, "SavantCore.jar");
+            copyBuiltInPlugins();
 
+            /*
             // On a fresh install, the Mac version may want to copy its default plugins
             // from within the application bundle to the .savant/plugins directory.
             if (MiscUtils.MAC && !coreLocation.exists()) {
                 pluginsDir.mkdirs();
                 FileUtils.copyDir(new File("Savant.app/Contents/Plugins"), pluginsDir);
             }
+             * 
+             */
 
             LOG.info("coreLocation=" + coreLocation.getAbsolutePath());
             loadCorePlugin();
@@ -429,6 +434,12 @@ public class PluginController {
         }
         
         return false;
+    }
+
+    private void copyBuiltInPlugins() {
+        File srcDir = new File("plugins");
+        File destDir = new File(DirectorySettings.getPluginsDirectory());
+        FileUtils.copyDirSilently(srcDir, destDir);
     }
 
 }

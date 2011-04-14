@@ -48,6 +48,10 @@ public class DirectorySettings {
         return savantDir;
     }
 
+    public static String getLibsDirectory() {
+        return "lib";
+    }
+
     private static String getDirectory(String key, String dirName) {
         File result = settings.getFile(key);
         if (result == null) {

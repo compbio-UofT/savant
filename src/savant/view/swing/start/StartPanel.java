@@ -217,9 +217,12 @@ public class StartPanel extends javax.swing.JPanel implements ComponentListener 
 
         //g.drawImage(logo.getImage().getScaledInstance(10, 10, Image.SCALE_SMOOTH), sideoffset, topoffset, this);
 
+        /*
         g.drawImage(hint_loadtracks.getImage(), buffer, buffer, this);
         g.drawImage(hint_activeplugins.getImage(), buffer, this.getHeight() - hint_activeplugins.getIconHeight() - buffer, this);
         g.drawImage(hint_bookmarks.getImage(), this.getWidth() - hint_bookmarks.getIconWidth() - buffer, buffer, this);
+         * 
+         */
 
         //g.drawImage(hint_loadtracks.getImage().getScaledInstance(20, -1, Image.SCALE_DEFAULT), buffer, buffer, this);
     }

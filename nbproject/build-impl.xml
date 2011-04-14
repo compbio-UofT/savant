@@ -610,7 +610,6 @@ is divided into following sections:
     <target depends="init,compile,-pre-pre-jar,-pre-jar,-init-macrodef-copylibs" if="do.archive+manifest.available+main.class+mkdist.available+splashscreen.available" name="-do-jar-with-libraries-and-splashscreen">
         <basename file="${application.splash}" property="splashscreen.basename"/>
         <mkdir dir="${build.classes.dir}/META-INF"/>
-        <copy failonerror="false" file="${application.splash}" todir="${build.classes.dir}/META-INF"/>
         <j2seproject3:copylibs>
             <customize>
                 <attribute name="Main-Class" value="${main.class}"/>

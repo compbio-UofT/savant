@@ -55,7 +55,7 @@ public class BrowserSettings {
 
 
     public static String version = "1.4.4";
-    public static String build = "beta";
+    public static String build = "release";
 
 
     public static boolean getCheckVersionOnStartup() {

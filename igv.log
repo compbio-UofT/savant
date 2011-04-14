@@ -653,3 +653,31 @@ INFO [2011-04-05 14:36:53,201]  [StandardPluginManager.java:421] [main]  plug-in
 INFO [2011-04-05 14:36:57,819]  [FrameController.java:110] [AWT-EventQueue-0]  Frames changed event being fired
 INFO [2011-04-05 14:36:57,915]  [Savant.java:146] [AWT-EventQueue-0]  Loading track C:\Users\mfiume\Desktop\human.hg18.refseq.bed.2.savant
 INFO [2011-04-05 14:37:00,588]  [FrameController.java:110] [AWT-EventQueue-0]  Frames changed event being fired
+INFO [2011-04-14 13:11:55,860]  [Savant.java:1395] [main]  Saved version file to: C:\Users\mfiume\savant\version.xml
+INFO [2011-04-14 13:11:56,681]  [ManifestParser.java:108] [main]  got SAX parser factory - com.sun.org.apache.xerces.internal.jaxp.SAXParserFactoryImpl@1e6f0ef
+INFO [2011-04-14 13:11:56,682]  [PluginRegistryImpl.java:109] [main]  configured, stopOnError=false, isValidating=true
+INFO [2011-04-14 13:11:56,696]  [PluginController.java:100] [main]  Uninstall list .uninstall_plugins
+INFO [2011-04-14 13:11:56,697]  [PluginController.java:115] [main]  coreLocation=C:\Users\mfiume\savant\plugins\SavantCore.jar
+ERROR [2011-04-14 13:11:56,698]  [PluginController.java:278] [main]  Loading of core plugin failed.
+INFO [2011-04-14 13:13:12,513]  [Savant.java:1395] [main]  Saved version file to: C:\Users\mfiume\savant\version.xml
+INFO [2011-04-14 13:13:12,797]  [ManifestParser.java:108] [main]  got SAX parser factory - com.sun.org.apache.xerces.internal.jaxp.SAXParserFactoryImpl@d402dd
+INFO [2011-04-14 13:13:12,798]  [PluginRegistryImpl.java:109] [main]  configured, stopOnError=false, isValidating=true
+INFO [2011-04-14 13:13:12,824]  [PluginController.java:100] [main]  Uninstall list .uninstall_plugins
+INFO [2011-04-14 13:13:12,833]  [PluginController.java:120] [main]  coreLocation=C:\Users\mfiume\Documents\NetBeansProjects\Savant\lib\SavantCore.jar
+INFO [2011-04-14 13:13:12,936]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-14 13:13:12,970]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-14 13:13:12,972]  [PluginController.java:236] [main]  Activating new plugin: {PluginDescriptor: uid=savant.data@1.2.0}
+INFO [2011-04-14 13:13:12,976]  [PluginController.java:244] [main]  Compatible with this version of Savant
+INFO [2011-04-14 13:13:13,018]  [StandardPluginManager.java:421] [main]  plug-in started - savant.core@1.0.0 (active/total: 1 of 2)
+INFO [2011-04-14 13:13:13,099]  [StandardPluginManager.java:421] [main]  plug-in started - savant.data@1.2.0 (active/total: 2 of 2)
+INFO [2011-04-14 15:53:39,469]  [Savant.java:1395] [main]  Saved version file to: C:\Users\mfiume\savant\version.xml
+INFO [2011-04-14 15:53:40,904]  [ManifestParser.java:108] [main]  got SAX parser factory - com.sun.org.apache.xerces.internal.jaxp.SAXParserFactoryImpl@1f2edd2
+INFO [2011-04-14 15:53:40,905]  [PluginRegistryImpl.java:109] [main]  configured, stopOnError=false, isValidating=true
+INFO [2011-04-14 15:53:40,919]  [PluginController.java:100] [main]  Uninstall list .uninstall_plugins
+INFO [2011-04-14 15:53:40,923]  [PluginController.java:120] [main]  coreLocation=C:\Users\mfiume\Documents\NetBeansProjects\Savant\lib\SavantCore.jar
+INFO [2011-04-14 15:53:40,977]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-14 15:53:41,006]  [PluginRegistryImpl.java:268] [main]  plug-in and fragment descriptors registered - 1
+INFO [2011-04-14 15:53:41,008]  [PluginController.java:236] [main]  Activating new plugin: {PluginDescriptor: uid=savant.data@1.2.0}
+INFO [2011-04-14 15:53:41,010]  [PluginController.java:244] [main]  Compatible with this version of Savant
+INFO [2011-04-14 15:53:41,020]  [StandardPluginManager.java:421] [main]  plug-in started - savant.core@1.0.0 (active/total: 1 of 2)
+INFO [2011-04-14 15:53:41,025]  [StandardPluginManager.java:421] [main]  plug-in started - savant.data@1.2.0 (active/total: 2 of 2)
