@@ -1,0 +1,20 @@
+<?xml version="1.0" ?>
+<!DOCTYPE plugin PUBLIC "-//JPF//Java Plug-in Manifest 1.0" "http://jpf.sourceforge.net/plugin_1_0.dtd">
+<plugin id="savant.core" version="1.0.0"
+	class="savant.core.SavantCore">
+	<runtime>
+		<library id="core" path="/" type="code">
+<!--			<doc caption="API documentation">
+				<doc-ref path="api/index.html" caption="javadoc" />
+			</doc>
+-->
+			<export prefix="*" />
+		</library>
+	</runtime>
+	<extension-point id="AuxData">
+		<parameter-def id="class" />
+		<parameter-def id="name" />
+		<parameter-def id="description" multiplicity="none-or-one" />
+		<!--<parameter-def id="icon" multiplicity="none-or-one" /> -->
+	</extension-point>
+</plugin>

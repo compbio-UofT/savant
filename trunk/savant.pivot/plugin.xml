@@ -1,0 +1,15 @@
+<?xml version="1.0" ?>
+<!DOCTYPE plugin PUBLIC "-//JPF//Java Plug-in Manifest 1.0" "http://jpf.sourceforge.net/plugin_1_0.dtd">
+<plugin id="savant.pivot" version="1.0.0"
+	class="savant.pivot.Pivot">
+    <requires>
+        <import plugin-id="savant.core"/>
+    </requires>
+	<runtime>
+                <library id="library" path="/" type="code"></library>
+	</runtime>
+    <extension plugin-id="savant.core" point-id="AuxData" id="extension">
+		<parameter id="class" value="savant.pivot.Pivot"/>
+		<parameter id="name" value="Pivot"/>
+    </extension>
+</plugin>
