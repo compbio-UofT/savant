@@ -49,6 +49,10 @@ public class DirectorySettings {
     }
 
     public static String getLibsDirectory() {
+        if (MiscUtils.MAC) {
+            String bundlePath = com.apple.eio.FileManager.getPathToApplicationBundle();
+            return bundlePath + "/Contents/Resources/Java";
+        }
         return "lib";
     }
 

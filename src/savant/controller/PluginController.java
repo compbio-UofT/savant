@@ -437,8 +437,9 @@ public class PluginController {
     }
 
     private void copyBuiltInPlugins() {
-        File srcDir = new File("plugins");
+        File srcDir = new File(MiscUtils.MAC ? com.apple.eio.FileManager.getPathToApplicationBundle() + "/Contents/Plugins" : "plugins");
         File destDir = new File(DirectorySettings.getPluginsDirectory());
+        LOG.info("Copying builtin plugins from " + srcDir + " to " + destDir);
         FileUtils.copyDirSilently(srcDir, destDir);
     }
 
