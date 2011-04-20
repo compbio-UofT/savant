@@ -96,6 +96,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
     public int newHeight;
     private int oldWidth = -1;
     private int oldHeight = -1;
+    private int oldViewHeight = -1;
     private int newScroll = 0;
     private boolean renderRequired = false;
     //private int buffTop = -1;
@@ -400,8 +401,8 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
 
                 //get old scroll position
                 int oldScroll = ((JScrollPane)this.getParent().getParent().getParent()).getVerticalScrollBar().getValue();
-                int oldViewHeight = ((JViewport)this.getParent().getParent()).getHeight();
                 int oldBottomHeight = oldHeight - oldScroll - oldViewHeight;
+                int newViewHeight = ((JViewport)this.getParent().getParent()).getHeight();
 
                 //change size of current frame
                 Frame frame = this.getParentFrame();
@@ -412,10 +413,16 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
                 this.revalidate();
 
                 //scroll so that bottom matches previous view
-                newScroll = newHeight - oldViewHeight - oldBottomHeight;
+                newScroll = newHeight - newViewHeight - oldBottomHeight;
+                oldViewHeight = newViewHeight;
 
                 return new Dimension(frame.getFrameLandscape().getWidth(), newHeight);
-
+            
+            } else if(oldViewHeight != ((JViewport)this.getParent().getParent()).getHeight()) {
+                int newViewHeight = ((JViewport)this.getParent().getParent()).getHeight();
+                int oldScroll = ((JScrollPane)this.getParent().getParent().getParent()).getVerticalScrollBar().getValue();
+                newScroll = oldScroll + (oldViewHeight - newViewHeight);          
+                oldViewHeight = newViewHeight;
             }
 
             if(newScroll != -1){
@@ -425,7 +432,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
 
             oldWidth = getParentFrame().getFrameLandscape().getWidth();
             oldHeight = getParentFrame().getFrameLandscape().getHeight();
-
+           
             /*
             // Get elapsed time in milliseconds
             long elapsedTimeMillis = System.currentTimeMillis()-start;
