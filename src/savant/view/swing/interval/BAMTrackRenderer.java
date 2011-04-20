@@ -503,30 +503,19 @@ public class BAMTrackRenderer extends TrackRenderer {
             }
         }
 
-        renderFixed = false;
-        renderFixed = gp.getUnitHeight() < minimumHeight;
-        if(!renderFixed){
-            double unitHeight = (double) ((JViewport)gp.getParent().getParent()).getHeight() / (maxYRange);
-            if(unitHeight < minimumHeight) renderFixed = true;
-        }
+        //resize frame if necessary
+        int currentHeight = gp.getHeight();
+        int currentWidth = gp.getParentFrame().getFrameLandscape().getWidth();
+        int currentHeight1 = ((JViewport)gp.getParent().getParent()).getHeight();
+        int expectedHeight = Math.max((int)((intervals.size() * maximumHeight) / 0.9), currentHeight1);
 
-        if(renderFixed){
-            int currentHeight = gp.getHeight();
-            int currentWidth = gp.getParentFrame().getFrameLandscape().getWidth();
-            int currentHeight1 = ((JViewport)gp.getParent().getParent()).getHeight();
-            int expectedHeight = Math.max((int)((intervals.size() * maximumHeight) / 0.9), currentHeight1);
-
-            if(expectedHeight != currentHeight || currentWidth != gp.getWidth()){
-//                gp.setBufferedImage(new BufferedImage(currentWidth, expectedHeight, BufferedImage.TYPE_INT_RGB));
-                gp.newHeight = expectedHeight;
-                gp.setPaneResize(true);
-                return;
-            }
-            gp.setUnitHeight(maximumHeight);
-            gp.setYRange(new Range(0,(int)Math.ceil(expectedHeight/maximumHeight)));
-        } else if (gp.getSize() != ((JViewport)gp.getParent().getParent()).getSize()){
-            this.resizeFrame(gp);
+        if(expectedHeight != currentHeight || currentWidth != gp.getWidth()){
+            gp.newHeight = expectedHeight;
+            gp.setPaneResize(true);
+            return;
         }
+        gp.setUnitHeight(maximumHeight);
+        gp.setYRange(new Range(0,(int)Math.ceil(expectedHeight/maximumHeight)));
         
         // scan the map of intervals and draw the intervals for each level
         for (int level=0; level<intervals.size(); level++) {

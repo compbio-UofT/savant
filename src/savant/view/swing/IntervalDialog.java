@@ -95,78 +95,11 @@ public class IntervalDialog extends JDialog {
 
         btr = (BAMTrackRenderer)track.getRenderer();
 
-        addProperty("Minimum Height", "When intervals cannot be displayed at/over the minimum height, they will switch to fixed height. ", "Interval Height Settings", Integer.class);
-        map.put("Minimum Height", btr.getMinimumHeight());
-
-        addProperty("Fixed Height", "When intervals cannot be displayed at/over the minimum height, they will switch to fixed height. ", "Interval Height Settings", Integer.class);
-        map.put("Fixed Height", btr.getMaximumHeight());
+        addProperty("Interval Height", "Interval Height", "Interval Height Settings", Integer.class);
+        map.put("Interval Height", btr.getMaximumHeight());
 
         model.expandAll();
     }
-
-
-    /*public Component getOptionsPanel() {
-
-        System.out.println("getOptionsPanel");
-        JPanel checkBoxPanel = new JPanel(new GridLayout(0, 1));
-        JCheckBox paintMargin = new JCheckBox("Paint Margin");
-        paintMargin.setSelected(true);
-        paintMargin.addItemListener(new ItemListener() {
-            public void itemStateChanged(ItemEvent e) {
-                _table.setPaintMarginBackground(e.getStateChange() == ItemEvent.SELECTED);
-            }
-        });
-        JCheckBox paintMarginComponent = new JCheckBox("Paint the Selected Row Indicator");
-        paintMarginComponent.setSelected(false);
-        paintMarginComponent.addItemListener(new ItemListener() {
-            public void itemStateChanged(ItemEvent e) {
-                if (e.getStateChange() == ItemEvent.SELECTED) {
-                    _table.setMarginRenderer(new DefaultTableCellRenderer() {
-                        @Override
-                        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-                            JLabel label = (JLabel) super.getTableCellRendererComponent(table, "", false, false, row, column);
-                            label.setHorizontalAlignment(SwingConstants.CENTER);
-                            label.setOpaque(false);
-                            if (!((Property) value).hasChildren() && isSelected) {
-                                label.setIcon(JideIconsFactory.getImageIcon(JideIconsFactory.Arrow.RIGHT));
-                            }
-                            else {
-                                label.setIcon(null);
-                            }
-                            return label;
-                        }
-                    });
-                }
-                else {
-                    _table.setMarginRenderer(null);
-                }
-            }
-        });
-
-        JCheckBox showDescriptionArea = new JCheckBox("Show Description Area");
-        showDescriptionArea.setSelected(true);
-        showDescriptionArea.addItemListener(new ItemListener() {
-            public void itemStateChanged(ItemEvent e) {
-                _pane.setShowDescription(e.getStateChange() == ItemEvent.SELECTED);
-            }
-        });
-
-        JCheckBox showToolBar = new JCheckBox("Show Tool Bar");
-        showToolBar.setSelected(true);
-        showToolBar.addItemListener(new ItemListener() {
-            public void itemStateChanged(ItemEvent e) {
-                _pane.setShowToolBar(e.getStateChange() == ItemEvent.SELECTED);
-            }
-        });
-
-        checkBoxPanel.add(paintMargin);
-        checkBoxPanel.add(paintMarginComponent);
-        //checkBoxPanel.add(showDescriptionArea);
-        _pane.setShowDescription(false);
-        checkBoxPanel.add(showToolBar);
-
-        return checkBoxPanel;
-    }*/
 
     // create property table
     private PropertyTable createTable() {
@@ -229,9 +162,7 @@ public class IntervalDialog extends JDialog {
                     return;
                 }
 
-                if(name.equals("Minimum Height")){
-                    btr.setMinimumHeight((Integer)value);
-                } else if(name.equals("Fixed Height")){
+                if(name.equals("Interval Height")){
                     if((Integer)value < 1) return;
                     btr.setMaximumHeight((Integer)value);
                 }
