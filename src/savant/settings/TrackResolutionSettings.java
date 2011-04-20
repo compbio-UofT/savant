@@ -16,7 +16,7 @@ import java.util.logging.Logger;
 public class TrackResolutionSettings {
 
     // The defaults
-    private static int SEQUENCE_LOW_TO_HIGH = 500000;
+    private static int SEQUENCE_LOW_TO_HIGH = 10000;
     private static int INTERVAL_LOW_TO_HIGH = 1000000;
     private static int BAM_DEFAULT_LOW_TO_HIGH = 20000;
     private static int BAM_ARC_LOW_TO_HIGH = 100000;
