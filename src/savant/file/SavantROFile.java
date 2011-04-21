@@ -1,9 +1,5 @@
 /*
- * SavantROFile.java
- * Created on Aug 27, 2010
- *
- *
- *    Copyright 2010 University of Toronto
+ *    Copyright 2010-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -43,7 +39,7 @@ public class SavantROFile implements ROFile {
     private final SeekableStream seekStream;
 
     private FileTypeHeader fileTypeHeader;
-    private Map<String,Long[]> referenceMap;
+    private Map<String, long[]> referenceMap;
     private List<FieldType> fields;
     private long headerOffset;
     private URI uri;
@@ -139,17 +135,17 @@ public class SavantROFile implements ROFile {
             LOG.debug("Reading reference<-> data map");
         }
 
-        this.referenceMap = SavantFileUtils.readReferenceMap(this);
+        referenceMap = SavantFileUtils.readReferenceMap(this);
         if (LOG.isDebugEnabled()) {
-            for (String refname : this.referenceMap.keySet()) {
-                Long[] vals = this.referenceMap.get(refname);
+            for (String refname : referenceMap.keySet()) {
+                long[] vals = referenceMap.get(refname);
                 LOG.debug("Reference " + refname + " at " + vals[0] + " of length " + vals[1]);
             }
         }
 
         LOG.debug("Making note of offset: " + getFilePointer());
 
-        this.headerOffset = getFilePointer();
+        headerOffset = getFilePointer();
     }
 
     @Override
@@ -327,8 +323,8 @@ public class SavantROFile implements ROFile {
     }
 
     @Override
-    public Map<String, Long[]> getReferenceMap() {
-        return this.referenceMap;
+    public Map<String, long[]> getReferenceMap() {
+        return referenceMap;
     }
 
     @Override

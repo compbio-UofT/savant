@@ -1,5 +1,5 @@
 /*
- *    Copyright 2010 University of Toronto
+ *    Copyright 2010-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -28,11 +28,11 @@ import savant.file.FileType;
 import savant.settings.DirectorySettings;
 import savant.util.Range;
 
+
 public class IntervalFormatter extends SavantFileFormatter {
 
     private static final int RECORDS_PER_INTERRUPT_CHECK = 1000;
     protected int baseOffset = 0; // 0 if *input* file is 1-based; 1 if 0-based
-    private static final long DEFAULT_RUN_SIZE = (long)(12.5 * Math.pow(2, 20)); // 12.5MB
     private int refnameindex;
     private int startcoordindex;
     private int endcoordindex;
@@ -233,13 +233,13 @@ public class IntervalFormatter extends SavantFileFormatter {
 
         fields = new ArrayList<FieldType>();
         fields.add(FieldType.STRING);   // reference
-        fields.add(FieldType.INTEGER);  // start (#306 should be LONG)
-        fields.add(FieldType.INTEGER);  // end (#306 should be LONG)
+        fields.add(FieldType.INTEGER);  // start
+        fields.add(FieldType.INTEGER);  // end
         fields.add(FieldType.STRING);   // name
         fields.add(FieldType.FLOAT);  // score
         fields.add(FieldType.STRING);   // strand
-        fields.add(FieldType.INTEGER);  // thickstart (#306 should be LONG)
-        fields.add(FieldType.INTEGER);  // thickend (#306 should be LONG)
+        fields.add(FieldType.INTEGER);  // thickstart
+        fields.add(FieldType.INTEGER);  // thickend
         fields.add(FieldType.ITEMRGB);  // itemrgb
         fields.add(FieldType.BLOCKS);   // exonblocks
 
@@ -286,8 +286,8 @@ public class IntervalFormatter extends SavantFileFormatter {
         fields.add(FieldType.STRING);   // seqname
         fields.add(FieldType.STRING);   // source
         fields.add(FieldType.STRING);   // feature
-        fields.add(FieldType.INTEGER);  // start (#306 should be LONG)
-        fields.add(FieldType.INTEGER);  // end (#306 should be LONG)
+        fields.add(FieldType.INTEGER);  // start
+        fields.add(FieldType.INTEGER);  // end
         fields.add(FieldType.DOUBLE);  // score
         fields.add(FieldType.STRING);   // strand
         fields.add(FieldType.STRING);   // frame
@@ -316,7 +316,7 @@ public class IntervalFormatter extends SavantFileFormatter {
         return new BufferedReader(new FileReader(inFile));
     }
 
-    private void writeBinToOutfile(IntervalTreeNode n, RandomAccessFile srcFile, DataOutputStream outFile, HashMap<Integer, List<LinePlusRange>> nodeIndex2IntervalIndices, List<Long> intevalIndex2StartByte, List<FieldType> fields, List<Object> modifiers) throws IOException {
+    private void writeBinToOutfile(IntervalTreeNode n, RandomAccessFile srcFile, DataOutputStream outFile, HashMap<Integer, List<LinePlusRange>> nodeIndex2IntervalIndices, List<Long> intervalIndex2StartByte, List<FieldType> fields, List<Object> modifiers) throws IOException {
         if (n == null) { return; }
 
         List<LinePlusRange> linesPlusRanges = nodeIndex2IntervalIndices.get(n.index);
@@ -325,7 +325,7 @@ public class IntervalFormatter extends SavantFileFormatter {
             for (LinePlusRange lr : linesPlusRanges) {
 
                 int intervalIndex = lr.lineNum;
-                long startByte = intevalIndex2StartByte.get(intervalIndex);
+                long startByte = intervalIndex2StartByte.get(intervalIndex);
 
                 srcFile.seek(startByte);
                 List<Object> rec = SavantFileFormatterUtils.readBinaryRecord(srcFile, fields);
@@ -416,8 +416,8 @@ public class IntervalFormatter extends SavantFileFormatter {
         LOG.debug("=== STEP 1 ===");
 
         // the maximum and minimum range values in the input file
-        long minRange = Long.MAX_VALUE;
-        long maxRange = Long.MIN_VALUE;
+        int minRange = Integer.MAX_VALUE;
+        int maxRange = Integer.MIN_VALUE;
 
         // open the input file
         inFileReader = new BufferedReader(new FileReader(path));
@@ -442,13 +442,12 @@ public class IntervalFormatter extends SavantFileFormatter {
             line = SavantFileFormatterUtils.parseTxtLine(strLine, fields, isGFF);
 
             // Adjust the start byte and endbyte offsets (for 0 vs. 1-based)
-            // TODO: #306 These fields should really be cast to Long rather than Integer.
             line.set(startcoordindex, (Integer)line.get(startcoordindex) + this.baseOffset);
             line.set(endcoordindex, (Integer)line.get(endcoordindex) + this.baseOffset);
 
             // update min and max
-            long startInterval = (Integer)line.get(startcoordindex);
-            long endInterval = (Integer)line.get(endcoordindex);
+            int startInterval = (Integer)line.get(startcoordindex);
+            int endInterval = (Integer)line.get(endcoordindex);
             minRange = Math.min(minRange, startInterval);
             maxRange = Math.max(maxRange, endInterval);
 

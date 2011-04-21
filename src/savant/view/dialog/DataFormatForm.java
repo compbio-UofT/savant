@@ -23,6 +23,7 @@ import javax.swing.JDialog;
 import savant.api.util.DialogUtils;
 import savant.file.FileType;
 import savant.format.DataFormatter;
+import savant.format.SavantFileFormatterUtils;
 
 
 /**
@@ -57,8 +58,10 @@ public class DataFormatForm extends JDialog {
     public void setInFile(File inFile) {
         if (inFile != null) {
             inputField.setText(inFile.getPath());
-            setOutputPath(inFile.getPath());
-            validateReadyToFormat();
+            if (!guessFileType()) {
+                setOutputPath();
+                validateReadyToFormat();
+            }
         }
 
     }
@@ -265,14 +268,18 @@ public class DataFormatForm extends JDialog {
         File selectedFile = DialogUtils.chooseFileForOpen("Input File", null, null);
         if (selectedFile != null) {
             inputField.setText(selectedFile.getPath());
-            setOutputPath(selectedFile.getPath());
+            if (guessFileType()) {
+                // If we guessed the file type, setOutputPath and validateReadyToFormat will have been called.
+                return;
+            }
+            setOutputPath();
         }
         validateReadyToFormat();
     }//GEN-LAST:event_inputButtonActionPerformed
 
     private void tempOutputCheckActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tempOutputCheckActionPerformed
         
-        setOutputPath(inputField.getText());
+        setOutputPath();
         
     }//GEN-LAST:event_tempOutputCheckActionPerformed
 
@@ -316,7 +323,7 @@ public class DataFormatForm extends JDialog {
                 zeroBasedCheck.setSelected(picked.defaultIsZeroBased);
                 zeroBasedCheck.setEnabled(picked.canChooseBase);
             }
-            setOutputPath(inputField.getText());
+            setOutputPath();
             validateReadyToFormat();
         }
     }//GEN-LAST:event_formatListValueChanged
@@ -341,44 +348,28 @@ public class DataFormatForm extends JDialog {
     private javax.swing.JCheckBox zeroBasedCheck;
     // End of variables declaration//GEN-END:variables
 
-    private void setOutputPath(String selectedFileName) {
+    private void setOutputPath() {
         FormatDef format = (FormatDef)formatList.getSelectedValue();
         if (format != null) {
             FileType ft = format.type;
+            String inputPath = inputField.getText();
+            boolean bam = (ft == null && inputPath.endsWith(".bam")) || ft == FileType.INTERVAL_BAM;
 
-            if (tempOutputCheck.isSelected()) {
-                outputButton.setEnabled(false);
-                if ((ft == null && inputField.getText().endsWith(".bam")) || ft == FileType.INTERVAL_BAM) {
-                     outputField.setEnabled(false);
-                     outputButton.setEnabled(false);
-                     outputField.setText("Directory of BAM file");
-                } else {
-                    outputField.setEnabled(true);
-                    outputButton.setEnabled(true);
-                    outputField.setText(selectedFileName + ".tmp.savant");
-                }
+            outputButton.setEnabled(!bam);
+            outputField.setEnabled(!bam);
+            if (bam) {
+                outputField.setText("Directory of BAM file");
             } else {
-                outputButton.setEnabled(true);
-                if (selectedFileName.equals("")) {
-                    if ((ft == null && inputField.getText().endsWith(".bam")) || ft == FileType.INTERVAL_BAM) {
-                        outputField.setEnabled(false);
-                        outputButton.setEnabled(false);
-                        outputField.setText("No input file selected");
-                     } else {
-                        outputField.setEnabled(true);
-                        outputButton.setEnabled(true);
-                        outputField.setText("No input file selected");
-                     }
+                if (inputPath.equals("")) {
+                    outputField.setText("No input file selected");
                 } else {
-                     if ((ft == null && inputField.getText().endsWith(".bam")) || ft == FileType.INTERVAL_BAM) {
-                        outputField.setEnabled(false);
-                        outputButton.setEnabled(false);
-                        outputField.setText("Directory of BAM file");
-                     } else {
-                        outputField.setEnabled(true);
-                        outputButton.setEnabled(true);
-                        outputField.setText(selectedFileName + ".savant");
-                     }
+                    String outputPath = inputPath;
+                    if (outputPath.equals(""))
+                    if (tempOutputCheck.isSelected()) {
+                        outputPath += ".tmp";
+                    }
+                    outputPath += ft == FileType.CONTINUOUS_WIG ? ".tdf" : ".savant";
+                    outputField.setText(outputPath);
                 }
             }
             validateReadyToFormat();
@@ -392,6 +383,28 @@ public class DataFormatForm extends JDialog {
             formatButton.setEnabled(true);
             getRootPane().setDefaultButton(formatButton);
         }
+    }
+
+    /**
+     * Given the file name, try to guess which Savant file-type is appropriate.
+     *
+     * @return true if we found a match
+     */
+    private boolean guessFileType() {
+        FileType guess = SavantFileFormatterUtils.guessFileTypeFromPath(inputField.getText());
+        if (guess != null) {
+            int numItems = formatList.getModel().getSize();
+            for (int i = 0; i < numItems; i++) {
+                if (((FormatDef)formatList.getModel().getElementAt(i)).type == guess) {
+                    if (i != formatList.getSelectedIndex()) {
+                        formatList.setSelectedIndex(i);
+                        return true;
+                    }
+                    break;
+                }
+            }
+        }
+        return false;
     }
 
     /**

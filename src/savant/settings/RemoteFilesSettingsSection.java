@@ -1,5 +1,5 @@
 /*
- *    Copyright 2010 University of Toronto
+ *    Copyright 2010-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.io.File;
 import java.io.IOException;
 import javax.swing.Icon;
 import javax.swing.JButton;
@@ -32,8 +33,10 @@ import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import savant.util.RemoteFileCache;
 
 /**
@@ -46,7 +49,7 @@ public class RemoteFilesSettingsSection extends Section {
     private JTextField directoryInput;
     private JTextField buffSizeInput;
     private String buffSize;
-    private String directoryPath;
+    private File cacheDir;
     JCheckBox enableCaching_cb;
 
     @Override
@@ -132,8 +135,8 @@ public class RemoteFilesSettingsSection extends Section {
         panel.add(spacer1, c);
 
         //initial directory
-        directoryPath = DirectorySettings.getCacheDirectory();
-        directoryInput.setText(directoryPath);
+        cacheDir = DirectorySettings.getCacheDirectory();
+        directoryInput.setText(cacheDir.getAbsolutePath());
 
         //enable apply button if text changed
         directoryInput.addKeyListener(new KeyAdapter() {
@@ -245,8 +248,8 @@ public class RemoteFilesSettingsSection extends Section {
     public void applyChanges() {
         // Only save anything if this panel has gone through lazy initialization.
         if (directoryInput != null) {
-            directoryPath = directoryInput.getText();
-            DirectorySettings.setCacheDirectory(directoryPath);
+            cacheDir = new File(directoryInput.getText());
+            DirectorySettings.setCacheDirectory(cacheDir);
 
             buffSize = buffSizeInput.getText();
             int newVal;

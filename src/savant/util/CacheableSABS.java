@@ -43,7 +43,7 @@ public class CacheableSABS extends SeekableAdjustableBufferedStream {
     //public static final int DEFAULT_BLOCK_SIZE = 65536;
     private static final Log LOG = LogFactory.getLog(CacheableSABS.class);
 
-    private String cacheFile = null;
+    private File cacheFile = null;
     private int numBlocks = 0;
     private RandomAccessFile cache = null;
     private int positionInBuff = 0;
@@ -100,8 +100,7 @@ public class CacheableSABS extends SeekableAdjustableBufferedStream {
         int actualOffset = (numBlocks * 4) + (blockOffset -1) * bufferSize;
 
         //retrieve from stream
-        File file = new File(cacheFile);
-        FileInputStream cacheStream = new FileInputStream(file);
+        FileInputStream cacheStream = new FileInputStream(cacheFile);
         cacheStream.skip(actualOffset);
         bufferedStream = new BufferedInputStream(cacheStream, bufferSize);
         bufferedStream.skip(positionOffset);
@@ -152,8 +151,7 @@ public class CacheableSABS extends SeekableAdjustableBufferedStream {
     }
 
     private void openCache() throws FileNotFoundException{
-        File file = new File(cacheFile);
-        cache = new RandomAccessFile(file, "rw");
+        cache = new RandomAccessFile(cacheFile, "rw");
     }
 
     //TODO: where should this be called?
@@ -165,10 +163,8 @@ public class CacheableSABS extends SeekableAdjustableBufferedStream {
     private void initCache() throws IOException{
 
         //create index
-        String dir = DirectorySettings.getCacheDirectory();
-        String sep = System.getProperty("file.separator");
-        String indexName = dir + sep + "cacheIndex";
-        File index = new File(indexName);
+        File cacheDir = DirectorySettings.getCacheDirectory();
+        File index = new File(cacheDir, "cacheIndex");
         index.createNewFile();
 
         //check for entry
@@ -176,7 +172,7 @@ public class CacheableSABS extends SeekableAdjustableBufferedStream {
         boolean entryFound = false;
         int count = 0; //number of instance already in cache (at different buffer sizes)
         BufferedReader bufferedReader = null;
-        bufferedReader = new BufferedReader(new FileReader(indexName));
+        bufferedReader = new BufferedReader(new FileReader(index));
         String line = null;
         while ((line = bufferedReader.readLine()) != null) {
             String[] lineArray = line.split(",");
@@ -200,7 +196,7 @@ public class CacheableSABS extends SeekableAdjustableBufferedStream {
 
                 //equivalent entry found
                 entryFound = true;
-                cacheFile = lineArray[4];
+                cacheFile = new File(lineArray[4]);
                 break;
 
             }
@@ -211,19 +207,18 @@ public class CacheableSABS extends SeekableAdjustableBufferedStream {
 
         //add entry
         if(!entryFound){
-            BufferedWriter out = new BufferedWriter(new FileWriter(indexName, true));
-            cacheFile = dir + sep + this.getSource().replaceAll("[\\:/]", "+") + String.valueOf(count);
-            out.write(this.getSource() + "," +
+            BufferedWriter out = new BufferedWriter(new FileWriter(index, true));
+            cacheFile = new File(cacheDir, getSource().replaceAll("[\\:/]", "+") + String.valueOf(count));
+            out.write(getSource() + "," +
                     newETag + "," +   
-                    this.length() + "," +
-                    this.bufferSize + "," +        //NOTE: bufferSize constant for now
+                    length() + "," +
+                    bufferSize + "," +        //NOTE: bufferSize constant for now
                     cacheFile);                    // replace all instances of \/:*?"<>|
             out.newLine();
             out.close();
 
             //create the cacheFile
-            File file = new File(cacheFile);
-            RandomAccessFile raf = new RandomAccessFile(file, "rw");
+            RandomAccessFile raf = new RandomAccessFile(cacheFile, "rw");
             for(int i = 0; i < numBlocks; i++){
                 //write 0x0000
                 raf.write(0);

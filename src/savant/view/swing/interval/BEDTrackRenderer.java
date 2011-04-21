@@ -16,14 +16,7 @@
 
 package savant.view.swing.interval;
 
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.FontMetrics;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Polygon;
-import java.awt.Rectangle;
-import java.awt.RenderingHints;
+import java.awt.*;
 import java.awt.geom.Area;
 import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
@@ -34,21 +27,11 @@ import java.util.ListIterator;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import savant.data.types.BEDIntervalRecord;
-import savant.data.types.Block;
-import savant.data.types.Interval;
-import savant.data.types.IntervalRecord;
-import savant.data.types.Record;
+import savant.data.types.*;
 import savant.exception.RenderingException;
 import savant.file.DataFormat;
 import savant.settings.BrowserSettings;
-import savant.util.AxisRange;
-import savant.util.ColorScheme;
-import savant.util.DrawingInstruction;
-import savant.util.IntervalPacker;
-import savant.util.Range;
-import savant.util.Resolution;
-import savant.util.Strand;
+import savant.util.*;
 import savant.view.swing.GraphPane;
 import savant.view.swing.TrackRenderer;
 
@@ -481,14 +464,14 @@ public class BEDTrackRenderer extends TrackRenderer {
             Interval gene = bedRecord.getInterval();
             if (intervals.isEmpty()) {
                 for (Block block: blocks) {
-                    long blockStart = gene.getStart() + block.getPosition();
+                    int blockStart = gene.getStart() + block.getPosition();
                     Interval blockInterval = Interval.valueOf(blockStart, blockStart+block.getSize());
                     intervals.add(blockInterval);
                 }
             } else {
                 for (Block block: blocks) {
                     // merging only works on intervals, so convert block to interval
-                    long blockStart = gene.getStart() + block.getPosition();
+                    int blockStart = gene.getStart() + block.getPosition();
                     Interval blockInterval = Interval.valueOf(blockStart, blockStart+block.getSize());
                     ListIterator<Interval> intervalIt = intervals.listIterator();
                     boolean merged = false;

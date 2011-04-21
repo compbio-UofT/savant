@@ -1,7 +1,4 @@
 /*
- * RangeController.java
- * Created on Jan 19, 2010
- *
  *    Copyright 2010-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
@@ -85,7 +82,7 @@ public class RangeController {
      * @param from Lowest value of the maximum viewable range
      * @param to Highest value of the maximum viewable range
      */
-    public void setMaxRange(long from, long to) {
+    public void setMaxRange(int from, int to) {
         setMaxRange(new Range(from, to));
     }
 
@@ -101,7 +98,7 @@ public class RangeController {
      * Get the lower bound on the maximumViewableRange.
      * @return The lower bound on the maximumViewableRange
      */
-    public long getMaxRangeStart() {
+    public int getMaxRangeStart() {
         return maximumViewableRange.getFrom();
     }
 
@@ -109,7 +106,7 @@ public class RangeController {
      * Get the upper bound on the maximumViewableRange.
      * @return The upper bound on the maximumViewableRange
      */
-    public long getMaxRangeEnd() {
+    public int getMaxRangeEnd() {
         return maximumViewableRange.getTo();
     }
 
@@ -128,21 +125,21 @@ public class RangeController {
             }
         }
 
-        long from = r.getFrom();
-        long to = r.getTo();
+        int from = r.getFrom();
+        int to = r.getTo();
 
         /*
          * Make sure the current viewable range
          * stays within the maximum viewable range
          */
         if (from < getMaxRangeStart()) {
-            long diff = getMaxRangeStart() - from;
+            int diff = getMaxRangeStart() - from;
             from = getMaxRangeStart();
             to += diff;
         }
 
         if (to > getMaxRangeEnd()) {
-            long diff = to - getMaxRangeEnd();
+            int diff = to - getMaxRangeEnd();
             to = getMaxRangeEnd();
             from -= diff;
         }
@@ -203,7 +200,7 @@ public class RangeController {
      * @param from The lower bound on the viewed range
      * @param to The upper bound on the viewed range
      */
-    public void setRange(long from, long to) {
+    public void setRange(int from, int to) {
         setRange(new Range(from, to));
     }
     /**
@@ -218,7 +215,7 @@ public class RangeController {
      * Get the lower bound on the currentViewableRange.
      * @return The lower bound on the currentViewableRange
      */
-    public long getRangeStart() {
+    public int getRangeStart() {
         return currentViewableRange.getFrom();
     }
 
@@ -226,7 +223,7 @@ public class RangeController {
      * Get the upper bound on the currentViewableRange.
      * @return The upper bound on the currentViewableRange
      */
-    public long getRangeEnd() {
+    public int getRangeEnd() {
         return currentViewableRange.getTo();
     }
     /**
@@ -257,13 +254,13 @@ public class RangeController {
      */
     public void shiftRange(boolean shiftRight, double percentwindow) {
         Range r = getRange();
-        long length = r.getLength();
+        int length = r.getLength();
         int direction = 1;
         if (!shiftRight) {
             direction = -1;
         }
         //int shift = (int) Math.ceil(direction * (percentwindow * length)) - ( (direction == 1) ? 1 : 0);
-        long shift = (long) Math.ceil(direction * (percentwindow * length)) - ( (direction == -1 && length == 1) ? 1 : 0);
+        int shift = (int)Math.ceil(direction * (percentwindow * length)) - ( (direction == -1 && length == 1) ? 1 : 0);
 
         r = new Range(r.getFrom() + shift, r.getTo() + shift);
         setRange(r);
@@ -294,11 +291,11 @@ public class RangeController {
      * Zoom to the specified length.
      * @param length The length to which to zoom
      */
-    public void zoomToLength(long length) {
+    public void zoomToLength(int length) {
         zoomToLength(length, (getRangeEnd()+ 1 + getRangeStart()) / 2); // + 1 because ranges are inclusive
     }
     
-    public void zoomToLength(long length, long center) {
+    public void zoomToLength(int length, int center) {
 
         if(length > maximumViewableRange.getLength()){
             zoomToLength(maximumViewableRange.getLength());
@@ -311,7 +308,7 @@ public class RangeController {
             return; // can't go any further out, stay at same range.
         }
 
-        long half = Math.max(length / 2, 1);
+        int half = Math.max(length / 2, 1);
 
         Range rg = new Range(center-half,center-half+length-1);
         setRange(rg);
@@ -321,7 +318,7 @@ public class RangeController {
      * Zoom out one level
      */
     public void zoomOut() {
-        long length = Math.min(maximumViewableRange.getLength(), currentViewableRange.getLength() * BrowserSettings.zoomAmount);
+        int length = Math.min(maximumViewableRange.getLength(), currentViewableRange.getLength() * BrowserSettings.zoomAmount);
         zoomToLength(length);
     }
 
@@ -358,12 +355,12 @@ public class RangeController {
     }
 
     public void zoomInOnMouse() {
-        long center = GraphPaneController.getInstance().getMouseXPosition();
+        int center = GraphPaneController.getInstance().getMouseXPosition();
         zoomToLength(currentViewableRange.getLength() / BrowserSettings.zoomAmount,center);
     }
 
     public void zoomOutFromMouse() {
-        long center = GraphPaneController.getInstance().getMouseXPosition();
+        int center = GraphPaneController.getInstance().getMouseXPosition();
         zoomToLength(currentViewableRange.getLength() * BrowserSettings.zoomAmount,center);
     }
 

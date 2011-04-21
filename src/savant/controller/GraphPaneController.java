@@ -1,12 +1,24 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ *    Copyright 2010-2011 University of Toronto
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
  */
 
 package savant.controller;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import savant.controller.event.GraphPaneChangeEvent;
 import savant.controller.event.GraphPaneChangeListener;
 import savant.util.Range;
@@ -26,14 +38,14 @@ public class GraphPaneController {
     private boolean isPanning;
     private boolean isSelecting;
 
-    private long mouseClickPosition;
-    private long mouseReleasePosition;
-    private long mouseXPosition;
-    private long mouseYPosition;
+    private int mouseClickPosition;
+    private int mouseReleasePosition;
+    private int mouseXPosition;
+    private int mouseYPosition;
 
     private List<GraphPane> graphpanesQueuedForRendering;
 
-    private long spotlightSize;
+    private int spotlightSize;
     private double spotlightproportion = 0.25;
 
     private static GraphPaneController instance;
@@ -202,48 +214,48 @@ public class GraphPaneController {
         setMouseDragRange(r.getFrom(),r.getTo());
     }
 
-    public void setMouseDragRange(long fromPosition, long toPosition) {
+    public void setMouseDragRange(int fromPosition, int toPosition) {
         this.mouseClickPosition = fromPosition;
         this.mouseReleasePosition = toPosition;
         askForRefresh();
     }
 
-    public void setMouseClickPosition(long position) {
+    public void setMouseClickPosition(int position) {
         this.mouseClickPosition = position;
         askForRefresh();
     }
 
-    public void setMouseReleasePosition(long position) {
+    public void setMouseReleasePosition(int position) {
         this.mouseReleasePosition = position;
         askForRefresh();
     }
     
-    public long getMouseXPosition() {
+    public int getMouseXPosition() {
         return this.mouseXPosition;
     }
 
-    public void setMouseXPosition(long position) {
+    public void setMouseXPosition(int position) {
         this.mouseXPosition = position;
         askForRefresh();
         Savant.getInstance().updateMousePosition();
     }
 
-    public long getMouseYPosition() {
+    public int getMouseYPosition() {
         return this.mouseYPosition;
     }
 
-    public void setMouseYPosition(long position) {
+    public void setMouseYPosition(int position) {
         this.mouseYPosition = position;
         askForRefresh();
         Savant.getInstance().updateMousePosition();
     }
     
-    public void setSpotlightSize(long size) {
+    public void setSpotlightSize(int size) {
         this.spotlightSize = Math.max(2,(int) Math.round(size*spotlightproportion));
         this.spotlightSize = 1;
     }
 
-    public long getSpotlightSize() {
+    public int getSpotlightSize() {
         return this.spotlightSize;
     }
 

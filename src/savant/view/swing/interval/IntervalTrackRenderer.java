@@ -143,7 +143,7 @@ public class IntervalTrackRenderer extends TrackRenderer {
             for (Record record: data) {
                 Interval inter = ((IntervalRecord)record).getInterval();
 
-                long arcLength = inter.getLength();
+                int arcLength = inter.getLength();
                 int arcHeight = (int)(Math.log((double)arcLength));
 
                 int rectWidth = (int)(gp.getWidth(arcLength));

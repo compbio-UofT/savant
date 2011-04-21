@@ -128,7 +128,7 @@ public class ContinuousFormatterHelper {
     public static Map<String,List<Level>> readLevelHeaders(SavantROFile savantFile) throws IOException {
 
         // read the refname -> index position map
-        Map<String,Long[]> refMap = SavantFileUtils.readReferenceMap(savantFile);
+        Map<String, long[]> refMap = SavantFileUtils.readReferenceMap(savantFile);
 
         // change the offset
         savantFile.setHeaderOffset(savantFile.getFilePointer());
@@ -140,10 +140,10 @@ public class ContinuousFormatterHelper {
         LOG.debug("Number of headers to get: " + refMap.keySet().size());
 
         // keep track of the maximum end of tree position
-        // (IMPORTANT NOTE: order of elements returned by keySet() is not gauranteed!!!)
+        // (IMPORTANT NOTE: order of elements returned by keySet() is not guaranteed!!!)
         long maxend = Long.MIN_VALUE;
         for (String refname : refMap.keySet()) {
-            Long[] v = refMap.get(refname);
+            long[] v = refMap.get(refname);
 
             savantFile.seek(v[0] + savantFile.getHeaderOffset());
 
@@ -153,7 +153,7 @@ public class ContinuousFormatterHelper {
                 levels.add(new Level(savantFile));
             }
 
-            maxend = Math.max(maxend,savantFile.getFilePointer());
+            maxend = Math.max(maxend, savantFile.getFilePointer());
 
             headers.put(refname, levels);
             headerNum++;

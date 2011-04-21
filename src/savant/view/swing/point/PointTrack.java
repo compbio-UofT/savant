@@ -1,5 +1,5 @@
 /*
- *    Copyright 2010 University of Toronto
+ *    Copyright 2010-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 
 package savant.view.swing.point;
 
-import java.io.IOException;
 import java.util.List;
 
 import savant.api.adapter.RangeAdapter;
@@ -59,9 +58,8 @@ public class PointTrack extends Track {
     }
 
     @Override
-    public Resolution getResolution(RangeAdapter range)
-    {
-        long length = range.getLength();
+    public Resolution getResolution(RangeAdapter range) {
+        int length = range.getLength();
 
         if (length > 100000) { return Resolution.VERY_LOW; }
         return Resolution.VERY_HIGH;
@@ -70,8 +68,6 @@ public class PointTrack extends Track {
     @Override
     public void prepareForRendering(String reference, Range range) {
         Resolution r = getResolution(range);
-
-        List<Record> data = null;
 
         switch (r) {
             case VERY_HIGH:

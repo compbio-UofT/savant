@@ -1,6 +1,17 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ *    Copyright 2010-2011 University of Toronto
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
  */
 
 package savant.view.swing.interval;
@@ -75,11 +86,11 @@ public class StuffedIntervalRecord implements IntervalRecord {
             if(a1.length() > a2.length()) return 1;
         }
         //compare interval
-        long a = this.getInterval().getStart();
-        long b = other.getInterval().getStart();
+        int a = this.getInterval().getStart();
+        int b = other.getInterval().getStart();
 
-        long c = this.getInterval().getEnd();
-        long d = other.getInterval().getEnd();
+        int c = this.getInterval().getEnd();
+        int d = other.getInterval().getEnd();
 
         if(a == b){
             if (d < c) { return -1; }

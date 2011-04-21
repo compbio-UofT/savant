@@ -1,5 +1,5 @@
 /*
- *    Copyright 2010 University of Toronto
+ *    Copyright 2010-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@
  */
 package savant.view.swing.interval;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -69,9 +68,11 @@ public class IntervalTrack extends Track {
     }
 
     @Override
-    public Resolution getResolution(RangeAdapter range) { return getResolution(range, getDrawMode()); }
+    public Resolution getResolution(RangeAdapter range) {
+        return getResolution((Range)range, getDrawMode());
+    }
 
-    public Resolution getResolution(RangeAdapter range, String mode) {
+    public Resolution getResolution(Range range, String mode) {
         if (mode.equals(IntervalTrackRenderer.SQUISH_MODE)) {
             return getSquishModeResolution(range);
         } else if (mode.equals(IntervalTrackRenderer.ARC_MODE)) {
@@ -84,18 +85,18 @@ public class IntervalTrack extends Track {
         }
     }
 
-    public static Resolution getDefaultModeResolution(RangeAdapter range) {
+    public static Resolution getDefaultModeResolution(Range range) {
         if (range.getLength() > TrackResolutionSettings.getIntervalLowToHighThresh()) { return Resolution.LOW; }
         else { return Resolution.VERY_HIGH; }
     }
 
-    public static Resolution getArcModeResolution(RangeAdapter range)
+    public static Resolution getArcModeResolution(Range range)
     {
         if (range.getLength() > TrackResolutionSettings.getIntervalLowToHighThresh()) { return Resolution.LOW; }
         else { return Resolution.VERY_HIGH; }
     }
 
-    public static Resolution getSquishModeResolution(RangeAdapter range) {
+    public static Resolution getSquishModeResolution(Range range) {
         if (range.getLength() > TrackResolutionSettings.getIntervalLowToHighThresh()) { return Resolution.LOW; }
         else { return Resolution.VERY_HIGH; }
     }

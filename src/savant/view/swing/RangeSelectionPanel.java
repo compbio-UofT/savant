@@ -1,5 +1,5 @@
 /*
- *    Copyright 2009-2010 University of Toronto
+ *    Copyright 2009-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -15,24 +15,37 @@
  */
 package savant.view.swing;
 
-import savant.controller.RangeController;
-import savant.controller.event.RangeChangedEvent;
-import savant.controller.event.RangeChangedListener;
-import savant.controller.event.RangeSelectionChangedEvent;
-import savant.controller.event.RangeSelectionChangedListener;
-import savant.util.MiscUtils;
-import savant.util.Range;
-
-import javax.swing.*;
-import java.awt.*;
+import java.awt.AlphaComposite;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Composite;
+import java.awt.Cursor;
+import java.awt.FontMetrics;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.Polygon;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
-import java.awt.image.BufferedImageOp;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.SwingConstants;
+
+import savant.controller.RangeController;
+import savant.controller.ReferenceController;
+import savant.controller.event.RangeChangedEvent;
+import savant.controller.event.RangeChangedListener;
+import savant.controller.event.RangeSelectionChangedEvent;
+import savant.controller.event.RangeSelectionChangedListener;
+import savant.data.types.Genome;
+import savant.data.types.Genome.Cytoband;
+import savant.util.Range;
+import savant.util.MiscUtils;
 
 /**
  *
@@ -40,15 +53,17 @@ import java.util.List;
  */
 public class RangeSelectionPanel extends JPanel implements MouseListener, MouseMotionListener, RangeChangedListener {
 
+    private static final AlphaComposite COMPOSITE_50 = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.50F);
+    private static final AlphaComposite COMPOSITE_75 = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.75F);
+    private static final Color LINE_COLOUR = new Color(100, 100, 100);
+
     private boolean isMouseInside = false;
     private boolean isDragging = false;
     private boolean isActive = false;
-    private long minimum = 0;
-    private long maximum = 100;
-    private static final long serialVersionUID = 1L;
+    private int minimum = 0;
+    private int maximum = 100;
     private final JLabel mousePosition;
     int x1, x2, y1, y2;
-    int x, y, w, h;
     int x_notdragging;
     private final JLabel recStart;
     private final JLabel recStop;
@@ -57,6 +72,7 @@ public class RangeSelectionPanel extends JPanel implements MouseListener, MouseM
     /** Range Selection Changed Listeners */
     private List rangeSelectionChangedListeners = new ArrayList();
     private boolean rangeChangedExternally;
+
 
     public RangeSelectionPanel() {
 
@@ -82,12 +98,14 @@ public class RangeSelectionPanel extends JPanel implements MouseListener, MouseM
     }
 
 // MouseListener event handlers // handle event when mouse released immediately after press
+    @Override
     public void mouseClicked(final MouseEvent event) {
         //this.mousePos.setText( "Clicked at [" + event.getX() + ", " + event.getY() + "]" );
         //repaint();
     }
 
 // handle event when mouse pressed
+    @Override
     public void mousePressed(final MouseEvent event) {
 
         this.x1 = event.getX();
@@ -138,12 +156,12 @@ public class RangeSelectionPanel extends JPanel implements MouseListener, MouseM
             end = this.x1;
         }
 
-        long startRange, endRange;
+        int startRange, endRange;
         
         if (st < 2) {
             startRange = RangeController.getInstance().getMaxRangeStart();
         } else {
-             startRange = translatePixelToPosition(st);
+            startRange = translatePixelToPosition(st);
         }
 
         if (end > this.getWidth()-2) {
@@ -156,6 +174,7 @@ public class RangeSelectionPanel extends JPanel implements MouseListener, MouseM
     }
 
 // handle event when mouse enters area
+    @Override
     public void mouseEntered(final MouseEvent event) {
          this.setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
          this.isMouseInside = true;
@@ -164,6 +183,7 @@ public class RangeSelectionPanel extends JPanel implements MouseListener, MouseM
     }
 
 // handle event when mouse exits area
+    @Override
     public void mouseExited(final MouseEvent event) {
          this.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
          this.isMouseInside = false;
@@ -173,6 +193,7 @@ public class RangeSelectionPanel extends JPanel implements MouseListener, MouseM
     }
 
 // MouseMotionListener event handlers // handle event when user drags mouse with button pressed
+    @Override
     public void mouseDragged(final MouseEvent event) {
 
         if (!this.isActive()) {
@@ -198,12 +219,8 @@ public class RangeSelectionPanel extends JPanel implements MouseListener, MouseM
         repaint();
     }
 
- private AlphaComposite makeComposite(float alpha) {
-    int type = AlphaComposite.SRC_OVER;
-    return(AlphaComposite.getInstance(type, alpha));
- }
-
 // handle event when user moves mouse
+    @Override
     public void mouseMoved(final MouseEvent event) {
         //this.mousePos.setText( "At [" + event.getX() + "]" );
 
@@ -222,94 +239,109 @@ public class RangeSelectionPanel extends JPanel implements MouseListener, MouseM
         int wid = getWidth();
         int hei = getHeight();
 
+        ReferenceController refCon = ReferenceController.getInstance();
+        Cytoband[] bands = null;
+        Genome genome = refCon.getGenome();
+        if (genome != null) {
+            bands = genome.getCytobands(refCon.getReferenceName());
+        }
+
         Image image_bar_unselected_glossy = null;
         Image image_bar_selected_glossy = null;
         Image image_left_cap = null;
         Image image_right_cap = null;
-        Image image_dnabg = null;
 
         try {
             image_bar_unselected_glossy = javax.imageio.ImageIO.read(getClass().getResource("/savant/images/bar_unselected_glossy.PNG"));
             image_bar_selected_glossy = javax.imageio.ImageIO.read(getClass().getResource("/savant/images/bar_selected_glossy.png"));
             image_left_cap = javax.imageio.ImageIO.read(getClass().getResource("/savant/images/round_cap_left_bordered.png"));
             image_right_cap = javax.imageio.ImageIO.read(getClass().getResource("/savant/images/round_cap_right_bordered.png"));
-            image_dnabg = javax.imageio.ImageIO.read(getClass().getResource("/savant/images/dnabg.png"));
         } catch (IOException e) {}
 
         
-        int dnawidth = 40;//image_dnabg.getWidth(this);
-        int repeatdnatimes = this.getWidth()/dnawidth + 1;
-        for (int i = 0; i < repeatdnatimes; i++) {
-            g.drawImage(image_dnabg, i*dnawidth,0,dnawidth,this.getHeight(),this);
-        }
-
         // draw background
         Graphics2D g2d = (Graphics2D) g;
         Composite originalComposite = g2d.getComposite();
-        g2d.setComposite(makeComposite(0.75F));
+        g2d.setComposite(COMPOSITE_75);
         g.drawImage(image_bar_unselected_glossy, 0,0,this.getWidth(),this.getHeight(),this);
         g2d.setComposite(originalComposite);
         
         int width = this.x1 - this.x2;
         int height = this.getHeight();// this.y1 - this.y2;
 
-        this.w = Math.max(2, Math.abs(width));
-        this.h = Math.abs(height);
-        this.x = width < 0 ? this.x1 : this.x2;
-        this.y = 0; //height < 0 ? this.y1 : this.y2;
+        int w = Math.max(2, Math.abs(width));
+        int h = Math.abs(height);
+        int x = width < 0 ? this.x1 : this.x2;
+        int y = 0;
 
-        // draw lines on top and bottom
-        g.setColor(new Color(100, 100, 100));
+        RangeController rc = RangeController.getInstance();
+        int startrange = rc.getRangeStart();
+        int endrange = rc.getRangeEnd();
+
+        // Lines on top and bottom
+        g.setColor(LINE_COLOUR);
         g.drawLine(0, 0, wid, 0);
         g.drawLine(0, hei-1, wid, hei-1);
 
-        if (this.isDragging) {
+        if (bands != null) {
+            int centromereStart = -1;
+            g2d.setComposite(COMPOSITE_50);
+            for (Cytoband b: bands) {
+                int bandX = MiscUtils.transformPositionToPixel(b.start, getWidth(), rc.getMaxRange());
+                int bandWidth = MiscUtils.transformPositionToPixel(b.end, getWidth(), rc.getMaxRange()) - bandX;
 
+                if (b.isCentromere()) {
+                    if (centromereStart >= 0) {
+                        int mid = y + h / 2;
+                        g2d.setComposite(originalComposite);
+                        Polygon bowtie = new Polygon(new int[] { centromereStart, bandX, centromereStart, bandX + bandWidth, bandX, bandX + bandWidth },
+                                                     new int[] { y,               mid,   y + h,           y + h,             mid,   y }, 6);
+                        g.setColor(Color.WHITE);
+                        g.fillPolygon(bowtie);
+                        g.setColor(LINE_COLOUR);
+                        g.drawLine(centromereStart, y, bandX, mid);
+                        g.drawLine(centromereStart, y + h, bandX, mid);
+                        g.drawLine(bandX, mid, bandX + bandWidth, y);
+                        g.drawLine(bandX, mid, bandX + bandWidth, y + h);
+                        g2d.setComposite(COMPOSITE_50);
+                    } else {
+                        centromereStart = bandX;
+                    }
+                } else {
+                    g.setColor(b.getColor());
+                    g.fillRect(bandX, y + 1, bandWidth, h - 2);
+                }
+            }
+            g2d.setComposite(originalComposite);
+        }
+
+        if (isDragging) {
             // draw selected region
-            g2d.setComposite(makeComposite(0.5F));
-            g.drawImage(image_bar_selected_glossy, this.x,this.y,this.w,this.h,this);
+            g2d.setComposite(COMPOSITE_50);
+            g.drawImage(image_bar_selected_glossy, x, y, w, h,this);
             g2d.setComposite(originalComposite);
 
-            g.setColor(new Color(100, 100, 100));
-            g.drawRect(
-                    this.x,
-                    this.y,
-                    this.w,
-                    this.h);
+            g.setColor(LINE_COLOUR);
+            g.drawRect(x, y, w, h);
             
         } else {
-            RangeController rc = RangeController.getInstance();
-            long startrange = rc.getRangeStart();
-            long endrange = rc.getRangeEnd();
             int startx = MiscUtils.transformPositionToPixel(startrange, this.getWidth(), rc.getMaxRange());
             int endx = MiscUtils.transformPositionToPixel(endrange, this.getWidth(), rc.getMaxRange());
             int widpixels = Math.max(5, endx-startx);
 
             //Graphics2D g2d = (Graphics2D) g;
             //Composite originalComposite = g2d.getComposite();
-            g2d.setComposite(makeComposite(0.8F));
-            g.drawImage(image_bar_selected_glossy, startx,this.y,widpixels,this.h,this);
+            g2d.setComposite(COMPOSITE_75);
+            g.drawImage(image_bar_selected_glossy, startx, y,widpixels, h,this);
             g2d.setComposite(originalComposite);
 
             g.setColor(new Color(100, 100, 100));
-            g.drawRect(
-                    startx,
-                    this.y,
-                    widpixels,
-                    this.h);
+            g.drawRect( startx, y, widpixels, h);
         }
 
         int capwidth = 20;
         g.drawImage(image_left_cap, 0,0,capwidth,23,this);
         g.drawImage(image_right_cap, this.getWidth()-capwidth,0,capwidth,23,this);
-
-        int numlines = 4;
-        double space = ((double) this.getWidth()) / numlines;
-
-        g.setColor(new Color(150,150,150,100));
-        for (int i = 1; i <= numlines; i++) {
-            g.drawLine((int) Math.round(i * space), 0, (int) Math.round(i * space), this.getHeight());
-        }
 
         if (isDragging) {
             g.setColor(Color.black);
@@ -351,7 +383,7 @@ public class RangeSelectionPanel extends JPanel implements MouseListener, MouseM
 
             FontMetrics metrics = g.getFontMetrics(g.getFont());
 
-            long genomepos = this.translatePixelToPosition(this.x_notdragging);
+            int genomepos = translatePixelToPosition(x_notdragging);
 
             String mousePos = MiscUtils.posToShortString(genomepos);
             g.drawString(
@@ -363,11 +395,11 @@ public class RangeSelectionPanel extends JPanel implements MouseListener, MouseM
         }
     }
 
-    public void setMaximum(long max) {
+    public void setMaximum(int max) {
         this.maximum = max - 1;
     }
 
-    public void setRange(long lower, long upper) {
+    public void setRange(int lower, int upper) {
         setRange(new Range(lower, upper));
     }
 
@@ -379,22 +411,23 @@ public class RangeSelectionPanel extends JPanel implements MouseListener, MouseM
         repaint();
     }
 
-    public long getLowerPosition() {
+    public int getLowerPosition() {
         return translatePixelToPosition(this.x1);
     }
 
-    public long getUpperPosition() {
+    public int getUpperPosition() {
         return translatePixelToPosition(this.x2);
     }
 
-    private long translatePixelToPosition(int pixel) {
-        return (long) ((double) pixel * this.maximum / (double) this.getWidth());
+    private int translatePixelToPosition(int pixel) {
+        return (int)((double)pixel * maximum / (double)getWidth());
     }
 
-    private int translatePositionToPixel(long position) {
-        return (int) (((double) position * this.getWidth() - 4) / this.maximum) + 1;
+    private int translatePositionToPixel(int position) {
+        return (int)(((double) position * getWidth() - 4) / maximum) + 1;
     }
 
+    @Override
     public void rangeChangeReceived(RangeChangedEvent event) {
         this.rangeChangedExternally = true;
         this.setRange(event.range());
@@ -426,6 +459,5 @@ public class RangeSelectionPanel extends JPanel implements MouseListener, MouseM
     private boolean isActive() {
         return this.isActive;
     }
-
-} // end class MouseTracker
+}
 

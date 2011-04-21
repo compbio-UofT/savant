@@ -1,9 +1,5 @@
 /*
- * BEDTrack.java
- * Created on Feb 19, 2010
- *
- *
- *    Copyright 2010 University of Toronto
+ *    Copyright 2010-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -19,9 +15,6 @@
  */
 
 package savant.view.swing.interval;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -139,7 +132,7 @@ public class BEDTrack extends Track {
 
     @Override
     public Resolution getResolution(RangeAdapter range) {
-        return IntervalTrack.getDefaultModeResolution(range);
+        return IntervalTrack.getDefaultModeResolution((Range)range);
     }
  
 }

@@ -25,7 +25,6 @@ import javax.swing.JPanel;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import savant.api.adapter.RangeAdapter;
 import savant.api.adapter.TrackAdapter;
 import savant.controller.SelectionController;
 import savant.controller.DataSourceController;
@@ -38,7 +37,6 @@ import savant.data.types.Record;
 import savant.exception.SavantTrackCreationCancelledException;
 import savant.file.DataFormat;
 import savant.util.ColorScheme;
-import savant.util.MiscUtils;
 import savant.util.Range;
 import savant.util.Resolution;
 import savant.view.swing.sequence.SequenceTrack;
@@ -445,7 +443,7 @@ public abstract class Track implements TrackAdapter {
      * @return a List of data objects from the given range and resolution
      * @throws IOException
      */
-    protected synchronized List<Record> retrieveData(String reference, RangeAdapter range, Resolution resolution) throws IOException {
+    protected synchronized List<Record> retrieveData(String reference, Range range, Resolution resolution) throws IOException {
         return getDataSource().getRecords(reference, range, resolution);
     }
 

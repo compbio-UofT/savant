@@ -130,7 +130,7 @@ public class TreeBrowserEntry extends AbstractExpandableRow implements Comparabl
                 return null;
             }
         } else {
-            return getFileSystemView().getSystemIcon(new File(DirectorySettings.getSavantDirectory()));
+            return getFileSystemView().getSystemIcon(DirectorySettings.getSavantDirectory());
         }
     }
 

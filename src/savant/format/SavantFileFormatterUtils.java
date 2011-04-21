@@ -1,9 +1,5 @@
 /*
- * SavantFileFormatterUtils.java
- * Created on Jan 12, 2010
- *
- *
- *    Copyright 2010 University of Toronto
+ *    Copyright 2010-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -37,7 +33,7 @@ import savant.file.FileType;
 import savant.file.FileTypeHeader;
 import savant.util.MiscUtils;
 import savant.util.Range;
-import savant.util.Strand;
+
 
 /**
  * Utilities for manipulating data files.
@@ -58,10 +54,7 @@ public class SavantFileFormatterUtils {
     public static final int FLOAT_FIELD_SIZE    = 4;
 
     /**
-     * Given an unformatted file, try to guess what it should be formatted as.  For
-     * now, this is just a stub.  In future, this can be used to select a sensible
-     * default in the DataFormatForm, and to provide a default for the -t option of
-     * the FormatTool.
+     * Given an unformatted file, try to guess what it should be formatted as.
      *
      * @param path    path to an unformatted file
      * @return a guess at the file type (or null if we have no good guess)
@@ -80,7 +73,7 @@ public class SavantFileFormatterUtils {
         if (extension.equals("GFF")) {
             return FileType.INTERVAL_GFF;
         }
-        if (extension.equals("WIG") || extension.equals("BEDGRAPH")) {
+        if (extension.equals("WIG") || extension.equals("WIGFIX") || extension.equals("BEDGRAPH")) {
             return FileType.CONTINUOUS_WIG;
         }
         if (extension.equals("FA") || extension.equals("FASTA")) {
@@ -88,6 +81,12 @@ public class SavantFileFormatterUtils {
         }
         if (extension.equals("GZ")) {
             return FileType.TABIX;
+        }
+        if (extension.equals("BW") || extension.equals("BIGWIG")) {
+            return FileType.CONTINUOUS_BIGWIG;
+        }
+        if (extension.equals("BB") || extension.equals("BIGBED")) {
+            return FileType.INTERVAL_BIGBED;
         }
         if (extension.equals("TDF")) {
             return FileType.CONTINUOUS_TDF;
@@ -132,7 +131,6 @@ public class SavantFileFormatterUtils {
                     int numBlocks = in.readInt();
                     List<Block> blocks = new ArrayList<Block>(numBlocks);
                     for (int i = 0; i < numBlocks; i++) {
-                        // TODO: Should start and size of blocks be stored as longs?
                         int start = in.readInt();
                         int size = in.readInt();
                         blocks.add(Block.valueOf(start,size));
@@ -154,7 +152,6 @@ public class SavantFileFormatterUtils {
                     record.add((char) in.readByte());
                     break;
                 case RANGE:
-                    // TODO: Should Ranges be stored as longs #306?
                     int start = in.readInt();
                     int end = in.readInt();
                     record.add(new Range(start,end));
@@ -225,7 +222,6 @@ public class SavantFileFormatterUtils {
                     List<Block> blocks = (List<Block>) o;
                     outFile.writeInt(blocks.size());
                     for (Block b : blocks) {
-                        // TODO: Should file format be changed to support long Blocks?  Note that Blocks may be deprecated.
                         outFile.writeInt((int)b.getPosition());
                         outFile.writeInt((int)b.getSize());
                     }
@@ -254,7 +250,6 @@ public class SavantFileFormatterUtils {
                     break;
                 case RANGE:
                     Range r = (Range) o;
-                    // TODO: Should file format be changed to support long ranges?
                     outFile.writeInt((int)r.getFrom());
                     outFile.writeInt((int)r.getTo());
                     break;
@@ -533,8 +528,8 @@ public class SavantFileFormatterUtils {
 
     private static IntervalRecord convertRecordToBEDInterval(List<Object> record, List<FieldType> fields) {
 
-        long start = (Integer) record.get(1);
-        long end = (Integer) record.get(2);
+        int start = (Integer) record.get(1);
+        int end = (Integer) record.get(2);
         
         String ref = (String) record.get(0);
         
@@ -543,8 +538,8 @@ public class SavantFileFormatterUtils {
         String name = "";
         Float score = 0.0f;
         Strand strand = SavantFileFormatterUtils.getStrand("+");
-        long thickStart = 0;
-        long thickEnd = 0;
+        int thickStart = 0;
+        int thickEnd = 0;
         ItemRGB rgb = ItemRGB.valueOf(-1,-1,-1);
         List<Block> blocks = null;
         
@@ -558,9 +553,8 @@ public class SavantFileFormatterUtils {
             }
         }
 
-        long intervallength = Interval.valueOf(start,end).getLength();
+        int intervallength = Interval.valueOf(start,end).getLength();
         if (numFields > 5) { strand = SavantFileFormatterUtils.getStrand((String) record.get(5)); }
-        // TODO: #306 The next two fields should really be Longs, not Integers.
         if (numFields > 6) { thickStart = (Integer)record.get(6); }
         if (numFields > 7) { thickEnd = (Integer)record.get(7); } else { thickEnd = intervallength; }
         if (numFields > 8) { rgb = (ItemRGB) record.get(8); }
@@ -593,9 +587,9 @@ public class SavantFileFormatterUtils {
             StringTokenizer posTokenizer = new StringTokenizer(blockPositions,",");
             StringTokenizer sizeTokenizer = new StringTokenizer(blockSizes,",");
 
-            while(numBlocks-- > 0) {
-                long nextPos = Long.parseLong(posTokenizer.nextToken());
-                long nextSize = Long.parseLong(sizeTokenizer.nextToken());
+            while (numBlocks-- > 0) {
+                int nextPos = Integer.parseInt(posTokenizer.nextToken());
+                int nextSize = Integer.parseInt(sizeTokenizer.nextToken());
                 blocks.add(Block.valueOf(nextPos,nextSize));
             }
         }

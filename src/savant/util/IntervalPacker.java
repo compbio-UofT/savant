@@ -64,8 +64,8 @@ public class IntervalPacker {
             IntervalRecord record = (IntervalRecord)data.get(i);
             Interval inter = record.getInterval();
 
-            long intervalEnd = inter.getEnd();
-            long intervalStart = inter.getStart();
+            int intervalEnd = inter.getEnd();
+            int intervalStart = inter.getStart();
 
             // check for bogus intervals here
             if (!(intervalEnd >= intervalStart) || intervalEnd < 0 || intervalStart < 0)  continue;

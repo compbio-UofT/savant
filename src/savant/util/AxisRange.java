@@ -1,5 +1,5 @@
 /*
- *    Copyright 2009-2010 University of Toronto
+ *    Copyright 2009-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -23,20 +23,19 @@ package savant.util;
  */
 public class AxisRange {
 
-    private final long xMin;
-    private final long xMax;
-    private final long yMin;
-    private final long yMax;
+    private final int xMin;
+    private final int xMax;
+    private final int yMin;
+    private final int yMax;
 
-    AxisRange(long xMin, long xMax, long yMin, long yMax)
-    {
+    AxisRange(int xMin, int xMax, int yMin, int yMax) {
         this.xMin = xMin;
         this.xMax = xMax;
         this.yMin = yMin;
         this.yMax = yMax;
     }
 
-    public static AxisRange initWithMinMax(long xMin, long xMax, long yMin, long yMax) {
+    public static AxisRange initWithMinMax(int xMin, int xMax, int yMin, int yMax) {
         return new AxisRange(xMin, xMax, yMin, yMax);
     }
 
@@ -44,10 +43,10 @@ public class AxisRange {
         return new AxisRange (xRange.getFrom(), xRange.getTo(), yRange.getFrom(), yRange.getTo());
     }
 
-    public long getXMin() { return this.xMin; }
-    public long getXMax() { return this.xMax; }
-    public long getYMin() { return this.yMin; }
-    public long getYMax() { return this.yMax; }
+    public int getXMin() { return xMin; }
+    public int getXMax() { return xMax; }
+    public int getYMin() { return yMin; }
+    public int getYMax() { return yMax; }
 
     public Range getXRange() {
         return new Range(xMin, xMax);
@@ -56,5 +55,4 @@ public class AxisRange {
     public Range getYRange() {
         return new Range(yMin, yMax);
     }
-
 }

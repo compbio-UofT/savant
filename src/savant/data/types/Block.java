@@ -1,5 +1,5 @@
 /*
- *    Copyright 2010 University of Toronto
+ *    Copyright 2010-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -23,23 +23,23 @@ package savant.data.types;
  */
 public final class Block {
 
-    private final long position;
-    private final long size;
+    private final int position;
+    private final int size;
 
-    private Block(long pos, long size) {
+    private Block(int pos, int size) {
         this.position = pos;
         this.size = size;
     }
 
-    public static Block valueOf(long pos, long size) {
+    public static Block valueOf(int pos, int size) {
         return new Block(pos, size);
     }
 
-    public long getPosition() {
+    public int getPosition() {
         return position;
     }
 
-    public long getSize() {
+    public int getSize() {
         return size;
     }
 

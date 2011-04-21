@@ -1,5 +1,5 @@
 /*
- *    Copyright 2009-2010 University of Toronto
+ *    Copyright 2010-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -55,25 +55,18 @@ public class PluginRepositoryBrowser extends JDialog {
     private static final TableCellRenderer FILE_RENDERER = new FileRowCellRenderer();
 
     private Frame p;
-    private String saveToDirectory;
+    private File saveToDirectory;
     private TreeTable table;
 
-    public PluginRepositoryBrowser(Frame parent, boolean modal, String title, File xmlfile, String destDir) throws JDOMException, IOException {
+    public PluginRepositoryBrowser(Frame parent, boolean modal, String title, File xmlfile, File destDir) throws JDOMException, IOException {
         this(parent, modal, title, "Download", getDownloadTreeRows(xmlfile), destDir);
     }
 
-    public PluginRepositoryBrowser(Frame parent, boolean modal, String title, String buttonText, File xmlfile, String destDir) throws JDOMException, IOException {
+    public PluginRepositoryBrowser(Frame parent, boolean modal, String title, String buttonText, File xmlfile, File destDir) throws JDOMException, IOException {
         this(parent, modal, title, buttonText, getDownloadTreeRows(xmlfile), destDir);
     }
 
-    public PluginRepositoryBrowser(
-            Frame parent,
-            boolean modal,
-            String title,
-            String buttonText,
-            List<TreeBrowserEntry> roots,
-            String dir) {
-
+    public PluginRepositoryBrowser(Frame parent, boolean modal, String title, String buttonText, List<TreeBrowserEntry> roots, File dir) {
         super(parent, title, modal);
 
         saveToDirectory = dir;
@@ -106,7 +99,7 @@ public class PluginRepositoryBrowser extends JDialog {
     private void downloadSelectedItem(boolean ignoreBranchSelected) {
         TreeBrowserEntry r = (TreeBrowserEntry) table.getRowAt(table.getSelectedRow());
         if (r != null && r.isLeaf()) {
-            DownloadController.getInstance().enqueueDownload(r.getURL(), new File(saveToDirectory), null);
+            DownloadController.getInstance().enqueueDownload(r.getURL(), saveToDirectory, null);
         } else {
             if (!ignoreBranchSelected) {
                 JOptionPane.showMessageDialog(p, "Please select a file");

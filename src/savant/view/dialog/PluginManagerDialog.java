@@ -161,9 +161,9 @@ public class PluginManagerDialog extends JDialog {
 
     private void button_add_from_urlActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_add_from_urlActionPerformed
         try {
-            File file = DownloadFile.downloadFile(new URL(BrowserSettings.url_plugin), System.getProperty("java.io.tmpdir"));
+            File file = DownloadFile.downloadFile(new URL(BrowserSettings.PLUGIN_URL), new File(System.getProperty("java.io.tmpdir")));
             if (file == null) {
-                JOptionPane.showMessageDialog(this, "Problem downloading file: " + BrowserSettings.url_plugin);
+                JOptionPane.showMessageDialog(this, "Problem downloading file: " + BrowserSettings.PLUGIN_URL);
                 return;
             }
             if (browser == null) {
@@ -174,9 +174,9 @@ public class PluginManagerDialog extends JDialog {
             browser.setVisible(true);
 
         } catch (JDOMException ex) {
-            JOptionPane.showMessageDialog(this, "Problem downloading file: " + BrowserSettings.url_plugin);
+            JOptionPane.showMessageDialog(this, "Problem downloading file: " + BrowserSettings.PLUGIN_URL);
         } catch (IOException ex) {
-            JOptionPane.showMessageDialog(this, "Problem downloading file: " + BrowserSettings.url_plugin);
+            JOptionPane.showMessageDialog(this, "Problem downloading file: " + BrowserSettings.PLUGIN_URL);
         }
     }//GEN-LAST:event_button_add_from_urlActionPerformed
 

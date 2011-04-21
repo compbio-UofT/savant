@@ -1,9 +1,5 @@
 /*
- * BAMCoverageTrack.java
- * Created on Mar 4, 2010
- *
- *
- *    Copyright 2010 University of Toronto
+ *    Copyright 2010-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -77,17 +73,15 @@ public class BAMCoverageTrack extends Track {
 
     @Override
     public Resolution getResolution(RangeAdapter range) {
-        return getResolution(range, getDrawMode());
+        return getResolution((Range)range, getDrawMode());
     }
 
-    public Resolution getResolution(RangeAdapter range, String mode)
-    {
+    public Resolution getResolution(Range range, String mode) {
         return getDefaultModeResolution(range);
     }
 
-    public Resolution getDefaultModeResolution(RangeAdapter range)
-    {
-        long length = range.getLength();
+    public Resolution getDefaultModeResolution(Range range) {
+        int length = range.getLength();
 
         if (length > TrackResolutionSettings.getBAMDefaultModeLowToHighThresh()) { return Resolution.LOW; }
         else { return Resolution.VERY_HIGH; }

@@ -67,7 +67,7 @@ public class Splash extends javax.swing.JDialog {
         textPanel.setOpaque(false);
         textPanel.setLayout(new BoxLayout(textPanel, BoxLayout.Y_AXIS));
 
-        JLabel website = new JLabel(pad + "Website: " + BrowserSettings.url);
+        JLabel website = new JLabel(pad + "Website: " + BrowserSettings.URL);
         formatLabel(website, false);
         textPanel.add(website);
 

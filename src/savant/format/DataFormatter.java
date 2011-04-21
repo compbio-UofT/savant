@@ -1,5 +1,5 @@
 /*
- *    Copyright 2010 University of Toronto
+ *    Copyright 2010-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -62,7 +62,7 @@ public class DataFormatter {
 
     public File getOutputFile() {
         if (getInputFileType() == FileType.INTERVAL_BAM) {
-            return new File(inFile + ".cov.savant").getAbsoluteFile();
+            return new File(inFile + ".cov.tdf").getAbsoluteFile();
         } else {
             return outFile;
         }
@@ -126,9 +126,8 @@ public class DataFormatter {
     public boolean format() throws InterruptedException, IOException, ParseException, SavantFileFormattingException {
 
         if (inputFileType == FileType.INTERVAL_BAM) {
-            // format a BAM file
-            // (different than others because it has no Savant header)
-            new BAMToCoverage(inFile).format();
+            // Create a coverage file from a BAM file.
+            runFormatter(new BAMToCoverage(inFile));
         } else {
             // format files with Savant header
 
@@ -155,7 +154,7 @@ public class DataFormatter {
                     runFormatter(new ContinuousGenericFormatter(inFile, outFile));
                     break;
                 case CONTINUOUS_WIG:
-                    runFormatter(new WIGFormatter(inFile, outFile));
+                    runFormatter(new TDFFormatter(inFile, outFile));
                     break;
                 case SEQUENCE_FASTA:
                     runFormatter(new FastaFormatter(inFile, outFile));
@@ -195,21 +194,14 @@ public class DataFormatter {
     public static Map<String,IntervalSearchTree> readIntervalBSTs(SavantROFile dFile) throws IOException {
 
         // read the refname -> index position map
-        Map<String,Long[]> refMap = SavantFileUtils.readReferenceMap(dFile);
+        Map<String, long[]> refMap = SavantFileUtils.readReferenceMap(dFile);
 
         if (LOG.isDebugEnabled()) LOG.debug("\n=== DONE PARSING REF<->DATA MAP ===\n\n");
 
         // change the offset
         dFile.setHeaderOffset(dFile.getFilePointer());
 
-        /*
-        for (String s : refMap.keySet()) {
-            Long[] vals = refMap.get(s);
-            //System.out.println("Reference " + s + " at " + vals[0] + " of length " + vals[1]);
-        }
-         */
-
-        Map<String,IntervalSearchTree> trees = new HashMap<String,IntervalSearchTree>();
+        Map<String, IntervalSearchTree> trees = new HashMap<String, IntervalSearchTree>();
 
         int treenum = 0;
 
@@ -219,7 +211,7 @@ public class DataFormatter {
         // (IMPORTANT NOTE: order of elements returned by keySet() is not gauranteed!!!)
         long maxend = Long.MIN_VALUE;
         for (String refname : refMap.keySet()) {
-            Long[] v = refMap.get(refname);
+            long[] v = refMap.get(refname);
             if (LOG.isDebugEnabled()) LOG.debug("========== Reading tree for reference " + refname + " ==========");
             dFile.seek(v[0] + dFile.getHeaderOffset());
 

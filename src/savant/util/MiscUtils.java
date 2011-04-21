@@ -22,6 +22,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.net.URI;
+import java.net.URL;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -33,7 +34,6 @@ import javax.swing.JFrame;
 
 import com.jidesoft.docking.DockableFrame;
 import com.jidesoft.docking.DockingManager;
-import java.net.URL;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -201,9 +201,9 @@ public class MiscUtils {
      * @param positionalRange The (genome) range the component applies to
      * @return The position represented by the pixel
      */
-    public static long transformPixelToPosition(int pixel, int widthOfComponent, Range positionalRange) {
+    public static int transformPixelToPosition(int pixel, int widthOfComponent, Range positionalRange) {
         double positionsperpixel = ((double)positionalRange.getLength()) / widthOfComponent;
-        return positionalRange.getFrom() + Math.round(positionsperpixel*pixel);
+        return positionalRange.getFrom() + (int)Math.round(positionsperpixel*pixel);
     }
 
     /**
@@ -213,9 +213,9 @@ public class MiscUtils {
      * @param positionalRange The (genome) range the component applies to
      * @return The pixel represented by the position
      */
-    public static int transformPositionToPixel(long position, int widthOfComponent, Range positionalRange) {
+    public static int transformPositionToPixel(int position, int widthOfComponent, Range positionalRange) {
          double pixelsperposition = ((double) widthOfComponent) / positionalRange.getLength();
-         return (int) Math.round((position - positionalRange.getFrom())*pixelsperposition);
+         return (int)Math.round((position - positionalRange.getFrom())*pixelsperposition);
     }
 
     public static List<String> set2List(Set<String> set) {
@@ -227,11 +227,11 @@ public class MiscUtils {
         return l;
     }
 
-    public static String posToShortString(long genomepos) {
-        return posToShortString(genomepos,0);
+    public static String posToShortString(int genomepos) {
+        return posToShortString(genomepos, 0);
     }
 
-     public static String posToShortString(long separation, long genomepos) {
+     public static String posToShortStringWithSeparation(int genomepos, int separation) {
 
          int backdigits = (int) Math.floor(Math.log10(separation));
          int significantdigits = 0;

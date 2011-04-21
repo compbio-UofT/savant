@@ -1,5 +1,5 @@
 /*
- *    Copyright 2010 University of Toronto
+ *    Copyright 2010-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -23,9 +23,11 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.net.URI;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JOptionPane;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import savant.controller.TrackController;
 import savant.settings.DirectorySettings;
 import savant.view.swing.Savant;
@@ -36,6 +38,7 @@ import savant.view.swing.Track;
  * @author AndrewBrook
  */
 public class RemoteFileCache {
+    private static final Log LOG = LogFactory.getLog(RemoteFileCache.class);
 
     public static void clearCache(){
 
@@ -54,19 +57,17 @@ public class RemoteFileCache {
         }
 
         //check if index exists
-        String dir = DirectorySettings.getCacheDirectory();
-        String sep = System.getProperty("file.separator");
-        String indexName = dir + sep + "cacheIndex";
-        File index = new File(indexName);
+        File cacheDir = DirectorySettings.getCacheDirectory();
+        File index = new File(cacheDir, "cacheIndex");
         if(!index.exists())
             return;
 
         //remove all cached files
         BufferedReader bufferedReader = null;
         try {
-            bufferedReader = new BufferedReader(new FileReader(indexName));
+            bufferedReader = new BufferedReader(new FileReader(index));
         } catch (FileNotFoundException ex) {
-            Logger.getLogger(RemoteFileCache.class.getName()).log(Level.SEVERE, "FileNotFound: " + indexName, ex);
+            LOG.error("File not found: " + index, ex);
         }
         String line = null;
         try {
@@ -82,16 +83,15 @@ public class RemoteFileCache {
             }
             bufferedReader.close();
         } catch (IOException ex) {
-            Logger.getLogger(RemoteFileCache.class.getName()).log(Level.SEVERE, "Error reading: " + indexName, ex);
+            LOG.error("Error reading: " + index, ex);
         }
 
         //remove index
         boolean deleted = index.delete();
-        if(!deleted)
+        if (!deleted) {
             index.deleteOnExit();
+        }
     }
-
-
 }
 
 

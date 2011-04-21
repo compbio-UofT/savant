@@ -1,5 +1,5 @@
 /*
- *    Copyright 2010 University of Toronto
+ *    Copyright 2010-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -14,11 +14,6 @@
  *    limitations under the License.
  */
 
-/*
- * ROFile.java
- * Created on Aug 24, 2010
- */
-
 package savant.file;
 
 import java.io.IOException;
@@ -27,8 +22,6 @@ import java.util.Map;
 
 public interface ROFile {
 
-//    public void getURI();
-    
     public void close() throws IOException;
 
     public long getFilePointer() throws IOException;
@@ -66,7 +59,7 @@ public interface ROFile {
 
     public List<FieldType> getFields();
 
-    public Map<String, Long[]> getReferenceMap();
+    public Map<String, long[]> getReferenceMap();
 
     public long getHeaderOffset();
 

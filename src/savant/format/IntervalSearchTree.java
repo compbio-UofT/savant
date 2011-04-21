@@ -1,13 +1,25 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ *    Copyright 2010-2011 University of Toronto
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
  */
 package savant.format;
 
-import savant.util.Range;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import savant.util.Range;
+
 
 /**
  * Interval BST
@@ -170,11 +182,11 @@ public class IntervalSearchTree {
     }
 
     private Range getRangeOfContainingChild(IntervalTreeNode n, Range r) {
-        long childRangeLength = n.range.getLength() / arity;
+        int childRangeLength = n.range.getLength() / arity;
 
         for (int i = 0; i < arity; i++) {
-            long childRangeStart = i * childRangeLength + n.range.getFrom();
-            long childRangeEnd = childRangeStart + childRangeLength;
+            int childRangeStart = i * childRangeLength + n.range.getFrom();
+            int childRangeEnd = childRangeStart + childRangeLength;
             Range childRange = new Range(childRangeStart, childRangeEnd);
             if (this.contains(childRange, r)) {
                 return childRange;
@@ -186,18 +198,6 @@ public class IntervalSearchTree {
     public List<IntervalTreeNode> getNodes() {
         return this.nodes;
     }
-
-    /*
-    public static void printIntervalSearchTreeIndex(SavantRWFile dFile, IntervalSearchTree intervalBSTIndex) throws IOException {
-        for (IntervalTreeNode n : intervalBSTIndex.getNodes()) {
-                System.out.println(n.index + " " + n.size + " " +  n.startByte);
-                List<IntervalRecord> recs = IntervalRecordGetter.getRecordsInBin(dFile,n);
-                for (IntervalRecord r : recs) {
-                    System.out.println("\t" + r.getInterval());
-                }
-            }
-    }
-     */
 
     public IntervalTreeNode getNodeWithSmallestMax() {
         return getNodeWithSmallestMax(this.root);
@@ -214,7 +214,7 @@ public class IntervalSearchTree {
         //System.out.print(node.index + " >> ");
 
         int indexofsmallestmax = -1;
-        long smallestmax = Long.MAX_VALUE;
+        int smallestmax = Integer.MAX_VALUE;
 
         for (int i = 0; i < node.children.size(); i++) {
             IntervalTreeNode c = node.children.get(i);

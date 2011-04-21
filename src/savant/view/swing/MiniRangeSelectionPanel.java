@@ -15,11 +15,22 @@
  */
 package savant.view.swing;
 
+import java.awt.*;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import javax.swing.*;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import savant.controller.GraphPaneController;
 import savant.controller.RangeController;
 import savant.controller.event.GraphPaneChangeEvent;
+import savant.controller.event.GraphPaneChangeListener;
 import savant.controller.event.RangeChangedEvent;
 import savant.controller.event.RangeChangedListener;
 import savant.controller.event.RangeSelectionChangedEvent;
@@ -27,27 +38,18 @@ import savant.controller.event.RangeSelectionChangedListener;
 import savant.util.MiscUtils;
 import savant.util.Range;
 
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import savant.controller.GraphPaneController;
-import savant.controller.event.GraphPaneChangeListener;
 
 /**
  *
  * @author mfiume
  */
 public class MiniRangeSelectionPanel extends JPanel implements MouseListener, MouseMotionListener, RangeChangedListener, GraphPaneChangeListener {
+    private static final Log LOG = LogFactory.getLog(MiniRangeSelectionPanel.class);
 
     private boolean isDragging = false;
     private boolean isActive = false;
-    private long minimum = 0;
-    private long maximum = 100;
+    private int minimum = 0;
+    private int maximum = 100;
     private static final long serialVersionUID = 1L;
     private final JLabel mousePosition;
     int x1, x2, y1, y2;
@@ -58,7 +60,6 @@ public class MiniRangeSelectionPanel extends JPanel implements MouseListener, Mo
     boolean isNewRect = true;
     /** Range Selection Changed Listeners */
     private List rangeSelectionChangedListeners = new ArrayList();
-    private boolean rangeChangedExternally;
 
     public static MiniRangeSelectionPanel instance;
 
@@ -113,7 +114,6 @@ public class MiniRangeSelectionPanel extends JPanel implements MouseListener, Mo
         //this.recStart.setText( "Start:  [" + this.x1 + "]");
 
         this.isNewRect = true;
-        this.rangeChangedExternally = false;
 
         //repaint();
     }
@@ -184,28 +184,11 @@ public class MiniRangeSelectionPanel extends JPanel implements MouseListener, Mo
 
         GraphPaneController gpc = GraphPaneController.getInstance();
         if (gpc.isPanning()) {
-            long fromx = MiscUtils.transformPositionToPixel(gpc.getMouseDragRange().getFrom(), this.getWidth(), RangeController.getInstance().getRange());
-            long tox = MiscUtils.transformPositionToPixel(gpc.getMouseDragRange().getTo(), this.getWidth(), RangeController.getInstance().getRange());
+            int fromx = MiscUtils.transformPositionToPixel(gpc.getMouseDragRange().getFrom(), this.getWidth(), RangeController.getInstance().getRange());
+            int tox = MiscUtils.transformPositionToPixel(gpc.getMouseDragRange().getTo(), this.getWidth(), RangeController.getInstance().getRange());
 
             double shiftamount = tox-fromx;
             g.translate((int) shiftamount, 0);
-            /*
-            // shifting left
-            if (shiftamount < 0) {
-                shiftamount = -shiftamount;
-                long maxlefttranslation = (RangeController.getInstance().getRangeStart()-1)*MiscUtils.transformPositionToPixel(RangeController.getInstance().getRangeStart()+1, this.getWidth(), RangeController.getInstance().getRange());
-                shiftamount = Math.min(maxlefttranslation,shiftamount);
-                g.translate((int) shiftamount, 0);
-                //System.out.println("LEFT: " + " m=" + maxlefttranslation + " s=" + shiftamount);
-            // shifting right
-            } else {
-                long maxrighttranslation = (RangeController.getInstance().getMaxRangeEnd() - RangeController.getInstance().getRangeEnd())*MiscUtils.transformPositionToPixel(RangeController.getInstance().getRangeStart()+1, this.getWidth(), RangeController.getInstance().getRange());
-                shiftamount = Math.min(maxrighttranslation,shiftamount);
-                g.translate((int) -shiftamount, 0);
-                //System.out.println("RIGHT: " + " m=" + maxrighttranslation + " s=" + shiftamount);
-            }
-             *
-             */
         }
 
         renderBackground(g);
@@ -218,7 +201,6 @@ public class MiniRangeSelectionPanel extends JPanel implements MouseListener, Mo
     private void renderBackground(Graphics g) {
 
         Graphics2D g2 = (Graphics2D) g;
-        Font smallFont = new Font("Sans-Serif", Font.PLAIN, 10);
 
         try {
 
@@ -228,11 +210,11 @@ public class MiniRangeSelectionPanel extends JPanel implements MouseListener, Mo
             g.drawImage(image, 0-this.getWidth(),0,this.getWidth()*3,this.getHeight(),this);
             ((Graphics2D) g).setComposite(originalComposite);
         } catch (Exception e) {
-            System.err.println("Error drawing image background");
+            LOG.error("Error drawing image background");
         }
 
         int numseparators = (int) Math.max(Math.ceil(Math.log(this.maximum-this.minimum)),2);
-        long genomicSeparation = (this.maximum-this.minimum)/Math.max(1, numseparators);
+        int genomicSeparation = (maximum -  minimum) / Math.max(1, numseparators);
 
         if (numseparators != 0) {
             int width = this.getWidth();
@@ -242,7 +224,7 @@ public class MiniRangeSelectionPanel extends JPanel implements MouseListener, Mo
             int skipstring = (int) Math.round(minstringseparation / barseparation);
 
             int startbarsfrom = MiscUtils.transformPositionToPixel(
-                    (long) (Math.floor((RangeController.getInstance().getRange().getFrom()/Math.max(1, genomicSeparation)))*genomicSeparation),
+                    (int) (Math.floor((RangeController.getInstance().getRange().getFrom()/Math.max(1, genomicSeparation)))*genomicSeparation),
                     width, (RangeController.getInstance()).getRange());
 
             FontMetrics fm = g2.getFontMetrics();
@@ -258,15 +240,15 @@ public class MiniRangeSelectionPanel extends JPanel implements MouseListener, Mo
                 if (skipstring != 0) {
                     if (i % skipstring == 0) {
                         g2.setColor(Color.black);
-                        long a = MiscUtils.transformPixelToPosition(xOne, width, (RangeController.getInstance()).getRange());
+                        int a = MiscUtils.transformPixelToPosition(xOne, width, (RangeController.getInstance()).getRange());
                         if (a >= 1 && a <= (RangeController.getInstance()).getMaxRangeEnd()) {
-                            String numstr = MiscUtils.posToShortString(genomicSeparation,a);
+                            String numstr = MiscUtils.posToShortStringWithSeparation(a, genomicSeparation);
                             g2.setColor(Color.black);
-                             g2.drawString(numstr, (float) (xOne + 3), (float) ((this.getHeight()*0.5)+3));
+                            g2.drawString(numstr, (float) (xOne + 3), (float) ((this.getHeight()*0.5)+3));
                         }
                     }
                 } else {
-                    long a = MiscUtils.transformPixelToPosition(xOne, width, (RangeController.getInstance()).getRange());
+                    int a = MiscUtils.transformPixelToPosition(xOne, width, (RangeController.getInstance()).getRange());
                     String numstr = MiscUtils.numToString(a);
                     g2.setColor(Color.black);
                     g2.drawString(numstr, (float) (xOne + 3), (float) ((this.getHeight()*0.5)+3));
@@ -282,7 +264,7 @@ public class MiniRangeSelectionPanel extends JPanel implements MouseListener, Mo
                     g.setColor(Savant.getInstance().getBackground());
                     g.fillRect(pos,0, -this.getWidth(), this.getHeight());
                 } catch (IOException ex) {
-                    Logger.getLogger(MiniRangeSelectionPanel.class.getName()).log(Level.SEVERE, null, ex);
+                    LOG.error("Drawing failed.", ex);
                 }
             }
 
@@ -296,17 +278,17 @@ public class MiniRangeSelectionPanel extends JPanel implements MouseListener, Mo
                     g.fillRect(pos,0, this.getWidth(), this.getHeight());
                     
                 } catch (IOException ex) {
-                    Logger.getLogger(MiniRangeSelectionPanel.class.getName()).log(Level.SEVERE, null, ex);
+                    LOG.error("Drawing failed.", ex);
                 } 
             }
         }
     }
 
-    public void setMaximum(long max) {
+    public void setMaximum(int max) {
         this.maximum = max - 1;
     }
 
-    public void setRange(long lower, long upper) {
+    public void setRange(int lower, int upper) {
         setRange(new Range(lower, upper));
     }
 
@@ -326,25 +308,24 @@ public class MiniRangeSelectionPanel extends JPanel implements MouseListener, Mo
         repaint();
     }
 
-    public long getLowerPosition() {
+    public int getLowerPosition() {
         return translatePixelToPosition(this.x1);
     }
 
-    public long getUpperPosition() {
+    public int getUpperPosition() {
         return translatePixelToPosition(this.x2);
     }
 
-    private long translatePixelToPosition(int pixel) {
-        return this.minimum + (long) (((double) pixel * (this.maximum-this.minimum)) / (double) this.getWidth());
+    private int translatePixelToPosition(int pixel) {
+        return this.minimum + (int)(((double) pixel * (maximum - minimum)) / (double) this.getWidth());
     }
 
-    private int translatePositionToPixel(long position) {
+    private int translatePositionToPixel(int position) {
         return (int) (((double) position * this.getWidth() - 4) / this.maximum) + 1;
     }
 
     public void rangeChangeReceived(RangeChangedEvent event) {
-        this.rangeChangedExternally = true;
-        this.setRange(event.range());
+        setRange(event.range());
     }
 
     public synchronized void addRangeChangedListener(RangeSelectionChangedListener l) {
@@ -381,5 +362,6 @@ public class MiniRangeSelectionPanel extends JPanel implements MouseListener, Mo
             this.repaint();
         }
     }
-} // end class MouseTracker
+}
+
 

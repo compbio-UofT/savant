@@ -73,7 +73,7 @@ public class SavantFileRepositoryBrowser extends JDialog {
                 true,
                 "Public Savant File Repository Browser",
                 //getDownloadTreeRows(DownloadFile.downloadFile(new URL("http://savantbrowser.com/safe/savantsafe.php?username=mfiume&password=fiume3640"), System.getProperty("java.io.tmpdir"))));
-                getDownloadTreeRows(DownloadFile.downloadFile(new URL(BrowserSettings.url_data), System.getProperty("java.io.tmpdir"))));
+                getDownloadTreeRows(DownloadFile.downloadFile(new URL(BrowserSettings.DATA_URL), new File(System.getProperty("java.io.tmpdir")))));
     }
 
     private SavantFileRepositoryBrowser(

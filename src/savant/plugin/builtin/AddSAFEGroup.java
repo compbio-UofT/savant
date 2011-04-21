@@ -121,7 +121,7 @@ public class AddSAFEGroup extends javax.swing.JDialog {
         try {
             String n = name.getText();
             String d = desc.getText();
-            String result = DownloadFile.downloadFile(new URL(BrowserSettings.safe + "?"
+            String result = DownloadFile.downloadFile(new URL(BrowserSettings.SAFE_URL + "?"
                     + "type=addgroup"
                     + "&username=" + URLEncoder.encode(username)
                     + "&password=" + URLEncoder.encode(password)

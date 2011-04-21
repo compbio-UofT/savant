@@ -1,8 +1,4 @@
 /*
- * BookmarkController.java
- * Created on Jan 26, 2010
- *
- *
  *    Copyright 2010-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,10 +14,6 @@
  *    limitations under the License.
  */
 
-/**
- * Controller object to manage changes to bookmarks.
- * @author mfiume
- */
 package savant.controller;
 
 import java.io.BufferedReader;
@@ -42,6 +34,11 @@ import savant.util.Bookmark;
 import savant.util.Range;
 
 
+/**
+ * Controller object to manage changes to bookmarks.
+ *
+ * @author mfiume
+ */
 public class BookmarkController {
     private static final Log LOG = LogFactory.getLog(RangeController.class);
 
@@ -87,8 +84,8 @@ public class BookmarkController {
         StringTokenizer st = new StringTokenizer(line,"\t");
 
         String ref = st.nextToken();
-        long from = Long.parseLong(st.nextToken());
-        long to = Long.parseLong(st.nextToken());
+        int from = Integer.parseInt(st.nextToken());
+        int to = Integer.parseInt(st.nextToken());
         String annotation = "";
 
         while (st.hasMoreElements()) {

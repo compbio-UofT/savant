@@ -1,5 +1,5 @@
 /*
- *    Copyright 2010 University of Toronto
+ *    Copyright 2010-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -85,7 +85,7 @@ public class SequenceTrack extends Track {
      *     Get data in the specified range at the specified resolution
      */
     @Override
-    protected synchronized List<Record> retrieveData(String reference, RangeAdapter range, Resolution resolution) {
+    protected synchronized List<Record> retrieveData(String reference, Range range, Resolution resolution) {
 
         SequenceRecord subsequence = null;
         try {
@@ -104,9 +104,8 @@ public class SequenceTrack extends Track {
     }
 
     @Override
-    public Resolution getResolution(RangeAdapter range)
-    {
-        long length = range.getLength();
+    public Resolution getResolution(RangeAdapter range) {
+        int length = range.getLength();
 
         if (length > TrackResolutionSettings.getSequenceLowToHighThresh()) { return Resolution.VERY_LOW; }
             return Resolution.VERY_HIGH;

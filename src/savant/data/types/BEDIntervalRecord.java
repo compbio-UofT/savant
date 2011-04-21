@@ -18,7 +18,6 @@ package savant.data.types;
 import java.util.Collections;
 import java.util.List;
 
-import savant.util.Strand;
 
 
 /**
@@ -34,8 +33,8 @@ public final class BEDIntervalRecord implements IntervalRecord {
     private final String name;
     private final float score;
     private final Strand strand;
-    private final long thickStart;
-    private final long thickEnd;
+    private final int thickStart;
+    private final int thickEnd;
     private final ItemRGB itemRGB;
 
     /**
@@ -51,7 +50,7 @@ public final class BEDIntervalRecord implements IntervalRecord {
      * @param rgb
      * @param blocks
      */
-    public BEDIntervalRecord(String chrom, long start, long end, String name, float score, Strand strand, long thickStart, long thickEnd, ItemRGB rgb,  List<Block> blocks) {
+    public BEDIntervalRecord(String chrom, int start, int end, String name, float score, Strand strand, int thickStart, int thickEnd, ItemRGB rgb,  List<Block> blocks) {
 
         if (chrom == null) throw new IllegalArgumentException("Invalid argument: chrom may not be null");
         //if (interval == null) throw new IllegalArgumentException("Invalid argument. Interval must not be null");
@@ -81,7 +80,7 @@ public final class BEDIntervalRecord implements IntervalRecord {
      * @param blocks
      * @return
      */
-    public static BEDIntervalRecord valueOf(String chrom, long start, long end, String name, float score, Strand strand, long thickStart, long thickEnd, ItemRGB rgb,  List<Block> blocks) {
+    public static BEDIntervalRecord valueOf(String chrom, int start, int end, String name, float score, Strand strand, int thickStart, int thickEnd, ItemRGB rgb,  List<Block> blocks) {
         return new BEDIntervalRecord(chrom, start, end, name, score, strand, thickStart, thickEnd, rgb, blocks);
     }
 
@@ -107,11 +106,11 @@ public final class BEDIntervalRecord implements IntervalRecord {
         return name;
     }
 
-    public long getChromStart() {
+    public int getChromStart() {
         return getInterval().getStart();
     }
 
-    public long getChromEnd() {
+    public int getChromEnd() {
         return getInterval().getEnd();
     }
 
@@ -123,11 +122,11 @@ public final class BEDIntervalRecord implements IntervalRecord {
         return strand;
     }
 
-    public long getThickStart() {
+    public int getThickStart() {
         return thickStart;
     }
 
-    public long getThickEnd() {
+    public int getThickEnd() {
         return thickEnd;
     }
 
@@ -173,8 +172,8 @@ public final class BEDIntervalRecord implements IntervalRecord {
         }
 
         //compare point
-        long a = this.getChromStart();
-        long b = other.getChromStart();
+        int a = this.getChromStart();
+        int b = other.getChromStart();
 
         if(a == b){
             String a1 = this.getName();

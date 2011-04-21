@@ -1,5 +1,5 @@
 /*
- *    Copyright 2011 University of Toronto
+ *    Copyright 2010-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ import savant.util.Range;
  * @author tarkvara
  */
 public class RangeUtils {
-    public static RangeAdapter createRange(long from, long to) {
+    public static RangeAdapter createRange(int from, int to) {
         return new Range(from, to);
     }
 

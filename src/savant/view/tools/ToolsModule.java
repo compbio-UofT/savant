@@ -596,9 +596,9 @@ public class ToolsModule implements BookmarksChangedListener, RangeChangeComplet
                     }
                 }, null);
                 if (selectedFile != null) {
-                    String todir = DirectorySettings.getXMLToolDescriptionsDirectory();
+                    File destDir = DirectorySettings.getXMLToolDescriptionsDirectory();
                     try {
-                        FileUtils.copyFile(selectedFile, new File(todir, selectedFile.getName()));
+                        FileUtils.copyFile(selectedFile, new File(destDir, selectedFile.getName()));
                         JOptionPane.showMessageDialog(Savant.getInstance(), "Installation of tool complete. Please restart Savant.");
                     } catch (IOException iox) {
                         DialogUtils.displayException("Add Plugin", "Unable to add plugin " + selectedFile, iox);

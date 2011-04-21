@@ -70,9 +70,6 @@ public abstract class SavantFileFormatter {
     /* PROGRESS */
 
     // UI ...
-    // variables to keep track of progress processing the input file
-    protected long positionCount=0;
-    //protected int progress=0; // 0 to 100%
     protected List<FormatProgressListener> listeners = new ArrayList<FormatProgressListener>();
 
     // non-UI ...

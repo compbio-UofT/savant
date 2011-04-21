@@ -16,6 +16,18 @@
 
 package savant.data.sources.file;
 
+import java.io.IOException;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import savant.api.adapter.RangeAdapter;
+import savant.data.sources.BEDDataSource;
 import savant.data.types.BEDIntervalRecord;
 import savant.data.types.IntervalRecord;
 import savant.file.FileType;
@@ -25,19 +37,9 @@ import savant.file.SavantUnsupportedVersionException;
 import savant.format.DataFormatter;
 import savant.format.IntervalRecordGetter;
 import savant.format.IntervalSearchTree;
-import savant.util.Resolution;
-
-import java.io.IOException;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import savant.api.adapter.RangeAdapter;
-import savant.data.sources.BEDDataSource;
 import savant.util.MiscUtils;
+import savant.util.Range;
+import savant.util.Resolution;
 
 
 /**
@@ -46,6 +48,7 @@ import savant.util.MiscUtils;
  * @author vwilliams
  */
 public class BEDFileDataSource extends BEDDataSource {
+    private static final Log LOG = LogFactory.getLog(BEDFileDataSource.class);
 
     private SavantROFile dFile;
 
@@ -68,7 +71,7 @@ public class BEDFileDataSource extends BEDDataSource {
 
         if (ist == null) { return new ArrayList<BEDIntervalRecord>(); }
 
-        data = IntervalRecordGetter.getData(this.dFile, reference, range, ist.getRoot());
+        data = IntervalRecordGetter.getData(this.dFile, reference, (Range)range, ist.getRoot());
 
         //TODO: fix me
         List<BEDIntervalRecord> girList = new ArrayList<BEDIntervalRecord>(data.size());
@@ -84,14 +87,13 @@ public class BEDFileDataSource extends BEDDataSource {
         try {
             this.dFile.close();
         } catch (IOException ex) {
-            Logger.getLogger(GenericIntervalFileDataSource.class.getName()).log(Level.SEVERE, null, ex);
+            LOG.error(ex);
         }
     }
 
     @Override
     public Set<String> getReferenceNames() {
-        Map<String, Long[]> refMap = dFile.getReferenceMap();
-        return refMap.keySet();
+        return dFile.getReferenceMap().keySet();
     }
 
     @Override

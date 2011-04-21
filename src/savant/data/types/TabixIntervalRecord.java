@@ -41,8 +41,8 @@ public final class TabixIntervalRecord implements IntervalRecord {
         
         String token = null;
         String chr = null;
-        long start = 0;
-        long end = 0;
+        int start = 0;
+        int end = 0;
         otherFields = new ArrayList<String>();
 
         for (int i = 0; i < numTokens; i++) {
@@ -51,12 +51,10 @@ public final class TabixIntervalRecord implements IntervalRecord {
             
             if (i == chrIndex) {
                 chr = token;
-            }
-            else if (i == startIndex) {
-                 start = Long.parseLong(token);
-            }
-            else if (i == endIndex) {
-                end = Long.parseLong(token)-1; // tabix is not end-inclusive; our intervals are end inclusive
+            } else if (i == startIndex) {
+                 start = Integer.parseInt(token);
+            } else if (i == endIndex) {
+                end = Integer.parseInt(token)-1; // tabix is not end-inclusive; our intervals are end inclusive
             } else {
                 otherFields.add(token);
             }
@@ -149,8 +147,8 @@ public final class TabixIntervalRecord implements IntervalRecord {
         }
 
         //compare point
-        long a = this.getInterval().getStart();
-        long b = other.getInterval().getStart();
+        int a = this.getInterval().getStart();
+        int b = other.getInterval().getStart();
         if(a == b){
             //return 0;
         } else if(a < b) return -1;

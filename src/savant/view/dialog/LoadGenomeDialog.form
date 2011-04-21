@@ -96,8 +96,8 @@
                           <Group type="103" groupAlignment="0" attributes="0">
                               <Component id="nameField" alignment="1" pref="291" max="32767" attributes="1"/>
                               <Component id="lengthField" alignment="1" pref="291" max="32767" attributes="1"/>
-                              <Component id="speciesCombo" alignment="0" pref="291" max="32767" attributes="1"/>
-                              <Component id="buildCombo" alignment="1" pref="291" max="32767" attributes="1"/>
+                              <Component id="genomesCombo" alignment="0" pref="291" max="32767" attributes="1"/>
+                              <Component id="genesCombo" alignment="1" pref="291" max="32767" attributes="1"/>
                           </Group>
                       </Group>
                       <Group type="102" alignment="1" attributes="0">
@@ -117,11 +117,11 @@
                   <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="3" attributes="0">
                       <Component id="speciesLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="speciesCombo" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="genomesCombo" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="3" attributes="0">
-                      <Component id="buildCombo" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="genesCombo" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="buildLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace min="-2" pref="9" max="-2" attributes="0"/>
@@ -190,36 +190,26 @@
         </Component>
         <Component class="javax.swing.JLabel" name="buildLabel">
           <Properties>
-            <Property name="text" type="java.lang.String" value="Build:"/>
+            <Property name="text" type="java.lang.String" value="Genes:"/>
           </Properties>
           <AuxValues>
             <AuxValue name="JavaCodeGenerator_VariableLocal" type="java.lang.Boolean" value="true"/>
             <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="0"/>
           </AuxValues>
         </Component>
-        <Component class="javax.swing.JComboBox" name="buildCombo">
+        <Component class="javax.swing.JComboBox" name="genesCombo">
           <Properties>
             <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
-              <StringArray count="4">
-                <StringItem index="0" value="Item 1"/>
-                <StringItem index="1" value="Item 2"/>
-                <StringItem index="2" value="Item 3"/>
-                <StringItem index="3" value="Item 4"/>
-              </StringArray>
+              <StringArray count="0"/>
             </Property>
             <Property name="toolTipText" type="java.lang.String" value="Build for species to load"/>
             <Property name="enabled" type="boolean" value="false"/>
           </Properties>
         </Component>
-        <Component class="javax.swing.JComboBox" name="speciesCombo">
+        <Component class="javax.swing.JComboBox" name="genomesCombo">
           <Properties>
             <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
-              <StringArray count="4">
-                <StringItem index="0" value="Item 1"/>
-                <StringItem index="1" value="Item 2"/>
-                <StringItem index="2" value="Item 3"/>
-                <StringItem index="3" value="Item 4"/>
-              </StringArray>
+              <StringArray count="0"/>
             </Property>
             <Property name="toolTipText" type="java.lang.String" value="Species of a published genome to load"/>
             <Property name="enabled" type="boolean" value="false"/>
@@ -227,7 +217,7 @@
         </Component>
         <Component class="javax.swing.JLabel" name="speciesLabel">
           <Properties>
-            <Property name="text" type="java.lang.String" value="Species:"/>
+            <Property name="text" type="java.lang.String" value="Genome:"/>
           </Properties>
           <AuxValues>
             <AuxValue name="JavaCodeGenerator_VariableLocal" type="java.lang.Boolean" value="true"/>

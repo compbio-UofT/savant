@@ -27,8 +27,8 @@ import savant.api.adapter.RangeAdapter;
  */
 public final class Interval {
 
-    private final long start;
-    private final long end;
+    private final int start;
+    private final int end;
 
 
     /**
@@ -37,7 +37,7 @@ public final class Interval {
      * @param start
      * @param end
      */
-    public Interval(long start, long end) {
+    public Interval(int start, int end) {
         this.start = start;
         this.end = end;
     }
@@ -49,13 +49,13 @@ public final class Interval {
      * @param end
      * @return an interval
      */
-    public static Interval valueOf(long start, long end) {
+    public static Interval valueOf(int start, int end) {
         return new Interval(start, end);
     }
 
-    public long getStart() { return start; }
-    public long getEnd() { return end; }
-    public long getLength() { return end - start + 1;}
+    public int getStart() { return start; }
+    public int getEnd() { return end; }
+    public int getLength() { return end - start + 1;}
 
     // TODO: Make sure that this is actually the correct calculation when packing intervals.
     public boolean intersects(Interval i2) {

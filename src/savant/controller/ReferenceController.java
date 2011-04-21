@@ -1,8 +1,5 @@
 /*
- * ReferenceController.java
- * Created on Jan 19, 2010
- *
- *    Copyright 2010 University of Toronto
+ *    Copyright 2010-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -101,11 +98,11 @@ public class ReferenceController {
     }
 
     public Set<String> getReferenceNames() {
-        return this.loadedGenome.getReferenceNames();
+        return loadedGenome.getReferenceNames();
     }
 
-    public Long getReferenceLength(String refname) {
-        return this.loadedGenome.getReferenceLength(refname);
+    public int getReferenceLength(String refname) {
+        return loadedGenome.getReferenceLength(refname);
     }
 
     public Set<String> getNonGenomicReferenceNames() {

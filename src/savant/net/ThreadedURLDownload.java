@@ -1,5 +1,5 @@
 /*
- *    Copyright 2010 University of Toronto
+ *    Copyright 2010-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -16,9 +16,6 @@
 
 package savant.net;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import savant.view.dialog.DownloadDialog;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -27,9 +24,12 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import javax.swing.JProgressBar;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import savant.util.MiscUtils;
+import savant.view.dialog.DownloadDialog;
 import savant.view.swing.Savant;
 import savant.view.swing.util.DialogUtils;
 

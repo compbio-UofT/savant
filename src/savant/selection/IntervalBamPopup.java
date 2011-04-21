@@ -1,5 +1,5 @@
 /*
- *    Copyright 2010 University of Toronto
+ *    Copyright 2010-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -21,11 +21,13 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.JButton;
 import javax.swing.JLabel;
+
 import net.sf.samtools.SAMRecord;
+
 import savant.controller.RangeController;
-import savant.controller.ReferenceController;
 import savant.data.types.BAMIntervalRecord;
 import savant.util.Range;
+
 
 /**
  *
@@ -71,7 +73,7 @@ public class IntervalBamPopup extends PopupPanel {
             String matePosition = "Mate Position: " + homogenizeRef(samRec.getMateReferenceName()) + ": " + samRec.getMateAlignmentStart();
             this.add(new JLabel(matePosition));
 
-            final long matepos = samRec.getMateAlignmentStart();
+            final int matepos = samRec.getMateAlignmentStart();
 
             JButton matebutton = new JButton("Jump to mate");
             matebutton.addActionListener(new ActionListener() {
@@ -79,9 +81,9 @@ public class IntervalBamPopup extends PopupPanel {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     RangeController rc = RangeController.getInstance();
-                    long offset = (long) Math.ceil(((float) rc.getRange().getLength())/2);
-                    long start = samRec.getMateAlignmentStart()-offset;
-                    long end = start + rc.getRange().getLength() - 1;
+                    int offset = (int)Math.ceil(((float) rc.getRange().getLength())/2);
+                    int start = samRec.getMateAlignmentStart()-offset;
+                    int end = start + rc.getRange().getLength() - 1;
                     RangeController.getInstance().setRange(samRec.getMateReferenceName(), new Range(start, end));
                 }
             });

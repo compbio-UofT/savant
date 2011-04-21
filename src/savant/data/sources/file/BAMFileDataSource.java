@@ -35,8 +35,8 @@ import savant.controller.ReferenceController;
 import savant.data.sources.BAMDataSource;
 import savant.data.types.BAMIntervalRecord;
 import savant.util.MiscUtils;
-import savant.util.Resolution;
 import savant.util.NetworkUtils;
+import savant.util.Resolution;
 
 /**
  * Class to represent a track of BAM intervals. Uses SAMTools to read data within a range.
@@ -110,7 +110,7 @@ public class BAMFileDataSource extends BAMDataSource {
                 ref = guessSequence();
             }
 
-            recordIterator = samFileReader.query(ref, range.getFromAsInt(), range.getToAsInt(), false);
+            recordIterator = samFileReader.query(ref, range.getFrom(), range.getTo(), false);
 
             SAMRecord samRecord;
             BAMIntervalRecord record;
@@ -139,13 +139,13 @@ public class BAMFileDataSource extends BAMDataSource {
 
         // Find out what sequence we're using, by reading the header for sequences and lengths
         RangeController rangeController = RangeController.getInstance();
-        long referenceSequenceLength = rangeController.getMaxRangeEnd() - rangeController.getMaxRangeStart();
+        int referenceSequenceLength = rangeController.getMaxRangeEnd() - rangeController.getMaxRangeStart();
         assert Math.abs(referenceSequenceLength) < Integer.MAX_VALUE;
 
         String sequenceName = null;
         SAMSequenceDictionary sequenceDictionary = samFileHeader.getSequenceDictionary();
         // find the first sequence with the smallest difference in length from our reference sequence
-        long leastDifferenceInSequenceLength = Long.MAX_VALUE;
+        int leastDifferenceInSequenceLength = Integer.MAX_VALUE;
         int closestSequenceIndex = Integer.MAX_VALUE;
         int i = 0;
         for (SAMSequenceRecord sequenceRecord : sequenceDictionary.getSequences()) {

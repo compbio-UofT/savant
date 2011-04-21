@@ -1,5 +1,5 @@
 /*
- *    Copyright 2010 University of Toronto
+ *    Copyright 2010-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.io.File;
 import java.io.IOException;
 import javax.swing.Icon;
 import javax.swing.JButton;
@@ -31,9 +32,10 @@ import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import savant.data.sources.file.IndexCache;
+
 
 /**
  *
@@ -45,9 +47,9 @@ public class TemporaryFilesSettingsSection extends Section {
     private JTextField formatInput;
     private JTextField pluginsInput;
     private JTextField xmlToolsInput;
-    private String formatPath;
-    private String pluginsPath;
-    private String xmlToolsPath;
+    private File formatDir;
+    private File pluginsDir;
+    private File xmlToolsDir;
 
     @Override
     public String getSectionName() {
@@ -106,8 +108,8 @@ public class TemporaryFilesSettingsSection extends Section {
         panel.add(spacer1, c);
 
         //initial directory
-        formatPath = DirectorySettings.getFormatDirectory();
-        formatInput.setText(formatPath);
+        formatDir = DirectorySettings.getFormatDirectory();
+        formatInput.setText(formatDir.getAbsolutePath());
 
         //enable apply button if text changed
         formatInput.addKeyListener(new KeyAdapter() {
@@ -291,8 +293,8 @@ public class TemporaryFilesSettingsSection extends Section {
     public void applyChanges() {
         // Only save anything if this panel has gone through lazy initialization.
         if (formatInput != null) {
-            formatPath = formatInput.getText();
-            DirectorySettings.setFormatDirectory(formatPath);
+            formatDir = new File(formatInput.getText());
+            DirectorySettings.setFormatDirectory(formatDir);
 
 /*
             pluginsPath = pluginsInput.getText();

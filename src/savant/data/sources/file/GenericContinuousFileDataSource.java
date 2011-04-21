@@ -33,6 +33,7 @@ import savant.file.SavantUnsupportedVersionException;
 import savant.format.ContinuousFormatterHelper;
 import savant.format.ContinuousFormatterHelper.Level;
 import savant.util.MiscUtils;
+import savant.util.Range;
 import savant.util.Resolution;
 import savant.util.SavantFileUtils;
 
@@ -69,7 +70,7 @@ public class GenericContinuousFileDataSource extends GenericContinuousDataSource
      * @param r     the range to be displayed
      * @return
      */
-    private Level getBestLevel(List<Level> levels, RangeAdapter r) {
+    private Level getBestLevel(List<Level> levels, Range r) {
         for (int i = levels.size() - 1; i > 0; i--) {
             Level lev = levels.get(i);
             if (r.getLength() > lev.resolution * ContinuousFormatterHelper.NOTIONAL_SCREEN_SIZE / 2) {
@@ -100,14 +101,14 @@ public class GenericContinuousFileDataSource extends GenericContinuousDataSource
             }
         }
 
-        Level lev = getBestLevel(refnameToLevelsIndex.get(ref), r);
+        Level lev = getBestLevel(refnameToLevelsIndex.get(ref), (Range)r);
         LOG.debug("Chose " + lev.resolution + " as the best for range (" + r.getFrom() + "-" + r.getTo() + ")");
 
         long seekPos = lev.offset + (r.getFrom() - 1) / lev.resolution * recordSize;
 
         if (savantFile.seek(ref, seekPos) >= 0) {
             LOG.debug("Sought to " + seekPos + " to find data for " + r.getFrom());
-            for (long pos = r.getFrom(); pos < r.getTo(); pos += lev.resolution) {
+            for (int pos = r.getFrom(); pos < r.getTo(); pos += lev.resolution) {
 
                 data.add(GenericContinuousRecord.valueOf(ref, pos, savantFile.readFloat()));
 
@@ -147,8 +148,7 @@ public class GenericContinuousFileDataSource extends GenericContinuousDataSource
 
     @Override
     public Set<String> getReferenceNames() {
-        Map<String, Long[]> refMap = savantFile.getReferenceMap();
-        return refMap.keySet();
+        return savantFile.getReferenceMap().keySet();
     }
 
     private void printLevelsMap(Map<String, List<Level>> refnameToLevelsIndex) {

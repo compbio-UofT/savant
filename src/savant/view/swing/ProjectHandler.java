@@ -152,7 +152,7 @@ public class ProjectHandler implements
             }
         }
 
-        File f = DialogUtils.chooseFileForOpen("Open Project File", PROJECT_FILTER, new File(DirectorySettings.getProjectsDirectory()));
+        File f = DialogUtils.chooseFileForOpen("Open Project File", PROJECT_FILTER, DirectorySettings.getProjectsDirectory());
         if (f != null) {
             loadProjectFrom(f);
         }
@@ -165,7 +165,7 @@ public class ProjectHandler implements
             return false;
         }
 
-        File selectedFile = DialogUtils.chooseFileForSave("Save Project", getCurrentPath().getName(), PROJECT_FILTER, new File(DirectorySettings.getProjectsDirectory()));
+        File selectedFile = DialogUtils.chooseFileForSave("Save Project", getCurrentPath().getName(), PROJECT_FILTER, DirectorySettings.getProjectsDirectory());
 
         if (selectedFile != null) {
             try {

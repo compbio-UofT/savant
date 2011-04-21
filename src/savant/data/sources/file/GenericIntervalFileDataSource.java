@@ -38,6 +38,7 @@ import savant.format.DataFormatter;
 import savant.format.IntervalRecordGetter;
 import savant.format.IntervalSearchTree;
 import savant.util.MiscUtils;
+import savant.util.Range;
 import savant.util.Resolution;
 
 
@@ -81,7 +82,7 @@ public class GenericIntervalFileDataSource extends GenericIntervalDataSource  {
         if (ist == null) { return new ArrayList<GenericIntervalRecord>(); }
         
 
-        data = IntervalRecordGetter.getData(this.dFile, reference, range, ist.getRoot());
+        data = IntervalRecordGetter.getData(this.dFile, reference, (Range)range, ist.getRoot());
 
         List<GenericIntervalRecord> girList = new ArrayList<GenericIntervalRecord>(data.size());
         for (int i = 0; i < data.size(); i++) {
@@ -102,8 +103,7 @@ public class GenericIntervalFileDataSource extends GenericIntervalDataSource  {
 
     @Override
     public Set<String> getReferenceNames() {
-        Map<String, Long[]> refMap = dFile.getReferenceMap();
-        return refMap.keySet();
+        return dFile.getReferenceMap().keySet();
     }
 
     @Override

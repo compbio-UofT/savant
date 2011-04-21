@@ -101,9 +101,9 @@ public class PluginController {
             if (uninstallFile.exists()) {
                 deleteFileList(uninstallFile);
             }
-            File libDir = new File(DirectorySettings.getLibsDirectory());
+            File libDir = DirectorySettings.getLibsDirectory();
             coreLocation = new File(libDir, "SavantCore.jar");
-            File pluginsDir = new File(DirectorySettings.getPluginsDirectory());
+            File pluginsDir = DirectorySettings.getPluginsDirectory();
 
             copyBuiltInPlugins();
 
@@ -423,8 +423,9 @@ public class PluginController {
             sdkToSavantVersionsMap = new HashMap<String, String[]>();
 
             // list of Savant versions compatible with sdk version 1.4.3
-            sdkToSavantVersionsMap.put("1.4.3", new String[] { "1.4.3", "1.4.4" });
-            sdkToSavantVersionsMap.put("1.4.4", new String[] { "1.4.4" });
+            sdkToSavantVersionsMap.put("1.4.3", new String[] { "1.4.3", "1.4.4", "1.4.5" });
+            sdkToSavantVersionsMap.put("1.4.4", new String[] { "1.4.4", "1.4.5" });
+            sdkToSavantVersionsMap.put("1.4.5", new String[] { "1.4.5" });
         }
 
         String[] acceptableSavantVersions = sdkToSavantVersionsMap.get(sdk);
@@ -437,10 +438,19 @@ public class PluginController {
     }
 
     private void copyBuiltInPlugins() {
-        File srcDir = new File(MiscUtils.MAC ? com.apple.eio.FileManager.getPathToApplicationBundle() + "/Contents/Plugins" : "plugins");
-        File destDir = new File(DirectorySettings.getPluginsDirectory());
-        LOG.info("Copying builtin plugins from " + srcDir + " to " + destDir);
-        FileUtils.copyDirSilently(srcDir, destDir);
+        File srcDir = new File("plugins");
+        if (MiscUtils.MAC) {
+            File f = new File(com.apple.eio.FileManager.getPathToApplicationBundle() + "/Contents/Plugins");
+            if (!f.exists()) {
+                srcDir = f;
+            }
+        }
+        File destDir = DirectorySettings.getPluginsDirectory();
+        try {
+            FileUtils.copyDir(srcDir, destDir);
+        } catch (Exception x) {
+            LOG.error("Unable to copy builtin plugins from " + srcDir + " to " + destDir, x);
+        }
     }
 
 }

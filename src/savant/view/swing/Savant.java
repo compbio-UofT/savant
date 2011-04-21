@@ -15,14 +15,13 @@
  */
 package savant.view.swing;
 
-import java.beans.PropertyVetoException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import savant.view.swing.start.StartPanel;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -34,6 +33,9 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.List;
+import javax.jnlp.BasicService;
+import javax.jnlp.ServiceManager;
+import javax.jnlp.UnavailableServiceException;
 import javax.swing.*;
 
 import com.apple.eawt.*;
@@ -46,10 +48,9 @@ import com.jidesoft.plaf.UIDefaultsLookup;
 import com.jidesoft.plaf.basic.ThemePainter;
 import com.jidesoft.status.MemoryStatusBarItem;
 import com.jidesoft.swing.JideSplitPane;
-import java.io.FileOutputStream;
-import java.io.InputStream;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.broad.igv.feature.Genome.ChromosomeComparator;
 import org.jdom.JDOMException;
 
 import savant.api.util.DialogUtils;
@@ -73,7 +74,6 @@ import savant.view.tools.ToolsModule;
 import savant.xml.XMLVersion;
 import savant.xml.XMLVersion.Version;
 
-import javax.jnlp.*;
 
 /**
  * Main application Window (Frame).
@@ -381,10 +381,10 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
 
     private void initXMLTools() {
         try {
-            String dir = DirectorySettings.getXMLToolDescriptionsDirectory();
-            for (String fn : (new File(dir)).list()) {
-                if (fn.toLowerCase().endsWith(".xml")) {
-                    ToolsModule.addTool(new XMLTool(dir + System.getProperty("file.separator") + fn));
+            File dir = DirectorySettings.getXMLToolDescriptionsDirectory();
+            for (File f : dir.listFiles()) {
+                if (f.getName().toLowerCase().endsWith(".xml")) {
+                    ToolsModule.addTool(new XMLTool(f));
                 }
             }
         } catch (IOException ex) {
@@ -1056,7 +1056,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
 
     private void websiteItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_websiteItemActionPerformed
         try {
-            java.awt.Desktop.getDesktop().browse(java.net.URI.create(BrowserSettings.url));
+            java.awt.Desktop.getDesktop().browse(java.net.URI.create(BrowserSettings.URL));
         } catch (IOException ex) {
             LOG.error("Unable to access Savant website", ex);
         }
@@ -1112,7 +1112,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
 
     private void tutorialsItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tutorialsItemActionPerformed
         try {
-            java.awt.Desktop.getDesktop().browse(java.net.URI.create(BrowserSettings.url_tutorials));
+            java.awt.Desktop.getDesktop().browse(java.net.URI.create(BrowserSettings.MEDIA_URL));
         } catch (IOException ex) {
             LOG.error("Unable to access online tutorials.", ex);
         }
@@ -1120,7 +1120,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
 
     private void userManualItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_userManualItemActionPerformed
         try {
-            java.awt.Desktop.getDesktop().browse(java.net.URI.create(BrowserSettings.url_manuals));
+            java.awt.Desktop.getDesktop().browse(java.net.URI.create(BrowserSettings.DOCUMENTATION_URL));
         } catch (IOException ex) {
             LOG.error("Unable to access online user manual.", ex);
         }
@@ -1342,7 +1342,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
             URLConnection urlConn;
             DataOutputStream printout;
             // URL of CGI-Bin script.
-            url = new URL(BrowserSettings.url_logusagestats);
+            url = new URL(BrowserSettings.LOG_USAGE_STATS_URL);
             // URL connection channel.
             urlConn = url.openConnection();
             // Let the run-time system (RTS) know that we want input.
@@ -1390,14 +1390,14 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
 
     public static void checkVersion(boolean verbose) {
         try {
-            File versionFile = DownloadFile.downloadFile(new URL(BrowserSettings.url_version), DirectorySettings.getSavantDirectory());
+            File versionFile = DownloadFile.downloadFile(new URL(BrowserSettings.VERSION_URL), DirectorySettings.getSavantDirectory());
             if (versionFile != null) {
                 LOG.info("Saved version file to: " + versionFile.getAbsolutePath());
                 Version currentversion = (new XMLVersion(versionFile)).getVersion();
                 Version thisversion = new Version(BrowserSettings.version);
                 if (currentversion.compareTo(thisversion) > 0) {
                     DialogUtils.displayMessage("Savant", "A new version of Savant (" + currentversion.toString() + ") is available.\n"
-                            + "To stop this message from appearing, download the newest version at " + BrowserSettings.url + "\nor disable automatic "
+                            + "To stop this message from appearing, download the newest version at " + BrowserSettings.URL + "\nor disable automatic "
                             + "checking in Preferences.");
                 } else {
                     if (verbose) {
@@ -1585,12 +1585,6 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
 
     private void disableExperimentalFeatures() {
         menuitem_tools.setVisible(false);
-        //menuitem_startpage.setVisible(false);
-
-        // Start page may be null if there was a problem loading the page.
-        //if (startPageDockableFrame != null) {
-        //    startPageDockableFrame.setVisible(false);
-        //}
     }
 
     public DockingManager getAuxDockingManager() {
@@ -1996,8 +1990,8 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
      * Set the current range from the rangeSelector.
      */
     void setRangeFromRangeSelection() {
-        long minRange = rangeSelector.getLowerPosition();
-        long maxRange = rangeSelector.getUpperPosition();
+        int minRange = rangeSelector.getLowerPosition();
+        int maxRange = rangeSelector.getUpperPosition();
 
         rangeController.setRange(minRange, maxRange);
     }
@@ -2055,7 +2049,6 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         //JOptionPane.showMessageDialog(this, , , JOptionPane.INFORMATION_MESSAGE);
     }
 
-
     private void addTrackFrame(savant.view.swing.Frame frame) {
 
         if (startpage.isVisible()) {
@@ -2087,53 +2080,15 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         return cleanFrames;
     }
 
-    private class ReferenceComparable implements Comparable {
-
-        public String refName;
-        public Long refLength;
-
-        public ReferenceComparable(String refname, Long reflength) {
-            this.refName = refname;
-            this.refLength = reflength;
-        }
-
-        @Override
-        public int compareTo(Object o) {
-            if (o instanceof ReferenceComparable) {
-                ReferenceComparable r2 = (ReferenceComparable) o;
-                if (this.refLength < r2.refLength) { return -1;}
-                else if (this.refLength > r2.refLength) { return 1; }
-                else { return 0; }
-            } else {
-                return -1;
-            }
-        }
-
-        @Override
-        public String toString() {
-            return refName;
-        }
-    }
-
     private void updateReferenceNamesList() {
 
         LOG.debug("Updating reference names list");
 
-        List<String> genomicrefnames = MiscUtils.set2List(ReferenceController.getInstance().getReferenceNames());
-
-        //this.referenceDropdown.addItem("[ GENOMIC (" + genomicrefnames.size() + ") ]");
-
-        int maxwidth = 0;
-        List<ReferenceComparable> refs = new ArrayList<ReferenceComparable>();
         ReferenceController rc = ReferenceController.getInstance();
-        for (String ref : genomicrefnames) {
-            maxwidth = Math.max(maxwidth, ref.length());
-            refs.add(new ReferenceComparable(ref,rc.getReferenceLength(ref)));
-        }
+        List<String> refNames = MiscUtils.set2List(rc.getReferenceNames());
 
-        Collections.sort(refs);
-        Collections.reverse(refs);
-        navigationBar.setReferences(refs);
+        Collections.sort(refNames, new ChromosomeComparator());
+        navigationBar.setReferences(refNames);
     }
 
     @Override
@@ -2171,7 +2126,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
      */
     
     public void removeTmpFiles() {
-        for (File f : ((new File(DirectorySettings.getTmpDirectory())).listFiles())) {
+        for (File f : DirectorySettings.getTmpDirectory().listFiles()) {
             f.delete();
         }
     }
@@ -2222,8 +2177,8 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
 
     public void updateMousePosition() {
         GraphPaneController gpc = GraphPaneController.getInstance();
-        long x = gpc.getMouseXPosition();
-        long y = gpc.getMouseYPosition();
+        int x = gpc.getMouseXPosition();
+        int y = gpc.getMouseYPosition();
         if (x == -1 && y == -1) {
             this.label_mouseposition.setText("mouse not over track");
         } else {
@@ -2332,7 +2287,6 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
             startpage = new StartPanel();
             trackBackground.add(startpage, BorderLayout.CENTER);
         }
-
     }
 
     public boolean isWebStart(){

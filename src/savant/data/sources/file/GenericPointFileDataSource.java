@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import savant.api.adapter.RangeAdapter;
@@ -131,8 +130,7 @@ public class GenericPointFileDataSource extends GenericPointDataSource {
 
     @Override
     public Set<String> getReferenceNames() {
-        Map<String, Long[]> refMap = savantFile.getReferenceMap();
-        return refMap.keySet();
+        return savantFile.getReferenceMap().keySet();
 
     }
     

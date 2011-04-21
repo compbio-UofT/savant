@@ -391,7 +391,7 @@ public class StartPanel extends javax.swing.JPanel implements ComponentListener 
         p.setOpaque(false);
 
         try {
-            File newsFile = DownloadFile.downloadFile(new URL(BrowserSettings.url_news), DirectorySettings.getTmpDirectory());
+            File newsFile = DownloadFile.downloadFile(new URL(BrowserSettings.NEWS_URL), DirectorySettings.getTmpDirectory());
             if (newsFile != null) {
                 p = parseNewsFile(newsFile);
             }
@@ -577,7 +577,7 @@ public class StartPanel extends javax.swing.JPanel implements ComponentListener 
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    java.awt.Desktop.getDesktop().browse(java.net.URI.create(BrowserSettings.url_tutorials));
+                    java.awt.Desktop.getDesktop().browse(java.net.URI.create(BrowserSettings.MEDIA_URL));
                 } catch (IOException ex) {
                     DialogUtils.displayError("Uh oh", "Could not open browser");
                 }
@@ -589,7 +589,7 @@ public class StartPanel extends javax.swing.JPanel implements ComponentListener 
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    java.awt.Desktop.getDesktop().browse(java.net.URI.create(BrowserSettings.url_shortcuts));
+                    java.awt.Desktop.getDesktop().browse(java.net.URI.create(BrowserSettings.SHORTCUTS_URL));
                 } catch (IOException ex) {
                     DialogUtils.displayError("Uh oh", "Could not open browser");
                 }

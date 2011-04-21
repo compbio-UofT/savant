@@ -17,15 +17,16 @@
 package savant.view.dialog;
 
 import java.awt.event.ActionEvent;
-import java.io.File;
+import java.awt.event.ActionListener;
+import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 
 import com.jidesoft.dialog.JideOptionPane;
-import java.awt.event.ActionListener;
-import javax.swing.JButton;
-import javax.swing.JComponent;
 
+import savant.controller.ReferenceController;
+import savant.file.FileType;
 import savant.format.DataFormatter;
 import savant.format.DataFormatterThread;
 import savant.format.FormatProgressListener;
@@ -34,6 +35,7 @@ import savant.view.icon.SavantIconFactory;
 import savant.view.swing.Savant;
 
 /**
+ * Form which displays progress during the formatting process.
  *
  * @author mfiume
  */
@@ -256,12 +258,14 @@ public class FormatFrame extends javax.swing.JFrame implements FormatProgressLis
     public void notifyOfTermination(boolean wasFormatSuccessful, final Throwable e) {
 
         if (wasFormatSuccessful) {
-            int result = JOptionPane.showConfirmDialog(this, "Format successful. Open track now?", "Format Successful", JOptionPane.YES_NO_OPTION);
-            this.setVisible(false);
-            if (result == JOptionPane.YES_OPTION) {
-                try {
-                    Savant.getInstance().addTrackFromFile(dataFormatter.getOutputFile().getAbsolutePath());
-                } catch (Exception ex) {
+            if (ReferenceController.getInstance().isGenomeLoaded() || dataFormatter.getInputFileType() == FileType.SEQUENCE_FASTA) {
+                int result = JOptionPane.showConfirmDialog(this, "Format successful. Open track now?", "Format Successful", JOptionPane.YES_NO_OPTION);
+                this.setVisible(false);
+                if (result == JOptionPane.YES_OPTION) {
+                    try {
+                        Savant.getInstance().addTrackFromFile(dataFormatter.getOutputFile().getAbsolutePath());
+                    } catch (Exception ex) {
+                    }
                 }
             }
             this.dispose();

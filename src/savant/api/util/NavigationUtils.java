@@ -1,5 +1,5 @@
 /*
- *    Copyright 2010 University of Toronto
+ *    Copyright 2010-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -16,11 +16,13 @@
 package savant.api.util;
 
 import java.util.Set;
+
 import savant.api.adapter.RangeAdapter;
 import savant.controller.RangeController;
 import savant.controller.ReferenceController;
 import savant.controller.event.RangeChangeCompletedListener;
 import savant.util.Range;
+
 
 /**
  * Utilities for navigating Savant
@@ -77,7 +79,7 @@ public class NavigationUtils {
      * @param range The range to set as current
      */
     public static void navigateTo(String reference, RangeAdapter range) {
-        rc.setRange(reference, (Range) range);
+        rc.setRange(reference, (Range)range);
     }
 
     /**
@@ -110,8 +112,9 @@ public class NavigationUtils {
      * @param from start-point of the range
      * @param to end-point of the range
      * @return a newly-constructed RangeAdapter
+     * @deprecated Use RangeUtils.createFange instead.
      */
-    public static RangeAdapter createRange(long from, long to) {
+    public static RangeAdapter createRange(int from, int to) {
         return new Range(from, to);
     }
 }

@@ -22,12 +22,11 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
+
 import savant.controller.BookmarkController;
 import savant.controller.ReferenceController;
 import savant.data.types.*;
@@ -52,8 +51,8 @@ public class PopupPanel extends JPanel {
     //info
     protected String name;
     protected String ref;
-    protected long start;
-    protected long end;
+    protected int start;
+    protected int end;
 
     //additional fields
    // protected List<String> addedFields;

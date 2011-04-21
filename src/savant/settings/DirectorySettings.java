@@ -27,7 +27,7 @@ import savant.util.MiscUtils;
 public class DirectorySettings {
     private static PersistentSettings settings = PersistentSettings.getInstance();
 
-    private static String savantDir;
+    private static File savantDir;
 
     private static final String CACHE_DIR_KEY = "CacheDir";
     private static final String FORMAT_DIR_KEY = "FormatDir";
@@ -36,27 +36,28 @@ public class DirectorySettings {
     private static final String XML_TOOLS_DIR_KEY = "XMLToolDir";
     private static final String PROJECTS_DIR_KEY = "ProjectsDir";
 
-    public static String getSavantDirectory() {
+    public static File getSavantDirectory() {
         if (savantDir == null) {
-            String os = System.getProperty("os.name").toLowerCase();
-            File f = new File(System.getProperty("user.home"), os.contains("win") ? "savant" : ".savant");
+            File f = new File(System.getProperty("user.home"), MiscUtils.WINDOWS ? "savant" : ".savant");
             if (!f.exists()) {
                 f.mkdir();
             }
-            savantDir = f.getAbsolutePath();
+            savantDir = f;
         }
         return savantDir;
     }
 
-    public static String getLibsDirectory() {
+    public static File getLibsDirectory() {
         if (MiscUtils.MAC) {
-            String bundlePath = com.apple.eio.FileManager.getPathToApplicationBundle();
-            return bundlePath + "/Contents/Resources/Java";
+            File result = new File(com.apple.eio.FileManager.getPathToApplicationBundle() + "/Contents/Resources/Java");
+            if (result.exists()) {
+                return result;
+            }
         }
-        return "lib";
+        return new File("lib");
     }
 
-    private static String getDirectory(String key, String dirName) {
+    private static File getDirectory(String key, String dirName) {
         File result = settings.getFile(key);
         if (result == null) {
             result = new File(getSavantDirectory(), dirName);
@@ -64,22 +65,21 @@ public class DirectorySettings {
         if (!result.exists()) {
             result.mkdirs();
         }
-        return result.getAbsolutePath();
+        return result;
     }
 
-    private static void setDirectory(String key, String value) {
-        File dir = new File(value);
-        if (!dir.exists()) {
-            dir.mkdirs();
+    private static void setDirectory(String key, File value) {
+        if (!value.exists()) {
+            value.mkdirs();
         }
-        settings.setFile(key, dir);
+        settings.setFile(key, value);
     }
 
-    public static String getCacheDirectory() {
+    public static File getCacheDirectory() {
         return getDirectory(CACHE_DIR_KEY, "cache");
     }
 
-    public static String getFormatDirectory() {
+    public static File getFormatDirectory() {
         return getDirectory(FORMAT_DIR_KEY, "formatted_files");
     }
 
@@ -104,35 +104,35 @@ public class DirectorySettings {
         return result.getAbsolutePath();
     }*/
 
-    public static String getPluginsDirectory(){
+    public static File getPluginsDirectory(){
         return getDirectory(PLUGINS_DIR_KEY, "plugins");
     }
 
-    public static String getProjectsDirectory() {
+    public static File getProjectsDirectory() {
         return getDirectory(PROJECTS_DIR_KEY, "projects");
     }
 
-    public static String getTmpDirectory() {
+    public static File getTmpDirectory() {
         return getDirectory(TMP_DIR_KEY, "tmp");
     }
 
-    public static String getXMLToolDescriptionsDirectory() {
+    public static File getXMLToolDescriptionsDirectory() {
         return getDirectory(XML_TOOLS_DIR_KEY, "xmltools");
     }
 
-    public static void setFormatDirectory(String dir) {
+    public static void setFormatDirectory(File dir) {
         setDirectory(FORMAT_DIR_KEY, dir);
     }
 
-    public static void setPluginsDirectory(String dir) {
+    public static void setPluginsDirectory(File dir) {
         setDirectory(PLUGINS_DIR_KEY, dir);
     }
 
-    public static void setXMLToolDescriptionsDirectory(String dir) {
+    public static void setXMLToolDescriptionsDirectory(File dir) {
         setDirectory(XML_TOOLS_DIR_KEY, dir);
     }
 
-    public static void setCacheDirectory(String dir) {
+    public static void setCacheDirectory(File dir) {
         setDirectory(CACHE_DIR_KEY, dir);
     }
 }

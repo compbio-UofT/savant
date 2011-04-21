@@ -1,9 +1,5 @@
 /*
- * ContinuousTrackRenderer.java
- * Created on Jan 19, 2010
- *
- * 
- *    Copyright 2010 University of Toronto
+ *    Copyright 2010-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -88,7 +84,7 @@ public class ContinuousTrackRenderer extends TrackRenderer {
 
         int numdata = data.size();
 
-        long xPos;
+        int xPos;
         double yPos;
         GeneralPath path = new GeneralPath();
         double xFormXPos, xFormYPos;

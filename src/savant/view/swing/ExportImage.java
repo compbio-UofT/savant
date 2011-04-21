@@ -67,8 +67,8 @@ public class ExportImage {
 
         //write range at top
         RangeController range = RangeController.getInstance();
-        long start = range.getRangeStart();
-        long end = range.getRangeEnd();
+        int start = range.getRangeStart();
+        int end = range.getRangeEnd();
         String toWrite = "Range:  " + start + " - " + end;
         Graphics2D g = out.createGraphics();
         g.setColor(Color.white);

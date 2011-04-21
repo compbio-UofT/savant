@@ -20,7 +20,6 @@
 
 package savant.view.swing.continuous;
 
-import java.io.IOException;
 import java.util.List;
 
 import savant.api.adapter.RangeAdapter;
@@ -29,8 +28,10 @@ import savant.data.types.ContinuousRecord;
 import savant.data.types.Record;
 import savant.exception.SavantTrackCreationCancelledException;
 import savant.settings.ColourSettings;
-import savant.util.*;
-import savant.view.swing.Savant;
+import savant.util.ColorScheme;
+import savant.util.DrawingInstruction;
+import savant.util.Range;
+import savant.util.Resolution;
 import savant.view.swing.Track;
 
 
@@ -69,7 +70,7 @@ import savant.view.swing.Track;
      */
     @Override
     public Resolution getResolution(RangeAdapter range) {
-        long length = range.getLength();
+        int length = range.getLength();
 
         if (length < 10000) { return Resolution.VERY_HIGH; }
         else if (length < 50000) { return Resolution.HIGH; }

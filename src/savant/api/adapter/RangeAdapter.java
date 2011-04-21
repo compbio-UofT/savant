@@ -1,5 +1,5 @@
 /*
- *    Copyright 2010 University of Toronto
+ *    Copyright 2010-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -22,11 +22,22 @@ package savant.api.adapter;
  */
 public interface RangeAdapter {
 
-    public long getFrom();
-    public long getTo();
-    public long getLength();
-    public int getLengthAsInt();
-    public int getFromAsInt();
-    public int getToAsInt();
+    public int getFrom();
+    public int getTo();
+    public int getLength();
 
+    /**
+     * @deprecated Use getLength() instead.
+     */
+    public int getLengthAsInt();
+
+    /**
+     * @deprecated Use getFrom() instead.
+     */
+    public int getFromAsInt();
+
+    /**
+     * @deprecated Use getTo() instead.
+     */
+    public int getToAsInt();
 }

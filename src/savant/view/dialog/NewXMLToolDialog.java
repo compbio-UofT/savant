@@ -11,11 +11,14 @@
 
 package savant.view.dialog;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JOptionPane;
+
 import org.jdom.JDOMException;
+
 import savant.experimental.ProgramInformation;
 import savant.experimental.XMLTool;
 import savant.settings.DirectorySettings;
@@ -278,7 +281,7 @@ public class NewXMLToolDialog extends javax.swing.JDialog {
             argus.add((ProgramArgument) this.list_parameters.getModel().getElementAt(i));
         }
 
-        String path = DirectorySettings.getXMLToolDescriptionsDirectory() + System.getProperty("file.separator") + info.getName() + ".xml";
+        File path = new File(DirectorySettings.getXMLToolDescriptionsDirectory(), info.getName() + ".xml");
         
         
         XMLTool.writeTool(info,argus,path);

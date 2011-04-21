@@ -1,5 +1,5 @@
 /*
- *    Copyright 2010 University of Toronto
+ *    Copyright 2010-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -14,15 +14,17 @@
  *    limitations under the License.
  */
 
-/*
- * SavantFileUtils.java
- * Created on Mar 23, 2010
- */
-
 package savant.util;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import savant.data.types.Block;
 import savant.data.types.ItemRGB;
 import savant.file.FieldType;
@@ -31,11 +33,6 @@ import savant.file.FileTypeHeader;
 import savant.file.ROFile;
 import savant.format.SavantFileFormatterUtils;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class SavantFileUtils {
 
@@ -99,7 +96,6 @@ public class SavantFileUtils {
                     int numBlocks = file.readInt();
                     List<Block> blocks = new ArrayList<Block>(numBlocks);
                     for (int i = 0; i < numBlocks; i++) {
-                        // TODO: Should Blocks be saved as longs?
                         int start = file.readInt();
                         int size = file.readInt();
                         blocks.add(Block.valueOf(start,size));
@@ -122,7 +118,6 @@ public class SavantFileUtils {
                     record.add((char) file.readByte());
                     break;
                 case RANGE:
-                    // TODO: Should Ranges be saved as longs?
                     int start = file.readInt();
                     int end = file.readInt();
                     record.add(new Range(start,end));
@@ -156,11 +151,11 @@ public class SavantFileUtils {
         return fth;
     }
 
-    public static Map<String,Long[]> readReferenceMap(ROFile rof) throws IOException {
+    public static Map<String, long[]> readReferenceMap(ROFile rof) throws IOException {
 
         int numreferences = rof.readInt();
 
-        Map<String,Long[]> referenceMap = new HashMap<String, Long[]>();
+        Map<String, long[]> referenceMap = new HashMap<String, long[]>();
 
         List<FieldType> fields = new ArrayList<FieldType>();
         fields.add(FieldType.STRING);
@@ -174,10 +169,7 @@ public class SavantFileUtils {
             //System.out.println("Reading reference #" + (i+1));
 
             List<Object> record = readBinaryRecord(rof,fields);
-            Long[] vals = new Long[2];
-
-            vals[0] = (Long) record.get(1);
-            vals[1] = (Long) record.get(2);
+            long[] vals = new long[] { (Long)record.get(1), (Long)record.get(2) };
 
             referenceMap.put(((String) record.get(0)).trim(), vals);
         }

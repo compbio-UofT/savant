@@ -20,12 +20,12 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import javax.swing.*;
 
 import com.jidesoft.popup.JidePopup;
-import java.util.ArrayList;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -66,10 +66,10 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
     private int mouse_y = 0;
 
     /** min / max axis values */
-    private long xMin;
-    private long xMax;
-    private long yMin;
-    private long yMax;
+    private int xMin;
+    private int xMax;
+    private int yMin;
+    private int yMax;
     private double unitWidth;
     private double unitHeight;
 
@@ -107,7 +107,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
     //dragging
     private int startX;
     private int startY;
-    private long baseX;
+    private int baseX;
     private int initialScroll;
     private boolean panVert = false;
 
@@ -196,7 +196,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
     public Dimension render(Graphics g, Range xRange, Range yRange) {
         LOG.debug("GraphPane.render(g, " + xRange + ", " + yRange + ")");
         double oldUnitHeight = unitHeight;
-        long oldYMax = yMax;
+        int oldYMax = yMax;
 
 
         Graphics2D g2d0 = (Graphics2D)g;
@@ -222,7 +222,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
             // shifting left
             if (pixelshiftamount < 0) {
                 pixelshiftamount = -pixelshiftamount;
-                long maxlefttranslation = (RangeController.getInstance().getRangeStart()-1)
+                int maxlefttranslation = (RangeController.getInstance().getRangeStart()-1)
                         *MiscUtils.transformPositionToPixel(
                             RangeController.getInstance().getRangeStart()+1,
                             this.getWidth(),
@@ -235,7 +235,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
                 System.out.println("shifting " + pixelshiftamount);
             // shifting right
             } else {
-                long maxrighttranslation = (RangeController.getInstance().getMaxRangeEnd() - RangeController.getInstance().getRangeEnd())*MiscUtils.transformPositionToPixel(RangeController.getInstance().getRangeStart()+1, this.getWidth(), RangeController.getInstance().getRange());
+                int maxrighttranslation = (RangeController.getInstance().getMaxRangeEnd() - RangeController.getInstance().getRangeEnd())*MiscUtils.transformPositionToPixel(RangeController.getInstance().getRangeStart()+1, this.getWidth(), RangeController.getInstance().getRange());
                 System.out.println("Max right = " + maxrighttranslation);
                 System.out.println("before shifting " + (-pixelshiftamount)) ;
                 pixelshiftamount = Math.min(maxrighttranslation,pixelshiftamount);
@@ -265,8 +265,8 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
             progressPanel = null;
         }
 
-        long minYRange = Long.MAX_VALUE;
-        long maxYRange = Long.MIN_VALUE;
+        int minYRange = Integer.MAX_VALUE;
+        int maxYRange = Integer.MIN_VALUE;
         isYGridOn = false;
         for (Track t: tracks) {
 
@@ -274,8 +274,8 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
             AxisRange axisRange = (AxisRange)t.getRenderer().getInstruction(DrawingInstruction.AXIS_RANGE);
 
             if (axisRange != null) {
-                long axisYMin = axisRange.getYMin();
-                long axisYMax = axisRange.getYMax();
+                int axisYMin = axisRange.getYMin();
+                int axisYMax = axisRange.getYMax();
                 if (axisYMin < minYRange) minYRange = axisYMin;
                 if (axisYMax > maxYRange) maxYRange = axisYMax;
             }
@@ -543,8 +543,8 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
             g.setColor(Color.BLACK);
             Font thickfont = new Font("Arial", Font.BOLD, 15);
             g.setFont(thickfont);
-            long genome_x = gpc.getMouseXPosition();
-            long genome_y = gpc.getMouseYPosition();
+            int genome_x = gpc.getMouseXPosition();
+            int genome_y = gpc.getMouseYPosition();
             String target = "";
             target += "X: " + MiscUtils.numToString(genome_x);
             target += (genome_y == -1) ? "" : " Y: " + MiscUtils.numToString(genome_y);
@@ -606,9 +606,9 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         /* SPOTLIGHT */
         if (gpc.isSpotlight() && !gpc.isZooming()) {
 
-            long center = gpc.getMouseXPosition();
-            long left = center - gpc.getSpotlightSize()/2;
-            long right = left + gpc.getSpotlightSize();
+            int center = gpc.getMouseXPosition();
+            int left = center - gpc.getSpotlightSize()/2;
+            int right = left + gpc.getSpotlightSize();
 
             g.setColor(new Color(0,0,0,200));
 
@@ -673,10 +673,10 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
             if (numseparators != 0) {
                 int width = this.getWidth();
                 double pixelSeparation = width / numseparators;
-                long genomicSeparation = (xMax-xMin)/numseparators;
+                int genomicSeparation = (xMax-xMin)/numseparators;
 
                 int startbarsfrom = MiscUtils.transformPositionToPixel(
-                    (long) (Math.floor(RangeController.getInstance().getRange().getFrom()/Math.max(1, genomicSeparation))*genomicSeparation),
+                    (int) (Math.floor(RangeController.getInstance().getRange().getFrom()/Math.max(1, genomicSeparation))*genomicSeparation),
                     width, (RangeController.getInstance()).getRange());
 
                 g2.setColor(ColourSettings.getAxisGrid());
@@ -776,7 +776,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
      * @param len width in graph units
      * @return corresponding number of pixels
      */
-    public double getWidth(long len) {
+    public double getWidth(int len) {
         return this.unitWidth * len;
     }
 
@@ -804,12 +804,12 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
      * @param pos position in graph coordinates
      * @return a corresponding drawing coordinate
      */
-    public double transformXPosExclusive(long pos) {
+    public double transformXPosExclusive(int pos) {
         pos -= xMin;
         return pos * getUnitWidth();
     }
 
-    public double transformXPosInclusive(long pos) {
+    public double transformXPosInclusive(int pos) {
         return transformXPosExclusive(pos+1);
     }
 

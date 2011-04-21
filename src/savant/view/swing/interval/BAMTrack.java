@@ -1,9 +1,5 @@
 /*
- * BAMTrack.java
- * Created on Feb 1, 2010
- *
- *
- *    Copyright 2010 University of Toronto
+ *    Copyright 2010-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -137,19 +133,15 @@ public class BAMTrack extends Track {
     /**
      * Calculate the maximum (within reason) arc height to be used to set the Y axis for drawing.
      */
-    public static long getArcYMax(List<Record> data) {
+    public static int getArcYMax(List<Record> data) {
 
         double max = 0;
-        Range displayedRange = RangeController.getInstance().getRange();
-        long displayedRangeLength = displayedRange.getLength();
 
         for (Record r: data) {
 
             SAMRecord samRecord = ((BAMIntervalRecord)r).getSamRecord();
 
             double val;
-            int alignmentStart = samRecord.getAlignmentStart();
-            int mateAlignmentStart = samRecord.getMateAlignmentStart();
 
             val = Math.abs(samRecord.getInferredInsertSize());
 
@@ -161,7 +153,7 @@ public class BAMTrack extends Track {
             if (val > max) { max = val; }
 
         }
-        return (long)Math.ceil(max);
+        return (int)Math.ceil(max);
     }
 
     private Range getDefaultYRange() {
@@ -170,11 +162,10 @@ public class BAMTrack extends Track {
 
     @Override
     public Resolution getResolution(RangeAdapter range) {
-        return getResolution(range, getDrawMode());
+        return getResolution((Range)range, getDrawMode());
     }
 
-    private Resolution getResolution(RangeAdapter range, String mode)
-    {
+    private Resolution getResolution(Range range, String mode) {
         if (mode.equals(BAMTrackRenderer.ARC_PAIRED_MODE)) {
             return getArcModeResolution(range);
         } else {
@@ -182,17 +173,15 @@ public class BAMTrack extends Track {
         }
     }
 
-    private Resolution getArcModeResolution(RangeAdapter range)
-    {
-        long length = range.getLength();
+    private Resolution getArcModeResolution(Range range) {
+        int length = range.getLength();
 
         if (length > TrackResolutionSettings.getBAMArcModeLowToHighThresh()) { return Resolution.LOW; }
         else { return Resolution.VERY_HIGH; }
     }
 
-    private Resolution getDefaultModeResolution(RangeAdapter range)
-    {
-        long length = range.getLength();
+    private Resolution getDefaultModeResolution(Range range) {
+        int length = range.getLength();
 
         if (length > TrackResolutionSettings.getBAMDefaultModeLowToHighThresh()) { return Resolution.LOW; }
         else { return Resolution.VERY_HIGH; }

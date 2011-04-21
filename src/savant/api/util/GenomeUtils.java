@@ -1,5 +1,5 @@
 /*
- *    Copyright 2010 University of Toronto
+ *    Copyright 2010-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -62,7 +62,7 @@ public class GenomeUtils {
      * Create a placeholder genome with the given name and length.
      * @throws IOException
      */
-    public static GenomeAdapter createGenome(String name, long length) {
+    public static GenomeAdapter createGenome(String name, int length) {
         return new Genome(name, length);
     }
 

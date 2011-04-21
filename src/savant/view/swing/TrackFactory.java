@@ -231,9 +231,14 @@ public class TrackFactory {
 
                     try {
                         // TODO: Only resolves coverage files for local data.  Should also work for network URIs.
-                        trackURI = new URI(trackURI.toString() + ".cov.savant");
-                        if (NetworkUtils.exists(trackURI)) {
-                            tracks.add(new BAMCoverageTrack(new GenericContinuousFileDataSource(trackURI)));
+                        URI coverageURI = new URI(trackURI.toString() + ".cov.tdf");
+                        if (!NetworkUtils.exists(coverageURI)) {
+                            tracks.add(new BAMCoverageTrack(new TDFContinuousDataSource(coverageURI)));
+                        } else {
+                            coverageURI = new URI(trackURI.toString() + ".cov.savant");
+                            if (NetworkUtils.exists(coverageURI)) {
+                                tracks.add(new BAMCoverageTrack(new GenericContinuousFileDataSource(coverageURI)));
+                            }
                         }
                         fireTrackCreationCompleted(tracks, "");
                     } catch (URISyntaxException ignored) {

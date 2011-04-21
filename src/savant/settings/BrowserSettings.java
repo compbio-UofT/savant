@@ -1,5 +1,5 @@
 /*
- *    Copyright 2009-2010 University of Toronto
+ *    Copyright 2009-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 package savant.settings;
 
 import java.awt.Font;
-import javax.swing.*;
 
 /**
  *
@@ -42,19 +41,20 @@ public class BrowserSettings {
     /*
      * Website
      */
-    public static final String url = "http://www.savantbrowser.com";
-    public static String url_version = url + "/serve/version/version.xml";
-    public static String url_data = url + "/serve/data/data.xml";
-    public static String url_plugin = url + "/serve/plugin/plugin.xml";
-    public static String url_logusagestats = url + "/scripts/logUsageStats.cgi";
-    public static String url_tutorials = url + "/media.html";
-    public static String url_manuals = url + "/documentation.html";
-    public static String url_shortcuts = url + "/docs/SavantShortcuts.pdf";
-    public static String url_news = url + "/serve/start/news.xml";
-    public static String safe = url + "/safe/savantsafe.php";
+    public static final String URL = "http://www.savantbrowser.com";
+    public static final String VERSION_URL = URL + "/serve/version/version.xml";
+    public static final String GENOMES_URL = URL + "/serve/data/genomes.xml";
+    public static final String DATA_URL = URL + "/serve/data/data.xml";
+    public static final String PLUGIN_URL = URL + "/serve/plugin/plugin.xml";
+    public static final String LOG_USAGE_STATS_URL = URL + "/scripts/logUsageStats.cgi";
+    public static final String MEDIA_URL = URL + "/media.html";
+    public static final String DOCUMENTATION_URL = URL + "/documentation.html";
+    public static final String SHORTCUTS_URL = URL + "/docs/SavantShortcuts.pdf";
+    public static final String NEWS_URL = URL + "/serve/start/news.xml";
+    public static final String SAFE_URL = URL + "/safe/savantsafe.php";
 
 
-    public static String version = "1.4.4";
+    public static String version = "1.4.5";
     public static String build = "release";
 
 
@@ -100,12 +100,6 @@ public class BrowserSettings {
     public static void setShowStartPage(boolean b) {
         settings.setBoolean(SHOWSTARTPAGE_KEY, b);
     }
-
-    /**
-     * Look and Feel
-     */
-    public static String lookAndFeel = UIManager.getSystemLookAndFeelClassName();
-    //public static Class LookAndFeelAddon = MetalLookAndFeelAddons.class;
 
     /**
      * padding

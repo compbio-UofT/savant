@@ -58,7 +58,7 @@ public class FASTAFileDataSource extends FASTADataSource {
         if (dFile == null) {
             this.length = -1;
         }
-        Long[] vals = this.getReferenceMap().get(refname);
+        long[] vals = this.getReferenceMap().get(refname);
         this.length = (int) (vals[1] / SavantFileFormatterUtils.BYTE_FIELD_SIZE);
 
         return this.length;
@@ -67,7 +67,7 @@ public class FASTAFileDataSource extends FASTADataSource {
     @Override
     public List<SequenceRecord> getRecords(String reference, RangeAdapter range, Resolution resolution) throws IOException {
 
-        int rangeLength = range.getLengthAsInt();
+        int rangeLength = range.getLength();
         byte[] sequence = new byte[rangeLength];
         if (this.getReferenceMap().containsKey(reference)) {
             // -1 because the file is 0 based
@@ -101,8 +101,8 @@ public class FASTAFileDataSource extends FASTADataSource {
         return this.getReferenceMap().keySet();
     }
 
-    private Map<String,Long[]> getReferenceMap() {
-        return this.dFile.getReferenceMap();
+    private Map<String, long[]> getReferenceMap() {
+        return dFile.getReferenceMap();
     }
 
     @Override

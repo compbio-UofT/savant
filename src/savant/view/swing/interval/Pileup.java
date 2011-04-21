@@ -1,5 +1,5 @@
 /*
- *    Copyright 2010 University of Toronto
+ *    Copyright 2010-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ class Pileup {
     private Nucleotide referenceNucleotide;
     private Nucleotide snpNucleotide;
 
-    private long position;
+    private int position;
 
     private String trackName;
 
@@ -49,13 +49,13 @@ class Pileup {
     private double totalCoverageOther = 0;
     //private double other_quality = 0;
 
-    public Pileup(String trackName, long position, Nucleotide n) {
+    public Pileup(String trackName, int position, Nucleotide n) {
         this.trackName = trackName;
         this.position = position;
         this.referenceNucleotide = n;
     }
 
-    public Pileup(long position){
+    public Pileup(int position){
         this.trackName = null;
         this.position = position;
         this.referenceNucleotide = null;
@@ -86,7 +86,7 @@ class Pileup {
         int hash = 7;
         hash = 89 * hash + this.referenceNucleotide.hashCode();
         hash = 89 * hash + this.snpNucleotide.hashCode();
-        hash = 89 * hash + (int) (this.position ^ (this.position >>> 32));
+        hash = 89 * hash + this.position;
         hash = 89 * hash + (this.trackName != null ? this.trackName.hashCode() : 0);
         return hash;
     }
@@ -237,7 +237,7 @@ class Pileup {
         }
     }
 
-    public long getPosition() {
+    public int getPosition() {
         return this.position;
     }
 

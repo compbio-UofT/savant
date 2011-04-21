@@ -276,7 +276,7 @@ public class BAMTrackRenderer extends TrackRenderer {
     public void dataRetrievalCompleted(DataRetrievalEvent evt) {
         String mode = (String)instructions.get(DrawingInstruction.MODE);
         if (mode.equals(ARC_PAIRED_MODE)){// && !instructions.containsKey(DrawingInstruction.ERROR)) {
-            long maxDataValue = BAMTrack.getArcYMax(evt.getData());
+            int maxDataValue = BAMTrack.getArcYMax(evt.getData());
             Range range = (Range)instructions.get(DrawingInstruction.RANGE);
             addInstruction(DrawingInstruction.AXIS_RANGE, AxisRange.initWithRanges(range, new Range(0,(int)Math.round(maxDataValue+maxDataValue*0.1))));
         }
@@ -999,7 +999,7 @@ public class BAMTrackRenderer extends TrackRenderer {
                     for (int i=0; i<operatorLength; i++) {
                         // indices into refSeq and readBases associated with this position in the cigar string
                         int readIndex = readCursor-alignmentStart+i;
-                        int refIndex = sequenceCursor + i - range.getFromAsInt();
+                        int refIndex = sequenceCursor + i - range.getFrom();
 
                         if (refIndex < 0) continue;  // outside sequence and drawing range
                         if (refIndex > refSeq.length-1) continue;
@@ -1168,7 +1168,7 @@ public class BAMTrackRenderer extends TrackRenderer {
                     for (int i=0; i<operatorLength; i++) {
                         // indices into refSeq and readBases associated with this position in the cigar string
                         int readIndex = readCursor-alignmentStart+i;
-                        int refIndex = sequenceCursor + i - range.getFromAsInt();
+                        int refIndex = sequenceCursor + i - range.getFrom();
 
                         if (refIndex < 0) continue;  // outside sequence and drawing range
                         if (refIndex > refSeq.length-1) continue;
@@ -1386,17 +1386,15 @@ public class BAMTrackRenderer extends TrackRenderer {
 
         AxisRange axisRange = (AxisRange)instructions.get(DrawingInstruction.AXIS_RANGE);
         ColorScheme cs = (ColorScheme)instructions.get(DrawingInstruction.COLOR_SCHEME);
-        Color linecolor = cs.getColor("Line");
 
         List<Pileup> pileups = new ArrayList<Pileup>();
 
         // make the pileups
-        long length = axisRange.getXMax() - axisRange.getXMin() + 1;
+        int length = axisRange.getXMax() - axisRange.getXMin() + 1;
         assert Math.abs(axisRange.getXMin()) <= Integer.MAX_VALUE;
         int startPosition = (int)axisRange.getXMin();
-        for (long j = 0; j < length; j++) {
+        for (int j = 0; j < length; j++) {
             pileups.add(new Pileup(startPosition + j));
-            //pileups.add(new Pileup(trackName, startPosition + i, Pileup.getNucleotide(genome.getRecords(axisRange.getXRange()).charAt(i))));
         }
 
         // Go through the samrecords and edit the pileups
@@ -1471,7 +1469,7 @@ public class BAMTrackRenderer extends TrackRenderer {
         }
     }
 
-    private void updatePileupsFromSAMRecord(List<Pileup> pileups, Genome genome, SAMRecord samRecord, long startPosition) throws IOException {
+    private void updatePileupsFromSAMRecord(List<Pileup> pileups, Genome genome, SAMRecord samRecord, int startPosition) throws IOException {
 
         // the start and end of the alignment
         int alignmentStart = samRecord.getAlignmentStart();

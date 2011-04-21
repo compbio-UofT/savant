@@ -23,16 +23,16 @@ public class GenericContinuousRecord implements ContinuousRecord {
 
     private final String reference;
     private final float value;
-    private final long position;
+    private final int position;
 
-    GenericContinuousRecord(String reference, long position, float value) {
+    GenericContinuousRecord(String reference, int position, float value) {
         if (reference == null) throw new IllegalArgumentException("Reference may not be null.");
         this.reference = reference;
         this.position = position;
         this.value = value;
     }
 
-    public static GenericContinuousRecord valueOf(String reference, long position, float value) {
+    public static GenericContinuousRecord valueOf(String reference, int position, float value) {
         return new GenericContinuousRecord(reference, position, value);
     }
 
@@ -46,7 +46,7 @@ public class GenericContinuousRecord implements ContinuousRecord {
         return value;
     }
 
-    public long getPosition() {
+    public int getPosition() {
         return position;
     }
 
