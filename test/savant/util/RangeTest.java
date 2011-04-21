@@ -21,6 +21,7 @@
 
 package savant.util;
 
+import savant.data.types.Range;
 import junit.framework.TestCase;
 
 /**
