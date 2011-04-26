@@ -29,6 +29,7 @@ package org.broad.tabix;
 import net.sf.samtools.util.BlockCompressedInputStream;
 
 import java.io.*;
+import java.net.URL;
 import java.nio.*;
 import java.util.HashMap;
 import java.util.Arrays;
@@ -92,6 +93,12 @@ public class TabixReader
             if (indexFile.exists()) {
                 readIndex(indexFile);
             }
+	}
+
+        public TabixReader(final URL url,final File index) throws IOException {
+		mFn = url.toString();
+		mFp = new BlockCompressedInputStream(url);
+		readIndex(index);
 	}
 
 	private static int reg2bins(final int beg, final int _end, final int[] list) {
@@ -186,6 +193,13 @@ public class TabixReader
 		}
 		// close
 		is.close();
+	}
+
+	/**
+	 * Read the Tabix index from the default file.
+	 */
+	public void readIndex() throws IOException {
+		readIndex(new File(mFn + ".tbi"));
 	}
 
 	/**
