@@ -28,11 +28,11 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.broad.tabix.TabixReader;
 
 import savant.api.adapter.RangeAdapter;
 import savant.data.sources.TabixDataSource;
 import savant.data.types.TabixIntervalRecord;
-import savant.file.TabixReader;
 import savant.util.MiscUtils;
 import savant.util.Resolution;
 
