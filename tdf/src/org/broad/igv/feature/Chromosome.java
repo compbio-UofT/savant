@@ -27,6 +27,8 @@ and open the template in the editor.
  */
 package org.broad.igv.feature;
 
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author jrobinso
@@ -34,11 +36,13 @@ package org.broad.igv.feature;
 public class Chromosome {
     private String name;
     private int centrimere = 0;
+    private List<Cytoband> cytobands;
     private int length = 0;
 
     public Chromosome(String name) {
 
         this.name = name;
+        cytobands = new ArrayList<Cytoband>();
     }
 
     public int getCentrimere() {
@@ -47,6 +51,27 @@ public class Chromosome {
 
     public void setCentrimere(int centrimere) {
         this.centrimere = centrimere;
+    }
+
+    public List<Cytoband> getCytobands() {
+        return cytobands;
+    }
+
+    public void setCytobands(List<Cytoband> cytobands) {
+        this.cytobands = cytobands;
+    }
+
+    /**
+     * Add a cytoband.  If the band is a centrimere and the centrimere location
+     * has not been initialized set it.
+     */
+    public void addCytoband(Cytoband band) {
+
+        cytobands.add(band);
+        if ((band.getType() == 'c') && (centrimere == 0)) {
+            centrimere = band.getEnd();
+        }
+        length = Math.max(length, band.getEnd());
     }
 
     /**
