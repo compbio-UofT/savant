@@ -1282,6 +1282,8 @@ public class BAMTrackRenderer extends TrackRenderer {
         this.clearShapes();
 
         // iterate through the data and draw
+        LOG.info("BAMTrackRenderer.renderArcMatePairMode: " + data.size() + " records.");
+        int i = 0;
         for (Record record: data) {
             BAMIntervalRecord bamRecord = (BAMIntervalRecord)record;
             SAMRecord samRecord = bamRecord.getSamRecord();
@@ -1342,7 +1344,7 @@ public class BAMTrackRenderer extends TrackRenderer {
                         continue;
                     }
                     
-                    intervalStart = alignmentEnd;
+                    intervalStart = alignmentStart;
 
                     if (arcLength > discordantMax || arcLength < discordantMin) {
                         g2.setColor(discordantLengthColor);
