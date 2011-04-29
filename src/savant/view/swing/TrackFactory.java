@@ -232,7 +232,7 @@ public class TrackFactory {
                     try {
                         // TODO: Only resolves coverage files for local data.  Should also work for network URIs.
                         URI coverageURI = new URI(trackURI.toString() + ".cov.tdf");
-                        if (!NetworkUtils.exists(coverageURI)) {
+                        if (NetworkUtils.exists(coverageURI)) {
                             tracks.add(new BAMCoverageTrack(new TDFContinuousDataSource(coverageURI)));
                         } else {
                             coverageURI = new URI(trackURI.toString() + ".cov.savant");
