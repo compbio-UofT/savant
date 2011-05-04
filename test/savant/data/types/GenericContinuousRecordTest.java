@@ -22,8 +22,8 @@
 package savant.data.types;
 
 import junit.framework.TestCase;
-import savant.data.types.Continuous;
-import savant.data.types.GenericContinuousRecord;
+//import savant.data.types.Continuous;
+//import savant.data.types.GenericContinuousRecord;
 
 /**
  * A test case to exercies the ContinuousRecord class.
@@ -31,6 +31,7 @@ import savant.data.types.GenericContinuousRecord;
  */
 public class GenericContinuousRecordTest extends TestCase {
 
+    /*
     private GenericContinuousRecord a, b, c, d;
 
     public void setUp() {
@@ -102,4 +103,5 @@ public class GenericContinuousRecordTest extends TestCase {
             fail("Unexpected exception " + e.getMessage());
         }
     }
+ */
 }

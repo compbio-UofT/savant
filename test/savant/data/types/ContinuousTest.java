@@ -30,6 +30,8 @@ import junit.framework.TestCase;
  */
 public class ContinuousTest extends TestCase {
 
+    /*
+
     private Continuous a, b, c, d;
 
     public void setUp() {
@@ -96,7 +98,7 @@ public class ContinuousTest extends TestCase {
 
     /**
      * Test of valueOf method, of class Continuous.
-     */
+     *
     @Test
     public void testValueOf() {
         System.out.println("valueOf");
@@ -110,7 +112,7 @@ public class ContinuousTest extends TestCase {
 
     /**
      * Test of getValue method, of class Continuous.
-     */
+     *
     @Test
     public void testGetValue() {
         System.out.println("getValue");
@@ -121,4 +123,6 @@ public class ContinuousTest extends TestCase {
         // TODO review the generated test code and remove the default call to fail.
         fail("The test case is a prototype.");
     }
+     * 
+     */
 }
