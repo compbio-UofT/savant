@@ -169,9 +169,13 @@ public class SeekableFTPStream extends SeekableStream {
         if (ftpClient != null) {
             try {
                 ftpClient.completePendingCommand();
+            } catch (IOException e) {
+                LOG.info("Suppressing IOException from completePendingCommand().");
+            }
+            try {
                 ftpClient.logout();
-            } catch (FTPConnectionClosedException e) {
-                LOG.info("Suppressing FTPConnectionClosedException exception from logout().");
+            } catch (IOException e) {
+                LOG.info("Suppressing IOException from logout().");
             }
             disconnect();
         }
