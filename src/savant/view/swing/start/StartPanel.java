@@ -247,9 +247,9 @@ public class StartPanel extends javax.swing.JPanel implements ComponentListener 
     
     int vertsep = 10;
     int horsep = 10;
-    int pushdownoffset = 60;
-    double percenttopmargin = 0.2;
-    double percentsidemargin = 0.15;
+    int pushdownoffset = 30;
+    double percenttopmargin = 0.1;
+    double percentsidemargin = 0.05;
 
     private void configureSizes() {
         int totalwidth = this.getWidth();
@@ -387,7 +387,7 @@ public class StartPanel extends javax.swing.JPanel implements ComponentListener 
     private JComponent getNewsInnerPanel() {
 
         JPanel p = new JPanel();
-        //p.setBackground(Color.black);
+        p.setBackground(Color.red);
         p.setOpaque(false);
 
         try {
@@ -408,20 +408,13 @@ public class StartPanel extends javax.swing.JPanel implements ComponentListener 
     private JPanel parseNewsFile(File newsFile) {
         JPanel p = null;
 
-        GridBagConstraints c = new GridBagConstraints();
-
-            c.fill = GridBagConstraints.HORIZONTAL;
-            c.weightx = 1.0;
-            c.anchor = GridBagConstraints.NORTH;
-            c.gridx = 0;
-            c.gridy = 0;
-
         try {
 
             p = new JPanel();
             p.setOpaque(false);
             //p.setBackground(Color.red);
-            p.setLayout(new GridBagLayout());
+            BoxLayout bl = new BoxLayout(p,BoxLayout.Y_AXIS);
+            p.setLayout(bl);
 
             Document d = new SAXBuilder().build(newsFile);
             Element root = d.getRootElement();
@@ -433,6 +426,7 @@ public class StartPanel extends javax.swing.JPanel implements ComponentListener 
                 final String text = e.getChildText("description");
 
                 AutoResizingTextArea ta = new AutoResizingTextArea(text);
+                ta.setMaximumSize(new Dimension(99999,1));
                 ta.setForeground(StartPanel.textcolor);
                 ta.setLineWrap(true);
                 ta.setHighlighter(new BlankHighlighter());
@@ -475,23 +469,24 @@ public class StartPanel extends javax.swing.JPanel implements ComponentListener 
                 JLabel date = new JLabel(e.getChildText("date"));
                 date.setFont(new Font("Arial", Font.ITALIC, 12));
                 date.setForeground(StartPanel.textcolor);
-                
-                p.add(title,c);
-                c.gridy++;
-                p.add(date,c);
-                c.gridy++;
-                p.add(ta,c);
-                c.gridy++;
-                p.add(Box.createVerticalStrut(10),c);
-                c.gridy++;
+
+                p.add(Box.createVerticalStrut(10));
+
+                title.setAlignmentX(Component.LEFT_ALIGNMENT);
+                p.add(title);
+                date.setAlignmentX(Component.LEFT_ALIGNMENT);
+                p.add(date);
+                ta.setAlignmentX(Component.LEFT_ALIGNMENT);
+                p.add(ta);
             }
+
+            p.add(Box.createVerticalGlue());
+
         } catch (Exception e) {
             JLabel l = new JLabel("Problem getting news");
             l.setForeground(StartPanel.textcolor);
             p.add(l);
         }
-
-        p.add(Box.createVerticalGlue(),c);
 
         return p;
     }
@@ -577,7 +572,7 @@ public class StartPanel extends javax.swing.JPanel implements ComponentListener 
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    java.awt.Desktop.getDesktop().browse(java.net.URI.create(BrowserSettings.MEDIA_URL));
+                    java.awt.Desktop.getDesktop().browse(java.net.URI.create(BrowserSettings.DOCUMENTATION_URL));
                 } catch (IOException ex) {
                     DialogUtils.displayError("Uh oh", "Could not open browser");
                 }
