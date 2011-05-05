@@ -18,6 +18,14 @@
                 <clean-target>clean</clean-target>
                 <id>jar</id>
             </reference>
+            <reference>
+                <foreign-project>savant_sql</foreign-project>
+                <artifact-type>jar</artifact-type>
+                <script>nbbuild.xml</script>
+                <target>jar</target>
+                <clean-target>clean</clean-target>
+                <id>jar</id>
+            </reference>
         </references>
     </configuration>
 </project>

@@ -252,9 +252,6 @@ public class SQLDataSourcePlugin extends SavantDataSourcePlugin {
             case INTERVAL_BED:
                 result = new BedSQLDataSource(table, references);
                 break;
-            case INTERVAL_TABIX:
-                result = new TabixSQLDataSource(table, references);
-                break;
         }
         if (result != null) {
             result = new RecordCachingDataSource(result);

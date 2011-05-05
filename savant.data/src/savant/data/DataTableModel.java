@@ -1,5 +1,5 @@
 /*
- *    Copyright 2009-2010 University of Toronto
+ *    Copyright 2009-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -16,21 +16,16 @@
 
 package savant.data;
 
+import java.util.ArrayList;
 import java.util.List;
 import javax.swing.table.AbstractTableModel;
+
 import net.sf.samtools.SAMRecord;
-import savant.data.types.BAMIntervalRecord;
-import savant.data.types.BEDIntervalRecord;
-import savant.data.types.Block;
-import savant.data.types.GenericContinuousRecord;
-import savant.data.types.GenericIntervalRecord;
-import savant.data.types.GenericPointRecord;
-import savant.data.types.Record;
-import savant.data.types.SequenceRecord;
-import savant.data.types.TabixIntervalRecord;
 
+import savant.data.sources.DataSource;
+import savant.data.sources.TabixDataSource;
+import savant.data.types.*;
 import savant.file.DataFormat;
-
 
 
 /**
@@ -38,69 +33,72 @@ import savant.file.DataFormat;
  * @author mfiume
  */
 public class DataTableModel extends AbstractTableModel {
+    private static final String[] SEQUENCE_COLUMN_NAMES = { "Sequence" };
+    private static final Class[] SEQUENCE_COLUMN_CLASSES = { String.class };
+    private static final String[] POINT_COLUMN_NAMES = { "Reference", "Position", "Description" };
+    private static final Class[] POINT_COLUMN_CLASSES = { String.class, Integer.class, String.class };
+    private static final String[] INTERVAL_COLUMN_NAMES = { "Reference", "From", "To", "Description" };
+    private static final Class[] INTERVAL_COLUMN_CLASSES = { String.class, Integer.class, Integer.class, String.class };
+    private static final String[] BAM_COLUMN_NAMES = { "Read Name", "Sequence", "Length", "First of Pair", "Position", "Strand +", "Mapping Quality", "Base Qualities", "CIGAR", "Mate Position", "Strand +", "Inferred Insert Size" };
+    private static final Class[] BAM_COLUMN_CLASSES = { String.class, String.class, Integer.class, Boolean.class, Integer.class, Boolean.class, Integer.class, String.class, String.class, Integer.class, Boolean.class, Integer.class};
+    private static final String[] BED_COLUMN_NAMES = {"Reference", "Start", "End", "Name", "Block Count"};
+    private static final Class[] BED_COLUMN_CLASSES = { String.class, Integer.class, Integer.class, String.class, Integer.class};
+    private static final String[] CONTINUOUS_COLUMN_NAMES = { "Reference", "Position", "Value" };
+    private static final Class[] CONTINUOUS_COLUMN_CLASSES = { String.class, Integer.class, Double.class };
 
     private DataFormat dataType;
     private String[] columnNames;
+    private Class[] columnClasses;
 
-    private static boolean dontAllowMoreThanMaxNumRows = true;
-    private static int maxNumRows = 500;
+    private static boolean dontAllowMoreThanMaxRows = true;
+    private static int maxRows = 500;
 
-     //public static final int SEQUENCE_INDEX = 0;
-     /*
-     public static final int ARTIST_INDEX = 1;
-     public static final int ALBUM_INDEX = 2;
-     public static final int HIDDEN_INDEX = 3;
-      */
-    protected Class[] sequenceColumnClasses = { String.class };
-    protected String[] sequenceColumnNames = { "Sequence" };
-
-    protected Class[] pointColumnClasses = { String.class, Integer.class, String.class };
-    protected String[] pointColumnNames = { "Reference", "Position", "Description" };
-
-    protected Class[] intervalColumnClasses = { String.class, Integer.class, Integer.class, String.class };
-    protected String[] intervalColumnNames = { "Reference", "From", "To", "Description" };
-
-    protected Class[] bamColumnClasses = { String.class, String.class, Integer.class, Boolean.class, Integer.class, Boolean.class, Integer.class, String.class, String.class, Integer.class, Boolean.class, Integer.class};
-    protected String[] bamColumnNames = { "Read Name", "Sequence", "Length", "First of Pair", "Position", "Strand +", "Mapping Quality", "Base Qualities", "CIGAR", "Mate Position", "Strand +", "Inferred Insert Size" };
-
-    protected Class[] bedColumnClasses = { String.class, Integer.class, Integer.class, String.class, Integer.class};
-    protected String[] bedColumnNames = {"Reference", "Start", "End", "Name", "Block Count"};
-
-    protected Class[] continuousColumnClasses = { String.class, Integer.class, Double.class };
-    protected String[] continuousColumnNames = { "Reference", "Position", "Value" };
-
-    protected Class[] tabixColumnClasses = { String.class, Integer.class, Integer.class };
-    protected String[] tabixColumnNames = { "Reference", "Start", "End" };
 
     protected List<Record> data;
 
-    public DataTableModel(DataFormat dataType, List<Record> data) {
-         //this.columnNames = { "Sequence","" };
-         //dataVector = new Vector();
-         this.data = data;
-         setDataType(dataType);
+    /** For tabix, some of the columns may not be meaningful for end-users, so have a little lookup table. */
+    private int[] tabixColumns;
 
-         switch(this.dataType) {
+    public DataTableModel(DataSource dataSource, List<Record> data) {
+         this.data = data;
+         setDataType(dataSource.getDataFormat());
+
+         switch (dataType) {
              case SEQUENCE_FASTA:
-                 columnNames = sequenceColumnNames;
+                 columnNames = SEQUENCE_COLUMN_NAMES;
+                 columnClasses = SEQUENCE_COLUMN_CLASSES;
                  break;
              case POINT_GENERIC:
-                 columnNames = pointColumnNames;
+                 columnNames = POINT_COLUMN_NAMES;
+                 columnClasses = POINT_COLUMN_CLASSES;
                  break;
              case CONTINUOUS_GENERIC:
-                 columnNames = continuousColumnNames;
+                 columnNames = CONTINUOUS_COLUMN_NAMES;
+                 columnClasses = CONTINUOUS_COLUMN_CLASSES;
                  break;
              case INTERVAL_GENERIC:
-                 columnNames = intervalColumnNames;
+                 columnNames = INTERVAL_COLUMN_NAMES;
+                 columnClasses = INTERVAL_COLUMN_CLASSES;
                  break;
              case INTERVAL_BAM:
-                 columnNames = bamColumnNames;
+                 columnNames = BAM_COLUMN_NAMES;
+                 columnClasses = BAM_COLUMN_CLASSES;
                  break;
              case INTERVAL_BED:
-                 columnNames = bedColumnNames;
+                 columnNames = BED_COLUMN_NAMES;
+                 columnClasses = BED_COLUMN_CLASSES;
                  break;
              case TABIX:
-                 columnNames = tabixColumnNames;
+                 String[] allColumnNames = ((TabixDataSource)dataSource).getColumnNames();
+                 tabixColumns = new int[allColumnNames.length];
+                 List<String> usefulNames = new ArrayList<String>(allColumnNames.length);
+                 for (int i = 0; i < allColumnNames.length; i++) {
+                     if (allColumnNames[i] != null) {
+                         tabixColumns[usefulNames.size()] = i;
+                         usefulNames.add(allColumnNames[i]);
+                     }
+                 }
+                 columnNames = usefulNames.toArray(new String[0]);
                  break;
              default:
                  assert false;
@@ -109,27 +107,8 @@ public class DataTableModel extends AbstractTableModel {
 
 
     @Override
-     public String getColumnName(int column) {
-         try {
-             switch(dataType) {
-                 case SEQUENCE_FASTA:
-                     return sequenceColumnNames[column];
-                 case POINT_GENERIC:
-                     return pointColumnNames[column];
-                 case CONTINUOUS_GENERIC:
-                     return continuousColumnNames[column];
-                 case INTERVAL_GENERIC:
-                     return intervalColumnNames[column];
-                 case INTERVAL_BAM:
-                     return bamColumnNames[column];
-                 case INTERVAL_BED:
-                     return bedColumnNames[column];
-                 case TABIX:
-                     return tabixColumnNames[column];
-                 default:
-                     return "Unknown";
-             }
-         } catch(Exception e) { return "??"; }
+    public String getColumnName(int column) {
+        return columnNames[column];
     }
 
     @Override
@@ -139,302 +118,138 @@ public class DataTableModel extends AbstractTableModel {
 
     @Override
     public Class getColumnClass(int column) {
-        try {
-             switch (dataType) {
-                 case SEQUENCE_FASTA:
-                     return sequenceColumnClasses[column];
-                 case POINT_GENERIC:
-                     return pointColumnClasses[column];
-                 case CONTINUOUS_GENERIC:
-                     return continuousColumnClasses[column];
-                 case INTERVAL_GENERIC:
-                     return intervalColumnClasses[column];
-                 case INTERVAL_BAM:
-                     return bamColumnClasses[column];
-                 case INTERVAL_BED:
-                     return bedColumnClasses[column];
-                 case TABIX:
-                     return tabixColumnClasses[column];
-                 default:
-                     return String.class;
-             }
-        } catch(Exception e) { return String.class; }
+        if (dataType == DataFormat.TABIX) {
+            return String.class;
+        } else {
+            return columnClasses[column];
+        }
      }
 
     @Override
-     public Object getValueAt(int row, int column) {
-         Record datum = data.get(row);
-         switch (dataType) {
-             case SEQUENCE_FASTA:
-                 return new String(((SequenceRecord)datum).getSequence());
-             case POINT_GENERIC:
-                 switch (column) {
-                     case 0:
-                         return datum.getReference();
-                     case 1:
+    public Object getValueAt(int row, int column) {
+        Record datum = data.get(row);
+        switch (dataType) {
+            case SEQUENCE_FASTA:
+                return new String(((SequenceRecord)datum).getSequence());
+            case POINT_GENERIC:
+                switch (column) {
+                    case 0:
+                        return datum.getReference();
+                    case 1:
                         return ((GenericPointRecord)datum).getPoint().getPosition();
-                     case 2:
-                         return ((GenericPointRecord)datum).getDescription();
-                 }
-             case CONTINUOUS_GENERIC:
-                 switch (column) {
-                     case 0:
-                         return datum.getReference();
-                     case 1:
-                         return ((GenericContinuousRecord)datum).getPosition();
-                     case 2:
-                         return ((GenericContinuousRecord)datum).getValue();
-                 }
-             case INTERVAL_GENERIC:
-                 switch (column) {
-                     case 0:
-                         return datum.getReference();
-                     case 1:
-                        return ((GenericIntervalRecord)datum).getInterval().getStart();
-                     case 2:
-                         return ((GenericIntervalRecord) datum).getInterval().getEnd();
-                     case 3:
-                         return ((GenericIntervalRecord) datum).getDescription();
-                 }
-             case INTERVAL_BAM:
-                 SAMRecord samRecord = ((BAMIntervalRecord)datum).getSamRecord();
-                 boolean mated = samRecord.getReadPairedFlag();
-                 switch (column) {
-                     case 0:
-                         return samRecord.getReadName();
-                     case 1:
-                         return samRecord.getReadString();
-                     case 2:
-                         return samRecord.getReadLength();
-                     case 3:
-                         if (mated) {
-                            return samRecord.getFirstOfPairFlag();
-                         }
-                         else {
-                             return false;
-                         }
-                     case 4:
-                         return samRecord.getAlignmentStart();
-                     case 5:
-                         return !samRecord.getReadNegativeStrandFlag();
-                     case 6:
-                         return samRecord.getMappingQuality();
-                     case 7:
-                         return samRecord.getBaseQualityString();
-                     case 8:
-                         return samRecord.getCigarString();
-                     case 9:
-                         return mated ? samRecord.getMateAlignmentStart() : -1;
-                     case 10:
-                         return mated ? !samRecord.getMateNegativeStrandFlag() : false;
-                     case 11:
-                         return mated ? samRecord.getInferredInsertSize() : 0;
-                 }
-             case INTERVAL_BED:
-                 switch (column) {
-                     case 0:
-                         return ((BEDIntervalRecord)datum).getChrom();
-                     case 1:
-                         return ((BEDIntervalRecord)datum).getInterval().getStart();
-                     case 2:
-                         return ((BEDIntervalRecord)datum).getInterval().getEnd();
-                     case 3:
-                         return ((BEDIntervalRecord)datum).getName();
-                     case 4:
-                         List<Block> blocks = ((BEDIntervalRecord)datum).getBlocks();
-                         return blocks != null ? blocks.size() : 0;
-                 }
-             case TABIX:
-                 switch(column) {
-                     case 0:
-                         return ((TabixIntervalRecord)datum).getReference();
-                     case 1:
-                         return ((TabixIntervalRecord)datum).getInterval().getStart();
-                     case 2:
-                         return ((TabixIntervalRecord)datum).getInterval().getEnd();
-                 }
-
-             default:
-                 return "?";
-         }
-     }
+                    case 2:
+                        return ((GenericPointRecord)datum).getDescription();
+                }
+            case CONTINUOUS_GENERIC:
+                switch (column) {
+                    case 0:
+                        return datum.getReference();
+                    case 1:
+                        return ((GenericContinuousRecord)datum).getPosition();
+                    case 2:
+                        return ((GenericContinuousRecord)datum).getValue();
+                }
+            case INTERVAL_GENERIC:
+                switch (column) {
+                    case 0:
+                        return datum.getReference();
+                    case 1:
+                        return ((IntervalRecord)datum).getInterval().getStart();
+                    case 2:
+                        return ((IntervalRecord)datum).getInterval().getEnd();
+                    case 3:
+                        return ((IntervalRecord)datum).getName();
+                }
+            case INTERVAL_BAM:
+                SAMRecord samRecord = ((BAMIntervalRecord)datum).getSamRecord();
+                boolean mated = samRecord.getReadPairedFlag();
+                switch (column) {
+                    case 0:
+                        return samRecord.getReadName();
+                    case 1:
+                        return samRecord.getReadString();
+                    case 2:
+                        return samRecord.getReadLength();
+                    case 3:
+                        return mated ? samRecord.getFirstOfPairFlag() : false;
+                    case 4:
+                        return samRecord.getAlignmentStart();
+                    case 5:
+                        return !samRecord.getReadNegativeStrandFlag();
+                    case 6:
+                        return samRecord.getMappingQuality();
+                    case 7:
+                        return samRecord.getBaseQualityString();
+                    case 8:
+                        return samRecord.getCigarString();
+                    case 9:
+                        return mated ? samRecord.getMateAlignmentStart() : -1;
+                    case 10:
+                        return mated ? !samRecord.getMateNegativeStrandFlag() : false;
+                    case 11:
+                        return mated ? samRecord.getInferredInsertSize() : 0;
+                }
+            case INTERVAL_BED:
+                switch (column) {
+                    case 0:
+                        return ((BEDIntervalRecord)datum).getReference();
+                    case 1:
+                        return ((BEDIntervalRecord)datum).getInterval().getStart();
+                    case 2:
+                        return ((BEDIntervalRecord)datum).getInterval().getEnd();
+                    case 3:
+                        return ((BEDIntervalRecord)datum).getName();
+                    case 4:
+                        List<Block> blocks = ((BEDIntervalRecord)datum).getBlocks();
+                        return blocks != null ? blocks.size() : 0;
+                }
+            case TABIX:
+                return ((TabixIntervalRecord)datum).getValues()[tabixColumns[column]];
+            default:
+                return "?";
+        }
+    }
 
     @Override
-    public void setValueAt(Object value, int row, int column) {
-
-         Record datum = data.get(row);
-         switch (dataType) {
-             case SEQUENCE_FASTA:
-                 datum = (Record)value;
-                 break;
-             case POINT_GENERIC:
-                 switch (column) {
-                     case 0:
-//                        ((GenericPointRecord) datum).getPoint().setPosition(Integer.parseInt((String) value));
-                         break;
-                     case 1:
-//                         ((GenericPointRecord) datum).setDescription((String) value);
-                         break;
-                 }
-             case CONTINUOUS_GENERIC:
-                 switch (column) {
-                     case 0:
-//                         ((ContinuousRecord) datum).setReference((String) value);
-                         break;
-                     case 1:
-//                         ((ContinuousRecord) datum).setPosition(Integer.parseInt((String) value));
-                         break;
-                     case 2:
-//                         ((ContinuousRecord) datum).getValue().setValue(Float.parseFloat((String) value));
-                         break;
-                 }
-             case INTERVAL_GENERIC:
-                 switch (column) {
-                     case 0:
-//                         ((GenericIntervalRecord) datum).setReference((String) value);
-                         break;
-                     case 1:
-//                        ((GenericIntervalRecord) datum).getInterval().setStart(Integer.parseInt((String) value));
-                         break;
-                     case 2:
-//                         ((GenericIntervalRecord) datum).getInterval().setEnd(Integer.parseInt((String) value));
-                         break;
-                     case 3:
-//                         ((GenericIntervalRecord) datum).setDescription((String) value);
-                         break;
-                 }
-             case INTERVAL_BAM:
-                 switch (column) {
-                     case 0:
-                         ((BAMIntervalRecord)datum).getSamRecord().setReadName((String) value);
-                         break;
-                     case 1:
-                         ((BAMIntervalRecord)datum).getSamRecord().setReadString((String) value);
-                         break;
-                     case 2:
-                         break;
-                     case 3:
-                         ((BAMIntervalRecord)datum).getSamRecord().setDuplicateReadFlag((Boolean) value);
-                     case 4:
-                         ((BAMIntervalRecord)datum).getSamRecord().setAlignmentStart(Integer.parseInt((String) value));
-                         break;
-                     case 5:
-                         ((BAMIntervalRecord)datum).getSamRecord().setReadNegativeStrandFlag(!((Boolean) value));
-                         break;
-                     case 6:
-                         ((BAMIntervalRecord)datum).getSamRecord().setMappingQuality(Integer.parseInt((String) value));
-                         break;
-                     case 7:
-                         ((BAMIntervalRecord)datum).getSamRecord().setBaseQualityString((String) value);
-                         break;
-                     case 8:
-                         ((BAMIntervalRecord)datum).getSamRecord().setCigarString((String) value);
-                         break;
-                     case 9:
-                         ((BAMIntervalRecord)datum).getSamRecord().setMateAlignmentStart(Integer.parseInt((String) value));
-                         break;
-                     case 10:
-                         ((BAMIntervalRecord)datum).getSamRecord().setMateNegativeStrandFlag(!((Boolean) value));
-                         break;
-                     case 11:
-                         ((BAMIntervalRecord)datum).getSamRecord().setInferredInsertSize(Integer.parseInt((String) value));
-                         break;
-                 }
-             case INTERVAL_BED:
-                 switch(column) {
-                     case 0:
-//                         ((BEDIntervalRecord) datum).setChrom((String) value);
-                         break;
-                     case 1:
-//                         ((BEDIntervalRecord) datum).getInterval().setStart(Integer.parseInt((String) value));
-                         break;
-                     case 2:
-//                         ((BEDIntervalRecord) datum).getInterval().setEnd(Integer.parseInt((String) value));
-                         break;
-                     case 3:
-//                         ((BEDIntervalRecord) datum).setName((String) value);
-                         break;
-                     case 4:
-                         break;
-                 }
-             case TABIX:
-                 switch(column) {
-                     case 0:
-//                         ((BEDIntervalRecord) datum).setChrom((String) value);
-                         break;
-                     case 1:
-//                         ((BEDIntervalRecord) datum).getInterval().setStart(Integer.parseInt((String) value));
-                         break;
-                     case 2:
-//                         ((BEDIntervalRecord) datum).getInterval().setEnd(Integer.parseInt((String) value));
-                         break;
-                 }
-             default:
-                 break;
-         }
-         fireTableCellUpdated(row, column);
-     }
+    public int getRowCount() {
+        return data != null ? data.size() : 0;
+    }
 
     @Override
-     public int getRowCount() {
-         if (!isData()) { return 0; }
-         return data.size();
-     }
-
-    @Override
-     public int getColumnCount() {
-         return columnNames.length;
-     }
-
-     public boolean hasEmptyRow() {
-         if (data.isEmpty()) return false;
-         Object datum = data.get(data.size() - 1);
-         if (((String)datum).trim().equals(""))
-         {
-            return true;
-         }
-         else return false;
-     }
-
-/*     public void addEmptyRow() {
-         data.add(new String());
-         fireTableRowsInserted(
-            data.size() - 1,
-            data.size() - 1);
-     }*/
+    public int getColumnCount() {
+        return columnNames.length;
+    }
 
     public void setData(List<Record> dataInRange) {
         if (dataInRange == null) { 
             data = null;
             return;
         }
-        if (dontAllowMoreThanMaxNumRows && dataInRange.size() > maxNumRows) {
-            data = dataInRange.subList(0, maxNumRows);
+        if (dontAllowMoreThanMaxRows && dataInRange.size() > maxRows) {
+            data = dataInRange.subList(0, maxRows);
         } else {
             data = dataInRange;
         }
     }
-
-    public boolean isData() { return data != null; }
 
     public final void setDataType(DataFormat k) {
         dataType = k;
         fireTableChanged(null);
     }
 
-    public void setMaxNumRows(int maxNumRows) {
-        DataTableModel.maxNumRows = maxNumRows;
+    public void setMaxRows(int maxNumRows) {
+        maxRows = maxNumRows;
     }
 
-    public int getMaxNumRows() {
-        return DataTableModel.maxNumRows;
+    public int getMaxRows() {
+        return maxRows;
     }
 
     public void setIsNumRowsLimited(boolean isNumRowsLimited) {
-        dontAllowMoreThanMaxNumRows = isNumRowsLimited;
+        dontAllowMoreThanMaxRows = isNumRowsLimited;
     }
 
     public boolean getIsNumRowsLimited() {
-        return dontAllowMoreThanMaxNumRows;
+        return dontAllowMoreThanMaxRows;
     }
 }

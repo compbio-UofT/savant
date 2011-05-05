@@ -19,7 +19,6 @@ package savant.sql;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Blob;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -32,9 +31,9 @@ import savant.api.adapter.RangeAdapter;
 import savant.data.types.BEDIntervalRecord;
 import savant.data.types.Block;
 import savant.data.types.ItemRGB;
+import savant.data.types.Strand;
 import savant.file.DataFormat;
 import savant.util.Resolution;
-import savant.util.Strand;
 
 /**
  * DataSource class which retrieves BED data from an SQL database.

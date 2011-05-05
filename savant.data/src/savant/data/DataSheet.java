@@ -182,7 +182,7 @@ public class DataSheet implements RangeChangeCompletedListener, TrackListChanged
 
     private void presentDataFromCurrentTrack() {
         TrackAdapter t = currentTrack;
-        tableModel = new DataTableModel(currentTrack.getDataSource().getDataFormat(), t.getDataInRange());
+        tableModel = new DataTableModel(currentTrack.getDataSource(), t.getDataInRange());
         table.setModel(tableModel);
         table.setSurrendersFocusOnKeystroke(true);
         refreshData();
@@ -213,8 +213,8 @@ public class DataSheet implements RangeChangeCompletedListener, TrackListChanged
             s += data.size();
 
             DataTableModel dtm = (DataTableModel) table.getModel();
-            if (dtm.getIsNumRowsLimited() && data.size() > dtm.getMaxNumRows()) {
-                s += " (showing first " + dtm.getMaxNumRows() + ")";
+            if (dtm.getIsNumRowsLimited() && data.size() > dtm.getMaxRows()) {
+                s += " (showing first " + dtm.getMaxRows() + ")";
             }
 
             label_num_items.setText(s);
@@ -312,7 +312,7 @@ public class DataSheet implements RangeChangeCompletedListener, TrackListChanged
         // FIXME: Does this actually do the same as the commented-out lines?
 //      List dataInRange = SelectionController.getInstance().getSelections(track.getURI());
 //      DataTableModel dtm = new DataTableModel(track.getDataType(), dataInRange);
-        DataTableModel dtm = new DataTableModel(track.getDataSource().getDataFormat(), track.getDataInRange());
+        DataTableModel dtm = new DataTableModel(track.getDataSource(), track.getDataInRange());
 
         int numRows = dtm.getRowCount();
         int numCols = dtm.getColumnCount();

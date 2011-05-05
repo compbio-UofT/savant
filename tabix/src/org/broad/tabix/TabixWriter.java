@@ -49,7 +49,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class TabixWriter extends TabixReader {
     private static final Log LOG = LogFactory.getLog(TabixWriter.class);
-    private static final Charset LATIN1 = Charset.forName("ISO-LATIN-1");
+    private static final Charset LATIN1 = Charset.forName("ISO-8859-1");
 
     public static final int TI_PRESET_GENERIC = 0;
     public static final int TI_PRESET_SAM = 1;
@@ -68,14 +68,6 @@ public class TabixWriter extends TabixReader {
     /** The linear index. */
     List<List<Long>> linearIndex = new ArrayList<List<Long>>();
 
-    public static void main(String[] args) {
-        try {
-            new TabixWriter(new File(args[0]), BED_CONF).buildIndex(new File(args[0] + ".tbi"));
-        } catch (Exception x) {
-            LOG.error("Failed to create tabix index.", x);
-        }
-    }
-
     public TabixWriter(File fn, Conf conf) throws Exception {
         super(fn.getAbsolutePath());
         applyConf(conf);
@@ -84,23 +76,24 @@ public class TabixWriter extends TabixReader {
 
     private void applyConf(Conf conf) {
         mPreset = conf.preset;
-        mSc = conf.sequenceColumn;
-        mBc = conf.beginColumn;
+        mSc = conf.chrColumn;
+        mBc = conf.startColumn;
         mEc = conf.endColumn;
         mMeta = conf.commentChar;
         mSkip = conf.linesToSkip;
     }
 
-    private void buildIndex(File fnidx) throws Exception {
-        BlockCompressedInputStream fp = new BlockCompressedInputStream(new File(mFn));
-	coreIndex(fp);
+    public void createIndex(File fn) throws Exception {
+        BlockCompressedInputStream fp = new BlockCompressedInputStream(fn);
+	makeIndex(fp);
         fp.close();
-        BlockCompressedOutputStream fpidx = new BlockCompressedOutputStream(fnidx);
+        File indexFile = new File(fn + ".tbi");
+        BlockCompressedOutputStream fpidx = new BlockCompressedOutputStream(indexFile);
 	saveIndex(fpidx);
 	fpidx.close();
     }
 
-    private void coreIndex(BlockCompressedInputStream fp) throws Exception {
+    private void makeIndex(BlockCompressedInputStream fp) throws Exception {
 	int last_bin, save_bin;
 	int last_coor, last_tid, save_tid;
 	long save_off, last_off, lineno = 0, offset0 = (long)-1;
@@ -321,19 +314,19 @@ public class TabixWriter extends TabixReader {
 
     public static class Conf {
         int preset;
-        int sequenceColumn;
-        int beginColumn;
+        int chrColumn;
+        int startColumn;
         int endColumn;
         char commentChar;
         int linesToSkip;
 
-        Conf(int preset, int sc, int bc, int ec, char meta_char, int line_skip) {
+        public Conf(int preset, int chrColumn, int startColumn, int endColumn, char commentChar, int linesToSkip) {
             this.preset = preset;
-            this.sequenceColumn = sc;
-            this.beginColumn = bc;
-            this.endColumn = ec;
-            this.commentChar = meta_char;
-            this.linesToSkip = line_skip;
+            this.chrColumn = chrColumn;
+            this.startColumn = startColumn;
+            this.endColumn = endColumn;
+            this.commentChar = commentChar;
+            this.linesToSkip = linesToSkip;
         }
     }
 }

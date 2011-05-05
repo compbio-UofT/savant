@@ -26,17 +26,18 @@
 
 package org.broad.tabix;
 
-import net.sf.samtools.util.BlockCompressedInputStream;
-
 import java.io.*;
-import java.net.URL;
 import java.nio.*;
 import java.util.HashMap;
 import java.util.Arrays;
+import java.util.Set;
 
-public class TabixReader
-{
-	protected String mFn;
+import net.sf.samtools.util.BlockCompressedInputStream;
+import net.sf.samtools.util.SeekableStream;
+import savant.util.MiscUtils;
+
+
+public class TabixReader {
 	private BlockCompressedInputStream mFp;
 
 	protected int mPreset;
@@ -86,19 +87,17 @@ public class TabixReader
 	 * @param fn File name of the data file
 	 */
 	public TabixReader(final String fn) throws IOException {
-            mFn = fn;
             mFp = new BlockCompressedInputStream(new File(fn));
 
-            File indexFile = new File(mFn + ".tbi");
+            File indexFile = new File(fn + ".tbi");
             if (indexFile.exists()) {
                 readIndex(indexFile);
             }
 	}
 
-        public TabixReader(final URL url,final File index) throws IOException {
-		mFn = url.toString();
-		mFp = new BlockCompressedInputStream(url);
-		readIndex(index);
+        public TabixReader(SeekableStream baseStream, final File index) throws IOException {
+            mFp = new BlockCompressedInputStream(baseStream);
+            readIndex(index);
 	}
 
 	private static int reg2bins(final int beg, final int _end, final int[] list) {
@@ -128,7 +127,7 @@ public class TabixReader
 	}
 
 	public static String readLine(final InputStream is) throws IOException {
-		StringBuffer buf = new StringBuffer();
+		StringBuilder buf = new StringBuilder();
 		int c;
 		while ((c = is.read()) >= 0 && c != '\n')
 			buf.append((char)c);
@@ -163,7 +162,7 @@ public class TabixReader
 			if (buf[i] == 0) {
 				byte[] b = new byte[i - j];
 				System.arraycopy(buf, j, b, 0, b.length);
-				String s = new String(b);
+				String s = MiscUtils.homogenizeSequence(new String(b));
 				mChr2tid.put(s, k);
 				mSeq[k++] = s;
 				j = i + 1;
@@ -196,22 +195,18 @@ public class TabixReader
 	}
 
 	/**
-	 * Read the Tabix index from the default file.
-	 */
-	public void readIndex() throws IOException {
-		readIndex(new File(mFn + ".tbi"));
-	}
-
-	/**
 	 * Read one line from the data file.
 	 */
 	public String readLine() throws IOException {
 		return readLine(mFp);
 	}
 
-	protected int chr2tid(final String chr) {
-		if (mChr2tid.containsKey(chr)) return mChr2tid.get(chr);
-		else return -1;
+	protected int chr2tid(String chr) {
+            chr = MiscUtils.homogenizeSequence(chr);
+            if (mChr2tid.containsKey(chr)) {
+                return mChr2tid.get(chr);
+            }
+            return -1;
 	}
 
 	/**
@@ -222,11 +217,10 @@ public class TabixReader
 	 *         region_begin and region_end. On failure, sequence_id==-1.
 	 */
 	public int[] parseReg(final String reg) { // FIXME: NOT working when the sequence name contains : or -.
-		String chr;
 		int colon, hyphen;
 		int[] ret = new int[3];
 		colon = reg.indexOf(':'); hyphen = reg.indexOf('-');
-		chr = colon >= 0? reg.substring(0, colon) : reg;
+		String chr = colon >= 0? reg.substring(0, colon) : reg;
 		ret[1] = colon >= 0? Integer.parseInt(reg.substring(colon+1, hyphen >= 0? hyphen : reg.length())) - 1 : 0;
 		ret[2] = hyphen >= 0? Integer.parseInt(reg.substring(hyphen+1)) : 0x7fffffff;
 		ret[0] = chr2tid(chr);
@@ -287,6 +281,35 @@ public class TabixReader
 		}
 		return intv;
 	}
+
+        public Set<String> getReferenceNames() {
+            return mChr2tid.keySet();
+        }
+
+        /**
+         * Index of column which contains chromosome information (zero-based).
+         */
+        public int getChromColumn() {
+            return mSc - 1;
+        }
+
+        /**
+         * Index of column which contains start positions (zero-based).
+         */
+        public int getStartColumn() {
+            return mBc - 1;
+        }
+
+        /**
+         * Index of column which contains end positions (zero-based).
+         */
+        public int getEndColumn() {
+            return mEc - 1;
+        }
+
+        public char getCommentChar() {
+            return (char)mMeta;
+        }
 
 	public class Iterator {
 		private int i, n_seeks;
@@ -377,29 +400,9 @@ public class TabixReader
 		for (i = 0; i < n_off; ++i) ret[i] = new TPair64(off[i].u, off[i].v); // in C, this is inefficient
 		return new TabixReader.Iterator(tid, beg, end, ret);
 	}
-	
+
 	public Iterator query(final String reg) {
 		int[] x = parseReg(reg);
 		return query(x[0], x[1], x[2]);
-	}
-
-	public static void main(String[] args) {
-		if (args.length < 1) {
-			System.out.println("Usage: java -cp .:sam.jar TabixReader <in.gz> [region]");
-			System.exit(1);
-		}
-		try {
-			TabixReader tr = new TabixReader(args[0]);
-			String s;
-			if (args.length == 1) { // no region is specified; print the whole file
-				while ((s = tr.readLine()) != null)
-					System.out.println(s);
-			} else { // a region is specified; random access
-				TabixReader.Iterator iter = tr.query(args[1]); // get the iterator
-				while (iter != null && (s = iter.next()) != null)
-					System.out.println(s);
-			}
-		} catch (IOException e) {
-		}
 	}
 }

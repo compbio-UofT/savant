@@ -23,12 +23,11 @@ import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
-import net.sf.samtools.util.SeekableHTTPStream;
 
+import net.sf.samtools.util.SeekableHTTPStream;
 import net.sf.samtools.util.SeekableStream;
 
 import savant.api.adapter.RangeAdapter;
-import savant.data.types.Continuous;
 import savant.data.types.GenericContinuousRecord;
 import savant.file.DataFormat;
 import savant.util.Resolution;
@@ -53,9 +52,9 @@ public class WigSQLDataSource extends SQLDataSource<GenericContinuousRecord> {
             throw new IOException("Zoom in to see data");
         }
         // TODO: This is wrong.  We should be stuffing in NaNs, not zeroes.
-        GenericContinuousRecord[] result = new GenericContinuousRecord[range.getLengthAsInt()];
-        for (int i = 0; i < range.getLengthAsInt(); i++) {
-            result[i] = GenericContinuousRecord.valueOf(reference, range.getFrom() + i, Continuous.valueOf(0.0F));
+        GenericContinuousRecord[] result = new GenericContinuousRecord[range.getLength()];
+        for (int i = 0; i < range.getLength(); i++) {
+            result[i] = GenericContinuousRecord.valueOf(reference, range.getFrom() + i, 0.0F);
         }
         try {
             ResultSet rs = executeQuery(reference, range.getFrom(), range.getTo());
@@ -93,11 +92,11 @@ public class WigSQLDataSource extends SQLDataSource<GenericContinuousRecord> {
                     if (buf[i] < 128) {
                         float value = lowerLimit + dataRange * buf[i] / 127.0F;
                         for (int j = 0; j < span; j++) {
-                            if (chromPos + j >= range.getFromAsInt()) {
-                                if (chromPos + j > range.getToAsInt()) {
+                            if (chromPos + j >= range.getFrom()) {
+                                if (chromPos + j > range.getTo()) {
                                     break;
                                 }
-                                result[chromPos + j - range.getFromAsInt()] = GenericContinuousRecord.valueOf(reference, chromPos + j, Continuous.valueOf(value));
+                                result[chromPos + j - range.getFrom()] = GenericContinuousRecord.valueOf(reference, chromPos + j, value);
                             }
                         }
                     }

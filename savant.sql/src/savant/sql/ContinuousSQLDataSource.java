@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Set;
 
 import savant.api.adapter.RangeAdapter;
-import savant.data.types.Continuous;
 import savant.data.types.GenericContinuousRecord;
 import savant.file.DataFormat;
 import savant.util.Resolution;
@@ -52,7 +51,7 @@ public class ContinuousSQLDataSource extends SQLDataSource<GenericContinuousReco
                 int start = rs.getInt(columns.start);
                 int end = rs.getInt(columns.end);
                 for (int i = start; i <= end; i++) {
-                    result.add(GenericContinuousRecord.valueOf(chrom, i, Continuous.valueOf(rs.getFloat(columns.value))));
+                    result.add(GenericContinuousRecord.valueOf(chrom, i, rs.getFloat(columns.value)));
                 }
             }
         } catch (SQLException sqlx) {

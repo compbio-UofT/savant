@@ -16,13 +16,7 @@
 package savant.sql;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.SortedMap;
-import java.util.TreeMap;
+import java.util.*;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -35,6 +29,7 @@ import savant.data.types.Interval;
 import savant.data.types.IntervalRecord;
 import savant.data.types.Record;
 import savant.util.Resolution;
+
 
 /**
  * Each combination of reference and resolution requires a separate cache.
@@ -144,13 +139,13 @@ public class RecordCache<E extends Record> {
 
     static class PlainStash<E extends Record> extends RecordStash<E> {
 
-        SortedMap<Long, List<E>> map = new TreeMap<Long, List<E>>();
+        SortedMap<Integer, List<E>> map = new TreeMap<Integer, List<E>>();
 
         @Override
         void store(List<E> fetched) {
-            Map<Long, List<E>> tempMap = new HashMap<Long, List<E>>();
+            Map<Integer, List<E>> tempMap = new HashMap<Integer, List<E>>();
             for (E rec : fetched) {
-                long key = ((GenericContinuousRecord) rec).getPosition();
+                int key = ((GenericContinuousRecord) rec).getPosition();
                 List<E> existing = tempMap.get(key);
                 if (existing == null) {
                     existing = new ArrayList<E>();
@@ -163,7 +158,7 @@ public class RecordCache<E extends Record> {
 
         @Override
         List<E> retrieve(RangeAdapter r) {
-            SortedMap<Long, List<E>> subMap = map.subMap(r.getFrom(), r.getTo() + 1);
+            SortedMap<Integer, List<E>> subMap = map.subMap(r.getFrom(), r.getTo() + 1);
             List<E> result = new ArrayList<E>();
             for (List<E> value : subMap.values()) {
                 result.addAll(value);
