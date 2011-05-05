@@ -17,85 +17,66 @@ package savant.data.types;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.StringTokenizer;
 
 
 /**
  * Immutable class to represent an interval record pulled from a Tabix file.
  * 
- * @author mfiume
+ * @author mfiume, tarkvara
  */
-public final class TabixIntervalRecord implements IntervalRecord {
+public class TabixIntervalRecord implements IntervalRecord {
 
+    protected final String[] values;
+    protected final ColumnMapping mapping;
     private final Interval interval;
-    private final String chrom;
-    private final List<String> otherFields;
     private int count = 0;
 
     /**
      * Constructor. Clients should use static factory method valueOf() instead.
      */
-    TabixIntervalRecord(String s, int chrIndex, int startIndex, int endIndex) {
-        StringTokenizer st = new StringTokenizer(s,"\t");
-        int numTokens = st.countTokens();
-        
-        String token = null;
-        String chr = null;
-        int start = 0;
-        int end = 0;
-        otherFields = new ArrayList<String>();
+    TabixIntervalRecord(String s, ColumnMapping mapping) {
+        values = s.split("\\t");
+        this.mapping = mapping;
 
-        for (int i = 0; i < numTokens; i++) {
-            
-            token = st.nextToken();
-            
-            if (i == chrIndex) {
-                chr = token;
-            } else if (i == startIndex) {
-                 start = Integer.parseInt(token);
-            } else if (i == endIndex) {
-                end = Integer.parseInt(token)-1; // tabix is not end-inclusive; our intervals are end inclusive
-            } else {
-                otherFields.add(token);
-            }
+        int start = Integer.parseInt(values[mapping.start]);
+        int end = mapping.end >= 0 ? Integer.parseInt(values[mapping.end]) : start; // VCF tabix files lack an end column.
+
+        // Tabix is not end-inclusive, but our intervals are.
+        interval = new Interval(start, end + 1);
+    }
+
+    /**
+     * Static factory method to construct a TabixIntervalRecord.  This checks the dataSource
+     * to determine whether to return a plain TabixIntervalRecord or the more capable TabixBedRecord.
+     */
+    public static TabixIntervalRecord valueOf(String s, ColumnMapping mapping) {
+        switch (mapping.format) {
+            case INTERVAL_BED:
+                return new TabixBedRecord(s, mapping);
+            default:
+                return new TabixIntervalRecord(s, mapping);
         }
-
-        this.chrom = chr;
-        this.interval = new Interval(start, end);
-    }
-
-    /**
-     * Static factory method to construct a TabixIntervalRecord
-     */
-    public static TabixIntervalRecord valueOf(String s, int chrIndex, int startIndex, int endIndex) {
-        return new TabixIntervalRecord(s, chrIndex, startIndex, endIndex);
-    }
-
-    /**
-     * Static factory method to construct a TabixIntervalRecord
-     */
-    public static TabixIntervalRecord valueOf(String s) {
-        return new TabixIntervalRecord(s, 0, 1, 2);
-    }
-
-    @Override
-    public Interval getInterval() {
-        return this.interval;
-    }
-
-    public List<String> getOtherValues() {
-        return this.otherFields;
-    }
-
-    public String getChrom() {
-        return chrom;
     }
 
     @Override
     public String getReference() {
-        return getChrom();
+        return values[mapping.chrom];
     }
-    
+
+    @Override
+    public Interval getInterval() {
+        return interval;
+    }
+
+    @Override
+    public String getName() {
+        return mapping.name >= 0 ? values[mapping.name] : null;
+    }
+
+    public String[] getValues() {
+        return values;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -103,13 +84,12 @@ public final class TabixIntervalRecord implements IntervalRecord {
 
         TabixIntervalRecord that = (TabixIntervalRecord) o;
 
-        if (!chrom.equals(that.chrom)) return false;
         if (!interval.equals(that.interval)) return false;
-        if (that.otherFields.size() != this.otherFields.size()) return false;
-        for (int i = 0; i < this.otherFields.size(); i++) {
-            if (!this.otherFields.get(i).equals(that.otherFields.get(i))) return false;
+        if (values.length != that.values.length) return false;
+        for (int i = 0; i < values.length; i++) {
+            if (!values[i].equals(that.values[i])) return false;
         }
-        if(this.count != that.count) return false;
+        if (count != that.count) return false;
 
         return true;
     }
@@ -117,10 +97,9 @@ public final class TabixIntervalRecord implements IntervalRecord {
     @Override
     public int hashCode() {
         int hash = 7;
-        hash = 47 * hash + (this.interval != null ? this.interval.hashCode() : 0);
-        hash = 47 * hash + (this.chrom != null ? this.chrom.hashCode() : 0);
-        hash = 47 * hash + (this.otherFields != null ? this.otherFields.hashCode() : 0);
-        hash = 47 * hash + this.count;
+        hash = 47 * hash + (interval != null ? interval.hashCode() : 0);
+        hash = 47 * hash + values.hashCode();
+        hash = 47 * hash + count;
         return hash;
     }
 
@@ -132,49 +111,35 @@ public final class TabixIntervalRecord implements IntervalRecord {
     @Override
     public int compareTo(Object o) {
 
-        TabixIntervalRecord other = (TabixIntervalRecord) o;
+        TabixIntervalRecord that = (TabixIntervalRecord) o;
 
-        //compare ref
-        if (!this.getChrom().equals(other.getChrom())){
-            String a1 = this.getChrom();
-            String a2 = other.getChrom();
-            for(int i = 0; i < Math.min(a1.length(), a2.length()); i++){
-                if((int)a1.charAt(i) < (int)a2.charAt(i)) return -1;
-                else if ((int)a1.charAt(i) > (int)a2.charAt(i)) return 1;
+        // Compare point
+        if (!interval.equals(that.interval)) {
+            return interval.compareTo(that.interval);
+        }
+        
+        // Compare other fields (for intervals in the exact same location)
+        if (values.length < that.values.length) {
+            return -1;
+        } else if (values.length > that.values.length) {
+            return 1;
+        }
+        for (int i = 0; i < values.length; i++) {
+            int compare = values[i].compareTo(that.values[i]);
+            if (compare != 0) {
+                return compare;
             }
-            if(a1.length() < a2.length()) return -1;
-            if(a1.length() > a2.length()) return 1;
         }
 
-        //compare point
-        int a = this.getInterval().getStart();
-        int b = other.getInterval().getStart();
-        if(a == b){
-            //return 0;
-        } else if(a < b) return -1;
-        else return 1;
-        
-        //compare other fields (for intervals in the exact same location)
-        if(this.otherFields.size() < other.otherFields.size()){
+        // Compare count
+        // Note: count is a made up to differentiate between intervals in same position
+        if (count < that.count) {
             return -1;
-        } else if(this.otherFields.size() > other.otherFields.size()){
-            return 1;
-        }
-        for(int i = 0; i < this.otherFields.size(); i++){
-            int compare = this.otherFields.get(i).compareTo(other.otherFields.get(i));
-            if(compare == 0) continue;
-            return compare;
-        }
-
-        //compare count
-        //note: count is a made up to differentiate between intervals in same position
-        if(this.count < other.count){
-            return -1;
-        } else if(this.count > other.count){
+        } else if (count > that.count) {
             return 1;
         }
         
-        //all checks yield exact same value
+        // All checks yield exact same value
         return 0;
     }
 }

@@ -15,16 +15,7 @@
  */
 package savant.view.swing;
 
-import java.awt.AlphaComposite;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Composite;
-import java.awt.Cursor;
-import java.awt.FontMetrics;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Image;
-import java.awt.Polygon;
+import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -290,26 +281,28 @@ public class RangeSelectionPanel extends JPanel implements MouseListener, MouseM
                 int bandX = MiscUtils.transformPositionToPixel(b.start, getWidth(), rc.getMaxRange());
                 int bandWidth = MiscUtils.transformPositionToPixel(b.end, getWidth(), rc.getMaxRange()) - bandX;
 
+                g.setColor(b.getColor());
+                g.fillRect(bandX, y + 1, bandWidth, h - 2);
+                
                 if (b.isCentromere()) {
                     if (centromereStart >= 0) {
                         int mid = y + h / 2;
                         g2d.setComposite(originalComposite);
                         Polygon bowtie = new Polygon(new int[] { centromereStart, bandX, centromereStart, bandX + bandWidth, bandX, bandX + bandWidth },
                                                      new int[] { y,               mid,   y + h,           y + h,             mid,   y }, 6);
-                        g.setColor(Color.WHITE);
+                        g.setColor(getBackground());
                         g.fillPolygon(bowtie);
                         g.setColor(LINE_COLOUR);
-                        g.drawLine(centromereStart, y, bandX, mid);
-                        g.drawLine(centromereStart, y + h, bandX, mid);
+                        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                        g.drawLine(centromereStart - 1, y, bandX, mid);
+                        g.drawLine(centromereStart - 1, y + h, bandX, mid);
                         g.drawLine(bandX, mid, bandX + bandWidth, y);
                         g.drawLine(bandX, mid, bandX + bandWidth, y + h);
                         g2d.setComposite(COMPOSITE_50);
+                        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_DEFAULT);
                     } else {
                         centromereStart = bandX;
                     }
-                } else {
-                    g.setColor(b.getColor());
-                    g.fillRect(bandX, y + 1, bandWidth, h - 2);
                 }
             }
             g2d.setComposite(originalComposite);

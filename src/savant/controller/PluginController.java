@@ -422,9 +422,10 @@ public class PluginController {
         if (sdkToSavantVersionsMap == null) {
             sdkToSavantVersionsMap = new HashMap<String, String[]>();
 
-            // list of Savant versions compatible with sdk version 1.4.3
-            sdkToSavantVersionsMap.put("1.4.3", new String[] { "1.4.3", "1.4.4", "1.4.5" });
-            sdkToSavantVersionsMap.put("1.4.4", new String[] { "1.4.4", "1.4.5" });
+            // List of Savant versions compatible with given SDK version.
+            // Savant 1.4.5 broke compatibility with earlier SDK versions.
+            sdkToSavantVersionsMap.put("1.4.3", new String[] { "1.4.3", "1.4.4" });
+            sdkToSavantVersionsMap.put("1.4.4", new String[] { "1.4.4" });
             sdkToSavantVersionsMap.put("1.4.5", new String[] { "1.4.5" });
         }
 
@@ -438,18 +439,24 @@ public class PluginController {
     }
 
     private void copyBuiltInPlugins() {
-        File srcDir = new File("plugins");
+        File destDir = DirectorySettings.getPluginsDirectory();
+        File srcDir = null;
         if (MiscUtils.MAC) {
-            File f = new File(com.apple.eio.FileManager.getPathToApplicationBundle() + "/Contents/Plugins");
-            if (!f.exists()) {
-                srcDir = f;
+            srcDir = new File(com.apple.eio.FileManager.getPathToApplicationBundle() + "/Contents/Plugins");
+            if (srcDir.exists()) {
+                try {
+                    FileUtils.copyDir(srcDir, destDir);
+                    return;
+                } catch (Exception ignored) {
+                    // We should expect to see this when running in the debugger.
+                }
             }
         }
-        File destDir = DirectorySettings.getPluginsDirectory();
         try {
+            srcDir = new File("plugins");
             FileUtils.copyDir(srcDir, destDir);
         } catch (Exception x) {
-            LOG.error("Unable to copy builtin plugins from " + srcDir + " to " + destDir, x);
+            LOG.error("Unable to copy builtin plugins from " + srcDir.getAbsolutePath() + " to " + destDir, x);
         }
     }
 

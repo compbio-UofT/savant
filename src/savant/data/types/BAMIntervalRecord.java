@@ -53,8 +53,6 @@ public class BAMIntervalRecord implements IntervalRecord {
 
         this.interval = Interval.valueOf(samRecord.getAlignmentStart(), samRecord.getAlignmentEnd());
         this.samRecord = samRecord;
-        //this.type = type;
-
     }
 
     /**
@@ -68,18 +66,25 @@ public class BAMIntervalRecord implements IntervalRecord {
         return new BAMIntervalRecord(samRecord);
     }
 
+    @Override
+    public String getReference() {
+        return samRecord.getReferenceName();
+    }
+
+    @Override
     public Interval getInterval() {
-        return this.interval;
+        return interval;
+    }
+
+    @Override
+    public String getName() {
+        return samRecord.getReadName();
     }
 
     public SAMRecord getSamRecord() {
         return samRecord;
     }
 
-    public String getReference() {
-        return samRecord.getReferenceName();
-    }
-    
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -110,6 +115,7 @@ public class BAMIntervalRecord implements IntervalRecord {
         return sb.toString();
     }
 
+    @Override
     public int compareTo(Object o) {
 
         SAMRecord otherSam = ((BAMIntervalRecord) o).getSamRecord();

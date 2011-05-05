@@ -36,8 +36,7 @@ public enum FileType {
         TABIX(0xFACEBE10),
         INTERVAL_BIGBED(0xFACEBE11),
         CONTINUOUS_BIGWIG(0xFACEBE12),
-        CONTINUOUS_TDF(0xFACEBE13),
-        INTERVAL_TDF(0xFACEBE14);   // Not supported yet.  May never be supported.
+        CONTINUOUS_TDF(0xFACEBE13);
     int magicNumber;
 
     FileType(int magicNumber) {

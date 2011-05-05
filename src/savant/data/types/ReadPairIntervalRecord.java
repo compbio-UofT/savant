@@ -1,6 +1,17 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ *    Copyright 2010-2011 University of Toronto
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
  */
 package savant.data.types;
 
@@ -8,7 +19,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import net.sf.samtools.SAMRecord;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import savant.util.SAMReadUtils;
 import savant.util.SAMReadUtils.PairedSequencingProtocol;
 
@@ -17,6 +32,7 @@ import savant.util.SAMReadUtils.PairedSequencingProtocol;
  * @author mfiume
  */
 public class ReadPairIntervalRecord implements IntervalRecord {
+    private static final Log LOG = LogFactory.getLog(ReadPairIntervalRecord.class);
 
     public static List<ReadPairIntervalRecord> getMatePairs(List<Record> data) {
 
@@ -31,7 +47,7 @@ public class ReadPairIntervalRecord implements IntervalRecord {
             List<SAMRecord> unpairedlist;
             removeindex = -1;
 
-            System.out.println(qname);
+            LOG.info(qname);
 
             if (unpaired.containsKey(qname)) {
                 unpairedlist = unpaired.get(qname);
@@ -57,8 +73,7 @@ public class ReadPairIntervalRecord implements IntervalRecord {
     }
 
     private static boolean isPair(SAMRecord one, SAMRecord two) {
-
-        System.out.println("Checking pair: " + one.getReadName() + " and " + two.getReadName());
+        LOG.info("Checking pair: " + one.getReadName() + " and " + two.getReadName());
 
         if (!one.getReadPairedFlag() || !two.getReadPairedFlag()) {
             return false;
@@ -73,8 +88,7 @@ public class ReadPairIntervalRecord implements IntervalRecord {
             return false;
         }
 
-
-        System.out.println("*** YES ***");
+        LOG.info("*** YES ***");
 
         return true;
     }
@@ -125,7 +139,7 @@ public class ReadPairIntervalRecord implements IntervalRecord {
             // mate exists
             if (s.getReadPairedFlag()) {
                 if (s.getMateReferenceIndex() != s.getReferenceIndex()) {
-                    System.err.println("Mate maps to different chr, unhandled");
+                    LOG.info("Mate maps to different chr, unhandled");
                 }
                 return new Interval(s.getAlignmentStart(), s.getMateAlignmentStart());
             } // not mated
@@ -137,6 +151,15 @@ public class ReadPairIntervalRecord implements IntervalRecord {
         } else {
             return new Interval(this.first.getAlignmentStart(), this.second.getAlignmentEnd());
         }
+    }
+
+    /**
+     * Not relevant for this class.
+     * @return null
+     */
+    @Override
+    public String getName() {
+        return null;
     }
 
     public SAMRecord getFirst() {

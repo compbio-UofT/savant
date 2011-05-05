@@ -61,15 +61,21 @@ public class StuffedIntervalRecord implements IntervalRecord {
     }
 
     @Override
+    public String getReference() {
+        return originalRecord.getReference();
+    }
+
+    @Override
     public Interval getInterval() {
         return stuffedRecord;
     }
 
     @Override
-    public String getReference() {
-        return originalRecord.getReference();
+    public String getName() {
+        return originalRecord.getName();
     }
 
+    @Override
     public int compareTo(Object o) {
 
         StuffedIntervalRecord other = (StuffedIntervalRecord) o;

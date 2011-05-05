@@ -29,6 +29,7 @@ import javax.swing.JSeparator;
 
 import savant.controller.BookmarkController;
 import savant.controller.ReferenceController;
+import savant.data.sources.DataSource;
 import savant.data.types.*;
 import savant.file.DataFormat;
 import savant.util.Bookmark;
@@ -57,10 +58,10 @@ public class PopupPanel extends JPanel {
     //additional fields
    // protected List<String> addedFields;
 
-    public static PopupPanel create(GraphPane parent, String mode, DataFormat ff, Record rec){
+    public static PopupPanel create(GraphPane parent, String mode, DataSource dataSource, Record rec){
 
         PopupPanel p = null;
-        switch(ff){
+        switch(dataSource.getDataFormat()) {
             case POINT_GENERIC:
                 p = new PointGenericPopup((GenericPointRecord) rec);
                 break;
@@ -81,13 +82,13 @@ public class PopupPanel extends JPanel {
                 p = new ContinuousPopup((GenericContinuousRecord)rec);
                 break;
             case TABIX:
-                p = new TabixPopup((TabixIntervalRecord)rec);
+                p = new TabixPopup((TabixIntervalRecord)rec, dataSource);
                 break;
             default:
                 break;
         }
 
-        if(p != null) p.init(parent, mode, ff, rec);
+        if(p != null) p.init(parent, mode, dataSource.getDataFormat(), rec);
         return p;
     }
 

@@ -19,13 +19,12 @@ import java.util.Collections;
 import java.util.List;
 
 
-
 /**
  * Immutable class to represent one line of a BED file and all the fields therein.
  * 
  * @author mfiume, vwilliams
  */
-public final class BEDIntervalRecord implements IntervalRecord {
+public class BEDIntervalRecord implements BedRecord {
 
     private final Interval interval;
     private final List<Block> blocks;
@@ -50,7 +49,7 @@ public final class BEDIntervalRecord implements IntervalRecord {
      * @param rgb
      * @param blocks
      */
-    public BEDIntervalRecord(String chrom, int start, int end, String name, float score, Strand strand, int thickStart, int thickEnd, ItemRGB rgb,  List<Block> blocks) {
+    private BEDIntervalRecord(String chrom, int start, int end, String name, float score, Strand strand, int thickStart, int thickEnd, ItemRGB rgb, List<Block> blocks) {
 
         if (chrom == null) throw new IllegalArgumentException("Invalid argument: chrom may not be null");
         //if (interval == null) throw new IllegalArgumentException("Invalid argument. Interval must not be null");
@@ -80,7 +79,7 @@ public final class BEDIntervalRecord implements IntervalRecord {
      * @param blocks
      * @return
      */
-    public static BEDIntervalRecord valueOf(String chrom, int start, int end, String name, float score, Strand strand, int thickStart, int thickEnd, ItemRGB rgb,  List<Block> blocks) {
+    public static BEDIntervalRecord valueOf(String chrom, int start, int end, String name, float score, Strand strand, int thickStart, int thickEnd, ItemRGB rgb, List<Block> blocks) {
         return new BEDIntervalRecord(chrom, start, end, name, score, strand, thickStart, thickEnd, rgb, blocks);
     }
 
@@ -89,6 +88,12 @@ public final class BEDIntervalRecord implements IntervalRecord {
         return this.interval;
     }
 
+
+    /**
+     * In Bed files, we believe all blocks to be relative to the start of the chromosome,
+     * not relative to the start of the feature.  Equivalent to calling getBlocks(0).
+     */
+    @Override
     public List<Block> getBlocks() {
         return blocks != null ? Collections.unmodifiableList(blocks) : null;
     }
@@ -102,6 +107,7 @@ public final class BEDIntervalRecord implements IntervalRecord {
         return getChrom();
     }
     
+    @Override
     public String getName() {
         return name;
     }
@@ -114,22 +120,27 @@ public final class BEDIntervalRecord implements IntervalRecord {
         return getInterval().getEnd();
     }
 
+    @Override
     public float getScore() {
         return score;
     }
 
+    @Override
     public Strand getStrand() {
         return strand;
     }
 
+    @Override
     public int getThickStart() {
         return thickStart;
     }
 
+    @Override
     public int getThickEnd() {
         return thickEnd;
     }
 
+    @Override
     public ItemRGB getItemRGB() {
         return itemRGB;
     }

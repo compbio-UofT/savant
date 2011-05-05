@@ -1,5 +1,5 @@
 /*
- *    Copyright 2010 University of Toronto
+ *    Copyright 2010-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -35,9 +35,9 @@ public class IntervalBedPopup extends PopupPanel {
     @Override
     protected void calculateInfo() {
         name = rec.getName();
-        ref = rec.getChrom();
-        start = rec.getChromStart();
-        end = rec.getChromEnd();
+        ref = rec.getReference();
+        start = rec.getInterval().getStart();
+        end = rec.getInterval().getEnd();
     }
 
     @Override
@@ -52,5 +52,4 @@ public class IntervalBedPopup extends PopupPanel {
         this.add(new JLabel(readLength));
 
     }
-
 }

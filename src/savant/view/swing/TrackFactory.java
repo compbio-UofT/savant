@@ -32,6 +32,7 @@ import savant.controller.PluginController;
 import savant.data.event.TrackCreationEvent;
 import savant.data.event.TrackCreationListener;
 import savant.data.sources.DataSource;
+import savant.data.sources.TabixDataSource;
 import savant.data.sources.TDFContinuousDataSource;
 import savant.data.sources.file.BAMFileDataSource;
 import savant.data.sources.file.BEDFileDataSource;
@@ -39,7 +40,6 @@ import savant.data.sources.file.FASTAFileDataSource;
 import savant.data.sources.file.GenericContinuousFileDataSource;
 import savant.data.sources.file.GenericIntervalFileDataSource;
 import savant.data.sources.file.GenericPointFileDataSource;
-import savant.data.sources.file.TabixFileDataSource;
 import savant.exception.SavantTrackCreationCancelledException;
 import savant.exception.UnknownSchemeException;
 import savant.file.FileType;
@@ -56,7 +56,6 @@ import savant.view.swing.interval.BAMCoverageTrack;
 import savant.view.swing.interval.BAMTrack;
 import savant.view.swing.interval.BEDTrack;
 import savant.view.swing.interval.IntervalTrack;
-import savant.view.swing.interval.TabixTrack;
 import savant.view.swing.point.PointTrack;
 import savant.view.swing.sequence.SequenceTrack;
 
@@ -96,9 +95,17 @@ public class TrackFactory {
             case INTERVAL_GENERIC:
                 return new IntervalTrack(ds);
             case TABIX:
-                return new TabixTrack(ds);
+                // Tabix data-sources can store either Bed or interval data.
+                switch (((TabixDataSource)ds).getEffectiveDataFormat()) {
+                    case INTERVAL_BED:
+                        return new BEDTrack(ds);
+                    case INTERVAL_GENERIC:
+                        return new IntervalTrack(ds);
+                    default:
+                        break;
+                }
             default:
-                throw new IllegalArgumentException(String.format("Unknown data format: %s." + ds.getDataFormat()));
+                throw new IllegalArgumentException(String.format("Unknown data format: %s.", ds.getDataFormat()));
         }
     }
 
@@ -208,7 +215,7 @@ public class TrackFactory {
                 // A switch statement might be nice here, except for the possibility that fileType == null.
                 if (fileType == FileType.TABIX) {
                     LOG.info("Opening Tabix file " + trackURI);
-                    ds = TabixFileDataSource.fromURI(trackURI);
+                    ds = TabixDataSource.fromURI(trackURI);
                     LOG.info("Tabix datasource=" + ds);
                     if (ds != null) {
                         tracks.add(createTrack(ds));
@@ -311,7 +318,7 @@ public class TrackFactory {
             } else if (x instanceof FileNotFoundException) {
                 DialogUtils.displayMessage("File not found", x.getMessage());
             } else {
-                DialogUtils.displayException("Error opening track", "There was a problem opening this file.", x);
+                DialogUtils.displayException("Error opening track", "There was a problem opening this file: " + x.getLocalizedMessage(), x);
             }
         }
     }

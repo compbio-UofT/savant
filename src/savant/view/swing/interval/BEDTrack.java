@@ -59,7 +59,7 @@ public class BEDTrack extends Track {
     @Override
     public void prepareForRendering(String reference, Range range) {
         Resolution r = getResolution(range);
-        renderer.addInstruction(DrawingInstruction.PROGRESS, "Loading BED track...");
+        renderer.addInstruction(DrawingInstruction.PROGRESS, "Loading track...");
         if (r == Resolution.VERY_HIGH || r == Resolution.HIGH){
             requestData(reference, range);
         } else {

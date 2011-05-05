@@ -141,14 +141,12 @@ public class DataFormatter {
                 case POINT_GENERIC:
                     runFormatter(new PointGenericFormatter(inFile, outFile, isOneBased));
                     break;
-                case INTERVAL_GENERIC:
-                    formatAsInterval("GEN");
-                    break;
                 case INTERVAL_BED:
-                    formatAsInterval("BED");
+                case INTERVAL_GENERIC:
+                    runFormatter(new TabixFormatter(inFile, outFile, isOneBased, inputFileType, 0, 1, 2, '#'));
                     break;
                 case INTERVAL_GFF:
-                    formatAsInterval("GFF");
+                    runFormatter(new TabixFormatter(inFile, outFile, isOneBased, inputFileType, 0, 3, 4, '#'));
                     break;
                 case CONTINUOUS_GENERIC:
                     runFormatter(new ContinuousGenericFormatter(inFile, outFile));
@@ -167,28 +165,6 @@ public class DataFormatter {
             }
         }
         return true;
-    }
-
-    /*
-     * INTERVAL
-     */
-    private void formatAsInterval(String type) throws IOException, InterruptedException, SavantFileFormattingException {
-        IntervalFormatter inf;
-
-        if (type.equals("GEN")){
-            inf = new IntervalFormatter(inFile, outFile, isOneBased, FileType.INTERVAL_GENERIC, 0, 1, 2, "#");
-            inf.formatAsIntervalGeneric();
-        } else if(type.equals("GFF")){
-            inf = new IntervalFormatter(inFile, outFile, isOneBased, FileType.INTERVAL_GFF, 0, 3, 4, "#");
-            inf.formatAsIntervalGFF();
-        } else if(type.equals("BED")){
-            inf = new IntervalFormatter(inFile, outFile, isOneBased, FileType.INTERVAL_BED, 0, 1, 2, "#");
-            inf.formatAsIntervalBED();
-        } else {
-            return;
-        }
-
-        runFormatter(inf);
     }
 
     public static Map<String,IntervalSearchTree> readIntervalBSTs(SavantROFile dFile) throws IOException {

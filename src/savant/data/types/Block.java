@@ -43,6 +43,27 @@ public final class Block {
         return size;
     }
 
+    /**
+     * UCSC stores exon starts and ends as a comma-separated list of numbers packed into a blob.
+     *
+     * @param s the field to be unpacked
+     * @return an array of integers extracted from the string
+     */
+    public static int[] extractBlocks(String s) {
+        String[] blocks = s.split(",");
+        int numBlocks = blocks.length;
+        if (blocks[numBlocks - 1].length() == 0) {
+            // Last block was a vestigial one created by a trailing comma.
+            numBlocks--;
+        }
+        int[] result = new int[numBlocks];
+        for (int i = 0; i < numBlocks; i++) {
+            result[i] = Integer.parseInt(blocks[i]);
+        }
+        return result;
+    }
+
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

@@ -14,13 +14,14 @@
  *    limitations under the License.
  */
 
-
 package savant.selection;
 
 import javax.swing.JLabel;
 import savant.data.types.GenericIntervalRecord;
 
+
 /**
+ * Popup to display annotation information about a generic interval record.
  *
  * @author AndrewBrook
  */
@@ -34,7 +35,7 @@ public class IntervalGenericPopup extends PopupPanel {
 
     @Override
     protected void calculateInfo() {
-        name = rec.getDescription();
+        name = rec.getName();
         ref = rec.getReference();
         start = rec.getInterval().getStart();
         end = rec.getInterval().getEnd();
@@ -53,8 +54,6 @@ public class IntervalGenericPopup extends PopupPanel {
 
         String readLength = "Length: " + (end - start);
         this.add(new JLabel(readLength));
-
     }
-
 }
 

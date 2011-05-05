@@ -25,7 +25,7 @@ import savant.api.adapter.RangeAdapter;
  *
  * @author mfiume, vwilliams
  */
-public final class Interval {
+public final class Interval implements Comparable<Interval> {
 
     private final int start;
     private final int end;
@@ -99,6 +99,16 @@ public final class Interval {
     public String toString() {
         return getStart() + " - " + getEnd();
 
+    }
+
+    @Override
+    public int compareTo(Interval that) {
+        if (start < that.start) {
+            return -1;
+        } else if (start > that.start) {
+            return 1;
+        }
+        return end - that.end;
     }
 
     /**

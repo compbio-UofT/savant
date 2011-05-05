@@ -1,5 +1,5 @@
 /*
- *    Copyright 2010-2011 University of Toronto
+ *    Copyright 2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -13,23 +13,22 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-
 package savant.data.types;
 
+import java.util.List;
+
+
 /**
- * Interface to represent a record which contains an interval.
+ * Extends an IntervalRecord by adding all the various gene-related fields which are
+ * typically found in a Bed file.
  *
- * @author vwilliams, tarkvara
+ * @author tarkvara
  */
-public interface IntervalRecord extends Record {
-
-    /**
-     * @return the interval contained by this object
-     */
-    public Interval getInterval();
-
-    /**
-     * @return a string which describes this particular interval
-     */
-    public String getName();
+public interface BedRecord extends IntervalRecord {
+    List<Block> getBlocks();
+    float getScore();
+    Strand getStrand();
+    int getThickStart();
+    int getThickEnd();
+    ItemRGB getItemRGB();
 }

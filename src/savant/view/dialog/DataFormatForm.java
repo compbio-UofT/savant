@@ -368,7 +368,18 @@ public class DataFormatForm extends JDialog {
                     if (tempOutputCheck.isSelected()) {
                         outputPath += ".tmp";
                     }
-                    outputPath += ft == FileType.CONTINUOUS_WIG ? ".tdf" : ".savant";
+                    switch (ft) {
+                        case CONTINUOUS_WIG:
+                            outputPath += ".tdf";
+                            break;
+                        case INTERVAL_BED:
+                        case INTERVAL_GFF:
+                            outputPath += ".gz";
+                            break;
+                        default:
+                            outputPath += ".savant";
+                            break;
+                    }
                     outputField.setText(outputPath);
                 }
             }

@@ -20,6 +20,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 /**
  * Utility methods for manipulating general files.  Functions for manipulating Savant
@@ -29,18 +31,8 @@ import java.io.IOException;
  */
 public class FileUtils {
     public static void copyFile(File srcFile, File destFile) throws IOException {
-        FileInputStream in = new FileInputStream(srcFile);
+        copyStream(new FileInputStream(srcFile), new FileOutputStream(destFile));
 
-        //For Overwrite the file.
-        FileOutputStream out = new FileOutputStream(destFile);
-
-        byte[] buf = new byte[1024];
-        int len;
-        while ((len = in.read(buf)) > 0 ){
-            out.write(buf, 0, len);
-        }
-        in.close();
-        out.close();
     }
 
     public static void copyDir(File srcDir, File destDir) throws IOException {
@@ -48,5 +40,15 @@ public class FileUtils {
         for (File f: files) {
             copyFile(f, new File(destDir, f.getName()));
         }
+    }
+
+    public static void copyStream(InputStream input, OutputStream output) throws IOException {
+        byte[] buf = new byte[1024];
+        int len;
+        while ((len = input.read(buf)) > 0 ){
+            output.write(buf, 0, len);
+        }
+        input.close();
+        output.close();
     }
 }

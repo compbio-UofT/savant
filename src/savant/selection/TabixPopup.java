@@ -18,6 +18,8 @@
 package savant.selection;
 
 import javax.swing.JLabel;
+import savant.data.sources.DataSource;
+import savant.data.sources.TabixDataSource;
 import savant.data.types.TabixIntervalRecord;
 
 /**
@@ -27,9 +29,11 @@ import savant.data.types.TabixIntervalRecord;
 public class TabixPopup extends PopupPanel {
 
     private TabixIntervalRecord rec;
+    private String[] columnNames;
 
-    public TabixPopup(TabixIntervalRecord rec){
+    public TabixPopup(TabixIntervalRecord rec, DataSource dataSource) {
         this.rec = rec;
+        columnNames = ((TabixDataSource)dataSource).getColumnNames();
     }
 
     @Override
@@ -42,27 +46,13 @@ public class TabixPopup extends PopupPanel {
 
     @Override
     protected void initInfo() {
-        //String readName = "Description: " + name;
-        //this.add(new JLabel(readName));
-
-        String readStart = "Start:\t" + rec.getInterval().getStart();
-        this.add(new JLabel(readStart));
-
-        String readEnd = "End:\t" + rec.getInterval().getEnd();
-        this.add(new JLabel(readEnd));
-
-        String readLength = "Length:\t" + rec.getInterval().getLength();
-        this.add(new JLabel(readLength));
-
-        int fieldnum = 3;
-        for (String s : rec.getOtherValues()) {
-            this.add(new JLabel("Field" + (++fieldnum) + ":\t" + s));
-            if (fieldnum == 10) {
-                this.add(new JLabel("..."));
-                break;
+        String[] values = rec.getValues();
+        
+        for (int i = 0; i < columnNames.length; i++) {
+            if (columnNames[i] != null) {
+                add(new JLabel(columnNames[i] + ":\t" + values[i]));
             }
         }
     }
-
 }
 

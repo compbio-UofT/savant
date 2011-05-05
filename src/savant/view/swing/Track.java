@@ -350,9 +350,9 @@ public abstract class Track implements TrackAdapter {
             @Override
             public void run() {
                 try {
-                    LOG.debug("Retrieving data for " + name + "(" + reference + ", " + range + ")");
+                    LOG.debug("Retrieving data for " + name + "(" + reference + ":" + range + ")");
                     dataInRange = retrieveData(reference, range, getResolution(range));
-                    LOG.debug("Data retrieved for " + name + "(" + reference + ", " + range + ")");
+                    LOG.debug("Retrieved " + dataInRange.size() + " records for " + name + "(" + reference + ":" + range + ")");
                     fireDataRetrievalCompleted();
                 } catch (IOException iox) {
                     LOG.error(iox);

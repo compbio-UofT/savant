@@ -1,9 +1,5 @@
 /*
- * GenericIntervalRecord.java
- * Created on Jan 8, 2010
- *
- *
- *    Copyright 2010 University of Toronto
+ *    Copyright 2010-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -29,14 +25,14 @@ public class GenericIntervalRecord implements IntervalRecord {
 
     private final String reference;
     private final Interval interval;
-    private final String description;
+    private final String name;
 
-    GenericIntervalRecord(String reference, Interval interval, String description) {
+    GenericIntervalRecord(String reference, Interval interval, String name) {
         if (reference == null) throw new IllegalArgumentException("reference must not be null");
         if (interval == null) throw new IllegalArgumentException("Invalid argument. Interval must not be null");
         this.reference = reference;
         this.interval = interval;
-        this.description = description;
+        this.name = name;
     }
 
 
@@ -54,8 +50,9 @@ public class GenericIntervalRecord implements IntervalRecord {
         return this.interval;
     }
 
-    public String getDescription() {
-        return description;
+    @Override
+    public String getName() {
+        return name;
     }
 
     @Override
@@ -65,7 +62,7 @@ public class GenericIntervalRecord implements IntervalRecord {
 
         GenericIntervalRecord that = (GenericIntervalRecord) o;
 
-        if (description != null ? !description.equals(that.description) : that.description != null) return false;
+        if (name != null ? !name.equals(that.name) : that.name != null) return false;
         if (!interval.equals(that.interval)) return false;
         if (!reference.equals(that.reference)) return false;
 
@@ -76,7 +73,7 @@ public class GenericIntervalRecord implements IntervalRecord {
     public int hashCode() {
         int result = reference.hashCode();
         result = 31 * result + interval.hashCode();
-        result = 31 * result + (description != null ? description.hashCode() : 0);
+        result = 31 * result + (name != null ? name.hashCode() : 0);
         return result;
     }
 
@@ -86,7 +83,7 @@ public class GenericIntervalRecord implements IntervalRecord {
         sb.append("GenericIntervalRecord");
         sb.append("{reference='").append(reference).append('\'');
         sb.append(", interval=").append(interval);
-        sb.append(", description='").append(description).append('\'');
+        sb.append(", description='").append(name).append('\'');
         sb.append('}');
         return sb.toString();
     }
@@ -112,16 +109,11 @@ public class GenericIntervalRecord implements IntervalRecord {
         int b = other.getInterval().getStart();
 
         if (a == b){
-            String a1 = this.getDescription();
-            String a2 = other.getDescription();
-            for(int i = 0; i < Math.min(a1.length(), a2.length()); i++){
-                if((int)a1.charAt(i) < (int)a2.charAt(i)) return -1;
-                else if ((int)a1.charAt(i) > (int)a2.charAt(i)) return 1;
-            }
-            if(a1.length() < a2.length()) return -1;
-            if(a1.length() > a2.length()) return 1;
-            return 0;
-        } else if(a < b) return -1;
-        else return 1;
+            return name.compareTo(other.name);
+        } else if(a < b) {
+            return -1;
+        } else {
+            return 1;
+        }
     }
 }

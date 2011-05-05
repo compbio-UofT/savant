@@ -292,17 +292,12 @@ public class SavantFileFormatterUtils {
         //String delimiter = "\\s+";
         String delimiter = "( |\t)+";
 
-        //StringTokenizer tok = new StringTokenizer(txtLine,"\t");
-        //StringTokenizer tok = new StringTokenizer(txtLine," ");
-
         String[] s = txtLine.split(delimiter);
 
-        //int tokenNum = 0;
         List<Object> line = new ArrayList<Object>(fields.size());
 
         String token = "";
 
-        //NEW
         for(int i = 0; i < Math.min(fields.size(), s.length); i++){
 
             token = s[i];
@@ -335,7 +330,7 @@ public class SavantFileFormatterUtils {
                     line.add(Integer.parseInt(token));
                     break;
                 case ITEMRGB:
-                    ItemRGB rgb = parseItemRGB(token);
+                    ItemRGB rgb = ItemRGB.parseItemRGB(token);
                     line.add(rgb);
                     break;
                 case BLOCKS:
@@ -351,55 +346,6 @@ public class SavantFileFormatterUtils {
                     throw new IOException("Unrecognized field type: " + ft);
             }
         }
-        //END NEW
-
-
-
-
-        /*while (tok.hasMoreElements() && tokenNum < fields.size()) {
-
-            token = tok.nextToken();
-            FieldType ft = fields.get(tokenNum);
-
-            //System.out.println("Parsing " + token + " as " + ft);
-
-            switch (fields.get(tokenNum)) {
-                case STRING:
-                    line.add(token);
-                    break;
-                case CHAR:
-                    line.add(token.charAt(0));
-                    break;
-                case INTEGER:
-                    line.add(Integer.parseInt(token));
-                    break;
-                case DOUBLE:
-                    line.add(Double.parseDouble(token));
-                    break;
-                case FLOAT:
-                    line.add(Float.parseFloat(token));
-                    break;
-                case BOOLEAN:
-                    line.add(Integer.parseInt(token));
-                    break;
-                case ITEMRGB:
-                    ItemRGB rgb = parseItemRGB(token);
-                    line.add(rgb);
-                    break;
-                case BLOCKS:
-                    int numBlocks = Integer.parseInt(token);
-                    String blockSizes = tok.nextToken();
-                    String blockPositions = tok.nextToken();
-                    List<Block> blocks = parseBlocks(numBlocks,blockPositions,blockSizes);
-                    line.add(blocks);
-                    break;
-                case IGNORE:
-                    break;
-                default:
-                    throw new IOException("Unrecognized field type: " + ft);
-            }
-            tokenNum++;
-        }*/
 
         return line;
     }
@@ -604,20 +550,6 @@ public class SavantFileFormatterUtils {
         } else {
             return Strand.FORWARD;
         }
-    }
-
-    private static ItemRGB parseItemRGB(String token) {
-        String[] values = token.split(",");
-        if(values.length==3){
-            try {
-                return ItemRGB.valueOf(
-                        Integer.parseInt(values[0].trim()),
-                        Integer.parseInt(values[1].trim()),
-                        Integer.parseInt(values[2].trim()));
-            } catch (NumberFormatException e){}
-        }
-        //if null or bad info, denote with negative values
-        return ItemRGB.valueOf(-1, -1, -1);
     }
 
     public static void writeString(DataOutputStream out, String s) throws IOException {

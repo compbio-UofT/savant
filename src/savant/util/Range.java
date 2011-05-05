@@ -15,16 +15,18 @@
  */
 package savant.util;
 
+import java.io.Serializable;
 import savant.api.adapter.RangeAdapter;
 
 
 /**
- * Utility class for storing any type of range.  For generality, the values
- * are all stored as longs.
+ * Utility class for storing any type of range.
  *
  * @author mfiume
  */
-public final class Range implements RangeAdapter {
+public final class Range implements RangeAdapter, Serializable {
+    static final long serialVersionUID = 2690664822084781217L;
+
     private int from;
     private int to;
 
@@ -56,7 +58,7 @@ public final class Range implements RangeAdapter {
 
     @Override
     public String toString() {
-        return MiscUtils.numToString(from) + " - " + MiscUtils.numToString(to);
+        return MiscUtils.numToString(from) + "-" + MiscUtils.numToString(to);
     }
 
     @Override
@@ -75,7 +77,7 @@ public final class Range implements RangeAdapter {
     @Override
     public int hashCode() {
         int result = from;
-        result = (int) (31 * result + to);
+        result = 31 * result + to;
         return result;
     }
 

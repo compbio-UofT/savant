@@ -53,6 +53,29 @@ public final class ItemRGB {
         return new ItemRGB(r, g, b);
     }
 
+    /**
+     * Parse a token which contains an ItemRGB value.  
+     * @param token
+     * @return
+     */
+    public static ItemRGB parseItemRGB(String token) {
+        String[] values = token.split(",");
+        if (values.length==3){
+            try {
+                return valueOf(
+                        Integer.parseInt(values[0].trim()),
+                        Integer.parseInt(values[1].trim()),
+                        Integer.parseInt(values[2].trim()));
+            } catch (NumberFormatException e){}
+        } else if (token.equals("0")) {
+            // A lot of bed files just store a zero in this column.
+            return valueOf(0, 0, 0);
+        }
+        //if null or bad info, denote with negative values
+        return valueOf(-1, -1, -1);
+    }
+
+
     public int getRed() {
         return this.red;
     }
