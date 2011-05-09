@@ -68,6 +68,7 @@ public class ResolutionSettingsSection extends Section {
 
     @Override
     public void applyChanges() {
+        if(this.bamArcModeAmountField == null) return; //make sure section has been initialized
         TrackResolutionSettings.setBAMArcModeLowToHighThresh((int) Double.parseDouble(this.bamArcModeAmountField.getText().replaceAll(",", "")));
         TrackResolutionSettings.setBAMDefaultModeLowToHighThresh((int) Double.parseDouble(this.bamDefaultModeAmountField.getText().replaceAll(",", "")));
         TrackResolutionSettings.setIntervalLowToHighThresh((int) Double.parseDouble(this.intervalAmountField.getText().replaceAll(",", "")));
