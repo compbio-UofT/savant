@@ -143,10 +143,12 @@ public class DataFormatter {
                     break;
                 case INTERVAL_BED:
                 case INTERVAL_GENERIC:
-                    runFormatter(new TabixFormatter(inFile, outFile, isOneBased, inputFileType, 0, 1, 2, '#'));
-                    break;
                 case INTERVAL_GFF:
-                    runFormatter(new TabixFormatter(inFile, outFile, isOneBased, inputFileType, 0, 3, 4, '#'));
+                case INTERVAL_PSL:
+                case INTERVAL_VCF:
+                case INTERVAL_GENE:
+                case INTERVAL_REFGENE:
+                    runFormatter(new TabixFormatter(inFile, outFile, inputFileType));
                     break;
                 case CONTINUOUS_GENERIC:
                     runFormatter(new ContinuousGenericFormatter(inFile, outFile));

@@ -62,34 +62,46 @@ public class SavantFileFormatterUtils {
     public static FileType guessFileTypeFromPath(String path) {
 
         // Get the file extension
-        String extension = MiscUtils.getExtension(path).toUpperCase();
+        String extension = MiscUtils.getExtension(path).toLowerCase();
 
-        if (extension.equals("BAM")) {
+        if (extension.equals("bam")) {
             return FileType.INTERVAL_BAM;
         }
-        if (extension.equals("BED")) {
+        if (extension.equals("bed")) {
             return FileType.INTERVAL_BED;
         }
-        if (extension.equals("GFF")) {
+        if (extension.equals("gff")) {
             return FileType.INTERVAL_GFF;
         }
-        if (extension.equals("WIG") || extension.equals("WIGFIX") || extension.equals("BEDGRAPH")) {
+        if (extension.equals("wig") || extension.equals("wigfix") || extension.equals("bedgraph")) {
             return FileType.CONTINUOUS_WIG;
         }
-        if (extension.equals("FA") || extension.equals("FASTA")) {
+        if (extension.equals("fa") || extension.equals("fasta")) {
             return FileType.SEQUENCE_FASTA;
         }
-        if (extension.equals("GZ")) {
+        if (extension.equals("gz")) {
             return FileType.TABIX;
         }
-        if (extension.equals("BW") || extension.equals("BIGWIG")) {
+        if (extension.equals("bw") || extension.equals("bigwig")) {
             return FileType.CONTINUOUS_BIGWIG;
         }
-        if (extension.equals("BB") || extension.equals("BIGBED")) {
+        if (extension.equals("bb") || extension.equals("bigbed")) {
             return FileType.INTERVAL_BIGBED;
         }
-        if (extension.equals("TDF")) {
+        if (extension.equals("tdf")) {
             return FileType.CONTINUOUS_TDF;
+        }
+        if (extension.equals("psl")) {
+            return FileType.INTERVAL_PSL;
+        }
+        if (extension.equals("vcf")) {
+            return FileType.INTERVAL_VCF;
+        }
+        if (extension.equals("gene") || extension.equals("knowngene")) {
+            return FileType.INTERVAL_GENE;
+        }
+        if (extension.equals("refgene")) {
+            return FileType.INTERVAL_REFGENE;
         }
 
         // None of the generic formats have any kind of standard extension.

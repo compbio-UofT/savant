@@ -52,7 +52,7 @@ public class TabixIntervalRecord implements IntervalRecord {
     public static TabixIntervalRecord valueOf(String s, ColumnMapping mapping) {
         switch (mapping.format) {
             case INTERVAL_BED:
-                return new TabixBedRecord(s, mapping);
+                return new TabixRichIntervalRecord(s, mapping);
             default:
                 return new TabixIntervalRecord(s, mapping);
         }

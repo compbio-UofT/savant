@@ -24,7 +24,7 @@ import java.util.List;
  * 
  * @author mfiume, vwilliams
  */
-public class BEDIntervalRecord implements BedRecord {
+public class BEDIntervalRecord implements RichIntervalRecord {
 
     private final Interval interval;
     private final List<Block> blocks;

@@ -24,12 +24,12 @@ import java.util.List;
  *
  * @author tarkvara
  */
-public class TabixBedRecord extends TabixIntervalRecord implements BedRecord {
+public class TabixRichIntervalRecord extends TabixIntervalRecord implements RichIntervalRecord {
 
     /**
      * Constructor not be be called directly, but rather through TabixIntervalRecord.valueOf.
      */
-    TabixBedRecord(String line, ColumnMapping mapping) {
+    TabixRichIntervalRecord(String line, ColumnMapping mapping) {
         super(line, mapping);
     }
 

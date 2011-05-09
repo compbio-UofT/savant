@@ -31,9 +31,9 @@ import savant.view.swing.Track;
  * 
  * @author vwilliams
  */
-public class BEDTrack extends Track {
+public class RichIntervalTrack extends Track {
 
-    private static final Log LOG = LogFactory.getLog(BEDTrack.class);
+    private static final Log LOG = LogFactory.getLog(RichIntervalTrack.class);
     private boolean itemRGBEnabled = false;
     private boolean scoreEnabled = false;
 
@@ -47,8 +47,8 @@ public class BEDTrack extends Track {
 
 
 
-    public BEDTrack(DataSource bedSource) throws SavantTrackCreationCancelledException {
-        super(bedSource, new BEDTrackRenderer());
+    public RichIntervalTrack(DataSource bedSource) throws SavantTrackCreationCancelledException {
+        super(bedSource, new RichIntervalTrackRenderer());
         setColorScheme(getDefaultColorScheme());
         setDrawModes(this.renderer.getRenderingModes());
         setDrawMode(this.renderer.getDefaultRenderingMode());

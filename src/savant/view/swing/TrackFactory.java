@@ -54,7 +54,7 @@ import savant.util.NetworkUtils;
 import savant.view.swing.continuous.ContinuousTrack;
 import savant.view.swing.interval.BAMCoverageTrack;
 import savant.view.swing.interval.BAMTrack;
-import savant.view.swing.interval.BEDTrack;
+import savant.view.swing.interval.RichIntervalTrack;
 import savant.view.swing.interval.IntervalTrack;
 import savant.view.swing.point.PointTrack;
 import savant.view.swing.sequence.SequenceTrack;
@@ -85,7 +85,7 @@ public class TrackFactory {
             case SEQUENCE_FASTA:
                 return new SequenceTrack(ds);
             case INTERVAL_BED:
-                return new BEDTrack(ds);
+                return new RichIntervalTrack(ds);
             case POINT_GENERIC:
                 return new PointTrack(ds);
             case CONTINUOUS_GENERIC:
@@ -98,7 +98,7 @@ public class TrackFactory {
                 // Tabix data-sources can store either Bed or interval data.
                 switch (((TabixDataSource)ds).getEffectiveDataFormat()) {
                     case INTERVAL_BED:
-                        return new BEDTrack(ds);
+                        return new RichIntervalTrack(ds);
                     case INTERVAL_GENERIC:
                         return new IntervalTrack(ds);
                     default:

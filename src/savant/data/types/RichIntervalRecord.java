@@ -24,7 +24,7 @@ import java.util.List;
  *
  * @author tarkvara
  */
-public interface BedRecord extends IntervalRecord {
+public interface RichIntervalRecord extends IntervalRecord {
     List<Block> getBlocks();
     float getScore();
     Strand getStrand();

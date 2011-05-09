@@ -55,7 +55,7 @@ import savant.view.icon.SavantIconFactory;
 import savant.view.swing.interval.BAMCoverageTrack;
 import savant.view.swing.interval.BAMTrack;
 import savant.view.swing.interval.BAMTrackRenderer;
-import savant.view.swing.interval.BEDTrack;
+import savant.view.swing.interval.RichIntervalTrack;
 
 /**
  *
@@ -442,7 +442,7 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
         itemRGB.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                ((BEDTrack)tracks[0]).toggleItemRGBEnabled();
+                ((RichIntervalTrack)tracks[0]).toggleItemRGBEnabled();
                 graphPane.setRenderForced();
                 graphPane.repaint();
             }
@@ -450,7 +450,7 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
         score.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                ((BEDTrack)tracks[0]).toggleScoreEnabled();
+                ((RichIntervalTrack)tracks[0]).toggleScoreEnabled();
                 graphPane.setRenderForced();
                 graphPane.repaint();
             }

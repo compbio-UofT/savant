@@ -33,10 +33,15 @@ public enum FileType {
         CONTINUOUS_GENERIC(0xFACEBE07),
         SEQUENCE_FASTA(0xFACEBE08),
         POINT_GENERIC(0xFACEBE09),
-        TABIX(0xFACEBE10),
-        INTERVAL_BIGBED(0xFACEBE11),
-        CONTINUOUS_BIGWIG(0xFACEBE12),
-        CONTINUOUS_TDF(0xFACEBE13);
+        TABIX(-1),
+        INTERVAL_BIGBED(-1),
+        CONTINUOUS_BIGWIG(-1),
+        CONTINUOUS_TDF(-1),
+        INTERVAL_PSL(-1),
+        INTERVAL_VCF(-1),
+        INTERVAL_GENE(-1),
+        INTERVAL_REFGENE(-1);
+
     int magicNumber;
 
     FileType(int magicNumber) {

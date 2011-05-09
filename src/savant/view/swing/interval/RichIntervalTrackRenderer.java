@@ -41,7 +41,7 @@ import savant.view.swing.TrackRenderer;
  *
  * @author vwilliams
  */
-public class BEDTrackRenderer extends TrackRenderer {
+public class RichIntervalTrackRenderer extends TrackRenderer {
 
     private static final Log LOG = LogFactory.getLog(BAMTrackRenderer.class);
 
@@ -51,7 +51,7 @@ public class BEDTrackRenderer extends TrackRenderer {
     String drawMode;
     Resolution resolution;
 
-    public BEDTrackRenderer() {
+    public RichIntervalTrackRenderer() {
         super(DataFormat.INTERVAL_BED);
     }
     
@@ -87,7 +87,7 @@ public class BEDTrackRenderer extends TrackRenderer {
         FontMetrics fm = g2.getFontMetrics();
         List<Record> stuffedRecords = new ArrayList<Record>();
         for (Record r : data) {
-            BedRecord ir = (BedRecord) r;
+            RichIntervalRecord ir = (RichIntervalRecord) r;
             int padamount = fm.stringWidth(ir.getName()) + 5;
             stuffedRecords.add(new StuffedIntervalRecord(ir,(int)(padamount/unitWidth),(int)(0*unitWidth)));
         }
@@ -123,7 +123,7 @@ public class BEDTrackRenderer extends TrackRenderer {
             for (IntervalRecord intervalRecord : intervalsThisLevel) {
 
                 Interval interval = intervalRecord.getInterval();
-                BedRecord bedRecord = (BedRecord) intervalRecord;
+                RichIntervalRecord bedRecord = (RichIntervalRecord) intervalRecord;
 
                 renderGene(g2, gp, cs, bedRecord, interval, level);
 
@@ -132,7 +132,7 @@ public class BEDTrackRenderer extends TrackRenderer {
         }
     }
 
-    private void renderGene(Graphics2D g2, GraphPane gp, ColorScheme cs, BedRecord bedRecord, Interval interval, int level) {
+    private void renderGene(Graphics2D g2, GraphPane gp, ColorScheme cs, RichIntervalRecord bedRecord, Interval interval, int level) {
 
         // for the chevrons
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -356,7 +356,7 @@ public class BEDTrackRenderer extends TrackRenderer {
             List<Interval> negStrandBlocks = new ArrayList<Interval>();
             List<Interval> noStrandBlocks = new ArrayList<Interval>();
             for (Record record: data) {
-                BedRecord bedRecord = (BedRecord)record;
+                RichIntervalRecord bedRecord = (RichIntervalRecord)record;
                 Strand strand =  bedRecord.getStrand();
 
                 if (strand == Strand.FORWARD) {
@@ -399,7 +399,7 @@ public class BEDTrackRenderer extends TrackRenderer {
 
             for (Record record: data) {
 
-                BedRecord bedRecord = (BedRecord)record;
+                RichIntervalRecord bedRecord = (RichIntervalRecord)record;
 
                 // we'll display different strands at different y positions
                 Strand strand =  bedRecord.getStrand();
@@ -457,7 +457,7 @@ public class BEDTrackRenderer extends TrackRenderer {
         return new Range(0,1);
     }
 
-    private void mergeBlocks(List<Interval> intervals, BedRecord bedRecord) {
+    private void mergeBlocks(List<Interval> intervals, RichIntervalRecord bedRecord) {
 
         List<Block> blocks = bedRecord.getBlocks();
         if (blocks != null) {

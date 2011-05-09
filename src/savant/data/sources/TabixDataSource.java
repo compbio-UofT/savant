@@ -143,14 +143,14 @@ public class TabixDataSource implements DataSource<TabixIntervalRecord> {
             }
 
             for (int i = 0; i < columnNames.length && i < fields.length; i++) {
-                String colName = columnNames[i];
+                String colName = columnNames[i].toLowerCase();
                 if (colName.equals("chrom")) {
                     columnNames[i] = "Reference";
-                } else if (colName.equals("start") || colName.equals("chromStart")) {
+                } else if (colName.equals("start") || colName.equals("chromstart")) {
                     columnNames[i] = "Start";
-                } else if (colName.equals("end") || colName.equals("chromEnd")) {
+                } else if (colName.equals("end") || colName.equals("chromend")) {
                     columnNames[i] = "End";
-                } else if (colName.equals("name") || colName.equals("feature") || colName.equals("qName")) {
+                } else if (colName.equals("name") || colName.equals("feature") || colName.equals("qname")) {
                     name = i;
                     columnNames[i] = "Name";
                 } else if (colName.equals("score")) {
@@ -161,26 +161,26 @@ public class TabixDataSource implements DataSource<TabixIntervalRecord> {
                     strand = i;
                     columnNames[i] = "Strand";
                     bed = true;
-                } else if (colName.equals("thickStart") || colName.equals("cdsStart")) {
+                } else if (colName.equals("thickstart") || colName.equals("cdsstart")) {
                     thickStart = i;
                     columnNames[i] = "Thick start";
                     bed = true;
-                } else if (colName.equals("thickEnd") || colName.equals("cdsEnd")) {
+                } else if (colName.equals("thickend") || colName.equals("cdsend")) {
                     thickEnd = i;
                     columnNames[i] = "Thick end";
                     bed = true;
-                } else if (colName.equals("itemRgb") || colName.equals("reserved")) {
+                } else if (colName.equals("itemrgb") || colName.equals("reserved")) {
                     itemRGB = i;
                     columnNames[i] = null;  // No point in showing colour in the table when we can show it visually.
                     bed = true;
-                } else if (colName.equals("blockCount") || colName.equals("exonCount")) {
+                } else if (colName.equals("blockcount") || colName.equals("exoncount")) {
                     columnNames[i] = "Block count";
                     bed = true;
-                } else if (colName.equals("blockStarts") || colName.equals("exonStarts") || colName.equals("tStarts") || colName.equals("chromStarts")) {
+                } else if (colName.equals("blockstarts") || colName.equals("exonstarts") || colName.equals("tstarts") || colName.equals("chromstarts")) {
                     blockStarts = i;
                     columnNames[i] = null;
                     bed = true;
-                } else if (colName.equals("blockSizes") || colName.equals("exonSizes")) {
+                } else if (colName.equals("blocksizes") || colName.equals("exonsizes")) {
                     blockSizes = i;
                     columnNames[i] = null;
                     bed = true;

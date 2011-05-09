@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.text.ParseException;
 import savant.file.FileType;
 import savant.format.DataFormatter;
+import savant.format.FormatProgressListener;
 import savant.format.SavantFileFormatterUtils;
 import savant.format.SavantFileFormattingException;
 
@@ -35,9 +36,9 @@ import savant.format.SavantFileFormattingException;
  * @author tarkvara
  */
 
+@SuppressWarnings("UseOfSystemOutOrSystemErr")
 public class FormatTool {
 
-    @SuppressWarnings("UseOfSystemOutOrSystemErr")
     public static void main(String args[]) {
         try {
             File inFile = null;
@@ -80,10 +81,28 @@ public class FormatTool {
                 oneBased = inferOneBased(ft);
             }
             if (outFile == null) {
-                outFile = new File(inFile.getAbsolutePath() + ".savant");
+                switch (ft) {
+                    case INTERVAL_GENERIC:
+                    case INTERVAL_BED:
+                    case INTERVAL_GFF:
+                    case INTERVAL_PSL:
+                    case INTERVAL_VCF:
+                    case INTERVAL_GENE:
+                    case INTERVAL_REFGENE:
+                        outFile = new File(inFile.getAbsolutePath() + ".gz");
+                        break;
+                    case CONTINUOUS_GENERIC:
+                    case CONTINUOUS_WIG:
+                        outFile = new File(inFile.getAbsolutePath() + ".tdf");
+                        break;
+                    default:
+                        outFile = new File(inFile.getAbsolutePath() + ".savant");
+                        break;
+                }
             }
             try {
                 DataFormatter df = new DataFormatter(inFile, outFile, ft, oneBased);
+                df.addProgressListener(new CommandLineProgressListener());
                 df.format();
             } catch (InterruptedException ix) {
                 System.err.println("Formatting interrupted.");
@@ -131,6 +150,18 @@ public class FormatTool {
         if (s.equals("continuous")) {
             return FileType.CONTINUOUS_GENERIC;
         }
+        if (s.equals("psl")) {
+            return FileType.INTERVAL_PSL;
+        }
+        if (s.equals("vcf")) {
+            return FileType.INTERVAL_VCF;
+        }
+        if (s.equals("gene") || s.equals("knowngene")) {
+            return FileType.INTERVAL_GENE;
+        }
+        if (s.equals("refgene")) {
+            return FileType.INTERVAL_REFGENE;
+        }
         throw new IllegalArgumentException(String.format("Unknown file type: %s.", arg));
     }
 
@@ -170,5 +201,19 @@ public class FormatTool {
         System.err.println("             BedGraph)");
         System.err.println("    inFile   the unformatted input file (required)");
         System.err.println("    outFile  the output file (if omitted, will default to inFile.savant)");
+    }
+
+    private static class CommandLineProgressListener implements FormatProgressListener {
+
+        @Override
+        public void taskProgressUpdate(Integer progress, String status) {
+            if (status != null) {
+                System.out.println(status);
+            }
+        }
+
+        @Override
+        public void incrementOverallProgress() {
+        }
     }
 }
