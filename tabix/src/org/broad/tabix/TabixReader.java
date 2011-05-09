@@ -34,7 +34,6 @@ import java.util.Set;
 
 import net.sf.samtools.util.BlockCompressedInputStream;
 import net.sf.samtools.util.SeekableStream;
-import savant.util.MiscUtils;
 
 
 public class TabixReader {
@@ -162,7 +161,7 @@ public class TabixReader {
 			if (buf[i] == 0) {
 				byte[] b = new byte[i - j];
 				System.arraycopy(buf, j, b, 0, b.length);
-				String s = MiscUtils.homogenizeSequence(new String(b));
+				String s = homogenizeSequence(new String(b));
 				mChr2tid.put(s, k);
 				mSeq[k++] = s;
 				j = i + 1;
@@ -202,7 +201,7 @@ public class TabixReader {
 	}
 
 	protected int chr2tid(String chr) {
-            chr = MiscUtils.homogenizeSequence(chr);
+            chr = homogenizeSequence(chr);
             if (mChr2tid.containsKey(chr)) {
                 return mChr2tid.get(chr);
             }
@@ -405,4 +404,26 @@ public class TabixReader {
 		int[] x = parseReg(reg);
 		return query(x[0], x[1], x[2]);
 	}
+
+    /**
+     * Return string without sequence title (chr, contig)
+     */
+    private static String homogenizeSequence(String s){
+        String result = s;
+        if(result.contains("chr")){
+            result = result.replaceAll("chr", "");
+        }
+        if(result.contains("Chr")){
+            result = result.replaceAll("Chr", "");
+        }
+        if(result.contains("contig")){
+            result = result.replaceAll("contig", "");
+        }
+        if(result.contains("Contig")){
+            result = result.replaceAll("Contig", "");
+        }
+        return result;
+    }
+
+
 }
