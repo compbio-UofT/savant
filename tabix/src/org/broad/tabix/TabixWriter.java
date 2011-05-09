@@ -56,11 +56,11 @@ public class TabixWriter extends TabixReader {
     public static final int TI_PRESET_VCF = 2;
     public static final int TI_FLAG_UCSC = 0x10000;
 
-    private static final Conf GFF_CONF = new Conf(0, 1, 4, 5, '#', 0);
-    private static final Conf BED_CONF = new Conf(TI_FLAG_UCSC, 1, 2, 3, '#', 0);
-    private static final Conf PSLTBL_CONF = new Conf(TI_FLAG_UCSC, 15, 17, 18, '#', 0);
-    private static final Conf SAM_CONF = new Conf(TI_PRESET_SAM, 3, 4, 0, '@', 0);
-    private static final Conf VCF_CONF = new Conf(TI_PRESET_VCF, 1, 2, 0, '#', 0);
+    public static final Conf GFF_CONF = new Conf(0, 1, 4, 5, '#', 0);
+    public static final Conf BED_CONF = new Conf(TI_FLAG_UCSC, 1, 2, 3, '#', 0);
+    public static final Conf PSLTBL_CONF = new Conf(TI_FLAG_UCSC, 15, 17, 18, '#', 0);
+    public static final Conf SAM_CONF = new Conf(TI_PRESET_SAM, 3, 4, 0, '@', 0);
+    public static final Conf VCF_CONF = new Conf(TI_PRESET_VCF, 1, 2, 0, '#', 0);
 
     /** The binning index. */
     List<Map<Integer, List<TPair64>>> binningIndex = new ArrayList<Map<Integer, List<TPair64>>>();
@@ -313,12 +313,12 @@ public class TabixWriter extends TabixReader {
 
 
     public static class Conf {
-        int preset;
-        int chrColumn;
-        int startColumn;
-        int endColumn;
-        char commentChar;
-        int linesToSkip;
+        public final int preset;
+        public final int chrColumn;
+        public final int startColumn;
+        public final int endColumn;
+        public final char commentChar;
+        public final int linesToSkip;
 
         public Conf(int preset, int chrColumn, int startColumn, int endColumn, char commentChar, int linesToSkip) {
             this.preset = preset;
