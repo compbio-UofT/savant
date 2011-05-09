@@ -37,12 +37,12 @@ public class SAMSorter extends Sorter {
     }
 
     @Override
-    Parser getParser() {
+    public Parser getParser() {
         return new Parser(2, 3);
     }
 
     @Override
-    String writeHeader(AsciiLineReader reader, PrintWriter writer) {
+    public String writeHeader(AsciiLineReader reader, PrintWriter writer) {
         String nextLine = reader.readLine();
         while (nextLine != null && nextLine.startsWith("@")) {
             writer.println(nextLine);

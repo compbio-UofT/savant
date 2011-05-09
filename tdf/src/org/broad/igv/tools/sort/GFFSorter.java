@@ -37,12 +37,12 @@ public class GFFSorter extends Sorter {
     }
 
     @Override
-    Parser getParser() {
+    public Parser getParser() {
         return new Parser(0, 3);
     }
 
     @Override
-    String writeHeader(AsciiLineReader reader, PrintWriter writer) {
+    public String writeHeader(AsciiLineReader reader, PrintWriter writer) {
         String nextLine = reader.readLine();
         while (nextLine.startsWith("#")) {
             writer.println(nextLine);

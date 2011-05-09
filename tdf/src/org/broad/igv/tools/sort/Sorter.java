@@ -149,9 +149,9 @@ public abstract class Sorter {
         }
     }
 
-    abstract Parser getParser();
+    public abstract Parser getParser();
 
-    abstract String writeHeader(AsciiLineReader reader, PrintWriter writer);
+    public abstract String writeHeader(AsciiLineReader reader, PrintWriter writer);
 
     /**
      * @param tmpDir the tmpDir to set

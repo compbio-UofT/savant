@@ -36,7 +36,8 @@ public class CNSorter extends Sorter {
         super(inputFile, outputFile);
     }
 
-    String writeHeader(AsciiLineReader reader, PrintWriter writer) {
+    @Override
+    public String writeHeader(AsciiLineReader reader, PrintWriter writer) {
         String nextLine = reader.readLine();
         while (nextLine.startsWith("#") || (nextLine.trim().length() == 0)) {
             writer.println(nextLine);
@@ -48,7 +49,8 @@ public class CNSorter extends Sorter {
         return null;
     }
 
-    Parser getParser() {
+    @Override
+    public Parser getParser() {
         String tmp = inputFile.getName();
         String fn = tmp.endsWith(".txt") ? tmp.substring(0, tmp.length() - 4) : tmp;
 

@@ -37,12 +37,12 @@ public class VCFSorter extends Sorter {
     }
 
     @Override
-    Parser getParser() {
+    public Parser getParser() {
         return new Parser(0, 1);
     }
 
     @Override
-    String writeHeader(AsciiLineReader reader, PrintWriter writer) {
+    public String writeHeader(AsciiLineReader reader, PrintWriter writer) {
         String nextLine = reader.readLine();
         // TODO -- check "browser" line syntax,  is it a multi-line directive?
         while (nextLine.startsWith("#")) {

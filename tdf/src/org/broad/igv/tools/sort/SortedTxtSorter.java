@@ -35,12 +35,12 @@ public class SortedTxtSorter extends Sorter {
     }
 
     @Override
-    Parser getParser() {
+    public Parser getParser() {
        return new Parser(10, 12);
     }
 
     @Override
-    String writeHeader(AsciiLineReader reader, PrintWriter writer) {
+    public String writeHeader(AsciiLineReader reader, PrintWriter writer) {
         return null; 
     }
 }
