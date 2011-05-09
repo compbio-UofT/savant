@@ -2051,7 +2051,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
 
     private void addTrackFrame(savant.view.swing.Frame frame) {
 
-        if (startpage.isVisible()) {
+        if (startpage != null && startpage.isVisible()) {
             startpage.setVisible(false);
         }
 
