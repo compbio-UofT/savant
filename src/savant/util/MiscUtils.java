@@ -36,6 +36,7 @@ import com.jidesoft.docking.DockableFrame;
 import com.jidesoft.docking.DockingManager;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import savant.file.DataFormat;
 
 
 
@@ -422,5 +423,35 @@ public class MiscUtils {
             supportedExtensions.add("gz");
         }
         return supportedExtensions.contains(MiscUtils.getExtension(path).toLowerCase());
+    }
+
+    /*
+     * Return a nice string representation of data type
+     */
+    public static String dataFormatToString(DataFormat df){
+        switch(df){
+            case SEQUENCE_FASTA: return "Fasta Sequence";
+            case POINT_GENERIC: return "Point";
+            case CONTINUOUS_GENERIC: return "Continuous";
+            case INTERVAL_GENERIC: return "Generic Interval";
+            case INTERVAL_BED: return "BED Interval";
+            case INTERVAL_BAM: return "BAM Interval";
+            case TABIX: return "Tabix";
+            default: return "";
+        }
+    }
+
+    /*
+     * Return a data type from string representation
+     */
+    public static DataFormat dataFormatFromString(String df){
+        if(df.equals("Fasta Sequence")) return DataFormat.SEQUENCE_FASTA;
+        else if(df.equals("Point")) return DataFormat.POINT_GENERIC;
+        else if(df.equals("Continuous")) return DataFormat.CONTINUOUS_GENERIC;
+        else if(df.equals("Generic Interval")) return DataFormat.INTERVAL_GENERIC;
+        else if(df.equals("BED Interval")) return DataFormat.INTERVAL_BED;
+        else if(df.equals("BAM Interval")) return DataFormat.INTERVAL_BAM;
+        else if(df.equals("Tabix")) return DataFormat.TABIX;
+        else return null;
     }
 }

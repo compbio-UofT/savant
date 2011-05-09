@@ -18,15 +18,18 @@ package savant.view.swing;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
+import savant.api.util.DialogUtils;
 
 import savant.controller.FrameController;
 import savant.controller.RangeController;
+import savant.controller.ReferenceController;
 import savant.util.MiscUtils;
 
 /**
@@ -69,7 +72,7 @@ public class ExportImage {
         RangeController range = RangeController.getInstance();
         int start = range.getRangeStart();
         int end = range.getRangeEnd();
-        String toWrite = "Range:  " + start + " - " + end;
+        String toWrite = "Reference:  " + ReferenceController.getInstance().getReferenceName() + "    Range:  " + start + " - " + end;
         Graphics2D g = out.createGraphics();
         g.setColor(Color.white);
         g.setFont(new Font(null, Font.BOLD, 13));
@@ -104,6 +107,97 @@ public class ExportImage {
 
     private String save(BufferedImage screen) {
 
+        /*File file = null;
+        if(MiscUtils.MAC){
+            file = DialogUtils.chooseFileForSave("Output File", "image.png");
+        } else {
+            JFileChooser fd = new JFileChooser();
+            fd.setDialogTitle("Output File");
+            fd.setDialogType(JFileChooser.SAVE_DIALOG);
+            fd.setFileFilter(new FileFilter() {
+
+                @Override
+                public boolean accept(File f) {
+                        if (f.isDirectory()) {
+                            return true;
+                        }
+
+                        String path = f.getAbsolutePath();
+                        String extension = "";
+                        int indexOfDot = path.lastIndexOf(".");
+                        if (indexOfDot == -1 || indexOfDot == path.length() - 1) {
+                            extension = "";
+                        } else {
+                            extension = path.substring(indexOfDot + 1);
+                        }
+
+                        //String extension = DataFormatUtils.getExtension(f.getAbsolutePath());
+                        if (extension != null) {
+                            if (extension.equals("png")) {
+                                return true;
+                            } else {
+                                return false;
+                            }
+                        }
+
+                        return false;
+                }
+
+                @Override
+                public String getDescription() {
+                    return "Image files (*.png)";
+                }
+
+            });
+            JFrame jf = new JFrame();
+            int result = fd.showSaveDialog(jf);
+            if (result == JFileChooser.CANCEL_OPTION || result == JFileChooser.ERROR_OPTION ) return null;
+            String selectedFileName = fd.getSelectedFile().getPath();
+
+            if(selectedFileName != null) file = new File(selectedFileName);
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        //File file = DialogUtils.chooseFileForSave("Output File", "image.png");
+
+        if(file != null){
+            try {
+                ImageIO.write(screen, "PNG", file);
+            } catch (IOException ex) {
+                String message = "Screenshot unsuccessful";
+                String title = "Uh oh...";
+                // display the JOptionPane showConfirmDialog
+                JOptionPane.showConfirmDialog(null, message, title, JOptionPane.ERROR_MESSAGE);
+            }
+        }
+
+        return null;*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         JFrame jf = new JFrame();
         String selectedFileName;
         // TODO: Switch this to use DialogUtils.chooseFileForSave.
@@ -117,8 +211,25 @@ public class ExportImage {
                 selectedFileName = fd.getDirectory() + selectedFileName;
             }
         } else {
-            JFileChooser fd = new JFileChooser();
+            JFileChooser fd = new JFileChooser(){
+                @Override
+                public void approveSelection(){
+                    File f = getSelectedFile();
+                    if(f.exists() && getDialogType() == SAVE_DIALOG){
+                        int result = JOptionPane.showConfirmDialog(this,"The file exists, overwrite?","Existing file",JOptionPane.YES_NO_OPTION);
+                        switch(result){
+                            case JOptionPane.YES_OPTION:
+                                super.approveSelection();
+                                return;
+                            case JOptionPane.NO_OPTION:
+                                return;
+                        }
+                    }
+                    super.approveSelection();
+                }
+            };
             fd.setDialogTitle("Output File");
+            fd.setSelectedFile(new File("Untitled.png"));
             fd.setDialogType(JFileChooser.SAVE_DIALOG);
             fd.setFileFilter(new FileFilter() {
 
@@ -127,8 +238,6 @@ public class ExportImage {
                         if (f.isDirectory()) {
                             return true;
                         }
-
-
 
                         String path = f.getAbsolutePath();
                         String extension = "";

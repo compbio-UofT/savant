@@ -28,6 +28,7 @@ import javax.swing.*;
 
 import savant.controller.FrameController;
 import savant.file.DataFormat;
+import savant.util.MiscUtils;
 import savant.view.swing.Frame;
 
 
@@ -59,19 +60,17 @@ public class TrackChooser extends JDialog {
     private JComboBox filterCombo;
     private String[] filteredTracks = null;
 
-    @Override
+    /*@Override
     public void setVisible(boolean isVisible) {
         if (isVisible) {
             initLists();
         }
         super.setVisible(isVisible);
-    }
+    }*/
 
     public TrackChooser(JFrame parent, boolean multiple, String title){
         super(parent, true);
 
-        //this.setVisible(true);
-        
         this.multiple = multiple;
         this.setTitle(title);
 
@@ -94,13 +93,16 @@ public class TrackChooser extends JDialog {
         }
         leftList.updateUI();
         leftList.clearSelection();
-        if(filterCombo.getSelectedItem().equals("ALL")){
+
+        DataFormat ff = MiscUtils.dataFormatFromString((String)filterCombo.getSelectedItem());
+
+        //if(filterCombo.getSelectedItem().equals("All")){
+        if(ff == null){
             leftList.updateUI();
             leftList.clearSelection();
             return;
         }
-
-        DataFormat ff = (DataFormat)filterCombo.getSelectedItem();
+    
         String[] leftTracks = ((TrackListModel)leftList.getModel()).getAll();       
         List<Frame> frames = FrameController.getInstance().getFrames();
 
@@ -428,9 +430,9 @@ public class TrackChooser extends JDialog {
             DataFormat ff = frames.get(i).getTracks()[0].getDataSource().getDataFormat();
             if(!fileFormats.contains(ff)) fileFormats.add(ff);
         }
-        filterCombo.addItem("ALL");
+        filterCombo.addItem("All");
         for(int i = 0; i < fileFormats.size(); i++){
-            filterCombo.addItem(fileFormats.get(i));
+            filterCombo.addItem(MiscUtils.dataFormatToString(fileFormats.get(i)));
         }
         filterCombo.addActionListener(new ActionListener() {
             @Override
