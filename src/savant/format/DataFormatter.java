@@ -142,12 +142,13 @@ public class DataFormatter {
                     runFormatter(new PointGenericFormatter(inFile, outFile, isOneBased));
                     break;
                 case INTERVAL_BED:
+                case INTERVAL_BED1:
                 case INTERVAL_GENERIC:
                 case INTERVAL_GFF:
                 case INTERVAL_PSL:
                 case INTERVAL_VCF:
                 case INTERVAL_GENE:
-                case INTERVAL_REFGENE:
+                case INTERVAL_GENE1:
                     runFormatter(new TabixFormatter(inFile, outFile, inputFileType));
                     break;
                 case CONTINUOUS_GENERIC:

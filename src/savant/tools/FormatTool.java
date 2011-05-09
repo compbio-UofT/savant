@@ -46,16 +46,20 @@ public class FormatTool {
             FileType ft = null;
             boolean oneBased = false;
             boolean forceOneBased = false;
+            boolean binned = false;
+            String typeStr = null;
 
             for (int i = 0; i < args.length; i++) {
                 if (args[i].equals("-t")) {
                     if (i + 1 >= args.length) {
                         throw new IllegalArgumentException("File type not specified.");
                     }
-                    ft = parseFileType(args[++i]);
+                    typeStr = args[++i];
                 } else if (args[i].equals("-1")) {
                     forceOneBased = true;
                     oneBased = true;
+                } else if (args[i].equals("-bin")) {
+                    binned = true;
                 } else if (inFile == null) {
                     inFile = new File(args[i]);
                 } else if (outFile == null) {
@@ -64,6 +68,8 @@ public class FormatTool {
                     throw new IllegalArgumentException(String.format("Unrecognised command line argument: %s.", args[i]));
                 }
             }
+
+            ft = parseFileType(typeStr, binned);
 
             if (inFile == null) {
                 throw new IllegalArgumentException("Input file not specified.");
@@ -84,11 +90,12 @@ public class FormatTool {
                 switch (ft) {
                     case INTERVAL_GENERIC:
                     case INTERVAL_BED:
+                    case INTERVAL_BED1:
                     case INTERVAL_GFF:
                     case INTERVAL_PSL:
                     case INTERVAL_VCF:
                     case INTERVAL_GENE:
-                    case INTERVAL_REFGENE:
+                    case INTERVAL_GENE1:
                         outFile = new File(inFile.getAbsolutePath() + ".gz");
                         break;
                     case CONTINUOUS_GENERIC:
@@ -124,13 +131,13 @@ public class FormatTool {
         }
     }
 
-    private static FileType parseFileType(String arg) {
+    private static FileType parseFileType(String arg, boolean binned) {
         String s = arg.toLowerCase();
         if (s.equals("fasta")) {
             return FileType.SEQUENCE_FASTA;
         }
         if (s.equals("bed")) {
-            return FileType.INTERVAL_BED;
+            return binned ? FileType.INTERVAL_BED1 : FileType.INTERVAL_BED;
         }
         if (s.equals("gff")) {
             return FileType.INTERVAL_GFF;
@@ -157,10 +164,10 @@ public class FormatTool {
             return FileType.INTERVAL_VCF;
         }
         if (s.equals("gene") || s.equals("knowngene")) {
-            return FileType.INTERVAL_GENE;
+            return binned ? FileType.INTERVAL_GENE1 : FileType.INTERVAL_GENE;
         }
         if (s.equals("refgene")) {
-            return FileType.INTERVAL_REFGENE;
+            return FileType.INTERVAL_GENE1;
         }
         throw new IllegalArgumentException(String.format("Unknown file type: %s.", arg));
     }
@@ -193,12 +200,13 @@ public class FormatTool {
 
     @SuppressWarnings("UseOfSystemOutOrSystemErr")
     private static void usage() {
-        System.err.println("Usage: FormatTool [-t type] [-1] inFile [outFile]");
+        System.err.println("Usage: FormatTool [-t type] [-1] [-bin] inFile [outFile]");
         System.err.println("    -t       file type (one of FASTA, BED, GFF, BAM, WIG, BedGraph, Interval,");
-        System.err.println("             Point, Continuous; if omitted, will try to infer from file");
+        System.err.println("             Point, Continuous, Gene; if omitted, will try to infer from file");
         System.err.println("             extension)");
         System.err.println("    -1       treat the file as one-based (default for FASTA, GFF, BAM, WIG, and");
         System.err.println("             BedGraph)");
+        System.err.println("    -bin     first column is a bin column (used by some UCSC BED and Gene tables)");
         System.err.println("    inFile   the unformatted input file (required)");
         System.err.println("    outFile  the output file (if omitted, will default to inFile.savant)");
     }

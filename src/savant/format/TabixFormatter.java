@@ -49,7 +49,6 @@ public class TabixFormatter extends SavantFileFormatter {
      */
     public TabixFormatter(File inFile, File outFile, FileType inputFileType) {
         super(inFile, outFile, FileType.TABIX);
-        int flags = 0;
         switch (inputFileType) {
             case INTERVAL_GENERIC:
                 conf = TabixWriter.BED_CONF;
@@ -59,6 +58,10 @@ public class TabixFormatter extends SavantFileFormatter {
                 conf = TabixWriter.BED_CONF;
                 header = "#chrom\tstart\tend\tname\tscore\tstrand\tthickStart\tthickEnd\titemRgb\tblockCount\tblockSizes\tblockStarts";
                 break;
+            case INTERVAL_BED1:
+                conf = new Conf(TabixWriter.TI_FLAG_UCSC, 2, 3, 4, '#', 0);
+                header = "#bin\tchrom\tstart\tend\tname\tscore\tstrand\tthickStart\tthickEnd\titemRgb\tblockCount\tblockSizes\tblockStarts";
+                break;
             case INTERVAL_GFF:
                 conf = TabixWriter.GFF_CONF;
                 header = "#seqname\tsource\tfeature\tstart\tend\tscore\tstrand\tframe\tgroup";
@@ -67,7 +70,7 @@ public class TabixFormatter extends SavantFileFormatter {
                 conf = new Conf(0, 2, 4, 5, '#', 0);
                 header = "## Savant 1.4.5 gene\n#name\tchrom\tstrand\ttxStart\ttxEnd\tcdsStart\tcdsEnd\texonCount\texonStarts\texonEnds\tid\tname2\tcdsStartStat\tcdsEndStat\texonFrames";
                 break;
-            case INTERVAL_REFGENE:
+            case INTERVAL_GENE1:
                 conf = new Conf(0, 3, 5, 6, '#', 0);
                 header = "## Savant 1.4.5 refGene\n#bin\tname\tchrom\tstrand\ttxStart\ttxEnd\tcdsStart\tcdsEnd\texonCount\texonStarts\texonEnds\tid\tname2\tcdsStartStat\tcdsEndStat\texonFrames";
                 break;
@@ -87,7 +90,7 @@ public class TabixFormatter extends SavantFileFormatter {
         try {
             // Sort the input file.
             setSubtaskStatus("Sorting input file...");
-            File sortedFile = File.createTempFile("savant", "sorted");
+            File sortedFile = File.createTempFile("savant", ".sorted");
             new Sorter(inFile, sortedFile) {
                 @Override
                 public Parser getParser() {

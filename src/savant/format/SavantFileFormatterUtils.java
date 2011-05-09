@@ -101,7 +101,7 @@ public class SavantFileFormatterUtils {
             return FileType.INTERVAL_GENE;
         }
         if (extension.equals("refgene")) {
-            return FileType.INTERVAL_REFGENE;
+            return FileType.INTERVAL_GENE1;
         }
 
         // None of the generic formats have any kind of standard extension.
