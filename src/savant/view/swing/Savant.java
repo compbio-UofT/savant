@@ -59,7 +59,6 @@ import savant.controller.event.*;
 import savant.data.sources.DataSource;
 import savant.data.types.Genome;
 import savant.file.SavantFileNotFormattedException;
-import savant.file.SavantUnsupportedVersionException;
 import savant.experimental.XMLTool;
 import savant.plugin.builtin.SAFEDataSourcePlugin;
 import savant.plugin.builtin.SavantFileRepositoryDataSourcePlugin;
@@ -134,7 +133,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         this.menuItem_viewtoolbar.setSelected(isVisible);
     }
 
-    public void addTrackFromFile(String selectedFileName) throws IOException, SavantFileNotFormattedException, SavantUnsupportedVersionException {
+    public void addTrackFromFile(String selectedFileName) {
 
         URI uri = null;
         try {
@@ -146,16 +145,15 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
             // This can happen if we're passed a file-name containing spaces.
             uri = new File(selectedFileName).toURI();
         }
+        addTrackFromURI(uri);
+    }
 
-        LOG.info("Loading track " + selectedFileName);
-
+    public void addTrackFromURI(URI uri) {
+        LOG.info("Loading track " + uri);
         Frame frame = DockableFrameFactory.createTrackFrame();
-        frame.setKey(selectedFileName);
+        frame.setKey(uri.toString());
         TrackFactory.createTrack(uri, frame);
-        LOG.trace("Savant.addTrackFromFile calling trackDockingManager.addFrame");
         addTrackFrame(frame);
-        
-
     }
 
     /**
@@ -1047,11 +1045,26 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
     }//GEN-LAST:event_loadGenomeItemActionPerformed
 
     private void loadFromFileItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loadFromFileItemActionPerformed
-        this.showOpenTracksDialog(false);
+        if (!ReferenceController.getInstance().isGenomeLoaded()) {
+            JOptionPane.showMessageDialog(this, "Load a genome first.");
+            return;
+        }
+
+        File[] selectedFiles = DialogUtils.chooseFilesForOpen("Open Tracks", null, null);
+        for (File f : selectedFiles) {
+            // This creates the tracks asynchronously, which handles all exceptions internally.
+            addTrackFromFile(f.getAbsolutePath());
+        }
     }//GEN-LAST:event_loadFromFileItemActionPerformed
 
     private void loadFromURLItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loadFromURLItemActionPerformed
-        showOpenURLDialog(false);
+        URL url = OpenURLDialog.getURL(this);
+        if (url != null) {
+            try {
+                addTrackFromURI(url.toURI());
+            } catch (URISyntaxException ignored) {
+            }
+        }
     }//GEN-LAST:event_loadFromURLItemActionPerformed
 
     private void websiteItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_websiteItemActionPerformed
@@ -1138,22 +1151,6 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         this.toolbar_bottom.setVisible(!this.toolbar_bottom.isVisible());
     }//GEN-LAST:event_menuitem_statusbarActionPerformed
 
-    /**
-     * Switch the visibility (hidden/shown) of a dockable frame with a given
-     * tree.
-     * @param frameKey The key for the DockableFrame to change visibility
-     * @param m The DockingManager which contains the DockableFrame to change
-     * visibility for
-     */
-    private void switchFrameVisibility(String frameKey, DockingManager m) {
-        DockableFrame f = m.getFrame(frameKey);
-        if (f.isVisible()) {
-            m.hideFrame(frameKey);
-        } else {
-            m.showFrame(frameKey);
-        }
-    }
-
     private void menuitem_exportActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuitem_exportActionPerformed
         //ExportImageDialog export = new ExportImageDialog(Savant.getInstance(), true);
         //export.setVisible(true);
@@ -1230,12 +1227,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
 
     private void loadFromDataSourcePluginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loadFromDataSourcePluginActionPerformed
         try {
-            DataSource s;
-            if (DataSourcePluginController.getInstance().hasOnlySavantRepoDataSource()) {
-                s = DataSourcePluginController.getInstance().getDataSourcePlugins().get(0).getDataSource();
-            } else {
-                s = DataSourcePluginDialog.getDataSource(this);
-            }
+            DataSource s = DataSourcePluginDialog.getDataSource(this);
             if (s != null) {
                 Track t = TrackFactory.createTrack(s);
                 createFrameForExistingTrack(Arrays.asList(new Track[] { t }));
@@ -1319,7 +1311,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         Savant instance = Savant.getInstance();
 
         //load project immediately if argument exists
-        if(instance.isWebStart() && loadProjectUrl != null){
+        if (instance.isWebStart() && loadProjectUrl != null){
             instance.projectHandler.loadProjectFromUrl(loadProjectUrl);
         }
 
@@ -1750,97 +1742,8 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
      * the distribution).
      */
     public void showOpenGenomeDialog() {
-
         LoadGenomeDialog d = new LoadGenomeDialog(this,true);
         d.setVisible(true);
-
-        /*
-
-        //Custom button text
-        Object[] options = {"From file", /*"From URL", "By length", "Cancel"};
-        int n = JOptionPane.showOptionDialog(this,
-                "How would you like to specify the genome?",
-                "Specify a Genome",
-                JOptionPane.YES_NO_CANCEL_OPTION,
-                JOptionPane.QUESTION_MESSAGE,
-                null,
-                options,
-                options[0]);
-
-        if (n == 1) {
-
-            
-            //GenomeLengthForm gf = new GenomeLengthForm(this, true);
-
-            //if (gf.userCompletedForm) {
-            //    setGenome(gf.loadedGenome.getName(), gf.loadedGenome);
-            //}
-        } else if (n == 0) {
-            File selectedFile = DialogUtils.chooseFileForOpen(this, "Load Genome", null);
-            // set the genome
-            if (selectedFile != null) {
-                Savant.log("Loading genome " + selectedFile, Savant.LOGMODE.NORMAL);
-                try {
-                    List<Track> trks = TrackFactory.createTrack(selectedFile.toURI());
-                    if (!trks.isEmpty()) {
-                        setGenomeFromTrack(trks.get(0));
-                        Savant.log("Genome loaded", Savant.LOGMODE.NORMAL);
-                    }
-                } catch (Exception x) {
-                    LOG.error("Unable to load genome.", x);
-                    DialogUtils.displayException("Error Loading Genome", String.format("Unable to load genome from %s.", selectedFile.getName()), x);
-                }
-            } else {
-                showOpenGenomeDialog();
-            }
-        }
-         *
-         */
-    }
-
-    /**
-     * Open Tracks Dialog
-     *  Prompt the user to open track file(s).
-     *  Expects a Binary formatted file (created using the
-     *  data formatter included in the distribution)
-     */
-    public void showOpenTracksDialog(boolean loadAsGenome) {
-
-        if (loadAsGenome) {
-            File selectedFile = DialogUtils.chooseFileForOpen("Load Genome", null, null);
-            // set the genome
-            if (selectedFile != null) {
-                try {
-                    List<Track> trks = TrackFactory.createTrackSync(selectedFile.toURI());
-                    if (!trks.isEmpty()) {
-                        setGenomeFromTrack(trks.get(0), null);
-                    }
-                } catch (SavantFileNotFormattedException ignored) {
-                    // Already handled.
-                } catch (Throwable x) {
-                    DialogUtils.displayException("Error Loading Genome", String.format("Unable to load genome from %s.", selectedFile.getName()), x);
-                }
-            } else {
-                showOpenGenomeDialog();
-            }
-        } else {
-
-            if (!ReferenceController.getInstance().isGenomeLoaded()) {
-                JOptionPane.showMessageDialog(this, "Load a genome first.");
-                return;
-            }
-
-            File[] selectedFiles = DialogUtils.chooseFilesForOpen("Open Tracks", null, null);
-            for (File f : selectedFiles) {
-                try {
-                    addTrackFromFile(f.getAbsolutePath());
-                } catch (SavantFileNotFormattedException sfnfx) {
-                    promptUserToFormatFile(f.toURI());
-                } catch (Exception x) {
-                    DialogUtils.displayException("Error", String.format("%s opening %s.", x.getClass(), f), x);
-                }
-            }
-        }
     }
 
     /** [[EVENTS]]**/
@@ -1896,9 +1799,6 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
     }
 
     /**
-     * Genome
-     */
-    /**
      * Set the genome to the specified file.
      *
      * @param track the track to be used
@@ -1907,7 +1807,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
     public void setGenomeFromTrack(Track track, Frame existingFrame) {
         Genome g = Track.createGenome(track);
         if (g != null) {
-            setGenome(track.getName(), g, existingFrame);
+            setGenome(g, existingFrame);
         }
     }
 
@@ -1916,7 +1816,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
      * @param name name of the genome (will be a full path if the sequence is set)
      * @param genome the genome to set
      */
-    public void setGenome(String genomeName, Genome genome, Frame existingFrame) {
+    public void setGenome(Genome genome, Frame existingFrame) {
 
         boolean someGenomeSetAlready = ReferenceController.getInstance().isGenomeLoaded();
 
@@ -1940,14 +1840,10 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         }
 
         showBrowserControls();
-
-        //button_genome.setEnabled(false);
-        //menuitem_genome.setEnabled(false);
-
         updateReferenceNamesList();
         navigationBar.setSelectedReference(0);
-        //referenceDropdown.setSelectedIndex(1); // dont set it to 0 because that item is not allowed to be selected
     }
+
     private boolean browserControlsShown = false;
 
     private void showBrowserControls() {
@@ -2141,37 +2037,11 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         setVisible(true);
     }
 
-    private boolean askIfTrackShouldBeLoadedAsGenome() {
-        int result = JOptionPane.showConfirmDialog(this, "No genome is loaded yet. Load file as genome?", "No genome loaded", JOptionPane.YES_NO_OPTION);
-        if (result == JOptionPane.YES_OPTION) {
-            return true;
-        }
-        return false;
-    }
-
     private void initDataSources() {
         DataSourcePluginController.getInstance().addDataSourcePlugin(new SavantFileRepositoryDataSourcePlugin());
         
         if (!turnExperimentalFeaturesOff) {
             DataSourcePluginController.getInstance().addDataSourcePlugin(new SAFEDataSourcePlugin());
-        }
-    }
-
-    /**
-     * Display the DataSourcePluginDialog to select a DataSource.
-     *
-     * @param loadAsGenome we want to load this track as a Genome
-     * @return true if accepted, false if cancelled
-     */
-    public void showLoadFromOtherDataSourceDialog(boolean loadAsGenome) throws Exception {
-        DataSource s = DataSourcePluginDialog.getDataSource(this);
-        if (s != null) {
-            Track t = TrackFactory.createTrack(s);
-            if (loadAsGenome) {
-                setGenomeFromTrack(t, null);
-            } else {
-                createFrameForExistingTrack(Arrays.asList(new Track[] { t }));
-            }
         }
     }
 
@@ -2191,50 +2061,6 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         tc.setVisible(true);
         String[] tracks = tc.getSelectedTracks();
         return tracks;
-    }
-
-    public void showOpenURLDialog(boolean loadAsGenome) {
-
-        OpenURLDialog urlDialog = new OpenURLDialog(this, true);
-
-        urlDialog.setLocationRelativeTo(this);
-        urlDialog.setVisible(true);
-
-        if (urlDialog.isAccepted()) {
-            String urlString = urlDialog.getUrlAsString();
-
-            LOG.info("Opening url: " + urlString);
-
-            try {
-                URL url = new URL(urlString);
-                String proto = url.getProtocol().toLowerCase();
-                if (!proto.equals("http") && !proto.equals("ftp")) {
-                    DialogUtils.displayMessage("Sorry", "Only files accessible via HTTP or FTP can be opened via URL.");
-                    return;
-                }
-            } catch (MalformedURLException e) {
-                // ignore, since it was already caught by the dialog and should never happen here
-            }
-            try {
-
-                List<Track> tracks = TrackFactory.createTrackSync(new URI(urlDialog.getUrlAsString()));
-
-                if (loadAsGenome) {
-                    setGenomeFromTrack(tracks.get(0), null);
-                } else {
-                    createFrameForExistingTrack(tracks);
-                }
-
-            } catch (Throwable ex) {
-                // displayException should already have been displayed in createTrack.
-                // DialogUtils.displayException("Load Track from URL", "Error opening remote file", ex);
-                return;
-            }
-        } else {
-            if (loadAsGenome) {
-                Savant.getInstance().showOpenGenomeDialog();
-            }
-        }
     }
 
     private void displayAuxPanels() {

@@ -1,10 +1,5 @@
 /*
- *
- * OpenURLDialog.java
- *
- * Created on Aug 4, 2010, 4:06:06 PM
- * 
- *    Copyright 2009-2010 University of Toronto
+ *    Copyright 2009-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -20,26 +15,30 @@
  */
 package savant.view.dialog;
 
-import java.awt.*;
+import java.awt.Toolkit;
+import java.awt.Window;
 import java.net.MalformedURLException;
 import java.net.URL;
+import javax.swing.JDialog;
+
 import savant.api.util.DialogUtils;
+import savant.util.MiscUtils;
 
 /**
- * @author vwilliam
+ * @author vwilliam, tarkvara
  */
-public class OpenURLDialog extends javax.swing.JDialog {
+public class OpenURLDialog extends JDialog {
 
-    private boolean accepted = false;
     private URL url;
 
     /** Creates new form OpenURLDialog */
-    public OpenURLDialog(java.awt.Frame parent, boolean modal) {
-        super(parent, modal);
+    private OpenURLDialog(Window parent, boolean modal) {
+        super(parent, ModalityType.APPLICATION_MODAL);
         initComponents();
 
-        this.setModal(true);
-        this.getRootPane().setDefaultButton(okButton);
+        setModal(true);
+        getRootPane().setDefaultButton(okButton);
+        MiscUtils.registerCancelButton(cancelButton);
     }
 
     /** This method is called from within the constructor to
@@ -54,7 +53,7 @@ public class OpenURLDialog extends javax.swing.JDialog {
         javax.swing.JLabel urlLabel = new javax.swing.JLabel();
         urlField = new javax.swing.JTextField();
         javax.swing.JLabel noteLabel = new javax.swing.JLabel();
-        javax.swing.JButton cancelButton = new javax.swing.JButton();
+        cancelButton = new javax.swing.JButton();
         okButton = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
@@ -66,6 +65,7 @@ public class OpenURLDialog extends javax.swing.JDialog {
         noteLabel.setText("Note: BAM files must be sorted and an index must be present with the extension .bai");
 
         cancelButton.setText("Cancel");
+        cancelButton.setPreferredSize(new java.awt.Dimension(90, 30));
         cancelButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 cancelButtonActionPerformed(evt);
@@ -73,6 +73,7 @@ public class OpenURLDialog extends javax.swing.JDialog {
         });
 
         okButton.setText("OK");
+        okButton.setPreferredSize(new java.awt.Dimension(90, 30));
         okButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 okButtonActionPerformed(evt);
@@ -87,9 +88,9 @@ public class OpenURLDialog extends javax.swing.JDialog {
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(okButton)
+                        .addComponent(okButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(cancelButton))
+                        .addComponent(cancelButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(noteLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 560, Short.MAX_VALUE)
                     .addComponent(urlLabel)
                     .addComponent(urlField, javax.swing.GroupLayout.DEFAULT_SIZE, 560, Short.MAX_VALUE))
@@ -106,8 +107,8 @@ public class OpenURLDialog extends javax.swing.JDialog {
                 .addComponent(noteLabel)
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(cancelButton)
-                    .addComponent(okButton))
+                    .addComponent(cancelButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(okButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -115,19 +116,19 @@ public class OpenURLDialog extends javax.swing.JDialog {
     }// </editor-fold>//GEN-END:initComponents
 
     private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelButtonActionPerformed
-        setAccepted(false);
-        this.setVisible(false);
+        url = null;
+        setVisible(false);
     }//GEN-LAST:event_cancelButtonActionPerformed
 
     private void okButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_okButtonActionPerformed
         if (parseURL()) {
-            setAccepted(true);
-            this.setVisible(false);
+            setVisible(false);
         } else  {
             DialogUtils.displayError("Please enter a valid URL.");
         }
     }//GEN-LAST:event_okButtonActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton cancelButton;
     private javax.swing.JButton okButton;
     private javax.swing.JTextField urlField;
     // End of variables declaration//GEN-END:variables
@@ -138,7 +139,7 @@ public class OpenURLDialog extends javax.swing.JDialog {
         String urlStr = urlField.getText();
 
         try {
-            setUrl(new URL(urlStr));
+            url = new URL(urlStr);
             result = true;
         } catch (MalformedURLException e) {
             Toolkit.getDefaultToolkit().beep();
@@ -147,27 +148,20 @@ public class OpenURLDialog extends javax.swing.JDialog {
         return result;
     }
 
-    public boolean isAccepted() {
-        return accepted;
-    }
+    public static URL getURL(Window parent) {
 
-    public void setAccepted(boolean accepted) {
-        this.accepted = accepted;
-    }
+        OpenURLDialog dialog = new OpenURLDialog(parent, true);
 
-    public URL getUrl() {
-        return url;
-    }
+        dialog.setLocationRelativeTo(parent);
+        dialog.setVisible(true);
 
-    public void setUrl(URL url) {
-        this.url = url;
-    }
-
-    public String getUrlAsString() {
-        if (url != null) {
-            return url.toString();
-        } else {
-            return "";
+        if (dialog.url != null) {
+            String proto = dialog.url.getProtocol().toLowerCase();
+            if (!proto.equals("http") && !proto.equals("ftp")) {
+                DialogUtils.displayMessage("Sorry", "Only files accessible via HTTP or FTP can be opened via URL.");
+                return null;
+            }
         }
+        return dialog.url;
     }
 }

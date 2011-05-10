@@ -91,7 +91,7 @@ public class BEDIntervalRecord implements RichIntervalRecord {
 
     /**
      * In Bed files, we believe all blocks to be relative to the start of the chromosome,
-     * not relative to the start of the feature.  Equivalent to calling getBlocks(0).
+     * not relative to the start of the feature.
      */
     @Override
     public List<Block> getBlocks() {

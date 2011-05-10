@@ -174,27 +174,21 @@ public class ProjectController {
         String referencename = (String) m.get(REFERENCE_KEY);
         Range range = (Range) m.get(RANGE_KEY);
 
-        String genomeName;
         if (isSequenceSet) {
             trackpaths.remove(genomePath);
             try {
                 try {
                     genome = Track.createGenome(TrackFactory.createTrack(TrackFactory.createDataSource(new URI(genomePath))));
-                    //genome = Track.createGenome(TrackFactory.createTrackSync(new URI(genomePath)).get(0));
                 } catch (Exception x) {
                     // A common cause of URISyntaxExceptions is a file-path containing spaces.
                     genome = Track.createGenome(TrackFactory.createTrack(TrackFactory.createDataSource(new File(genomePath).toURI())));
-                    //genome = Track.createGenome(TrackFactory.createTrackSync(new File(genomePath).toURI()).get(0));
                 }
             } catch (Exception ex) {
                 DialogUtils.displayException("Sorry", "Problem loading project.", ex);
                 return;
             }
-            genomeName = genome.getDataSource().getURI().toString();
-        } else {
-            genomeName = genome.getName();
         }
-        Savant.getInstance().setGenome(genomeName, genome, null);
+        Savant.getInstance().setGenome(genome, null);
 
         ReferenceController.getInstance().setReference(referencename);
         RangeController.getInstance().setRange(range);

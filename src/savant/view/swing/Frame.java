@@ -21,23 +21,18 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.*;
 
-import com.jidesoft.action.CommandBar;
 import com.jidesoft.docking.DockableFrame;
-import com.jidesoft.swing.JideButton;
-import com.jidesoft.swing.JideMenu;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
-import java.awt.event.MouseListener;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import savant.api.util.DialogUtils;
 import savant.controller.DockableFrameController;
-
 import savant.controller.ReferenceController;
 import savant.controller.DrawModeController;
 import savant.controller.FrameController;
@@ -211,7 +206,7 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
     public void setTracks(Track[] newTracks) {
         if (!ReferenceController.getInstance().isGenomeLoaded()) {
             if (newTracks[0].getDataFormat() == DataFormat.SEQUENCE_FASTA) {
-                Savant.getInstance().setGenomeFromTrack(newTracks[0], this);
+                Savant.getInstance().setGenome(Track.createGenome(newTracks[0]), this);
             } else {
                 trackCreationFailed(null);
                 DialogUtils.displayError("Sorry", "This does not appear to be a genome track. Please load a genome first.");
@@ -394,14 +389,11 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
     private JMenu createArcButton() {
         JMenu button = new JMenu("Read Pair Settings");
         button.setToolTipText("Change mate pair parameters");
-        button.addMouseListener(new MouseListener() {
+        button.addMouseListener(new MouseAdapter() {
+            @Override
             public void mouseClicked(MouseEvent e) {
                 graphPane.getBAMParams((BAMTrack)tracks[0]);
             }
-            public void mousePressed(MouseEvent e) {}
-            public void mouseReleased(MouseEvent e) {}
-            public void mouseEntered(MouseEvent e) {}
-            public void mouseExited(MouseEvent e) {}
         });
         button.setFocusPainted(false);
         return button;
@@ -413,14 +405,11 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
     private JMenu createIntervalButton() {
         JMenu button = new JMenu("Interval Options");
         button.setToolTipText("Change interval display parameters");
-        button.addMouseListener(new MouseListener() {
+        button.addMouseListener(new MouseAdapter() {
+            @Override
             public void mouseClicked(MouseEvent e) {
                 tracks[0].captureIntervalParameters();
             }
-            public void mousePressed(MouseEvent e) {}
-            public void mouseReleased(MouseEvent e) {}
-            public void mouseEntered(MouseEvent e) {}
-            public void mouseExited(MouseEvent e) {}
         });
         button.setFocusPainted(false);
         return button;

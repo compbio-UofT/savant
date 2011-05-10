@@ -1,10 +1,5 @@
 /*
- * DataSourcePluginDialog.java
- *
- * Created on Nov 25, 2010, 11:17:14 PM
- *
- *
- *    Copyright 2010 University of Toronto
+ *    Copyright 2010-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -26,19 +21,16 @@ import java.util.List;
 import javax.swing.DefaultListModel;
 import javax.swing.JDialog;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import savant.controller.DataSourcePluginController;
 import savant.data.sources.DataSource;
 import savant.plugin.SavantDataSourcePlugin;
+import savant.util.MiscUtils;
 
 /**
- *
- * @author mfiume
+ * Dialog which lets user select a data-source plugin for creating a track.
+ * @author mfiume, tarkvara
  */
 public class DataSourcePluginDialog extends JDialog {
-    private static final Log LOG = LogFactory.getLog(DataSourcePluginDialog.class);
 
     List<SavantDataSourcePlugin> dataSources;
 
@@ -51,6 +43,8 @@ public class DataSourcePluginDialog extends JDialog {
         setLocationRelativeTo(parent);
         this.dataSources = dataSources;
         initList(dataSources);
+        getRootPane().setDefaultButton(loadButton);
+        MiscUtils.registerCancelButton(cancelButton);
     }
 
     /** This method is called from within the constructor to
@@ -66,6 +60,7 @@ public class DataSourcePluginDialog extends JDialog {
         jScrollPane1 = new javax.swing.JScrollPane();
         dataSourceList = new javax.swing.JList();
         javax.swing.JLabel promptLabel = new javax.swing.JLabel();
+        cancelButton = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Load from Other Datasource");
@@ -86,7 +81,10 @@ public class DataSourcePluginDialog extends JDialog {
         });
         jScrollPane1.setViewportView(dataSourceList);
 
-        promptLabel.setText("Select a datasource to load from:");
+        promptLabel.setText("Select a data source to load from:");
+
+        cancelButton.setText("Cancel");
+        cancelButton.setPreferredSize(new java.awt.Dimension(110, 29));
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -95,8 +93,11 @@ public class DataSourcePluginDialog extends JDialog {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(loadButton, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 456, Short.MAX_VALUE)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(loadButton)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(cancelButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 513, Short.MAX_VALUE)
                     .addComponent(promptLabel))
                 .addContainerGap())
         );
@@ -108,7 +109,9 @@ public class DataSourcePluginDialog extends JDialog {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 281, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(loadButton)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(cancelButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(loadButton))
                 .addContainerGap())
         );
 
@@ -132,11 +135,12 @@ public class DataSourcePluginDialog extends JDialog {
      */
     private void dataSourceListMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_dataSourceListMouseClicked
         if (evt.getClickCount() == 2) {
-            loadButtonActionPerformed(null);
+            loadButton.doClick();
         }
     }//GEN-LAST:event_dataSourceListMouseClicked
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton cancelButton;
     private javax.swing.JList dataSourceList;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JButton loadButton;
@@ -155,21 +159,22 @@ public class DataSourcePluginDialog extends JDialog {
 
     }
 
-    public SavantDataSourcePlugin getSelectedPlugin() {
-         return selectedPlugin;
-    }
-
     /**
-     * Display the DataSourcePluginDialog to configure a DataSource.
+     * Display the DataSourcePluginDialog to configure a DataSource.  If the only
+     * available data-source plugin is the Savant Repo source, just skip the dialog.
      *
      * @param parent parent window
      * @return the DataSource selected (null if dialog cancelled)
      */
     public static DataSource getDataSource(Window parent) throws Exception {
         List<SavantDataSourcePlugin> ps = DataSourcePluginController.getInstance().getDataSourcePlugins();
+        if (DataSourcePluginController.getInstance().hasOnlySavantRepoDataSource()) {
+            return ps.get(0).getDataSource();
+        }
+
         DataSourcePluginDialog d = new DataSourcePluginDialog(parent, ps);
         d.setVisible(true);
-        SavantDataSourcePlugin p = d.getSelectedPlugin();
+        SavantDataSourcePlugin p = d.selectedPlugin;
         d.dispose();
 
         if (p != null) {

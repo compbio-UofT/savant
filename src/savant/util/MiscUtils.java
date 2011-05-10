@@ -17,6 +17,9 @@
 package savant.util;
 
 import java.awt.EventQueue;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -30,14 +33,19 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
+import javax.swing.KeyStroke;
 
 import com.jidesoft.docking.DockableFrame;
 import com.jidesoft.docking.DockingManager;
+import javax.swing.SwingUtilities;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import savant.file.DataFormat;
 
+import savant.file.DataFormat;
 
 
 /**
@@ -389,6 +397,20 @@ public class MiscUtils {
         } else {
             f.setTitle(title);
         }
+    }
+
+    /**
+     * Register the escape key so that it can be used to cancel the associated JDialog.
+     */
+    public static void registerCancelButton(final JButton cancelButton) {
+        KeyStroke stroke = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0);
+        JDialog dialog = (JDialog)SwingUtilities.getWindowAncestor(cancelButton);
+        dialog.getRootPane().registerKeyboardAction(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                cancelButton.doClick();
+             }
+        }, stroke, JComponent.WHEN_IN_FOCUSED_WINDOW);
     }
 
     /**

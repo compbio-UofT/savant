@@ -24,10 +24,10 @@ import java.io.Serializable;
 import java.net.URI;
 import java.util.*;
 import javax.xml.parsers.DocumentBuilderFactory;
-import org.w3c.dom.Document;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
@@ -53,7 +53,7 @@ public final class Genome implements Serializable, GenomeAdapter {
     private Map<String, Integer> referenceMap = new HashMap<String, Integer>();
     private Map<String, Cytoband[]> cytobands;
     private URI cytobandURI;
-    private Gene[] genes;
+    private Auxiliary[] genes;
 
     // if associated with track
     private SequenceTrack track;
@@ -87,7 +87,7 @@ public final class Genome implements Serializable, GenomeAdapter {
      *
      * @param uri
      */
-    public Genome(String name, String desc, URI cytobandURI, Gene[] genes) throws IOException {
+    public Genome(String name, String desc, URI cytobandURI, Auxiliary[] genes) throws IOException {
         this.name = name;
         this.description = desc;
         this.cytobandURI = cytobandURI;
@@ -210,14 +210,19 @@ public final class Genome implements Serializable, GenomeAdapter {
             NodeList genomes = doc.getElementsByTagName("genome");
             for (int i = 0; i < genomes.getLength(); i++) {
                 Element genome = (Element)genomes.item(i);
-                Element cytoband = (Element)genome.getElementsByTagName("cytoband").item(0);
-                NodeList geneNodes = genome.getElementsByTagName("gene");
-                Gene[] genes = new Gene[geneNodes.getLength()];
-                for (int j = 0; j < genes.length; j++) {
-                    Element geneElement = (Element)geneNodes.item(j);
-                    genes[j] = new Gene(geneElement.getAttribute("description"), URI.create(geneElement.getAttribute("uri")));
+                NodeList auxNodes = genome.getElementsByTagName("track");
+                Auxiliary[] auxes = new Auxiliary[auxNodes.getLength()];
+                for (int j = 0; j < auxes.length; j++) {
+                    Element auxElement = (Element)auxNodes.item(j);
+                    String auxType = auxElement.getAttribute("type");
+                    if (auxType.isEmpty()) {
+                        auxType = "OTHER";
+                    } else {
+                        auxType = auxType.toUpperCase();
+                    }
+                    auxes[j] = new Auxiliary(auxElement.getAttribute("description"), URI.create(auxElement.getAttribute("uri")), Enum.valueOf(AuxiliaryType.class, auxType));
                 }
-                result.add(new Genome(genome.getAttribute("name"), genome.getAttribute("description"), URI.create(cytoband.getAttribute("uri")), genes));
+                result.add(new Genome(genome.getAttribute("name"), genome.getAttribute("description"), URI.create(genome.getAttribute("chromInfo")), auxes));
             }
             return result.toArray(new Genome[0]);
         } catch (Exception x) {
@@ -274,8 +279,8 @@ public final class Genome implements Serializable, GenomeAdapter {
     /**
      * If we're a popular genome, we may come with a known set of popular genes.
      */
-    public Gene[] getGenes() {
-        return genes != null ? genes : new Gene[0];
+    public Auxiliary[] getAuxiliaries() {
+        return genes != null ? genes : new Auxiliary[0];
     }
 
     public static class Cytoband {
@@ -301,8 +306,12 @@ public final class Genome implements Serializable, GenomeAdapter {
             switch (stain) {
                 case GPOS25:
                     return new Color(192, 192, 192);
+                case GPOS33:
+                    return new Color(171, 171, 171);
                 case GPOS50:
                     return new Color(128, 128, 128);
+                case GPOS66:
+                    return new Color(85, 85, 85);
                 case GPOS75:
                     return new Color(64, 64, 64);
                 case GPOS100:
@@ -319,7 +328,9 @@ public final class Genome implements Serializable, GenomeAdapter {
         enum GiemsaStain {
             GNEG,
             GPOS50,
+            GPOS66,
             GPOS75,
+            GPOS33,
             GPOS25,
             GPOS100,
             ACEN,
@@ -339,13 +350,27 @@ public final class Genome implements Serializable, GenomeAdapter {
         }
     }
 
-    public static class Gene {
+    /**
+     * Categorises the types of auxiliary tracks.
+     */
+    public enum AuxiliaryType {
+        SEQUENCE,
+        GENES,
+        OTHER
+    }
+
+    /**
+     * Information about an auxiliary track associated with this genome.
+     */
+    public static class Auxiliary {
         public final String description;
         public final URI uri;
+        public final AuxiliaryType type;
 
-        Gene(String desc, URI uri) {
+        Auxiliary(String desc, URI uri, AuxiliaryType type) {
             this.description = desc;
             this.uri = uri;
+            this.type = type;
         }
 
         @Override
