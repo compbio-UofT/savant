@@ -2133,7 +2133,17 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
                     localFile=st.nextToken();
                 }
 
-                localFile = DirectorySettings.getPluginsDirectory() + System.getProperty("file.separator") + localFile;
+                String dir;
+                if(localFile.endsWith("SavantCore.jar")){
+                    File dirFile = DirectorySettings.getLibsDirectory();
+                    if(!dirFile.exists()) dirFile.mkdirs();
+                    dir = dirFile.getPath();
+                } else {
+                    dir = DirectorySettings.getPluginsDirectory().getPath();
+                }
+
+                localFile = dir + System.getProperty("file.separator") + localFile;
+
                 fos = new FileOutputStream(localFile);
 
                 int oneChar, count=0;
