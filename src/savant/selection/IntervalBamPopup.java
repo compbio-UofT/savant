@@ -17,8 +17,12 @@
 
 package savant.selection;
 
+import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 
@@ -73,7 +77,7 @@ public class IntervalBamPopup extends PopupPanel {
             String matePosition = "Mate Position: " + homogenizeRef(samRec.getMateReferenceName()) + ": " + samRec.getMateAlignmentStart();
             this.add(new JLabel(matePosition));
 
-            final int matepos = samRec.getMateAlignmentStart();
+            /*final int matepos = samRec.getMateAlignmentStart();
 
             JButton matebutton = new JButton("Jump to mate");
             matebutton.addActionListener(new ActionListener() {
@@ -88,26 +92,26 @@ public class IntervalBamPopup extends PopupPanel {
                 }
             });
 
-            this.add(matebutton);
+            this.add(matebutton);*/
         }
     }
 
     @Override
     protected void initSpecificButtons() {
 
-        //JUMP TO MATE
-        /*if(fileFormat.equals(fileFormat.INTERVAL_BAM) && !mode.getName().equals("SNP")){
+        //add jump to mate button
+        if(samRec.getReadPairedFlag()){
             JLabel mateJump = new JLabel("Jump to Mate");
             mateJump.setForeground(Color.BLUE);
             mateJump.setCursor(new Cursor(Cursor.HAND_CURSOR));
             mateJump.addMouseListener(new MouseListener() {
                 public void mouseClicked(MouseEvent e) {
-                    String mateRef = samRec.getMateReferenceName();
-                    int mateStart = samRec.getMateAlignmentStart();
-                    int length = samRec.getReadLength(); //TODO: how can I get the mate length?
-                    mateRef = homogenizeRef(mateRef);
-                    RangeController.getInstance().setRange(mateRef, new Range(mateStart, mateStart + length));
-                    hidePanel();
+                    RangeController rc = RangeController.getInstance();
+                        int offset = (int)Math.ceil(((float) rc.getRange().getLength())/2);
+                        int start = samRec.getMateAlignmentStart()-offset;
+                        int end = start + rc.getRange().getLength() - 1;
+                        RangeController.getInstance().setRange(samRec.getMateReferenceName(), new Range(start, end));
+                        hidePopup();
                 }
                 public void mousePressed(MouseEvent e) {}
                 public void mouseReleased(MouseEvent e) {}
@@ -115,7 +119,7 @@ public class IntervalBamPopup extends PopupPanel {
                 public void mouseExited(MouseEvent e) {}
             });
             this.add(mateJump);
-        }*/
+        }
     }
 
 }

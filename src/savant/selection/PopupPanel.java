@@ -194,4 +194,8 @@ public class PopupPanel extends JPanel {
         return record;
     }
 
+    protected void hidePopup(){
+        this.gp.hidePopup();
+    }
+
 }
