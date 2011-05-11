@@ -17,7 +17,7 @@ class Pileup {
     private Nucleotide referenceNucleotide;
     private Nucleotide snpNucleotide;
 
-    private long position;
+    private int position;
 
     private String trackName;
 
@@ -38,7 +38,7 @@ class Pileup {
     private double totalCoverageOther = 0;
     //private double other_quality = 0;
 
-    public Pileup(String trackName, long position, Nucleotide n) {
+    public Pileup(String trackName, int position, Nucleotide n) {
         this.trackName = trackName;
         this.position = position;
         this.referenceNucleotide = n;
@@ -175,7 +175,7 @@ class Pileup {
         }
     }
 
-    public long getPosition() {
+    public int getPosition() {
         return this.position;
     }
     

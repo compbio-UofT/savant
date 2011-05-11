@@ -351,7 +351,7 @@ public class SNPFinderPlugin extends SavantPanelPlugin implements RangeChangeCom
         for (TrackAdapter t : trackToCanvasMap.keySet()) {
             try {
                 //List<Integer> snps =
-                long startPosition = NavigationUtils.getCurrentRange().getFrom();
+                int startPosition = NavigationUtils.getCurrentRange().getFrom();
                 List<Pileup> piles = makePileupsFromSAMRecords(t.getName(), t.getDataInRange(), sequence, startPosition);
                 this.trackToPilesMap.put(t, piles);
                 //drawPiles(piles, trackToCanvasMap.get(t));
@@ -368,7 +368,7 @@ public class SNPFinderPlugin extends SavantPanelPlugin implements RangeChangeCom
     /**
      * Make pileups for SAM records.
      */
-    private List<Pileup> makePileupsFromSAMRecords(String trackName, List<Record> samRecords, byte[] sequence, long startPosition) throws IOException {
+    private List<Pileup> makePileupsFromSAMRecords(String trackName, List<Record> samRecords, byte[] sequence, int startPosition) throws IOException {
 
         //addMessage("Examining each position");
 
