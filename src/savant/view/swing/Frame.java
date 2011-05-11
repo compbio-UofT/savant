@@ -19,7 +19,7 @@ package savant.view.swing;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
@@ -28,6 +28,9 @@ import java.util.List;
 import javax.swing.*;
 
 import com.jidesoft.docking.DockableFrame;
+import java.awt.event.KeyListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseListener;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -45,6 +48,7 @@ import savant.data.event.TrackCreationListener;
 import savant.file.DataFormat;
 import savant.settings.ColourSettings;
 import savant.swing.component.ProgressPanel;
+import savant.util.MiscUtils;
 import savant.util.Range;
 import savant.view.icon.SavantIconFactory;
 import savant.view.swing.interval.BAMCoverageTrack;
@@ -74,6 +78,7 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
     private JMenu intervalButton;
     private JMenu bedButton;
     private FrameSidePanel sidePanel;
+    private int drawModePosition = 0;
 
     public JScrollPane scrollPane;
 
@@ -234,6 +239,33 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
         if (t0.getDrawModes().size() > 0){
             JMenu displayMenu = createDisplayMenu();
             commandBar.add(displayMenu);
+
+            //determine position of current draw mode
+            String currentDrawMode = t0.getDrawMode();
+            List<String> drawModes = t0.getDrawModes();
+            for(int i = 0; i < drawModes.size(); i++){
+                if(drawModes.get(i).equals(currentDrawMode)){
+                    drawModePosition = i;
+                }
+            }
+
+            //allow cycling through display modes
+            graphPane.addKeyListener(new KeyListener() {
+                @Override
+                public void keyTyped(KeyEvent e) {
+
+                    //check for: Mac + Command + 'm' OR !Mac + Ctrl + 'm'
+                    if((MiscUtils.MAC && e.getModifiersEx() == 256 && e.getKeyChar() == 'm') ||
+                            (!MiscUtils.MAC && e.getKeyChar() == '\n' && e.isControlDown())){
+                        cycleDisplayMode();
+                    }
+                }
+                @Override
+                public void keyPressed(KeyEvent e) {}
+                @Override
+                public void keyReleased(KeyEvent e) {}
+            });
+
         }
 
         // TODO: Should we really be doing BAM-specific stuff in this class?
@@ -471,6 +503,7 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
                             visItems.get(j).setState(false);
                             if(item.getText().equals(tracks[0].getDrawModes().get(j))){
                                 DrawModeController.getInstance().switchMode(tracks[0], tracks[0].getDrawModes().get(j));
+                                drawModePosition = j;
                             }
                         }
                     }
@@ -618,5 +651,15 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
     @Override
     public void trackCreationFailed(TrackCreationEvent evt) {
         DockableFrameController.getInstance().closeDockableFrame(this, false);
+    }
+
+    public void cycleDisplayMode(){
+        if(visItems == null) return;
+        visItems.get(drawModePosition).setState(false);
+        drawModePosition++;
+        List<String> drawModes = tracks[0].getDrawModes();
+        if(drawModePosition >= drawModes.size()) drawModePosition = 0;
+        visItems.get(drawModePosition).setState(true);
+        DrawModeController.getInstance().switchMode(tracks[0], drawModes.get(drawModePosition));
     }
 }
