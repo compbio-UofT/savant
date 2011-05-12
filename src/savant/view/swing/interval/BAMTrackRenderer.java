@@ -82,16 +82,7 @@ public class BAMTrackRenderer extends TrackRenderer {
     private static Stroke oneStroke = new BasicStroke(1.0f);
     private static Stroke twoStroke= new BasicStroke(2.0f);
 
-    //true -> dynamic, false -> fixed height
-    //private boolean dynamicMode = true;
-    //private int intervalHeight = 12;
-    private int maximumHeight = 12;
-    private int minimumHeight = 4;
-    private boolean renderFixed = false;
-
     private byte[] refSeq = null;
-
-    private int offset = 0;
 
     // The number of standard deviations from the mean an arclength has to be before it's
     // considered discordant
@@ -394,30 +385,8 @@ public class BAMTrackRenderer extends TrackRenderer {
         else maxYRange = numIntervals;
         gp.setYRange(new Range(0,maxYRange));
 
-        renderFixed = false;
-        renderFixed = gp.getUnitHeight() < minimumHeight;
-        if(!renderFixed){
-            double unitHeight = (double) ((JViewport)gp.getParent().getParent()).getHeight() / (maxYRange);
-            if(unitHeight < minimumHeight) renderFixed = true;
-        }
-
-        if(renderFixed){
-            int currentHeight = gp.getHeight();
-            int currentWidth = gp.getParentFrame().getFrameLandscape().getWidth();
-            int currentHeight1 = ((JViewport)gp.getParent().getParent()).getHeight();
-            int expectedHeight = Math.max((int)((intervals.size() * maximumHeight) / 0.9), currentHeight1);
-
-            if(expectedHeight != currentHeight || currentWidth != gp.getWidth()){
-//                gp.setBufferedImage(new BufferedImage(currentWidth, expectedHeight, BufferedImage.TYPE_INT_RGB));
-                gp.newHeight = expectedHeight;
-                gp.setPaneResize(true);
-                return;
-            }
-            gp.setUnitHeight(maximumHeight);
-            gp.setYRange(new Range(0,(int)Math.ceil(expectedHeight/maximumHeight)));
-        } else if (gp.getSize() != ((JViewport)gp.getParent().getParent()).getSize()){
-            this.resizeFrame(gp);
-        }
+        //resize frame if necessary
+        if(!determineFrameSize(gp, intervals.size())) return;
 
         // scan the map of intervals and draw the intervals for each level
         for (int level=0; level<intervals.size(); level++) {
@@ -504,18 +473,7 @@ public class BAMTrackRenderer extends TrackRenderer {
         }
 
         //resize frame if necessary
-        int currentHeight = gp.getHeight();
-        int currentWidth = gp.getParentFrame().getFrameLandscape().getWidth();
-        int currentHeight1 = ((JViewport)gp.getParent().getParent()).getHeight();
-        int expectedHeight = Math.max((int)((intervals.size() * maximumHeight) / 0.9), currentHeight1);
-
-        if(expectedHeight != currentHeight || currentWidth != gp.getWidth()){
-            gp.newHeight = expectedHeight;
-            gp.setPaneResize(true);
-            return;
-        }
-        gp.setUnitHeight(maximumHeight);
-        gp.setYRange(new Range(0,(int)Math.ceil(expectedHeight/maximumHeight)));
+        if(!determineFrameSize(gp, intervals.size())) return;
         
         // scan the map of intervals and draw the intervals for each level
         for (int level=0; level<intervals.size(); level++) {
@@ -1283,7 +1241,6 @@ public class BAMTrackRenderer extends TrackRenderer {
 
         // iterate through the data and draw
         LOG.info("BAMTrackRenderer.renderArcMatePairMode: " + data.size() + " records.");
-        int i = 0;
         for (Record record: data) {
             BAMIntervalRecord bamRecord = (BAMIntervalRecord)record;
             SAMRecord samRecord = bamRecord.getSamRecord();
@@ -1607,22 +1564,6 @@ public class BAMTrackRenderer extends TrackRenderer {
         JPanel panel = new LegendPanel();
         panel.setPreferredSize(new Dimension(125,61));
         return panel;
-    }
-
-    public int getMaximumHeight(){
-        return this.maximumHeight;
-    }
-
-    public int getMinimumHeight(){
-        return this.minimumHeight;
-    }
-
-    public void setMaximumHeight(int h){
-        this.maximumHeight = h;
-    }
-
-    public void setMinimumHeight(int h){
-        this.minimumHeight = h;
     }
 
     private class LegendPanel extends JPanel{

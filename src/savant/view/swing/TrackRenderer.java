@@ -56,6 +56,10 @@ public abstract class TrackRenderer implements DataRetrievalListener {
 
     protected Boolean dataCurrent = false;
 
+    //specific to interval renderers
+    protected int intervalHeight = 12;
+    protected int offset = 0; //of scrollbar (interval only for now)
+
     protected TrackRenderer(DataFormat dataType) {
         instructions.put(DrawingInstruction.TRACK_DATA_TYPE, dataType);
     }
@@ -323,4 +327,41 @@ public abstract class TrackRenderer implements DataRetrievalListener {
         data = records;
         dataCurrent = true;
     }
+
+
+
+    //INTERVAL SPECIFIC CODE
+
+    protected int getIntervalHeight(){
+        return intervalHeight;
+    }
+
+    protected void setIntervalHeight(int height){
+        intervalHeight = height;
+    }
+
+
+    /*
+     * Resize frame if necessary
+     * @return false if pane needs to be resized
+     */
+    protected boolean determineFrameSize(GraphPane gp, int numIntervals){
+        
+        int currentHeight = gp.getHeight();
+        int currentWidth = gp.getParentFrame().getFrameLandscape().getWidth();
+        int currentHeight1 = ((JViewport)gp.getParent().getParent()).getHeight();
+        int expectedHeight = Math.max((int)((numIntervals * intervalHeight) / 0.9), currentHeight1);
+
+        if(expectedHeight != currentHeight || currentWidth != gp.getWidth()){
+            gp.newHeight = expectedHeight;
+            gp.setPaneResize(true);
+            return false;
+        }
+        gp.setUnitHeight(intervalHeight);
+        gp.setYRange(new Range(0,(int)Math.ceil(expectedHeight/intervalHeight)));
+
+        return true;
+    }
+
+    //END INTERVAL SPECIFIC CODE
 }

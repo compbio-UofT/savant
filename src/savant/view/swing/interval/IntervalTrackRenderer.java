@@ -87,6 +87,8 @@ public class IntervalTrackRenderer extends TrackRenderer {
         Color bgcolor = cs.getColor("Translucent Graph");
         Color linecolor = cs.getColor("Line");
 
+        resizeFrame(gp);
+
         AxisRange axisRange = (AxisRange)instructions.get(DrawingInstruction.AXIS_RANGE);
         
         if (r == Resolution.VERY_HIGH || r == Resolution.HIGH) {
@@ -130,6 +132,8 @@ public class IntervalTrackRenderer extends TrackRenderer {
         ColorScheme cs = (ColorScheme)instructions.get(DrawingInstruction.COLOR_SCHEME);
         Color bgcolor = cs.getColor("Opaque Graph");
 
+        resizeFrame(gp);
+
         AxisRange axisRange = (AxisRange)instructions.get(DrawingInstruction.AXIS_RANGE);
 
         if (r == Resolution.VERY_HIGH || r == Resolution.HIGH) {
@@ -165,6 +169,9 @@ public class IntervalTrackRenderer extends TrackRenderer {
         Color bgcolor = cs.getColor("Opaque Graph");
         Color linecolor = cs.getColor("Line");
 
+        //set position offset for scrollpane
+        this.offset = gp.getOffset();
+
         AxisRange axisRange = (AxisRange)instructions.get(DrawingInstruction.AXIS_RANGE);
 
         if (r == Resolution.VERY_HIGH || r == Resolution.HIGH) {
@@ -185,13 +192,16 @@ public class IntervalTrackRenderer extends TrackRenderer {
             else maxYRange = numIntervals;
             gp.setYRange(new Range(0,maxYRange));
 
-            double unitHeight;
-            unitHeight = gp.getUnitHeight();
+            //resize frame if necessary
+            if(!determineFrameSize(gp, intervals.size())) return;
+
+            double unitHeight = intervalHeight;
+            //unitHeight = gp.getUnitHeight();
 
             // display only a message if intervals will not be visible at this resolution
-            if (unitHeight < 1) {
+            /*if (unitHeight < 1) {
                 throw new RenderingException("Increase height of window");
-            }
+            }*/
 
             // scan the map of intervals and draw the intervals for each level
             for (int k=0; k<intervals.size(); k++) {
@@ -202,7 +212,8 @@ public class IntervalTrackRenderer extends TrackRenderer {
                 for (IntervalRecord intervalRecord : intervalsThisLevel) {
                     Interval interval = intervalRecord.getInterval();
                     double x = gp.transformXPosExclusive(interval.getStart());
-                    double y = gp.transformYPos(k)-unitHeight;
+                    //double y = gp.transformYPos(k)-unitHeight;
+                    double y = gp.getHeight() - unitHeight * (k+1) - offset;
                     double w = gp.getWidth(interval.getLength());
                     if (w < 1) continue; // don't draw intervals less than one pixel wide
                     double h = unitHeight;

@@ -52,7 +52,7 @@ public class IntervalDialog extends JDialog {
 
     private static Track track;
 
-    private static BAMTrackRenderer btr;
+    private static TrackRenderer renderer;
 
     public IntervalDialog(Track t) {
         setPreferredSize(new Dimension(300,500));
@@ -93,10 +93,10 @@ public class IntervalDialog extends JDialog {
         track = t;
         p.setBorder(new JideTitledBorder(new PartialEtchedBorder(PartialEtchedBorder.LOWERED, PartialSide.NORTH), t.getName(), JideTitledBorder.LEADING, JideTitledBorder.ABOVE_TOP));
 
-        btr = (BAMTrackRenderer)track.getRenderer();
+        renderer = track.getRenderer();
 
         addProperty("Interval Height", "Interval Height", "Interval Height Settings", Integer.class);
-        map.put("Interval Height", btr.getMaximumHeight());
+        map.put("Interval Height", renderer.getIntervalHeight());
 
         model.expandAll();
     }
@@ -164,7 +164,7 @@ public class IntervalDialog extends JDialog {
 
                 if(name.equals("Interval Height")){
                     if((Integer)value < 1) return;
-                    btr.setMaximumHeight((Integer)value);
+                    renderer.setIntervalHeight((Integer)value);
                 }
 
                 track.getFrame().getGraphPane().setRenderForced();

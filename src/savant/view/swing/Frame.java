@@ -54,7 +54,9 @@ import savant.view.icon.SavantIconFactory;
 import savant.view.swing.interval.BAMCoverageTrack;
 import savant.view.swing.interval.BAMTrack;
 import savant.view.swing.interval.BAMTrackRenderer;
+import savant.view.swing.interval.IntervalTrackRenderer;
 import savant.view.swing.interval.RichIntervalTrack;
+import savant.view.swing.interval.RichIntervalTrackRenderer;
 
 /**
  *
@@ -286,6 +288,18 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
         } else if (t0.getDataSource().getDataFormat() == DataFormat.INTERVAL_BED) {
             bedButton = createBEDButton();
             commandBar.add(bedButton);
+        }
+
+        if(t0.getDataSource().getDataFormat() == DataFormat.INTERVAL_BED ||
+                t0.getDataSource().getDataFormat() == DataFormat.INTERVAL_GENERIC){
+            intervalButton = createIntervalButton();
+            commandBar.add(intervalButton);
+            String drawMode = t0.getDrawMode();
+            if(drawMode.equals(RichIntervalTrackRenderer.SQUISH_MODE) ||
+                    drawMode.equals(IntervalTrackRenderer.ARC_MODE) ||
+                    drawMode.equals(IntervalTrackRenderer.SQUISH_MODE)){
+                intervalButton.setVisible(false);
+            }
         }
 
         JPanel contentPane = (JPanel)getContentPane();
@@ -570,6 +584,8 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
                 arcButton.setVisible(false);
                 arcLegend.setVisible(false);
             }
+        } else if (track.getDataSource().getDataFormat() == DataFormat.INTERVAL_BED || track.getDataSource().getDataFormat() == DataFormat.INTERVAL_GENERIC) {
+            intervalButton.setVisible(evt.getMode().equals(RichIntervalTrackRenderer.STANDARD_MODE) || evt.getMode().equals(IntervalTrackRenderer.PACK_MODE));
         }
         if (reRender) {
             validate();

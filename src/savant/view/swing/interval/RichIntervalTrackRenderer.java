@@ -47,12 +47,13 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
 
     public static final String STANDARD_MODE = "Standard";
     public static final String SQUISH_MODE = "Squish";
-
+    
     String drawMode;
     Resolution resolution;
 
     public RichIntervalTrackRenderer() {
         super(DataFormat.INTERVAL_BED);
+        intervalHeight = 16;
     }
     
     @Override
@@ -84,6 +85,9 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
 
         double unitWidth = gp.getUnitWidth();
 
+        //set position offset for scrollpane
+        this.offset = gp.getOffset();
+
         FontMetrics fm = g2.getFontMetrics();
         List<Record> stuffedRecords = new ArrayList<Record>();
         for (Record r : data) {
@@ -109,10 +113,13 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
         else maxYRange = numIntervals;
         gp.setYRange(new Range(0,maxYRange));
 
+        //resize frame if necessary
+        if(!determineFrameSize(gp, intervals.size())) return;
+
         // display only a message if intervals will not be visible at this resolution
-        if (gp.getUnitHeight() < 1) {
+        /*if (gp.getUnitHeight() < 1) {
             throw new RenderingException("Too many intervals to display\nIncrease vertical pane size");
-        }
+        }*/
 
         // scan the map of intervals and draw the intervals for each level
         for (int level=0; level<intervals.size(); level++) {
@@ -138,8 +145,8 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
         double unitWidth = gp.getUnitWidth();
-        double unitHeight = gp.getUnitHeight();
-
+        //double unitHeight = gp.getUnitHeight();
+        double unitHeight = intervalHeight;
 
         g2.setFont(BrowserSettings.getTrackFont());
 
@@ -176,7 +183,7 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
 
             g2.setColor(Color.white);
             int xCoordinate = (int)gp.transformXPosExclusive(interval.getStart());
-            int yCoordinate = (int)(gp.transformYPos(0)-((level + 1)*unitHeight)) + 1;
+            int yCoordinate = (int)(gp.transformYPos(0)-((level + 1)*unitHeight)) + 1 - offset;
             if((int)unitWidth/3 < 4 || (int)(unitHeight/2) < 6){
                 yCoordinate = yCoordinate - 1;
                 int lineWidth = Math.max((int)(unitWidth * (2.0/3.0)), 1);
@@ -209,7 +216,8 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
         if(isInsertion) return;
 
         // draw a line in the middle, the full length of the interval
-        int yPos = (int) (gp.transformYPos(level)-unitHeight/2);
+        //int yPos = (int) (gp.transformYPos(level)-unitHeight/2);
+        int yPos = (int) (gp.getHeight() - (unitHeight * level) - (unitHeight / 2) - offset);
         g2.setColor(lineColor);
         g2.drawLine(startXPos, yPos, endXPos, yPos);
 
@@ -229,7 +237,8 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
             chevronIntervalStart = Math.max(chevronIntervalStart, 0);
 
             double x = gp.transformXPosExclusive(interval.getStart() + block.getPosition());
-            double y = gp.transformYPos(level)-unitHeight;
+            //double y = gp.transformYPos(level)-unitHeight;
+            double y = gp.getHeight() - (unitHeight * (level + 1)) - offset;
 
             double chevronIntervalEnd = x;
 
@@ -254,7 +263,7 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
             chevronIntervalStart = x + w;
         }
 
-                if (drawName) {
+        if (drawName) {
             FontMetrics fm = g2.getFontMetrics();
             int stringstartx = startXPos - fm.stringWidth(geneName) - 5;
 
@@ -264,12 +273,15 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
                 Rectangle2D r = fm.getStringBounds(geneName, g2);
                 int b = 2;
                 g2.setColor(new Color(255,255,255,200));
-                g2.fillRoundRect(5-2,(int)(gp.transformYPos(level) - unitHeight/2 - (fm.getHeight()-fm.getDescent())/2) - b, (int)r.getWidth()+2*b, (int)r.getHeight()+2*b, 5,5);
+                //g2.fillRoundRect(5-2,(int)(gp.transformYPos(level) - unitHeight/2 - (fm.getHeight()-fm.getDescent())/2) - b, (int)r.getWidth()+2*b, (int)r.getHeight()+2*b, 5,5);
+                g2.fillRoundRect(5-2,(int)(gp.getHeight() - (level * unitHeight) - unitHeight/2 - (fm.getHeight()-fm.getDescent())/2) - b - offset, (int)r.getWidth()+2*b, (int)r.getHeight()+2*b, 5,5);
                 g2.setColor(textColor);
-                g2.drawString(geneName, 5, (int)(gp.transformYPos(level) - unitHeight/2 + (fm.getHeight()-fm.getDescent())/2));
+                //g2.drawString(geneName, 5, (int)(gp.transformYPos(level) - unitHeight/2 + (fm.getHeight()-fm.getDescent())/2));
+                g2.drawString(geneName, 5, (int)(gp.getHeight() - (level * unitHeight) - unitHeight/2 + (fm.getHeight()-fm.getDescent())/2) - offset);
             } else {
-                 g2.setColor(textColor);
-                g2.drawString(geneName, stringstartx, (int)(gp.transformYPos(level) - unitHeight/2 + (fm.getHeight()-fm.getDescent())/2));
+                g2.setColor(textColor);
+                //g2.drawString(geneName, stringstartx, (int)(gp.transformYPos(level) - unitHeight/2 + (fm.getHeight()-fm.getDescent())/2));
+                g2.drawString(geneName, stringstartx, (int)(gp.getHeight() - (level * unitHeight) - unitHeight/2 + (fm.getHeight()-fm.getDescent())/2) - offset);
             }
         }
 
@@ -339,6 +351,8 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
         gp.setIsOrdinal(false);
         gp.setXRange(axisRange.getXRange());
         // y range is set where levels are sorted out, after block merging pass
+
+        resizeFrame(gp);
 
         if (resolution == Resolution.VERY_HIGH || resolution == Resolution.HIGH) {
 
