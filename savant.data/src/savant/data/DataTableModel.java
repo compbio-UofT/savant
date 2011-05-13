@@ -59,8 +59,7 @@ public class DataTableModel extends AbstractTableModel {
     /** For tabix, some of the columns may not be meaningful for end-users, so have a little lookup table. */
     private int[] tabixColumns;
 
-    public DataTableModel(DataSource dataSource, List<Record> data) {
-         this.data = data;
+    public DataTableModel(DataSource dataSource) {
          setDataType(dataSource.getDataFormat());
 
          switch (dataType) {
@@ -223,12 +222,25 @@ public class DataTableModel extends AbstractTableModel {
     public void setData(List<Record> dataInRange) {
         if (dataInRange == null) { 
             data = null;
-            return;
-        }
-        if (dontAllowMoreThanMaxRows && dataInRange.size() > maxRows) {
-            data = dataInRange.subList(0, maxRows);
         } else {
-            data = dataInRange;
+            if (dataType == DataFormat.CONTINUOUS_GENERIC) {
+                // Continuous tracks now use NaNs for missing values.  Filter them out.
+                data = new ArrayList<Record>();
+                for (Record r: dataInRange) {
+                    if (!Float.isNaN(((GenericContinuousRecord)r).getValue())) {
+                        data.add(r);
+                        if (dontAllowMoreThanMaxRows && data.size() >= maxRows) {
+                            break;
+                        }
+                    }
+                }
+            } else {
+                if (dontAllowMoreThanMaxRows && dataInRange.size() > maxRows) {
+                    data = dataInRange.subList(0, maxRows);
+                } else {
+                    data = dataInRange;
+                }
+            }
         }
     }
 

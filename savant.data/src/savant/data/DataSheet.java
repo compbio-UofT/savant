@@ -182,7 +182,7 @@ public class DataSheet implements RangeChangeCompletedListener, TrackListChanged
 
     private void presentDataFromCurrentTrack() {
         TrackAdapter t = currentTrack;
-        tableModel = new DataTableModel(currentTrack.getDataSource(), t.getDataInRange());
+        tableModel = new DataTableModel(currentTrack.getDataSource());
         table.setModel(tableModel);
         table.setSurrendersFocusOnKeystroke(true);
         refreshData();
@@ -225,7 +225,7 @@ public class DataSheet implements RangeChangeCompletedListener, TrackListChanged
     }
 
     @Override
-    public void rangeChangeCompletedReceived(RangeChangedEvent event) {
+    public void rangeChangeCompleted(RangeChangedEvent event) {
         if (autoUpdate) {
             refreshData();
             refreshSelection();
@@ -233,7 +233,7 @@ public class DataSheet implements RangeChangeCompletedListener, TrackListChanged
     }
 
     @Override
-    public void trackListChangeReceived(TrackListChangedEvent event) {
+    public void trackListChanged(TrackListChangedEvent event) {
         updateTrackList();
     }
 
@@ -312,8 +312,8 @@ public class DataSheet implements RangeChangeCompletedListener, TrackListChanged
         // FIXME: Does this actually do the same as the commented-out lines?
 //      List dataInRange = SelectionController.getInstance().getSelections(track.getURI());
 //      DataTableModel dtm = new DataTableModel(track.getDataType(), dataInRange);
-        DataTableModel dtm = new DataTableModel(track.getDataSource(), track.getDataInRange());
-
+        DataTableModel dtm = new DataTableModel(track.getDataSource());
+        dtm.setData(track.getDataInRange());
         int numRows = dtm.getRowCount();
         int numCols = dtm.getColumnCount();
 
@@ -328,7 +328,7 @@ public class DataSheet implements RangeChangeCompletedListener, TrackListChanged
     }
 
     @Override
-    public void selectionChangeReceived(SelectionChangedEvent event) {
+    public void selectionChanged(SelectionChangedEvent event) {
         if (autoUpdate) {
             refreshSelection();
         }
