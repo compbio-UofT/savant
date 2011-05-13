@@ -28,23 +28,23 @@ import savant.controller.event.RangeChangedEvent;
 import savant.controller.event.RangeChangedListener;
 import savant.settings.BrowserSettings;
 import savant.util.Range;
-import savant.view.swing.Savant;
+
 
 /**
  * Controller object to manage changes to viewed range.
+ *
  * @author vwilliams
  */
 public class RangeController {
+    private static final Log LOG = LogFactory.getLog(RangeController.class);
 
     private static RangeController instance;
 
     // Undo/Redo Stack
-    private Stack undoStack;
-    private Stack redoStack;
+    private Stack<Range> undoStack;
+    private Stack<Range> redoStack;
     private int maxUndoStackSize = 50;
     private boolean shouldClearRedoStack = true;
-
-    private static final Log LOG = LogFactory.getLog(RangeController.class);
 
     /** The maximum and current viewable range */
     private Range maximumViewableRange;
@@ -64,8 +64,8 @@ public class RangeController {
     private RangeController() {
         rangeChangedListeners = new ArrayList();
         rangeChangeCompletedListeners = new ArrayList();
-        undoStack = new Stack();
-        redoStack = new Stack();
+        undoStack = new Stack<Range>();
+        redoStack = new Stack<Range>();
     }
 
     /**
@@ -154,17 +154,15 @@ public class RangeController {
         // set the current viewable range
         currentViewableRange = r;
 
-        Savant.getInstance().updateRange();
-
         fireRangeChangedEvent();
 
         System.gc();
     }
 
     public synchronized void fireRangeChangeCompletedEvent() {
-        RangeChangedEvent evt = new RangeChangedEvent(this, currentViewableRange);
+        RangeChangedEvent evt = new RangeChangedEvent(currentViewableRange);
         for (RangeChangeCompletedListener l : rangeChangeCompletedListeners) {
-            l.rangeChangeCompletedReceived(evt);
+            l.rangeChangeCompleted(evt);
         }
     }
 
@@ -172,9 +170,9 @@ public class RangeController {
      * Fire the RangeChangedEvent
      */
     private synchronized void fireRangeChangedEvent() {
-        RangeChangedEvent evt = new RangeChangedEvent(this, currentViewableRange);
+        RangeChangedEvent evt = new RangeChangedEvent(currentViewableRange);
         for (RangeChangedListener l : rangeChangedListeners) {
-            l.rangeChangeReceived(evt);
+            l.rangeChanged(evt);
         }
     }
     
@@ -336,7 +334,7 @@ public class RangeController {
         if (undoStack.size() > 0) {
             shouldClearRedoStack = false;
             redoStack.push(currentViewableRange);
-            setRange((Range) undoStack.pop());
+            setRange(undoStack.pop());
             shouldClearRedoStack = true;
         }
     }
@@ -349,7 +347,7 @@ public class RangeController {
         if (redoStack.size() > 0) {
             shouldClearRedoStack = false;
             undoStack.push(currentViewableRange);
-            setRange((Range)redoStack.pop());
+            setRange(redoStack.pop());
             shouldClearRedoStack = true;
         }
     }

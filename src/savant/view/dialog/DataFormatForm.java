@@ -43,7 +43,6 @@ public class DataFormatForm extends JDialog {
                                     new FormatDef("GFF", true, false, FileType.INTERVAL_GFF , "GFF is a format for locating & describing genes and other localized features associated with DNA, RNA and Protein sequences."),
                                     new FormatDef("BAM Coverage", true, false, FileType.INTERVAL_BAM , "SAM format (binary, for BAM) is a generic format for storing large nucleotide sequence alignments."),
                                     new FormatDef("WIG/BedGraph", true, false, FileType.CONTINUOUS_WIG , "WIG format allows display of continuous-valued data in track format. This display type is useful for GC percent, probability scores, and transcriptome data."),
-                                    new FormatDef("BigWig", true, false, FileType.CONTINUOUS_BIGWIG , "BigWig format is an alternative to WIG, intended for the display of dense, continuous data."),
                                     new FormatDef("Generic Interval", true, true, FileType.INTERVAL_GENERIC , "Generic intervals can be used to display any number of from-to pairs, each with an associated description."),
                                     new FormatDef("Generic Point", true, true, FileType.POINT_GENERIC ,"Generic points can be used to display any number of positional elements, each with an associated description."),
                                     new FormatDef("Generic Continuous", true, true, FileType.CONTINUOUS_GENERIC ,"Generic continuous can be used to display continuous values.")
@@ -284,9 +283,10 @@ public class DataFormatForm extends JDialog {
     }//GEN-LAST:event_tempOutputCheckActionPerformed
 
     private void outputButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_outputButtonActionPerformed
-        File selectedFile = DialogUtils.chooseFileForSave("Output File", outputField.getText());
-        if (selectedFile != null) {
-            outputField.setText(selectedFile.getPath());
+        File outputFile = new File(outputField.getText());
+        outputFile = DialogUtils.chooseFileForSave("Output File", outputFile.getName(), null, outputFile.getParentFile());
+        if (outputFile != null) {
+            outputField.setText(outputFile.getPath());
         }
         validateReadyToFormat();
     }//GEN-LAST:event_outputButtonActionPerformed

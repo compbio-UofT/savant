@@ -20,7 +20,6 @@ package savant.controller.event;
  *
  * @author mfiume
  */
-public interface RangeChangeCompletedListener
-{
-    public void rangeChangeCompletedReceived( RangeChangedEvent event );
+public interface RangeChangeCompletedListener {
+    public void rangeChangeCompleted( RangeChangedEvent event );
 }

@@ -1,5 +1,5 @@
 /*
- *    Copyright 2009-2011 University of Toronto
+ *    Copyright 2010-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -21,27 +21,13 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.StringTokenizer;
 import java.util.Arrays;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JMenuBar;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.JToolBar;
+import javax.swing.*;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -60,7 +46,7 @@ import savant.view.swing.model.BookmarksTableModel;
  *
  * @author mfiume
  */
-public class BookmarkSheet implements BookmarksChangedListener /*, RangeChangedListener*/ {
+public class BookmarkSheet implements BookmarksChangedListener {
 
     private static final Log LOG = LogFactory.getLog(BookmarkSheet.class);
 
@@ -247,7 +233,7 @@ public class BookmarkSheet implements BookmarksChangedListener /*, RangeChangedL
     }
 
     @Override
-    public void bookmarksChangeReceived(BookmarksChangedEvent event) {
+    public void bookmarksChanged(BookmarksChangedEvent event) {
         this.refreshData(BookmarkController.getInstance().getBookmarks());
     }
 

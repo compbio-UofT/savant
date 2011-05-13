@@ -44,9 +44,9 @@ import savant.util.Resolution;
  *
  * @author tarkvara
  */
-public class TDFContinuousDataSource extends GenericContinuousDataSource {
+public class TDFDataSource extends GenericContinuousDataSource {
 
-    private static final Log LOG = LogFactory.getLog(TDFContinuousDataSource.class);
+    private static final Log LOG = LogFactory.getLog(TDFDataSource.class);
     private static final double LOG2 = Math.log(2.0);
     private static final int NOTIONAL_SCREEN_WIDTH = 2000;
 
@@ -54,7 +54,7 @@ public class TDFContinuousDataSource extends GenericContinuousDataSource {
     final URI uri;
     int maxZoom = -1;
 
-    public TDFContinuousDataSource(URI uri) throws IOException {
+    public TDFDataSource(URI uri) throws IOException {
         tdf = TDFReader.getReader(uri.getPath());
         this.uri = uri;
     }
@@ -88,7 +88,7 @@ public class TDFContinuousDataSource extends GenericContinuousDataSource {
                         int datumStart = t.getStartPosition(i);
                         // If there's a gap before the data starts, fill it with NaNs.
                         while (nextPos < datumStart && nextPos <= rangeEnd) {
-                            result.add(GenericContinuousRecord.valueOf(ref, nextPos += usefulStep, 0.0F/*Float.NaN*/));
+                            result.add(GenericContinuousRecord.valueOf(ref, nextPos += usefulStep, Float.NaN));
                         }
                         float datum = t.getValue(0, i);
                         while (nextPos < datumEnd && nextPos <= rangeEnd) {

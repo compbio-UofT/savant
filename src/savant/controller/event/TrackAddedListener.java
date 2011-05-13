@@ -11,5 +11,5 @@ package savant.controller.event;
  */
 public interface TrackAddedListener
 {
-    public void trackAddedReceived( TrackAddedOrRemovedEvent event );
+    public void trackAdded( TrackAddedOrRemovedEvent event );
 }

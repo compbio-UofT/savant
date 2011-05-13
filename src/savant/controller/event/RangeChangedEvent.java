@@ -1,5 +1,5 @@
 /*
- *    Copyright 2009-2010 University of Toronto
+ *    Copyright 2009-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -17,22 +17,22 @@ package savant.controller.event;
 
 import savant.util.Range;
 
-import java.util.EventObject;
 
 /**
+ * Fired by the RangeController to let other parts of Savant know that the current
+ * display range has changed.
  *
- * @author mfiume
+ * @author mfiume, tarkvara
  */
-public class RangeChangedEvent extends EventObject {
+public class RangeChangedEvent {
 
-    private Range range;
+    private final Range range;
 
-    public RangeChangedEvent(Object source, Range range) {
-        super(source);
+    public RangeChangedEvent(Range range) {
         this.range = range;
     }
 
-    public Range range() {
+    public Range getRange() {
         return range;
     }
 }

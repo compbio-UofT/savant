@@ -23,18 +23,18 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.util.List;
-import javax.swing.Box;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JTextField;
-import javax.swing.JToolBar;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import java.text.NumberFormat;
+import java.text.ParseException;
+import javax.swing.*;
+
+import savant.api.util.DialogUtils;
 import savant.controller.RangeController;
 import savant.controller.ReferenceController;
+import savant.controller.event.GenomeChangedEvent;
+import savant.controller.event.RangeChangedEvent;
+import savant.controller.event.RangeChangedListener;
+import savant.controller.event.ReferenceChangedEvent;
+import savant.controller.event.ReferenceChangedListener;
 import savant.settings.BrowserSettings;
 import savant.util.MiscUtils;
 import savant.util.Range;
@@ -46,151 +46,50 @@ import savant.view.icon.SavantIconFactory;
  * @author tarkvara
  */
 public class NavigationBar extends JToolBar {
-    private static final Log LOG = LogFactory.getLog(NavigationBar.class);
+
+    /** For parsing numbers which may include commas. */
+    private static final NumberFormat NUMBER_PARSER = NumberFormat.getIntegerInstance();
 
     private RangeController rangeController = RangeController.getInstance();
 
-    /** reference drop-down menu */
-    private JComboBox referenceDropdown;
-
-    /** From and To text-boxes */
-    private JTextField fromField, toField;
+    /** Range text-box */
+    JTextField rangeField;
 
     /** Length being displayed */
     private JLabel lengthLabel;
 
-    private KeyAdapter rangeTextBoxKeyAdapter = new KeyAdapter() {
-        @Override
-        public void keyPressed(KeyEvent evt) {
-            if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
-                setRangeFromTextBoxes();
-            }
-        }
-    };
-
-
     NavigationBar() {
 
-        this.setFloatable(false);
+        setFloatable(false);
 
         String buttonStyle = "segmentedTextured";
 
-        //p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
-
-        Dimension comboboxDimension = new Dimension(200, 23);
         Dimension iconDimension = MiscUtils.MAC ? new Dimension(50, 23) : new Dimension(27, 27);
         String shortcutMod = MiscUtils.MAC ? "Cmd" : "Ctrl";
 
         add(getRigidPadding());
 
-        JLabel refLabel = new JLabel();
-        refLabel.setText("Reference: ");
-        refLabel.setToolTipText("Reference sequence");
-        add(refLabel);
+        JLabel rangeText = new JLabel("Range: ");
+        add(rangeText);
 
-        referenceDropdown = new JComboBox();
-        referenceDropdown.setPreferredSize(comboboxDimension);
-        referenceDropdown.setMinimumSize(comboboxDimension);
-        referenceDropdown.setMaximumSize(comboboxDimension);
-        referenceDropdown.setToolTipText("Reference sequence");
-        referenceDropdown.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                // the first item is a header and not allowed to be selected
-                if (referenceDropdown.getItemCount() <= 1) {
-                    return;
-                }
-
-                int index = referenceDropdown.getSelectedIndex();
-                String ref = (String) referenceDropdown.getItemAt(index);
-                if (ref.contains("[")) {
-                    int size = referenceDropdown.getItemCount();
-                    for (int i = 1; i < size; i++) {
-                        int newindex = (index + i) % size;
-                        String newref = (String) referenceDropdown.getItemAt(newindex);
-                        if (!((String) referenceDropdown.getItemAt(newindex)).contains("[")) {
-                            index = newindex;
-                            referenceDropdown.setSelectedIndex(index);
-                            break;
-                        }
-                    }
-                }
-                switchReference(index);
-            }
-
-            private void switchReference(int index) {
-
-                String ref = (String) referenceDropdown.getItemAt(index);
-
-                if (!ReferenceController.getInstance().getReferenceNames().contains(ref)) {
-                    if (!Savant.showNonGenomicReferenceDialog) {
-                        return;
-                    }
-                    //Custom button text
-                    Object[] options = {"OK",
-                        "Don't show again"};
-                    int n = JOptionPane.showOptionDialog(Savant.getInstance(),
-                            "This reference is nongenomic (i.e. it appears in a loaded track but it is not found in the loaded genome)",
-                            "Non-Genomic Reference",
-                            JOptionPane.YES_NO_CANCEL_OPTION,
-                            JOptionPane.INFORMATION_MESSAGE,
-                            null,
-                            options,
-                            options[0]);
-
-                    if (n == 1) {
-                        Savant.showNonGenomicReferenceDialog = false;
-                    } else if (n == 0) {
-                        return;
-                    }
-                }
-
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Actually changing reference to " + ref);
-                }
-                ReferenceController.getInstance().setReference(ref);
-            }
-        });
-        add(referenceDropdown);
-
-        add(getRigidPadding());
-
-        JLabel fromtext = new JLabel();
-        fromtext.setText("From: ");
-        fromtext.setToolTipText("Start position of range");
-        add(fromtext);
-        //p.add(this.getRigidPadding());
-
-        int tfwidth = 100;
+        int tfwidth = 240;
         int labwidth = 100;
         int tfheight = 22;
-        fromField = (JTextField)add(new JTextField());
-        fromField.setToolTipText("Start position of range");
-        fromField.setHorizontalAlignment(JTextField.CENTER);
-        fromField.setPreferredSize(new Dimension(tfwidth, tfheight));
-        fromField.setMaximumSize(new Dimension(tfwidth, tfheight));
-        fromField.setMinimumSize(new Dimension(tfwidth, tfheight));
+        rangeField = (JTextField)add(new JTextField());
+        rangeField.setToolTipText("Current display range");
+        rangeField.setHorizontalAlignment(JTextField.CENTER);
+        rangeField.setPreferredSize(new Dimension(tfwidth, tfheight));
+        rangeField.setMaximumSize(new Dimension(tfwidth, tfheight));
+        rangeField.setMinimumSize(new Dimension(tfwidth, tfheight));
 
-        fromField.addKeyListener(rangeTextBoxKeyAdapter);
-
-        add(getRigidPadding());
-
-        JLabel toLabel = new JLabel();
-        toLabel.setToolTipText("End position of range");
-        toLabel.setText("To: ");
-        add(toLabel);
-        //p.add(this.getRigidPadding());
-
-        toField = (JTextField)add(new JTextField());
-        toField.setToolTipText("End position of range");
-        toField.setHorizontalAlignment(JTextField.CENTER);
-        toField.setPreferredSize(new Dimension(tfwidth, tfheight));
-        toField.setMaximumSize(new Dimension(tfwidth, tfheight));
-        toField.setMinimumSize(new Dimension(tfwidth, tfheight));
-
-        toField.addKeyListener(rangeTextBoxKeyAdapter);
+        rangeField.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent evt) {
+                if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
+                    setRangeFromTextBox();
+                }
+            }
+        });
 
         add(getRigidPadding());
 
@@ -201,15 +100,13 @@ public class NavigationBar extends JToolBar {
         goButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                setRangeFromTextBoxes();
+                setRangeFromTextBox();
             }
         });
 
         add(getRigidPadding());
 
-        JLabel l = new JLabel();
-        l.setText("Length: ");
-        l.setToolTipText("Length of the current range");
+        JLabel l = new JLabel("Length: ");
         add(l);
 
         lengthLabel = (JLabel)add(new JLabel());
@@ -357,110 +254,95 @@ public class NavigationBar extends JToolBar {
 
         add(getRigidPadding());
 
-        // Don't know why our tab order got wonky, but it did some time between 1.4.1 and 1.4.2
-        fromField.setNextFocusableComponent(toField);
-        toField.setNextFocusableComponent(goButton);
-        goButton.setNextFocusableComponent(afterGo);
-        shiftFarRight.setNextFocusableComponent(referenceDropdown);
+        rangeController.addRangeChangedListener(new RangeChangedListener() {
+            @Override
+            public void rangeChanged(RangeChangedEvent event) {
+                updateRange(ReferenceController.getInstance().getReferenceName(), event.getRange());
+            }
+        });
 
+        ReferenceController.getInstance().addReferenceChangedListener(new ReferenceChangedListener() {
+            @Override
+            public void genomeChanged(GenomeChangedEvent event) {
+            }
+
+            @Override
+            public void referenceChanged(ReferenceChangedEvent event) {
+                updateRange(event.getReference(), RangeController.getInstance().getRange());
+            }
+        });
     }
 
     private static Component getRigidPadding() {
         return Box.createRigidArea(new Dimension(BrowserSettings.padding, BrowserSettings.padding));
     }
 
-        /**
+    /**
      * Set the current range from the Zoom track bar.
      */
-    void setRangeFromTextBoxes() {
+    private void setRangeFromTextBox() {
 
-        String fromtext = fromField.getText().trim();
-        String totext = toField.getText().trim();
+        String text = rangeField.getText();
+        int from = rangeController.getRangeStart();
+        int to = rangeController.getRangeEnd();
 
-        int from, to;
+        // Extract a chromosome name (if any).
+        String chr = null;
+        int colonPos = text.indexOf(':');
+        if (colonPos >= 0) {
+            chr = text.substring(0, colonPos);
 
-        if (fromtext.startsWith("-")) {
-            fromtext = MiscUtils.removeChar(fromtext, '-');
-            int diff = MiscUtils.stringToInt(MiscUtils.removeChar(fromtext, ','));
-            to = MiscUtils.stringToInt(MiscUtils.removeChar(toField.getText(), ','));
-            from = to - diff + 1;
-        } else if (totext.startsWith("+")) {
-            totext = MiscUtils.removeChar(totext, '+');
-            int diff = MiscUtils.stringToInt(MiscUtils.removeChar(totext, ','));
-            from = MiscUtils.stringToInt(MiscUtils.removeChar(fromField.getText(), ','));
-            to = from + diff - 1;
-        } else {
-            from = MiscUtils.stringToInt(MiscUtils.removeChar(fromField.getText(), ','));
-            to = MiscUtils.stringToInt(MiscUtils.removeChar(toField.getText(), ','));
-        }
-
-        if (from <= 0) {
-            JOptionPane.showMessageDialog(this, "Invalid start value.");
-            fromField.requestFocus();
-            return;
-        }
-
-        if (to <= 0) {
-            JOptionPane.showMessageDialog(this, "Invalid end value.");
-            toField.requestFocus();
-            return;
-        }
-
-        if (from > to) {
-            //MessageBox.Show("INVALID RANGE");
-            JOptionPane.showMessageDialog(this, "Invalid range.");
-            toField.requestFocus();
-            return;
-        }
-
-        rangeController.setRange(from, to);
-    }
-
-    void setReferences(List<String> refs) {
-        String curRef = (String)referenceDropdown.getSelectedItem();
-        referenceDropdown.removeAllItems();
-
-        int maxWidth = 0;
-        for (String s : refs) {
-            maxWidth = Math.max(maxWidth, s.length());
-            referenceDropdown.addItem(s);
-        }
-        maxWidth = Math.max(200, maxWidth * 8 + 20);
-        Dimension dim = new Dimension(maxWidth, 23);
-        referenceDropdown.setPreferredSize(dim);
-        referenceDropdown.setMinimumSize(dim);
-        referenceDropdown.setMaximumSize(dim);
-        referenceDropdown.invalidate();
-
-        //this.referenceDropdown.addItem("[ NON-GENOMIC (" + nongenomicrefnames.size() + ") ]");
-        List<String> nonGenomicRefs = MiscUtils.set2List(ReferenceController.getInstance().getNonGenomicReferenceNames());
-        if (nonGenomicRefs.size() > 0) {
-            for (String s : nonGenomicRefs) {
-                referenceDropdown.addItem(s);
+            if (!ReferenceController.getInstance().getAllReferenceNames().contains(chr)) {
+                DialogUtils.displayMessage(String.format("\"%s\" is not a known reference name.", chr));
+                return;
+            } else {
+                ReferenceController.getInstance().setReference(chr);
             }
+            text = text.substring(colonPos + 1);
         }
 
-        if (curRef != null) {
-            referenceDropdown.setSelectedItem(curRef);
+        try {
+            if (text.length() > 0) {
+                int minusPos = text.indexOf('-');
+                if (minusPos == 0) {
+                    // Leading minus sign.  Shift to the left.
+                    int delta = NUMBER_PARSER.parse(text.substring(1)).intValue();
+                    from -= delta;
+                    to -= delta;
+                } else if (minusPos > 0) {
+                    // Fully-specified range.
+                    from = NUMBER_PARSER.parse(text.substring(0, minusPos)).intValue();
+                    to = NUMBER_PARSER.parse(text.substring(minusPos + 1)).intValue();
+                } else {
+                    // No minus sign.  Maybe there's a plus?
+                    int plusPos = text.indexOf('+');
+                    if (plusPos == 0) {
+                        // Leading plus sign.  Shift to the right.
+                        int delta = NUMBER_PARSER.parse(text.substring(1)).intValue();
+                        from += delta;
+                        to += delta;
+                    } else if (plusPos > 0) {
+                        // Range specified as start+length.
+                        from = NUMBER_PARSER.parse(text.substring(0, plusPos)).intValue();
+                        to = from + NUMBER_PARSER.parse(text.substring(plusPos + 1)).intValue() - 1;
+                    } else {
+                        // No plusses or minusses.  User is specifying a new start position, but the length remains unchanged.
+                        int newFrom = NUMBER_PARSER.parse(text).intValue();
+                        to += newFrom - from;
+                        from = newFrom;
+                    }
+                }
+            }
+            rangeController.setRange(from, to);
+        } catch (ParseException nfx) {
+            DialogUtils.displayMessage(String.format("Unabled to parse %s as a range.", text));
         }
     }
 
-    void setSelectedReference(String value) {
-        referenceDropdown.setSelectedItem(value);
-    }
-
-    void setSelectedReference(int index) {
-        referenceDropdown.setSelectedIndex(index);
-    }
-
-    /**
-     * Set range description.
-     *  - Change the from and to textboxes.
-     * @param range
-     */
-    void setRangeDescription(Range range) {
-        fromField.setText(MiscUtils.numToString(range.getFrom()));
-        toField.setText(MiscUtils.numToString(range.getTo()));
-        lengthLabel.setText(MiscUtils.numToString(range.getLength()));
+    private void updateRange(String ref, Range r) {
+        rangeField.setText(String.format("%s:%,d-%,d", ref, r.getFrom(), r.getTo()));
+        lengthLabel.setText(String.format("%,d", r.getLength()));
+        rangeField.requestFocusInWindow();
+        rangeField.selectAll();
     }
 }

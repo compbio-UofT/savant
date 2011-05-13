@@ -20,7 +20,6 @@ package savant.controller.event;
  *
  * @author mfiume
  */
-public interface ThreadActivityChangedListener
-{
-    public void threadActivityChangedReceived( ThreadActivityChangedEvent event );
+public interface ThreadActivityChangedListener {
+    public void threadActivityChanged(ThreadActivityChangedEvent event);
 }

@@ -27,6 +27,9 @@ import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import savant.controller.RangeController;
 import savant.controller.SelectionController;
 import savant.data.event.DataRetrievalEvent;
@@ -45,9 +48,10 @@ import savant.view.swing.TrackRenderer;
 /**
  * Class to render continuous tracks.
  *
- * @author vwilliams
+ * @author vwilliams, tarkvara
  */
 public class ContinuousTrackRenderer extends TrackRenderer {
+    private static final Log LOG = LogFactory.getLog(ContinuousTrackRenderer.class);
 
     public static final String STANDARD_MODE = "Standard";
 
@@ -84,31 +88,46 @@ public class ContinuousTrackRenderer extends TrackRenderer {
 
         int numdata = data.size();
 
-        int xPos;
-        double yPos;
         GeneralPath path = new GeneralPath();
-        double xFormXPos, xFormYPos;
+        double xFormXPos = Double.NaN, xFormYPos = Double.NaN;
 
-        xFormXPos = 0;
-        xFormYPos = gp.transformYPos(0.0);
-        path.moveTo(xFormXPos, xFormYPos);
-
+//        xFormXPos = 0;
+//        xFormYPos = gp.transformYPos(0.0);
+//        path.moveTo(xFormXPos, xFormYPos);
+        double xFormYZero = gp.transformYPos(0.0);
         
         double maxData = 0;
+        boolean haveData = false;
         for (int i=0; i<numdata; i++) {
             GenericContinuousRecord continuousRecord = (GenericContinuousRecord)data.get(i);
-            xPos = continuousRecord.getPosition();
-            yPos = continuousRecord.getValue();
-            xFormXPos = gp.transformXPosExclusive(xPos);//+gp.getUnitWidth()/2;
-            xFormYPos = gp.transformYPos(yPos);
+            int xPos = continuousRecord.getPosition();
+            float yPos = continuousRecord.getValue();
+            if (Float.isNaN(yPos)) {
+                // Hit a position with no data.  May need to close off the current path.
+                if (haveData) {
+                    path.lineTo(xFormXPos, xFormYZero);
+                    path.closePath();
+                    haveData = false;
+                }
+            } else {
+                xFormXPos = gp.transformXPosExclusive(xPos);//+gp.getUnitWidth()/2;
+                xFormYPos = gp.transformYPos(yPos);
+                if (!haveData) {
+                    // Start our path off with a vertical line.
+                    path.moveTo(xFormXPos, xFormYZero);
+                    haveData = true;
+                }
+                path.lineTo(xFormXPos, xFormYPos);
+                Rectangle2D rec = new Rectangle2D.Double(xFormXPos - ((xFormXPos-path.getCurrentPoint().getX())/2),0,Math.max(xFormXPos-path.getCurrentPoint().getX(), 1),gp.getHeight());
+                recordToShapeMap.put(continuousRecord, rec);
+            }
             if (yPos > maxData) maxData = yPos;
-            Rectangle2D rec = new Rectangle2D.Double(xFormXPos - ((xFormXPos-path.getCurrentPoint().getX())/2),0,Math.max(xFormXPos-path.getCurrentPoint().getX(), 1),gp.getHeight());
-            this.recordToShapeMap.put(continuousRecord, rec);
-            path.lineTo(xFormXPos, xFormYPos);         
         }
-        xFormYPos = gp.transformYPos(0.0);
-        path.lineTo(xFormXPos, xFormYPos);
-        path.closePath();
+        if (haveData) {
+            // Path needs to be closed.
+            path.lineTo(xFormXPos, xFormYZero);
+            path.closePath();
+        }
         
         g2.setColor(fillcolor);
         g2.fill(path);

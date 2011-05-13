@@ -1,5 +1,5 @@
 /*
- *    Copyright 2009-2010 University of Toronto
+ *    Copyright 2009-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -15,22 +15,19 @@
  */
 package savant.controller.event;
 
-import java.util.EventObject;
-
 /**
+ * Event sent by the ReferenceController when the current reference has changed.
  *
- * @author mfiume
+ * @author mfiume, tarkvara
  */
-public class ReferenceChangedEvent extends EventObject {
+public class ReferenceChangedEvent {
+    private final String reference;
 
-    private String reference;
-
-    public ReferenceChangedEvent(Object source, String reference) {
-        super(source);
+    public ReferenceChangedEvent(String reference) {
         this.reference = reference;
     }
 
-    public String getReferenceName() {
+    public String getReference() {
         return reference;
     }
 }

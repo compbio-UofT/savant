@@ -20,7 +20,6 @@ package savant.controller.event;
  *
  * @author mfiume
  */
-public interface BookmarksChangedListener
-{
-    public void bookmarksChangeReceived( BookmarksChangedEvent event );
+public interface BookmarksChangedListener {
+    public void bookmarksChanged(BookmarksChangedEvent event);
 }

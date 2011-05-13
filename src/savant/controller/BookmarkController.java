@@ -133,7 +133,7 @@ public class BookmarkController {
     private synchronized void fireBookmarksChangedEvent(Bookmark bkmk, boolean isAdded) {
         BookmarksChangedEvent evt = new BookmarksChangedEvent(this, bkmk, isAdded);
         for (BookmarksChangedListener listener : this.favoritesChangedListeners) {
-            listener.bookmarksChangeReceived(evt);
+            listener.bookmarksChanged(evt);
         }
     }
 

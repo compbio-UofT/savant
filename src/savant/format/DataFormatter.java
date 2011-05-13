@@ -160,9 +160,6 @@ public class DataFormatter {
                 case SEQUENCE_FASTA:
                     runFormatter(new FastaFormatter(inFile, outFile));
                     break;
-                case CONTINUOUS_BIGWIG:
-                    runFormatter(new BigWigFormatter(inFile, outFile));
-                    break;
                 default:
                     return false;
             }

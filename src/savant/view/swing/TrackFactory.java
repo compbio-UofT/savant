@@ -16,6 +16,7 @@
 
 package savant.view.swing;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
@@ -31,9 +32,10 @@ import savant.api.util.DialogUtils;
 import savant.controller.PluginController;
 import savant.data.event.TrackCreationEvent;
 import savant.data.event.TrackCreationListener;
+import savant.data.sources.BigWigDataSource;
 import savant.data.sources.DataSource;
 import savant.data.sources.TabixDataSource;
-import savant.data.sources.TDFContinuousDataSource;
+import savant.data.sources.TDFDataSource;
 import savant.data.sources.file.BAMFileDataSource;
 import savant.data.sources.file.BEDFileDataSource;
 import savant.data.sources.file.FASTAFileDataSource;
@@ -240,7 +242,7 @@ public class TrackFactory {
                         // TODO: Only resolves coverage files for local data.  Should also work for network URIs.
                         URI coverageURI = new URI(trackURI.toString() + ".cov.tdf");
                         if (NetworkUtils.exists(coverageURI)) {
-                            tracks.add(new BAMCoverageTrack(new TDFContinuousDataSource(coverageURI)));
+                            tracks.add(new BAMCoverageTrack(new TDFDataSource(coverageURI)));
                         } else {
                             coverageURI = new URI(trackURI.toString() + ".cov.savant");
                             if (NetworkUtils.exists(coverageURI)) {
@@ -251,9 +253,16 @@ public class TrackFactory {
                     } catch (URISyntaxException ignored) {
                     }
                     LOG.info("Finished trying to load coverage file.");
+                } else if (fileType == FileType.CONTINUOUS_BIGWIG) {
+                    LOG.info("Opening BigWig file " + trackURI);
+                    ds = new BigWigDataSource(new File(trackURI));
+                    LOG.info("BigWig datasource=" + ds);
+                    tracks.add(createTrack(ds));
+                    LOG.trace("BigWig track created.");
+                    fireTrackCreationCompleted(tracks, "");
                 } else if (fileType == FileType.CONTINUOUS_TDF) {
                     LOG.info("Opening TDF file " + trackURI);
-                    ds = new TDFContinuousDataSource(trackURI);
+                    ds = new TDFDataSource(trackURI);
                     LOG.info("TDF datasource=" + ds);
                     tracks.add(createTrack(ds));
                     LOG.trace("TDF track created.");
@@ -263,10 +272,13 @@ public class TrackFactory {
                     tracks.add(createTrack(ds));
                     fireTrackCreationCompleted(tracks, "");
                 }
-            } catch (RuntimeIOException riox) {
+            } catch (RuntimeIOException x) {
                 // Special case: SamTools I/O Exception which contains the real exception nested within.
-                LOG.error("Track creation failed.", riox);
-                fireTrackCreationFailed(riox.getCause());
+                LOG.error("Track creation failed.", x);
+                fireTrackCreationFailed(x.getCause());
+            } catch (SavantFileNotFormattedException x) {
+                // Special case: we don't want to pollute error log with a stack trace for this non-error.
+                fireTrackCreationFailed(x);
             } catch (Exception x) {
                 LOG.error("Track creation failed.", x);
                 fireTrackCreationFailed(x);

@@ -66,7 +66,7 @@ public class DrawModeController {
     
     private synchronized void fireDrawModeChangedEvent(DrawModeChangedEvent evt) {
         for (DrawModeChangedListener listener : listeners) {
-            listener.drawModeChangeReceived(evt);
+            listener.drawModeChanged(evt);
         }
     }
     

@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Set;
 
 import savant.api.util.DialogUtils;
+import savant.controller.event.GenomeChangedEvent;
 import savant.controller.event.ReferenceChangedEvent;
 import savant.controller.event.ReferenceChangedListener;
 import savant.data.types.Genome;
@@ -35,13 +36,12 @@ import savant.util.MiscUtils;
  */
 public class ReferenceController {
 
-    private Genome loadedGenome;
-
     private static ReferenceController instance;
+
+    private Genome loadedGenome;
 
     private List<ReferenceChangedListener> referenceChangedListeners;
 
-    /** The maximum and current viewable range */
     private String currentReference;
 
     public static synchronized ReferenceController getInstance() {
@@ -52,8 +52,6 @@ public class ReferenceController {
     }
 
     private ReferenceController() {
-        //genomicReferences = new HashSet<String>();
-        //otherReferences = new HashSet<String>();
         referenceChangedListeners = new ArrayList<ReferenceChangedListener>();
     }
 
@@ -106,34 +104,7 @@ public class ReferenceController {
     }
 
     public Set<String> getNonGenomicReferenceNames() {
-
         return new HashSet<String>();
-
-        /*
-        Set<String> genomicReferences = getReferenceNames();
-        Set<String> nonGenomicReferences = new HashSet<String>();
-
-        List<Track> tracks = TrackController.getInstance().getTracks();
-
-        for (Track t : tracks) {
-
-            RecordTrack rt = t.getTrack();
-
-            System.out.println("Track name: " + t.getName());
-
-            //if (rt == null) { continue; }
-            //System.out.println("\tGetting reference names from " + rt.toString());
-
-            Set<String> refs = rt.getReferenceNames();
-            for (String r : refs) {
-                if (!genomicReferences.contains(r)) {
-                    nonGenomicReferences.add(r);
-                }
-            }
-        }
-
-        return nonGenomicReferences;
-         */
     }
 
 
@@ -141,12 +112,22 @@ public class ReferenceController {
      * Fire the ReferenceChangedEvent
      */
     private synchronized void fireReferenceChangedEvent() {
-        ReferenceChangedEvent evt = new ReferenceChangedEvent(this, this.currentReference);
-        Iterator listeners = this.referenceChangedListeners.iterator();
-        while (listeners.hasNext()) {
-            ((ReferenceChangedListener) listeners.next()).referenceChangeReceived(evt);
+        ReferenceChangedEvent evt = new ReferenceChangedEvent(currentReference);
+        for (ReferenceChangedListener l: referenceChangedListeners) {
+            l.referenceChanged(evt);
         }
     }
+
+    /**
+     * Fire the ReferenceChangedEvent
+     */
+    private synchronized void fireGenomeChangedEvent() {
+        GenomeChangedEvent evt = new GenomeChangedEvent(loadedGenome);
+        for (ReferenceChangedListener l: referenceChangedListeners) {
+            l.genomeChanged(evt);
+        }
+    }
+
 
     public synchronized void addReferenceChangedListener(ReferenceChangedListener l) {
         referenceChangedListeners.add(l);
@@ -161,7 +142,7 @@ public class ReferenceController {
      * @return True iff a genome has been loaded
      */
     public boolean isGenomeLoaded() {
-        return getGenome() != null;
+        return loadedGenome != null;
     }
 
     /**
@@ -169,14 +150,15 @@ public class ReferenceController {
      * @return The loaded genome
      */
     public Genome getGenome() {
-        return this.loadedGenome;
+        return loadedGenome;
     }
 
     public void setGenome(Genome genome) {
-        this.loadedGenome = genome;
+        loadedGenome = genome;
+        fireGenomeChangedEvent();
 
         // Auto-select the first reference on the new genome.
-        String ref = MiscUtils.set2List(this.loadedGenome.getReferenceNames()).get(0);
+        String ref = MiscUtils.set2List(loadedGenome.getReferenceNames()).get(0);
         setReference(ref, true);
     }
 }

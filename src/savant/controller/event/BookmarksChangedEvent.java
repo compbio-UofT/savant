@@ -18,7 +18,6 @@ package savant.controller.event;
 import savant.util.Bookmark;
 
 import java.util.EventObject;
-import java.util.List;
 
 /**
  *

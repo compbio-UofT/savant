@@ -15,7 +15,6 @@
  */
 package savant.view.swing;
 
-import savant.view.swing.start.StartPanel;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.DataOutputStream;
@@ -23,7 +22,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -50,7 +48,6 @@ import com.jidesoft.status.MemoryStatusBarItem;
 import com.jidesoft.swing.JideSplitPane;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.broad.igv.feature.Genome.ChromosomeComparator;
 import org.jdom.JDOMException;
 
 import savant.api.util.DialogUtils;
@@ -58,7 +55,6 @@ import savant.controller.*;
 import savant.controller.event.*;
 import savant.data.sources.DataSource;
 import savant.data.types.Genome;
-import savant.file.SavantFileNotFormattedException;
 import savant.experimental.XMLTool;
 import savant.plugin.builtin.SAFEDataSourcePlugin;
 import savant.plugin.builtin.SavantFileRepositoryDataSourcePlugin;
@@ -70,6 +66,7 @@ import savant.util.Range;
 import savant.view.dialog.*;
 import savant.view.icon.SavantIconFactory;
 import savant.view.tools.ToolsModule;
+import savant.view.swing.start.StartPanel;
 import savant.xml.XMLVersion;
 import savant.xml.XMLVersion.Version;
 
@@ -79,9 +76,7 @@ import savant.xml.XMLVersion.Version;
  *
  * @author mfiume
  */
-public class Savant extends javax.swing.JFrame implements RangeSelectionChangedListener,
-        /*RangeChangedListener, */ /*PropertyChangeListener,*/ BookmarksChangedListener,
-        ReferenceChangedListener, DataSourceListChangedListener {
+public class Savant extends JFrame implements BookmarksChangedListener, ReferenceChangedListener {
 
     private static final Log LOG = LogFactory.getLog(Savant.class);
     public static boolean turnExperimentalFeaturesOff = true;
@@ -92,7 +87,6 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
     private DockingManager trackDockingManager;
     private JPanel trackPanel;
     private NavigationBar navigationBar;
-    private JButton goButton;
     private ToolsModule savantTools;
     static boolean showNonGenomicReferenceDialog = true;
     private static boolean showBookmarksChangedDialog = false; // turned off, its kind of annoying
@@ -100,7 +94,6 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
     private Frame genomeFrame = null;
     private DataFormatForm dff;
     private MemoryStatusBarItem memorystatusbar;
-    private DockableFrame startPageDockableFrame;
     private Application macOSXApplication;
     private ProjectHandler projectHandler;
 
@@ -213,25 +206,25 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         rangeSelector.setPreferredSize(new Dimension(10000, 23));
         rangeSelector.setMaximumSize(new Dimension(10000, 23));
         rangeController.addRangeChangedListener(rangeSelector);
-        rangeSelector.addRangeChangedListener(this);
-        rangeSelector.setActive(false);
         rangeSelector.setVisible(false);
-        //trackPanel.add(rangeSelector,BorderLayout.NORTH);
 
-        ruler = new MiniRangeSelectionPanel();
-        rangeController.addRangeChangedListener(ruler);
-        ruler.addRangeChangedListener(this);
-        ruler.setActive(false);
+        referenceCombo = new ReferenceCombo();
+        referenceCombo.setVisible(false);
+
+        ruler = new Ruler();
+        ruler.setPreferredSize(new Dimension(10000, 23));
+        ruler.setMaximumSize(new Dimension(10000, 23));
         ruler.setVisible(false);
-        //trackPanel.add(ruler,BorderLayout.NORTH);
 
-        JPanel selectorsContainer = new JPanel();
-        selectorsContainer.setLayout(new BoxLayout(selectorsContainer, BoxLayout.Y_AXIS));
+        Box box1 = Box.createHorizontalBox();
+        box1.add(referenceCombo);
+        box1.add(rangeSelector);
 
-        selectorsContainer.add(rangeSelector);
-        selectorsContainer.add(ruler);
+        Box box2 = Box.createVerticalBox();
+        box2.add(box1);
+        box2.add(ruler);
 
-        trackPanel.add(selectorsContainer, BorderLayout.NORTH);
+        trackPanel.add(box2, BorderLayout.NORTH);
 
         trackBackground = new JPanel();
         trackBackground.setBackground(Color.darkGray);
@@ -260,9 +253,6 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         // make sure only one active frame
         addDockingManagerToGroup(auxDockingManager);
         addDockingManagerToGroup(trackDockingManager);
-        //DockingManagerGroup dmg = new DockingManagerGroup();
-        //dmg.add(auxDockingManager);
-        //dmg.add(trackDockingManager);
     }
     /** Minimum and maximum dimensions of the browser form */
     static int minimumFormWidth = 500;
@@ -271,9 +261,10 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
     //private Genome loadedGenome;
     /** The log */
     private static JTextArea log;
+    private ReferenceCombo referenceCombo;
     /** Click and drag control for range selection */
     private RangeSelectionPanel rangeSelector;
-    private MiniRangeSelectionPanel ruler;
+    private Ruler ruler;
     /** Information & Analysis Tabbed Pane (for plugin use) */
     private JTabbedPane auxTabbedPane;
     /**
@@ -1144,7 +1135,9 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
     }//GEN-LAST:event_menuitem_rulerActionPerformed
 
     private void menuitem_genomeviewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuitem_genomeviewActionPerformed
-        this.rangeSelector.setVisible(!this.rangeSelector.isVisible());
+        boolean flag = !rangeSelector.isVisible();
+        rangeSelector.setVisible(flag);
+        referenceCombo.setVisible(flag);
     }//GEN-LAST:event_menuitem_genomeviewActionPerformed
 
     private void menuitem_statusbarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuitem_statusbarActionPerformed
@@ -1746,34 +1739,6 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         d.setVisible(true);
     }
 
-    /** [[EVENTS]]**/
-    @Override
-    public void rangeSelectionChangeReceived(RangeSelectionChangedEvent event) {
-        rangeController.setRange(event.range());
-    }
-
-    /*
-    @Override
-    public void rangeChangeReceived(RangeChangedEvent event) {
-    }
-     * 
-     */
-    public void updateRange() {
-        // adjust descriptions
-        navigationBar.setRangeDescription(rangeController.getRange());
-
-        // adjust range controls
-        setRangeSelectorFromRange();
-
-        setRulerFromRange();
-
-        // draw all frames
-        FrameController fc = FrameController.getInstance();
-
-        fc.drawFrames();
-
-    }
-
     /**
      * The user has tried to open an unformatted file.  Prompt them to format it.
      *
@@ -1840,8 +1805,6 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         }
 
         showBrowserControls();
-        updateReferenceNamesList();
-        navigationBar.setSelectedReference(0);
     }
 
     private boolean browserControlsShown = false;
@@ -1854,15 +1817,11 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         //TODO: remove start page
         //trackBackground.removeAll();
 
-        // This line of code hangs Savant after formatting a genome
-        //rangeController.setRange(50, 550);
-        rangeSelector.setActive(true);
-        ruler.setActive(true);
-
         this.panel_top.setVisible(true);
         this.menuItem_viewRangeControls.setSelected(true);
 
         this.rangeSelector.setVisible(true);
+        this.referenceCombo.setVisible(true);
         this.menuitem_genomeview.setSelected(true);
 
         this.ruler.setVisible(true);
@@ -1882,31 +1841,6 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         this.menuitem_startpage.setSelected(b);
     }
 
-    /**
-     * Set the current range from the rangeSelector.
-     */
-    void setRangeFromRangeSelection() {
-        int minRange = rangeSelector.getLowerPosition();
-        int maxRange = rangeSelector.getUpperPosition();
-
-        rangeController.setRange(minRange, maxRange);
-    }
-
-    /**
-     * Set the range selection upper and lower values
-     * from the current range.
-     */
-    void setRangeSelectorFromRange() {
-        rangeSelector.setRange(rangeController.getRangeStart(), rangeController.getRangeEnd());
-    }
-
-    /**
-     * Set the ruler from the current range.
-     */
-    void setRulerFromRange() {
-        ruler.setRulerRange(rangeController.getRange());
-    }
-
     public void updateStatus(String msg) {
         this.label_status.setText(msg);
         this.label_status.revalidate();
@@ -1923,7 +1857,7 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
     }
 
     @Override
-    public void bookmarksChangeReceived(BookmarksChangedEvent event) {
+    public void bookmarksChanged(BookmarksChangedEvent event) {
         if (!showBookmarksChangedDialog) {
             return;
         }
@@ -1976,30 +1910,16 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         return cleanFrames;
     }
 
-    private void updateReferenceNamesList() {
-
-        LOG.debug("Updating reference names list");
-
-        ReferenceController rc = ReferenceController.getInstance();
-        List<String> refNames = MiscUtils.set2List(rc.getReferenceNames());
-
-        Collections.sort(refNames, new ChromosomeComparator());
-        navigationBar.setReferences(refNames);
+    @Override
+    public void genomeChanged(GenomeChangedEvent event) {
     }
 
     @Override
-    public void referenceChangeReceived(ReferenceChangedEvent event) {
-        navigationBar.setSelectedReference(event.getReferenceName());
+    public void referenceChanged(ReferenceChangedEvent event) {
         Genome loadedGenome = ReferenceController.getInstance().getGenome();
         rangeController.setMaxRange(new Range(1, loadedGenome.getLength()));
         rangeSelector.setMaximum(loadedGenome.getLength());
         rangeController.setRange(1, Math.min(1000, loadedGenome.getLength()));
-        LOG.debug("referenceChangeReceived has set the range to 1-1000 (or so)");
-    }
-
-    @Override
-    public void trackListChangeReceived(DataSourceListChangedEvent evt) {
-        updateReferenceNamesList();
     }
 
     private void setSpeedAndEfficiencyIndicatorsVisible(boolean b) {
@@ -2119,9 +2039,9 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         return webStart;
     }
 
-    public static void installMissingPlugins(List<String> pluginUrls){
+    public static void installMissingPlugins(List<String> pluginUrls) {
         String localFile = null;
-        for(String stringUrl : pluginUrls){
+        for (String stringUrl: pluginUrls) {
 
             try{
                 URL url  = new URL(stringUrl);
@@ -2155,10 +2075,8 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
                 is.close();
                 fos.close();
 
-            }catch (MalformedURLException e){
-                System.err.println(e.toString());
-            }catch (IOException e){
-                System.err.println(e.toString());
+            } catch (Exception e){
+                LOG.error(e);
             }
         }
     }

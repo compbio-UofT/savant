@@ -88,7 +88,7 @@ public class DataSourceController {
     private void fireTracksChangedEvent() {
         DataSourceListChangedEvent evt = new DataSourceListChangedEvent(this, this.sources);
         for (DataSourceListChangedListener listener : listeners) {
-            listener.trackListChangeReceived(evt);
+            listener.trackListChanged(evt);
         }
     }
 }

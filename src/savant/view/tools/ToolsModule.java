@@ -105,7 +105,7 @@ public class ToolsModule implements BookmarksChangedListener, RangeChangeComplet
     }
 
     @Override
-    public void bookmarksChangeReceived(BookmarksChangedEvent event) {
+    public void bookmarksChanged(BookmarksChangedEvent event) {
         runTools(toolsSubscribedToBookmarksChangeEvent);
     }
 
@@ -119,18 +119,18 @@ public class ToolsModule implements BookmarksChangedListener, RangeChangeComplet
      */
 
     @Override
-    public void trackListChangeReceived(TrackListChangedEvent event) {
+    public void trackListChanged(TrackListChangedEvent event) {
         runTools(toolsSubscribedToTrackListChangeEvent);
     }
 
     @Override
-    public void threadActivityChangedReceived(ThreadActivityChangedEvent event) {
+    public void threadActivityChanged(ThreadActivityChangedEvent event) {
         //System.out.println("Tools module was notified of thread status change to " + event.getActivity());
         updateThreadsList();
     }
 
     @Override
-    public void rangeChangeCompletedReceived(RangeChangedEvent event) {
+    public void rangeChangeCompleted(RangeChangedEvent event) {
         runTools(toolsSubscribedToRangeChangeEvent);
     }
 

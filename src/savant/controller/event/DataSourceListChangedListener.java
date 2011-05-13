@@ -26,5 +26,5 @@ package savant.controller.event;
  */
 public interface DataSourceListChangedListener {
 
-    public void trackListChangeReceived(DataSourceListChangedEvent evt);
+    public void trackListChanged(DataSourceListChangedEvent evt);
 }

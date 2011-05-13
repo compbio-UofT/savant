@@ -1,5 +1,5 @@
 /*
- *    Copyright 2009-2010 University of Toronto
+ *    Copyright 2009-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -18,24 +18,21 @@ package savant.controller.event;
 
 import savant.view.swing.Track;
 
-import java.util.EventObject;
 
 /**
  *
  * @author mfiume
  */
-public class TrackAddedOrRemovedEvent extends EventObject {
+public class TrackAddedOrRemovedEvent {
 
-    private Track track;
+    private final Track track;
 
-    public TrackAddedOrRemovedEvent( Object source, Track track ) {
-        super( source );
+    public TrackAddedOrRemovedEvent(Track track) {
         this.track = track;
     }
 
     public Track getTrack() {
         return track;
     }
-
 }
 

@@ -1,5 +1,5 @@
 /*
- *    Copyright 2009-2010 University of Toronto
+ *    Copyright 2009-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -15,18 +15,22 @@
  */
 package savant.controller.event;
 
-import savant.util.Bookmark;
+import savant.controller.GraphPaneController;
 
-import java.util.EventObject;
-import java.util.List;
 
 /**
+ * Something has changed in the state of a GraphPane.  Tell our clients about it.
  *
- * @author mfiume
+ * @author mfiume, tarkvara
  */
-public class GraphPaneChangeEvent extends EventObject {
+public class GraphPaneChangedEvent {
+    private final GraphPaneController source;
 
-    public GraphPaneChangeEvent(Object source) {
-        super(source);
+    public GraphPaneChangedEvent(GraphPaneController source) {
+        this.source = source;
+    }
+
+    public GraphPaneController getSource() {
+        return source;
     }
 }

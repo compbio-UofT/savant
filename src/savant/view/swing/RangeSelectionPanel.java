@@ -16,13 +16,10 @@
 package savant.view.swing;
 
 import java.awt.*;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
@@ -31,18 +28,17 @@ import savant.controller.RangeController;
 import savant.controller.ReferenceController;
 import savant.controller.event.RangeChangedEvent;
 import savant.controller.event.RangeChangedListener;
-import savant.controller.event.RangeSelectionChangedEvent;
-import savant.controller.event.RangeSelectionChangedListener;
 import savant.data.types.Genome;
 import savant.data.types.Genome.Cytoband;
 import savant.util.Range;
 import savant.util.MiscUtils;
 
 /**
+ * Component which lets user specify the current range.
  *
- * @author mfiume
+ * @author mfiume, tarkvara
  */
-public class RangeSelectionPanel extends JPanel implements MouseListener, MouseMotionListener, RangeChangedListener {
+public class RangeSelectionPanel extends JPanel implements RangeChangedListener {
 
     private static final AlphaComposite COMPOSITE_50 = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.50F);
     private static final AlphaComposite COMPOSITE_75 = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.75F);
@@ -50,8 +46,6 @@ public class RangeSelectionPanel extends JPanel implements MouseListener, MouseM
 
     private boolean isMouseInside = false;
     private boolean isDragging = false;
-    private boolean isActive = false;
-    private int minimum = 0;
     private int maximum = 100;
     private final JLabel mousePosition;
     int x1, x2, y1, y2;
@@ -60,8 +54,6 @@ public class RangeSelectionPanel extends JPanel implements MouseListener, MouseM
     private final JLabel recStop;
     private final JLabel cords; // set up GUI and register mouse event handlers
     boolean isNewRect = true;
-    /** Range Selection Changed Listeners */
-    private List rangeSelectionChangedListeners = new ArrayList();
     private boolean rangeChangedExternally;
 
 
@@ -82,150 +74,102 @@ public class RangeSelectionPanel extends JPanel implements MouseListener, MouseM
 
         this.setToolTipText("Click and drag to select a subregion of the reference");
 
-        addMouseListener(this); // listens for own mouse and
-        addMouseMotionListener(this); // mouse-motion events
+        addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent event) {
+                x1 = event.getX();
+                if (x1 < 1) {
+                    x1 = 1;
+                }
+                if (x1 > getWidth()) {
+                    x1 = getWidth();
+                }
+                y1 = event.getY();
+                isNewRect = true;
+                rangeChangedExternally = false;
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent event) {
+                isDragging = false;
+                x2 = event.getX();
+                if (x2 < 1) {
+                    x2 = 1;
+                } else if (x2 > getWidth()) {
+                    x2 = getWidth();
+                }
+                y2 = event.getY();
+                repaint();
+
+                int st = x1;
+                int end = x2;
+                if (x1 > x2) {
+                    st = x2;
+                    end = x1;
+                }
+
+                int startRange, endRange;
+
+                if (st < 2) {
+                    startRange = RangeController.getInstance().getMaxRangeStart();
+                } else {
+                    startRange = translatePixelToPosition(st);
+                }
+
+                if (end > getWidth()-2) {
+                    endRange = RangeController.getInstance().getMaxRangeEnd();
+                } else {
+                    endRange = translatePixelToPosition(end);
+                }
+                RangeController.getInstance().setRange(startRange, endRange);
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent event) {
+                 setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
+                 isMouseInside = true;
+            }
+
+            @Override
+            public void mouseExited(MouseEvent event) {
+                 setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+                 isMouseInside = false;
+                 repaint();
+            }
+        });
+        addMouseMotionListener(new MouseMotionListener() {
+
+            @Override
+            public void mouseDragged(MouseEvent event) {
+                isDragging = true;
+
+                x2 = event.getX();
+                if (x2 < 1) {
+                    x2 = 1;
+                } else if (x2 > getWidth()) {
+                    x2 = getWidth();
+                }
+                y2 = event.getY();
+
+                isNewRect = false;
+                repaint();
+            }
+
+            @Override
+            public void mouseMoved(MouseEvent event) {
+                x_notdragging = event.getX();
+                repaint();
+            }
+
+        });
 
         setVisible(true);
     }
 
-// MouseListener event handlers // handle event when mouse released immediately after press
-    @Override
-    public void mouseClicked(final MouseEvent event) {
-        //this.mousePos.setText( "Clicked at [" + event.getX() + ", " + event.getY() + "]" );
-        //repaint();
-    }
-
-// handle event when mouse pressed
-    @Override
-    public void mousePressed(final MouseEvent event) {
-
-        this.x1 = event.getX();
-        if (this.x1 < 1) {
-            this.x1 = 1;
-        }
-        if (this.x1 > this.getWidth()) {
-            this.x1 = this.getWidth();
-        }
-        this.y1 = event.getY();
-
-        //this.mousePos.setText( "Pressed at [" + ( this.x1 ) + ", " + ( this.y1 ) + "]" );
-
-        //this.recStart.setText( "Start:  [" + this.x1 + "]");
-
-        this.isNewRect = true;
-        this.rangeChangedExternally = false;
-
-        //repaint();
-    }
-
-// handle event when mouse released after dragging
-    @Override
-    public void mouseReleased(final MouseEvent event) {
-
-        isDragging = false;
-
-        this.x2 = event.getX();
-        if (this.x2 < 1) {
-            this.x2 = 1;
-        }
-        if (this.x2 > this.getWidth()) {
-            this.x2 = this.getWidth();
-        }
-        this.y2 = event.getY();
-        //this.mousePos.setText( "Released at [" + ( this.x2 ) + ", " + ( this.y2 ) + "]" );
-
-        //this.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
-
-        //this.recStop.setText( "End:  [" + this.x2 + "]" );
-
-        repaint();
-
-        int st = this.x1;
-        int end = this.x2;
-        if (this.x1 > this.x2) {
-            st = this.x2;
-            end = this.x1;
-        }
-
-        int startRange, endRange;
-        
-        if (st < 2) {
-            startRange = RangeController.getInstance().getMaxRangeStart();
-        } else {
-            startRange = translatePixelToPosition(st);
-        }
-
-        if (end > this.getWidth()-2) {
-            endRange = RangeController.getInstance().getMaxRangeEnd();
-        } else {
-            endRange = translatePixelToPosition(end);
-        }
-        
-        fireRangeSelectionChangedEvent(new Range(startRange, endRange));
-    }
-
-// handle event when mouse enters area
-    @Override
-    public void mouseEntered(final MouseEvent event) {
-         this.setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
-         this.isMouseInside = true;
-        //this.mousePos.setText( "Mouse entered at [" + event.getX() + ", " + event.getY() + "]" );
-        //repaint();
-    }
-
-// handle event when mouse exits area
-    @Override
-    public void mouseExited(final MouseEvent event) {
-         this.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
-         this.isMouseInside = false;
-         repaint();
-        //this.mousePos.setText( "Mouse outside window" );
-        //repaint();
-    }
-
-// MouseMotionListener event handlers // handle event when user drags mouse with button pressed
-    @Override
-    public void mouseDragged(final MouseEvent event) {
-
-        if (!this.isActive()) {
-            return ;
-        }
-
-        isDragging = true;
-
-        this.x2 = event.getX();
-        if (this.x2 < 1) {
-            this.x2 = 1;
-        }
-        if (this.x2 > this.getWidth()) {
-            this.x2 = this.getWidth();
-        }
-        this.y2 = event.getY();
-
-        //this.setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
-
-        //this.mousePos.setText( "Length : [" + Math.abs(this.x2 - this.x1) + "]" ); // call repaint which calls paint repaint();
-
-        this.isNewRect = false;
-        repaint();
-    }
-
-// handle event when user moves mouse
-    @Override
-    public void mouseMoved(final MouseEvent event) {
-        //this.mousePos.setText( "At [" + event.getX() + "]" );
-
-        this.x_notdragging = event.getX();
-        repaint();
-    }
 
     @Override
     public void paintComponent(final Graphics g) {
         super.paintComponent(g);
-
-        if (!this.isActive()) { return ; }
-
-        //Savant.log("Painting component");
 
         int wid = getWidth();
         int hei = getHeight();
@@ -421,36 +365,9 @@ public class RangeSelectionPanel extends JPanel implements MouseListener, MouseM
     }
 
     @Override
-    public void rangeChangeReceived(RangeChangedEvent event) {
+    public void rangeChanged(RangeChangedEvent event) {
         this.rangeChangedExternally = true;
-        this.setRange(event.range());
-    }
-
-    public synchronized void addRangeChangedListener(RangeSelectionChangedListener l) {
-        rangeSelectionChangedListeners.add(l);
-    }
-
-    public synchronized void removeRangeChangedListener(RangeSelectionChangedListener l) {
-        rangeSelectionChangedListeners.remove(l);
-    }
-
-    /**
-     * Fire the RangeSelectionChangedEvent
-     */
-    private synchronized void fireRangeSelectionChangedEvent(Range r) {
-        RangeSelectionChangedEvent evt = new RangeSelectionChangedEvent(this, r);
-        Iterator listeners = this.rangeSelectionChangedListeners.iterator();
-        while (listeners.hasNext()) {
-            ((RangeSelectionChangedListener) listeners.next()).rangeSelectionChangeReceived(evt);
-        }
-    }
-
-    void setActive(boolean b) {
-        this.isActive = b;
-    }
-
-    private boolean isActive() {
-        return this.isActive;
+        this.setRange(event.getRange());
     }
 }
 

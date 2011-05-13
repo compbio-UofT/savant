@@ -22,6 +22,6 @@ package savant.controller.event;
  */
 public interface SelectionChangedListener {
 
-    public void selectionChangeReceived( SelectionChangedEvent event );
+    public void selectionChanged(SelectionChangedEvent event);
 
 }

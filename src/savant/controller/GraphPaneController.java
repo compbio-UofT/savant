@@ -19,8 +19,8 @@ package savant.controller;
 import java.util.ArrayList;
 import java.util.List;
 
-import savant.controller.event.GraphPaneChangeEvent;
-import savant.controller.event.GraphPaneChangeListener;
+import savant.controller.event.GraphPaneChangedEvent;
+import savant.controller.event.GraphPaneChangedListener;
 import savant.util.Range;
 import savant.view.swing.GraphPane;
 import savant.view.swing.Savant;
@@ -50,7 +50,7 @@ public class GraphPaneController {
 
     private static GraphPaneController instance;
 
-    private List<GraphPaneChangeListener> graphpaneChangeListeners;
+    private List<GraphPaneChangedListener> graphpaneChangeListeners;
 
     private boolean changeMade = false;
 
@@ -90,7 +90,7 @@ public class GraphPaneController {
     }
 
     private GraphPaneController() {
-        graphpaneChangeListeners = new ArrayList<GraphPaneChangeListener>();
+        graphpaneChangeListeners = new ArrayList<GraphPaneChangedListener>();
         graphpanesQueuedForRendering = new ArrayList<GraphPane>();
     }
 
@@ -101,11 +101,11 @@ public class GraphPaneController {
         return instance;
     }
 
-    public synchronized void addGraphPaneChangedListener(GraphPaneChangeListener l) {
+    public synchronized void addGraphPaneChangedListener(GraphPaneChangedListener l) {
         graphpaneChangeListeners.add(l);
     }
 
-    public synchronized void removeBookmarksChangedListener(GraphPaneChangeListener l) {
+    public synchronized void removeBookmarksChangedListener(GraphPaneChangedListener l) {
         graphpaneChangeListeners.remove(l);
     }
 
@@ -116,18 +116,18 @@ public class GraphPaneController {
 
     public void askForRefresh() {
         if (this.isPanning() || this.isZooming() || this.isPlumbing() || this.isSpotlight() || this.isAiming()) {
-            fireGraphPaneChangeEvent();
+            fireGraphPaneChangedEvent();
         }
     }
 
     public void forceRefresh() {
-        fireGraphPaneChangeEvent();
+        fireGraphPaneChangedEvent();
     }
 
-    private synchronized void fireGraphPaneChangeEvent() {
-        GraphPaneChangeEvent evt = new GraphPaneChangeEvent(this);
-        for (GraphPaneChangeListener listener : this.graphpaneChangeListeners) {
-            listener.graphpaneChangeReceived(evt);
+    private synchronized void fireGraphPaneChangedEvent() {
+        GraphPaneChangedEvent evt = new GraphPaneChangedEvent(this);
+        for (GraphPaneChangedListener listener : this.graphpaneChangeListeners) {
+            listener.graphPaneChanged(evt);
         }
     }
 

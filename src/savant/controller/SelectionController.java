@@ -1,5 +1,5 @@
 /*
- *    Copyright 2010 University of Toronto
+ *    Copyright 2010-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -16,11 +16,9 @@
 
 package savant.controller;
 
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -36,7 +34,7 @@ import savant.util.Range;
 public class SelectionController {
 
     private static SelectionController instance;
-    private List selectionChangedListeners;
+    private List<SelectionChangedListener> selectionChangedListeners;
     private Map<String, List<Record>> map;
     private Map<String, List<Record>> currentMap;
     private Map<String, Range> rangeMap;
@@ -60,9 +58,8 @@ public class SelectionController {
      */
     private synchronized void fireSelectionChangedEvent() {
         SelectionChangedEvent evt = new SelectionChangedEvent(this);
-        Iterator listeners = this.selectionChangedListeners.iterator();
-        while (listeners.hasNext()) {
-            ((SelectionChangedListener) listeners.next()).selectionChangeReceived(evt);
+        for (SelectionChangedListener l: selectionChangedListeners) {
+            l.selectionChanged(evt);
         }
     }
 

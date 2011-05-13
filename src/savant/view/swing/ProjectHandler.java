@@ -125,17 +125,17 @@ public class ProjectHandler implements
     }
 
     @Override
-    public void rangeChangeReceived(RangeChangedEvent event) {
+    public void rangeChanged(RangeChangedEvent event) {
         setProjectSaved(false);
     }
 
     @Override
-    public void trackListChangeReceived(TrackListChangedEvent event) {
+    public void trackListChanged(TrackListChangedEvent event) {
         setProjectSaved(false);
     }
 
     @Override
-    public void bookmarksChangeReceived(BookmarksChangedEvent event) {
+    public void bookmarksChanged(BookmarksChangedEvent event) {
         setProjectSaved(false);
     }
 

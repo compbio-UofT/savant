@@ -80,7 +80,7 @@ public class RecentTracksController implements TrackAddedListener {
     }
 
     @Override
-    public void trackAddedReceived(TrackAddedOrRemovedEvent event) {
+    public void trackAdded(TrackAddedOrRemovedEvent event) {
 
         Track t = event.getTrack();
 

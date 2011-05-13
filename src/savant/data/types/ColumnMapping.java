@@ -43,9 +43,6 @@ public class ColumnMapping {
     /** Set of columns for VCF files.  Note that there is no end column. */
     public static final ColumnMapping VCF = ColumnMapping.getIntervalMapping(0, 1, -1, 2);
 
-    /** One of our own generic interval files. */
-    public static final ColumnMapping GENERIC_INTERVAL = ColumnMapping.getIntervalMapping(0, 1, 2, 3);
-
     public final DataFormat format;
 
     public final int chrom;

@@ -11,5 +11,5 @@ package savant.controller.event;
  */
 public interface TrackListChangedListener
 {
-    public void trackListChangeReceived( TrackListChangedEvent event );
+    public void trackListChanged( TrackListChangedEvent event );
 }

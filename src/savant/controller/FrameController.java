@@ -22,19 +22,14 @@ package savant.controller;
 import java.beans.PropertyVetoException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import javax.swing.JComponent;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import savant.controller.event.FrameShownEvent;
-import savant.controller.event.FrameChangedListener;
-import savant.controller.event.FrameShownListener;
-import savant.controller.event.FrameChangedEvent;
-import savant.controller.event.FrameHiddenListener;
-import savant.controller.event.FrameHiddenEvent;
+import savant.controller.event.RangeChangedEvent;
+import savant.controller.event.RangeChangedListener;
 import savant.view.swing.Frame;
 import savant.view.swing.GraphPane;
 import savant.view.swing.Track;
@@ -45,7 +40,7 @@ import savant.view.swing.Track;
  *
  * @author vwilliams
  */
-public class FrameController {
+public class FrameController implements RangeChangedListener {
     private static final Log LOG = LogFactory.getLog(FrameController.class);
 
     private static FrameController instance;
@@ -56,22 +51,16 @@ public class FrameController {
 
     List<Frame> frames;
 
-    private List frameHiddenListeners;
-    private List frameShownListeners;
-    private List frameChangedListeners;
-
     public static synchronized FrameController getInstance() {
         if (instance == null) {
             instance = new FrameController();
+            RangeController.getInstance().addRangeChangedListener(instance);
         }
         return instance;
     }
 
     private FrameController() {
         frames = new ArrayList<Frame>();
-        frameHiddenListeners = new ArrayList();
-        frameShownListeners = new ArrayList();
-        frameChangedListeners = new ArrayList();
         graphpane2dockable = new HashMap<GraphPane,JComponent>();
         graphpane2frame = new HashMap<GraphPane,Frame>();
     }
@@ -82,63 +71,7 @@ public class FrameController {
         graphpane2frame.put(f.getGraphPane(), f);
 
         drawFrames(); // crucially important, prepares initial renderer
-        fireFrameChangedEvent(f);
     }
-
-    /**
-     * Fire the RangeChangedEvent
-     */
-    private synchronized void fireFrameHiddenEvent(Frame f) {
-        FrameHiddenEvent evt = new FrameHiddenEvent(this, f);
-        Iterator listeners = this.frameHiddenListeners.iterator();
-        while (listeners.hasNext()) {
-            ((FrameHiddenListener) listeners.next()).frameHiddenReceived(evt);
-        }
-        fireFrameChangedEvent(f);
-    }
-
-    private synchronized void fireFrameShownEvent(Frame f) {
-        FrameShownEvent evt = new FrameShownEvent(this, f);
-        Iterator listeners = this.frameShownListeners.iterator();
-        while (listeners.hasNext()) {
-            ((FrameShownListener) listeners.next()).frameShownReceived(evt);
-        }
-        fireFrameChangedEvent(f);
-    }
-
-    private synchronized void fireFrameChangedEvent(Frame f) {
-        LOG.info("Frames changed event being fired");
-        FrameChangedEvent evt = new FrameChangedEvent(this, f);
-        Iterator listeners = this.frameChangedListeners.iterator();
-        while (listeners.hasNext()) {
-            ((FrameChangedListener) listeners.next()).frameChangedReceived(evt);
-        }
-    }
-
-    public synchronized void addFrameHiddenListener(FrameHiddenListener l) {
-        frameHiddenListeners.add(l);
-    }
-
-    public synchronized void removeFrameHiddenListener(FrameHiddenListener l) {
-        frameHiddenListeners.remove(l);
-    }
-
-    public synchronized void addFrameShownListener(FrameShownListener l) {
-        frameShownListeners.add(l);
-    }
-
-    public synchronized void removeFrameShownListener(FrameShownListener l) {
-        frameShownListeners.remove(l);
-    }
-
-    public synchronized void addFrameChangedListener(FrameChangedListener l) {
-        frameChangedListeners.add(l);
-    }
-
-    public synchronized void removeFrameChangedListener(FrameChangedListener l) {
-        frameChangedListeners.remove(l);
-    }
-
 
     /**
      * Draw the frames in the current viewable range
@@ -163,7 +96,6 @@ public class FrameController {
         JComponent jc = this.graphpane2dockable.get(frame.getGraphPane());
         try {
             frame.setHidden(true);
-            fireFrameHiddenEvent(frame);
         } catch (PropertyVetoException ignored) {
         }
     }
@@ -176,7 +108,6 @@ public class FrameController {
         JComponent jc = this.graphpane2dockable.get(frame.getGraphPane());
         try {
             frame.setHidden(false);
-            fireFrameShownEvent(frame);
         } catch (PropertyVetoException ignored) {
         }
     }
@@ -209,4 +140,12 @@ public class FrameController {
 
     public List<Frame> getFrames() { return this.frames; }
 
+    /**
+     * Listen for RangeChangedEvents, which will cause all the frames to be drawn.
+     * This code used to be in Savant.java.
+     */
+    @Override
+    public void rangeChanged(RangeChangedEvent event) {
+        drawFrames();
+    }
 }

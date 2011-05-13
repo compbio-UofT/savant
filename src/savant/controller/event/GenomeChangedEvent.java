@@ -1,5 +1,5 @@
 /*
- *    Copyright 2009-2010 University of Toronto
+ *    Copyright 2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -13,14 +13,24 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-
 package savant.controller.event;
 
+import savant.data.types.Genome;
+
 /**
+ * Event set by the ReferenceController when the genome has changed and there is a
+ * new list of references.
  *
- * @author mfiume
+ * @author tarkvara
  */
-public interface RangeSelectionChangedListener
-{
-    public void rangeSelectionChangeReceived( RangeSelectionChangedEvent event );
+public class GenomeChangedEvent {
+    private final Genome genome;
+
+    public GenomeChangedEvent(Genome genome) {
+        this.genome = genome;
+    }
+
+    public Genome getGenome() {
+        return genome;
+    }
 }

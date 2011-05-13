@@ -28,5 +28,5 @@ package savant.controller.event;
  */
 public interface DrawModeChangedListener {
 
-    public void drawModeChangeReceived(DrawModeChangedEvent evt);
+    public void drawModeChanged(DrawModeChangedEvent evt);
 }

@@ -32,7 +32,6 @@ import savant.controller.event.TrackAddedListener;
 import savant.controller.event.TrackListChangedListener;
 import savant.controller.event.TrackRemovedListener;
 import savant.data.sources.DataSource;
-import savant.exception.SavantTrackCreationCancelledException;
 import savant.file.DataFormat;
 import savant.view.swing.Savant;
 import savant.view.swing.TrackFactory;
@@ -160,7 +159,7 @@ public class TrackUtils {
      * Subscribe a listener to be notified when a track is added
      * @param l The listener to subscribe
      */
-    public static synchronized void addTracksAddedListener(TrackAddedListener l) {
+    public static synchronized void addTrackAddedListener(TrackAddedListener l) {
         vtc.addTrackAddedListener(l);
     }
 
@@ -168,7 +167,7 @@ public class TrackUtils {
      * Unsubscribe a listener from being notified when a track is added
      * @param l The listener to unsubscribe
      */
-    public static synchronized void removeTracksAddedListener(TrackAddedListener l) {
+    public static synchronized void removeTrackAddedListener(TrackAddedListener l) {
         vtc.removeTrackAddedListener(l);
     }
 
@@ -176,7 +175,7 @@ public class TrackUtils {
      * Subscribe a listener to be notified when a track is removed
      * @param l The listener to subscribe
      */
-    public static synchronized void addTracksRemovedListener(TrackRemovedListener l) {
+    public static synchronized void addTrackRemovedListener(TrackRemovedListener l) {
         vtc.addTrackRemovedListener(l);
     }
 
@@ -184,7 +183,7 @@ public class TrackUtils {
      * Unsubscribe a listener from being notified when a track is removed
      * @param l The listener to unsubscribe
      */
-    public static synchronized void removeTracksRemovedListener(TrackRemovedListener l) {
+    public static synchronized void removeTrackRemovedListener(TrackRemovedListener l) {
         vtc.removeTrackRemovedListener(l);
     }
 

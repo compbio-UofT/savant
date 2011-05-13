@@ -26,7 +26,6 @@
 package savant.controller;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import savant.controller.event.TrackAddedListener;
@@ -45,9 +44,9 @@ public class TrackController {
     List<Track> tracks;
 
     /** Tracks Changed Listeners */
-    private List tracksChangedListeners;
-    private List tracksAddedListeners;
-    private List tracksRemovedListeners;
+    private List<TrackListChangedListener> trackListChangedListeners;
+    private List<TrackAddedListener> trackAddedListeners;
+    private List<TrackRemovedListener> trackRemovedListeners;
 
     public static synchronized TrackController getInstance() {
         if (instance == null) {
@@ -57,9 +56,9 @@ public class TrackController {
     }
 
     private TrackController() {
-        tracksChangedListeners = new ArrayList();
-        tracksAddedListeners = new ArrayList();
-        tracksRemovedListeners = new ArrayList();
+        trackListChangedListeners = new ArrayList<TrackListChangedListener>();
+        trackAddedListeners = new ArrayList<TrackAddedListener>();
+        trackRemovedListeners = new ArrayList<TrackRemovedListener>();
         tracks = new ArrayList<Track>();
     }
 
@@ -68,7 +67,7 @@ public class TrackController {
      * @return A list of tracks
      */
     public synchronized List<Track> getTracks() {
-        return this.tracks;
+        return tracks;
     }
 
     /**
@@ -77,7 +76,7 @@ public class TrackController {
      * @return The track at the specified index
      */
     public Track getTrack(int index) {
-        return this.tracks.get(index);
+        return tracks.get(index);
     }
 
     /**
@@ -87,7 +86,7 @@ public class TrackController {
     public void addTrack(Track track) {
         tracks.add(track);
         fireTrackAddedEvent(track);
-        fireTracksListChangedEvent();
+        fireTrackListChangedEvent();
     }
 
     /**
@@ -108,64 +107,61 @@ public class TrackController {
     /**
      * Fire the RangeChangedEvent
      */
-    private synchronized void fireTracksListChangedEvent() {
+    private synchronized void fireTrackListChangedEvent() {
         TrackListChangedEvent evt = new TrackListChangedEvent(this, this.tracks);
-        Iterator listeners = this.tracksChangedListeners.iterator();
-        while (listeners.hasNext()) {
-            ((TrackListChangedListener) listeners.next()).trackListChangeReceived(evt);
+        for (TrackListChangedListener l: trackListChangedListeners) {
+            l.trackListChanged(evt);
         }
     }
 
 
     public synchronized void addTrackListChangedListener(TrackListChangedListener l) {
-        tracksChangedListeners.add(l);
+        trackListChangedListeners.add(l);
     }
 
     public synchronized void removeTrackListChangedListener(TrackListChangedListener l) {
-        tracksChangedListeners.remove(l);
+        trackListChangedListeners.remove(l);
     }
 
     private synchronized void fireTrackRemovedEvent(Track track) {
-        TrackAddedOrRemovedEvent evt = new TrackAddedOrRemovedEvent(this, track);
-        Iterator listeners = this.tracksRemovedListeners.iterator();
-        while (listeners.hasNext()) {
-            ((TrackRemovedListener) listeners.next()).trackRemovedEventReceived(evt);
+        TrackAddedOrRemovedEvent evt = new TrackAddedOrRemovedEvent(track);
+        for (TrackRemovedListener l: trackRemovedListeners) {
+            l.trackRemoved(evt);
         }
     }
 
 
     public synchronized void addTrackRemovedListener(TrackRemovedListener l) {
-        tracksRemovedListeners.add(l);
+        trackRemovedListeners.add(l);
     }
 
     public synchronized void removeTrackRemovedListener(TrackRemovedListener l) {
-        tracksRemovedListeners.remove(l);
+        trackRemovedListeners.remove(l);
     }
 
     private synchronized void fireTrackAddedEvent(Track track) {
-        TrackAddedOrRemovedEvent evt = new TrackAddedOrRemovedEvent(this, track);
-        Iterator listeners = this.tracksAddedListeners.iterator();
-        while (listeners.hasNext()) {
-            ((TrackAddedListener) listeners.next()).trackAddedReceived(evt);
+        TrackAddedOrRemovedEvent evt = new TrackAddedOrRemovedEvent(track);
+        for (TrackAddedListener l: trackAddedListeners) {
+            l.trackAdded(evt);
         }
     }
 
     public synchronized void addTrackAddedListener(TrackAddedListener l) {
-        tracksAddedListeners.add(l);
+        trackAddedListeners.add(l);
     }
 
     public synchronized void removeTrackAddedListener(TrackAddedListener l) {
-        tracksAddedListeners.remove(l);
+        trackAddedListeners.remove(l);
     }
 
     void removeTrack(Track track) {
-        this.tracks.remove(track);
+        tracks.remove(track);
         fireTrackRemovedEvent(track);
-        fireTracksListChangedEvent();
+        fireTrackListChangedEvent();
     }
 
     public Track getTrack(String tname) {
-        for (Track t : this.tracks) {
+        for (Track t : tracks) {
             if (t.getName().equals(tname)) {
                 return t;
             }
@@ -174,8 +170,7 @@ public class TrackController {
     }
 
     public void closeTracks() {
-        DockableFrameController.getInstance().closeAllDockableFrames(
-                Savant.getInstance().getTrackDockingManager(),false);
+        DockableFrameController.getInstance().closeAllDockableFrames(Savant.getInstance().getTrackDockingManager(),false);
     }
 
     /**
@@ -184,7 +179,7 @@ public class TrackController {
      * @param t The track to be removed
      */
     public void removeUnframedTrack(Track t) {
-        this.tracks.remove(t);
+        tracks.remove(t);
     }
 
     public boolean containsTrack(String name) {
