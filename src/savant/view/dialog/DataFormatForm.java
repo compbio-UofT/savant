@@ -373,7 +373,13 @@ public class DataFormatForm extends JDialog {
                             outputPath += ".tdf";
                             break;
                         case INTERVAL_BED:
+                        case INTERVAL_BED1:
+                        case INTERVAL_GENERIC:
                         case INTERVAL_GFF:
+                        case INTERVAL_PSL:
+                        case INTERVAL_VCF:
+                        case INTERVAL_GENE:
+                        case INTERVAL_GENE1:
                             outputPath += ".gz";
                             break;
                         default:
