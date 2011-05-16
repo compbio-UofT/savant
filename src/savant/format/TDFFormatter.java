@@ -133,7 +133,7 @@ public class TDFFormatter extends SavantFileFormatter {
                 // split line up into tokens
                 tokens = strLine.split("\\s");
 
-                if (tokens.length < 1 || (tokens.length > 0 && (tokens[0].equals("track") || tokens[0].equals("#")))){
+                if (tokens.length < 1 || (tokens.length > 0 && (tokens[0].equals("track") || tokens[0].equals("#") || tokens[0].equals("browser")))){
                     // skip the track definition lines and comment lines and blank lines
                     strLine = inFileReader.readLine();
                     byteCount += strLine.getBytes().length + 1;
