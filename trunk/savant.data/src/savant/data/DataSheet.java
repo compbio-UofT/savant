@@ -409,7 +409,8 @@ public class DataSheet implements RangeChangeCompletedListener, TrackListChanged
         public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
             
             Component comp = defaultRenderer.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-            if(extendedTable.getRowSelected(row) && !isSelected){
+            int modRow = extendedTable.getRowSorter().convertRowIndexToModel(row);
+            if(extendedTable.getRowSelected(modRow) && !isSelected){
                 comp.setBackground(Color.green);
             }
 

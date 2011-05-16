@@ -553,7 +553,7 @@
       <Group type="103" groupAlignment="0" attributes="0">
           <Component id="panel_top" alignment="0" pref="989" max="32767" attributes="0"/>
           <Group type="102" alignment="0" attributes="0">
-              <Component id="toolbar_bottom" pref="977" max="32767" attributes="0"/>
+              <Component id="toolbar_bottom" pref="979" max="32767" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
           <Component id="panel_toolbar" alignment="0" pref="989" max="32767" attributes="0"/>

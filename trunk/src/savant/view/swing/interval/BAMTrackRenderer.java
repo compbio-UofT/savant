@@ -1540,7 +1540,8 @@ public class BAMTrackRenderer extends TrackRenderer {
 
                         Nucleotide readN = Pileup.getNucleotide((new String(readBase)).charAt(0));
 
-                        int j = i + (int) (alignmentStart - startPosition);
+                        //int j = i + (int) (alignmentStart - startPosition);
+                        int j = i + (int) (sequenceCursor - startPosition);
                         //for (int j = pileupcursor; j < operatorLength; j++) {
                         if (j >= 0 && j < pileups.size()) {
                             Pileup p = pileups.get(j);
