@@ -1353,7 +1353,7 @@ public class BAMTrackRenderer extends TrackRenderer {
                         continue;
                     }
                     
-                    intervalStart = alignmentEnd;
+                    intervalStart = alignmentStart;
 
                     if (arcLength > discordantMax || arcLength < discordantMin) {
                         g2.setColor(discordantLengthColor);
