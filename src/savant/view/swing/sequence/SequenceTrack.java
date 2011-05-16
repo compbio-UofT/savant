@@ -17,17 +17,9 @@
 package savant.view.swing.sequence;
 
 import java.awt.*;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import savant.api.adapter.RangeAdapter;
 import savant.data.sources.DataSource;
-import savant.data.types.Record;
-import savant.data.types.SequenceRecord;
 import savant.exception.SavantTrackCreationCancelledException;
 import savant.file.SavantROFile;
 import savant.settings.ColourSettings;
@@ -41,8 +33,6 @@ import savant.view.swing.Track;
  * @author mfiume
  */
 public class SequenceTrack extends Track {
-
-    private static Log log = LogFactory.getLog(SequenceTrack.class);
 
     SavantROFile dFile;
     //Genome genome;
@@ -74,33 +64,6 @@ public class SequenceTrack extends Track {
     @Override
     public void resetColorScheme() {
         setColorScheme(getDefaultColorScheme());
-    }
-
-    //private void setGenome(Genome genome) { this.genome = genome; }
-    //private Genome getGenome() { return this.genome; }
-
-
-    /*
-     * getData
-     *     Get data in the specified range at the specified resolution
-     */
-    @Override
-    protected synchronized List<Record> retrieveData(String reference, Range range, Resolution resolution) {
-
-        SequenceRecord subsequence = null;
-        try {
-            List<Record> result = super.retrieveData(reference, range, resolution);
-            if (result == null || result.isEmpty()) { return null; }
-            subsequence = (SequenceRecord)getDataSource().getRecords(reference, range, resolution).get(0);
-        } catch (IOException ex) {
-            log.error("Error: getting sequence data");
-        }
-
-        List<Record> result = new ArrayList<Record>();
-        result.add(subsequence);
-
-        // return result
-        return result;
     }
 
     @Override

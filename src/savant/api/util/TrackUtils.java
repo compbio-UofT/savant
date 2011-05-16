@@ -71,9 +71,9 @@ public class TrackUtils {
      * @param tracs The track to add
      */
     public static void addTracks(List<TrackAdapter> tracks) {
-        List<Track> myTracks = new ArrayList<Track>();
-        for (TrackAdapter t : tracks) {
-            myTracks.add((Track)t);
+        Track[] myTracks = new Track[tracks.size()];
+        for (int i = 0; i < tracks.size(); i++) {
+            myTracks[i] = (Track)tracks.get(i);
         }
         Savant.getInstance().createFrameForExistingTrack(myTracks);
     }

@@ -53,7 +53,7 @@ public final class Genome implements Serializable, GenomeAdapter {
     private Map<String, Integer> referenceMap = new HashMap<String, Integer>();
     private Map<String, Cytoband[]> cytobands;
     private URI cytobandURI;
-    private Auxiliary[] genes;
+    private Auxiliary[] auxiliaries;
 
     // if associated with track
     private SequenceTrack track;
@@ -87,11 +87,11 @@ public final class Genome implements Serializable, GenomeAdapter {
      *
      * @param uri
      */
-    public Genome(String name, String desc, URI cytobandURI, Auxiliary[] genes) throws IOException {
+    public Genome(String name, String desc, URI cytobandURI, Auxiliary[] auxiliaries) throws IOException {
         this.name = name;
         this.description = desc;
         this.cytobandURI = cytobandURI;
-        this.genes = genes;
+        this.auxiliaries = auxiliaries;
     }
 
     public Genome(String name, int length) {
@@ -138,6 +138,13 @@ public final class Genome implements Serializable, GenomeAdapter {
     @Override
     public Track getTrack() {
         return track;
+    }
+
+    /**
+     * Associate a track with an existing genome.
+     */
+    public void setTrack(SequenceTrack track) {
+        this.track = track;
     }
 
     @Override
@@ -280,7 +287,7 @@ public final class Genome implements Serializable, GenomeAdapter {
      * If we're a popular genome, we may come with a known set of popular genes.
      */
     public Auxiliary[] getAuxiliaries() {
-        return genes != null ? genes : new Auxiliary[0];
+        return auxiliaries != null ? auxiliaries : new Auxiliary[0];
     }
 
     public static class Cytoband {
@@ -298,7 +305,7 @@ public final class Genome implements Serializable, GenomeAdapter {
             if (tokens.length > 4) {
                 stain = Enum.valueOf(GiemsaStain.class, tokens[4].toUpperCase());
             } else {
-                stain = null;
+                stain = GiemsaStain.NONE;
             }
         }
 
@@ -326,6 +333,7 @@ public final class Genome implements Serializable, GenomeAdapter {
         }
 
         enum GiemsaStain {
+            NONE,
             GNEG,
             GPOS50,
             GPOS66,

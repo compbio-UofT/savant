@@ -199,10 +199,6 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
         return tracks;
     }
 
-    public void setTracks(List<Track> newTracks) {
-        setTracks(newTracks.toArray(tracks));
-    }
-
     /**
      * Set the tracks associated with this frame.  Normally, this should only be done
      * once, since the Frame also uses this opportunity to set up some GUI elements
@@ -213,12 +209,12 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
     public void setTracks(Track[] newTracks) {
         if (!ReferenceController.getInstance().isGenomeLoaded()) {
             if (newTracks[0].getDataFormat() == DataFormat.SEQUENCE_FASTA) {
-                Savant.getInstance().setGenome(Track.createGenome(newTracks[0]), this);
+                ReferenceController.getInstance().setGenome(Track.createGenome(newTracks[0]));
             } else {
                 trackCreationFailed(null);
                 DialogUtils.displayError("Sorry", "This does not appear to be a genome track. Please load a genome first.");
+                return;
             }
-            return;
         }
 
         LOG.trace("Frame being set up with " + newTracks.length + " tracks.");

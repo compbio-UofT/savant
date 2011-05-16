@@ -91,11 +91,11 @@ public class Savant extends JFrame implements BookmarksChangedListener, Referenc
     static boolean showNonGenomicReferenceDialog = true;
     private static boolean showBookmarksChangedDialog = false; // turned off, its kind of annoying
     public static final int osSpecificModifier = (MiscUtils.MAC ? java.awt.event.InputEvent.META_MASK : java.awt.event.InputEvent.CTRL_MASK);
-    private Frame genomeFrame = null;
     private DataFormatForm dff;
     private MemoryStatusBarItem memorystatusbar;
     private Application macOSXApplication;
     private ProjectHandler projectHandler;
+    private boolean browserControlsShown = false;
 
     //web start
     static BasicService basicService = null;
@@ -155,10 +155,11 @@ public class Savant extends JFrame implements BookmarksChangedListener, Referenc
      * @param name the name for the new frame
      * @param tracks the tracks to be added to the frame
      */
-    public void createFrameForExistingTrack(List<Track> tracks) {
+    public void createFrameForExistingTrack(Track[] tracks) {
 
         Frame frame = DockableFrameFactory.createTrackFrame();
         frame.setTracks(tracks);
+        frame.setKey(tracks[0].getName());
         LOG.trace("Savant.createFrameForExistingTrack calling trackDockingManager.addFrame");
         addTrackFrame(frame);
 
@@ -1223,7 +1224,7 @@ public class Savant extends JFrame implements BookmarksChangedListener, Referenc
             DataSource s = DataSourcePluginDialog.getDataSource(this);
             if (s != null) {
                 Track t = TrackFactory.createTrack(s);
-                createFrameForExistingTrack(Arrays.asList(new Track[] { t }));
+                createFrameForExistingTrack(new Track[] { t });
             }
         } catch (Exception x) {
             LOG.error("Unable to create track from DataSource plugin", x);
@@ -1763,52 +1764,6 @@ public class Savant extends JFrame implements BookmarksChangedListener, Referenc
         }
     }
 
-    /**
-     * Set the genome to the specified file.
-     *
-     * @param track the track to be used
-     * @param existingFrame the frame to display the genome (null to create a fresh one)
-     */
-    public void setGenomeFromTrack(Track track, Frame existingFrame) {
-        Genome g = Track.createGenome(track);
-        if (g != null) {
-            setGenome(g, existingFrame);
-        }
-    }
-
-    /**
-     * Set the genome.
-     * @param name name of the genome (will be a full path if the sequence is set)
-     * @param genome the genome to set
-     */
-    public void setGenome(Genome genome, Frame existingFrame) {
-
-        boolean someGenomeSetAlready = ReferenceController.getInstance().isGenomeLoaded();
-
-        if (someGenomeSetAlready && genomeFrame != null) {
-            getTrackDockingManager().removeFrame(genomeFrame.getTitle());
-            genomeFrame = null;
-        }
-
-        ReferenceController.getInstance().setGenome(genome);
-        loadGenomeItem.setText("Change genome...");
-
-        if (genome.isSequenceSet()) {
-            if (existingFrame != null) {
-                genomeFrame = existingFrame;
-                genomeFrame.setTrack(genome.getTrack());
-            } else {
-                genomeFrame = DockableFrameFactory.createTrackFrame();
-                genomeFrame.setTrack(genome.getTrack());
-                addTrackFrame(genomeFrame);
-            }
-        }
-
-        showBrowserControls();
-    }
-
-    private boolean browserControlsShown = false;
-
     private void showBrowserControls() {
         if (browserControlsShown) {
             return;
@@ -1912,6 +1867,16 @@ public class Savant extends JFrame implements BookmarksChangedListener, Referenc
 
     @Override
     public void genomeChanged(GenomeChangedEvent event) {
+        ReferenceController refController = ReferenceController.getInstance();
+
+        if (event.getOldGenome() != null) {
+            Track genomeTrack = event.getOldGenome().getTrack();
+            if (genomeTrack != null) {
+                getTrackDockingManager().removeFrame(genomeTrack.getFrame().getTitle());
+            }
+        }
+        loadGenomeItem.setText("Change genome...");
+        showBrowserControls();
     }
 
     @Override

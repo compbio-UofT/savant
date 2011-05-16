@@ -188,7 +188,7 @@ public class ProjectController {
                 return;
             }
         }
-        Savant.getInstance().setGenome(genome, null);
+        ReferenceController.getInstance().setGenome(genome);
 
         ReferenceController.getInstance().setReference(referencename);
         RangeController.getInstance().setRange(range);

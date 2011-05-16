@@ -354,9 +354,9 @@ public abstract class Track implements TrackAdapter {
                     dataInRange = retrieveData(reference, range, getResolution(range));
                     LOG.debug("Retrieved " + dataInRange.size() + " records for " + name + "(" + reference + ":" + range + ")");
                     fireDataRetrievalCompleted();
-                } catch (IOException iox) {
-                    LOG.error(iox);
-                    fireDataRetrievalFailed(iox);
+                } catch (Exception x) {
+                    LOG.error("Data retrieval failed.", x);
+                    fireDataRetrievalFailed(x);
                 }
             }
         };
@@ -412,13 +412,13 @@ public abstract class Track implements TrackAdapter {
      * Fires a DataSource error event.  It will be posted to the AWT event-queue
      * thread, so that UI code can function properly.
      */
-    private void fireDataRetrievalFailed(final IOException iox) {
+    private void fireDataRetrievalFailed(final Exception x) {
         EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
                 synchronized (listeners) {
                     for (DataRetrievalListener l: listeners) {
-                        l.dataRetrievalFailed(new DataRetrievalEvent(iox));
+                        l.dataRetrievalFailed(new DataRetrievalEvent(x));
                     }
                 }
             }
@@ -441,9 +441,9 @@ public abstract class Track implements TrackAdapter {
      * @param range The range within which to retrieve objects
      * @param resolution The resolution at which to get data
      * @return a List of data objects from the given range and resolution
-     * @throws IOException
+     * @throws Exception
      */
-    protected synchronized List<Record> retrieveData(String reference, Range range, Resolution resolution) throws IOException {
+    protected synchronized List<Record> retrieveData(String reference, Range range, Resolution resolution) throws Exception {
         return getDataSource().getRecords(reference, range, resolution);
     }
 

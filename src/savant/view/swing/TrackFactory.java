@@ -124,7 +124,7 @@ public class TrackFactory {
         try {
             t.join(1000);
             // Join timed out, but we are still waiting for tracks to be created.
-            LOG.trace("Join timed out, putting up progress-bar for track creation.");
+            LOG.debug("Join timed out, putting up progress-bar for track creation.");
         } catch (InterruptedException ix) {
             LOG.error("TrackCreator interrupted during join.", ix);
         }
@@ -138,7 +138,7 @@ public class TrackFactory {
      * @param trackURI
      * @return the newly-created tracks corresponding to this URI
      */
-    public static List<Track> createTrackSync(URI trackURI) throws Throwable {
+    public static Track[] createTrackSync(URI trackURI) throws Throwable {
         // Just run the track-creator in the current thread (presumably the AWT thread),
         // instead of spawning a new one.
         SyncTrackCreationListener listener = new SyncTrackCreationListener();
@@ -211,7 +211,6 @@ public class TrackFactory {
             FileType fileType = SavantFileFormatterUtils.guessFileTypeFromPath(uriString);
 
             DataSource ds = null;
-            List<Track> tracks = new ArrayList<Track>();
 
             try {
                 // A switch statement might be nice here, except for the possibility that fileType == null.
@@ -220,57 +219,49 @@ public class TrackFactory {
                     ds = TabixDataSource.fromURI(trackURI);
                     LOG.info("Tabix datasource=" + ds);
                     if (ds != null) {
-                        tracks.add(createTrack(ds));
+                        fireTrackCreationCompleted(new Track[] { createTrack(ds) }, "");
                         LOG.trace("Tabix track created.");
                     } else {
                         throw new FileNotFoundException(String.format("Could not create Tabix track; check that index file exists and is named \"%1$s.tbi\".", name));
                     }
-                    fireTrackCreationCompleted(tracks, "");
                 } else if (fileType == FileType.INTERVAL_BAM) {
                     LOG.info("Opening BAM file " + trackURI);
 
                     ds = BAMFileDataSource.fromURI(trackURI);
                     LOG.info("BAM datasource=" + ds);
                     if (ds != null) {
+                        List<Track> tracks = new ArrayList<Track>(2);
                         tracks.add(createTrack(ds));
                         LOG.trace("BAM Track created.");
+                        try {
+                            // TODO: Only resolves coverage files for local data.  Should also work for network URIs.
+                            URI coverageURI = new URI(trackURI.toString() + ".cov.tdf");
+                            if (NetworkUtils.exists(coverageURI)) {
+                                tracks.add(new BAMCoverageTrack(new TDFDataSource(coverageURI)));
+                            } else {
+                                coverageURI = new URI(trackURI.toString() + ".cov.savant");
+                                if (NetworkUtils.exists(coverageURI)) {
+                                    tracks.add(new BAMCoverageTrack(new GenericContinuousFileDataSource(coverageURI)));
+                                }
+                            }
+                            fireTrackCreationCompleted(tracks.toArray(new Track[0]), "");
+                        } catch (URISyntaxException ignored) {
+                        }
+                        LOG.info("Finished trying to load coverage file.");
                     } else {
                         throw new FileNotFoundException(String.format("Could not create BAM track; check that index file exists and is named \"%1$s.bai\".", name));
                     }
-
-                    try {
-                        // TODO: Only resolves coverage files for local data.  Should also work for network URIs.
-                        URI coverageURI = new URI(trackURI.toString() + ".cov.tdf");
-                        if (NetworkUtils.exists(coverageURI)) {
-                            tracks.add(new BAMCoverageTrack(new TDFDataSource(coverageURI)));
-                        } else {
-                            coverageURI = new URI(trackURI.toString() + ".cov.savant");
-                            if (NetworkUtils.exists(coverageURI)) {
-                                tracks.add(new BAMCoverageTrack(new GenericContinuousFileDataSource(coverageURI)));
-                            }
-                        }
-                        fireTrackCreationCompleted(tracks, "");
-                    } catch (URISyntaxException ignored) {
-                    }
-                    LOG.info("Finished trying to load coverage file.");
-                } else if (fileType == FileType.CONTINUOUS_BIGWIG) {
-                    LOG.info("Opening BigWig file " + trackURI);
-                    ds = new BigWigDataSource(new File(trackURI));
-                    LOG.info("BigWig datasource=" + ds);
-                    tracks.add(createTrack(ds));
-                    LOG.trace("BigWig track created.");
-                    fireTrackCreationCompleted(tracks, "");
-                } else if (fileType == FileType.CONTINUOUS_TDF) {
-                    LOG.info("Opening TDF file " + trackURI);
-                    ds = new TDFDataSource(trackURI);
-                    LOG.info("TDF datasource=" + ds);
-                    tracks.add(createTrack(ds));
-                    LOG.trace("TDF track created.");
-                    fireTrackCreationCompleted(tracks, "");
                 } else {
-                    ds = TrackFactory.createDataSource(trackURI);
-                    tracks.add(createTrack(ds));
-                    fireTrackCreationCompleted(tracks, "");
+                    if (fileType == FileType.CONTINUOUS_BIGWIG) {
+                        LOG.info("Opening BigWig file " + trackURI);
+                        ds = new BigWigDataSource(new File(trackURI));
+                    } else if (fileType == FileType.CONTINUOUS_TDF) {
+                        LOG.info("Opening TDF file " + trackURI);
+                        ds = new TDFDataSource(trackURI);
+                    } else {
+                        ds = TrackFactory.createDataSource(trackURI);
+                    }
+                    fireTrackCreationCompleted(new Track[] { createTrack(ds) }, "");
                 }
             } catch (RuntimeIOException x) {
                 // Special case: SamTools I/O Exception which contains the real exception nested within.
@@ -289,7 +280,7 @@ public class TrackFactory {
          * Fires a track-creation successful completion event.  It will be posted to the
          * AWT event-queue thread, so that UI code can function properly.
          */
-        private void fireTrackCreationCompleted(final List<Track> tracks, final String name) {
+        private void fireTrackCreationCompleted(final Track[] tracks, final String name) {
             MiscUtils.invokeLaterIfNecessary(new Runnable() {
                 @Override
                 public void run() {
@@ -339,7 +330,7 @@ public class TrackFactory {
      * Listener used to pass results back to the sync version of createTrack.
      */
     static class SyncTrackCreationListener implements TrackCreationListener {
-        List<Track> result;
+        Track[] result;
         Throwable error;
 
         @Override

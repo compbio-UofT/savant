@@ -16,8 +16,6 @@
 
 package savant.data.event;
 
-import java.util.List;
-
 import savant.view.swing.Track;
 
 
@@ -33,7 +31,7 @@ public class TrackCreationEvent {
         FAILED
     };
     Type type;
-    List<Track> tracks;
+    Track[] tracks;
     String name;
     Throwable error;
 
@@ -50,7 +48,7 @@ public class TrackCreationEvent {
      * @param tracks the tracks created
      * @param name the display name for this collection of tracks
      */
-    public TrackCreationEvent(List<Track> tracks, String name) {
+    public TrackCreationEvent(Track[] tracks, String name) {
         this.type = Type.COMPLETED;
         this.tracks = tracks;
         this.name = name;
@@ -66,7 +64,7 @@ public class TrackCreationEvent {
         this.error = error;
     }
 
-    public List<Track> getTracks() {
+    public Track[] getTracks() {
         return tracks;
     }
 

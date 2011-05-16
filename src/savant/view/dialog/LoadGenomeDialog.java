@@ -30,6 +30,7 @@ import org.apache.commons.logging.LogFactory;
 
 import savant.api.util.DialogUtils;
 import savant.controller.DataSourcePluginController;
+import savant.controller.ReferenceController;
 import savant.data.sources.DataSource;
 import savant.data.types.Genome;
 import savant.data.types.Genome.Auxiliary;
@@ -37,6 +38,7 @@ import savant.data.types.Genome.AuxiliaryType;
 import savant.view.swing.Savant;
 import savant.view.swing.Track;
 import savant.view.swing.TrackFactory;
+import savant.view.swing.sequence.SequenceTrack;
 
 /**
  * Dialog which allows users to select a genome for their project.  Originally, this
@@ -47,6 +49,7 @@ import savant.view.swing.TrackFactory;
  */
 public class LoadGenomeDialog extends JDialog {
     private static final Log LOG = LogFactory.getLog(LoadGenomeDialog.class);
+    private static ReferenceController referenceController = ReferenceController.getInstance();
 
     /** Creates new form LoadGenomeDialog */
     public LoadGenomeDialog(java.awt.Frame parent, boolean modal) {
@@ -322,7 +325,7 @@ public class LoadGenomeDialog extends JDialog {
 
     private void okButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_okButtonActionPerformed
         
-        if (!userSpecifiedRadio.isSelected() && !this.publishedGenomeRadio.isSelected()) {
+        if (!userSpecifiedRadio.isSelected() && !publishedGenomeRadio.isSelected()) {
             return;
         }
 
@@ -331,31 +334,34 @@ public class LoadGenomeDialog extends JDialog {
         }
 
         setVisible(false);
-        Genome loadedGenome;
+
+        Genome genome;
         boolean usingPublished = publishedGenomeRadio.isSelected();
         if (usingPublished) {
-            loadedGenome = (Genome)genomesCombo.getSelectedItem();
+            genome = (Genome)genomesCombo.getSelectedItem();
             try {
-                Auxiliary[] auxes = loadedGenome.getAuxiliaries();
-                int i = 0;
-                if (auxes.length > 0 && auxes[0].type == AuxiliaryType.SEQUENCE && ((JCheckBox)auxiliaryPanel.getComponent(0)).isSelected()) {
-                    Savant.getInstance().setGenome(Track.createGenome(TrackFactory.createTrackSync(auxes[i].uri).get(0)), null);
-                    i = 1;
-                } else {
-                    Savant.getInstance().setGenome(loadedGenome, null);
-                }
-                for (; i < auxes.length; i++) {
+                Auxiliary[] auxes = genome.getAuxiliaries();
+                for (int i = 0; i < auxes.length; i++) {
+                    Auxiliary aux = auxes[i];
                     if (((JCheckBox)auxiliaryPanel.getComponent(i)).isSelected()) {
-                        Savant.getInstance().addTrackFromURI(auxes[i].uri);
+                        if (aux.type == AuxiliaryType.SEQUENCE) {
+                            SequenceTrack t = (SequenceTrack)TrackFactory.createTrackSync(aux.uri)[0];
+                            genome.setTrack(t);
+                            Savant.getInstance().createFrameForExistingTrack(new Track[] { t });
+                        } else {
+                            Savant.getInstance().addTrackFromURI(aux.uri);
+                        }
                     }
                 }
+                referenceController.setGenome(genome);
             } catch (Throwable x) {
-                DialogUtils.displayException("Error Loading Genome", String.format("Unable to load genome for %s.", loadedGenome), x);
+                DialogUtils.displayException("Error Loading Genome", String.format("Unable to load genome for %s.", genome), x);
             }
         } else {
-            loadedGenome = new Genome(nameField.getText(), Integer.parseInt(lengthField.getText()));
-            Savant.getInstance().setGenome(loadedGenome, null);
+            genome = new Genome(nameField.getText(), Integer.parseInt(lengthField.getText()));
+            referenceController.setGenome(genome);
         }
+
 }//GEN-LAST:event_okButtonActionPerformed
 
     private void lengthFieldFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_lengthFieldFocusLost
@@ -379,7 +385,7 @@ public class LoadGenomeDialog extends JDialog {
             DataSource s = DataSourcePluginDialog.getDataSource(this);
             if (s != null) {
                 setVisible(false);
-                Savant.getInstance().setGenome(Track.createGenome(TrackFactory.createTrack(s)), null);
+                referenceController.setGenome(Track.createGenome(TrackFactory.createTrack(s)));
             }
         } catch (Exception x) {
             DialogUtils.displayException("Error Loading Genome", "Unable to load genome from the plugin datasource.", x);
@@ -391,7 +397,7 @@ public class LoadGenomeDialog extends JDialog {
         if (url != null) {
             try {
                 setVisible(false);
-                Savant.getInstance().setGenome(Track.createGenome(TrackFactory.createTrackSync(url.toURI()).get(0)), null);
+                referenceController.setGenome(Track.createGenome(TrackFactory.createTrackSync(url.toURI())[0]));
             } catch (Throwable x) {
                 DialogUtils.displayException("Error Loading Genome", String.format("Unable to load genome from %s.", url), x);
             }
@@ -404,7 +410,7 @@ public class LoadGenomeDialog extends JDialog {
         if (selectedFile != null) {
             try {
                 setVisible(false);
-                Savant.getInstance().setGenome(Track.createGenome(TrackFactory.createTrackSync(selectedFile.toURI()).get(0)), null);
+                referenceController.setGenome(Track.createGenome(TrackFactory.createTrackSync(selectedFile.toURI())[0]));
             } catch (Throwable x) {
                 DialogUtils.displayException("Error Loading Genome", String.format("Unable to load genome from %s.", selectedFile.getName()), x);
             }

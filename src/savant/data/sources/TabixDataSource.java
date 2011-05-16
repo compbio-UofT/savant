@@ -215,7 +215,7 @@ public class TabixDataSource implements DataSource<TabixIntervalRecord> {
      * {@inheritDoc}
      */
     @Override
-    public List<TabixIntervalRecord> getRecords(String reference, RangeAdapter range, Resolution resolution) throws OutOfMemoryError {
+    public List<TabixIntervalRecord> getRecords(String reference, RangeAdapter range, Resolution resolution) throws IOException {
         List<TabixIntervalRecord> result = new ArrayList<TabixIntervalRecord>();
         try {
             TabixReader.Iterator i = reader.query(MiscUtils.homogenizeSequence(reference) + ":" + range.getFrom() + "-" + (range.getTo()+1));
@@ -249,8 +249,9 @@ public class TabixDataSource implements DataSource<TabixIntervalRecord> {
                     result.add(tir);
                 }
             }
-        } catch (IOException ex) {
-            LOG.error(ex);
+        } catch (ArrayIndexOutOfBoundsException x) {
+            // If the chromosome isn't found, the Tabix library manifests it by throwing an ArrayIndexOutOfBoundsException.
+            throw new IOException(String.format("Reference \"%s\" not found.", reference));
         }
         return result;
 

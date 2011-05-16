@@ -93,7 +93,7 @@ public class BAMFileDataSource extends BAMDataSource {
      * {@inheritDoc}
      */
     @Override
-    public List<BAMIntervalRecord> getRecords(String reference, RangeAdapter range, Resolution resolution) throws OutOfMemoryError {
+    public List<BAMIntervalRecord> getRecords(String reference, RangeAdapter range, Resolution resolution) {
 
         //CloseableIterator<SAMRecord> recordIterator=null;
         SAMRecordIterator recordIterator=null;

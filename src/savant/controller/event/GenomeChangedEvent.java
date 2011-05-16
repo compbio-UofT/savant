@@ -24,13 +24,18 @@ import savant.data.types.Genome;
  * @author tarkvara
  */
 public class GenomeChangedEvent {
-    private final Genome genome;
+    private final Genome oldGenome, newGenome;
 
-    public GenomeChangedEvent(Genome genome) {
-        this.genome = genome;
+    public GenomeChangedEvent(Genome oldGenome, Genome newGenome) {
+        this.oldGenome = oldGenome;
+        this.newGenome = newGenome;
     }
 
-    public Genome getGenome() {
-        return genome;
+    public Genome getOldGenome() {
+        return oldGenome;
+    }
+
+    public Genome getNewGenome() {
+        return newGenome;
     }
 }

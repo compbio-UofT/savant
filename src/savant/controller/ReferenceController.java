@@ -118,17 +118,6 @@ public class ReferenceController {
         }
     }
 
-    /**
-     * Fire the ReferenceChangedEvent
-     */
-    private synchronized void fireGenomeChangedEvent() {
-        GenomeChangedEvent evt = new GenomeChangedEvent(loadedGenome);
-        for (ReferenceChangedListener l: referenceChangedListeners) {
-            l.genomeChanged(evt);
-        }
-    }
-
-
     public synchronized void addReferenceChangedListener(ReferenceChangedListener l) {
         referenceChangedListeners.add(l);
     }
@@ -153,12 +142,18 @@ public class ReferenceController {
         return loadedGenome;
     }
 
-    public void setGenome(Genome genome) {
-        loadedGenome = genome;
-        fireGenomeChangedEvent();
+    public synchronized void setGenome(Genome genome) {
+        Genome oldGenome = loadedGenome;
+        if (!genome.equals(oldGenome)) {
+            loadedGenome = genome;
+            GenomeChangedEvent evt = new GenomeChangedEvent(oldGenome, loadedGenome);
+            for (ReferenceChangedListener l: referenceChangedListeners) {
+                l.genomeChanged(evt);
+            }
 
-        // Auto-select the first reference on the new genome.
-        String ref = MiscUtils.set2List(loadedGenome.getReferenceNames()).get(0);
-        setReference(ref, true);
+            // Auto-select the first reference on the new genome.
+            String ref = MiscUtils.set2List(loadedGenome.getReferenceNames()).get(0);
+            setReference(ref, true);
+        }
     }
 }
