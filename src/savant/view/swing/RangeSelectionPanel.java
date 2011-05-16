@@ -48,13 +48,14 @@ public class RangeSelectionPanel extends JPanel implements RangeChangedListener 
     private boolean isDragging = false;
     private int maximum = 100;
     private final JLabel mousePosition;
-    int x1, x2, y1, y2;
+    int x1, x2;
     int x_notdragging;
     private final JLabel recStart;
     private final JLabel recStop;
     private final JLabel cords; // set up GUI and register mouse event handlers
     boolean isNewRect = true;
     private boolean rangeChangedExternally;
+    private RangeController rangeController = RangeController.getInstance();
 
 
     public RangeSelectionPanel() {
@@ -84,13 +85,13 @@ public class RangeSelectionPanel extends JPanel implements RangeChangedListener 
                 if (x1 > getWidth()) {
                     x1 = getWidth();
                 }
-                y1 = event.getY();
                 isNewRect = true;
                 rangeChangedExternally = false;
             }
 
             @Override
             public void mouseReleased(MouseEvent event) {
+                boolean wasDragging = isDragging;
                 isDragging = false;
                 x2 = event.getX();
                 if (x2 < 1) {
@@ -98,7 +99,6 @@ public class RangeSelectionPanel extends JPanel implements RangeChangedListener 
                 } else if (x2 > getWidth()) {
                     x2 = getWidth();
                 }
-                y2 = event.getY();
                 repaint();
 
                 int st = x1;
@@ -108,20 +108,10 @@ public class RangeSelectionPanel extends JPanel implements RangeChangedListener 
                     end = x1;
                 }
 
-                int startRange, endRange;
-
-                if (st < 2) {
-                    startRange = RangeController.getInstance().getMaxRangeStart();
-                } else {
-                    startRange = translatePixelToPosition(st);
-                }
-
-                if (end > getWidth()-2) {
-                    endRange = RangeController.getInstance().getMaxRangeEnd();
-                } else {
-                    endRange = translatePixelToPosition(end);
-                }
-                RangeController.getInstance().setRange(startRange, endRange);
+                int startRange = Math.max(translatePixelToPosition(st), rangeController.getMaxRangeStart());
+                int endRange = wasDragging ? translatePixelToPosition(end) : startRange + rangeController.getRange().getLength() - 1;
+                endRange = Math.min(endRange, rangeController.getMaxRangeEnd());
+                rangeController.setRange(startRange, endRange);
             }
 
             @Override
@@ -149,7 +139,6 @@ public class RangeSelectionPanel extends JPanel implements RangeChangedListener 
                 } else if (x2 > getWidth()) {
                     x2 = getWidth();
                 }
-                y2 = event.getY();
 
                 isNewRect = false;
                 repaint();
