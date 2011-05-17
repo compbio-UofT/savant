@@ -138,6 +138,8 @@ public class ContinuousTrackRenderer extends TrackRenderer {
             g2.setColor(Color.darkGray);
             g2.drawLine(0, (int) gp.transformYPos(0), gp.getWidth(), (int) gp.transformYPos(0));
         }
+
+        if(data.isEmpty())throw new RenderingException("No data in range.");
     }
 
     @Override

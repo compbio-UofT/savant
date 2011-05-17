@@ -134,6 +134,7 @@ public class SequenceTrackRenderer extends TrackRenderer {
             } catch (UnsupportedEncodingException ignored) {
             }
         }
+        if(data.isEmpty())throw new RenderingException("No data in range.");
     }
 
     private boolean fontFits(Font font, double width, Graphics2D g2) {

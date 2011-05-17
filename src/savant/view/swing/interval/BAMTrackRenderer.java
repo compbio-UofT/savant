@@ -337,6 +337,7 @@ public class BAMTrackRenderer extends TrackRenderer {
                 this.resizeFrame(gp);
             }
         }
+        if(data.isEmpty())throw new RenderingException("No data in range.");
     }
 
     private void renderStandardMatepairMode(Graphics2D g2, GraphPane gp, Resolution resolution) throws RenderingException {

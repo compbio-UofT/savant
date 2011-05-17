@@ -79,6 +79,7 @@ public class IntervalTrackRenderer extends TrackRenderer {
         } else if (drawMode.equals(PACK_MODE)) {
             renderPackMode(g2, gp, r);
         }
+        if(data.isEmpty())throw new RenderingException("No data in range.");
     }
 
     private void renderSquishMode(Graphics2D g2, GraphPane gp, Resolution r) throws RenderingException {

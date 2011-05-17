@@ -76,6 +76,7 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
 
             renderSquishMode(g2, gp, resolution);
         }
+        if(data.isEmpty())throw new RenderingException("No data in range.");
     }
 
     private void renderPackMode(Graphics2D g2, GraphPane gp, Resolution resolution) throws RenderingException {

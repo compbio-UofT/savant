@@ -103,6 +103,7 @@ public class PointTrackRenderer extends TrackRenderer {
                 }
             }
         }
+        if(data.isEmpty())throw new RenderingException("No data in range.");
     }
 
     @Override
