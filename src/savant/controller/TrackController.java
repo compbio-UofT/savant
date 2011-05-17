@@ -154,7 +154,7 @@ public class TrackController {
         trackAddedListeners.remove(l);
     }
 
-    void removeTrack(Track track) {
+    public void removeTrack(Track track) {
         tracks.remove(track);
         fireTrackRemovedEvent(track);
         fireTrackListChangedEvent();
