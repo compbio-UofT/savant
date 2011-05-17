@@ -144,7 +144,8 @@ public class Savant extends JFrame implements BookmarksChangedListener, Referenc
     public void addTrackFromURI(URI uri) {
         LOG.info("Loading track " + uri);
         Frame frame = DockableFrameFactory.createTrackFrame();
-        frame.setKey(uri.toString());
+        //Force a unique frame key. The title of frame is overwritten by track name later.
+        frame.setKey(uri.toString()+System.nanoTime());
         TrackFactory.createTrack(uri, frame);
         addTrackFrame(frame);
     }
