@@ -42,6 +42,7 @@ import javax.swing.KeyStroke;
 import com.jidesoft.docking.DockableFrame;
 import com.jidesoft.docking.DockingManager;
 import javax.swing.SwingUtilities;
+import net.sf.samtools.SAMRecord;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -475,5 +476,33 @@ public class MiscUtils {
         else if(df.equals("BAM Interval")) return DataFormat.INTERVAL_BAM;
         else if(df.equals("Tabix")) return DataFormat.TABIX;
         else return null;
+    }
+
+    /*
+     * If rec1 is likely a mate of rec2, return true.
+     */
+    public static boolean isMate(SAMRecord rec1, SAMRecord rec2){
+        String name1 = rec1.getReadName();
+        String name2 = rec2.getReadName();
+        int len1 = name1.length();
+        int len2 = name2.length();
+
+        //check if strings equal
+        if(name1.equals(name2) && rec1.getAlignmentStart() != rec2.getAlignmentStart()) return true;
+
+        //list of possible suffices...may grow over time.
+        String[][] suffices = {{"\\1","\\2"},{"_F","_R"},{"_F3","_R3"}};     
+
+        //check suffices
+        for(String[] pair : suffices){
+            int len = pair[0].length(); //assumes both suffices of same length
+            if(name1.substring(0, len1-len).equals(name2.substring(0, len2-len)) &&
+                ((name1.substring(len1-len).equals(pair[0]) && name2.substring(len2-len).equals(pair[1])) ||
+                (name1.substring(len1-len).equals(pair[1]) && name2.substring(len2-len).equals(pair[0]))))
+                return true;
+        }
+
+        //not mates
+        return false;
     }
 }

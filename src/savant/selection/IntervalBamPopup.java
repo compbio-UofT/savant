@@ -19,29 +19,33 @@ package savant.selection;
 
 import java.awt.Color;
 import java.awt.Cursor;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import javax.swing.JButton;
+import java.util.List;
 import javax.swing.JLabel;
 
 import net.sf.samtools.SAMRecord;
 
 import savant.controller.RangeController;
+import savant.data.event.DataRetrievalEvent;
+import savant.data.event.DataRetrievalListener;
 import savant.data.types.BAMIntervalRecord;
+import savant.data.types.Record;
+import savant.util.MiscUtils;
 import savant.util.Range;
+import savant.view.swing.Track;
 
 
 /**
  *
  * @author AndrewBrook
  */
-public class IntervalBamPopup extends PopupPanel {
+public class IntervalBamPopup extends PopupPanel implements DataRetrievalListener {
 
     private BAMIntervalRecord rec;
     private SAMRecord samRec;
     private String homogenizedRef;
+    private IntervalBamPopup instance;
 
     public IntervalBamPopup(BAMIntervalRecord rec){
         this.rec = rec;
@@ -76,42 +80,25 @@ public class IntervalBamPopup extends PopupPanel {
         if (samRec.getReadPairedFlag()) {
             String matePosition = "Mate Position: " + homogenizeRef(samRec.getMateReferenceName()) + ": " + samRec.getMateAlignmentStart();
             this.add(new JLabel(matePosition));
-
-            /*final int matepos = samRec.getMateAlignmentStart();
-
-            JButton matebutton = new JButton("Jump to mate");
-            matebutton.addActionListener(new ActionListener() {
-
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    RangeController rc = RangeController.getInstance();
-                    int offset = (int)Math.ceil(((float) rc.getRange().getLength())/2);
-                    int start = samRec.getMateAlignmentStart()-offset;
-                    int end = start + rc.getRange().getLength() - 1;
-                    RangeController.getInstance().setRange(samRec.getMateReferenceName(), new Range(start, end));
-                }
-            });
-
-            this.add(matebutton);*/
         }
     }
 
     @Override
     protected void initSpecificButtons() {
 
-        //add jump to mate button
         if(samRec.getReadPairedFlag()){
+            //jump to mate button
             JLabel mateJump = new JLabel("Jump to Mate");
             mateJump.setForeground(Color.BLUE);
             mateJump.setCursor(new Cursor(Cursor.HAND_CURSOR));
             mateJump.addMouseListener(new MouseListener() {
                 public void mouseClicked(MouseEvent e) {
                     RangeController rc = RangeController.getInstance();
-                        int offset = (int)Math.ceil(((float) rc.getRange().getLength())/2);
-                        int start = samRec.getMateAlignmentStart()-offset;
-                        int end = start + rc.getRange().getLength() - 1;
-                        RangeController.getInstance().setRange(samRec.getMateReferenceName(), new Range(start, end));
-                        hidePopup();
+                    int offset = (int)Math.ceil(((float) rc.getRange().getLength())/2);
+                    int start = samRec.getMateAlignmentStart()-offset;
+                    int end = start + rc.getRange().getLength() - 1;
+                    rc.setRange(samRec.getMateReferenceName(), new Range(start, end));
+                    hidePopup();
                 }
                 public void mousePressed(MouseEvent e) {}
                 public void mouseReleased(MouseEvent e) {}
@@ -119,6 +106,112 @@ public class IntervalBamPopup extends PopupPanel {
                 public void mouseExited(MouseEvent e) {}
             });
             this.add(mateJump);
+
+            //jump to mate and select button
+            JLabel mateJump1 = new JLabel("Select Pair");
+            mateJump1.setForeground(Color.BLUE);
+            mateJump1.setCursor(new Cursor(Cursor.HAND_CURSOR));
+            final IntervalBamPopup instance = this;
+            mateJump1.addMouseListener(new MouseListener() {
+                public void mouseClicked(MouseEvent e) {
+                    for (Track t: gp.getTracks()) {
+                        if (t.getDataFormat() == fileFormat){
+                            t.getRenderer().addToSelected(record);
+                            break;
+                        }
+                    }
+                    //SelectionController.getInstance().addSelection(gp.getTracks()[0].getName(), rec);
+                    RangeController rc = RangeController.getInstance();
+                    int offset = (int)Math.ceil(((float) rc.getRange().getLength())/2);
+                    int start = samRec.getMateAlignmentStart()-offset;
+                    int end = start + rc.getRange().getLength() - 1;
+                    gp.getTracks()[0].addDataRetrievalListener(instance);
+                    rc.setRange(samRec.getMateReferenceName(), new Range(start, end));
+                }
+                public void mousePressed(MouseEvent e) {}
+                public void mouseReleased(MouseEvent e) {}
+                public void mouseEntered(MouseEvent e) {}
+                public void mouseExited(MouseEvent e) {}
+            });
+            this.add(mateJump1);
+        }
+
+        //jump to start of read
+        if(RangeController.getInstance().getRangeStart() > rec.getInterval().getStart()){
+            JLabel endJump = new JLabel("Jump to Start of Read");
+            endJump.setForeground(Color.BLUE);
+            endJump.setCursor(new Cursor(Cursor.HAND_CURSOR));
+            endJump.addMouseListener(new MouseListener() {
+                public void mouseClicked(MouseEvent e) {
+                    RangeController rc = RangeController.getInstance();
+                    int len = rc.getRangeEnd() - rc.getRangeStart();
+                    rc.setRange(rec.getInterval().getStart()-(len/2), rec.getInterval().getStart()+(len/2));
+                    hidePopup();
+                }
+                public void mousePressed(MouseEvent e) {}
+                public void mouseReleased(MouseEvent e) {}
+                public void mouseEntered(MouseEvent e) {}
+                public void mouseExited(MouseEvent e) {}
+            });
+            this.add(endJump);
+        }
+
+        //jump to end of read
+        if(RangeController.getInstance().getRangeEnd() < rec.getInterval().getEnd()){
+            JLabel endJump = new JLabel("Jump to End of Read");
+            endJump.setForeground(Color.BLUE);
+            endJump.setCursor(new Cursor(Cursor.HAND_CURSOR));
+            endJump.addMouseListener(new MouseListener() {
+                public void mouseClicked(MouseEvent e) {
+                    RangeController rc = RangeController.getInstance();
+                    int len = rc.getRangeEnd() - rc.getRangeStart();
+                    rc.setRange(rec.getInterval().getEnd()-(len/2), rec.getInterval().getEnd()+(len/2));
+                    hidePopup();
+                }
+                public void mousePressed(MouseEvent e) {}
+                public void mouseReleased(MouseEvent e) {}
+                public void mouseEntered(MouseEvent e) {}
+                public void mouseExited(MouseEvent e) {}
+            });
+            this.add(endJump);
+        }
+        
+    }
+
+    @Override
+    public void dataRetrievalStarted(DataRetrievalEvent evt) {}
+
+    @Override
+    public void dataRetrievalCompleted(DataRetrievalEvent evt) {
+        List<Record> data = evt.getData();
+        for(int i = 0; i < data.size(); i++){
+            SAMRecord current = ((BAMIntervalRecord)data.get(i)).getSamRecord();
+            if(MiscUtils.isMate(samRec, current)){
+                for (Track t: gp.getTracks()) {
+                    if (t.getDataFormat() == fileFormat){
+                        t.getRenderer().addToSelected(data.get(i));
+                        break;
+                    }
+                }
+                break;
+            }
+        }       
+        hidePopup();
+
+        //remove listener (doing it immediately throws concurrent mod exception)
+        instance = this;
+        Runnable runnable = new RemoveDataThread();
+        Thread thread = new Thread(runnable);
+        thread.start();
+    }
+
+    @Override
+    public void dataRetrievalFailed(DataRetrievalEvent evt) {}
+
+    //remove DataRetrievalListener after "Select Pair".
+    class RemoveDataThread implements Runnable {
+        public void run() {
+            gp.getTracks()[0].removeDataRetrievalListener(instance);
         }
     }
 

@@ -373,7 +373,9 @@ public abstract class Track implements TrackAdapter {
     }
 
     public final void addDataRetrievalListener(DataRetrievalListener l) {
-        listeners.add(l);
+        synchronized (listeners){
+            listeners.add(l);
+        }
     }
 
     public void removeDataRetrievalListener(DataRetrievalListener l) {
