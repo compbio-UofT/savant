@@ -31,6 +31,8 @@ import com.jidesoft.docking.DockableFrame;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseListener;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -78,10 +80,11 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
     private JPanel arcLegend;
     private List<JCheckBoxMenuItem> visItems;
     private JMenu arcButton;
-    private JMenu intervalButton;
+    //private JMenu intervalButton;
     private JMenu bedButton;
     private FrameSidePanel sidePanel;
     private int drawModePosition = 0;
+    private JMenu intervalMenu;
 
     public JScrollPane scrollPane;
 
@@ -274,14 +277,21 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
             commandBar.add(arcButton);
             arcButton.setVisible(false);
 
-            intervalButton = createIntervalButton();
-            commandBar.add(intervalButton);
+            //intervalButton = createIntervalButton();
+            //commandBar.add(intervalButton);
+
+            intervalMenu = createIntervalMenu();
+            commandBar.add(intervalMenu);
+
+
             String drawMode = t0.getDrawMode();
             if(drawMode.equals(BAMTrackRenderer.ARC_PAIRED_MODE) || drawMode.equals(BAMTrackRenderer.SNP_MODE)){
-                intervalButton.setVisible(false);
+                //intervalButton.setVisible(false);
+                intervalMenu.setVisible(false);
             }
             if (drawMode.equals("STANDARD") || drawMode.equals("VARIANTS")){
-                intervalButton.setVisible(true);
+                //intervalButton.setVisible(true);
+                intervalMenu.setVisible(true);
             }
         } else if (t0.getDataSource().getDataFormat() == DataFormat.INTERVAL_BED) {
             bedButton = createBEDButton();
@@ -290,13 +300,16 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
 
         if(t0.getDataSource().getDataFormat() == DataFormat.INTERVAL_BED ||
                 t0.getDataSource().getDataFormat() == DataFormat.INTERVAL_GENERIC){
-            intervalButton = createIntervalButton();
-            commandBar.add(intervalButton);
+            //intervalButton = createIntervalButton();
+            //commandBar.add(intervalButton);
+            intervalMenu = createIntervalMenu();
+            commandBar.add(intervalMenu);
             String drawMode = t0.getDrawMode();
             if(drawMode.equals(RichIntervalTrackRenderer.SQUISH_MODE) ||
                     drawMode.equals(IntervalTrackRenderer.ARC_MODE) ||
                     drawMode.equals(IntervalTrackRenderer.SQUISH_MODE)){
-                intervalButton.setVisible(false);
+                //intervalButton.setVisible(false);
+                intervalMenu.setVisible(false);
             }
         }
 
@@ -446,7 +459,7 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
     /**
      * Create interval button for commandBar
      */
-    private JMenu createIntervalButton() {
+    /*private JMenu createIntervalButton() {
         JMenu button = new JMenu("Interval Options");
         button.setToolTipText("Change interval display parameters");
         button.addMouseListener(new MouseAdapter() {
@@ -457,6 +470,29 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
         });
         button.setFocusPainted(false);
         return button;
+    }*/
+
+    /**
+     * Create interval height slider for commandBar
+     */
+    private JMenu createIntervalMenu() {
+        JMenu menu = new JMenu("Interval Height");
+        final JSlider slider = new JSlider(JSlider.VERTICAL, 2, 100, tracks[0].renderer.getIntervalHeight());
+        slider.setMinorTickSpacing(2);
+        slider.setMajorTickSpacing(6);
+        slider.setSnapToTicks(true);
+        slider.setPaintTicks(true);
+        slider.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                if(slider.getValueIsAdjusting())return;
+                tracks[0].renderer.setIntervalHeight(slider.getValue());
+                getGraphPane().setRenderForced();
+                getGraphPane().repaint();
+            }
+        });
+        menu.add(slider);
+        return menu;
     }
 
     /**
@@ -572,18 +608,21 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
         if (track.getDataSource().getDataFormat() == DataFormat.INTERVAL_BAM) {
             if (evt.getMode().equals(BAMTrackRenderer.ARC_PAIRED_MODE)) {
                 setCoverageEnabled(false);
-                intervalButton.setVisible(false);
+                //intervalButton.setVisible(false);
+                intervalMenu.setVisible(false);
                 arcButton.setVisible(true);
                 arcLegend.setVisible(true);
             } else {
                 setCoverageEnabled(true);
                 //show interval options button unless in snp or arc modes
-                intervalButton.setVisible(!evt.getMode().equals(BAMTrackRenderer.SNP_MODE));
+                //intervalButton.setVisible(!evt.getMode().equals(BAMTrackRenderer.SNP_MODE));
+                intervalMenu.setVisible(!evt.getMode().equals(BAMTrackRenderer.SNP_MODE));
                 arcButton.setVisible(false);
                 arcLegend.setVisible(false);
             }
         } else if (track.getDataSource().getDataFormat() == DataFormat.INTERVAL_BED || track.getDataSource().getDataFormat() == DataFormat.INTERVAL_GENERIC) {
-            intervalButton.setVisible(evt.getMode().equals(RichIntervalTrackRenderer.STANDARD_MODE) || evt.getMode().equals(IntervalTrackRenderer.PACK_MODE));
+            //intervalButton.setVisible(evt.getMode().equals(RichIntervalTrackRenderer.STANDARD_MODE) || evt.getMode().equals(IntervalTrackRenderer.PACK_MODE));
+            intervalMenu.setVisible(evt.getMode().equals(RichIntervalTrackRenderer.STANDARD_MODE) || evt.getMode().equals(IntervalTrackRenderer.PACK_MODE));
         }
         if (reRender) {
             validate();
