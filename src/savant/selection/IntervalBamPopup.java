@@ -86,7 +86,7 @@ public class IntervalBamPopup extends PopupPanel implements DataRetrievalListene
     @Override
     protected void initSpecificButtons() {
 
-        if(samRec.getReadPairedFlag()){
+        if(samRec.getReadPairedFlag() && !(samRec.getMateReferenceName().equals("*") || samRec.getMateAlignmentStart() == 0)){
             //jump to mate button
             JLabel mateJump = new JLabel("Jump to Mate");
             mateJump.setForeground(Color.BLUE);
