@@ -42,6 +42,7 @@ import savant.controller.ReferenceController;
 import savant.controller.DrawModeController;
 import savant.controller.FrameController;
 import savant.controller.RangeController;
+import savant.controller.TrackController;
 import savant.controller.event.DrawModeChangedEvent;
 import savant.data.event.DataRetrievalEvent;
 import savant.data.event.DataRetrievalListener;
@@ -214,6 +215,7 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
                 Savant.getInstance().setGenomeFromTrack(newTracks[0], this);
             } else {
                 trackCreationFailed(null);
+                for(Track track : newTracks) TrackController.getInstance().removeTrack(track);
                 DialogUtils.displayError("Sorry", "This does not appear to be a genome track. Please load a genome first.");
             }
             return;
