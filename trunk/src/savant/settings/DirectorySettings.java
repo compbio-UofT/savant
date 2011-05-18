@@ -1,5 +1,5 @@
 /*
- *    Copyright 2010 University of Toronto
+ *    Copyright 2010-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -49,6 +49,12 @@ public class DirectorySettings {
     }
 
     public static String getLibsDirectory() {
+        if (MiscUtils.MAC) {
+            File result = new File(com.apple.eio.FileManager.getPathToApplicationBundle() + "/Contents/Resources/Java");
+            if (result.exists()) {
+	       return result.getAbsolutePath();
+            }
+        }
         return "lib";
     }
 
