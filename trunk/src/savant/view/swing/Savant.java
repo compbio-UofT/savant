@@ -150,7 +150,8 @@ public class Savant extends javax.swing.JFrame implements RangeSelectionChangedL
         LOG.info("Loading track " + selectedFileName);
 
         Frame frame = DockableFrameFactory.createTrackFrame();
-        frame.setKey(selectedFileName);
+        //force unique frame key. overwritten later anyways
+        frame.setKey(selectedFileName + System.nanoTime());
         TrackFactory.createTrack(uri, frame);
         LOG.trace("Savant.addTrackFromFile calling trackDockingManager.addFrame");
         addTrackFrame(frame);
