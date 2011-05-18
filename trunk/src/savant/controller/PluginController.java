@@ -437,9 +437,25 @@ public class PluginController {
     }
 
     private void copyBuiltInPlugins() {
-        File srcDir = new File("plugins");
         File destDir = new File(DirectorySettings.getPluginsDirectory());
-        FileUtils.copyDirSilently(srcDir, destDir);
+        File srcDir = null;
+        if (MiscUtils.MAC) {
+            srcDir = new File(com.apple.eio.FileManager.getPathToApplicationBundle() + "/Contents/Plugins");
+            if (srcDir.exists()) {
+                try {
+                    FileUtils.copyDir(srcDir, destDir);
+                    return;
+                } catch (Exception ignored) {
+                    // We should expect to see this when running in the debugger.
+                }
+            }
+        }
+        try {
+            srcDir = new File("plugins");
+            FileUtils.copyDir(srcDir, destDir);
+        } catch (Exception x) {
+            LOG.error("Unable to copy builtin plugins from " + srcDir.getAbsolutePath() + " to " + destDir, x);
+        }
     }
 
 }
