@@ -287,6 +287,18 @@ public class TrackFactory {
                     listener.trackCreationCompleted(new TrackCreationEvent(tracks, name));
                 }
             });
+
+            // This is a good opportunity to load our dictionary.
+            for (Track t: tracks) {
+                URI dictionaryURI = URI.create(t.getDataSource().getURI().toString() + ".dict");
+                try {
+                    if (NetworkUtils.exists(dictionaryURI)) {
+                        t.loadDictionary(dictionaryURI);
+                    }
+                } catch (IOException x) {
+                    LOG.error("Unable to load dictionary for " + dictionaryURI);
+                }
+            }
         }
 
         /**

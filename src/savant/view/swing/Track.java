@@ -17,10 +17,17 @@ package savant.view.swing;
 
 import java.awt.Color;
 import java.awt.EventQueue;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URI;
+import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.swing.JPanel;
+import net.sf.samtools.util.BlockCompressedInputStream;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -31,15 +38,15 @@ import savant.controller.DataSourceController;
 import savant.controller.TrackController;
 import savant.data.event.DataRetrievalEvent;
 import savant.data.event.DataRetrievalListener;
-import savant.data.types.Genome;
 import savant.data.sources.*;
 import savant.data.types.Record;
 import savant.exception.SavantTrackCreationCancelledException;
 import savant.file.DataFormat;
+import savant.util.Bookmark;
 import savant.util.ColorScheme;
+import savant.util.NetworkUtils;
 import savant.util.Range;
 import savant.util.Resolution;
-import savant.view.swing.sequence.SequenceTrack;
 import savant.view.swing.util.DialogUtils;
 
 /**
@@ -60,6 +67,13 @@ public abstract class Track implements TrackAdapter {
     private String drawMode;
     protected final TrackRenderer renderer;
     private final DataSource dataSource;
+
+    /**
+     * Dictionary which keeps track of gene names and other searchable items for this track.
+     * Note that regardless of their original case, all keys are stored as lower-case.
+     */
+    private Map<String, Bookmark> dictionary = new HashMap<String, Bookmark>();
+
     private final List<DataRetrievalListener> listeners = new ArrayList<DataRetrievalListener>();
 
     // FIXME:
@@ -90,6 +104,11 @@ public abstract class Track implements TrackAdapter {
 
         renderer.setTrackName(name);
         addDataRetrievalListener(renderer);
+    }
+
+    @Override
+    public String toString() {
+        return name;
     }
 
     private String getUniqueName(String name) {
@@ -208,28 +227,12 @@ public abstract class Track implements TrackAdapter {
     }
 
     /**
-     * Set the current draw mode by its name
-     *
-     * @param modename
-     *
-    @Override
-    public void setDrawMode(String modename) {
-        for (String m : drawModes) {
-            if (m.getName().equals(modename)) {
-                setDrawMode(m);
-                break;
-            }
-        }
-    }
-     */
-
-    /**
      * Set the list of valid draw modes
      *
      * @param modes
      */
     public final void setDrawModes(List<String> modes) {
-        this.drawModes = modes;
+        drawModes = modes;
     }
 
     /**
@@ -239,7 +242,7 @@ public abstract class Track implements TrackAdapter {
      */
     @Override
     public DataSource getDataSource() {
-        return this.dataSource;
+        return dataSource;
     }
 
     /**
@@ -249,6 +252,31 @@ public abstract class Track implements TrackAdapter {
      */
     public DataFormat getDataFormat() {
         return dataSource.getDataFormat();
+    }
+
+    /**
+     * Load the dictionary from the given URI.
+     */
+    public void loadDictionary(URI uri) throws IOException {
+        dictionary = new HashMap<String, Bookmark>();
+        BufferedReader reader = new BufferedReader(new InputStreamReader(new BlockCompressedInputStream(NetworkUtils.getSeekableStreamForURI(uri))));
+        try {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] entry = line.split("\\t");
+                dictionary.put(entry[0].toLowerCase(), new Bookmark(entry[1]));
+            }
+        } catch (ParseException x) {
+            throw new IOException(x);
+        }
+        reader.close();
+    }
+
+    /**
+     * Look in our dictionary for the given key.  If we find it, set the reference and range appropriately.
+     */
+    public Bookmark lookup(String key) {
+        return dictionary.get(key.toLowerCase());
     }
 
     /**
@@ -427,11 +455,6 @@ public abstract class Track implements TrackAdapter {
      */
     protected synchronized List<Record> retrieveData(String reference, Range range, Resolution resolution) throws Exception {
         return getDataSource().getRecords(reference, range, resolution);
-    }
-
-    @Override
-    public String toString() {
-        return name;
     }
 
     public void captureColorParameters() {

@@ -147,8 +147,8 @@ public class DataFormatter {
                 case INTERVAL_GFF:
                 case INTERVAL_PSL:
                 case INTERVAL_VCF:
-                case INTERVAL_GENE:
-                case INTERVAL_GENE1:
+                case INTERVAL_KNOWNGENE:
+                case INTERVAL_REFGENE:
                     runFormatter(new TabixFormatter(inFile, outFile, inputFileType));
                     break;
                 case CONTINUOUS_GENERIC:

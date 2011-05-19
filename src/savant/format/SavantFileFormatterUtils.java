@@ -98,10 +98,10 @@ public class SavantFileFormatterUtils {
             return FileType.INTERVAL_VCF;
         }
         if (extension.equals("gene") || extension.equals("knowngene")) {
-            return FileType.INTERVAL_GENE;
+            return FileType.INTERVAL_KNOWNGENE;
         }
         if (extension.equals("refgene")) {
-            return FileType.INTERVAL_GENE1;
+            return FileType.INTERVAL_REFGENE;
         }
 
         // None of the generic formats have any kind of standard extension.

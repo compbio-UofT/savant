@@ -40,8 +40,8 @@ public enum FileType {
         INTERVAL_BED1(-1),      // BED file with a bin column inserted as column 0.
         INTERVAL_PSL(-1),
         INTERVAL_VCF(-1),
-        INTERVAL_GENE(-1),
-        INTERVAL_GENE1(-1);     // Gene file with a bin column inserted as column 0.  Used by UCSC for RefSeq genes.
+        INTERVAL_KNOWNGENE(-1),
+        INTERVAL_REFGENE(-1);     // Gene file with a bin column inserted as column 0.  Used by UCSC for RefSeq genes.
 
     int magicNumber;
 

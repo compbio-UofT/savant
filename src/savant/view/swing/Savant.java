@@ -1872,7 +1872,7 @@ public class Savant extends JFrame implements BookmarksChangedListener, Referenc
         if (event.getOldGenome() != null) {
             Track[] oldTracks = event.getOldGenome().getTracks();
             for (Track t: oldTracks) {
-                // FIXME:  Should never need to do this.  TrackController.removeTrack() or FrameController.removeFrame() should be sufficient.
+                // FIXME:  Should never need to deal with DockableFrameController.  TrackController.removeTrack() or FrameController.removeFrame() should be sufficient.
                 DockableFrameController.getInstance().closeDockableFrame(t.getFrame(), false);
             }
         }

@@ -1,9 +1,5 @@
 /*
- * FormatTool.java
- * Created on Nov 7, 2010
- *
- *
- *    Copyright 2010 University of Toronto
+ *    Copyright 2010-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -24,6 +20,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.ParseException;
+
 import savant.file.FileType;
 import savant.format.DataFormatter;
 import savant.format.FormatProgressListener;
@@ -46,7 +43,6 @@ public class FormatTool {
             FileType ft = null;
             boolean oneBased = false;
             boolean forceOneBased = false;
-            boolean binned = false;
             String typeStr = null;
 
             for (int i = 0; i < args.length; i++) {
@@ -58,8 +54,6 @@ public class FormatTool {
                 } else if (args[i].equals("-1")) {
                     forceOneBased = true;
                     oneBased = true;
-                } else if (args[i].equals("-bin")) {
-                    binned = true;
                 } else if (inFile == null) {
                     inFile = new File(args[i]);
                 } else if (outFile == null) {
@@ -69,7 +63,7 @@ public class FormatTool {
                 }
             }
 
-            ft = parseFileType(typeStr, binned);
+            ft = parseFileType(typeStr);
 
             if (inFile == null) {
                 throw new IllegalArgumentException("Input file not specified.");
@@ -94,8 +88,8 @@ public class FormatTool {
                     case INTERVAL_GFF:
                     case INTERVAL_PSL:
                     case INTERVAL_VCF:
-                    case INTERVAL_GENE:
-                    case INTERVAL_GENE1:
+                    case INTERVAL_KNOWNGENE:
+                    case INTERVAL_REFGENE:
                         outFile = new File(inFile.getAbsolutePath() + ".gz");
                         break;
                     case CONTINUOUS_GENERIC:
@@ -131,13 +125,16 @@ public class FormatTool {
         }
     }
 
-    private static FileType parseFileType(String arg, boolean binned) {
+    private static FileType parseFileType(String arg) {
         String s = arg.toLowerCase();
         if (s.equals("fasta")) {
             return FileType.SEQUENCE_FASTA;
         }
         if (s.equals("bed")) {
-            return binned ? FileType.INTERVAL_BED1 : FileType.INTERVAL_BED;
+            return FileType.INTERVAL_BED;
+        }
+        if (s.equals("bed1")) {
+            return FileType.INTERVAL_BED1;
         }
         if (s.equals("gff")) {
             return FileType.INTERVAL_GFF;
@@ -164,10 +161,10 @@ public class FormatTool {
             return FileType.INTERVAL_VCF;
         }
         if (s.equals("gene") || s.equals("knowngene")) {
-            return binned ? FileType.INTERVAL_GENE1 : FileType.INTERVAL_GENE;
+            return FileType.INTERVAL_KNOWNGENE;
         }
         if (s.equals("refgene")) {
-            return FileType.INTERVAL_GENE1;
+            return FileType.INTERVAL_REFGENE;
         }
         throw new IllegalArgumentException(String.format("Unknown file type: %s.", arg));
     }

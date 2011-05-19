@@ -86,6 +86,7 @@ public class TDFDataSource extends GenericContinuousDataSource {
                     int datumEnd = t.getEndPosition(i);
                     if (nextPos < datumEnd) {
                         int datumStart = t.getStartPosition(i);
+                        LOG.debug("Tile " + i + " from " + datumStart + " to " + datumEnd);
                         // If there's a gap before the data starts, fill it with NaNs.
                         while (nextPos < datumStart && nextPos <= rangeEnd) {
                             result.add(GenericContinuousRecord.valueOf(ref, nextPos += usefulStep, Float.NaN));

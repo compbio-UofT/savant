@@ -30,7 +30,8 @@ public class ColumnMapping {
 
     public static final String INTERVAL_GENERIC_HEADER = "chrom\tstart\tend\tname";
     public static final String BED_HEADER = "chrom\tstart\tend\tname\tscore\tstrand\tthickStart\tthickEnd\titemRgb\tblockCount\tblockSizes\tblockStarts";
-    public static final String GENE_HEADER = "name\tchrom\tstrand\ttxStart\ttxEnd\tcdsStart\tcdsEnd\texonCount\texonStarts\texonEnds\tid\tname2\tcdsStartStat\tcdsEndStat\texonFrames";
+    public static final String KNOWNGENE_HEADER = "name\tchrom\tstrand\ttxStart\ttxEnd\tcdsStart\tcdsEnd\texonCount\texonStarts\texonEnds\tproteinID\talignID";
+    public static final String REFGENE_HEADER = "bin\tname\tchrom\tstrand\ttxStart\ttxEnd\tcdsStart\tcdsEnd\texonCount\texonStarts\texonEnds\tid\tname2\tcdsStartStat\tcdsEndStat\texonFrames";
     public static final String GFF_HEADER = "seqname\tsource\tfeature\tstart\tend\tscore\tstrand\tframe\tgroup";
     public static final String PSL_HEADER = "matches\tmisMatches\trepMatches\tnCount\tqNumInsert\tqBaseInsert\ttNumInsert\ttBaseInsert\tstrand\tqName\tqSize\tqStart\tqEnd\ttName\ttSize\ttStart\ttEnd\tblockCount\tblockSizes\tqStarts\ttStarts";
     public static final String VCF_HEADER = "CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT";
@@ -38,11 +39,11 @@ public class ColumnMapping {
     /** Official set of Bed columns from UCSC FAQ.  Columns from name onward are optional. */
     public static final ColumnMapping BED = inferMapping(BED_HEADER);
 
-    /** Set of columns observed in KnownGene genes from UCSC FAQ. */
-    public static final ColumnMapping GENE = inferMapping(GENE_HEADER);
+    /** Set of columns observed in knownGene tables from UCSC FAQ. */
+    public static final ColumnMapping KNOWNGENE = inferMapping(KNOWNGENE_HEADER);
 
-    /** Set of columns observed in RefSeq genes from UCSC FAQ.  Like KnownGene, but adds an extra bin column. */
-    public static final ColumnMapping REFSEQ = inferMapping("bin\t" + GENE_HEADER);
+    /** Set of columns observed in RefSeq genes from UCSC FAQ.  Similar to knownGene, but adds a bin column, and the name2 column is different. */
+    public static final ColumnMapping REFSEQ = inferMapping("bin\t" + REFGENE_HEADER);
 
     /** Set of columns for GFF and GTF files.  The only difference is that in GTF the final column is called "attributes" rather than "group". */
     public static final ColumnMapping GFF = inferMapping(GFF_HEADER);

@@ -108,9 +108,9 @@ public class TabixDataSource implements DataSource<TabixIntervalRecord> {
         if (matchesMapping(ColumnMapping.BED)) {
             // It's a Bed file, but we can't set the mapping, because it may have a variable number of actual columns.
             columnNames = new String[] { "chrom", "start", "end", "name", "score", "strand", "thickStart", "thickEnd", "itemRgb", "blockCount", "blockStarts", "blockSizes" };
-        } else if (matchesMapping(ColumnMapping.GENE)) {
+        } else if (matchesMapping(ColumnMapping.KNOWNGENE)) {
             columnNames = new String[] { "Name", "Reference", "Strand", "Transcription start", "Transcription end", "Coding start", "Coding end", null, null, null, "Unique ID", "Alternate name", null, null, null };
-            mapping = ColumnMapping.GENE;
+            mapping = ColumnMapping.KNOWNGENE;
         } else if (matchesMapping(ColumnMapping.REFSEQ)) {
             columnNames = new String[] { null, "Name ", "Reference", "Strand", "Transcription start", "Transcription end", "Coding start", "Coding end", null, null, null, "Unique ID", "Alternate name", null, null, null };
             mapping = ColumnMapping.REFSEQ;

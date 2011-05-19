@@ -49,16 +49,16 @@ public class TabixRichIntervalRecord extends TabixIntervalRecord implements Rich
         if (relativeStarts || mapping.blockStartsAbsolute >= 0) {
             int[] blockStarts = Block.extractBlocks(values[relativeStarts ? mapping.blockStartsRelative : mapping.blockStartsAbsolute]);
             blocks = new ArrayList<Block>(blockStarts.length);
-            int offset = relativeStarts ? 0 : getInterval().getStart() - 1;
+            int offset = relativeStarts ? 0 : getInterval().getStart();
             if (mapping.blockEnds >= 0) {
                 int[] blockEnds = Block.extractBlocks(values[mapping.blockEnds]);
                 for (int i = 0; i < blockEnds.length; i++) {
-                    blocks.add(Block.valueOf(blockStarts[i] - offset, blockEnds[i] - blockStarts[i]));
+                    blocks.add(Block.valueOf(blockStarts[i] - offset, blockEnds[i] - blockStarts[i] + 1));
                 }
             } else if (mapping.blockSizes >= 0) {
                 int[] blockSizes = Block.extractBlocks(values[mapping.blockSizes]);
                 for (int i = 0; i < blockSizes.length; i++) {
-                    blocks.add(Block.valueOf(blockStarts[i] - offset, blockSizes[i]));
+                    blocks.add(Block.valueOf(blockStarts[i] - offset, blockSizes[i] + 1));
                 }
             } else {
                 throw new IllegalArgumentException("No column provided for block ends/sizes.");
