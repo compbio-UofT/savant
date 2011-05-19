@@ -26,10 +26,8 @@ import savant.controller.event.GenomeChangedEvent;
 import savant.controller.event.ReferenceChangedEvent;
 import savant.controller.event.ReferenceChangedListener;
 import savant.data.types.Genome;
-import savant.util.Bookmark;
 import savant.util.MiscUtils;
-import savant.util.Range;
-import savant.view.swing.Track;
+
 
 /**
  * Controller object to manage changes to viewed range.
@@ -156,39 +154,6 @@ public class ReferenceController {
             // Auto-select the first reference on the new genome.
             String ref = MiscUtils.set2List(loadedGenome.getReferenceNames()).get(0);
             setReference(ref, true);
-        }
-    }
-
-
-    /**
-     * Looks up a string.  This can be:
-     * <dl>
-     * <dt>chr2:</dt><dd>move to chr2, keeping current range</dd>
-     * <dt>chr2:1000-2000</dt><dd>move to chr2, changing range to 1000-2000</dd>
-     * <dt>1000-2000</dt><dd>in current chromosome, change range to 1000-2000</dd>
-     * <dt>1000+2000</dt><dd>in current chromosome, change range to 1000-3000</dd>
-     * <dt>1000</dt><dd>move start position to 1000, keeping same range-length</dd>
-     * <dt>+1000</dt><dd>increment start position by 1000, keeping same range-length</dd>
-     * <dt>-1000</dt><dd>decrement start position by 1000, keeping same range-length</dd>
-     * <dt>FOX2P</dt><dd>Look up "FOX2P" as a gene name, and go to appropriate range and reference</dd>
-     * </dl>
-     * @param key
-     */
-    public void lookup(String text) throws Exception {
-        Bookmark mark = null;
-        for (Track t: TrackController.getInstance().getTracks()) {
-            mark = t.lookup(text);
-            if (mark != null) {
-                break;
-            }
-        }
-        if (mark == null) {
-            // No lookup found, so try to parse it as a range string.
-            mark = new Bookmark(text);
-        }
-        if (mark != null) {
-            setReference(mark.getReference());
-            RangeController.getInstance().setRange((Range)mark.getRange());
         }
     }
 }

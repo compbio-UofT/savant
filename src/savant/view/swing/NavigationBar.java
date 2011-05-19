@@ -24,18 +24,19 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.text.NumberFormat;
-import java.text.ParseException;
 import javax.swing.*;
 
 import savant.api.util.DialogUtils;
 import savant.controller.RangeController;
 import savant.controller.ReferenceController;
+import savant.controller.TrackController;
 import savant.controller.event.GenomeChangedEvent;
 import savant.controller.event.RangeChangedEvent;
 import savant.controller.event.RangeChangedListener;
 import savant.controller.event.ReferenceChangedEvent;
 import savant.controller.event.ReferenceChangedListener;
 import savant.settings.BrowserSettings;
+import savant.util.Bookmark;
 import savant.util.MiscUtils;
 import savant.util.Range;
 import savant.view.icon.SavantIconFactory;
@@ -284,7 +285,18 @@ public class NavigationBar extends JToolBar {
 
         String text = rangeField.getText();
         try {
-            ReferenceController.getInstance().lookup(text);
+            for (Track t: TrackController.getInstance().getTracks()) {
+                Bookmark mark = t.lookup(text);
+                if (mark != null) {
+                    ReferenceController.getInstance().setReference(mark.getReference());
+                    rangeController.setRange(mark.getRange().getFrom() - 1, mark.getRange().getTo() + 1);
+                    return;
+                }
+            }
+            // No lookup found, so try to parse it as a range string.
+            Bookmark mark = new Bookmark(text);
+            ReferenceController.getInstance().setReference(mark.getReference());
+            rangeController.setRange((Range)mark.getRange());
         } catch (Exception x) {
             DialogUtils.displayMessage(String.format("Unabled to parse \"%s\" as a range.", text));
         }

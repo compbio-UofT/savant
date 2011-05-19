@@ -231,7 +231,7 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
         if (blocks == null) {
             // When blocks are null, we fake it out by drawing a single block with the full interval of the feature.
             blocks = new ArrayList<Block>();
-            blocks.add(Block.valueOf(interval.getStart(), interval.getLength()));
+            blocks.add(Block.valueOf(0, interval.getLength()));
         }
         for (Block block : blocks) {
 

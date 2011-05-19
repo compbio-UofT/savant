@@ -49,10 +49,20 @@ public class Bookmark implements BookmarkAdapter, Serializable {
     }
 
     /**
-     * Construct a bookmark from a string which contains a fully-qualified reference+range.
-     * Note that the bookmark produced by the constructor may be relative to the reference and range which were current at the time of its construction.
+     * Construct a bookmark from a string containing a range specification.
      *
-     * @param text a range specification of the form chr7:1000+33000 (or one of its variants)
+     * Note that the bookmark produced by the constructor may be relative to the reference and range
+     * which were current at the time of its construction.
+     *
+     * <dl>
+     * <dt>chr2:1000-2000</dt><dd>chr2, range 1000-2000</dd>
+     * <dt>chr2:</dt><dd>the current range, but in chr2</dd>
+     * <dt>1000-2000</dt><dd>in current chromosome, range 1000-2000</dd>
+     * <dt>1000+2000</dt><dd>in current chromosome, range 1000-3000</dd>
+     * <dt>1000</dt><dd>in current chromosome, start position at 1000, keeping current range-length</dd>
+     * <dt>+1000</dt><dd>1000 bases to the right of the current start, keeping same range-length</dd>
+     * <dt>-1000</dt><dd>1000 bases to the left of the current range, keeping same range-length</dd>
+     * </dl>
      */
     public Bookmark(String text) throws ParseException {
         RangeController rangeController = RangeController.getInstance();
