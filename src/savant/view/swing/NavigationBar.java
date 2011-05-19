@@ -283,59 +283,10 @@ public class NavigationBar extends JToolBar {
     private void setRangeFromTextBox() {
 
         String text = rangeField.getText();
-        int from = rangeController.getRangeStart();
-        int to = rangeController.getRangeEnd();
-
-        // Extract a chromosome name (if any).
-        String chr = null;
-        int colonPos = text.indexOf(':');
-        if (colonPos >= 0) {
-            chr = text.substring(0, colonPos);
-
-            if (!ReferenceController.getInstance().getAllReferenceNames().contains(chr)) {
-                DialogUtils.displayMessage(String.format("\"%s\" is not a known reference name.", chr));
-                return;
-            } else {
-                ReferenceController.getInstance().setReference(chr);
-            }
-            text = text.substring(colonPos + 1);
-        }
-
         try {
-            if (text.length() > 0) {
-                int minusPos = text.indexOf('-');
-                if (minusPos == 0) {
-                    // Leading minus sign.  Shift to the left.
-                    int delta = NUMBER_PARSER.parse(text.substring(1)).intValue();
-                    from -= delta;
-                    to -= delta;
-                } else if (minusPos > 0) {
-                    // Fully-specified range.
-                    from = NUMBER_PARSER.parse(text.substring(0, minusPos)).intValue();
-                    to = NUMBER_PARSER.parse(text.substring(minusPos + 1)).intValue();
-                } else {
-                    // No minus sign.  Maybe there's a plus?
-                    int plusPos = text.indexOf('+');
-                    if (plusPos == 0) {
-                        // Leading plus sign.  Shift to the right.
-                        int delta = NUMBER_PARSER.parse(text.substring(1)).intValue();
-                        from += delta;
-                        to += delta;
-                    } else if (plusPos > 0) {
-                        // Range specified as start+length.
-                        from = NUMBER_PARSER.parse(text.substring(0, plusPos)).intValue();
-                        to = from + NUMBER_PARSER.parse(text.substring(plusPos + 1)).intValue() - 1;
-                    } else {
-                        // No plusses or minusses.  User is specifying a new start position, but the length remains unchanged.
-                        int newFrom = NUMBER_PARSER.parse(text).intValue();
-                        to += newFrom - from;
-                        from = newFrom;
-                    }
-                }
-            }
-            rangeController.setRange(from, to);
-        } catch (ParseException nfx) {
-            DialogUtils.displayMessage(String.format("Unabled to parse %s as a range.", text));
+            ReferenceController.getInstance().lookup(text);
+        } catch (Exception x) {
+            DialogUtils.displayMessage(String.format("Unabled to parse \"%s\" as a range.", text));
         }
     }
 

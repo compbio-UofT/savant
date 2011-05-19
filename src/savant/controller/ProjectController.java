@@ -178,10 +178,10 @@ public class ProjectController {
             trackpaths.remove(genomePath);
             try {
                 try {
-                    genome = Track.createGenome(TrackFactory.createTrack(TrackFactory.createDataSource(new URI(genomePath))));
+                    genome = Genome.createFromTrack(TrackFactory.createTrack(TrackFactory.createDataSource(new URI(genomePath))));
                 } catch (Exception x) {
                     // A common cause of URISyntaxExceptions is a file-path containing spaces.
-                    genome = Track.createGenome(TrackFactory.createTrack(TrackFactory.createDataSource(new File(genomePath).toURI())));
+                    genome = Genome.createFromTrack(TrackFactory.createTrack(TrackFactory.createDataSource(new File(genomePath).toURI())));
                 }
             } catch (Exception ex) {
                 DialogUtils.displayException("Sorry", "Problem loading project.", ex);

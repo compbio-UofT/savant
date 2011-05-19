@@ -33,7 +33,10 @@ import org.w3c.dom.NodeList;
 
 import savant.api.adapter.GenomeAdapter;
 import savant.api.adapter.RangeAdapter;
+import savant.api.adapter.TrackAdapter;
+import savant.api.util.DialogUtils;
 import savant.controller.ReferenceController;
+import savant.controller.TrackController;
 import savant.data.sources.file.FASTAFileDataSource;
 import savant.settings.BrowserSettings;
 import savant.util.NetworkUtils;
@@ -56,14 +59,13 @@ public final class Genome implements Serializable, GenomeAdapter {
     private Auxiliary[] auxiliaries;
 
     // if associated with track
-    private SequenceTrack track;
+    private Track[] tracks = null;
     private FASTAFileDataSource dataSource;
 
-    public Genome(String name, SequenceTrack track) {
+    private Genome(String name, SequenceTrack track) {
         this.name = name;
-        this.track = track;
         this.description = null;
-        dataSource = (FASTAFileDataSource)track.getDataSource();
+        setTracks(new Track[] { track });
 
         for (String refname : dataSource.getReferenceNames()) {
             referenceMap.put(refname, dataSource.getLength(refname));
@@ -71,7 +73,7 @@ public final class Genome implements Serializable, GenomeAdapter {
     }
 
     /**
-     * Populate a genome using only an array containing chromsome names and lengths.
+     * Populate a genome using only an array containing chromosome names and lengths.
      */
     private Genome(String name, String desc, ReferenceInfo[] info) {
         this.name = name;
@@ -99,6 +101,31 @@ public final class Genome implements Serializable, GenomeAdapter {
         this.description = null;
         referenceMap.put(name, length);
     }
+
+
+    /**
+     * Factory method to wrap a Genome around an existing sequence track.
+     */
+    public static Genome createFromTrack(Track sequenceTrack) {
+
+        if (sequenceTrack == null) {
+            return null;
+        }
+
+        if (!(sequenceTrack instanceof SequenceTrack)) {
+            DialogUtils.displayMessage("Sorry", "Could not load this track as genome.");
+            TrackController.getInstance().removeUnframedTrack(sequenceTrack);
+            return null;
+        }
+
+        // determine default track name from filename
+        String genomePath = sequenceTrack.getName();
+        int lastSlashIndex = genomePath.lastIndexOf("/");
+        String name = genomePath.substring(lastSlashIndex + 1, genomePath.length());
+
+        return new Genome(name, (SequenceTrack) sequenceTrack);
+    }
+
 
     @Override
     public Set<String> getReferenceNames() {
@@ -136,15 +163,25 @@ public final class Genome implements Serializable, GenomeAdapter {
     }
 
     @Override
-    public Track getTrack() {
-        return track;
+    public TrackAdapter getSequenceTrack() {
+        if (tracks != null && tracks[0] instanceof SequenceTrack) {
+            return tracks[0];
+        }
+        return null;
+    }
+
+    public Track[] getTracks() {
+        return tracks;
     }
 
     /**
      * Associate a track with an existing genome.
      */
-    public void setTrack(SequenceTrack track) {
-        this.track = track;
+    public void setTracks(Track[] tracks) {
+        this.tracks = tracks;
+        if (tracks[0] instanceof SequenceTrack) {
+            dataSource = (FASTAFileDataSource)tracks[0].getDataSource();
+        }
     }
 
     @Override

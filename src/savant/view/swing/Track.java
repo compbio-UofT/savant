@@ -69,26 +69,6 @@ public abstract class Track implements TrackAdapter {
     // TODO: inform the user when there is a problem
 
 
-    public static Genome createGenome(Track sequenceTrack) {
-
-        if (sequenceTrack == null) {
-            return null;
-        }
-
-        if (!(sequenceTrack instanceof SequenceTrack)) {
-            DialogUtils.displayMessage("Sorry", "Could not load this track as genome.");
-            TrackController.getInstance().removeUnframedTrack(sequenceTrack);
-            return null;
-        }
-
-        // determine default track name from filename
-        String genomePath = sequenceTrack.getName();
-        int lastSlashIndex = genomePath.lastIndexOf("/");
-        String name = genomePath.substring(lastSlashIndex + 1, genomePath.length());
-
-        return new Genome(name, (SequenceTrack) sequenceTrack);
-    }
-
     /**
      * Constructor
      * @param source track data source; name, type, and will be derived from this

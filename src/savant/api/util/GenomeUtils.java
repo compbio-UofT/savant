@@ -73,7 +73,7 @@ public class GenomeUtils {
      * @return a genome object for the given sequence
      */
     public static GenomeAdapter createGenome(TrackAdapter seqTrack) {
-        return Track.createGenome((Track)seqTrack);
+        return Genome.createFromTrack((Track)seqTrack);
     }
 
 

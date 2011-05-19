@@ -55,6 +55,7 @@ import savant.controller.*;
 import savant.controller.event.*;
 import savant.data.sources.DataSource;
 import savant.data.types.Genome;
+import savant.data.types.Genome.Auxiliary;
 import savant.experimental.XMLTool;
 import savant.plugin.builtin.SAFEDataSourcePlugin;
 import savant.plugin.builtin.SavantFileRepositoryDataSourcePlugin;
@@ -126,7 +127,7 @@ public class Savant extends JFrame implements BookmarksChangedListener, Referenc
         this.menuItem_viewtoolbar.setSelected(isVisible);
     }
 
-    public void addTrackFromFile(String selectedFileName) {
+    public Frame addTrackFromFile(String selectedFileName) {
 
         URI uri = null;
         try {
@@ -138,16 +139,17 @@ public class Savant extends JFrame implements BookmarksChangedListener, Referenc
             // This can happen if we're passed a file-name containing spaces.
             uri = new File(selectedFileName).toURI();
         }
-        addTrackFromURI(uri);
+        return addTrackFromURI(uri);
     }
 
-    public void addTrackFromURI(URI uri) {
+    public Frame addTrackFromURI(URI uri) {
         LOG.info("Loading track " + uri);
         Frame frame = DockableFrameFactory.createTrackFrame();
         //Force a unique frame key. The title of frame is overwritten by track name later.
         frame.setKey(uri.toString()+System.nanoTime());
         TrackFactory.createTrack(uri, frame);
         addTrackFrame(frame);
+        return frame;
     }
 
     /**
@@ -156,15 +158,13 @@ public class Savant extends JFrame implements BookmarksChangedListener, Referenc
      * @param name the name for the new frame
      * @param tracks the tracks to be added to the frame
      */
-    public void createFrameForExistingTrack(Track[] tracks) {
-
+    public Frame createFrameForExistingTrack(Track[] tracks) {
         Frame frame = DockableFrameFactory.createTrackFrame();
         frame.setTracks(tracks);
-        frame.setKey(tracks[0].getName());
         LOG.trace("Savant.createFrameForExistingTrack calling trackDockingManager.addFrame");
         addTrackFrame(frame);
-
         LOG.info("Frame created for track " + frame.getName());
+        return frame;
     }
 
     /** == [[ DOCKING ]] ==
@@ -1868,12 +1868,12 @@ public class Savant extends JFrame implements BookmarksChangedListener, Referenc
 
     @Override
     public void genomeChanged(GenomeChangedEvent event) {
-        ReferenceController refController = ReferenceController.getInstance();
-
+        LOG.info("Genome changed from " + event.getOldGenome() + " to " + event.getNewGenome());
         if (event.getOldGenome() != null) {
-            Track genomeTrack = event.getOldGenome().getTrack();
-            if (genomeTrack != null) {
-                getTrackDockingManager().removeFrame(genomeTrack.getFrame().getTitle());
+            Track[] oldTracks = event.getOldGenome().getTracks();
+            for (Track t: oldTracks) {
+                // FIXME:  Should never need to do this.  TrackController.removeTrack() or FrameController.removeFrame() should be sufficient.
+                DockableFrameController.getInstance().closeDockableFrame(t.getFrame(), false);
             }
         }
         loadGenomeItem.setText("Change genome...");

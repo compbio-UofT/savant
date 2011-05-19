@@ -21,6 +21,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
@@ -34,11 +37,9 @@ import savant.controller.ReferenceController;
 import savant.data.sources.DataSource;
 import savant.data.types.Genome;
 import savant.data.types.Genome.Auxiliary;
-import savant.data.types.Genome.AuxiliaryType;
 import savant.view.swing.Savant;
 import savant.view.swing.Track;
 import savant.view.swing.TrackFactory;
-import savant.view.swing.sequence.SequenceTrack;
 
 /**
  * Dialog which allows users to select a genome for their project.  Originally, this
@@ -339,21 +340,19 @@ public class LoadGenomeDialog extends JDialog {
         boolean usingPublished = publishedGenomeRadio.isSelected();
         if (usingPublished) {
             genome = (Genome)genomesCombo.getSelectedItem();
+            referenceController.setGenome(genome);
             try {
                 Auxiliary[] auxes = genome.getAuxiliaries();
+                List<Track> genomeTracks = new ArrayList<Track>();
                 for (int i = 0; i < auxes.length; i++) {
                     Auxiliary aux = auxes[i];
                     if (((JCheckBox)auxiliaryPanel.getComponent(i)).isSelected()) {
-                        if (aux.type == AuxiliaryType.SEQUENCE) {
-                            SequenceTrack t = (SequenceTrack)TrackFactory.createTrackSync(aux.uri)[0];
-                            genome.setTrack(t);
-                            Savant.getInstance().createFrameForExistingTrack(new Track[] { t });
-                        } else {
-                            Savant.getInstance().addTrackFromURI(aux.uri);
-                        }
+                        Track[] t = TrackFactory.createTrackSync(aux.uri);
+                        Savant.getInstance().createFrameForExistingTrack(t);
+                        genomeTracks.addAll(Arrays.asList(t));
                     }
                 }
-                referenceController.setGenome(genome);
+                genome.setTracks(genomeTracks.toArray(new Track[0]));
             } catch (Throwable x) {
                 DialogUtils.displayException("Error Loading Genome", String.format("Unable to load genome for %s.", genome), x);
             }
@@ -385,7 +384,9 @@ public class LoadGenomeDialog extends JDialog {
             DataSource s = DataSourcePluginDialog.getDataSource(this);
             if (s != null) {
                 setVisible(false);
-                referenceController.setGenome(Track.createGenome(TrackFactory.createTrack(s)));
+                Track t = TrackFactory.createTrack(s);
+                Savant.getInstance().createFrameForExistingTrack(new Track[] { t });
+                referenceController.setGenome(Genome.createFromTrack(t));
             }
         } catch (Exception x) {
             DialogUtils.displayException("Error Loading Genome", "Unable to load genome from the plugin datasource.", x);
@@ -397,7 +398,9 @@ public class LoadGenomeDialog extends JDialog {
         if (url != null) {
             try {
                 setVisible(false);
-                referenceController.setGenome(Track.createGenome(TrackFactory.createTrackSync(url.toURI())[0]));
+                Track[] t = TrackFactory.createTrackSync(url.toURI());
+                Savant.getInstance().createFrameForExistingTrack(t);
+                referenceController.setGenome(Genome.createFromTrack(t[0]));
             } catch (Throwable x) {
                 DialogUtils.displayException("Error Loading Genome", String.format("Unable to load genome from %s.", url), x);
             }
@@ -410,7 +413,9 @@ public class LoadGenomeDialog extends JDialog {
         if (selectedFile != null) {
             try {
                 setVisible(false);
-                referenceController.setGenome(Track.createGenome(TrackFactory.createTrackSync(selectedFile.toURI())[0]));
+                Track[] t = TrackFactory.createTrackSync(selectedFile.toURI());
+                Savant.getInstance().createFrameForExistingTrack(t);
+                referenceController.setGenome(Genome.createFromTrack(t[0]));
             } catch (Throwable x) {
                 DialogUtils.displayException("Error Loading Genome", String.format("Unable to load genome from %s.", selectedFile.getName()), x);
             }
@@ -456,7 +461,6 @@ public class LoadGenomeDialog extends JDialog {
             gbc.fill = GridBagConstraints.HORIZONTAL;
             for (Auxiliary aux: auxes) {
                 JCheckBox cb = new JCheckBox(aux.toString());
-                cb.setSelected(true);
                 auxiliaryPanel.add(cb, gbc);
             }
         }

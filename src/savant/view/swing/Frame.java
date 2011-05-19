@@ -20,19 +20,17 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.*;
-
-import com.jidesoft.docking.DockableFrame;
-import java.awt.event.KeyListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseListener;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+
+import com.jidesoft.docking.DockableFrame;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -48,6 +46,7 @@ import savant.data.event.DataRetrievalEvent;
 import savant.data.event.DataRetrievalListener;
 import savant.data.event.TrackCreationEvent;
 import savant.data.event.TrackCreationListener;
+import savant.data.types.Genome;
 import savant.file.DataFormat;
 import savant.settings.ColourSettings;
 import savant.swing.component.ProgressPanel;
@@ -213,12 +212,11 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
     public void setTracks(Track[] newTracks) {
         if (!ReferenceController.getInstance().isGenomeLoaded()) {
             if (newTracks[0].getDataFormat() == DataFormat.SEQUENCE_FASTA) {
-                ReferenceController.getInstance().setGenome(Track.createGenome(newTracks[0]));
+                ReferenceController.getInstance().setGenome(Genome.createFromTrack(newTracks[0]));
             } else {
                 trackCreationFailed(null);
                 for(Track track : newTracks) TrackController.getInstance().removeTrack(track);
                 DialogUtils.displayError("Sorry", "This does not appear to be a genome track. Please load a genome first.");
-                return;
             }
         }
 
@@ -715,4 +713,4 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
         visItems.get(drawModePosition).setState(true);
         DrawModeController.getInstance().switchMode(tracks[0], drawModes.get(drawModePosition));
     }
-}
+    }

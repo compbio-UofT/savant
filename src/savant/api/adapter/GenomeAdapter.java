@@ -32,6 +32,6 @@ public interface GenomeAdapter {
     public int getLength(String reference);
     public DataSource getDataSource();
     public boolean isSequenceSet();
-    public TrackAdapter getTrack();
+    public TrackAdapter getSequenceTrack();
 
 }
