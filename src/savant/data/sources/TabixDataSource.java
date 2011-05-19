@@ -104,8 +104,6 @@ public class TabixDataSource implements DataSource<TabixIntervalRecord> {
         }
         input.close();
 
-        String[] fields = line.split("\\t");
-
         // The chrom, start, and end fields are enough to uniquely determine which of the well-known formats we have.
         if (matchesMapping(ColumnMapping.BED)) {
             // It's a Bed file, but we can't set the mapping, because it may have a variable number of actual columns.
@@ -128,71 +126,10 @@ public class TabixDataSource implements DataSource<TabixIntervalRecord> {
         }
 
         if (mapping == null) {
-            // It's either bed, or it's not any format we recognise.
-            int name = -1, score = -1, strand = -1, thickStart = -1, thickEnd = -1, itemRGB = -1, blockStarts = -1, blockSizes = -1, name2 = -1;
-            boolean bed = false;
-
             if (lastCommentLine != null) {
                 columnNames = lastCommentLine.split("\\t");
             }
-
-            for (int i = 0; i < columnNames.length && i < fields.length; i++) {
-                String colName = columnNames[i];
-                if (colName != null) {
-                    colName = colName.toLowerCase();
-                    if (colName.equals("chrom")) {
-                        columnNames[i] = "Reference";
-                    } else if (colName.equals("start") || colName.equals("chromstart")) {
-                        columnNames[i] = "Start";
-                    } else if (colName.equals("end") || colName.equals("chromend")) {
-                        columnNames[i] = "End";
-                    } else if (colName.equals("name") || colName.equals("feature") || colName.equals("qname")) {
-                        name = i;
-                        columnNames[i] = "Name";
-                    } else if (colName.equals("score")) {
-                        score = i;
-                        columnNames[i] = "Score";
-                        bed = true;
-                    } else if (colName.equals("strand")) {
-                        strand = i;
-                        columnNames[i] = "Strand";
-                        bed = true;
-                    } else if (colName.equals("thickstart") || colName.equals("cdsstart")) {
-                        thickStart = i;
-                        columnNames[i] = "Thick start";
-                        bed = true;
-                    } else if (colName.equals("thickend") || colName.equals("cdsend")) {
-                        thickEnd = i;
-                        columnNames[i] = "Thick end";
-                        bed = true;
-                    } else if (colName.equals("itemrgb") || colName.equals("reserved")) {
-                        itemRGB = i;
-                        columnNames[i] = null;  // No point in showing colour in the table when we can show it visually.
-                        bed = true;
-                    } else if (colName.equals("blockcount") || colName.equals("exoncount")) {
-                        columnNames[i] = "Block count";
-                        bed = true;
-                    } else if (colName.equals("blockstarts") || colName.equals("exonstarts") || colName.equals("tstarts") || colName.equals("chromstarts")) {
-                        blockStarts = i;
-                        columnNames[i] = null;
-                        bed = true;
-                    } else if (colName.equals("blocksizes") || colName.equals("exonsizes")) {
-                        blockSizes = i;
-                        columnNames[i] = null;
-                        bed = true;
-                    } else if (colName.equals("name2") || colName.equals("proteinid")) {
-                        name2 = i;
-                        columnNames[i] = "Alternate name";
-                        bed = true;
-                    }
-                }
-            }
-            if (bed) {
-                // We have enough extra columns to justify using a Bed track.
-                mapping = ColumnMapping.getBedMapping(reader.getChromColumn(), reader.getStartColumn(), reader.getEndColumn(), name, score, strand, thickStart, thickEnd, itemRGB, -1, blockStarts, -1, blockSizes, name2);
-            } else {
-                mapping = ColumnMapping.getIntervalMapping(reader.getChromColumn(), reader.getStartColumn(), reader.getEndColumn(), name);
-            }
+            mapping = ColumnMapping.inferMapping(columnNames);
         }
     }
 

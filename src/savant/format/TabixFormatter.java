@@ -20,26 +20,33 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 import net.sf.samtools.util.AsciiLineReader;
+import net.sf.samtools.util.BlockCompressedOutputStream;
 import org.broad.igv.tools.sort.Parser;
 import org.broad.igv.tools.sort.Sorter;
 import org.broad.tabix.TabixWriter;
 import org.broad.tabix.TabixWriter.Conf;
-import net.sf.samtools.util.BlockCompressedOutputStream;
 
+import savant.data.types.ColumnMapping;
 import savant.file.FileType;
-import savant.util.FileUtils;
+
 
 /**
- * Two-part formatter.  Bgzips the source (text) file, and creates the index file.
+ * Two-part formatter.  Bgzips the source (text) file, and creates the index and dictionary files.
  * @author tarkvara
  */
 public class TabixFormatter extends SavantFileFormatter {
-    /** Tabix configuration. */
-    private Conf conf;
-
     /** Header-line to be written, definining the list of expected columns. */
     private String header;
+
+    private ColumnMapping mapping;
+
+    private Conf conf;
+
+    private Map<String, String> dictionary = new LinkedHashMap<String, String>();
 
     /**
      * Convert a text-based interval file into a usable format.
@@ -49,40 +56,39 @@ public class TabixFormatter extends SavantFileFormatter {
      */
     public TabixFormatter(File inFile, File outFile, FileType inputFileType) {
         super(inFile, outFile, FileType.TABIX);
+
+        int flags = 0;
         switch (inputFileType) {
             case INTERVAL_GENERIC:
-                conf = TabixWriter.BED_CONF;
-                header = "#chrom\tstart\tend\tname";
+                header = ColumnMapping.INTERVAL_GENERIC_HEADER;
                 break;
             case INTERVAL_BED:
-                conf = TabixWriter.BED_CONF;
-                header = "#chrom\tstart\tend\tname\tscore\tstrand\tthickStart\tthickEnd\titemRgb\tblockCount\tblockSizes\tblockStarts";
+                flags = TabixWriter.TI_FLAG_UCSC;
+                header = ColumnMapping.BED_HEADER;
                 break;
             case INTERVAL_BED1:
-                conf = new Conf(TabixWriter.TI_FLAG_UCSC, 2, 3, 4, '#', 0);
-                header = "#bin\tchrom\tstart\tend\tname\tscore\tstrand\tthickStart\tthickEnd\titemRgb\tblockCount\tblockSizes\tblockStarts";
+                header = "bin\t" + ColumnMapping.BED_HEADER;
                 break;
             case INTERVAL_GFF:
-                conf = TabixWriter.GFF_CONF;
-                header = "#seqname\tsource\tfeature\tstart\tend\tscore\tstrand\tframe\tgroup";
+                header = ColumnMapping.GFF_HEADER;
                 break;
             case INTERVAL_GENE:
-                conf = new Conf(0, 2, 4, 5, '#', 0);
-                header = "## Savant 1.4.5 gene\n#name\tchrom\tstrand\ttxStart\ttxEnd\tcdsStart\tcdsEnd\texonCount\texonStarts\texonEnds\tid\tname2\tcdsStartStat\tcdsEndStat\texonFrames";
+                header = ColumnMapping.GENE_HEADER;
                 break;
             case INTERVAL_GENE1:
-                conf = new Conf(0, 3, 5, 6, '#', 0);
-                header = "## Savant 1.4.5 refGene\n#bin\tname\tchrom\tstrand\ttxStart\ttxEnd\tcdsStart\tcdsEnd\texonCount\texonStarts\texonEnds\tid\tname2\tcdsStartStat\tcdsEndStat\texonFrames";
+                header = "bin\t" + ColumnMapping.GENE_HEADER;
                 break;
             case INTERVAL_PSL:
-                conf = TabixWriter.PSLTBL_CONF;
-                header = "## Savant 1.4.5 PSL\n#matches\tmisMatches\trepMatches\tnCount\tqNumInsert\tqBaseInsert\ttNumInsert\ttBaseInsert\tstrand\tqName\tqSize\tqStart\tqEnd\ttName\ttSize\ttStart\ttEnd\tblockCount\tblockSizes\tqStarts\ttStarts";
+                flags = TabixWriter.TI_FLAG_UCSC;
+                header = ColumnMapping.PSL_HEADER;
                 break;
             case INTERVAL_VCF:
-                conf = TabixWriter.VCF_CONF;
-                header = "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT";
+                flags = TabixWriter.TI_PRESET_VCF;
+                header = ColumnMapping.VCF_HEADER;
                 break;
         }
+        mapping = ColumnMapping.inferMapping(header);
+        conf = mapping.getTabixConf(flags);
     }
 
     @Override
@@ -94,34 +100,71 @@ public class TabixFormatter extends SavantFileFormatter {
             new Sorter(inFile, sortedFile) {
                 @Override
                 public Parser getParser() {
-                    return new Parser(conf.chrColumn - 1, conf.startColumn - 1);
+                    return new Parser(mapping.chrom, mapping.start);
                 }
 
                 @Override
                 public String writeHeader(AsciiLineReader reader, PrintWriter writer) {
                     boolean foundComments = false;
                     String nextLine = reader.readLine();
-                    while (nextLine.startsWith(String.valueOf(conf.commentChar))) {
+                    while (nextLine.startsWith("#")) {
                         writer.println(nextLine);
                         nextLine = reader.readLine();
                         foundComments = true;
                     }
                     if (!foundComments) {
-                        writer.println(header);
+                        writer.println("#" + header);
                     }
                     return nextLine;
                 }
             }.run();
-            setSubtaskProgress(33);
+            setSubtaskProgress(25);
 
             // Compress the text file.
             setSubtaskStatus("Compressing text file...");
-            FileUtils.copyStream(new FileInputStream(sortedFile), new BlockCompressedOutputStream(outFile));
-            setSubtaskProgress(67);
-        
+            AsciiLineReader input = new AsciiLineReader(new FileInputStream(sortedFile));
+            PrintWriter output = new PrintWriter(new BlockCompressedOutputStream(outFile));
+            String line;
+            while ((line = input.readLine()) != null) {
+                output.println(line);
+                if ((mapping.name >= 0 || mapping.name2 >= 0) && !line.startsWith("#")) {
+                    String[] columns = line.split("\\t");
+                    String chrom = columns[mapping.chrom];
+                    int start = Integer.valueOf(columns[mapping.start]);
+                    int len = 1;
+                    if (mapping.end >= 0) {
+                        len = Integer.valueOf(columns[mapping.end]) - start;
+                    }
+                    String value = chrom + ":" + start + "+" + len;
+                    if (mapping.name >= 0) {
+                        String name = columns[mapping.name];
+                        if (name != null && name.length() > 0) {
+                            dictionary.put(name, value);
+                        }
+                    }
+                    if (mapping.name2 >= 0) {
+                        String name2 = columns[mapping.name2];
+                        if (name2 != null && name2.length() > 0) {
+                            dictionary.put(name2, value);
+                        }
+                    }
+                }
+            }
+            output.close();
+            input.close();
+            setSubtaskProgress(50);
+
             setSubtaskStatus("Creating index file...");
             TabixWriter writer = new TabixWriter(outFile, conf);
             writer.createIndex(outFile);
+            setSubtaskProgress(75);
+
+            setSubtaskStatus("Creating dictionary file...");
+            output = new PrintWriter(new BlockCompressedOutputStream(outFile.getAbsolutePath() + ".dict"));
+            for (String k: dictionary.keySet()) {
+                output.println(k + "\t" + dictionary.get(k));
+            }
+            output.close();
             setSubtaskProgress(100);
         } catch (Exception x) {
             LOG.error("Unable to create tabix index.", x);

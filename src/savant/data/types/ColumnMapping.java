@@ -15,7 +15,10 @@
  */
 package savant.data.types;
 
+import org.broad.tabix.TabixWriter.Conf;
+
 import savant.file.DataFormat;
+
 
 /**
  * Specifies the mapping between columns in a tab-delimited file and fields of interest
@@ -25,23 +28,30 @@ import savant.file.DataFormat;
  */
 public class ColumnMapping {
 
+    public static final String INTERVAL_GENERIC_HEADER = "chrom\tstart\tend\tname";
+    public static final String BED_HEADER = "chrom\tstart\tend\tname\tscore\tstrand\tthickStart\tthickEnd\titemRgb\tblockCount\tblockSizes\tblockStarts";
+    public static final String GENE_HEADER = "name\tchrom\tstrand\ttxStart\ttxEnd\tcdsStart\tcdsEnd\texonCount\texonStarts\texonEnds\tid\tname2\tcdsStartStat\tcdsEndStat\texonFrames";
+    public static final String GFF_HEADER = "seqname\tsource\tfeature\tstart\tend\tscore\tstrand\tframe\tgroup";
+    public static final String PSL_HEADER = "matches\tmisMatches\trepMatches\tnCount\tqNumInsert\tqBaseInsert\ttNumInsert\ttBaseInsert\tstrand\tqName\tqSize\tqStart\tqEnd\ttName\ttSize\ttStart\ttEnd\tblockCount\tblockSizes\tqStarts\ttStarts";
+    public static final String VCF_HEADER = "CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT";
+
     /** Official set of Bed columns from UCSC FAQ.  Columns from name onward are optional. */
-    public static final ColumnMapping BED = ColumnMapping.getBedMapping(0, 1, 2, 3, 4, 5, 6, 7, 8, -1, 11, -1, 10, -1);
+    public static final ColumnMapping BED = inferMapping(BED_HEADER);
 
     /** Set of columns observed in KnownGene genes from UCSC FAQ. */
-    public static final ColumnMapping GENE = ColumnMapping.getBedMapping(1, 3, 4, 0, 10, 2, 5, 6, -1, -1, 8, 9, -1, 11);
+    public static final ColumnMapping GENE = inferMapping(GENE_HEADER);
 
     /** Set of columns observed in RefSeq genes from UCSC FAQ.  Like KnownGene, but adds an extra bin column. */
-    public static final ColumnMapping REFSEQ = ColumnMapping.getBedMapping(2, 4, 5, 1, 11, 3, 6, 7, -1, -1, 9, 10, -1, 12);
+    public static final ColumnMapping REFSEQ = inferMapping("bin\t" + GENE_HEADER);
 
     /** Set of columns for GFF and GTF files.  The only difference is that in GTF the final column is called "attributes" rather than "group". */
-    public static final ColumnMapping GFF = ColumnMapping.getBedMapping(0, 3, 4, 2, 5, 6, -1, -1, -1, -1, -1, -1, -1, -1);
+    public static final ColumnMapping GFF = inferMapping(GFF_HEADER);
 
     /** Set of columns for PSL files.  Not sure if this will work quite right. */
-    public static final ColumnMapping PSL = ColumnMapping.getBedMapping(13, 15, 16, 9, -1, 8, -1, -1, -1, -1, 20, -1, 18, -1);
+    public static final ColumnMapping PSL = inferMapping(PSL_HEADER);
 
     /** Set of columns for VCF files.  Note that there is no end column. */
-    public static final ColumnMapping VCF = ColumnMapping.getIntervalMapping(0, 1, -1, 2);
+    public static final ColumnMapping VCF = inferMapping(VCF_HEADER);
 
     public final DataFormat format;
 
@@ -78,17 +88,107 @@ public class ColumnMapping {
         this.name2 = name2;
     }
 
+    public Conf getTabixConf(int flags) {
+        return new Conf(flags, chrom + 1, start + 1, end + 1, '#', 0);
+    }
+
     /**
      * Factory method used to map GenericInterval formats.
      */
-    public static ColumnMapping getIntervalMapping(int chrom, int start, int end, int name) {
+    public static ColumnMapping createIntervalMapping(int chrom, int start, int end, int name) {
         return new ColumnMapping(DataFormat.INTERVAL_GENERIC, chrom, start, end, name, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
     }
 
     /**
      * Factory method used to map BedInterval formats.
      */
-    public static ColumnMapping getBedMapping(int chrom, int start, int end, int name, int score, int strand, int thickStart, int thickEnd, int itemRGB, int blockStartsRelative, int blockStartsAbsolute, int blockEnds, int blockSizes, int name2) {
+    public static ColumnMapping createBedMapping(int chrom, int start, int end, int name, int score, int strand, int thickStart, int thickEnd, int itemRGB, int blockStartsRelative, int blockStartsAbsolute, int blockEnds, int blockSizes, int name2) {
         return new ColumnMapping(DataFormat.INTERVAL_BED, chrom, start, end, name, score, strand, thickStart, thickEnd, itemRGB, blockStartsRelative, blockStartsAbsolute, blockEnds, blockSizes, name2);
+    }
+
+    /**
+     * Factory method used to create interval formats given a tab-delimited list of column names.
+     * This is what we expect/hope to find in the first line of any Bed file.
+     */
+    public static ColumnMapping inferMapping(String header) {
+        if (header.charAt(0) == '#') {
+            header = header.substring(1);
+        }
+        String[] columnNames = header.split("\\t");
+        return inferMapping(columnNames);
+    }
+
+    /**
+     * Factory method used to create interval formats given an array of column names.
+     * As a side-effect, substitutes natural language names for column names which it recognises.
+     */
+    public static ColumnMapping inferMapping(String[] columnNames) {
+
+        // It's either bed, or it's not any format we recognise.
+        int chrom = -1, start = -1, end = -1;
+        int name = -1, score = -1, strand = -1, thickStart = -1, thickEnd = -1, itemRGB = -1, blockStarts = -1, blockEnds = -1, blockSizes = -1, name2 = -1;
+        boolean bed = false;
+
+        for (int i = 0; i < columnNames.length; i++) {
+            String colName = columnNames[i].toLowerCase();
+            if (colName.equals("chrom") || colName.equals("seqname")) {
+                chrom = i;
+                columnNames[i] = "Reference";
+            } else if (colName.equals("start") || colName.equals("txstart") || colName.equals("chromstart") || colName.equals("pos")) {
+                start = i;
+                columnNames[i] = "Start";
+            } else if (colName.equals("end") || colName.equals("txend") || colName.equals("chromend")) {
+                end = i;
+                columnNames[i] = "End";
+            } else if (colName.equals("name") || colName.equals("feature") || colName.equals("qname")) {
+                name = i;
+                columnNames[i] = "Name";
+            } else if (colName.equals("score")) {
+                score = i;
+                columnNames[i] = "Score";
+                bed = true;
+            } else if (colName.equals("strand")) {
+                strand = i;
+                columnNames[i] = "Strand";
+                bed = true;
+            } else if (colName.equals("thickstart") || colName.equals("cdsstart")) {
+                thickStart = i;
+                columnNames[i] = "Thick start";
+                bed = true;
+            } else if (colName.equals("thickend") || colName.equals("cdsend")) {
+                thickEnd = i;
+                columnNames[i] = "Thick end";
+                bed = true;
+            } else if (colName.equals("itemrgb") || colName.equals("reserved")) {
+                itemRGB = i;
+                columnNames[i] = null;  // No point in showing colour in the table when we can show it visually.
+                bed = true;
+            } else if (colName.equals("blockcount") || colName.equals("exoncount")) {
+                columnNames[i] = "Block count";
+                bed = true;
+            } else if (colName.equals("blockstarts") || colName.equals("exonstarts") || colName.equals("tstarts") || colName.equals("chromstarts")) {
+                blockStarts = i;
+                columnNames[i] = null;
+                bed = true;
+            } else if (colName.equals("blocksizes") || colName.equals("exonsizes")) {
+                blockSizes = i;
+                columnNames[i] = null;
+                bed = true;
+            } else if (colName.equals("exonends")) {
+                blockEnds = i;
+                columnNames[i] = null;
+                bed = true;
+            } else if (colName.equals("name2") || colName.equals("proteinid")) {
+                name2 = i;
+                columnNames[i] = "Alternate name";
+                bed = true;
+            }
+        }
+        if (bed) {
+            // We have enough extra columns to justify using a Bed track.
+            return ColumnMapping.createBedMapping(chrom, start, end, name, score, strand, thickStart, thickEnd, itemRGB, -1, blockStarts, blockEnds, blockSizes, name2);
+        } else {
+            return ColumnMapping.createIntervalMapping(chrom, start, end, name);
+        }
     }
 }

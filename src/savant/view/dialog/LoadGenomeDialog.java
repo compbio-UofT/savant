@@ -37,6 +37,7 @@ import savant.controller.ReferenceController;
 import savant.data.sources.DataSource;
 import savant.data.types.Genome;
 import savant.data.types.Genome.Auxiliary;
+import savant.data.types.Genome.AuxiliaryType;
 import savant.view.swing.Savant;
 import savant.view.swing.Track;
 import savant.view.swing.TrackFactory;
@@ -461,6 +462,7 @@ public class LoadGenomeDialog extends JDialog {
             gbc.fill = GridBagConstraints.HORIZONTAL;
             for (Auxiliary aux: auxes) {
                 JCheckBox cb = new JCheckBox(aux.toString());
+                cb.setSelected(aux.type == AuxiliaryType.SEQUENCE); // Sequence track is checked by default.
                 auxiliaryPanel.add(cb, gbc);
             }
         }
