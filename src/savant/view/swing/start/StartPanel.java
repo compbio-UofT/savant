@@ -1,83 +1,57 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ *    Copyright 2011 University of Toronto
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
  */
 
-/*
- * StartPage.java
- *
- * Created on Mar 28, 2011, 8:09:04 PM
- */
 package savant.view.swing.start;
 
-import com.jidesoft.swing.AutoResizingTextArea;
-import com.jidesoft.swing.JideBoxLayout;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.FontMetrics;
-import java.awt.GradientPaint;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.GridLayout;
-import java.awt.Image;
-import java.awt.Point;
-import java.awt.Rectangle;
-import java.awt.RenderingHints;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.net.URL;
 import java.text.BreakIterator;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComponent;
-import javax.swing.JEditorPane;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-import javax.swing.JTextPane;
-import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
-import javax.swing.border.EmptyBorder;
-import javax.swing.border.EtchedBorder;
+import javax.swing.*;
 import javax.swing.text.BadLocationException;
-import javax.swing.text.DefaultCaret;
 import javax.swing.text.DefaultHighlighter;
 import javax.swing.text.Highlighter;
 import javax.swing.text.SimpleAttributeSet;
-import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
-import javax.swing.text.StyledEditorKit;
+
+import com.jidesoft.swing.AutoResizingTextArea;
+import java.awt.font.TextAttribute;
+import java.util.HashMap;
+import java.util.Map;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jdom.Document;
 import org.jdom.Element;
-import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
+
 import savant.api.util.DialogUtils;
 import savant.controller.RecentProjectsController;
 import savant.controller.RecentTracksController;
 import savant.settings.BrowserSettings;
-import savant.settings.ColourSettings;
 import savant.settings.DirectorySettings;
 import savant.settings.PersistentSettings;
 import savant.swing.component.HyperlinkButton;
@@ -91,6 +65,7 @@ import savant.view.swing.Savant;
  * @author mfiume
  */
 public class StartPanel extends javax.swing.JPanel implements ComponentListener {
+    private static final Log LOG = LogFactory.getLog(StartPanel.class);
 
     static Color bgcolor = Color.darkGray;
     static Color subpanelbgcolortop = new Color(50,50,50);//
@@ -161,7 +136,7 @@ public class StartPanel extends javax.swing.JPanel implements ComponentListener 
                 try {
                     PersistentSettings.getInstance().store();
                 } catch (IOException ex) {
-                    Logger.getLogger(StartPanel.class.getName()).log(Level.SEVERE, null, ex);
+                    LOG.error(ex);
                 }
             }
             
@@ -241,7 +216,7 @@ public class StartPanel extends javax.swing.JPanel implements ComponentListener 
     }
 
     private Image scaleImage(Image image, double d) {
-        System.out.println("Width: " + image.getWidth(null) + " scaled width: " + ((int) (image.getHeight(null) * d)));
+        LOG.debug("Width: " + image.getWidth(null) + " scaled width: " + ((int) (image.getHeight(null) * d)));
         return image.getScaledInstance((int) (image.getWidth(null) * d), (int) (image.getHeight(null) * d), Image.SCALE_SMOOTH);
     }
     
@@ -421,6 +396,12 @@ public class StartPanel extends javax.swing.JPanel implements ComponentListener 
 
             List<Element> newsEntries = root.getChildren("entry");
 
+            Font f = new Font("Arial", Font.PLAIN, 12);
+
+            Map<TextAttribute, Object> underlining = new HashMap<TextAttribute, Object>();
+            underlining.put(TextAttribute.UNDERLINE, TextAttribute.UNDERLINE_LOW_ONE_PIXEL);
+            Font underlined = f.deriveFont(underlining);
+
             for (Element e : newsEntries) {
 
                 final String text = e.getChildText("description");
@@ -468,7 +449,7 @@ public class StartPanel extends javax.swing.JPanel implements ComponentListener 
 
                 JLabel date = new JLabel(e.getChildText("date"));
                 date.setFont(new Font("Arial", Font.ITALIC, 12));
-                date.setForeground(StartPanel.textcolor);
+                date.setForeground(textcolor);
 
                 p.add(Box.createVerticalStrut(10));
 
@@ -478,6 +459,24 @@ public class StartPanel extends javax.swing.JPanel implements ComponentListener 
                 p.add(date);
                 ta.setAlignmentX(Component.LEFT_ALIGNMENT);
                 p.add(ta);
+
+                final String more = e.getChildText("more");
+                if (more != null && more.length() > 0) {
+                    JLabel link = new JLabel("More...");
+                    link.setForeground(textcolor);
+                    link.setFont(underlined);
+                    link.addMouseListener(new MouseAdapter() {
+                        @Override
+                        public void mouseClicked(MouseEvent e) {
+                            try {
+                                Desktop.getDesktop().browse(URI.create(more));
+                            } catch (Exception x) {
+                                LOG.info(x);
+                            }
+                        }
+                    });
+                    p.add(link);
+                }
             }
 
             p.add(Box.createVerticalGlue());
@@ -524,13 +523,13 @@ public class StartPanel extends javax.swing.JPanel implements ComponentListener 
 
     private void wrapLabelText(JLabel label, String text) {
 
-        System.out.println("Wrapping text: " + text);
+        LOG.debug("Wrapping text: " + text);
 
         FontMetrics fm = label.getFontMetrics(label.getFont());
         Container container = label.getParent();
         int containerWidth = container.getWidth();
 
-        System.out.println("Container width: " + containerWidth);
+        LOG.debug("Container width: " + containerWidth);
 
         BreakIterator boundary = BreakIterator.getWordInstance();
         boundary.setText(text);
@@ -542,7 +541,7 @@ public class StartPanel extends javax.swing.JPanel implements ComponentListener 
         for (int end = boundary.next(); end != BreakIterator.DONE;
                 start = end, end = boundary.next()) {
             String word = text.substring(start, end);
-            System.out.println(word);
+            LOG.debug(word);
 
             trial.append(word);
             int trialWidth = SwingUtilities.computeStringWidth(fm,
@@ -557,7 +556,7 @@ public class StartPanel extends javax.swing.JPanel implements ComponentListener 
         real.append("</html>");
 
         label.setText(real.toString());
-        System.out.println("Sone wrapping text: " + real.toString());
+        LOG.debug("Done wrapping text: " + real.toString());
 
 
     }
