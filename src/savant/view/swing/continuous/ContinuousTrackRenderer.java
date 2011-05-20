@@ -120,6 +120,8 @@ public class ContinuousTrackRenderer extends TrackRenderer {
                 path.lineTo(xFormXPos, xFormYPos);
                 Rectangle2D rec = new Rectangle2D.Double(xFormXPos - ((xFormXPos-path.getCurrentPoint().getX())/2),0,Math.max(xFormXPos-path.getCurrentPoint().getX(), 1),gp.getHeight());
                 recordToShapeMap.put(continuousRecord, rec);
+                xFormXPos = gp.transformXPosExclusive(xPos + 1);
+                path.lineTo(xFormXPos, xFormYPos);
             }
             if (yPos > maxData) maxData = yPos;
         }
