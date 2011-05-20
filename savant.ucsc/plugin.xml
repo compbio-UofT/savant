@@ -5,11 +5,9 @@
     <attributes><attribute id="sdk-version" value="1.4.5"/></attributes>
     <requires>
         <import plugin-id="savant.core"/>
-        <import plugin-id="savant.sql"/>
     </requires>
 	<runtime>
                 <library id="library" path="/" type="code"></library>
-		<library id="sql" path="savant.sql-1.1.1.jar" type="code"></library>
 	</runtime>
     <extension plugin-id="savant.core" point-id="AuxData" id="extension">
 		<parameter id="class" value="savant.ucsc.UCSCDataSourcePlugin"/>
