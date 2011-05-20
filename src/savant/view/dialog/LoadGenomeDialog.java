@@ -353,7 +353,9 @@ public class LoadGenomeDialog extends JDialog {
                         genomeTracks.addAll(Arrays.asList(t));
                     }
                 }
-                genome.setTracks(genomeTracks.toArray(new Track[0]));
+                if (genomeTracks.size() > 0) {
+                    genome.setTracks(genomeTracks.toArray(new Track[0]));
+                }
             } catch (Throwable x) {
                 DialogUtils.displayException("Error Loading Genome", String.format("Unable to load genome for %s.", genome), x);
             }
