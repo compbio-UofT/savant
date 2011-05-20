@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -52,16 +52,19 @@ public class WigSQLDataSource extends SQLDataSource<GenericContinuousRecord> {
             throw new IOException("Zoom in to see data");
         }
         // TODO: This is wrong.  We should be stuffing in NaNs, not zeroes.
-        GenericContinuousRecord[] result = new GenericContinuousRecord[range.getLength()];
-        for (int i = 0; i < range.getLength(); i++) {
-            result[i] = GenericContinuousRecord.valueOf(reference, range.getFrom() + i, 0.0F);
-        }
+        List<GenericContinuousRecord> result = new ArrayList<GenericContinuousRecord>();
         try {
+            int nextPos = range.getFrom();
             ResultSet rs = executeQuery(reference, range.getFrom(), range.getTo());
             URI wibURI = null;
             SeekableStream wibStream = null;
             while (rs.next()) {
-                int start = rs.getInt(columns.start);
+                int start = rs.getInt(columns.start) + 1;
+                if (nextPos < start) {
+                    result.add(GenericContinuousRecord.valueOf(reference, nextPos, Float.NaN));
+                    nextPos = start;
+                }
+
                 int span = columns.span != null ? rs.getInt(columns.span) : 1;
                 int count = rs.getInt(columns.count);
                 int offset = rs.getInt(columns.offset);
@@ -87,18 +90,17 @@ public class WigSQLDataSource extends SQLDataSource<GenericContinuousRecord> {
                 byte[] buf = new byte[count];
                 wibStream.read(buf);
 
-                int chromPos = start + 1;
-                for (int i = 0; i < count; ++i, chromPos += span) {
-                    if (buf[i] < 128) {
-                        float value = lowerLimit + dataRange * buf[i] / 127.0F;
-                        for (int j = 0; j < span; j++) {
-                            if (chromPos + j >= range.getFrom()) {
-                                if (chromPos + j > range.getTo()) {
-                                    break;
-                                }
-                                result[chromPos + j - range.getFrom()] = GenericContinuousRecord.valueOf(reference, chromPos + j, value);
+                int p = start;
+                for (int i = 0; i < count && nextPos < range.getTo(); i++) {
+                    for (int j = 0; j < span; j++) {
+                        if (p >= nextPos) {
+                            float value = Float.NaN;
+                            if (buf[i] >= 0) {
+                                value = lowerLimit + dataRange * buf[i] / 127.0F;
                             }
+                            result.add(GenericContinuousRecord.valueOf(reference, nextPos++, value));
                         }
+                        p++;
                     }
                 }
             }
@@ -106,7 +108,7 @@ public class WigSQLDataSource extends SQLDataSource<GenericContinuousRecord> {
             LOG.error(sqlx);
             throw new IOException(sqlx);
         }
-        return Arrays.asList(result);
+        return result;
     }
 
 
