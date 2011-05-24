@@ -280,10 +280,8 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
                 if (axisYMax > maxYRange) maxYRange = axisYMax;
             }
 
-            // ask renders if they want horizontal lines; if any say yes, draw them
-            if (t.getRenderer().hasHorizontalGrid()) {
-                isYGridOn = true;
-            }
+            // Ask renderers if they want horizontal lines; if any say yes, draw them.
+            isYGridOn |= t.getRenderer().hasHorizontalGrid();
         }
 
         setXRange(xRange);
@@ -384,7 +382,9 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
                     t.getRenderer().render(g3, this);
                     nothingRendered = false;
                 } catch (RenderingException rx) {
-                    message = rx.getMessage();
+                    if (message == null) {
+                        message = rx.getMessage();
+                    }
                 }
             }
             if (nothingRendered && message != null) {

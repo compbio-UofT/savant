@@ -223,7 +223,7 @@ public class Savant extends JFrame implements BookmarksChangedListener, Referenc
             public void paintComponent(Graphics g) {
                 super.paintComponent(g);
                 g.setColor(RangeSelectionPanel.LINE_COLOUR);
-                int capPos = ruler.getLeftCapPos() + ruler.CAP_IMAGE_WIDTH;
+                int capPos = ruler.getLeftCapPos() + Ruler.CAP_IMAGE_WIDTH;
                 g.drawLine(capPos, getHeight() - 1, rangeSelector.getX(), getHeight() - 1);
             }
         };

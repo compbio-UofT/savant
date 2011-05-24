@@ -23,7 +23,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import savant.api.adapter.RangeAdapter;
-import savant.controller.RangeController;
 import savant.data.sources.DataSource;
 import savant.data.types.BAMIntervalRecord;
 import savant.data.types.Record;

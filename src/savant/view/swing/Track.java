@@ -436,12 +436,14 @@ public abstract class Track implements TrackAdapter {
     }
 
     /**
-     * Store null to dataInRange.
+     * Store null to dataInRange.  This implicitly means that data-retrieval is considered
+     * to have completed without error.
      *
      * @throws Exception
      */
     public void saveNullData() {
         dataInRange = null;
+        fireDataRetrievalCompleted();
     }
 
     /**

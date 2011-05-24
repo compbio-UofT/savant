@@ -1,9 +1,5 @@
 /*
- * ContinuousTrack.java
- * Created on Jan 19, 2010
- *
- *
- *    Copyright 2010 University of Toronto
+ *    Copyright 2010-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -36,7 +32,7 @@ import savant.view.swing.Track;
 
 
 /**
- * A helper class to set up rendering of a ContinuousTrack
+ * Track class for the various flavours of continuous data.
  *
  * @author vwilliams
  */
@@ -103,17 +99,14 @@ import savant.view.swing.Track;
     public static float[] getExtremeValues(List<Record> data) {
         float max = Float.MIN_VALUE;
         float min = Float.MAX_VALUE;
-        for (Record r: data) {
-            float val = ((ContinuousRecord)r).getValue();
-            if (val > max) max = val;
-            if (val < min) min = val;
+        if (data != null) {
+            for (Record r: data) {
+                float val = ((ContinuousRecord)r).getValue();
+                if (val > max) max = val;
+                if (val < min) min = val;
+            }
         }
 
-        float[] result = new float[2];
-        result[0] = min;
-        result[1] = max;
-
-        return result;
+        return new float[] { min, max };
     }
-
 }

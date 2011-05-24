@@ -41,13 +41,12 @@ public class BAMCoverageTrack extends Track {
     public void prepareForRendering(String reference, Range range) {
 
         Resolution r = getResolution(range);
-        if (isEnabled() && (r != Resolution.VERY_HIGH)) {
+        if (isEnabled() && r != Resolution.VERY_HIGH) {
             renderer.addInstruction(DrawingInstruction.PROGRESS, "Loading coverage track...");
             renderer.addInstruction(DrawingInstruction.AXIS_RANGE, AxisRange.initWithRanges(range, getDefaultYRange()));
             requestData(reference, range);
         } else {
             saveNullData();
-            renderer.addInstruction(DrawingInstruction.ERROR, "Zoom in to see data");
         }
 
         renderer.addInstruction(DrawingInstruction.REFERENCE_EXISTS, containsReference(reference));
