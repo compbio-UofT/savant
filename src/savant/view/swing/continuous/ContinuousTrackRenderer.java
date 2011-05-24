@@ -86,46 +86,50 @@ public class ContinuousTrackRenderer extends TrackRenderer {
         gp.setXRange(axisRange.getXRange());
         gp.setYRange(axisRange.getYRange());
 
-        int numdata = data.size();
-
         GeneralPath path = new GeneralPath();
         double xFormXPos = Double.NaN, xFormYPos = Double.NaN;
 
-//        xFormXPos = 0;
-//        xFormYPos = gp.transformYPos(0.0);
-//        path.moveTo(xFormXPos, xFormYPos);
         double xFormYZero = gp.transformYPos(0.0);
         
         double maxData = 0;
+        boolean haveOpenPath = false;
         boolean haveData = false;
-        for (int i=0; i<numdata; i++) {
-            GenericContinuousRecord continuousRecord = (GenericContinuousRecord)data.get(i);
-            int xPos = continuousRecord.getPosition();
-            float yPos = continuousRecord.getValue();
-            if (Float.isNaN(yPos)) {
-                // Hit a position with no data.  May need to close off the current path.
-                if (haveData) {
-                    path.lineTo(xFormXPos, xFormYZero);
-                    path.closePath();
-                    haveData = false;
-                }
-            } else {
-                xFormXPos = gp.transformXPosExclusive(xPos);//+gp.getUnitWidth()/2;
-                xFormYPos = gp.transformYPos(yPos);
-                if (!haveData) {
-                    // Start our path off with a vertical line.
-                    path.moveTo(xFormXPos, xFormYZero);
+        if (data != null) {
+            for (int i = 0; i < data.size(); i++) {
+                GenericContinuousRecord continuousRecord = (GenericContinuousRecord)data.get(i);
+                int xPos = continuousRecord.getPosition();
+                float yPos = continuousRecord.getValue();
+                if (Float.isNaN(yPos)) {
+                    // Hit a position with no data.  May need to close off the current path.
+                    if (haveOpenPath) {
+                        path.lineTo(xFormXPos, xFormYZero);
+                        path.closePath();
+                        haveOpenPath = false;
+                    }
+                } else {
                     haveData = true;
+                    xFormXPos = gp.transformXPosExclusive(xPos);//+gp.getUnitWidth()/2;
+                    xFormYPos = gp.transformYPos(yPos);
+                    if (!haveOpenPath) {
+                        // Start our path off with a vertical line.
+                        path.moveTo(xFormXPos, xFormYZero);
+                        haveOpenPath = true;
+                    }
+                    path.lineTo(xFormXPos, xFormYPos);
+                    Rectangle2D rec = new Rectangle2D.Double(xFormXPos - ((xFormXPos-path.getCurrentPoint().getX())/2),0,Math.max(xFormXPos-path.getCurrentPoint().getX(), 1),gp.getHeight());
+                    recordToShapeMap.put(continuousRecord, rec);
+                    xFormXPos = gp.transformXPosExclusive(xPos + 1);
+                    path.lineTo(xFormXPos, xFormYPos);
                 }
-                path.lineTo(xFormXPos, xFormYPos);
-                Rectangle2D rec = new Rectangle2D.Double(xFormXPos - ((xFormXPos-path.getCurrentPoint().getX())/2),0,Math.max(xFormXPos-path.getCurrentPoint().getX(), 1),gp.getHeight());
-                recordToShapeMap.put(continuousRecord, rec);
-                xFormXPos = gp.transformXPosExclusive(xPos + 1);
-                path.lineTo(xFormXPos, xFormYPos);
+                if (yPos > maxData) {
+                    maxData = yPos;
+                }
             }
-            if (yPos > maxData) maxData = yPos;
         }
-        if (haveData) {
+        if (!haveData) {
+            throw new RenderingException("No data in range.");
+        }
+        if (haveOpenPath) {
             // Path needs to be closed.
             path.lineTo(xFormXPos, xFormYZero);
             path.closePath();
@@ -138,10 +142,8 @@ public class ContinuousTrackRenderer extends TrackRenderer {
 
         if (axisRange.getYRange().getFrom() < 0) {
             g2.setColor(Color.darkGray);
-            g2.drawLine(0, (int) gp.transformYPos(0), gp.getWidth(), (int) gp.transformYPos(0));
+            g2.drawLine(0, (int)gp.transformYPos(0), gp.getWidth(), (int)gp.transformYPos(0));
         }
-
-        if(data.isEmpty())throw new RenderingException("No data in range.");
     }
 
     @Override
