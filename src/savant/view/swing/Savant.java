@@ -218,7 +218,15 @@ public class Savant extends JFrame implements BookmarksChangedListener, Referenc
         ruler.setMaximumSize(new Dimension(10000, 23));
         ruler.setVisible(false);
 
-        Box box1 = Box.createHorizontalBox();
+        Box box1 = new Box(BoxLayout.LINE_AXIS) {
+            @Override
+            public void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                g.setColor(RangeSelectionPanel.LINE_COLOUR);
+                int capPos = ruler.getLeftCapPos() + ruler.CAP_IMAGE_WIDTH;
+                g.drawLine(capPos, getHeight() - 1, rangeSelector.getX(), getHeight() - 1);
+            }
+        };
         box1.add(referenceCombo);
         box1.add(rangeSelector);
 

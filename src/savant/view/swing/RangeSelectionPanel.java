@@ -42,7 +42,7 @@ public class RangeSelectionPanel extends JPanel implements RangeChangedListener 
 
     private static final AlphaComposite COMPOSITE_50 = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.50F);
     private static final AlphaComposite COMPOSITE_75 = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.75F);
-    private static final Color LINE_COLOUR = new Color(100, 100, 100);
+    static final Color LINE_COLOUR = new Color(100, 100, 100);
 
     private boolean isMouseInside = false;
     private boolean isDragging = false;
@@ -182,7 +182,6 @@ public class RangeSelectionPanel extends JPanel implements RangeChangedListener 
             image_right_cap = javax.imageio.ImageIO.read(getClass().getResource("/savant/images/round_cap_right_bordered.png"));
         } catch (IOException e) {}
 
-        
         // draw background
         Graphics2D g2d = (Graphics2D) g;
         Composite originalComposite = g2d.getComposite();
@@ -205,7 +204,7 @@ public class RangeSelectionPanel extends JPanel implements RangeChangedListener 
         // Lines on top and bottom
         g.setColor(LINE_COLOUR);
         g.drawLine(0, 0, wid, 0);
-        g.drawLine(0, hei-1, wid, hei-1);
+        g.drawLine(0, hei - 1, wid, hei - 1);
 
         if (bands != null) {
             int centromereStart = -1;
@@ -265,9 +264,10 @@ public class RangeSelectionPanel extends JPanel implements RangeChangedListener 
             g.drawRect( startx, y, widpixels, h);
         }
 
-        int capwidth = 20;
-        g.drawImage(image_left_cap, 0,0,capwidth,23,this);
-        g.drawImage(image_right_cap, this.getWidth()-capwidth,0,capwidth,23,this);
+        g.drawImage(image_left_cap, 0, 0, Ruler.CAP_WIDTH, Ruler.CAP_HEIGHT, this);
+        g.drawImage(image_right_cap, getWidth() - Ruler.CAP_WIDTH, 0, Ruler.CAP_WIDTH, Ruler.CAP_HEIGHT,this);
+        g.setColor(LINE_COLOUR);
+        g.drawLine(0, hei - 1, Ruler.CAP_WIDTH + 1, hei - 1);
 
         if (isDragging) {
             g.setColor(Color.black);
@@ -333,7 +333,7 @@ public class RangeSelectionPanel extends JPanel implements RangeChangedListener 
         this.x1 = translatePositionToPixel(r.getFrom());
         this.x2 = translatePositionToPixel(r.getTo());
 
-        //this.isNewRect = false;
+        getParent().repaint();
         repaint();
     }
 
