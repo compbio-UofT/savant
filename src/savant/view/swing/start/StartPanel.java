@@ -17,13 +17,8 @@
 package savant.view.swing.start;
 
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
+import java.awt.event.*;
+import java.awt.font.TextAttribute;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -31,17 +26,11 @@ import java.net.URL;
 import java.text.BreakIterator;
 import java.util.List;
 import javax.swing.*;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.DefaultHighlighter;
-import javax.swing.text.Highlighter;
-import javax.swing.text.SimpleAttributeSet;
-import javax.swing.text.StyleConstants;
-import javax.swing.text.StyledDocument;
-
-import com.jidesoft.swing.AutoResizingTextArea;
-import java.awt.font.TextAttribute;
+import javax.swing.text.*;
 import java.util.HashMap;
 import java.util.Map;
+
+import com.jidesoft.swing.AutoResizingTextArea;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jdom.Document;
@@ -61,11 +50,15 @@ import savant.view.swing.ProjectHandler;
 import savant.view.swing.Savant;
 
 /**
+ * Panel which displays news, recent tracks, and recent projects.
  *
  * @author mfiume
  */
-public class StartPanel extends javax.swing.JPanel implements ComponentListener {
+public class StartPanel extends JPanel {
     private static final Log LOG = LogFactory.getLog(StartPanel.class);
+
+    private static final Font TITLE_FONT = new Font("Arial", Font.BOLD, 16);
+    private static final Font DATE_FONT = new Font("Arial", Font.ITALIC, 12);
 
     static Color bgcolor = Color.darkGray;
     static Color subpanelbgcolortop = new Color(50,50,50);//
@@ -87,7 +80,12 @@ public class StartPanel extends javax.swing.JPanel implements ComponentListener 
         init();
         configureSizes();
 
-        this.addComponentListener(this);
+        addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                configureSizes();
+            }
+        });
     }
 
     /** This method is called from within the constructor to
@@ -252,23 +250,6 @@ public class StartPanel extends javax.swing.JPanel implements ComponentListener 
         c.revalidate();
     }
 
-    @Override
-    public void componentResized(ComponentEvent e) {
-        configureSizes();
-    }
-
-    @Override
-    public void componentMoved(ComponentEvent e) {
-    }
-
-    @Override
-    public void componentShown(ComponentEvent e) {
-    }
-
-    @Override
-    public void componentHidden(ComponentEvent e) {
-    }
-
     private JPanel getRecentTracksInnerPanel() {
 
         JPanel pan = new JPanel();
@@ -396,11 +377,9 @@ public class StartPanel extends javax.swing.JPanel implements ComponentListener 
 
             List<Element> newsEntries = root.getChildren("entry");
 
-            Font f = new Font("Arial", Font.PLAIN, 12);
-
             Map<TextAttribute, Object> underlining = new HashMap<TextAttribute, Object>();
             underlining.put(TextAttribute.UNDERLINE, TextAttribute.UNDERLINE_LOW_ONE_PIXEL);
-            Font underlined = f.deriveFont(underlining);
+            Font underlined = getFont().deriveFont(underlining);
 
             for (Element e : newsEntries) {
 
@@ -444,11 +423,11 @@ public class StartPanel extends javax.swing.JPanel implements ComponentListener 
                 ta.setEditable(false);
 
                 JLabel title = new JLabel(e.getChildText("title"));
-                title.setFont(new Font("Arial", Font.BOLD, 16));
+                title.setFont(TITLE_FONT);
                 title.setForeground(StartPanel.textcolor);
 
                 JLabel date = new JLabel(e.getChildText("date"));
-                date.setFont(new Font("Arial", Font.ITALIC, 12));
+                date.setFont(DATE_FONT);
                 date.setForeground(textcolor);
 
                 p.add(Box.createVerticalStrut(10));
@@ -603,8 +582,9 @@ public class StartPanel extends javax.swing.JPanel implements ComponentListener 
             this.enabled = enable;
         }
 
+        @Override
         public Object addHighlight(int p0, int p1, Highlighter.HighlightPainter p) throws BadLocationException {
-            return (enabled) ? super.addHighlight(p0, p1, p) : null;
+            return enabled ? super.addHighlight(p0, p1, p) : null;
         }
     };
 
