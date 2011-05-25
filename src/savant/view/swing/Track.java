@@ -114,7 +114,7 @@ public abstract class Track implements TrackAdapter {
     private String getUniqueName(String name) {
         String result = name;
         while (TrackController.getInstance().containsTrack(result)) {
-            result = DialogUtils.displayInputMessage(
+            result = DialogUtils.displayInputMessage("Duplicate Track",
                     "A track with that name already exists. Please enter a new name:",
                     result);
             if (result == null) {

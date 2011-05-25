@@ -87,7 +87,7 @@ public class DialogUtils {
      * Display a dialog that gets input
      */
     public static String displayInputMessage(String message, String defaultInput) {
-        return savant.view.swing.util.DialogUtils.displayInputMessage(message, defaultInput);
+        return savant.view.swing.util.DialogUtils.displayInputMessage("Savant", message, defaultInput);
     }
 
     /**

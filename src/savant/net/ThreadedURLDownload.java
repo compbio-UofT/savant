@@ -58,7 +58,7 @@ public class ThreadedURLDownload implements Runnable {
                     + MiscUtils.getFilenameFromPath(url.getFile());
 
         while (new File(destination).exists()) {
-            destination = DialogUtils.displayInputMessage("File already exists. Please enter a new path:", destination);
+            destination = DialogUtils.displayInputMessage("Duplicate File", "File already exists. Please enter a new path:", destination);
             if (destination == null) {
                 return;
             }

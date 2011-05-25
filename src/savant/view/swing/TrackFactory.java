@@ -270,6 +270,9 @@ public class TrackFactory {
             } catch (SavantFileNotFormattedException x) {
                 // Special case: we don't want to pollute error log with a stack trace for this non-error.
                 fireTrackCreationFailed(x);
+            } catch (SavantTrackCreationCancelledException x) {
+                // Another special case: we don't want a stack trace when all the user did was click cancel.
+                fireTrackCreationFailed(x);
             } catch (Exception x) {
                 LOG.error("Track creation failed.", x);
                 fireTrackCreationFailed(x);
@@ -330,6 +333,8 @@ public class TrackFactory {
                 s.promptUserToFormatFile(trackURI);
             } else if (x instanceof SavantUnsupportedVersionException) {
                 DialogUtils.displayMessage("Sorry", "This file was created using an older version of Savant. Please re-format the source.");
+            } else if (x instanceof SavantTrackCreationCancelledException) {
+                // Nothing to do.  The user already knows they cancelled, so no point in putting up a dialog.
             } else if (x instanceof FileNotFoundException) {
                 DialogUtils.displayMessage("File not found", x.getMessage());
             } else {

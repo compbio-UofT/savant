@@ -58,13 +58,12 @@ public class DialogUtils {
         JOptionPane.showMessageDialog(Savant.getInstance(), message, title, JOptionPane.PLAIN_MESSAGE);
     }
 
-    public static String displayInputMessage(String message, String defaultInput) {
-        String result = JideOptionPane.showInputDialog(Savant.getInstance(), message, defaultInput);
-        if ((result != null) && (result.length() > 0)) {
+    public static String displayInputMessage(String title, String message, String defaultInput) {
+        String result = JOptionPane.showInputDialog(Savant.getInstance(), message, title, JOptionPane.QUESTION_MESSAGE);
+        if (result != null && result.length() > 0) {
             return result;
-        } else {
-            return null;
         }
+        return null;
     }
 
     public static void displayException(final String title, final String message, final Throwable t) {
