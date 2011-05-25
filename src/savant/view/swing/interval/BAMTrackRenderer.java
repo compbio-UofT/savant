@@ -60,6 +60,7 @@ import savant.view.swing.interval.Pileup.Nucleotide;
  * @author vwilliams
  */
 public class BAMTrackRenderer extends TrackRenderer {
+    private static final Log LOG = LogFactory.getLog(BAMTrackRenderer.class);
 
     private static final int minTransparency = 20;
     private static final int maxTransparency = 255;
@@ -75,11 +76,9 @@ public class BAMTrackRenderer extends TrackRenderer {
     public static final String SNP_MODE = "SNP";
     public static final String COLORSPACE_MODE = "Colour Space Mismatch";
 
-    private static Log LOG = LogFactory.getLog(BAMTrackRenderer.class);
-
-    private static Font smallFont = new Font("Sans-Serif", Font.PLAIN, 10);
-    private static Stroke oneStroke = new BasicStroke(1.0f);
-    private static Stroke twoStroke= new BasicStroke(2.0f);
+    private static final Font SMALL_FONT = new Font("Sans-Serif", Font.PLAIN, 10);
+    private static final Stroke ONE_STROKE = new BasicStroke(1.0f);
+    private static final Stroke TWO_STROKE = new BasicStroke(2.0f);
 
     private byte[] refSeq = null;
 
@@ -92,7 +91,7 @@ public class BAMTrackRenderer extends TrackRenderer {
         List<String> modes = new ArrayList<String>();
         modes.add(STANDARD_MODE);
         modes.add(MISMATCH_MODE);
-        //modes.add(COLORSPACE_MODE);
+//        modes.add(COLORSPACE_MODE);
         modes.add(SEQUENCE_MODE);
         //modes.add(STANDARD_PAIRED_MODE);
         modes.add(ARC_PAIRED_MODE);
@@ -314,11 +313,8 @@ public class BAMTrackRenderer extends TrackRenderer {
             if (r == Resolution.VERY_HIGH || r == Resolution.HIGH) {
                 renderPackMode(g2, gp, r);
             } else {
-                this.resizeFrame(gp);
+                resizeFrame(gp);
             }
-//            else {
-//                renderCoverageMode(g2, gp);
-//            }
         } else if (modeName.equals(STANDARD_PAIRED_MODE)) {
             if (r == Resolution.VERY_HIGH || r == Resolution.HIGH) {
                 renderStandardMatepairMode(g2, gp, r);
@@ -351,32 +347,14 @@ public class BAMTrackRenderer extends TrackRenderer {
         List mates = ReadPairIntervalRecord.getMatePairs(data);
         Collections.sort(mates);
 
-        for (Object o : mates) {
-            System.out.println(o);
-        }
-
-        System.out.println("Found " + mates.size() + " mates from " + data.size() + " alignments");
-
         IntervalPacker packer = new IntervalPacker(mates);
         ArrayList<List<IntervalRecord>> intervals = packer.pack(2);
-
-        /*
-        int levelnum = 0;
-        int numpacked = 0;
-        System.out.println("Pack:");
-        for (List<IntervalRecord> list : intervals) {
-            System.out.println(levelnum + ". " + list.size());
-            levelnum++;
-            numpacked+= list.size();
-        }
-        System.out.println("Num packed: " + numpacked);
-         *
-         */
 
         gp.setIsOrdinal(false);
         gp.setXRange(axisRange.getXRange());
         int maxYRange;
         int numIntervals = intervals.size();
+
         // Set the Y range to the closest value of 10, 20, 50, 100, n*100
         if (numIntervals <= 10) maxYRange = 10;
         else if (numIntervals <= 20) maxYRange = 20;
@@ -391,7 +369,6 @@ public class BAMTrackRenderer extends TrackRenderer {
         // scan the map of intervals and draw the intervals for each level
         for (int level=0; level<intervals.size(); level++) {
 
-//            ArrayList<IntervalRecord> intervalsThisLevel = intervals.get(level);
             List<IntervalRecord> intervalsThisLevel = intervals.get(level);
 
             for (IntervalRecord intervalRecord : intervalsThisLevel) {
@@ -415,20 +392,13 @@ public class BAMTrackRenderer extends TrackRenderer {
 
                     boolean strandFlag = samRecord.getReadNegativeStrandFlag();
                     Strand strand = strandFlag ? Strand.REVERSE : Strand.FORWARD ;
-
-                        if (strand == Strand.FORWARD) {
-                            g2.setColor(cs.getColor("Forward Strand"));
-                        }
-                        else {
-                            g2.setColor(cs.getColor("Reverse Strand"));
-                        }
-
+                    g2.setColor(cs.getColor(strandFlag ? "Reverse Strand" : "Forward Strand"));
 
                     Polygon readshape = renderRead(g2, gp, cs, samRecord, intervalRecord.getInterval(), level, range, readcolor);
 
-                    this.recordToShapeMap.put(intervalRecord, readshape);
+                    recordToShapeMap.put(intervalRecord, readshape);
 
-                    // draw outline, if there's room
+                    // Draw outline, if there's room.
                     if (readshape.getBounds().getHeight() > 4) {
                         g2.setColor(linecolor);
                         g2.draw(readshape);
@@ -478,7 +448,6 @@ public class BAMTrackRenderer extends TrackRenderer {
         // scan the map of intervals and draw the intervals for each level
         for (int level=0; level<intervals.size(); level++) {
 
-//            ArrayList<IntervalRecord> intervalsThisLevel = intervals.get(level);
             List<IntervalRecord> intervalsThisLevel = intervals.get(level);
 
             for (IntervalRecord intervalRecord : intervalsThisLevel) {
@@ -705,10 +674,10 @@ public class BAMTrackRenderer extends TrackRenderer {
         }
 
 
-        System.out.println(samRecord.getReadName());
-        System.out.println(colors);
-        System.out.println(modreadseq);
-        System.out.println(new String(refSeq));
+        LOG.debug(samRecord.getReadName());
+        LOG.debug(colors);
+        LOG.debug(modreadseq);
+        LOG.debug(refSeq);
 
 
         if (colors == null || colors.equals("")) { return; }
@@ -797,33 +766,10 @@ public class BAMTrackRenderer extends TrackRenderer {
                                 || (!revstrand && ((askForIndex + samRecord.getAlignmentStart() - 2*insadvance) <= range.getTo() + 1))
                                 )) {
 
-                            System.out.println("index: " + askForIndex);
-                            System.out.println(modreadseq.charAt(i) + "-" + colors.charAt(i + clipOffset) + ">" + this.translateColor(modreadseq.charAt(i), colors.charAt(i + clipOffset)));
-                            System.out.println("expected " + getColor(modreadseq.charAt(i),modreadseq.charAt(i+1)) + " got " + colors.charAt(i + clipOffset));
-
                             if (getColor(modreadseq.charAt(i),modreadseq.charAt(i+1)) != colors.charAt(i + clipOffset)) {
 
                                 Rectangle.Double rect = new Rectangle.Double(xCoordinate, yCoordinate - unitHeight, unitWidth, unitHeight);
-                                Color fillcol;
-                                
-                                
-                                switch (this.translateColor(modreadseq.charAt(i), colors.charAt(i + clipOffset))) {
-                                    case 'A':
-                                        fillcol = ColourSettings.getA();
-                                        break;
-                                    case 'C':
-                                        fillcol = ColourSettings.getC();
-                                        break;
-                                    case 'G':
-                                        fillcol = ColourSettings.getG();
-                                        break;
-                                    case 'T':
-                                        fillcol = ColourSettings.getT();
-                                        break;
-                                    default:
-                                        fillcol = Color.orange;
-                                        break;
-                                }
+                                Color fillcol = getBaseColour(translateColor(modreadseq.charAt(i), colors.charAt(i + clipOffset)), Color.orange);
                                 g2.setPaint(fillcol);
                                 g2.fill(rect);
 
@@ -863,6 +809,23 @@ public class BAMTrackRenderer extends TrackRenderer {
                         g2.fill(rect);
                 }
             }
+        }
+    }
+
+    private Color getBaseColour(char baseLetter, Color dflt) {
+        switch (baseLetter) {
+            case 'A':
+                return ColourSettings.getA();
+            case 'C':
+                return ColourSettings.getC();
+            case 'G':
+                return ColourSettings.getG();
+            case 'T':
+                return ColourSettings.getT();
+            case 'N':
+                return ColourSettings.getN();
+            default:
+                return dflt;
         }
     }
 
@@ -963,42 +926,15 @@ public class BAMTrackRenderer extends TrackRenderer {
                         if (refIndex > refSeq.length-1) continue;
 
                         if (true) {
-                            byte[] readBase = new byte[1];
-                            readBase[0] = readBases[readIndex];
-                            String base = new String(readBase);
-                            Color mismatchColor = null;
-                            if (base.equals("A")) {
-                                mismatchColor = ColourSettings.getA();
+                            Color mismatchColor = getBaseColour((char)readBases[readIndex], null);
+                            if (mismatchColor != null) {
+                                double xCoordinate = gp.transformXPosExclusive(sequenceCursor+i);
+                                double width = gp.getUnitWidth();
+                                if (width < 1) width = 1;
+                                opRect = new Rectangle2D.Double(xCoordinate, gp.transformYPos(0)-((level + 1)*unitHeight) - offset, unitWidth, unitHeight);
+                                g2.setColor(mismatchColor);
+                                g2.fill(opRect);
                             }
-                            else if (base.equals("C")) {
-                                mismatchColor = ColourSettings.getC();
-                            }
-                            else if (base.equals("G")) {
-                                mismatchColor = ColourSettings.getG();
-                            }
-                            else if (base.equals("T")) {
-                                mismatchColor = ColourSettings.getT();
-                            }
-                            double xCoordinate = gp.transformXPosExclusive(sequenceCursor+i);
-                            double width = gp.getUnitWidth();
-                            if (width < 1) width = 1;
-                            opRect = new Rectangle2D.Double(xCoordinate,
-                                    gp.transformYPos(0)-((level + 1)*unitHeight) - offset,
-                                    unitWidth,
-                                    unitHeight);
-                            g2.setColor(mismatchColor);
-                            g2.fill(opRect);
-
-                            /*
-                            if (unitWidth > 10 && unitHeight > 10) {
-                            g2.setColor(Color.BLACK);
-                                FontMetrics fm   = g2.getFontMetrics(g2.getFont());
-                                java.awt.geom.Rectangle2D rect = fm.getStringBounds(base, g2);
-                                g2.drawString(base, (float) (xCoordinate + unitWidth/2 - rect.getWidth()/2),  (float) (gp.transformYPos(0)-((level)*unitHeight) - offset - unitHeight/2));
-                            }
-                             *
-                             */
-
                         }
                     }
                 }
@@ -1078,9 +1014,8 @@ public class BAMTrackRenderer extends TrackRenderer {
             opStart = Math.max(leftMostX, opStart);
             opWidth = x2 - opStart;
 
-            // delete
             if (operator == CigarOperator.D) {
-
+                // Deletion
                 double width = gp.getWidth(operatorLength);
                 if (width < 1) width = 1;
                 opRect = new Rectangle2D.Double(
@@ -1090,9 +1025,8 @@ public class BAMTrackRenderer extends TrackRenderer {
                         unitHeight);
                 g2.setColor(Color.black);
                 g2.fill(opRect);
-            }
-            // insert
-            else if (operator == CigarOperator.I) {
+            } else if (operator == CigarOperator.I) {
+                // Insertion
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 g2.setColor(Color.white);
                 int xCoordinate = (int)gp.transformXPosExclusive(sequenceCursor);
@@ -1116,11 +1050,10 @@ public class BAMTrackRenderer extends TrackRenderer {
                     }
                 }
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
-            }
-            // match or mismatch
-            else if (operator == CigarOperator.M) {
+            } else if (operator == CigarOperator.M) {
+                // Match or mismatch
 
-                // some SAM files do not contain the read bases
+                // Some SAM files do not contain the read bases.
                 if (sequenceSaved) {
                     // determine if there's a mismatch
                     for (int i=0; i<operatorLength; i++) {
@@ -1132,22 +1065,8 @@ public class BAMTrackRenderer extends TrackRenderer {
                         if (refIndex > refSeq.length-1) continue;
 
                         if (refSeq[refIndex] != readBases[readIndex]) {
-                            byte[] readBase = new byte[1];
-                            readBase[0] = readBases[readIndex];
-                            String base = new String(readBase);
-                            Color mismatchColor = null;
-                            if (base.equals("A")) {
-                                mismatchColor = ColourSettings.getA();
-                            }
-                            else if (base.equals("C")) {
-                                mismatchColor = ColourSettings.getC();
-                            }
-                            else if (base.equals("G")) {
-                                mismatchColor = ColourSettings.getG();
-                            }
-                            else if (base.equals("T")) {
-                                mismatchColor = ColourSettings.getT();
-                            }
+
+                            Color mismatchColor = getBaseColour((char)readBases[readIndex], null);
                             double xCoordinate = gp.transformXPosExclusive(sequenceCursor+i);
                             double width = gp.getUnitWidth();
                             if (width < 1) width = 1;
@@ -1155,32 +1074,22 @@ public class BAMTrackRenderer extends TrackRenderer {
                                     gp.transformYPos(0)-((level + 1)*unitHeight) - offset,
                                     unitWidth,
                                     unitHeight);
-                            g2.setColor(mismatchColor);
-                            g2.fill(opRect);
+                            if (mismatchColor != null) {
+                                g2.setColor(mismatchColor);
+                                g2.fill(opRect);
+                            }
 
                             if (fontFits(BrowserSettings.getTrackFont(),unitWidth,unitHeight,g2)) {
-                                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                                 g2.setColor(new Color(10,10,10));
                                 g2.setFont(new Font("Sans-Serif", Font.PLAIN, 12));
-                                g2.drawString(base, (int) (xCoordinate + unitWidth/2 - g2.getFontMetrics().stringWidth(base)/2), (int) ((gp.transformYPos(0)-((level)*unitHeight))-unitHeight/2+g2.getFontMetrics().getMaxAscent()/2));
+                                g2.drawBytes(readBases, readIndex, 1, (int) (xCoordinate + unitWidth/2 - g2.getFontMetrics().bytesWidth(readBases, readIndex, 1)/2), (int) ((gp.transformYPos(0)-((level)*unitHeight))-unitHeight/2+g2.getFontMetrics().getMaxAscent()/2));
                             }
-                            /*
-                            if (unitWidth > 10 && unitHeight > 10) {
-                            g2.setColor(Color.BLACK);
-                                FontMetrics fm   = g2.getFontMetrics(g2.getFont());
-                                java.awt.geom.Rectangle2D rect = fm.getStringBounds(base, g2);
-                                g2.drawString(base, (float) (xCoordinate + unitWidth/2 - rect.getWidth()/2),  (float) (gp.transformYPos(0)-((level)*unitHeight) - offset - unitHeight/2));
-                            }
-                             * 
-                             */
-
                         }
                     }
                 }
-            }
-            // skipped
-            else if (operator == CigarOperator.N) {
-                // draw nothing
+            } else if (operator == CigarOperator.N) {
+                // Skipped.  Draw nothing
                 opRect = new Rectangle2D.Double(opStart,
                                                     gp.transformYPos(0)-((level+1)*unitHeight) - offset,
                                                     opWidth,
@@ -1280,17 +1189,17 @@ public class BAMTrackRenderer extends TrackRenderer {
                 case INVERTED_READ:
                     intervalStart = alignmentStart;
                     g2.setColor(invertedReadColor);
-                    g2.setStroke(twoStroke);
+                    g2.setStroke(TWO_STROKE );
                     break;
                 case INVERTED_MATE:
                     intervalStart = alignmentEnd;
                     g2.setColor(invertedMateColor);
-                    g2.setStroke(twoStroke);
+                    g2.setStroke(TWO_STROKE );
                     break;
                 case EVERTED:
                     intervalStart = alignmentStart;
                     g2.setColor(evertedPairColor);
-                    g2.setStroke(twoStroke);
+                    g2.setStroke(TWO_STROKE );
                     break;
                 default:
                     // make sure arclength is over our threshold
@@ -1305,11 +1214,11 @@ public class BAMTrackRenderer extends TrackRenderer {
 
                     if (arcLength > discordantMax || arcLength < discordantMin) {
                         g2.setColor(discordantLengthColor);
-                        g2.setStroke(twoStroke);
+                        g2.setStroke(TWO_STROKE );
                     }
                     else {
                         g2.setColor(normalArcColor);
-                        g2.setStroke(oneStroke);
+                        g2.setStroke(ONE_STROKE);
                     }
                     break;
             }
@@ -1522,7 +1431,7 @@ public class BAMTrackRenderer extends TrackRenderer {
 
     private void drawLegend(Graphics2D g2, String[] legendStrings, Color[] legendColors, int startx, int starty) {
 
-        g2.setFont(smallFont);
+        g2.setFont(SMALL_FONT);
 
         int x = startx;
         int y = starty;
@@ -1530,11 +1439,11 @@ public class BAMTrackRenderer extends TrackRenderer {
         for (int i=0; i<legendStrings.length; i++) {
             legendString = legendStrings[i];
             g2.setColor(legendColors[i]);
-            g2.setStroke(twoStroke);
-            Rectangle2D stringRect = smallFont.getStringBounds(legendString, g2.getFontRenderContext());
+            g2.setStroke(TWO_STROKE );
+            Rectangle2D stringRect = SMALL_FONT.getStringBounds(legendString, g2.getFontRenderContext());
             g2.drawLine(x-25, y-(int)stringRect.getHeight()/2, x-5, y-(int)stringRect.getHeight()/2);
             g2.setColor(ColourSettings.getPointLine());
-            g2.setStroke(oneStroke);
+            g2.setStroke(ONE_STROKE);
             g2.drawString(legendString, x, y);
 
             y += stringRect.getHeight()+2;
@@ -1621,7 +1530,7 @@ public class BAMTrackRenderer extends TrackRenderer {
 
             Graphics2D g2 = (Graphics2D) g;
 
-            g2.setFont(smallFont);
+            g2.setFont(SMALL_FONT);
 
             GradientPaint gp = new GradientPaint(0, 0,
                 Color.WHITE, 0, 60,
@@ -1640,11 +1549,11 @@ public class BAMTrackRenderer extends TrackRenderer {
             for (int i=0; i<legendStrings.length; i++) {
                 legendString = legendStrings[i];
                 g2.setColor(legendColors[i]);
-                g2.setStroke(twoStroke);
-                Rectangle2D stringRect = smallFont.getStringBounds(legendString, g2.getFontRenderContext());
+                g2.setStroke(TWO_STROKE );
+                Rectangle2D stringRect = SMALL_FONT.getStringBounds(legendString, g2.getFontRenderContext());
                 g2.drawLine(x-25, y-(int)stringRect.getHeight()/2, x-5, y-(int)stringRect.getHeight()/2);
                 g2.setColor(ColourSettings.getPointLine());
-                g2.setStroke(oneStroke);
+                g2.setStroke(ONE_STROKE);
                 g2.drawString(legendString, x, y);
 
                 y += stringRect.getHeight()+2;
@@ -1655,7 +1564,7 @@ public class BAMTrackRenderer extends TrackRenderer {
 
             Graphics2D g2 = (Graphics2D) g;
 
-            g2.setFont(smallFont);
+            g2.setFont(SMALL_FONT);
 
             GradientPaint gp = new GradientPaint(0, 0,
                 Color.WHITE, 0, 22,
