@@ -27,8 +27,8 @@ import savant.api.adapter.RangeAdapter;
 public final class Range implements RangeAdapter, Serializable {
     static final long serialVersionUID = 2690664822084781217L;
 
-    private int from;
-    private int to;
+    private long from;
+    private long to;
 
     public Range(int from, int to) {
         this.from = from;
@@ -36,25 +36,25 @@ public final class Range implements RangeAdapter, Serializable {
     }
 
     @Override
-    public int getFrom() { return from; }
+    public int getFrom() { return (int)from; }
 
     @Override
-    public int getTo() { return to; }
+    public int getTo() { return (int)to; }
 
     @Override
-    public int getLength() { return to - from + 1; }
-
-    @Override
-    @Deprecated
-    public int getFromAsInt() { return from; }
+    public int getLength() { return (int)(to - from) + 1; }
 
     @Override
     @Deprecated
-    public int getToAsInt() { return to; }
+    public int getFromAsInt() { return (int)from; }
 
     @Override
     @Deprecated
-    public int getLengthAsInt() { return to - from + 1; }
+    public int getToAsInt() { return (int)to; }
+
+    @Override
+    @Deprecated
+    public int getLengthAsInt() { return (int)(to - from) + 1; }
 
     @Override
     public String toString() {
@@ -76,9 +76,8 @@ public final class Range implements RangeAdapter, Serializable {
 
     @Override
     public int hashCode() {
-        int result = from;
-        result = 31 * result + to;
+        int result = (int)from;
+        result = 31 * result + (int)to;
         return result;
     }
-
 }
