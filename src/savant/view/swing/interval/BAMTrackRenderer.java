@@ -289,7 +289,7 @@ public class BAMTrackRenderer extends TrackRenderer {
         String modeName = drawMode;
 
         if (r == Resolution.VERY_HIGH || r == Resolution.HIGH) {
-            if(modeName.equals(MISMATCH_MODE) || modeName.equals(SNP_MODE) || modeName.equals(COLORSPACE_MODE)){
+            if(modeName.equals(MISMATCH_MODE) || modeName.equals(SNP_MODE) || modeName.equals(COLORSPACE_MODE) || modeName.equals(SEQUENCE_MODE)){
                 // fetch reference sequence for comparison with cigar string
                 Genome genome = ReferenceController.getInstance().getGenome();
                 if(genome.isSequenceSet()){
@@ -924,7 +924,9 @@ public class BAMTrackRenderer extends TrackRenderer {
                         int refIndex = sequenceCursor + i - range.getFrom();
 
                         if (refIndex < 0) continue;  // outside sequence and drawing range
-                        if (refIndex > refSeq.length-1) continue;
+                        if (refIndex > refSeq.length-1) {
+                            continue;
+                        }
 
                         if (true) {
                             Color mismatchColor = getBaseColour((char)readBases[readIndex], null);
