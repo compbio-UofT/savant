@@ -289,7 +289,7 @@ public class BAMTrackRenderer extends TrackRenderer {
         String modeName = drawMode;
 
         if (r == Resolution.VERY_HIGH || r == Resolution.HIGH) {
-            if(modeName.equals(MISMATCH_MODE) || modeName.equals(SNP_MODE) || modeName.equals(COLORSPACE_MODE) || modeName.equals(SEQUENCE_MODE)){
+            if(modeName.equals(MISMATCH_MODE) || modeName.equals(SNP_MODE) || modeName.equals(COLORSPACE_MODE) || modeName.equals(SEQUENCE_MODE) || modeName.equals(BASE_QUALITY_MODE)){
                 // fetch reference sequence for comparison with cigar string
                 Genome genome = ReferenceController.getInstance().getGenome();
                 if(genome.isSequenceSet()){
