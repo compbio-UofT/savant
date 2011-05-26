@@ -512,7 +512,8 @@ public class BAMTrackRenderer extends TrackRenderer {
                     else {
                         col = cs.getColor("Reverse Strand");
                     }
-                    renderBaseQualities(g2, gp, samRecord, level, range, col);
+                    renderBQMismatches(g2, gp, samRecord, level, refSeq, range);
+                    //renderBaseQualities(g2, gp, samRecord, level, range, col);
                 }
 
 
@@ -971,6 +972,193 @@ public class BAMTrackRenderer extends TrackRenderer {
 
     }
 
+    /*
+    private void renderBQMismatches(Graphics2D g2, GraphPane gp, SAMRecord samRecord, int level, byte[] refSeq, Range range) {
+
+        ColorScheme cs = (ColorScheme) instructions.get(DrawingInstruction.COLOR_SCHEME);
+        Color linecolor = cs.getColor("Line");
+
+        double unitHeight;
+        double unitWidth;
+        unitHeight = gp.getUnitHeight();
+        unitWidth = gp.getUnitWidth();
+        //unitHeight = intervalHeight;
+
+        // cutoffs to determine when not to draw
+        double leftMostX = gp.transformXPosExclusive(range.getFrom());
+        double rightMostX = gp.transformXPosExclusive(range.getTo()) + unitWidth;
+
+        // visualize variations (indels and mismatches)
+        int alignmentStart = samRecord.getAlignmentStart();
+        int alignmentEnd = samRecord.getAlignmentEnd();
+
+        byte[] readBases = samRecord.getReadBases();
+        byte[] baseQualities = samRecord.getBaseQualities();
+        boolean sequenceSaved = readBases.length > 0;
+        Cigar cigar = samRecord.getCigar();
+
+        // absolute positions in the reference sequence and the read bases, set after each cigar operator is processed
+        int sequenceCursor = alignmentStart;
+        int readCursor = alignmentStart;
+
+        CigarOperator operator;
+        int operatorLength;
+        for (CigarElement cigarElement : cigar.getCigarElements()) {
+
+            operatorLength = cigarElement.getLength();
+            operator = cigarElement.getOperator();
+            Rectangle2D.Double opRect = null;
+
+            double opStart = gp.transformXPosExclusive(sequenceCursor);
+            double opWidth = gp.getWidth(operatorLength);
+
+            // cut off start and width so no drawing happens off-screen, must be done in the order w, then x, since w depends on first value of x
+            double x2 = Math.min(rightMostX, opStart+opWidth);
+            opStart = Math.max(leftMostX, opStart);
+            opWidth = x2 - opStart;
+
+            // delete
+            if (operator == CigarOperator.D) {
+
+                double width = gp.getWidth(operatorLength);
+                if (width < 1) width = 1;
+                opRect = new Rectangle2D.Double(
+                        opStart,
+                        gp.transformYPos(0)-((level + 1)*unitHeight)-offset,
+                        Math.max(opWidth, 1),
+                        unitHeight);
+                g2.setColor(Color.black);
+                g2.fill(opRect);
+            }
+            // insert
+            else if (operator == CigarOperator.I) {
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(Color.white);
+                int xCoordinate = (int)gp.transformXPosExclusive(sequenceCursor);
+                int yCoordinate = (int)(gp.transformYPos(0)-((level + 1)*unitHeight)) + 1 - offset;
+                if((int)unitWidth/3 < 4 || (int)(unitHeight/2) < 6){
+                    yCoordinate = yCoordinate - 1;
+                    int lineWidth = Math.max((int)(unitWidth * (2.0/3.0)), 1);
+                    int xCoordinate1 = (int)(opStart - Math.floor(lineWidth/2));
+                    int xCoordinate2 = (int)(opStart - Math.floor(lineWidth/2)) + lineWidth - 1;
+                    if(xCoordinate1 == xCoordinate2) xCoordinate2++;
+                    int[] xPoints = {xCoordinate1, xCoordinate2, xCoordinate2, xCoordinate1};
+                    int[] yPoints = {yCoordinate, yCoordinate, yCoordinate+(int)unitHeight, yCoordinate+(int)unitHeight};
+                    g2.fillPolygon(xPoints, yPoints, 4);
+                } else {
+                    int[] xPoints = {xCoordinate, xCoordinate+(int)(unitWidth/3), xCoordinate, xCoordinate-(int)(unitWidth/3)};
+                    int[] yPoints = {yCoordinate, yCoordinate+(int)(unitHeight/2), yCoordinate+(int)unitHeight-1, yCoordinate+(int)(unitHeight/2)};
+                    g2.fillPolygon(xPoints, yPoints, 4);
+                    if((int)unitWidth/3 >= 7 && (int)(unitHeight/2) >= 5){
+                        g2.setColor(linecolor);
+                        g2.drawLine(xCoordinate, (int)yCoordinate, xCoordinate, (int)(yCoordinate+unitHeight)-1);
+                    }
+                }
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
+            }
+            // match or mismatch
+            else if (operator == CigarOperator.M) {
+
+                // some SAM files do not contain the read bases
+                if (sequenceSaved) {
+                    // determine if there's a mismatch
+                    for (int i=0; i<operatorLength; i++) {
+                        // indices into refSeq and readBases associated with this position in the cigar string
+                        int readIndex = readCursor-alignmentStart+i;
+                        int refIndex = sequenceCursor + i - range.getFrom();
+
+                        if (refIndex < 0) continue;  // outside sequence and drawing range
+                        if (refIndex > refSeq.length-1) continue;
+
+                        if (refSeq[refIndex] != readBases[readIndex]) {
+                            byte[] readBase = new byte[1];
+                            readBase[0] = readBases[readIndex];
+                            String base = new String(readBase);
+                            Color mismatchColor = null;
+                            if (base.equals("A")) {
+                                mismatchColor = ColourSettings.getA();
+                            }
+                            else if (base.equals("C")) {
+                                mismatchColor = ColourSettings.getC();
+                            }
+                            else if (base.equals("G")) {
+                                mismatchColor = ColourSettings.getG();
+                            }
+                            else if (base.equals("T")) {
+                                mismatchColor = ColourSettings.getT();
+                            }
+
+                            
+                                int alpha = (int) baseQualities[readIndex];
+                                alpha = (int) Math.round(((double) alpha/40)*255);
+                                alpha = alpha < minTransparency ? minTransparency : alpha;
+                                alpha = alpha > maxTransparency ? maxTransparency : alpha;
+
+                            double xCoordinate = gp.transformXPosExclusive(sequenceCursor+i);
+                            double width = gp.getUnitWidth();
+                            if (width < 1) width = 1;
+                            opRect = new Rectangle2D.Double(xCoordinate,
+                                    gp.transformYPos(0)-((level + 1)*unitHeight) - offset,
+                                    unitWidth,
+                                    unitHeight);
+                            mismatchColor = new Color(mismatchColor.getRed(),mismatchColor.getGreen(),mismatchColor.getBlue(),alpha);
+                            g2.setColor(mismatchColor);
+                            g2.fill(opRect);
+
+                            if (fontFits(BrowserSettings.getTrackFont(),unitWidth,unitHeight,g2)) {
+                                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                                g2.setColor(new Color(10,10,10));
+                                g2.setFont(new Font("Sans-Serif", Font.PLAIN, 12));
+                                g2.drawString(base, (int) (xCoordinate + unitWidth/2 - g2.getFontMetrics().stringWidth(base)/2), (int) ((gp.transformYPos(0)-((level)*unitHeight))-unitHeight/2+g2.getFontMetrics().getMaxAscent()/2));
+                            }
+                            /*
+                            if (unitWidth > 10 && unitHeight > 10) {
+                            g2.setColor(Color.BLACK);
+                                FontMetrics fm   = g2.getFontMetrics(g2.getFont());
+                                java.awt.geom.Rectangle2D rect = fm.getStringBounds(base, g2);
+                                g2.drawString(base, (float) (xCoordinate + unitWidth/2 - rect.getWidth()/2),  (float) (gp.transformYPos(0)-((level)*unitHeight) - offset - unitHeight/2));
+                            }
+                             *
+                             
+
+                        }
+                    }
+                }
+            }
+            // skipped
+            else if (operator == CigarOperator.N) {
+                // draw nothing
+                opRect = new Rectangle2D.Double(opStart,
+                                                    gp.transformYPos(0)-((level+1)*unitHeight) - offset,
+                                                    opWidth,
+                                                    unitHeight);
+                g2.setColor(Color.gray);
+                g2.fill(opRect);
+
+            }
+            // padding
+            else if (operator == CigarOperator.P) {
+                // draw nothing
+
+            }
+            // hard clip
+            else if (operator == CigarOperator.H) {
+                // draw nothing
+
+            }
+            // soft clip
+            else if (operator == CigarOperator.S) {
+                // draw nothing
+
+            }
+            if (operator.consumesReadBases()) readCursor += operatorLength;
+            if (operator.consumesReferenceBases()) sequenceCursor += operatorLength;
+        }
+
+    }
+     * 
+     */
+
     private void renderMismatches(Graphics2D g2, GraphPane gp, SAMRecord samRecord, int level, byte[] refSeq, Range range) {
 
         ColorScheme cs = (ColorScheme) instructions.get(DrawingInstruction.COLOR_SCHEME);
@@ -991,6 +1179,7 @@ public class BAMTrackRenderer extends TrackRenderer {
         int alignmentEnd = samRecord.getAlignmentEnd();
 
         byte[] readBases = samRecord.getReadBases();
+        byte[] baseQualities = samRecord.getBaseQualities();
         boolean sequenceSaved = readBases.length > 0;
         Cigar cigar = samRecord.getCigar();
 
@@ -1067,6 +1256,7 @@ public class BAMTrackRenderer extends TrackRenderer {
                         if (refSeq[refIndex] != readBases[readIndex]) {
 
                             Color mismatchColor = getBaseColour((char)readBases[readIndex], null);
+
                             double xCoordinate = gp.transformXPosExclusive(sequenceCursor+i);
                             double width = gp.getUnitWidth();
                             if (width < 1) width = 1;
@@ -1090,6 +1280,202 @@ public class BAMTrackRenderer extends TrackRenderer {
                 }
             } else if (operator == CigarOperator.N) {
                 // Skipped.  Draw nothing
+                opRect = new Rectangle2D.Double(opStart,
+                                                    gp.transformYPos(0)-((level+1)*unitHeight) - offset,
+                                                    opWidth,
+                                                    unitHeight);
+                g2.setColor(Color.gray);
+                g2.fill(opRect);
+
+            }
+            // padding
+            else if (operator == CigarOperator.P) {
+                // draw nothing
+
+            }
+            // hard clip
+            else if (operator == CigarOperator.H) {
+                // draw nothing
+
+            }
+            // soft clip
+            else if (operator == CigarOperator.S) {
+                // draw nothing
+
+            }
+            if (operator.consumesReadBases()) readCursor += operatorLength;
+            if (operator.consumesReferenceBases()) sequenceCursor += operatorLength;
+        }
+
+    }
+
+
+    private void renderBQMismatches(Graphics2D g2, GraphPane gp, SAMRecord samRecord, int level, byte[] refSeq, Range range) {
+
+        ColorScheme cs = (ColorScheme) instructions.get(DrawingInstruction.COLOR_SCHEME);
+        Color linecolor = cs.getColor("Line");
+
+        double unitHeight;
+        double unitWidth;
+        unitHeight = gp.getUnitHeight();
+        unitWidth = gp.getUnitWidth();
+        //unitHeight = intervalHeight;
+
+        // cutoffs to determine when not to draw
+        double leftMostX = gp.transformXPosExclusive(range.getFrom());
+        double rightMostX = gp.transformXPosExclusive(range.getTo()) + unitWidth;
+
+        // visualize variations (indels and mismatches)
+        int alignmentStart = samRecord.getAlignmentStart();
+        int alignmentEnd = samRecord.getAlignmentEnd();
+
+        byte[] readBases = samRecord.getReadBases();
+        byte[] baseQualities = samRecord.getBaseQualities();
+        boolean sequenceSaved = readBases.length > 0;
+        Cigar cigar = samRecord.getCigar();
+
+        // absolute positions in the reference sequence and the read bases, set after each cigar operator is processed
+        int sequenceCursor = alignmentStart;
+        int readCursor = alignmentStart;
+
+        CigarOperator operator;
+        int operatorLength;
+        for (CigarElement cigarElement : cigar.getCigarElements()) {
+
+            operatorLength = cigarElement.getLength();
+            operator = cigarElement.getOperator();
+            Rectangle2D.Double opRect = null;
+
+            double opStart = gp.transformXPosExclusive(sequenceCursor);
+            double opWidth = gp.getWidth(operatorLength);
+
+            // cut off start and width so no drawing happens off-screen, must be done in the order w, then x, since w depends on first value of x
+            double x2 = Math.min(rightMostX, opStart+opWidth);
+            opStart = Math.max(leftMostX, opStart);
+            opWidth = x2 - opStart;
+
+            // delete
+            if (operator == CigarOperator.D) {
+
+                double width = gp.getWidth(operatorLength);
+                if (width < 1) width = 1;
+                opRect = new Rectangle2D.Double(
+                        opStart,
+                        gp.transformYPos(0)-((level + 1)*unitHeight)-offset,
+                        Math.max(opWidth, 1),
+                        unitHeight);
+                g2.setColor(Color.black);
+                g2.fill(opRect);
+            }
+            // insert
+            else if (operator == CigarOperator.I) {
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(Color.white);
+                int xCoordinate = (int)gp.transformXPosExclusive(sequenceCursor);
+                int yCoordinate = (int)(gp.transformYPos(0)-((level + 1)*unitHeight)) + 1 - offset;
+                if((int)unitWidth/3 < 4 || (int)(unitHeight/2) < 6){
+                    yCoordinate = yCoordinate - 1;
+                    int lineWidth = Math.max((int)(unitWidth * (2.0/3.0)), 1);
+                    int xCoordinate1 = (int)(opStart - Math.floor(lineWidth/2));
+                    int xCoordinate2 = (int)(opStart - Math.floor(lineWidth/2)) + lineWidth - 1;
+                    if(xCoordinate1 == xCoordinate2) xCoordinate2++;
+                    int[] xPoints = {xCoordinate1, xCoordinate2, xCoordinate2, xCoordinate1};
+                    int[] yPoints = {yCoordinate, yCoordinate, yCoordinate+(int)unitHeight, yCoordinate+(int)unitHeight};
+                    g2.fillPolygon(xPoints, yPoints, 4);
+                } else {
+                    int[] xPoints = {xCoordinate, xCoordinate+(int)(unitWidth/3), xCoordinate, xCoordinate-(int)(unitWidth/3)};
+                    int[] yPoints = {yCoordinate, yCoordinate+(int)(unitHeight/2), yCoordinate+(int)unitHeight-1, yCoordinate+(int)(unitHeight/2)};
+                    g2.fillPolygon(xPoints, yPoints, 4);
+                    if((int)unitWidth/3 >= 7 && (int)(unitHeight/2) >= 5){
+                        g2.setColor(linecolor);
+                        g2.drawLine(xCoordinate, (int)yCoordinate, xCoordinate, (int)(yCoordinate+unitHeight)-1);
+                    }
+                }
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
+            }
+            // match or mismatch
+            else if (operator == CigarOperator.M) {
+
+                // some SAM files do not contain the read bases
+                if (sequenceSaved) {
+                    // determine if there's a mismatch
+                    for (int i=0; i<operatorLength; i++) {
+                        // indices into refSeq and readBases associated with this position in the cigar string
+                        int readIndex = readCursor-alignmentStart+i;
+                        int refIndex = sequenceCursor + i - range.getFrom();
+
+                        if (refIndex < 0) continue;  // outside sequence and drawing range
+                        if (refIndex > refSeq.length-1) continue;
+
+                        Color baseColor = null;
+                        byte[] readBase = new byte[1];
+                        readBase[0] = readBases[readIndex];
+                        String base = new String(readBase);
+                        boolean isMismatch = refSeq[refIndex] != readBases[readIndex];
+
+                        if (isMismatch) {
+                            if (base.equals("A")) {
+                                baseColor = ColourSettings.getA();
+                            }
+                            else if (base.equals("C")) {
+                                baseColor = ColourSettings.getC();
+                            }
+                            else if (base.equals("G")) {
+                                baseColor = ColourSettings.getG();
+                            }
+                            else if (base.equals("T")) {
+                                baseColor = ColourSettings.getT();
+                            } else {
+                                baseColor = ColourSettings.getN();
+                            }
+                        } else {
+                            if (!samRecord.getReadNegativeStrandFlag()) {
+                                baseColor = cs.getColor("Forward Strand");
+                            }
+                            else {
+                                baseColor = cs.getColor("Reverse Strand");
+                            }
+                        }
+
+                        
+                                int alpha = (int) baseQualities[readIndex];
+                                alpha = (int) Math.round(((double) alpha/40)*255);
+                                alpha = alpha < minTransparency ? minTransparency : alpha;
+                                alpha = alpha > maxTransparency ? maxTransparency : alpha;
+                                baseColor = new Color(baseColor.getRed(),baseColor.getGreen(),baseColor.getBlue(),alpha);
+
+                            double xCoordinate = gp.transformXPosExclusive(sequenceCursor+i);
+                            double width = gp.getUnitWidth();
+                            if (width < 1) width = 1;
+                            opRect = new Rectangle2D.Double(xCoordinate,
+                                    gp.transformYPos(0)-((level + 1)*unitHeight) - offset,
+                                    unitWidth,
+                                    unitHeight);
+                            g2.setColor(baseColor);
+                            g2.fill(opRect);
+
+                            if (isMismatch && fontFits(BrowserSettings.getTrackFont(),unitWidth,unitHeight,g2)) {
+                                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                                g2.setColor(new Color(10,10,10));
+                                g2.setFont(new Font("Sans-Serif", Font.PLAIN, 12));
+                                g2.drawString(base, (int) (xCoordinate + unitWidth/2 - g2.getFontMetrics().stringWidth(base)/2), (int) ((gp.transformYPos(0)-((level)*unitHeight))-unitHeight/2+g2.getFontMetrics().getMaxAscent()/2));
+                            }
+                            /*
+                            if (unitWidth > 10 && unitHeight > 10) {
+                            g2.setColor(Color.BLACK);
+                                FontMetrics fm   = g2.getFontMetrics(g2.getFont());
+                                java.awt.geom.Rectangle2D rect = fm.getStringBounds(base, g2);
+                                g2.drawString(base, (float) (xCoordinate + unitWidth/2 - rect.getWidth()/2),  (float) (gp.transformYPos(0)-((level)*unitHeight) - offset - unitHeight/2));
+                            }
+                             *
+                             */
+                       
+                    }
+                }
+            }
+            // skipped
+            else if (operator == CigarOperator.N) {
+                // draw nothing
                 opRect = new Rectangle2D.Double(opStart,
                                                     gp.transformYPos(0)-((level+1)*unitHeight) - offset,
                                                     opWidth,
