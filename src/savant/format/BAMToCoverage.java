@@ -47,9 +47,8 @@ public class BAMToCoverage extends TDFFormatter {
     }
 
     @Override
-    public void format() throws InterruptedException, IOException, SavantFileFormattingException {
+    public void format() throws InterruptedException, IOException {
         Genome genome = getTDFGenome();
-//        Genome genome = org.broad.igv.feature.GenomeManager().getInstance().getGenome("/Users/zig/Downloads/IGVTools/genomes/hg19.genome");
         setSubtaskStatus("Generating TDF file...");
         Preprocessor pp = new Preprocessor(outFile, genome, MEAN, 1000000, new TDFProgressMonitor());
         pp.count(inFile.getAbsolutePath(), DEFAULT_WINDOW_SIZE, DEFAULT_EXT_FACTOR, DEFAULT_ZOOMS, null, DEFAULT_STRAND_OPTION);

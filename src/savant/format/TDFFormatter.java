@@ -56,7 +56,7 @@ public class TDFFormatter extends SavantFileFormatter {
     }
 
     @Override
-    public void format() throws InterruptedException, IOException, SavantFileFormattingException {
+    public void format() throws InterruptedException, IOException {
         Genome genome = getTDFGenome();
         setSubtaskStatus("Generating TDF file...");
         Preprocessor pp = new Preprocessor(outFile, genome, MEAN, lineCount, new TDFProgressMonitor());

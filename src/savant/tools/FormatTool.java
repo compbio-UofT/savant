@@ -110,9 +110,6 @@ public class FormatTool {
             } catch (IOException iox) {
                 System.err.println("Fatal I/O error.");
                 System.err.println(iox.getMessage());
-            } catch (ParseException px) {
-                System.err.println("Fatal parse error.");
-                System.err.println(px.getMessage());
             } catch (SavantFileFormattingException sffx) {
                 System.err.println(sffx.getMessage());
             }

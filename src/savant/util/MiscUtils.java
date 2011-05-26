@@ -437,17 +437,6 @@ public class MiscUtils {
     }
 
 
-    private static List<String> supportedExtensions;
-    public static boolean isLikelyFormattedTrack(String path) {
-        if (supportedExtensions == null) {
-            supportedExtensions = new ArrayList<String>();
-            supportedExtensions.add("bam");
-            supportedExtensions.add("savant");
-            supportedExtensions.add("gz");
-        }
-        return supportedExtensions.contains(MiscUtils.getExtension(path).toLowerCase());
-    }
-
     /*
      * Return a nice string representation of data type
      */

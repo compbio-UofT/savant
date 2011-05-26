@@ -24,12 +24,14 @@ import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 
 import com.jidesoft.dialog.JideOptionPane;
+import savant.api.util.DialogUtils;
 
 import savant.controller.ReferenceController;
 import savant.file.FileType;
 import savant.format.DataFormatter;
 import savant.format.DataFormatterThread;
 import savant.format.FormatProgressListener;
+import savant.format.SavantFileFormattingException;
 import savant.util.MiscUtils;
 import savant.view.icon.SavantIconFactory;
 import savant.view.swing.Savant;
@@ -270,7 +272,10 @@ public class FormatFrame extends javax.swing.JFrame implements FormatProgressLis
             }
             this.dispose();
         } else if (e instanceof InterruptedException) {
-            JOptionPane.showMessageDialog(this, "Format cancelled.", "Format Cancelled", 0);
+            DialogUtils.displayMessage("Format cancelled.");
+        } else if (e instanceof SavantFileFormattingException) {
+            // Not a Savant error.  They've just chosen the wrong kind of file.
+            DialogUtils.displayMessage("Sorry", e.getMessage());
         } else {
                 JideOptionPane optionPane = new JideOptionPane("Click \"Details\" button to see more information ... \n\n"
                         + "Please report any issues you experience to the to the development team.\n", JOptionPane.ERROR_MESSAGE, JideOptionPane.CLOSE_OPTION);

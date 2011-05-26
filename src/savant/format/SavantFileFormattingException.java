@@ -17,6 +17,9 @@
 package savant.format;
 
 /**
+ * Exception class which represents a solvable issue during formatting.  This type of error
+ * should be reported to the user in a friendly fashion rather than calling DialogUtils.displayException().
+ * More serious errors should throw an IOException.
  *
  * @author mfiume
  */

@@ -92,7 +92,7 @@ public class TabixFormatter extends SavantFileFormatter {
     }
 
     @Override
-    public void format() throws InterruptedException, IOException, SavantFileFormattingException {
+    public void format() throws InterruptedException, IOException {
         try {
             // Sort the input file.
             setSubtaskStatus("Sorting input file...");
@@ -168,7 +168,7 @@ public class TabixFormatter extends SavantFileFormatter {
             setSubtaskProgress(100);
         } catch (Exception x) {
             LOG.error("Unable to create tabix index.", x);
-            throw new SavantFileFormattingException(x.getLocalizedMessage());
+            throw new IOException(x.getLocalizedMessage());
         }
     }
 }

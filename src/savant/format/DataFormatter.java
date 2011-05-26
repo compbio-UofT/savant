@@ -16,12 +16,10 @@
 
 package savant.format;
 
-import java.io.BufferedReader;
 import java.io.EOFException;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -121,9 +119,8 @@ public class DataFormatter {
      * @return whether or not the format was successful
      * @throws InterruptedException
      * @throws IOException
-     * @throws ParseException
      */
-    public boolean format() throws InterruptedException, IOException, ParseException, SavantFileFormattingException {
+    public boolean format() throws InterruptedException, IOException, SavantFileFormattingException {
 
         if (inputFileType == FileType.INTERVAL_BAM) {
             // Create a coverage file from a BAM file.
@@ -133,7 +130,7 @@ public class DataFormatter {
 
             // If necessary, check that it really is a text file
             if (inputFileType != FileType.INTERVAL_BIGBED && inputFileType != FileType.CONTINUOUS_BIGWIG && !verifyTextFile(inFile)) {
-                throw new IOException("Input file is not a text file");
+                throw new SavantFileFormattingException("<html><i>" + inFile.getName() + "</i> does not appear to be a tab-delimited text file.</html>");
             }
 
             // format the input file in the appropriate way
@@ -204,7 +201,7 @@ public class DataFormatter {
         }
 
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Read " + treenum + " trees (i.e. indicies)");
+            LOG.debug("Read " + treenum + " trees (i.e. indices)");
             LOG.debug("\n=== DONE PARSING REF<->INDEX MAP ===");
             LOG.debug("Changing offset from " + dFile.getHeaderOffset() + " to " + (dFile.getFilePointer()+dFile.getHeaderOffset()) + "\n");
         }
@@ -325,18 +322,24 @@ public class DataFormatter {
     }
 
 
+    /**
+     * Verifies that the file in question is a tab-delimited text file.
+     * @return
+     */
     private boolean verifyTextFile(File fileName) {
-        boolean result = false;
-        BufferedReader reader=null;
+        FileReader reader = null;
         try {
-            reader = new BufferedReader(new FileReader(fileName));
+            reader = new FileReader(fileName);
             char[] readBuf = new char[1000];
+            boolean tabbed = false;
             int charsRead = reader.read(readBuf);
             if (charsRead != -1) {
-                String readStr = new String(readBuf);
-                if (readStr.contains("\r") || readStr.contains("\n")) {
-                    // newline found in first 1000 characters, probably is a text file
-                    result = true;
+                for (int i = 0; i < charsRead; i++) {
+                    if (readBuf[i] == '\t') {
+                        tabbed = true;
+                    } else if (tabbed && (readBuf[i] == '\r' || readBuf[i] == '\n')) {
+                        return true;
+                    }
                 }
             }
         } catch (IOException e) {
@@ -344,7 +347,7 @@ public class DataFormatter {
         } finally {
             try { if (reader != null) reader.close(); } catch (IOException ignore) {}
         }
-        return result;
+        return false;
     }
 
     public void addProgressListener(FormatProgressListener listener) {

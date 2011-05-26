@@ -17,17 +17,15 @@
 package savant.format;
 
 import java.io.*;
-import java.net.URI;
 import java.util.StringTokenizer;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import savant.file.FileType;
 
 public class FastaFormatter extends SavantFileFormatter{
-
-    private static Log log = LogFactory.getLog(FastaFormatter.class);
-
+    private static final Log LOG = LogFactory.getLog(FastaFormatter.class);
     public static final int RECORDS_PER_INTERRUPT_CHECK = 1000;
 
     public FastaFormatter(File inFile, File outFile) {
@@ -35,7 +33,7 @@ public class FastaFormatter extends SavantFileFormatter{
     }
 
     @Override
-    public void format() throws IOException, InterruptedException, SavantFileFormattingException{
+    public void format() throws IOException, InterruptedException, SavantFileFormattingException {
 
         // set the input file size (for tracking progress)
         this.totalBytes = inFile.length();
@@ -76,15 +74,15 @@ public class FastaFormatter extends SavantFileFormatter{
                         refname = st.nextToken();
                         
                         outfile = this.getFileForReference(refname);
-                        if (log.isDebugEnabled()) {
-                            log.debug("New reference found: " + refname);
+                        if (LOG.isDebugEnabled()) {
+                            LOG.debug("New reference found: " + refname);
                         }
 
                     } else {
 
                         if (outfile == null) {
-                            log.error("No header line found");
-                            throw new SavantFileFormattingException("no FASTA line found.");
+                            LOG.error("No header line found");
+                            throw new SavantFileFormattingException("No FASTA line found.");
                         }
 
                         // generate output
@@ -102,8 +100,6 @@ public class FastaFormatter extends SavantFileFormatter{
             }
 
             closeOutputForReference(refname);
-
-            System.out.println("Done converting all chrs");
 
             // close output streams; 
             // VERY IMPORTANT THAT THIS HAPPENS BEFORE COPY!
