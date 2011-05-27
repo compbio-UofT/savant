@@ -31,6 +31,7 @@ import savant.data.types.*;
 import savant.exception.RenderingException;
 import savant.file.DataFormat;
 import savant.settings.BrowserSettings;
+import savant.settings.DisplaySettings;
 import savant.util.*;
 import savant.view.swing.GraphPane;
 import savant.view.swing.TrackRenderer;
@@ -53,7 +54,7 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
 
     public RichIntervalTrackRenderer() {
         super(DataFormat.INTERVAL_BED);
-        intervalHeight = 16;
+        intervalHeight = DisplaySettings.getRichIntervalHeight();
     }
     
     @Override

@@ -1177,6 +1177,7 @@ public class Savant extends JFrame implements BookmarksChangedListener, Referenc
             SettingsDialog.addSection(new GeneralSettingsSection());
             SettingsDialog.addSection(new RemoteFilesSettingsSection());
             SettingsDialog.addSection(new ResolutionSettingsSection());
+            SettingsDialog.addSection(new DisplaySettingsSection());
             arePreferencesInitialized = true;
         }
 

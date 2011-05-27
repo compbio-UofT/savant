@@ -49,6 +49,7 @@ import savant.exception.RenderingException;
 import savant.file.DataFormat;
 import savant.settings.BrowserSettings;
 import savant.settings.ColourSettings;
+import savant.settings.DisplaySettings;
 import savant.util.*;
 import savant.view.swing.GraphPane;
 import savant.view.swing.TrackRenderer;
@@ -259,6 +260,7 @@ public class BAMTrackRenderer extends TrackRenderer {
 
     public BAMTrackRenderer() {
         super(DataFormat.INTERVAL_BAM);
+        intervalHeight = DisplaySettings.getBamIntervalHeight();
     }
 
     @Override

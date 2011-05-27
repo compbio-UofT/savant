@@ -30,6 +30,7 @@ import savant.data.types.IntervalRecord;
 import savant.data.types.Record;
 import savant.exception.RenderingException;
 import savant.file.DataFormat;
+import savant.settings.DisplaySettings;
 import savant.util.*;
 import savant.view.swing.GraphPane;
 import savant.view.swing.TrackRenderer;
@@ -47,6 +48,7 @@ public class IntervalTrackRenderer extends TrackRenderer {
 
     public IntervalTrackRenderer() {
         super(DataFormat.INTERVAL_GENERIC);
+        intervalHeight = DisplaySettings.getGenericIntervalHeight();
     }
 
     @Override
