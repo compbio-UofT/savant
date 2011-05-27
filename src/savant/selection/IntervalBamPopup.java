@@ -97,7 +97,7 @@ public class IntervalBamPopup extends PopupPanel implements DataRetrievalListene
                     int offset = (int)Math.ceil(((float) rc.getRange().getLength())/2);
                     int start = samRec.getMateAlignmentStart()-offset;
                     int end = start + rc.getRange().getLength() - 1;
-                    rc.setRange(samRec.getMateReferenceName(), new Range(start, end));
+                    rc.setRange(homogenizeRef(samRec.getMateReferenceName()), new Range(start, end));
                     hidePopup();
                 }
                 public void mousePressed(MouseEvent e) {}
@@ -126,7 +126,7 @@ public class IntervalBamPopup extends PopupPanel implements DataRetrievalListene
                     int start = samRec.getMateAlignmentStart()-offset;
                     int end = start + rc.getRange().getLength() - 1;
                     gp.getTracks()[0].addDataRetrievalListener(instance);
-                    rc.setRange(samRec.getMateReferenceName(), new Range(start, end));
+                    rc.setRange(homogenizeRef(samRec.getMateReferenceName()), new Range(start, end));
                 }
                 public void mousePressed(MouseEvent e) {}
                 public void mouseReleased(MouseEvent e) {}
