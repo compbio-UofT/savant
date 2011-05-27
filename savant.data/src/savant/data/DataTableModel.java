@@ -209,9 +209,15 @@ public class DataTableModel extends AbstractTableModel {
         }
     }
 
+    //actual count of all data
     @Override
     public int getRowCount() {
         return data != null ? data.size() : 0;
+    }
+
+    //count of data to be displayed
+    public int getLimitedRowCount() {
+        return data != null ? Math.min(data.size(), maxRows) : 0;
     }
 
     @Override
@@ -236,7 +242,8 @@ public class DataTableModel extends AbstractTableModel {
                 }
             } else {
                 if (dontAllowMoreThanMaxRows && dataInRange.size() > maxRows) {
-                    data = dataInRange.subList(0, maxRows);
+                    //data = dataInRange.subList(0, maxRows);
+                    data = dataInRange;
                 } else {
                     data = dataInRange;
                 }

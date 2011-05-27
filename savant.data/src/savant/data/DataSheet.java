@@ -32,6 +32,7 @@ import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableModel;
 
 import savant.api.adapter.TrackAdapter;
 import savant.api.util.DialogUtils;
@@ -184,6 +185,7 @@ public class DataSheet implements RangeChangeCompletedListener, TrackListChanged
         TrackAdapter t = currentTrack;
         tableModel = new DataTableModel(currentTrack.getDataSource());
         table.setModel(tableModel);
+        table.setIsModelSet();
         table.setSurrendersFocusOnKeystroke(true);
         refreshData();
         refreshSelection();
@@ -354,6 +356,7 @@ public class DataSheet implements RangeChangeCompletedListener, TrackListChanged
     private class ExtendedTable extends JTable {
 
         private List<Integer> selectedRows = new ArrayList<Integer>();
+        private boolean modelSet = false;
 
         public ExtendedTable(){
             super();
@@ -377,6 +380,15 @@ public class DataSheet implements RangeChangeCompletedListener, TrackListChanged
             return selectedRows.contains(row);
         }
 
+        //true as soon as default model replaced by DataTableModel
+        public boolean isModelSet(){
+            return modelSet;
+        }
+
+        public void setIsModelSet(){
+            modelSet = true;
+        }
+
         @Override
         public TableCellRenderer getCellRenderer (int row, int column){
             int modRow = table.getRowSorter().convertRowIndexToModel(row);
@@ -388,6 +400,10 @@ public class DataSheet implements RangeChangeCompletedListener, TrackListChanged
             return super.getCellRenderer(row, column);
         }
 
+        @Override
+        public int getRowCount() {
+            return modelSet ? ((DataTableModel)getModel()).getLimitedRowCount() : 0;
+        }
     }
 
     /*
