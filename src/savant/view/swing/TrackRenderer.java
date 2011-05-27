@@ -54,6 +54,7 @@ public abstract class TrackRenderer implements DataRetrievalListener {
 
     //specific to interval renderers
     protected int intervalHeight = 12;
+    protected int[] availableIntervalHeights = new int[]{1,4,8,12,16,20,30,50,100};
     protected int offset = 0; //of scrollbar (interval only for now)
 
     protected TrackRenderer(DataFormat dataType) {
@@ -320,7 +321,6 @@ public abstract class TrackRenderer implements DataRetrievalListener {
         intervalHeight = height;
     }
 
-
     /*
      * Resize frame if necessary
      * @return false if pane needs to be resized
@@ -341,6 +341,35 @@ public abstract class TrackRenderer implements DataRetrievalListener {
         gp.setYRange(new Range(0,(int)Math.ceil(expectedHeight/intervalHeight)));
 
         return true;
+    }
+
+    //public int[] getAvailableIntervalHeights(){
+    //    return new int[]{1,4,8,12,16,20,30,50,100};
+    //}
+
+    public int getIntervalHeightFromSlider(int slider){
+        slider--; //starts at 1
+        if(slider < 0) return availableIntervalHeights[0];
+        if(slider >= availableIntervalHeights.length) return availableIntervalHeights[availableIntervalHeights.length - 1];
+        return availableIntervalHeights[slider];
+    }
+
+    public int getValueForIntervalSlider(){
+        int newValue = 0;
+        int diff = Math.abs(availableIntervalHeights[0] - intervalHeight);
+        for(int i = 1; i < availableIntervalHeights.length; i++){
+            int currVal = availableIntervalHeights[i];
+            int currDiff = Math.abs(currVal - intervalHeight);
+            if(currDiff < diff){
+                newValue = i;
+                diff = currDiff;
+            }
+        }
+        return newValue + 1; //can't be 0
+    }
+
+    public int getNumAvailableIntervalHeights(){
+        return availableIntervalHeights.length;
     }
 
     //END INTERVAL SPECIFIC CODE

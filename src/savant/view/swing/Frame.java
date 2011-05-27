@@ -475,16 +475,17 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
      */
     private JMenu createIntervalMenu() {
         JMenu menu = new JMenu("Interval Height");
-        final JSlider slider = new JSlider(JSlider.VERTICAL, 2, 100, tracks[0].renderer.getIntervalHeight());
-        slider.setMinorTickSpacing(2);
-        slider.setMajorTickSpacing(6);
+        final JSlider slider = new JSlider(JSlider.VERTICAL, 1, tracks[0].renderer.getNumAvailableIntervalHeights(), tracks[0].renderer.getValueForIntervalSlider());
+        slider.setMinorTickSpacing(1);
+        slider.setMajorTickSpacing(tracks[0].renderer.getNumAvailableIntervalHeights()/2);
         slider.setSnapToTicks(true);
         slider.setPaintTicks(true);
         slider.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
-                if(slider.getValueIsAdjusting())return;
-                tracks[0].renderer.setIntervalHeight(slider.getValue());
+                if(slider.getValueIsAdjusting()) return;
+                int newHeight = tracks[0].renderer.getIntervalHeightFromSlider(slider.getValue());
+                tracks[0].renderer.setIntervalHeight(newHeight);
                 getGraphPane().setRenderForced();
                 getGraphPane().repaint();
             }
