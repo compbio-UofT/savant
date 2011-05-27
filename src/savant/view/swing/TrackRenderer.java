@@ -54,7 +54,7 @@ public abstract class TrackRenderer implements DataRetrievalListener {
 
     //specific to interval renderers
     protected int intervalHeight = 12;
-    protected int[] availableIntervalHeights = new int[]{1,4,8,12,16,20,30,50,100};
+    protected int[] availableIntervalHeights = new int[]{1,4,8,12,16,20,24,28,32,36,40};
     protected int offset = 0; //of scrollbar (interval only for now)
 
     protected TrackRenderer(DataFormat dataType) {
