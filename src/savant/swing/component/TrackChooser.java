@@ -259,7 +259,7 @@ public class TrackChooser extends JDialog {
         c.weightx = 0;
         c.weighty = 0;
         c.gridx = 5;
-        c.gridy = 6;
+        c.gridy = 7;
         c.gridheight = 1;
         c.gridwidth = 1;
         this.add(filler2, c);
