@@ -22,12 +22,16 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.*;
 
 import savant.controller.FrameController;
 import savant.file.DataFormat;
+import savant.settings.PersistentSettings;
 import savant.util.MiscUtils;
 import savant.view.swing.Frame;
 
@@ -59,6 +63,7 @@ public class TrackChooser extends JDialog {
     private JLabel filterLabel;
     private JComboBox filterCombo;
     private String[] filteredTracks = null;
+    private JCheckBox autoSelectAllCheck;
 
     /*@Override
     public void setVisible(boolean isVisible) {
@@ -76,7 +81,8 @@ public class TrackChooser extends JDialog {
 
         init();
         initLists();
-        
+        if(this.getAutoSelect()) selectAll();
+        this.setLocationRelativeTo(null);
     }
 
     public String[] getSelectedTracks(){
@@ -177,8 +183,8 @@ public class TrackChooser extends JDialog {
         leftList = new JList();
         leftScroll = new JScrollPane();
         leftScroll.setViewportView(leftList);
-        leftScroll.setMinimumSize(new Dimension(200,300));
-        leftScroll.setPreferredSize(new Dimension(200,300));
+        leftScroll.setMinimumSize(new Dimension(450,300));
+        leftScroll.setPreferredSize(new Dimension(450,300));
         c.weightx = 1.0;
         c.weighty = 1.0;
         c.gridx = 1;
@@ -235,8 +241,8 @@ public class TrackChooser extends JDialog {
         rightList = new JList();
         rightScroll = new JScrollPane();
         rightScroll.setViewportView(rightList);
-        rightScroll.setMinimumSize(new Dimension(200,300));
-        rightScroll.setPreferredSize(new Dimension(200,300));
+        rightScroll.setMinimumSize(new Dimension(450,300));
+        rightScroll.setPreferredSize(new Dimension(450,300));
         c.weightx = 1.0;
         c.weighty = 1.0;
         c.gridx = 3;
@@ -267,11 +273,20 @@ public class TrackChooser extends JDialog {
         c.gridwidth = 1;
         this.add(filterPanel, c);
 
-        //OK
+        //AUTO SELECT ALL
         c.weightx = 1.0;
         c.weighty = 1.0;
         c.gridx = 3;
         c.gridy = 6;
+        c.gridheight = 1;
+        c.gridwidth = 2;
+        this.add(autoSelectAllCheck, c);
+
+        //OK
+        c.weightx = 1.0;
+        c.weighty = 1.0;
+        c.gridx = 3;
+        c.gridy = 7;
         c.gridheight = 1;
         c.gridwidth = 1;
         this.add(okButton, c);
@@ -280,7 +295,7 @@ public class TrackChooser extends JDialog {
         c.weightx = 1.0;
         c.weighty = 0.5;
         c.gridx = 4;
-        c.gridy = 6;
+        c.gridy = 7;
         c.gridheight = 1;
         c.gridwidth = 1;
         this.add(cancelButton, c);
@@ -307,6 +322,14 @@ public class TrackChooser extends JDialog {
             @Override
             public void actionPerformed(ActionEvent e) {
                 retVal = ((TrackListModel)rightList.getModel()).getAll();
+                if(autoSelectAllCheck.isSelected() != getAutoSelect()){
+                    setAutoSelect(autoSelectAllCheck.isSelected());
+                    try {
+                        PersistentSettings.getInstance().store();
+                    } catch (IOException ex) {
+                        Logger.getLogger(TrackChooser.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
                 dispose();
             }
         });    
@@ -321,6 +344,14 @@ public class TrackChooser extends JDialog {
                 dispose();
             }
         });
+    }
+
+    private boolean getAutoSelect(){
+        return PersistentSettings.getInstance().getBoolean("TRACK_CHOOSER_AUTO_SELECT", false);
+    }
+
+    private void setAutoSelect(boolean value){
+        PersistentSettings.getInstance().setBoolean("TRACK_CHOOSER_AUTO_SELECT", value);
     }
 
     private void createMoveRight(){
@@ -371,15 +402,7 @@ public class TrackChooser extends JDialog {
         allRight.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String[] stringsLeft = ((TrackListModel)leftList.getModel()).getAll();
-                for(int i = 0; i < stringsLeft.length; i++){
-                    ((TrackListModel)rightList.getModel()).add(stringsLeft[i]);
-                }
-                ((TrackListModel)leftList.getModel()).removeAll();
-                leftList.updateUI();
-                rightList.updateUI();
-                leftList.clearSelection();
-                rightList.clearSelection();
+                selectAll();               
             }
         });
     }
@@ -404,6 +427,11 @@ public class TrackChooser extends JDialog {
         });
     }
 
+    private void createSelectAllCheck(){
+        autoSelectAllCheck = new JCheckBox("Always select all");
+        autoSelectAllCheck.setSelected(getAutoSelect());
+    }
+
     private void init() {
         createMoveRight();
         createMoveLeft();
@@ -412,6 +440,7 @@ public class TrackChooser extends JDialog {
         createOkButton();
         createCancelButton();
         createFilter();
+        createSelectAllCheck();
         initLayout();
     }
 
@@ -442,6 +471,18 @@ public class TrackChooser extends JDialog {
         });
 
         ((TrackListModel)leftList.getModel()).init(trackNames);
+    }
+
+    private void selectAll(){
+        String[] stringsLeft = ((TrackListModel)leftList.getModel()).getAll();
+        for(int i = 0; i < stringsLeft.length; i++){
+            ((TrackListModel)rightList.getModel()).add(stringsLeft[i]);
+        }
+        ((TrackListModel)leftList.getModel()).removeAll();
+        leftList.updateUI();
+        rightList.updateUI();
+        leftList.clearSelection();
+        rightList.clearSelection();
     }
 
     private class TrackListModel extends DefaultListModel {
