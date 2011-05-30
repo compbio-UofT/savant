@@ -16,6 +16,7 @@
 
 package savant.view.swing.util;
 
+import java.awt.KeyboardFocusManager;
 import java.awt.Window;
 
 /**
@@ -99,7 +100,7 @@ public class ProgressDialog extends javax.swing.JDialog {
     }// </editor-fold>//GEN-END:initComponents
 
     private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelButtonActionPerformed
-        showProgress(null, null, 1.0);
+        showProgress(null, 1.0);
     }//GEN-LAST:event_cancelButtonActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -108,7 +109,7 @@ public class ProgressDialog extends javax.swing.JDialog {
     private javax.swing.JProgressBar progressBar;
     // End of variables declaration//GEN-END:variables
 
-    public static void showProgress(Window parent, String message, double fraction) {
+    public static void showProgress(String message, double fraction) {
         if (fraction >= 1.0) {
             if (instance != null) {
                 instance.setVisible(false);
@@ -116,6 +117,7 @@ public class ProgressDialog extends javax.swing.JDialog {
             }
         } else {
             if (instance == null) {
+                Window parent = KeyboardFocusManager.getCurrentKeyboardFocusManager().getActiveWindow();
                 instance = new ProgressDialog(parent);
                 instance.setProgress(fraction);
                 instance.messageLabel.setText(message);

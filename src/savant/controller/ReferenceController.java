@@ -100,7 +100,7 @@ public class ReferenceController {
     }
 
     public int getReferenceLength(String refname) {
-        return loadedGenome.getReferenceLength(refname);
+        return loadedGenome.getLength(refname);
     }
 
     public Set<String> getNonGenomicReferenceNames() {

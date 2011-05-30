@@ -30,6 +30,7 @@ import savant.controller.ReferenceController;
  * @author mfiume
  */
 public class Bookmark implements BookmarkAdapter, Serializable {
+    static final long serialVersionUID = 8942835825767587873L;
 
     /** For parsing numbers which may include commas. */
     private static final NumberFormat NUMBER_PARSER = NumberFormat.getIntegerInstance();
@@ -66,8 +67,12 @@ public class Bookmark implements BookmarkAdapter, Serializable {
      */
     public Bookmark(String text) throws ParseException {
         RangeController rangeController = RangeController.getInstance();
-        int from = rangeController.getRangeStart();
-        int to = rangeController.getRangeEnd();
+        Range r = rangeController.getRange();
+        int from = -1, to = -1;
+        if (r != null) {
+            from = r.getFrom();
+            to = r.getTo();
+        }
 
         // Extract a chromosome name (if any).
         int colonPos = text.indexOf(':');
@@ -130,4 +135,10 @@ public class Bookmark implements BookmarkAdapter, Serializable {
     @Override
     public final void setAnnotation(String ann) { this.annotation = ann; }
 
+    /**
+     * Get the bookmark's range expressed in its canonical form.
+     */
+    public final String getRangeText() {
+        return String.format("%s:%d-%d", reference, range.getFrom(), range.getTo());
+    }
 }

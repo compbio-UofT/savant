@@ -37,6 +37,7 @@ import savant.api.adapter.TrackAdapter;
 import savant.api.util.DialogUtils;
 import savant.controller.ReferenceController;
 import savant.controller.TrackController;
+import savant.data.sources.FASTADataSource;
 import savant.data.sources.file.FASTAFileDataSource;
 import savant.settings.BrowserSettings;
 import savant.util.NetworkUtils;
@@ -44,36 +45,41 @@ import savant.util.Resolution;
 import savant.view.swing.Track;
 import savant.view.swing.sequence.SequenceTrack;
 
+
 /**
  *
- * @author mfiume, vwilliams
+ * @author mfiume, vwilliams, tarkvara
  */
 public final class Genome implements Serializable, GenomeAdapter {
     private static final Log LOG = LogFactory.getLog(Genome.class);
+    static final long serialVersionUID = -3075333557888755361L;
 
     private final String name;
     private final String description;
-    private Map<String, Integer> referenceMap = new HashMap<String, Integer>();
+    private Map<String, Integer> referenceMap = new LinkedHashMap<String, Integer>();
     private Map<String, Cytoband[]> cytobands;
     private URI cytobandURI;
     private Auxiliary[] auxiliaries;
 
     // if associated with track
-    private Track[] tracks = null;
-    private FASTAFileDataSource dataSource;
+    private SequenceTrack sequenceTrack = null;
 
+    /**
+     * Construct a genome from a Fasta file.  There will be no cytobands.
+     */
     private Genome(String name, SequenceTrack track) {
         this.name = name;
         this.description = null;
-        setTracks(new Track[] { track });
-
-        for (String refname : dataSource.getReferenceNames()) {
-            referenceMap.put(refname, dataSource.getLength(refname));
+        this.sequenceTrack = track;
+        FASTAFileDataSource dataSource = (FASTAFileDataSource)track.getDataSource();
+        for (String ref : dataSource.getReferenceNames()) {
+            referenceMap.put(ref, dataSource.getLength(ref));
         }
     }
 
     /**
      * Populate a genome using only an array containing chromosome names and lengths.
+     * Constructor used for creating fallback genomes when internet is inaccessible.
      */
     private Genome(String name, String desc, ReferenceInfo[] info) {
         this.name = name;
@@ -84,7 +90,7 @@ public final class Genome implements Serializable, GenomeAdapter {
     }
 
     /**
-     * Create a Genome from one of the .cytoband files on our website.  Note that
+     * Create a Genome from one of the .cytoband or .chromInfo files on our website.  Note that
      * this does a lazy instantiation of the reference map.
      *
      * @param uri
@@ -96,6 +102,11 @@ public final class Genome implements Serializable, GenomeAdapter {
         this.auxiliaries = auxiliaries;
     }
 
+    /**
+     * Construct a user-defined genome.  We don't believe that this functionality is actually in use,
+     * so it may be eliminated.
+     * @deprecated
+     */
     public Genome(String name, int length) {
         this.name = "user defined";
         this.description = null;
@@ -123,7 +134,7 @@ public final class Genome implements Serializable, GenomeAdapter {
         int lastSlashIndex = genomePath.lastIndexOf("/");
         String name = genomePath.substring(lastSlashIndex + 1, genomePath.length());
 
-        return new Genome(name, (SequenceTrack) sequenceTrack);
+        return new Genome(name, (SequenceTrack)sequenceTrack);
     }
 
 
@@ -139,7 +150,7 @@ public final class Genome implements Serializable, GenomeAdapter {
 
     @Override
     public byte[] getSequence(String reference, RangeAdapter range) throws IOException {
-        return isSequenceSet() ? dataSource.getRecords(reference, range, Resolution.VERY_HIGH).get(0).getSequence() : null;
+        return isSequenceSet() ? ((FASTAFileDataSource)sequenceTrack.getDataSource()).getRecords(reference, range, Resolution.VERY_HIGH).get(0).getSequence() : null;
     }
 
     @Override
@@ -149,48 +160,36 @@ public final class Genome implements Serializable, GenomeAdapter {
 
     @Override
     public int getLength(String reference) {
-        return getReferenceMap().get(reference);
+        // HACK: Project files stored by Savant 1.4.4 (and prior) using Java serialization stored references lengths as longs rather than ints.
+        Object value = getReferenceMap().get(reference);
+        if (value instanceof Long) {
+            return (int)(long)(Long)value;
+        }
+        return (Integer)value;
     }
 
     @Override
-    public FASTAFileDataSource getDataSource() {
-        return dataSource;
+    public FASTADataSource getDataSource() {
+        return (FASTADataSource)sequenceTrack.getDataSource();
     }
 
     @Override
     public boolean isSequenceSet() {
-        return dataSource != null;
+        return sequenceTrack != null;
     }
 
     @Override
     public TrackAdapter getSequenceTrack() {
-        if (tracks != null && tracks[0] instanceof SequenceTrack) {
-            return tracks[0];
-        }
-        return null;
+        return sequenceTrack;
     }
 
-    public Track[] getTracks() {
-        return tracks;
-    }
-
-    /**
-     * Associate a track with an existing genome.
-     */
-    public void setTracks(Track[] tracks) {
-        this.tracks = tracks;
-        if (tracks[0] instanceof SequenceTrack) {
-            dataSource = (FASTAFileDataSource)tracks[0].getDataSource();
-        }
+    public void setSequenceTrack(SequenceTrack track) {
+        sequenceTrack = track;
     }
 
     @Override
     public String toString() {
         return description != null ? description : name;
-    }
-
-    public int getReferenceLength(String refname) {
-        return getReferenceMap().containsKey(refname) ? referenceMap.get(refname) : -1;
     }
 
     private Map<String, Integer> getReferenceMap() {
@@ -241,6 +240,10 @@ public final class Genome implements Serializable, GenomeAdapter {
             cytobands.put(chrom, bands.toArray(new Cytoband[0]));
         }
         bands.clear();
+    }
+
+    public URI getCytobandURI() {
+        return cytobandURI;
     }
 
     /**

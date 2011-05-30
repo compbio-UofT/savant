@@ -16,10 +16,8 @@
 
 package savant.api.util;
 
-import java.awt.Component;
 import java.awt.Window;
 import java.io.File;
-import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileFilter;
 
 import savant.view.swing.Savant;
@@ -204,7 +202,7 @@ public class DialogUtils {
      * @param message message describing the step currently in progress
      * @param fraction fraction of the process which is complete (-1.0 for an indeterminate process; 1.0 to dismiss the dialog)
      */
-    public static void showProgress(Window parent, String message, double fraction) {
-        savant.view.swing.util.ProgressDialog.showProgress(parent, message, fraction);
+    public static void showProgress(String message, double fraction) {
+        savant.view.swing.util.ProgressDialog.showProgress(message, fraction);
     }
 }

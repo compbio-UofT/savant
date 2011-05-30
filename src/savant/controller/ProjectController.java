@@ -15,51 +15,73 @@
  */
 package savant.controller;
 
-import java.io.*;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.util.List;
-import java.util.Map;
+import java.util.StringTokenizer;
+import javax.swing.filechooser.FileFilter;
+import javax.xml.stream.XMLStreamException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import savant.data.sources.DataSource;
+import savant.api.util.DialogUtils;
+import savant.controller.event.BookmarksChangedEvent;
+import savant.controller.event.BookmarksChangedListener;
+import savant.controller.event.ProjectEvent;
+import savant.controller.event.RangeChangedEvent;
+import savant.controller.event.RangeChangedListener;
+import savant.controller.event.TrackListChangedEvent;
+import savant.controller.event.TrackListChangedListener;
 import savant.data.types.Genome;
 import savant.exception.SavantEmptySessionException;
-import savant.file.SavantFileNotFormattedException;
-import savant.file.SavantUnsupportedVersionException;
+import savant.model.Project;
+import savant.settings.DirectorySettings;
 import savant.util.MiscUtils;
-import savant.util.Range;
-import savant.view.swing.Savant;
-import savant.view.swing.TrackFactory;
-import savant.view.swing.Track;
-import savant.view.swing.interval.BAMCoverageTrack;
-import savant.view.swing.util.DialogUtils;
+
 
 /**
  *
  * @author mfiume, tarkvara
  */
-public class ProjectController {
-
+public class ProjectController extends Controller implements BookmarksChangedListener, RangeChangedListener, TrackListChangedListener {
     private static final Log LOG = LogFactory.getLog(ProjectController.class);
+    private static final FileFilter PROJECT_FILTER = new FileFilter() {
+        @Override
+        public boolean accept(File f) {
+            if (f.isDirectory()) {
+                return true;
+            }
 
-    private static final String GENOME_KEY = "GENOME";
-    private static final String GENOMEPATH_KEY = "GENOMEPATH";
-    private static final String SEQUENCESET_KEY = "SEQUENCESET";
-    private static final String BOOKMARKS_KEY = "BOOKMARKS";
-    private static final String TRACKS_KEY = "TRACKS";
-    private static final String REFERENCE_KEY = "REFERENCE";
-    private static final String RANGE_KEY = "RANGE";
+            String extension = MiscUtils.getExtension(f.getAbsolutePath());
+            if (extension != null) {
+                return extension.equalsIgnoreCase("svp");
+            }
+            return false;
+        }
+
+        @Override
+        public String getDescription() {
+            return "Savant project files (*.svp)";
+        }
+    };
+
+    private static final File UNTITLED_PROJECT_FILE = new File(DirectorySettings.getProjectsDirectory(), "UntitledProject.svp");
 
     private static ProjectController instance;
+
+    private boolean projectSaved = true;
+    private File currentProjectFile = null;
 
     public static ProjectController getInstance() {
         if (instance == null) {
             instance = new ProjectController();
+            BookmarkController.getInstance().addFavoritesChangedListener(instance);
+            RangeController.getInstance().addRangeChangedListener(instance);
+            TrackController.getInstance().addTrackListChangedListener(instance);
         }
         return instance;
     }
@@ -67,188 +89,181 @@ public class ProjectController {
     private ProjectController() {
     }
 
-    private void addToPersistenceMap(Persistent[] plist, Map<String, Object> persistentMap) {
-        for (Persistent p : plist) {
-            addToPersistenceMap(p, persistentMap);
-        }
-    }
-
-    private void addToPersistenceMap(Persistent p, Map<String, Object> persistentMap) {
-        persistentMap.put(p.key, p.value);
-    }
-
-    private Map<String, Object> getCurrentPersistenceMap() throws SavantEmptySessionException {
-        Map<String, Object> persistentMap = new HashMap<String, Object>();
-
-        addToPersistenceMap(getGenomePersistence(), persistentMap);
-        addToPersistenceMap(getRangePersistence(), persistentMap);
-        addToPersistenceMap(getTrackPersistence(), persistentMap);
-        addToPersistenceMap(getBookmarkPersistence(), persistentMap);
-
-        return persistentMap;
-    }
-
-    private void writeMap(Map<String, Object> persistentMap, File filename) throws IOException {
-        ObjectOutputStream outStream = null;
-        try {
-            outStream = new ObjectOutputStream(new FileOutputStream(filename));
-            for (String key : persistentMap.keySet()) {
-                outStream.writeObject(key);
-                outStream.writeObject(persistentMap.get(key));
-            }
-        } finally {
-            try {
-                outStream.close();
-            } catch (Exception ignored) {
-            }
-        }
-    }
-
-    private Map<String, Object> readMap(File filename) throws ClassNotFoundException, IOException {
-
-        Map<String, Object> map = new HashMap<String, Object>();
-
-        ObjectInputStream inStream = null;
-        try {
-            inStream = new ObjectInputStream(new FileInputStream(filename));
-            while (true) {
-                try {
-                    String key = (String) inStream.readObject();
-                    if (key == null) {
-                        break;
-                    }
-                    Object value = inStream.readObject();
-                    map.put(key, value);
-                } catch (EOFException e) {
-                    break;
-                }
-            }
-        } finally {
-            try {
-                inStream.close();
-            } catch (Exception ignored) {
-            }
-        }
-
-        return map;
-    }
-
-    private void clearExistingProject() {
-        // close tracks, clear bookmarks
+    private static void clearExistingProject() {
         TrackController.getInstance().closeTracks();
-        BookmarkController.getInstance().clearBookmarks(); //TODO: check if bookmark UI is actually updated by this
+        BookmarkController.getInstance().clearBookmarks();
     }
 
-    public class Persistent {
-
-        public String key;
-        public Object value;
-
-        public Persistent(String k, Object o) {
-            this.key = k;
-            this.value = o;
-        }
+    public void saveProjectAs(File f) throws IOException, SavantEmptySessionException, XMLStreamException {
+        Project.saveToFile(f);
+        RecentProjectsController.getInstance().addProjectFile(f);
     }
 
-    public void saveProjectAs(File filename) throws IOException, SavantEmptySessionException {
-        Map<String, Object> persistentMap = getCurrentPersistenceMap();
-        writeMap(persistentMap, filename);
-        RecentProjectsController.getInstance().addProjectFile(filename);
-    }
-
-    public boolean isProjectOpen() {
+    public static boolean isProjectOpen() {
         return ReferenceController.getInstance().isGenomeLoaded();
     }
 
-    public void loadProjectFrom(File filename) throws ClassNotFoundException, IOException, URISyntaxException, SavantFileNotFormattedException, SavantUnsupportedVersionException {
+    public boolean isProjectSaved() {
+        return projectSaved;
+    }
 
-        clearExistingProject();
+    private void setProjectSaved(boolean saved) {
+        if (projectSaved != saved) {
+            projectSaved = saved;
+            fireEvent(new ProjectEvent(saved ? ProjectEvent.Type.SAVED : ProjectEvent.Type.UNSAVED, getCurrentFile()));
+        }
+    }
 
-        Map<String, Object> m = readMap(filename);
+    @Override
+    public void rangeChanged(RangeChangedEvent event) {
+        setProjectSaved(false);
+    }
 
-        Boolean isSequenceSet = (Boolean) m.get(SEQUENCESET_KEY);
-        Genome genome = (Genome) m.get(GENOME_KEY);
-        String genomePath = (String) m.get(GENOMEPATH_KEY);
-        List bookmarks = (List) m.get(BOOKMARKS_KEY);
-        List trackpaths = (List) m.get(TRACKS_KEY);
-        String referencename = (String) m.get(REFERENCE_KEY);
-        Range range = (Range) m.get(RANGE_KEY);
+    @Override
+    public void trackListChanged(TrackListChangedEvent event) {
+        setProjectSaved(false);
+    }
 
-        if (isSequenceSet) {
-            trackpaths.remove(genomePath);
+    @Override
+    public void bookmarksChanged(BookmarksChangedEvent event) {
+        setProjectSaved(false);
+    }
+
+    public void promptUserToLoadProject() throws Exception {
+
+        if (isProjectOpen()) {
+            if (!projectSaved) {
+                int result = DialogUtils.askYesNoCancel("Save current session?");
+                if (result == DialogUtils.YES) {
+                    promptUserToSaveSession();
+                } else if (result == DialogUtils.CANCEL) {
+                    return;
+                }
+            }
+        }
+
+        File f = DialogUtils.chooseFileForOpen("Open Project File", PROJECT_FILTER, DirectorySettings.getProjectsDirectory());
+        if (f != null) {
+            loadProjectFromFile(f);
+        }
+    }
+
+    public boolean promptUserToSaveProjectAs() {
+
+        if (!isProjectOpen()) {
+            DialogUtils.displayMessage("No project to save.");
+            return false;
+        }
+
+        File selectedFile = DialogUtils.chooseFileForSave("Save Project", getCurrentFile().getName(), PROJECT_FILTER, DirectorySettings.getProjectsDirectory());
+
+        if (selectedFile != null) {
             try {
-                try {
-                    genome = Genome.createFromTrack(TrackFactory.createTrack(TrackFactory.createDataSource(new URI(genomePath))));
-                } catch (Exception x) {
-                    // A common cause of URISyntaxExceptions is a file-path containing spaces.
-                    genome = Genome.createFromTrack(TrackFactory.createTrack(TrackFactory.createDataSource(new File(genomePath).toURI())));
+                int result = DialogUtils.YES;
+                if (selectedFile.exists()) {
+                    result = DialogUtils.askYesNo("Overwrite existing file?");
+                }
+                if (result == DialogUtils.YES) {
+                    fireEvent(new ProjectEvent(ProjectEvent.Type.SAVING, selectedFile));
+                    saveProjectAs(selectedFile);
+                    currentProjectFile = selectedFile;
+                    setProjectSaved(true);
+                    return true;
+                }
+            } catch (IOException ex) {
+                LOG.error(ex);
+                if (DialogUtils.askYesNo("Error saving project to " + selectedFile.getAbsolutePath() + ". Try another location?") == DialogUtils.YES) {
+                    return promptUserToSaveProjectAs();
                 }
             } catch (Exception ex) {
-                DialogUtils.displayException("Sorry", "Problem loading project.", ex);
-                return;
+                LOG.error(ex);
+                DialogUtils.displayError("Error saving project.");
             }
         }
-        ReferenceController.getInstance().setGenome(genome);
+        return false;
+    }
 
-        ReferenceController.getInstance().setReference(referencename);
-        RangeController.getInstance().setRange(range);
-        for (Object path : trackpaths) {
-            Savant.getInstance().addTrackFromFile((String) path);
+    /**
+     * Prompt the user to save the current project.
+     *
+     * @return true if the project was saved
+     */
+    public boolean promptUserToSaveSession() throws Exception {
+        if (currentProjectFile == null) {
+            return promptUserToSaveProjectAs();
         }
-        BookmarkController.getInstance().addBookmarks(bookmarks);
-
-        RecentProjectsController.getInstance().addProjectFile(filename);
-    }
-
-    private Persistent[] getRangePersistence() {
-
-        Persistent[] result = new Persistent[2];
-
-        result[0] = new Persistent(REFERENCE_KEY, ReferenceController.getInstance().getReferenceName());
-        result[1] = new Persistent(RANGE_KEY, RangeController.getInstance().getRange());
-
-        return result;
-    }
-
-    private Persistent getTrackPersistence() {
-        List<String> trackpaths = new ArrayList<String>();
-        for (Track t : TrackController.getInstance().getTracks()) {
-            if (!(t instanceof BAMCoverageTrack)) {
-                DataSource ds = t.getDataSource();
-                URI uri = ds.getURI();
-                if (uri != null) {
-                    trackpaths.add(MiscUtils.getNeatPathFromURI(uri));
-                }
+        try {
+            saveProjectAs(getCurrentFile());
+            currentProjectFile = getCurrentFile();
+            setProjectSaved(true);
+            return true;
+        } catch (SavantEmptySessionException ex) {
+            LOG.error(String.format("Unable to save %s.", currentProjectFile), ex);
+        } catch (Exception ex) {
+            LOG.error(String.format("Unable to save %s.", currentProjectFile), ex);
+            if (DialogUtils.askYesNo("Error saving project to " + getCurrentFile() + ". Try another location?") == DialogUtils.YES) {
+                return promptUserToSaveProjectAs();
             }
         }
-        return new Persistent(TRACKS_KEY, trackpaths);
+        return false;
     }
 
-    private Persistent getBookmarkPersistence() {
-        return new Persistent(BOOKMARKS_KEY, BookmarkController.getInstance().getBookmarks());
+    private File getCurrentFile() {
+        return currentProjectFile != null ? currentProjectFile : UNTITLED_PROJECT_FILE;
     }
 
-    private void writeHeader(String header, ObjectOutputStream outStream) throws IOException {
-        outStream.writeObject(header);
-    }
-
-    private Persistent[] getGenomePersistence() throws SavantEmptySessionException {
-
-        Persistent[] result = new Persistent[2];
-
-        if (ReferenceController.getInstance().getGenome() == null) {
-            throw new SavantEmptySessionException();
+    public void loadProjectFromFile(File f) {
+        fireEvent(new ProjectEvent(ProjectEvent.Type.LOADING, f));
+        currentProjectFile = f;
+        try {
+            clearExistingProject();
+            Project.initFromFile(f);
+            fireEvent(new ProjectEvent(ProjectEvent.Type.LOADED, f));
+            setProjectSaved(true);
+        } catch (Exception x) {
+            LOG.error("Error loading project: " + f, x);
+            DialogUtils.displayException("Error Loading Project", String.format("Unable to load %s.", f), x);
         }
+    }
 
-        boolean isSequenceSet = ReferenceController.getInstance().getGenome().isSequenceSet();
-        result[0] = new Persistent(SEQUENCESET_KEY, isSequenceSet);
+    public void loadProjectFromURL(String urlString) throws Exception {
 
-        if (isSequenceSet) {
-            result[1] = new Persistent(GENOMEPATH_KEY, MiscUtils.getNeatPathFromURI(ReferenceController.getInstance().getGenome().getDataSource().getURI()));
-        } else {
-            result[1] = new Persistent(GENOME_KEY, ReferenceController.getInstance().getGenome());
+        URL url  = new URL(urlString);
+        InputStream is = url.openStream();
+        FileOutputStream fos=null;
+
+        String localName = null;
+        StringTokenizer st = new StringTokenizer(url.getFile(), "/");
+        while (st.hasMoreTokens()){
+            localName = st.nextToken();
         }
+        //TODO: where should we store this? currently in tmp dir
+        File localFile = new File(DirectorySettings.getTmpDirectory(), localName);
+        fos = new FileOutputStream(localFile);
 
-        return result;
+        int oneChar, count=0;
+        while ((oneChar=is.read()) != -1) {
+            fos.write(oneChar);
+            count++;
+        }
+        is.close();
+        fos.close();
+        loadProjectFromFile(localFile);
+    }
+
+    public void setFromGenome(Genome genome, List<String> trackPaths) {
+        projectSaved = true;
+        currentProjectFile = null;
+        fireEvent(new ProjectEvent(ProjectEvent.Type.LOADING, getCurrentFile()));
+
+        try {
+            clearExistingProject();
+            Project.initFromGenome(genome, trackPaths);
+            fireEvent(new ProjectEvent(ProjectEvent.Type.LOADED, getCurrentFile()));
+            setProjectSaved(false);
+        } catch (Exception x) {
+            LOG.error("Error initialising project from " + genome.getName(), x);
+            DialogUtils.displayException("Error Loading Project", String.format("Unable to load %s.", genome.getName()), x);
+        }
     }
 }

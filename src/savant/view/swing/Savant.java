@@ -55,7 +55,6 @@ import savant.controller.*;
 import savant.controller.event.*;
 import savant.data.sources.DataSource;
 import savant.data.types.Genome;
-import savant.data.types.Genome.Auxiliary;
 import savant.experimental.XMLTool;
 import savant.plugin.builtin.SAFEDataSourcePlugin;
 import savant.plugin.builtin.SavantFileRepositoryDataSourcePlugin;
@@ -77,7 +76,7 @@ import savant.xml.XMLVersion.Version;
  *
  * @author mfiume
  */
-public class Savant extends JFrame implements BookmarksChangedListener, ReferenceChangedListener {
+public class Savant extends JFrame implements BookmarksChangedListener, ReferenceChangedListener, Listener<ProjectEvent> {
 
     private static final Log LOG = LogFactory.getLog(Savant.class);
     public static boolean turnExperimentalFeaturesOff = true;
@@ -95,7 +94,6 @@ public class Savant extends JFrame implements BookmarksChangedListener, Referenc
     private DataFormatForm dff;
     private MemoryStatusBarItem memorystatusbar;
     private Application macOSXApplication;
-    private ProjectHandler projectHandler;
     private boolean browserControlsShown = false;
 
     //web start
@@ -153,7 +151,7 @@ public class Savant extends JFrame implements BookmarksChangedListener, Referenc
     }
 
     /**
-     * Create a frame for a track (or bundled tracks) which already exists.
+     * Create a frame for a track (or bundle of tracks) which already exists.
      *
      * @param name the name for the new frame
      * @param tracks the tracks to be added to the frame
@@ -289,6 +287,7 @@ public class Savant extends JFrame implements BookmarksChangedListener, Referenc
     public static synchronized Savant getInstance() {
         if (instance == null) {
             instance = new Savant();
+            ProjectController.getInstance().addListener(instance);
         }
 
         return instance;
@@ -1197,11 +1196,15 @@ public class Savant extends JFrame implements BookmarksChangedListener, Referenc
     }//GEN-LAST:event_menuitem_deselectActionPerformed
 
     private void saveProjectAsItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveProjectAsItemActionPerformed
-        projectHandler.promptUserToSaveProjectAs();
+        ProjectController.getInstance().promptUserToSaveProjectAs();
     }//GEN-LAST:event_saveProjectAsItemActionPerformed
 
     private void openProjectItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openProjectItemActionPerformed
-        projectHandler.promptUserToLoadProject();
+        try {
+            ProjectController.getInstance().promptUserToLoadProject();
+        } catch (Exception x) {
+            DialogUtils.displayException("Savant", "Unable to open project.", x);
+        }
     }//GEN-LAST:event_openProjectItemActionPerformed
 
     private void checkForUpdatesItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkForUpdatesItemActionPerformed
@@ -1209,7 +1212,11 @@ public class Savant extends JFrame implements BookmarksChangedListener, Referenc
     }//GEN-LAST:event_checkForUpdatesItemActionPerformed
 
     private void saveProjectItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveProjectItemActionPerformed
-        projectHandler.promptUserToSaveSession();
+        try {
+            ProjectController.getInstance().promptUserToSaveSession();
+        } catch (Exception x) {
+            DialogUtils.displayException("Savant", "Unable to save project.", x);
+        }
     }//GEN-LAST:event_saveProjectItemActionPerformed
 
     private void menuItem_viewtoolbarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuItem_viewtoolbarActionPerformed
@@ -1254,7 +1261,7 @@ public class Savant extends JFrame implements BookmarksChangedListener, Referenc
      * Starts an instance of the Savant Browser
      * @param args the command line arguments
      */
-    public static void main(String args[]) {
+    public static void main(String args[]) throws Exception {
 
         boolean loadProject = false;
         boolean loadPlugin = false;
@@ -1316,7 +1323,7 @@ public class Savant extends JFrame implements BookmarksChangedListener, Referenc
 
         //load project immediately if argument exists
         if (instance.isWebStart() && loadProjectUrl != null){
-            instance.projectHandler.loadProjectFromUrl(loadProjectUrl);
+            ProjectController.getInstance().loadProjectFromURL(loadProjectUrl);
         }
 
     }
@@ -1569,7 +1576,6 @@ public class Savant extends JFrame implements BookmarksChangedListener, Referenc
         //initToolsPanel();
         initMenu();
         initStatusBar();
-        initGUIHandlers();
         initBookmarksPanel();
         initDataSources();
         initStartPage();
@@ -1644,23 +1650,26 @@ public class Savant extends JFrame implements BookmarksChangedListener, Referenc
     }
 
     private void askToDispose() {
+        try {
+            ProjectController projectController = ProjectController.getInstance();
+            if (!projectController.isProjectSaved()) {
 
-        if (!projectHandler.isProjectSaved()) {
+                int answer = DialogUtils.askYesNoCancel("Save project before quitting?");
 
-            int answer = DialogUtils.askYesNoCancel("Save project before quitting?");
-
-            if (answer == JOptionPane.CANCEL_OPTION) {
-                return;
-            }
-            if (answer == JOptionPane.YES_OPTION) {
-                if (!projectHandler.promptUserToSaveSession()) {
+                if (answer == JOptionPane.CANCEL_OPTION) {
                     return;
                 }
+                if (answer == JOptionPane.YES_OPTION) {
+                    if (!projectController.promptUserToSaveSession()) {
+                        return;
+                    }
+                }
             }
+            //cleanUpBeforeExit();
+            System.exit(0);
+        } catch (Exception x) {
+            DialogUtils.displayException("Error", "Unable to save project file.", x);
         }
-
-        //cleanUpBeforeExit();
-        System.exit(0);
     }
 
     /**
@@ -1779,9 +1788,6 @@ public class Savant extends JFrame implements BookmarksChangedListener, Referenc
             return;
         }
 
-        //TODO: remove start page
-        //trackBackground.removeAll();
-
         this.panel_top.setVisible(true);
         this.menuItem_viewRangeControls.setSelected(true);
 
@@ -1878,15 +1884,6 @@ public class Savant extends JFrame implements BookmarksChangedListener, Referenc
     @Override
     public void genomeChanged(GenomeChangedEvent event) {
         LOG.info("Genome changed from " + event.getOldGenome() + " to " + event.getNewGenome());
-        if (event.getOldGenome() != null) {
-            Track[] oldTracks = event.getOldGenome().getTracks();
-            if (oldTracks != null) {
-                for (Track t: oldTracks) {
-                    // FIXME:  Should never need to deal with DockableFrameController.  TrackController.removeTrack() or FrameController.removeFrame() should be sufficient.
-                    DockableFrameController.getInstance().closeDockableFrame(t.getFrame(), false);
-                }
-            }
-        }
         loadGenomeItem.setText("Change genome...");
         showBrowserControls();
     }
@@ -1899,6 +1896,28 @@ public class Savant extends JFrame implements BookmarksChangedListener, Referenc
         rangeController.setRange(1, Math.min(1000, loadedGenome.getLength()));
     }
 
+    @Override
+    public void handleEvent(ProjectEvent event) {
+        String activity;
+        switch (event.getType()) {
+            case LOADING:
+                activity = "Loading " + event.getPath() + "...";
+                setTitle("Savant Genome Browser - " + activity);
+                break;
+            case LOADED:
+            case SAVED:
+                MiscUtils.setUnsavedTitle(this, "Savant Genome Browser - " + event.getPath(), false);
+                break;
+            case SAVING:
+                activity = "Saving " + event.getPath() + "...";
+                setTitle("Savant Genome Browser - " + activity);
+                break;
+            case UNSAVED:
+                MiscUtils.setUnsavedTitle(this, "Savant Genome Browser - " + event.getPath(), true);
+                break;
+        }
+    }
+    
     private void setSpeedAndEfficiencyIndicatorsVisible(boolean b) {
         this.speedAndEfficiencyItem.setSelected(b);
         this.jLabel1.setVisible(b);
@@ -1924,11 +1943,6 @@ public class Savant extends JFrame implements BookmarksChangedListener, Referenc
         }
     }
     
-
-    private void initGUIHandlers() {
-        this.projectHandler = ProjectHandler.getInstance();
-    }
-
     private void makeGUIVisible() {
         setExtendedState(MAXIMIZED_BOTH);
         setVisible(true);

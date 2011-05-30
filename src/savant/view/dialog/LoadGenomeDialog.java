@@ -22,7 +22,6 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JCheckBox;
@@ -33,6 +32,7 @@ import org.apache.commons.logging.LogFactory;
 
 import savant.api.util.DialogUtils;
 import savant.controller.DataSourcePluginController;
+import savant.controller.ProjectController;
 import savant.controller.ReferenceController;
 import savant.data.sources.DataSource;
 import savant.data.types.Genome;
@@ -41,6 +41,7 @@ import savant.data.types.Genome.AuxiliaryType;
 import savant.view.swing.Savant;
 import savant.view.swing.Track;
 import savant.view.swing.TrackFactory;
+import savant.view.swing.sequence.SequenceTrack;
 
 /**
  * Dialog which allows users to select a genome for their project.  Originally, this
@@ -341,21 +342,15 @@ public class LoadGenomeDialog extends JDialog {
         boolean usingPublished = publishedGenomeRadio.isSelected();
         if (usingPublished) {
             genome = (Genome)genomesCombo.getSelectedItem();
-            referenceController.setGenome(genome);
             try {
+                List<String> auxTracks = new ArrayList<String>();
                 Auxiliary[] auxes = genome.getAuxiliaries();
-                List<Track> genomeTracks = new ArrayList<Track>();
                 for (int i = 0; i < auxes.length; i++) {
-                    Auxiliary aux = auxes[i];
                     if (((JCheckBox)auxiliaryPanel.getComponent(i)).isSelected()) {
-                        Track[] t = TrackFactory.createTrackSync(aux.uri);
-                        Savant.getInstance().createFrameForExistingTrack(t);
-                        genomeTracks.addAll(Arrays.asList(t));
+                        auxTracks.add(auxes[i].uri.toString());
                     }
                 }
-                if (genomeTracks.size() > 0) {
-                    genome.setTracks(genomeTracks.toArray(new Track[0]));
-                }
+                ProjectController.getInstance().setFromGenome(genome, auxTracks);
             } catch (Throwable x) {
                 DialogUtils.displayException("Error Loading Genome", String.format("Unable to load genome for %s.", genome), x);
             }

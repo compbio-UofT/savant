@@ -38,6 +38,7 @@ import org.jdom.Element;
 import org.jdom.input.SAXBuilder;
 
 import savant.api.util.DialogUtils;
+import savant.controller.ProjectController;
 import savant.controller.RecentProjectsController;
 import savant.controller.RecentTracksController;
 import savant.settings.BrowserSettings;
@@ -46,7 +47,6 @@ import savant.settings.PersistentSettings;
 import savant.swing.component.HyperlinkButton;
 import savant.util.DownloadFile;
 import savant.view.icon.SavantIconFactory;
-import savant.view.swing.ProjectHandler;
 import savant.view.swing.Savant;
 
 /**
@@ -299,7 +299,7 @@ public class StartPanel extends JPanel {
                     @Override
                     public void actionPerformed(ActionEvent e) {
                         try {
-                            ProjectHandler.getInstance().loadProjectFrom(new File(t));
+                            ProjectController.getInstance().loadProjectFromFile(new File(t));
                         } catch (Exception ex) {
                             DialogUtils.displayError("Problem opening track from file " + t);
                         }

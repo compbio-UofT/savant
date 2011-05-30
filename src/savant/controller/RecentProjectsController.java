@@ -32,7 +32,7 @@ import javax.swing.JSeparator;
 
 import savant.api.util.DialogUtils;
 import savant.settings.DirectorySettings;
-import savant.view.swing.ProjectHandler;
+
 
 /**
  *
@@ -110,7 +110,7 @@ public class RecentProjectsController {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     try {
-                        ProjectHandler.getInstance().loadProjectFrom(new File(s));
+                        ProjectController.getInstance().loadProjectFromFile(new File(s));
                     } catch (Exception ex) {
                         DialogUtils.displayMessage("Error opening project from file " + s);
                     }
