@@ -1,5 +1,5 @@
 /*
- *    Copyright 2010 University of Toronto
+ *    Copyright 2010-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -31,6 +31,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JSeparator;
 
 import savant.api.util.DialogUtils;
+import savant.controller.event.ProjectEvent;
 import savant.settings.DirectorySettings;
 
 
@@ -38,7 +39,7 @@ import savant.settings.DirectorySettings;
  *
  * @author mfiume
  */
-public class RecentProjectsController {
+public class RecentProjectsController implements Listener<ProjectEvent> {
 
     private final String RECENT_PROJECTS_FILE = ".recent_projects";
     private final int NUM_RECENTS_TO_SAVE = 10;
@@ -52,18 +53,19 @@ public class RecentProjectsController {
     public static RecentProjectsController getInstance() throws IOException {
         if (instance == null) {
             instance = new RecentProjectsController();
+            ProjectController.getInstance().addListener(instance);
         }
         return instance;
     }
 
-    public RecentProjectsController() throws IOException {
+    private RecentProjectsController() throws IOException {
         recentProjectsFile = new File(DirectorySettings.getSavantDirectory(), RECENT_PROJECTS_FILE);
         if (!recentProjectsFile.exists()) { recentProjectsFile.createNewFile(); }
         queue = new LinkedList<String>();
         loadRecents(recentProjectsFile);
     }
 
-    public void addProjectFile(File filename) {
+    private void addProjectFile(File filename) {
         queue.remove(filename.getAbsolutePath());
         resizeQueue(queue, NUM_RECENTS_TO_SAVE);
         queue.add(0,filename.getAbsolutePath());
@@ -87,7 +89,7 @@ public class RecentProjectsController {
         }
     }
 
-     private void loadRecents(File f) throws IOException {
+    private void loadRecents(File f) throws IOException {
         BufferedReader r = new BufferedReader(new FileReader(f));
         String line = "";
         while ((line = r.readLine()) != null) {
@@ -138,9 +140,9 @@ public class RecentProjectsController {
     }
 
 
-     public List<String> getRecentProjects() {
-         return this.queue;
-     }
+    public List<String> getRecentProjects() {
+        return this.queue;
+    }
 
     private void clearRecents() {
         while (!queue.isEmpty()) {
@@ -148,6 +150,22 @@ public class RecentProjectsController {
         }
         try { saveRecents(queue); } catch (IOException ex) {}
         updateMenuList();
+    }
+
+    /**
+     * We listen for projects being loaded or saved, so that we can update our list.
+     */
+    @Override
+    public void handleEvent(ProjectEvent event) {
+        switch (event.getType()) {
+            case LOADED:
+            case SAVED:
+                File f = new File(event.getPath());
+                if (f.exists()) {
+                    addProjectFile(f);
+                }
+                break;
+        }
     }
 
 }

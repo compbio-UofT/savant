@@ -29,7 +29,6 @@ import savant.controller.*;
 import savant.data.sources.DataSource;
 import savant.data.types.Genome;
 import savant.exception.SavantEmptySessionException;
-import savant.exception.SavantTrackCreationCancelledException;
 import savant.util.Bookmark;
 import savant.util.MiscUtils;
 import savant.util.Range;
@@ -37,6 +36,7 @@ import savant.view.swing.Savant;
 import savant.view.swing.Track;
 import savant.view.swing.TrackFactory;
 import savant.view.swing.interval.BAMCoverageTrack;
+import savant.view.swing.sequence.SequenceTrack;
 
 
 /**
@@ -76,7 +76,7 @@ public class Project {
     private static XMLStreamWriter writer;
     private static XMLStreamReader reader;
 
-    private Project(File f) throws Exception {
+    public Project(File f) throws Exception {
         try {
             createFromSerialization(new FileInputStream(f));
         } catch (StreamCorruptedException x) {
@@ -85,7 +85,21 @@ public class Project {
         }
     }
 
-    private Project() {
+    /**
+     * Create a fresh Project object for the given published genome.  May include a sequence
+     * track as well as additional auxiliary tracks.
+     */
+    public Project(Genome genome, URI sequenceURI, List<URI> trackURIs) {
+        reference = genome.getReferenceNames().iterator().next();
+        range = new Range(1, 1000);
+        this.genome = genome;
+        if (sequenceURI != null) {
+            genomePath = sequenceURI.toString();
+        }
+        trackPaths = new ArrayList<String>(trackURIs.size());
+        for (URI u: trackURIs) {
+            trackPaths.add(u.toString());
+        }
     }
 
 
@@ -256,27 +270,12 @@ public class Project {
 
 
     /**
-     * Create a Project object from the given file and put its settings into effect.
-     */
-    public static void initFromFile(File f) throws Exception {
-        Project proj = new Project(f);
-        proj.load();
-        RecentProjectsController.getInstance().addProjectFile(f);
-    }
-
-    public static void initFromGenome(Genome genome, List<String> trackPaths) throws Exception {
-        Project proj = new Project();
-        proj.reference = genome.getReferenceNames().iterator().next();
-        proj.range = new Range(1, 1000);
-        proj.genome = genome;
-        proj.trackPaths = trackPaths;
-        proj.load();
-    }
-
-    /**
      * Load the project's settings into Savant.
      */
     public void load() throws Exception {
+        if (genome != null) {
+            ReferenceController.getInstance().setGenome(genome);
+        }
         if (genomePath != null) {
             trackPaths.remove(genomePath);
             Track t = null;
@@ -286,10 +285,14 @@ public class Project {
                 // A common cause of URISyntaxExceptions is a file-path containing spaces.
                 t = TrackFactory.createTrack(TrackFactory.createDataSource(new File(genomePath).toURI()));
             }
-            genome = Genome.createFromTrack(t);
+            if (genome == null) {
+                genome = Genome.createFromTrack(t);
+                ReferenceController.getInstance().setGenome(genome);
+            } else {
+                genome.setSequenceTrack((SequenceTrack)t);
+            }
             Savant.getInstance().createFrameForExistingTrack(new Track[] { t });
         }
-        ReferenceController.getInstance().setGenome(genome);
         ReferenceController.getInstance().setReference(reference);
         RangeController.getInstance().setRange(range);
         for (String path : trackPaths) {

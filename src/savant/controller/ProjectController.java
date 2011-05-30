@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.net.URL;
 import java.util.List;
 import java.util.StringTokenizer;
@@ -95,8 +96,10 @@ public class ProjectController extends Controller implements BookmarksChangedLis
     }
 
     public void saveProjectAs(File f) throws IOException, SavantEmptySessionException, XMLStreamException {
+        fireEvent(new ProjectEvent(ProjectEvent.Type.SAVING, f));
         Project.saveToFile(f);
-        RecentProjectsController.getInstance().addProjectFile(f);
+        currentProjectFile = f;
+        setProjectSaved(true);
     }
 
     public static boolean isProjectOpen() {
@@ -164,10 +167,7 @@ public class ProjectController extends Controller implements BookmarksChangedLis
                     result = DialogUtils.askYesNo("Overwrite existing file?");
                 }
                 if (result == DialogUtils.YES) {
-                    fireEvent(new ProjectEvent(ProjectEvent.Type.SAVING, selectedFile));
                     saveProjectAs(selectedFile);
-                    currentProjectFile = selectedFile;
-                    setProjectSaved(true);
                     return true;
                 }
             } catch (IOException ex) {
@@ -194,8 +194,6 @@ public class ProjectController extends Controller implements BookmarksChangedLis
         }
         try {
             saveProjectAs(getCurrentFile());
-            currentProjectFile = getCurrentFile();
-            setProjectSaved(true);
             return true;
         } catch (SavantEmptySessionException ex) {
             LOG.error(String.format("Unable to save %s.", currentProjectFile), ex);
@@ -217,7 +215,8 @@ public class ProjectController extends Controller implements BookmarksChangedLis
         currentProjectFile = f;
         try {
             clearExistingProject();
-            Project.initFromFile(f);
+            Project proj = new Project(f);
+            proj.load();
             fireEvent(new ProjectEvent(ProjectEvent.Type.LOADED, f));
             setProjectSaved(true);
         } catch (Exception x) {
@@ -251,16 +250,16 @@ public class ProjectController extends Controller implements BookmarksChangedLis
         loadProjectFromFile(localFile);
     }
 
-    public void setFromGenome(Genome genome, List<String> trackPaths) {
+    public void setProjectFromGenome(Genome genome, URI sequenceURI, List<URI> auxURIs) {
         projectSaved = true;
         currentProjectFile = null;
         fireEvent(new ProjectEvent(ProjectEvent.Type.LOADING, getCurrentFile()));
 
         try {
             clearExistingProject();
-            Project.initFromGenome(genome, trackPaths);
-            fireEvent(new ProjectEvent(ProjectEvent.Type.LOADED, getCurrentFile()));
-            setProjectSaved(false);
+            Project proj = new Project(genome, sequenceURI, auxURIs);
+            proj.load();
+            setProjectSaved(false); // Will fire UNSAVED
         } catch (Exception x) {
             LOG.error("Error initialising project from " + genome.getName(), x);
             DialogUtils.displayException("Error Loading Project", String.format("Unable to load %s.", genome.getName()), x);

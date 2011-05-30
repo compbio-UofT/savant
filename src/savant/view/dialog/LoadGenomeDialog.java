@@ -20,6 +20,7 @@ import java.awt.GridBagConstraints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -41,7 +42,7 @@ import savant.data.types.Genome.AuxiliaryType;
 import savant.view.swing.Savant;
 import savant.view.swing.Track;
 import savant.view.swing.TrackFactory;
-import savant.view.swing.sequence.SequenceTrack;
+
 
 /**
  * Dialog which allows users to select a genome for their project.  Originally, this
@@ -343,14 +344,19 @@ public class LoadGenomeDialog extends JDialog {
         if (usingPublished) {
             genome = (Genome)genomesCombo.getSelectedItem();
             try {
-                List<String> auxTracks = new ArrayList<String>();
+                URI sequenceURI = null;
+                List<URI> auxURIs = new ArrayList<URI>();
                 Auxiliary[] auxes = genome.getAuxiliaries();
                 for (int i = 0; i < auxes.length; i++) {
                     if (((JCheckBox)auxiliaryPanel.getComponent(i)).isSelected()) {
-                        auxTracks.add(auxes[i].uri.toString());
+                        if (auxes[i].type == AuxiliaryType.SEQUENCE) {
+                            sequenceURI = auxes[i].uri;
+                        } else {
+                            auxURIs.add(auxes[i].uri);
+                        }
                     }
                 }
-                ProjectController.getInstance().setFromGenome(genome, auxTracks);
+                ProjectController.getInstance().setProjectFromGenome(genome, sequenceURI, auxURIs);
             } catch (Throwable x) {
                 DialogUtils.displayException("Error Loading Genome", String.format("Unable to load genome for %s.", genome), x);
             }
