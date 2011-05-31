@@ -593,6 +593,7 @@ public class Savant extends JFrame implements BookmarksChangedListener, Referenc
         fileMenu.add(jSeparator1);
 
         openProjectItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_O, java.awt.event.InputEvent.CTRL_MASK));
+        openProjectItem.setText("Open Project...");
         openProjectItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 openProjectItemActionPerformed(evt);
