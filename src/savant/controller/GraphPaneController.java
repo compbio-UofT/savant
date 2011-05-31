@@ -19,8 +19,7 @@ package savant.controller;
 import java.util.ArrayList;
 import java.util.List;
 
-import savant.controller.event.GraphPaneChangedEvent;
-import savant.controller.event.GraphPaneChangedListener;
+import savant.controller.event.GraphPaneEvent;
 import savant.util.Range;
 import savant.view.swing.GraphPane;
 import savant.view.swing.Savant;
@@ -29,7 +28,7 @@ import savant.view.swing.Savant;
  *
  * @author mfiume
  */
-public class GraphPaneController {
+public class GraphPaneController extends Controller {
 
     private boolean isSpotlight;
     private boolean isPlumbing;
@@ -49,8 +48,6 @@ public class GraphPaneController {
     private double spotlightproportion = 0.25;
 
     private static GraphPaneController instance;
-
-    private List<GraphPaneChangedListener> graphpaneChangeListeners;
 
     private boolean changeMade = false;
 
@@ -90,7 +87,6 @@ public class GraphPaneController {
     }
 
     private GraphPaneController() {
-        graphpaneChangeListeners = new ArrayList<GraphPaneChangedListener>();
         graphpanesQueuedForRendering = new ArrayList<GraphPane>();
     }
 
@@ -101,34 +97,19 @@ public class GraphPaneController {
         return instance;
     }
 
-    public synchronized void addGraphPaneChangedListener(GraphPaneChangedListener l) {
-        graphpaneChangeListeners.add(l);
-    }
-
-    public synchronized void removeBookmarksChangedListener(GraphPaneChangedListener l) {
-        graphpaneChangeListeners.remove(l);
-    }
-
     public boolean isChanged(){
         return changeMade;
     }
 
 
     public void askForRefresh() {
-        if (this.isPanning() || this.isZooming() || this.isPlumbing() || this.isSpotlight() || this.isAiming()) {
-            fireGraphPaneChangedEvent();
+        if (isPanning() || isZooming() || isPlumbing() || isSpotlight() || isAiming()) {
+            fireEvent(new GraphPaneEvent(this));
         }
     }
 
     public void forceRefresh() {
-        fireGraphPaneChangedEvent();
-    }
-
-    private synchronized void fireGraphPaneChangedEvent() {
-        GraphPaneChangedEvent evt = new GraphPaneChangedEvent(this);
-        for (GraphPaneChangedListener listener : this.graphpaneChangeListeners) {
-            listener.graphPaneChanged(evt);
-        }
+        fireEvent(new GraphPaneEvent(this));
     }
 
     public boolean isSelecting() {
@@ -151,7 +132,6 @@ public class GraphPaneController {
 
         this.isPlumbing = isPlumbing;
         changeMade = true;
-        updateMenuItems();
         forceRefresh();
         changeMade = false;
     }
@@ -167,7 +147,6 @@ public class GraphPaneController {
         }
         this.isSpotlight = isSpotlight;
         changeMade = true;
-        updateMenuItems();
         forceRefresh();
         changeMade = false;
     }
@@ -187,7 +166,6 @@ public class GraphPaneController {
             this.isSpotlight = false;
         }
         changeMade = true;
-        updateMenuItems();
         forceRefresh();
         changeMade = false;
     }
@@ -257,11 +235,5 @@ public class GraphPaneController {
 
     public int getSpotlightSize() {
         return this.spotlightSize;
-    }
-
-    private void updateMenuItems() {
-        Savant.getInstance().setPlumbingMenutItemSelected(isPlumbing);
-        Savant.getInstance().setSpotlightMenutItemSelected(isSpotlight);
-        Savant.getInstance().setCrosshairMenutItemSelected(isAiming);
     }
 }

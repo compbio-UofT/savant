@@ -336,7 +336,7 @@ public class TrackFactory {
             } else if (x instanceof SavantTrackCreationCancelledException) {
                 // Nothing to do.  The user already knows they cancelled, so no point in putting up a dialog.
             } else if (x instanceof FileNotFoundException) {
-                DialogUtils.displayMessage("File not found", x.getMessage());
+                DialogUtils.displayMessage("File not found", String.format("<html><i>%s</i></html> not found.", x.getMessage()));
             } else {
                 DialogUtils.displayException("Error opening track", "There was a problem opening this file: " + x.getLocalizedMessage(), x);
             }

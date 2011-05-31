@@ -123,7 +123,7 @@ public class RecentTracksController implements TrackAddedListener {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     try {
-                        Savant.getInstance().addTrackFromFile(s);
+                        Savant.getInstance().addTrackFromPath(s);
                     } catch (Exception ex) {
                         LOG.error("Unable to open file.", ex);
                         DialogUtils.displayError("Problem opening track from file " + s);

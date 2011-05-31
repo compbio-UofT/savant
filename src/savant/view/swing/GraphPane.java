@@ -31,9 +31,9 @@ import org.apache.commons.logging.LogFactory;
 
 import savant.controller.RangeController;
 import savant.controller.GraphPaneController;
+import savant.controller.Listener;
 import savant.controller.ReferenceController;
-import savant.controller.event.GraphPaneChangedEvent;
-import savant.controller.event.GraphPaneChangedListener;
+import savant.controller.event.GraphPaneEvent;
 import savant.data.event.ExportEvent;
 import savant.data.event.ExportEventListener;
 import savant.data.event.PopupEvent;
@@ -55,7 +55,7 @@ import savant.view.swing.interval.BAMTrackRenderer;
  *
  * @author mfiume
  */
-public class GraphPane extends JPanel implements MouseWheelListener, MouseListener, MouseMotionListener, GraphPaneChangedListener {
+public class GraphPane extends JPanel implements MouseWheelListener, MouseListener, MouseMotionListener {
 
     private static final Log LOG = LogFactory.getLog(GraphPane.class);
 
@@ -153,16 +153,13 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         popupThread = new Thread(new PopupThread(this));
         popupThread.start();
 
-        GraphPaneController.getInstance().addGraphPaneChangedListener(this);
-    }
+        GraphPaneController.getInstance().addListener(new Listener<GraphPaneEvent>() {
+            @Override
+            public void handleEvent(GraphPaneEvent event) {
+                parentFrame.resetLayers();
+            }
 
-    /**
-     * GRAPHPANE CHANGE LISTENER
-     */
-
-    @Override
-    public void graphPaneChanged(GraphPaneChangedEvent event) {
-        parentFrame.resetLayers();
+        });
     }
 
     /**

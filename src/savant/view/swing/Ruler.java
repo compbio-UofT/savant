@@ -25,9 +25,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import savant.controller.GraphPaneController;
+import savant.controller.Listener;
 import savant.controller.RangeController;
-import savant.controller.event.GraphPaneChangedEvent;
-import savant.controller.event.GraphPaneChangedListener;
+import savant.controller.event.GraphPaneEvent;
 import savant.controller.event.RangeChangedEvent;
 import savant.controller.event.RangeChangedListener;
 import savant.util.MiscUtils;
@@ -76,9 +76,9 @@ public class Ruler extends JPanel {
         this.cords = new JLabel();
         this.add(this.cords, BorderLayout.NORTH);
 
-        graphPaneController.addGraphPaneChangedListener(new GraphPaneChangedListener() {
-           @Override
-            public void graphPaneChanged(GraphPaneChangedEvent event) {
+        graphPaneController.addListener(new Listener<GraphPaneEvent>() {
+            @Override
+            public void handleEvent(GraphPaneEvent event) {
                 if (event.getSource().isPanning()) {
                     repaint();
                 }

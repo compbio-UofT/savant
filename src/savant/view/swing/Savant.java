@@ -76,7 +76,7 @@ import savant.xml.XMLVersion.Version;
  *
  * @author mfiume
  */
-public class Savant extends JFrame implements BookmarksChangedListener, ReferenceChangedListener, Listener<ProjectEvent> {
+public class Savant extends JFrame implements BookmarksChangedListener, ReferenceChangedListener {
 
     private static final Log LOG = LogFactory.getLog(Savant.class);
     public static boolean turnExperimentalFeaturesOff = true;
@@ -122,20 +122,20 @@ public class Savant extends JFrame implements BookmarksChangedListener, Referenc
 
     private void setToolBarVisibility(boolean isVisible) {
         this.panel_toolbar.setVisible(isVisible);
-        this.menuItem_viewtoolbar.setSelected(isVisible);
+        pluginToolbarItem.setSelected(isVisible);
     }
 
-    public Frame addTrackFromFile(String selectedFileName) {
+    public Frame addTrackFromPath(String fileOrURI) {
 
         URI uri = null;
         try {
-            uri = new URI(selectedFileName);
+            uri = new URI(fileOrURI);
             if (uri.getScheme() == null) {
-                uri = new File(selectedFileName).toURI();
+                uri = new File(fileOrURI).toURI();
             }
         } catch (URISyntaxException usx) {
             // This can happen if we're passed a file-name containing spaces.
-            uri = new File(selectedFileName).toURI();
+            uri = new File(fileOrURI).toURI();
         }
         return addTrackFromURI(uri);
     }
@@ -287,7 +287,6 @@ public class Savant extends JFrame implements BookmarksChangedListener, Referenc
     public static synchronized Savant getInstance() {
         if (instance == null) {
             instance = new Savant();
-            ProjectController.getInstance().addListener(instance);
         }
 
         return instance;
@@ -337,6 +336,30 @@ public class Savant extends JFrame implements BookmarksChangedListener, Referenc
                 }
                 if (resize) {
                     setSize(width, height);
+                }
+            }
+        });
+
+        ProjectController.getInstance().addListener(new Listener<ProjectEvent>() {
+            @Override
+            public void handleEvent(ProjectEvent event) {
+                String activity;
+                switch (event.getType()) {
+                    case LOADING:
+                        activity = "Loading " + event.getPath() + "...";
+                        setTitle("Savant Genome Browser - " + activity);
+                        break;
+                    case LOADED:
+                    case SAVED:
+                        MiscUtils.setUnsavedTitle(Savant.this, "Savant Genome Browser - " + event.getPath(), false);
+                        break;
+                    case SAVING:
+                        activity = "Saving " + event.getPath() + "...";
+                        setTitle("Savant Genome Browser - " + activity);
+                        break;
+                    case UNSAVED:
+                        MiscUtils.setUnsavedTitle(Savant.this, "Savant Genome Browser - " + event.getPath(), true);
+                        break;
                 }
             }
         });
@@ -430,35 +453,35 @@ public class Savant extends JFrame implements BookmarksChangedListener, Referenc
         jSeparator4 = new javax.swing.JPopupMenu.Separator();
         exitItem = new javax.swing.JMenuItem();
         editMenu = new javax.swing.JMenu();
-        menuitem_undo = new javax.swing.JMenuItem();
-        menuitem_redo = new javax.swing.JMenuItem();
+        undoItem = new javax.swing.JMenuItem();
+        redoItem = new javax.swing.JMenuItem();
         javax.swing.JPopupMenu.Separator jSeparator6 = new javax.swing.JPopupMenu.Separator();
-        menuItemAddToFaves = new javax.swing.JMenuItem();
-        menuitem_deselectall = new javax.swing.JMenuItem();
+        bookmarkItem = new javax.swing.JMenuItem();
+        deselectAllItem = new javax.swing.JMenuItem();
         jSeparator7 = new javax.swing.JPopupMenu.Separator();
-        menuitem_preferences = new javax.swing.JMenuItem();
+        preferencesItem = new javax.swing.JMenuItem();
         viewMenu = new javax.swing.JMenu();
-        menuItemPanLeft = new javax.swing.JMenuItem();
-        menuItemPanRight = new javax.swing.JMenuItem();
-        menuItemZoomIn = new javax.swing.JMenuItem();
-        menuItemZoomOut = new javax.swing.JMenuItem();
-        menuItemShiftStart = new javax.swing.JMenuItem();
-        menuItemShiftEnd = new javax.swing.JMenuItem();
+        panLeftItem = new javax.swing.JMenuItem();
+        panRightItem = new javax.swing.JMenuItem();
+        zoomInItem = new javax.swing.JMenuItem();
+        zoomOutItem = new javax.swing.JMenuItem();
+        toStartItem = new javax.swing.JMenuItem();
+        toEndItem = new javax.swing.JMenuItem();
         javax.swing.JSeparator jSeparator8 = new javax.swing.JSeparator();
-        menuitem_aim = new javax.swing.JCheckBoxMenuItem();
-        menuitem_view_plumbline = new javax.swing.JCheckBoxMenuItem();
-        menuitem_view_spotlight = new javax.swing.JCheckBoxMenuItem();
+        crosshairItem = new javax.swing.JCheckBoxMenuItem();
+        plumblineItem = new javax.swing.JCheckBoxMenuItem();
+        spotlightItem = new javax.swing.JCheckBoxMenuItem();
         windowMenu = new javax.swing.JMenu();
-        menuItem_viewRangeControls = new javax.swing.JCheckBoxMenuItem();
-        menuitem_genomeview = new javax.swing.JCheckBoxMenuItem();
-        menuitem_ruler = new javax.swing.JCheckBoxMenuItem();
-        menuItem_viewtoolbar = new javax.swing.JCheckBoxMenuItem();
-        menuitem_statusbar = new javax.swing.JCheckBoxMenuItem();
+        navigationItem = new javax.swing.JCheckBoxMenuItem();
+        genomeItem = new javax.swing.JCheckBoxMenuItem();
+        rulerItem = new javax.swing.JCheckBoxMenuItem();
+        pluginToolbarItem = new javax.swing.JCheckBoxMenuItem();
+        statusBarItem = new javax.swing.JCheckBoxMenuItem();
         speedAndEfficiencyItem = new javax.swing.JCheckBoxMenuItem();
         javax.swing.JSeparator jSeparator9 = new javax.swing.JSeparator();
-        menuitem_startpage = new javax.swing.JCheckBoxMenuItem();
-        menuitem_tools = new javax.swing.JCheckBoxMenuItem();
-        menu_bookmarks = new javax.swing.JCheckBoxMenuItem();
+        startPageItem = new javax.swing.JCheckBoxMenuItem();
+        toolsItem = new javax.swing.JCheckBoxMenuItem();
+        bookmarksItem = new javax.swing.JCheckBoxMenuItem();
         pluginsMenu = new javax.swing.JMenu();
         menuitem_pluginmanager = new javax.swing.JMenuItem();
         jSeparator10 = new javax.swing.JPopupMenu.Separator();
@@ -466,8 +489,8 @@ public class Savant extends JFrame implements BookmarksChangedListener, Referenc
         userManualItem = new javax.swing.JMenuItem();
         tutorialsItem = new javax.swing.JMenuItem();
         javax.swing.JMenuItem checkForUpdatesItem = new javax.swing.JMenuItem();
-        jMenuItem2 = new javax.swing.JMenuItem();
-        jMenuItem1 = new javax.swing.JMenuItem();
+        javax.swing.JMenuItem bugReportItem = new javax.swing.JMenuItem();
+        javax.swing.JMenuItem featureRequestItem = new javax.swing.JMenuItem();
         javax.swing.JSeparator jSeparator11 = new javax.swing.JSeparator();
         websiteItem = new javax.swing.JMenuItem();
 
@@ -654,137 +677,136 @@ public class Savant extends JFrame implements BookmarksChangedListener, Referenc
 
         editMenu.setText("Edit");
 
-        menuitem_undo.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Z, java.awt.event.InputEvent.CTRL_MASK));
-        menuitem_undo.setText("Undo Range Change");
-        menuitem_undo.addActionListener(new java.awt.event.ActionListener() {
+        undoItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Z, java.awt.event.InputEvent.CTRL_MASK));
+        undoItem.setText("Undo Range Change");
+        undoItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                menuitem_undoActionPerformed(evt);
+                undoItemActionPerformed(evt);
             }
         });
-        editMenu.add(menuitem_undo);
+        editMenu.add(undoItem);
 
-        menuitem_redo.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Y, java.awt.event.InputEvent.CTRL_MASK));
-        menuitem_redo.setText("Redo Range Change");
-        menuitem_redo.addActionListener(new java.awt.event.ActionListener() {
+        redoItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Y, java.awt.event.InputEvent.CTRL_MASK));
+        redoItem.setText("Redo Range Change");
+        redoItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                menuitem_redoActionPerformed(evt);
+                redoItemActionPerformed(evt);
             }
         });
-        editMenu.add(menuitem_redo);
+        editMenu.add(redoItem);
         editMenu.add(jSeparator6);
 
-        menuItemAddToFaves.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_D, java.awt.event.InputEvent.CTRL_MASK));
-        menuItemAddToFaves.setText("Bookmark");
-        menuItemAddToFaves.addActionListener(new java.awt.event.ActionListener() {
+        bookmarkItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_D, java.awt.event.InputEvent.CTRL_MASK));
+        bookmarkItem.setText("Bookmark");
+        bookmarkItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                menuItemAddToFavesActionPerformed(evt);
+                bookmarkItemActionPerformed(evt);
             }
         });
-        editMenu.add(menuItemAddToFaves);
+        editMenu.add(bookmarkItem);
 
-        menuitem_deselectall.setText("Deselect All");
-        menuitem_deselectall.addActionListener(new java.awt.event.ActionListener() {
+        deselectAllItem.setText("Deselect All");
+        deselectAllItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 menuitem_deselectActionPerformed(evt);
             }
         });
-        editMenu.add(menuitem_deselectall);
+        editMenu.add(deselectAllItem);
         editMenu.add(jSeparator7);
 
-        menuitem_preferences.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_P, java.awt.event.InputEvent.CTRL_MASK));
-        menuitem_preferences.setText("Preferences");
-        menuitem_preferences.addActionListener(new java.awt.event.ActionListener() {
+        preferencesItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_P, java.awt.event.InputEvent.CTRL_MASK));
+        preferencesItem.setText("Preferences");
+        preferencesItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                menuitem_preferencesActionPerformed(evt);
+                preferencesItemActionPerformed(evt);
             }
         });
-        editMenu.add(menuitem_preferences);
+        editMenu.add(preferencesItem);
 
         menuBar_top.add(editMenu);
 
         viewMenu.setText("View");
 
-        menuItemPanLeft.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_LEFT, java.awt.event.InputEvent.SHIFT_MASK));
-        menuItemPanLeft.setText("Pan Left");
-        menuItemPanLeft.addActionListener(new java.awt.event.ActionListener() {
+        panLeftItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_LEFT, java.awt.event.InputEvent.SHIFT_MASK));
+        panLeftItem.setText("Pan Left");
+        panLeftItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                menuItemPanLeftActionPerformed(evt);
+                panLeftItemActionPerformed(evt);
             }
         });
-        viewMenu.add(menuItemPanLeft);
+        viewMenu.add(panLeftItem);
 
-        menuItemPanRight.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_RIGHT, java.awt.event.InputEvent.SHIFT_MASK));
-        menuItemPanRight.setText("Pan Right");
-        menuItemPanRight.addActionListener(new java.awt.event.ActionListener() {
+        panRightItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_RIGHT, java.awt.event.InputEvent.SHIFT_MASK));
+        panRightItem.setText("Pan Right");
+        panRightItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                menuItemPanRightActionPerformed(evt);
+                panRightItemActionPerformed(evt);
             }
         });
-        viewMenu.add(menuItemPanRight);
+        viewMenu.add(panRightItem);
 
-        menuItemZoomIn.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_UP, java.awt.event.InputEvent.SHIFT_MASK));
-        menuItemZoomIn.setText("Zoom In");
-        menuItemZoomIn.addActionListener(new java.awt.event.ActionListener() {
+        zoomInItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_UP, java.awt.event.InputEvent.SHIFT_MASK));
+        zoomInItem.setText("Zoom In");
+        zoomInItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                menuItemZoomInActionPerformed(evt);
+                zoomInItemActionPerformed(evt);
             }
         });
-        viewMenu.add(menuItemZoomIn);
+        viewMenu.add(zoomInItem);
 
-        menuItemZoomOut.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_DOWN, java.awt.event.InputEvent.SHIFT_MASK));
-        menuItemZoomOut.setText("Zoom Out");
-        menuItemZoomOut.addActionListener(new java.awt.event.ActionListener() {
+        zoomOutItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_DOWN, java.awt.event.InputEvent.SHIFT_MASK));
+        zoomOutItem.setText("Zoom Out");
+        zoomOutItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                menuItemZoomOutActionPerformed(evt);
+                zoomOutItemActionPerformed(evt);
             }
         });
-        viewMenu.add(menuItemZoomOut);
+        viewMenu.add(zoomOutItem);
 
-        menuItemShiftStart.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_HOME, 0));
-        menuItemShiftStart.setText("Shift to Start");
-        menuItemShiftStart.addActionListener(new java.awt.event.ActionListener() {
+        toStartItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_HOME, 0));
+        toStartItem.setText("Shift to Start");
+        toStartItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                menuItemShiftStartActionPerformed(evt);
+                toStartItemActionPerformed(evt);
             }
         });
-        viewMenu.add(menuItemShiftStart);
+        viewMenu.add(toStartItem);
 
-        menuItemShiftEnd.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_END, 0));
-        menuItemShiftEnd.setText("Shift to End");
-        menuItemShiftEnd.addActionListener(new java.awt.event.ActionListener() {
+        toEndItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_END, 0));
+        toEndItem.setText("Shift to End");
+        toEndItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                menuItemShiftEndActionPerformed(evt);
+                toEndItemActionPerformed(evt);
             }
         });
-        viewMenu.add(menuItemShiftEnd);
+        viewMenu.add(toEndItem);
         viewMenu.add(jSeparator8);
 
-        menuitem_aim.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_J, java.awt.event.InputEvent.CTRL_MASK));
-        menuitem_aim.setText("Crosshair");
-        menuitem_aim.addActionListener(new java.awt.event.ActionListener() {
+        crosshairItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_J, java.awt.event.InputEvent.CTRL_MASK));
+        crosshairItem.setText("Crosshair");
+        crosshairItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                menuitem_aimActionPerformed(evt);
+                crosshairItemActionPerformed(evt);
             }
         });
-        viewMenu.add(menuitem_aim);
+        viewMenu.add(crosshairItem);
 
-        menuitem_view_plumbline.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_K, java.awt.event.InputEvent.CTRL_MASK));
-        menuitem_view_plumbline.setText("Plumbline");
-        menuitem_view_plumbline.addActionListener(new java.awt.event.ActionListener() {
+        plumblineItem.setText("Plumbline");
+        plumblineItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                menuitem_view_plumblineActionPerformed(evt);
+                plumblineItemActionPerformed(evt);
             }
         });
-        viewMenu.add(menuitem_view_plumbline);
+        viewMenu.add(plumblineItem);
 
-        menuitem_view_spotlight.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_L, java.awt.event.InputEvent.CTRL_MASK));
-        menuitem_view_spotlight.setText("Spotlight");
-        menuitem_view_spotlight.addActionListener(new java.awt.event.ActionListener() {
+        spotlightItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_L, java.awt.event.InputEvent.CTRL_MASK));
+        spotlightItem.setText("Spotlight");
+        spotlightItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                menuitem_view_spotlightActionPerformed(evt);
+                spotlightItemActionPerformed(evt);
             }
         });
-        viewMenu.add(menuitem_view_spotlight);
+        viewMenu.add(spotlightItem);
 
         menuBar_top.add(viewMenu);
 
@@ -795,51 +817,51 @@ public class Savant extends JFrame implements BookmarksChangedListener, Referenc
             }
         });
 
-        menuItem_viewRangeControls.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_R, java.awt.event.InputEvent.SHIFT_MASK | java.awt.event.InputEvent.CTRL_MASK));
-        menuItem_viewRangeControls.setText("Navigation");
-        menuItem_viewRangeControls.addActionListener(new java.awt.event.ActionListener() {
+        navigationItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_R, java.awt.event.InputEvent.SHIFT_MASK | java.awt.event.InputEvent.CTRL_MASK));
+        navigationItem.setText("Navigation");
+        navigationItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                menuItem_viewRangeControlsMousePressed(evt);
+                navigationItemMousePressed(evt);
             }
         });
-        windowMenu.add(menuItem_viewRangeControls);
+        windowMenu.add(navigationItem);
 
-        menuitem_genomeview.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_C, java.awt.event.InputEvent.SHIFT_MASK | java.awt.event.InputEvent.CTRL_MASK));
-        menuitem_genomeview.setText("Genome");
-        menuitem_genomeview.addActionListener(new java.awt.event.ActionListener() {
+        genomeItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_C, java.awt.event.InputEvent.SHIFT_MASK | java.awt.event.InputEvent.CTRL_MASK));
+        genomeItem.setText("Genome");
+        genomeItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                menuitem_genomeviewActionPerformed(evt);
+                genomeItemActionPerformed(evt);
             }
         });
-        windowMenu.add(menuitem_genomeview);
+        windowMenu.add(genomeItem);
 
-        menuitem_ruler.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_L, java.awt.event.InputEvent.SHIFT_MASK | java.awt.event.InputEvent.CTRL_MASK));
-        menuitem_ruler.setText("Ruler");
-        menuitem_ruler.addActionListener(new java.awt.event.ActionListener() {
+        rulerItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_L, java.awt.event.InputEvent.SHIFT_MASK | java.awt.event.InputEvent.CTRL_MASK));
+        rulerItem.setText("Ruler");
+        rulerItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                menuitem_rulerActionPerformed(evt);
+                rulerItemActionPerformed(evt);
             }
         });
-        windowMenu.add(menuitem_ruler);
+        windowMenu.add(rulerItem);
 
-        menuItem_viewtoolbar.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_T, java.awt.event.InputEvent.SHIFT_MASK | java.awt.event.InputEvent.CTRL_MASK));
-        menuItem_viewtoolbar.setText("Plugin Toolbar");
-        menuItem_viewtoolbar.addActionListener(new java.awt.event.ActionListener() {
+        pluginToolbarItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_T, java.awt.event.InputEvent.SHIFT_MASK | java.awt.event.InputEvent.CTRL_MASK));
+        pluginToolbarItem.setText("Plugin Toolbar");
+        pluginToolbarItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                menuItem_viewtoolbarActionPerformed(evt);
+                pluginToolbarItemActionPerformed(evt);
             }
         });
-        windowMenu.add(menuItem_viewtoolbar);
+        windowMenu.add(pluginToolbarItem);
 
-        menuitem_statusbar.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_S, java.awt.event.InputEvent.SHIFT_MASK | java.awt.event.InputEvent.CTRL_MASK));
-        menuitem_statusbar.setSelected(true);
-        menuitem_statusbar.setText("Status Bar");
-        menuitem_statusbar.addActionListener(new java.awt.event.ActionListener() {
+        statusBarItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_S, java.awt.event.InputEvent.SHIFT_MASK | java.awt.event.InputEvent.CTRL_MASK));
+        statusBarItem.setSelected(true);
+        statusBarItem.setText("Status Bar");
+        statusBarItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                menuitem_statusbarActionPerformed(evt);
+                statusBarItemActionPerformed(evt);
             }
         });
-        windowMenu.add(menuitem_statusbar);
+        windowMenu.add(statusBarItem);
 
         speedAndEfficiencyItem.setText("Resources");
         speedAndEfficiencyItem.addActionListener(new java.awt.event.ActionListener() {
@@ -850,32 +872,32 @@ public class Savant extends JFrame implements BookmarksChangedListener, Referenc
         windowMenu.add(speedAndEfficiencyItem);
         windowMenu.add(jSeparator9);
 
-        menuitem_startpage.setSelected(true);
-        menuitem_startpage.setText("Start Page");
-        menuitem_startpage.addActionListener(new java.awt.event.ActionListener() {
+        startPageItem.setSelected(true);
+        startPageItem.setText("Start Page");
+        startPageItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                menuitem_startpageActionPerformed(evt);
+                startPageItemActionPerformed(evt);
             }
         });
-        windowMenu.add(menuitem_startpage);
+        windowMenu.add(startPageItem);
 
-        menuitem_tools.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Z, java.awt.event.InputEvent.SHIFT_MASK | java.awt.event.InputEvent.CTRL_MASK));
-        menuitem_tools.setText("Tools");
-        menuitem_tools.addActionListener(new java.awt.event.ActionListener() {
+        toolsItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Z, java.awt.event.InputEvent.SHIFT_MASK | java.awt.event.InputEvent.CTRL_MASK));
+        toolsItem.setText("Tools");
+        toolsItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                menuitem_toolsActionPerformed(evt);
+                toolsItemActionPerformed(evt);
             }
         });
-        windowMenu.add(menuitem_tools);
+        windowMenu.add(toolsItem);
 
-        menu_bookmarks.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_B, java.awt.event.InputEvent.SHIFT_MASK | java.awt.event.InputEvent.CTRL_MASK));
-        menu_bookmarks.setText("Bookmarks");
-        menu_bookmarks.addActionListener(new java.awt.event.ActionListener() {
+        bookmarksItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_B, java.awt.event.InputEvent.SHIFT_MASK | java.awt.event.InputEvent.CTRL_MASK));
+        bookmarksItem.setText("Bookmarks");
+        bookmarksItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                menu_bookmarksActionPerformed(evt);
+                bookmarksItemActionPerformed(evt);
             }
         });
-        windowMenu.add(menu_bookmarks);
+        windowMenu.add(bookmarksItem);
 
         menuBar_top.add(windowMenu);
 
@@ -918,21 +940,21 @@ public class Savant extends JFrame implements BookmarksChangedListener, Referenc
         });
         helpMenu.add(checkForUpdatesItem);
 
-        jMenuItem2.setText("Report an issue");
-        jMenuItem2.addActionListener(new java.awt.event.ActionListener() {
+        bugReportItem.setText("Report an issue");
+        bugReportItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jMenuItem2ActionPerformed(evt);
+                bugReportItemActionPerformed(evt);
             }
         });
-        helpMenu.add(jMenuItem2);
+        helpMenu.add(bugReportItem);
 
-        jMenuItem1.setText("Request a feature");
-        jMenuItem1.addActionListener(new java.awt.event.ActionListener() {
+        featureRequestItem.setText("Request a feature");
+        featureRequestItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jMenuItem1ActionPerformed(evt);
+                featureRequestItemActionPerformed(evt);
             }
         });
-        helpMenu.add(jMenuItem1);
+        helpMenu.add(featureRequestItem);
         helpMenu.add(jSeparator11);
 
         websiteItem.setText("Website");
@@ -989,44 +1011,44 @@ public class Savant extends JFrame implements BookmarksChangedListener, Referenc
      * Shift the currentViewableRange all the way to the left
      * @param evt The mouse event which triggers the function
      */
-    private void menuItem_viewRangeControlsMousePressed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuItem_viewRangeControlsMousePressed
+    private void navigationItemMousePressed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_navigationItemMousePressed
         this.panel_top.setVisible(!this.panel_top.isVisible());
-    }//GEN-LAST:event_menuItem_viewRangeControlsMousePressed
+    }//GEN-LAST:event_navigationItemMousePressed
 
-    private void menuItemZoomInActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuItemZoomInActionPerformed
+    private void zoomInItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_zoomInItemActionPerformed
         RangeController rc = RangeController.getInstance();
         rc.zoomIn();
-    }//GEN-LAST:event_menuItemZoomInActionPerformed
+    }//GEN-LAST:event_zoomInItemActionPerformed
 
-    private void menuItemZoomOutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuItemZoomOutActionPerformed
+    private void zoomOutItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_zoomOutItemActionPerformed
         RangeController rc = RangeController.getInstance();
         rc.zoomOut();
-    }//GEN-LAST:event_menuItemZoomOutActionPerformed
+    }//GEN-LAST:event_zoomOutItemActionPerformed
 
-    private void menuItemPanLeftActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuItemPanLeftActionPerformed
+    private void panLeftItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_panLeftItemActionPerformed
         RangeController rc = RangeController.getInstance();
         rc.shiftRangeLeft();
-    }//GEN-LAST:event_menuItemPanLeftActionPerformed
+    }//GEN-LAST:event_panLeftItemActionPerformed
 
-    private void menuItemPanRightActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuItemPanRightActionPerformed
+    private void panRightItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_panRightItemActionPerformed
         RangeController rc = RangeController.getInstance();
         rc.shiftRangeRight();
-    }//GEN-LAST:event_menuItemPanRightActionPerformed
+    }//GEN-LAST:event_panRightItemActionPerformed
 
-    private void menuitem_undoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuitem_undoActionPerformed
+    private void undoItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_undoItemActionPerformed
         RangeController rc = RangeController.getInstance();
         rc.undoRangeChange();
-    }//GEN-LAST:event_menuitem_undoActionPerformed
+    }//GEN-LAST:event_undoItemActionPerformed
 
-    private void menuitem_redoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuitem_redoActionPerformed
+    private void redoItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_redoItemActionPerformed
         RangeController rc = RangeController.getInstance();
         rc.redoRangeChange();
-    }//GEN-LAST:event_menuitem_redoActionPerformed
+    }//GEN-LAST:event_redoItemActionPerformed
 
-    private void menuItemAddToFavesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuItemAddToFavesActionPerformed
+    private void bookmarkItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bookmarkItemActionPerformed
         BookmarkController fc = BookmarkController.getInstance();
         fc.addCurrentRangeToBookmarks();
-    }//GEN-LAST:event_menuItemAddToFavesActionPerformed
+    }//GEN-LAST:event_bookmarkItemActionPerformed
 
     private void formatItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_formatItemActionPerformed
         if (!dff.isVisible()) {
@@ -1054,7 +1076,7 @@ public class Savant extends JFrame implements BookmarksChangedListener, Referenc
         File[] selectedFiles = DialogUtils.chooseFilesForOpen("Open Tracks", null, null);
         for (File f : selectedFiles) {
             // This creates the tracks asynchronously, which handles all exceptions internally.
-            addTrackFromFile(f.getAbsolutePath());
+            addTrackFromPath(f.getAbsolutePath());
         }
     }//GEN-LAST:event_loadFromFileItemActionPerformed
 
@@ -1082,27 +1104,15 @@ public class Savant extends JFrame implements BookmarksChangedListener, Referenc
         pd.setVisible(true);
     }//GEN-LAST:event_menuitem_pluginmanagerActionPerformed
 
-    private void menuitem_view_plumblineActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuitem_view_plumblineActionPerformed
+    private void plumblineItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_plumblineItemActionPerformed
         GraphPaneController gpc = GraphPaneController.getInstance();
-        gpc.setPlumbing(this.menuitem_view_plumbline.isSelected());
-    }//GEN-LAST:event_menuitem_view_plumblineActionPerformed
+        gpc.setPlumbing(plumblineItem.isSelected());
+    }//GEN-LAST:event_plumblineItemActionPerformed
 
-    public void setPlumbingMenutItemSelected(boolean isSelected) {
-        this.menuitem_view_plumbline.setSelected(isSelected);
-    }
-
-    public void setSpotlightMenutItemSelected(boolean isSelected) {
-        this.menuitem_view_spotlight.setSelected(isSelected);
-    }
-
-    public void setCrosshairMenutItemSelected(boolean isSelected) {
-        this.menuitem_aim.setSelected(isSelected);
-    }
-
-    private void menuitem_view_spotlightActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuitem_view_spotlightActionPerformed
+    private void spotlightItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_spotlightItemActionPerformed
         GraphPaneController gpc = GraphPaneController.getInstance();
-        gpc.setSpotlight(this.menuitem_view_spotlight.isSelected());
-    }//GEN-LAST:event_menuitem_view_spotlightActionPerformed
+        gpc.setSpotlight(spotlightItem.isSelected());
+    }//GEN-LAST:event_spotlightItemActionPerformed
 
     private void windowMenuStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_windowMenuStateChanged
         /*
@@ -1115,14 +1125,14 @@ public class Savant extends JFrame implements BookmarksChangedListener, Referenc
          */
     }//GEN-LAST:event_windowMenuStateChanged
 
-    private void menu_bookmarksActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menu_bookmarksActionPerformed
+    private void bookmarksItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bookmarksItemActionPerformed
 
         String frameKey = "Bookmarks";
         DockingManager m = this.getAuxDockingManager();
         boolean isVisible = m.getFrame(frameKey).isHidden();
         MiscUtils.setFrameVisibility(frameKey, isVisible, m);
-        this.menu_bookmarks.setSelected(isVisible);
-    }//GEN-LAST:event_menu_bookmarksActionPerformed
+        bookmarksItem.setSelected(isVisible);
+    }//GEN-LAST:event_bookmarksItemActionPerformed
 
     private void tutorialsItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tutorialsItemActionPerformed
         try {
@@ -1140,19 +1150,19 @@ public class Savant extends JFrame implements BookmarksChangedListener, Referenc
         }
     }//GEN-LAST:event_userManualItemActionPerformed
 
-    private void menuitem_rulerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuitem_rulerActionPerformed
+    private void rulerItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rulerItemActionPerformed
         this.ruler.setVisible(!this.ruler.isVisible());
-    }//GEN-LAST:event_menuitem_rulerActionPerformed
+    }//GEN-LAST:event_rulerItemActionPerformed
 
-    private void menuitem_genomeviewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuitem_genomeviewActionPerformed
+    private void genomeItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_genomeItemActionPerformed
         boolean flag = !rangeSelector.isVisible();
         rangeSelector.setVisible(flag);
         referenceCombo.setVisible(flag);
-    }//GEN-LAST:event_menuitem_genomeviewActionPerformed
+    }//GEN-LAST:event_genomeItemActionPerformed
 
-    private void menuitem_statusbarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuitem_statusbarActionPerformed
+    private void statusBarItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_statusBarItemActionPerformed
         this.toolbar_bottom.setVisible(!this.toolbar_bottom.isVisible());
-    }//GEN-LAST:event_menuitem_statusbarActionPerformed
+    }//GEN-LAST:event_statusBarItemActionPerformed
 
     private void menuitem_exportActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuitem_exportActionPerformed
         //ExportImageDialog export = new ExportImageDialog(Savant.getInstance(), true);
@@ -1160,16 +1170,16 @@ public class Savant extends JFrame implements BookmarksChangedListener, Referenc
         ExportImage unused = new ExportImage();
     }//GEN-LAST:event_menuitem_exportActionPerformed
 
-    private void menuItemShiftStartActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuItemShiftStartActionPerformed
+    private void toStartItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_toStartItemActionPerformed
         rangeController.shiftRangeFarLeft();
-    }//GEN-LAST:event_menuItemShiftStartActionPerformed
+    }//GEN-LAST:event_toStartItemActionPerformed
 
-    private void menuItemShiftEndActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuItemShiftEndActionPerformed
+    private void toEndItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_toEndItemActionPerformed
         rangeController.shiftRangeFarRight();
-    }//GEN-LAST:event_menuItemShiftEndActionPerformed
+    }//GEN-LAST:event_toEndItemActionPerformed
     static boolean arePreferencesInitialized = false;
 
-    private void menuitem_preferencesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuitem_preferencesActionPerformed
+    private void preferencesItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_preferencesItemActionPerformed
 
         if (!arePreferencesInitialized) {
             SettingsDialog.addSection(new ColourSchemeSettingsSection());
@@ -1182,29 +1192,33 @@ public class Savant extends JFrame implements BookmarksChangedListener, Referenc
         }
 
         SettingsDialog.showOptionsDialog(this);
-    }//GEN-LAST:event_menuitem_preferencesActionPerformed
+    }//GEN-LAST:event_preferencesItemActionPerformed
 
-    private void menuitem_toolsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuitem_toolsActionPerformed
+    private void toolsItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_toolsItemActionPerformed
         String frameKey = "Tools";
         DockingManager m = this.getAuxDockingManager();
         boolean isVisible = m.getFrame(frameKey).isHidden();
         MiscUtils.setFrameVisibility(frameKey, isVisible, m);
-        this.menuitem_tools.setSelected(isVisible);
-    }//GEN-LAST:event_menuitem_toolsActionPerformed
+        toolsItem.setSelected(isVisible);
+    }//GEN-LAST:event_toolsItemActionPerformed
 
     private void menuitem_deselectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuitem_deselectActionPerformed
         SelectionController.getInstance().removeAll();
     }//GEN-LAST:event_menuitem_deselectActionPerformed
 
     private void saveProjectAsItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveProjectAsItemActionPerformed
-        ProjectController.getInstance().promptUserToSaveProjectAs();
+        try {
+            ProjectController.getInstance().promptToSaveProjectAs();
+        } catch (Exception x) {
+            DialogUtils.displayException("Savant Error", "Unable to save project.", x);
+        }
     }//GEN-LAST:event_saveProjectAsItemActionPerformed
 
     private void openProjectItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openProjectItemActionPerformed
         try {
-            ProjectController.getInstance().promptUserToLoadProject();
+            ProjectController.getInstance().promptToLoadProject();
         } catch (Exception x) {
-            DialogUtils.displayException("Savant", "Unable to open project.", x);
+            DialogUtils.displayException("Savant Error", "Unable to open project.", x);
         }
     }//GEN-LAST:event_openProjectItemActionPerformed
 
@@ -1214,28 +1228,28 @@ public class Savant extends JFrame implements BookmarksChangedListener, Referenc
 
     private void saveProjectItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveProjectItemActionPerformed
         try {
-            ProjectController.getInstance().promptUserToSaveSession();
+            ProjectController.getInstance().promptToSaveProject();
         } catch (Exception x) {
-            DialogUtils.displayException("Savant", "Unable to save project.", x);
+            DialogUtils.displayException("Savant Error", "Unable to save project.", x);
         }
     }//GEN-LAST:event_saveProjectItemActionPerformed
 
-    private void menuItem_viewtoolbarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuItem_viewtoolbarActionPerformed
-        this.setToolBarVisibility(menuItem_viewtoolbar.isSelected());
-    }//GEN-LAST:event_menuItem_viewtoolbarActionPerformed
+    private void pluginToolbarItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_pluginToolbarItemActionPerformed
+        this.setToolBarVisibility(pluginToolbarItem.isSelected());
+    }//GEN-LAST:event_pluginToolbarItemActionPerformed
 
     private void speedAndEfficiencyItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_speedAndEfficiencyItemActionPerformed
         setSpeedAndEfficiencyIndicatorsVisible(speedAndEfficiencyItem.isSelected());
     }//GEN-LAST:event_speedAndEfficiencyItemActionPerformed
 
-    private void menuitem_aimActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuitem_aimActionPerformed
+    private void crosshairItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_crosshairItemActionPerformed
         GraphPaneController gpc = GraphPaneController.getInstance();
-        gpc.setAiming(this.menuitem_aim.isSelected());
-    }//GEN-LAST:event_menuitem_aimActionPerformed
+        gpc.setAiming(crosshairItem.isSelected());
+    }//GEN-LAST:event_crosshairItemActionPerformed
 
-    private void menuitem_startpageActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuitem_startpageActionPerformed
-        setStartPageVisible(this.menuitem_startpage.isSelected());
-    }//GEN-LAST:event_menuitem_startpageActionPerformed
+    private void startPageItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_startPageItemActionPerformed
+        setStartPageVisible(startPageItem.isSelected());
+    }//GEN-LAST:event_startPageItemActionPerformed
 
     private void loadFromDataSourcePluginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loadFromDataSourcePluginActionPerformed
         try {
@@ -1245,18 +1259,17 @@ public class Savant extends JFrame implements BookmarksChangedListener, Referenc
                 createFrameForExistingTrack(new Track[] { t });
             }
         } catch (Exception x) {
-            LOG.error("Unable to create track from DataSource plugin", x);
             DialogUtils.displayException("Track Creation Failed", "Unable to create track.", x);
         }
     }//GEN-LAST:event_loadFromDataSourcePluginActionPerformed
 
-    private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
+    private void featureRequestItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_featureRequestItemActionPerformed
         (new FeatureRequestDialog(this,false)).setVisible(true);
-    }//GEN-LAST:event_jMenuItem1ActionPerformed
+    }//GEN-LAST:event_featureRequestItemActionPerformed
 
-    private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem2ActionPerformed
+    private void bugReportItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bugReportItemActionPerformed
         (new BugReportDialog(this,false)).setVisible(true);
-    }//GEN-LAST:event_jMenuItem2ActionPerformed
+    }//GEN-LAST:event_bugReportItemActionPerformed
 
     /**
      * Starts an instance of the Savant Browser
@@ -1423,15 +1436,18 @@ public class Savant extends JFrame implements BookmarksChangedListener, Referenc
 
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JMenuItem bookmarkItem;
+    private javax.swing.JCheckBoxMenuItem bookmarksItem;
+    private javax.swing.JCheckBoxMenuItem crosshairItem;
+    private javax.swing.JMenuItem deselectAllItem;
     private javax.swing.JMenu editMenu;
     private javax.swing.JMenuItem exitItem;
     private javax.swing.JMenuItem exportItem;
     private javax.swing.JMenu fileMenu;
     private javax.swing.JMenuItem formatItem;
+    private javax.swing.JCheckBoxMenuItem genomeItem;
     private javax.swing.JMenu helpMenu;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JMenuItem jMenuItem1;
-    private javax.swing.JMenuItem jMenuItem2;
     private javax.swing.JPopupMenu.Separator jSeparator10;
     private javax.swing.JPopupMenu.Separator jSeparator4;
     private javax.swing.JPopupMenu.Separator jSeparator7;
@@ -1444,48 +1460,43 @@ public class Savant extends JFrame implements BookmarksChangedListener, Referenc
     private javax.swing.JMenuItem loadFromURLItem;
     private javax.swing.JMenuItem loadGenomeItem;
     private javax.swing.JMenuBar menuBar_top;
-    private javax.swing.JMenuItem menuItemAddToFaves;
-    private javax.swing.JMenuItem menuItemPanLeft;
-    private javax.swing.JMenuItem menuItemPanRight;
-    private javax.swing.JMenuItem menuItemShiftEnd;
-    private javax.swing.JMenuItem menuItemShiftStart;
-    private javax.swing.JMenuItem menuItemZoomIn;
-    private javax.swing.JMenuItem menuItemZoomOut;
-    private javax.swing.JCheckBoxMenuItem menuItem_viewRangeControls;
-    private javax.swing.JCheckBoxMenuItem menuItem_viewtoolbar;
-    private javax.swing.JCheckBoxMenuItem menu_bookmarks;
-    private javax.swing.JCheckBoxMenuItem menuitem_aim;
-    private javax.swing.JMenuItem menuitem_deselectall;
-    private javax.swing.JCheckBoxMenuItem menuitem_genomeview;
     private javax.swing.JMenuItem menuitem_pluginmanager;
-    private javax.swing.JMenuItem menuitem_preferences;
-    private javax.swing.JMenuItem menuitem_redo;
-    private javax.swing.JCheckBoxMenuItem menuitem_ruler;
-    private javax.swing.JCheckBoxMenuItem menuitem_startpage;
-    private javax.swing.JCheckBoxMenuItem menuitem_statusbar;
-    private javax.swing.JCheckBoxMenuItem menuitem_tools;
-    private javax.swing.JMenuItem menuitem_undo;
-    private javax.swing.JCheckBoxMenuItem menuitem_view_plumbline;
-    private javax.swing.JCheckBoxMenuItem menuitem_view_spotlight;
+    private javax.swing.JCheckBoxMenuItem navigationItem;
     private javax.swing.JMenuItem openProjectItem;
+    private javax.swing.JMenuItem panLeftItem;
+    private javax.swing.JMenuItem panRightItem;
     private javax.swing.JPanel panelExtendedMiddle;
     private javax.swing.JPanel panel_main;
     private javax.swing.JPanel panel_toolbar;
     private javax.swing.JPanel panel_top;
+    private javax.swing.JCheckBoxMenuItem pluginToolbarItem;
     private javax.swing.JMenu pluginsMenu;
+    private javax.swing.JCheckBoxMenuItem plumblineItem;
+    private javax.swing.JMenuItem preferencesItem;
     private javax.swing.JMenu recentProjectMenu;
     private javax.swing.JMenu recentTrackMenu;
+    private javax.swing.JMenuItem redoItem;
+    private javax.swing.JCheckBoxMenuItem rulerItem;
     private javax.swing.JToolBar.Separator s_e_sep;
     private javax.swing.JMenuItem saveProjectAsItem;
     private javax.swing.JMenuItem saveProjectItem;
     private javax.swing.JCheckBoxMenuItem speedAndEfficiencyItem;
+    private javax.swing.JCheckBoxMenuItem spotlightItem;
+    private javax.swing.JCheckBoxMenuItem startPageItem;
+    private javax.swing.JCheckBoxMenuItem statusBarItem;
+    private javax.swing.JMenuItem toEndItem;
+    private javax.swing.JMenuItem toStartItem;
     private javax.swing.JToolBar toolbar_bottom;
+    private javax.swing.JCheckBoxMenuItem toolsItem;
     private javax.swing.JMenuItem tutorialsItem;
+    private javax.swing.JMenuItem undoItem;
     private javax.swing.JMenuItem userManualItem;
     private javax.swing.JMenu viewMenu;
     private javax.swing.ButtonGroup view_buttongroup;
     private javax.swing.JMenuItem websiteItem;
     private javax.swing.JMenu windowMenu;
+    private javax.swing.JMenuItem zoomInItem;
+    private javax.swing.JMenuItem zoomOutItem;
     // End of variables declaration//GEN-END:variables
 
     /**
@@ -1514,7 +1525,7 @@ public class Savant extends JFrame implements BookmarksChangedListener, Referenc
 
                     @Override
                     public void handlePreferences(AppEvent.PreferencesEvent evt) {
-                        menuitem_preferencesActionPerformed(null);
+                        preferencesItemActionPerformed(null);
                     }
                 });
                 macOSXApplication.setQuitHandler(new QuitHandler() {
@@ -1530,7 +1541,7 @@ public class Savant extends JFrame implements BookmarksChangedListener, Referenc
                 fileMenu.remove(jSeparator4);
                 fileMenu.remove(exitItem);
                 editMenu.remove(jSeparator7);
-                editMenu.remove(menuitem_preferences);
+                editMenu.remove(preferencesItem);
             } catch (Throwable x) {
                 LOG.error("Unable to load Apple eAWT classes.", x);
                 DialogUtils.displayError("Warning", "Savant requires Java for Mac OS X 10.6 Update 3 (or later).\nPlease check Software Update for the latest version.");
@@ -1588,7 +1599,7 @@ public class Savant extends JFrame implements BookmarksChangedListener, Referenc
     }
 
     private void disableExperimentalFeatures() {
-        menuitem_tools.setVisible(false);
+        toolsItem.setVisible(false);
     }
 
     public DockingManager getAuxDockingManager() {
@@ -1653,22 +1664,9 @@ public class Savant extends JFrame implements BookmarksChangedListener, Referenc
 
     private void askToDispose() {
         try {
-            ProjectController projectController = ProjectController.getInstance();
-            if (!projectController.isProjectSaved()) {
-
-                int answer = DialogUtils.askYesNoCancel("Save project before quitting?");
-
-                if (answer == JOptionPane.CANCEL_OPTION) {
-                    return;
-                }
-                if (answer == JOptionPane.YES_OPTION) {
-                    if (!projectController.promptUserToSaveSession()) {
-                        return;
-                    }
-                }
+            if (ProjectController.getInstance().promptToSaveChanges(true)) {
+                System.exit(0);
             }
-            //cleanUpBeforeExit();
-            System.exit(0);
         } catch (Exception x) {
             DialogUtils.displayException("Error", "Unable to save project file.", x);
         }
@@ -1691,8 +1689,7 @@ public class Savant extends JFrame implements BookmarksChangedListener, Referenc
         });
 
         // other
-        this.setIconImage(
-                SavantIconFactory.getInstance().getIcon(SavantIconFactory.StandardIcon.LOGO).getImage());
+        this.setIconImage(SavantIconFactory.getInstance().getIcon(SavantIconFactory.StandardIcon.LOGO).getImage());
         this.setTitle("Savant Genome Browser");
         this.setName("Savant Genome Browser");
     }
@@ -1707,25 +1704,25 @@ public class Savant extends JFrame implements BookmarksChangedListener, Referenc
         saveProjectAsItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_S, osSpecificModifier | java.awt.event.InputEvent.SHIFT_MASK));
         formatItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F, osSpecificModifier));
         exitItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Q, osSpecificModifier));
-        menuitem_undo.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Z, osSpecificModifier));
-        menuitem_redo.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Y, osSpecificModifier));
-        menuItemAddToFaves.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_B, osSpecificModifier));
-        menuItem_viewRangeControls.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_R, java.awt.event.InputEvent.SHIFT_MASK | osSpecificModifier));
-        menuItemPanLeft.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_LEFT, java.awt.event.InputEvent.SHIFT_MASK));
-        menuItemPanRight.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_RIGHT, java.awt.event.InputEvent.SHIFT_MASK));
-        menuItemZoomIn.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_UP, java.awt.event.InputEvent.SHIFT_MASK));
-        menuItemZoomOut.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_DOWN, java.awt.event.InputEvent.SHIFT_MASK));
-        menuItemShiftStart.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_HOME, java.awt.event.InputEvent.SHIFT_MASK));
-        menuItemShiftEnd.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_END, java.awt.event.InputEvent.SHIFT_MASK));
-        menuitem_preferences.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_P, osSpecificModifier));
-        menuitem_aim.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_J, osSpecificModifier));
-        menuitem_view_plumbline.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_K, osSpecificModifier));
-        menuitem_view_spotlight.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_L, osSpecificModifier));
-        menu_bookmarks.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_B, osSpecificModifier | java.awt.event.InputEvent.SHIFT_MASK));
-        menuitem_genomeview.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_C, osSpecificModifier | java.awt.event.InputEvent.SHIFT_MASK));
-        menuitem_ruler.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_L, osSpecificModifier | java.awt.event.InputEvent.SHIFT_MASK));
-        menuitem_statusbar.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_S, osSpecificModifier | java.awt.event.InputEvent.SHIFT_MASK));
-        menuItem_viewtoolbar.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_T, osSpecificModifier | java.awt.event.InputEvent.SHIFT_MASK));
+        undoItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Z, osSpecificModifier));
+        redoItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Y, osSpecificModifier));
+        bookmarkItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_B, osSpecificModifier));
+        navigationItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_R, java.awt.event.InputEvent.SHIFT_MASK | osSpecificModifier));
+        panLeftItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_LEFT, java.awt.event.InputEvent.SHIFT_MASK));
+        panRightItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_RIGHT, java.awt.event.InputEvent.SHIFT_MASK));
+        zoomInItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_UP, java.awt.event.InputEvent.SHIFT_MASK));
+        zoomOutItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_DOWN, java.awt.event.InputEvent.SHIFT_MASK));
+        toStartItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_HOME, java.awt.event.InputEvent.SHIFT_MASK));
+        toEndItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_END, java.awt.event.InputEvent.SHIFT_MASK));
+        preferencesItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_P, osSpecificModifier));
+        crosshairItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_J, osSpecificModifier));
+        plumblineItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_K, osSpecificModifier));
+        spotlightItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_L, osSpecificModifier));
+        bookmarksItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_B, osSpecificModifier | java.awt.event.InputEvent.SHIFT_MASK));
+        genomeItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_C, osSpecificModifier | java.awt.event.InputEvent.SHIFT_MASK));
+        rulerItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_L, osSpecificModifier | java.awt.event.InputEvent.SHIFT_MASK));
+        statusBarItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_S, osSpecificModifier | java.awt.event.InputEvent.SHIFT_MASK));
+        pluginToolbarItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_T, osSpecificModifier | java.awt.event.InputEvent.SHIFT_MASK));
         exportItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_I, osSpecificModifier));
 
         if (!Desktop.isDesktopSupported() || !Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
@@ -1791,19 +1788,19 @@ public class Savant extends JFrame implements BookmarksChangedListener, Referenc
             return;
         }
 
-        this.panel_top.setVisible(true);
-        this.menuItem_viewRangeControls.setSelected(true);
+        panel_top.setVisible(true);
+        navigationItem.setSelected(true);
 
-        this.rangeSelector.setVisible(true);
-        this.referenceCombo.setVisible(true);
-        this.menuitem_genomeview.setSelected(true);
+        rangeSelector.setVisible(true);
+        referenceCombo.setVisible(true);
+        genomeItem.setSelected(true);
 
-        this.ruler.setVisible(true);
-        this.menuitem_ruler.setSelected(true);
+        ruler.setVisible(true);
+        rulerItem.setSelected(true);
 
-        this.loadFromFileItem.setEnabled(true);
-        this.loadFromURLItem.setEnabled(true);
-        this.loadFromDataSourcePlugin.setEnabled(true);
+        loadFromFileItem.setEnabled(true);
+        loadFromURLItem.setEnabled(true);
+        loadFromDataSourcePlugin.setEnabled(true);
 
         //setStartPageVisible(false);
         navigationBar.setVisible(true);
@@ -1812,7 +1809,7 @@ public class Savant extends JFrame implements BookmarksChangedListener, Referenc
 
     private void setStartPageVisible(boolean b) {
         MiscUtils.setFrameVisibility("Start Page", b, this.getTrackDockingManager());
-        this.menuitem_startpage.setSelected(b);
+        startPageItem.setSelected(b);
     }
 
     public void updateStatus(String msg) {
@@ -1899,28 +1896,7 @@ public class Savant extends JFrame implements BookmarksChangedListener, Referenc
         rangeController.setRange(1, Math.min(1000, loadedGenome.getLength()));
     }
 
-    @Override
-    public void handleEvent(ProjectEvent event) {
-        String activity;
-        switch (event.getType()) {
-            case LOADING:
-                activity = "Loading " + event.getPath() + "...";
-                setTitle("Savant Genome Browser - " + activity);
-                break;
-            case LOADED:
-            case SAVED:
-                MiscUtils.setUnsavedTitle(this, "Savant Genome Browser - " + event.getPath(), false);
-                break;
-            case SAVING:
-                activity = "Saving " + event.getPath() + "...";
-                setTitle("Savant Genome Browser - " + activity);
-                break;
-            case UNSAVED:
-                MiscUtils.setUnsavedTitle(this, "Savant Genome Browser - " + event.getPath(), true);
-                break;
-        }
-    }
-    
+
     private void setSpeedAndEfficiencyIndicatorsVisible(boolean b) {
         this.speedAndEfficiencyItem.setSelected(b);
         this.jLabel1.setVisible(b);
@@ -1988,7 +1964,7 @@ public class Savant extends JFrame implements BookmarksChangedListener, Referenc
 
         //MiscUtils.setFrameVisibility("Bookmarks", true, this.getAuxDockingManager());
         //this.getAuxDockingManager().toggleAutohideState("Bookmarks");
-        menu_bookmarks.setState(true);
+        bookmarksItem.setState(true);
 
         this.getAuxDockingManager().setActive(false);
     }
@@ -1998,32 +1974,7 @@ public class Savant extends JFrame implements BookmarksChangedListener, Referenc
     }
 
     private void initStartPage() {
-
         if (BrowserSettings.getShowStartPage()) {
-
-/*            DockableFrame df = DockableFrameFactory.createFrame("Start Page", DockContext.STATE_FRAMEDOCKED, DockContext.DOCK_SIDE_NORTH);
-            //df.setAvailableButtons(DockableFrame.BUTTON_CLOSE);
-            df.setShowTitleBar(false);
-            JPanel canvas = (JPanel) df.getContentPane();
-            canvas.setLayout(new BorderLayout());
-            canvas.add(new StartPanel(), BorderLayout.CENTER);
-
-            trackDockingManager.addFrame(df);
-            MiscUtils.setFrameVisibility("Start Page", true,trackDockingManager);
-        try {
-            df.setMaximized(true);
-        } catch (PropertyVetoException ex) {
-            Logger.getLogger(Savant.class.getName()).log(Level.SEVERE, null, ex);
-        }
-
-            //df.getContentPane().setLayout(new BorderLayout());
-
-            //
-            //df.getContentPane().add(start,BorderLayout.CENTER);
-
-            startPageDockableFrame = df;
- *
- */
             startpage = new StartPanel();
             trackBackground.add(startpage, BorderLayout.CENTER);
         }

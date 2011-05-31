@@ -265,7 +265,7 @@ public class StartPanel extends JPanel {
                     @Override
                     public void actionPerformed(ActionEvent e) {
                         try {
-                            Savant.getInstance().addTrackFromFile(t);
+                            Savant.getInstance().addTrackFromPath(t);
                         } catch (Exception ex) {
                             DialogUtils.displayError("Problem opening track from file " + t);
                         }

@@ -265,7 +265,7 @@ public class FormatFrame extends javax.swing.JFrame implements FormatProgressLis
                 this.setVisible(false);
                 if (result == JOptionPane.YES_OPTION) {
                     try {
-                        Savant.getInstance().addTrackFromFile(dataFormatter.getOutputFile().getAbsolutePath());
+                        Savant.getInstance().addTrackFromPath(dataFormatter.getOutputFile().getAbsolutePath());
                     } catch (Exception ex) {
                     }
                 }

@@ -27,10 +27,11 @@ import savant.controller.event.ReferenceChangedEvent;
 import savant.controller.event.ReferenceChangedListener;
 import savant.data.types.Genome;
 import savant.util.MiscUtils;
+import savant.view.swing.sequence.SequenceTrack;
 
 
 /**
- * Controller object to manage changes to viewed range.
+ * Controller object to manage changes to current chromosome.
  *
  * @author vwilliams
  */
@@ -143,17 +144,38 @@ public class ReferenceController {
     }
 
     public synchronized void setGenome(Genome genome) {
-        Genome oldGenome = loadedGenome;
-        if (!genome.equals(oldGenome)) {
-            loadedGenome = genome;
-            GenomeChangedEvent evt = new GenomeChangedEvent(oldGenome, loadedGenome);
-            for (ReferenceChangedListener l: referenceChangedListeners) {
-                l.genomeChanged(evt);
-            }
+        if (genome == null) {
+            // Sometimes we need to clear out the current genome in preparation for loading a new one.
+            loadedGenome = null;
+        } else {
+            Genome oldGenome = loadedGenome;
+            if (!genome.equals(oldGenome)) {
+                loadedGenome = genome;
+                fireGenomeChangedEvent(oldGenome);
 
-            // Auto-select the first reference on the new genome.
-            String ref = MiscUtils.set2List(loadedGenome.getReferenceNames()).get(0);
-            setReference(ref, true);
+                // Auto-select the first reference on the new genome.
+                String ref = MiscUtils.set2List(loadedGenome.getReferenceNames()).get(0);
+                setReference(ref, true);
+            }
+        }
+    }
+
+    private void fireGenomeChangedEvent(Genome oldGenome) {
+        GenomeChangedEvent evt = new GenomeChangedEvent(oldGenome, loadedGenome);
+        for (ReferenceChangedListener l: referenceChangedListeners) {
+            l.genomeChanged(evt);
+        }
+    }
+
+
+    public synchronized void setSequence(SequenceTrack t) {
+        if (loadedGenome == null) {
+            setGenome(Genome.createFromTrack(t));
+        } else if (!loadedGenome.isSequenceSet()) {
+            // We have a loaded genome, but no sequence yet.  Plug it in.  Listeners can recognise this
+            // event because the oldGenome and the newGenome on the GenomeChangedEvent will be the same.
+            loadedGenome.setSequenceTrack(t);
+            fireGenomeChangedEvent(loadedGenome);
         }
     }
 }

@@ -164,7 +164,7 @@ public final class Genome implements Serializable, GenomeAdapter {
         Object value = getReferenceMap().get(reference);
         if (value instanceof Long) {
             return (int)(long)(Long)value;
-        }
+            }
         return (Integer)value;
     }
 

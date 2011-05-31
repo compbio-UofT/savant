@@ -23,10 +23,10 @@ import savant.controller.GraphPaneController;
  *
  * @author mfiume, tarkvara
  */
-public class GraphPaneChangedEvent {
+public class GraphPaneEvent {
     private final GraphPaneController source;
 
-    public GraphPaneChangedEvent(GraphPaneController source) {
+    public GraphPaneEvent(GraphPaneController source) {
         this.source = source;
     }
 

@@ -39,7 +39,6 @@ import savant.controller.DockableFrameController;
 import savant.controller.ReferenceController;
 import savant.controller.DrawModeController;
 import savant.controller.FrameController;
-import savant.controller.GraphPaneController;
 import savant.controller.RangeController;
 import savant.controller.TrackController;
 import savant.controller.event.DrawModeChangedEvent;
@@ -47,7 +46,6 @@ import savant.data.event.DataRetrievalEvent;
 import savant.data.event.DataRetrievalListener;
 import savant.data.event.TrackCreationEvent;
 import savant.data.event.TrackCreationListener;
-import savant.data.types.Genome;
 import savant.file.DataFormat;
 import savant.settings.ColourSettings;
 import savant.swing.component.ProgressPanel;
@@ -60,6 +58,7 @@ import savant.view.swing.interval.BAMTrackRenderer;
 import savant.view.swing.interval.IntervalTrackRenderer;
 import savant.view.swing.interval.RichIntervalTrack;
 import savant.view.swing.interval.RichIntervalTrackRenderer;
+import savant.view.swing.sequence.SequenceTrack;
 
 /**
  *
@@ -211,14 +210,16 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
      * @param newTracks the tracks to be displayed in this frame
      */
     public void setTracks(Track[] newTracks) {
-        if (!ReferenceController.getInstance().isGenomeLoaded()) {
-            if (newTracks[0].getDataFormat() == DataFormat.SEQUENCE_FASTA) {
-                ReferenceController.getInstance().setGenome(Genome.createFromTrack(newTracks[0]));
-            } else {
-                trackCreationFailed(null);
-                for(Track track : newTracks) TrackController.getInstance().removeTrack(track);
-                DialogUtils.displayError("Sorry", "This does not appear to be a genome track. Please load a genome first.");
+        if (!ReferenceController.getInstance().isGenomeLoaded() && newTracks[0].getDataFormat() != DataFormat.SEQUENCE_FASTA) {
+            trackCreationFailed(null);
+            for (Track track : newTracks) {
+                TrackController.getInstance().removeTrack(track);
             }
+            DialogUtils.displayError("Sorry", "This does not appear to be a genome track. Please load a genome first.");
+            return;
+        }
+        if (newTracks[0].getDataFormat() == DataFormat.SEQUENCE_FASTA) {
+            ReferenceController.getInstance().setSequence((SequenceTrack)newTracks[0]);
         }
 
         LOG.trace("Frame being set up with " + newTracks.length + " tracks.");

@@ -344,21 +344,16 @@ public class LoadGenomeDialog extends JDialog {
         if (usingPublished) {
             genome = (Genome)genomesCombo.getSelectedItem();
             try {
-                URI sequenceURI = null;
-                List<URI> auxURIs = new ArrayList<URI>();
+                List<URI> trackURIs = new ArrayList<URI>();
                 Auxiliary[] auxes = genome.getAuxiliaries();
                 for (int i = 0; i < auxes.length; i++) {
                     if (((JCheckBox)auxiliaryPanel.getComponent(i)).isSelected()) {
-                        if (auxes[i].type == AuxiliaryType.SEQUENCE) {
-                            sequenceURI = auxes[i].uri;
-                        } else {
-                            auxURIs.add(auxes[i].uri);
-                        }
+                        trackURIs.add(auxes[i].uri);
                     }
                 }
-                ProjectController.getInstance().setProjectFromGenome(genome, sequenceURI, auxURIs);
+                ProjectController.getInstance().setProjectFromGenome(genome, trackURIs);
             } catch (Throwable x) {
-                DialogUtils.displayException("Error Loading Genome", String.format("Unable to load genome for %s.", genome), x);
+                DialogUtils.displayException("Error Loading Genome", String.format("<html>Unable to load genome for <i>%s</i>.</html>", genome), x);
             }
         } else {
             genome = new Genome(nameField.getText(), Integer.parseInt(lengthField.getText()));
@@ -402,9 +397,8 @@ public class LoadGenomeDialog extends JDialog {
         if (url != null) {
             try {
                 setVisible(false);
-                Track[] t = TrackFactory.createTrackSync(url.toURI());
-                Savant.getInstance().createFrameForExistingTrack(t);
-                referenceController.setGenome(Genome.createFromTrack(t[0]));
+                referenceController.setGenome(null);
+                Savant.getInstance().addTrackFromURI(url.toURI());
             } catch (Throwable x) {
                 DialogUtils.displayException("Error Loading Genome", String.format("Unable to load genome from %s.", url), x);
             }
@@ -417,9 +411,8 @@ public class LoadGenomeDialog extends JDialog {
         if (selectedFile != null) {
             try {
                 setVisible(false);
-                Track[] t = TrackFactory.createTrackSync(selectedFile.toURI());
-                Savant.getInstance().createFrameForExistingTrack(t);
-                referenceController.setGenome(Genome.createFromTrack(t[0]));
+                referenceController.setGenome(null);
+                Savant.getInstance().addTrackFromPath(selectedFile.getAbsolutePath());
             } catch (Throwable x) {
                 DialogUtils.displayException("Error Loading Genome", String.format("Unable to load genome from %s.", selectedFile.getName()), x);
             }

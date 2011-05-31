@@ -112,7 +112,9 @@ public class RecentProjectsController implements Listener<ProjectEvent> {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     try {
-                        ProjectController.getInstance().loadProjectFromFile(new File(s));
+                        if (ProjectController.getInstance().promptToSaveChanges(false)) {
+                            ProjectController.getInstance().loadProjectFromFile(new File(s));
+                        }
                     } catch (Exception ex) {
                         DialogUtils.displayMessage("Error opening project from file " + s);
                     }

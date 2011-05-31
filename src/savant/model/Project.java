@@ -34,9 +34,7 @@ import savant.util.MiscUtils;
 import savant.util.Range;
 import savant.view.swing.Savant;
 import savant.view.swing.Track;
-import savant.view.swing.TrackFactory;
 import savant.view.swing.interval.BAMCoverageTrack;
-import savant.view.swing.sequence.SequenceTrack;
 
 
 /**
@@ -67,7 +65,6 @@ public class Project {
     };
 
     Genome genome;
-    String genomePath;
     List<Bookmark> bookmarks;
     List<String> trackPaths;
     String reference;
@@ -89,13 +86,10 @@ public class Project {
      * Create a fresh Project object for the given published genome.  May include a sequence
      * track as well as additional auxiliary tracks.
      */
-    public Project(Genome genome, URI sequenceURI, List<URI> trackURIs) {
+    public Project(Genome genome, List<URI> trackURIs) {
         reference = genome.getReferenceNames().iterator().next();
         range = new Range(1, 1000);
         this.genome = genome;
-        if (sequenceURI != null) {
-            genomePath = sequenceURI.toString();
-        }
         trackPaths = new ArrayList<String>(trackURIs.size());
         for (URI u: trackURIs) {
             trackPaths.add(u.toString());
@@ -120,8 +114,6 @@ public class Project {
                     Object value = objectStream.readObject();
                     if (key.equals("GENOME")) {
                         genome = (Genome)value;
-                    } else if (key.equals("GENOMEPATH")) {
-                        genomePath = (String)value;
                     } else if (key.equals("BOOKMARKS")) {
                         bookmarks = (List<Bookmark>)value;
                     } else if (key.equals("TRACKS")) {
@@ -165,7 +157,6 @@ public class Project {
                             String genomeName = readAttribute(XMLAttribute.name);
                             String genomeDesc = readAttribute(XMLAttribute.description);
                             String cytoband = readAttribute(XMLAttribute.cytoband);
-                            genomePath = readAttribute(XMLAttribute.uri);
                             if (cytoband != null) {
                                 genome = new Genome(genomeName, genomeDesc, URI.create(cytoband), null);
                             }
@@ -220,6 +211,7 @@ public class Project {
         }
 
         if (g.isSequenceSet()) {
+            // This is not currently used.  Instead, the genome always gets its sequence from the project's first SequenceTrack.
             writeAttribute(XMLAttribute.uri, MiscUtils.getNeatPathFromURI(g.getDataSource().getURI()));
         } else {
             for (String ref: g.getReferenceNames()) {
@@ -273,30 +265,11 @@ public class Project {
      * Load the project's settings into Savant.
      */
     public void load() throws Exception {
-        if (genome != null) {
-            ReferenceController.getInstance().setGenome(genome);
-        }
-        if (genomePath != null) {
-            trackPaths.remove(genomePath);
-            Track t = null;
-            try {
-                t = TrackFactory.createTrack(TrackFactory.createDataSource(new URI(genomePath)));
-            } catch (Exception x) {
-                // A common cause of URISyntaxExceptions is a file-path containing spaces.
-                t = TrackFactory.createTrack(TrackFactory.createDataSource(new File(genomePath).toURI()));
-            }
-            if (genome == null) {
-                genome = Genome.createFromTrack(t);
-                ReferenceController.getInstance().setGenome(genome);
-            } else {
-                genome.setSequenceTrack((SequenceTrack)t);
-            }
-            Savant.getInstance().createFrameForExistingTrack(new Track[] { t });
-        }
+        ReferenceController.getInstance().setGenome(genome);
         ReferenceController.getInstance().setReference(reference);
         RangeController.getInstance().setRange(range);
         for (String path : trackPaths) {
-            Savant.getInstance().addTrackFromFile(path);
+            Savant.getInstance().addTrackFromPath(path);
         }
         if (bookmarks != null) {
             BookmarkController.getInstance().addBookmarks(bookmarks);

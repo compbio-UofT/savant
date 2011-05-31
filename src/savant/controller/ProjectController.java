@@ -24,7 +24,6 @@ import java.net.URL;
 import java.util.List;
 import java.util.StringTokenizer;
 import javax.swing.filechooser.FileFilter;
-import javax.xml.stream.XMLStreamException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -38,7 +37,6 @@ import savant.controller.event.RangeChangedListener;
 import savant.controller.event.TrackListChangedEvent;
 import savant.controller.event.TrackListChangedListener;
 import savant.data.types.Genome;
-import savant.exception.SavantEmptySessionException;
 import savant.model.Project;
 import savant.settings.DirectorySettings;
 import savant.util.MiscUtils;
@@ -95,11 +93,20 @@ public class ProjectController extends Controller implements BookmarksChangedLis
         BookmarkController.getInstance().clearBookmarks();
     }
 
-    public void saveProjectAs(File f) throws IOException, SavantEmptySessionException, XMLStreamException {
-        fireEvent(new ProjectEvent(ProjectEvent.Type.SAVING, f));
-        Project.saveToFile(f);
-        currentProjectFile = f;
-        setProjectSaved(true);
+    public boolean saveProjectAs(File f) throws Exception {
+        try {
+            fireEvent(new ProjectEvent(ProjectEvent.Type.SAVING, f));
+            Project.saveToFile(f);
+            currentProjectFile = f;
+            setProjectSaved(true);
+            return true;
+        } catch (IOException ex) {
+            LOG.error(ex);
+            if (DialogUtils.askYesNo("<html>Error saving project to <i>" + f.getAbsolutePath() + "</i>. Try another location?</html>") == DialogUtils.YES) {
+                return promptToSaveProjectAs();
+            }
+        }
+        return false;
     }
 
     public static boolean isProjectOpen() {
@@ -124,7 +131,7 @@ public class ProjectController extends Controller implements BookmarksChangedLis
 
     @Override
     public void trackListChanged(TrackListChangedEvent event) {
-        setProjectSaved(false);
+//        setProjectSaved(false);
     }
 
     @Override
@@ -132,26 +139,43 @@ public class ProjectController extends Controller implements BookmarksChangedLis
         setProjectSaved(false);
     }
 
-    public void promptUserToLoadProject() throws Exception {
-
-        if (isProjectOpen()) {
-            if (!projectSaved) {
-                int result = DialogUtils.askYesNoCancel("Save current session?");
-                if (result == DialogUtils.YES) {
-                    promptUserToSaveSession();
-                } else if (result == DialogUtils.CANCEL) {
-                    return;
-                }
+    public void promptToLoadProject() throws Exception {
+        if (promptToSaveChanges(false)) {
+            File f = DialogUtils.chooseFileForOpen("Open Project File", PROJECT_FILTER, DirectorySettings.getProjectsDirectory());
+            if (f != null) {
+                loadProjectFromFile(f);
             }
-        }
-
-        File f = DialogUtils.chooseFileForOpen("Open Project File", PROJECT_FILTER, DirectorySettings.getProjectsDirectory());
-        if (f != null) {
-            loadProjectFromFile(f);
         }
     }
 
-    public boolean promptUserToSaveProjectAs() {
+    public boolean promptToSaveChanges(boolean quitting) throws Exception {
+        if (isProjectOpen()) {
+            if (!projectSaved) {
+                int result = DialogUtils.askYesNoCancel(quitting ? "Save changes to current project before quitting?" : "Save changes to current project?");
+                if (result == DialogUtils.YES) {
+                    promptToSaveProject();
+                } else if (result == DialogUtils.CANCEL) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Prompt the user to save the current project.
+     *
+     * @return true if the project was saved
+     */
+    public boolean promptToSaveProject() throws Exception {
+        if (currentProjectFile == null) {
+            return promptToSaveProjectAs();
+        }
+        return saveProjectAs(getCurrentFile());
+    }
+
+
+    public boolean promptToSaveProjectAs() throws Exception {
 
         if (!isProjectOpen()) {
             DialogUtils.displayMessage("No project to save.");
@@ -161,47 +185,7 @@ public class ProjectController extends Controller implements BookmarksChangedLis
         File selectedFile = DialogUtils.chooseFileForSave("Save Project", getCurrentFile().getName(), PROJECT_FILTER, DirectorySettings.getProjectsDirectory());
 
         if (selectedFile != null) {
-            try {
-                int result = DialogUtils.YES;
-                if (selectedFile.exists()) {
-                    result = DialogUtils.askYesNo("Overwrite existing file?");
-                }
-                if (result == DialogUtils.YES) {
-                    saveProjectAs(selectedFile);
-                    return true;
-                }
-            } catch (IOException ex) {
-                LOG.error(ex);
-                if (DialogUtils.askYesNo("Error saving project to " + selectedFile.getAbsolutePath() + ". Try another location?") == DialogUtils.YES) {
-                    return promptUserToSaveProjectAs();
-                }
-            } catch (Exception ex) {
-                LOG.error(ex);
-                DialogUtils.displayError("Error saving project.");
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Prompt the user to save the current project.
-     *
-     * @return true if the project was saved
-     */
-    public boolean promptUserToSaveSession() throws Exception {
-        if (currentProjectFile == null) {
-            return promptUserToSaveProjectAs();
-        }
-        try {
-            saveProjectAs(getCurrentFile());
-            return true;
-        } catch (SavantEmptySessionException ex) {
-            LOG.error(String.format("Unable to save %s.", currentProjectFile), ex);
-        } catch (Exception ex) {
-            LOG.error(String.format("Unable to save %s.", currentProjectFile), ex);
-            if (DialogUtils.askYesNo("Error saving project to " + getCurrentFile() + ". Try another location?") == DialogUtils.YES) {
-                return promptUserToSaveProjectAs();
-            }
+            return saveProjectAs(selectedFile);
         }
         return false;
     }
@@ -210,19 +194,14 @@ public class ProjectController extends Controller implements BookmarksChangedLis
         return currentProjectFile != null ? currentProjectFile : UNTITLED_PROJECT_FILE;
     }
 
-    public void loadProjectFromFile(File f) {
+    public void loadProjectFromFile(File f) throws Exception {
         fireEvent(new ProjectEvent(ProjectEvent.Type.LOADING, f));
         currentProjectFile = f;
-        try {
-            clearExistingProject();
-            Project proj = new Project(f);
-            proj.load();
-            fireEvent(new ProjectEvent(ProjectEvent.Type.LOADED, f));
-            setProjectSaved(true);
-        } catch (Exception x) {
-            LOG.error("Error loading project: " + f, x);
-            DialogUtils.displayException("Error Loading Project", String.format("Unable to load %s.", f), x);
-        }
+        clearExistingProject();
+        Project proj = new Project(f);
+        proj.load();
+        fireEvent(new ProjectEvent(ProjectEvent.Type.LOADED, f));
+        setProjectSaved(true);
     }
 
     public void loadProjectFromURL(String urlString) throws Exception {
@@ -250,19 +229,16 @@ public class ProjectController extends Controller implements BookmarksChangedLis
         loadProjectFromFile(localFile);
     }
 
-    public void setProjectFromGenome(Genome genome, URI sequenceURI, List<URI> auxURIs) {
-        projectSaved = true;
-        currentProjectFile = null;
-        fireEvent(new ProjectEvent(ProjectEvent.Type.LOADING, getCurrentFile()));
+    public void setProjectFromGenome(Genome genome, List<URI> trackURIs) throws Exception {
+        if (promptToSaveChanges(false)) {
+            projectSaved = false;
+            currentProjectFile = null;
+            fireEvent(new ProjectEvent(ProjectEvent.Type.LOADING, getCurrentFile()));
 
-        try {
             clearExistingProject();
-            Project proj = new Project(genome, sequenceURI, auxURIs);
+            Project proj = new Project(genome, trackURIs);
             proj.load();
-            setProjectSaved(false); // Will fire UNSAVED
-        } catch (Exception x) {
-            LOG.error("Error initialising project from " + genome.getName(), x);
-            DialogUtils.displayException("Error Loading Project", String.format("Unable to load %s.", genome.getName()), x);
+            setProjectSaved(true);
         }
     }
 }
