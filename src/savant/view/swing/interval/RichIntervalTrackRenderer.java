@@ -155,7 +155,7 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
 
         // chose the color for the strand
         Color fillColor;
-        if((Boolean)(instructions.get(DrawingInstruction.ITEMRGB)) && !bedRecord.getItemRGB().isNull()){
+        if((Boolean)(instructions.get(DrawingInstruction.ITEMRGB)) && bedRecord.getItemRGB() != null && !bedRecord.getItemRGB().isNull()){
             //if an RGB value was supplied, use it
             fillColor = bedRecord.getItemRGB().createColor();
         } else {
