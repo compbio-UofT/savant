@@ -91,7 +91,6 @@ public class Savant extends JFrame implements BookmarksChangedListener, Referenc
     static boolean showNonGenomicReferenceDialog = true;
     private static boolean showBookmarksChangedDialog = false; // turned off, its kind of annoying
     public static final int osSpecificModifier = (MiscUtils.MAC ? java.awt.event.InputEvent.META_MASK : java.awt.event.InputEvent.CTRL_MASK);
-    private DataFormatForm dff;
     private MemoryStatusBarItem memorystatusbar;
     private Application macOSXApplication;
     private boolean browserControlsShown = false;
@@ -1072,12 +1071,8 @@ public class Savant extends JFrame implements BookmarksChangedListener, Referenc
     }//GEN-LAST:event_bookmarkItemActionPerformed
 
     private void formatItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_formatItemActionPerformed
-        if (!dff.isVisible()) {
-            LOG.info("Showing format form...");
-            dff.clear();
-            dff.setLocationRelativeTo(this);
-            dff.setVisible(true);
-        }
+        LOG.info("Showing format form...");
+        new DataFormatForm(this, null, false).setVisible(true);
     }//GEN-LAST:event_formatItemActionPerformed
 
     private void exitItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exitItemActionPerformed
@@ -1613,10 +1608,6 @@ public class Savant extends JFrame implements BookmarksChangedListener, Referenc
         initBookmarksPanel();
         initDataSources();
         initStartPage();
-
-        dff = new DataFormatForm(this, false);
-
-        //urlDialog = new OpenURLDialog(this, true);
     }
 
     private void disableExperimentalFeatures() {
@@ -1786,21 +1777,8 @@ public class Savant extends JFrame implements BookmarksChangedListener, Referenc
      * @param uri the file URI which the user has tried to open.
      */
     public void promptUserToFormatFile(URI uri) {
-        String title = "Unrecognized file: " + uri;
-        String scheme = uri.getScheme();
-        if (scheme == null || scheme.equals("file")) {
-            int reply = JOptionPane.showConfirmDialog(this, "This file does not appear to be formatted. Format now?", title, JOptionPane.YES_NO_OPTION);
-            if (reply == JOptionPane.YES_OPTION) {
-                if (!dff.isVisible()) {
-                    dff.clear();
-                    dff.setInFile(new File(uri));
-                    dff.setLocationRelativeTo(this);
-                    dff.setVisible(true);
-                }
-            }
-        } else {
-            // TODO: Do something intelligent for network URIs.
-            JOptionPane.showMessageDialog(this, "This file does not appear to be formatted. Please try to format it.");
+        if (DialogUtils.askYesNo("Unformatted File", String.format("<html><i>%s</i> does not appear to be formatted. Format now?</html>", MiscUtils.getFileName(uri))) == DialogUtils.YES) {
+            new DataFormatForm(this, uri, !ReferenceController.getInstance().isGenomeLoaded()).setVisible(true);
         }
     }
 

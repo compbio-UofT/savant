@@ -53,12 +53,10 @@ public class ThreadedURLDownload implements Runnable {
 
     @Override
     public void run() {
-        String destination = dir.getAbsolutePath()
-                    + System.getProperty("file.separator")
-                    + MiscUtils.getFilenameFromPath(url.getFile());
+        File destination = new File(dir, url.getFile());
 
-        while (new File(destination).exists()) {
-            destination = DialogUtils.displayInputMessage("Duplicate File", "File already exists. Please enter a new path:", destination);
+        while (destination.exists()) {
+            destination = new File(DialogUtils.displayInputMessage("Duplicate File", "File already exists. Please enter a new path:", destination.getPath()));
             if (destination == null) {
                 return;
             }
@@ -99,10 +97,9 @@ public class ThreadedURLDownload implements Runnable {
 
     File destFile;
 
-    private boolean downloadFile(URL u, String destination, DownloadDialog dd) {
+    private boolean downloadFile(URL u, File destFile, DownloadDialog dd) {
         OutputStream out = null;
         InputStream in = null;
-        destFile = new File(destination);
         try {
             destFile.createNewFile();
             if (!destFile.exists()) {

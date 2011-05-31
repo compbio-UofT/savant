@@ -16,7 +16,9 @@
 
 package savant.view.dialog;
 
+import java.awt.Window;
 import java.io.File;
+import java.net.URI;
 import javax.swing.DefaultListModel;
 import javax.swing.JDialog;
 
@@ -29,55 +31,49 @@ import savant.format.SavantFileFormatterUtils;
 /**
  * @author mfiume, tarkvara
  */
-public class DataFormatForm extends JDialog {
+public final class DataFormatForm extends JDialog {
 
-    /** Creates new form DataFormatForm */
-    public DataFormatForm(java.awt.Frame parent, boolean modal) {
-        super(parent, modal);
+    private static final FormatDef FASTA = new FormatDef("FASTA", true, false, FileType.SEQUENCE_FASTA ,  "FASTA format is a text-based format for representing either nucleotide sequences or peptide sequences, in which base pairs or amino acids are represented using single-letter codes.");
 
+    /**
+     * Construct new data format form.
+     *
+     * @param parent typically the Savant main window
+     * @param sequenceOnly in some cases, we only want to allow user to format Fasta files.
+     */
+    public DataFormatForm(Window parent, URI input, boolean sequenceOnly) {
+        super(parent, ModalityType.APPLICATION_MODAL);
         initComponents();
 
-        formatList.setListData(new FormatDef[] {
-                                    new FormatDef("FASTA", true, false, FileType.SEQUENCE_FASTA ,  "FASTA format is a text-based format for representing either nucleotide sequences or peptide sequences, in which base pairs or amino acids are represented using single-letter codes."),
-                                    new FormatDef("BED", false, false, FileType.INTERVAL_BED , "BED format is an alternative to GFF format for describing co-ordinates of localized features on genomes."),
-                                    new FormatDef("GFF", true, false, FileType.INTERVAL_GFF , "GFF is a format for locating & describing genes and other localized features associated with DNA, RNA and Protein sequences."),
-                                    new FormatDef("BAM Coverage", true, false, FileType.INTERVAL_BAM , "SAM format (binary, for BAM) is a generic format for storing large nucleotide sequence alignments."),
-                                    new FormatDef("WIG/BedGraph", true, false, FileType.CONTINUOUS_WIG , "WIG format allows display of continuous-valued data in track format. This display type is useful for GC percent, probability scores, and transcriptome data."),
-                                    new FormatDef("Generic Interval", true, true, FileType.INTERVAL_GENERIC , "Generic intervals can be used to display any number of from-to pairs, each with an associated description."),
-                                    new FormatDef("Generic Point", true, true, FileType.POINT_GENERIC ,"Generic points can be used to display any number of positional elements, each with an associated description."),
-                                    new FormatDef("Generic Continuous", true, true, FileType.CONTINUOUS_GENERIC ,"Generic continuous can be used to display continuous values.")
-                });
+        if (sequenceOnly) {
+            formatList.setListData(new FormatDef[] { FASTA });
+        } else {
+            formatList.setListData(new FormatDef[] {
+                                        FASTA,
+                                        new FormatDef("BED", false, false, FileType.INTERVAL_BED , "BED format is an alternative to GFF format for describing co-ordinates of localized features on genomes."),
+                                        new FormatDef("GFF", true, false, FileType.INTERVAL_GFF , "GFF is a format for locating & describing genes and other localized features associated with DNA, RNA and Protein sequences."),
+                                        new FormatDef("BAM Coverage", true, false, FileType.INTERVAL_BAM , "SAM format (binary, for BAM) is a generic format for storing large nucleotide sequence alignments."),
+                                        new FormatDef("WIG/BedGraph", true, false, FileType.CONTINUOUS_WIG , "WIG format allows display of continuous-valued data in track format. This display type is useful for GC percent, probability scores, and transcriptome data."),
+                                        new FormatDef("Generic Interval", true, true, FileType.INTERVAL_GENERIC , "Generic intervals can be used to display any number of from-to pairs, each with an associated description."),
+                                        new FormatDef("Generic Point", true, true, FileType.POINT_GENERIC ,"Generic points can be used to display any number of positional elements, each with an associated description."),
+                                        new FormatDef("Generic Continuous", true, true, FileType.CONTINUOUS_GENERIC ,"Generic continuous can be used to display continuous values.")
+                    });
+        }
 
-        // This feature is temporarily disabled.
-        tempOutputCheck.setVisible(false);
-
-        validateReadyToFormat();
-    }
-
-    public void setInFile(File inFile) {
-        if (inFile != null) {
-            inputField.setText(inFile.getPath());
+        if (input != null) {
+            inputField.setText(input.getPath());
             if (!guessFileType()) {
                 setOutputPath();
-                validateReadyToFormat();
             }
         }
 
-    }
+        // This feature is temporarily disabled.
+        tempOutputCheck.setVisible(false);
+        setLocationRelativeTo(parent);
 
-    public void clear() {
-        inputField.setEnabled(true);
-        outputField.setEnabled(true);
-        inputButton.setEnabled(true);
-        outputButton.setEnabled(true);
-        formatList.setEnabled(true);
-
-        inputField.setText("");
-        outputField.setText("");
-        formatList.clearSelection();
         validateReadyToFormat();
     }
-    
+
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -427,7 +423,7 @@ public class DataFormatForm extends JDialog {
     /**
      * Class which is used to populate the format list.
      */
-    class FormatDef {
+    static class FormatDef {
         final String name;
         final boolean defaultIsZeroBased;
         final boolean canChooseBase;

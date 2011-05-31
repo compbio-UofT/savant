@@ -129,7 +129,7 @@ public class DataFormatter {
             // format files with Savant header
 
             // If necessary, check that it really is a text file
-            if (inputFileType != FileType.INTERVAL_BIGBED && inputFileType != FileType.CONTINUOUS_BIGWIG && !verifyTextFile(inFile)) {
+            if (inputFileType != FileType.INTERVAL_BIGBED && inputFileType != FileType.CONTINUOUS_BIGWIG && !verifyTextFile(inFile, inputFileType != FileType.SEQUENCE_FASTA)) {
                 throw new SavantFileFormattingException("<html><i>" + inFile.getName() + "</i> does not appear to be a tab-delimited text file.</html>");
             }
 
@@ -326,18 +326,17 @@ public class DataFormatter {
      * Verifies that the file in question is a tab-delimited text file.
      * @return
      */
-    private boolean verifyTextFile(File fileName) {
+    private boolean verifyTextFile(File fileName, boolean lookingForTabs) {
         FileReader reader = null;
         try {
             reader = new FileReader(fileName);
             char[] readBuf = new char[1000];
-            boolean tabbed = false;
             int charsRead = reader.read(readBuf);
             if (charsRead != -1) {
                 for (int i = 0; i < charsRead; i++) {
                     if (readBuf[i] == '\t') {
-                        tabbed = true;
-                    } else if (tabbed && (readBuf[i] == '\r' || readBuf[i] == '\n')) {
+                        lookingForTabs = false;
+                    } else if (!lookingForTabs && (readBuf[i] == '\r' || readBuf[i] == '\n')) {
                         return true;
                     }
                 }

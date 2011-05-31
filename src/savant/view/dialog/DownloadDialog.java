@@ -1,10 +1,5 @@
 /*
- * DownloadDialog.java
- *
- * Created on Sep 7, 2010, 4:48:54 PM
- *
- *
- *    Copyright 2009-2010 University of Toronto
+ *    Copyright 2009-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -23,11 +18,13 @@ package savant.view.dialog;
 
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.File;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JProgressBar;
 import javax.swing.WindowConstants;
+
 import savant.api.util.DialogUtils;
 
 /**
@@ -168,8 +165,8 @@ public class DownloadDialog extends JDialog {
         this.l_currentfilename.setText(arg);
     }
 
-    public void setDestination(String arg) {
-        this.l_destination.setText(arg);
+    public void setDestination(File arg) {
+        this.l_destination.setText(arg.getPath());
     }
 
     public void setAmountDownloaded(String string) {
