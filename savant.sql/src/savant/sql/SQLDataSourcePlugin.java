@@ -78,7 +78,10 @@ public class SQLDataSourcePlugin extends SavantDataSourcePlugin {
         closeConnection();
 
         // By default, log in using the last-used URI.
-        uri = new URI(SettingsUtils.getString(this, URI_SETTING));
+        String lastUsed = SettingsUtils.getString(this, URI_SETTING);
+        if (lastUsed != null) {
+            uri = new URI(lastUsed);
+        }
         tryToLogin();
 
         // Connection will be null if user cancelled login dialog.

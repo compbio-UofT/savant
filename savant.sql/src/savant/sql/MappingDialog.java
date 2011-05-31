@@ -195,7 +195,7 @@ public class MappingDialog extends javax.swing.JDialog {
     private void tableComboActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tableComboActionPerformed
         final Table t = (Table) tableCombo.getSelectedItem();
         if (t != null) {
-            new SQLWorker<Column[]>(this, "Fetching database columns...", "Unable to fetch database columns.") {
+            new SQLWorker<Column[]>("Fetching database columns...", "Unable to fetch database columns.") {
                 @Override
                 public Column[] doInBackground() throws SQLException {
                     // The first call to getColumns() can require a lengthy query.
@@ -242,7 +242,7 @@ public class MappingDialog extends javax.swing.JDialog {
      * system databases which contain no tables.
      */
     private void populateDatabaseCombo() {
-        new SQLWorker<List<Database>>(DialogUtils.getMainWindow(), "Fetching database list...", "Unable to get list of databases.") {
+        new SQLWorker<List<Database>>("Fetching database list...", "Unable to get list of databases.") {
             @Override
             public List<Database> doInBackground() throws SQLException {
                  return plugin.getDatabases();
@@ -270,7 +270,7 @@ public class MappingDialog extends javax.swing.JDialog {
      * Table combo.
      */
     private void populateTableCombo() {
-        new SQLWorker<List<Table>>(this, "Fetching table list...", "Unable to get list of tables.") {
+        new SQLWorker<List<Table>>("Fetching table list...", "Unable to get list of tables.") {
             @Override
             public List<Table> doInBackground() throws SQLException{
                 return ((Database) databaseCombo.getSelectedItem()).getTables();

@@ -16,7 +16,6 @@
 
 package savant.sql;
 
-import java.awt.Window;
 import javax.swing.SwingWorker;
 
 import org.apache.commons.logging.Log;
@@ -39,7 +38,7 @@ public abstract class SQLWorker<T> {
     private boolean workerDone = false;
     private final Object waiter = new Object();
 
-    public SQLWorker(final Window parent, final String progress, final String failure) {
+    public SQLWorker(final String progress, final String failure) {
         new SwingWorker() {
             private T result;
 
@@ -48,8 +47,7 @@ public abstract class SQLWorker<T> {
                 try {
                     result = SQLWorker.this.doInBackground();
                 } catch (Exception x) {
-                    LOG.error(x);
-                    DialogUtils.showProgress(null, null, 1.0);
+                    DialogUtils.showProgress(null, 1.0);
                     DialogUtils.displayException("SQL Error", failure, x);
                 }
                 return null;
@@ -62,10 +60,9 @@ public abstract class SQLWorker<T> {
                         workerDone = true;
                         waiter.notifyAll();
                     }
-                    DialogUtils.showProgress(null, null, 1.0);
+                    DialogUtils.showProgress(null, 1.0);
                     SQLWorker.this.done(result);
                 } catch (Exception x) {
-                    LOG.error(x);
                     DialogUtils.displayException("SQL Error", failure, x);
                 }
             }
@@ -75,7 +72,7 @@ public abstract class SQLWorker<T> {
             try {
                 waiter.wait(PROGRESS_DELAY);
                 if (!workerDone) {
-                    DialogUtils.showProgress(parent, progress, -1.0);
+                    DialogUtils.showProgress(progress, -1.0);
                 }
             } catch (InterruptedException ignored) {
             }

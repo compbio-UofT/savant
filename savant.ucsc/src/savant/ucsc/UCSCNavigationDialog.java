@@ -331,7 +331,6 @@ public class UCSCNavigationDialog extends JDialog implements SQLConstants {
             TrackDef trackDef = (TrackDef)trackCombo.getSelectedItem();
             mappingPanel.populate(table.getColumns(), knownMapping, !table.getName().equals(trackDef.track) && !table.getName().equals("all_" + trackDef.track));
         } catch (SQLException sqlx) {
-            LOG.error(sqlx);
             DialogUtils.displayException("SQL Error", "Unable to get list of columns.", sqlx);
         }
     }//GEN-LAST:event_formatComboActionPerformed
@@ -348,7 +347,7 @@ public class UCSCNavigationDialog extends JDialog implements SQLConstants {
     // End of variables declaration//GEN-END:variables
 
     private void populateCladeCombo() throws SQLException {
-        new SQLWorker<String>(DialogUtils.getMainWindow(), "Fetching database list...", "Unable to fetch database list from UCSC.") {
+        new SQLWorker<String>("Fetching database list...", "Unable to fetch database list from UCSC.") {
             @Override
             public String doInBackground() throws SQLException {
                 if (table != null) {
@@ -421,7 +420,7 @@ public class UCSCNavigationDialog extends JDialog implements SQLConstants {
 
     private void populateGroupCombo() {
         final GenomeDef genome = (GenomeDef)genomeCombo.getSelectedItem();
-        new SQLWorker<List<GroupDef>>(this, String.format("Fetching tables for %s...", genome.label), "Unable to fetch table list from UCSC.") {
+        new SQLWorker<List<GroupDef>>(String.format("Fetching tables for %s...", genome.label), "Unable to fetch table list from UCSC.") {
             @Override
             public List<GroupDef> doInBackground() throws SQLException {
                 if (genomeDB != null) {
