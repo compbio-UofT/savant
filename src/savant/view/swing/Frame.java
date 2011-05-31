@@ -39,6 +39,7 @@ import savant.controller.DockableFrameController;
 import savant.controller.ReferenceController;
 import savant.controller.DrawModeController;
 import savant.controller.FrameController;
+import savant.controller.GraphPaneController;
 import savant.controller.RangeController;
 import savant.controller.TrackController;
 import savant.controller.event.DrawModeChangedEvent;
@@ -660,7 +661,7 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
     /**
      * Export this frame as an image.
      */
-    public BufferedImage frameToImage(){
+    public BufferedImage frameToImage(int baseSelected){
         BufferedImage bufferedImage = new BufferedImage(graphPane.getWidth(), graphPane.getHeight(), BufferedImage.TYPE_INT_RGB);
         Graphics2D g = bufferedImage.createGraphics();
         graphPane.setRenderForced();
@@ -668,6 +669,12 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
         graphPane.render(g);
         graphPane.unforceFullHeight();
         g.setColor(Color.black);
+        if(baseSelected > 0){
+            int spos = MiscUtils.transformPositionToPixel(baseSelected, this.graphPane.getWidth(), this.graphPane.getHorizontalPositionalRange());
+            g.drawLine(spos, 0, spos, this.graphPane.getHeight());
+            int rpos = MiscUtils.transformPositionToPixel(baseSelected+1, this.graphPane.getWidth(), this.graphPane.getHorizontalPositionalRange());
+            g.drawLine(rpos, 0, rpos, this.graphPane.getHeight());
+        }
         g.setFont(new Font(null, Font.BOLD, 13));
         g.drawString(tracks[0].getName(), 2, 15);
         return bufferedImage;

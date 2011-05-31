@@ -16,6 +16,7 @@
 package savant.swing.component;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
@@ -64,29 +65,40 @@ public class TrackChooser extends JDialog {
     private JComboBox filterCombo;
     private String[] filteredTracks = null;
     private JCheckBox autoSelectAllCheck;
-
-    /*@Override
-    public void setVisible(boolean isVisible) {
-        if (isVisible) {
-            initLists();
-        }
-        super.setVisible(isVisible);
-    }*/
+    private boolean selectBase;
+    private JTextField selectBaseField;
+    private int baseSelected = -1;
 
     public TrackChooser(JFrame parent, boolean multiple, String title){
+        this(parent, multiple, title, false, -1);
+    }
+
+    public TrackChooser(JFrame parent, boolean multiple, String title, boolean selectBase){
+        this(parent, multiple, title, selectBase, -1);
+    }
+
+    public TrackChooser(JFrame parent, boolean multiple, String title, boolean selectBase, int defaultBase){
         super(parent, true);
 
         this.multiple = multiple;
+        this.selectBase = selectBase;
         this.setTitle(title);
 
         init();
         initLists();
+        if(selectBase && defaultBase != -1){
+            selectBaseField.setText(MiscUtils.numToString(defaultBase));
+        }
         if(this.getAutoSelect()) selectAll();
         this.setLocationRelativeTo(null);
     }
 
     public String[] getSelectedTracks(){
         return retVal;
+    }
+
+    public int getBaseSelected(){
+        return baseSelected;
     }
 
     private void filter(){
@@ -148,9 +160,7 @@ public class TrackChooser extends JDialog {
 
         //FILLER
         filler1 = new JPanel();
-        //filler1.setSize(10,40);
         filler1.setPreferredSize(new Dimension(10,10));
-        //filler1.setBackground(Color.red);
         c.weightx = 1.0;
         c.weighty = 3.0;
         c.gridx = 0;
@@ -197,7 +207,6 @@ public class TrackChooser extends JDialog {
         filler3 = new JPanel();
         filler3.setSize(60, 10);
         filler3.setPreferredSize(new Dimension(60,10));
-        //filler3.setBackground(Color.red);
         c.weightx = 1.0;
         c.weighty = 1.0;
         c.gridx = 2;
@@ -255,7 +264,6 @@ public class TrackChooser extends JDialog {
         filler2 = new JPanel();
         filler2.setSize(10, 40);
         filler2.setPreferredSize(new Dimension(10,40));
-        //filler2.setBackground(Color.red);
         c.weightx = 0;
         c.weighty = 0;
         c.gridx = 5;
@@ -282,11 +290,87 @@ public class TrackChooser extends JDialog {
         c.gridwidth = 2;
         this.add(autoSelectAllCheck, c);
 
+        //SEPARATOR
+        JPanel sepPanel1 = new JPanel();
+        sepPanel1.setMinimumSize(new Dimension(5, 10));
+        sepPanel1.setBackground(Color.red);
+        sepPanel1.setLayout(new BorderLayout());
+        sepPanel1.add(new JSeparator(SwingConstants.HORIZONTAL), BorderLayout.CENTER);
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.weightx = 1.0;
+        c.weighty = 1.0;
+        c.gridx = 1;
+        c.gridy = 7;
+        c.gridheight = 1;
+        c.gridwidth = 5;
+        this.add(sepPanel1, c);
+
+        int y = 8;
+        if(selectBase){
+
+            //SELECT BASE PANEL
+            JPanel selectBasePanel = new JPanel();
+            selectBasePanel.setMinimumSize(new Dimension(40, 10));
+            selectBasePanel.setLayout(new BorderLayout());
+            c.weightx = 1.0;
+            c.weighty = 1.0;
+            c.gridx = 1;
+            c.gridy = y;
+            c.gridheight = 1;
+            c.gridwidth = 2;
+            this.add(selectBasePanel, c);
+
+            //SELECT BASE LABEL
+            JLabel selectBaseLabel = new JLabel("(Optional) Select Base: ");
+            selectBasePanel.add(selectBaseLabel, BorderLayout.WEST);
+
+            //SELECT BASE FIELD
+            selectBaseField = new JTextField();
+            selectBasePanel.add(selectBaseField, BorderLayout.CENTER);
+
+            //FILLER
+            JPanel selectBaseFiller = new JPanel();
+            selectBaseFiller.setSize(new Dimension(10,10));
+            selectBaseFiller.setPreferredSize(new Dimension(10,10));
+            selectBasePanel.add(selectBaseFiller, BorderLayout.SOUTH);
+            y++;
+
+            //SEPARATOR
+            JPanel sepPanel2 = new JPanel();
+            sepPanel2.setMinimumSize(new Dimension(10, 10));
+            sepPanel2.setBackground(Color.red);
+            sepPanel2.setLayout(new BorderLayout());
+            sepPanel2.add(new JSeparator(SwingConstants.HORIZONTAL), BorderLayout.CENTER);
+            c.fill = GridBagConstraints.HORIZONTAL;
+            c.weightx = 1.0;
+            c.weighty = 1.0;
+            c.gridx = 1;
+            c.gridy = y;
+            c.gridheight = 1;
+            c.gridwidth = 5;
+            this.add(sepPanel2, c);
+            y++;
+
+            //FILLER
+            JPanel filler5 = new JPanel();
+            filler5.setSize(10, 10);
+            filler5.setPreferredSize(new Dimension(10,10));
+            c.weightx = 0;
+            c.weighty = 0;
+            c.gridx = 0;
+            c.gridy = y;
+            c.gridheight = 1;
+            c.gridwidth = 1;
+            this.add(filler5, c);
+            y++;
+        }
+
         //OK
+        c.fill = GridBagConstraints.NONE;
         c.weightx = 1.0;
         c.weighty = 1.0;
         c.gridx = 3;
-        c.gridy = 7;
+        c.gridy = y;
         c.gridheight = 1;
         c.gridwidth = 1;
         this.add(okButton, c);
@@ -295,10 +379,23 @@ public class TrackChooser extends JDialog {
         c.weightx = 1.0;
         c.weighty = 0.5;
         c.gridx = 4;
-        c.gridy = 7;
+        c.gridy = y;
         c.gridheight = 1;
         c.gridwidth = 1;
         this.add(cancelButton, c);
+        y++;
+
+        //FILLER
+        JPanel filler4 = new JPanel();
+        filler4.setSize(10, 10);
+        filler4.setPreferredSize(new Dimension(10,10));
+        c.weightx = 0;
+        c.weighty = 0;
+        c.gridx = 0;
+        c.gridy = y;
+        c.gridheight = 1;
+        c.gridwidth = 1;
+        this.add(filler4, c);
 
         pack();
     }
@@ -328,6 +425,13 @@ public class TrackChooser extends JDialog {
                         PersistentSettings.getInstance().store();
                     } catch (IOException ex) {
                         Logger.getLogger(TrackChooser.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+                if(selectBase){
+                    try {
+                        baseSelected = Integer.parseInt(selectBaseField.getText().replaceAll(",", ""));
+                    } catch (NumberFormatException ex){
+                        baseSelected = -1;
                     }
                 }
                 dispose();
@@ -432,6 +536,10 @@ public class TrackChooser extends JDialog {
         autoSelectAllCheck.setSelected(getAutoSelect());
     }
 
+    private void createSelectBase(){
+        
+    }
+
     private void init() {
         createMoveRight();
         createMoveLeft();
@@ -441,6 +549,7 @@ public class TrackChooser extends JDialog {
         createCancelButton();
         createFilter();
         createSelectAllCheck();
+        if(selectBase) createSelectBase();
         initLayout();
     }
 
