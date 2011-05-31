@@ -79,7 +79,7 @@ public class Ruler extends JPanel {
         graphPaneController.addListener(new Listener<GraphPaneEvent>() {
             @Override
             public void handleEvent(GraphPaneEvent event) {
-                if (event.getSource().isPanning()) {
+                if (graphPaneController.isPanning()) {
                     repaint();
                 }
             }

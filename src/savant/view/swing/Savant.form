@@ -24,6 +24,9 @@
             </MenuItem>
             <MenuItem class="javax.swing.JMenuItem" name="loadFromFileItem">
               <Properties>
+                <Property name="accelerator" type="javax.swing.KeyStroke" editor="org.netbeans.modules.form.editors.KeyStrokeEditor">
+                  <KeyStroke key="Ctrl+T"/>
+                </Property>
                 <Property name="text" type="java.lang.String" value="Load Track from File..."/>
                 <Property name="enabled" type="boolean" value="false"/>
               </Properties>
@@ -45,6 +48,9 @@
             </MenuItem>
             <MenuItem class="javax.swing.JMenuItem" name="loadFromDataSourcePlugin">
               <Properties>
+                <Property name="accelerator" type="javax.swing.KeyStroke" editor="org.netbeans.modules.form.editors.KeyStrokeEditor">
+                  <KeyStroke key="Ctrl+E"/>
+                </Property>
                 <Property name="text" type="java.lang.String" value="Load Track from Other Datasource..."/>
                 <Property name="enabled" type="boolean" value="false"/>
               </Properties>
@@ -92,6 +98,9 @@
             </MenuItem>
             <MenuItem class="javax.swing.JMenuItem" name="saveProjectAsItem">
               <Properties>
+                <Property name="accelerator" type="javax.swing.KeyStroke" editor="org.netbeans.modules.form.editors.KeyStrokeEditor">
+                  <KeyStroke key="Shift+Ctrl+S"/>
+                </Property>
                 <Property name="text" type="java.lang.String" value="Save Project As..."/>
               </Properties>
               <Events>
@@ -298,6 +307,9 @@
             </MenuItem>
             <MenuItem class="javax.swing.JCheckBoxMenuItem" name="plumblineItem">
               <Properties>
+                <Property name="accelerator" type="javax.swing.KeyStroke" editor="org.netbeans.modules.form.editors.KeyStrokeEditor">
+                  <KeyStroke key="Ctrl+K"/>
+                </Property>
                 <Property name="text" type="java.lang.String" value="Plumbline"/>
               </Properties>
               <Events>
@@ -417,6 +429,9 @@
             </MenuItem>
             <MenuItem class="javax.swing.JCheckBoxMenuItem" name="bookmarksItem">
               <Properties>
+                <Property name="accelerator" type="javax.swing.KeyStroke" editor="org.netbeans.modules.form.editors.KeyStrokeEditor">
+                  <KeyStroke key="Shift+Ctrl+B"/>
+                </Property>
                 <Property name="text" type="java.lang.String" value="Bookmarks"/>
               </Properties>
               <Events>
@@ -657,12 +672,12 @@
             <Property name="text" type="java.lang.String" value=" Position: "/>
           </Properties>
         </Component>
-        <Component class="javax.swing.JLabel" name="label_mouseposition">
+        <Component class="javax.swing.JLabel" name="mousePositionLabel">
           <Properties>
             <Property name="text" type="java.lang.String" value="mouse over track"/>
           </Properties>
         </Component>
-        <Component class="javax.swing.JLabel" name="jLabel1">
+        <Component class="javax.swing.JLabel" name="timeCaption">
           <Properties>
             <Property name="text" type="java.lang.String" value="Time: "/>
           </Properties>

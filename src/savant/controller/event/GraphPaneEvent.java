@@ -15,22 +15,55 @@
  */
 package savant.controller.event;
 
-import savant.controller.GraphPaneController;
+import java.awt.Point;
 
 
 /**
- * Something has changed in the state of a GraphPane.  Tell our clients about it.
+ * Something has changed in the state of our GraphPaneController.  Tell our clients about it.
  *
  * @author mfiume, tarkvara
  */
 public class GraphPaneEvent {
-    private final GraphPaneController source;
+    private final Type type;
+    private final Point mouse;
+    private final String status;
 
-    public GraphPaneEvent(GraphPaneController source) {
-        this.source = source;
+    /**
+     * Create an event representing a change in highlighting.
+     */
+    public GraphPaneEvent() {
+        this.type = Type.HIGHLIGHTING;
+        this.mouse = null;
+        this.status = null;
     }
 
-    public GraphPaneController getSource() {
-        return source;
+    public GraphPaneEvent(Point mouse) {
+        this.type = Type.MOUSE;
+        this.mouse = mouse;
+        this.status = null;
+    }
+
+    public GraphPaneEvent(String status) {
+        this.type = Type.STATUS;
+        this.mouse = null;
+        this.status = status;
+    }
+
+    public Type getType() {
+        return type;
+    }
+
+    public Point getMouse() {
+        return mouse;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public enum Type {
+        HIGHLIGHTING,
+        MOUSE,
+        STATUS
     }
 }

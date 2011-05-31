@@ -36,17 +36,18 @@ import savant.view.swing.Savant;
 import savant.view.swing.Track;
 import savant.view.swing.interval.BAMCoverageTrack;
 
-
 /**
  * Model class which represents a Savant project.
  *
  * @author tarkvara
  */
 public class Project {
+
     private static final Log LOG = LogFactory.getLog(Project.class);
     private static final int FILE_VERSION = 1;
 
     private enum XMLElement {
+
         savant,
         genome,
         reference,
@@ -55,6 +56,7 @@ public class Project {
     };
 
     private enum XMLAttribute {
+
         version,
         name,
         description,
@@ -63,13 +65,11 @@ public class Project {
         length,
         cytoband
     };
-
     Genome genome;
     List<Bookmark> bookmarks;
     List<String> trackPaths;
     String reference;
     Range range;
-
     private static XMLStreamWriter writer;
     private static XMLStreamReader reader;
 
@@ -91,11 +91,10 @@ public class Project {
         range = new Range(1, 1000);
         this.genome = genome;
         trackPaths = new ArrayList<String>(trackURIs.size());
-        for (URI u: trackURIs) {
+        for (URI u : trackURIs) {
             trackPaths.add(u.toString());
         }
     }
-
 
     /**
      * Read old-style project files stored using Java serialization.
@@ -107,21 +106,21 @@ public class Project {
             objectStream = new ObjectInputStream(input);
             while (true) {
                 try {
-                    String key = (String)objectStream.readObject();
+                    String key = (String) objectStream.readObject();
                     if (key == null) {
                         break;
                     }
                     Object value = objectStream.readObject();
                     if (key.equals("GENOME")) {
-                        genome = (Genome)value;
+                        genome = (Genome) value;
                     } else if (key.equals("BOOKMARKS")) {
-                        bookmarks = (List<Bookmark>)value;
+                        bookmarks = (List<Bookmark>) value;
                     } else if (key.equals("TRACKS")) {
-                        trackPaths = (List<String>)value;
+                        trackPaths = (List<String>) value;
                     } else if (key.equals("REFERENCE")) {
-                        reference = (String)value;
+                        reference = (String) value;
                     } else if (key.equals("RANGE")) {
-                        range = (Range)value;
+                        range = (Range) value;
                     }
                 } catch (EOFException e) {
                     break;
@@ -149,7 +148,7 @@ public class Project {
                         case savant:
                             version = Integer.valueOf(readAttribute(XMLAttribute.version));
                             Bookmark r = new Bookmark(readAttribute(XMLAttribute.range));
-                            range = (Range)r.getRange();
+                            range = (Range) r.getRange();
                             reference = r.getReference();
                             LOG.info("Reading project version " + version);
                             break;
@@ -214,7 +213,7 @@ public class Project {
             // This is not currently used.  Instead, the genome always gets its sequence from the project's first SequenceTrack.
             writeAttribute(XMLAttribute.uri, MiscUtils.getNeatPathFromURI(g.getDataSource().getURI()));
         } else {
-            for (String ref: g.getReferenceNames()) {
+            for (String ref : g.getReferenceNames()) {
                 writeEmptyElement(XMLElement.reference, "    ");
                 writeAttribute(XMLAttribute.name, ref);
                 writeAttribute(XMLAttribute.length, Integer.toString(g.getLength(ref)));
@@ -223,7 +222,7 @@ public class Project {
         writer.writeCharacters("\r\n  ");
         writer.writeEndElement();
 
-        for (Track t: TrackController.getInstance().getTracks()) {
+        for (Track t : TrackController.getInstance().getTracks()) {
             if (!(t instanceof BAMCoverageTrack)) {
                 DataSource ds = t.getDataSource();
                 URI uri = ds.getURI();
@@ -234,7 +233,7 @@ public class Project {
             }
         }
 
-        for (Bookmark b: BookmarkController.getInstance().getBookmarks()) {
+        for (Bookmark b : BookmarkController.getInstance().getBookmarks()) {
             writeStartElement(XMLElement.bookmark, "  ");
             writeAttribute(XMLAttribute.range, b.getRangeText());
             writer.writeCharacters(b.getAnnotation());
@@ -259,7 +258,6 @@ public class Project {
     private static void writeAttribute(XMLAttribute attr, String value) throws XMLStreamException {
         writer.writeAttribute(attr.toString(), value);
     }
-
 
     /**
      * Load the project's settings into Savant.

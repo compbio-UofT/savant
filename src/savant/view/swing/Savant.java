@@ -340,6 +340,26 @@ public class Savant extends JFrame implements BookmarksChangedListener, Referenc
             }
         });
 
+        GraphPaneController.getInstance().addListener(new Listener<GraphPaneEvent>() {
+            @Override
+            public void handleEvent(GraphPaneEvent event) {
+                GraphPaneController controller = GraphPaneController.getInstance();
+                switch (event.getType()) {
+                    case HIGHLIGHTING:
+                        plumblineItem.setSelected(controller.isPlumbing());
+                        spotlightItem.setSelected(controller.isSpotlight());
+                        crosshairItem.setSelected(controller.isAiming());
+                        break;
+                    case MOUSE:
+                        updateMousePosition(event.getMouse());
+                        break;
+                    case STATUS:
+                        updateStatus(event.getStatus());
+                        break;
+                }
+            }
+        });
+  
         ProjectController.getInstance().addListener(new Listener<ProjectEvent>() {
             @Override
             public void handleEvent(ProjectEvent event) {
@@ -428,8 +448,8 @@ public class Savant extends JFrame implements BookmarksChangedListener, Referenc
         panel_main = new javax.swing.JPanel();
         toolbar_bottom = new javax.swing.JToolBar();
         label_mouseposition_title = new javax.swing.JLabel();
-        label_mouseposition = new javax.swing.JLabel();
-        jLabel1 = new javax.swing.JLabel();
+        mousePositionLabel = new javax.swing.JLabel();
+        timeCaption = new javax.swing.JLabel();
         label_status = new javax.swing.JLabel();
         s_e_sep = new javax.swing.JToolBar.Separator();
         label_memory = new javax.swing.JLabel();
@@ -510,7 +530,7 @@ public class Savant extends JFrame implements BookmarksChangedListener, Referenc
         panelExtendedMiddle.setLayout(panelExtendedMiddleLayout);
         panelExtendedMiddleLayout.setHorizontalGroup(
             panelExtendedMiddleLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 1007, Short.MAX_VALUE)
+            .addGap(0, 1017, Short.MAX_VALUE)
         );
         panelExtendedMiddleLayout.setVerticalGroup(
             panelExtendedMiddleLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -528,7 +548,7 @@ public class Savant extends JFrame implements BookmarksChangedListener, Referenc
         panel_main.setLayout(panel_mainLayout);
         panel_mainLayout.setHorizontalGroup(
             panel_mainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 1007, Short.MAX_VALUE)
+            .addGap(0, 1017, Short.MAX_VALUE)
         );
         panel_mainLayout.setVerticalGroup(
             panel_mainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -541,11 +561,11 @@ public class Savant extends JFrame implements BookmarksChangedListener, Referenc
         label_mouseposition_title.setText(" Position: ");
         toolbar_bottom.add(label_mouseposition_title);
 
-        label_mouseposition.setText("mouse over track");
-        toolbar_bottom.add(label_mouseposition);
+        mousePositionLabel.setText("mouse over track");
+        toolbar_bottom.add(mousePositionLabel);
 
-        jLabel1.setText("Time: ");
-        toolbar_bottom.add(jLabel1);
+        timeCaption.setText("Time: ");
+        toolbar_bottom.add(timeCaption);
 
         label_status.setMaximumSize(new java.awt.Dimension(300, 14));
         label_status.setMinimumSize(new java.awt.Dimension(100, 14));
@@ -563,7 +583,7 @@ public class Savant extends JFrame implements BookmarksChangedListener, Referenc
         panel_toolbar.setLayout(panel_toolbarLayout);
         panel_toolbarLayout.setHorizontalGroup(
             panel_toolbarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 1007, Short.MAX_VALUE)
+            .addGap(0, 1017, Short.MAX_VALUE)
         );
         panel_toolbarLayout.setVerticalGroup(
             panel_toolbarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -791,6 +811,7 @@ public class Savant extends JFrame implements BookmarksChangedListener, Referenc
         });
         viewMenu.add(crosshairItem);
 
+        plumblineItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_K, java.awt.event.InputEvent.CTRL_MASK));
         plumblineItem.setText("Plumbline");
         plumblineItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -973,12 +994,12 @@ public class Savant extends JFrame implements BookmarksChangedListener, Referenc
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(panel_top, javax.swing.GroupLayout.DEFAULT_SIZE, 1007, Short.MAX_VALUE)
+            .addComponent(panel_top, javax.swing.GroupLayout.DEFAULT_SIZE, 1017, Short.MAX_VALUE)
             .addGroup(layout.createSequentialGroup()
                 .addComponent(toolbar_bottom, javax.swing.GroupLayout.DEFAULT_SIZE, 997, Short.MAX_VALUE)
                 .addContainerGap())
-            .addComponent(panel_toolbar, javax.swing.GroupLayout.DEFAULT_SIZE, 1007, Short.MAX_VALUE)
-            .addComponent(panel_main, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 1007, Short.MAX_VALUE)
+            .addComponent(panel_toolbar, javax.swing.GroupLayout.DEFAULT_SIZE, 1017, Short.MAX_VALUE)
+            .addComponent(panel_main, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 1017, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1447,12 +1468,10 @@ public class Savant extends JFrame implements BookmarksChangedListener, Referenc
     private javax.swing.JMenuItem formatItem;
     private javax.swing.JCheckBoxMenuItem genomeItem;
     private javax.swing.JMenu helpMenu;
-    private javax.swing.JLabel jLabel1;
     private javax.swing.JPopupMenu.Separator jSeparator10;
     private javax.swing.JPopupMenu.Separator jSeparator4;
     private javax.swing.JPopupMenu.Separator jSeparator7;
     private javax.swing.JLabel label_memory;
-    private javax.swing.JLabel label_mouseposition;
     private javax.swing.JLabel label_mouseposition_title;
     private javax.swing.JLabel label_status;
     private javax.swing.JMenuItem loadFromDataSourcePlugin;
@@ -1461,6 +1480,7 @@ public class Savant extends JFrame implements BookmarksChangedListener, Referenc
     private javax.swing.JMenuItem loadGenomeItem;
     private javax.swing.JMenuBar menuBar_top;
     private javax.swing.JMenuItem menuitem_pluginmanager;
+    private javax.swing.JLabel mousePositionLabel;
     private javax.swing.JCheckBoxMenuItem navigationItem;
     private javax.swing.JMenuItem openProjectItem;
     private javax.swing.JMenuItem panLeftItem;
@@ -1484,6 +1504,7 @@ public class Savant extends JFrame implements BookmarksChangedListener, Referenc
     private javax.swing.JCheckBoxMenuItem spotlightItem;
     private javax.swing.JCheckBoxMenuItem startPageItem;
     private javax.swing.JCheckBoxMenuItem statusBarItem;
+    private javax.swing.JLabel timeCaption;
     private javax.swing.JMenuItem toEndItem;
     private javax.swing.JMenuItem toStartItem;
     private javax.swing.JToolBar toolbar_bottom;
@@ -1898,12 +1919,12 @@ public class Savant extends JFrame implements BookmarksChangedListener, Referenc
 
 
     private void setSpeedAndEfficiencyIndicatorsVisible(boolean b) {
-        this.speedAndEfficiencyItem.setSelected(b);
-        this.jLabel1.setVisible(b);
-        this.label_memory.setVisible(b);
-        this.label_status.setVisible(b);
-        this.s_e_sep.setVisible(b);
-        this.memorystatusbar.setVisible(b);
+        speedAndEfficiencyItem.setSelected(b);
+        timeCaption.setVisible(b);
+        label_memory.setVisible(b);
+        label_status.setVisible(b);
+        s_e_sep.setVisible(b);
+        memorystatusbar.setVisible(b);
     }
 
     public void addPluginToMenu(JCheckBoxMenuItem cb) {
@@ -1935,14 +1956,11 @@ public class Savant extends JFrame implements BookmarksChangedListener, Referenc
         }
     }
 
-    public void updateMousePosition() {
-        GraphPaneController gpc = GraphPaneController.getInstance();
-        int x = gpc.getMouseXPosition();
-        int y = gpc.getMouseYPosition();
-        if (x == -1 && y == -1) {
-            this.label_mouseposition.setText("mouse not over track");
+    public void updateMousePosition(Point p) {
+        if (p.x == -1 && p.y == -1) {
+            mousePositionLabel.setText("Mouse not over track");
         } else {
-            this.label_mouseposition.setText(((x == -1) ? "" : "X: " + MiscUtils.numToString(x)) + ((y == -1) ? "" : " Y: " + MiscUtils.numToString(y)));
+            mousePositionLabel.setText((p.x == -1 ? "" : "X: " + MiscUtils.numToString(p.x)) + (p.y == -1 ? "" : " Y: " + MiscUtils.numToString(p.y)));
         }
     }
 

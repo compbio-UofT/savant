@@ -16,13 +16,14 @@
 
 package savant.controller;
 
+import java.awt.Point;
 import java.util.ArrayList;
 import java.util.List;
 
 import savant.controller.event.GraphPaneEvent;
 import savant.util.Range;
 import savant.view.swing.GraphPane;
-import savant.view.swing.Savant;
+
 
 /**
  *
@@ -62,7 +63,7 @@ public class GraphPaneController extends Controller {
         //System.out.println("Enlisting gp " + p.getTrackRenderers().get(0).toString());
         graphpanesQueuedForRendering.add(p);
         if (graphpanesQueuedForRendering.size() == 1) {
-            Savant.getInstance().updateStatus("rendering ...");
+            fireEvent(new GraphPaneEvent("rendering..."));
             start = System.currentTimeMillis();
         }
     }
@@ -80,8 +81,8 @@ public class GraphPaneController extends Controller {
         if (graphpanesQueuedForRendering.isEmpty()) {
             long elapsedTimeMillis = System.currentTimeMillis()-start;
             // Get elapsed time in seconds
-            float elapsedTimeSec = elapsedTimeMillis/1000F;
-            Savant.getInstance().updateStatus("took " + elapsedTimeSec + " s");
+            float elapsedTimeSec = elapsedTimeMillis * 0.001F;
+            fireEvent(new GraphPaneEvent(String.format("took %.3f s", elapsedTimeSec)));
             RangeController.getInstance().fireRangeChangeCompletedEvent();
         }
     }
@@ -104,12 +105,12 @@ public class GraphPaneController extends Controller {
 
     public void askForRefresh() {
         if (isPanning() || isZooming() || isPlumbing() || isSpotlight() || isAiming()) {
-            fireEvent(new GraphPaneEvent(this));
+            fireEvent(new GraphPaneEvent());
         }
     }
 
     public void forceRefresh() {
-        fireEvent(new GraphPaneEvent(this));
+        fireEvent(new GraphPaneEvent());
     }
 
     public boolean isSelecting() {
@@ -215,7 +216,7 @@ public class GraphPaneController extends Controller {
     public void setMouseXPosition(int position) {
         this.mouseXPosition = position;
         askForRefresh();
-        Savant.getInstance().updateMousePosition();
+        fireEvent(new GraphPaneEvent(new Point(mouseXPosition, mouseYPosition)));
     }
 
     public int getMouseYPosition() {
@@ -225,7 +226,7 @@ public class GraphPaneController extends Controller {
     public void setMouseYPosition(int position) {
         this.mouseYPosition = position;
         askForRefresh();
-        Savant.getInstance().updateMousePosition();
+        fireEvent(new GraphPaneEvent(new Point(mouseXPosition, mouseYPosition)));
     }
     
     public void setSpotlightSize(int size) {
