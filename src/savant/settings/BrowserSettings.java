@@ -54,8 +54,8 @@ public class BrowserSettings {
     public static final String SAFE_URL = URL + "/safe/savantsafe.php";
 
 
-    public static String version = "1.4.5";
-    public static String build = "release";
+    public static String version = "1.5.0";
+    public static String build = "beta";
 
 
     public static boolean getCheckVersionOnStartup() {

@@ -423,10 +423,10 @@ public class PluginController {
             sdkToSavantVersionsMap = new HashMap<String, String[]>();
 
             // List of Savant versions compatible with given SDK version.
-            // Savant 1.4.5 broke compatibility with earlier SDK versions.
+            // Savant 1.5 broke compatibility with earlier SDK versions.
             sdkToSavantVersionsMap.put("1.4.3", new String[] { "1.4.3", "1.4.4" });
             sdkToSavantVersionsMap.put("1.4.4", new String[] { "1.4.4" });
-            sdkToSavantVersionsMap.put("1.4.5", new String[] { "1.4.5" });
+            sdkToSavantVersionsMap.put("1.5.0", new String[] { "1.5.0" });
         }
 
         String[] acceptableSavantVersions = sdkToSavantVersionsMap.get(sdk);
