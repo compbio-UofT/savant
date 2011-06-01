@@ -31,7 +31,7 @@ public class DownloadFile {
     public static File downloadFile(URL u, File destDir) {
         OutputStream out = null;
         InputStream in = null;
-        File f = new File(destDir, u.getFile());
+        File f = new File(destDir, MiscUtils.getFilenameFromPath(u.getPath()));
 
         try {
             out = new FileOutputStream(f.getAbsolutePath());
