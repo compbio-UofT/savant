@@ -23,6 +23,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import savant.settings.DirectorySettings;
+
+
 /**
  * Utility methods for manipulating general files.  Functions for manipulating Savant
  * files are in SavantFileUtils.
@@ -50,5 +53,11 @@ public class FileUtils {
         }
         input.close();
         output.close();
+    }
+
+    public static void removeTmpFiles() {
+        for (File f : DirectorySettings.getTmpDirectory().listFiles()) {
+            f.delete();
+        }
     }
 }

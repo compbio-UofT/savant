@@ -32,7 +32,7 @@ import org.apache.commons.logging.LogFactory;
  * @author tarkvara
  */
 public class PersistentSettings extends Properties {
-    private static final Log LOG = LogFactory.getLog(PersistentSettings.class);
+    protected static final Log LOG = LogFactory.getLog(PersistentSettings.class);
 
     private static final String SETTINGS_FILE = "savant.settings";
     private static PersistentSettings instance = null;
@@ -105,7 +105,7 @@ public class PersistentSettings extends Properties {
     }
 
     public void setBoolean(String key, boolean value) {
-        setProperty(key, value + "");
+        setProperty(key, Boolean.toString(value));
     }
 
     public File getFile(String key) {
@@ -115,6 +115,19 @@ public class PersistentSettings extends Properties {
 
     public void setFile(String key, File value) {
         setProperty(key, value.getAbsolutePath());
+    }
+
+    public int getInt(String key, int dflt) {
+        String value = getProperty(key);
+        try {
+            return Integer.parseInt(value);
+        } catch (NumberFormatException ignored) {
+        }
+        return dflt;
+    }
+
+    public void setInt(String key, int value) {
+        setProperty(key, Integer.toString(value));
     }
 
     public String getString(String key){

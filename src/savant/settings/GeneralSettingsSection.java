@@ -16,89 +16,60 @@
 
 package savant.settings;
 
-import java.awt.BorderLayout;
+import java.awt.GridBagConstraints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
-import javax.swing.BoxLayout;
-import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JPanel;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import savant.view.swing.Savant;
+
+import savant.util.FileUtils;
+
 
 /**
  *
  * @author mfiume
  */
 public class GeneralSettingsSection extends Section {
-    private static final Log LOG = LogFactory.getLog(PersistentSettings.class);
-
     JCheckBox checkversion_cb;
     JCheckBox collectrstats_cb;
     private JCheckBox startpage_cb;
 
     @Override
-    public String getSectionName() {
+    public String getTitle() {
         return "General Settings";
     }
 
     @Override
-    public Icon getSectionIcon() {
-        return null;
-    }
-
-    @Override
     public void lazyInitialize() {
-        setLayout(new BorderLayout());
-
-        add(SettingsDialog.getHeader(getTitle()), BorderLayout.BEFORE_FIRST_LINE);
-
-        JPanel panel = new JPanel();
-        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        add(SettingsDialog.getHeader(getTitle()), getFullRowConstraints());
 
         checkversion_cb = new JCheckBox("Check version on startup");
         checkversion_cb.setSelected(BrowserSettings.getCheckVersionOnStartup());
-        checkversion_cb.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                enableApplyButton();
-            }
-        });
-        panel.add(checkversion_cb);
+        checkversion_cb.addActionListener(enablingActionListener);
+        add(checkversion_cb, getFullRowConstraints());
 
         startpage_cb = new JCheckBox("Show Start Page");
         startpage_cb.setSelected(BrowserSettings.getShowStartPage());
-        startpage_cb.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                enableApplyButton();
-            }
-        });
-        panel.add(startpage_cb);
+        startpage_cb.addActionListener(enablingActionListener);
+        add(startpage_cb, getFullRowConstraints());
 
         collectrstats_cb = new JCheckBox("Collect anonymous statistics about usage");
         collectrstats_cb.setSelected(BrowserSettings.getCollectAnonymousUsage());
-        collectrstats_cb.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                enableApplyButton();
-            }
-        });
-        panel.add(collectrstats_cb);
+        collectrstats_cb.addActionListener(enablingActionListener);
+        add(collectrstats_cb, getFullRowConstraints());
 
         JButton clearTmpButt = new JButton("Clear Temporary Files");
         clearTmpButt.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                Savant.getInstance().removeTmpFiles();
+                FileUtils.removeTmpFiles();
             }
         });
-        panel.add(clearTmpButt);
-
-        add(panel, BorderLayout.CENTER);
+        GridBagConstraints gbc = getFullRowConstraints();
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.weighty = 1.0;
+        add(clearTmpButt, gbc);
     }
 
     @Override

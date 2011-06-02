@@ -23,7 +23,6 @@ package savant.util;
  */
 public enum DrawingInstruction {
 
-    TRACK_DATA_TYPE,    // DataFormat
     MODE,               // Mode
     AXIS_RANGE,         // AxisRange
     RESOLUTION,         // Resolution

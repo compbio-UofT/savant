@@ -1199,11 +1199,10 @@ public class Savant extends JFrame implements BookmarksChangedListener, Referenc
 
         if (!arePreferencesInitialized) {
             SettingsDialog.addSection(new ColourSchemeSettingsSection());
-            SettingsDialog.addSection(new TemporaryFilesSettingsSection());
             SettingsDialog.addSection(new GeneralSettingsSection());
+            SettingsDialog.addSection(new InterfaceSection());
             SettingsDialog.addSection(new RemoteFilesSettingsSection());
             SettingsDialog.addSection(new ResolutionSettingsSection());
-            SettingsDialog.addSection(new DisplaySettingsSection());
             arePreferencesInitialized = true;
         }
 
@@ -1909,18 +1908,6 @@ public class Savant extends JFrame implements BookmarksChangedListener, Referenc
         pluginsMenu.add(cb);
     }
 
-    /*
-    private void cleanUpBeforeExit() {
-        removeTmpFiles();
-    }
-     */
-    
-    public void removeTmpFiles() {
-        for (File f : DirectorySettings.getTmpDirectory().listFiles()) {
-            f.delete();
-        }
-    }
-    
     private void makeGUIVisible() {
         setExtendedState(MAXIMIZED_BOTH);
         setVisible(true);

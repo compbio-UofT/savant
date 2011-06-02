@@ -16,26 +16,16 @@
 
 package savant.settings;
 
-import java.awt.BorderLayout;
-import java.awt.Dimension;
 import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.IOException;
-import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
 import javax.swing.JTextField;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import savant.util.RemoteFileCache;
 
@@ -44,7 +34,6 @@ import savant.util.RemoteFileCache;
  * @author mfiume
  */
 public class RemoteFilesSettingsSection extends Section {
-    private static final Log LOG = LogFactory.getLog(PersistentSettings.class);
 
     private JTextField directoryInput;
     private JTextField buffSizeInput;
@@ -53,98 +42,43 @@ public class RemoteFilesSettingsSection extends Section {
     JCheckBox enableCaching_cb;
 
     @Override
-    public String getSectionName() {
+    public String getTitle() {
         return "Remote Files";
     }
 
     @Override
-    public Icon getSectionIcon() {
-        return null;
-    }
-
-    @Override
     public void lazyInitialize() {
-        setLayout(new BorderLayout());
-        add(SettingsDialog.getHeader(getTitle()), BorderLayout.BEFORE_FIRST_LINE);
-
-        JPanel panel = new JPanel(new GridBagLayout());
-        GridBagConstraints c = new GridBagConstraints();
+        GridBagConstraints gbc = getFullRowConstraints();
+        add(SettingsDialog.getHeader(getTitle()), gbc);
 
         //ENABLE CACHING///////////////////////////////////
-
         enableCaching_cb = new JCheckBox("Enable remote file caching ");
         enableCaching_cb.setSelected(BrowserSettings.getCachingEnabled());
-        enableCaching_cb.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                enableApplyButton();
-            }
-        });
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.gridx = 0;
-        c.gridy = 0;
-        c.gridwidth = 2;
-        c.gridheight = 1;
-        c.weightx = 1.0;
-        c.weighty = 0;
-        panel.add(enableCaching_cb, c);
-
-        //add separator
-        JPanel sep1 = new JPanel();
-        sep1.setPreferredSize(new Dimension(10,10));
-        sep1.setSize(new Dimension(10,10));
-        c.gridy = 1;
-        panel.add(sep1, c);
+        enableCaching_cb.addActionListener(enablingActionListener);
+        add(enableCaching_cb, gbc);
 
         //CACHE DIRECTORY//////////////////////////////////
 
         JLabel directoryLabel = new JLabel("Select the folder to store cached files: ");
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.gridx = 0;
-        c.gridy = 3;
-        c.gridwidth = 2;
-        c.gridheight = 1;
-        c.weightx = 1.0;
-        c.weighty = 0;
-        panel.add(directoryLabel, c);
+        add(directoryLabel, gbc);
 
         directoryInput = new JTextField();
-        directoryInput.setPreferredSize(new Dimension(20, 20));
-        directoryInput.setSize(new Dimension(20, 20));
-        c.gridx = 0;
-        c.gridy = 4;
-        c.gridwidth = 1;
-        c.weightx = 1.0;
-        panel.add(directoryInput, c);
+        gbc.gridwidth = 1;
+        gbc.anchor = GridBagConstraints.EAST;
+        gbc.insets.bottom = 12;
+        add(directoryInput, gbc);
 
         JButton directoryBrowse = new JButton("Browse...");
-        c.gridx = 1;
-        c.gridy = 4;
-        c.weightx = 0;
-        panel.add(directoryBrowse, c);
-
-        JPanel spacer1 = new JPanel();
-        spacer1.setPreferredSize(new Dimension(20,20));
-        c.fill = GridBagConstraints.VERTICAL;
-        c.gridx = 0;
-        c.gridy = 5;
-        c.gridwidth = 2;
-        c.gridheight = 1;
-        c.weightx = 1.0;
-        c.weighty = 0;
-        panel.add(spacer1, c);
+        gbc.gridx = 1;
+        gbc.weightx = 0.0;
+        add(directoryBrowse, gbc);
 
         //initial directory
         cacheDir = DirectorySettings.getCacheDirectory();
         directoryInput.setText(cacheDir.getAbsolutePath());
 
         //enable apply button if text changed
-        directoryInput.addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyTyped(KeyEvent e) {
-                enableApplyButton();
-            }
-        });
+        directoryInput.addKeyListener(enablingKeyListener);
 
         //browse action
         directoryBrowse.addActionListener(new ActionListener() {
@@ -163,53 +97,27 @@ public class RemoteFilesSettingsSection extends Section {
 
         //BUFFER SIZE//////////////////////////////////
 
-        JLabel buffSizeLabel = new JLabel("Select buffer size (Bytes): ");
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.gridx = 0;
-        c.gridy = 6;
-        c.gridwidth = 2;
-        c.gridheight = 1;
-        c.weightx = 1.0;
-        c.weighty = 0;
-        panel.add(buffSizeLabel, c);
+        JLabel buffSizeLabel = new JLabel("Select buffer size (bytes): ");
+        gbc = getFullRowConstraints();
+        add(buffSizeLabel, gbc);
 
         buffSizeInput = new JTextField();
-        buffSizeInput.setPreferredSize(new Dimension(20, 20));
-        buffSizeInput.setSize(new Dimension(20, 20));
-        c.gridx = 0;
-        c.gridy = 7;
-        c.gridwidth = 1;
-        c.weightx = 0.5;
-        panel.add(buffSizeInput, c);
+        gbc.gridwidth = 1;
+        gbc.anchor = GridBagConstraints.EAST;
+        gbc.insets.bottom = 12;
+        add(buffSizeInput, gbc);
 
         JButton defaultSizeButton = new JButton("Default");
-        c.gridx = 1;
-        c.gridy = 7;
-        c.weightx = 0;
-        panel.add(defaultSizeButton, c);
-
-        JPanel spacer2 = new JPanel();
-        spacer2.setPreferredSize(new Dimension(20,20));
-        c.fill = GridBagConstraints.VERTICAL;
-        c.gridx = 0;
-        c.gridy = 8;
-        c.gridwidth = 2;
-        c.gridheight = 1;
-        c.weightx = 1.0;
-        c.weighty = 0;
-        panel.add(spacer2, c);
+        gbc.gridx = 1;
+        gbc.weightx = 0.0;
+        add(defaultSizeButton, gbc);
 
         //initial buffer size
         buffSize = String.valueOf(BrowserSettings.getRemoteBufferSize());
         buffSizeInput.setText(buffSize);
 
         //enable apply button if text changed
-        buffSizeInput.addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyTyped(KeyEvent e) {
-                enableApplyButton();
-            }
-        });
+        buffSizeInput.addKeyListener(enablingKeyListener);
 
         //default button action
         defaultSizeButton.addActionListener(new ActionListener() {
@@ -220,18 +128,11 @@ public class RemoteFilesSettingsSection extends Section {
             }
         });
 
-        //CLEAR CACHE///////////////////////////////////
-
         JButton clearButton = new JButton("Clear remote file cache");
-        c.fill = GridBagConstraints.NONE;
-        c.anchor = GridBagConstraints.WEST;
-        c.gridx = 0;
-        c.gridy = 9;
-        c.gridwidth = 1;
-        c.gridheight = 1;
-        c.weightx = 1.0;
-        c.weighty = 0;
-        panel.add(clearButton, c);
+        gbc = getFullRowConstraints();
+        gbc.weighty = 1.0;
+        gbc.fill = GridBagConstraints.NONE;
+        add(clearButton, gbc);
 
         //clear action
         clearButton.addActionListener(new ActionListener() {
@@ -240,8 +141,6 @@ public class RemoteFilesSettingsSection extends Section {
                 RemoteFileCache.clearCache();
             }
         });
-
-        add(panel, BorderLayout.CENTER);
     }
 
     @Override

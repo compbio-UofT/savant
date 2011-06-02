@@ -137,33 +137,4 @@ public class SettingsDialog extends MultiplePageDialog {
     public static void addSection(Section s) {
         model.append(s);
     }
-
-        public static class ListOptionPage extends AbstractDialogPage {
-        public ListOptionPage(String name) {
-            super(name);
-        }
-
-        public ListOptionPage(String name, Icon icon) {
-            super(name, icon);
-        }
-
-        @Override
-        public void lazyInitialize() {
-            initComponents();
-        }
-
-        public void initComponents() {
-            JPanel headerPanel = new JPanel(new BorderLayout(4, 4));
-            JLabel label = new JLabel(getTitle());
-            headerPanel.add(label, BorderLayout.BEFORE_FIRST_LINE);
-            JPanel panel = new JPanel();
-            //panel.setBorder(createSeparatorBorder());
-            headerPanel.add(panel, BorderLayout.CENTER);
-
-            setLayout(new BorderLayout());
-            add(headerPanel, BorderLayout.BEFORE_FIRST_LINE);
-            add(new JLabel("This is just a demo. \"" + getFullTitle() + "\" page is not implemented yet.", JLabel.CENTER), BorderLayout.CENTER);
-        }
-
-    }
 }

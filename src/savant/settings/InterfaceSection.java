@@ -16,18 +16,15 @@
 
 package savant.settings;
 
-import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
+import java.io.IOException;
 import java.text.NumberFormat;
 import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
-import javax.swing.Icon;
+import javax.swing.JCheckBox;
 import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -35,49 +32,65 @@ import javax.swing.JTextField;
 import javax.swing.border.Border;
 import savant.controller.TrackController;
 import savant.view.swing.Track;
-import savant.view.swing.TrackRenderer;
+
 
 /**
+ * Settings panel which allows user to specify interval heights and other interface-related preferences.
  *
  * @author AndrewBrook
  */
-public class DisplaySettingsSection extends Section {
+public class InterfaceSection extends Section {
 
     private JFormattedTextField bamIntervalHeightField;
     private JFormattedTextField richIntervalHeightField;
     private JFormattedTextField otherIntervalHeightField;
+    private JCheckBox disablePopupsCheck;
 
     @Override
-    public String getSectionName() {
-        return "Display Settings";
-    }
-
-    @Override
-    public Icon getSectionIcon() {
-        return null;
+    public String getTitle() {
+        return "Interface Settings";
     }
 
     @Override
     public void lazyInitialize() {
-        setLayout(new BorderLayout());
+        GridBagConstraints gbc = getFullRowConstraints();
+        add(SettingsDialog.getHeader(getTitle()), gbc);
+        add(getIntervalHeightsPanel(), gbc);
 
-        add(SettingsDialog.getHeader(getTitle()), BorderLayout.BEFORE_FIRST_LINE);
+        disablePopupsCheck = new JCheckBox("Disable Informational Popups");
+        disablePopupsCheck.setSelected(InterfaceSettings.isPopupsDisabled());
+        disablePopupsCheck.addActionListener(enablingActionListener);
+        gbc.weighty = 1.0;
+        add(disablePopupsCheck, gbc);
+    }
 
-        JPanel p = new JPanel();
-        p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
 
-        p.add(getIntervalHeightsPanel());
+    @Override
+    public void applyChanges() {
+        if (bamIntervalHeightField != null) {
+            InterfaceSettings.setBamIntervalHeight(Integer.parseInt(bamIntervalHeightField.getText().replaceAll(",", "")));
+            InterfaceSettings.setRichIntervalHeight(Integer.parseInt(richIntervalHeightField.getText().replaceAll(",", "")));
+            InterfaceSettings.setGenericIntervalHeight(Integer.parseInt(otherIntervalHeightField.getText().replaceAll(",", "")));
+            InterfaceSettings.setPopupsDisabled(disablePopupsCheck.isSelected());
 
-        add(Box.createVerticalGlue());
+            try {
+                PersistentSettings.getInstance().store();
+            } catch (IOException iox) {
+                LOG.error("Unable to save remote file settings.", iox);
+            }
 
-        add(p, BorderLayout.CENTER);
+            // TODO: Modify existing interval heights.
+            for (Track t: TrackController.getInstance().getTracks()) {
+                t.getFrame().forceRedraw();
+            }
+        }
     }
 
     private JPanel getIntervalHeightsPanel() {
 
-        bamIntervalHeightField = getFormattedTextField(DisplaySettings.getBamIntervalHeight());
-        richIntervalHeightField = getFormattedTextField(DisplaySettings.getRichIntervalHeight());
-        otherIntervalHeightField = getFormattedTextField(DisplaySettings.getGenericIntervalHeight());
+        bamIntervalHeightField = getFormattedTextField(InterfaceSettings.getBamIntervalHeight());
+        richIntervalHeightField = getFormattedTextField(InterfaceSettings.getRichIntervalHeight());
+        otherIntervalHeightField = getFormattedTextField(InterfaceSettings.getGenericIntervalHeight());
 
         JPanel panel = new JPanel(new GridBagLayout());
         Border sequenceTitle = BorderFactory.createTitledBorder("Interval Heights");
@@ -133,31 +146,8 @@ public class DisplaySettingsSection extends Section {
         result.setColumns(10);
         result.setPreferredSize(new Dimension(100, 18));
         result.setMaximumSize(new Dimension(100, 18));
-        result.addKeyListener(new KeyListener() {
-
-            @Override
-            public void keyTyped(KeyEvent e) {
-            }
-
-            @Override
-            public void keyPressed(KeyEvent e) {
-                enableApplyButton();
-            }
-
-            @Override
-            public void keyReleased(KeyEvent e) {
-            }
-        });
+        result.addKeyListener(enablingKeyListener);
 
         return result;
     }
-
-    @Override
-    public void applyChanges() {
-        if(this.bamIntervalHeightField == null) return; //make sure section has been initialized
-        DisplaySettings.setBamIntervalHeight((int) Double.parseDouble(this.bamIntervalHeightField.getText().replaceAll(",", "")));
-        DisplaySettings.setRichIntervalHeight((int) Double.parseDouble(this.richIntervalHeightField.getText().replaceAll(",", "")));
-        DisplaySettings.setGenericIntervalHeight((int) Double.parseDouble(this.otherIntervalHeightField.getText().replaceAll(",", "")));
-    }
-
 }

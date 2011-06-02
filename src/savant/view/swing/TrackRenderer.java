@@ -34,6 +34,7 @@ import savant.data.event.DataRetrievalListener;
 import savant.data.types.Record;
 import savant.exception.RenderingException;
 import savant.file.DataFormat;
+import savant.settings.InterfaceSettings;
 import savant.util.DrawingInstruction;
 import savant.util.Range;
 import savant.util.Resolution;
@@ -49,16 +50,17 @@ public abstract class TrackRenderer implements DataRetrievalListener {
     protected List<Record> data;
     protected final EnumMap<DrawingInstruction, Object> instructions = new EnumMap<DrawingInstruction, Object>(DrawingInstruction.class);
     protected String trackName;
+    private DataFormat dataType;
 
     protected Map<Record, Shape> recordToShapeMap = new HashMap<Record, Shape>();
 
     //specific to interval renderers
-    protected int intervalHeight = 12;
-    protected int[] availableIntervalHeights = new int[]{1,4,8,12,16,20,24,28,32,36,40};
+    private int intervalHeight = -1;
+    private static final int[] AVAILABLE_INTERVAL_HEIGHTS = new int[] { 1, 4, 8, 12, 16, 20, 24, 28, 32, 36, 40};
     protected int offset = 0; //of scrollbar (interval only for now)
 
     protected TrackRenderer(DataFormat dataType) {
-        instructions.put(DrawingInstruction.TRACK_DATA_TYPE, dataType);
+        this.dataType = dataType;
     }
 
     public void setTrackName(String name) {
@@ -314,7 +316,10 @@ public abstract class TrackRenderer implements DataRetrievalListener {
     //INTERVAL SPECIFIC CODE
 
     protected int getIntervalHeight(){
-        return intervalHeight;
+        if (intervalHeight > 0) {
+            return intervalHeight;
+        }
+        return InterfaceSettings.getIntervalHeight(dataType);
     }
 
     protected void setIntervalHeight(int height){
@@ -330,15 +335,15 @@ public abstract class TrackRenderer implements DataRetrievalListener {
         int currentHeight = gp.getHeight();
         int currentWidth = gp.getParentFrame().getFrameLandscape().getWidth();
         int currentHeight1 = ((JViewport)gp.getParent().getParent()).getHeight();
-        int expectedHeight = Math.max((int)((numIntervals * intervalHeight) / 0.9), currentHeight1);
+        int expectedHeight = Math.max((int)((numIntervals * getIntervalHeight()) / 0.9), currentHeight1);
 
         if(expectedHeight != currentHeight || currentWidth != gp.getWidth()){
             gp.newHeight = expectedHeight;
             gp.setPaneResize(true);
             return false;
         }
-        gp.setUnitHeight(intervalHeight);
-        gp.setYRange(new Range(0,(int)Math.ceil(expectedHeight/intervalHeight)));
+        gp.setUnitHeight(getIntervalHeight());
+        gp.setYRange(new Range(0,(int)Math.ceil(expectedHeight / getIntervalHeight())));
 
         return true;
     }
@@ -349,17 +354,17 @@ public abstract class TrackRenderer implements DataRetrievalListener {
 
     public int getIntervalHeightFromSlider(int slider){
         slider--; //starts at 1
-        if(slider < 0) return availableIntervalHeights[0];
-        if(slider >= availableIntervalHeights.length) return availableIntervalHeights[availableIntervalHeights.length - 1];
-        return availableIntervalHeights[slider];
+        if(slider < 0) return AVAILABLE_INTERVAL_HEIGHTS[0];
+        if(slider >= AVAILABLE_INTERVAL_HEIGHTS.length) return AVAILABLE_INTERVAL_HEIGHTS[AVAILABLE_INTERVAL_HEIGHTS.length - 1];
+        return AVAILABLE_INTERVAL_HEIGHTS[slider];
     }
 
     public int getValueForIntervalSlider(){
         int newValue = 0;
-        int diff = Math.abs(availableIntervalHeights[0] - intervalHeight);
-        for(int i = 1; i < availableIntervalHeights.length; i++){
-            int currVal = availableIntervalHeights[i];
-            int currDiff = Math.abs(currVal - intervalHeight);
+        int diff = Math.abs(AVAILABLE_INTERVAL_HEIGHTS[0] - getIntervalHeight());
+        for(int i = 1; i < AVAILABLE_INTERVAL_HEIGHTS.length; i++){
+            int currVal = AVAILABLE_INTERVAL_HEIGHTS[i];
+            int currDiff = Math.abs(currVal - getIntervalHeight());
             if(currDiff < diff){
                 newValue = i;
                 diff = currDiff;
@@ -369,7 +374,7 @@ public abstract class TrackRenderer implements DataRetrievalListener {
     }
 
     public int getNumAvailableIntervalHeights(){
-        return availableIntervalHeights.length;
+        return AVAILABLE_INTERVAL_HEIGHTS.length;
     }
 
     //END INTERVAL SPECIFIC CODE

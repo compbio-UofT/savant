@@ -1,5 +1,5 @@
 /*
- *    Copyright 2010 University of Toronto
+ *    Copyright 2010-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -16,24 +16,52 @@
 
 package savant.settings;
 
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+
 import com.jidesoft.dialog.AbstractDialogPage;
-import javax.swing.Icon;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 
 /**
+ * Base class for all sections on the SettingsDialog.
  *
- * @author mfiume
+ * @author mfiume, tarkvara
  */
 public abstract class Section extends AbstractDialogPage {
+    protected final Log LOG = LogFactory.getLog(Section.class);
+
+    /**
+     * ActionListener which enables the Apply button when something has been typed.
+     */
+    protected ActionListener enablingActionListener = new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            enableApplyButton();
+        }
+    };
+
+    /**
+     * KeyListener which enables the Apply button when something has been typed.
+     */
+    protected KeyAdapter enablingKeyListener = new KeyAdapter() {
+        @Override
+        public void keyTyped(KeyEvent e) {
+            enableApplyButton();
+        }
+    };
+
 
     public Section() {
         super("","",null);
-        this.setTitle(getSectionName());
-        this.setIcon(getSectionIcon());
+        setLayout(new GridBagLayout());
     }
-
-    public abstract String getSectionName();
-
-    public abstract Icon getSectionIcon();
 
     public abstract void applyChanges();
 
@@ -47,4 +75,7 @@ public abstract class Section extends AbstractDialogPage {
 
     public void populate(){};
 
+    public GridBagConstraints getFullRowConstraints() {
+        return new GridBagConstraints(0, GridBagConstraints.RELATIVE, GridBagConstraints.REMAINDER, 1, 1.0, 0.0, GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, new Insets(3, 3, 3, 3), 0, 0);
+    }
 }

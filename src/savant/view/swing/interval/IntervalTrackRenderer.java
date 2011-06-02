@@ -30,7 +30,7 @@ import savant.data.types.IntervalRecord;
 import savant.data.types.Record;
 import savant.exception.RenderingException;
 import savant.file.DataFormat;
-import savant.settings.DisplaySettings;
+import savant.settings.InterfaceSettings;
 import savant.util.*;
 import savant.view.swing.GraphPane;
 import savant.view.swing.TrackRenderer;
@@ -48,7 +48,6 @@ public class IntervalTrackRenderer extends TrackRenderer {
 
     public IntervalTrackRenderer() {
         super(DataFormat.INTERVAL_GENERIC);
-        intervalHeight = DisplaySettings.getGenericIntervalHeight();
     }
 
     @Override
@@ -198,13 +197,7 @@ public class IntervalTrackRenderer extends TrackRenderer {
             //resize frame if necessary
             if(!determineFrameSize(gp, intervals.size())) return;
 
-            double unitHeight = intervalHeight;
-            //unitHeight = gp.getUnitHeight();
-
-            // display only a message if intervals will not be visible at this resolution
-            /*if (unitHeight < 1) {
-                throw new RenderingException("Increase height of window");
-            }*/
+            double unitHeight = getIntervalHeight();
 
             // scan the map of intervals and draw the intervals for each level
             for (int k=0; k<intervals.size(); k++) {
@@ -225,7 +218,7 @@ public class IntervalTrackRenderer extends TrackRenderer {
 
                     g2.setColor(bgcolor);
                     g2.fill(intervalRect);
-                    this.recordToShapeMap.put(intervalRecord, intervalRect);
+                    recordToShapeMap.put(intervalRecord, intervalRect);
 
                     if (w > 5) {
                         g2.setColor(linecolor);
@@ -250,7 +243,7 @@ public class IntervalTrackRenderer extends TrackRenderer {
     @Override
     public boolean hasHorizontalGrid() {
         String drawMode = (String)instructions.get(DrawingInstruction.MODE);
-        return drawMode.equals(this.ARC_MODE);
+        return drawMode.equals(ARC_MODE);
     }
 
     @Override

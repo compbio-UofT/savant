@@ -1,5 +1,5 @@
 /*
- *    Copyright 2010 University of Toronto
+ *    Copyright 2010-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ package savant.selection;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
+import savant.settings.InterfaceSettings;
 import savant.view.swing.GraphPane;
 
 /**
@@ -64,14 +65,9 @@ public class PopupThread implements Runnable {
                         if(p2 != null)
                             p2.y += gp.getParentFrame().scrollPane.getVerticalScrollBar().getValue();
 
-                        if(p1 != null && p2 != null && p1.equals(p2))
+                        if(p1 != null && p2 != null && p1.equals(p2) && !InterfaceSettings.isPopupsDisabled()) {
                             gp.tryPopup(p2);
-                        /*if(p1 != null && p2 != null && p1.equals(p2) && !gp.getMouseWheel()){
-                            gp.tryPopup(p2);
-                        } else if (gp.getMouseWheel()){
-                            gp.setMouseWheel(false);
-                            retry = true;
-                        }*/
+                        }
                     } catch (InterruptedException ex1) {
                         //mouse is still moving
                         retry = true;

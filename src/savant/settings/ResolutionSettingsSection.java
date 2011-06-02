@@ -16,17 +16,12 @@
 
 package savant.settings;
 
-import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
+import java.io.IOException;
 import java.text.NumberFormat;
 import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.Icon;
@@ -35,8 +30,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.Border;
-import javax.swing.event.CaretEvent;
-import javax.swing.event.CaretListener;
+
 
 /**
  *
@@ -50,41 +44,40 @@ public class ResolutionSettingsSection extends Section {
     private JFormattedTextField bamArcModeAmountField;
 
     @Override
-    public String getSectionName() {
+    public String getTitle() {
         return "Track Resolutions";
     }
 
     @Override
-    public Icon getSectionIcon() {
+    public Icon getIcon() {
         return null;
     }
 
     @Override
     public void lazyInitialize() {
+        GridBagConstraints gbc = getFullRowConstraints();
+        add(SettingsDialog.getHeader(getTitle()), gbc);
+        add(getSequencePanel(), gbc);
+        add(getIntervalPanel(), gbc);
 
-        setLayout(new BorderLayout());
-
-        add(SettingsDialog.getHeader(getTitle()), BorderLayout.BEFORE_FIRST_LINE);
-
-
-        JPanel p = new JPanel();
-        p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
-
-        p.add(getSequencePanel());
-        p.add(getIntervalPanel());
-        p.add(getBAMPanel());
-        add(Box.createVerticalGlue());
-
-        add(p, BorderLayout.CENTER);
+        gbc.weighty = 1.0;
+        add(getBAMPanel(), gbc);
     }
 
     @Override
     public void applyChanges() {
-        if(this.bamArcModeAmountField == null) return; //make sure section has been initialized
-        TrackResolutionSettings.setBAMArcModeLowToHighThresh((int) Double.parseDouble(this.bamArcModeAmountField.getText().replaceAll(",", "")));
-        TrackResolutionSettings.setBAMDefaultModeLowToHighThresh((int) Double.parseDouble(this.bamDefaultModeAmountField.getText().replaceAll(",", "")));
-        TrackResolutionSettings.setIntervalLowToHighThresh((int) Double.parseDouble(this.intervalAmountField.getText().replaceAll(",", "")));
-        TrackResolutionSettings.setSequenceLowToHighThresh((int) Double.parseDouble(this.sequenceAmountField.getText().replaceAll(",", "")));
+        if (bamArcModeAmountField != null) {
+            TrackResolutionSettings.setBamArcModeLowToHighThresh(Integer.parseInt(bamArcModeAmountField.getText().replaceAll(",", "")));
+            TrackResolutionSettings.setBamDefaultModeLowToHighThresh(Integer.parseInt(bamDefaultModeAmountField.getText().replaceAll(",", "")));
+            TrackResolutionSettings.setIntervalLowToHighThresh(Integer.parseInt(intervalAmountField.getText().replaceAll(",", "")));
+            TrackResolutionSettings.setSequenceLowToHighThresh(Integer.parseInt(sequenceAmountField.getText().replaceAll(",", "")));
+
+            try {
+                PersistentSettings.getInstance().store();
+            } catch (IOException iox) {
+                LOG.error("Unable to save track resolution settings.", iox);
+            }
+        }
     }
 
     private JPanel getSequencePanel() {
@@ -197,8 +190,8 @@ public class ResolutionSettingsSection extends Section {
 
     private JPanel getBAMPanel() {
 
-        bamDefaultModeAmountField = getFormattedTextField(TrackResolutionSettings.getBAMDefaultModeLowToHighThresh());
-        bamArcModeAmountField = getFormattedTextField(TrackResolutionSettings.getBAMArcModeLowToHighThresh());
+        bamDefaultModeAmountField = getFormattedTextField(TrackResolutionSettings.getBamDefaultModeLowToHighThresh());
+        bamArcModeAmountField = getFormattedTextField(TrackResolutionSettings.getBamArcModeLowToHighThresh());
 
         JPanel panel = new JPanel(new GridBagLayout());
         //panel.setPreferredSize(new Dimension(1,1));
@@ -262,21 +255,7 @@ public class ResolutionSettingsSection extends Section {
         result.setColumns(10);
         result.setPreferredSize(new Dimension(100, 18));
         result.setMaximumSize(new Dimension(100, 18));
-        result.addKeyListener(new KeyListener() {
-
-            @Override
-            public void keyTyped(KeyEvent e) {
-            }
-
-            @Override
-            public void keyPressed(KeyEvent e) {
-                enableApplyButton();
-            }
-
-            @Override
-            public void keyReleased(KeyEvent e) {
-            }
-        });
+        result.addKeyListener(enablingKeyListener);
 
         return result;
     }

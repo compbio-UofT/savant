@@ -82,7 +82,7 @@ public class BAMCoverageTrack extends Track {
     public Resolution getDefaultModeResolution(Range range) {
         int length = range.getLength();
 
-        if (length > TrackResolutionSettings.getBAMDefaultModeLowToHighThresh()) { return Resolution.LOW; }
+        if (length > TrackResolutionSettings.getBamDefaultModeLowToHighThresh()) { return Resolution.LOW; }
         else { return Resolution.VERY_HIGH; }
     }
 

@@ -16,19 +16,20 @@
 
 package savant.settings;
 
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import javax.swing.*;
 import javax.swing.table.TableCellRenderer;
 
 import com.jidesoft.action.CommandBar;
 import com.jidesoft.converter.ConverterContext;
 import com.jidesoft.grid.*;
 import com.jidesoft.swing.JideSwingUtilities;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import javax.swing.BorderFactory;
+import javax.swing.JComponent;
 
 import savant.controller.TrackController;
 import savant.view.swing.Track;
@@ -39,8 +40,6 @@ import savant.view.swing.Track;
  * @author mfiume
  */
 public class ColourSchemeSettingsSection extends Section {
-
-    private static final Log LOG = LogFactory.getLog(ColourSchemeSettingsSection.class);
 
     private PropertyPane pane;
     private PropertyTableModel model;
@@ -62,13 +61,8 @@ public class ColourSchemeSettingsSection extends Section {
     private static final String POINT_FILL_NAME = "Point Fill";
 
     @Override
-    public String getSectionName() {
+    public String getTitle() {
         return "Colour Schemes";
-    }
-
-    @Override
-    public Icon getSectionIcon() {
-        return null;
     }
 
     @Override
@@ -100,16 +94,9 @@ public class ColourSchemeSettingsSection extends Section {
 
                 PersistentSettings.getInstance().store();
 
-                //modify existing colour schemes
-                java.util.List<Track> tracks = TrackController.getInstance().getTracks();
-                for(int i = 0; i < tracks.size(); i++){
-                    tracks.get(i).resetColorScheme();
-                    tracks.get(i).getFrame().getGraphPane().setRenderForced();
-                    try {
-                        tracks.get(i).getFrame().redrawTracksInRange();
-                    } catch (Exception ex) {
-                        LOG.error(null, ex);
-                    }
+                // Modify existing colour schemes
+                for (Track t: TrackController.getInstance().getTracks()) {
+                    t.getFrame().forceRedraw();
                 }
             } catch (IOException iox) {
                 LOG.error("Unable to save colour settings.", iox);
@@ -119,9 +106,8 @@ public class ColourSchemeSettingsSection extends Section {
 
     @Override
     public void lazyInitialize() {
-        setLayout(new BorderLayout());
-        add(SettingsDialog.getHeader(getTitle()), BorderLayout.BEFORE_FIRST_LINE);
-        JPanel panel = new JPanel(new BorderLayout(12, 12));
+        GridBagConstraints gbc = getFullRowConstraints();
+        add(SettingsDialog.getHeader(getTitle()), gbc);
 
         ArrayList<ColourProperty> list = new ArrayList<ColourProperty>();
         model = new PropertyTableModel<ColourProperty>(list);
@@ -157,8 +143,9 @@ public class ColourSchemeSettingsSection extends Section {
 
         pane.setShowDescription(false);
 
-        panel.add(pane, BorderLayout.CENTER);
-        add(panel);
+        gbc.fill = GridBagConstraints.BOTH;
+        gbc.weighty = 1.0;
+        add(pane, gbc);
     }
 
     @Override

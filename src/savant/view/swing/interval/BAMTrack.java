@@ -175,14 +175,14 @@ public class BAMTrack extends Track {
     private Resolution getArcModeResolution(Range range) {
         int length = range.getLength();
 
-        if (length > TrackResolutionSettings.getBAMArcModeLowToHighThresh()) { return Resolution.LOW; }
+        if (length > TrackResolutionSettings.getBamArcModeLowToHighThresh()) { return Resolution.LOW; }
         else { return Resolution.VERY_HIGH; }
     }
 
     private Resolution getDefaultModeResolution(Range range) {
         int length = range.getLength();
 
-        if (length > TrackResolutionSettings.getBAMDefaultModeLowToHighThresh()) { return Resolution.LOW; }
+        if (length > TrackResolutionSettings.getBamDefaultModeLowToHighThresh()) { return Resolution.LOW; }
         else { return Resolution.VERY_HIGH; }
     }
 

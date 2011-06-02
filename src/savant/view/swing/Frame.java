@@ -568,7 +568,11 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
         return menu;
     }
 
-    public void redrawTracksInRange() {
+    /**
+     * Force the associated track to redraw.  Used when the colour scheme has been changed by the Preferences dialog.
+     */
+    public void forceRedraw() {
+        getGraphPane().setRenderForced();
         drawTracksInRange(ReferenceController.getInstance().getReferenceName(), currentRange);
     }
 
