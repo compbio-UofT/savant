@@ -31,99 +31,10 @@ import java.util.Map;
  * @author mfiume, tarkvara
  */
 public class ContinuousFormatterHelper {
-
     private static final Log LOG = LogFactory.getLog(ContinuousFormatterHelper.class);
     
-    // size of the output buffer
-    protected static final int OUTPUT_BUFFER_SIZE = 1024 * 128; // 128K
-
-    /** Subsequent resolutions increase by a factor of 10. */
-    private static final int RESOLUTION_FACTOR = 10;
-
-    /** Resolution of the first lo-res level.  We now start at 10. */
-    private static final int FIRST_LOW_RESOLUTION = 10;
-
     /** No point in lower resolutions which would generate less than 1000 pixels of data. */
     public static final int NOTIONAL_SCREEN_SIZE = 1000;
-
-    public static Map<String, String> makeMultiResolutionContinuousFiles(Map<String, String> referenceName2FilenameMap) throws FileNotFoundException, IOException {
-
-        LOG.info("Making multi resolution continuous files...");
-
-        Map<String, String> referenceNameToIndexMap = new HashMap<String, String>();
-
-        for (String refname : referenceName2FilenameMap.keySet()) {
-
-            LOG.info("Making multi resolution continuous file for " + refname);
-
-            File inFile = new File(referenceName2FilenameMap.get(refname));
-
-            String indexpath = inFile.getAbsolutePath() + SavantFileFormatter.indexExtension;
-
-            List<Level> levels = new ArrayList<Level>();
-
-            // At very least, we will always have a full-resolution level.
-            FixedMode m = new FixedMode(1, 1, 1);
-            Level lev = new Level(0, inFile.length(), SavantFileFormatterUtils.FLOAT_FIELD_SIZE, 1, m);
-            levels.add(lev);
-
-            // The first lo-res level will be at resolution 1000, and then increasing by factors of 10.
-            // When we've reached a resolution where the entire file would be 1200 pixels across, we can stop.
-            long maxUsefulRes = inFile.length() / NOTIONAL_SCREEN_SIZE;
-            for (int res = FIRST_LOW_RESOLUTION; res < maxUsefulRes ; res *= RESOLUTION_FACTOR) {
-                // Data for the next level will start at the end of the previous level.
-                long numRecords = inFile.length() / res / SavantFileFormatterUtils.FLOAT_FIELD_SIZE;
-                lev = new Level(lev.offset + lev.size, numRecords * SavantFileFormatterUtils.FLOAT_FIELD_SIZE, SavantFileFormatterUtils.FLOAT_FIELD_SIZE, res, new FixedMode(1, res, res));
-                levels.add(lev);
-            }
-
-            if (levels.size() > 1) {
-                DataInputStream input = new DataInputStream(new BufferedInputStream(new FileInputStream(inFile)));
-                DataOutputStream output = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(inFile, true)));
-
-                for (int l = 1; l < levels.size(); l++) {
-                    lev = levels.get(l - 1);
-                    float bin = 0.0F;
-                    long numRecords = lev.size / SavantFileFormatterUtils.FLOAT_FIELD_SIZE;
-                    for (long i = 0; i < numRecords; i++) {
-                        bin += input.readFloat();
-                        if ((i + 1) % RESOLUTION_FACTOR == 0) {
-                            output.writeFloat(bin / RESOLUTION_FACTOR);
-                            bin = 0.0F;
-                        }
-                    }
-                    output.flush();
-                    LOG.debug("Index file is now " + inFile.length() + " bytes long.");
-                }
-                input.close();
-                output.close();
-            }
-
-            // write index file
-            writeLevelHeaders(refname, levels, indexpath);
-
-            referenceNameToIndexMap.put(refname, indexpath);
-        }
-
-        return referenceNameToIndexMap;
-    }
-
-    private static void writeLevelHeaders(String refname, List<Level> levels, String filename) throws IOException {
-
-        DataOutputStream outFile = new DataOutputStream(
-                new BufferedOutputStream(
-                new FileOutputStream(filename), OUTPUT_BUFFER_SIZE));
-
-        LOG.info("Writing header for " + refname + " with " + levels.size() + " levels");
-
-        outFile.writeInt(levels.size());
-        
-        for (Level l : levels) {
-            l.writeHeader(outFile);
-        }
-
-        outFile.close();
-    }
 
     public static Map<String,List<Level>> readLevelHeaders(SavantROFile savantFile) throws IOException {
 

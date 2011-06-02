@@ -135,9 +135,6 @@ public class DataFormatter {
 
             // format the input file in the appropriate way
             switch (inputFileType) {
-                case POINT_GENERIC:
-                    runFormatter(new PointGenericFormatter(inFile, outFile, isOneBased));
-                    break;
                 case INTERVAL_BED:
                 case INTERVAL_BED1:
                 case INTERVAL_GENERIC:
@@ -147,9 +144,6 @@ public class DataFormatter {
                 case INTERVAL_KNOWNGENE:
                 case INTERVAL_REFGENE:
                     runFormatter(new TabixFormatter(inFile, outFile, inputFileType));
-                    break;
-                case CONTINUOUS_GENERIC:
-                    runFormatter(new ContinuousGenericFormatter(inFile, outFile));
                     break;
                 case CONTINUOUS_WIG:
                     runFormatter(new TDFFormatter(inFile, outFile));
@@ -329,7 +323,7 @@ public class DataFormatter {
     private boolean verifyTextFile(File fileName, boolean lookingForTabs) {
         FileReader reader = null;
         try {
-            reader = new FileReader(fileName);
+                reader = new FileReader(fileName);
             char[] readBuf = new char[1000];
             int charsRead = reader.read(readBuf);
             if (charsRead != -1) {

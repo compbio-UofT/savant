@@ -1,5 +1,5 @@
 /*
- *    Copyright 2010 University of Toronto
+ *    Copyright 2010-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -19,13 +19,10 @@ package savant.format;
 import java.io.*;
 import java.util.StringTokenizer;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import savant.file.FileType;
 
-public class FastaFormatter extends SavantFileFormatter{
-    private static final Log LOG = LogFactory.getLog(FastaFormatter.class);
+
+public class FastaFormatter extends SavantFileFormatter {
     public static final int RECORDS_PER_INTERRUPT_CHECK = 1000;
 
     public FastaFormatter(File inFile, File outFile) {
@@ -36,21 +33,21 @@ public class FastaFormatter extends SavantFileFormatter{
     public void format() throws IOException, InterruptedException, SavantFileFormattingException {
 
         // set the input file size (for tracking progress)
-        this.totalBytes = inFile.length();
+        totalBytes = inFile.length();
 
         // open the input file
-        inFileReader = this.openInputFile();
+        inFileReader = openInputFile();
 
-        DataOutputStream outfile = null;
+        DataOutputStream output = null;
 
-        this.setSubtaskStatus("Processing input file ...");
-        this.incrementOverallProgress();
+        setSubtaskStatus("Processing input file ...");
+        incrementOverallProgress();
 
         //Read File Line By Line
         try {
             String strLine;
             boolean done = false;
-            String refname = null;
+            String ref = null;
 
 
             while (!done) {
@@ -60,35 +57,32 @@ public class FastaFormatter extends SavantFileFormatter{
                         break;
                     }
                     // update bytes read from input
-                    this.byteCount += strLine.getBytes().length;
+                    byteCount += strLine.getBytes().length;
 
-                    // set the correct output stream
+                    // Set the correct output stream
                     if (strLine.length() > 0 && strLine.charAt(0) == '>') {
 
-                        if (outfile != null) {
-                            closeOutputForReference(refname);
+                        if (output != null) {
+                            output.close();
                         }
 
-                        refname = strLine.substring(1).trim();
-                        StringTokenizer st = new StringTokenizer(refname);
-                        refname = st.nextToken();
-                        
-                        outfile = this.getFileForReference(refname);
-                        if (LOG.isDebugEnabled()) {
-                            LOG.debug("New reference found: " + refname);
-                        }
+                        ref = strLine.substring(1).trim();
+                        StringTokenizer st = new StringTokenizer(ref);
+                        ref = st.nextToken();
+
+                        output = getOutputForReference(ref);
+                        LOG.debug("New reference found: " + ref);
 
                     } else {
 
-                        if (outfile == null) {
+                        if (output == null) {
                             LOG.error("No header line found");
                             throw new SavantFileFormattingException("No FASTA line found.");
                         }
 
                         // generate output
-                        //outfile.writeBytes(strLine);
                         if (strLine.length() > 0 && !strLine.matches("\\s*") && strLine.charAt(0) != '>') {
-                            outfile.writeBytes(strLine);
+                            output.writeBytes(strLine);
                         }
                     }
                 }
@@ -96,17 +90,15 @@ public class FastaFormatter extends SavantFileFormatter{
                 if (Thread.interrupted()) { throw new InterruptedException(); }
                 
                 // update progress property for UI
-                this.setSubtaskProgress(this.getProgressAsInteger(byteCount, totalBytes));
+                setSubtaskProgress(getProgressAsInteger(byteCount, totalBytes));
             }
 
-            closeOutputForReference(refname);
-
-            // close output streams; 
-            // VERY IMPORTANT THAT THIS HAPPENS BEFORE COPY!
-            closeOutputStreams();
+            if (output != null) {
+                output.close();
+            }
 
             // write the output file
-            this.writeOutputFile();
+            writeOutputFile();
         }
         finally {
             inFileReader.close();
