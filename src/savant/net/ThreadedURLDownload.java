@@ -53,7 +53,7 @@ public class ThreadedURLDownload implements Runnable {
 
     @Override
     public void run() {
-        File destination = new File(dir, url.getFile());
+        File destination = new File(dir.getAbsolutePath(), MiscUtils.getFilenameFromPath(url.getFile()));
 
         while (destination.exists()) {
             destination = new File(DialogUtils.displayInputMessage("Duplicate File", "File already exists. Please enter a new path:", destination.getPath()));
