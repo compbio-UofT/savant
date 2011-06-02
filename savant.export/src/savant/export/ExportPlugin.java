@@ -50,6 +50,7 @@ import savant.controller.RangeController;
 import savant.controller.ReferenceController;
 import savant.data.event.ExportEventListener;
 import savant.swing.component.PathField;
+import savant.view.swing.ExportImage;
 import savant.view.swing.Frame;
 
 public class ExportPlugin extends SavantPanelPlugin {
@@ -57,6 +58,7 @@ public class ExportPlugin extends SavantPanelPlugin {
     //interface
     private PathField pf;
     private JLabel outputLabel;
+    private JPanel canvas;
 
     //file string
     private String baseFolder = "";
@@ -69,28 +71,30 @@ public class ExportPlugin extends SavantPanelPlugin {
     private int numFrames;
     private int framesDone;
     private List<Bookmark> bookmarks;
-    private BufferedImage[] images;
 
     //these will be stored to return to later
     private String currentReference;
     private Range currentRange;
 
-    @Override
+    //private Thread exportThread;
+    private JDialog progressDialog;
+    private Thread exportThread;
+    private JOptionPane progressPanel;
+    private boolean exportCancelled = false;
+
     public void init(JPanel canvas, PluginAdapter pluginAdapter) {
         setupGUI(canvas);
+        this.canvas = canvas;
     }
 
-    @Override
     protected void doStart() throws Exception {
 
     }
 
-    @Override
     protected void doStop() throws Exception {
 
     }
 
-    @Override
     public String getTitle() {
         return "Export Plugin";
     }
@@ -122,18 +126,34 @@ public class ExportPlugin extends SavantPanelPlugin {
         gbc.gridy = 2;
         panel.add(pf, gbc);
 
-        //create run button
+        //create runExport button
         JButton runButton = new JButton("Run");
         runButton.addMouseListener(new MouseListener() {
 
             @Override
-            public void mouseClicked(MouseEvent e) {
-                try {
-                    runTool();
-                } catch (InterruptedException ex) {
-                    //TODO: deal with exception?
-                    Logger.getLogger(ExportPlugin.class.getName()).log(Level.SEVERE, null, ex);
-                }
+            public void mouseClicked(MouseEvent e) {               
+                    exportThread = new Thread() {
+                        public void run() {
+                            try {
+                                runTool();
+                            } catch (InterruptedException ex) {
+                                //TODO: deal with exception?
+                                Logger.getLogger(ExportPlugin.class.getName()).log(Level.SEVERE, null, ex);
+                            }
+                        }
+                    };
+                    exportThread.start();
+
+                    //create progress dialog
+                    Object[] options = {"Cancel"};
+                    progressPanel = new JOptionPane("     Running Export: 1");
+                    progressPanel.setOptions(options);
+                    progressDialog = progressPanel.createDialog("Export in progress");
+                    progressDialog.setVisible(true);
+                    if(progressPanel.getValue().equals("Cancel")){
+                        exportCancelled = true;
+                    }
+
             }
             public void mousePressed(MouseEvent e) {}
             public void mouseReleased(MouseEvent e) {}
@@ -188,6 +208,7 @@ public class ExportPlugin extends SavantPanelPlugin {
             return;
         }
 
+        //create index file
         DateFormat dateFormat = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss");
         Date date = new Date();
         baseFile =  baseFolder + System.getProperty("file.separator") + dateFormat.format(date);
@@ -197,7 +218,6 @@ public class ExportPlugin extends SavantPanelPlugin {
             endRun(false);
             return;
         }
-
 
         //init bookmarks
         bookmarks = BookmarkController.getInstance().getBookmarks();
@@ -211,22 +231,42 @@ public class ExportPlugin extends SavantPanelPlugin {
         numBookmarks = bookmarks.size() -1;
         currentBookmark = 0;
 
-        run();
+        runExport();
+        
     }
+
+    private void cancelExport() {
+        closeIndex();
+        for(int i = 0; i < FrameController.getInstance().getFrames().size(); i++){
+            Frame f = FrameController.getInstance().getFrames().get(i);
+            f.getGraphPane().removeExportListeners();
+        }
+        endRun(false);
+        exportCancelled = false;
+    }
+
 
     /*
      * Update the progress of export
      */
     private void updateRunLabel(){
-        outputLabel.setText("     Running: " + (currentBookmark+1) + "/" + (numBookmarks+1));
+        String message = "     Running Export: " + (currentBookmark+1) + "/" + (numBookmarks+1);
+        outputLabel.setText("Export in progress");
+        if(progressPanel != null){
+            progressPanel.setMessage(message);
+        }
     }
 
-    private void run(){
+    private void runExport() {
+
+        if(exportCancelled){
+            cancelExport();
+            return;
+        }
 
         updateRunLabel();
 
         framesDone = 0;
-        images = new BufferedImage[numFrames];
 
         final Bookmark bm = bookmarks.get(currentBookmark);
         final String reference = bm.getReference();
@@ -248,7 +288,6 @@ public class ExportPlugin extends SavantPanelPlugin {
                 @Override
                 public void exportCompleted(ExportEvent evt) {
                     if(evt.getRange().equals(range)){
-                        images[index] = evt.getImage();
                         gp.removeExportListener(this);
                         nextBookmark();
                     }
@@ -263,70 +302,31 @@ public class ExportPlugin extends SavantPanelPlugin {
     /*
      * If another bookmark exists, begin exporting it
      */
-    public void nextBookmark(){
+    public void nextBookmark() {
         framesDone++;
         if(framesDone == numFrames){
-            createImage(images, currentBookmark, bookmarks.get(currentBookmark));
+            createImage(currentBookmark, bookmarks.get(currentBookmark));
             currentBookmark++;
             if(currentBookmark > numBookmarks){
                 closeIndex();
                 return;
             }
-            run();
+            runExport();
         }
     }
 
-    public void createImage(BufferedImage[] images, int increment, Bookmark bm){
+    public void createImage(int increment, Bookmark bm){
 
-        int totalWidth = 0;
-        int totalHeight = 45;
-        for(int i = 0; i <images.length; i++){
-            totalWidth = Math.max(totalWidth, images[i].getWidth());
-            totalHeight += images[i].getHeight();
+        String[] trackNames = new String[FrameController.getInstance().getFrames().size()];
+        for(int i = 0; i < trackNames.length; i++){
+            trackNames[i] = FrameController.getInstance().getFrames().get(i).getName();
         }
 
-         //create output image
-        BufferedImage out = new BufferedImage(totalWidth, totalHeight, BufferedImage.TYPE_INT_RGB);
-
-        //write range at top
-        RangeAdapter range = bm.getRange();
-        long start = range.getFrom();
-        long end = range.getTo();
-        String toWrite = "Reference: " + bm.getReference() + "    Range:  " + start + " - " + end;
-        if(!bm.getAnnotation().equals("")){
-            toWrite = toWrite + "    Annotation: " + bm.getAnnotation();
-        }
-        Graphics2D g = out.createGraphics();
-        g.setColor(Color.white);
-        g.setFont(new Font(null, Font.BOLD, 13));
-        g.drawString(toWrite, 2, 17);
-
-        //copy images to output image
-        int outX = 0;
-        int outY = 25;
-        for(int k = 0; k < images.length; k++){
-            BufferedImage current = images[k];
-            for(int y = 0; y < current.getHeight(); y++){
-                for(int x = 0; x < current.getWidth(); x++){
-                    int color = current.getRGB(x, y);
-                    out.setRGB(outX, outY, color);
-                    outX++;
-                }
-                outX = 0;
-                outY++;
-            }
-        }
-
-        //write message at bottom
-        toWrite = "Generated using the Savant Genome Browser - http://genomesavant.com";
-        g.setColor(Color.white);
-        g.setFont(new Font(null, Font.BOLD, 10));
-        g.drawString(toWrite, 2, outY+14);
+        BufferedImage out = ExportImage.beginExport(trackNames, increment);
 
         //save image
         boolean success = save(out, increment, bm);
         endRun(success);
-       
     }
     
     private boolean save(BufferedImage image, int increment, Bookmark bm){
@@ -363,6 +363,9 @@ public class ExportPlugin extends SavantPanelPlugin {
     }
 
     private boolean closeIndex(){
+        if(progressDialog != null){
+            progressDialog.setVisible(false);
+        }
         try {
             BufferedWriter out = new BufferedWriter(new FileWriter(this.indexFile, true));
             String s = "</html>";
@@ -393,6 +396,8 @@ public class ExportPlugin extends SavantPanelPlugin {
         //reset output
         if(success){
             outputLabel.setText("     Created file " + indexFile);
+        } else if(exportCancelled) {
+            outputLabel.setText("     Export cancelled");
         } else {
             outputLabel.setText("     Export failed. Make sure output path is correct.");
         }
