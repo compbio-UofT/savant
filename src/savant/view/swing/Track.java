@@ -259,17 +259,26 @@ public abstract class Track implements TrackAdapter {
      */
     public void loadDictionary(URI uri) throws IOException {
         dictionary = new HashMap<String, Bookmark>();
-        BufferedReader reader = new BufferedReader(new InputStreamReader(new BlockCompressedInputStream(NetworkUtils.getSeekableStreamForURI(uri))));
+        BufferedReader reader = null;
         try {
+            reader = new BufferedReader(new InputStreamReader(new BlockCompressedInputStream(NetworkUtils.getSeekableStreamForURI(uri))));
             String line;
             while ((line = reader.readLine()) != null) {
                 String[] entry = line.split("\\t");
                 dictionary.put(entry[0].toLowerCase(), new Bookmark(entry[1]));
             }
+        } catch (IOException x) {
+            // When used over a network, instead of giving us a nice EOF, BlockCompressedInputStream throws an IOException.
+            if (!x.getMessage().equals("Unexpected compressed block length: 1")) {
+                throw x;
+            }
         } catch (ParseException x) {
             throw new IOException(x);
+        } finally {
+            if (reader != null) {
+                reader.close();
+            }
         }
-        reader.close();
     }
 
     /**
