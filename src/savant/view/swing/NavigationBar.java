@@ -70,7 +70,7 @@ public class NavigationBar extends JToolBar {
 
         add(getRigidPadding());
 
-        JLabel rangeText = new JLabel("Range: ");
+        JLabel rangeText = new JLabel("Location: ");
         add(rangeText);
 
         int tfwidth = 240;
