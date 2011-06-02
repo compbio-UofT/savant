@@ -53,6 +53,13 @@ public class ExportImage {
         //String[] trackNames = Savant.getInstance().getSelectedTracks(true, "Select Tracks to Export", true);
         if(trackNames == null) return;
 
+        BufferedImage bf = beginExport(trackNames, base);
+        if(bf == null) return;
+        save(bf);
+    }
+
+    public static BufferedImage beginExport(String[] trackNames, int base){
+
         List<Frame> frames = FrameController.getInstance().getFrames();
 
         //generate images
@@ -74,7 +81,7 @@ public class ExportImage {
         
         //no frames selected
         if (images.isEmpty()) {
-            return;
+            return null;
         }
 
         BufferedImage out = new BufferedImage(totalWidth, totalHeight, BufferedImage.TYPE_INT_RGB);
@@ -112,8 +119,8 @@ public class ExportImage {
         g.setFont(new Font(null, Font.BOLD, 10));
         g.drawString(toWrite, 2, outY+14);
 
-        save(out);
-
+        //save(out);
+        return out;
     }
 
     private String save(BufferedImage screen) {

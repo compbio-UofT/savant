@@ -1441,6 +1441,12 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         }
     }
 
+    public void removeExportListeners(){
+        synchronized (exportListeners) {
+            exportListeners.clear();
+        }
+    }
+
     public void fireExportReady(Range range, BufferedImage image){
         int size = exportListeners.size();
         for (int i = 0; i < size; i++){
