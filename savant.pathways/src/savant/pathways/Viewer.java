@@ -16,123 +16,135 @@
 package savant.pathways;
 
 import java.awt.*;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
-import java.awt.geom.Dimension2D;
 import java.io.*;
-import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 import javax.swing.*;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreePath;
+import javax.swing.tree.TreeSelectionModel;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-
 import org.apache.batik.swing.JSVGCanvas;
 import org.apache.batik.swing.gvt.GVTTreeRendererAdapter;
 import org.apache.batik.swing.gvt.GVTTreeRendererEvent;
-import org.apache.batik.swing.svg.SVGDocumentLoaderEvent;
-import org.apache.batik.swing.svg.SVGDocumentLoaderListener;
 import org.w3c.dom.*;
 import org.xml.sax.SAXException;
-import savant.controller.RangeController;
-import savant.settings.DirectorySettings;
 
 /**
  *
  * @author AndrewBrook
  */
-public class Viewer extends JPanel {
+public class Viewer extends JSplitPane {
 
     private JScrollPane scrollPane;
-    private JPanel infoPanel;
+    private JScrollPane infoPanel;
     private JLabel infoLabel;
+    private JScrollPane treePanel;
+    private JSplitPane rightPanel;
+    private JTree dataTree;
     private ExtendedJSVGCanvas svgCanvas;
     private Document gpmlDoc;
     private Node pathway;
-    private NodeList comments;
-    private NodeList dataNodes;
-    private NodeList lines;
+    //private NodeList comments;
+    //private NodeList dataNodes;
+    //private NodeList lines;
+    private ArrayList<DataNode> dataNodes = new ArrayList<DataNode>();
     private ArrayList<Rectangle> recs = new ArrayList<Rectangle>();
     private String version;
 
+    private Point start;
+    private int initialVerticalScroll = 0;
+    private int initialHorizontalScroll = 0;
+
     Viewer() {
 
-        this.setLayout(new BorderLayout());
+        this.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
 
         //scrollPane
         scrollPane = new JScrollPane();
-        this.add(scrollPane, BorderLayout.CENTER);
+        scrollPane.setMinimumSize(new Dimension(200,50));
+        scrollPane.setPreferredSize(new Dimension(10000,10000));
+        this.setLeftComponent(scrollPane);
 
         //svgCanvas
         svgCanvas = new ExtendedJSVGCanvas();
         svgCanvas.setDocumentState(JSVGCanvas.ALWAYS_DYNAMIC);
         scrollPane.getViewport().add(svgCanvas);
 
+        //treePanel
+        treePanel = new JScrollPane();
+        treePanel.getViewport().setLayout(new FlowLayout(FlowLayout.LEFT));
+        treePanel.getViewport().setBackground(Color.white);
+        treePanel.setMaximumSize(new Dimension(200,100));
+
         //infoPanel
-        infoPanel = new JPanel();
-        infoPanel.setMinimumSize(new Dimension(200, 10));
-        infoPanel.setMaximumSize(new Dimension(300, 999999));
-        this.add(infoPanel, BorderLayout.EAST);
+        infoPanel = new JScrollPane();
+        infoPanel.getViewport().setLayout(new FlowLayout(FlowLayout.LEFT));
+        infoPanel.getViewport().setBackground(Color.white);
+        infoPanel.setMaximumSize(new Dimension(200,100));
+        infoPanel.setPreferredSize(new Dimension(200,100));
 
         //infoLabel
         infoLabel = new JLabel();
-        infoPanel.add(infoLabel);
+        infoLabel.setBackground(Color.white);
+        infoPanel.getViewport().add(infoLabel);
+        
+        //rightPanel
+        rightPanel = new JSplitPane(JSplitPane.VERTICAL_SPLIT, treePanel, infoPanel);
+        rightPanel.setMinimumSize(new Dimension(200,20));
+        rightPanel.setDividerLocation(0.5);
+        this.setRightComponent(rightPanel);
+        
+        this.setDividerLocation(0.8);
 
         svgCanvas.addGVTTreeRendererListener(new GVTTreeRendererAdapter() {
-
             @Override
             public void gvtRenderingCompleted(GVTTreeRendererEvent e) {
                 revalidate();
+                setDividerLocation(0.8);
             }
         });
-
-        svgCanvas.addSVGDocumentLoaderListener(new SVGDocumentLoaderListener() {
-
-            @Override
-            public void documentLoadingStarted(SVGDocumentLoaderEvent svgdle) {
-            }
-
-            @Override
-            public void documentLoadingCompleted(SVGDocumentLoaderEvent svgdle) {
-            }
-
-            @Override
-            public void documentLoadingCancelled(SVGDocumentLoaderEvent svgdle) {
-            }
-
-            @Override
-            public void documentLoadingFailed(SVGDocumentLoaderEvent svgdle) {
-            }
-        });
-
 
         svgCanvas.addMouseListener(new MouseListener() {
-
             @Override
             public void mouseClicked(MouseEvent e) {
                 tryClick(e.getPoint());
             }
-
             public void mousePressed(MouseEvent e) {
+                start = e.getLocationOnScreen();
+                initialVerticalScroll = scrollPane.getVerticalScrollBar().getValue();
+                initialHorizontalScroll = scrollPane.getHorizontalScrollBar().getValue();
             }
-
-            public void mouseReleased(MouseEvent e) {
-            }
-
-            public void mouseEntered(MouseEvent e) {
-            }
-
-            public void mouseExited(MouseEvent e) {
-            }
+            public void mouseReleased(MouseEvent e) {}
+            public void mouseEntered(MouseEvent e) {}
+            public void mouseExited(MouseEvent e) {}
         });
 
+        svgCanvas.addMouseMotionListener(new MouseMotionListener() {
+            @Override
+            public void mouseDragged(MouseEvent e) {
+                int x = (int)(e.getLocationOnScreen().getX() - start.getX());
+                int y = (int)(e.getLocationOnScreen().getY() - start.getY());
+                int newVert = Math.max(Math.min(scrollPane.getVerticalScrollBar().getMaximum(), initialVerticalScroll - y), 0);
+                int newHor = Math.max(Math.min(scrollPane.getHorizontalScrollBar().getMaximum(), initialHorizontalScroll - x), 0);
+                scrollPane.getVerticalScrollBar().setValue(newVert);
+                scrollPane.getHorizontalScrollBar().setValue(newHor);
+            }
+            @Override
+            public void mouseMoved(MouseEvent e) {
+                svgCanvas.setCursor(new Cursor(Cursor.HAND_CURSOR));
+            }
+        });
     }
 
     public void setPathway(URI svgUri, URI gpmlUri) {
@@ -158,6 +170,7 @@ public class Viewer extends JPanel {
 
         parseGPML();
         generateLinks();
+        createTree();
     }
 
     private void parseGPML() {
@@ -178,9 +191,13 @@ public class Viewer extends JPanel {
             version = "unknown";
         }
 
-        comments = ((Element) pathway).getElementsByTagName("Comment");
-        dataNodes = ((Element) pathway).getElementsByTagName("DataNode");
-        lines = ((Element) pathway).getElementsByTagName("Line");
+        //comments = ((Element) pathway).getElementsByTagName("Comment");
+        dataNodes.clear();
+        NodeList dataNodeList = ((Element) pathway).getElementsByTagName("DataNode");
+        for(int i = 0; i < dataNodeList.getLength(); i++){
+            dataNodes.add(new DataNode((Element) (dataNodeList.item(i))));
+        }
+        //lines = ((Element) pathway).getElementsByTagName("Line");
     }
 
     private void generateLinks() {
@@ -191,20 +208,19 @@ public class Viewer extends JPanel {
         }
 
         recs.clear();
-        for (int i = 0; i < dataNodes.getLength(); i++) {
 
-            Node node = dataNodes.item(i);
-            NodeList graphics = ((Element) node).getElementsByTagName("Graphics");
-            if (graphics.getLength() == 0) {
+        for(int i = 0; i < dataNodes.size(); i++){
+            
+            DataNode node = dataNodes.get(i);
+            if(!node.hasSubNode("Graphics")){
                 recs.add(null);
                 continue;
             }
 
-            Element el = (Element) (graphics.item(0));
-            float centerX = Float.valueOf(el.getAttribute("CenterX"));
-            float centerY = Float.valueOf(el.getAttribute("CenterY"));
-            float width = Float.valueOf(el.getAttribute("Width"));
-            float height = Float.valueOf(el.getAttribute("Height"));
+            float centerX = Float.valueOf(node.getAttribute("Graphics", "CenterX"));
+            float centerY = Float.valueOf(node.getAttribute("Graphics", "CenterY"));
+            float width = Float.valueOf(node.getAttribute("Graphics", "Width"));
+            float height = Float.valueOf(node.getAttribute("Graphics", "Height"));
             recs.add(new Rectangle((int) (scale *(centerX - width / 2.0)),
                     (int) (scale *(centerY - height / 2.0)),
                     (int) (scale * width),
@@ -214,46 +230,69 @@ public class Viewer extends JPanel {
 
     private void tryClick(Point p) {
         int i = searchShapes(p);
-        if (i == -1) {
-            return;
-        }
-
-        Element currentNode = (Element) (dataNodes.item(i));
-        //jumpToGene(currentNode);
-        fillInfo(currentNode);
+        if (i == -1) return;
+        fillInfo(dataNodes.get(i));     
     }
 
-    private void fillInfo(Element node) {
-        String s = "<HTML>";
-        s += "<B>" + node.getTagName() + "</B><BR>";
-        NamedNodeMap nnm = node.getAttributes();
-        for (int j = 0; j < nnm.getLength(); j++) {
-            s += nnm.item(j).getNodeName() + ": " + nnm.item(j).getNodeValue() + "<BR>";
-        }
-        s += "<BR>";
-
-        String[] elementNames = {"Attribute", "Xref"};
-
-        for (int j = 0; j < elementNames.length; j++) {
-            NodeList elements = node.getElementsByTagName(elementNames[j]);
-            if (elements == null || elements.getLength() == 0) {
-                continue;
-            }
-            Element el = (Element) (elements.item(0));
-
-            s += "<B>" + el.getTagName() + "</B><BR>";
-            nnm = el.getAttributes();
-            for (int k = 0; k < nnm.getLength(); k++) {
-                s += nnm.item(k).getNodeName() + ": " + nnm.item(k).getNodeValue() + "<BR>";
-            }
-            s += "<BR>";
-        }
-
-        s += "</HTML>";
-        infoLabel.setText(s);
+    private void fillInfo(DataNode dataNode){
+        infoLabel.setText(dataNode.getInfoString());
+        rightPanel.revalidate();
     }
 
-    private void jumpToGene(Element node) {
+    private void createTree(){
+
+        DefaultMutableTreeNode root = new DefaultMutableTreeNode("dataTree");
+
+        Map<String, ArrayList<DataNode>> treeMap = new HashMap<String, ArrayList<DataNode>>();
+        for(DataNode n : dataNodes){
+            String type = n.getType();
+            if(treeMap.get(type) == null){
+                treeMap.put(type, new ArrayList<DataNode>());
+            }
+            treeMap.get(type).add(n);
+        }
+        Iterator it = treeMap.keySet().iterator();
+        while(it.hasNext()){
+            String key = (String)it.next();
+            ArrayList<DataNode> list = treeMap.get(key);
+            Collections.sort(list);
+
+            DefaultMutableTreeNode node = new DefaultMutableTreeNode(key);
+            for(DataNode n : list){
+                node.add(new DefaultMutableTreeNode(n));
+            }
+            root.add(node);
+        }
+
+        dataTree = new JTree(root);
+        dataTree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+
+        dataTree.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                int selRow = dataTree.getRowForLocation(e.getX(), e.getY());
+                TreePath selPath = dataTree.getPathForLocation(e.getX(), e.getY());
+                if(selRow != -1) {
+                    if(e.getClickCount() == 2) {
+                        DefaultMutableTreeNode node = (DefaultMutableTreeNode)selPath.getLastPathComponent();
+                        if (node == null) return;
+                        if (node.isLeaf()) {
+                            DataNode dataNode = (DataNode)node.getUserObject();
+                            fillInfo(dataNode);
+                        }
+                    }
+                }
+            }
+        });
+
+        dataTree.setRootVisible(false);
+        treePanel.getViewport().removeAll();
+        treePanel.getViewport().add(dataTree);
+
+        rightPanel.setDividerLocation(0.5);
+    }
+
+    /*private void jumpToGene(Element node) {
         NodeList Xrefs = node.getElementsByTagName("Xref");
         if (Xrefs == null || Xrefs.getLength() == 0) {
             return;
@@ -298,9 +337,9 @@ public class Viewer extends JPanel {
             //go to location
 
         }
-    }
+    }*/
 
-    private void parseGeneRange(URI uri) {
+   /* private void parseGeneRange(URI uri) {
 
         //TODO improve speed, narrow search by incrementally navigating doc
 
@@ -323,14 +362,14 @@ public class Viewer extends JPanel {
             NodeList headingList = el.getElementsByTagName("Gene-commentary_heading");
             if(headingList == null || headingList.getLength() == 0) continue;
             Node headingElement = el.getElementsByTagName("Gene-commentary_heading").item(0);
-            /*NamedNodeMap nnm = typeElement.getAttributes();
-            boolean found = false;
-            for(int j = 0; j < nnm.getLength(); j++){
-                if(nnm.item(j).getNodeName().equals("value") && nnm.item(j).getNodeValue().equals("genomic")){
-                    found = true;
-                }
-            }
-            if(found){*/
+//            NamedNodeMap nnm = typeElement.getAttributes();
+//            boolean found = false;
+//            for(int j = 0; j < nnm.getLength(); j++){
+//                if(nnm.item(j).getNodeName().equals("value") && nnm.item(j).getNodeValue().equals("genomic")){
+//                    found = true;
+//                }
+//            }
+//            if(found){
             if(headingElement.getTextContent().equals("RefSeqGene")){
                 Node fromNode = el.getElementsByTagName("Seq-interval_from").item(0);
                 Node toNode = el.getElementsByTagName("Seq-interval_to").item(0);
@@ -340,10 +379,7 @@ public class Viewer extends JPanel {
                 break;
             }
         }
-
-        
-
-    }
+    }*/
 
     private int searchShapes(Point p) {
         for (int i = 0; i < recs.size(); i++) {
@@ -370,7 +406,7 @@ public class Viewer extends JPanel {
                 }
                 g.drawRect((int) rec.getX(), (int) rec.getY(), (int) rec.getWidth(), (int) rec.getHeight());
             }
-
-        }
+            
+        }       
     }
 }

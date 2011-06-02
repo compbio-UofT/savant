@@ -69,8 +69,8 @@ public class PathwaysTab extends SavantPanelPlugin {
     public void init(JPanel parent, PluginAdapter pluginAdapter) {
 
         this.parent = parent;
-        parent.setLayout(new GridBagLayout());       
-
+        parent.setLayout(new GridBagLayout());
+        
         //create menubar
         menubar = new JMenuBar();
         fileButton = new JMenu("Find Pathways");
