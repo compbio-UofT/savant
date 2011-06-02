@@ -293,7 +293,6 @@ public class TrackChooser extends JDialog {
         //SEPARATOR
         JPanel sepPanel1 = new JPanel();
         sepPanel1.setMinimumSize(new Dimension(5, 10));
-        sepPanel1.setBackground(Color.red);
         sepPanel1.setLayout(new BorderLayout());
         sepPanel1.add(new JSeparator(SwingConstants.HORIZONTAL), BorderLayout.CENTER);
         c.fill = GridBagConstraints.HORIZONTAL;
@@ -338,7 +337,6 @@ public class TrackChooser extends JDialog {
             //SEPARATOR
             JPanel sepPanel2 = new JPanel();
             sepPanel2.setMinimumSize(new Dimension(10, 10));
-            sepPanel2.setBackground(Color.red);
             sepPanel2.setLayout(new BorderLayout());
             sepPanel2.add(new JSeparator(SwingConstants.HORIZONTAL), BorderLayout.CENTER);
             c.fill = GridBagConstraints.HORIZONTAL;
