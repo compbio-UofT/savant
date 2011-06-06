@@ -296,6 +296,12 @@ public abstract class TrackRenderer implements DataRetrievalListener {
             SelectionController.getInstance().toggleSelection(trackName, i);
         }
     }
+    
+    public void forceAddToSelected(Record i){
+        if(selectionAllowed(false)){
+            SelectionController.getInstance().addSelection(trackName, i);
+        }
+    }
 
 
     /**

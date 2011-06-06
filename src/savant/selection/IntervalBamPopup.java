@@ -116,7 +116,7 @@ public class IntervalBamPopup extends PopupPanel implements DataRetrievalListene
                 public void mouseClicked(MouseEvent e) {
                     for (Track t: gp.getTracks()) {
                         if (t.getDataFormat() == fileFormat){
-                            t.getRenderer().addToSelected(record);
+                            t.getRenderer().forceAddToSelected(record);
                             break;
                         }
                     }
@@ -189,7 +189,7 @@ public class IntervalBamPopup extends PopupPanel implements DataRetrievalListene
             if(MiscUtils.isMate(samRec, current)){
                 for (Track t: gp.getTracks()) {
                     if (t.getDataFormat() == fileFormat){
-                        t.getRenderer().addToSelected(data.get(i));
+                        t.getRenderer().forceAddToSelected(data.get(i));
                         break;
                     }
                 }
