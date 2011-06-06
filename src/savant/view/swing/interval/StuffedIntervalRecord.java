@@ -57,7 +57,7 @@ public class StuffedIntervalRecord implements IntervalRecord {
         this.originalRecord = record;
         this.leftstuffing = leftstuffing;
         this.rightstuffing = rightstuffing;
-        this.stuffedRecord = new Interval(record.getInterval().getStart()-leftstuffing,record.getInterval().getEnd()+rightstuffing);
+        this.stuffedRecord = new Interval(Math.max(0,record.getInterval().getStart()-leftstuffing), record.getInterval().getEnd()+rightstuffing);
     }
 
     @Override
