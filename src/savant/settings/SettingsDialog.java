@@ -93,7 +93,7 @@ public class SettingsDialog extends MultiplePageDialog {
 
     @Override
     public Dimension getPreferredSize() {
-        return new Dimension(600, 500);
+        return new Dimension(750, 500);
     }
 
     public static void showOptionsDialog(Frame f) {
