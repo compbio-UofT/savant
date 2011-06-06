@@ -19,7 +19,6 @@ package savant.tools;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.text.ParseException;
 
 import savant.file.FileType;
 import savant.format.DataFormatter;
@@ -32,7 +31,6 @@ import savant.format.SavantFileFormattingException;
  *
  * @author tarkvara
  */
-
 @SuppressWarnings("UseOfSystemOutOrSystemErr")
 public class FormatTool {
 
@@ -63,7 +61,9 @@ public class FormatTool {
                 }
             }
 
-            ft = parseFileType(typeStr);
+            if (typeStr != null) {
+                ft = parseFileType(typeStr);
+            }
 
             if (inFile == null) {
                 throw new IllegalArgumentException("Input file not specified.");
@@ -74,7 +74,8 @@ public class FormatTool {
             if (ft == null) {
                 ft = inferFileType(inFile);
                 if (ft == null) {
-                    throw new IllegalArgumentException(String.format("Unable to determine file type of %s.", inFile.getName()));
+                    ft = FileType.INTERVAL_UNKNOWN;
+                    System.out.println(String.format("Unable to determine type of %s; will try to infer fields from comment on first line.", inFile.getName()));
                 }
             }
             if (!forceOneBased) {
@@ -90,6 +91,7 @@ public class FormatTool {
                     case INTERVAL_VCF:
                     case INTERVAL_KNOWNGENE:
                     case INTERVAL_REFGENE:
+                    case INTERVAL_UNKNOWN:
                         outFile = new File(inFile.getAbsolutePath() + ".gz");
                         break;
                     case CONTINUOUS_GENERIC:
@@ -194,13 +196,12 @@ public class FormatTool {
 
     @SuppressWarnings("UseOfSystemOutOrSystemErr")
     private static void usage() {
-        System.err.println("Usage: FormatTool [-t type] [-1] [-bin] inFile [outFile]");
+        System.err.println("Usage: FormatTool [-t type] [-1] inFile [outFile]");
         System.err.println("    -t       file type (one of FASTA, BED, GFF, BAM, WIG, BedGraph, Interval,");
         System.err.println("             Point, Continuous, Gene; if omitted, will try to infer from file");
         System.err.println("             extension)");
         System.err.println("    -1       treat the file as one-based (default for FASTA, GFF, BAM, WIG, and");
         System.err.println("             BedGraph)");
-        System.err.println("    -bin     first column is a bin column (used by some UCSC BED and Gene tables)");
         System.err.println("    inFile   the unformatted input file (required)");
         System.err.println("    outFile  the output file (if omitted, will default to inFile.savant)");
     }

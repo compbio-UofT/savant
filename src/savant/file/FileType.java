@@ -41,7 +41,8 @@ public enum FileType {
         INTERVAL_PSL(-1),
         INTERVAL_VCF(-1),
         INTERVAL_KNOWNGENE(-1),
-        INTERVAL_REFGENE(-1);     // Gene file with a bin column inserted as column 0.  Used by UCSC for RefSeq genes.
+        INTERVAL_REFGENE(-1),     // Gene file with a bin column inserted as column 0.  Used by UCSC for RefSeq genes.
+        INTERVAL_UNKNOWN(-1);     // Some unknown interval format.  Columns must be identified by comment-line at start of file.
 
     int magicNumber;
 

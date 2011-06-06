@@ -81,7 +81,7 @@ public final class Genome implements Serializable, GenomeAdapter {
      * Populate a genome using only an array containing chromosome names and lengths.
      * Constructor used for creating fallback genomes when internet is inaccessible.
      */
-    private Genome(String name, String desc, ReferenceInfo[] info) {
+    public Genome(String name, String desc, ReferenceInfo[] info) {
         this.name = name;
         this.description = desc;
         for (ReferenceInfo i: info) {
@@ -387,7 +387,7 @@ public final class Genome implements Serializable, GenomeAdapter {
         }
     }
 
-    static class ReferenceInfo {
+    public static class ReferenceInfo {
 
         String name;
         int length;

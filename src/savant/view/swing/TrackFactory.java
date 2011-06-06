@@ -299,7 +299,7 @@ public class TrackFactory {
                         t.loadDictionary(dictionaryURI);
                     }
                 } catch (IOException x) {
-                    LOG.error("Unable to load dictionary for " + dictionaryURI);
+                    LOG.error("Unable to load dictionary for " + dictionaryURI, x);
                 }
             }
         }

@@ -128,8 +128,15 @@ public class TabixDataSource implements DataSource<TabixIntervalRecord> {
         if (mapping == null) {
             if (lastCommentLine != null) {
                 columnNames = lastCommentLine.split("\\t");
+                
+                // If user has screwed up the comment line in a bed file, make sure it doesn't lead us astray.
+                columnNames[reader.getChromColumn()] = "chrom";
+                columnNames[reader.getStartColumn()] = "start";
+                if (reader.getEndColumn() >= 0) {
+                    columnNames[reader.getEndColumn()] = "end";
+                }
             }
-            mapping = ColumnMapping.inferMapping(columnNames);
+            mapping = ColumnMapping.inferMapping(columnNames, true);
         }
     }
 

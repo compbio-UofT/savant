@@ -16,8 +16,10 @@
 
 package savant.format;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.LinkedHashMap;
@@ -54,7 +56,7 @@ public class TabixFormatter extends SavantFileFormatter {
      * @param inFile input text file
      * @param outFile output .gz file (index will append .tbi to the name)
      */
-    public TabixFormatter(File inFile, File outFile, FileType inputFileType) {
+    public TabixFormatter(File inFile, File outFile, FileType inputFileType) throws IOException {
         super(inFile, outFile, FileType.TABIX);
 
         int flags = 0;
@@ -86,9 +88,28 @@ public class TabixFormatter extends SavantFileFormatter {
                 flags = TabixWriter.TI_PRESET_VCF;
                 header = ColumnMapping.VCF_HEADER;
                 break;
+            case INTERVAL_UNKNOWN:
+                readHeaderLine();
+                break;
         }
-        mapping = ColumnMapping.inferMapping(header);
+        mapping = ColumnMapping.inferMapping(header, true);
         conf = mapping.getTabixConf(flags);
+    }
+
+    /**
+     * Look for a comment line which gives us the names of fields in the file.
+     */
+    private void readHeaderLine() throws IOException {
+        // If we're lucky, the file starts with a comment line with the field-names in it.
+        // That's what UCSC puts there, as does Savant.  In some files (e.g. VCF), this
+        // magical comment line may be preceded by a ton of metadata comment lines.
+        BufferedReader reader = new BufferedReader(new FileReader(inFile));
+        String line = reader.readLine();
+        while (line.charAt(0) == '#') {
+            header = line;
+            line = reader.readLine();
+        }
+        reader.close();
     }
 
     @Override

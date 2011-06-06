@@ -28,6 +28,7 @@ import org.apache.commons.logging.LogFactory;
 import savant.controller.*;
 import savant.data.sources.DataSource;
 import savant.data.types.Genome;
+import savant.data.types.Genome.ReferenceInfo;
 import savant.exception.SavantEmptySessionException;
 import savant.util.Bookmark;
 import savant.util.MiscUtils;
@@ -137,6 +138,10 @@ public class Project {
     private void createFromXML(InputStream input) throws XMLStreamException, ParseException, IOException {
         trackPaths = new ArrayList<String>();
         bookmarks = new ArrayList<Bookmark>();
+        String genomeName = null;
+        String genomeDesc = null;
+        String cytobandPath = null;
+        List<ReferenceInfo> references = new ArrayList<ReferenceInfo>();
 
         reader = XMLInputFactory.newInstance().createXMLStreamReader(input);
         int version = -1;
@@ -153,14 +158,12 @@ public class Project {
                             LOG.info("Reading project version " + version);
                             break;
                         case genome:
-                            String genomeName = readAttribute(XMLAttribute.name);
-                            String genomeDesc = readAttribute(XMLAttribute.description);
-                            String cytoband = readAttribute(XMLAttribute.cytoband);
-                            if (cytoband != null) {
-                                genome = new Genome(genomeName, genomeDesc, URI.create(cytoband), null);
-                            }
+                            genomeName = readAttribute(XMLAttribute.name);
+                            genomeDesc = readAttribute(XMLAttribute.description);
+                            cytobandPath = readAttribute(XMLAttribute.cytoband);
                             break;
                         case reference:
+                            references.add(new ReferenceInfo(readAttribute(XMLAttribute.name), Integer.valueOf(readAttribute(XMLAttribute.length))));
                             break;
                         case track:
                             // If the file is well-formed, the track will have exactly one attribute, the URI.
@@ -179,6 +182,12 @@ public class Project {
                     break;
             }
         } while (!done);
+
+        if (cytobandPath != null) {
+            genome = new Genome(genomeName, genomeDesc, URI.create(cytobandPath), null);
+        } else {
+            genome = new Genome(genomeName, genomeDesc, references.toArray(new ReferenceInfo[0]));
+        }
     }
 
     private static XMLElement readElement() {

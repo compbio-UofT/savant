@@ -143,6 +143,7 @@ public class DataFormatter {
                 case INTERVAL_VCF:
                 case INTERVAL_KNOWNGENE:
                 case INTERVAL_REFGENE:
+                case INTERVAL_UNKNOWN:
                     runFormatter(new TabixFormatter(inFile, outFile, inputFileType));
                     break;
                 case CONTINUOUS_WIG:
