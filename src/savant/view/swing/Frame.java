@@ -424,6 +424,9 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
             @Override
             public void actionPerformed(ActionEvent e) {
                 graphPane.setLocked(!graphPane.isLocked());
+                if(!graphPane.isLocked()){
+                    forceRedraw();
+                }
             }
         });
         menu.add(item);
