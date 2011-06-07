@@ -16,6 +16,7 @@ import java.io.File;
 import javax.swing.JFileChooser;
 import savant.api.util.DialogUtils;
 import savant.mail.Mail;
+import savant.settings.BrowserSettings;
 import savant.swing.component.PathField;
 
 /**
@@ -276,6 +277,9 @@ public class BugReportDialog extends javax.swing.JDialog {
             String type = getType();
             String institution = getInstitution();
             String description = getDescription();
+            String savantVersion = getSavantVersion();
+            String jdk = getJDKVersion();
+            String os = getOS();
 
             String subject = "[Savant Bug Report] from " + name;
             String message = ""
@@ -283,6 +287,9 @@ public class BugReportDialog extends javax.swing.JDialog {
                 + "Email: " + email + "\n\n"
                 + "Type: " + type + "\n\n"
                 + "Institution: " + institution + "\n\n"
+                + "Savant Version: " + savantVersion + "\n\n"
+                + "JDK Version: " + jdk + "\n\n"
+                + "OS Version: " + os + "\n\n"
                 + "Description:\n" + description + "\n";
 
             this.button_send.setText("Sending...");
@@ -364,6 +371,28 @@ public class BugReportDialog extends javax.swing.JDialog {
 
     private String getDescription() {
         return this.field_description.getText();
+    }
+
+    private String getSavantVersion(){
+        return BrowserSettings.version + " " + BrowserSettings.build;
+    }
+
+    private String getJDKVersion(){
+        return getProperty("java.version");
+    }
+
+    private String getOS(){
+        return getProperty("os.name") + " " + getProperty("os.arch") + " " + getProperty("os.version");
+    }
+
+    private String getProperty(String propertyName){
+        try {
+            String value = System.getProperty(propertyName);
+            if(value == null) return "unknown";
+            else return value;
+        } catch (SecurityException e){
+            return "unknown";
+        }
     }
 
     private boolean validateForm() {
