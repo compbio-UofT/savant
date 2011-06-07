@@ -52,4 +52,9 @@ public class IntervalBedPopup extends PopupPanel {
         this.add(new JLabel(readLength));
 
     }
+    
+    @Override
+    protected void initSpecificButtons() {
+        initIntervalJumps(rec);
+    }
 }

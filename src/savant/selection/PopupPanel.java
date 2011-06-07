@@ -22,12 +22,14 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.Iterator;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 
 import savant.controller.BookmarkController;
+import savant.controller.RangeController;
 import savant.controller.ReferenceController;
 import savant.data.sources.DataSource;
 import savant.data.types.*;
@@ -196,6 +198,48 @@ public class PopupPanel extends JPanel {
 
     protected void hidePopup(){
         this.gp.hidePopup();
+    }
+
+    protected void initIntervalJumps(final IntervalRecord rec){
+        //jump to start of read
+        if(RangeController.getInstance().getRangeStart() > rec.getInterval().getStart()){
+            JLabel endJump = new JLabel("Jump to Start of Interval");
+            endJump.setForeground(Color.BLUE);
+            endJump.setCursor(new Cursor(Cursor.HAND_CURSOR));
+            endJump.addMouseListener(new MouseListener() {
+                public void mouseClicked(MouseEvent e) {
+                    RangeController rc = RangeController.getInstance();
+                    int len = rc.getRangeEnd() - rc.getRangeStart();
+                    rc.setRange(rec.getInterval().getStart()-(len/2), rec.getInterval().getStart()+(len/2));
+                    hidePopup();
+                }
+                public void mousePressed(MouseEvent e) {}
+                public void mouseReleased(MouseEvent e) {}
+                public void mouseEntered(MouseEvent e) {}
+                public void mouseExited(MouseEvent e) {}
+            });
+            this.add(endJump);
+        }
+
+        //jump to end of read
+        if(RangeController.getInstance().getRangeEnd() < rec.getInterval().getEnd()){
+            JLabel endJump = new JLabel("Jump to End of Interval");
+            endJump.setForeground(Color.BLUE);
+            endJump.setCursor(new Cursor(Cursor.HAND_CURSOR));
+            endJump.addMouseListener(new MouseListener() {
+                public void mouseClicked(MouseEvent e) {
+                    RangeController rc = RangeController.getInstance();
+                    int len = rc.getRangeEnd() - rc.getRangeStart();
+                    rc.setRange(rec.getInterval().getEnd()-(len/2), rec.getInterval().getEnd()+(len/2));
+                    hidePopup();
+                }
+                public void mousePressed(MouseEvent e) {}
+                public void mouseReleased(MouseEvent e) {}
+                public void mouseEntered(MouseEvent e) {}
+                public void mouseExited(MouseEvent e) {}
+            });
+            this.add(endJump);
+        }
     }
 
 }

@@ -48,11 +48,16 @@ public class TabixPopup extends PopupPanel {
     protected void initInfo() {
         String[] values = rec.getValues();
         
-        for (int i = 0; i < columnNames.length; i++) {
+        for (int i = 0; i < columnNames.length && i < values.length; i++) {
             if (columnNames[i] != null) {
                 add(new JLabel(columnNames[i] + ":\t" + values[i]));
             }
         }
+    }
+    
+    @Override
+    protected void initSpecificButtons() {
+        initIntervalJumps(rec);
     }
 }
 

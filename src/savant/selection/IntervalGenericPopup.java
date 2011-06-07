@@ -16,7 +16,12 @@
 
 package savant.selection;
 
+import java.awt.Color;
+import java.awt.Cursor;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import javax.swing.JLabel;
+import savant.controller.RangeController;
 import savant.data.types.GenericIntervalRecord;
 
 
@@ -54,6 +59,11 @@ public class IntervalGenericPopup extends PopupPanel {
 
         String readLength = "Length: " + (end - start);
         this.add(new JLabel(readLength));
+    }
+
+    @Override
+    protected void initSpecificButtons() {
+        initIntervalJumps(rec);
     }
 }
 

@@ -136,46 +136,7 @@ public class IntervalBamPopup extends PopupPanel implements DataRetrievalListene
             this.add(mateJump1);
         }
 
-        //jump to start of read
-        if(RangeController.getInstance().getRangeStart() > rec.getInterval().getStart()){
-            JLabel endJump = new JLabel("Jump to Start of Read");
-            endJump.setForeground(Color.BLUE);
-            endJump.setCursor(new Cursor(Cursor.HAND_CURSOR));
-            endJump.addMouseListener(new MouseListener() {
-                public void mouseClicked(MouseEvent e) {
-                    RangeController rc = RangeController.getInstance();
-                    int len = rc.getRangeEnd() - rc.getRangeStart();
-                    rc.setRange(rec.getInterval().getStart()-(len/2), rec.getInterval().getStart()+(len/2));
-                    hidePopup();
-                }
-                public void mousePressed(MouseEvent e) {}
-                public void mouseReleased(MouseEvent e) {}
-                public void mouseEntered(MouseEvent e) {}
-                public void mouseExited(MouseEvent e) {}
-            });
-            this.add(endJump);
-        }
-
-        //jump to end of read
-        if(RangeController.getInstance().getRangeEnd() < rec.getInterval().getEnd()){
-            JLabel endJump = new JLabel("Jump to End of Read");
-            endJump.setForeground(Color.BLUE);
-            endJump.setCursor(new Cursor(Cursor.HAND_CURSOR));
-            endJump.addMouseListener(new MouseListener() {
-                public void mouseClicked(MouseEvent e) {
-                    RangeController rc = RangeController.getInstance();
-                    int len = rc.getRangeEnd() - rc.getRangeStart();
-                    rc.setRange(rec.getInterval().getEnd()-(len/2), rec.getInterval().getEnd()+(len/2));
-                    hidePopup();
-                }
-                public void mousePressed(MouseEvent e) {}
-                public void mouseReleased(MouseEvent e) {}
-                public void mouseEntered(MouseEvent e) {}
-                public void mouseExited(MouseEvent e) {}
-            });
-            this.add(endJump);
-        }
-        
+        initIntervalJumps(rec);
     }
 
     @Override
