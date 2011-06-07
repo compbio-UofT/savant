@@ -16,9 +16,6 @@
 
 package savant.api.util;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import savant.api.adapter.BookmarkAdapter;
 import savant.api.adapter.RangeAdapter;
 import savant.controller.BookmarkController;
@@ -34,16 +31,14 @@ import savant.util.Range;
  */
 public class BookmarkUtils {
 
+    private static BookmarkController controller = BookmarkController.getInstance();
+
     /**
      * Get a list of the current bookmarks
      * @return A list of bookmarks
      */
-    public static List<BookmarkAdapter> getBookmarks() {
-        List<BookmarkAdapter> r = new ArrayList<BookmarkAdapter>();
-        for (BookmarkAdapter b : BookmarkController.getInstance().getBookmarks()) {
-            r.add((BookmarkAdapter) b);
-        }
-        return r;
+    public static BookmarkAdapter[] getBookmarks() {
+        return controller.getBookmarks().toArray(new BookmarkAdapter[0]);
     }
 
     /**
@@ -51,14 +46,14 @@ public class BookmarkUtils {
      * @param f The bookmark to add
      */
     public static void addBookmark(BookmarkAdapter f) {
-        BookmarkController.getInstance().addBookmark((Bookmark) f);
+        controller.addBookmark((Bookmark) f);
     }
 
     /**
      * Remove the last bookmark
      */
     public static void removeLastBookmark() {
-        BookmarkController.getInstance().removeBookmark();
+        controller.removeBookmark();
     }
 
     /**
@@ -66,7 +61,7 @@ public class BookmarkUtils {
      * @param index Index of the bookmark to remove
      */
     public static void removeBookmark(int index) {
-        BookmarkController.getInstance().removeBookmark(index);
+        controller.removeBookmark(index);
     }
 
     /**
@@ -74,7 +69,7 @@ public class BookmarkUtils {
      * @param l The listener to subscribe
      */
     public static void addBookmarksChangedListener(BookmarksChangedListener l) {
-        BookmarkController.getInstance().addFavoritesChangedListener(l);
+        controller.addFavoritesChangedListener(l);
     }
 
     /**
@@ -82,14 +77,14 @@ public class BookmarkUtils {
      * @param l The listener to unsubscribe
      */
     public static void removeFavoritesChangedListener(BookmarksChangedListener l) {
-        BookmarkController.getInstance().removeFavoritesChangedListener(l);
+        controller.removeFavoritesChangedListener(l);
     }
 
     /**
      * Add the current range as a bookmark
      */
     public static void addCurrentRangeToBookmarks() {
-        BookmarkController.getInstance().addCurrentRangeToBookmarks();
+        controller.addCurrentRangeToBookmarks();
     }
 
     /**
@@ -98,14 +93,14 @@ public class BookmarkUtils {
      * @return The bookmark at the specified index
      */
     public static BookmarkAdapter getBookmark(int index) {
-        return (BookmarkAdapter)  BookmarkController.getInstance().getBookmark(index);
+        return (BookmarkAdapter)controller.getBookmark(index);
     }
 
     /**
      * Clear the bookmarks list
      */
     public static void clearBookmarks() {
-        BookmarkController.getInstance().clearBookmarks();
+        controller.clearBookmarks();
     }
 
     /**

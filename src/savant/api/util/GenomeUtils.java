@@ -25,6 +25,7 @@ import savant.controller.ReferenceController;
 import savant.data.types.Genome;
 import savant.view.swing.Track;
 
+
 /**
  *
  * @author tarkvara
@@ -84,6 +85,6 @@ public class GenomeUtils {
      * @return a genome object for the given sequence
      */
     public static GenomeAdapter createGenome(File f) throws Throwable {
-        return createGenome(TrackUtils.createTrack(f).get(0));
+        return createGenome(TrackUtils.createTrack(f)[0]);
     }
 }

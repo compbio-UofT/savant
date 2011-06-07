@@ -33,6 +33,7 @@ import savant.controller.event.TrackListChangedListener;
 import savant.controller.event.TrackRemovedListener;
 import savant.data.sources.DataSource;
 import savant.file.DataFormat;
+import savant.view.swing.Frame;
 import savant.view.swing.Savant;
 import savant.view.swing.TrackFactory;
 import savant.view.swing.Track;
@@ -44,23 +45,25 @@ import savant.view.swing.Track;
 public class TrackUtils {
     private static final Log LOG = LogFactory.getLog(TrackUtils.class);
 
-    private static TrackController vtc = TrackController.getInstance();
+    private static TrackController trackController = TrackController.getInstance();
 
     /**
      * Get the loaded tracks.
      * @return A list of tracks
      */
-    public static List<TrackAdapter> getTracks() {
-        List<TrackAdapter> r = new ArrayList<TrackAdapter>();
-        for (Track t : vtc.getTracks()) {
-            r.add((TrackAdapter) t);
+    public static TrackAdapter[] getTracks() {
+        int numTracks = trackController.getTracks().size();
+        TrackAdapter[] result = new TrackAdapter[numTracks];
+        for (int i = 0; i < numTracks; i++) {
+            result[i] = trackController.getTrack(i);
         }
-        return r;
+        return result;
     }
 
     /**
      * Add a track to the list of tracks.
      * @param track The track to add
+     * @deprecated No longer necessary; createTracks does all the work.
      */
     public static void addTrack(TrackAdapter track) {
         addTracks(Arrays.asList(new TrackAdapter[] { track }));
@@ -69,6 +72,7 @@ public class TrackUtils {
     /**
      * Add multiple tracks to the list of tracks.
      * @param tracs The track to add
+     * @deprecated No longer necessary; createTracks does all the work.
      */
     public static void addTracks(List<TrackAdapter> tracks) {
         Track[] myTracks = new Track[tracks.size()];
@@ -93,26 +97,21 @@ public class TrackUtils {
      * @return A list of tracks based on the path (some paths, e.g. to BAM files, can create multiple tracks)
      * @throws IOException Exception opening the track at path
      */
-    public static List<TrackAdapter> createTrack(URI uri) throws Throwable {
-        List<TrackAdapter> r = new ArrayList<TrackAdapter>();
-        for (Track t : TrackFactory.createTrackSync(uri)) {
-            r.add((TrackAdapter) t);
-        }
-        return r;
+    public static TrackAdapter[] createTrack(URI uri) throws Throwable {
+        Frame f = Savant.getInstance().addTrackFromURI(uri);
+        return f.getTracks();
     }
 
     /**
-     * Create a track from a local file.
+     * Create a track from a local file.  As of 1.5, now adds the track to the UI.
+     *
      * @param file Local file
      * @return A list of tracks based on the path (some paths, e.g. to BAM files, can create multiple tracks)
      * @throws IOException Exception opening the track at path
      */
-    public static List<TrackAdapter> createTrack(File file) throws Throwable {
-        List<TrackAdapter> r = new ArrayList<TrackAdapter>();
-        for (Track t : TrackFactory.createTrackSync(file.toURI())) {
-            r.add((TrackAdapter) t);
-        }
-        return r;
+    public static TrackAdapter[] createTrack(File file) throws Throwable {
+        Frame f = Savant.getInstance().addTrackFromURI(file.toURI());
+        return f.getTracks();
     }
 
     /**
@@ -131,12 +130,12 @@ public class TrackUtils {
      * @param kind The format of tracks wanted
      * @return A list of all tracks of a specific format
      */
-    public List<TrackAdapter> getTracks(DataFormat kind) {
+    public TrackAdapter[] getTracks(DataFormat kind) {
         List<TrackAdapter> r = new ArrayList<TrackAdapter>();
-        for (Track t : vtc.getTracks(kind)) {
-            r.add((TrackAdapter) t);
+        for (Track t : trackController.getTracks(kind)) {
+            r.add((TrackAdapter)t);
         }
-        return r;
+        return r.toArray(new TrackAdapter[0]);
     }
 
     /**
@@ -144,7 +143,7 @@ public class TrackUtils {
      * @param l The listener to subscribe
      */
     public static synchronized void addTracksChangedListener(TrackListChangedListener l) {
-        vtc.addTrackListChangedListener(l);
+        trackController.addTrackListChangedListener(l);
     }
 
     /**
@@ -152,7 +151,7 @@ public class TrackUtils {
      * @param l The listener to unsubscribe
      */
     public static synchronized void removeTracksChangedListener(TrackListChangedListener l) {
-        vtc.removeTrackListChangedListener(l);
+        trackController.removeTrackListChangedListener(l);
     }
 
     /**
@@ -160,7 +159,7 @@ public class TrackUtils {
      * @param l The listener to subscribe
      */
     public static synchronized void addTrackAddedListener(TrackAddedListener l) {
-        vtc.addTrackAddedListener(l);
+        trackController.addTrackAddedListener(l);
     }
 
     /**
@@ -168,7 +167,7 @@ public class TrackUtils {
      * @param l The listener to unsubscribe
      */
     public static synchronized void removeTrackAddedListener(TrackAddedListener l) {
-        vtc.removeTrackAddedListener(l);
+        trackController.removeTrackAddedListener(l);
     }
 
     /**
@@ -176,7 +175,7 @@ public class TrackUtils {
      * @param l The listener to subscribe
      */
     public static synchronized void addTrackRemovedListener(TrackRemovedListener l) {
-        vtc.addTrackRemovedListener(l);
+        trackController.addTrackRemovedListener(l);
     }
 
     /**
@@ -184,7 +183,7 @@ public class TrackUtils {
      * @param l The listener to unsubscribe
      */
     public static synchronized void removeTrackRemovedListener(TrackRemovedListener l) {
-        vtc.removeTrackRemovedListener(l);
+        trackController.removeTrackRemovedListener(l);
     }
 
     /**
@@ -193,7 +192,6 @@ public class TrackUtils {
      * @return The track with the specified name, null if none
      */
     public static TrackAdapter getTrack(String trackname) {
-        return vtc.getTrack(trackname);
+        return trackController.getTrack(trackname);
     }
-
 }
