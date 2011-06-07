@@ -36,6 +36,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.filechooser.FileSystemView;
 import javax.swing.table.AbstractTableModel;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumnModel;
 
 import org.apache.commons.logging.Log;
@@ -66,6 +68,9 @@ public class FTPBrowser extends JPanel {
     int port;
     File curDir;
     File rootDir;
+
+    TableCellRenderer iconCellRenderer = new IconRenderer();
+    TableCellRenderer defaultCellRenderer = new DefaultTableCellRenderer();
 
     public FTPBrowser(URL rootURL) throws IOException {
         host = rootURL.getHost();
@@ -124,6 +129,11 @@ public class FTPBrowser extends JPanel {
         columns.getColumn(0).setMaxWidth(40);           // icon
         columns.getColumn(1).setPreferredWidth(400);    // name
         columns.getColumn(2).setPreferredWidth(60);     // size
+
+        //Renderers are being set to null (somehow) on Linux only. Replacing them here.
+        columns.getColumn(0).setCellRenderer(iconCellRenderer);
+        columns.getColumn(1).setCellRenderer(defaultCellRenderer);
+        columns.getColumn(2).setCellRenderer(defaultCellRenderer);
     }
 
     private FTPClient getFTPClient() throws IOException {
@@ -153,6 +163,19 @@ public class FTPBrowser extends JPanel {
             ftp.disconnect();
         }
     }
+}
+
+/*
+ * This class is copied straight from JTable.
+ * On Linux, renderers are being removed when TableModel set. Using this to
+ * force icon rendering for first column. 
+ */
+class IconRenderer extends DefaultTableCellRenderer.UIResource {
+    public IconRenderer() {
+        super();
+        setHorizontalAlignment(JLabel.CENTER);
+    }
+    public void setValue(Object value) { setIcon((value instanceof Icon) ? (Icon)value : null); }
 }
 
 class FTPTableModel extends AbstractTableModel {
