@@ -85,6 +85,11 @@ public class DataSourcePluginDialog extends JDialog {
 
         cancelButton.setText("Cancel");
         cancelButton.setPreferredSize(new java.awt.Dimension(110, 29));
+        cancelButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cancelButtonActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -138,6 +143,10 @@ public class DataSourcePluginDialog extends JDialog {
             loadButton.doClick();
         }
     }//GEN-LAST:event_dataSourceListMouseClicked
+
+    private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelButtonActionPerformed
+        setVisible(false);
+    }//GEN-LAST:event_cancelButtonActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton cancelButton;
