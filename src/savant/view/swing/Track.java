@@ -44,6 +44,7 @@ import savant.exception.SavantTrackCreationCancelledException;
 import savant.file.DataFormat;
 import savant.util.Bookmark;
 import savant.util.ColorScheme;
+import savant.util.MiscUtils;
 import savant.util.NetworkUtils;
 import savant.util.Range;
 import savant.util.Resolution;
@@ -294,7 +295,7 @@ public abstract class Track implements TrackAdapter {
      * @return
      */
     public boolean containsReference(String ref) {
-        return true;//dataSource.getReferenceNames().contains(ref) || dataSource.getReferenceNames().contains(MiscUtils.homogenizeSequence(ref));
+        return dataSource.getReferenceNames().contains(ref) || dataSource.getReferenceNames().contains(MiscUtils.homogenizeSequence(ref));
     }
 
     /**
@@ -369,7 +370,9 @@ public abstract class Track implements TrackAdapter {
                 try {
                     LOG.debug("Retrieving data for " + name + "(" + reference + ":" + range + ")");
                     dataInRange = retrieveData(reference, range, getResolution(range));
-                    LOG.debug("Retrieved " + dataInRange.size() + " records for " + name + "(" + reference + ":" + range + ")");
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Retrieved " + (dataInRange != null ? Integer.toString(dataInRange.size()) : "no") + " records for " + name + "(" + reference + ":" + range + ")");
+                    }
                     fireDataRetrievalCompleted();
                 } catch (Exception x) {
                     LOG.error("Data retrieval failed.", x);

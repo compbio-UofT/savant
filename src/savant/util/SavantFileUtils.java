@@ -18,6 +18,8 @@ package savant.util;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -151,30 +153,53 @@ public class SavantFileUtils {
         return fth;
     }
 
+    /**
+     * Read the reference map from a Savant file.  We use a LinkedHashMap so that
+     * the iteration order is always the same as the insertion order.
+     */
     public static Map<String, long[]> readReferenceMap(ROFile rof) throws IOException {
 
-        int numreferences = rof.readInt();
-
-        Map<String, long[]> referenceMap = new LinkedHashMap<String, long[]>();
+        int numRefs = rof.readInt();
 
         List<FieldType> fields = new ArrayList<FieldType>();
         fields.add(FieldType.STRING);
         fields.add(FieldType.LONG);
         fields.add(FieldType.LONG);
 
+        List<ReferenceInfo> unsortedRefs = new ArrayList<ReferenceInfo>(numRefs);
         //System.out.println("Reading " + numreferences + " references");
-
-        for (int i = 0; i < numreferences; i++) {
-
-            //System.out.println("Reading reference #" + (i+1));
+        for (int i = 0; i < numRefs; i++) {
 
             List<Object> record = readBinaryRecord(rof,fields);
             long[] vals = new long[] { (Long)record.get(1), (Long)record.get(2) };
-
-            referenceMap.put(((String) record.get(0)).trim(), vals);
+            unsortedRefs.add(new ReferenceInfo(((String)record.get(0)).trim(), vals));
         }
 
+        // Make sure the references are sorted in a human-friendly order.
+        Collections.sort(unsortedRefs, new Comparator<ReferenceInfo>() {
+            private ReferenceComparator comparator = new ReferenceComparator();
+
+            @Override
+            public int compare(ReferenceInfo t1, ReferenceInfo t2) {
+                return comparator.compare(t1.ref, t2.ref);
+            }
+        });
+
+        Map<String, long[]> referenceMap = new LinkedHashMap<String, long[]>();
+        for (ReferenceInfo info: unsortedRefs) {
+            referenceMap.put(info.ref, info.vals);
+        }
         return referenceMap;
+    }
+
+    private static class ReferenceInfo {
+        String ref;
+        long[] vals;
+
+        ReferenceInfo(String ref, long[] vals) {
+            this.ref = ref;
+            this.vals = vals;
+        }
     }
 
 //    public static void writeFileTypeHeader(RWFile rwf, FileTypeHeader fth) throws IOException {

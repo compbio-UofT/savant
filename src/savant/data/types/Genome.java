@@ -137,6 +137,11 @@ public final class Genome implements Serializable, GenomeAdapter {
     }
 
 
+    /**
+     * Retrieve the reference names for this genome.  We are using a LinkedHashMap to store
+     * the references, so the iteration order will be the same as the insertion order,
+     * which should be the desired human-friendly order.
+     */
     @Override
     public Set<String> getReferenceNames() {
         return getReferenceMap().keySet();

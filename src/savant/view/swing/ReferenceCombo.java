@@ -18,19 +18,17 @@ package savant.view.swing;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
-
-import org.broad.igv.feature.Genome.ChromosomeComparator;
 
 import savant.controller.ReferenceController;
 import savant.controller.event.GenomeChangedEvent;
 import savant.controller.event.ReferenceChangedEvent;
 import savant.controller.event.ReferenceChangedListener;
-import savant.data.types.Genome;
 import savant.util.MiscUtils;
+
 
 /**
  *
@@ -114,9 +112,7 @@ public class ReferenceCombo extends JComboBox {
                 removeAllItems();
 
                 int maxWidth = 0;
-                Genome genome = referenceController.getGenome();
-                List<String> refNames = MiscUtils.set2List(genome.getReferenceNames());
-                Collections.sort(refNames, new ChromosomeComparator());
+                Set<String> refNames = referenceController.getGenome().getReferenceNames();
                 for (String s : refNames) {
                     maxWidth = Math.max(maxWidth, s.length());
                     addItem(s);
