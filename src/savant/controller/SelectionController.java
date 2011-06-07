@@ -102,6 +102,7 @@ public class SelectionController {
         int pos = binarySearchSelected(name, o);
         if(pos == -1){
             this.map.get(name).add(o);
+            Collections.sort(this.map.get(name));
             this.addToCurrentSelected(name, o);
         }
     }
