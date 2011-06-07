@@ -38,7 +38,6 @@ import savant.api.util.DialogUtils;
 import savant.controller.ReferenceController;
 import savant.controller.TrackController;
 import savant.data.sources.FASTADataSource;
-import savant.data.sources.file.FASTAFileDataSource;
 import savant.settings.BrowserSettings;
 import savant.util.NetworkUtils;
 import savant.util.Resolution;
@@ -71,7 +70,7 @@ public final class Genome implements Serializable, GenomeAdapter {
         this.name = name;
         this.description = null;
         this.sequenceTrack = track;
-        FASTAFileDataSource dataSource = (FASTAFileDataSource)track.getDataSource();
+        FASTADataSource dataSource = (FASTADataSource)track.getDataSource();
         for (String ref : dataSource.getReferenceNames()) {
             referenceMap.put(ref, dataSource.getLength(ref));
         }
@@ -150,7 +149,7 @@ public final class Genome implements Serializable, GenomeAdapter {
 
     @Override
     public byte[] getSequence(String reference, RangeAdapter range) throws IOException {
-        return isSequenceSet() ? ((FASTAFileDataSource)sequenceTrack.getDataSource()).getRecords(reference, range, Resolution.VERY_HIGH).get(0).getSequence() : null;
+        return isSequenceSet() ? ((FASTADataSource)sequenceTrack.getDataSource()).getRecords(reference, range, Resolution.VERY_HIGH).get(0).getSequence() : null;
     }
 
     @Override

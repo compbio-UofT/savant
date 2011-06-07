@@ -14,7 +14,7 @@
  *    limitations under the License.
  */
 
-package savant.data.sources.file;
+package savant.util;
 
 import java.io.*;
 import java.net.URI;

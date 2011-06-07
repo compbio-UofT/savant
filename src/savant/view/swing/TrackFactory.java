@@ -32,16 +32,7 @@ import savant.api.util.DialogUtils;
 import savant.controller.PluginController;
 import savant.data.event.TrackCreationEvent;
 import savant.data.event.TrackCreationListener;
-import savant.data.sources.BigWigDataSource;
-import savant.data.sources.DataSource;
-import savant.data.sources.TabixDataSource;
-import savant.data.sources.TDFDataSource;
-import savant.data.sources.file.BAMFileDataSource;
-import savant.data.sources.file.BEDFileDataSource;
-import savant.data.sources.file.FASTAFileDataSource;
-import savant.data.sources.file.GenericContinuousFileDataSource;
-import savant.data.sources.file.GenericIntervalFileDataSource;
-import savant.data.sources.file.GenericPointFileDataSource;
+import savant.data.sources.*;
 import savant.exception.SavantTrackCreationCancelledException;
 import savant.exception.UnknownSchemeException;
 import savant.file.FileType;
@@ -164,17 +155,17 @@ public class TrackFactory {
 
             switch (trkFile.getFileType()) {
                 case SEQUENCE_FASTA:
-                    return new FASTAFileDataSource(trackURI);
+                    return new FASTADataSource(trackURI);
                 case POINT_GENERIC:
-                    return new GenericPointFileDataSource(trackURI);
+                    return new GenericPointDataSource(trackURI);
                 case CONTINUOUS_GENERIC:
-                    return new GenericContinuousFileDataSource(trackURI);
+                    return new GenericContinuousDataSource(trackURI);
                 case INTERVAL_GENERIC:
-                    return new GenericIntervalFileDataSource(trackURI);
+                    return new GenericIntervalDataSource(trackURI);
                 case INTERVAL_GFF:
-                    return new GenericIntervalFileDataSource(trackURI);
+                    return new GenericIntervalDataSource(trackURI);
                 case INTERVAL_BED:
-                    return new BEDFileDataSource(trackURI);
+                    return new BEDDataSource(trackURI);
                 default:
                     throw new SavantUnsupportedFileTypeException("This version of Savant does not support file type " + trkFile.getFileType());
             }
@@ -227,7 +218,7 @@ public class TrackFactory {
                 } else if (fileType == FileType.INTERVAL_BAM) {
                     LOG.info("Opening BAM file " + trackURI);
 
-                    ds = BAMFileDataSource.fromURI(trackURI);
+                    ds = BAMDataSource.fromURI(trackURI);
                     LOG.info("BAM datasource=" + ds);
                     if (ds != null) {
                         List<Track> tracks = new ArrayList<Track>(2);
@@ -241,7 +232,7 @@ public class TrackFactory {
                             } else {
                                 coverageURI = new URI(trackURI.toString() + ".cov.savant");
                                 if (NetworkUtils.exists(coverageURI)) {
-                                    tracks.add(new BAMCoverageTrack(new GenericContinuousFileDataSource(coverageURI)));
+                                    tracks.add(new BAMCoverageTrack(new GenericContinuousDataSource(coverageURI)));
                                 }
                             }
                             fireTrackCreationCompleted(tracks.toArray(new Track[0]), "");

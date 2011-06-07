@@ -33,6 +33,8 @@ import org.broad.igv.bbfile.WigItem;
 
 import savant.api.adapter.RangeAdapter;
 import savant.data.types.GenericContinuousRecord;
+import savant.file.DataFormat;
+import savant.util.MiscUtils;
 import savant.util.Resolution;
 
 /**
@@ -41,7 +43,7 @@ import savant.util.Resolution;
  *
  * @author tarkvara
  */
-public class BigWigDataSource extends GenericContinuousDataSource {
+public class BigWigDataSource implements DataSource<GenericContinuousRecord> {
 
     private static final Log LOG = LogFactory.getLog(BigWigDataSource.class);
 
@@ -101,5 +103,20 @@ public class BigWigDataSource extends GenericContinuousDataSource {
 
     @Override
     public void close() {
+    }
+
+    @Override
+    public String getName() {
+        return MiscUtils.getNeatPathFromURI(getURI());
+    }
+
+    @Override
+    public DataFormat getDataFormat() {
+        return DataFormat.CONTINUOUS_GENERIC;
+    }
+
+    @Override
+    public Object getExtraData() {
+        return null;
     }
 }

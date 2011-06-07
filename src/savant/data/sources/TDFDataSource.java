@@ -34,6 +34,7 @@ import org.broad.igv.track.WindowFunction;
 import savant.api.adapter.RangeAdapter;
 import savant.controller.ReferenceController;
 import savant.data.types.GenericContinuousRecord;
+import savant.file.DataFormat;
 import savant.util.MiscUtils;
 import savant.util.Range;
 import savant.util.Resolution;
@@ -44,7 +45,7 @@ import savant.util.Resolution;
  *
  * @author tarkvara
  */
-public class TDFDataSource extends GenericContinuousDataSource {
+public class TDFDataSource implements DataSource<GenericContinuousRecord> {
 
     private static final Log LOG = LogFactory.getLog(TDFDataSource.class);
     private static final double LOG2 = Math.log(2.0);
@@ -147,5 +148,20 @@ public class TDFDataSource extends GenericContinuousDataSource {
             return tdf.getDataset(ref, zoom, WindowFunction.mean);
         }
         return tdf.getDataset(String.format("/%s/raw", ref));
+    }
+
+    @Override
+    public String getName() {
+        return MiscUtils.getNeatPathFromURI(getURI());
+    }
+
+    @Override
+    public DataFormat getDataFormat() {
+        return DataFormat.CONTINUOUS_GENERIC;
+    }
+
+    @Override
+    public Object getExtraData() {
+        return null;
     }
 }

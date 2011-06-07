@@ -32,7 +32,7 @@ import org.apache.commons.logging.LogFactory;
 import org.broad.tabix.TabixReader;
 
 import savant.api.adapter.RangeAdapter;
-import savant.data.sources.file.IndexCache;
+import savant.util.IndexCache;
 import savant.data.types.ColumnMapping;
 import savant.data.types.TabixIntervalRecord;
 import savant.file.DataFormat;

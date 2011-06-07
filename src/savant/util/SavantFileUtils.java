@@ -18,7 +18,7 @@ package savant.util;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -36,7 +36,7 @@ import savant.format.SavantFileFormatterUtils;
 
 public class SavantFileUtils {
 
-    private static Log log = LogFactory.getLog(SavantFileUtils.class);
+    private static final Log LOG = LogFactory.getLog(SavantFileUtils.class);
 
     public static List<FieldType> readFieldsHeader(ROFile src) throws IOException {
 
@@ -65,11 +65,11 @@ public class SavantFileUtils {
 
         List<Object> record = new ArrayList<Object>(fields.size());
 
-        if (log.isDebugEnabled()) {
-            log.debug("Reading binary record");
-            log.debug("Fields");
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Reading binary record");
+            LOG.debug("Fields");
             for (FieldType ft : fields) {
-                log.debug("\t" + ft);
+                LOG.debug("\t" + ft);
             }
         }
 
@@ -128,7 +128,7 @@ public class SavantFileUtils {
                 case IGNORE:
                     break;
                 default:
-                    log.warn("Not implemented yet for Field Type: " + ft);
+                    LOG.warn("Not implemented yet for Field Type: " + ft);
                     break;
             }
         }
@@ -155,7 +155,7 @@ public class SavantFileUtils {
 
         int numreferences = rof.readInt();
 
-        Map<String, long[]> referenceMap = new HashMap<String, long[]>();
+        Map<String, long[]> referenceMap = new LinkedHashMap<String, long[]>();
 
         List<FieldType> fields = new ArrayList<FieldType>();
         fields.add(FieldType.STRING);

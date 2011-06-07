@@ -39,7 +39,7 @@ import savant.util.Resolution;
 public interface DataSource<E extends Record> {
 
     /**
-     * Get the list of references for which this RecordTrack contains data
+     * Get the list of references for which this RecordTrack contains data.
      * @return A set of reference names
      */
     public Set<String> getReferenceNames();
