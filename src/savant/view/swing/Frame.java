@@ -487,7 +487,6 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
         slider.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
-                if(slider.getValueIsAdjusting()) return;
                 int newHeight = tracks[0].renderer.getIntervalHeightFromSlider(slider.getValue());
                 tracks[0].renderer.setIntervalHeight(newHeight);
                 getGraphPane().setRenderForced();
