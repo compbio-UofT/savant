@@ -46,8 +46,7 @@ import savant.util.Range;
 import savant.view.swing.GraphPane;
 import savant.view.swing.Track;
 import savant.controller.FrameController;
-import savant.controller.RangeController;
-import savant.controller.ReferenceController;
+import savant.controller.LocationController;
 import savant.data.event.ExportEventListener;
 import savant.swing.component.PathField;
 import savant.view.swing.ExportImage;
@@ -198,8 +197,8 @@ public class ExportPlugin extends SavantPanelPlugin {
     public void runTool() throws InterruptedException {
 
         //store current location
-        currentReference = ReferenceController.getInstance().getReferenceName();
-        currentRange = RangeController.getInstance().getRange();
+        currentReference = LocationController.getInstance().getReferenceName();
+        currentRange = LocationController.getInstance().getRange();
     
         //output init
         baseFolder = pf.getPath();
@@ -296,7 +295,7 @@ public class ExportPlugin extends SavantPanelPlugin {
             gp.addExportEventListener(eel);
             
         }
-        RangeController.getInstance().setRange(reference, range);
+        LocationController.getInstance().setLocation(reference, range);
     }
 
     /*
@@ -391,7 +390,7 @@ public class ExportPlugin extends SavantPanelPlugin {
 
     private void endRun(boolean success){
         //Return browser to original location
-        RangeController.getInstance().setRange(currentReference, currentRange);
+        LocationController.getInstance().setLocation(currentReference, currentRange);
 
         //reset output
         if(success){

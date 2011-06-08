@@ -3,7 +3,7 @@
 <plugin id="savant.export" version="1.1.0"
 	class="savant.export.ExportPlugin">
     <attributes>
-        <attribute id="sdk-version" value="1.4.5"/>
+        <attribute id="sdk-version" value="1.5.0"/>
     </attributes>
     <requires>
         <import plugin-id="savant.core"/>
