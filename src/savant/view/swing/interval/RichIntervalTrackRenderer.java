@@ -473,34 +473,39 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
     private void mergeBlocks(List<Interval> intervals, RichIntervalRecord bedRecord) {
 
         List<Block> blocks = bedRecord.getBlocks();
-        if (blocks != null) {
-            Interval gene = bedRecord.getInterval();
-            if (intervals.isEmpty()) {
-                for (Block block: blocks) {
-                    int blockStart = gene.getStart() + block.getPosition();
-                    Interval blockInterval = Interval.valueOf(blockStart, blockStart+block.getSize());
-                    intervals.add(blockInterval);
+        if(blocks == null){
+            // When blocks are null, we fake it out by drawing a single block with the full interval of the feature.
+            // This occurs in snp tracks
+            blocks = new ArrayList<Block>();
+            blocks.add(Block.valueOf(0, bedRecord.getInterval().getLength()-1));
+        }
+        Interval gene = bedRecord.getInterval();
+        if (intervals.isEmpty()) {
+            for (Block block: blocks) {
+                int blockStart = gene.getStart() + block.getPosition();
+                Interval blockInterval = Interval.valueOf(blockStart, blockStart+block.getSize());
+                intervals.add(blockInterval);
+            }
+        } else {
+            for (Block block: blocks) {
+                // merging only works on intervals, so convert block to interval
+                int blockStart = gene.getStart() + block.getPosition();
+                Interval blockInterval = Interval.valueOf(blockStart, blockStart+block.getSize());
+                ListIterator<Interval> intervalIt = intervals.listIterator();
+                boolean merged = false;
+                while (intervalIt.hasNext() && !merged) {
+                    Interval interval = intervalIt.next();
+                    if (blockInterval.intersectsOrAbuts(interval)) {
+                        intervalIt.set(blockInterval.merge(interval));
+                        merged = true;
+                    }
                 }
-            } else {
-                for (Block block: blocks) {
-                    // merging only works on intervals, so convert block to interval
-                    int blockStart = gene.getStart() + block.getPosition();
-                    Interval blockInterval = Interval.valueOf(blockStart, blockStart+block.getSize());
-                    ListIterator<Interval> intervalIt = intervals.listIterator();
-                    boolean merged = false;
-                    while (intervalIt.hasNext() && !merged) {
-                        Interval interval = intervalIt.next();
-                        if (blockInterval.intersectsOrAbuts(interval)) {
-                            intervalIt.set(blockInterval.merge(interval));
-                            merged = true;
-                        }
-                    }
-                    if (!merged) {
-                        intervals.add(blockInterval);
-                    }
+                if (!merged) {
+                    intervals.add(blockInterval);
                 }
             }
         }
+        
     }
 
     private void drawBlocks(List<Interval> blocks, int level, GraphPane gp, Color fillColor, Color lineColor, Graphics2D g2) {
