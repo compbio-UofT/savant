@@ -9,7 +9,7 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.util.List;
 import javax.swing.JPanel;
-import savant.controller.RangeController;
+import savant.controller.LocationController;
 import savant.snp.Pileup.Nucleotide;
 import savant.util.MiscUtils;
 import savant.settings.ColourSettings;
@@ -68,8 +68,8 @@ class PileupPanel extends JPanel {
 
         for (Pileup p : pileups) {
 
-            int startpos = MiscUtils.transformPositionToPixel((int) p.getPosition(), this.getWidth(), RangeController.getInstance().getRange());
-            int endpos = MiscUtils.transformPositionToPixel((int) p.getPosition()+1, this.getWidth(), RangeController.getInstance().getRange());
+            int startpos = MiscUtils.transformPositionToPixel((int) p.getPosition(), this.getWidth(), LocationController.getInstance().getRange());
+            int endpos = MiscUtils.transformPositionToPixel((int) p.getPosition()+1, this.getWidth(), LocationController.getInstance().getRange());
 
             Nucleotide snpNuc = p.getSNPNucleotide();
 

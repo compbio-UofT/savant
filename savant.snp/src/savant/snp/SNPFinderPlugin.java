@@ -50,9 +50,9 @@ import savant.api.util.BookmarkUtils;
 import savant.api.util.GenomeUtils;
 import savant.api.util.NavigationUtils;
 import savant.api.util.TrackUtils;
-import savant.controller.RangeController;
-import savant.controller.event.RangeChangeCompletedListener;
-import savant.controller.event.RangeChangedEvent;
+import savant.controller.LocationController;
+import savant.controller.event.LocationChangeCompletedListener;
+import savant.controller.event.LocationChangedEvent;
 import savant.controller.event.TrackListChangedEvent;
 import savant.controller.event.TrackListChangedListener;
 import savant.data.types.BAMIntervalRecord;
@@ -62,7 +62,7 @@ import savant.plugin.PluginAdapter;
 import savant.plugin.SavantPanelPlugin;
 import savant.snp.Pileup.Nucleotide;
 
-public class SNPFinderPlugin extends SavantPanelPlugin implements RangeChangeCompletedListener, TrackListChangedListener {
+public class SNPFinderPlugin extends SavantPanelPlugin implements LocationChangeCompletedListener, TrackListChangedListener {
     private static final Log LOG = LogFactory.getLog(SNPFinderPlugin.class);
 
     private final int MAX_RANGE_TO_SEARCH = 5000;
@@ -87,7 +87,7 @@ public class SNPFinderPlugin extends SavantPanelPlugin implements RangeChangeCom
 
     @Override
     public void init(JPanel canvas, PluginAdapter pluginAdapter) {
-        NavigationUtils.addRangeChangeListener(this);
+        NavigationUtils.addLocationChangeListener(this);
         TrackUtils.addTracksChangedListener(this);
         snpsFound = new HashMap<TrackAdapter, List<Pileup>>();
         setupGUI(canvas);
@@ -219,7 +219,7 @@ public class SNPFinderPlugin extends SavantPanelPlugin implements RangeChangeCom
      * @param event
      */
     @Override
-    public void rangeChangeCompletedReceived(RangeChangedEvent event) {
+    public void locationChangeCompleted(LocationChangedEvent event) {
         setSequence();
         if (sequence != null) {
             updateTrackCanvasMap();
@@ -231,7 +231,7 @@ public class SNPFinderPlugin extends SavantPanelPlugin implements RangeChangeCom
      * Track change.
      */
     @Override
-    public void trackListChangeReceived(TrackListChangedEvent event) {
+    public void trackListChanged(TrackListChangedEvent event) {
         //updateTrackCanvasMap();
     }
 
@@ -602,7 +602,7 @@ public class SNPFinderPlugin extends SavantPanelPlugin implements RangeChangeCom
      */
     private void setSequence() {
         sequence = null;
-        if (GenomeUtils.isGenomeLoaded() && RangeController.getInstance().getRange().getLength() < this.MAX_RANGE_TO_SEARCH) {
+        if (GenomeUtils.isGenomeLoaded() && LocationController.getInstance().getRange().getLength() < this.MAX_RANGE_TO_SEARCH) {
             try {
                 sequence = GenomeUtils.getGenome().getSequence(NavigationUtils.getCurrentReferenceName(), NavigationUtils.getCurrentRange());
             } catch (IOException ex) {
