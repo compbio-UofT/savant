@@ -382,6 +382,10 @@ public class SNPFinderPlugin extends SavantPanelPlugin implements LocationChange
 
         //System.out.println("Pileup start: " + startPosition);
 
+        //FIXME: this is here to prevent a null pointer exception seen once that
+        //could not be reproduced. SamRecords should never be null...
+        if(samRecords == null) return pileups;
+
         // go through the samrecords and edit the pileups
         for (Record r : samRecords) {
             SAMRecord sr = ((BAMIntervalRecord)r).getSamRecord();
