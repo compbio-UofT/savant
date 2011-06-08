@@ -301,7 +301,7 @@ public abstract class Track implements TrackAdapter {
     /**
      * Get the JPanel for the layer to draw on top of the track.
      *
-     * @return component to draw onto
+     * @return component to draw onto or null if frame not initialized yet
      */
     @Override
     public JPanel getLayerCanvas() {

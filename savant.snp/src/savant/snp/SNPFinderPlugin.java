@@ -244,26 +244,19 @@ public class SNPFinderPlugin extends SavantPanelPlugin implements LocationChange
             trackToCanvasMap = new HashMap<TrackAdapter, JPanel>();
         }
 
-        // TODO: should get rid of old JPanels here!
-        // START
-        for (JPanel p : trackToCanvasMap.values()) {
-            p.removeAll();
-        }
-        trackToCanvasMap.clear();
-        // END
-
         Map<TrackAdapter, JPanel> newmap = new HashMap<TrackAdapter, JPanel>();
 
         for (TrackAdapter t : TrackUtils.getTracks()) {
 
             if (t.getDataSource().getDataFormat() == DataFormat.INTERVAL_BAM) {
 
-                if (trackToCanvasMap.containsKey(t)) {
+                if(trackToCanvasMap.containsKey(t) && trackToCanvasMap.get(t) != null){
                     newmap.put(t, trackToCanvasMap.get(t));
-                    trackToCanvasMap.remove(t);
                 } else {
-                    //System.out.println("putting " + t.getName() + " in BAM map");
-                    newmap.put(t, t.getLayerCanvas());
+                    JPanel canvas = t.getLayerCanvas();
+                    if(canvas != null){
+                        newmap.put(t, canvas);
+                    } 
                 }
             }
         }
