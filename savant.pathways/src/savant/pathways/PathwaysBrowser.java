@@ -187,6 +187,7 @@ public class PathwaysBrowser extends JPanel{
     private void loadPathway(final String pathwayID){
         startLoad();
         Thread thread = new Thread() {
+            @Override
             public void run() {
                 try {
                     //get svg

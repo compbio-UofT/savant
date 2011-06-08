@@ -21,6 +21,7 @@ import java.util.Iterator;
 import java.util.Map;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
@@ -33,6 +34,8 @@ public class DataNode implements Comparable {
 
     private String tagName;
     private Map<String,Map<String,String>> attributes = new HashMap<String,Map<String,String>>();
+    private boolean geneInfoSet = false;
+    private Gene gene;
 
     public DataNode(Element node){
 
@@ -62,9 +65,58 @@ public class DataNode implements Comparable {
         }    
     }
 
+    public void setGeneInfo(Element node){
+        //check to make sure ids match
+        NodeList idList = node.getElementsByTagName("Id");
+        if(!idList.item(0).getTextContent().equals(this.getAttribute("Xref", "ID"))) return;
+
+        gene = new Gene();
+
+        NodeList items = node.getElementsByTagName("Item");
+        for(int i = 0; i < items.getLength(); i++){
+            Node n = items.item(i);
+            String name = ((Element)n).getAttribute("Name");
+            if(name.equals("GenomicInfo")){
+                NodeList subItems = ((Element)n).getElementsByTagName("Item");
+                for(int j = 0; j < subItems.getLength(); j++){
+                    Node m = subItems.item(j);
+                    String subName = ((Element)m).getAttribute("Name");
+                    if (subName.equals("ChrStart")){
+                        gene.setStart(m.getTextContent());
+                    } else if (subName.equals("ChrStop")){
+                        gene.setEnd(m.getTextContent());
+                    }
+                }
+            } else if (name.equals("Chromosome")){
+                gene.setChromosome(n.getTextContent());
+            } else if (name.equals("Name")){
+                gene.setName(n.getTextContent());
+            } else if (name.equals("Description")){
+                gene.setDescription(n.getTextContent());
+            }
+        }
+
+        geneInfoSet = true;
+    }
+
     //print formatted info in no particular order
     public String getInfoString(){
         String s = "<HTML>";
+
+        //gene info
+        if(geneInfoSet){
+            s += "<B>Entrez Gene</B><BR>";
+            String name = gene.getName();
+            if(name != null) s += "Name: " + name + "<BR>";
+            String description = gene.getDescription();
+            if(description != null) s += "Description: " + description + "<BR>";
+            String chromosome = gene.getChromosome();
+            if(chromosome != null) s += "Chromosome: " + chromosome + "<BR>";
+            s += "Start: " + gene.getStart() + "<BR>";
+            s += "End: " + gene.getEnd() + "<BR>";
+            s += "<BR>";
+        }
+
         Iterator it = attributes.keySet().iterator();
         while(it.hasNext()){
             String node = (String)it.next();
@@ -106,10 +158,6 @@ public class DataNode implements Comparable {
         return this.getLabel();
     }
 
-
-    
-    //CONVENIENCE FUNCTIONS /////////////////////////////
-
     public String getType(){
         return getAttribute(this.tagName, "Type");
     }
@@ -117,6 +165,40 @@ public class DataNode implements Comparable {
     public String getLabel(){
         return getAttribute(this.tagName, "TextLabel");
     }
+
+    public boolean hasGene(){
+        return this.geneInfoSet;
+    }
+
+    public Gene getGene(){
+        return this.gene;
+    }
+
+    public boolean hasWikiPathway(){
+        if(getType().equals("Pathway")){
+            String db = getAttribute("Xref", "Database");
+            return db != null && db.equals("WikiPathways");
+        }
+        return false;
+    }
+
+    public String getWikiPathway(){
+        String db = getAttribute("Xref", "Database");
+        if(db == null || !db.equals("WikiPathways")) return null;
+        return getAttribute("Xref", "ID");
+    }
+
+    public boolean hasLinkOut(){
+        //TODO
+        return this.geneInfoSet;
+    }
+
+    public String getLinkOut(){
+        //TODO
+        //if(getAttribute(""))
+        return null;
+    }
+
 
 
 

@@ -21,13 +21,18 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.io.*;
+import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.*;
+import javax.swing.border.Border;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
@@ -39,6 +44,9 @@ import org.apache.batik.swing.gvt.GVTTreeRendererAdapter;
 import org.apache.batik.swing.gvt.GVTTreeRendererEvent;
 import org.w3c.dom.*;
 import org.xml.sax.SAXException;
+import savant.controller.RangeController;
+import savant.controller.ReferenceController;
+import savant.util.Range;
 
 /**
  *
@@ -46,12 +54,18 @@ import org.xml.sax.SAXException;
  */
 public class Viewer extends JSplitPane {
 
+    private Loader loader;
+
     private JScrollPane scrollPane;
-    private JScrollPane infoPanel;
+    private JScrollPane infoScroll;
+    private JPanel infoPanel;
     private JLabel infoLabel;
-    private JScrollPane treePanel;
+    private JScrollPane treeScroll;
     private JSplitPane rightPanel;
     private JTree dataTree;
+    private JButton jumpLocationButton;
+    private JButton linkOutButton;
+    private JButton jumpPathwayButton;
     private ExtendedJSVGCanvas svgCanvas;
     private Document gpmlDoc;
     private Node pathway;
@@ -62,11 +76,17 @@ public class Viewer extends JSplitPane {
     private ArrayList<Rectangle> recs = new ArrayList<Rectangle>();
     private String version;
 
+    private Gene jumpGene;
+    private String jumpPathway;
+    private String linkOutUrl;
+
     private Point start;
     private int initialVerticalScroll = 0;
     private int initialHorizontalScroll = 0;
 
-    Viewer() {
+    Viewer(Loader loader) {
+
+        this.loader = loader;
 
         this.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
 
@@ -81,28 +101,102 @@ public class Viewer extends JSplitPane {
         svgCanvas.setDocumentState(JSVGCanvas.ALWAYS_DYNAMIC);
         scrollPane.getViewport().add(svgCanvas);
 
-        //treePanel
-        treePanel = new JScrollPane();
-        treePanel.getViewport().setLayout(new FlowLayout(FlowLayout.LEFT));
-        treePanel.getViewport().setBackground(Color.white);
-        treePanel.setMaximumSize(new Dimension(200,100));
+        //treeScroll
+        treeScroll = new JScrollPane();
+        treeScroll.getViewport().setLayout(new FlowLayout(FlowLayout.LEFT));
+        treeScroll.getViewport().setBackground(Color.white);
+        treeScroll.setMaximumSize(new Dimension(200,100));
+
+        //infoScroll
+        infoScroll = new JScrollPane();
+        //infoScroll.getViewport().setLayout(new FlowLayout(FlowLayout.LEFT));
+        infoScroll.getViewport().setBackground(Color.white);
+        infoScroll.setMaximumSize(new Dimension(100,100));
+        infoScroll.setPreferredSize(new Dimension(100,100));
 
         //infoPanel
-        infoPanel = new JScrollPane();
-        infoPanel.getViewport().setLayout(new FlowLayout(FlowLayout.LEFT));
-        infoPanel.getViewport().setBackground(Color.white);
-        infoPanel.setMaximumSize(new Dimension(200,100));
-        infoPanel.setPreferredSize(new Dimension(200,100));
+        infoPanel = new JPanel();
+        infoPanel.setLayout(new GridBagLayout());
+        infoPanel.setBackground(Color.white);
+        infoScroll.getViewport().add(infoPanel);
 
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.weightx = 0.0;
+        gbc.weighty = 0.0;
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+
+        //jumpLocationButton
+        jumpLocationButton = new JButton("Jump to Gene Location");
+        jumpLocationButton.addMouseListener(new MouseListener() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                jumpToGene();
+            }
+            public void mouseClicked(MouseEvent e) {}
+            public void mouseReleased(MouseEvent e) {}
+            public void mouseEntered(MouseEvent e) {}
+            public void mouseExited(MouseEvent e) {}
+        });
+        jumpLocationButton.setMaximumSize(new Dimension(25,200));
+        jumpLocationButton.setVisible(false);
+        infoPanel.add(jumpLocationButton, gbc);
+
+        //jumpPathwayButton
+        jumpPathwayButton = new JButton("Jump to Pathway");
+        jumpPathwayButton.addMouseListener(new MouseListener() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                jumpToPathway();
+            }
+            public void mouseClicked(MouseEvent e) {}
+            public void mouseReleased(MouseEvent e) {}
+            public void mouseEntered(MouseEvent e) {}
+            public void mouseExited(MouseEvent e) {}
+        });
+        jumpPathwayButton.setMaximumSize(new Dimension(25,200));
+        jumpPathwayButton.setVisible(false);
+        gbc.gridy = 1;
+        infoPanel.add(jumpPathwayButton, gbc);
+
+        //linkOutButton
+        linkOutButton = new JButton("Link to Web Page");
+        linkOutButton.addMouseListener(new MouseListener() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                linkOut();
+            }
+            public void mouseClicked(MouseEvent e) {}
+            public void mouseReleased(MouseEvent e) {}
+            public void mouseEntered(MouseEvent e) {}
+            public void mouseExited(MouseEvent e) {}
+        });
+        linkOutButton.setMaximumSize(new Dimension(25,200));
+        linkOutButton.setVisible(false);
+        gbc.gridy = 2;
+        infoPanel.add(linkOutButton, gbc);
+        
         //infoLabel
         infoLabel = new JLabel();
         infoLabel.setBackground(Color.white);
-        infoPanel.getViewport().add(infoLabel);
+        Border paddingBorder = BorderFactory.createEmptyBorder(5,5,5,5);
+        infoLabel.setBorder(BorderFactory.createCompoundBorder(paddingBorder,paddingBorder));
+        gbc.gridy = 3;
+        infoPanel.add(infoLabel, gbc);
+
+        //filler
+        JPanel filler = new JPanel();
+        gbc.gridy = 4;
+        gbc.weightx = 1.0;
+        gbc.weighty = 1.0;
+        gbc.fill = GridBagConstraints.BOTH;
+        infoPanel.add(filler, gbc);
         
         //rightPanel
-        rightPanel = new JSplitPane(JSplitPane.VERTICAL_SPLIT, treePanel, infoPanel);
+        rightPanel = new JSplitPane(JSplitPane.VERTICAL_SPLIT, treeScroll, infoScroll);
         rightPanel.setMinimumSize(new Dimension(200,20));
-        rightPanel.setDividerLocation(0.5);
         this.setRightComponent(rightPanel);
         
         this.setDividerLocation(0.8);
@@ -150,6 +244,70 @@ public class Viewer extends JSplitPane {
     public void setPathway(URI svgUri, URI gpmlUri) {
         svgCanvas.setURI(svgUri.toString());      
         getGPML(gpmlUri);
+        getGeneInfo();
+    }
+
+    private void getGeneInfo(){
+
+        loader.setMessage("Getting gene information");
+
+        ArrayList<DataNode> entrezNodes = new ArrayList<DataNode>();
+
+        //determine url
+        String urlString = "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=gene&id=";
+        for(DataNode n : dataNodes){
+            String db = n.getAttribute("Xref", "Database");
+            String id = n.getAttribute("Xref", "ID");
+            if(db == null || id == null) continue;
+            if(db.equals("Entrez Gene")){
+                urlString += id + ",";
+                entrezNodes.add(n);
+            }
+        }
+        urlString += "&retmode=xml";
+        if(entrezNodes.isEmpty()) return;
+        
+        //get xml string
+        BufferedReader reader;
+        String xmlString = "";
+        try {
+            reader = new BufferedReader(new InputStreamReader(new URL(urlString).openStream()));
+            String line = reader.readLine();
+            while (line != null) {
+                if(!line.startsWith("<?xml") && !line.startsWith("<!DOCTYPE")){
+                    xmlString += line;
+                }
+                line = reader.readLine();
+            }
+        } catch (MalformedURLException e) {
+            //todo
+            return;
+        } catch (IOException e) {
+             //todo
+            return;
+        }
+	
+        //create document
+        Element root = null;
+        try {
+            root = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new ByteArrayInputStream(xmlString.getBytes())).getDocumentElement();
+        } catch (ParserConfigurationException ex) {
+            Logger.getLogger(Viewer.class.getName()).log(Level.SEVERE, null, ex);
+            return;
+        } catch (SAXException ex) {
+            Logger.getLogger(Viewer.class.getName()).log(Level.SEVERE, null, ex);
+            return;
+        } catch (IOException ex) {
+            Logger.getLogger(Viewer.class.getName()).log(Level.SEVERE, null, ex);
+            return;
+        }
+
+        //TODO: can we really make assumptions about ordering of xml?
+        NodeList docSumList = root.getElementsByTagName("DocSum");
+        for(int i = 0; i < docSumList.getLength(); i++){
+            entrezNodes.get(i).setGeneInfo((Element)docSumList.item(i));
+        }
+
     }
 
     private void getGPML(URI uri) {
@@ -235,6 +393,34 @@ public class Viewer extends JSplitPane {
     }
 
     private void fillInfo(DataNode dataNode){
+
+        if(dataNode.hasGene()){
+            jumpLocationButton.setVisible(true);
+            jumpGene = dataNode.getGene();
+        } else {
+            jumpLocationButton.setVisible(false);
+            jumpGene = null;
+        }
+
+        if(dataNode.hasWikiPathway()){
+            jumpPathwayButton.setVisible(true);
+            jumpPathway = dataNode.getWikiPathway();
+        } else {
+            jumpPathwayButton.setVisible(false);
+            jumpPathway = null;
+        }
+
+        if(dataNode.hasLinkOut()){
+            linkOutButton.setVisible(true);
+            
+        } else {
+            linkOutButton.setVisible(false);
+            linkOutUrl = null;
+        }
+        
+
+
+        
         infoLabel.setText(dataNode.getInfoString());
         rightPanel.revalidate();
     }
@@ -286,100 +472,33 @@ public class Viewer extends JSplitPane {
         });
 
         dataTree.setRootVisible(false);
-        treePanel.getViewport().removeAll();
-        treePanel.getViewport().add(dataTree);
+        treeScroll.getViewport().removeAll();
+        treeScroll.getViewport().add(dataTree);
 
-        rightPanel.setDividerLocation(0.5);
+       // rightPanel.setDividerLocation(0.5);
     }
 
-    /*private void jumpToGene(Element node) {
-        NodeList Xrefs = node.getElementsByTagName("Xref");
-        if (Xrefs == null || Xrefs.getLength() == 0) {
-            return;
+    private void jumpToGene(){
+        if(jumpGene == null) return;
+        int startGene = jumpGene.getStart();
+        int endGene = jumpGene.getEnd();
+        if(startGene > endGene){
+            int temp = startGene;
+            startGene = endGene;
+            endGene = temp;
         }
-        Element XrefElement = (Element) (Xrefs.item(0));
-        String db = XrefElement.getAttribute("Database");
-        String id = XrefElement.getAttribute("ID");
+        
+        //TODO: what if references don't start with "chr"?
+        RangeController.getInstance().setRange("chr" + jumpGene.getChromosome(), new Range(startGene, endGene));
+    }
 
-        if (db.equals("Entrez Gene") && !id.equals("")) {
+    private void jumpToPathway(){
+        
+    }
 
-            String filename = DirectorySettings.getTmpDirectory() + System.getProperty("file.separator") + "geneInfo_" + id + ".xml";
-
-            //download file
-            try {
-                URL query = new URL("http://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=gene&id=" + id + "&retmode=xml");
-                OutputStream os = new BufferedOutputStream(
-                        new FileOutputStream(filename));
-                URLConnection uc = query.openConnection();
-                InputStream is = uc.getInputStream();
-
-                byte[] buf = new byte[153600];
-                int totalBytesRead = 0;
-                int bytesRead = 0;
-
-                while ((bytesRead = is.read(buf)) > 0) {
-                    os.write(buf, 0, bytesRead);
-                    buf = new byte[153600];
-                    totalBytesRead += bytesRead;
-                }
-
-                is.close();
-                os.close();
-            } catch (Exception e) {
-                //TODO
-                e.printStackTrace();
-                return;
-            }
-
-            //find location
-            parseGeneRange(new File(filename).toURI());
-
-            //go to location
-
-        }
-    }*/
-
-   /* private void parseGeneRange(URI uri) {
-
-        //TODO improve speed, narrow search by incrementally navigating doc
-
-        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-        Document doc;
-        try {
-            DocumentBuilder db = dbf.newDocumentBuilder();
-            doc = db.parse(uri.toString());
-        } catch (Exception e){
-            System.out.println("ERROR");
-            return;
-            //TODO
-        }
-
-        doc.getDocumentElement().normalize();
-        NodeList nodes = doc.getElementsByTagName("Gene-commentary");
-
-        for(int i = 0; i < nodes.getLength(); i++){
-            Element el = (Element)(nodes.item(i));
-            NodeList headingList = el.getElementsByTagName("Gene-commentary_heading");
-            if(headingList == null || headingList.getLength() == 0) continue;
-            Node headingElement = el.getElementsByTagName("Gene-commentary_heading").item(0);
-//            NamedNodeMap nnm = typeElement.getAttributes();
-//            boolean found = false;
-//            for(int j = 0; j < nnm.getLength(); j++){
-//                if(nnm.item(j).getNodeName().equals("value") && nnm.item(j).getNodeValue().equals("genomic")){
-//                    found = true;
-//                }
-//            }
-//            if(found){
-            if(headingElement.getTextContent().equals("RefSeqGene")){
-                Node fromNode = el.getElementsByTagName("Seq-interval_from").item(0);
-                Node toNode = el.getElementsByTagName("Seq-interval_to").item(0);
-                int from = Integer.parseInt(fromNode.getTextContent());
-                int to = Integer.parseInt(toNode.getTextContent());
-                RangeController.getInstance().setRange(from, to);
-                break;
-            }
-        }
-    }*/
+    private void linkOut(){
+        
+    }
 
     private int searchShapes(Point p) {
         for (int i = 0; i < recs.size(); i++) {

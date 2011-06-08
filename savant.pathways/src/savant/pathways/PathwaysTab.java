@@ -152,7 +152,7 @@ public class PathwaysTab extends SavantPanelPlugin {
                 }
 
                 //create panel for viewing svgs
-                svgPanel = new Viewer();
+                svgPanel = new Viewer(loader);
                 svgPanel.setVisible(false);
 
                 GridBagConstraints gbc = new GridBagConstraints();
