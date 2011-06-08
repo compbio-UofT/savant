@@ -1,5 +1,5 @@
 /*
- *    Copyright 2009-2011 University of Toronto
+ *    Copyright 2010-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -13,26 +13,22 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+
 package savant.controller.event;
 
-import savant.util.Range;
-
-
 /**
- * Fired by the RangeController to let other parts of Savant know that the current
- * display range has changed.
  *
- * @author mfiume, tarkvara
+ * @author AndrewBrook
  */
-public class RangeChangedEvent {
+public interface LocationChangedListener {
 
-    private final Range range;
+    /**
+     * The currently-selected location has changed.
+     */
+    public void locationChanged(LocationChangedEvent event);
 
-    public RangeChangedEvent(Range range) {
-        this.range = range;
-    }
-
-    public Range getRange() {
-        return range;
-    }
+    /**
+     * The genome has changed, invalidating our list of references.
+     */
+    public void genomeChanged(GenomeChangedEvent event);
 }

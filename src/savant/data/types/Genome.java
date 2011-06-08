@@ -35,7 +35,7 @@ import savant.api.adapter.GenomeAdapter;
 import savant.api.adapter.RangeAdapter;
 import savant.api.adapter.TrackAdapter;
 import savant.api.util.DialogUtils;
-import savant.controller.ReferenceController;
+import savant.controller.LocationController;
 import savant.controller.TrackController;
 import savant.data.sources.FASTADataSource;
 import savant.settings.BrowserSettings;
@@ -159,7 +159,7 @@ public final class Genome implements Serializable, GenomeAdapter {
 
     @Override
     public int getLength() {
-        return getLength(ReferenceController.getInstance().getReferenceName());
+        return getLength(LocationController.getInstance().getReferenceName());
     }
 
     @Override

@@ -76,7 +76,7 @@ import savant.xml.XMLVersion.Version;
  *
  * @author mfiume
  */
-public class Savant extends JFrame implements BookmarksChangedListener, ReferenceChangedListener {
+public class Savant extends JFrame implements BookmarksChangedListener, LocationChangedListener {
 
     private static final Log LOG = LogFactory.getLog(Savant.class);
     public static boolean turnExperimentalFeaturesOff = true;
@@ -204,7 +204,7 @@ public class Savant extends JFrame implements BookmarksChangedListener, Referenc
         rangeSelector = new RangeSelectionPanel();
         rangeSelector.setPreferredSize(new Dimension(10000, 23));
         rangeSelector.setMaximumSize(new Dimension(10000, 23));
-        rangeController.addRangeChangedListener(rangeSelector);
+        locationController.addLocationChangedListener(rangeSelector);
         rangeSelector.setVisible(false);
 
         referenceCombo = new ReferenceCombo();
@@ -278,7 +278,7 @@ public class Savant extends JFrame implements BookmarksChangedListener, Referenc
      * Info
      */
     private static BookmarkSheet favoriteSheet;
-    private RangeController rangeController = RangeController.getInstance();
+    private LocationController locationController = LocationController.getInstance();
     private BookmarkController favoriteController = BookmarkController.getInstance();
     private SelectionController selectionController = SelectionController.getInstance();
     private static Savant instance = null;
@@ -1036,33 +1036,33 @@ public class Savant extends JFrame implements BookmarksChangedListener, Referenc
     }//GEN-LAST:event_navigationItemMousePressed
 
     private void zoomInItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_zoomInItemActionPerformed
-        RangeController rc = RangeController.getInstance();
+        LocationController rc = LocationController.getInstance();
         rc.zoomIn();
     }//GEN-LAST:event_zoomInItemActionPerformed
 
     private void zoomOutItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_zoomOutItemActionPerformed
-        RangeController rc = RangeController.getInstance();
+        LocationController rc = LocationController.getInstance();
         rc.zoomOut();
     }//GEN-LAST:event_zoomOutItemActionPerformed
 
     private void panLeftItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_panLeftItemActionPerformed
-        RangeController rc = RangeController.getInstance();
+        LocationController rc = LocationController.getInstance();
         rc.shiftRangeLeft();
     }//GEN-LAST:event_panLeftItemActionPerformed
 
     private void panRightItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_panRightItemActionPerformed
-        RangeController rc = RangeController.getInstance();
+        LocationController rc = LocationController.getInstance();
         rc.shiftRangeRight();
     }//GEN-LAST:event_panRightItemActionPerformed
 
     private void undoItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_undoItemActionPerformed
-        RangeController rc = RangeController.getInstance();
-        rc.undoRangeChange();
+        LocationController rc = LocationController.getInstance();
+        rc.undoLocationChange();
     }//GEN-LAST:event_undoItemActionPerformed
 
     private void redoItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_redoItemActionPerformed
-        RangeController rc = RangeController.getInstance();
-        rc.redoRangeChange();
+        LocationController rc = LocationController.getInstance();
+        rc.redoLocationChange();
     }//GEN-LAST:event_redoItemActionPerformed
 
     private void bookmarkItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bookmarkItemActionPerformed
@@ -1084,7 +1084,7 @@ public class Savant extends JFrame implements BookmarksChangedListener, Referenc
     }//GEN-LAST:event_loadGenomeItemActionPerformed
 
     private void loadFromFileItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loadFromFileItemActionPerformed
-        if (!ReferenceController.getInstance().isGenomeLoaded()) {
+        if (!LocationController.getInstance().isGenomeLoaded()) {
             JOptionPane.showMessageDialog(this, "Load a genome first.");
             return;
         }
@@ -1187,11 +1187,11 @@ public class Savant extends JFrame implements BookmarksChangedListener, Referenc
     }//GEN-LAST:event_menuitem_exportActionPerformed
 
     private void toStartItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_toStartItemActionPerformed
-        rangeController.shiftRangeFarLeft();
+        locationController.shiftRangeFarLeft();
     }//GEN-LAST:event_toStartItemActionPerformed
 
     private void toEndItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_toEndItemActionPerformed
-        rangeController.shiftRangeFarRight();
+        locationController.shiftRangeFarRight();
     }//GEN-LAST:event_toEndItemActionPerformed
     static boolean arePreferencesInitialized = false;
 
@@ -1597,7 +1597,7 @@ public class Savant extends JFrame implements BookmarksChangedListener, Referenc
      * Initialize the Browser
      */
     private void init() {
-        ReferenceController.getInstance().addReferenceChangedListener(this);
+        LocationController.getInstance().addLocationChangedListener(this);
 
         initGUIFrame();
         initDocking();
@@ -1777,7 +1777,7 @@ public class Savant extends JFrame implements BookmarksChangedListener, Referenc
      */
     public void promptUserToFormatFile(URI uri) {
         if (DialogUtils.askYesNo("Unformatted File", String.format("<html><i>%s</i> does not appear to be formatted. Format now?</html>", MiscUtils.getFileName(uri))) == DialogUtils.YES) {
-            new DataFormatForm(this, uri, !ReferenceController.getInstance().isGenomeLoaded()).setVisible(true);
+            new DataFormatForm(this, uri, !LocationController.getInstance().isGenomeLoaded()).setVisible(true);
         }
     }
 
@@ -1887,13 +1887,12 @@ public class Savant extends JFrame implements BookmarksChangedListener, Referenc
     }
 
     @Override
-    public void referenceChanged(ReferenceChangedEvent event) {
-        Genome loadedGenome = ReferenceController.getInstance().getGenome();
-        rangeController.setMaxRange(new Range(1, loadedGenome.getLength()));
-        rangeSelector.setMaximum(loadedGenome.getLength());
-        rangeController.setRange(1, Math.min(1000, loadedGenome.getLength()));
+    public void locationChanged(LocationChangedEvent event) {
+        if(event.isNewReference()){
+            Genome loadedGenome = locationController.getGenome();
+            rangeSelector.setMaximum(loadedGenome.getLength());
+        }
     }
-
 
     private void setSpeedAndEfficiencyIndicatorsVisible(boolean b) {
         speedAndEfficiencyItem.setSelected(b);

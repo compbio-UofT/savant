@@ -1,5 +1,5 @@
 /*
- *    Copyright 2009-2011 University of Toronto
+ *    Copyright 2010-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -13,21 +13,37 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+
 package savant.controller.event;
 
-/**
- * Event sent by the ReferenceController when the current reference has changed.
- *
- * @author mfiume, tarkvara
- */
-public class ReferenceChangedEvent {
-    private final String reference;
+import savant.util.Range;
 
-    public ReferenceChangedEvent(String reference) {
+/**
+ *
+ * @author mfiume, tarkvara, AndrewBrook
+ */
+public class LocationChangedEvent {
+
+    private final String reference;
+    private final Range range;
+    private final boolean newRef;
+
+    public LocationChangedEvent(boolean newRef, String reference, Range range) {
         this.reference = reference;
+        this.range = range;
+        this.newRef = newRef;
     }
 
     public String getReference() {
         return reference;
     }
+
+    public Range getRange() {
+        return range;
+    }
+
+    public boolean isNewReference(){
+        return newRef;
+    }
+
 }

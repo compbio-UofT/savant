@@ -23,11 +23,11 @@ import java.io.IOException;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
+import savant.controller.LocationController;
+import savant.controller.event.GenomeChangedEvent;
+import savant.controller.event.LocationChangedEvent;
+import savant.controller.event.LocationChangedListener;
 
-import savant.controller.RangeController;
-import savant.controller.ReferenceController;
-import savant.controller.event.RangeChangedEvent;
-import savant.controller.event.RangeChangedListener;
 import savant.data.types.Genome;
 import savant.data.types.Genome.Cytoband;
 import savant.util.Range;
@@ -38,7 +38,7 @@ import savant.util.MiscUtils;
  *
  * @author mfiume, tarkvara
  */
-public class RangeSelectionPanel extends JPanel implements RangeChangedListener {
+public class RangeSelectionPanel extends JPanel implements LocationChangedListener {
 
     private static final AlphaComposite COMPOSITE_50 = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.50F);
     private static final AlphaComposite COMPOSITE_75 = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.75F);
@@ -55,7 +55,7 @@ public class RangeSelectionPanel extends JPanel implements RangeChangedListener 
     private final JLabel cords; // set up GUI and register mouse event handlers
     boolean isNewRect = true;
     private boolean rangeChangedExternally;
-    private RangeController rangeController = RangeController.getInstance();
+    private LocationController locationController = LocationController.getInstance();
 
 
     public RangeSelectionPanel() {
@@ -108,10 +108,10 @@ public class RangeSelectionPanel extends JPanel implements RangeChangedListener 
                     end = x1;
                 }
 
-                int startRange = Math.max(translatePixelToPosition(st), rangeController.getMaxRangeStart());
-                int endRange = wasDragging ? translatePixelToPosition(end) : startRange + rangeController.getRange().getLength() - 1;
-                endRange = Math.min(endRange, rangeController.getMaxRangeEnd());
-                rangeController.setRange(startRange, endRange);
+                int startRange = Math.max(translatePixelToPosition(st), locationController.getMaxRangeStart());
+                int endRange = wasDragging ? translatePixelToPosition(end) : startRange + locationController.getRange().getLength() - 1;
+                endRange = Math.min(endRange, locationController.getMaxRangeEnd());
+                locationController.setLocation(startRange, endRange);
             }
 
             @Override
@@ -163,11 +163,10 @@ public class RangeSelectionPanel extends JPanel implements RangeChangedListener 
         int wid = getWidth();
         int hei = getHeight();
 
-        ReferenceController refCon = ReferenceController.getInstance();
         Cytoband[] bands = null;
-        Genome genome = refCon.getGenome();
+        Genome genome = locationController.getGenome();
         if (genome != null) {
-            bands = genome.getCytobands(refCon.getReferenceName());
+            bands = genome.getCytobands(locationController.getReferenceName());
         }
 
         Image image_bar_unselected_glossy = null;
@@ -197,9 +196,8 @@ public class RangeSelectionPanel extends JPanel implements RangeChangedListener 
         int x = width < 0 ? this.x1 : this.x2;
         int y = 0;
 
-        RangeController rc = RangeController.getInstance();
-        int startrange = rc.getRangeStart();
-        int endrange = rc.getRangeEnd();
+        int startrange = locationController.getRangeStart();
+        int endrange = locationController.getRangeEnd();
 
         // Lines on top and bottom
         g.setColor(LINE_COLOUR);
@@ -210,8 +208,8 @@ public class RangeSelectionPanel extends JPanel implements RangeChangedListener 
             int centromereStart = -1;
             g2d.setComposite(COMPOSITE_50);
             for (Cytoband b: bands) {
-                int bandX = MiscUtils.transformPositionToPixel(b.start, getWidth(), rc.getMaxRange());
-                int bandWidth = MiscUtils.transformPositionToPixel(b.end, getWidth(), rc.getMaxRange()) - bandX;
+                int bandX = MiscUtils.transformPositionToPixel(b.start, getWidth(), locationController.getMaxRange());
+                int bandWidth = MiscUtils.transformPositionToPixel(b.end, getWidth(), locationController.getMaxRange()) - bandX;
 
                 g.setColor(b.getColor());
                 g.fillRect(bandX, y + 1, bandWidth, h - 2);
@@ -250,8 +248,8 @@ public class RangeSelectionPanel extends JPanel implements RangeChangedListener 
             g.drawRect(x, y, w, h);
             
         } else {
-            int startx = MiscUtils.transformPositionToPixel(startrange, this.getWidth(), rc.getMaxRange());
-            int endx = MiscUtils.transformPositionToPixel(endrange, this.getWidth(), rc.getMaxRange());
+            int startx = MiscUtils.transformPositionToPixel(startrange, this.getWidth(), locationController.getMaxRange());
+            int endx = MiscUtils.transformPositionToPixel(endrange, this.getWidth(), locationController.getMaxRange());
             int widpixels = Math.max(5, endx-startx);
 
             //Graphics2D g2d = (Graphics2D) g;
@@ -279,12 +277,12 @@ public class RangeSelectionPanel extends JPanel implements RangeChangedListener 
             int ypos = this.getHeight() / 2 + 4;
 
             if (this.rangeChangedExternally) {
-                Range r = RangeController.getInstance().getRange();
+                Range r = locationController.getRange();
                 from = MiscUtils.posToShortString(r.getFrom());
                 to = MiscUtils.posToShortString(r.getTo());
             } else {
-                from = MiscUtils.posToShortString(MiscUtils.transformPixelToPosition(fromX, this.getWidth(), RangeController.getInstance().getMaxRange()));
-                to = MiscUtils.posToShortString(MiscUtils.transformPixelToPosition(toX, this.getWidth(), RangeController.getInstance().getMaxRange()));
+                from = MiscUtils.posToShortString(MiscUtils.transformPixelToPosition(fromX, this.getWidth(), locationController.getMaxRange()));
+                to = MiscUtils.posToShortString(MiscUtils.transformPixelToPosition(toX, this.getWidth(), locationController.getMaxRange()));
             }
 
             FontMetrics metrics = g.getFontMetrics(g.getFont());
@@ -354,7 +352,10 @@ public class RangeSelectionPanel extends JPanel implements RangeChangedListener 
     }
 
     @Override
-    public void rangeChanged(RangeChangedEvent event) {
+    public void genomeChanged(GenomeChangedEvent event) {}
+
+    @Override
+    public void locationChanged(LocationChangedEvent event) {
         this.rangeChangedExternally = true;
         this.setRange(event.getRange());
     }

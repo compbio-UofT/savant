@@ -26,7 +26,7 @@ import javax.swing.JLabel;
 
 import net.sf.samtools.SAMRecord;
 
-import savant.controller.RangeController;
+import savant.controller.LocationController;
 import savant.data.event.DataRetrievalEvent;
 import savant.data.event.DataRetrievalListener;
 import savant.data.types.BAMIntervalRecord;
@@ -93,11 +93,11 @@ public class IntervalBamPopup extends PopupPanel implements DataRetrievalListene
             mateJump.setCursor(new Cursor(Cursor.HAND_CURSOR));
             mateJump.addMouseListener(new MouseListener() {
                 public void mouseClicked(MouseEvent e) {
-                    RangeController rc = RangeController.getInstance();
-                    int offset = (int)Math.ceil(((float) rc.getRange().getLength())/2);
+                    LocationController lc = LocationController.getInstance();
+                    int offset = (int)Math.ceil(((float) lc.getRange().getLength())/2);
                     int start = samRec.getMateAlignmentStart()-offset;
-                    int end = start + rc.getRange().getLength() - 1;
-                    rc.setRange(homogenizeRef(samRec.getMateReferenceName()), new Range(start, end));
+                    int end = start + lc.getRange().getLength() - 1;
+                    lc.setLocation(homogenizeRef(samRec.getMateReferenceName()), new Range(start, end));
                     hidePopup();
                 }
                 public void mousePressed(MouseEvent e) {}
@@ -121,12 +121,12 @@ public class IntervalBamPopup extends PopupPanel implements DataRetrievalListene
                         }
                     }
                     //SelectionController.getInstance().addSelection(gp.getTracks()[0].getName(), rec);
-                    RangeController rc = RangeController.getInstance();
-                    int offset = (int)Math.ceil(((float) rc.getRange().getLength())/2);
+                    LocationController lc = LocationController.getInstance();
+                    int offset = (int)Math.ceil(((float) lc.getRange().getLength())/2);
                     int start = samRec.getMateAlignmentStart()-offset;
-                    int end = start + rc.getRange().getLength() - 1;
+                    int end = start + lc.getRange().getLength() - 1;
                     gp.getTracks()[0].addDataRetrievalListener(instance);
-                    rc.setRange(homogenizeRef(samRec.getMateReferenceName()), new Range(start, end));
+                    lc.setLocation(homogenizeRef(samRec.getMateReferenceName()), new Range(start, end));
                 }
                 public void mousePressed(MouseEvent e) {}
                 public void mouseReleased(MouseEvent e) {}

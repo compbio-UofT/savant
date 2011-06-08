@@ -29,10 +29,9 @@ import com.jidesoft.popup.JidePopup;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import savant.controller.RangeController;
 import savant.controller.GraphPaneController;
 import savant.controller.Listener;
-import savant.controller.ReferenceController;
+import savant.controller.LocationController;
 import savant.controller.event.GraphPaneEvent;
 import savant.data.event.ExportEvent;
 import savant.data.event.ExportEventListener;
@@ -297,7 +296,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         boolean sameSize = (prevSize != null && this.getSize().equals(prevSize) &&
                 this.parentFrame.getFrameLandscape().getWidth() == oldWidth &&
                 this.getParentFrame().getFrameLandscape().getHeight() == oldHeight);
-        boolean sameRef = prevRef != null && ReferenceController.getInstance().getReferenceName().equals(prevRef);
+        boolean sameRef = prevRef != null && LocationController.getInstance().getReferenceName().equals(prevRef);
 
         boolean withinScrollBounds = this.bufferedImage != null &&
                 (((JScrollPane)this.getParent().getParent().getParent()).getVerticalScrollBar().getValue() >= this.getOffset()) &&
@@ -357,10 +356,10 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
 
             Graphics2D g3 = bufferedImage.createGraphics();
             g3.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            prevRange = RangeController.getInstance().getRange();
+            prevRange = LocationController.getInstance().getRange();
             prevSize = this.getSize();
             prevDrawMode = tracks[0].getDrawMode();
-            prevRef = ReferenceController.getInstance().getReferenceName();
+            prevRef = LocationController.getInstance().getReferenceName();
 
             renderBackground(g3);
 
@@ -673,8 +672,8 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
                 int genomicSeparation = (xMax-xMin)/numseparators;
 
                 int startbarsfrom = MiscUtils.transformPositionToPixel(
-                    (int) (Math.floor(RangeController.getInstance().getRange().getFrom()/Math.max(1, genomicSeparation))*genomicSeparation),
-                    width, (RangeController.getInstance()).getRange());
+                    (int) (Math.floor(LocationController.getInstance().getRange().getFrom()/Math.max(1, genomicSeparation))*genomicSeparation),
+                    width, (LocationController.getInstance()).getRange());
 
                 g2.setColor(ColourSettings.getAxisGrid());
                 for (int i = 0; i <= numseparators; i++) {
@@ -864,20 +863,20 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
 
         if (MiscUtils.MAC && e.isMetaDown() || e.isControlDown()) {
             if (notches < 0) {
-                RangeController rc = RangeController.getInstance();
-                rc.shiftRangeLeft();
+                LocationController lc = LocationController.getInstance();
+                lc.shiftRangeLeft();
             } else {
-                RangeController rc = RangeController.getInstance();
-                rc.shiftRangeRight();
+                LocationController lc = LocationController.getInstance();
+                lc.shiftRangeRight();
             }
         }
         else {
             if (notches < 0) {
-                RangeController rc = RangeController.getInstance();
-                rc.zoomInOnMouse();
+                LocationController lc = LocationController.getInstance();
+                lc.zoomInOnMouse();
            } else {
-                RangeController rc = RangeController.getInstance();
-                rc.zoomOutFromMouse();
+                LocationController lc = LocationController.getInstance();
+                lc.zoomOutFromMouse();
            }
         }
         parentFrame.resetLayers();
@@ -959,7 +958,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
     public void mouseClicked( final MouseEvent event ) {
 
         if (event.getClickCount() == 2) {
-            RangeController.getInstance().zoomInOnMouse();
+            LocationController.getInstance().zoomInOnMouse();
             return;
         }
 
@@ -1019,30 +1018,30 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         if (gpc.isPanning()) {
 
             if(!panVert){
-                RangeController rc = RangeController.getInstance();
-                Range r = rc.getRange();
+                LocationController lc = LocationController.getInstance();
+                Range r = lc.getRange();
                 int shiftVal = (int) (Math.round((x1-x2) / this.getUnitWidth()));
 
                 Range newr = new Range(r.getFrom()+shiftVal,r.getTo()+shiftVal);
-                rc.setRange(newr);
+                lc.setLocation(newr);
             }
 
             //parentFrame.tempShowCommands();
         } else if (gpc.isZooming()) {
 
-            RangeController rc = RangeController.getInstance();
+            LocationController lc = LocationController.getInstance();
             Range r;
             if (this.isLocked()) {
                 r = this.lockedRange;
             } else {
-                r = rc.getRange();
+                r = lc.getRange();
             }
             int newMin = (int) Math.round(Math.min(x1, x2) / this.getUnitWidth());
             // some weirdness here, but it's to get around an off by one
             int newMax = (int) Math.max(Math.round(Math.max(x1, x2) / this.getUnitWidth())-1, newMin);
             Range newr = new Range(r.getFrom()+newMin,r.getFrom()+newMax);
 
-            rc.setRange(newr);
+            lc.setLocation(newr);
         } else if (gpc.isSelecting()) {
             for (Track t: tracks) {
                 if (t.getRenderer().hasMappedValues()) {
@@ -1199,7 +1198,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
     public void setLocked(boolean b) {
         isLocked = b;
         if (b) {
-            lockedRange = RangeController.getInstance().getRange();
+            lockedRange = LocationController.getInstance().getRange();
         } else {
             lockedRange = null;
         }
@@ -1234,7 +1233,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
             bamTrack.setDiscordantMax(paramDialog.getDiscordantMax());
             bamTrack.setmaxBPForYMax(paramDialog.getMaxBPForYMax());
 
-            bamTrack.prepareForRendering(ReferenceController.getInstance().getReferenceName() , RangeController.getInstance().getRange());
+            bamTrack.prepareForRendering(LocationController.getInstance().getReferenceName() , LocationController.getInstance().getRange());
             repaint();
         }
     }

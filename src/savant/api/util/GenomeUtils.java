@@ -21,7 +21,7 @@ import java.io.IOException;
 
 import savant.api.adapter.GenomeAdapter;
 import savant.api.adapter.TrackAdapter;
-import savant.controller.ReferenceController;
+import savant.controller.LocationController;
 import savant.data.types.Genome;
 import savant.view.swing.Track;
 
@@ -32,14 +32,14 @@ import savant.view.swing.Track;
  */
 public class GenomeUtils {
 
-    private static ReferenceController refc = ReferenceController.getInstance();
+    private static LocationController lc = LocationController.getInstance();
 
     /**
      * Tell whether a genome has been loaded yet
      * @return Whether or not a genome has been loaded yet
      */
     public static boolean isGenomeLoaded() {
-        return refc.isGenomeLoaded();
+        return lc.isGenomeLoaded();
     }
 
     /**
@@ -47,7 +47,7 @@ public class GenomeUtils {
      * @return The loaded genome
      */
     public static GenomeAdapter getGenome() {
-        return refc.getGenome();
+        return lc.getGenome();
     }
 
     /**
@@ -55,7 +55,7 @@ public class GenomeUtils {
      * @param genome The genome to set
      */
     public static void setGenome(GenomeAdapter genome) {
-        refc.setGenome((Genome) genome);
+        lc.setGenome((Genome) genome);
     }
 
 

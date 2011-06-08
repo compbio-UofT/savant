@@ -35,9 +35,8 @@ import net.sf.samtools.CigarOperator;
 import net.sf.samtools.SAMRecord;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import savant.controller.LocationController;
 
-import savant.controller.RangeController;
-import savant.controller.ReferenceController;
 import savant.data.event.DataRetrievalEvent;
 import savant.data.types.BAMIntervalRecord;
 import savant.data.types.Genome;
@@ -291,12 +290,12 @@ public class BAMTrackRenderer extends TrackRenderer {
         if (r == Resolution.VERY_HIGH || r == Resolution.HIGH) {
             if(modeName.equals(MISMATCH_MODE) || modeName.equals(SNP_MODE) || modeName.equals(COLORSPACE_MODE) || modeName.equals(SEQUENCE_MODE) || modeName.equals(BASE_QUALITY_MODE)){
                 // fetch reference sequence for comparison with cigar string
-                Genome genome = ReferenceController.getInstance().getGenome();
+                Genome genome = LocationController.getInstance().getGenome();
                 if(genome.isSequenceSet()){
                    AxisRange axisRange = (AxisRange)instructions.get(DrawingInstruction.AXIS_RANGE);
                     Range range = axisRange.getXRange();
                     try {
-                        refSeq = genome.getSequence(ReferenceController.getInstance().getReferenceName(), range);
+                        refSeq = genome.getSequence(LocationController.getInstance().getReferenceName(), range);
                     } catch (IOException e) {
                         throw new RenderingException(e.getMessage());
                     }
@@ -436,7 +435,7 @@ public class BAMTrackRenderer extends TrackRenderer {
         gp.setYRange(new Range(0,maxYRange));
        
         if (drawMode.equals(MISMATCH_MODE)) {
-            Genome genome = ReferenceController.getInstance().getGenome();
+            Genome genome = LocationController.getInstance().getGenome();
             if (!genome.isSequenceSet()) {
                 throw new RenderingException("No reference sequence loaded. Switch to standard view");
             }
@@ -1555,7 +1554,7 @@ public class BAMTrackRenderer extends TrackRenderer {
             int alignmentEnd;
             int mateAlignmentStart = samRecord.getMateAlignmentStart();
             if (samRecord.getAlignmentStart() > mateAlignmentStart) {
-                if (!(mateAlignmentStart < RangeController.getInstance().getRangeStart())) {
+                if (!(mateAlignmentStart < LocationController.getInstance().getRangeStart())) {
                     // this is the second in the pair, and it doesn't span the beginning of the range, so don't draw anything
                     continue;
                 } else {
@@ -1637,7 +1636,7 @@ public class BAMTrackRenderer extends TrackRenderer {
 
     private void renderSNPMode(Graphics2D g2, GraphPane gp, Resolution r){
 
-        Genome genome = ReferenceController.getInstance().getGenome();
+        Genome genome = LocationController.getInstance().getGenome();
 
         AxisRange axisRange = (AxisRange)instructions.get(DrawingInstruction.AXIS_RANGE);
         ColorScheme cs = (ColorScheme)instructions.get(DrawingInstruction.COLOR_SCHEME);

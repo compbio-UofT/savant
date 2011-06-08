@@ -18,9 +18,8 @@ package savant.api.util;
 import java.util.Set;
 
 import savant.api.adapter.RangeAdapter;
-import savant.controller.RangeController;
-import savant.controller.ReferenceController;
-import savant.controller.event.RangeChangeCompletedListener;
+import savant.controller.LocationController;
+import savant.controller.event.LocationChangeCompletedListener;
 import savant.util.Range;
 
 
@@ -30,15 +29,14 @@ import savant.util.Range;
  */
 public class NavigationUtils {
 
-    private static RangeController rc = RangeController.getInstance();
-    private static ReferenceController refc = ReferenceController.getInstance();
+    private static LocationController lc = LocationController.getInstance();
 
     /**
      * Get the name of the current reference
      * @return The name of the current reference
      */
     public static String getCurrentReferenceName() {
-        return refc.getReferenceName();
+        return lc.getReferenceName();
     }
 
     /**
@@ -46,7 +44,7 @@ public class NavigationUtils {
      * @return
      */
     public static Set<String> getReferenceNames() {
-        return refc.getReferenceNames();
+        return lc.getReferenceNames();
     }
 
     /**
@@ -54,7 +52,7 @@ public class NavigationUtils {
      * @return The maximumViewableRange
      */
     public static RangeAdapter getCurrentReferenceRange() {
-        return rc.getMaxRange();
+        return lc.getMaxRange();
     }
 
     /**
@@ -62,7 +60,7 @@ public class NavigationUtils {
      * @param ref The name of the reference to navigate to
      */
     public void navigateTo(String ref) {
-        refc.setReference(ref);
+        lc.setLocation(ref);
     }
 
     /**
@@ -70,7 +68,7 @@ public class NavigationUtils {
      * @param r The range to set as current
      */
     public static void navigateTo(RangeAdapter r) {
-        rc.setRange((Range) r);
+        lc.setLocation((Range) r);
     }
 
     /**
@@ -79,7 +77,7 @@ public class NavigationUtils {
      * @param range The range to set as current
      */
     public static void navigateTo(String reference, RangeAdapter range) {
-        rc.setRange(reference, (Range)range);
+        lc.setLocation(reference, (Range)range);
     }
 
     /**
@@ -87,23 +85,23 @@ public class NavigationUtils {
      * @return The currentViewableRange
      */
     public static RangeAdapter getCurrentRange() {
-        return rc.getRange();
+        return lc.getRange();
     }
 
     /**
      * Subscribe a listener to be notified when the range changes
      * @param l The listener to subscribe
      */
-    public static synchronized void addRangeChangeListener(RangeChangeCompletedListener l) {
-        rc.addRangeChangeCompletedListener(l);
+    public static synchronized void addLocationChangeListener(LocationChangeCompletedListener l) {
+        lc.addLocationChangeCompletedListener(l);
     }
 
     /**
      * Unsubscribe a listener from being notified when the range changes
      * @param l The listener to unsubscribe
      */
-    public static synchronized void removeRangeChangeListener(RangeChangeCompletedListener l) {
-        rc.removeRangeChangeCompletedListener(l);
+    public static synchronized void removeLocationChangeListener(LocationChangeCompletedListener l) {
+        lc.removeLocationChangeCompletedListener(l);
     }
 
     /**

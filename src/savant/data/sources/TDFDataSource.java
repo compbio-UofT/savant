@@ -32,7 +32,7 @@ import org.broad.igv.tdf.TDFTile;
 import org.broad.igv.track.WindowFunction;
 
 import savant.api.adapter.RangeAdapter;
-import savant.controller.ReferenceController;
+import savant.controller.LocationController;
 import savant.data.types.GenericContinuousRecord;
 import savant.file.DataFormat;
 import savant.util.MiscUtils;
@@ -120,7 +120,7 @@ public class TDFDataSource implements DataSource<GenericContinuousRecord> {
      * @return
      */
     private TDFDataset getTDFDataset(String ref, Range range) {
-        int refLen = ReferenceController.getInstance().getReferenceLength(ref);
+        int refLen = LocationController.getInstance().getReferenceLength(ref);
         ref = MiscUtils.homogenizeSequence(ref);
         int rangeLen = range.getLength();
 

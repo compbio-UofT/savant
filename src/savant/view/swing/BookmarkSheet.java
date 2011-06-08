@@ -34,7 +34,7 @@ import org.apache.commons.logging.LogFactory;
 
 import savant.api.util.DialogUtils;
 import savant.controller.BookmarkController;
-import savant.controller.RangeController;
+import savant.controller.LocationController;
 import savant.controller.event.BookmarksChangedEvent;
 import savant.controller.event.BookmarksChangedListener;
 import savant.util.Bookmark;
@@ -226,8 +226,8 @@ public class BookmarkSheet implements BookmarksChangedListener {
         // add glue to fill the remaining space
         subpanel.add(Box.createGlue());
 
-        //RangeController rc = RangeController.getInstance();
-        //rc.addRangeChangedListener(this);
+        //RangeController lc = RangeController.getInstance();
+        //lc.addRangeChangedListener(this);
 
         // initContextualMenu();
     }
@@ -327,9 +327,9 @@ public class BookmarkSheet implements BookmarksChangedListener {
 
     public void goToBookmark(int i) {
         if (i == -1 && table.getRowCount() == 0) { return; }
-        RangeController rc = RangeController.getInstance();
+        LocationController lc = LocationController.getInstance();
         BookmarksTableModel tableModel = (BookmarksTableModel) table.getModel();
         Bookmark bookmark = tableModel.getData().get(i);
-        rc.setRange(bookmark.getReference(),(Range) bookmark.getRange());
+        lc.setLocation(bookmark.getReference(),(Range) bookmark.getRange());
     }
 }

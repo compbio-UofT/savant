@@ -31,9 +31,10 @@ import org.apache.commons.logging.LogFactory;
 import savant.api.util.DialogUtils;
 import savant.controller.event.BookmarksChangedEvent;
 import savant.controller.event.BookmarksChangedListener;
+import savant.controller.event.GenomeChangedEvent;
 import savant.controller.event.ProjectEvent;
-import savant.controller.event.RangeChangedEvent;
-import savant.controller.event.RangeChangedListener;
+import savant.controller.event.LocationChangedEvent;
+import savant.controller.event.LocationChangedListener;
 import savant.controller.event.TrackListChangedEvent;
 import savant.controller.event.TrackListChangedListener;
 import savant.data.types.Genome;
@@ -46,7 +47,7 @@ import savant.util.MiscUtils;
  *
  * @author mfiume, tarkvara
  */
-public class ProjectController extends Controller implements BookmarksChangedListener, RangeChangedListener, TrackListChangedListener {
+public class ProjectController extends Controller implements BookmarksChangedListener, LocationChangedListener, TrackListChangedListener {
     private static final Log LOG = LogFactory.getLog(ProjectController.class);
     private static final FileFilter PROJECT_FILTER = new FileFilter() {
         @Override
@@ -79,7 +80,7 @@ public class ProjectController extends Controller implements BookmarksChangedLis
         if (instance == null) {
             instance = new ProjectController();
             BookmarkController.getInstance().addFavoritesChangedListener(instance);
-            RangeController.getInstance().addRangeChangedListener(instance);
+            LocationController.getInstance().addLocationChangedListener(instance);
             TrackController.getInstance().addTrackListChangedListener(instance);
         }
         return instance;
@@ -110,7 +111,7 @@ public class ProjectController extends Controller implements BookmarksChangedLis
     }
 
     public static boolean isProjectOpen() {
-        return ReferenceController.getInstance().isGenomeLoaded();
+        return LocationController.getInstance().isGenomeLoaded();
     }
 
     public boolean isProjectSaved() {
@@ -122,11 +123,6 @@ public class ProjectController extends Controller implements BookmarksChangedLis
             projectSaved = saved;
             fireEvent(new ProjectEvent(saved ? ProjectEvent.Type.SAVED : ProjectEvent.Type.UNSAVED, getCurrentFile()));
         }
-    }
-
-    @Override
-    public void rangeChanged(RangeChangedEvent event) {
-        setProjectSaved(false);
     }
 
     @Override
@@ -240,5 +236,13 @@ public class ProjectController extends Controller implements BookmarksChangedLis
             proj.load();
             setProjectSaved(true);
         }
+    }
+
+    @Override
+    public void genomeChanged(GenomeChangedEvent event) {}
+
+    @Override
+    public void locationChanged(LocationChangedEvent event) {
+        setProjectSaved(false);
     }
 }

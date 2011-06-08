@@ -27,14 +27,11 @@ import java.text.NumberFormat;
 import javax.swing.*;
 
 import savant.api.util.DialogUtils;
-import savant.controller.RangeController;
-import savant.controller.ReferenceController;
+import savant.controller.LocationController;
 import savant.controller.TrackController;
 import savant.controller.event.GenomeChangedEvent;
-import savant.controller.event.RangeChangedEvent;
-import savant.controller.event.RangeChangedListener;
-import savant.controller.event.ReferenceChangedEvent;
-import savant.controller.event.ReferenceChangedListener;
+import savant.controller.event.LocationChangedEvent;
+import savant.controller.event.LocationChangedListener;
 import savant.settings.BrowserSettings;
 import savant.util.Bookmark;
 import savant.util.MiscUtils;
@@ -51,7 +48,7 @@ public class NavigationBar extends JToolBar {
     /** For parsing numbers which may include commas. */
     private static final NumberFormat NUMBER_PARSER = NumberFormat.getIntegerInstance();
 
-    private RangeController rangeController = RangeController.getInstance();
+    private LocationController locationController = LocationController.getInstance();
 
     /** Range text-box */
     JTextField rangeField;
@@ -129,7 +126,7 @@ public class NavigationBar extends JToolBar {
             undoButton.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    rangeController.undoRangeChange();
+                    locationController.undoLocationChange();
                 }
             });
             undoButton.putClientProperty("JButton.buttonType", buttonStyle);
@@ -144,7 +141,7 @@ public class NavigationBar extends JToolBar {
             redo.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    rangeController.redoRangeChange();
+                    locationController.redoLocationChange();
                 }
             });
             redo.putClientProperty("JButton.buttonType", buttonStyle);
@@ -171,7 +168,7 @@ public class NavigationBar extends JToolBar {
         zoomInButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                rangeController.zoomIn();
+                locationController.zoomIn();
             }
         });
 
@@ -181,7 +178,7 @@ public class NavigationBar extends JToolBar {
         zoomOut.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                rangeController.zoomOut();
+                locationController.zoomOut();
             }
         });
         zoomOut.putClientProperty("JButton.buttonType", buttonStyle);
@@ -204,7 +201,7 @@ public class NavigationBar extends JToolBar {
         shiftFarLeft.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                rangeController.shiftRangeFarLeft();
+                locationController.shiftRangeFarLeft();
             }
         });
 
@@ -219,7 +216,7 @@ public class NavigationBar extends JToolBar {
         shiftLeft.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                rangeController.shiftRangeLeft();
+                locationController.shiftRangeLeft();
             }
         });
 
@@ -234,7 +231,7 @@ public class NavigationBar extends JToolBar {
         shiftRight.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                rangeController.shiftRangeRight();
+                locationController.shiftRangeRight();
             }
         });
 
@@ -249,29 +246,23 @@ public class NavigationBar extends JToolBar {
         shiftFarRight.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                rangeController.shiftRangeFarRight();
+                locationController.shiftRangeFarRight();
             }
         });
 
         add(getRigidPadding());
 
-        rangeController.addRangeChangedListener(new RangeChangedListener() {
+        locationController.addLocationChangedListener(new LocationChangedListener() {
+
             @Override
-            public void rangeChanged(RangeChangedEvent event) {
-                updateRange(ReferenceController.getInstance().getReferenceName(), event.getRange());
+            public void genomeChanged(GenomeChangedEvent event) { }
+
+            @Override
+            public void locationChanged(LocationChangedEvent event) {
+                updateLocation(event.getReference(), event.getRange());
             }
         });
 
-        ReferenceController.getInstance().addReferenceChangedListener(new ReferenceChangedListener() {
-            @Override
-            public void genomeChanged(GenomeChangedEvent event) {
-            }
-
-            @Override
-            public void referenceChanged(ReferenceChangedEvent event) {
-                updateRange(event.getReference(), RangeController.getInstance().getRange());
-            }
-        });
     }
 
     private static Component getRigidPadding() {
@@ -288,21 +279,19 @@ public class NavigationBar extends JToolBar {
             for (Track t: TrackController.getInstance().getTracks()) {
                 Bookmark mark = t.lookup(text);
                 if (mark != null) {
-                    ReferenceController.getInstance().setReference(mark.getReference());
-                    rangeController.setRange(mark.getRange().getFrom() - 1, mark.getRange().getTo() + 1);
+                    LocationController.getInstance().setLocation(mark.getReference(), mark.getRange().getFrom() - 1, mark.getRange().getTo() + 1);
                     return;
                 }
             }
             // No lookup found, so try to parse it as a range string.
             Bookmark mark = new Bookmark(text);
-            ReferenceController.getInstance().setReference(mark.getReference());
-            rangeController.setRange((Range)mark.getRange());
+            LocationController.getInstance().setLocation(mark.getReference(), (Range)mark.getRange());
         } catch (Exception x) {
             DialogUtils.displayMessage(String.format("Unabled to parse \"%s\" as a range.", text));
         }
     }
 
-    private void updateRange(String ref, Range r) {
+    private void updateLocation(String ref, Range r) {
         rangeField.setText(String.format("%s:%,d-%,d", ref, r.getFrom(), r.getTo()));
         lengthLabel.setText(String.format("%,d", r.getLength()));
         rangeField.requestFocusInWindow();

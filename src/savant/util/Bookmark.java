@@ -21,8 +21,7 @@ import java.text.ParseException;
 
 import savant.api.adapter.BookmarkAdapter;
 import savant.api.adapter.RangeAdapter;
-import savant.controller.RangeController;
-import savant.controller.ReferenceController;
+import savant.controller.LocationController;
 
 
 /**
@@ -66,8 +65,8 @@ public class Bookmark implements BookmarkAdapter, Serializable {
      * </dl>
      */
     public Bookmark(String text) throws ParseException {
-        RangeController rangeController = RangeController.getInstance();
-        Range r = rangeController.getRange();
+        LocationController locationController = LocationController.getInstance();
+        Range r = locationController.getRange();
         int from = -1, to = -1;
         if (r != null) {
             from = r.getFrom();
@@ -80,7 +79,7 @@ public class Bookmark implements BookmarkAdapter, Serializable {
             reference = text.substring(0, colonPos);
             text = text.substring(colonPos + 1);
         } else {
-            reference = ReferenceController.getInstance().getReferenceName();
+            reference = locationController.getReferenceName();
         }
 
         if (text.length() > 0) {

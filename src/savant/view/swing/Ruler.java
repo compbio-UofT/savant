@@ -26,10 +26,11 @@ import org.apache.commons.logging.LogFactory;
 
 import savant.controller.GraphPaneController;
 import savant.controller.Listener;
-import savant.controller.RangeController;
+import savant.controller.LocationController;
+import savant.controller.event.GenomeChangedEvent;
 import savant.controller.event.GraphPaneEvent;
-import savant.controller.event.RangeChangedEvent;
-import savant.controller.event.RangeChangedListener;
+import savant.controller.event.LocationChangedEvent;
+import savant.controller.event.LocationChangedListener;
 import savant.util.MiscUtils;
 
 
@@ -59,7 +60,7 @@ public class Ruler extends JPanel {
     private final JLabel cords; // set up GUI and register mouse event handlers
     boolean isNewRect = true;
     private GraphPaneController graphPaneController = GraphPaneController.getInstance();
-    private RangeController rangeController = RangeController.getInstance();
+    private LocationController locationController = LocationController.getInstance();
 
     public Ruler() {
 
@@ -85,9 +86,13 @@ public class Ruler extends JPanel {
             }
         });
 
-        rangeController.addRangeChangedListener(new RangeChangedListener() {
+        locationController.addLocationChangedListener(new LocationChangedListener() {
+            
             @Override
-            public void rangeChanged(RangeChangedEvent event) {
+            public void genomeChanged(GenomeChangedEvent event) {}
+
+            @Override
+            public void locationChanged(LocationChangedEvent event) {
                 repaint();
             }
         });
@@ -98,8 +103,8 @@ public class Ruler extends JPanel {
         super.paintComponent(g);
 
         if (graphPaneController.isPanning()) {
-            int fromx = MiscUtils.transformPositionToPixel(graphPaneController.getMouseDragRange().getFrom(), getWidth(), rangeController.getRange());
-            int tox = MiscUtils.transformPositionToPixel(graphPaneController.getMouseDragRange().getTo(), getWidth(), rangeController.getRange());
+            int fromx = MiscUtils.transformPositionToPixel(graphPaneController.getMouseDragRange().getFrom(), getWidth(), locationController.getRange());
+            int tox = MiscUtils.transformPositionToPixel(graphPaneController.getMouseDragRange().getTo(), getWidth(), locationController.getRange());
 
             double shiftamount = tox-fromx;
             g.translate((int) shiftamount, 0);
@@ -138,7 +143,7 @@ public class Ruler extends JPanel {
             int skipstring = (int) Math.round(minstringseparation / barseparation);
 
             int startbarsfrom = MiscUtils.transformPositionToPixel(
-                    (int) (Math.floor((rangeController.getRange().getFrom() / Math.max(1, genomicSeparation)))*genomicSeparation), width, rangeController.getRange());
+                    (int) (Math.floor((locationController.getRange().getFrom() / Math.max(1, genomicSeparation)))*genomicSeparation), width, locationController.getRange());
 
             FontMetrics fm = g2.getFontMetrics();
 
@@ -153,22 +158,22 @@ public class Ruler extends JPanel {
                 if (skipstring != 0) {
                     if (i % skipstring == 0) {
                         g2.setColor(Color.black);
-                        int a = MiscUtils.transformPixelToPosition(xOne, width, rangeController.getRange());
-                        if (a >= 1 && a <= rangeController.getMaxRangeEnd()) {
+                        int a = MiscUtils.transformPixelToPosition(xOne, width, locationController.getRange());
+                        if (a >= 1 && a <= locationController.getMaxRangeEnd()) {
                             String numstr = MiscUtils.posToShortStringWithSeparation(a, genomicSeparation);
                             g2.setColor(Color.black);
                             g2.drawString(numstr, (float) (xOne + 3), (float) ((this.getHeight()*0.5)+3));
                         }
                     }
                 } else {
-                    int a = MiscUtils.transformPixelToPosition(xOne, width, rangeController.getRange());
+                    int a = MiscUtils.transformPixelToPosition(xOne, width, locationController.getRange());
                     String numstr = MiscUtils.numToString(a);
                     g2.setColor(Color.black);
                     g2.drawString(numstr, (float) (xOne + 3), (float) ((this.getHeight()*0.5)+3));
                 }
             }
 
-            if (rangeController.getRange().getLength() >= rangeController.getRangeStart()) {
+            if (locationController.getRange().getLength() >= locationController.getRangeStart()) {
                 try {
                     Image image_left_cap = javax.imageio.ImageIO.read(getClass().getResource("/savant/images/round_cap_left_bordered.png"));
                     int pos = getLeftCapPos();
@@ -180,10 +185,10 @@ public class Ruler extends JPanel {
                 }
             }
 
-            if (rangeController.getRange().getLength() >= rangeController.getMaxRangeEnd() - rangeController.getRangeEnd()) {
+            if (locationController.getRange().getLength() >= locationController.getMaxRangeEnd() - locationController.getRangeEnd()) {
                 try {
                     Image image_right_cap = javax.imageio.ImageIO.read(getClass().getResource("/savant/images/round_cap_right_bordered.png"));
-                    int pos = MiscUtils.transformPositionToPixel(rangeController.getMaxRangeEnd(), getWidth(), rangeController.getRange());
+                    int pos = MiscUtils.transformPositionToPixel(locationController.getMaxRangeEnd(), getWidth(), locationController.getRange());
                     g.drawImage(image_right_cap, pos - CAP_WIDTH, 0, CAP_WIDTH, CAP_HEIGHT, this);
                     g.setColor(Savant.getInstance().getBackground());
                     g.fillRect(pos,0, this.getWidth(), this.getHeight());
@@ -196,7 +201,7 @@ public class Ruler extends JPanel {
     }
 
     int getLeftCapPos() {
-        return MiscUtils.transformPositionToPixel(1, getWidth(), rangeController.getRange());
+        return MiscUtils.transformPositionToPixel(1, getWidth(), locationController.getRange());
     }
 }
 

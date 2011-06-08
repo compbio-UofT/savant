@@ -30,8 +30,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import savant.api.adapter.RangeAdapter;
-import savant.controller.RangeController;
-import savant.controller.ReferenceController;
+import savant.controller.LocationController;
 import savant.util.IndexCache;
 import savant.data.types.BAMIntervalRecord;
 import savant.file.DataFormat;
@@ -139,8 +138,8 @@ public class BAMDataSource implements DataSource<BAMIntervalRecord> {
     private String guessSequence() {
 
         // Find out what sequence we're using, by reading the header for sequences and lengths
-        RangeController rangeController = RangeController.getInstance();
-        int referenceSequenceLength = rangeController.getMaxRangeEnd() - rangeController.getMaxRangeStart();
+        LocationController locationController = LocationController.getInstance();
+        int referenceSequenceLength = locationController.getMaxRangeEnd() - locationController.getMaxRangeStart();
         assert Math.abs(referenceSequenceLength) < Integer.MAX_VALUE;
 
         String sequenceName = null;
@@ -233,7 +232,7 @@ public class BAMDataSource implements DataSource<BAMIntervalRecord> {
     public Set<String> getReferenceNames() {
 
         if (this.referenceNames == null) {
-            String prefix = MiscUtils.removeNumbersFromString(ReferenceController.getInstance().getReferenceName());
+            String prefix = MiscUtils.removeNumbersFromString(LocationController.getInstance().getReferenceName());
 
             SAMSequenceDictionary ssd = samFileHeader.getSequenceDictionary();
 

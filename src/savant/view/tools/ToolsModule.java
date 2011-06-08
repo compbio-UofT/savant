@@ -48,14 +48,14 @@ import com.jidesoft.swing.JideSwingUtilities;
 
 import savant.api.util.DialogUtils;
 import savant.controller.BookmarkController;
-import savant.controller.RangeController;
 import savant.controller.InformativeThread;
+import savant.controller.LocationController;
 import savant.controller.ThreadController;
 import savant.controller.TrackController;
 import savant.controller.event.BookmarksChangedEvent;
 import savant.controller.event.BookmarksChangedListener;
-import savant.controller.event.RangeChangeCompletedListener;
-import savant.controller.event.RangeChangedEvent;
+import savant.controller.event.LocationChangeCompletedListener;
+import savant.controller.event.LocationChangedEvent;
 import savant.controller.event.ThreadActivityChangedEvent;
 import savant.controller.event.ThreadActivityChangedListener;
 import savant.controller.event.TrackListChangedEvent;
@@ -77,7 +77,7 @@ import savant.view.swing.Savant;
  *
  * @author mfiume
  */
-public class ToolsModule implements BookmarksChangedListener, RangeChangeCompletedListener, TrackListChangedListener, ThreadActivityChangedListener {
+public class ToolsModule implements BookmarksChangedListener, LocationChangeCompletedListener, TrackListChangedListener, ThreadActivityChangedListener {
 
     private static Map<String, List<Tool>> organizeToolsByCategory(List<Tool> tools) {
 
@@ -130,7 +130,7 @@ public class ToolsModule implements BookmarksChangedListener, RangeChangeComplet
     }
 
     @Override
-    public void rangeChangeCompleted(RangeChangedEvent event) {
+    public void locationChangeCompleted(LocationChangedEvent event) {
         runTools(toolsSubscribedToRangeChangeEvent);
     }
 
@@ -186,8 +186,7 @@ public class ToolsModule implements BookmarksChangedListener, RangeChangeComplet
 
     private void subscribeToEvents() {
         BookmarkController.getInstance().addFavoritesChangedListener(this);
-        //RangeController.getInstance().addRangeChangedListener(this);
-        RangeController.getInstance().addRangeChangeCompletedListener(this);
+        LocationController.getInstance().addLocationChangeCompletedListener(this);
         TrackController.getInstance().addTrackListChangedListener(this);
         ThreadController.getInstance().addThreadActivityListener(this);
     }

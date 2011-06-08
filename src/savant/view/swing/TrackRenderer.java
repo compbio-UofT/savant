@@ -27,7 +27,7 @@ import javax.swing.JViewport;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import savant.controller.RangeController;
+import savant.controller.LocationController;
 import savant.controller.SelectionController;
 import savant.data.event.DataRetrievalEvent;
 import savant.data.event.DataRetrievalListener;
@@ -309,7 +309,7 @@ public abstract class TrackRenderer implements DataRetrievalListener {
      */
     public List<Shape> getCurrentSelectedShapes(GraphPane gp){
         List<Shape> shapes = new ArrayList<Shape>();
-        List<Record> currentSelected = SelectionController.getInstance().getSelectedFromList(trackName, RangeController.getInstance().getRange(), data);
+        List<Record> currentSelected = SelectionController.getInstance().getSelectedFromList(trackName, LocationController.getInstance().getRange(), data);
         for(int i = 0; i < currentSelected.size(); i++){
             Shape s = recordToShapeMap.get(currentSelected.get(i));
             if (s != null){

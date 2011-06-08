@@ -27,8 +27,7 @@ import javax.swing.filechooser.FileFilter;
 
 import savant.controller.FrameController;
 import savant.controller.GraphPaneController;
-import savant.controller.RangeController;
-import savant.controller.ReferenceController;
+import savant.controller.LocationController;
 import savant.swing.component.TrackChooser;
 import savant.util.MiscUtils;
 
@@ -87,11 +86,11 @@ public class ExportImage {
         BufferedImage out = new BufferedImage(totalWidth, totalHeight, BufferedImage.TYPE_INT_RGB);
 
 
-        //write range at top
-        RangeController range = RangeController.getInstance();
-        int start = range.getRangeStart();
-        int end = range.getRangeEnd();
-        String toWrite = "Genome:  " + ReferenceController.getInstance().getGenome().getName() + "    Reference:  " + ReferenceController.getInstance().getReferenceName() + "    Range:  " + start + " - " + end;
+        //write lc at top
+        LocationController lc = LocationController.getInstance();
+        int start = lc.getRangeStart();
+        int end = lc.getRangeEnd();
+        String toWrite = "Genome:  " + lc.getGenome().getName() + "    Reference:  " + lc.getReferenceName() + "    Range:  " + start + " - " + end;
         Graphics2D g = out.createGraphics();
         g.setColor(Color.white);
         g.setFont(new Font(null, Font.BOLD, 13));

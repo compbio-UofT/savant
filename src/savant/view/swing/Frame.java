@@ -36,10 +36,9 @@ import org.apache.commons.logging.LogFactory;
 
 import savant.api.util.DialogUtils;
 import savant.controller.DockableFrameController;
-import savant.controller.ReferenceController;
 import savant.controller.DrawModeController;
 import savant.controller.FrameController;
-import savant.controller.RangeController;
+import savant.controller.LocationController;
 import savant.controller.TrackController;
 import savant.controller.event.DrawModeChangedEvent;
 import savant.data.event.DataRetrievalEvent;
@@ -210,7 +209,7 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
      * @param newTracks the tracks to be displayed in this frame
      */
     public void setTracks(Track[] newTracks) {
-        if (!ReferenceController.getInstance().isGenomeLoaded() && newTracks[0].getDataFormat() != DataFormat.SEQUENCE_FASTA) {
+        if (!LocationController.getInstance().isGenomeLoaded() && newTracks[0].getDataFormat() != DataFormat.SEQUENCE_FASTA) {
             trackCreationFailed(null);
             for (Track track : newTracks) {
                 TrackController.getInstance().removeTrack(track);
@@ -219,7 +218,7 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
             return;
         }
         if (newTracks[0].getDataFormat() == DataFormat.SEQUENCE_FASTA) {
-            ReferenceController.getInstance().setSequence((SequenceTrack)newTracks[0]);
+            LocationController.getInstance().setSequence((SequenceTrack)newTracks[0]);
         }
 
         LOG.trace("Frame being set up with " + newTracks.length + " tracks.");
@@ -576,7 +575,7 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
      */
     public void forceRedraw() {
         getGraphPane().setRenderForced();
-        drawTracksInRange(ReferenceController.getInstance().getReferenceName(), currentRange);
+        drawTracksInRange(LocationController.getInstance().getReferenceName(), currentRange);
     }
 
     /**
@@ -634,7 +633,7 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
         }
         if (reRender) {
             validate();
-            drawTracksInRange(ReferenceController.getInstance().getReferenceName(), RangeController.getInstance().getRange());
+            drawTracksInRange(LocationController.getInstance().getReferenceName(), LocationController.getInstance().getRange());
         }
     }
 

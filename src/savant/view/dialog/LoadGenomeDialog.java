@@ -34,7 +34,7 @@ import org.apache.commons.logging.LogFactory;
 import savant.api.util.DialogUtils;
 import savant.controller.DataSourcePluginController;
 import savant.controller.ProjectController;
-import savant.controller.ReferenceController;
+import savant.controller.LocationController;
 import savant.data.sources.DataSource;
 import savant.data.types.Genome;
 import savant.data.types.Genome.Auxiliary;
@@ -53,7 +53,7 @@ import savant.view.swing.TrackFactory;
  */
 public class LoadGenomeDialog extends JDialog {
     private static final Log LOG = LogFactory.getLog(LoadGenomeDialog.class);
-    private static ReferenceController referenceController = ReferenceController.getInstance();
+    private static LocationController locationController = LocationController.getInstance();
 
     /** Creates new form LoadGenomeDialog */
     public LoadGenomeDialog(java.awt.Frame parent, boolean modal) {
@@ -357,7 +357,7 @@ public class LoadGenomeDialog extends JDialog {
             }
         } else {
             genome = new Genome(nameField.getText(), Integer.parseInt(lengthField.getText()));
-            referenceController.setGenome(genome);
+            locationController.setGenome(genome);
         }
 
 }//GEN-LAST:event_okButtonActionPerformed
@@ -385,7 +385,7 @@ public class LoadGenomeDialog extends JDialog {
                 setVisible(false);
                 Track t = TrackFactory.createTrack(s);
                 Savant.getInstance().createFrameForExistingTrack(new Track[] { t });
-                referenceController.setGenome(Genome.createFromTrack(t));
+                locationController.setGenome(Genome.createFromTrack(t));
             }
         } catch (Exception x) {
             DialogUtils.displayException("Error Loading Genome", "Unable to load genome from the plugin datasource.", x);
@@ -397,7 +397,7 @@ public class LoadGenomeDialog extends JDialog {
         if (url != null) {
             try {
                 setVisible(false);
-                referenceController.setGenome(null);
+                locationController.setGenome(null);
                 Savant.getInstance().addTrackFromURI(url.toURI());
             } catch (Throwable x) {
                 DialogUtils.displayException("Error Loading Genome", String.format("Unable to load genome from %s.", url), x);
@@ -411,7 +411,7 @@ public class LoadGenomeDialog extends JDialog {
         if (selectedFile != null) {
             try {
                 setVisible(false);
-                referenceController.setGenome(null);
+                locationController.setGenome(null);
                 Savant.getInstance().addTrackFromPath(selectedFile.getAbsolutePath());
             } catch (Throwable x) {
                 DialogUtils.displayException("Error Loading Genome", String.format("Unable to load genome from %s.", selectedFile.getName()), x);

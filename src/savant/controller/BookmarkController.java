@@ -40,7 +40,7 @@ import savant.util.Range;
  * @author mfiume
  */
 public class BookmarkController {
-    private static final Log LOG = LogFactory.getLog(RangeController.class);
+    private static final Log LOG = LogFactory.getLog(LocationController.class);
 
 
     private static BookmarkController instance;
@@ -146,9 +146,9 @@ public class BookmarkController {
     }
 
     public void addCurrentRangeToBookmarks() {
-        RangeController rc = RangeController.getInstance();
-        if (rc.getRange() != null) {
-            this.addBookmark(new Bookmark(ReferenceController.getInstance().getReferenceName(), rc.getRange()));
+        LocationController lc = LocationController.getInstance();
+        if (lc.getRange() != null) {
+            this.addBookmark(new Bookmark(lc.getReferenceName(), lc.getRange()));
         }
     }
 

@@ -205,13 +205,13 @@ public class Project {
         writeStartElement(XMLElement.savant, "");
         writeAttribute(XMLAttribute.version, Integer.toString(FILE_VERSION));
 
-        ReferenceController referenceController = ReferenceController.getInstance();
+        LocationController locationController = LocationController.getInstance();
 
-        Range r = RangeController.getInstance().getRange();
-        writeAttribute(XMLAttribute.range, String.format("%s:%d-%d", referenceController.getReferenceName(), r.getFrom(), r.getTo()));
+        Range r = locationController.getRange();
+        writeAttribute(XMLAttribute.range, String.format("%s:%d-%d", locationController.getReferenceName(), r.getFrom(), r.getTo()));
 
         writeStartElement(XMLElement.genome, "  ");
-        Genome g = referenceController.getGenome();
+        Genome g = locationController.getGenome();
         writeAttribute(XMLAttribute.name, g.getName());
         URI cytobandURI = g.getCytobandURI();
         if (cytobandURI != null) {
@@ -272,9 +272,8 @@ public class Project {
      * Load the project's settings into Savant.
      */
     public void load() throws Exception {
-        ReferenceController.getInstance().setGenome(genome);
-        ReferenceController.getInstance().setReference(reference);
-        RangeController.getInstance().setRange(range);
+        LocationController.getInstance().setGenome(genome);
+        LocationController.getInstance().setLocation(reference, range);
         for (String path : trackPaths) {
             Savant.getInstance().addTrackFromPath(path);
         }

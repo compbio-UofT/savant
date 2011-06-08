@@ -29,8 +29,7 @@ import javax.swing.JPanel;
 import javax.swing.JSeparator;
 
 import savant.controller.BookmarkController;
-import savant.controller.RangeController;
-import savant.controller.ReferenceController;
+import savant.controller.LocationController;
 import savant.data.sources.DataSource;
 import savant.data.types.*;
 import savant.file.DataFormat;
@@ -141,7 +140,7 @@ public class PopupPanel extends JPanel {
 
         //BOOKMARKING
         if(ref == null){
-            ref = ReferenceController.getInstance().getReferenceName();
+            ref = LocationController.getInstance().getReferenceName();
         }
         if(start != -1 && end != -1){
             JLabel bookmark = new JLabel("Add to Bookmarks");
@@ -175,8 +174,8 @@ public class PopupPanel extends JPanel {
     protected void initInfo(){};
 
     protected String homogenizeRef(String orig){
-        if(!ReferenceController.getInstance().getAllReferenceNames().contains(orig)){
-            Iterator<String> it = ReferenceController.getInstance().getAllReferenceNames().iterator();
+        if(!LocationController.getInstance().getAllReferenceNames().contains(orig)){
+            Iterator<String> it = LocationController.getInstance().getAllReferenceNames().iterator();
             while(it.hasNext()){
                 String current = it.next();
                 if(MiscUtils.homogenizeSequence(current).equals(orig)){
@@ -202,15 +201,15 @@ public class PopupPanel extends JPanel {
 
     protected void initIntervalJumps(final IntervalRecord rec){
         //jump to start of read
-        if(RangeController.getInstance().getRangeStart() > rec.getInterval().getStart()){
+        if(LocationController.getInstance().getRangeStart() > rec.getInterval().getStart()){
             JLabel endJump = new JLabel("Jump to Start of Interval");
             endJump.setForeground(Color.BLUE);
             endJump.setCursor(new Cursor(Cursor.HAND_CURSOR));
             endJump.addMouseListener(new MouseListener() {
                 public void mouseClicked(MouseEvent e) {
-                    RangeController rc = RangeController.getInstance();
-                    int len = rc.getRangeEnd() - rc.getRangeStart();
-                    rc.setRange(rec.getInterval().getStart()-(len/2), rec.getInterval().getStart()+(len/2));
+                    LocationController lc = LocationController.getInstance();
+                    int len = lc.getRangeEnd() - lc.getRangeStart();
+                    lc.setLocation(rec.getInterval().getStart()-(len/2), rec.getInterval().getStart()+(len/2));
                     hidePopup();
                 }
                 public void mousePressed(MouseEvent e) {}
@@ -222,15 +221,15 @@ public class PopupPanel extends JPanel {
         }
 
         //jump to end of read
-        if(RangeController.getInstance().getRangeEnd() < rec.getInterval().getEnd()){
+        if(LocationController.getInstance().getRangeEnd() < rec.getInterval().getEnd()){
             JLabel endJump = new JLabel("Jump to End of Interval");
             endJump.setForeground(Color.BLUE);
             endJump.setCursor(new Cursor(Cursor.HAND_CURSOR));
             endJump.addMouseListener(new MouseListener() {
                 public void mouseClicked(MouseEvent e) {
-                    RangeController rc = RangeController.getInstance();
-                    int len = rc.getRangeEnd() - rc.getRangeStart();
-                    rc.setRange(rec.getInterval().getEnd()-(len/2), rec.getInterval().getEnd()+(len/2));
+                    LocationController lc = LocationController.getInstance();
+                    int len = lc.getRangeEnd() - lc.getRangeStart();
+                    lc.setLocation(rec.getInterval().getEnd()-(len/2), rec.getInterval().getEnd()+(len/2));
                     hidePopup();
                 }
                 public void mousePressed(MouseEvent e) {}

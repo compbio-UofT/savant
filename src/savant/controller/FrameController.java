@@ -27,9 +27,10 @@ import javax.swing.JComponent;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import savant.controller.event.GenomeChangedEvent;
 
-import savant.controller.event.RangeChangedEvent;
-import savant.controller.event.RangeChangedListener;
+import savant.controller.event.LocationChangedEvent;
+import savant.controller.event.LocationChangedListener;
 import savant.view.swing.Frame;
 import savant.view.swing.GraphPane;
 import savant.view.swing.Track;
@@ -40,7 +41,7 @@ import savant.view.swing.Track;
  *
  * @author vwilliams
  */
-public class FrameController implements RangeChangedListener {
+public class FrameController implements LocationChangedListener {
     private static final Log LOG = LogFactory.getLog(FrameController.class);
 
     private static FrameController instance;
@@ -54,7 +55,7 @@ public class FrameController implements RangeChangedListener {
     public static synchronized FrameController getInstance() {
         if (instance == null) {
             instance = new FrameController();
-            RangeController.getInstance().addRangeChangedListener(instance);
+            LocationController.getInstance().addLocationChangedListener(instance);
         }
         return instance;
     }
@@ -77,7 +78,7 @@ public class FrameController implements RangeChangedListener {
      * Draw the frames in the current viewable range
      */
     public void drawFrames() {
-        RangeController rc = RangeController.getInstance();
+        LocationController lc = LocationController.getInstance();
 
         GraphPaneController.getInstance().clearRenderingList();
 
@@ -86,7 +87,7 @@ public class FrameController implements RangeChangedListener {
                 // added to detect when rendering has completed
                 GraphPaneController.getInstance().enlistRenderingGraphpane(f.getGraphPane());
 
-                f.drawTracksInRange(ReferenceController.getInstance().getReferenceName(), rc.getRange());
+                f.drawTracksInRange(lc.getReferenceName(), lc.getRange());
             }
         }
     }
@@ -144,8 +145,14 @@ public class FrameController implements RangeChangedListener {
      * Listen for RangeChangedEvents, which will cause all the frames to be drawn.
      * This code used to be in Savant.java.
      */
+
     @Override
-    public void rangeChanged(RangeChangedEvent event) {
+    public void locationChanged(LocationChangedEvent event) {
         drawFrames();
     }
+
+    @Override
+    public void genomeChanged(GenomeChangedEvent event) {}
+
+    
 }

@@ -23,10 +23,10 @@ import java.util.Set;
 import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
 
-import savant.controller.ReferenceController;
+import savant.controller.LocationController;
 import savant.controller.event.GenomeChangedEvent;
-import savant.controller.event.ReferenceChangedEvent;
-import savant.controller.event.ReferenceChangedListener;
+import savant.controller.event.LocationChangedEvent;
+import savant.controller.event.LocationChangedListener;
 import savant.util.MiscUtils;
 
 
@@ -35,13 +35,13 @@ import savant.util.MiscUtils;
  * @author tarkvara
  */
 public class ReferenceCombo extends JComboBox {
-    private ReferenceController referenceController;
+    private LocationController locationController;
 
     /**
      * Constructor just initialises combo's contents from ReferenceController.
      */
     public ReferenceCombo() {
-        referenceController = ReferenceController.getInstance();
+        locationController = LocationController.getInstance();
         setToolTipText("Reference sequence");
         addActionListener(new ActionListener() {
             @Override
@@ -73,7 +73,7 @@ public class ReferenceCombo extends JComboBox {
 
                 String ref = (String)getItemAt(index);
 
-                if (!referenceController.getReferenceNames().contains(ref)) {
+                if (!locationController.getReferenceNames().contains(ref)) {
                     if (!Savant.showNonGenomicReferenceDialog) {
                         return;
                     }
@@ -96,15 +96,11 @@ public class ReferenceCombo extends JComboBox {
                     }
                 }
 
-                referenceController.setReference(ref);
+                locationController.setLocation(ref);
             }
         });
 
-        referenceController.addReferenceChangedListener(new ReferenceChangedListener() {
-            @Override
-            public void referenceChanged(ReferenceChangedEvent event) {
-                setSelectedItem(event.getReference());
-            }
+        locationController.addLocationChangedListener(new LocationChangedListener() {
 
             @Override
             public void genomeChanged(GenomeChangedEvent event) {
@@ -112,7 +108,7 @@ public class ReferenceCombo extends JComboBox {
                 removeAllItems();
 
                 int maxWidth = 0;
-                Set<String> refNames = referenceController.getGenome().getReferenceNames();
+                Set<String> refNames = locationController.getGenome().getReferenceNames();
                 for (String s : refNames) {
                     maxWidth = Math.max(maxWidth, s.length());
                     addItem(s);
@@ -125,7 +121,7 @@ public class ReferenceCombo extends JComboBox {
                 invalidate();
 
                 //this.referenceDropdown.addItem("[ NON-GENOMIC (" + nongenomicrefnames.size() + ") ]");
-                List<String> nonGenomicRefs = MiscUtils.set2List(referenceController.getNonGenomicReferenceNames());
+                List<String> nonGenomicRefs = MiscUtils.set2List(locationController.getNonGenomicReferenceNames());
                 if (nonGenomicRefs.size() > 0) {
                     for (String s : nonGenomicRefs) {
                         addItem(s);
@@ -136,6 +132,13 @@ public class ReferenceCombo extends JComboBox {
                     setSelectedItem(curRef);
                 }
             }
+
+            @Override
+            public void locationChanged(LocationChangedEvent event) {
+                if(event.isNewReference())
+                    setSelectedItem(event.getReference());
+            }
+
         });
     }
 }
