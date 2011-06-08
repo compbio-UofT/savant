@@ -305,6 +305,7 @@ public abstract class Track implements TrackAdapter {
      */
     @Override
     public JPanel getLayerCanvas() {
+        if(frame == null) return null;
         return frame.getLayerCanvas();
     }
 
