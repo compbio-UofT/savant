@@ -1,0 +1,28 @@
+Trying to change property 'svn:ignore' from 'out
+.recent
+.sessions
+.recent_tracks
+.uninstall_plugins
+.recent_projects
+' to 'out
+.recent
+.sessions
+.recent_tracks
+.uninstall_plugins
+.recent_projects
+lib
+',
+but the property has been locally changed from 'out
+.recent
+.sessions
+.recent_tracks
+.uninstall_plugins
+.recent_projects
+' to 'out
+.recent
+.sessions
+.recent_tracks
+.uninstall_plugins
+.recent_projects
+lib
+'.
