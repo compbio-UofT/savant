@@ -33,7 +33,7 @@ public class DataTab extends SavantPanelPlugin {
     @Override
     public void init(JPanel tablePanel, PluginAdapter pluginAdapter) {
         DataSheet currentRangeDataSheet = new DataSheet(tablePanel, pluginAdapter);
-        NavigationUtils.addRangeChangeListener(currentRangeDataSheet);
+        NavigationUtils.addLocationChangeListener(currentRangeDataSheet);
         SelectionUtils.addSelectionChangedListener(currentRangeDataSheet);
         TrackUtils.addTracksChangedListener(currentRangeDataSheet);
     }

@@ -38,8 +38,8 @@ import savant.api.adapter.TrackAdapter;
 import savant.api.util.DialogUtils;
 import savant.api.util.SelectionUtils;
 import savant.api.util.TrackUtils;
-import savant.controller.event.RangeChangedEvent;
-import savant.controller.event.RangeChangeCompletedListener;
+import savant.controller.event.LocationChangedEvent;
+import savant.controller.event.LocationChangeCompletedListener;
 import savant.controller.event.SelectionChangedEvent;
 import savant.controller.event.SelectionChangedListener;
 import savant.controller.event.TrackListChangedEvent;
@@ -52,7 +52,7 @@ import savant.plugin.PluginAdapter;
  *
  * @author mfiume
  */
-public class DataSheet implements RangeChangeCompletedListener, TrackListChangedListener, SelectionChangedListener {
+public class DataSheet implements LocationChangeCompletedListener, TrackListChangedListener, SelectionChangedListener {
 
     private JComboBox trackList;
     private ExtendedTable table;
@@ -227,7 +227,7 @@ public class DataSheet implements RangeChangeCompletedListener, TrackListChanged
     }
 
     @Override
-    public void rangeChangeCompleted(RangeChangedEvent event) {
+    public void locationChangeCompleted(LocationChangedEvent event) {
         if (autoUpdate) {
             refreshData();
             refreshSelection();
