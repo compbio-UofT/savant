@@ -33,7 +33,6 @@ import org.apache.commons.logging.LogFactory;
 import savant.api.util.DialogUtils;
 import savant.api.util.SettingsUtils;
 import savant.data.sources.DataSource;
-import savant.plugin.PluginAdapter;
 import savant.plugin.SavantDataSourcePlugin;
 
 
@@ -64,7 +63,7 @@ public class SQLDataSourcePlugin extends SavantDataSourcePlugin {
     private Connection connection;
 
     @Override
-    public void init(PluginAdapter pluginAdapter) {
+    public void init() {
     }
 
     @Override
@@ -182,14 +181,6 @@ public class SQLDataSourcePlugin extends SavantDataSourcePlugin {
             }
         }
         return result;
-    }
-
-    @Override
-    protected void doStart() throws Exception {
-    }
-
-    @Override
-    protected void doStop() throws Exception {
     }
 
     /**

@@ -25,7 +25,6 @@ import java.util.Map;
 import java.util.Set;
 
 import savant.api.util.DialogUtils;
-import savant.plugin.PluginAdapter;
 import savant.sql.ColumnMapping;
 import savant.sql.Database;
 import savant.sql.MappedTable;
@@ -129,14 +128,13 @@ public class UCSCDataSourcePlugin extends SQLDataSourcePlugin implements SQLCons
     }
 
     @Override
-    public void init(PluginAdapter pluginAdapter) {
+    public void init() {
         driverName = "com.mysql.jdbc.Driver";
         uri = URI.create("jdbc:mysql://genome-mysql.cse.ucsc.edu");
         userName = "genome";
         password = "";
         saveSettings();
     }
-
 
     @Override
     public boolean canOpen(URI uri) {

@@ -24,8 +24,9 @@ import javax.swing.JPanel;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import savant.plugin.PluginAdapter;
+
 import savant.plugin.SavantPanelPlugin;
+
 
 public class ThousandGenomesPlugin extends SavantPanelPlugin {
     private static final Log LOG = LogFactory.getLog(ThousandGenomesPlugin.class);
@@ -33,7 +34,7 @@ public class ThousandGenomesPlugin extends SavantPanelPlugin {
     FTPBrowser browser;
 
     @Override
-    public void init(JPanel parent, PluginAdapter adapter) {
+    public void init(JPanel parent) {
         try {
             browser = new FTPBrowser(new URL("ftp://ftp-trace.ncbi.nih.gov/1000genomes/ftp/data"));
             parent.add(browser);
@@ -43,11 +44,7 @@ public class ThousandGenomesPlugin extends SavantPanelPlugin {
     }
 
     @Override
-    protected void doStart() throws Exception {
-    }
-
-    @Override
-    protected void doStop() throws Exception {
+    public void shutDown() throws Exception {
         if (browser != null) {
             browser.closeConnection();
         }

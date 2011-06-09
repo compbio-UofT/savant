@@ -14,45 +14,53 @@
  *    limitations under the License.
  */
 
-/*
- * @author AndrewBrook
- */
-
 package savant.export;
 
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import savant.data.event.ExportEvent;
-import savant.plugin.PluginAdapter;
-import javax.swing.*;
-import savant.plugin.SavantPanelPlugin;
-import java.awt.*;
-import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.io.BufferedWriter;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.imageio.ImageIO;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
+import javax.imageio.ImageIO;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JFileChooser;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import savant.api.adapter.RangeAdapter;
 import savant.controller.BookmarkController;
+import savant.controller.FrameController;
+import savant.controller.LocationController;
+import savant.data.event.ExportEvent;
+import savant.data.event.ExportEventListener;
+import savant.plugin.SavantPanelPlugin;
+import savant.swing.component.PathField;
 import savant.util.Bookmark;
 import savant.util.Range;
 import savant.view.swing.GraphPane;
 import savant.view.swing.Track;
-import savant.controller.FrameController;
-import savant.controller.LocationController;
-import savant.data.event.ExportEventListener;
-import savant.swing.component.PathField;
 import savant.view.swing.ExportImage;
 import savant.view.swing.Frame;
 
+/**
+ * @author AndrewBrook
+ */
 public class ExportPlugin extends SavantPanelPlugin {
+    private static final Log LOG = LogFactory.getLog(ExportPlugin.class);
 
     //interface
     private PathField pf;
@@ -81,19 +89,13 @@ public class ExportPlugin extends SavantPanelPlugin {
     private JOptionPane progressPanel;
     private boolean exportCancelled = false;
 
-    public void init(JPanel canvas, PluginAdapter pluginAdapter) {
+    @Override
+    public void init(JPanel canvas) {
         setupGUI(canvas);
         this.canvas = canvas;
     }
 
-    protected void doStart() throws Exception {
-
-    }
-
-    protected void doStop() throws Exception {
-
-    }
-
+    @Override
     public String getTitle() {
         return "Export Plugin";
     }
@@ -127,17 +129,18 @@ public class ExportPlugin extends SavantPanelPlugin {
 
         //create runExport button
         JButton runButton = new JButton("Run");
-        runButton.addMouseListener(new MouseListener() {
+        runButton.addMouseListener(new MouseAdapter() {
 
             @Override
             public void mouseClicked(MouseEvent e) {               
                     exportThread = new Thread() {
+                    @Override
                         public void run() {
                             try {
                                 runTool();
                             } catch (InterruptedException ex) {
                                 //TODO: deal with exception?
-                                Logger.getLogger(ExportPlugin.class.getName()).log(Level.SEVERE, null, ex);
+                                LOG.error("Export interrupted.", ex);
                             }
                         }
                     };
@@ -154,10 +157,6 @@ public class ExportPlugin extends SavantPanelPlugin {
                     }
 
             }
-            public void mousePressed(MouseEvent e) {}
-            public void mouseReleased(MouseEvent e) {}
-            public void mouseEntered(MouseEvent e) {}
-            public void mouseExited(MouseEvent e) {}
         });
         gbc.weightx = 0;
         gbc.gridwidth = 1;
@@ -318,7 +317,7 @@ public class ExportPlugin extends SavantPanelPlugin {
 
         String[] trackNames = new String[FrameController.getInstance().getFrames().size()];
         for(int i = 0; i < trackNames.length; i++){
-            trackNames[i] = FrameController.getInstance().getFrames().get(i).getName();
+            trackNames[i] = FrameController.getInstance().getFrames().get(i).getTrack().getName();
         }
 
         BufferedImage out = ExportImage.beginExport(trackNames, increment);
