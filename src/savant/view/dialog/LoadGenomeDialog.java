@@ -54,6 +54,7 @@ import savant.view.swing.TrackFactory;
 public class LoadGenomeDialog extends JDialog {
     private static final Log LOG = LogFactory.getLog(LoadGenomeDialog.class);
     private static LocationController locationController = LocationController.getInstance();
+    private File lastTrackDirectory;
 
     /** Creates new form LoadGenomeDialog */
     public LoadGenomeDialog(java.awt.Frame parent, boolean modal) {
@@ -406,12 +407,13 @@ public class LoadGenomeDialog extends JDialog {
 }//GEN-LAST:event_fromURLButtonActionPerformed
 
     private void fromFileButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fromFileButtonActionPerformed
-        File selectedFile = DialogUtils.chooseFileForOpen("Load Genome", null, null);
+        File selectedFile = DialogUtils.chooseFileForOpen("Load Genome", null, lastTrackDirectory);
         // set the genome
         if (selectedFile != null) {
             try {
                 setVisible(false);
                 locationController.setGenome(null);
+                Savant.getInstance().setLastTrackDirectory(selectedFile.getParentFile());
                 Savant.getInstance().addTrackFromPath(selectedFile.getAbsolutePath());
             } catch (Throwable x) {
                 DialogUtils.displayException("Error Loading Genome", String.format("Unable to load genome from %s.", selectedFile.getName()), x);
@@ -500,5 +502,9 @@ public class LoadGenomeDialog extends JDialog {
         }
 
         return true;
+    }
+
+    public void setFromFileDirectory(File lastTrackDirectory) {
+        this.lastTrackDirectory = lastTrackDirectory;
     }
 }

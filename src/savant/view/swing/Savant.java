@@ -1083,16 +1083,21 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
         showOpenGenomeDialog();
     }//GEN-LAST:event_loadGenomeItemActionPerformed
 
+    private File lastTrackDirectory = null;
+
     private void loadFromFileItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loadFromFileItemActionPerformed
         if (!LocationController.getInstance().isGenomeLoaded()) {
             JOptionPane.showMessageDialog(this, "Load a genome first.");
             return;
         }
 
-        File[] selectedFiles = DialogUtils.chooseFilesForOpen("Open Tracks", null, null);
+        File[] selectedFiles = DialogUtils.chooseFilesForOpen("Open Tracks", null, lastTrackDirectory);
         for (File f : selectedFiles) {
             // This creates the tracks asynchronously, which handles all exceptions internally.
             addTrackFromPath(f.getAbsolutePath());
+        }
+        if (selectedFiles.length > 0) {
+            this.setLastTrackDirectory(selectedFiles[0].getParentFile());
         }
     }//GEN-LAST:event_loadFromFileItemActionPerformed
 
@@ -1767,6 +1772,7 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
      */
     public void showOpenGenomeDialog() {
         LoadGenomeDialog d = new LoadGenomeDialog(this,true);
+        d.setFromFileDirectory(lastTrackDirectory);
         d.setVisible(true);
     }
 
@@ -2006,5 +2012,11 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
                 LOG.error(e);
             }
         }
+    }
+
+    public void setLastTrackDirectory(File dir) {
+        File full = new File(dir.getAbsolutePath() + System.getProperty("file.separator") + " ");
+        System.out.println("Setting directory to: " + full);
+        this.lastTrackDirectory = full;
     }
 }

@@ -171,6 +171,7 @@ public class DialogUtils {
         } else {
             JFileChooser fd = new JFileChooser();
             fd.setDialogTitle(title);
+            fd.setSelectedFile(initialDir);
             fd.setDialogType(JFileChooser.OPEN_DIALOG);
             if (filter != null) {
                 fd.setFileFilter(filter);
