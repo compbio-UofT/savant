@@ -317,7 +317,7 @@ public class ExportPlugin extends SavantPanelPlugin {
 
         String[] trackNames = new String[FrameController.getInstance().getFrames().size()];
         for(int i = 0; i < trackNames.length; i++){
-            trackNames[i] = FrameController.getInstance().getFrames().get(i).getTrack().getName();
+            trackNames[i] = FrameController.getInstance().getFrames().get(i).getTracks()[0].getName();
         }
 
         BufferedImage out = ExportImage.beginExport(trackNames, increment);
