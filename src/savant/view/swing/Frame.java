@@ -45,6 +45,7 @@ import savant.data.event.DataRetrievalEvent;
 import savant.data.event.DataRetrievalListener;
 import savant.data.event.TrackCreationEvent;
 import savant.data.event.TrackCreationListener;
+import savant.data.sources.TabixDataSource;
 import savant.file.DataFormat;
 import savant.settings.ColourSettings;
 import savant.swing.component.ProgressPanel;
@@ -270,8 +271,13 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
 
         }
 
+        DataFormat df = t0.getDataSource().getDataFormat();
+        if (df == DataFormat.TABIX) {
+            df = ((TabixDataSource)t0.getDataSource()).getEffectiveDataFormat();
+        }
+
         // TODO: Should we really be doing BAM-specific stuff in this class?
-        if (t0.getDataSource().getDataFormat() == DataFormat.INTERVAL_BAM) {
+        if (df == DataFormat.INTERVAL_BAM) {
             arcButton = createArcButton();
             commandBar.add(arcButton);
             arcButton.setVisible(false);
@@ -292,13 +298,12 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
                 //intervalButton.setVisible(true);
                 intervalMenu.setVisible(true);
             }
-        } else if (t0.getDataSource().getDataFormat() == DataFormat.INTERVAL_BED) {
+        } else if (df == DataFormat.INTERVAL_BED) {
             bedButton = createBEDButton();
             commandBar.add(bedButton);
         }
 
-        if(t0.getDataSource().getDataFormat() == DataFormat.INTERVAL_BED ||
-                t0.getDataSource().getDataFormat() == DataFormat.INTERVAL_GENERIC){
+        if (df == DataFormat.INTERVAL_BED || df == DataFormat.INTERVAL_GENERIC) {
             //intervalButton = createIntervalButton();
             //commandBar.add(intervalButton);
             intervalMenu = createIntervalMenu();
