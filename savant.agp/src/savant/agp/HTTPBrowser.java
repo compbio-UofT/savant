@@ -1,5 +1,5 @@
 /*
- *    Copyright 2010 University of Toronto
+ *    Copyright 2010-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -19,21 +19,14 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
-import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -49,28 +42,23 @@ import javax.swing.border.LineBorder;
 import javax.swing.filechooser.FileSystemView;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableColumnModel;
-import net.htmlparser.jericho.Source;
-import net.htmlparser.jericho.StartTag;
 
+import net.htmlparser.jericho.Source;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
-import org.apache.commons.net.ftp.FTPReply;
-import org.w3c.dom.Element;
-import savant.api.adapter.TrackAdapter;
+
 import savant.api.util.DialogUtils;
 import savant.api.util.TrackUtils;
 import savant.controller.BookmarkController;
 import savant.net.DownloadController;
 import savant.settings.DirectorySettings;
-import savant.util.MiscUtils;
 import savant.view.icon.SavantIconFactory;
 import savant.view.swing.util.DocumentViewer;
 
 /**
- * FTP browser for loading tracks from 1000genomes.org.
+ * HTTP browser for AGP project.
  *
  * @author tarkvara
  */
@@ -84,8 +72,8 @@ public class HTTPBrowser extends JPanel {
     String password = "";
     private static String host;
     int port;
-    private static File curDir;
-    private static File rootDir;
+    private File curDir;
+    private File rootDir;
 
     public HTTPBrowser(URL rootURL) throws IOException {
         host = rootURL.getHost();
@@ -148,21 +136,20 @@ public class HTTPBrowser extends JPanel {
             String shortpath = ((HTTPTableModel) table.getModel()).getEntry(row);
             URI fullpath = new URI(getPath() + "/" + shortpath.replace("\\", "/"));
 
-            String outputDir;
+            File outputDir;
             String fileSeparator;
             String filename;
 
             switch(opt) {
                 case TRACK:
-                    List<TrackAdapter> tracks = TrackUtils.createTrack(fullpath);
-                    TrackUtils.addTracks(tracks);
+                    TrackUtils.createTrack(fullpath);
                     break;
                 case BOOKMARK:
                     outputDir = DirectorySettings.getTmpDirectory();
                     fileSeparator = System.getProperty("file.separator");
                     filename = outputDir + fileSeparator + shortpath;
                     if (!(new File(filename)).exists()) {
-                        DownloadController.getInstance().download(fullpath.toURL(), new File(outputDir), null);
+                        DownloadController.getInstance().download(fullpath.toURL(), outputDir, null);
                     }
                     BookmarkController.getInstance().addBookmarksFromFile(new File(filename));
                     break;
@@ -171,16 +158,16 @@ public class HTTPBrowser extends JPanel {
                     fileSeparator = System.getProperty("file.separator");
                     filename = outputDir + fileSeparator + shortpath;
                     if (!(new File(filename)).exists()) {
-                        DownloadController.getInstance().download(fullpath.toURL(), new File(outputDir), null);
+                        DownloadController.getInstance().download(fullpath.toURL(), outputDir, null);
                     }
                     v.addDocument(filename);
-                    v.setExtendedState(v.getExtendedState() | v.MAXIMIZED_BOTH);
+                    v.setExtendedState(v.getExtendedState() | DocumentViewer.MAXIMIZED_BOTH);
                     v.setVisible(true);
                     break;
                 default:
                     break;
             }
-        } catch (Exception x) {
+        } catch (Throwable x) {
             DialogUtils.displayException("AGP Plugin Error", "Unable to process request.", x);
         }
     }
@@ -204,13 +191,13 @@ public class HTTPBrowser extends JPanel {
         }
     }
 
-    public static String getPath() {
+    public String getPath() {
         return "http://" + host + curDir.toString().replace("\\", "/");
     }
 
     private List<String> listFiles() throws IOException {
 
-        String rtparent = this.rootDir.getParent().replace("\\", "/") + "/";
+        String rtparent = rootDir.getParent().replace("\\", "/") + "/";
 
         boolean atRoot = false;
         List<String> files = new ArrayList<String>();
@@ -396,7 +383,7 @@ class HTTPTableModel extends AbstractTableModel {
      * Use the Swing FileSystemView to get a system icon corresponding to the given
      * file.
      *
-     * @param f the FTP entry whose icon we want to retrieve
+     * @param f the remote file-name whose icon we want to retrieve
      * @return a system icon representing f
      */
     private static Icon getIcon(String f) {
@@ -405,7 +392,7 @@ class HTTPTableModel extends AbstractTableModel {
                 return FileSystemView.getFileSystemView().getSystemIcon(new File("."));
             } else {
                 Icon i;
-                if (MiscUtils.isLikelyFormattedTrack(f)) {
+                if (isLikelyFormattedTrack(f)) {
                     i = SavantIconFactory.getInstance().getIcon(SavantIconFactory.StandardIcon.TRACK);
                 } else {
                     File tmp = File.createTempFile("temp_icon.", "." + "txt");
@@ -417,6 +404,9 @@ class HTTPTableModel extends AbstractTableModel {
         } catch (IOException ex) {
             return null;
         }
+    }
 
+    private static boolean isLikelyFormattedTrack(String name) {
+        return name.endsWith(".savant") || name.endsWith(".gz") || name.endsWith(".bam") || name.endsWith(".bw");
     }
 }
