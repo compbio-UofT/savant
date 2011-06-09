@@ -20,7 +20,7 @@ import java.io.File;
 
 
 /**
- * Event class which is fired by the ProgressController when the current project changes.
+ * Event class which is fired by the ProjectController when the current project changes.
  *
  * @author tarkvara
  */

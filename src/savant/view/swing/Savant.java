@@ -56,13 +56,13 @@ import savant.controller.event.*;
 import savant.data.sources.DataSource;
 import savant.data.types.Genome;
 import savant.experimental.XMLTool;
+import savant.plugin.SavantPlugin;
 import savant.plugin.builtin.SAFEDataSourcePlugin;
 import savant.plugin.builtin.SavantFileRepositoryDataSourcePlugin;
 import savant.settings.*;
 import savant.swing.component.TrackChooser;
 import savant.util.DownloadFile;
 import savant.util.MiscUtils;
-import savant.util.Range;
 import savant.view.dialog.*;
 import savant.view.icon.SavantIconFactory;
 import savant.view.tools.ToolsModule;
@@ -82,10 +82,8 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
     public static boolean turnExperimentalFeaturesOff = true;
     private static boolean isDebugging = false;
     private DockingManager auxDockingManager;
-    private JPanel masterPlaceholderPanel;
     private JPanel trackBackground;
     private DockingManager trackDockingManager;
-    private JPanel trackPanel;
     private NavigationBar navigationBar;
     private ToolsModule savantTools;
     static boolean showNonGenomicReferenceDialog = true;
@@ -170,11 +168,11 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
      */
     private void initDocking() {
 
-        masterPlaceholderPanel = new JPanel();
+        JPanel masterPlaceholderPanel = new JPanel();
         masterPlaceholderPanel.setLayout(new BorderLayout());
 
-        this.panel_main.setLayout(new BorderLayout());
-        this.panel_main.add(masterPlaceholderPanel, BorderLayout.CENTER);
+        panel_main.setLayout(new BorderLayout());
+        panel_main.add(masterPlaceholderPanel, BorderLayout.CENTER);
 
         auxDockingManager = new DefaultDockingManager(this, masterPlaceholderPanel);
         masterPlaceholderPanel.setBackground(ColourSettings.getSplitter());
@@ -182,8 +180,9 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
         auxDockingManager.getWorkspace().setBackground(ColourSettings.getSplitter());
         auxDockingManager.setInitSplitPriority(DockingManager.SPLIT_EAST_SOUTH_WEST_NORTH);
         //auxDockingManager.loadLayoutData();
+        auxDockingManager.setAutohidable(false);
 
-        trackPanel = new JPanel();
+        JPanel trackPanel = new JPanel();
         trackPanel.setLayout(new BorderLayout());
 
         auxDockingManager.getWorkspace().add(trackPanel, BorderLayout.CENTER);
@@ -280,7 +279,6 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
     private static BookmarkSheet favoriteSheet;
     private LocationController locationController = LocationController.getInstance();
     private BookmarkController favoriteController = BookmarkController.getInstance();
-    private SelectionController selectionController = SelectionController.getInstance();
     private static Savant instance = null;
 
     public static synchronized Savant getInstance() {
@@ -358,7 +356,7 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
                 }
             }
         });
-  
+
         ProjectController.getInstance().addListener(new Listener<ProjectEvent>() {
             @Override
             public void handleEvent(ProjectEvent event) {
@@ -400,8 +398,35 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
         }
 
         s.setStatus("Loading plugins");
+        PluginController pluginController = PluginController.getInstance();
+        pluginController.addListener(new Listener<PluginEvent>() {
+            @Override
+            public void handleEvent(PluginEvent event) {
+                if (event.getType() == PluginEvent.Type.ADDED && event.getCanvas() != null) {
+                    SavantPlugin plugin = event.getPlugin();
+                    final DockableFrame f = DockableFrameFactory.createGUIPluginFrame(plugin.getTitle());
+                    JPanel p = (JPanel)f.getContentPane();
+                    p.setLayout(new BorderLayout());
+                    p.add(event.getCanvas(), BorderLayout.CENTER);
+                    auxDockingManager.addFrame(f);
+//                    auxDockingManager.autohideFrame(f, 100, 100);
+                    JCheckBoxMenuItem cb = new JCheckBoxMenuItem(plugin.getTitle());
+                    cb.addActionListener(new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            String frameKey = f.getTitle();
+                            boolean isVisible = auxDockingManager.getFrame(frameKey).isHidden();
+                            MiscUtils.setFrameVisibility(frameKey, isVisible, auxDockingManager);
+                            ((JCheckBoxMenuItem)e.getSource()).setSelected(isVisible);
+                        }
+                    });
+                    cb.setSelected(!auxDockingManager.getFrame(f.getTitle()).isHidden());
+                    addPluginToMenu(cb);
+                }
+            }
+        });
+        pluginController.loadPlugins(DirectorySettings.getPluginsDirectory());
 
-        PluginController pc = PluginController.getInstance();
         if (DataSourcePluginController.getInstance().hasOnlySavantRepoDataSource()) {
             loadFromDataSourcePlugin.setText("Load Track from Repository...");
         }
@@ -1149,9 +1174,8 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
     private void bookmarksItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bookmarksItemActionPerformed
 
         String frameKey = "Bookmarks";
-        DockingManager m = this.getAuxDockingManager();
-        boolean isVisible = m.getFrame(frameKey).isHidden();
-        MiscUtils.setFrameVisibility(frameKey, isVisible, m);
+        boolean isVisible = auxDockingManager.getFrame(frameKey).isHidden();
+        MiscUtils.setFrameVisibility(frameKey, isVisible, auxDockingManager);
         bookmarksItem.setSelected(isVisible);
     }//GEN-LAST:event_bookmarksItemActionPerformed
 
@@ -1216,9 +1240,8 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
 
     private void toolsItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_toolsItemActionPerformed
         String frameKey = "Tools";
-        DockingManager m = this.getAuxDockingManager();
-        boolean isVisible = m.getFrame(frameKey).isHidden();
-        MiscUtils.setFrameVisibility(frameKey, isVisible, m);
+        boolean isVisible = auxDockingManager.getFrame(frameKey).isHidden();
+        MiscUtils.setFrameVisibility(frameKey, isVisible, auxDockingManager);
         toolsItem.setSelected(isVisible);
     }//GEN-LAST:event_toolsItemActionPerformed
 
@@ -1618,10 +1641,6 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
         toolsItem.setVisible(false);
     }
 
-    public DockingManager getAuxDockingManager() {
-        return auxDockingManager;
-    }
-
     public DockingManager getTrackDockingManager() {
         return trackDockingManager;
     }
@@ -1631,8 +1650,8 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
         String frameTitle = "Tools";
         DockableFrame df = DockableFrameFactory.createFrame(frameTitle, DockContext.STATE_HIDDEN, DockContext.DOCK_SIDE_SOUTH);
         df.setAvailableButtons(DockableFrame.BUTTON_AUTOHIDE | DockableFrame.BUTTON_FLOATING | DockableFrame.BUTTON_MAXIMIZE);
-        this.getAuxDockingManager().addFrame(df);
-        MiscUtils.setFrameVisibility(frameTitle, false, this.getAuxDockingManager());
+        auxDockingManager.addFrame(df);
+        MiscUtils.setFrameVisibility(frameTitle, false, auxDockingManager);
 
         JPanel canvas = new JPanel();
 
@@ -1659,8 +1678,8 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
 
         DockableFrame df = DockableFrameFactory.createFrame("Bookmarks", DockContext.STATE_HIDDEN, DockContext.DOCK_SIDE_EAST);
         df.setAvailableButtons(DockableFrame.BUTTON_AUTOHIDE | DockableFrame.BUTTON_FLOATING | DockableFrame.BUTTON_MAXIMIZE);
-        this.getAuxDockingManager().addFrame(df);
-        MiscUtils.setFrameVisibility("Bookmarks", false, this.getAuxDockingManager());
+        auxDockingManager.addFrame(df);
+        MiscUtils.setFrameVisibility("Bookmarks", false, auxDockingManager);
 
         df.getContentPane().setLayout(new BorderLayout());
 
@@ -1668,14 +1687,6 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
         favoriteSheet = new BookmarkSheet(this, df.getContentPane());
         favoriteController.addFavoritesChangedListener(favoriteSheet);
         favoriteController.addFavoritesChangedListener(this);
-    }
-
-    /**
-     * Provide access to the tabbed pane in the bottom auxiliary panel
-     * @return the auxiliary tabbed pane
-     */
-    public JTabbedPane getAuxTabbedPane() {
-        return auxTabbedPane;
     }
 
     private void askToDispose() {
@@ -1942,23 +1953,8 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
     }
 
     private void displayAuxPanels() {
-
-        List<String> names = this.getAuxDockingManager().getAllFrameNames();
-        for (int i = 0; i < names.size(); i++) {
-            MiscUtils.setFrameVisibility(names.get(i), true, this.getAuxDockingManager());
-            this.getAuxDockingManager().toggleAutohideState(names.get(i));
-            break;
-        }
-
-        //MiscUtils.setFrameVisibility("Bookmarks", true, this.getAuxDockingManager());
-        //this.getAuxDockingManager().toggleAutohideState("Bookmarks");
         bookmarksItem.setState(true);
-
-        this.getAuxDockingManager().setActive(false);
-    }
-
-    public SelectionController getSelectionController() {
-        return this.selectionController;
+        auxDockingManager.setActive(false);
     }
 
     private void initStartPage() {

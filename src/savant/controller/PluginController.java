@@ -16,8 +16,6 @@
 package savant.controller;
 
 import java.awt.BorderLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -26,11 +24,9 @@ import java.io.FileWriter;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JPanel;
 
 import com.jidesoft.docking.DockableFrame;
-import com.jidesoft.docking.DockingManager;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
@@ -44,6 +40,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import savant.api.util.DialogUtils;
+import savant.controller.event.PluginEvent;
 import savant.experimental.PluginTool;
 import savant.plugin.PluginDescriptor;
 import savant.plugin.SavantDataSourcePlugin;
@@ -53,14 +50,13 @@ import savant.settings.DirectorySettings;
 import savant.util.FileUtils;
 import savant.util.MiscUtils;
 import savant.view.swing.DockableFrameFactory;
-import savant.view.swing.Savant;
 import savant.view.tools.ToolsModule;
 
 /**
  *
  * @author mfiume, tarkvara
  */
-public class PluginController {
+public class PluginController extends Controller {
 
     private static final Log LOG = LogFactory.getLog(PluginController.class);
     private static final String UNINSTALL_FILENAME = ".uninstall_plugins";
@@ -93,11 +89,7 @@ public class PluginController {
             if (uninstallFile.exists()) {
                 deleteFileList(uninstallFile);
             }
-            File pluginsDir = DirectorySettings.getPluginsDirectory();
-
             copyBuiltInPlugins();
-
-            loadPlugins(pluginsDir);
         } catch (Exception ex) {
             LOG.error("Error loading plugins.", ex);
         }
@@ -106,39 +98,50 @@ public class PluginController {
     /**
      * Try to load all JAR files in the given directory.
      */
-    private void loadPlugins(File pluginsDir) throws MalformedURLException, InstantiationException, IllegalAccessException, IOException {
+    public void loadPlugins(File pluginsDir) {
         File[] files = pluginsDir.listFiles(new FilenameFilter() {
-
             @Override
             public boolean accept(File dir, String name) {
                 return name.toLowerCase().endsWith(".jar");
             }
         });
         for (File f: files) {
-            PluginDescriptor desc = PluginDescriptor.fromFile(f);
-            if (desc != null) {
-                if (desc.isCompatible()) {
-                    LOG.info("Found compatible " + desc.getID() + "-" + desc.getVersion());
-                    validPlugins.put(desc.getID(), desc);
-                } else {
-                    LOG.info("Found incompatible " + desc.getID() + "-" + desc.getVersion() + " (SDK version " + desc.getSDKVersion() + ")");
+            try {
+                PluginDescriptor desc = PluginDescriptor.fromFile(f);
+                if (desc != null) {
+                    if (desc.isCompatible()) {
+                        LOG.info("Found compatible " + desc.getID() + "-" + desc.getVersion());
+                        validPlugins.put(desc.getID(), desc);
+                    } else {
+                        LOG.info("Found incompatible " + desc.getID() + "-" + desc.getVersion() + " (SDK version " + desc.getSDKVersion() + ")");
+                    }
                 }
+            } catch (IOException x) {
+                LOG.warn("No plugin found in " + f);
             }
         }
 
         if (validPlugins.size() > 0) {
             Set<URL> jarURLs = new HashSet<URL>();
             for (PluginDescriptor desc: validPlugins.values()) {
-                jarURLs.add(desc.getFile().toURI().toURL());
+                try {
+                    jarURLs.add(desc.getFile().toURI().toURL());
+                } catch (MalformedURLException ignored) {
+                }
             }
             pluginLoader = new URLClassLoader(jarURLs.toArray(new URL[0]));
 
-            for (PluginDescriptor desc: validPlugins.values()) {
-                try {
-                    loadPlugin(desc);
-                } catch (Throwable x) {
-                    LOG.error("Unable to load " + desc.getName(), x);
-                }
+            for (final PluginDescriptor desc: validPlugins.values()) {
+                new Thread("PluginLoader") {
+                    @Override
+                    public void run() {
+                        try {
+                            loadPlugin(desc);
+                        } catch (Throwable x) {
+                            LOG.error("Unable to load " + desc.getName(), x);
+                        }
+                    }
+                }.start();
             }
         }
     }
@@ -149,6 +152,10 @@ public class PluginController {
 
     public Collection<PluginDescriptor> getDescriptors() {
         return validPlugins.values();
+    }
+
+    public SavantPlugin getPlugin(String id) {
+        return loadedPlugins.get(id);
     }
 
     public void queuePluginForUnInstallation(String id) {
@@ -196,32 +203,11 @@ public class PluginController {
      *
      * @param plugin
      */
-    private void initGUIPlugin(SavantPanelPlugin plugin) {
-        final DockableFrame f = DockableFrameFactory.createGUIPluginFrame(plugin.getTitle());
-        JPanel p = (JPanel) f.getContentPane();
-        p.setLayout(new BorderLayout());
+    private JPanel initGUIPlugin(SavantPanelPlugin plugin) {
         JPanel canvas = new JPanel();
-        p.add(canvas, BorderLayout.CENTER);
         canvas.setLayout(new BorderLayout());
         plugin.init(canvas);
-        Savant.getInstance().getAuxDockingManager().addFrame(f);
-        boolean isIntiallyVisible = true;
-        MiscUtils.setFrameVisibility(f.getTitle(), isIntiallyVisible, Savant.getInstance().getAuxDockingManager());
-        final JCheckBoxMenuItem cb = new JCheckBoxMenuItem(plugin.getTitle());
-        cb.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                DockingManager m = Savant.getInstance().getAuxDockingManager();
-                String frameKey = f.getTitle();
-                boolean isVisible = m.getFrame(frameKey).isHidden();
-                MiscUtils.setFrameVisibility(frameKey, isVisible, m);
-                cb.setSelected(isVisible);
-            }
-        });
-        cb.setSelected(!Savant.getInstance().getAuxDockingManager().getFrame(f.getTitle()).isHidden());
-        // move this to a menu controller!
-        Savant.getInstance().addPluginToMenu(cb);
+        return canvas;
     }
 
     /**
@@ -286,15 +272,17 @@ public class PluginController {
         SavantPlugin plugin = (SavantPlugin)pluginClass.newInstance();
         plugin.setDescriptor(desc);
 
-        // init the plugin based on its type
+        // Init the plugin based on its type
+        JPanel canvas = null;
         if (plugin instanceof SavantPanelPlugin) {
-            initGUIPlugin((SavantPanelPlugin)plugin);
+            canvas = initGUIPlugin((SavantPanelPlugin)plugin);
         } else if (plugin instanceof PluginTool) {
             initPluginTool((PluginTool)plugin);
         } else if (plugin instanceof SavantDataSourcePlugin) {
             initSavantDataSourcePlugin((SavantDataSourcePlugin)plugin);
         }
         loadedPlugins.put(desc.getID(), plugin);
+        fireEvent(new PluginEvent(PluginEvent.Type.ADDED, desc.getID(), canvas));
     }
 }
 

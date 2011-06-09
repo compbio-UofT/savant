@@ -17,7 +17,6 @@ package savant.view.dialog;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.util.Collection;
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -116,7 +115,6 @@ public class PluginBrowser {
             NullPanel panel = new NullPanel(new GridLayout(2, 1, 5, 0));
 
             panel.add(new NullLabel(pluginController.getPluginName(program.getID()), null, JLabel.LEADING));
-            //panel.add(new NullLabel(program.id, SavantIconFactory.getInstance().getIcon(SavantIconFactory.StandardIcon.PLUGIN), JLabel.LEADING));
             panel.add(new NullPanel());
             return panel;
         }
@@ -144,23 +142,6 @@ public class PluginBrowser {
             }
             panel.add(removeButton);
             return panel;
-        }
-    }
-
-    static class ClickAction implements ActionListener {
-        PluginDescriptor program;
-        String buttonName;
-        AbstractButton button;
-
-        public ClickAction(PluginDescriptor program, String buttonName, AbstractButton button) {
-            this.program = program;
-            this.buttonName = buttonName;
-            this.button = button;
-        }
-
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            JOptionPane.showMessageDialog(button, "\"" + buttonName + "\" in Program \"" + program.getID() + "\" is clicked.");
         }
     }
 
