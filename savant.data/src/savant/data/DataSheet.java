@@ -32,7 +32,6 @@ import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.table.TableCellRenderer;
-import javax.swing.table.TableModel;
 
 import savant.api.adapter.TrackAdapter;
 import savant.api.util.DialogUtils;
@@ -45,7 +44,6 @@ import savant.controller.event.SelectionChangedListener;
 import savant.controller.event.TrackListChangedEvent;
 import savant.controller.event.TrackListChangedListener;
 import savant.data.types.Record;
-import savant.plugin.PluginAdapter;
 
 
 /**
@@ -63,7 +61,7 @@ public class DataSheet implements LocationChangeCompletedListener, TrackListChan
     private DataTableModel tableModel;
     private List<Record> data;
 
-    public DataSheet(JPanel panel, PluginAdapter pluginAdapter) {
+    public DataSheet(JPanel panel) {
 
         // set the layout of the data sheet
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
