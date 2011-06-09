@@ -67,10 +67,10 @@ class Pileup {
     @Override
     public int hashCode() {
         int hash = 7;
-        hash = 89 * hash + this.referenceNucleotide.hashCode();
-        hash = 89 * hash + this.snpNucleotide.hashCode();
-        hash = 89 * hash + (int) (this.position ^ (this.position >>> 32));
-        hash = 89 * hash + (this.trackName != null ? this.trackName.hashCode() : 0);
+        hash = 89 * hash + referenceNucleotide.hashCode();
+        hash = 89 * hash + snpNucleotide.hashCode();
+        hash = 89 * hash + position;
+        hash = 89 * hash + (trackName != null ? trackName.hashCode() : 0);
         return hash;
     }
 

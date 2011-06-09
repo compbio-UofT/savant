@@ -58,7 +58,6 @@ import savant.controller.event.TrackListChangedListener;
 import savant.data.types.BAMIntervalRecord;
 import savant.data.types.Record;
 import savant.file.DataFormat;
-import savant.plugin.PluginAdapter;
 import savant.plugin.SavantPanelPlugin;
 import savant.snp.Pileup.Nucleotide;
 
@@ -86,20 +85,12 @@ public class SNPFinderPlugin extends SavantPanelPlugin implements LocationChange
     /* INITIALIZE THE SNP FINDER */
 
     @Override
-    public void init(JPanel canvas, PluginAdapter pluginAdapter) {
+    public void init(JPanel canvas) {
         NavigationUtils.addLocationChangeListener(this);
         TrackUtils.addTracksChangedListener(this);
         snpsFound = new HashMap<TrackAdapter, List<Pileup>>();
         setupGUI(canvas);
         addMessage("SNP finder initialized");
-    }
-
-    @Override
-    protected void doStart() throws Exception {
-    }
-
-    @Override
-    protected void doStop() throws Exception {
     }
 
     @Override
@@ -391,7 +382,7 @@ public class SNPFinderPlugin extends SavantPanelPlugin implements LocationChange
     }
 
     /* UPDATE PILEUP INFORMATION FROM SAM RECORD */
-    private void updatePileupsFromSAMRecord(List<Pileup> pileups, GenomeAdapter genome, SAMRecord samRecord, long startPosition) throws IOException {
+    private void updatePileupsFromSAMRecord(List<Pileup> pileups, GenomeAdapter genome, SAMRecord samRecord, int startPosition) throws IOException {
 
         // the start and end of the alignment
         int alignmentStart = samRecord.getAlignmentStart();
