@@ -73,12 +73,4 @@ public class XMLTool extends Tool {
     public void runTool() throws InterruptedException {
         throw new UnsupportedOperationException("Not supported yet.");
     }
-
-    @Override
-    protected void doStart() throws Exception {
-    }
-
-    @Override
-    protected void doStop() throws Exception {
-    }
 }

@@ -30,9 +30,9 @@ import com.jidesoft.plaf.UIDefaultsLookup;
 import com.jidesoft.swing.NullJideButton;
 import com.jidesoft.swing.NullLabel;
 import com.jidesoft.swing.NullPanel;
-import org.java.plugin.registry.PluginDescriptor;
 
 import savant.controller.PluginController;
+import savant.plugin.PluginDescriptor;
 
 /**
  * Class which lets user select which plugins are available.
@@ -40,7 +40,8 @@ import savant.controller.PluginController;
  * @author mfiume, vwilliams
  */
 public class PluginBrowser {
-    private TableModel _programTableModel;
+    private TableModel tableModel;
+    private PluginController pluginController = PluginController.getInstance();
 
     public Component getPluginListPanel() {
         HierarchicalTable table = createTable();
@@ -51,14 +52,14 @@ public class PluginBrowser {
 
     // create property table
     private HierarchicalTable createTable() {
-        _programTableModel = new ProgramTableModel();
+        tableModel = new ProgramTableModel();
         final HierarchicalTable table = new HierarchicalTable() {
             @Override
             public TableModel getStyleModel() {
-                return _programTableModel; // designate it as the style model
+                return tableModel; // designate it as the style model
             }
         };
-        table.setModel(_programTableModel);
+        table.setModel(tableModel);
         table.setPreferredScrollableViewportSize(new Dimension(600, 400));
         table.setHierarchicalColumn(-1);
         table.setSingleExpansion(true);
@@ -76,8 +77,8 @@ public class PluginBrowser {
         table.setComponentFactory(new HierarchicalTableComponentFactory() {
             @Override
             public Component createChildComponent(HierarchicalTable table, Object value, int row) {
-                if (value instanceof PluginStub) {
-                    return new ProgramPanel((PluginStub) value);
+                if (value instanceof PluginDescriptor) {
+                    return new ProgramPanel((PluginDescriptor)value);
                 }
                 return null;
             }
@@ -98,10 +99,10 @@ public class PluginBrowser {
         return table;
     }
 
-    static class ProgramPanel extends JPanel {
-        PluginStub program;
+    class ProgramPanel extends JPanel {
+        PluginDescriptor program;
 
-        public ProgramPanel(PluginStub program) {
+        public ProgramPanel(PluginDescriptor program) {
             this.program = program;
             setLayout(new BorderLayout());
             setBorder(BorderFactory.createEmptyBorder(2, 2, 3, 2));
@@ -114,7 +115,7 @@ public class PluginBrowser {
         private JComponent createTextPanel() {
             NullPanel panel = new NullPanel(new GridLayout(2, 1, 5, 0));
 
-            panel.add(new NullLabel(PluginController.getInstance().getPluginName(program.id), null, JLabel.LEADING));
+            panel.add(new NullLabel(pluginController.getPluginName(program.getID()), null, JLabel.LEADING));
             //panel.add(new NullLabel(program.id, SavantIconFactory.getInstance().getIcon(SavantIconFactory.StandardIcon.PLUGIN), JLabel.LEADING));
             panel.add(new NullPanel());
             return panel;
@@ -123,7 +124,7 @@ public class PluginBrowser {
         private JComponent createControlPanel() {
             NullPanel panel = new NullPanel(new GridLayout(2, 2, 5, 0));
             Component add = panel.add(new NullLabel("Version:", NullLabel.TRAILING));
-            NullJideButton versionButton = new NullJideButton(program.version);
+            NullJideButton versionButton = new NullJideButton(program.getVersion());
             versionButton.setHorizontalAlignment(SwingConstants.TRAILING);
             versionButton.setButtonStyle(NullJideButton.HYPERLINK_STYLE);
             //versionButton.addActionListener(new ClickAction(program, "Version", versionButton));
@@ -135,10 +136,10 @@ public class PluginBrowser {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     removeButton.setEnabled(false);
-                    PluginController.getInstance().queuePluginForUnInstallation(PluginController.getInstance().getPluginDescriptor(program.id));
+                    pluginController.queuePluginForUnInstallation(program.getID());
                 }
             });
-            if (PluginController.getInstance().isPluginQueuedForDeletion(program.id)) {
+            if (pluginController.isPluginQueuedForDeletion(program.getID())) {
                 removeButton.setEnabled(false);
             }
             panel.add(removeButton);
@@ -147,11 +148,11 @@ public class PluginBrowser {
     }
 
     static class ClickAction implements ActionListener {
-        PluginStub program;
+        PluginDescriptor program;
         String buttonName;
         AbstractButton button;
 
-        public ClickAction(PluginStub program, String buttonName, AbstractButton button) {
+        public ClickAction(PluginDescriptor program, String buttonName, AbstractButton button) {
             this.program = program;
             this.buttonName = buttonName;
             this.button = button;
@@ -159,19 +160,20 @@ public class PluginBrowser {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            JOptionPane.showMessageDialog(button, "\"" + buttonName + "\" in Program \"" + program.id + "\" is clicked.");
+            JOptionPane.showMessageDialog(button, "\"" + buttonName + "\" in Program \"" + program.getID() + "\" is clicked.");
         }
     }
 
-    static class ProgramTableModel extends AbstractTableModel implements HierarchicalTableModel, StyleModel {
+    class ProgramTableModel extends AbstractTableModel implements HierarchicalTableModel, StyleModel {
+        final PluginDescriptor[] descriptors;
 
         public ProgramTableModel() {
-            refreshPrograms();
+            descriptors = pluginController.getDescriptors().toArray(new PluginDescriptor[0]);
         }
 
         @Override
         public int getRowCount() {
-            return pluginStubs.length;
+            return descriptors.length;
         }
 
         @Override
@@ -181,10 +183,10 @@ public class PluginBrowser {
 
         @Override
         public Object getValueAt(int rowIndex, int columnIndex) {
-            PluginStub program = pluginStubs[rowIndex];
+            PluginDescriptor program = descriptors[rowIndex];
             switch (columnIndex) {
                 case 0:
-                    return PluginController.getInstance().getPluginName(program.id);
+                    return pluginController.getPluginName(program.getID());
                 case 1:
                     return "";
                 case 2:
@@ -215,7 +217,7 @@ public class PluginBrowser {
 
         @Override
         public Object getChildValueAt(int row) {
-            return pluginStubs[row];
+            return descriptors[row];
         }
 
         @Override
@@ -223,16 +225,12 @@ public class PluginBrowser {
             return true;
         }
 
-        private final static CellStyle _cellStyle = new CellStyle();
-
-        static {
-            _cellStyle.setHorizontalAlignment(SwingConstants.TRAILING);
-        }
-
         @Override
         public CellStyle getCellStyleAt(int rowIndex, int columnIndex) {
             if (columnIndex == 2) {
-                return _cellStyle;
+                CellStyle result = new CellStyle();
+                result.setHorizontalAlignment(SwingConstants.TRAILING);
+                return result;
             }
             return null;
         }
@@ -304,43 +302,11 @@ public class PluginBrowser {
         }
     }
 
-    static class PluginStub {
-        String version;
-        String id;
-
-        public PluginStub(String id, String version) {
-            this.version = version;
-            this.id = id;
-        }
-    }
-
-    static PluginStub[] pluginStubs;
-
-    private static void refreshPrograms() {
-        Collection<PluginDescriptor> pds = PluginController.getInstance().getPluginDescriptors();
-        pluginStubs = new PluginStub[pds.size()-1]; // -1 for the core, which shouldnt appear in the list
-        int i = 0;
-        for (PluginDescriptor pd: pds) {
-            if (!pd.getId().startsWith("SavantCore") && !pd.getId().startsWith("savant.core")) {
-                pluginStubs[i++] = new PluginStub(pd.getId(), pd.getVersion().toString());
-            }
-        }
-    }
-
     class ProgramCellRenderer extends DefaultTableCellRenderer {
         @Override
         public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-            if (value instanceof PluginStub) {
-                JLabel label = (JLabel) super.getTableCellRendererComponent(table, ((PluginStub) value).id, isSelected, hasFocus, row, column);
-                
-                /*
-                label.setIcon(FileSystemView.getFileSystemView().getSystemIcon(
-                        new File(
-                            PluginController.getInstance().getPluginPath(
-                                ((PluginStub) value).id)
-                                )));
-                 * 
-                 */
+            if (value instanceof PluginDescriptor) {
+                JLabel label = (JLabel)super.getTableCellRendererComponent(table, ((PluginDescriptor)value).getID(), isSelected, hasFocus, row, column);
                 return label;
             }
             else {

@@ -176,7 +176,7 @@ public class DataSourcePluginDialog extends JDialog {
      * @return the DataSource selected (null if dialog cancelled)
      */
     public static DataSource getDataSource(Window parent) throws Exception {
-        List<SavantDataSourcePlugin> ps = DataSourcePluginController.getInstance().getDataSourcePlugins();
+        List<SavantDataSourcePlugin> ps = DataSourcePluginController.getInstance().getPlugins();
         if (DataSourcePluginController.getInstance().hasOnlySavantRepoDataSource()) {
             return ps.get(0).getDataSource();
         }

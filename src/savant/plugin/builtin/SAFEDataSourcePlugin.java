@@ -17,13 +17,12 @@
 package savant.plugin.builtin;
 
 import savant.data.sources.DataSource;
-import savant.plugin.PluginAdapter;
 import savant.plugin.SavantDataSourcePlugin;
 
 public class SAFEDataSourcePlugin extends SavantDataSourcePlugin {
 
     @Override
-    public void init(PluginAdapter pluginAdapter) {
+    public void init() {
         
     }
 
@@ -45,13 +44,4 @@ public class SAFEDataSourcePlugin extends SavantDataSourcePlugin {
             return null;
         }
     }
-
-    @Override
-    protected void doStart() throws Exception {
-    }
-
-    @Override
-    protected void doStop() throws Exception {
-    }
-
 }

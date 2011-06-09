@@ -29,6 +29,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import savant.api.util.DialogUtils;
+import savant.controller.DataSourcePluginController;
 import savant.controller.PluginController;
 import savant.data.event.TrackCreationEvent;
 import savant.data.event.TrackCreationListener;
@@ -171,7 +172,7 @@ public class TrackFactory {
             }
         } catch (UnknownSchemeException usx) {
             // Not one of our known URI schemes, so see if any of our plugins can handle it.
-            for (SavantDataSourcePlugin p: PluginController.getInstance().getDataSourcePlugins()) {
+            for (SavantDataSourcePlugin p: DataSourcePluginController.getInstance().getPlugins()) {
                 DataSource ds = p.getDataSource(trackURI);
                 if (ds != null) {
                     return ds;

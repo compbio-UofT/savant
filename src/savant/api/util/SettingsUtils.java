@@ -22,8 +22,8 @@ import java.io.IOException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.java.plugin.Plugin;
 
+import savant.plugin.SavantPlugin;
 import savant.settings.PersistentSettings;
 import savant.util.CryptoUtils;
 
@@ -36,7 +36,7 @@ import savant.util.CryptoUtils;
 public class SettingsUtils {
     private static final Log LOG = LogFactory.getLog(SettingsUtils.class);
 
-    private static String makePluginKey(Plugin p, String key) {
+    private static String makePluginKey(SavantPlugin p, String key) {
         return p.getClass().getName() + "." + key;
     }
 
@@ -48,7 +48,7 @@ public class SettingsUtils {
      * @param dflt a default value if the setting is not found
      * @return the setting's value (or dflt if not found)
      */
-    public static Color getColour(Plugin p, String key, Color dflt) {
+    public static Color getColour(SavantPlugin p, String key, Color dflt) {
         return PersistentSettings.getInstance().getColour(makePluginKey(p, key), dflt);
     }
 
@@ -59,7 +59,7 @@ public class SettingsUtils {
      * @param key a string identifying the setting
      * @param value the value to be set
      */
-    public static void setColour(Plugin p, String key, Color value) {
+    public static void setColour(SavantPlugin p, String key, Color value) {
         PersistentSettings.getInstance().setColour(makePluginKey(p, key), value);
     }
 
@@ -71,7 +71,7 @@ public class SettingsUtils {
      * @param dflt a default value if the setting is not found
      * @return the setting's value (or dflt if not found)
      */
-    public static boolean getBoolean(Plugin p, String key, boolean dflt) {
+    public static boolean getBoolean(SavantPlugin p, String key, boolean dflt) {
         return PersistentSettings.getInstance().getBoolean(makePluginKey(p, key), dflt);
     }
 
@@ -82,7 +82,7 @@ public class SettingsUtils {
      * @param key a string identifying the setting
      * @param value the value to be set
      */
-    public static void setBoolean(Plugin p, String key, boolean value) {
+    public static void setBoolean(SavantPlugin p, String key, boolean value) {
         PersistentSettings.getInstance().setBoolean(makePluginKey(p, key), value);
     }
 
@@ -93,7 +93,7 @@ public class SettingsUtils {
      * @param key a string identifying the setting
      * @return the setting's value (or null if not found)
      */
-    public static String getFile(Plugin p, String key) {
+    public static String getFile(SavantPlugin p, String key) {
         return PersistentSettings.getInstance().getString(makePluginKey(p, key));
     }
 
@@ -104,7 +104,7 @@ public class SettingsUtils {
      * @param key a string identifying the setting
      * @param value the value to be set
      */
-    public static void setFile(Plugin p, String key, File value) {
+    public static void setFile(SavantPlugin p, String key, File value) {
         PersistentSettings.getInstance().setFile(makePluginKey(p, key), value);
     }
 
@@ -116,7 +116,7 @@ public class SettingsUtils {
      * @param key a string identifying the setting
      * @return the setting's value (or null if not found)
      */
-    public static String getString(Plugin p, String key) {
+    public static String getString(SavantPlugin p, String key) {
         return PersistentSettings.getInstance().getString(makePluginKey(p, key));
     }
 
@@ -127,7 +127,7 @@ public class SettingsUtils {
      * @param key a string identifying the setting
      * @param value the value to be set
      */
-    public static void setString(Plugin p, String key, String value) {
+    public static void setString(SavantPlugin p, String key, String value) {
         PersistentSettings.getInstance().setString(makePluginKey(p, key), value);
     }
 
@@ -138,7 +138,7 @@ public class SettingsUtils {
      * @param key a string identifying the setting
      * @return the setting's value (or null if not found)
      */
-    public static String getPassword(Plugin p, String key) {
+    public static String getPassword(SavantPlugin p, String key) {
         String s = PersistentSettings.getInstance().getString(makePluginKey(p, key));
         return s != null ? CryptoUtils.decrypt(s) : null;
     }
@@ -150,7 +150,7 @@ public class SettingsUtils {
      * @param key a string identifying the setting
      * @param value the value to be set
      */
-    public static void setPassword(Plugin p, String key, String value) {
+    public static void setPassword(SavantPlugin p, String key, String value) {
         PersistentSettings.getInstance().setString(makePluginKey(p, key), CryptoUtils.encrypt(value));
     }
 

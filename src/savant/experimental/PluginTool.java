@@ -1,9 +1,5 @@
-package savant.experimental;
-
-import savant.plugin.PluginAdapter;
-
 /*
- *    Copyright 2010 University of Toronto
+ *    Copyright 2010-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -18,18 +14,15 @@ import savant.plugin.PluginAdapter;
  *    limitations under the License.
  */
 
-/*
- * savant.plugin.AuxData.java
- * Created on Feb 23, 2010
- */
+package savant.experimental;
+
 
 public abstract class PluginTool extends Tool {
 
     /**
      * This method is called once during application life cycle to allow
      * auxiliary data plugin to initialize and show itself.
-     * @param tabbedPane parent tabbedpane for auxiliary data components
      */
-    public abstract void init(PluginAdapter pluginAdapter);
+    public abstract void init();
 
 }

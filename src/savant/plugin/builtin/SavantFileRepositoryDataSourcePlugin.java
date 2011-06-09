@@ -17,14 +17,13 @@
 package savant.plugin.builtin;
 
 import savant.data.sources.DataSource;
-import savant.plugin.PluginAdapter;
 import savant.plugin.SavantDataSourcePlugin;
 import savant.view.swing.TrackFactory;
 
 public class SavantFileRepositoryDataSourcePlugin extends SavantDataSourcePlugin {
 
     @Override
-    public void init(PluginAdapter pluginAdapter) {
+    public void init() {
         
     }
 
@@ -39,13 +38,4 @@ public class SavantFileRepositoryDataSourcePlugin extends SavantDataSourcePlugin
         d.setVisible(true);
         return d.getTrackPath() != null ? TrackFactory.createDataSource(d.getTrackPath().toURI()) : null;
     }
-
-    @Override
-    protected void doStart() throws Exception {
-    }
-
-    @Override
-    protected void doStop() throws Exception {
-    }
-
 }

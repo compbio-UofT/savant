@@ -19,15 +19,14 @@ package savant.experimental;
 import java.io.PrintStream;
 import javax.swing.*;
 
-import org.java.plugin.Plugin;
-
 import savant.controller.event.ThreadActivityChangedEvent;
 import savant.controller.ThreadController;
+import savant.plugin.SavantPlugin;
 import savant.view.tools.ToolRunInformation;
 import savant.view.tools.ToolRunInformation.TerminationStatus;
 
 
-public abstract class Tool extends Plugin implements Runnable {
+public abstract class Tool extends SavantPlugin implements Runnable {
 
     public abstract ProgramInformation getToolInformation();
 

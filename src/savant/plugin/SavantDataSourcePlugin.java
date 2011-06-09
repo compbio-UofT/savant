@@ -17,7 +17,6 @@
 package savant.plugin;
 
 import java.net.URI;
-import org.java.plugin.Plugin;
 import savant.data.sources.DataSource;
 
 /**
@@ -26,22 +25,13 @@ import savant.data.sources.DataSource;
  *
  * @author mfiume
  */
-public abstract class SavantDataSourcePlugin extends Plugin {
+public abstract class SavantDataSourcePlugin extends SavantPlugin {
 
     /**
      * This method is called once during application life cycle to allow a third-party
-     * plugin to initialize and show itself.
-     *
-     * @param panel parent panel for auxiliary data components
-     * @param adapter gives access to functionality provided by Savant
+     * plugin to initialise itself.
      */
-    public abstract void init(PluginAdapter pluginAdapter);
-
-    /**
-     * @return title to be used in Plugins menu and for frame in which plugin is rendered
-     */
-    public abstract String getTitle();
-
+    public abstract void init();
 
     public abstract DataSource getDataSource() throws Exception;
 

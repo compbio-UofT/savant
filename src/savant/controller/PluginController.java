@@ -26,35 +26,29 @@ import java.io.FileWriter;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JPanel;
 
 import com.jidesoft.docking.DockableFrame;
 import com.jidesoft.docking.DockingManager;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.java.plugin.JpfException;
-import org.java.plugin.ObjectFactory;
-import org.java.plugin.Plugin;
-import org.java.plugin.PluginManager;
-import org.java.plugin.registry.Extension;
-import org.java.plugin.registry.ExtensionPoint;
-import org.java.plugin.registry.PluginAttribute;
-import org.java.plugin.registry.PluginDescriptor;
-import org.java.plugin.standard.StandardPluginLocation;
 
 import savant.api.util.DialogUtils;
 import savant.experimental.PluginTool;
-import savant.plugin.*;
-import savant.settings.BrowserSettings;
+import savant.plugin.PluginDescriptor;
+import savant.plugin.SavantDataSourcePlugin;
+import savant.plugin.SavantPanelPlugin;
+import savant.plugin.SavantPlugin;
 import savant.settings.DirectorySettings;
 import savant.util.FileUtils;
 import savant.util.MiscUtils;
@@ -64,7 +58,7 @@ import savant.view.tools.ToolsModule;
 
 /**
  *
- * @author mfiume
+ * @author mfiume, tarkvara
  */
 public class PluginController {
 
@@ -72,16 +66,13 @@ public class PluginController {
     private static final String UNINSTALL_FILENAME = ".uninstall_plugins";
 
     private static PluginController instance;
-    private static PluginManager pluginManager;
-    private ExtensionPoint coreExtPt;
-    private File coreLocation;
+
     private File uninstallFile;
-
-    private Set<String> pluginsToUnInstall = new HashSet<String>();
-
-    private Map<String, Extension> pluginIDToExtensionMap = new HashMap<String, Extension>();
-    private Map<String, Plugin> pluginIDToPluginMap = new HashMap<String, Plugin>();
-
+    private List<String> pluginsToUnInstall = new ArrayList<String>();
+    private HashMap<String, PluginDescriptor> validPlugins = new HashMap<String, PluginDescriptor>();
+    private HashMap<String, SavantPlugin> loadedPlugins = new HashMap<String, SavantPlugin>();
+    private URLClassLoader pluginLoader;
+    
 
     /** SINGLETON **/
     public static synchronized PluginController getInstance() {
@@ -91,93 +82,91 @@ public class PluginController {
         return instance;
     }
 
-    /** CONSTRUCTOR **/
-    public PluginController() {
+    /**
+     * Private constructor.  Should only be called by getInstance().
+     */
+    private PluginController() {
         try {
-            pluginManager = ObjectFactory.newInstance().createManager();
             uninstallFile = new File(DirectorySettings.getSavantDirectory(), UNINSTALL_FILENAME);
 
             LOG.info("Uninstall list " + UNINSTALL_FILENAME);
             if (uninstallFile.exists()) {
                 deleteFileList(uninstallFile);
             }
-            File libDir = DirectorySettings.getLibsDirectory();
-            coreLocation = new File(libDir, "SavantCore.jar");
             File pluginsDir = DirectorySettings.getPluginsDirectory();
 
             copyBuiltInPlugins();
 
-            /*
-            // On a fresh install, the Mac version may want to copy its default plugins
-            // from within the application bundle to the .savant/plugins directory.
-            if (MiscUtils.MAC && !coreLocation.exists()) {
-                pluginsDir.mkdirs();
-                FileUtils.copyDir(new File("Savant.app/Contents/Plugins"), pluginsDir);
-            }
-             * 
-             */
-
-            LOG.info("coreLocation=" + coreLocation.getAbsolutePath());
-            loadCorePlugin();
             loadPlugins(pluginsDir);
         } catch (Exception ex) {
             LOG.error("Error loading plugins.", ex);
         }
     }
 
-    /** PLUGIN LOADING **/
-    private void loadPlugins(File pluginsDir) throws MalformedURLException, JpfException, InstantiationException, IllegalAccessException {
-        File[] plugins = pluginsDir.listFiles(new FilenameFilter() {
+    /**
+     * Try to load all JAR files in the given directory.
+     */
+    private void loadPlugins(File pluginsDir) throws MalformedURLException, InstantiationException, IllegalAccessException, IOException {
+        File[] files = pluginsDir.listFiles(new FilenameFilter() {
 
             @Override
             public boolean accept(File dir, String name) {
-                return name.toLowerCase().endsWith(".jar") || name.toLowerCase().endsWith(".zip") || name.toLowerCase().endsWith(".gz");
+                return name.toLowerCase().endsWith(".jar");
             }
         });
-        for (int i = 0; i < plugins.length; i++) {
-            if (!plugins[i].getAbsolutePath().equals(coreLocation.getAbsolutePath())) {
-                loadPlugin(plugins[i]);
-            }
-        }
-    }
-
-    private void loadPlugin(File pluginLocation) throws JpfException, MalformedURLException, InstantiationException, IllegalAccessException {
-        PluginManager.PluginLocation[] locs = new PluginManager.PluginLocation[1];
-        locs[0] = StandardPluginLocation.create(pluginLocation);
-        if (locs[0] != null) {
-            pluginManager.publishPlugins(locs);
-            if (!activatePublishedPlugin()) {
-                LOG.warn("Unable to load plugin: " + pluginLocation.getAbsolutePath());
-                int result = DialogUtils.askYesNo("Unable to load plugin at " + pluginLocation.getAbsolutePath() + ".\nPlease check if it is compatible with this version of Savant.\nUninstall it?");
-                if (result == DialogUtils.YES) {
-                    this.queuePluginForUnInstallation(pluginLocation);
+        for (File f: files) {
+            PluginDescriptor desc = PluginDescriptor.fromFile(f);
+            if (desc != null) {
+                if (desc.isCompatible()) {
+                    LOG.info("Found compatible " + desc.getID() + "-" + desc.getVersion());
+                    validPlugins.put(desc.getID(), desc);
+                } else {
+                    LOG.info("Found incompatible " + desc.getID() + "-" + desc.getVersion() + " (SDK version " + desc.getSDKVersion() + ")");
                 }
             }
-        } else {
-            LOG.warn("Unable to load plugin: " + pluginLocation);
+        }
+
+        if (validPlugins.size() > 0) {
+            Set<URL> jarURLs = new HashSet<URL>();
+            for (PluginDescriptor desc: validPlugins.values()) {
+                jarURLs.add(desc.getFile().toURI().toURL());
+            }
+            pluginLoader = new URLClassLoader(jarURLs.toArray(new URL[0]));
+
+            for (PluginDescriptor desc: validPlugins.values()) {
+                try {
+                    loadPlugin(desc);
+                } catch (Throwable x) {
+                    LOG.error("Unable to load " + desc.getName(), x);
+                }
+            }
         }
     }
 
-    /** PLUGIN ACTIVATION **/
-    private void deactivatePlugin(String path) {
-        pluginManager.deactivatePlugin(path);
+    public String getPluginName(String id) {
+        return validPlugins.get(id).getName();
     }
 
-    public void queuePluginForUnInstallation(File path) {
+    public Collection<PluginDescriptor> getDescriptors() {
+        return validPlugins.values();
+    }
+
+    public void queuePluginForUnInstallation(String id) {
         FileWriter fstream = null;
         try {
-            LOG.info("Adding plugin " + path.getAbsolutePath() + " to uninstall list " + uninstallFile.getPath());
+            PluginDescriptor info = validPlugins.get(id);
+            LOG.info("Adding plugin " + info.getFile().getAbsolutePath() + " to uninstall list " + uninstallFile.getPath());
 
             if (!uninstallFile.exists()) {
                 uninstallFile.createNewFile();
             }
             fstream = new FileWriter(uninstallFile, true);
             BufferedWriter out = new BufferedWriter(fstream);
-            out.write(path.getAbsolutePath() + "\n");
+            out.write(info.getFile().getAbsolutePath() + "\n");
             out.close();
 
             DialogUtils.displayMessage("Uninstallation Complete", "Please restart Savant for changes to take effect.");
-
+            pluginsToUnInstall.add(id);
         } catch (IOException ex) {
             LOG.error("Error uninstalling plugin: " + uninstallFile, ex);
         } finally {
@@ -188,145 +177,25 @@ public class PluginController {
         }
     }
 
-    public void queuePluginForUnInstallation(PluginDescriptor pd) {
-        try {
-            String foo = pd.getLocation().toString().replace("jar:", "").replace("!/plugin.xml", "");
-            URI jpfURI = new URI(foo);
-
-            queuePluginForUnInstallation(new File(jpfURI));
-        } catch (URISyntaxException ex) {
-            LOG.error("Bogus URI from Java Plugin Framework.", ex);
-        }
+    public boolean isPluginQueuedForDeletion(String id) {
+        return pluginsToUnInstall.contains(id);
     }
 
-    private boolean activatePlugin(PluginDescriptor desc, Extension ext) {
-
-        try {
-            Plugin pluginInstance = pluginManager.getPlugin(desc.getId());
-
-            // init the plugin based on its type
-            if (pluginInstance instanceof SavantPanelPlugin) {
-                initGUIPlugin((SavantPanelPlugin)pluginInstance);
-            } else if (pluginInstance instanceof PluginTool) {
-                initPluginTool((PluginTool)pluginInstance);
-            } else if (pluginInstance instanceof SavantDataSourcePlugin) {
-                initSavantDataSourcePlugin((SavantDataSourcePlugin)pluginInstance);
-            }
-            pluginIDToPluginMap.put(pluginInstance.getDescriptor().getId(), pluginInstance);
-            pluginIDToExtensionMap.put(pluginInstance.getDescriptor().getId(), ext);
-            return true;
-
-        } catch (Exception ex) {
-            LOG.error("Unable to activate plugin: " + desc.getPluginClassName(), ex);
-        }
-
-        return false;
-    }
-
-    /** ACTIVATE NEW **/
-    private boolean activatePublishedPlugin() {
-        
-        boolean oneLoaded = false;
-        boolean error = false;
-
-        for (Extension ext : coreExtPt.getConnectedExtensions()) {
-            if (!pluginIDToExtensionMap.containsValue(ext) && !isPluginQueuedForDeletion(ext.getDeclaringPluginDescriptor().getId()) && !isIgnoredBadPlugin(ext.getDeclaringPluginDescriptor()) ) {
-
-                try {
-                    LOG.info("Activating new plugin: " + ext.getDeclaringPluginDescriptor());
-                    PluginAttribute sdkatt = ext.getDeclaringPluginDescriptor().getAttribute("sdk-version");
-                    if (sdkatt == null) {
-                        error = true;
-                        LOG.error("No SDK-version attribute");
-                    } else {
-                        String sdk = sdkatt.getValue();
-                        if (isSDKCompatibleWithThisVersion(sdk)) {
-                            LOG.info("Compatible with this version of Savant");
-                            activatePlugin(ext.getDeclaringPluginDescriptor(), ext);
-                            oneLoaded = true;
-                        } else {
-                            LOG.info("Compatible with SDK-version: " + sdkatt.getValue());
-                            error = true;
-                        }
-                    }
-                } catch (Throwable e) {
-                    LOG.error("Unable to load plugin: " + ext, e);
-                    error = true;
-                }
-                if (error) {
-                    this.addToIgnoredBadPlugin(ext.getDeclaringPluginDescriptor());
-                }
-            }
-        }
-
-        return oneLoaded && !error;
-    }
-
-    /** ADD AND REMOVE PLUGINS **/
-    public void installPlugin(String path) throws JpfException, MalformedURLException, InstantiationException, IllegalAccessException {
-        loadPlugin(new File(path));
-    }
-
-    public String getFilePathOfPlugin(String pluginPath) {
-        pluginPath = pluginPath.replaceAll("!/plugin.xml", "");
-        pluginPath = pluginPath.replaceAll("file:/", "");
-        return pluginPath;
-    }
-
-    /** CORE PLUGIN **/
-    private void loadCorePlugin() throws MalformedURLException, JpfException {
-        PluginManager.PluginLocation[] locs = new PluginManager.PluginLocation[1];
-        java.net.URL[] mans = new java.net.URL[1];
-
-
-        if (!coreLocation.exists()) {
-            LOG.error("Loading of core plugin failed.");
-            DialogUtils.displayError("Error initializing plugin loader. Please ensure SavantCore.jar exists, or download a new copy of Savant");
-            return;
-        }
-
-        locs[0] = StandardPluginLocation.create(coreLocation);
-
-        pluginManager.publishPlugins(locs);
-
-        PluginDescriptor core = pluginManager.getRegistry().getPluginDescriptor("savant.core");
-        ExtensionPoint corePt = (ExtensionPoint) (core.getExtensionPoints().toArray()[0]);
-        coreExtPt = pluginManager.getRegistry().getExtensionPoint(core.getId(), corePt.getId());
-
-        if (coreExtPt == null) {
-            DialogUtils.displayError("Error initializing plugin loader. Please ensure SavantCore.jar exists, or download a new copy of Savant");
-            return;
-        }
-    }
-
-    public Collection<PluginDescriptor> getPluginDescriptors() {
-        return pluginManager.getRegistry().getPluginDescriptors();
-    }
-
-    public Collection<Plugin> getPlugins() {
-        return pluginIDToPluginMap.values();
-    }
-
-    public Collection<SavantDataSourcePlugin> getDataSourcePlugins() {
-        Set<SavantDataSourcePlugin> result = new HashSet<SavantDataSourcePlugin>();
-        for (Plugin p: pluginIDToPluginMap.values()) {
-            if (p instanceof SavantDataSourcePlugin) {
-                result.add((SavantDataSourcePlugin)p);
-            }
-        }
-        return result;
-    }
-
-    public Plugin getPluginByID(String id) {
-        return pluginIDToPluginMap.get(id);
-    }
-
-    /** INIT PLUGIN TYPES **/
+    /**
+     * Give plugin tool an opportunity to initialise itself.
+     *
+     * @param plugin
+     */
     private void initPluginTool(PluginTool plugin) {
-        plugin.init(new PluginAdapter());
+        plugin.init();
         ToolsModule.addTool(plugin);
     }
 
+    /**
+     * Give a panel plugin an opportunity to initialise itself.
+     *
+     * @param plugin
+     */
     private void initGUIPlugin(SavantPanelPlugin plugin) {
         final DockableFrame f = DockableFrameFactory.createGUIPluginFrame(plugin.getTitle());
         JPanel p = (JPanel) f.getContentPane();
@@ -334,7 +203,7 @@ public class PluginController {
         JPanel canvas = new JPanel();
         p.add(canvas, BorderLayout.CENTER);
         canvas.setLayout(new BorderLayout());
-        plugin.init(canvas, new PluginAdapter());
+        plugin.init(canvas);
         Savant.getInstance().getAuxDockingManager().addFrame(f);
         boolean isIntiallyVisible = true;
         MiscUtils.setFrameVisibility(f.getTitle(), isIntiallyVisible, Savant.getInstance().getAuxDockingManager());
@@ -355,7 +224,16 @@ public class PluginController {
         Savant.getInstance().addPluginToMenu(cb);
     }
 
-    
+    /**
+     * Give a DataSource plugin a chance to initalise itself.
+     * @param plugin
+     */
+    private void initSavantDataSourcePlugin(SavantDataSourcePlugin plugin) {
+        DataSourcePluginController.getInstance().addDataSourcePlugin(plugin);
+        plugin.init();
+    }
+
+
     private void deleteFileList(File fileListFile) {
         BufferedReader br = null;
         String line = "";
@@ -377,65 +255,6 @@ public class PluginController {
             }
         }
         fileListFile.delete();
-    }
-
-    public boolean isPluginQueuedForDeletion(String id) {
-        return this.pluginsToUnInstall.contains(id);
-    }
-
-    public String getPluginName(String id) {
-        Plugin p = pluginIDToPluginMap.get(id);
-        if (p instanceof SavantPanelPlugin) {
-            SavantPanelPlugin pp = (SavantPanelPlugin) p;
-            return pp.getTitle();
-        } else if (p instanceof PluginTool) {
-            PluginTool pp = (PluginTool) p;
-            return pp.getToolInformation().getName();
-        }
-        return id;
-    }
-
-    public PluginDescriptor getPluginDescriptor(String id) {
-        return pluginManager.getRegistry().getPluginDescriptor(id);
-    }
-
-    private void initSavantDataSourcePlugin(SavantDataSourcePlugin plugin) {
-        DataSourcePluginController.getInstance().addDataSourcePlugin(plugin);
-        plugin.init(new PluginAdapter());
-    }
-
-    private Set<PluginDescriptor> ignoredbadplugins = new HashSet<PluginDescriptor>();
-
-    private void addToIgnoredBadPlugin(PluginDescriptor d) {
-        ignoredbadplugins.add(d);
-    }
-
-    private boolean isIgnoredBadPlugin(PluginDescriptor d) {
-        return ignoredbadplugins.contains(d);
-    }
-
-
-    Map<String, String[]> sdkToSavantVersionsMap;
-    
-    private boolean isSDKCompatibleWithThisVersion(String sdk) {
-
-        if (sdkToSavantVersionsMap == null) {
-            sdkToSavantVersionsMap = new HashMap<String, String[]>();
-
-            // List of Savant versions compatible with given SDK version.
-            // Savant 1.5 broke compatibility with earlier SDK versions.
-            sdkToSavantVersionsMap.put("1.4.3", new String[] { "1.4.3", "1.4.4" });
-            sdkToSavantVersionsMap.put("1.4.4", new String[] { "1.4.4" });
-            sdkToSavantVersionsMap.put("1.5.0", new String[] { "1.5.0" });
-        }
-
-        String[] acceptableSavantVersions = sdkToSavantVersionsMap.get(sdk);
-
-        if (acceptableSavantVersions != null && Arrays.asList(acceptableSavantVersions).contains(BrowserSettings.version)) {
-            return true;
-        }
-        
-        return false;
     }
 
     private void copyBuiltInPlugins() {
@@ -460,4 +279,23 @@ public class PluginController {
         }
     }
 
+
+    private void loadPlugin(PluginDescriptor desc) throws Throwable {
+
+        Class pluginClass = pluginLoader.loadClass(desc.getClassName());
+        SavantPlugin plugin = (SavantPlugin)pluginClass.newInstance();
+        plugin.setDescriptor(desc);
+
+        // init the plugin based on its type
+        if (plugin instanceof SavantPanelPlugin) {
+            initGUIPlugin((SavantPanelPlugin)plugin);
+        } else if (plugin instanceof PluginTool) {
+            initPluginTool((PluginTool)plugin);
+        } else if (plugin instanceof SavantDataSourcePlugin) {
+            initSavantDataSourcePlugin((SavantDataSourcePlugin)plugin);
+        }
+        loadedPlugins.put(desc.getID(), plugin);
+    }
 }
+
+
