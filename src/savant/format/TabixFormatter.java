@@ -134,6 +134,15 @@ public class TabixFormatter extends SavantFileFormatter {
                         foundComments = true;
                     }
                     if (!foundComments) {
+                        // We may have to truncate the header to remove optional columns (usually for Bed).
+                        int numColumns = nextLine.split("\\t").length;
+                        String[] headerColumns = header.split("\\t");
+                        if (headerColumns.length > numColumns) {
+                            header = headerColumns[0];
+                            for (int i = 1; i < numColumns; i++) {
+                                header += "\t" + headerColumns[i];
+                            }
+                        }
                         writer.println("#" + header);
                     }
                     return nextLine;
