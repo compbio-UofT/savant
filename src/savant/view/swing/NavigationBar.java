@@ -21,9 +21,7 @@ import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.text.NumberFormat;
 import javax.swing.*;
 
 import savant.api.util.DialogUtils;
@@ -104,6 +102,7 @@ public class NavigationBar extends JToolBar {
                         locationController.shiftRangeFarRight();
                         break;
                     default:
+                        super.processKeyEvent(evt);
                         return;
                 }
                 evt.consume();
