@@ -1,5 +1,5 @@
 /*
- *    Copyright 2009-2010 University of Toronto
+ *    Copyright 2009-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -17,15 +17,16 @@
 package savant.tableview;
 
 import java.util.ArrayList;
-import org.apache.commons.lang.StringUtils;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Vector;
+
 import net.sf.samtools.SAMRecord.SAMTagAndValue;
+import org.apache.commons.lang.StringUtils;
+
 import savant.api.adapter.TrackAdapter;
-import savant.data.sources.TabixDataSource;
 import savant.data.types.BAMIntervalRecord;
-import savant.data.types.BEDIntervalRecord;
+import savant.data.types.BedRecord;
 import savant.data.types.Block;
 import savant.data.types.GenericContinuousRecord;
 import savant.data.types.GenericIntervalRecord;
@@ -40,34 +41,32 @@ import savant.data.types.TabixIntervalRecord;
  */
 public class SavantRecordModel {
 
-    private static final Class sc = String.class;
-    private static final Class ic = Integer.class;
-    private static final Class lc = Long.class;
-    private static final Class dc = Double.class;
-    private static final Class bc = Boolean.class;
+    private static final Class SC = String.class;
+    private static final Class IC = Integer.class;
+    private static final Class DC = Double.class;
+    private static final Class BC = Boolean.class;
 
-    private static Class[] sequenceColumnClasses = { sc };
-    private static String[] sequenceColumnNames = { "Sequence" };
+    private static final Class[] SEQUENCE_COLUMN_CLASSES = { SC };
+    private static final String[] SEQUENCE_COLUMN_NAMES = { "Sequence" };
 
-    private static Class[] pointColumnClasses = { sc, lc, sc };
-    private static String[] pointColumnNames = { "Reference", "Position", "Description" };
+    private static final Class[] POINT_COLUMN_CLASSES = { SC, IC, SC };
+    private static final String[] POINT_COLUMN_NAMES = { "Reference", "Position", "Description" };
 
-    private static Class[] intervalColumnClasses = { sc, lc, lc, sc };
-    private static String[] intervalColumnNames = { "Reference", "From", "To", "Description" };
+    private static final Class[] INTERVAL_COLUMN_CLASSES = { SC, IC, IC, SC };
+    private static final String[] INTERVAL_COLUMN_NAMES = { "Reference", "From", "To", "Description" };
 
-    private static Class[] bamColumnClasses = {   sc,     sc,         ic,         ic,         bc,         bc,         ic,     sc,     sc,         ic,         bc,             ic,                   sc};
-    private static String[] bamColumnNames =  {   "Name", "Sequence", "Length",   "Position", "First",    "Strand",   "MQ",   "BQs",  "CIGAR",    "MatePos",  "MateStrand",   "InferredInsertSize", "Attributes" };
+    private static final Class[] BAM_COLUMN_CLASSES = {   SC,     SC,         IC,         IC,         BC,         BC,         IC,     SC,     SC,         IC,         BC,             IC,                   SC};
+    private static final String[] BAM_COLUMN_NAMES =  {   "Name", "Sequence", "Length",   "Position", "First",    "Strand",   "MQ",   "BQs",  "CIGAR",    "MatePos",  "MateStrand",   "InferredInsertSize", "Attributes" };
 
-    private static Class[] bedColumnClasses = { sc,         lc,     lc,     sc,     dc,      sc,        ic,         ic,         sc,         ic,             sc,         sc  };
-    private static String[] bedColumnNames = {"Reference", "Start", "End",  "Name", "Score", "Strand", "ThickStart", "ThickEnd", "ItemRGB", "BlockCount", "BlockSizes", "BlockStarts"};
+    private static final Class[] BED_COLUMN_CLASSES = { SC,         IC,     IC,     SC,     DC,      SC,        IC,         IC,         SC,         IC,             SC,         SC  };
+    private static final String[] BED_COLUMN_NAMES = {"Reference", "Start", "End",  "Name", "Score", "Strand", "ThickStart", "ThickEnd", "ItemRGB", "BlockCount", "BlockSizes", "BlockStarts"};
 
-    private static Class[] continuousColumnClasses = { sc, lc, dc };
-    private static String[] continuousColumnNames = { "Reference", "Position", "Value" };
+    private static final Class[] CONTINUOUS_COLUMN_CLASSES = { SC, IC, DC };
+    private static final String[] CONTINUOUS_COLUMN_NAMES = { "Reference", "Position", "Value" };
 
-    public static Vector getDataForTrack(TrackAdapter t) {
+    public static List<Object[]> getDataForTrack(TrackAdapter t) {
 
-        Vector result = new Vector();
-        Vector s;
+        List<Object[]> result = new ArrayList<Object[]>();
 
         if (t.getDataInRange() == null) { return result; }
 
@@ -76,16 +75,13 @@ public class SavantRecordModel {
         switch(t.getDataSource().getDataFormat()) {
             case SEQUENCE_FASTA:
                 for (Record r : t.getDataInRange()) {
-                    s = new Vector();
-                    s.add(id++);
-                    s.add(new String(((SequenceRecord) r).getSequence()));
-                    result.add(s);
+                    result.add(new Object[] { id++, ((SequenceRecord)r).getSequence() });
                 }
                 break;
             case INTERVAL_BAM:
                 for (Record r : t.getDataInRange()) {
                     BAMIntervalRecord b = (BAMIntervalRecord) r;
-                    s = new Vector();
+                    List<Object> s = new ArrayList<Object>();
                     s.add(id++);
                     s.add(b.getSamRecord().getReadName());
                     s.add(b.getSamRecord().getReadString());
@@ -107,36 +103,25 @@ public class SavantRecordModel {
                         atts.substring(0,atts.length()-2);
                     }
                     s.add(atts);
-                    result.add(s);
+                    result.add(s.toArray());
                 }
                 break;
             case POINT_GENERIC:
                 for (Record r : t.getDataInRange()) {
                     GenericPointRecord b = (GenericPointRecord) r;
-                    s = new Vector();
-                    s.add(id++);
-                    s.add(b.getReference());
-                    s.add(b.getPoint().getPosition());
-                    s.add(b.getDescription());
-                    result.add(s);
+                    result.add(new Object[] { id++, b.getReference(), b.getPoint().getPosition(), b.getDescription() });
                 }
                 break;
             case INTERVAL_GENERIC:
                 for (Record r : t.getDataInRange()) {
                     GenericIntervalRecord b = (GenericIntervalRecord) r;
-                    s = new Vector();
-                    s.add(id++);
-                    s.add(b.getReference());
-                    s.add(b.getInterval().getStart());
-                    s.add(b.getInterval().getEnd());
-                    s.add(b.getDescription());
-                    result.add(s);
+                    result.add(new Object[] { id++, b.getReference(), b.getInterval().getStart(), b.getInterval().getEnd(), b.getDescription() });
                 }
                 break;
             case INTERVAL_BED:
                 for (Record r : t.getDataInRange()) {
-                    BEDIntervalRecord b = (BEDIntervalRecord) r;
-                    s = new Vector();
+                    BedRecord b = (BedRecord) r;
+                    List s = new ArrayList();
                     s.add(id++);
                     s.add(b.getReference());
                     s.add(b.getInterval().getStart());
@@ -149,8 +134,6 @@ public class SavantRecordModel {
                     s.add(b.getItemRGB());
                     int numBlocks = b.getBlocks().size();
                     s.add(numBlocks);
-                    String sizes = "";
-                    String starts = "";
                     String[] sizearr = new String[numBlocks];
                     String[] startarr = new String[numBlocks];
                     List<Block> blocks = b.getBlocks();
@@ -160,32 +143,13 @@ public class SavantRecordModel {
                     }
                     s.add(StringUtils.join(sizearr, ", "));
                     s.add(StringUtils.join(startarr, ", "));
-                    result.add(s);
+                    result.add(s.toArray());
                 }
                 break;
             case CONTINUOUS_GENERIC:
                 for (Record r : t.getDataInRange()) {
                     GenericContinuousRecord b = (GenericContinuousRecord) r;
-                    s = new Vector();
-                    s.add(id++);
-                    s.add(b.getReference());
-                    s.add(b.getPosition());
-                    s.add(b.getValue());
-                    result.add(s);
-                }
-                break;
-            case TABIX:
-                for (Record r : t.getDataInRange()) {
-                    TabixIntervalRecord b = (TabixIntervalRecord) r;
-                    s = new Vector();
-                    s.add(id++);
-                    s.add(b.getReference());
-                    s.add(b.getInterval().getStart());
-                    s.add(b.getInterval().getEnd()+1); // tabix intervals are not end-inclusive; our intervals are
-                    for (String str : b.getOtherValues()) {
-                        s.add(str);
-                    }
-                    result.add(s);
+                    result.add(new Object[] { id++, b.getReference(), b.getPosition(), b.getValue() });
                 }
                 break;
             default:
@@ -195,44 +159,27 @@ public class SavantRecordModel {
         return result;
     }
 
-    public static Vector getColumnNamesForTrack(TrackAdapter t) {
-        Vector result = new Vector();
+    public static List<String> getColumnNamesForTrack(TrackAdapter t) {
+        List<String> result = new ArrayList<String>();
         result.add("No.");
         switch(t.getDataSource().getDataFormat()) {
             case SEQUENCE_FASTA:
-                result.addAll(Arrays.asList(sequenceColumnNames));
+                result.addAll(Arrays.asList(SEQUENCE_COLUMN_NAMES));
                 break;
             case INTERVAL_BAM:
-                result.addAll(Arrays.asList(bamColumnNames));
+                result.addAll(Arrays.asList(BAM_COLUMN_NAMES));
                 break;
             case INTERVAL_BED:
-                result.addAll(Arrays.asList(bedColumnNames));
+                result.addAll(Arrays.asList(BED_COLUMN_NAMES));
                 break;
             case INTERVAL_GENERIC:
-                result.addAll(Arrays.asList(intervalColumnNames));
+                result.addAll(Arrays.asList(INTERVAL_COLUMN_NAMES));
                 break;
             case CONTINUOUS_GENERIC:
-                result.addAll(Arrays.asList(continuousColumnNames));
+                result.addAll(Arrays.asList(CONTINUOUS_COLUMN_NAMES));
                 break;
             case POINT_GENERIC:
-                result.addAll(Arrays.asList(pointColumnNames));
-                break;
-            case TABIX:
-                String[] tabixColumnNames = null;
-                if (t.getDataInRange().size() > 0) {
-                    TabixIntervalRecord r = ((TabixIntervalRecord) t.getDataInRange().get(0));
-                    int numfields = ((TabixIntervalRecord) t.getDataInRange().get(0)).getOtherValues().size();
-                    tabixColumnNames = new String[3+numfields];
-                    for (int i = 0; i < numfields; i++) {
-                        tabixColumnNames[i+3] = "Field" + (i+3+1);
-                    }
-                } else {
-                    tabixColumnNames = new String[3];
-                }
-                tabixColumnNames[0] = "Reference";
-                tabixColumnNames[1] = "Start";
-                tabixColumnNames[2] = "End";
-                result.addAll(Arrays.asList(tabixColumnNames));
+                result.addAll(Arrays.asList(POINT_COLUMN_NAMES));
                 break;
             default:
                 throw new UnsupportedOperationException(t.getDataSource().getDataFormat() + " is not supported");
@@ -240,45 +187,28 @@ public class SavantRecordModel {
         return result;
     }
 
-    public static Vector getColumnClassesForTrack(TrackAdapter t) {
-        Vector result = new Vector();
+    public static List<Class> getColumnClassesForTrack(TrackAdapter t) {
+        List<Class> result = new ArrayList<Class>();
         result.add(Integer.class);
 
         switch(t.getDataSource().getDataFormat()) {
             case SEQUENCE_FASTA:
-                result.addAll(Arrays.asList(sequenceColumnClasses));
+                result.addAll(Arrays.asList(SEQUENCE_COLUMN_CLASSES));
                 break;
             case INTERVAL_BAM:
-                result.addAll(Arrays.asList(bamColumnClasses));
+                result.addAll(Arrays.asList(BAM_COLUMN_CLASSES));
                 break;
             case INTERVAL_BED:
-                result.addAll(Arrays.asList(bedColumnClasses));
+                result.addAll(Arrays.asList(BED_COLUMN_CLASSES));
                 break;
             case INTERVAL_GENERIC:
-                result.addAll(Arrays.asList(intervalColumnClasses));
+                result.addAll(Arrays.asList(INTERVAL_COLUMN_CLASSES));
                 break;
             case CONTINUOUS_GENERIC:
-                result.addAll(Arrays.asList(continuousColumnClasses));
+                result.addAll(Arrays.asList(CONTINUOUS_COLUMN_CLASSES));
                 break;
             case POINT_GENERIC:
-                result.addAll(Arrays.asList(pointColumnClasses));
-                break;
-            case TABIX:
-                Class[] tabixColumnClasses = null;
-                if (t.getDataInRange().size() > 0) {
-                    TabixIntervalRecord r = ((TabixIntervalRecord) t.getDataInRange().get(0));
-                    int numfields = ((TabixIntervalRecord) t.getDataInRange().get(0)).getOtherValues().size();
-                    tabixColumnClasses = new Class[3+numfields];
-                    for (int i = 0; i < numfields; i++) {
-                        tabixColumnClasses[i+3] = sc;
-                    }
-                } else {
-                    tabixColumnClasses = new Class[3];
-                }
-                tabixColumnClasses[0] = sc;
-                tabixColumnClasses[1] = lc;;
-                tabixColumnClasses[2] = lc;
-                result.addAll(Arrays.asList(tabixColumnClasses));
+                result.addAll(Arrays.asList(POINT_COLUMN_CLASSES));
                 break;
             default:
                 throw new UnsupportedOperationException("");

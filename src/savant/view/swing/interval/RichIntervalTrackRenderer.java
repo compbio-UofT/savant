@@ -152,22 +152,17 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
 
         // chose the color for the strand
         Color fillColor;
-        if((Boolean)(instructions.get(DrawingInstruction.ITEMRGB)) && bedRecord.getItemRGB() != null && !bedRecord.getItemRGB().isNull()){
+        if((Boolean)instructions.get(DrawingInstruction.ITEMRGB) && bedRecord.getItemRGB() != null && !bedRecord.getItemRGB().isNull()){
             //if an RGB value was supplied, use it
             fillColor = bedRecord.getItemRGB().createColor();
         } else {
             //otherwise use the default color value
-            if (bedRecord.getStrand() == Strand.FORWARD) {
-                fillColor = cs.getColor("Forward Strand");
-            }
-            else {
-                fillColor = cs.getColor("Reverse Strand");
-            }
+            fillColor = cs.getColor(bedRecord.getStrand() == Strand.FORWARD ? "Forward Strand" : "Reverse Strand");
         }
 
-        //set alpha if score is enabled
-        if((Boolean)(instructions.get(DrawingInstruction.SCORE))){
-            fillColor = new Color(fillColor.getRed(), fillColor.getGreen(), fillColor.getBlue(), (int)(bedRecord.getScore() * 0.255));
+        // Blend with white if score is enabled.  Can't use alpha because it exposes our ugly construction lines.
+        if ((Boolean)instructions.get(DrawingInstruction.SCORE)) {
+            fillColor = MiscUtils.blend(fillColor, Color.WHITE, bedRecord.getScore() * 0.001F);
         }
 
         Color lineColor = cs.getColor("Line");

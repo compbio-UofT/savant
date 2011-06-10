@@ -119,17 +119,17 @@ public class TableView
     }
 
     @Override
-    public void rangeChangeCompletedReceived(RangeChangedEvent event) {
+    public void rangeChangeCompleted(RangeChangedEvent event) {
         refreshData();
     }
 
     @Override
-    public void trackListChangeReceived(TrackListChangedEvent event) {
+    public void trackListChanged(TrackListChangedEvent event) {
         updateTrackList();
     }
 
     @Override
-    public void selectionChangeReceived(SelectionChangedEvent event) {
+    public void selectionChanged(SelectionChangedEvent event) {
     }
 
     private void updateTrackList() {
