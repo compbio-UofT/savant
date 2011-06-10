@@ -269,6 +269,8 @@ public class FormatFrame extends javax.swing.JFrame implements FormatProgressLis
                     } catch (Exception ex) {
                     }
                 }
+            } else {
+                JOptionPane.showMessageDialog(this, "<HTML>Format successful. <BR>A genome must be loaded before you can open this track.</HTML>", "Format Successful", JOptionPane.INFORMATION_MESSAGE);
             }
             this.dispose();
         } else if (e instanceof InterruptedException) {
