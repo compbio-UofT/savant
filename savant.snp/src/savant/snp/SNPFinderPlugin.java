@@ -399,7 +399,7 @@ public class SNPFinderPlugin extends SavantPanelPlugin implements LocationChange
 
         // the reference sequence
         //byte[] refSeq = genome.getSequence(new Range(alignmentStart, alignmentEnd)).getBytes();
-        byte[] refSeq = genome.getSequence(NavigationUtils.getCurrentReferenceName(), NavigationUtils.createRange(alignmentStart, alignmentEnd));
+        //byte[] refSeq = genome.getSequence(NavigationUtils.getCurrentReferenceName(), NavigationUtils.createRange(alignmentStart, alignmentEnd));
 
         // get the cigar object for this alignment
         Cigar cigar = samRecord.getCigar();
@@ -443,7 +443,7 @@ public class SNPFinderPlugin extends SavantPanelPlugin implements LocationChange
 
                         Nucleotide readN = Pileup.getNucleotide(readBase[0]);
 
-                        int j = i + (int) (alignmentStart - startPosition);
+                        int j = i + (int) (sequenceCursor - startPosition);
                         //for (int j = pileupcursor; j < operatorLength; j++) {
                         if (j >= 0 && j < pileups.size()) {
                             Pileup p = pileups.get(j);
