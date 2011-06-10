@@ -26,7 +26,6 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import javax.swing.JPanel;
 
-import com.jidesoft.docking.DockableFrame;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
@@ -49,7 +48,6 @@ import savant.plugin.SavantPlugin;
 import savant.settings.DirectorySettings;
 import savant.util.FileUtils;
 import savant.util.MiscUtils;
-import savant.view.swing.DockableFrameFactory;
 import savant.view.tools.ToolsModule;
 
 /**
@@ -64,10 +62,11 @@ public class PluginController extends Controller {
     private static PluginController instance;
 
     private File uninstallFile;
-    private List<String> pluginsToUnInstall = new ArrayList<String>();
+    private List<String> pluginsToRemove = new ArrayList<String>();
     private HashMap<String, PluginDescriptor> validPlugins = new HashMap<String, PluginDescriptor>();
     private HashMap<String, SavantPlugin> loadedPlugins = new HashMap<String, SavantPlugin>();
-    private URLClassLoader pluginLoader;
+    private HashMap<String, String> pluginErrors = new HashMap<String, String>();
+    private PluginLoader pluginLoader;
     
 
     /** SINGLETON **/
@@ -114,6 +113,7 @@ public class PluginController extends Controller {
                         validPlugins.put(desc.getID(), desc);
                     } else {
                         LOG.info("Found incompatible " + desc.getID() + "-" + desc.getVersion() + " (SDK version " + desc.getSDKVersion() + ")");
+                        pluginErrors.put(desc.getID(), "Invalid SDK version (" + desc.getSDKVersion() + ")");
                     }
                 }
             } catch (IOException x) {
@@ -129,7 +129,7 @@ public class PluginController extends Controller {
                 } catch (MalformedURLException ignored) {
                 }
             }
-            pluginLoader = new URLClassLoader(jarURLs.toArray(new URL[0]));
+            pluginLoader = new PluginLoader(jarURLs.toArray(new URL[0]));
 
             for (final PluginDescriptor desc: validPlugins.values()) {
                 new Thread("PluginLoader") {
@@ -139,15 +139,12 @@ public class PluginController extends Controller {
                             loadPlugin(desc);
                         } catch (Throwable x) {
                             LOG.error("Unable to load " + desc.getName(), x);
+                            pluginErrors.put(desc.getID(), "Error");
                         }
                     }
                 }.start();
             }
         }
-    }
-
-    public String getPluginName(String id) {
-        return validPlugins.get(id).getName();
     }
 
     public Collection<PluginDescriptor> getDescriptors() {
@@ -158,7 +155,7 @@ public class PluginController extends Controller {
         return loadedPlugins.get(id);
     }
 
-    public void queuePluginForUnInstallation(String id) {
+    public void queuePluginForRemoval(String id) {
         FileWriter fstream = null;
         try {
             PluginDescriptor info = validPlugins.get(id);
@@ -173,7 +170,7 @@ public class PluginController extends Controller {
             out.close();
 
             DialogUtils.displayMessage("Uninstallation Complete", "Please restart Savant for changes to take effect.");
-            pluginsToUnInstall.add(id);
+            pluginsToRemove.add(id);
         } catch (IOException ex) {
             LOG.error("Error uninstalling plugin: " + uninstallFile, ex);
         } finally {
@@ -184,8 +181,26 @@ public class PluginController extends Controller {
         }
     }
 
-    public boolean isPluginQueuedForDeletion(String id) {
-        return pluginsToUnInstall.contains(id);
+    public boolean isPluginQueuedForRemoval(String id) {
+        return pluginsToRemove.contains(id);
+    }
+
+    public String getPluginStatus(String id) {
+        if (loadedPlugins.get(id) != null) {
+            return "Loaded";
+        }
+        if (pluginsToRemove.contains(id)) {
+            return "Queued for removal";
+        }
+        if (validPlugins.get(id) != null) {
+            // Plugin is valid, but hasn't shown up in the loadedPlugins map.
+            return "Loading";
+        }
+        String err = pluginErrors.get(id);
+        if (err != null) {
+            return err;
+        }
+        return "Unknown";
     }
 
     /**
@@ -283,6 +298,31 @@ public class PluginController extends Controller {
         }
         loadedPlugins.put(desc.getID(), plugin);
         fireEvent(new PluginEvent(PluginEvent.Type.ADDED, desc.getID(), canvas));
+    }
+
+    /**
+     * Try to add a plugin from the given file.
+     */
+    public void addPlugin(File f) throws Throwable {
+        PluginDescriptor desc = PluginDescriptor.fromFile(f);
+        if (desc != null) {
+            pluginLoader.addJar(f);
+            loadPlugin(desc);
+        }
+    }
+
+
+    class PluginLoader extends URLClassLoader {
+        PluginLoader(URL[] urls) {
+            super(urls);
+        }
+
+        void addJar(File f) {
+            try {
+                addURL(f.toURI().toURL());
+            } catch (MalformedURLException ignored) {
+            }
+        }
     }
 }
 

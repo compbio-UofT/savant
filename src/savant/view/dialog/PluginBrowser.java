@@ -15,23 +15,35 @@
  */
 package savant.view.dialog;
 
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+import java.awt.event.MouseWheelListener;
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
-import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableModel;
 
-import com.jidesoft.grid.*;
-import com.jidesoft.plaf.UIDefaultsLookup;
-import com.jidesoft.swing.NullJideButton;
-import com.jidesoft.swing.NullLabel;
-import com.jidesoft.swing.NullPanel;
+import com.jidesoft.grid.HierarchicalTable;
+import com.jidesoft.grid.HierarchicalTableComponentFactory;
+import com.jidesoft.grid.HierarchicalTableModel;
 
 import savant.controller.PluginController;
 import savant.plugin.PluginDescriptor;
+
 
 /**
  * Class which lets user select which plugins are available.
@@ -43,14 +55,6 @@ public class PluginBrowser {
     private PluginController pluginController = PluginController.getInstance();
 
     public Component getPluginListPanel() {
-        HierarchicalTable table = createTable();
-        JScrollPane pane = new JScrollPane(table);
-        pane.getViewport().setBackground(Color.WHITE);
-        return pane;
-    }
-
-    // create property table
-    private HierarchicalTable createTable() {
         tableModel = new ProgramTableModel();
         final HierarchicalTable table = new HierarchicalTable() {
             @Override
@@ -67,13 +71,8 @@ public class PluginBrowser {
         table.setRowHeight(24);
         table.getTableHeader().setPreferredSize(new Dimension(0, 0));
         table.getColumnModel().getColumn(0).setPreferredWidth(500);
-        table.getColumnModel().getColumn(1).setPreferredWidth(30);
-        table.getColumnModel().getColumn(1).setMaxWidth(30);
-        table.getColumnModel().getColumn(2).setPreferredWidth(150);
-        table.getColumnModel().getColumn(2).setMaxWidth(150);
-        table.getColumnModel().getColumn(0).setCellRenderer(new ProgramCellRenderer());
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        table.setComponentFactory(new HierarchicalTableComponentFactory() {
+        HierarchicalTableComponentFactory factory = new HierarchicalTableComponentFactory() {
             @Override
             public Component createChildComponent(HierarchicalTable table, Object value, int row) {
                 if (value instanceof PluginDescriptor) {
@@ -85,7 +84,8 @@ public class PluginBrowser {
             @Override
             public void destroyChildComponent(HierarchicalTable table, Component component, int row) {
             }
-        });
+        };
+        table.setComponentFactory(factory);
         table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
             @Override
             public void valueChanged(ListSelectionEvent e) {
@@ -95,57 +95,55 @@ public class PluginBrowser {
                 }
             }
         });
-        return table;
+        JScrollPane pane = new JScrollPane(table);
+        return pane;
     }
 
+    /**
+     * Panel which displays full information about a single plugin.
+     */
     class ProgramPanel extends JPanel {
         PluginDescriptor program;
 
         public ProgramPanel(PluginDescriptor program) {
             this.program = program;
-            setLayout(new BorderLayout());
-            setBorder(BorderFactory.createEmptyBorder(2, 2, 3, 2));
-            add(createTextPanel());
-            add(createControlPanel(), BorderLayout.AFTER_LINE_ENDS);
-            setBackground(UIDefaultsLookup.getColor("Table.selectionBackground"));
-            setForeground(UIDefaultsLookup.getColor("Table.selectionForeground"));
-        }
+            setLayout(new GridBagLayout());
+            GridBagConstraints gbc = new GridBagConstraints();
+            gbc.anchor = GridBagConstraints.WEST;
+            gbc.insets = new Insets(3, 3, 3, 3);
+            gbc.weightx = 1.0;
+            gbc.weighty = 1.0;
+            gbc.gridheight = 2;
+            add(new JLabel(program.getName()), gbc);
 
-        private JComponent createTextPanel() {
-            NullPanel panel = new NullPanel(new GridLayout(2, 1, 5, 0));
+            gbc.gridx = 1;
+            gbc.gridy = 0;
+            gbc.gridheight = 1;
+            gbc.weightx = 0.0;
+            add(new JLabel("Version: " + program.getVersion()), gbc);
 
-            panel.add(new NullLabel(pluginController.getPluginName(program.getID()), null, JLabel.LEADING));
-            panel.add(new NullPanel());
-            return panel;
-        }
+            gbc.gridy = 1;
+            add(new JLabel("Status: " + pluginController.getPluginStatus(program.getID())), gbc);
 
-        private JComponent createControlPanel() {
-            NullPanel panel = new NullPanel(new GridLayout(2, 2, 5, 0));
-            Component add = panel.add(new NullLabel("Version:", NullLabel.TRAILING));
-            NullJideButton versionButton = new NullJideButton(program.getVersion());
-            versionButton.setHorizontalAlignment(SwingConstants.TRAILING);
-            versionButton.setButtonStyle(NullJideButton.HYPERLINK_STYLE);
-            //versionButton.addActionListener(new ClickAction(program, "Version", versionButton));
-            panel.add(versionButton);
-
-            panel.add(new NullPanel());
-            final JButton removeButton = new JButton("Uninstall");
+            JButton removeButton = new JButton("Uninstall");
             removeButton.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    removeButton.setEnabled(false);
-                    pluginController.queuePluginForUnInstallation(program.getID());
+                    ((JButton)e.getSource()).setEnabled(false);
+                    pluginController.queuePluginForRemoval(ProgramPanel.this.program.getID());
                 }
             });
-            if (pluginController.isPluginQueuedForDeletion(program.getID())) {
+            if (pluginController.isPluginQueuedForRemoval(program.getID())) {
                 removeButton.setEnabled(false);
             }
-            panel.add(removeButton);
-            return panel;
+            gbc.gridx = 2;
+            gbc.gridy = 0;
+            gbc.gridheight = 2;
+            add(removeButton, gbc);
         }
     }
 
-    class ProgramTableModel extends AbstractTableModel implements HierarchicalTableModel, StyleModel {
+    class ProgramTableModel extends AbstractTableModel implements HierarchicalTableModel {
         final PluginDescriptor[] descriptors;
 
         public ProgramTableModel() {
@@ -159,21 +157,12 @@ public class PluginBrowser {
 
         @Override
         public int getColumnCount() {
-            return 3;
+            return 1;
         }
 
         @Override
         public Object getValueAt(int rowIndex, int columnIndex) {
-            PluginDescriptor program = descriptors[rowIndex];
-            switch (columnIndex) {
-                case 0:
-                    return pluginController.getPluginName(program.getID());
-                case 1:
-                    return "";
-                case 2:
-                    return "";
-            }
-            return "";
+            return descriptors[rowIndex].getName();
         }
 
         @Override
@@ -200,24 +189,9 @@ public class PluginBrowser {
         public Object getChildValueAt(int row) {
             return descriptors[row];
         }
-
-        @Override
-        public boolean isCellStyleOn() {
-            return true;
-        }
-
-        @Override
-        public CellStyle getCellStyleAt(int rowIndex, int columnIndex) {
-            if (columnIndex == 2) {
-                CellStyle result = new CellStyle();
-                result.setHorizontalAlignment(SwingConstants.TRAILING);
-                return result;
-            }
-            return null;
-        }
     }
 
-    static class FitScrollPane extends JScrollPane implements ComponentListener {
+    static class FitScrollPane extends JScrollPane {
         public FitScrollPane() {
             initScrollPane();
         }
@@ -241,7 +215,12 @@ public class PluginBrowser {
             setBorder(BorderFactory.createLineBorder(Color.GRAY));
             setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
             setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
-            getViewport().getView().addComponentListener(this);
+            getViewport().getView().addComponentListener(new ComponentAdapter() {
+                @Override
+                public void componentResized(ComponentEvent e) {
+                    setSize(getSize().width, getPreferredSize().height);
+                }
+            });
             removeMouseWheelListeners();
         }
 
@@ -260,39 +239,9 @@ public class PluginBrowser {
         }
 
         @Override
-        public void componentResized(ComponentEvent e) {
-            setSize(getSize().width, getPreferredSize().height);
-        }
-
-        @Override
-        public void componentMoved(ComponentEvent e) {
-        }
-
-        @Override
-        public void componentShown(ComponentEvent e) {
-        }
-
-        @Override
-        public void componentHidden(ComponentEvent e) {
-        }
-
-        @Override
         public Dimension getPreferredSize() {
             getViewport().setPreferredSize(getViewport().getView().getPreferredSize());
             return super.getPreferredSize();
-        }
-    }
-
-    class ProgramCellRenderer extends DefaultTableCellRenderer {
-        @Override
-        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-            if (value instanceof PluginDescriptor) {
-                JLabel label = (JLabel)super.getTableCellRendererComponent(table, ((PluginDescriptor)value).getID(), isSelected, hasFocus, row, column);
-                return label;
-            }
-            else {
-                return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-            }
         }
     }
 }

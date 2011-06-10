@@ -34,8 +34,10 @@ import savant.settings.DirectorySettings;
  */
 public class FileUtils {
     public static void copyFile(File srcFile, File destFile) throws IOException {
+        if (srcFile.equals(destFile)) {
+            return;
+        }
         copyStream(new FileInputStream(srcFile), new FileOutputStream(destFile));
-
     }
 
     public static void copyDir(File srcDir, File destDir) throws IOException {

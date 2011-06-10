@@ -25,20 +25,19 @@ import java.awt.BorderLayout;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.net.URL;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
-import javax.swing.JOptionPane;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.jdom.JDOMException;
 
 import savant.api.util.DialogUtils;
+import savant.controller.PluginController;
 import savant.settings.BrowserSettings;
 import savant.settings.DirectorySettings;
 import savant.util.DownloadFile;
+import savant.util.FileUtils;
 import savant.view.dialog.tree.PluginRepositoryBrowser;
 import savant.view.swing.Savant;
 
@@ -49,7 +48,8 @@ import savant.view.swing.Savant;
 public class PluginManagerDialog extends JDialog {
 
     private static Log LOG = LogFactory.getLog(PluginManagerDialog.class);
-    private PluginBrowser panel;
+    private PluginBrowser browser;
+    private PluginRepositoryBrowser repositoryBrowser;
 
     public static PluginManagerDialog instance;
 
@@ -66,7 +66,7 @@ public class PluginManagerDialog extends JDialog {
         initComponents();
         this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         this.setResizable(false);
-        panel = new PluginBrowser();
+        browser = new PluginBrowser();
         refresh();
     }
 
@@ -157,26 +157,19 @@ public class PluginManagerDialog extends JDialog {
         addPlugin();
     }//GEN-LAST:event_button_add_from_fileActionPerformed
 
-    PluginRepositoryBrowser browser = null;
-
     private void button_add_from_urlActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_add_from_urlActionPerformed
         try {
             File file = DownloadFile.downloadFile(new URL(BrowserSettings.PLUGIN_URL), new File(System.getProperty("java.io.tmpdir")));
-            if (file == null) {
-                JOptionPane.showMessageDialog(this, "Problem downloading file: " + BrowserSettings.PLUGIN_URL);
-                return;
+            if (repositoryBrowser == null) {
+                repositoryBrowser = new PluginRepositoryBrowser(Savant.getInstance(), false, "Install Plugins", "Install", file, DirectorySettings.getPluginsDirectory());
             }
-            if (browser == null) {
-                browser = new PluginRepositoryBrowser(Savant.getInstance(), false, "Install Plugins", "Install", file, DirectorySettings.getPluginsDirectory());
-            }
-            this.setVisible(false);
+            setVisible(false);
             //browser.setAlwaysOnTop(true);
-            browser.setVisible(true);
+            repositoryBrowser.setVisible(true);
 
-        } catch (JDOMException ex) {
-            JOptionPane.showMessageDialog(this, "Problem downloading file: " + BrowserSettings.PLUGIN_URL);
-        } catch (IOException ex) {
-            JOptionPane.showMessageDialog(this, "Problem downloading file: " + BrowserSettings.PLUGIN_URL);
+        } catch (Exception x) {
+            LOG.error(x);
+            DialogUtils.displayError("Problem downloading file: " + BrowserSettings.PLUGIN_URL);
         }
     }//GEN-LAST:event_button_add_from_urlActionPerformed
 
@@ -194,16 +187,14 @@ public class PluginManagerDialog extends JDialog {
         // copy the plugin
         if (selectedFile != null) {
             try {
-                copyFile(selectedFile, new File(DirectorySettings.getPluginsDirectory(), selectedFile.getName()));
-
+                File pluginFile = new File(DirectorySettings.getPluginsDirectory(), selectedFile.getName());
+                FileUtils.copyFile(selectedFile, pluginFile);
+                PluginController.getInstance().addPlugin(pluginFile);
                 refresh();
-                JOptionPane.showMessageDialog(this, "Plugin successfully installed. Restart Savant \n" +
-                    "for changes to take effect.");
-
-            // error copying file
-            } catch (Exception ex) {
+                DialogUtils.displayMessage("Plugin successfully loaded.");
+            } catch (Throwable ex) {
                 LOG.error("Error installing plugin.", ex);
-                JOptionPane.showMessageDialog(this, "Error installing plugin." +
+                DialogUtils.displayError("Error installing plugin." +
                         "\nYou can manually install it by adding the appropriate \n" +
                         ".jar file to the plugins directory.");
             }
@@ -211,31 +202,9 @@ public class PluginManagerDialog extends JDialog {
         }
     }
 
-    public static void copyFile(File in, File out) throws Exception {
-
-        if (in.getAbsolutePath().equals(out.getAbsolutePath())) { return; }
-
-        FileInputStream fis  = new FileInputStream(in);
-        FileOutputStream fos = new FileOutputStream(out);
-        try {
-            byte[] buf = new byte[1024];
-            int i = 0;
-            while ((i = fis.read(buf)) != -1) {
-                fos.write(buf, 0, i);
-            }
-        }
-        catch (Exception e) {
-            throw e;
-        }
-        finally {
-            if (fis != null) fis.close();
-            if (fos != null) fos.close();
-        }
-    }
-
     private void refresh() {
         this.panel_plugincanvas.setLayout(new BorderLayout());
         this.panel_plugincanvas.removeAll();
-        this.panel_plugincanvas.add(panel.getPluginListPanel(), BorderLayout.CENTER);
+        this.panel_plugincanvas.add(browser.getPluginListPanel(), BorderLayout.CENTER);
     }
 }
