@@ -290,7 +290,7 @@ public class TrackFactory {
                     if (NetworkUtils.exists(dictionaryURI)) {
                         t.loadDictionary(dictionaryURI);
                     }
-                } catch (IOException x) {
+                } catch (Exception x) {
                     LOG.error("Unable to load dictionary for " + dictionaryURI, x);
                 }
             }
