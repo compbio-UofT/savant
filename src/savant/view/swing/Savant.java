@@ -180,7 +180,7 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
         auxDockingManager.getWorkspace().setBackground(ColourSettings.getSplitter());
         auxDockingManager.setInitSplitPriority(DockingManager.SPLIT_EAST_SOUTH_WEST_NORTH);
         //auxDockingManager.loadLayoutData();
-        auxDockingManager.setAutohidable(false);
+        //auxDockingManager.setAutohidable(false);
 
         JPanel trackPanel = new JPanel();
         trackPanel.setLayout(new BorderLayout());
@@ -1956,6 +1956,8 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
     }
 
     private void displayAuxPanels() {
+        MiscUtils.setFrameVisibility("Bookmarks", true, auxDockingManager);
+        auxDockingManager.toggleAutohideState("Bookmarks");
         bookmarksItem.setState(true);
         auxDockingManager.setActive(false);
     }
