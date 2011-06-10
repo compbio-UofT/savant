@@ -45,9 +45,6 @@ import savant.view.icon.SavantIconFactory;
  */
 public class NavigationBar extends JToolBar {
 
-    /** For parsing numbers which may include commas. */
-    private static final NumberFormat NUMBER_PARSER = NumberFormat.getIntegerInstance();
-
     private LocationController locationController = LocationController.getInstance();
 
     /** Range text-box */
@@ -73,21 +70,51 @@ public class NavigationBar extends JToolBar {
         int tfwidth = 240;
         int labwidth = 100;
         int tfheight = 22;
-        rangeField = (JTextField)add(new JTextField());
+        rangeField = new JTextField() {
+            @Override
+            public void processKeyEvent(KeyEvent evt) {
+                switch (evt.getKeyCode()) {
+                    case KeyEvent.VK_ENTER:
+                        setRangeFromTextBox();
+                        break;
+                    case KeyEvent.VK_LEFT:
+                        if (evt.getModifiers() == KeyEvent.SHIFT_MASK) {
+                            locationController.shiftRangeLeft();
+                        }
+                        break;
+                    case KeyEvent.VK_RIGHT:
+                        if (evt.getModifiers() == KeyEvent.SHIFT_MASK) {
+                            locationController.shiftRangeRight();
+                        }
+                        break;
+                    case KeyEvent.VK_UP:
+                        if (evt.getModifiers() == KeyEvent.SHIFT_MASK) {
+                            locationController.zoomIn();
+                        }
+                        break;
+                    case KeyEvent.VK_DOWN:
+                        if (evt.getModifiers() == KeyEvent.SHIFT_MASK) {
+                            locationController.zoomOut();
+                        }
+                        break;
+                    case KeyEvent.VK_HOME:
+                        locationController.shiftRangeFarLeft();
+                        break;
+                    case KeyEvent.VK_END:
+                        locationController.shiftRangeFarRight();
+                        break;
+                    default:
+                        return;
+                }
+                evt.consume();
+            }
+        };
+        add(rangeField);
         rangeField.setToolTipText("Current display range");
         rangeField.setHorizontalAlignment(JTextField.CENTER);
         rangeField.setPreferredSize(new Dimension(tfwidth, tfheight));
         rangeField.setMaximumSize(new Dimension(tfwidth, tfheight));
         rangeField.setMinimumSize(new Dimension(tfwidth, tfheight));
-
-        rangeField.addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyPressed(KeyEvent evt) {
-                if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
-                    setRangeFromTextBox();
-                }
-            }
-        });
 
         add(getRigidPadding());
 
