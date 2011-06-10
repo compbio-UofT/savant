@@ -427,9 +427,12 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
         });
         pluginController.loadPlugins(DirectorySettings.getPluginsDirectory());
 
-        if (DataSourcePluginController.getInstance().hasOnlySavantRepoDataSource()) {
-            loadFromDataSourcePlugin.setText("Load Track from Repository...");
-        }
+        // TODO: put this call back in once hasOnlySavantRepoDataSource can be performed correctly
+        // Since plugins loading is threaded now, this function returns true here even when it should
+        // return false
+        //if (DataSourcePluginController.getInstance().hasOnlySavantRepoDataSource()) {
+        //    loadFromDataSourcePlugin.setText("Load Track from Repository...");
+        //}
 
         s.setStatus("Organizing layout");
 
