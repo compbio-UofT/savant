@@ -71,38 +71,39 @@ public class NavigationBar extends JToolBar {
         rangeField = new JTextField() {
             @Override
             public void processKeyEvent(KeyEvent evt) {
-
-                if(evt.getKeyCode() == KeyEvent.VK_ENTER){
-                    setRangeFromTextBox();
-                } else if (evt.getModifiers() == KeyEvent.SHIFT_MASK){
-                    switch (evt.getKeyCode()) {
-                        case KeyEvent.VK_LEFT:
-                            locationController.shiftRangeLeft();
-                            break;
-                        case KeyEvent.VK_RIGHT:
-                            locationController.shiftRangeRight();
-                            break;
-                        case KeyEvent.VK_UP:
-                            locationController.zoomIn();
-                            break;
-                        case KeyEvent.VK_DOWN:
-                            locationController.zoomOut();
-                            break;
-                        case KeyEvent.VK_HOME:
-                            locationController.shiftRangeFarLeft();
-                            break;
-                        case KeyEvent.VK_END:
-                            locationController.shiftRangeFarRight();
-                            break;
-                        default:
-                            super.processKeyEvent(evt);
-                            return;
+                if (evt.getID() == KeyEvent.KEY_PRESSED) {
+                    if(evt.getKeyCode() == KeyEvent.VK_ENTER) {
+                        setRangeFromTextBox();
+                    } else if (evt.getModifiers() == KeyEvent.SHIFT_MASK) {
+                        switch (evt.getKeyCode()) {
+                            case KeyEvent.VK_LEFT:
+                                locationController.shiftRangeLeft();
+                                evt.consume();
+                                break;
+                            case KeyEvent.VK_RIGHT:
+                                locationController.shiftRangeRight();
+                                evt.consume();
+                                break;
+                            case KeyEvent.VK_UP:
+                                locationController.zoomIn();
+                                evt.consume();
+                                break;
+                            case KeyEvent.VK_DOWN:
+                                locationController.zoomOut();
+                                evt.consume();
+                                break;
+                            case KeyEvent.VK_HOME:
+                                locationController.shiftRangeFarLeft();
+                                evt.consume();
+                                break;
+                            case KeyEvent.VK_END:
+                                locationController.shiftRangeFarRight();
+                                evt.consume();
+                                break;
+                        }
                     }
-                } else {
-                    super.processKeyEvent(evt);
-                    return;
                 }
-                evt.consume();
+                super.processKeyEvent(evt);
             }
         };
         add(rangeField);
