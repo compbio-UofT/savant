@@ -256,7 +256,7 @@ public class ResolutionSettingsSection extends Section {
 
         JPanel panel = new JPanel(new GridBagLayout());
         //panel.setPreferredSize(new Dimension(1,1));
-        Border sequenceTitle = BorderFactory.createTitledBorder("Unformatted Continuous Tracks (WIG, BigWig, etc.)");
+        Border sequenceTitle = BorderFactory.createTitledBorder("Unformatted Continuous Tracks (WIG, BigWig, etc. from external datasources)");
         panel.setBorder(sequenceTitle);
 
         GroupLayout layout = new GroupLayout(panel);
