@@ -71,39 +71,36 @@ public class NavigationBar extends JToolBar {
         rangeField = new JTextField() {
             @Override
             public void processKeyEvent(KeyEvent evt) {
-                switch (evt.getKeyCode()) {
-                    case KeyEvent.VK_ENTER:
-                        setRangeFromTextBox();
-                        break;
-                    case KeyEvent.VK_LEFT:
-                        if (evt.getModifiers() == KeyEvent.SHIFT_MASK) {
+
+                if(evt.getKeyCode() == KeyEvent.VK_ENTER){
+                    setRangeFromTextBox();
+                } else if (evt.getModifiers() == KeyEvent.SHIFT_MASK){
+                    switch (evt.getKeyCode()) {
+                        case KeyEvent.VK_LEFT:
                             locationController.shiftRangeLeft();
-                        }
-                        break;
-                    case KeyEvent.VK_RIGHT:
-                        if (evt.getModifiers() == KeyEvent.SHIFT_MASK) {
+                            break;
+                        case KeyEvent.VK_RIGHT:
                             locationController.shiftRangeRight();
-                        }
-                        break;
-                    case KeyEvent.VK_UP:
-                        if (evt.getModifiers() == KeyEvent.SHIFT_MASK) {
+                            break;
+                        case KeyEvent.VK_UP:
                             locationController.zoomIn();
-                        }
-                        break;
-                    case KeyEvent.VK_DOWN:
-                        if (evt.getModifiers() == KeyEvent.SHIFT_MASK) {
+                            break;
+                        case KeyEvent.VK_DOWN:
                             locationController.zoomOut();
-                        }
-                        break;
-                    case KeyEvent.VK_HOME:
-                        locationController.shiftRangeFarLeft();
-                        break;
-                    case KeyEvent.VK_END:
-                        locationController.shiftRangeFarRight();
-                        break;
-                    default:
-                        super.processKeyEvent(evt);
-                        return;
+                            break;
+                        case KeyEvent.VK_HOME:
+                            locationController.shiftRangeFarLeft();
+                            break;
+                        case KeyEvent.VK_END:
+                            locationController.shiftRangeFarRight();
+                            break;
+                        default:
+                            super.processKeyEvent(evt);
+                            return;
+                    }
+                } else {
+                    super.processKeyEvent(evt);
+                    return;
                 }
                 evt.consume();
             }
