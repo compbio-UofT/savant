@@ -212,7 +212,7 @@ public class TrackFactory {
                     LOG.info("Tabix datasource=" + ds);
                     if (ds != null) {
                         fireTrackCreationCompleted(new Track[] { createTrack(ds) }, "");
-                        LOG.trace("Tabix track created.");
+                        LOG.debug("Tabix track created.");
                     } else {
                         throw new FileNotFoundException(String.format("Could not create Tabix track; check that index file exists and is named \"%1$s.tbi\".", name));
                     }

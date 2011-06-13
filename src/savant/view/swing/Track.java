@@ -16,19 +16,21 @@
 package savant.view.swing;
 
 import java.awt.Color;
-import java.awt.EventQueue;
-import java.io.BufferedReader;
+import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.InputStream;
 import java.net.URI;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.zip.GZIPInputStream;
 import javax.swing.JPanel;
-
 import net.sf.samtools.util.BlockCompressedInputStream;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -44,6 +46,7 @@ import savant.exception.SavantTrackCreationCancelledException;
 import savant.file.DataFormat;
 import savant.util.Bookmark;
 import savant.util.ColorScheme;
+import savant.util.IOUtils;
 import savant.util.MiscUtils;
 import savant.util.NetworkUtils;
 import savant.util.Range;
@@ -259,27 +262,28 @@ public abstract class Track implements TrackAdapter {
      * Load the dictionary from the given URI.
      */
     public void loadDictionary(URI uri) throws IOException {
+        LOG.info("Starting to load dictionary from " + uri);
         dictionary = new HashMap<String, Bookmark>();
-        BufferedReader reader = null;
+        int lineNum = 0;
+        String line = null;
+        ByteArrayOutputStream bufOutput = null;
+        ByteArrayInputStream bufInput = null;
         try {
-            reader = new BufferedReader(new InputStreamReader(new BlockCompressedInputStream(NetworkUtils.getSeekableStreamForURI(uri))));
-            String line;
-            while ((line = reader.readLine()) != null) {
+            // To avoid hiccups in BlockCompressedInputStream, read the whole fucking thing into an array.
+            bufOutput = new ByteArrayOutputStream();
+            IOUtils.copyStream(new BlockCompressedInputStream(NetworkUtils.getSeekableStreamForURI(uri)), bufOutput);
+            bufInput = new ByteArrayInputStream(bufOutput.toByteArray());
+            while ((line = IOUtils.readLine(bufInput)) != null) {
                 String[] entry = line.split("\\t");
                 dictionary.put(entry[0].toLowerCase(), new Bookmark(entry[1]));
-            }
-        } catch (IOException x) {
-            // When used over a network, instead of giving us a nice EOF, BlockCompressedInputStream throws an IOException.
-            if (!x.getMessage().equals("Unexpected compressed block length: 1")) {
-                throw x;
+                lineNum++;
             }
         } catch (ParseException x) {
-            throw new IOException(x);
-        } finally {
-            if (reader != null) {
-                reader.close();
-            }
+            throw new IOException("Parse error in dictionary at line " + lineNum, x);
+        } catch (NumberFormatException x) {
+            throw new IOException("Parse error in dictionary at line " + lineNum, x);
         }
+        LOG.info("Finished loading dictionary from " + uri);
     }
 
     /**
@@ -420,7 +424,7 @@ public abstract class Track implements TrackAdapter {
      * AWT event-queue thread, so that UI code can function properly.
      */
     private void fireDataRetrievalCompleted() {
-        EventQueue.invokeLater(new Runnable() {
+        MiscUtils.invokeLaterIfNecessary(new Runnable() {
             @Override
             public void run() {
                 for (DataRetrievalListener l: listeners) {
@@ -436,7 +440,7 @@ public abstract class Track implements TrackAdapter {
      * thread, so that UI code can function properly.
      */
     private void fireDataRetrievalFailed(final Exception x) {
-        EventQueue.invokeLater(new Runnable() {
+        MiscUtils.invokeLaterIfNecessary(new Runnable() {
             @Override
             public void run() {
                 synchronized (listeners) {

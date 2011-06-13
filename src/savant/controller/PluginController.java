@@ -46,7 +46,7 @@ import savant.plugin.SavantDataSourcePlugin;
 import savant.plugin.SavantPanelPlugin;
 import savant.plugin.SavantPlugin;
 import savant.settings.DirectorySettings;
-import savant.util.FileUtils;
+import savant.util.IOUtils;
 import savant.util.MiscUtils;
 import savant.view.tools.ToolsModule;
 
@@ -265,7 +265,7 @@ public class PluginController extends Controller {
             srcDir = new File(com.apple.eio.FileManager.getPathToApplicationBundle() + "/Contents/Plugins");
             if (srcDir.exists()) {
                 try {
-                    FileUtils.copyDir(srcDir, destDir);
+                    IOUtils.copyDir(srcDir, destDir);
                     return;
                 } catch (Exception ignored) {
                     // We should expect to see this when running in the debugger.
@@ -274,7 +274,7 @@ public class PluginController extends Controller {
         }
         try {
             srcDir = new File("plugins");
-            FileUtils.copyDir(srcDir, destDir);
+            IOUtils.copyDir(srcDir, destDir);
         } catch (Exception x) {
             LOG.error("Unable to copy builtin plugins from " + srcDir.getAbsolutePath() + " to " + destDir, x);
         }

@@ -25,8 +25,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import savant.settings.DirectorySettings;
-import savant.util.MiscUtils;
-import savant.util.NetworkUtils;
 
 
 /**
@@ -101,7 +99,7 @@ public class IndexCache {
     }
 
     public void clearCache() {
-        MiscUtils.deleteDirectory(getCacheDir());
+        IOUtils.deleteDirectory(getCacheDir());
     }
 
     private synchronized Properties getETags() {
@@ -179,7 +177,8 @@ public class IndexCache {
             } catch (IOException e) {
                 LOG.error("Exception reading properties file",e);
             } finally {
-                if (is != null) try { is.close(); } catch (IOException ignore) {};
+                if (is != null) { try { is.close(); } catch (IOException ignore) { }
+                }
             }
         }
         return result;

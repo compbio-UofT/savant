@@ -17,9 +17,9 @@
 package savant.data.types;
 
 import java.awt.Color;
-import java.io.BufferedReader;
+import java.io.BufferedInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.InputStream;
 import java.io.Serializable;
 import java.net.URI;
 import java.util.*;
@@ -39,6 +39,7 @@ import savant.controller.LocationController;
 import savant.controller.TrackController;
 import savant.data.sources.FASTADataSource;
 import savant.settings.BrowserSettings;
+import savant.util.IOUtils;
 import savant.util.NetworkUtils;
 import savant.util.Resolution;
 import savant.view.swing.Track;
@@ -214,11 +215,11 @@ public final class Genome implements Serializable, GenomeAdapter {
         cytobands = new LinkedHashMap<String, Cytoband[]>();
 
         try {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(NetworkUtils.getSeekableStreamForURI(cytobandURI)));
+            InputStream input = new BufferedInputStream(NetworkUtils.getSeekableStreamForURI(cytobandURI));
             String line = null;
             String chrom = null;
             List<Cytoband> chromBands = new ArrayList<Cytoband>();
-            while ((line = reader.readLine()) != null) {
+            while ((line = IOUtils.readLine(input)) != null) {
                 String[] tokens = line.split("\t");
                 if (!tokens[0].equals(chrom)) {
                     addCytobands(chrom, chromBands);
@@ -227,6 +228,7 @@ public final class Genome implements Serializable, GenomeAdapter {
                 chromBands.add(new Cytoband(tokens));
             }
             addCytobands(chrom, chromBands);
+            input.close();
         } catch (IOException iox) {
             LOG.error("Unable to load cytoband info from " + cytobandURI, iox);
         }

@@ -67,7 +67,7 @@ import savant.util.MiscUtils;
 import savant.view.icon.SavantIconFactory;
 import savant.settings.ColourSettings;
 import savant.settings.DirectorySettings;
-import savant.util.FileUtils;
+import savant.util.IOUtils;
 import savant.view.dialog.NewXMLToolDialog;
 import savant.view.dialog.PluginManagerDialog;
 import savant.view.swing.DockableFrameFactory;
@@ -597,7 +597,7 @@ public class ToolsModule implements BookmarksChangedListener, LocationChangeComp
                 if (selectedFile != null) {
                     File destDir = DirectorySettings.getXMLToolDescriptionsDirectory();
                     try {
-                        FileUtils.copyFile(selectedFile, new File(destDir, selectedFile.getName()));
+                        IOUtils.copyFile(selectedFile, new File(destDir, selectedFile.getName()));
                         JOptionPane.showMessageDialog(Savant.getInstance(), "Installation of tool complete. Please restart Savant.");
                     } catch (IOException iox) {
                         DialogUtils.displayException("Add Plugin", "Unable to add plugin " + selectedFile, iox);

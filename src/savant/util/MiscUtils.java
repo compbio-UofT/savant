@@ -41,6 +41,7 @@ import javax.swing.KeyStroke;
 
 import com.jidesoft.docking.DockableFrame;
 import com.jidesoft.docking.DockingManager;
+import java.awt.Color;
 import javax.swing.SwingUtilities;
 import net.sf.samtools.SAMRecord;
 import org.apache.commons.logging.Log;
@@ -320,21 +321,6 @@ public class MiscUtils {
         return result;
     }
 
-    static public boolean deleteDirectory(File path) {
-        if( path.exists() ) {
-            File[] files = path.listFiles();
-            for(int i=0; i<files.length; i++) {
-               if(files[i].isDirectory()) {
-                 deleteDirectory(files[i]);
-               }
-               else {
-                 files[i].delete();
-               }
-            }
-        }
-        return( path.delete() );
-    }
-
      public static void setFrameVisibility(String frameKey, boolean isVisible, DockingManager m) {
         DockableFrame f = m.getFrame(frameKey);
         if (isVisible) {
@@ -493,5 +479,20 @@ public class MiscUtils {
 
         //not mates
         return false;
+    }
+
+    /**
+     * Blend two colours, in the given proportions.  Resulting alpha is always 1.0.
+     * @param col1 the first colour
+     * @param col2 the second colour
+     * @param weight1 the weight given to col1 (from 0.0-1.0)
+     */
+    public static Color blend(Color col1, Color col2, float weight1) {
+
+        float weight2 = (1.0F - weight1) / 255;
+        weight1 /= 255;
+
+        // This constructor expects values from 0.0F to 1.0F, so weights have to be scaled appropriately.
+        return new Color(col1.getRed() * weight1 + col2.getRed() * weight2, col1.getGreen() * weight1 + col2.getGreen() * weight2, col1.getBlue() * weight1 + col2.getBlue() * weight2);
     }
 }

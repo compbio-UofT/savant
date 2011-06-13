@@ -23,7 +23,7 @@ import java.io.IOException;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 
-import savant.util.FileUtils;
+import savant.util.IOUtils;
 
 
 /**
@@ -63,7 +63,7 @@ public class GeneralSettingsSection extends Section {
         clearTmpButt.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                FileUtils.removeTmpFiles();
+                IOUtils.removeTmpFiles();
             }
         });
         GridBagConstraints gbc = getFullRowConstraints();

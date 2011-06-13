@@ -37,7 +37,7 @@ import savant.controller.PluginController;
 import savant.settings.BrowserSettings;
 import savant.settings.DirectorySettings;
 import savant.util.DownloadFile;
-import savant.util.FileUtils;
+import savant.util.IOUtils;
 import savant.view.dialog.tree.PluginRepositoryBrowser;
 import savant.view.swing.Savant;
 
@@ -188,7 +188,7 @@ public class PluginManagerDialog extends JDialog {
         if (selectedFile != null) {
             try {
                 File pluginFile = new File(DirectorySettings.getPluginsDirectory(), selectedFile.getName());
-                FileUtils.copyFile(selectedFile, pluginFile);
+                IOUtils.copyFile(selectedFile, pluginFile);
                 PluginController.getInstance().addPlugin(pluginFile);
                 refresh();
                 DialogUtils.displayMessage("Plugin successfully loaded.");
