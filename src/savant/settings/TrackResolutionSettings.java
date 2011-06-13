@@ -29,12 +29,14 @@ public class TrackResolutionSettings {
     private static final int INTERVAL_LOW_TO_HIGH = 1000000;
     private static final int BAM_DEFAULT_LOW_TO_HIGH = 20000;
     private static final int BAM_ARC_LOW_TO_HIGH = 100000;
+    private static final int CONSERVATION_LOW_TO_HIGH = 10000;
 
     // The property keys.
     private static final String SEQUENCE_LOW_TO_HIGH_KEY = "SequenceLowToHigh";
     private static final String INTERVAL_LOW_TO_HIGH_KEY = "IntervalLowToHigh";
     private static final String BAM_DEFAULT_LOW_TO_HIGH_KEY = "BamDefaultLowToHigh";
     private static final String BAM_ARC_LOW_TO_HIGH_KEY = "BamArcLowToHigh";
+    private static final String CONSERVATION_LOW_TO_HIGH_KEY = "ConservationLowToHigh";
 
     public static int getBamArcModeLowToHighThresh() {
         return SETTINGS.getInt(BAM_ARC_LOW_TO_HIGH_KEY, BAM_ARC_LOW_TO_HIGH);
@@ -66,5 +68,13 @@ public class TrackResolutionSettings {
 
     public static void setSequenceLowToHighThresh(int value) {
         SETTINGS.setInt(SEQUENCE_LOW_TO_HIGH_KEY, value);
+    }
+
+    public static int getConservationLowToHighThresh() {
+        return SETTINGS.getInt(CONSERVATION_LOW_TO_HIGH_KEY, CONSERVATION_LOW_TO_HIGH);
+    }
+
+    public static void setConservationLowToHighThresh(int value) {
+        SETTINGS.setInt(CONSERVATION_LOW_TO_HIGH_KEY, value);
     }
 }

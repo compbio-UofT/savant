@@ -24,6 +24,7 @@ import savant.data.types.ContinuousRecord;
 import savant.data.types.Record;
 import savant.exception.SavantTrackCreationCancelledException;
 import savant.settings.ColourSettings;
+import savant.settings.TrackResolutionSettings;
 import savant.util.ColorScheme;
 import savant.util.DrawingInstruction;
 import savant.util.Range;
@@ -68,11 +69,7 @@ import savant.view.swing.Track;
     public Resolution getResolution(RangeAdapter range) {
         int length = range.getLength();
 
-        if (length < 10000) { return Resolution.VERY_HIGH; }
-        else if (length < 50000) { return Resolution.HIGH; }
-        else if (length < 1000000) { return Resolution.MEDIUM; }
-        else if (length < 10000000) { return Resolution.LOW; }
-        else if (length >= 10000000) { return Resolution.VERY_LOW; }
+        if (length > TrackResolutionSettings.getConservationLowToHighThresh()) { return Resolution.LOW; }
         else { return Resolution.VERY_HIGH; }
     }
 

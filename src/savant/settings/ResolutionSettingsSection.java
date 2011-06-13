@@ -42,6 +42,7 @@ public class ResolutionSettingsSection extends Section {
     private JFormattedTextField intervalAmountField;
     private JFormattedTextField bamDefaultModeAmountField;
     private JFormattedTextField bamArcModeAmountField;
+    private JFormattedTextField conservationAmountField;
 
     @Override
     public String getTitle() {
@@ -59,9 +60,9 @@ public class ResolutionSettingsSection extends Section {
         add(SettingsDialog.getHeader(getTitle()), gbc);
         add(getSequencePanel(), gbc);
         add(getIntervalPanel(), gbc);
-
-        gbc.weighty = 1.0;
         add(getBAMPanel(), gbc);
+        gbc.weighty = 1.0;
+        add(getConservationPanel(), gbc);
     }
 
     @Override
@@ -71,6 +72,7 @@ public class ResolutionSettingsSection extends Section {
             TrackResolutionSettings.setBamDefaultModeLowToHighThresh(Integer.parseInt(bamDefaultModeAmountField.getText().replaceAll(",", "")));
             TrackResolutionSettings.setIntervalLowToHighThresh(Integer.parseInt(intervalAmountField.getText().replaceAll(",", "")));
             TrackResolutionSettings.setSequenceLowToHighThresh(Integer.parseInt(sequenceAmountField.getText().replaceAll(",", "")));
+            TrackResolutionSettings.setConservationLowToHighThresh(Integer.parseInt(conservationAmountField.getText().replaceAll(",", "")));
 
             try {
                 PersistentSettings.getInstance().store();
@@ -243,6 +245,60 @@ public class ResolutionSettingsSection extends Section {
                 addComponent(label1).addComponent(tf1).addComponent(label3));
         vGroup.addGroup(layout.createParallelGroup(Alignment.BASELINE).
                 addComponent(label2).addComponent(tf2).addComponent(label4));
+        layout.setVerticalGroup(vGroup);
+
+        return panel;
+    }
+
+    private JPanel getConservationPanel() {
+
+        conservationAmountField = getFormattedTextField(TrackResolutionSettings.getConservationLowToHighThresh());
+
+        JPanel panel = new JPanel(new GridBagLayout());
+        //panel.setPreferredSize(new Dimension(1,1));
+        Border sequenceTitle = BorderFactory.createTitledBorder("Unformatted Continuous Tracks (WIG, BigWig, etc.)");
+        panel.setBorder(sequenceTitle);
+
+        GroupLayout layout = new GroupLayout(panel);
+        panel.setLayout(layout);
+
+        // Turn on automatically adding gaps between components
+        layout.setAutoCreateGaps(true);
+
+        // Turn on automatically creating gaps between components that touch
+        // the edge of the container and the container.
+        layout.setAutoCreateContainerGaps(true);
+
+        JLabel label1 = new JLabel("Don't show levels for ranges larger than ");
+        JTextField tf1 = conservationAmountField;
+        JLabel label3 = new JLabel(" bp");
+
+        GroupLayout.SequentialGroup hGroup = layout.createSequentialGroup();
+
+        // The sequential group in turn contains two parallel groups.
+        // One parallel group contains the labels, the other the text fields.
+        // Putting the labels in a parallel group along the horizontal axis
+        // positions them at the same x location.
+        //
+        // Variable indentation is used to reinforce the level of grouping.
+        hGroup.addGroup(layout.createParallelGroup().
+                addComponent(label1));
+        hGroup.addGroup(layout.createParallelGroup().
+                addComponent(tf1));
+        hGroup.addGroup(layout.createParallelGroup().
+                addComponent(label3));
+        layout.setHorizontalGroup(hGroup);
+
+        // Create a sequential group for the vertical axis.
+        GroupLayout.SequentialGroup vGroup = layout.createSequentialGroup();
+
+        // The sequential group contains two parallel groups that align
+        // the contents along the baseline. The first parallel group contains
+        // the first label and text field, and the second parallel group contains
+        // the second label and text field. By using a sequential group
+        // the labels and text fields are positioned vertically after one another.
+        vGroup.addGroup(layout.createParallelGroup(Alignment.BASELINE).
+                addComponent(label1).addComponent(tf1).addComponent(label3));
         layout.setVerticalGroup(vGroup);
 
         return panel;
