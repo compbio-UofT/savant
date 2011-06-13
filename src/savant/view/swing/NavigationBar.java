@@ -316,7 +316,7 @@ public class NavigationBar extends JToolBar {
     }
 
     private void updateLocation(String ref, Range r) {
-        rangeField.setText(String.format("%s:%,d-%,d", ref, r.getFrom(), r.getTo()));
+        rangeField.setText(String.format("%s: %,d - %,d", ref, r.getFrom(), r.getTo()));
         lengthLabel.setText(String.format("%,d", r.getLength()));
         rangeField.requestFocusInWindow();
         rangeField.selectAll();
