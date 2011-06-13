@@ -564,9 +564,9 @@ public class BAMTrackRenderer extends TrackRenderer {
         
         w = gp.getWidth(interval.getLength());
 
-        if (w < 1) {
-            return null; // don't draw intervals less than one pixel wide
-        }
+        //if (w < 1) {
+        //    return null; // don't draw intervals less than one pixel wide
+        //}
         if (w > arrowWidth) {
             drawPoint = true;
         }

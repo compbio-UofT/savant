@@ -216,7 +216,7 @@ public class IntervalTrackRenderer extends TrackRenderer {
                     //double y = gp.transformYPos(k)-unitHeight;
                     double y = gp.getHeight() - unitHeight * (k+1) - offset;
                     double w = gp.getWidth(interval.getLength());
-                    if (w < 1) continue; // don't draw intervals less than one pixel wide
+                    //if (w < 1) continue; // don't draw intervals less than one pixel wide
                     double h = unitHeight;
 
                     Rectangle2D.Double intervalRect = new Rectangle2D.Double(x, y, w, h);
