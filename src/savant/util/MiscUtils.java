@@ -213,7 +213,7 @@ public class MiscUtils {
      */
     public static int transformPixelToPosition(int pixel, int widthOfComponent, Range positionalRange) {
         double positionsperpixel = ((double)positionalRange.getLength()) / widthOfComponent;
-        return positionalRange.getFrom() + (int)Math.round(positionsperpixel*pixel);
+        return positionalRange.getFrom() + (int)Math.floor(positionsperpixel*pixel);
     }
 
     /**
