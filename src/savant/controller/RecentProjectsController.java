@@ -116,7 +116,7 @@ public class RecentProjectsController implements Listener<ProjectEvent> {
                             ProjectController.getInstance().loadProjectFromFile(new File(s));
                         }
                     } catch (Exception ex) {
-                        DialogUtils.displayMessage("Error opening project from file " + s);
+                        DialogUtils.displayException("Project Error", "Error opening project from file " + s, ex);
                     }
                 }
             });

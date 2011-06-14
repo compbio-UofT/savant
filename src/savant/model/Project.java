@@ -277,7 +277,7 @@ public class Project {
         for (String path : trackPaths) {
             Savant.getInstance().addTrackFromPath(path);
         }
-        if (bookmarks != null) {
+        if (bookmarks != null && bookmarks.size() > 0) {
             BookmarkController.getInstance().addBookmarks(bookmarks);
         }
     }
