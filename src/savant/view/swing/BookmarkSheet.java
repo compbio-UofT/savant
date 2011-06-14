@@ -280,7 +280,7 @@ public class BookmarkSheet implements BookmarksChangedListener {
                     try {
                         BookmarkController.getInstance().addBookmarksFromFile(selectedFile);
                         btm.fireTableDataChanged();
-                    } catch (IOException ex) {
+                    } catch (Exception ex) {
                         DialogUtils.displayError("Error", "Unable to load bookmarks: " + ex.getMessage());
                         dialog.setVisible(false);
                         dialog.dispose();
