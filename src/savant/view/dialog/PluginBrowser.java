@@ -123,7 +123,8 @@ public class PluginBrowser {
             add(new JLabel("Version: " + program.getVersion()), gbc);
 
             gbc.gridy = 1;
-            add(new JLabel("Status: " + pluginController.getPluginStatus(program.getID())), gbc);
+            final JLabel statusLabel = new JLabel("Status: " + pluginController.getPluginStatus(program.getID()));
+            add(statusLabel, gbc);
 
             JButton removeButton = new JButton("Uninstall");
             removeButton.addActionListener(new ActionListener() {
@@ -131,6 +132,7 @@ public class PluginBrowser {
                 public void actionPerformed(ActionEvent e) {
                     ((JButton)e.getSource()).setEnabled(false);
                     pluginController.queuePluginForRemoval(ProgramPanel.this.program.getID());
+                    statusLabel.setText("Status: " + pluginController.getPluginStatus(ProgramPanel.this.program.getID()));
                 }
             });
             if (pluginController.isPluginQueuedForRemoval(program.getID())) {

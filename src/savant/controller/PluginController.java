@@ -186,11 +186,11 @@ public class PluginController extends Controller {
     }
 
     public String getPluginStatus(String id) {
-        if (loadedPlugins.get(id) != null) {
-            return "Loaded";
-        }
         if (pluginsToRemove.contains(id)) {
             return "Queued for removal";
+        }
+        if (loadedPlugins.get(id) != null) {
+            return "Loaded";
         }
         if (validPlugins.get(id) != null) {
             // Plugin is valid, but hasn't shown up in the loadedPlugins map.
