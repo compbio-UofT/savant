@@ -284,14 +284,19 @@ public class TrackFactory {
             });
 
             // This is a good opportunity to load our dictionary.
-            for (Track t: tracks) {
-                URI dictionaryURI = URI.create(t.getDataSource().getURI().toString() + ".dict");
-                try {
-                    if (NetworkUtils.exists(dictionaryURI)) {
-                        t.loadDictionary(dictionaryURI);
-                    }
-                } catch (Exception x) {
-                    LOG.error("Unable to load dictionary for " + dictionaryURI, x);
+            for (final Track t: tracks) {
+                final URI dictionaryURI = URI.create(t.getDataSource().getURI().toString() + ".dict");
+                if (NetworkUtils.exists(dictionaryURI)) {
+                    new Thread() {
+                        @Override
+                        public void run() {
+                            try {
+                                t.loadDictionary(dictionaryURI);
+                            } catch (Exception x) {
+                                LOG.error("Unable to load dictionary for " + dictionaryURI, x);
+                            }
+                        }
+                    }.start();
                 }
             }
         }
