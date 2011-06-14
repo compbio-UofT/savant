@@ -30,13 +30,16 @@ import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.AbstractTableModel;
+import org.bridgedb.DataSource;
 import org.bridgedb.bio.Organism;
 import org.pathvisio.wikipathways.WikiPathwaysClient;
 import org.pathvisio.wikipathways.webservice.WSPathwayInfo;
@@ -67,6 +70,8 @@ public class PathwaysBrowser extends JPanel{
 
     private enum location { ORGANISMS, PATHWAYS, SEARCH};
     private location loc = location.ORGANISMS;
+
+    private boolean used = false;
     
     public PathwaysBrowser(WikiPathwaysClient client, Viewer svgPanel, Loader loader) {
 
@@ -113,12 +118,19 @@ public class PathwaysBrowser extends JPanel{
         add(scrollPane, BorderLayout.CENTER);
     }
 
+    public boolean hasBeenUsed(){
+        return used;
+    }
+
     public void startBrowse(){
+        used = true;
         listOrganisms();
     }
 
     public void startText(final String query, final String organismString){
+        used = true;
         startLoad();
+        final PathwaysBrowser instance = this;
         Thread thread = new Thread() {
             public void run() {
                 try {
@@ -127,6 +139,9 @@ public class PathwaysBrowser extends JPanel{
                         search = wpclient.findPathwaysByText(query);
                     } else {
                         search = wpclient.findPathwaysByText(query, Organism.fromLatinName(organismString));
+                    }
+                    if(search.length == 0){
+                        JOptionPane.showMessageDialog(instance, "Your search returned no results. ", "No Results", JOptionPane.ERROR_MESSAGE);
                     }
                     table.setModel(new SearchTableModel(search));
                     messageLabel.setText(SEARCH_RESULTS);
@@ -184,12 +199,16 @@ public class PathwaysBrowser extends JPanel{
         thread.start();
     }
 
-    private void loadPathway(final String pathwayID){
+    public void loadPathway(final String pathwayID){
         startLoad();
+        final PathwaysBrowser instance = this;
         Thread thread = new Thread() {
             @Override
             public void run() {
                 try {
+
+                    //TODO: parallelize data retrieval!
+
                     //get svg
                     String filename = DirectorySettings.getTmpDirectory() + System.getProperty("file.separator") + pathwayID + ".svg";
                     byte[] svgByte = wpclient.getPathwayAs("svg", pathwayID, 0);
@@ -213,7 +232,11 @@ public class PathwaysBrowser extends JPanel{
                     loader.setVisible(false);
                     
                 } catch (RemoteException ex) {
-                    Logger.getLogger(PathwaysBrowser.class.getName()).log(Level.SEVERE, null, ex);
+                    JOptionPane.showMessageDialog(instance, "The pathway '" + pathwayID + "' could not be found.", "Error", JOptionPane.ERROR_MESSAGE);
+                    loader.setVisible(false);
+                    svgPanel.setVisible(false);
+                    setVisible(false);
+                    //Logger.getLogger(PathwaysBrowser.class.getName()).log(Level.SEVERE, null, ex);
                 } catch (FileNotFoundException ex){
                     Logger.getLogger(PathwaysBrowser.class.getName()).log(Level.SEVERE, null, ex);
                 } catch (IOException ex){

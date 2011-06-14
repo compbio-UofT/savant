@@ -21,6 +21,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.io.*;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
@@ -44,8 +45,7 @@ import org.apache.batik.swing.gvt.GVTTreeRendererAdapter;
 import org.apache.batik.swing.gvt.GVTTreeRendererEvent;
 import org.w3c.dom.*;
 import org.xml.sax.SAXException;
-import savant.controller.RangeController;
-import savant.controller.ReferenceController;
+import savant.controller.LocationController;
 import savant.util.Range;
 
 /**
@@ -55,6 +55,7 @@ import savant.util.Range;
 public class Viewer extends JSplitPane {
 
     private Loader loader;
+    private PathwaysBrowser browser;
 
     private JScrollPane scrollPane;
     private JScrollPane infoScroll;
@@ -63,9 +64,9 @@ public class Viewer extends JSplitPane {
     private JScrollPane treeScroll;
     private JSplitPane rightPanel;
     private JTree dataTree;
-    private JButton jumpLocationButton;
-    private JButton linkOutButton;
-    private JButton jumpPathwayButton;
+    private JLabel jumpLocationButton;
+    private JLabel linkOutButton;
+    private JLabel jumpPathwayButton;
     private ExtendedJSVGCanvas svgCanvas;
     private Document gpmlDoc;
     private Node pathway;
@@ -89,11 +90,13 @@ public class Viewer extends JSplitPane {
         this.loader = loader;
 
         this.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
+        this.setBackground(Color.white);
 
         //scrollPane
         scrollPane = new JScrollPane();
         scrollPane.setMinimumSize(new Dimension(200,50));
         scrollPane.setPreferredSize(new Dimension(10000,10000));
+        scrollPane.getViewport().setBackground(Color.white);
         this.setLeftComponent(scrollPane);
 
         //svgCanvas
@@ -105,11 +108,11 @@ public class Viewer extends JSplitPane {
         treeScroll = new JScrollPane();
         treeScroll.getViewport().setLayout(new FlowLayout(FlowLayout.LEFT));
         treeScroll.getViewport().setBackground(Color.white);
-        treeScroll.setMaximumSize(new Dimension(200,100));
+        treeScroll.setMinimumSize(new Dimension(200,200));
 
         //infoScroll
         infoScroll = new JScrollPane();
-        //infoScroll.getViewport().setLayout(new FlowLayout(FlowLayout.LEFT));
+        infoScroll.setBackground(Color.white);
         infoScroll.getViewport().setBackground(Color.white);
         infoScroll.setMaximumSize(new Dimension(100,100));
         infoScroll.setPreferredSize(new Dimension(100,100));
@@ -128,56 +131,67 @@ public class Viewer extends JSplitPane {
         gbc.gridx = 0;
         gbc.gridy = 0;
 
+        Border buttonBorder = BorderFactory.createEmptyBorder(3,5,0,5);
+
         //jumpLocationButton
-        jumpLocationButton = new JButton("Jump to Gene Location");
+        jumpLocationButton = new JLabel("<HTML><B>Jump to Gene Location</B></HTML>");
+        jumpLocationButton.setForeground(Color.BLUE);
+        jumpLocationButton.setBackground(Color.WHITE);
+        jumpLocationButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        jumpLocationButton.setMaximumSize(new Dimension(25, 200));    
+        jumpLocationButton.setBorder(BorderFactory.createCompoundBorder(buttonBorder,buttonBorder));
+        jumpLocationButton.setVisible(false);
         jumpLocationButton.addMouseListener(new MouseListener() {
-            @Override
-            public void mousePressed(MouseEvent e) {
+            public void mouseClicked(MouseEvent e) {
                 jumpToGene();
             }
-            public void mouseClicked(MouseEvent e) {}
+            public void mousePressed(MouseEvent e) {}
             public void mouseReleased(MouseEvent e) {}
             public void mouseEntered(MouseEvent e) {}
             public void mouseExited(MouseEvent e) {}
         });
-        jumpLocationButton.setMaximumSize(new Dimension(25,200));
-        jumpLocationButton.setVisible(false);
         infoPanel.add(jumpLocationButton, gbc);
 
         //jumpPathwayButton
-        jumpPathwayButton = new JButton("Jump to Pathway");
+        jumpPathwayButton = new JLabel("<HTML><B>Jump to Pathway</B></HTML>");
+        jumpPathwayButton.setForeground(Color.BLUE);
+        jumpPathwayButton.setBackground(Color.WHITE);
+        jumpPathwayButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        jumpPathwayButton.setMaximumSize(new Dimension(25, 200));
+        jumpPathwayButton.setBorder(BorderFactory.createCompoundBorder(buttonBorder,buttonBorder));
+        jumpPathwayButton.setVisible(false);
         jumpPathwayButton.addMouseListener(new MouseListener() {
-            @Override
-            public void mousePressed(MouseEvent e) {
+            public void mouseClicked(MouseEvent e) {
                 jumpToPathway();
             }
-            public void mouseClicked(MouseEvent e) {}
+            public void mousePressed(MouseEvent e) {}
             public void mouseReleased(MouseEvent e) {}
             public void mouseEntered(MouseEvent e) {}
             public void mouseExited(MouseEvent e) {}
         });
-        jumpPathwayButton.setMaximumSize(new Dimension(25,200));
-        jumpPathwayButton.setVisible(false);
         gbc.gridy = 1;
         infoPanel.add(jumpPathwayButton, gbc);
-
+        
         //linkOutButton
-        linkOutButton = new JButton("Link to Web Page");
+        linkOutButton = new JLabel("<HTML><B>Link to Web Page</B></HTML>");
+        linkOutButton.setForeground(Color.BLUE);
+        linkOutButton.setBackground(Color.WHITE);
+        linkOutButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        linkOutButton.setMaximumSize(new Dimension(25, 200));
+        linkOutButton.setBorder(BorderFactory.createCompoundBorder(buttonBorder,buttonBorder));
+        linkOutButton.setVisible(false);
         linkOutButton.addMouseListener(new MouseListener() {
-            @Override
-            public void mousePressed(MouseEvent e) {
+            public void mouseClicked(MouseEvent e) {
                 linkOut();
             }
-            public void mouseClicked(MouseEvent e) {}
+            public void mousePressed(MouseEvent e) {}
             public void mouseReleased(MouseEvent e) {}
             public void mouseEntered(MouseEvent e) {}
             public void mouseExited(MouseEvent e) {}
         });
-        linkOutButton.setMaximumSize(new Dimension(25,200));
-        linkOutButton.setVisible(false);
         gbc.gridy = 2;
         infoPanel.add(linkOutButton, gbc);
-        
+    
         //infoLabel
         infoLabel = new JLabel();
         infoLabel.setBackground(Color.white);
@@ -188,6 +202,7 @@ public class Viewer extends JSplitPane {
 
         //filler
         JPanel filler = new JPanel();
+        filler.setBackground(Color.white);
         gbc.gridy = 4;
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
@@ -241,7 +256,17 @@ public class Viewer extends JSplitPane {
         });
     }
 
+    //must always be set
+    public void setBrowser(PathwaysBrowser browser){
+        this.browser = browser;
+    }
+
     public void setPathway(URI svgUri, URI gpmlUri) {
+        jumpGene = null;
+        jumpPathway = null;
+        linkOutUrl = null;
+        clearInfo();
+
         svgCanvas.setURI(svgUri.toString());      
         getGPML(gpmlUri);
         getGeneInfo();
@@ -262,6 +287,60 @@ public class Viewer extends JSplitPane {
             if(db.equals("Entrez Gene")){
                 urlString += id + ",";
                 entrezNodes.add(n);
+            } else if (db.equals("Ensembl")){
+
+
+                //FIXME: this is a massive hack...is there a better way?
+                //START ENSEMBL LOOKUP//////////////////////////////////////////
+
+                boolean success = false;
+                int retries = 5;
+                String ensemblUrlString = "http://www.ensembl.org/Gene/Summary?g=" + id;
+                String rangeString = "";
+
+                while(!success && retries > 0){
+                    try {
+                        URL url = new URL(ensemblUrlString);
+                        HttpURLConnection httpConnection = (HttpURLConnection)url.openConnection();
+                        httpConnection.setInstanceFollowRedirects(false);
+                        httpConnection.connect();
+                        int responseCode = httpConnection.getResponseCode();
+                        String header = httpConnection.getHeaderField("Location");
+                        if(header.contains(";r=")){
+                            success = true;
+                            rangeString = header.substring(header.indexOf(";r=")+3);
+                            if(rangeString.contains(";")){
+                                rangeString = rangeString.substring(0, rangeString.indexOf(";"));
+                            }
+                        } else {
+                            if(header.startsWith("http://")){
+                                ensemblUrlString = header;
+                            } else if (header.startsWith("/")){
+                                ensemblUrlString = url.getProtocol() + "://" + url.getHost() + header;
+                            } else {
+                                retries = 0;
+                            }
+                            
+                        }
+
+                    } catch (MalformedURLException ex) {
+                        Logger.getLogger(Viewer.class.getName()).log(Level.SEVERE, null, ex);
+                    } catch (IOException ex){
+                        Logger.getLogger(Viewer.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                    retries--;
+                }
+
+                if(success){
+                    String chrom = rangeString.substring(0, rangeString.indexOf(":"));
+                    String startRange = rangeString.substring(rangeString.indexOf(":")+1, rangeString.indexOf("-"));
+                    String endRange = rangeString.substring(rangeString.indexOf("-")+1, rangeString.length());
+                    n.setEnsemblGeneInfo(id, chrom, startRange, endRange);
+                }
+
+                //END ENSEMBL LOOKUP////////////////////////////////////////////
+
+
             }
         }
         urlString += "&retmode=xml";
@@ -305,7 +384,7 @@ public class Viewer extends JSplitPane {
         //TODO: can we really make assumptions about ordering of xml?
         NodeList docSumList = root.getElementsByTagName("DocSum");
         for(int i = 0; i < docSumList.getLength(); i++){
-            entrezNodes.get(i).setGeneInfo((Element)docSumList.item(i));
+            entrezNodes.get(i).setEntrezGeneInfo((Element)docSumList.item(i));
         }
 
     }
@@ -392,6 +471,14 @@ public class Viewer extends JSplitPane {
         fillInfo(dataNodes.get(i));     
     }
 
+    private void clearInfo(){
+        jumpLocationButton.setVisible(false);
+        jumpPathwayButton.setVisible(false);
+        linkOutButton.setVisible(false);
+        infoLabel.setText("");
+        rightPanel.revalidate();
+    }
+
     private void fillInfo(DataNode dataNode){
 
         if(dataNode.hasGene()){
@@ -410,17 +497,9 @@ public class Viewer extends JSplitPane {
             jumpPathway = null;
         }
 
-        if(dataNode.hasLinkOut()){
-            linkOutButton.setVisible(true);
-            
-        } else {
-            linkOutButton.setVisible(false);
-            linkOutUrl = null;
-        }
-        
-
-
-        
+        linkOutUrl = dataNode.getLinkOut();
+        linkOutButton.setVisible(linkOutUrl != null);
+              
         infoLabel.setText(dataNode.getInfoString());
         rightPanel.revalidate();
     }
@@ -487,17 +566,35 @@ public class Viewer extends JSplitPane {
             startGene = endGene;
             endGene = temp;
         }
-        
+  
         //TODO: what if references don't start with "chr"?
-        RangeController.getInstance().setRange("chr" + jumpGene.getChromosome(), new Range(startGene, endGene));
+        if(LocationController.getInstance().isGenomeLoaded()){
+            LocationController.getInstance().setLocation("chr" + jumpGene.getChromosome(), new Range(startGene, endGene));
+        }
     }
 
     private void jumpToPathway(){
-        
+        if(jumpPathway == null) return;
+        browser.loadPathway(jumpPathway);       
     }
 
     private void linkOut(){
-        
+
+        if(linkOutUrl == null) return;
+
+        if(!java.awt.Desktop.isDesktopSupported()){
+            JOptionPane.showMessageDialog(this, "<HTML>This operation is not supported by your computer.<BR>Web page: " + linkOutUrl + "</HTML>");
+            return;
+        }
+
+        java.awt.Desktop desktop = java.awt.Desktop.getDesktop();
+        try {
+            java.net.URI uri = new java.net.URI(linkOutUrl);
+            desktop.browse(uri);
+        }
+        catch ( Exception e ) {
+            //TODO: something
+        }
     }
 
     private int searchShapes(Point p) {

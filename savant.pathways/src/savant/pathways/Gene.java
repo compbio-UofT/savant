@@ -16,19 +16,29 @@
 
 package savant.pathways;
 
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+
 /**
  *
  * @author AndrewBrook
  */
 public class Gene {
 
+    public static enum geneType{ ENTREZ, ENSEMBL };
+
     private String chromosome;
     private int start = -1;
     private int end = -1;
     private String name;
     private String description;
+    private String id;
+    private geneType type;
 
-    public Gene(){}
+    public Gene(geneType type, String id){
+        this.type = type;
+        this.id = id;
+    }
 
     public Gene(String chrom, String start, String end){
         this.chromosome = chrom;
@@ -36,8 +46,6 @@ public class Gene {
         this.end = Integer.parseInt(end);
     }
 
-
-    
     public void setChromosome(String chrom){
         this.chromosome = chrom;
     }
@@ -58,7 +66,13 @@ public class Gene {
         this.description = desc;
     }
 
+    public void setId(String id){
+        this.id = id;
+    }
 
+    public void setGeneType(geneType type){
+        this.type = type;
+    }
 
     public String getChromosome(){
         return this.chromosome;
@@ -78,6 +92,14 @@ public class Gene {
 
     public String getDescription(){
         return this.description;
+    }
+
+    public String getId(){
+        return this.id;
+    }
+
+    public geneType getGeneType(){
+        return this.type;
     }
 
 }

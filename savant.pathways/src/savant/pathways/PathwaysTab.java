@@ -33,7 +33,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-import savant.plugin.PluginAdapter;
 import savant.plugin.SavantPanelPlugin;
 
 import org.bridgedb.bio.Organism;
@@ -50,7 +49,6 @@ public class PathwaysTab extends SavantPanelPlugin {
     private JPanel parent;
     private PathwaysBrowser browser;
     private WikiPathwaysClient wpclient;
-    private JButton startButton;
     private JMenuBar menubar;
     private JMenu fileButton;
     private JMenuItem browseButton;
@@ -58,6 +56,7 @@ public class PathwaysTab extends SavantPanelPlugin {
     private JPanel mainPanel;
     private JMenuItem findByTextButton;
     private JMenuItem previousSearchButton;
+    private JMenuItem getByIdButton;
     private Loader loader;
 
     private boolean started = false;
@@ -66,7 +65,7 @@ public class PathwaysTab extends SavantPanelPlugin {
     interface ReturnFunction { void run(); }
 
     @Override
-    public void init(JPanel parent, PluginAdapter pluginAdapter) {
+    public void init(JPanel parent) {
 
         this.parent = parent;
         parent.setLayout(new GridBagLayout());
@@ -74,6 +73,14 @@ public class PathwaysTab extends SavantPanelPlugin {
         //create menubar
         menubar = new JMenuBar();
         fileButton = new JMenu("Find Pathways");
+
+        getByIdButton = new JMenuItem("Get by ID");
+        getByIdButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                beginGetById();
+            }
+        });
 
         browseButton = new JMenuItem("Browse Pathways");
         browseButton.addActionListener(new ActionListener() {
@@ -99,7 +106,8 @@ public class PathwaysTab extends SavantPanelPlugin {
             }
         });
         previousSearchButton.setEnabled(false);
-        
+
+        fileButton.add(getByIdButton);
         fileButton.add(browseButton);
         fileButton.add(findByTextButton);
         fileButton.add(previousSearchButton);
@@ -176,6 +184,7 @@ public class PathwaysTab extends SavantPanelPlugin {
                 gbc.gridy = 0;
                 mainPanel.add(browser, gbc, 0);
                 mainPanel.repaint();
+                svgPanel.setBrowser(browser);
 
                 //init complete
                 started = true;
@@ -222,19 +231,27 @@ public class PathwaysTab extends SavantPanelPlugin {
     }
 
     private void previousSearch(){
-        browser.setVisible(true);
-        svgPanel.setVisible(false);
-        loader.setVisible(false);
+        if(!browser.hasBeenUsed()){
+            browser.startBrowse();
+        } else {
+            browser.setVisible(true);
+            svgPanel.setVisible(false);
+            loader.setVisible(false);
+        }
     }
 
-    @Override
-    protected void doStart() throws Exception {
-
+    private void beginGetById(){
+        String input = JOptionPane.showInputDialog(parent, "<HTML>Enter a WikiPathways ID. <BR>ex. WP100 </HTML>", "TITLE", JOptionPane.QUESTION_MESSAGE);
+        if(input != null)
+            getById(input);
     }
 
-    @Override
-    protected void doStop() throws Exception {
-
+    private void getById(final String id){
+        if(!started){
+            start(new ReturnFunction() { public void run() { getById(id); }});
+            return;
+        }
+        browser.loadPathway(id.toUpperCase());
     }
 
     @Override

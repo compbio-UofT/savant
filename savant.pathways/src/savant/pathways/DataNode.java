@@ -65,12 +65,12 @@ public class DataNode implements Comparable {
         }    
     }
 
-    public void setGeneInfo(Element node){
+    public void setEntrezGeneInfo(Element node){
         //check to make sure ids match
         NodeList idList = node.getElementsByTagName("Id");
         if(!idList.item(0).getTextContent().equals(this.getAttribute("Xref", "ID"))) return;
 
-        gene = new Gene();
+        gene = new Gene(Gene.geneType.ENTREZ, this.getAttribute("Xref", "ID"));
 
         NodeList items = node.getElementsByTagName("Item");
         for(int i = 0; i < items.getLength(); i++){
@@ -99,13 +99,28 @@ public class DataNode implements Comparable {
         geneInfoSet = true;
     }
 
+    public void setEnsemblGeneInfo(String id, String chrom, String start, String end){
+        gene = new Gene(Gene.geneType.ENSEMBL, id);
+        gene.setChromosome(chrom);
+        gene.setStart(start);
+        gene.setEnd(end);
+
+        geneInfoSet = true;
+    }
+
     //print formatted info in no particular order
     public String getInfoString(){
         String s = "<HTML>";
 
         //gene info
         if(geneInfoSet){
-            s += "<B>Entrez Gene</B><BR>";
+            s += "<B>";
+            if(gene.getGeneType().equals(Gene.geneType.ENTREZ)){
+                s += "Entrez Gene";
+            } else if(gene.getGeneType().equals(Gene.geneType.ENSEMBL)){
+                s += "Ensembl Gene";
+            }
+            s += "</B><BR>";
             String name = gene.getName();
             if(name != null) s += "Name: " + name + "<BR>";
             String description = gene.getDescription();
@@ -120,6 +135,7 @@ public class DataNode implements Comparable {
         Iterator it = attributes.keySet().iterator();
         while(it.hasNext()){
             String node = (String)it.next();
+            if(node.equals("Graphics")) continue;
             s += "<B>" + node + "</B><BR>";
             Iterator currentIt = attributes.get(node).keySet().iterator();
             while(currentIt.hasNext()){
@@ -159,7 +175,9 @@ public class DataNode implements Comparable {
     }
 
     public String getType(){
-        return getAttribute(this.tagName, "Type");
+        String type = getAttribute(this.tagName, "Type");
+        if(type == null) return "";
+        return type;
     }
 
     public String getLabel(){
@@ -184,22 +202,66 @@ public class DataNode implements Comparable {
 
     public String getWikiPathway(){
         String db = getAttribute("Xref", "Database");
-        if(db == null || !db.equals("WikiPathways")) return null;
-        return getAttribute("Xref", "ID");
-    }
-
-    public boolean hasLinkOut(){
-        //TODO
-        return this.geneInfoSet;
+        String id = getAttribute("Xref", "ID");
+        if(db == null || id == null || !db.equals("WikiPathways") || id.equals("")) return null;
+        return id;
     }
 
     public String getLinkOut(){
-        //TODO
-        //if(getAttribute(""))
+        //TODO: change to cases!
+        String id = getDbId();
+        
+        if (isFromDb("GeneProduct", "Entrez Gene")){
+            return "http://www.ncbi.nlm.nih.gov/gene/" + id;
+        } else if (hasWikiPathway()){
+            return "http://www.wikipathways.org/index.php/Pathway:" + id;
+        } else if (isFromDb("Metabolite", "CAS")){
+            return "http://chem.sis.nlm.nih.gov/chemidplus/direct.jsp?regno=" + id;
+        } else if (isFromDb("Complex", "Reactome")){
+            return "http://www.reactome.org/cgi-bin/eventbrowser_st_id?FROM_REACTOME=1&ST_ID=" + id;
+        } else if (isFromDb("Protein", "Reactome")){
+            return "http://www.reactome.org/cgi-bin/eventbrowser_st_id?FROM_REACTOME=1&ST_ID=" + id;
+        } else if (isFromDb("Metabolite", "ChEBI")){
+            return "http://www.ebi.ac.uk/chebi/searchId.do?chebiId=" + id;
+        } else if (isFromDb("Metabolite", "Kegg Compound")){
+            return "http://www.genome.jp/dbget-bin/www_bget?cpd:" + id;
+        } else if (isFromDb("GeneProduct", "Gramene Genes DB")){
+            return "http://www.gramene.org/db/genes/search_gene?acc=" + id;
+        } else if (isFromDb("GeneProduct", "EC Number")){
+            return "http://www.brenda-enzymes.org/php/result_flat.php4?ecno=" + id;
+        } else if (isFromDb("Metabolite", "PubChem")){
+            return "http://pubchem.ncbi.nlm.nih.gov/summary/summary.cgi?db=pccompound&term=" + id;
+        } else if (isFromDb("Metabolite", "HMDB")){
+            return "http://www.hmdb.ca/metabolites/" + id;
+        } else if (isFromDb("GeneProduct", "TubercuList")){
+            return "http://tuberculist.epfl.ch/quicksearch.php?gene+name=" + id;
+        } else if (isFromDb("Protein", "Uniprot/TrEMBL")){
+            return "http://www.ebi.uniprot.org/entry/" + id;
+        } else if (isFromDb("Protein", "UniProt")){
+            return "http://www.ebi.uniprot.org/entry/" + id;
+        } else if (isFromDb("GeneProduct", "Ensembl Human")){
+            return "http://www.ensembl.org/Homo_sapiens/Gene/Summary?g=" + id;
+        } else if (isFromDb("GeneProduct", "Ensembl")){
+            return "http://www.ensembl.org/id/" + id;
+        }
+
         return null;
     }
 
+    public boolean isFromDb(String type, String dbName){
+        if(getType().equals(type)){
+            String db = getAttribute("Xref", "Database");
+            String id = getAttribute("Xref", "ID");
+            return db != null && db.equals(dbName) && id != null && !id.equals("");
+        }
+        return false;
+    }
 
+    public String getDbId(){
+        String db = getAttribute("Xref", "Database");
+        if(db == null) return null;
+        return getAttribute("Xref", "ID");
+    }
 
 
 }
