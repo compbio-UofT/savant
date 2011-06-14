@@ -27,6 +27,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
 import java.util.Arrays;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.*;
 
 import org.apache.commons.logging.Log;
@@ -57,7 +59,11 @@ public class BookmarkSheet implements BookmarksChangedListener {
     static JButton addButton;
     static boolean confirmDelete = true;
 
+    private static Savant parent;
+
     public BookmarkSheet(Savant parent, Container c) {
+
+        this.parent = parent;
 
         JPanel subpanel = new JPanel();
 
@@ -243,7 +249,7 @@ public class BookmarkSheet implements BookmarksChangedListener {
     }
 
     private static void loadBookmarks(JTable table) {
-        BookmarksTableModel btm = (BookmarksTableModel) table.getModel();
+        final BookmarksTableModel btm = (BookmarksTableModel) table.getModel();
         List<Bookmark> bookmarks = btm.getData();
 
         if (bookmarks.size() > 0) {
@@ -257,18 +263,34 @@ public class BookmarkSheet implements BookmarksChangedListener {
             }
         }
 
-        File selectedFile = DialogUtils.chooseFileForOpen("Load Bookmarks", null, null);
+        final File selectedFile = DialogUtils.chooseFileForOpen("Load Bookmarks", null, null);
 
         // set the genome
         if (selectedFile != null) {
-            try {
-                BookmarkController.getInstance().addBookmarksFromFile(selectedFile);
-                btm.fireTableDataChanged();
-            } catch (IOException ex) {
-                DialogUtils.displayError("Error", "Unable to load bookmarks: " + ex.getMessage());
-            }
+
+            Thread thread = new Thread() {
+                @Override
+                public void run() {
+                    JOptionPane optionPane = new JOptionPane("<HTML>Loading bookmarks from file.<BR>This may take a moment.<HTML", JOptionPane.INFORMATION_MESSAGE, JOptionPane.CANCEL_OPTION);
+                    JDialog dialog = new JDialog(parent, "Loading Bookmarks", false);
+                    dialog.setContentPane(optionPane);
+                    dialog.pack();
+                    dialog.setLocationRelativeTo(parent);
+                    dialog.setVisible(true);
+                    try {
+                        BookmarkController.getInstance().addBookmarksFromFile(selectedFile);
+                        btm.fireTableDataChanged();
+                    } catch (IOException ex) {
+                        DialogUtils.displayError("Error", "Unable to load bookmarks: " + ex.getMessage());
+                        dialog.setVisible(false);
+                        dialog.dispose();
+                    }
+                    dialog.setVisible(false);
+                    dialog.dispose();
+                }
+            };
+            thread.start();
         }
-        //System.out.println(BookmarkController.getInstance().getBookmarks());
     }
 
     private static void saveBookmarks(JTable table) {

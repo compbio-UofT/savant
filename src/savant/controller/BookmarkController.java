@@ -66,17 +66,20 @@ public class BookmarkController {
     }
 
     public void addBookmark(Bookmark f) {
+        addBookmark(f, true);
+    }
+
+    public void addBookmark(Bookmark f, boolean fireEvent) {
         if(this.bookmarks == null || this.bookmarks.isEmpty()) { this.bookmarks = new ArrayList<Bookmark>(); }
         this.bookmarks.add(f);
-        this.fireBookmarksChangedEvent(f,true);
+        if(fireEvent) this.fireBookmarksChangedEvent(f,true);
     }
 
     public void addBookmarks(List<Bookmark> bkmks){
         for (Bookmark b : bkmks) {
-            addBookmark(b);
+            addBookmark(b, false);
         }
-        //System.out.println("Adding bookmark : " + f.getRange() );
-        //this.bookmarks.add(f);
+        this.fireBookmarksChangedEvent(bkmks.get(bkmks.size()-1), true);
     }
     
      private static Bookmark parseBookmark(String line) {
