@@ -63,7 +63,11 @@ public class ContinuousTrackRenderer extends TrackRenderer {
     public void dataRetrievalCompleted(DataRetrievalEvent evt) {
         float[] extremes = ContinuousTrack.getExtremeValues(evt.getData());
         Range range = (Range)instructions.get(DrawingInstruction.RANGE);
-        addInstruction(DrawingInstruction.AXIS_RANGE, AxisRange.initWithRanges(range, new Range(Math.min(0, (int) Math.floor(extremes[0]*1.05)), Math.max(0,(int) Math.ceil(extremes[1]*1.05)))));
+
+        // Range will be null if we're a coverage track which is hidden by the corresponding .bam track.
+        if (range != null) {
+            addInstruction(DrawingInstruction.AXIS_RANGE, AxisRange.initWithRanges(range, new Range(Math.min(0, (int) Math.floor(extremes[0]*1.05)), Math.max(0,(int) Math.ceil(extremes[1]*1.05)))));
+        }
         super.dataRetrievalCompleted(evt);
     }
 
