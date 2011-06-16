@@ -77,7 +77,7 @@ public class ContinuousTrackRenderer extends TrackRenderer {
         Graphics2D g2 = (Graphics2D) g;
         clearShapes();
 
-        renderPreCheck();
+        renderPreCheck(gp);
 
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 

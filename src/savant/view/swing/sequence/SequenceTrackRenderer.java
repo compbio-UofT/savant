@@ -1,5 +1,5 @@
 /*
- *    Copyright 2010 University of Toronto
+ *    Copyright 2010-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -25,7 +25,6 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
-import savant.data.types.Record;
 import savant.data.types.SequenceRecord;
 import savant.exception.RenderingException;
 import savant.file.DataFormat;
@@ -39,6 +38,7 @@ import savant.view.swing.TrackRenderer;
 
 /**
  * Class to draw a sequence track as alternating bars of colour with base letters in the center.
+ *
  * @author mfiume
  */
 public class SequenceTrackRenderer extends TrackRenderer {
@@ -58,7 +58,7 @@ public class SequenceTrackRenderer extends TrackRenderer {
         Graphics2D g2 = (Graphics2D) g;
         gp.setIsOrdinal(true);
 
-        renderPreCheck();
+        renderPreCheck(gp);
 
         double unitWidth = gp.getUnitWidth();
 
@@ -134,7 +134,6 @@ public class SequenceTrackRenderer extends TrackRenderer {
             } catch (UnsupportedEncodingException ignored) {
             }
         }
-        if(data.isEmpty())throw new RenderingException("No data in range.");
     }
 
     private boolean fontFits(Font font, double width, Graphics2D g2) {

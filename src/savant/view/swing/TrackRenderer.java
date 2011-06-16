@@ -144,23 +144,6 @@ public abstract class TrackRenderer implements DataRetrievalListener {
      * Before doing any actual rendering, derived classes should call this in their
      * render() methods in case we want to display a message instead.
      *
-     * @throws RenderingException
-     */
-    protected void renderPreCheck() throws RenderingException {
-        Boolean refexists = (Boolean)instructions.get(DrawingInstruction.REFERENCE_EXISTS);
-        if (!refexists) {
-            throw new RenderingException("No data for reference");
-        }
-        String errorMessage = (String)instructions.get(DrawingInstruction.ERROR);
-        if (errorMessage != null){
-            throw new RenderingException(errorMessage);
-        }
-    }
-
-    /**
-     * Before doing any actual rendering, derived classes should call this in their
-     * render() methods in case we want to display a message instead.
-     *
      * If graphPane is given and error is thrown, make sure graphPane is resized if necessary.
      *
      * @throws RenderingException
@@ -168,13 +151,16 @@ public abstract class TrackRenderer implements DataRetrievalListener {
     protected void renderPreCheck(GraphPane gp) throws RenderingException {
         Boolean refexists = (Boolean)instructions.get(DrawingInstruction.REFERENCE_EXISTS);
         if (!refexists) {
-            this.resizeFrame(gp);
+            resizeFrame(gp);
             throw new RenderingException("No data for reference");
         }
         String errorMessage = (String)instructions.get(DrawingInstruction.ERROR);
         if (errorMessage != null){
-            this.resizeFrame(gp);
+            resizeFrame(gp);
             throw new RenderingException(errorMessage);
+        }
+        if (data == null || data.isEmpty()) {
+            throw new RenderingException("No data in range.");
         }
     }
 

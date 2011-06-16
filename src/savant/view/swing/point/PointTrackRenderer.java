@@ -57,7 +57,7 @@ public class PointTrackRenderer extends TrackRenderer {
 
         double width = gp.getUnitWidth();
 
-        renderPreCheck();
+        renderPreCheck(gp);
 
         Resolution r = (Resolution)instructions.get(DrawingInstruction.RESOLUTION);
 

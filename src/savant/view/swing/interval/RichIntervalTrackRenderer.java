@@ -62,12 +62,7 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
         gp.setIsOrdinal(true);
         this.clearShapes();
 
-        try{
-            renderPreCheck();
-        } catch (RenderingException e){
-            resizeFrame(gp);
-            throw e;
-        }
+        renderPreCheck(gp);
 
         drawMode = (String)instructions.get(DrawingInstruction.MODE);
         resolution = (Resolution)instructions.get(DrawingInstruction.RESOLUTION);

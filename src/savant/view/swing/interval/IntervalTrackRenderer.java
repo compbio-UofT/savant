@@ -68,12 +68,7 @@ public class IntervalTrackRenderer extends TrackRenderer {
         gp.setIsOrdinal(true);
         this.clearShapes();
 
-        try{
-            renderPreCheck();
-        } catch (RenderingException e){
-            resizeFrame(gp);
-            throw e;
-        }
+        renderPreCheck(gp);
 
         String drawMode = (String)instructions.get(DrawingInstruction.MODE);
         Resolution r = (Resolution)instructions.get(DrawingInstruction.RESOLUTION);
