@@ -463,7 +463,7 @@ public class BAMTrackRenderer extends TrackRenderer {
                     continue;
                 }
 
-                Color readcolor = null;
+                Color readColour = null;
 
                 boolean strandFlag = samRecord.getReadNegativeStrandFlag();
                 Strand strand = strandFlag ? Strand.REVERSE : Strand.FORWARD ;
@@ -481,9 +481,9 @@ public class BAMTrackRenderer extends TrackRenderer {
                     alpha = alpha < minTransparency ? minTransparency : alpha;
                     alpha = alpha > maxTransparency ? maxTransparency : alpha;
                     
-                    readcolor = new Color(basecolor.getRed(),basecolor.getGreen(),basecolor.getBlue(),alpha);
+                    readColour = new Color(basecolor.getRed(),basecolor.getGreen(),basecolor.getBlue(),alpha);
                 } else if (drawMode.equals(BASE_QUALITY_MODE)) {
-                    readcolor = new Color(0,0,0,0);
+                    readColour = new Color(0,0,0,0);
                 } else {
                     
                     if (strand == Strand.FORWARD) {
@@ -495,11 +495,11 @@ public class BAMTrackRenderer extends TrackRenderer {
                 }
 
                 Color override = ((BAMIntervalRecord)intervalRecord).getColor();
-                if(override != null){
-                    g2.setColor(override);
+                if (override != null){
+                    readColour = override;
                 }
                 
-                Polygon readshape = renderRead(g2, gp, cs, samRecord, interval, level, range, readcolor);
+                Polygon readshape = renderRead(g2, gp, cs, samRecord, interval, level, range, readColour);
 
                 this.recordToShapeMap.put(intervalRecord, readshape);
 
