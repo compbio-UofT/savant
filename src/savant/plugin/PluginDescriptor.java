@@ -1,5 +1,5 @@
 /*
- *    Copyright 2010-2011 University of Toronto
+ *    Copyright 2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -16,13 +16,11 @@
 package savant.plugin;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
-import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 
 
@@ -31,9 +29,9 @@ import javax.xml.stream.XMLStreamReader;
  *
  * @author tarkvara
  */
-public class PluginDescriptor {
+public class PluginDescriptor implements Comparable<PluginDescriptor> {
 
-        /**
+    /**
      * Bare-bones set of tags we need to recognise in plugin.xml in order to identify plugins.
      */
     private enum PluginXMLElement {
@@ -69,7 +67,7 @@ public class PluginDescriptor {
         this.id = id;
         this.version = version;
         this.name = name;
-        this.sdkVersion = sdkVersion;
+        this.sdkVersion = sdkVersion != null ? sdkVersion : "1.4.2 or earlier";
         this.file = file;
     }
 
@@ -97,6 +95,12 @@ public class PluginDescriptor {
         return file;
     }
 
+    @Override
+    public int compareTo(PluginDescriptor t) {
+        return (id + version).compareTo(t.id + t.version);
+    }
+
+
     /**
      * Here's where we do our SDK compatibility check.  Update this code whenever the API changes.
      */
@@ -104,12 +108,12 @@ public class PluginDescriptor {
         return sdkVersion.equals("1.5.0");
     }
 
-    public static PluginDescriptor fromFile(File f) throws IOException {
-        JarFile jar = new JarFile(f);
-        ZipEntry entry = jar.getEntry("plugin.xml");
-        if (entry != null) {
-            InputStream entryStream = jar.getInputStream(entry);
-            try {
+    public static PluginDescriptor fromFile(File f) throws PluginVersionException {
+        try {
+            JarFile jar = new JarFile(f);
+            ZipEntry entry = jar.getEntry("plugin.xml");
+            if (entry != null) {
+                InputStream entryStream = jar.getInputStream(entry);
                 reader = XMLInputFactory.newInstance().createXMLStreamReader(entryStream);
                 String className = null;
                 String id = null;
@@ -144,16 +148,13 @@ public class PluginDescriptor {
                     }
                 } while (reader != null);
 
-                // Here's where we do our SDK compatibility check.  Update this code whenever the API changes.
-                if (className != null && id != null && name != null && sdkVersion != null) {
+                if (className != null && id != null && name != null) {
                     return new PluginDescriptor(className, id, version, name, sdkVersion, f);
                 }
-            } catch (XMLStreamException x) {
-                // Convert this to an IOException, which is probably more informative for the caller.
-                throw new IOException(x);
             }
+        } catch (Exception x) {
         }
-        return null;
+        throw new PluginVersionException(f.getName() + " did not contain a valid plugin");
     }
 
     private static PluginXMLElement readElement() {

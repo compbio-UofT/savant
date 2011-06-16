@@ -15,7 +15,6 @@
  */
 package savant.view.dialog;
 
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
@@ -23,55 +22,52 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
-import java.awt.event.MouseWheelListener;
-import javax.swing.BorderFactory;
+import java.util.List;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
-import javax.swing.table.TableModel;
 
 import com.jidesoft.grid.HierarchicalTable;
 import com.jidesoft.grid.HierarchicalTableComponentFactory;
 import com.jidesoft.grid.HierarchicalTableModel;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
+import savant.controller.Listener;
 import savant.controller.PluginController;
+import savant.controller.event.PluginEvent;
 import savant.plugin.PluginDescriptor;
 
 
 /**
  * Class which lets user select which plugins are available.
  *
- * @author mfiume, vwilliams
+ * @author mfiume, vwilliams, tarkvara
  */
-public class PluginBrowser {
-    private TableModel tableModel;
+public class PluginBrowser extends HierarchicalTable {
+    private static final Log LOG = LogFactory.getLog(PluginBrowser.class);
+
+    private ProgramTableModel tableModel;
     private PluginController pluginController = PluginController.getInstance();
 
-    public Component getPluginListPanel() {
+    public PluginBrowser() {
         tableModel = new ProgramTableModel();
-        final HierarchicalTable table = new HierarchicalTable() {
-            @Override
-            public TableModel getStyleModel() {
-                return tableModel; // designate it as the style model
-            }
-        };
-        table.setModel(tableModel);
-        table.setPreferredScrollableViewportSize(new Dimension(600, 400));
-        table.setHierarchicalColumn(-1);
-        table.setSingleExpansion(true);
-        table.setName("Program Table");
-        table.setShowGrid(false);
-        table.setRowHeight(24);
-        table.getTableHeader().setPreferredSize(new Dimension(0, 0));
-        table.getColumnModel().getColumn(0).setPreferredWidth(500);
-        table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        pluginController.addListener(tableModel);
+
+        setModel(tableModel);
+        setPreferredScrollableViewportSize(new Dimension(600, 400));
+        setHierarchicalColumn(-1);
+        setSingleExpansion(true);
+        setName("Program Table");
+        setShowGrid(false);
+        setRowHeight(24);
+        getTableHeader().setPreferredSize(new Dimension(0, 0));
+        getColumnModel().getColumn(0).setPreferredWidth(500);
+        setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         HierarchicalTableComponentFactory factory = new HierarchicalTableComponentFactory() {
             @Override
             public Component createChildComponent(HierarchicalTable table, Object value, int row) {
@@ -85,18 +81,16 @@ public class PluginBrowser {
             public void destroyChildComponent(HierarchicalTable table, Component component, int row) {
             }
         };
-        table.setComponentFactory(factory);
-        table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+        setComponentFactory(factory);
+        getSelectionModel().addListSelectionListener(new ListSelectionListener() {
             @Override
             public void valueChanged(ListSelectionEvent e) {
-                int row = table.getSelectedRow();
+                int row = getSelectedRow();
                 if (row != -1) {
-                    table.expandRow(row);
+                    expandRow(row);
                 }
             }
         });
-        JScrollPane pane = new JScrollPane(table);
-        return pane;
     }
 
     /**
@@ -145,16 +139,16 @@ public class PluginBrowser {
         }
     }
 
-    class ProgramTableModel extends AbstractTableModel implements HierarchicalTableModel {
-        final PluginDescriptor[] descriptors;
+    class ProgramTableModel extends AbstractTableModel implements HierarchicalTableModel, Listener<PluginEvent> {
+        List<PluginDescriptor> descriptors;
 
-        public ProgramTableModel() {
-            descriptors = pluginController.getDescriptors().toArray(new PluginDescriptor[0]);
+        ProgramTableModel() {
+            descriptors = pluginController.getDescriptors();
         }
 
         @Override
         public int getRowCount() {
-            return descriptors.length;
+            return descriptors.size();
         }
 
         @Override
@@ -164,7 +158,7 @@ public class PluginBrowser {
 
         @Override
         public Object getValueAt(int rowIndex, int columnIndex) {
-            return descriptors[rowIndex].getName();
+            return descriptors.get(rowIndex).getName();
         }
 
         @Override
@@ -189,61 +183,13 @@ public class PluginBrowser {
 
         @Override
         public Object getChildValueAt(int row) {
-            return descriptors[row];
-        }
-    }
-
-    static class FitScrollPane extends JScrollPane {
-        public FitScrollPane() {
-            initScrollPane();
-        }
-
-        public FitScrollPane(Component view) {
-            super(view);
-            initScrollPane();
-        }
-
-        public FitScrollPane(Component view, int vsbPolicy, int hsbPolicy) {
-            super(view, vsbPolicy, hsbPolicy);
-            initScrollPane();
-        }
-
-        public FitScrollPane(int vsbPolicy, int hsbPolicy) {
-            super(vsbPolicy, hsbPolicy);
-            initScrollPane();
-        }
-
-        private void initScrollPane() {
-            setBorder(BorderFactory.createLineBorder(Color.GRAY));
-            setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-            setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
-            getViewport().getView().addComponentListener(new ComponentAdapter() {
-                @Override
-                public void componentResized(ComponentEvent e) {
-                    setSize(getSize().width, getPreferredSize().height);
-                }
-            });
-            removeMouseWheelListeners();
-        }
-
-        // remove MouseWheelListener as there is no need for it in FitScrollPane.
-        private void removeMouseWheelListeners() {
-            MouseWheelListener[] listeners = getMouseWheelListeners();
-            for (MouseWheelListener listener : listeners) {
-                removeMouseWheelListener(listener);
-            }
+            return descriptors.get(row);
         }
 
         @Override
-        public void updateUI() {
-            super.updateUI();
-            removeMouseWheelListeners();
-        }
-
-        @Override
-        public Dimension getPreferredSize() {
-            getViewport().setPreferredSize(getViewport().getView().getPreferredSize());
-            return super.getPreferredSize();
+        public void handleEvent(PluginEvent event) {
+            descriptors = pluginController.getDescriptors();
+            fireTableDataChanged();
         }
     }
 }

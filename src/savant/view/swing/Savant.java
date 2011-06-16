@@ -61,7 +61,7 @@ import savant.plugin.builtin.SAFEDataSourcePlugin;
 import savant.plugin.builtin.SavantFileRepositoryDataSourcePlugin;
 import savant.settings.*;
 import savant.swing.component.TrackChooser;
-import savant.util.DownloadFile;
+import savant.net.DownloadFile;
 import savant.util.MiscUtils;
 import savant.view.dialog.*;
 import savant.view.icon.SavantIconFactory;
@@ -402,7 +402,7 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
         pluginController.addListener(new Listener<PluginEvent>() {
             @Override
             public void handleEvent(PluginEvent event) {
-                if (event.getType() == PluginEvent.Type.ADDED && event.getCanvas() != null) {
+                if (event.getType() == PluginEvent.Type.LOADED && event.getCanvas() != null) {
                     SavantPlugin plugin = event.getPlugin();
                     final DockableFrame f = DockableFrameFactory.createGUIPluginFrame(plugin.getTitle());
                     JPanel p = (JPanel)f.getContentPane();

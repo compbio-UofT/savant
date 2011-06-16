@@ -101,10 +101,16 @@ public class CacheableSABS extends SeekableAdjustableBufferedStream {
 
         //retrieve from stream
         FileInputStream cacheStream = new FileInputStream(cacheFile);
-        cacheStream.skip(actualOffset);
-        bufferedStream = new BufferedInputStream(cacheStream, bufferSize);
-        bufferedStream.skip(positionOffset);
-        positionInBuff = positionOffset;
+        try {
+            cacheStream.skip(actualOffset);
+            bufferedStream = new BufferedInputStream(cacheStream, bufferSize);
+            bufferedStream.skip(positionOffset);
+            positionInBuff = positionOffset;
+        } catch (IOException x) {
+            // I'm still suspicious of the fix for #593.
+            LOG.info("Exception from cacheStream.skip(" + actualOffset + ")", x);
+            throw x;
+        }
     }
 
     @Override

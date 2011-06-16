@@ -22,23 +22,24 @@
 package savant.view.dialog;
 
 import java.awt.BorderLayout;
+import java.awt.Dialog;
+import java.awt.Window;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.net.URL;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
+import javax.swing.JScrollPane;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import savant.api.util.DialogUtils;
 import savant.controller.PluginController;
+import savant.net.DownloadFile;
 import savant.settings.BrowserSettings;
 import savant.settings.DirectorySettings;
-import savant.util.DownloadFile;
-import savant.util.IOUtils;
-import savant.view.dialog.tree.PluginRepositoryBrowser;
+import savant.util.MiscUtils;
+import savant.view.dialog.tree.PluginRepositoryDialog;
 import savant.view.swing.Savant;
 
 /**
@@ -48,10 +49,11 @@ import savant.view.swing.Savant;
 public class PluginManagerDialog extends JDialog {
 
     private static Log LOG = LogFactory.getLog(PluginManagerDialog.class);
-    private PluginBrowser browser;
-    private PluginRepositoryBrowser repositoryBrowser;
 
-    public static PluginManagerDialog instance;
+    private static PluginManagerDialog instance;
+
+    private PluginBrowser browser;
+    private PluginRepositoryDialog repositoryBrowser;
 
     public static PluginManagerDialog getInstance() {
         if (instance == null) {
@@ -61,13 +63,14 @@ public class PluginManagerDialog extends JDialog {
     }
 
     /** Creates new form PluginManager */
-    private PluginManagerDialog(java.awt.Frame parent) {
-        super(parent,"Plugin Manager");
+    private PluginManagerDialog(Window parent) {
+        super(parent, "Plugin Manager", Dialog.ModalityType.APPLICATION_MODAL);
         initComponents();
-        this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        this.setResizable(false);
+        MiscUtils.registerCancelButton(closeButton);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setResizable(false);
         browser = new PluginBrowser();
-        refresh();
+        browserPanel.add(new JScrollPane(browser), BorderLayout.CENTER);
     }
 
     /** This method is called from within the constructor to
@@ -79,43 +82,41 @@ public class PluginManagerDialog extends JDialog {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jLabel1 = new javax.swing.JLabel();
-        button_add_from_file = new javax.swing.JButton();
-        button_add_from_url = new javax.swing.JButton();
-        panel_plugincanvas = new javax.swing.JPanel();
+        javax.swing.JLabel pluginsCaption = new javax.swing.JLabel();
+        javax.swing.JButton fromFileButton = new javax.swing.JButton();
+        javax.swing.JButton fromRepositoryButton = new javax.swing.JButton();
+        browserPanel = new javax.swing.JPanel();
+        closeButton = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setIconImage(null);
         setIconImages(null);
 
-        jLabel1.setText("Installed Plugins");
+        pluginsCaption.setText("Installed Plugins");
 
-        button_add_from_file.setText("Install from File");
-        button_add_from_file.addActionListener(new java.awt.event.ActionListener() {
+        fromFileButton.setText("Install from File");
+        fromFileButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                button_add_from_fileActionPerformed(evt);
+                fromFileButtonActionPerformed(evt);
             }
         });
 
-        button_add_from_url.setText("Install from Repository");
-        button_add_from_url.addActionListener(new java.awt.event.ActionListener() {
+        fromRepositoryButton.setText("Install from Repository");
+        fromRepositoryButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                button_add_from_urlActionPerformed(evt);
+                fromRepositoryButtonActionPerformed(evt);
             }
         });
 
-        panel_plugincanvas.setBackground(new java.awt.Color(255, 255, 255));
+        browserPanel.setBackground(new java.awt.Color(255, 255, 255));
+        browserPanel.setLayout(new java.awt.BorderLayout());
 
-        javax.swing.GroupLayout panel_plugincanvasLayout = new javax.swing.GroupLayout(panel_plugincanvas);
-        panel_plugincanvas.setLayout(panel_plugincanvasLayout);
-        panel_plugincanvasLayout.setHorizontalGroup(
-            panel_plugincanvasLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 515, Short.MAX_VALUE)
-        );
-        panel_plugincanvasLayout.setVerticalGroup(
-            panel_plugincanvasLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 243, Short.MAX_VALUE)
-        );
+        closeButton.setText("Cancel");
+        closeButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                closeButtonActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -124,87 +125,68 @@ public class PluginManagerDialog extends JDialog {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(panel_plugincanvas, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(browserPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 549, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addGroup(layout.createSequentialGroup()
-                                .addComponent(jLabel1)
+                                .addComponent(pluginsCaption)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 302, Short.MAX_VALUE))
                             .addGroup(layout.createSequentialGroup()
-                                .addComponent(button_add_from_url)
+                                .addComponent(closeButton)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(fromRepositoryButton)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)))
-                        .addComponent(button_add_from_file)))
+                        .addComponent(fromFileButton)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jLabel1)
+                .addComponent(pluginsCaption)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(panel_plugincanvas, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(browserPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 243, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(button_add_from_file)
-                    .addComponent(button_add_from_url))
+                    .addComponent(fromFileButton)
+                    .addComponent(closeButton)
+                    .addComponent(fromRepositoryButton))
                 .addContainerGap())
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void button_add_from_fileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_add_from_fileActionPerformed
-        addPlugin();
-    }//GEN-LAST:event_button_add_from_fileActionPerformed
-
-    private void button_add_from_urlActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_add_from_urlActionPerformed
-        try {
-            File file = DownloadFile.downloadFile(new URL(BrowserSettings.PLUGIN_URL), new File(System.getProperty("java.io.tmpdir")));
-            if (repositoryBrowser == null) {
-                repositoryBrowser = new PluginRepositoryBrowser(Savant.getInstance(), false, "Install Plugins", "Install", file, DirectorySettings.getPluginsDirectory());
-            }
-            setVisible(false);
-            //browser.setAlwaysOnTop(true);
-            repositoryBrowser.setVisible(true);
-
-        } catch (Exception x) {
-            LOG.error(x);
-            DialogUtils.displayError("Problem downloading file: " + BrowserSettings.PLUGIN_URL);
-        }
-    }//GEN-LAST:event_button_add_from_urlActionPerformed
-
-    // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton button_add_from_file;
-    private javax.swing.JButton button_add_from_url;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JPanel panel_plugincanvas;
-    // End of variables declaration//GEN-END:variables
-
-    private void addPlugin() {
-
+    private void fromFileButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fromFileButtonActionPerformed
         File selectedFile = DialogUtils.chooseFileForOpen("Select Plugin JAR", null, null);
-
-        // copy the plugin
         if (selectedFile != null) {
             try {
-                File pluginFile = new File(DirectorySettings.getPluginsDirectory(), selectedFile.getName());
-                IOUtils.copyFile(selectedFile, pluginFile);
-                PluginController.getInstance().addPlugin(pluginFile);
-                refresh();
-                DialogUtils.displayMessage("Plugin successfully loaded.");
-            } catch (Throwable ex) {
-                LOG.error("Error installing plugin.", ex);
-                DialogUtils.displayError("Error installing plugin." +
-                        "\nYou can manually install it by adding the appropriate \n" +
-                        ".jar file to the plugins directory.");
+                PluginController.getInstance().installPlugin(selectedFile);
+            } catch (Exception x) {
+                DialogUtils.displayException("Installation Error", String.format("<html>Unable to install plugin from <i>%s</i>: %s.</html>", selectedFile.getName(), x), x);
             }
-
         }
-    }
+    }//GEN-LAST:event_fromFileButtonActionPerformed
 
-    private void refresh() {
-        this.panel_plugincanvas.setLayout(new BorderLayout());
-        this.panel_plugincanvas.removeAll();
-        this.panel_plugincanvas.add(browser.getPluginListPanel(), BorderLayout.CENTER);
-    }
+    private void fromRepositoryButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fromRepositoryButtonActionPerformed
+        try {
+            if (repositoryBrowser == null) {
+                File file = DownloadFile.downloadFile(new URL(BrowserSettings.PLUGIN_URL), DirectorySettings.getTmpDirectory());
+                repositoryBrowser = new PluginRepositoryDialog(this, "Install Plugins", "Install", file);
+            }
+            repositoryBrowser.setVisible(true);
+        } catch (Exception x) {
+            DialogUtils.displayException("Installation Error", String.format("<html>Problem downloading file <i>%s</i>.</html>", BrowserSettings.PLUGIN_URL), x);
+        }
+    }//GEN-LAST:event_fromRepositoryButtonActionPerformed
+
+    private void closeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_closeButtonActionPerformed
+        setVisible(false);
+    }//GEN-LAST:event_closeButtonActionPerformed
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JPanel browserPanel;
+    private javax.swing.JButton closeButton;
+    // End of variables declaration//GEN-END:variables
+
 }

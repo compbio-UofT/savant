@@ -16,9 +16,12 @@
 
 package savant.view.dialog;
 
+import java.awt.Dialog;
+import java.awt.Window;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
+import java.net.URL;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -26,33 +29,47 @@ import javax.swing.JProgressBar;
 import javax.swing.WindowConstants;
 
 import savant.api.util.DialogUtils;
+import savant.net.DownloadEvent;
+import savant.net.DownloadFile;
+import savant.net.DownloadMonitor;
+import savant.util.MiscUtils;
 
 /**
  *
  * @author mfiume
  */
-public class DownloadDialog extends JDialog {
+public class DownloadDialog extends JDialog implements DownloadMonitor {
 
+    @Deprecated
     private Thread t;
-    private boolean complete = false;
 
+    private boolean complete;
+    private boolean cancelled;
+    private String shortName;
+    
+    /** Successfully downloaded file (or null on failure). */
+    private File downloadedFile;
 
+    @Deprecated
     public DownloadDialog(JFrame parent, boolean modal, Thread t) {
-
-        initComponents();
+        this(parent, modal);
         this.t = t;
+    }
+
+    public DownloadDialog(Window parent, boolean modal) {
+        super(parent, modal ? Dialog.ModalityType.APPLICATION_MODAL : Dialog.ModalityType.MODELESS);
+        initComponents();
         setLocationRelativeTo(parent);
 
         this.setAlwaysOnTop(true);
         this.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
         this.addWindowListener(new WindowAdapter() {
-
             @Override
             public void windowClosing(WindowEvent e) {
                 askToDispose();
             }
         });
-        
+
     }
 
     /** This method is called from within the constructor to
@@ -64,35 +81,35 @@ public class DownloadDialog extends JDialog {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jLabel1 = new javax.swing.JLabel();
-        progress = new javax.swing.JProgressBar();
-        b_cancel = new javax.swing.JButton();
-        l_currentfilename = new javax.swing.JLabel();
-        jLabel2 = new javax.swing.JLabel();
-        l_destination = new javax.swing.JLabel();
-        l_amount = new javax.swing.JLabel();
+        javax.swing.JLabel fileCaption = new javax.swing.JLabel();
+        progressBar = new javax.swing.JProgressBar();
+        cancelButton = new javax.swing.JButton();
+        fileLabel = new javax.swing.JLabel();
+        javax.swing.JLabel destinationCaption = new javax.swing.JLabel();
+        destinationLabel = new javax.swing.JLabel();
+        stageLabel = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
         setResizable(false);
 
-        jLabel1.setFont(new java.awt.Font("Tahoma", 1, 13));
-        jLabel1.setText("Downloading: ");
+        fileCaption.setFont(fileCaption.getFont().deriveFont(fileCaption.getFont().getStyle() | java.awt.Font.BOLD));
+        fileCaption.setText("Downloading: ");
 
-        b_cancel.setText("Cancel");
-        b_cancel.addActionListener(new java.awt.event.ActionListener() {
+        cancelButton.setText("Cancel");
+        cancelButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                b_cancelActionPerformed(evt);
+                cancelButtonActionPerformed(evt);
             }
         });
 
-        l_currentfilename.setText("filename");
+        fileLabel.setText("filename");
 
-        jLabel2.setFont(new java.awt.Font("Tahoma", 1, 13));
-        jLabel2.setText("To:");
+        destinationCaption.setFont(destinationCaption.getFont().deriveFont(destinationCaption.getFont().getStyle() | java.awt.Font.BOLD));
+        destinationCaption.setText("To:");
 
-        l_destination.setText("destination");
+        destinationLabel.setText("destination");
 
-        l_amount.setText("Starting download...");
+        stageLabel.setText("Starting download...");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -101,18 +118,18 @@ public class DownloadDialog extends JDialog {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(progress, javax.swing.GroupLayout.DEFAULT_SIZE, 432, Short.MAX_VALUE)
+                    .addComponent(progressBar, javax.swing.GroupLayout.DEFAULT_SIZE, 441, Short.MAX_VALUE)
                     .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                         .addGroup(layout.createSequentialGroup()
                             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                .addComponent(jLabel1)
-                                .addComponent(jLabel2))
+                                .addComponent(fileCaption)
+                                .addComponent(destinationCaption))
                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                .addComponent(l_currentfilename, javax.swing.GroupLayout.PREFERRED_SIZE, 329, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addComponent(l_destination, javax.swing.GroupLayout.PREFERRED_SIZE, 329, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addComponent(b_cancel, javax.swing.GroupLayout.Alignment.TRAILING)
-                        .addComponent(l_amount, javax.swing.GroupLayout.PREFERRED_SIZE, 407, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                .addComponent(fileLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 329, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(destinationLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 329, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(cancelButton, javax.swing.GroupLayout.Alignment.TRAILING)
+                        .addComponent(stageLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 407, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -120,57 +137,60 @@ public class DownloadDialog extends JDialog {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel1)
-                    .addComponent(l_currentfilename))
+                    .addComponent(fileCaption)
+                    .addComponent(fileLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel2)
-                    .addComponent(l_destination))
+                    .addComponent(destinationCaption)
+                    .addComponent(destinationLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 14, Short.MAX_VALUE)
-                .addComponent(l_amount)
+                .addComponent(stageLabel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(progress, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(progressBar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(11, 11, 11)
-                .addComponent(b_cancel)
+                .addComponent(cancelButton)
                 .addContainerGap())
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void b_cancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_b_cancelActionPerformed
+    private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelButtonActionPerformed
         askToDispose();
-    }//GEN-LAST:event_b_cancelActionPerformed
+    }//GEN-LAST:event_cancelButtonActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton b_cancel;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel l_amount;
-    private javax.swing.JLabel l_currentfilename;
-    private javax.swing.JLabel l_destination;
-    private javax.swing.JProgressBar progress;
+    private javax.swing.JButton cancelButton;
+    private javax.swing.JLabel destinationLabel;
+    private javax.swing.JLabel fileLabel;
+    private javax.swing.JProgressBar progressBar;
+    private javax.swing.JLabel stageLabel;
     // End of variables declaration//GEN-END:variables
 
+    @Deprecated
     public void setProgress(int i) {
-        this.progress.setValue(i);
+        progressBar.setValue(i);
     }
 
+    @Deprecated
     public JProgressBar getProgressBar() {
-        return this.progress;
+        return progressBar;
     }
 
+    @Deprecated
     public void setSource(String arg) {
-        this.setTitle("Downloading " + arg);
-        this.l_currentfilename.setText(arg);
+        setTitle("Downloading " + arg);
+        fileLabel.setText(arg);
     }
 
+    @Deprecated
     public void setDestination(File arg) {
-        this.l_destination.setText(arg.getPath());
+        destinationLabel.setText(arg.getPath());
     }
 
+    @Deprecated
     public void setAmountDownloaded(String string) {
-        this.l_amount.setText(string);
+        stageLabel.setText(string);
     }
 
     private void askToDispose() {
@@ -185,13 +205,62 @@ public class DownloadDialog extends JDialog {
         }
     }
 
+    @Deprecated
     public void setComplete() {
-        this.l_amount.setText("Download Complete");
-        this.progress.setValue(100);
-        this.b_cancel.setText("Close");
-        this.complete = true;
-        this.dispose();
+        stageLabel.setText("Download Complete");
+        progressBar.setValue(100);
+        cancelButton.setText("Close");
+        complete = true;
+        dispose();
         DialogUtils.displayMessage("Download complete", "Download finished successfully.");
     }
 
+    /**
+     * Set up the dialog, start the download process, and make it visible.
+     */
+    public void downloadFile(URL url, File destDir) {
+        shortName = MiscUtils.getFilenameFromPath(url.getPath());
+        setTitle("Downloading " + shortName);
+        fileLabel.setText(url.toString());
+        destinationLabel.setText(destDir.getPath());
+        downloadedFile = new File(destDir, shortName);
+        DownloadFile.downloadFile(url, destDir, this);
+        setVisible(true);
+    }
+
+
+    @Override
+    public boolean isCancelled() {
+        return cancelled;
+    }
+
+    /**
+     * @return the file which was downloaded, or null on error or cancellation.
+     */
+    public File getDownloadedFile() {
+        return downloadedFile;
+    }
+
+    @Override
+    public void handleEvent(DownloadEvent event) {
+        switch (event.getType()) {
+            case STARTED:
+                break;
+            case PROGRESS:
+                int progress = (int)(event.getProgress() * 100.0);
+                stageLabel.setText(String.format("Downloaded %d%%",  progress));
+                break;
+            case COMPLETED:
+                dispose();
+                ((Window)getParent()).toFront();
+                if (cancelled) {
+                    downloadedFile = null;
+                }
+                break;
+            case FAILED:
+                downloadedFile = null;
+                DialogUtils.displayException("Download Error", String.format("<html>Download of <i>%s</i> failed.", shortName), event.getError());
+                break;
+        }
+    }
 }

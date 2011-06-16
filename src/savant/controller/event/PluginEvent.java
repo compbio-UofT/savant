@@ -28,7 +28,7 @@ import savant.plugin.SavantPlugin;
  */
 public class PluginEvent {
     public enum Type {
-        ADDED,
+        LOADED,
         REMOVED,
         ERROR
     }
@@ -41,7 +41,7 @@ public class PluginEvent {
      * Constructor invoked by PluginController.
      */
     public PluginEvent(Type type, String pluginID, JPanel canvas) {
-        this.type = Type.ADDED;
+        this.type = Type.LOADED;
         this.pluginID = pluginID;
         this.canvas = canvas;
     }

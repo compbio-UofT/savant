@@ -45,7 +45,7 @@ import savant.settings.BrowserSettings;
 import savant.settings.DirectorySettings;
 import savant.settings.PersistentSettings;
 import savant.swing.component.HyperlinkButton;
-import savant.util.DownloadFile;
+import savant.net.DownloadFile;
 import savant.view.icon.SavantIconFactory;
 import savant.view.swing.Savant;
 

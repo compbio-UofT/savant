@@ -46,7 +46,7 @@ import savant.data.sources.DataSource;
 import savant.view.dialog.tree.TreeBrowserModel;
 import savant.view.dialog.tree.TreeBrowserEntry;
 import savant.settings.BrowserSettings;
-import savant.util.DownloadFile;
+import savant.net.DownloadFile;
 import savant.view.swing.Savant;
 import savant.view.swing.TrackFactory;
 

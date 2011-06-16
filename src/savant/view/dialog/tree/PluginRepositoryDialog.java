@@ -15,15 +15,11 @@
  */
 package savant.view.dialog.tree;
 
-import java.awt.event.MouseEvent;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.Frame;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -44,65 +40,86 @@ import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 
-import savant.net.DownloadController;
+import savant.api.util.DialogUtils;
+import savant.controller.PluginController;
+import savant.settings.DirectorySettings;
+import savant.util.MiscUtils;
+import savant.view.dialog.DownloadDialog;
 
 /**
  *
  * @author mfiume
  */
-public class PluginRepositoryBrowser extends JDialog {
-    private static final Log LOG = LogFactory.getLog(PluginRepositoryBrowser.class);
+public class PluginRepositoryDialog extends JDialog {
+    private static final Log LOG = LogFactory.getLog(PluginRepositoryDialog.class);
     private static final TableCellRenderer FILE_RENDERER = new FileRowCellRenderer();
 
-    private Frame p;
-    private File saveToDirectory;
     private TreeTable table;
 
-    public PluginRepositoryBrowser(Frame parent, boolean modal, String title, File xmlfile, File destDir) throws JDOMException, IOException {
-        this(parent, modal, title, "Download", getDownloadTreeRows(xmlfile), destDir);
-    }
+    /**
+     * Instantiate a plugin repository browser and let the user select from it.
+     * Typically this is invoked from the PluginManagerDialog.
+     *
+     * @param parent parent window
+     * @param title window title
+     * @param buttonText text of button (typically "Install")
+     * @param xmlFile plugin.xml file which defines repository entries
+     * @param destDir destination directory for downloads
+     */
+    public PluginRepositoryDialog(Window parent, String title, String buttonText, File xmlFile) throws JDOMException, IOException {
+        super(parent, title, Dialog.ModalityType.APPLICATION_MODAL);
 
-    public PluginRepositoryBrowser(Frame parent, boolean modal, String title, String buttonText, File xmlfile, File destDir) throws JDOMException, IOException {
-        this(parent, modal, title, buttonText, getDownloadTreeRows(xmlfile), destDir);
-    }
+        setResizable(true);
+        setLayout(new BorderLayout());
+        add(getCenterPanel(getDownloadTreeRows(xmlFile)), BorderLayout.CENTER);
 
-    public PluginRepositoryBrowser(Frame parent, boolean modal, String title, String buttonText, List<TreeBrowserEntry> roots, File dir) {
-        super(parent, title, modal);
+        JPanel bottomBar = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 5));
 
-        saveToDirectory = dir;
-        p = parent;
+        JButton cancelButton = new JButton("Cancel");
+        cancelButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                setVisible(false);
+            }
+        });
+        bottomBar.add(cancelButton);
 
-        this.setResizable(true);
-        this.setLayout(new BorderLayout());
-        this.add(getCenterPanel(roots), BorderLayout.CENTER);
-
-        JMenuBar bottombar = new JMenuBar();
-        bottombar.setAlignmentX(RIGHT_ALIGNMENT);
-        bottombar.add(Box.createHorizontalGlue());
-        JButton downbutt = new JButton(buttonText);
-        downbutt.putClientProperty( "JButton.buttonType", "default" );
-        downbutt.addActionListener(new ActionListener() {
+        JButton installButton = new JButton(buttonText);
+        installButton.putClientProperty( "JButton.buttonType", "default" );
+        installButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 downloadSelectedItem(false);
             }
         });
-        bottombar.add(downbutt);
-        this.add(bottombar, BorderLayout.SOUTH);
+        bottomBar.add(installButton);
 
-        this.setPreferredSize(new Dimension(800, 500));
-        this.pack();
+        add(bottomBar, BorderLayout.SOUTH);
+
+        setPreferredSize(new Dimension(800, 500));
+        pack();
 
         setLocationRelativeTo(parent);
+        MiscUtils.registerCancelButton(cancelButton);
     }
 
     private void downloadSelectedItem(boolean ignoreBranchSelected) {
         TreeBrowserEntry r = (TreeBrowserEntry) table.getRowAt(table.getSelectedRow());
         if (r != null && r.isLeaf()) {
-            DownloadController.getInstance().enqueueDownload(r.getURL(), saveToDirectory, null);
+            DownloadDialog dd = new DownloadDialog(this, true);
+            dd.downloadFile(r.getURL(), DirectorySettings.getPluginsDirectory());
+
+            // When the download is complete, we hide the dialog.  This makes its
+            // behaviour more parallel to Install from File.
+            setVisible(false);
+            try {
+                PluginController.getInstance().installPlugin(dd.getDownloadedFile());
+            } catch (Exception x) {
+                DialogUtils.displayException("Installation Error", String.format("<html>Unable to install <i>%s</i>: %s.</html>", dd.getDownloadedFile().getName(), x), x);
+            }
         } else {
             if (!ignoreBranchSelected) {
-                JOptionPane.showMessageDialog(p, "Please select a file");
+                DialogUtils.displayMessage("Please select a file");
             }
         }
     }
@@ -170,29 +187,12 @@ public class PluginRepositoryBrowser extends JDialog {
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         //table.expandAll();
         table.expandFirstLevel();
-        table.addMouseListener(new MouseListener() {
-
+        table.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (e.getClickCount() == 2) {
                     downloadSelectedItem(true);
                 }
-            }
-
-            @Override
-            public void mousePressed(MouseEvent e) {
-            }
-
-            @Override
-            public void mouseReleased(MouseEvent e) {
-            }
-
-            @Override
-            public void mouseEntered(MouseEvent e) {
-            }
-
-            @Override
-            public void mouseExited(MouseEvent e) {
             }
         });
 

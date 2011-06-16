@@ -16,24 +16,17 @@
 package savant.controller;
 
 import java.awt.BorderLayout;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.FilenameFilter;
-import java.io.IOException;
+import java.io.*;
 import java.net.MalformedURLException;
-import javax.swing.JPanel;
-
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import javax.swing.JPanel;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -42,6 +35,7 @@ import savant.api.util.DialogUtils;
 import savant.controller.event.PluginEvent;
 import savant.experimental.PluginTool;
 import savant.plugin.PluginDescriptor;
+import savant.plugin.PluginVersionException;
 import savant.plugin.SavantDataSourcePlugin;
 import savant.plugin.SavantPanelPlugin;
 import savant.plugin.SavantPlugin;
@@ -106,17 +100,8 @@ public class PluginController extends Controller {
         });
         for (File f: files) {
             try {
-                PluginDescriptor desc = PluginDescriptor.fromFile(f);
-                if (desc != null) {
-                    if (desc.isCompatible()) {
-                        LOG.info("Found compatible " + desc.getID() + "-" + desc.getVersion());
-                        validPlugins.put(desc.getID(), desc);
-                    } else {
-                        LOG.info("Found incompatible " + desc.getID() + "-" + desc.getVersion() + " (SDK version " + desc.getSDKVersion() + ")");
-                        pluginErrors.put(desc.getID(), "Invalid SDK version (" + desc.getSDKVersion() + ")");
-                    }
-                }
-            } catch (IOException x) {
+                addPlugin(f);
+            } catch (PluginVersionException x) {
                 LOG.warn("No plugin found in " + f);
             }
         }
@@ -137,7 +122,7 @@ public class PluginController extends Controller {
                     public void run() {
                         try {
                             loadPlugin(desc);
-                        } catch (Throwable x) {
+                        } catch (Exception x) {
                             LOG.error("Unable to load " + desc.getName(), x);
                             pluginErrors.put(desc.getID(), "Error");
                         }
@@ -147,8 +132,11 @@ public class PluginController extends Controller {
         }
     }
 
-    public Collection<PluginDescriptor> getDescriptors() {
-        return validPlugins.values();
+    public List<PluginDescriptor> getDescriptors() {
+        List<PluginDescriptor> result = new ArrayList<PluginDescriptor>();
+        result.addAll(validPlugins.values());
+        Collections.sort(result);
+        return result;
     }
 
     public SavantPlugin getPlugin(String id) {
@@ -281,7 +269,7 @@ public class PluginController extends Controller {
     }
 
 
-    private void loadPlugin(PluginDescriptor desc) throws Throwable {
+    private void loadPlugin(PluginDescriptor desc) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
 
         Class pluginClass = pluginLoader.loadClass(desc.getClassName());
         SavantPlugin plugin = (SavantPlugin)pluginClass.newInstance();
@@ -297,20 +285,39 @@ public class PluginController extends Controller {
             initSavantDataSourcePlugin((SavantDataSourcePlugin)plugin);
         }
         loadedPlugins.put(desc.getID(), plugin);
-        fireEvent(new PluginEvent(PluginEvent.Type.ADDED, desc.getID(), canvas));
+        fireEvent(new PluginEvent(PluginEvent.Type.LOADED, desc.getID(), canvas));
     }
 
     /**
-     * Try to add a plugin from the given file.
+     * Try to add a plugin from the given file.  It is inserted into our internal
+     * data structures, but not yet loaded.
      */
-    public void addPlugin(File f) throws Throwable {
+    public PluginDescriptor addPlugin(File f) throws PluginVersionException {
         PluginDescriptor desc = PluginDescriptor.fromFile(f);
         if (desc != null) {
-            pluginLoader.addJar(f);
-            loadPlugin(desc);
+            if (desc.isCompatible()) {
+                LOG.info("Found compatible " + desc.getID() + "-" + desc.getVersion());
+                validPlugins.put(desc.getID(), desc);
+            } else {
+                LOG.info("Found incompatible " + desc.getID() + "-" + desc.getVersion() + " (SDK version " + desc.getSDKVersion() + ")");
+                pluginErrors.put(desc.getID(), "Invalid SDK version (" + desc.getSDKVersion() + ")");
+                throw new PluginVersionException("Invalid SDK version (" + desc.getSDKVersion() + ")");
+            }
         }
+        return desc;
     }
 
+    /**
+     * Copy the given file to the plugins directory, add it, and load it.
+     * @param selectedFile
+     */
+    public void installPlugin(File selectedFile) throws Exception {
+        File pluginFile = new File(DirectorySettings.getPluginsDirectory(), selectedFile.getName());
+        IOUtils.copyFile(selectedFile, pluginFile);
+        PluginDescriptor desc = addPlugin(pluginFile);
+        pluginLoader.addJar(pluginFile);
+        loadPlugin(desc);
+    }
 
     class PluginLoader extends URLClassLoader {
         PluginLoader(URL[] urls) {

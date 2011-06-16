@@ -16,21 +16,18 @@
 package savant.view.swing;
 
 import java.awt.Color;
-import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URI;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.zip.GZIPInputStream;
 import javax.swing.JPanel;
-import net.sf.samtools.util.BlockCompressedInputStream;
 
+import net.sf.samtools.util.BlockCompressedInputStream;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
