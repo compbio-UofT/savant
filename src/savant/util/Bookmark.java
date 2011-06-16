@@ -73,6 +73,8 @@ public class Bookmark implements BookmarkAdapter, Serializable {
             to = r.getTo();
         }
 
+        text = text.replace(" ", "");
+
         // Extract a chromosome name (if any).
         int colonPos = text.indexOf(':');
         if (colonPos >= 0) {
