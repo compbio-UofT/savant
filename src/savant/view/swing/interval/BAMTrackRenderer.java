@@ -263,7 +263,7 @@ public class BAMTrackRenderer extends TrackRenderer {
     @Override
     public void dataRetrievalCompleted(DataRetrievalEvent evt) {
         String mode = (String)instructions.get(DrawingInstruction.MODE);
-        if (mode.equals(ARC_PAIRED_MODE)){// && !instructions.containsKey(DrawingInstruction.ERROR)) {
+        if (mode != null && mode.equals(ARC_PAIRED_MODE)){// && !instructions.containsKey(DrawingInstruction.ERROR)) {
             int maxDataValue = BAMTrack.getArcYMax(evt.getData());
             Range range = (Range)instructions.get(DrawingInstruction.RANGE);
             addInstruction(DrawingInstruction.AXIS_RANGE, AxisRange.initWithRanges(range, new Range(0,(int)Math.round(maxDataValue+maxDataValue*0.1))));
@@ -420,7 +420,14 @@ public class BAMTrackRenderer extends TrackRenderer {
         IntervalPacker packer = new IntervalPacker(data);
         // TODO: when it becomes possible, choose an appropriate number for breathing room parameter
 //        Map<Integer, ArrayList<IntervalRecord>> intervals = packer.pack(10);
-        ArrayList<List<IntervalRecord>> intervals = packer.pack(2);
+
+
+        //calculate breathing room parameter
+        double arrowWidth = getIntervalHeight() / 4;
+        double pixelsPerBase = Math.max(0.01, (double)gp.getWidth() / (double)axisRange.getXRange().getLength());
+        int breathingRoom = (int)Math.ceil(2 * (arrowWidth / pixelsPerBase) + 2);
+
+        ArrayList<List<IntervalRecord>> intervals = packer.pack(breathingRoom);
 
         gp.setIsOrdinal(false);
         gp.setXRange(axisRange.getXRange());
@@ -1840,6 +1847,7 @@ public class BAMTrackRenderer extends TrackRenderer {
     @Override
     public boolean hasHorizontalGrid() {
         String m = (String)instructions.get(DrawingInstruction.MODE);
+        if(m == null) return false;
         return m.equals(ARC_PAIRED_MODE);
     }
 
