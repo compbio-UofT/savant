@@ -90,7 +90,7 @@ public class LocationController {
     }
 
     public void setLocation(String ref, boolean forceEvent){
-        if(isValidAndNewReference(ref) || forceEvent){
+        if (isValidAndNewReference(ref) || forceEvent){
             updateHistory();
             setReference(ref);
             fireLocationChangedEvent(true);
@@ -111,15 +111,21 @@ public class LocationController {
         setLocation(ref, new Range(from, to));
     }
 
-    public void setLocation(String ref, Range range){
-        updateHistory();
-        boolean newRef = false;
-        if(isValidAndNewReference(ref)){
-            setReference(ref);           
-            newRef = true;
+    /**
+     * This is the version of setLocation() which does the actual work.  All the other
+     * overloads should be calling this one.
+     */
+    public void setLocation(String ref, Range range) {
+        if (loadedGenome != null) {
+            updateHistory();
+            boolean newRef = false;
+            if (isValidAndNewReference(ref)) {
+                setReference(ref);
+                newRef = true;
+            }
+            setRange(range);
+            fireLocationChangedEvent(newRef);
         }
-        setRange(range);       
-        fireLocationChangedEvent(newRef);
     }
 
     private void setLocation(History history){

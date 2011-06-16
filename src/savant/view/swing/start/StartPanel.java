@@ -266,8 +266,8 @@ public class StartPanel extends JPanel {
                     public void actionPerformed(ActionEvent e) {
                         try {
                             Savant.getInstance().addTrackFromPath(t);
-                        } catch (Exception ex) {
-                            DialogUtils.displayError("Problem opening track from file " + t);
+                        } catch (Exception x) {
+                            DialogUtils.displayException("Track Error", String.format("<html>Unable to load track <i>%s</i>: %s.</html>", t, x), x);
                         }
                     }
                 }));
@@ -300,8 +300,8 @@ public class StartPanel extends JPanel {
                     public void actionPerformed(ActionEvent e) {
                         try {
                             ProjectController.getInstance().loadProjectFromFile(new File(t));
-                        } catch (Exception ex) {
-                            DialogUtils.displayError("Problem opening track from file " + t);
+                        } catch (Exception x) {
+                            DialogUtils.displayException("Project Error", String.format("<html>Unable to load project <i>%s</i>: %s.</html>", t, x), x);
                         }
                     }
                 }));

@@ -185,7 +185,7 @@ public class Project {
 
         if (cytobandPath != null) {
             genome = new Genome(genomeName, genomeDesc, URI.create(cytobandPath), null);
-        } else {
+        } else if (references.size() > 0) {
             genome = new Genome(genomeName, genomeDesc, references.toArray(new ReferenceInfo[0]));
         }
     }
@@ -272,8 +272,11 @@ public class Project {
      * Load the project's settings into Savant.
      */
     public void load() throws Exception {
-        LocationController.getInstance().setGenome(genome);
+        // Set the location before the genome.  Savant calls showBrowserControls() in
+        // response to the GenomeChangedEvent, and expects range to be non-null by then.
         LocationController.getInstance().setLocation(reference, range);
+        LocationController.getInstance().setGenome(genome);
+
         for (String path : trackPaths) {
             Savant.getInstance().addTrackFromPath(path);
         }
