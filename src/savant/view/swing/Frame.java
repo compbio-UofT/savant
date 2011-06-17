@@ -19,6 +19,7 @@ package savant.view.swing;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
@@ -31,6 +32,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import com.jidesoft.docking.DockableFrame;
+import java.awt.event.ComponentListener;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -62,7 +64,7 @@ import savant.view.swing.sequence.SequenceTrack;
 
 /**
  *
- * @author mfiume
+ * @author mfiume, AndrewBrook
  */
 public class Frame extends DockableFrame implements DataRetrievalListener, TrackCreationListener {
     private static final Log LOG = LogFactory.getLog(Frame.class);
@@ -152,11 +154,26 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
         c.gridy = 0;
         frameLandscape.add(sidePanel, c, 5);
 
-        
+
         initCommandBar();
         sidePanel.addPanel(commandBar);
         //sidePanel.addPanel(new TrackSettingsMenu());
         sidePanel.addPanel(arcLegend);
+
+        this.addComponentListener(new ComponentListener() {
+
+            @Override
+            public void componentResized(ComponentEvent e) {
+                Dimension dim = getSize();
+                if(dim == null) return;
+                sidePanel.setContainerHeight(dim.height);
+            }
+
+            public void componentMoved(ComponentEvent e) {}
+            public void componentShown(ComponentEvent e) {}
+            public void componentHidden(ComponentEvent e) {}
+        });
+        sidePanel.setShowPanel(false);
 
         //add filler to left
         JLabel l = new JLabel();
@@ -341,6 +358,7 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
 
     public void setActiveFrame(){
         sidePanel.setVisible(true);
+        sidePanel.setShowPanel(true);
     }
 
     public void setInactiveFrame(){
@@ -356,6 +374,8 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
      */
     private void initCommandBar() {
         commandBar = new JMenuBar();
+        commandBar.setName("commandBar"); //used by sidePanel
+        commandBar.setMinimumSize(new Dimension(50,22));
         JMenu optionsMenu = createOptionsMenu();
         commandBar.add(optionsMenu);
         commandBar.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY));
@@ -511,7 +531,7 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
 
         final JCheckBoxMenuItem itemRGB = new JCheckBoxMenuItem("Enable ItemRGB");
         final JCheckBoxMenuItem score = new JCheckBoxMenuItem("Enable Score"){};
-        
+
         itemRGB.setState(false);
         score.setState(false);
 
@@ -544,7 +564,7 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
      */
     private JMenu createDisplayMenu() {
         JMenu menu = new JMenu("Display Mode");
-        
+
         //display modes
         List<String> drawModes = this.tracks[0].getDrawModes();
         visItems = new ArrayList<JCheckBoxMenuItem>();

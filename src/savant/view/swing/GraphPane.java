@@ -239,7 +239,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
                 g.translate((int) -(pixelshiftamount*unitWidth), 0);
                 System.out.println("after shifting " + (-pixelshiftamount)) ;
             }
-             * 
+             *
              */
         }
 
@@ -413,11 +413,11 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
                 oldViewHeight = newViewHeight;
 
                 return new Dimension(frame.getFrameLandscape().getWidth(), newHeight);
-            
+
             } else if(oldViewHeight != ((JViewport)this.getParent().getParent()).getHeight()) {
                 int newViewHeight = ((JViewport)this.getParent().getParent()).getHeight();
                 int oldScroll = ((JScrollPane)this.getParent().getParent().getParent()).getVerticalScrollBar().getValue();
-                newScroll = oldScroll + (oldViewHeight - newViewHeight);          
+                newScroll = oldScroll + (oldViewHeight - newViewHeight);
                 oldViewHeight = newViewHeight;
             }
 
@@ -428,7 +428,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
 
             oldWidth = getParentFrame().getFrameLandscape().getWidth();
             oldHeight = getParentFrame().getFrameLandscape().getHeight();
-           
+
             /*
             // Get elapsed time in milliseconds
             long elapsedTimeMillis = System.currentTimeMillis()-start;
@@ -1421,6 +1421,8 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
             yMaxPanel.setBorder(BorderFactory.createLineBorder(Color.darkGray));
             yMaxPanel.setBackground(new Color(240,240,240));
             yMaxPanel.setOpaque(true);
+            yMaxPanel.setPreferredSize(new Dimension(60, 20));
+            yMaxPanel.setAlignmentX(0.5f);
             parentFrame.addToSidePanel(yMaxPanel);
             yMaxInit = true;
         }
@@ -1453,7 +1455,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
             size = exportListeners.size(); //a listener may get removed
         }
     }
-    
+
     public void addPopupEventListener(PopupEventListener pel){
         synchronized (popupListeners) {
             popupListeners.add(pel);

@@ -22,19 +22,31 @@ import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.util.ArrayList;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
 /**
  *
  * @author Andrew Brook
+ * 
+ * Good luck to anyone who tries to decipher this mess...
+ * The result of hours of wrestling with Swing layouts. 
  */
 public class FrameSidePanel extends JPanel {
 
     private GridBagConstraints c;
     private int y = 0;
     private JPanel bottomFill;
+    private JPanel bottomFill1;
     private boolean opaque = false;
+    private int containerHeight = 200;
+    private boolean showPanel = false;
+    private boolean firstPanel = true;
+    private JPanel extraPanel;
+
+    private ArrayList<JComponent> componentList = new ArrayList<JComponent>();
+    private ArrayList<JComponent> tempHidden = new ArrayList<JComponent>();
 
     public FrameSidePanel(){
         this.setBackground(Color.red);
@@ -43,12 +55,28 @@ public class FrameSidePanel extends JPanel {
         this.setOpaque(opaque);
         c = new GridBagConstraints();
         bottomFill = new JPanel();
+        bottomFill.setMinimumSize(new Dimension(0,0));
         bottomFill.setBackground(Color.ORANGE);
         bottomFill.setOpaque(opaque);
         this.add(bottomFill);
+
+        JPanel fill2 = new JPanel();
+        fill2.setBackground(Color.blue);
+        fill2.setSize(18,5);
+        fill2.setPreferredSize(new Dimension(18,5));
+        fill2.setOpaque(opaque);
+        c.gridx = 2;
+        c.gridy = 1;
+        this.add(fill2, c);
     }
 
     public void addPanel(JComponent pan){
+
+        JPanel toAddTo = this;
+        if(!firstPanel){
+            toAddTo = extraPanel;
+        }
+
         JPanel fill1 = new JPanel();
         fill1.setBackground(Color.blue);
         fill1.setSize(5,5);
@@ -59,7 +87,7 @@ public class FrameSidePanel extends JPanel {
         c.fill = GridBagConstraints.BOTH;
         c.gridx = 0;
         c.gridy = y;
-        this.add(fill1, c);
+        toAddTo.add(fill1, c);
 
         JPanel fill2 = new JPanel();
         fill2.setBackground(Color.blue);
@@ -68,7 +96,7 @@ public class FrameSidePanel extends JPanel {
         fill2.setOpaque(opaque);
         c.gridx = 2;
         c.gridy = y;
-        this.add(fill2, c);
+        toAddTo.add(fill2, c);
 
         //force pan to be full size
         JPanel contain1 = new JPanel();
@@ -82,7 +110,7 @@ public class FrameSidePanel extends JPanel {
         c.fill = GridBagConstraints.HORIZONTAL;
         c.gridx = 1;
         c.gridy = y+1;
-        this.add(contain1, c);
+        toAddTo.add(contain1, c);
 
         c.weightx = 1.0;
         c.weighty = 1.0;
@@ -91,8 +119,83 @@ public class FrameSidePanel extends JPanel {
         c.gridy = y+2;
         this.remove(bottomFill);
         this.add(bottomFill, c);
+        if(!firstPanel){
+            extraPanel.remove(bottomFill1);
+            extraPanel.add(bottomFill1, c);
+        }
 
         y += 2;
+
+        if(firstPanel){
+            componentList.add(fill1);
+            componentList.add(fill2);
+            componentList.add(pan);
+            tempHidden.add(fill1);
+            tempHidden.add(fill2);
+            if(pan.isVisible())
+                tempHidden.add(pan);
+        }
+        setShowPanel(showPanel);
+
+        if(firstPanel){
+            extraPanel = new JPanel();
+            extraPanel.setLayout(new GridBagLayout());
+            extraPanel.setCursor(new Cursor(Cursor.HAND_CURSOR));
+            extraPanel.setOpaque(opaque);
+            c.gridx = 0;
+            c.gridwidth = 3;
+            this.add(extraPanel, c);
+            bottomFill1 = new JPanel();
+            bottomFill1.setMinimumSize(new Dimension(0,0));
+            bottomFill1.setBackground(Color.ORANGE);
+            bottomFill1.setOpaque(opaque);
+            extraPanel.add(bottomFill1);
+            c.gridx = 1;
+            c.gridwidth = 1;
+            y++;
+            firstPanel = false;
+            componentList.add(extraPanel);
+            tempHidden.add(extraPanel);
+        }
+
+    }
+
+    public void setContainerHeight(int height){
+        containerHeight = height;
+        setShowPanel(showPanel);
+    }
+
+    public void setShowPanel(boolean show){
+        showPanel = show;
+        int necessaryHeight = getNecessaryHeight();
+        if(!show || containerHeight < necessaryHeight){
+            for(JComponent comp : componentList){
+                if(comp.getName() != null && comp.getName().equals("commandBar")) continue;
+                if(comp.isVisible()){
+                    tempHidden.add(comp);
+                    comp.setVisible(false);
+                }
+            }
+        } else {
+            for(JComponent comp :tempHidden){
+                comp.setVisible(true);
+            }
+            tempHidden.clear();
+        }
+    }
+
+    public int getNecessaryHeight(){
+        int necessaryHeight = 0;
+        for(JComponent comp : componentList){
+            if(comp.isVisible())
+                necessaryHeight += comp.getPreferredSize().height;
+        }
+        for(JComponent comp : tempHidden){
+            if(!comp.isVisible())
+                necessaryHeight += comp.getPreferredSize().height;
+        }
+        
+        return necessaryHeight + 25;
     }
 
 }
