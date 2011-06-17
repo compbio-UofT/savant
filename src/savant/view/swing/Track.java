@@ -16,9 +16,8 @@
 package savant.view.swing;
 
 import java.awt.Color;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -258,19 +257,14 @@ public abstract class Track implements TrackAdapter {
     /**
      * Load the dictionary from the given URI.
      */
-    public void loadDictionary(URI uri) throws IOException {
+    public synchronized void loadDictionary(URI uri) throws IOException {
         LOG.info("Starting to load dictionary from " + uri);
         dictionary = new HashMap<String, Bookmark>();
         int lineNum = 0;
-        String line = null;
-        ByteArrayOutputStream bufOutput = null;
-        ByteArrayInputStream bufInput = null;
         try {
-            // To avoid hiccups in BlockCompressedInputStream, read the whole fucking thing into an array.
-            bufOutput = new ByteArrayOutputStream();
-            IOUtils.copyStream(new BlockCompressedInputStream(NetworkUtils.getSeekableStreamForURI(uri)), bufOutput);
-            bufInput = new ByteArrayInputStream(bufOutput.toByteArray());
-            while ((line = IOUtils.readLine(bufInput)) != null) {
+            String line = null;
+            InputStream input = new BlockCompressedInputStream(NetworkUtils.getSeekableStreamForURI(uri));
+            while ((line = IOUtils.readLine(input)) != null) {
                 String[] entry = line.split("\\t");
                 dictionary.put(entry[0].toLowerCase(), new Bookmark(entry[1]));
                 lineNum++;

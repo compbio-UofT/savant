@@ -119,7 +119,7 @@ public class CacheableSABS extends SeekableAdjustableBufferedStream {
         this.position = position;
 
         //determine which block needs to be accessed
-        int block = (int)(position/this.bufferSize);
+        int block = (int)(position / bufferSize);
 
         //check offset for block
         this.openCache();
@@ -130,25 +130,25 @@ public class CacheableSABS extends SeekableAdjustableBufferedStream {
             //block is cached
             int positionOffset = (int)(position % bufferSize);
             cachedSeek(offset, positionOffset);
-            this.closeCache();
+            closeCache();
         } else {
-            //not cached, seek to start of block
+            // Not cached, seek to start of block
             super.seek(position - (position % bufferSize));
 
-            //cache block
+            // Cache block
             byte[] b = new byte[bufferSize];
-            bufferedStream.read(b, 0, bufferSize); //read buffer into byte[] b
+            int numRead = bufferedStream.read(b, 0, bufferSize); //read buffer into byte[] b
             if(cache == null) openCache(); //sometimes cache is null after above read... TODO: solve this?
             int storeOffset = (int)((cache.length() - (numBlocks * 4))/this.bufferSize)+1; //offset to data in cache
             long actualOffset = cache.length(); //actual pointer to data in cache            
             cache.seek(block * 4); //seek to write offset
             cache.writeInt(storeOffset); //write the offset
             cache.seek(actualOffset); //seek to where data will be written
-            cache.write(b); //write data
+            cache.write(b, 0, numRead); //write data
 
             //skip to position % buffersize
             positionInBuff = 0;
-            this.closeCache();
+            closeCache();
 
             //TODO: is this necessary? extra work...
             seek(position);
