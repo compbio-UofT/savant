@@ -328,6 +328,7 @@ public class BookmarkSheet implements BookmarksChangedListener {
     }
 
     public void goToNextBookmark() {
+        if(table.getRowCount() == 0) return;
         int row = table.getSelectedRow();
         if (row == -1 || row == table.getRowCount()-1) { row = 0; }
         else { row += 1; }
@@ -341,9 +342,10 @@ public class BookmarkSheet implements BookmarksChangedListener {
     }
 
     public void goToPreviousBookmark() {
+        if(table.getRowCount() == 0) return;
         int row = table.getSelectedRow();
         if (row == -1 || row == 0) { row = table.getRowCount()-1; }
-        else { row -= 1; }
+        else { row -= 1; }       
         selectRow(row);
     }
 

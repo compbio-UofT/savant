@@ -383,10 +383,10 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
 
         s.setStatus("Initializing GUI");
 
-        initComponents();
+        initComponents();       
         customizeUI();
-
         init();
+        initHiddenShortcuts();
 
         if (BrowserSettings.getCheckVersionOnStartup()) {
             s.setStatus("Checking version");
@@ -2019,5 +2019,36 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
         File full = new File(dir.getAbsolutePath() + System.getProperty("file.separator") + " ");
         System.out.println("Setting directory to: " + full);
         this.lastTrackDirectory = full;
+    }
+
+    private void initHiddenShortcuts(){
+        JMenuBar hiddenBar = new JMenuBar();
+        hiddenBar.setSize(new Dimension(0,0));
+        hiddenBar.setMaximumSize(new Dimension(0,0));
+        hiddenBar.setPreferredSize(new Dimension(0,0));
+
+        JMenuItem hiddenBookmarkPrev = new JMenuItem("");
+        hiddenBookmarkPrev.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_9, osSpecificModifier));
+        hiddenBookmarkPrev.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                if(favoriteSheet != null){
+                    favoriteSheet.goToPreviousBookmark();
+                }
+            }
+        });
+
+        JMenuItem hiddenBookmarkNext = new JMenuItem("");
+        hiddenBookmarkNext.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_0, osSpecificModifier));
+        hiddenBookmarkNext.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                if(favoriteSheet != null){
+                    favoriteSheet.goToNextBookmark();
+                }
+            }
+        });
+
+        hiddenBar.add(hiddenBookmarkPrev);
+        hiddenBar.add(hiddenBookmarkNext);
+        this.add(hiddenBar);
     }
 }
