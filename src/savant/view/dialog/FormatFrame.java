@@ -16,6 +16,7 @@
 
 package savant.view.dialog;
 
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.JButton;
@@ -24,8 +25,8 @@ import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 
 import com.jidesoft.dialog.JideOptionPane;
-import savant.api.util.DialogUtils;
 
+import savant.api.util.DialogUtils;
 import savant.controller.LocationController;
 import savant.file.FileType;
 import savant.format.DataFormatter;
@@ -41,19 +42,20 @@ import savant.view.swing.Savant;
  *
  * @author mfiume
  */
-public class FormatFrame extends javax.swing.JFrame implements FormatProgressListener {
+public class FormatFrame extends JDialog implements FormatProgressListener {
 
     //DataFormatter dataFormatter;
     Thread formatThread;
     DataFormatter dataFormatter;
 
     /** Creates new form FormatFrame */
-    public FormatFrame(DataFormatter df) {
+    public FormatFrame(Window parent, DataFormatter formatter) {
+        super(parent, ModalityType.APPLICATION_MODAL);
         initComponents();
-        dataFormatter = df;
+        dataFormatter = formatter;
         setIconImage(SavantIconFactory.getInstance().getIcon(SavantIconFactory.StandardIcon.LOGO).getImage());
 
-        DataFormatterThread dft = new DataFormatterThread(df);
+        DataFormatterThread dft = new DataFormatterThread(formatter);
         dft.setFormatFrame(this);
         formatThread = new Thread(dft);
 

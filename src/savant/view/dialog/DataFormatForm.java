@@ -267,7 +267,7 @@ public final class DataFormatForm extends JDialog {
         boolean isInputOneBased = !zeroBasedCheck.isSelected();
         
         DataFormatter df = new DataFormatter(infile, outfile, ft, isInputOneBased);
-        FormatFrame fpd = new FormatFrame(df);
+        FormatFrame fpd = new FormatFrame(this, df);
         fpd.setLocationRelativeTo(this);
         fpd.setVisible(true);
         this.dispose();

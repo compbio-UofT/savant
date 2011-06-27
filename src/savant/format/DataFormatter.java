@@ -129,8 +129,8 @@ public class DataFormatter {
             // format files with Savant header
 
             // If necessary, check that it really is a text file
-            if (inputFileType != FileType.INTERVAL_BIGBED && inputFileType != FileType.CONTINUOUS_BIGWIG && !verifyTextFile(inFile, inputFileType != FileType.SEQUENCE_FASTA)) {
-                throw new SavantFileFormattingException("<html><i>" + inFile.getName() + "</i> does not appear to be a tab-delimited text file.</html>");
+            if (inputFileType != FileType.INTERVAL_BIGBED && inputFileType != FileType.CONTINUOUS_BIGWIG) {
+                verifyTextFile(inFile, inputFileType != FileType.SEQUENCE_FASTA && inputFileType != FileType.CONTINUOUS_WIG);
             }
 
             // format the input file in the appropriate way
@@ -319,12 +319,12 @@ public class DataFormatter {
 
     /**
      * Verifies that the file in question is a tab-delimited text file.
-     * @return
+     * @param fileName the file to be examined
+     * @param lookingForTabs if true, we're looking for a tab-delimited file (false for .fasta and .wig)
      */
-    private boolean verifyTextFile(File fileName, boolean lookingForTabs) {
-        FileReader reader = null;
+    private void verifyTextFile(File fileName, boolean lookingForTabs) throws SavantFileFormattingException {
         try {
-                reader = new FileReader(fileName);
+            FileReader reader =  new FileReader(fileName);
             char[] readBuf = new char[1000];
             int charsRead = reader.read(readBuf);
             if (charsRead != -1) {
@@ -332,16 +332,14 @@ public class DataFormatter {
                     if (readBuf[i] == '\t') {
                         lookingForTabs = false;
                     } else if (!lookingForTabs && (readBuf[i] == '\r' || readBuf[i] == '\n')) {
-                        return true;
+                        return;
                     }
                 }
             }
-        } catch (IOException e) {
+        } catch (IOException ignored) {
             // result will be false
-        } finally {
-            try { if (reader != null) reader.close(); } catch (IOException ignore) {}
         }
-        return false;
+        throw new SavantFileFormattingException(String.format("<html><i>%s</i> does not appear to be a %s file.</html>", inFile.getName(), lookingForTabs ? "tab-delimited text" : "text"));
     }
 
     public void addProgressListener(FormatProgressListener listener) {
