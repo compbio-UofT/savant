@@ -23,14 +23,13 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
-import net.sf.samtools.util.RuntimeIOException;
 
+import net.sf.samtools.util.RuntimeIOException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import savant.api.util.DialogUtils;
 import savant.controller.DataSourcePluginController;
-import savant.controller.PluginController;
 import savant.data.event.TrackCreationEvent;
 import savant.data.event.TrackCreationListener;
 import savant.data.sources.*;
@@ -333,7 +332,7 @@ public class TrackFactory {
             } else if (x instanceof SavantTrackCreationCancelledException) {
                 // Nothing to do.  The user already knows they cancelled, so no point in putting up a dialog.
             } else if (x instanceof FileNotFoundException) {
-                DialogUtils.displayMessage("File not found", String.format("<html><i>%s</i></html> not found.", x.getMessage()));
+                DialogUtils.displayMessage("File not found", String.format("<html>File <i>%s</i> not found.</html>", x.getMessage()));
             } else {
                 DialogUtils.displayException("Error opening track", "There was a problem opening this file: " + x.getLocalizedMessage(), x);
             }
