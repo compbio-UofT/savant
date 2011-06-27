@@ -16,9 +16,12 @@
 
 package savant.plugin.builtin;
 
-import java.net.MalformedURLException;
+import java.io.IOException;
 import java.net.URL;
 import java.net.URLEncoder;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import savant.api.util.DialogUtils;
 import savant.settings.BrowserSettings;
@@ -30,6 +33,7 @@ import savant.net.DownloadFile;
  * @author mfiume
  */
 public class AddSAFEGroup extends javax.swing.JDialog {
+    private static final Log LOG = LogFactory.getLog(AddSAFEGroup.class);
 
     private String username;
     private String password;
@@ -52,37 +56,37 @@ public class AddSAFEGroup extends javax.swing.JDialog {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jLabel1 = new javax.swing.JLabel();
-        name = new javax.swing.JTextField();
-        jLabel2 = new javax.swing.JLabel();
+        javax.swing.JLabel nameCaption = new javax.swing.JLabel();
+        nameField = new javax.swing.JTextField();
+        javax.swing.JLabel descriptionCaption = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
-        desc = new javax.swing.JTextArea();
-        jButton1 = new javax.swing.JButton();
-        jButton2 = new javax.swing.JButton();
+        descriptionField = new javax.swing.JTextArea();
+        javax.swing.JButton cancelButton = new javax.swing.JButton();
+        javax.swing.JButton createButton = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Create SAFE Group");
 
-        jLabel1.setText("Name:");
+        nameCaption.setText("Name:");
 
-        jLabel2.setText("Description:");
+        descriptionCaption.setText("Description:");
 
-        desc.setColumns(20);
-        desc.setRows(5);
-        desc.setText("Enter a group description here.");
-        jScrollPane1.setViewportView(desc);
+        descriptionField.setColumns(20);
+        descriptionField.setRows(5);
+        descriptionField.setText("Enter a group description here.");
+        jScrollPane1.setViewportView(descriptionField);
 
-        jButton1.setText("Cancel");
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
+        cancelButton.setText("Cancel");
+        cancelButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
+                cancelButtonActionPerformed(evt);
             }
         });
 
-        jButton2.setText("Create Group");
-        jButton2.addActionListener(new java.awt.event.ActionListener() {
+        createButton.setText("Create Group");
+        createButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton2ActionPerformed(evt);
+                createButtonActionPerformed(evt);
             }
         });
 
@@ -94,69 +98,66 @@ public class AddSAFEGroup extends javax.swing.JDialog {
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 376, Short.MAX_VALUE)
-                    .addComponent(name, javax.swing.GroupLayout.DEFAULT_SIZE, 376, Short.MAX_VALUE)
-                    .addComponent(jLabel1)
-                    .addComponent(jLabel2)
+                    .addComponent(nameField, javax.swing.GroupLayout.DEFAULT_SIZE, 376, Short.MAX_VALUE)
+                    .addComponent(nameCaption)
+                    .addComponent(descriptionCaption)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(jButton2)
+                        .addComponent(createButton)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jButton1)))
+                        .addComponent(cancelButton)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jLabel1)
+                .addComponent(nameCaption)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(name, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(nameField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabel2)
+                .addComponent(descriptionCaption)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 161, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButton1)
-                    .addComponent(jButton2))
+                    .addComponent(cancelButton)
+                    .addComponent(createButton))
                 .addContainerGap())
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+    private void createButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_createButtonActionPerformed
         try {
-            String n = name.getText();
-            String d = desc.getText();
+            String n = nameField.getText();
+            String d = descriptionField.getText();
             String result = DownloadFile.downloadFile(new URL(BrowserSettings.SAFE_URL + "?"
                     + "type=addgroup"
                     + "&username=" + URLEncoder.encode(username)
                     + "&password=" + URLEncoder.encode(password)
                     + "&name=" + URLEncoder.encode(n)
                     + "&description=" + URLEncoder.encode(d)));
-            System.out.println(result);
+            LOG.info(result);
             if (result.contains("Error")) {
                 DialogUtils.displayError(result);
             } else {
                 DialogUtils.displayMessage("Welcome to the group \"" + n + "\".");
             }
-            this.dispose();
-        } catch (MalformedURLException ex) {
+            dispose();
+        } catch (IOException x) {
+            LOG.error("Unable to download SAFE index.", x);
         }
-    }//GEN-LAST:event_jButton2ActionPerformed
+    }//GEN-LAST:event_createButtonActionPerformed
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        this.dispose();
-    }//GEN-LAST:event_jButton1ActionPerformed
+    private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelButtonActionPerformed
+        dispose();
+    }//GEN-LAST:event_cancelButtonActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JTextArea desc;
-    private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
+    private javax.swing.JTextArea descriptionField;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTextField name;
+    private javax.swing.JTextField nameField;
     // End of variables declaration//GEN-END:variables
 
 }

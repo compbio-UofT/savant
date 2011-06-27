@@ -348,9 +348,7 @@ public class StartPanel extends JPanel {
 
         try {
             File newsFile = DownloadFile.downloadFile(new URL(BrowserSettings.NEWS_URL), DirectorySettings.getTmpDirectory());
-            if (newsFile != null) {
-                p = parseNewsFile(newsFile);
-            }
+            p = parseNewsFile(newsFile);
             if (newsFile.exists()) { newsFile.delete(); }
 
         } catch (Exception ex) {

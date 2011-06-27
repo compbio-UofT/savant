@@ -271,8 +271,7 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
     /** Click and drag control for range selection */
     private RangeSelectionPanel rangeSelector;
     private Ruler ruler;
-    /** Information & Analysis Tabbed Pane (for plugin use) */
-    private JTabbedPane auxTabbedPane;
+
     /**
      * Info
      */
@@ -390,7 +389,7 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
 
         if (BrowserSettings.getCheckVersionOnStartup()) {
             s.setStatus("Checking version");
-            checkVersion();
+            checkVersion(false);
         }
 
         if (BrowserSettings.getCollectAnonymousUsage()) {
@@ -1391,10 +1390,6 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
     public static void loadPreferences() {
     }
 
-    public static void checkVersion() {
-        checkVersion(false);
-    }
-
     private static String getPost(String name, String value) {
         return name + "=" + value;
     }
@@ -1454,32 +1449,27 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
     public static void checkVersion(boolean verbose) {
         try {
             File versionFile = DownloadFile.downloadFile(new URL(BrowserSettings.VERSION_URL), DirectorySettings.getSavantDirectory());
-            if (versionFile != null) {
-                LOG.info("Saved version file to: " + versionFile.getAbsolutePath());
-                Version currentversion = (new XMLVersion(versionFile)).getVersion();
-                Version thisversion = new Version(BrowserSettings.version);
-                if (currentversion.compareTo(thisversion) > 0) {
-                    DialogUtils.displayMessage("Savant", "A new version of Savant (" + currentversion.toString() + ") is available.\n"
-                            + "To stop this message from appearing, download the newest version at " + BrowserSettings.URL + "\nor disable automatic "
-                            + "checking in Preferences.");
-                } else {
-                    if (verbose) {
-                        DialogUtils.displayMessage("Savant", "This version of Savant (" + thisversion.toString() + ") is up to date.");
-                    }
-                }
+            LOG.info("Saved version file to: " + versionFile.getAbsolutePath());
+            Version currentversion = (new XMLVersion(versionFile)).getVersion();
+            Version thisversion = new Version(BrowserSettings.version);
+            if (currentversion.compareTo(thisversion) > 0) {
+                DialogUtils.displayMessage("Savant", "A new version of Savant (" + currentversion.toString() + ") is available.\n"
+                        + "To stop this message from appearing, download the newest version at " + BrowserSettings.URL + "\nor disable automatic "
+                        + "checking in Preferences.");
             } else {
                 if (verbose) {
-                    DialogUtils.displayMessage("Savant Warning", "Could not connect to server. Please ensure you have connection to the internet and try again.");
+                    DialogUtils.displayMessage("Savant", "This version of Savant (" + thisversion.toString() + ") is up to date.");
                 }
-                LOG.error("Error downloading version file");
             }
             versionFile.delete();
-
-        } catch (IOException ex) {
-        } catch (JDOMException ex) {
-        } catch (NullPointerException ex) {
+        } catch (IOException x) {
+            if (verbose) {
+                DialogUtils.displayMessage("Savant Warning", "Could not connect to server. Please ensure you have connection to the internet and try again.");
+            }
+            LOG.error("Error downloading version file", x);
+        } catch (JDOMException ignored) {
+            // This should only happen if we've deliberately uploaded a malformed version.xml file to our website.
         }
-
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JMenuItem bookmarkItem;
