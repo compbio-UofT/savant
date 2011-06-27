@@ -33,9 +33,9 @@ import org.broad.tabix.TabixReader;
 
 import savant.api.adapter.RangeAdapter;
 import savant.util.IndexCache;
-import savant.data.types.ColumnMapping;
 import savant.data.types.TabixIntervalRecord;
 import savant.file.DataFormat;
+import savant.util.ColumnMapping;
 import savant.util.MiscUtils;
 import savant.util.NetworkUtils;
 import savant.util.Resolution;
@@ -136,7 +136,7 @@ public class TabixDataSource implements DataSource<TabixIntervalRecord> {
                     columnNames[reader.getEndColumn()] = "end";
                 }
             }
-            mapping = ColumnMapping.inferMapping(columnNames, true);
+            mapping = ColumnMapping.inferMapping(columnNames, false);
         }
     }
 

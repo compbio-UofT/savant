@@ -15,6 +15,8 @@
  */
 package savant.data.types;
 
+import savant.util.ColumnMapping;
+
 
 /**
  * Immutable class to represent an interval record pulled from a Tabix file.
@@ -38,8 +40,8 @@ public class TabixIntervalRecord implements IntervalRecord {
         int start = Integer.parseInt(values[mapping.start]);
         int end = mapping.end >= 0 ? Integer.parseInt(values[mapping.end]) : start; // VCF tabix files lack an end column.
 
-        if (!mapping.endInclusive) {
-            end++;
+        if (!mapping.oneBased) {
+            start++;
         }
         interval = new Interval(start, end);
     }

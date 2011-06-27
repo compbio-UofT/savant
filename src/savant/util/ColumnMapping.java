@@ -13,7 +13,7 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package savant.data.types;
+package savant.util;
 
 import org.broad.tabix.TabixWriter.Conf;
 
@@ -37,19 +37,19 @@ public class ColumnMapping {
     public static final String VCF_HEADER = "CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT";
 
     /** Official set of Bed columns from UCSC FAQ.  Columns from name onward are optional. */
-    public static final ColumnMapping BED = inferMapping(BED_HEADER, true);
+    public static final ColumnMapping BED = inferMapping(BED_HEADER, false);
 
     /** Set of columns observed in knownGene tables from UCSC FAQ. */
-    public static final ColumnMapping KNOWNGENE = inferMapping(KNOWNGENE_HEADER, true);
+    public static final ColumnMapping KNOWNGENE = inferMapping(KNOWNGENE_HEADER, false);
 
     /** Set of columns observed in RefSeq genes from UCSC FAQ.  Similar to knownGene, but adds a bin column, and the name2 column is different. */
-    public static final ColumnMapping REFSEQ = inferMapping("bin\t" + REFGENE_HEADER, true);
+    public static final ColumnMapping REFSEQ = inferMapping("bin\t" + REFGENE_HEADER, false);
 
     /** Set of columns for GFF and GTF files.  The only difference is that in GTF the final column is called "attributes" rather than "group". */
     public static final ColumnMapping GFF = inferMapping(GFF_HEADER, true);
 
     /** Set of columns for PSL files.  Not sure if this will work quite right. */
-    public static final ColumnMapping PSL = inferMapping(PSL_HEADER, true);
+    public static final ColumnMapping PSL = inferMapping(PSL_HEADER, false);
 
     /** Set of columns for VCF files.  Note that there is no end column. */
     public static final ColumnMapping VCF = inferMapping(VCF_HEADER, true);
@@ -71,9 +71,9 @@ public class ColumnMapping {
     public final int blockSizes;
     public final int name2;
 
-    public final boolean endInclusive;
+    public final boolean oneBased;
 
-    private ColumnMapping(DataFormat format, int chrom, int start, int end, int name, int score, int strand, int thickStart, int thickEnd, int itemRGB, int blockStartsRelative, int blockStartsAbsolute, int blockEnds, int blockSizes, int name2, boolean endInclusive) {
+    private ColumnMapping(DataFormat format, int chrom, int start, int end, int name, int score, int strand, int thickStart, int thickEnd, int itemRGB, int blockStartsRelative, int blockStartsAbsolute, int blockEnds, int blockSizes, int name2, boolean oneBased) {
         this.format = format;
         this.chrom = chrom;
         this.start = start;
@@ -89,7 +89,7 @@ public class ColumnMapping {
         this.blockEnds = blockEnds;
         this.blockSizes = blockSizes;
         this.name2 = name2;
-        this.endInclusive = endInclusive;
+        this.oneBased = oneBased;
     }
 
     public Conf getTabixConf(int flags) {
@@ -99,34 +99,34 @@ public class ColumnMapping {
     /**
      * Factory method used to map GenericInterval formats.
      */
-    public static ColumnMapping createIntervalMapping(int chrom, int start, int end, int name, boolean endInclusive) {
-        return new ColumnMapping(DataFormat.INTERVAL_GENERIC, chrom, start, end, name, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, endInclusive);
+    public static ColumnMapping createIntervalMapping(int chrom, int start, int end, int name, boolean oneBased) {
+        return new ColumnMapping(DataFormat.INTERVAL_GENERIC, chrom, start, end, name, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, oneBased);
     }
 
     /**
      * Factory method used to map BedInterval formats.
      */
-    public static ColumnMapping createBedMapping(int chrom, int start, int end, int name, int score, int strand, int thickStart, int thickEnd, int itemRGB, int blockStartsRelative, int blockStartsAbsolute, int blockEnds, int blockSizes, int name2, boolean endInclusive) {
-        return new ColumnMapping(DataFormat.INTERVAL_BED, chrom, start, end, name, score, strand, thickStart, thickEnd, itemRGB, blockStartsRelative, blockStartsAbsolute, blockEnds, blockSizes, name2, endInclusive);
+    public static ColumnMapping createBedMapping(int chrom, int start, int end, int name, int score, int strand, int thickStart, int thickEnd, int itemRGB, int blockStartsRelative, int blockStartsAbsolute, int blockEnds, int blockSizes, int name2, boolean oneBased) {
+        return new ColumnMapping(DataFormat.INTERVAL_BED, chrom, start, end, name, score, strand, thickStart, thickEnd, itemRGB, blockStartsRelative, blockStartsAbsolute, blockEnds, blockSizes, name2, oneBased);
     }
 
     /**
      * Factory method used to create interval formats given a tab-delimited list of column names.
      * This is what we expect/hope to find in the first line of any Bed file.
      */
-    public static ColumnMapping inferMapping(String header, boolean endInclusive) {
+    public static ColumnMapping inferMapping(String header, boolean oneBased) {
         if (header.charAt(0) == '#') {
             header = header.substring(1);
         }
         String[] columnNames = header.split("\\t");
-        return inferMapping(columnNames, endInclusive);
+        return inferMapping(columnNames, oneBased);
     }
 
     /**
      * Factory method used to create interval formats given an array of column names.
      * As a side-effect, substitutes natural language names for column names which it recognises.
      */
-    public static ColumnMapping inferMapping(String[] columnNames, boolean endInclusive) {
+    public static ColumnMapping inferMapping(String[] columnNames, boolean oneBased) {
 
         // It's either bed, or it's not any format we recognise.
         int chrom = -1, start = -1, end = -1;
@@ -190,9 +190,9 @@ public class ColumnMapping {
         }
         if (bed) {
             // We have enough extra columns to justify using a Bed track.
-            return ColumnMapping.createBedMapping(chrom, start, end, name, score, strand, thickStart, thickEnd, itemRGB, -1, blockStarts, blockEnds, blockSizes, name2, endInclusive);
+            return ColumnMapping.createBedMapping(chrom, start, end, name, score, strand, thickStart, thickEnd, itemRGB, -1, blockStarts, blockEnds, blockSizes, name2, oneBased);
         } else {
-            return ColumnMapping.createIntervalMapping(chrom, start, end, name, endInclusive);
+            return ColumnMapping.createIntervalMapping(chrom, start, end, name, oneBased);
         }
     }
 }

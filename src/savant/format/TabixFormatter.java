@@ -32,8 +32,8 @@ import org.broad.igv.tools.sort.Sorter;
 import org.broad.tabix.TabixWriter;
 import org.broad.tabix.TabixWriter.Conf;
 
-import savant.data.types.ColumnMapping;
 import savant.file.FileType;
+import savant.util.ColumnMapping;
 
 
 /**
@@ -69,15 +69,18 @@ public class TabixFormatter extends SavantFileFormatter {
                 header = ColumnMapping.BED_HEADER;
                 break;
             case INTERVAL_BED1:
+                flags = TabixWriter.TI_FLAG_UCSC;
                 header = "bin\t" + ColumnMapping.BED_HEADER;
                 break;
             case INTERVAL_GFF:
                 header = ColumnMapping.GFF_HEADER;
                 break;
             case INTERVAL_KNOWNGENE:
+                flags = TabixWriter.TI_FLAG_UCSC;
                 header = ColumnMapping.KNOWNGENE_HEADER;
                 break;
             case INTERVAL_REFGENE:
+                flags = TabixWriter.TI_FLAG_UCSC;
                 header = ColumnMapping.REFGENE_HEADER;
                 break;
             case INTERVAL_PSL:
@@ -92,7 +95,7 @@ public class TabixFormatter extends SavantFileFormatter {
                 readHeaderLine();
                 break;
         }
-        mapping = ColumnMapping.inferMapping(header, true);
+        mapping = ColumnMapping.inferMapping(header, (flags & TabixWriter.TI_FLAG_UCSC) == 0);
         conf = mapping.getTabixConf(flags);
     }
 

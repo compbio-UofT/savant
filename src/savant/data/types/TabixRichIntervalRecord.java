@@ -19,6 +19,9 @@ package savant.data.types;
 import java.util.ArrayList;
 import java.util.List;
 
+import savant.util.ColumnMapping;
+
+
 /**
  * Record containing bed-like information, but extracted from a Tabix file.
  *
@@ -50,15 +53,20 @@ public class TabixRichIntervalRecord extends TabixIntervalRecord implements Rich
             int[] blockStarts = Block.extractBlocks(values[relativeStarts ? mapping.blockStartsRelative : mapping.blockStartsAbsolute]);
             blocks = new ArrayList<Block>(blockStarts.length);
             int offset = relativeStarts ? 0 : getInterval().getStart();
+            int endExtra = 1;
+            if (!mapping.oneBased) {
+                offset--;
+                endExtra = 0;
+            }
             if (mapping.blockEnds >= 0) {
                 int[] blockEnds = Block.extractBlocks(values[mapping.blockEnds]);
                 for (int i = 0; i < blockEnds.length; i++) {
-                    blocks.add(Block.valueOf(blockStarts[i] - offset, blockEnds[i] - blockStarts[i] + 1));
+                    blocks.add(Block.valueOf(blockStarts[i] - offset, blockEnds[i] - blockStarts[i] + endExtra));
                 }
             } else if (mapping.blockSizes >= 0) {
                 int[] blockSizes = Block.extractBlocks(values[mapping.blockSizes]);
                 for (int i = 0; i < blockSizes.length; i++) {
-                    blocks.add(Block.valueOf(blockStarts[i] - offset, blockSizes[i] + 1));
+                    blocks.add(Block.valueOf(blockStarts[i] - offset, blockSizes[i] + endExtra));
                 }
             } else {
                 throw new IllegalArgumentException("No column provided for block ends/sizes.");
