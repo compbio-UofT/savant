@@ -78,11 +78,6 @@
      </target>
 
     <target  name="-post-jar">
-        <echo>Copying core plugin...</echo>
-        <mkdir dir="${plugincore.dir}" />
-         <copy todir="${plugincore.dir}">
-            <fileset dir="lib"/>
-        </copy>
         <echo>Copying plugins...</echo>
         <mkdir dir="${plugins.dir}" />
          <copy todir="${plugins.dir}">
