@@ -1331,7 +1331,7 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
             if(s.startsWith("--")){ //build
                 loadProject = false;
                 loadPlugin = false;
-                BrowserSettings.build = s.replaceAll("-", "");
+                BrowserSettings.BUILD = s.replaceAll("-", "");
                 if (s.equals("--debug")) {
                     turnExperimentalFeaturesOff = false;
                 }
@@ -1422,8 +1422,8 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
                     post("time", dateFormat.format(date))
                     + "&" + post("language", locale.getDisplayLanguage())
                     + "&" + post("user.timezone", System.getProperty("user.timezone"))
-                    + "&" + post("savant.version", BrowserSettings.version)
-                    + "&" + post("savant.build", BrowserSettings.build)
+                    + "&" + post("savant.version", BrowserSettings.VERSION)
+                    + "&" + post("savant.build", BrowserSettings.BUILD)
                     //+ "&" + post("address", InetAddress.getLocalHost().getHostAddress())
                     + "&" + post("java.version", System.getProperty("java.version"))
                     + "&" + post("java.vendor", System.getProperty("java.vendor"))
@@ -1451,7 +1451,7 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
             File versionFile = DownloadFile.downloadFile(new URL(BrowserSettings.VERSION_URL), DirectorySettings.getSavantDirectory());
             LOG.info("Saved version file to: " + versionFile.getAbsolutePath());
             Version currentversion = (new XMLVersion(versionFile)).getVersion();
-            Version thisversion = new Version(BrowserSettings.version);
+            Version thisversion = new Version(BrowserSettings.VERSION);
             if (currentversion.compareTo(thisversion) > 0) {
                 DialogUtils.displayMessage("Savant", "A new version of Savant (" + currentversion.toString() + ") is available.\n"
                         + "To stop this message from appearing, download the newest version at " + BrowserSettings.URL + "\nor disable automatic "

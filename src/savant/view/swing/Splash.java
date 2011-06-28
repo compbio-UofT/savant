@@ -77,7 +77,7 @@ public class Splash extends javax.swing.JDialog {
 
         textPanel.add(getPadding(6));
 
-        JLabel version = new JLabel(pad + "Version: " + BrowserSettings.version + " " + BrowserSettings.build);
+        JLabel version = new JLabel(pad + "Version: " + BrowserSettings.VERSION + " " + BrowserSettings.BUILD);
         formatLabel(version, false);
         textPanel.add(version);
 

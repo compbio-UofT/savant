@@ -374,7 +374,7 @@ public class BugReportDialog extends javax.swing.JDialog {
     }
 
     private String getSavantVersion(){
-        return BrowserSettings.version + " " + BrowserSettings.build;
+        return BrowserSettings.VERSION + " " + BrowserSettings.BUILD;
     }
 
     private String getJDKVersion(){
