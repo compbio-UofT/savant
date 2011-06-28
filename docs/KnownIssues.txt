@@ -1,4 +1,0 @@
-Savant Known Issues
-============================
-
-- BAM index files may contain more sequences than the corresponding BAM file.  
