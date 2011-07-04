@@ -56,6 +56,7 @@ import savant.controller.event.*;
 import savant.data.sources.DataSource;
 import savant.data.types.Genome;
 import savant.experimental.XMLTool;
+import savant.plugin.SavantDataSourcePlugin;
 import savant.plugin.SavantPlugin;
 import savant.plugin.builtin.SAFEDataSourcePlugin;
 import savant.plugin.builtin.SavantFileRepositoryDataSourcePlugin;
@@ -398,37 +399,34 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
         pluginController.addListener(new Listener<PluginEvent>() {
             @Override
             public void handleEvent(PluginEvent event) {
-                if (event.getType() == PluginEvent.Type.LOADED && event.getCanvas() != null) {
-                    SavantPlugin plugin = event.getPlugin();
-                    final DockableFrame f = DockableFrameFactory.createGUIPluginFrame(plugin.getTitle());
-                    JPanel p = (JPanel)f.getContentPane();
-                    p.setLayout(new BorderLayout());
-                    p.add(event.getCanvas(), BorderLayout.CENTER);
-                    auxDockingManager.addFrame(f);
-//                    auxDockingManager.autohideFrame(f, 100, 100);
-                    JCheckBoxMenuItem cb = new JCheckBoxMenuItem(plugin.getTitle());
-                    cb.addActionListener(new ActionListener() {
-                        @Override
-                        public void actionPerformed(ActionEvent e) {
-                            String frameKey = f.getTitle();
-                            boolean isVisible = auxDockingManager.getFrame(frameKey).isHidden();
-                            MiscUtils.setFrameVisibility(frameKey, isVisible, auxDockingManager);
-                            ((JCheckBoxMenuItem)e.getSource()).setSelected(isVisible);
-                        }
-                    });
-                    cb.setSelected(!auxDockingManager.getFrame(f.getTitle()).isHidden());
-                    addPluginToMenu(cb);
+                if (event.getType() == PluginEvent.Type.LOADED) {
+                    if (event.getCanvas() != null) {
+                        SavantPlugin plugin = event.getPlugin();
+                        final DockableFrame f = DockableFrameFactory.createGUIPluginFrame(plugin.getTitle());
+                        JPanel p = (JPanel)f.getContentPane();
+                        p.setLayout(new BorderLayout());
+                        p.add(event.getCanvas(), BorderLayout.CENTER);
+                        auxDockingManager.addFrame(f);
+//                      auxDockingManager.autohideFrame(f, 100, 100);
+                        JCheckBoxMenuItem cb = new JCheckBoxMenuItem(plugin.getTitle());
+                        cb.addActionListener(new ActionListener() {
+                            @Override
+                            public void actionPerformed(ActionEvent e) {
+                                String frameKey = f.getTitle();
+                                boolean isVisible = auxDockingManager.getFrame(frameKey).isHidden();
+                                MiscUtils.setFrameVisibility(frameKey, isVisible, auxDockingManager);
+                                ((JCheckBoxMenuItem)e.getSource()).setSelected(isVisible);
+                            }
+                        });
+                        cb.setSelected(!auxDockingManager.getFrame(f.getTitle()).isHidden());
+                        addPluginToMenu(cb);
+                    } else if (event.getPlugin() instanceof SavantDataSourcePlugin) {
+                        loadFromDataSourcePluginItem.setText("Load Track from Other Datasource...");
+                    }
                 }
             }
         });
         pluginController.loadPlugins(DirectorySettings.getPluginsDirectory());
-
-        // TODO: put this call back in once hasOnlySavantRepoDataSource can be performed correctly
-        // Since plugins loading is threaded now, this function returns true here even when it should
-        // return false
-        //if (DataSourcePluginController.getInstance().hasOnlySavantRepoDataSource()) {
-        //    loadFromDataSourcePlugin.setText("Load Track from Repository...");
-        //}
 
         s.setStatus("Organizing layout");
 
@@ -482,7 +480,7 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
         loadGenomeItem = new javax.swing.JMenuItem();
         loadFromFileItem = new javax.swing.JMenuItem();
         loadFromURLItem = new javax.swing.JMenuItem();
-        loadFromDataSourcePlugin = new javax.swing.JMenuItem();
+        loadFromDataSourcePluginItem = new javax.swing.JMenuItem();
         recentTrackMenu = new javax.swing.JMenu();
         javax.swing.JPopupMenu.Separator jSeparator1 = new javax.swing.JPopupMenu.Separator();
         openProjectItem = new javax.swing.JMenuItem();
@@ -553,7 +551,7 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
         panelExtendedMiddle.setLayout(panelExtendedMiddleLayout);
         panelExtendedMiddleLayout.setHorizontalGroup(
             panelExtendedMiddleLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 1017, Short.MAX_VALUE)
+            .addGap(0, 1027, Short.MAX_VALUE)
         );
         panelExtendedMiddleLayout.setVerticalGroup(
             panelExtendedMiddleLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -571,7 +569,7 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
         panel_main.setLayout(panel_mainLayout);
         panel_mainLayout.setHorizontalGroup(
             panel_mainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 1017, Short.MAX_VALUE)
+            .addGap(0, 1027, Short.MAX_VALUE)
         );
         panel_mainLayout.setVerticalGroup(
             panel_mainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -606,7 +604,7 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
         panel_toolbar.setLayout(panel_toolbarLayout);
         panel_toolbarLayout.setHorizontalGroup(
             panel_toolbarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 1017, Short.MAX_VALUE)
+            .addGap(0, 1027, Short.MAX_VALUE)
         );
         panel_toolbarLayout.setVerticalGroup(
             panel_toolbarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -626,7 +624,6 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
 
         loadFromFileItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_T, java.awt.event.InputEvent.CTRL_MASK));
         loadFromFileItem.setText("Load Track from File...");
-        loadFromFileItem.setEnabled(false);
         loadFromFileItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 loadFromFileItemActionPerformed(evt);
@@ -644,15 +641,15 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
         });
         fileMenu.add(loadFromURLItem);
 
-        loadFromDataSourcePlugin.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_E, java.awt.event.InputEvent.CTRL_MASK));
-        loadFromDataSourcePlugin.setText("Load Track from Other Datasource...");
-        loadFromDataSourcePlugin.setEnabled(false);
-        loadFromDataSourcePlugin.addActionListener(new java.awt.event.ActionListener() {
+        loadFromDataSourcePluginItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_E, java.awt.event.InputEvent.CTRL_MASK));
+        loadFromDataSourcePluginItem.setText("Load Track from Repository...");
+        loadFromDataSourcePluginItem.setEnabled(false);
+        loadFromDataSourcePluginItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                loadFromDataSourcePluginActionPerformed(evt);
+                loadFromDataSourcePluginItemActionPerformed(evt);
             }
         });
-        fileMenu.add(loadFromDataSourcePlugin);
+        fileMenu.add(loadFromDataSourcePluginItem);
 
         recentTrackMenu.setText("Load Recent Track");
         fileMenu.add(recentTrackMenu);
@@ -1017,12 +1014,12 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(panel_top, javax.swing.GroupLayout.DEFAULT_SIZE, 1017, Short.MAX_VALUE)
+            .addComponent(panel_top, javax.swing.GroupLayout.DEFAULT_SIZE, 1027, Short.MAX_VALUE)
             .addGroup(layout.createSequentialGroup()
-                .addComponent(toolbar_bottom, javax.swing.GroupLayout.DEFAULT_SIZE, 997, Short.MAX_VALUE)
+                .addComponent(toolbar_bottom, javax.swing.GroupLayout.DEFAULT_SIZE, 1007, Short.MAX_VALUE)
                 .addContainerGap())
-            .addComponent(panel_toolbar, javax.swing.GroupLayout.DEFAULT_SIZE, 1017, Short.MAX_VALUE)
-            .addComponent(panel_main, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 1017, Short.MAX_VALUE)
+            .addComponent(panel_toolbar, javax.swing.GroupLayout.DEFAULT_SIZE, 1027, Short.MAX_VALUE)
+            .addComponent(panel_main, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 1027, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1293,7 +1290,7 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
         setStartPageVisible(startPageItem.isSelected());
     }//GEN-LAST:event_startPageItemActionPerformed
 
-    private void loadFromDataSourcePluginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loadFromDataSourcePluginActionPerformed
+    private void loadFromDataSourcePluginItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loadFromDataSourcePluginItemActionPerformed
         try {
             DataSource s = DataSourcePluginDialog.getDataSource(this);
             if (s != null) {
@@ -1303,7 +1300,7 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
         } catch (Exception x) {
             DialogUtils.displayException("Track Creation Failed", "Unable to create track.", x);
         }
-    }//GEN-LAST:event_loadFromDataSourcePluginActionPerformed
+    }//GEN-LAST:event_loadFromDataSourcePluginItemActionPerformed
 
     private void featureRequestItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_featureRequestItemActionPerformed
         (new FeatureRequestDialog(this,false)).setVisible(true);
@@ -1477,7 +1474,7 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
     private javax.swing.JLabel label_memory;
     private javax.swing.JLabel label_mouseposition_title;
     private javax.swing.JLabel label_status;
-    private javax.swing.JMenuItem loadFromDataSourcePlugin;
+    private javax.swing.JMenuItem loadFromDataSourcePluginItem;
     private javax.swing.JMenuItem loadFromFileItem;
     private javax.swing.JMenuItem loadFromURLItem;
     private javax.swing.JMenuItem loadGenomeItem;
@@ -1706,7 +1703,7 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
         loadGenomeItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_G, osSpecificModifier));
         loadFromFileItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_T, osSpecificModifier));
         loadFromURLItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_U, osSpecificModifier));
-        loadFromDataSourcePlugin.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_E, osSpecificModifier));
+        loadFromDataSourcePluginItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_E, osSpecificModifier));
         openProjectItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_O, osSpecificModifier));
         saveProjectItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_S, osSpecificModifier));
         saveProjectAsItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_S, osSpecificModifier | java.awt.event.InputEvent.SHIFT_MASK));
@@ -1796,7 +1793,7 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
 
         loadFromFileItem.setEnabled(true);
         loadFromURLItem.setEnabled(true);
-        loadFromDataSourcePlugin.setEnabled(true);
+        loadFromDataSourcePluginItem.setEnabled(true);
 
         //setStartPageVisible(false);
         navigationBar.setVisible(true);

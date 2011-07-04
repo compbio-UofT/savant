@@ -64,12 +64,9 @@ public class LoadGenomeDialog extends JDialog {
         super(parent, modal);
         initComponents();
         
-        // TODO: put back once hasOnlySavantRepoDataSource returns the right thing
-        // Since plugins are loaded in a thread, this doesnt reliably return the right thing
-        // (depending on when it's called)
-        //if (DataSourcePluginController.getInstance().hasOnlySavantRepoDataSource()) {
-        //    fromOtherButton.setText("Repository");
-        //}
+        if (DataSourcePluginController.getInstance().hasOnlySavantRepoDataSource()) {
+            fromOtherButton.setText("Repository");
+        }
 
         initDropDowns();
         updateEnabledControls();
