@@ -114,9 +114,4 @@ public class BigWigDataSource implements DataSource<GenericContinuousRecord> {
     public DataFormat getDataFormat() {
         return DataFormat.CONTINUOUS_GENERIC;
     }
-
-    @Override
-    public Object getExtraData() {
-        return null;
-    }
 }

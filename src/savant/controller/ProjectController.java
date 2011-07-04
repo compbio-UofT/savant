@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URL;
-import java.util.List;
 import java.util.StringTokenizer;
 import javax.swing.filechooser.FileFilter;
 
@@ -38,7 +37,7 @@ import savant.controller.event.LocationChangedListener;
 import savant.controller.event.TrackListChangedEvent;
 import savant.controller.event.TrackListChangedListener;
 import savant.data.types.Genome;
-import savant.model.Project;
+import savant.file.Project;
 import savant.settings.DirectorySettings;
 import savant.util.MiscUtils;
 
@@ -79,7 +78,7 @@ public class ProjectController extends Controller implements BookmarksChangedLis
     public static ProjectController getInstance() {
         if (instance == null) {
             instance = new ProjectController();
-            BookmarkController.getInstance().addFavoritesChangedListener(instance);
+            BookmarkController.getInstance().addBookmarksChangedListener(instance);
             LocationController.getInstance().addLocationChangedListener(instance);
             TrackController.getInstance().addTrackListChangedListener(instance);
         }
@@ -89,7 +88,7 @@ public class ProjectController extends Controller implements BookmarksChangedLis
     private ProjectController() {
     }
 
-    private static void clearExistingProject() {
+    public void clearExistingProject() {
         TrackController.getInstance().closeTracks();
         BookmarkController.getInstance().clearBookmarks();
     }
@@ -225,7 +224,7 @@ public class ProjectController extends Controller implements BookmarksChangedLis
         loadProjectFromFile(localFile);
     }
 
-    public void setProjectFromGenome(Genome genome, List<URI> trackURIs) throws Exception {
+    public void setProjectFromGenome(Genome genome, URI[] trackURIs) throws Exception {
         if (promptToSaveChanges(false)) {
             projectSaved = false;
             currentProjectFile = null;

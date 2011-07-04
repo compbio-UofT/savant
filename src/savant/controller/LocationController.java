@@ -14,7 +14,6 @@
  *    limitations under the License.
  */
 
-
 package savant.controller;
 
 import java.util.ArrayList;
@@ -23,20 +22,18 @@ import java.util.List;
 import java.util.Set;
 import java.util.Stack;
 
-import savant.api.util.DialogUtils;
-import savant.controller.event.GenomeChangedEvent;
-import savant.data.types.Genome;
-import savant.util.MiscUtils;
-import savant.view.swing.sequence.SequenceTrack;
-import savant.settings.BrowserSettings;
-import savant.util.Range;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import savant.api.util.DialogUtils;
+import savant.controller.event.GenomeChangedEvent;
 import savant.controller.event.LocationChangeCompletedListener;
 import savant.controller.event.LocationChangedEvent;
 import savant.controller.event.LocationChangedListener;
-
+import savant.data.types.Genome;
+import savant.settings.BrowserSettings;
+import savant.view.swing.sequence.SequenceTrack;
+import savant.util.Range;
 
 
 /**
@@ -67,7 +64,11 @@ public class LocationController {
     private List<LocationChangedListener> locationChangedListeners;
     private List<LocationChangeCompletedListener> locationChangeCompletedListeners;
 
+    /** Reference which was set before genome was loaded (e.g. while loading a project). */
+    private String pendingReference;
 
+    /** Range which was set before genome was loaded (e.g. while loading a project). */
+    private Range pendingRange;
 
     public static synchronized LocationController getInstance() {
         if (instance == null) {
@@ -77,8 +78,8 @@ public class LocationController {
     }
 
     private LocationController() {
-        locationChangedListeners = new ArrayList();
-        locationChangeCompletedListeners = new ArrayList();
+        locationChangedListeners = new ArrayList<LocationChangedListener>();
+        locationChangeCompletedListeners = new ArrayList<LocationChangeCompletedListener>();
         undoStack = new Stack<History>();
         redoStack = new Stack<History>();
     }
@@ -125,6 +126,11 @@ public class LocationController {
             }
             setRange(range);
             fireLocationChangedEvent(newRef);
+            pendingReference = null;
+            pendingRange = null;
+        } else {
+            pendingReference = ref;
+            pendingRange = range;
         }
     }
 
@@ -160,9 +166,13 @@ public class LocationController {
                 loadedGenome = genome;
                 fireGenomeChangedEvent(oldGenome);
 
-                // Auto-select the first reference on the new genome.
-                String ref = MiscUtils.set2List(loadedGenome.getReferenceNames()).get(0);
-                setLocation(ref, true);
+                if (pendingReference != null) {
+                    setLocation(pendingReference, pendingRange);
+                } else {
+                    // Auto-select the first reference on the new genome.
+                    String ref = loadedGenome.getReferenceNames().iterator().next();
+                    setLocation(ref, true);
+                }
             }
         }
     }

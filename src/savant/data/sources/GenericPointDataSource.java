@@ -148,9 +148,4 @@ public class GenericPointDataSource implements DataSource<GenericPointRecord> {
     public final DataFormat getDataFormat() {
         return DataFormat.POINT_GENERIC;
     }
-
-    @Override
-    public Object getExtraData() {
-        return null;
-    }
 }

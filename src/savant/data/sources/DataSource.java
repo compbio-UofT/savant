@@ -64,10 +64,4 @@ public interface DataSource<E extends Record> {
     public void close();
 
     public DataFormat getDataFormat();
-
-    /**
-     * For some DataSources (currently just the BedSQLDataSource) it's useful to provide
-     * access to extra out-of-band data.
-     */
-    public Object getExtraData();
 }

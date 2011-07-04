@@ -110,9 +110,4 @@ public class BEDDataSource implements DataSource<BEDIntervalRecord> {
     public final DataFormat getDataFormat() {
         return DataFormat.INTERVAL_BED;
     }
-
-    @Override
-    public Object getExtraData() {
-        return null;
-    }
 }

@@ -246,11 +246,6 @@ public class TabixDataSource implements DataSource<TabixIntervalRecord> {
         return DataFormat.TABIX;
     }
 
-    @Override
-    public Object getExtraData() {
-        return null;
-    }
-
     /**
      * Tabix can hold data which is actually INTERVAL_GENERIC or INTERVAL_BED.
      */

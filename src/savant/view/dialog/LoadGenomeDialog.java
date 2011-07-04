@@ -53,7 +53,10 @@ import savant.view.swing.TrackFactory;
  */
 public class LoadGenomeDialog extends JDialog {
     private static final Log LOG = LogFactory.getLog(LoadGenomeDialog.class);
+
     private static LocationController locationController = LocationController.getInstance();
+    private static ProjectController projectController = ProjectController.getInstance();
+
     private File lastTrackDirectory;
 
     /** Creates new form LoadGenomeDialog */
@@ -356,7 +359,7 @@ public class LoadGenomeDialog extends JDialog {
                         trackURIs.add(auxes[i].uri);
                     }
                 }
-                ProjectController.getInstance().setProjectFromGenome(genome, trackURIs);
+                projectController.setProjectFromGenome(genome, trackURIs.toArray(new URI[0]));
             } catch (Throwable x) {
                 DialogUtils.displayException("Error Loading Genome", String.format("<html>Unable to load genome for <i>%s</i>.</html>", genome), x);
             }
@@ -402,8 +405,11 @@ public class LoadGenomeDialog extends JDialog {
         if (url != null) {
             try {
                 setVisible(false);
-                locationController.setGenome(null);
-                Savant.getInstance().addTrackFromURI(url.toURI());
+                if (projectController.promptToSaveChanges(false)) {
+                    projectController.clearExistingProject();
+                    locationController.setGenome(null);
+                    Savant.getInstance().addTrackFromURI(url.toURI());
+                }
             } catch (Throwable x) {
                 DialogUtils.displayException("Error Loading Genome", String.format("Unable to load genome from %s.", url), x);
             }
@@ -416,9 +422,12 @@ public class LoadGenomeDialog extends JDialog {
         if (selectedFile != null) {
             try {
                 setVisible(false);
-                locationController.setGenome(null);
-                Savant.getInstance().setLastTrackDirectory(selectedFile.getParentFile());
-                Savant.getInstance().addTrackFromPath(selectedFile.getAbsolutePath());
+                if (projectController.promptToSaveChanges(false)) {
+                    projectController.clearExistingProject();
+                    locationController.setGenome(null);
+                    Savant.getInstance().setLastTrackDirectory(selectedFile.getParentFile());
+                    Savant.getInstance().addTrackFromPath(selectedFile.getAbsolutePath());
+                }
             } catch (Throwable x) {
                 DialogUtils.displayException("Error Loading Genome", String.format("Unable to load genome from %s.", selectedFile.getName()), x);
             }

@@ -13,7 +13,7 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package savant.model;
+package savant.file;
 
 import java.io.*;
 import java.net.URI;
@@ -38,7 +38,7 @@ import savant.view.swing.Track;
 import savant.view.swing.interval.BAMCoverageTrack;
 
 /**
- * Model class which represents a Savant project.
+ * Class which represents a Savant project file.
  *
  * @author tarkvara
  */
@@ -48,7 +48,6 @@ public class Project {
     private static final int FILE_VERSION = 1;
 
     private enum XMLElement {
-
         savant,
         genome,
         reference,
@@ -57,7 +56,6 @@ public class Project {
     };
 
     private enum XMLAttribute {
-
         version,
         name,
         description,
@@ -87,11 +85,11 @@ public class Project {
      * Create a fresh Project object for the given published genome.  May include a sequence
      * track as well as additional auxiliary tracks.
      */
-    public Project(Genome genome, List<URI> trackURIs) {
+    public Project(Genome genome, URI[] trackURIs) {
         reference = genome.getReferenceNames().iterator().next();
         range = new Range(1, 1000);
         this.genome = genome;
-        trackPaths = new ArrayList<String>(trackURIs.size());
+        trackPaths = new ArrayList<String>(trackURIs.length);
         for (URI u : trackURIs) {
             trackPaths.add(u.toString());
         }
@@ -272,10 +270,8 @@ public class Project {
      * Load the project's settings into Savant.
      */
     public void load() throws Exception {
-        // Set the location before the genome.  Savant calls showBrowserControls() in
-        // response to the GenomeChangedEvent, and expects range to be non-null by then.
-        LocationController.getInstance().setLocation(reference, range);
         LocationController.getInstance().setGenome(genome);
+        LocationController.getInstance().setLocation(reference, range);
 
         for (String path : trackPaths) {
             Savant.getInstance().addTrackFromPath(path);

@@ -282,9 +282,4 @@ public class BAMDataSource implements DataSource<BAMIntervalRecord> {
     public final DataFormat getDataFormat() {
         return DataFormat.INTERVAL_BAM;
     }
-
-    @Override
-    public Object getExtraData() {
-        return null;
-    }
 }

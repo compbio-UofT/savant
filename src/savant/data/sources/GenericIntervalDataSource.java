@@ -120,9 +120,4 @@ public class GenericIntervalDataSource implements DataSource<GenericIntervalReco
     public final DataFormat getDataFormat() {
         return DataFormat.INTERVAL_GENERIC;
     }
-
-    @Override
-    public Object getExtraData() {
-        return null;
-    }
 }

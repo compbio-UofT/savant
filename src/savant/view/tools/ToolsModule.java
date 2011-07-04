@@ -185,7 +185,7 @@ public class ToolsModule implements BookmarksChangedListener, LocationChangeComp
     }
 
     private void subscribeToEvents() {
-        BookmarkController.getInstance().addFavoritesChangedListener(this);
+        BookmarkController.getInstance().addBookmarksChangedListener(this);
         LocationController.getInstance().addLocationChangeCompletedListener(this);
         TrackController.getInstance().addTrackListChangedListener(this);
         ThreadController.getInstance().addThreadActivityListener(this);

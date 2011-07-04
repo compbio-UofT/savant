@@ -173,17 +173,12 @@ public class GenericContinuousDataSource implements DataSource<GenericContinuous
     }
 
     @Override
-    public final DataFormat getDataFormat() {
-        return DataFormat.CONTINUOUS_GENERIC;
-    }
-
-    @Override
-    public Object getExtraData() {
-        return null;
-    }
-
-    @Override
     public String getName() {
         return MiscUtils.getNeatPathFromURI(getURI());
+    }
+
+    @Override
+    public final DataFormat getDataFormat() {
+        return DataFormat.CONTINUOUS_GENERIC;
     }
 }
