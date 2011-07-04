@@ -1,7 +1,4 @@
 /*
- * FrameController.java
- * Created on Jan 19, 2010
- *
  *    Copyright 2010-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
@@ -27,8 +24,8 @@ import javax.swing.JComponent;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import savant.controller.event.GenomeChangedEvent;
 
+import savant.controller.event.GenomeChangedEvent;
 import savant.controller.event.LocationChangedEvent;
 import savant.controller.event.LocationChangedListener;
 import savant.view.swing.Frame;
@@ -45,8 +42,8 @@ public class FrameController implements LocationChangedListener {
     private static final Log LOG = LogFactory.getLog(FrameController.class);
 
     private static FrameController instance;
+    private static LocationController locationController = LocationController.getInstance();
 
-    /** The maximum and current viewable range */
     private HashMap<GraphPane,JComponent> graphpane2dockable;
     private HashMap<GraphPane,Frame> graphpane2frame;
 
@@ -55,7 +52,7 @@ public class FrameController implements LocationChangedListener {
     public static synchronized FrameController getInstance() {
         if (instance == null) {
             instance = new FrameController();
-            LocationController.getInstance().addLocationChangedListener(instance);
+            locationController.addLocationChangedListener(instance);
         }
         return instance;
     }
@@ -71,15 +68,14 @@ public class FrameController implements LocationChangedListener {
         graphpane2dockable.put(f.getGraphPane(), panel);
         graphpane2frame.put(f.getGraphPane(), f);
 
-        drawFrames(); // crucially important, prepares initial renderer
+        GraphPaneController.getInstance().enlistRenderingGraphpane(f.getGraphPane());
+        f.drawTracksInRange(locationController.getReferenceName(), locationController.getRange());
     }
 
     /**
      * Draw the frames in the current viewable range
      */
     public void drawFrames() {
-        LocationController lc = LocationController.getInstance();
-
         GraphPaneController.getInstance().clearRenderingList();
 
         for (Frame f : frames) {
@@ -87,7 +83,7 @@ public class FrameController implements LocationChangedListener {
                 // added to detect when rendering has completed
                 GraphPaneController.getInstance().enlistRenderingGraphpane(f.getGraphPane());
 
-                f.drawTracksInRange(lc.getReferenceName(), lc.getRange());
+                f.drawTracksInRange(locationController.getReferenceName(), locationController.getRange());
             }
         }
     }
@@ -102,11 +98,11 @@ public class FrameController implements LocationChangedListener {
     }
 
     public void hideFrame(GraphPane graphpane) {
-        hideFrame(this.graphpane2frame.get(graphpane));
+        hideFrame(graphpane2frame.get(graphpane));
     }
 
     public void showFrame(Frame frame) {
-        JComponent jc = this.graphpane2dockable.get(frame.getGraphPane());
+        JComponent jc = graphpane2dockable.get(frame.getGraphPane());
         try {
             frame.setHidden(false);
         } catch (PropertyVetoException ignored) {
@@ -114,11 +110,11 @@ public class FrameController implements LocationChangedListener {
     }
 
     public void showFrame(GraphPane graphpane) {
-        showFrame(this.graphpane2frame.get(graphpane));
+        showFrame(graphpane2frame.get(graphpane));
     }
 
     public void closeFrame(GraphPane graphpane) {
-        closeFrame(this.graphpane2frame.get(graphpane));
+        closeFrame(graphpane2frame.get(graphpane));
     }
 
     public void closeFrame(Frame frame) {
@@ -132,14 +128,14 @@ public class FrameController implements LocationChangedListener {
                 vtc.removeTrack(t);
                 sc.removeAll(t.getName());
             }
-            this.frames.remove(frame);
+            frames.remove(frame);
 
         } catch (Exception e) {
             LOG.error("Error closing frame.", e);
         }
     }
 
-    public List<Frame> getFrames() { return this.frames; }
+    public List<Frame> getFrames() { return frames; }
 
     /**
      * Listen for RangeChangedEvents, which will cause all the frames to be drawn.
@@ -153,6 +149,4 @@ public class FrameController implements LocationChangedListener {
 
     @Override
     public void genomeChanged(GenomeChangedEvent event) {}
-
-    
 }
