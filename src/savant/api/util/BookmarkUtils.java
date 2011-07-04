@@ -73,7 +73,7 @@ public class BookmarkUtils {
      * @param l the listener to subscribe
      */
     public static void addBookmarksChangedListener(BookmarksChangedListener l) {
-        controller.addFavoritesChangedListener(l);
+        controller.addBookmarksChangedListener(l);
     }
 
     /**
@@ -82,7 +82,7 @@ public class BookmarkUtils {
      * @param l the listener to unsubscribe
      */
     public static void removeBookmarksChangedListener(BookmarksChangedListener l) {
-        controller.removeFavoritesChangedListener(l);
+        controller.removeBookmarksChangedListener(l);
     }
 
     /**

@@ -47,7 +47,7 @@ public class BookmarkController {
 
     private List<Bookmark> bookmarks;
 
-    private List<BookmarksChangedListener> favoritesChangedListeners;
+    private List<BookmarksChangedListener> bookmarksChangedListeners;
 
     public static synchronized BookmarkController getInstance() {
         if (instance == null) {
@@ -57,12 +57,12 @@ public class BookmarkController {
     }
 
     private BookmarkController() {
-        favoritesChangedListeners = new ArrayList<BookmarksChangedListener>();
+        bookmarksChangedListeners = new ArrayList<BookmarksChangedListener>();
         bookmarks = new ArrayList<Bookmark>();
     }
 
     public List<Bookmark> getBookmarks() {
-        return this.bookmarks;
+        return bookmarks;
     }
 
     public void addBookmark(Bookmark f) {
@@ -70,9 +70,9 @@ public class BookmarkController {
     }
 
     public void addBookmark(Bookmark f, boolean fireEvent) {
-        if(this.bookmarks == null || this.bookmarks.isEmpty()) { this.bookmarks = new ArrayList<Bookmark>(); }
-        this.bookmarks.add(f);
-        if(fireEvent) this.fireBookmarksChangedEvent(f,true);
+        if (bookmarks == null || bookmarks.isEmpty()) { bookmarks = new ArrayList<Bookmark>(); }
+        bookmarks.add(f);
+        if(fireEvent) fireBookmarksChangedEvent(f,true);
     }
 
     public void addBookmarks(List<Bookmark> bkmks){
@@ -118,15 +118,15 @@ public class BookmarkController {
     }
 
     public void removeBookmark() {
-        this.removeBookmark(this.bookmarks.size()-1);
+        this.removeBookmark(bookmarks.size()-1);
     }
 
     public void removeBookmark(int index) {
         try {
             LOG.info("Bookmark removed.");
-            Bookmark b = this.bookmarks.get(index);
-            this.bookmarks.remove(index);
-            this.fireBookmarksChangedEvent(b,false);
+            Bookmark b = bookmarks.get(index);
+            bookmarks.remove(index);
+            fireBookmarksChangedEvent(b,false);
         } catch(Exception e) {}
     }
 
@@ -135,31 +135,31 @@ public class BookmarkController {
      */
     private synchronized void fireBookmarksChangedEvent(Bookmark bkmk, boolean isAdded) {
         BookmarksChangedEvent evt = new BookmarksChangedEvent(this, bkmk, isAdded);
-        for (BookmarksChangedListener listener : this.favoritesChangedListeners) {
+        for (BookmarksChangedListener listener : bookmarksChangedListeners) {
             listener.bookmarksChanged(evt);
         }
     }
 
-    public synchronized void addFavoritesChangedListener(BookmarksChangedListener l) {
-        favoritesChangedListeners.add(l);
+    public synchronized void addBookmarksChangedListener(BookmarksChangedListener l) {
+        bookmarksChangedListeners.add(l);
     }
 
-    public synchronized void removeFavoritesChangedListener(BookmarksChangedListener l) {
-        favoritesChangedListeners.remove(l);
+    public synchronized void removeBookmarksChangedListener(BookmarksChangedListener l) {
+        bookmarksChangedListeners.remove(l);
     }
 
     public void addCurrentRangeToBookmarks() {
         LocationController lc = LocationController.getInstance();
         if (lc.getRange() != null) {
-            this.addBookmark(new Bookmark(lc.getReferenceName(), lc.getRange()));
+            addBookmark(new Bookmark(lc.getReferenceName(), lc.getRange()));
         }
     }
 
     public Bookmark getBookmark(int index) {
-        return this.bookmarks.get(index);
+        return bookmarks.get(index);
     }
 
     public void clearBookmarks() {
-        this.bookmarks.clear();
+        bookmarks.clear();
     }
 }
