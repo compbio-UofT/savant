@@ -20,18 +20,66 @@ import java.util.Set;
 import savant.data.sources.DataSource;
 
 /**
+ * Public interface for Savant genome class.
  *
  * @author mfiume
  */
 public interface GenomeAdapter {
 
+    /**
+     * Get a set of all references associated with this genome.  The set will be appropriately ordered.
+     * @return all the references associated with this genome
+     */
     public Set<String> getReferenceNames();
-    public String getName();
-    public byte[] getSequence(String reference, RangeAdapter range) throws IOException;
-    public int getLength();
-    public int getLength(String reference);
-    public DataSource getDataSource();
-    public boolean isSequenceSet();
-    public TrackAdapter getSequenceTrack();
 
+    /**
+     * Get the name of the genome (e.g.&nbsp;"hg19").
+     *
+     * @return the name of the genome
+     */
+    public String getName();
+
+    /**
+     * Get the sequence of bases for the given reference and range.  Bases will be stored
+     * as the characters 'C', 'T', 'A', or 'G' cast to a byte.
+     *
+     * @param ref the reference being retrieved
+     * @param range the range being retrieved
+     * @return the sequence of bases for the given reference and range
+     */
+    public byte[] getSequence(String ref, RangeAdapter range) throws IOException;
+
+    /**
+     * Get the number of bases in the currently-active reference.
+     *
+     * @return the number of bases in the currently-active reference
+     */
+    public int getLength();
+
+    /**
+     * Get the number of bases in the specified reference.
+     *
+     * @return the number of bases in the given reference
+     */
+    public int getLength(String ref);
+
+    /**
+     * Get the <code>DataSource</code> associated with this genome's sequence track (if any).
+     *
+     * @return this genome's <code>DataSource</code> (may be null)
+     */
+    public DataSource getDataSource();
+
+    /**
+     * Determine whether this genome has sequence data.  Equivalent to <code>getSequenceTrack() != null</code>.
+     * @return true if this genome has sequence data
+     */
+    public boolean isSequenceSet();
+
+    /**
+     * Get the sequence track associated with this genome.
+     *
+     * @return the <code>SequenceTrack</code> associated with this genome (may be null)
+     */
+    public TrackAdapter getSequenceTrack();
 }

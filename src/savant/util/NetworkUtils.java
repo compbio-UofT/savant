@@ -18,7 +18,9 @@ package savant.util;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
@@ -40,8 +42,10 @@ import savant.settings.BrowserSettings;
  * @author vwilliams, tarkvara
  */
 public class NetworkUtils {
-
     private static final Log LOG = LogFactory.getLog(NetworkUtils.class);
+
+    private static final int CONNECT_TIMEOUT = 30000; // 30s timeout for making connection
+    private static final int READ_TIMEOUT = 30000;    // 30s timeout for reading data
 
     /**
      * Given a URI, determine whether it exists or not.
@@ -98,8 +102,7 @@ public class NetworkUtils {
     /**
      * Given a URI, return a SeekableStream of the appropriate type.
      *
-     * @param url an ftp:, http:, or file: URI
-     *
+     * @param uri an ftp:, http:, or file: URI
      * @return a SeekableStream which can be passed to SavantROFile or BAMDataSource
      */
     public static SeekableStream getSeekableStreamForURI(URI uri) throws IOException {
@@ -121,5 +124,43 @@ public class NetworkUtils {
             }
         }
         return result;
+    }
+
+    /**
+     * Open a stream for the given URL with the CONNECT_TIMEOUT and READ_TIMEOUT.
+     * @throws IOException
+     */
+    public static InputStream openStream(URL url) throws IOException {
+        URLConnection conn = url.openConnection();
+        conn.setConnectTimeout(CONNECT_TIMEOUT);
+        conn.setReadTimeout(READ_TIMEOUT);
+        return conn.getInputStream();
+    }
+
+    /**
+     * Create a URL object from a string which we know to be a valid URL.  Avoids having
+     * to catch a MalformedURLException which we know will never be thrown.  Intended
+     * as the URL equivalent to <code>URL.create()</code>.
+     */
+    public static URL getKnownGoodURL(String url) {
+        try {
+            return new URL(url);
+        } catch (MalformedURLException ignored) {
+            throw new IllegalArgumentException();
+        }
+    }
+
+
+    /**
+     * Create a URL object from an existing URL and a string which we know to be a valid path.  Avoids having
+     * to catch a MalformedURLException which we know will never be thrown.  Intended
+     * as the URL equivalent to <code>URL.create()</code>.
+     */
+    public static URL getKnownGoodURL(URL base, String spec) {
+        try {
+            return new URL(base, spec);
+        } catch (MalformedURLException ignored) {
+            throw new IllegalArgumentException();
+        }
     }
 }

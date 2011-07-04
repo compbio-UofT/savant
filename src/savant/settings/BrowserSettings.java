@@ -16,6 +16,10 @@
 package savant.settings;
 
 import java.awt.Font;
+import java.net.URL;
+
+import savant.util.NetworkUtils;
+
 
 /**
  *
@@ -39,27 +43,36 @@ public class BrowserSettings {
     public static final int DEFAULT_BUFFER_SIZE = 65536;
 
     /*
-     * Website
+     * Website URLs
      */
-    public static final String URL = "http://www.savantbrowser.com";
-    public static final String VERSION_URL = URL + "/serve/version/version.xml";
-    public static final String GENOMES_URL = URL + "/serve/data/genomes.xml";
-    public static final String DATA_URL = URL + "/serve/data/data.xml";
-    public static final String PLUGIN_URL = URL + "/serve/plugin/plugin.xml";
-    public static final String LOG_USAGE_STATS_URL = URL + "/scripts/logUsageStats.cgi";
-    public static final String MEDIA_URL = URL + "/media.html";
-    public static final String DOCUMENTATION_URL = URL + "/documentation.html";
-    public static final String SHORTCUTS_URL = URL + "/docs/SavantShortcuts.pdf";
-    public static final String NEWS_URL = URL + "/serve/start/news.xml";
-    public static final String SAFE_URL = URL + "/safe/savantsafe.php";
+    public static final URL URL = NetworkUtils.getKnownGoodURL("http://www.savantbrowser.com");
+    public static final URL VERSION_URL = NetworkUtils.getKnownGoodURL(URL, "serve/version/version.xml");
+    public static final URL GENOMES_URL = NetworkUtils.getKnownGoodURL(URL, "serve/data/genomes.xml");
+    public static final URL DATA_URL = NetworkUtils.getKnownGoodURL(URL, "serve/data/data.xml");
+    public static final URL PLUGIN_URL = NetworkUtils.getKnownGoodURL(URL, "serve/plugin/plugin.xml");
+    public static final URL LOG_USAGE_STATS_URL = NetworkUtils.getKnownGoodURL(URL, "scripts/logUsageStats.cgi");
+    public static final URL MEDIA_URL = NetworkUtils.getKnownGoodURL(URL, "media.html");
+    public static final URL DOCUMENTATION_URL = NetworkUtils.getKnownGoodURL(URL, "documentation.html");
+    public static final URL SHORTCUTS_URL = NetworkUtils.getKnownGoodURL(URL, "docs/SavantShortcuts.pdf");
+    public static final URL NEWS_URL = NetworkUtils.getKnownGoodURL(URL, "serve/start/news.xml");
+    public static final URL SAFE_URL = NetworkUtils.getKnownGoodURL(URL, "safe/savantsafe.php");
 
+    public static final String VERSION = "1.5.1";
+    public static String BUILD = "beta";
 
-    public static final String VERSION = "1.5.0";
-    public static String BUILD = "";
+    /**
+     * Is this version a beta release?
+     */
+    public static boolean isBeta() {
+        return BUILD.equals("beta");
+    }
 
-
+    /**
+     * Does Savant need to check it's version number on startup?  Usually controlled by the
+     * CHECKVERSION key, except in the case of beta releases, which always check.
+     */
     public static boolean getCheckVersionOnStartup() {
-        return settings.getBoolean(CHECKVERSION_KEY, true);
+        return isBeta() || settings.getBoolean(CHECKVERSION_KEY, true);
     }
 
     public static boolean getCollectAnonymousUsage() {
@@ -120,8 +133,4 @@ public class BrowserSettings {
     public static Font getTrackFont() {
         return TRACK_FONT;
     }
-
-
-    
-
 }

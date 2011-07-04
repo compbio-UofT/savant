@@ -1,5 +1,5 @@
 /*
- *    Copyright 2010 University of Toronto
+ *    Copyright 2010-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -23,34 +23,16 @@ import savant.data.types.Record;
 import savant.util.Resolution;
 
 /**
+ * Public interface to Savant track objects.
  *
  * @author mfiume
  */
 public interface TrackAdapter {
 
-    // constructors
-    //public static List<Track> create(URI trackURI) throws IOException {
-    //public static Genome createGenome(URI genomeURI) throws IOException, SavantFileNotFormattedException, SavantUnsupportedVersionException {
-    //public Track(String name, FileFormat dataType, DataSource dataSource) {
-
-    // questionable
-    /*
-    public ColorScheme getColorScheme();
-    public void setColor(String name, Color color);
-    public DrawingInstructions getDrawingInstructions() {
-    public void setDrawingInstructions(DrawingInstructions di) {
-    public abstract List<Object> retrieveData(String reference, Range range, Resolution resolution);
-    public void addTrackRenderer(TrackRenderer renderer) {
-    public List<TrackRenderer> getTrackRenderers() {
-    public void setColorScheme(ColorScheme cs);
-    public abstract void resetColorScheme();
-    public Frame getFrame();
-     */
-
     /**
      * Get the data currently being displayed (or ready to be displayed)
      *
-     * @return List of data records
+     * @return list of data records
      */
     public List<Record> getDataInRange();
 
@@ -58,29 +40,21 @@ public interface TrackAdapter {
      * Get the data currently being displayed (or ready to be displayed) and intersect
      * it with the selection.
      *
-     * @return List of data records
+     * @return list of data records
      */
     public List<Record> getSelectedDataInRange();
 
 
     /**
-     * Get the record (data) track associated with this view track (if any.)
+     * Get the <code>DataSource</code> associated with this track.
      *
-     * @return Record Track or null (in the case of a genome.)
+     * @return this track's <code>DataSource</code>
      */
     public DataSource getDataSource();
 
 
     /**
-     * Get the type of file this view track represents
-     *
-     * @return  data format
-     */
-    //public DataFormat getDataFormat();
-
-
-    /**
-     * Get current draw mode
+     * Get current draw mode.
      *
      * @return draw mode
      */
@@ -100,15 +74,6 @@ public interface TrackAdapter {
      * @return List of draw Modes
      */
     public List<String> getDrawModes();
-
-
-    /**
-     * Get the default draw mode.
-     *
-     * @return  the default draw mode
-     *
-    public String getDefaultDrawMode();
-     */
 
 
     /**
@@ -135,13 +100,6 @@ public interface TrackAdapter {
      */
     public Resolution getResolution(RangeAdapter range);
 
-
-    /**
-     * Get the URI corresponding to the track's DataSource.
-     *
-     * @return the URI for the track's data (possibly null)
-     */
-    //public URI getURI();
 
     /**
      * Does this track allow selections?

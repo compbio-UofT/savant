@@ -27,7 +27,7 @@ import savant.view.swing.Track;
 
 
 /**
- *
+ * Utility methods for dealing with Savant genomes.
  * @author tarkvara
  */
 public class GenomeUtils {
@@ -35,8 +35,9 @@ public class GenomeUtils {
     private static LocationController lc = LocationController.getInstance();
 
     /**
-     * Tell whether a genome has been loaded yet
-     * @return Whether or not a genome has been loaded yet
+     * Tell whether Savant has loaded a genome yet.
+     *
+     * @return true if a genome is loaded
      */
     public static boolean isGenomeLoaded() {
         return lc.isGenomeLoaded();
@@ -44,15 +45,17 @@ public class GenomeUtils {
 
     /**
      * Get the loaded genome.
-     * @return The loaded genome
+     *
+     * @return the loaded genome
      */
     public static GenomeAdapter getGenome() {
         return lc.getGenome();
     }
 
     /**
-     * Set the genome
-     * @param genome The genome to set
+     * Set the current genome.
+     *
+     * @param genome the genome to set
      */
     public static void setGenome(GenomeAdapter genome) {
         lc.setGenome((Genome) genome);
@@ -61,7 +64,6 @@ public class GenomeUtils {
 
     /**
      * Create a placeholder genome with the given name and length.
-     * @throws IOException
      */
     public static GenomeAdapter createGenome(String name, int length) {
         return new Genome(name, length);

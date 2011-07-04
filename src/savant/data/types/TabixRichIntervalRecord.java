@@ -41,9 +41,6 @@ public class TabixRichIntervalRecord extends TabixIntervalRecord implements Rich
      * the possibility that block starts are specified as positions relative to the start
      * of the feature rather than as absolution positions within the chromosome.  This
      * functionality is not currently used by our Tabix files.
-     *
-     * @param start start position of the enclosing feature relative to the start of the chromosome
-     * @return
      */
     @Override
     public List<Block> getBlocks() {

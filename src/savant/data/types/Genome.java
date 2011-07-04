@@ -92,8 +92,6 @@ public final class Genome implements Serializable, GenomeAdapter {
     /**
      * Create a Genome from one of the .cytoband or .chromInfo files on our website.  Note that
      * this does a lazy instantiation of the reference map.
-     *
-     * @param uri
      */
     public Genome(String name, String desc, URI cytobandURI, Auxiliary[] auxiliaries) throws IOException {
         this.name = name;
@@ -254,12 +252,11 @@ public final class Genome implements Serializable, GenomeAdapter {
 
     /**
      * Try to load the default genomes from our web-site.  If that fails, return an array containing 5 popular genomes.
-     * @return
      */
     public static Genome[] getDefaultGenomes() {
         try {
             List<Genome> result = new ArrayList<Genome>();
-            Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(BrowserSettings.GENOMES_URL);
+            Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(BrowserSettings.GENOMES_URL.toString());
             NodeList genomes = doc.getElementsByTagName("genome");
             for (int i = 0; i < genomes.getLength(); i++) {
                 Element genome = (Element)genomes.item(i);

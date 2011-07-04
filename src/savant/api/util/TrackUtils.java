@@ -71,7 +71,8 @@ public class TrackUtils {
 
     /**
      * Add multiple tracks to the list of tracks.
-     * @param tracs The track to add
+     *
+     * @param tracks The tracks to add
      * @deprecated No longer necessary; createTracks does all the work.
      */
     public static void addTracks(List<TrackAdapter> tracks) {
@@ -93,7 +94,7 @@ public class TrackUtils {
 
     /**
      * Create a track from a path (either file or from web).
-     * @param path Path to the track (can be either local or remote, e.g. on http or ftp server)
+     * @param uri Path to the track (can be either local or remote, e.g. on http or ftp server)
      * @return A list of tracks based on the path (some paths, e.g. to BAM files, can create multiple tracks)
      * @throws IOException Exception opening the track at path
      */
@@ -115,20 +116,22 @@ public class TrackUtils {
     }
 
     /**
-     * Get the data source of a track
-     * @param trackname
-     * @return
+     * Get the data source of a track.
+     *
+     * @param trackName name of track
+     * @return the <code>DataSource</code> associated with this track (may be null)
      */
-    public static DataSource getTrackDataSource(String trackname) {
-        TrackAdapter t = getTrack(trackname);
+    public static DataSource getTrackDataSource(String trackName) {
+        TrackAdapter t = getTrack(trackName);
         if (t == null) { return null; }
         return t.getDataSource();
     }
 
     /**
-     * Get all tracks of a specific format
-     * @param kind The format of tracks wanted
-     * @return A list of all tracks of a specific format
+     * Get all tracks of a specific format.
+     *
+     * @param kind The format of tracks requested
+     * @return An array of all tracks of a specific format
      */
     public TrackAdapter[] getTracks(DataFormat kind) {
         List<TrackAdapter> r = new ArrayList<TrackAdapter>();
@@ -140,6 +143,7 @@ public class TrackUtils {
 
     /**
      * Subscribe a listener to be notified when the track list changes
+     *
      * @param l The listener to subscribe
      */
     public static synchronized void addTracksChangedListener(TrackListChangedListener l) {

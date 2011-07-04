@@ -15,10 +15,6 @@
  */
 package savant.api.util;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import savant.api.adapter.RangeAdapter;
 import savant.util.Range;
 
@@ -29,6 +25,12 @@ import savant.util.Range;
  * @author tarkvara
  */
 public class RangeUtils {
+    /**
+     * Construct
+     * @param from start-point of the range
+     * @param to end-point of the range
+     * @return a newly-constructed <code>RangeAdapter</code>
+     */
     public static RangeAdapter createRange(int from, int to) {
         return new Range(from, to);
     }
@@ -38,23 +40,34 @@ public class RangeUtils {
      *
      * @param r1 a big range
      * @param r2 a smaller range
-     * @return true if r1 contains r2
+     * @return true if <code>r1</code> contains <code>r2</code>
      */
     public static boolean contains(RangeAdapter r1, RangeAdapter r2) {
         return r1.getFrom() <= r2.getFrom() && r1.getTo() >= r2.getTo();
     }
 
+    /**
+     * Determine whether two ranges intersect.
+     *
+     * @param r1 a range
+     * @param r2 another range
+     * @return true if <code>r1</code> and <code>r2</code> intersect
+     */
     public static boolean intersects(RangeAdapter r1, RangeAdapter r2) {
         return r1.getFrom() <= r2.getTo() && r1.getTo() >= r2.getFrom();
     }
 
     /**
-     * Subtract r2 from r1, producing a list of 0, 1, or 2 ranges.
+     * Subtract r2 from r1, producing an array of 0, 1, or 2 ranges.
+     *
+     * @param r1 a range
+     * @param r2 another range
+     * @return the difference between <code>r1</code> and <code>r2</code>.
      */
-    public static List<RangeAdapter> subtract(RangeAdapter r1, RangeAdapter r2) {
+    public static RangeAdapter[] subtract(RangeAdapter r1, RangeAdapter r2) {
         if (r1.getTo() < r2.getFrom() || r1.getFrom() > r2.getTo()) {
             // No intersection, just return r1.
-            return Arrays.asList(r1);
+            return new RangeAdapter[] { r1 };
         } else {
             /*
              * |.. |     A
@@ -87,15 +100,15 @@ public class RangeUtils {
             if (r1.getFrom() < r2.getFrom()) {
                 if (r1.getTo() <= r2.getTo()) {
                     // r1 overlaps with r2, but is offset to the left.
-                    return Arrays.asList(createRange(r1.getFrom(), r2.getFrom() - 1));
+                    return new RangeAdapter[] { createRange(r1.getFrom(), r2.getFrom() - 1) };
                 } else {
                     // r2 is a proper subset of r1.  Return a donut of two ranges.
-                    return Arrays.asList(createRange(r1.getFrom(), r2.getFrom() - 1), createRange(r2.getTo() + 1, r1.getTo()));
+                    return new RangeAdapter[] { createRange(r1.getFrom(), r2.getFrom() - 1), createRange(r2.getTo() + 1, r1.getTo()) };
                 }
             } else if (r1.getTo() > r2.getTo()) {
-                return Arrays.asList(createRange(r2.getTo() + 1, r1.getTo()));
+                return new RangeAdapter[] { createRange(r2.getTo() + 1, r1.getTo()) };
             }
         }
-        return new ArrayList<RangeAdapter>();
+        return new RangeAdapter[0];
     }
 }

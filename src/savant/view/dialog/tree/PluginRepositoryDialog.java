@@ -64,7 +64,6 @@ public class PluginRepositoryDialog extends JDialog {
      * @param title window title
      * @param buttonText text of button (typically "Install")
      * @param xmlFile plugin.xml file which defines repository entries
-     * @param destDir destination directory for downloads
      */
     public PluginRepositoryDialog(Window parent, String title, String buttonText, File xmlFile) throws JDOMException, IOException {
         super(parent, title, Dialog.ModalityType.APPLICATION_MODAL);

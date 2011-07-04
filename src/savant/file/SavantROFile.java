@@ -69,7 +69,7 @@ public class SavantROFile implements ROFile {
     /**
      * Construct a Savant file from a local file, with a given file type
      *
-     * @param filename filename
+     * @param file file path
      * @param ft file type
      * @throws IOException if existing file type does not match that given
      * @throws SavantFileNotFormattedException if file is not formatted in Savant format (no magic number)

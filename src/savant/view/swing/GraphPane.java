@@ -164,7 +164,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
     /**
      * Set the tracks to be displayed in this GraphPane
      *
-     * @param track an array of Track objects to be added
+     * @param tracks an array of Track objects to be added
      */
     public void setTracks(Track[] tracks) {
         this.tracks = tracks;
@@ -1204,11 +1204,6 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         }
         repaint();
     }
-
-    /**
-     * RANGE
-     * @return
-     */
 
     public Range getHorizontalPositionalRange() {
         return new Range(xMin, xMax);

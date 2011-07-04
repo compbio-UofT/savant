@@ -56,7 +56,6 @@ public final class ItemRGB {
     /**
      * Parse a token which contains an ItemRGB value.  
      * @param token
-     * @return
      */
     public static ItemRGB parseItemRGB(String token) {
         String[] values = token.split(",");

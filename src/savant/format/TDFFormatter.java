@@ -96,8 +96,7 @@ public class TDFFormatter extends SavantFileFormatter {
 
     /**
      * Parse a wig file to determine the chromosome sizes.
-     * @param inFile
-     * @return
+     *
      * @throws InterruptedException
      * @throws IOException
      */

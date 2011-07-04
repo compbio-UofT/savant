@@ -61,14 +61,12 @@ import savant.plugin.builtin.SAFEDataSourcePlugin;
 import savant.plugin.builtin.SavantFileRepositoryDataSourcePlugin;
 import savant.settings.*;
 import savant.swing.component.TrackChooser;
-import savant.net.DownloadFile;
 import savant.util.MiscUtils;
+import savant.util.Version;
 import savant.view.dialog.*;
 import savant.view.icon.SavantIconFactory;
 import savant.view.tools.ToolsModule;
 import savant.view.swing.start.StartPanel;
-import savant.xml.XMLVersion;
-import savant.xml.XMLVersion.Version;
 
 
 /**
@@ -150,7 +148,6 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
     /**
      * Create a frame for a track (or bundle of tracks) which already exists.
      *
-     * @param name the name for the new frame
      * @param tracks the tracks to be added to the frame
      */
     public Frame createFrameForExistingTrack(Track[] tracks) {
@@ -1140,9 +1137,9 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
 
     private void websiteItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_websiteItemActionPerformed
         try {
-            java.awt.Desktop.getDesktop().browse(java.net.URI.create(BrowserSettings.URL));
-        } catch (IOException ex) {
-            LOG.error("Unable to access Savant website", ex);
+            java.awt.Desktop.getDesktop().browse(BrowserSettings.URL.toURI());
+        } catch (Exception ex) {
+            LOG.error("Unable to access Savant website.", ex);
         }
     }//GEN-LAST:event_websiteItemActionPerformed
 
@@ -1183,16 +1180,16 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
 
     private void tutorialsItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tutorialsItemActionPerformed
         try {
-            java.awt.Desktop.getDesktop().browse(java.net.URI.create(BrowserSettings.MEDIA_URL));
-        } catch (IOException ex) {
+            Desktop.getDesktop().browse(BrowserSettings.MEDIA_URL.toURI());
+        } catch (Exception ex) {
             LOG.error("Unable to access online tutorials.", ex);
         }
     }//GEN-LAST:event_tutorialsItemActionPerformed
 
     private void userManualItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_userManualItemActionPerformed
         try {
-            java.awt.Desktop.getDesktop().browse(java.net.URI.create(BrowserSettings.DOCUMENTATION_URL));
-        } catch (IOException ex) {
+            Desktop.getDesktop().browse(BrowserSettings.DOCUMENTATION_URL.toURI());
+        } catch (Exception ex) {
             LOG.error("Unable to access online user manual.", ex);
         }
     }//GEN-LAST:event_userManualItemActionPerformed
@@ -1320,51 +1317,50 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
      * Starts an instance of the Savant Browser
      * @param args the command line arguments
      */
-    public static void main(String args[]) throws Exception {
-
-        boolean loadProject = false;
-        boolean loadPlugin = false;
-        String loadProjectUrl = null;
-        List<String> loadPluginUrls = new ArrayList<String>();
-        for(int i = 0; i < args.length; i++){
-            String s = args[i];
-            if(s.startsWith("--")){ //build
-                loadProject = false;
-                loadPlugin = false;
-                BrowserSettings.BUILD = s.replaceAll("-", "");
-                if (s.equals("--debug")) {
-                    turnExperimentalFeaturesOff = false;
-                }
-            } else if (s.startsWith("-")){
-                if(s.equals("-project")){
-                    loadProject = true;
-                    loadPlugin = false;
-                } else if (s.equals("-plugins")){
-                    loadPlugin = true;
-                    loadProject = false;
-                }
-            } else if (loadProject){
-                loadProjectUrl = s;
-                loadProject = false;
-            } else if (loadPlugin){
-                loadPluginUrls.add(s);
-            } else {
-                //bad argument, skip
-            }
-        }
-
-        installMissingPlugins(loadPluginUrls);
-
-        //java.awt.EventQueue.invokeLater(new Runnable() {
-
-        //@Override
-        //public void run() {
-
-        System.setProperty("apple.laf.useScreenMenuBar", "true");
-        com.jidesoft.utils.Lm.verifyLicense("Marc Fiume", "Savant Genome Browser", "1BimsQGmP.vjmoMbfkPdyh0gs3bl3932");
-        LookAndFeelFactory.installJideExtension(LookAndFeelFactory.OFFICE2007_STYLE);
+    public static void main(String args[]) {
 
         try {
+            boolean loadProject = false;
+            boolean loadPlugin = false;
+            String loadProjectUrl = null;
+            List<String> loadPluginUrls = new ArrayList<String>();
+            for(int i = 0; i < args.length; i++){
+                String s = args[i];
+                if(s.startsWith("--")){ //build
+                    loadProject = false;
+                    loadPlugin = false;
+                    BrowserSettings.BUILD = s.replaceAll("-", "");
+                    if (s.equals("--debug")) {
+                        turnExperimentalFeaturesOff = false;
+                    }
+                } else if (s.startsWith("-")){
+                    if(s.equals("-project")){
+                        loadProject = true;
+                        loadPlugin = false;
+                    } else if (s.equals("-plugins")){
+                        loadPlugin = true;
+                        loadProject = false;
+                    }
+                } else if (loadProject){
+                    loadProjectUrl = s;
+                    loadProject = false;
+                } else if (loadPlugin){
+                    loadPluginUrls.add(s);
+                } else {
+                    //bad argument, skip
+                }
+            }
+
+            installMissingPlugins(loadPluginUrls);
+
+            //java.awt.EventQueue.invokeLater(new Runnable() {
+
+            //@Override
+            //public void run() {
+
+            System.setProperty("apple.laf.useScreenMenuBar", "true");
+            com.jidesoft.utils.Lm.verifyLicense("Marc Fiume", "Savant Genome Browser", "1BimsQGmP.vjmoMbfkPdyh0gs3bl3932");
+            LookAndFeelFactory.installJideExtension(LookAndFeelFactory.OFFICE2007_STYLE);
 
             UIManager.put("JideSplitPaneDivider.border", 5);
 
@@ -1372,19 +1368,14 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 
             LookAndFeelFactory.installJideExtension(LookAndFeelFactory.XERTO_STYLE_WITHOUT_MENU);
-            // LookAndFeelFactory.installJideExtension(LookAndFeelFactory.OFFICE2003_STYLE);
 
-        } catch (Exception e) {
-            // handle exception
+            // Load project immediately if argument exists.
+            if (Savant.getInstance().isWebStart() && loadProjectUrl != null){
+                ProjectController.getInstance().loadProjectFromURL(loadProjectUrl);
+            }
+        } catch (Exception x) {
+            LOG.error(x);
         }
-
-        Savant instance = Savant.getInstance();
-
-        //load project immediately if argument exists
-        if (instance.isWebStart() && loadProjectUrl != null){
-            ProjectController.getInstance().loadProjectFromURL(loadProjectUrl);
-        }
-
     }
 
     public static void loadPreferences() {
@@ -1396,13 +1387,11 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
 
     private static void logUsageStats() {
         try {
-            URL url;
             URLConnection urlConn;
             DataOutputStream printout;
             // URL of CGI-Bin script.
-            url = new URL(BrowserSettings.LOG_USAGE_STATS_URL);
             // URL connection channel.
-            urlConn = url.openConnection();
+            urlConn = BrowserSettings.LOG_USAGE_STATS_URL.openConnection();
             // Let the run-time system (RTS) know that we want input.
             urlConn.setDoInput(true);
             // Let the RTS know that we want to do output.
@@ -1448,27 +1437,26 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
 
     public static void checkVersion(boolean verbose) {
         try {
-            File versionFile = DownloadFile.downloadFile(new URL(BrowserSettings.VERSION_URL), DirectorySettings.getSavantDirectory());
-            LOG.info("Saved version file to: " + versionFile.getAbsolutePath());
-            Version currentversion = (new XMLVersion(versionFile)).getVersion();
-            Version thisversion = new Version(BrowserSettings.VERSION);
-            if (currentversion.compareTo(thisversion) > 0) {
-                DialogUtils.displayMessage("Savant", "A new version of Savant (" + currentversion.toString() + ") is available.\n"
+            Version latestVersion = Version.fromURL(BrowserSettings.VERSION_URL);
+            Version ourVersion = new Version(BrowserSettings.VERSION);
+            int diff = latestVersion.compareTo(ourVersion);
+            if (diff > 0) {
+                DialogUtils.displayMessage("Savant", "A new version of Savant (" + latestVersion + ") is available.\n"
                         + "To stop this message from appearing, download the newest version at " + BrowserSettings.URL + "\nor disable automatic "
                         + "checking in Preferences.");
+            } else if (diff == 0 && BrowserSettings.isBeta()) {
+                DialogUtils.displayMessage("Savant", "The release version of Savant (" + latestVersion + ") is available.\n"
+                        + "Please upgrade this beta version to the official release.");
             } else {
                 if (verbose) {
-                    DialogUtils.displayMessage("Savant", "This version of Savant (" + thisversion.toString() + ") is up to date.");
+                    DialogUtils.displayMessage("Savant", "This version of Savant (" + ourVersion + ") is up to date.");
                 }
             }
-            versionFile.delete();
         } catch (IOException x) {
             if (verbose) {
                 DialogUtils.displayMessage("Savant Warning", "Could not connect to server. Please ensure you have connection to the internet and try again.");
             }
             LOG.error("Error downloading version file", x);
-        } catch (JDOMException ignored) {
-            // This should only happen if we've deliberately uploaded a malformed version.xml file to our website.
         }
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -2007,8 +1995,8 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
 
     public void setLastTrackDirectory(File dir) {
         File full = new File(dir.getAbsolutePath() + System.getProperty("file.separator") + " ");
-        System.out.println("Setting directory to: " + full);
-        this.lastTrackDirectory = full;
+        LOG.info("Setting directory to: " + full);
+        lastTrackDirectory = full;
     }
 
     private void initHiddenShortcuts(){
@@ -2020,6 +2008,7 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
         JMenuItem hiddenBookmarkPrev = new JMenuItem("");
         hiddenBookmarkPrev.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_9, osSpecificModifier));
         hiddenBookmarkPrev.addActionListener(new java.awt.event.ActionListener() {
+            @Override
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 if(favoriteSheet != null){
                     favoriteSheet.goToPreviousBookmark();
@@ -2030,6 +2019,7 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
         JMenuItem hiddenBookmarkNext = new JMenuItem("");
         hiddenBookmarkNext.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_0, osSpecificModifier));
         hiddenBookmarkNext.addActionListener(new java.awt.event.ActionListener() {
+            @Override
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 if(favoriteSheet != null){
                     favoriteSheet.goToNextBookmark();

@@ -81,13 +81,6 @@ public class DialogUtils {
         savant.view.swing.util.DialogUtils.displayError("Savant Error", message);
     }
 
-    /*
-     * Display a dialog that gets input
-     */
-    public static String displayInputMessage(String message, String defaultInput) {
-        return savant.view.swing.util.DialogUtils.displayInputMessage("Savant", message, defaultInput);
-    }
-
     /**
      * Display a Savant error dialog with the given title and message.
      *
@@ -96,6 +89,13 @@ public class DialogUtils {
      */
     public static void displayError(String title, String message) {
         savant.view.swing.util.DialogUtils.displayError(title, message);
+    }
+
+    /**
+     * Display a dialog that gets an input string from the user.
+     */
+    public static String displayInputMessage(String message, String defaultInput) {
+        return savant.view.swing.util.DialogUtils.displayInputMessage("Savant", message, defaultInput);
     }
 
     /**
@@ -135,7 +135,7 @@ public class DialogUtils {
      * @param title title of the dialog
      * @param filter filter for determining which files to display
      * @param initialDir initial directory for the dialog (null to use system default)
-     * @return a File, or null if cancelled
+     * @return a <code>File</code>, or null if cancelled
      */
     public static File chooseFileForOpen(String title, FileFilter filter, File initialDir) {
         return savant.view.swing.util.DialogUtils.chooseFileForOpen(Savant.getInstance(), title, filter, initialDir);
@@ -159,7 +159,7 @@ public class DialogUtils {
      *
      * @param title title of the dialog
      * @param defaultName default file-name to appear in the dialog
-     * @return a File, or null if cancelled
+     * @return a <code>File</code>, or null if cancelled
      */
     public static File chooseFileForSave(String title, String defaultName) {
         return savant.view.swing.util.DialogUtils.chooseFileForSave(Savant.getInstance(), title, defaultName, null, null);
@@ -170,7 +170,7 @@ public class DialogUtils {
      *
      * @param title title of the dialog
      * @param filter file-filter for controlling what appears in the dialog
-     * @return a File, or null if cancelled
+     * @return a <code>File</code>, or null if cancelled
      */
     public static File chooseFileForSave(String title, String defaultName, FileFilter filter) {
         return savant.view.swing.util.DialogUtils.chooseFileForSave(Savant.getInstance(), title, defaultName, filter, null);
@@ -182,7 +182,7 @@ public class DialogUtils {
      * @param title title of the dialog
      * @param filter file-filter for controlling what appears in the dialog
      * @param dir the default directory
-     * @return a File, or null if cancelled
+     * @return a <code>File</code>, or null if cancelled
      */
     public static File chooseFileForSave(String title, String defaultName, FileFilter filter, File dir) {
         return savant.view.swing.util.DialogUtils.chooseFileForSave(Savant.getInstance(), title, defaultName, filter, dir);
@@ -198,7 +198,6 @@ public class DialogUtils {
     /**
      * Show a Savant progress dialog with the appropriate amount of progress.
      *
-     * @param parent component to serve as the dialog's parent
      * @param message message describing the step currently in progress
      * @param fraction fraction of the process which is complete (-1.0 for an indeterminate process; 1.0 to dismiss the dialog)
      */

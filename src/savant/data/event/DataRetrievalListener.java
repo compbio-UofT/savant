@@ -43,7 +43,6 @@ public interface DataRetrievalListener {
      * Data retrieval has failed for some reason.
      *
      * @param evt describes the data source which triggered the event
-     * @param iox an exception object describing the error
      */
     public void dataRetrievalFailed(DataRetrievalEvent evt);
 }

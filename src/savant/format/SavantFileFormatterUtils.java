@@ -279,7 +279,6 @@ public class SavantFileFormatterUtils {
      * Assumes that you are not parsing a GFF file.
      * @param txtLine - String line of text
      * @param fields
-     * @return
      * @throws IOException
      */
     public static List<Object> parseTxtLine(String txtLine, List<FieldType> fields) throws IOException {
@@ -292,7 +291,6 @@ public class SavantFileFormatterUtils {
      * @param txtLine - String line of text
      * @param fields
      * @param isGFF - specific cases for GFF formatting
-     * @return
      * @throws IOException
      */
     public static List<Object> parseTxtLine(String txtLine, List<FieldType> fields, boolean isGFF) throws IOException {

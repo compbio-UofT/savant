@@ -22,6 +22,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +32,6 @@ import javax.swing.table.TableCellRenderer;
 
 import com.jidesoft.grid.TreeTable;
 import com.jidesoft.swing.TableSearchable;
-import java.net.MalformedURLException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jdom.Document;
@@ -44,6 +44,7 @@ import savant.view.dialog.tree.TreeBrowserModel;
 import savant.view.dialog.tree.TreeBrowserEntry;
 import savant.settings.BrowserSettings;
 import savant.net.DownloadFile;
+import savant.settings.DirectorySettings;
 import savant.view.swing.Savant;
 
 /**
@@ -73,7 +74,7 @@ public class SavantFileRepositoryBrowser extends JDialog {
                 true,
                 "Public Savant File Repository Browser",
                 //getDownloadTreeRows(DownloadFile.downloadFile(new URL("http://savantbrowser.com/safe/savantsafe.php?username=mfiume&password=fiume3640"), System.getProperty("java.io.tmpdir"))));
-                getDownloadTreeRows(DownloadFile.downloadFile(new URL(BrowserSettings.DATA_URL), new File(System.getProperty("java.io.tmpdir")))));
+                getDownloadTreeRows(DownloadFile.downloadFile(BrowserSettings.DATA_URL, DirectorySettings.getTmpDirectory())));
     }
 
     private SavantFileRepositoryBrowser(

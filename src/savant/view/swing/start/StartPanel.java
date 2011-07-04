@@ -347,7 +347,7 @@ public class StartPanel extends JPanel {
         p.setOpaque(false);
 
         try {
-            File newsFile = DownloadFile.downloadFile(new URL(BrowserSettings.NEWS_URL), DirectorySettings.getTmpDirectory());
+            File newsFile = DownloadFile.downloadFile(BrowserSettings.NEWS_URL, DirectorySettings.getTmpDirectory());
             p = parseNewsFile(newsFile);
             if (newsFile.exists()) { newsFile.delete(); }
 
@@ -548,8 +548,8 @@ public class StartPanel extends JPanel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    java.awt.Desktop.getDesktop().browse(java.net.URI.create(BrowserSettings.DOCUMENTATION_URL));
-                } catch (IOException ex) {
+                    Desktop.getDesktop().browse(BrowserSettings.DOCUMENTATION_URL.toURI());
+                } catch (Exception ex) {
                     DialogUtils.displayError("Uh oh", "Could not open browser");
                 }
             }
@@ -560,8 +560,8 @@ public class StartPanel extends JPanel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    java.awt.Desktop.getDesktop().browse(java.net.URI.create(BrowserSettings.SHORTCUTS_URL));
-                } catch (IOException ex) {
+                    Desktop.getDesktop().browse(BrowserSettings.SHORTCUTS_URL.toURI());
+                } catch (Exception ex) {
                     DialogUtils.displayError("Uh oh", "Could not open browser");
                 }
             }

@@ -17,13 +17,31 @@
 package savant.api.adapter;
 
 /**
+ * Public interface for Savant range objects.
  *
  * @author mfiume
  */
 public interface RangeAdapter {
 
+    /**
+     * Get the start of this range.
+     *
+     * @return the start of this range
+     */
     public int getFrom();
+
+    /**
+     * Get the end of this range.
+     *
+     * @return the end of this range
+     */
     public int getTo();
+
+    /**
+     * Get the length of this range.  Equivalent to <code>getFrom() - getTo() + 1</code>.
+     *
+     * @return the length of this range
+     */
     public int getLength();
 
     /**

@@ -59,7 +59,6 @@ public class IntervalSearchTree {
      *          - the left child represents the first half of its parent's range
      *          - the right child represents the second half of its parent's range
      * @param r The range (which should encompass all intervals to be formatted)
-     * @param minBinSize The minimum bin size
      */
     public IntervalSearchTree(Range r) {
 
@@ -67,7 +66,6 @@ public class IntervalSearchTree {
 
         // Construct the tree
         root = createNode(r, null);
-        //constructSubtree(root, arity, minBinSize);
     }
     
     public IntervalSearchTree(List<IntervalTreeNode> nodes) {
@@ -79,10 +77,6 @@ public class IntervalSearchTree {
     }
 
     public IntervalSearchTree(List<IntervalTreeNode> nodes, IntervalTreeNode root) {
-
-        //System.out.println("Number of nodes: " + nodes.size());
-        //System.out.println("Root range: " + root.range);
-
         this.nodes = nodes;
         this.root = root;
     }

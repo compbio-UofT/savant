@@ -24,7 +24,8 @@ import savant.util.Range;
 
 
 /**
- * Utilities for navigating Savant
+ * Utilities for navigating Savant.
+ *
  * @author mfiume
  */
 public class NavigationUtils {
@@ -32,16 +33,16 @@ public class NavigationUtils {
     private static LocationController lc = LocationController.getInstance();
 
     /**
-     * Get the name of the current reference
-     * @return The name of the current reference
+     * Get the name of the current reference.
+     *
+     * @return name of the current reference
      */
     public static String getCurrentReferenceName() {
         return lc.getReferenceName();
     }
 
     /**
-     * Get a list of reference names for this genome
-     * @return
+     * Get a list of reference names for this genome (equivalent to <code>GenomeUtils.getGenome().getReferenceNames()</code>).
      */
     public static Set<String> getReferenceNames() {
         return lc.getReferenceNames();
@@ -49,56 +50,63 @@ public class NavigationUtils {
 
     /**
      * Get the current reference's range.
-     * @return The maximumViewableRange
+     *
+     * @return the maximum viewable range
      */
     public static RangeAdapter getCurrentReferenceRange() {
         return lc.getMaxRange();
     }
 
     /**
-     * Navigate to the start of the specified reference
-     * @param ref The name of the reference to navigate to
+     * Navigate to the start of the specified reference.
+     *
+     * @param ref the name of the reference to navigate to (e.g. "chrX")
      */
     public void navigateTo(String ref) {
         lc.setLocation(ref);
     }
 
     /**
-     * Navigate to the specified range
-     * @param r The range to set as current
+     * Navigate to the specified range.
+     *
+     * @param range the range to set as current
      */
-    public static void navigateTo(RangeAdapter r) {
-        lc.setLocation((Range) r);
+    public static void navigateTo(RangeAdapter range) {
+        lc.setLocation((Range)range);
     }
 
     /**
-     * Navigate to the specified range on the specified reference
-     * @param reference The name of the reference that the range applies to
-     * @param range The range to set as current
+     * Navigate to the specified range on the specified reference.
+     *
+     * @param ref the reference that the range applies to
+     * @param range the range to set as current
      */
-    public static void navigateTo(String reference, RangeAdapter range) {
-        lc.setLocation(reference, (Range)range);
+    public static void navigateTo(String ref, RangeAdapter range) {
+        lc.setLocation(ref, (Range)range);
     }
 
     /**
-     * Get the current range
-     * @return The currentViewableRange
+     * Get the current range.
+     *
+     * @return the current viewable range
      */
     public static RangeAdapter getCurrentRange() {
         return lc.getRange();
     }
 
     /**
-     * Subscribe a listener to be notified when the range changes
-     * @param l The listener to subscribe
+     * Subscribe a listener to be notified when the range changes.
+     *
+     * @param l the listener to subscribe
      */
     public static synchronized void addLocationChangeListener(LocationChangeCompletedListener l) {
         lc.addLocationChangeCompletedListener(l);
     }
 
     /**
-     * Unsubscribe a listener from being notified when the range changes
-     * @param l The listener to unsubscribe
+     * Unsubscribe a listener from being notified when the range changes.
+     *
+     * @param l the listener to unsubscribe
      */
     public static synchronized void removeLocationChangeListener(LocationChangeCompletedListener l) {
         lc.removeLocationChangeCompletedListener(l);
@@ -109,8 +117,8 @@ public class NavigationUtils {
      *
      * @param from start-point of the range
      * @param to end-point of the range
-     * @return a newly-constructed RangeAdapter
-     * @deprecated Use RangeUtils.createFange instead.
+     * @return a newly-constructed <code>RangeAdapter</code>
+     * @deprecated Use <code>RangeUtils.createRange</code> instead.
      */
     public static RangeAdapter createRange(int from, int to) {
         return new Range(from, to);

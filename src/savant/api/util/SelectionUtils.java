@@ -22,7 +22,7 @@ import savant.controller.event.SelectionChangedListener;
 import savant.data.types.Record;
 
 /**
- * Utilities for data selection in Savant
+ * Utilities for data selection in Savant.
  *
  * @author mfiume
  */
@@ -31,18 +31,21 @@ public class SelectionUtils {
     private static SelectionController sc = SelectionController.getInstance();
 
     /**
-     * 
-     * @param t The track for which to add the selection
-     * @param data The data point to select
+     * Add a selection to the given track.  Equivalent to selecting the given data point in the user interface
+     * (at which point it would normally turn green).
+     *
+     * @param t the track for which to add the selection
+     * @param data the data point to select
      */
     public static void addSelection(TrackAdapter t, Record data) {
         sc.addSelection(t.getName(), data);
     }
 
     /**
+     * Toggle the selection state of the given data point.
      *
-     * @param t The track for which to toggle the selection
-     * @param data The data point to select/deselect
+     * @param t the track for which to toggle the selection
+     * @param data the data point to select/deselect
      */
     public static void toggleSelection(TrackAdapter t, Record data) {
         sc.toggleSelection(t.getName(), data);
@@ -51,7 +54,7 @@ public class SelectionUtils {
     /**
      * Subscribe a listener to be notified when the selection changes.
      *
-     * @param l The listener to subscribe
+     * @param l the listener to subscribe
      */
     public static void addSelectionChangedListener(SelectionChangedListener l) {
         sc.addSelectionChangedListener(l);
@@ -60,7 +63,7 @@ public class SelectionUtils {
     /**
      * Unsubscribe a listener from being notified when the selection changes.
      *
-     * @param l The listener to unsubscribe
+     * @param l the listener to unsubscribe
      */
     public static void removeSelectionChangedListener(SelectionChangedListener l) {
         sc.removeSelectionChangedListener(l);

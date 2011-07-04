@@ -59,7 +59,6 @@ public class BAMIntervalRecord implements IntervalRecord {
      * Static factory method to construct a BAMIntervalRecord
      * 
      * @param samRecord the SAMRecord associated with the read; may not be null
-     * @param type the pair type; may be null if read is unpaired or mate is unmapped
      * @return a newly constructed BAMIntervalRecord
      */
     public static BAMIntervalRecord valueOf(SAMRecord samRecord) {

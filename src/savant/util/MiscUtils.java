@@ -161,10 +161,10 @@ public class MiscUtils {
     }
 
     /**
-     * Extract the extension from the given URI.
+     * Extract the file extension from the given URL.
      *
-     * @param uri The URI from which to extract the extension
-     * @return The extension of the URI
+     * @param url The URL from which to extract the extension
+     * @return The extension of the URL
      */
     public static String getExtension(URL url) {
         return getExtension(url.toString());

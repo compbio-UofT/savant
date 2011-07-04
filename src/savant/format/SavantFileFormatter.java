@@ -142,8 +142,8 @@ public abstract class SavantFileFormatter {
     }
 
     /**
-     * Open the input file
-     * @return
+     * Open the input file.
+     *
      * @throws FileNotFoundException
      */
     protected BufferedReader openInputFile() throws FileNotFoundException {
@@ -151,8 +151,8 @@ public abstract class SavantFileFormatter {
     }
 
     /**
-     * Open the output file
-     * @return
+     * Open the output file.
+
      * @throws FileNotFoundException
      */
     protected DataOutputStream openOutputFile() throws FileNotFoundException {

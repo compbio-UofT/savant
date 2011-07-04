@@ -69,7 +69,6 @@ public class BEDIntervalRecord implements RichIntervalRecord {
      * Static factory method to construct a BEDIntervalRecord
      *
      * @param chrom chromosome; may not be null
-     * @param interval interval interval including chromStart and chromEnd; may not be null
      * @param name
      * @param score
      * @param strand
@@ -77,7 +76,6 @@ public class BEDIntervalRecord implements RichIntervalRecord {
      * @param thickEnd
      * @param rgb
      * @param blocks
-     * @return
      */
     public static BEDIntervalRecord valueOf(String chrom, int start, int end, String name, float score, Strand strand, int thickStart, int thickEnd, ItemRGB rgb, List<Block> blocks) {
         return new BEDIntervalRecord(chrom, start, end, name, score, strand, thickStart, thickEnd, rgb, blocks);

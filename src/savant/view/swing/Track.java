@@ -84,8 +84,10 @@ public abstract class Track implements TrackAdapter {
 
 
     /**
-     * Constructor
-     * @param source track data source; name, type, and will be derived from this
+     * Constructor a new track with the given renderer.
+     *
+     * @param dataSource track data source; name, type, and will be derived from this
+     * @param renderer the <code>TrackRenderer</code> to be used for this track
      */
     protected Track(DataSource dataSource, TrackRenderer renderer) throws SavantTrackCreationCancelledException {
 
@@ -287,7 +289,8 @@ public abstract class Track implements TrackAdapter {
     /**
      * Utility method to determine whether this track has data for the given reference.
      *
-     * @return
+     * @param ref the reference to be checked
+     * @return true if the track has data for ref
      */
     public boolean containsReference(String ref) {
         return dataSource.getReferenceNames().contains(ref) || dataSource.getReferenceNames().contains(MiscUtils.homogenizeSequence(ref));

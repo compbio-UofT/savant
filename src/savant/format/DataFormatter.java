@@ -84,8 +84,8 @@ public class DataFormatter {
     /**
      * Establishes a data formatter which can be run by
      * calling the format() function.
-     * @param inPath input file path
-     * @param outPath output file path (should not already exist)
+     * @param inFile input file
+     * @param outFile output file (should not already exist)
      * @param fileType type of the input file (e.g. interval, point, etc)
      * @param isInputOneBased whether or not the file is one-based (i.e.
      * annotation of 10 refers to the 10th position in the genome, not the 9th
@@ -102,8 +102,8 @@ public class DataFormatter {
      * Establishes a data formatter which can be run by
      * calling the format() function.
      *  - sets one-based to true
-     * @param inPath input file path
-     * @param outPath output file path (should not already exist)
+     * @param inFile input file
+     * @param outFile output file (should not already exist)
      * @param fileType type of the input file (e.g. interval, point, etc)
      */
     public DataFormatter(File inFile, File outFile, FileType fileType) {

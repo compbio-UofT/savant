@@ -22,10 +22,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLConnection;
 
 import savant.controller.Listener;
 import savant.util.MiscUtils;
+import savant.util.NetworkUtils;
 
 /**
  *
@@ -33,8 +33,6 @@ import savant.util.MiscUtils;
  */
 public class DownloadFile {
     private static final int BUF_SIZE = 8192;   // 8kB buffer
-    private static final int CONNECT_TIMEOUT = 30000; // 30s timeout for making connection
-    private static final int READ_TIMEOUT = 30000;    // 30s timeout for reading data
 
     /**
      * Synchronously download the given URL to the given destination directory.
@@ -46,7 +44,7 @@ public class DownloadFile {
     public static File downloadFile(URL u, File destDir) throws IOException {
         File f = new File(destDir, MiscUtils.getFilenameFromPath(u.getPath()));
 
-        InputStream in = openStream(u);
+        InputStream in = NetworkUtils.openStream(u);
         OutputStream out = new FileOutputStream(f);
         byte[] buf = new byte[BUF_SIZE];
         int bytesRead;
@@ -67,7 +65,7 @@ public class DownloadFile {
 
         StringBuilder result = new StringBuilder();
 
-        InputStream in = openStream(u);
+        InputStream in = NetworkUtils.openStream(u);
         byte[] buf = new byte[BUF_SIZE];
         int bytesRead;
         while ((bytesRead = in.read(buf)) != -1) {
@@ -98,7 +96,7 @@ public class DownloadFile {
 
                     File destFile = new File(destDir, MiscUtils.getFilenameFromPath(u.getPath()));
                     OutputStream out = new FileOutputStream(destFile);
-                    InputStream in = openStream(u);
+                    InputStream in = NetworkUtils.openStream(u);
                     fireDownloadEvent(monitor, new DownloadEvent(DownloadEvent.Type.STARTED));
                     byte[] buf = new byte[BUF_SIZE];
                     long bytesSoFar = 0;
@@ -116,17 +114,6 @@ public class DownloadFile {
                 }
             }
         }.start();
-    }
-
-    /**
-     * Open a stream for the given URL with the CONNECT_TIMEOUT and READ_TIMEOUT.
-     * @throws IOException
-     */
-    private static InputStream openStream(URL url) throws IOException {
-        URLConnection conn = url.openConnection();
-        conn.setConnectTimeout(CONNECT_TIMEOUT);
-        conn.setReadTimeout(READ_TIMEOUT);
-        return conn.getInputStream();
     }
 
     private static void fireDownloadEvent(final Listener<DownloadEvent> listener, final DownloadEvent e) {

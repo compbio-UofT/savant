@@ -36,7 +36,6 @@ public class BookmarksChangedEvent extends EventObject {
      * @param source
      * @param changedbkmk
      * @param isAdded true iff bookmark was added, false if removed
-     * @param isSilent
      */
     public BookmarksChangedEvent(Object source, Bookmark changedbkmk, boolean isAdded) {
         super(source);
