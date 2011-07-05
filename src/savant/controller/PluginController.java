@@ -296,10 +296,20 @@ public class PluginController extends Controller {
         PluginDescriptor desc = PluginDescriptor.fromFile(f);
         if (desc != null) {
             if (desc.isCompatible()) {
-                LOG.info("Found compatible " + desc.getID() + "-" + desc.getVersion());
-                validPlugins.put(desc.getID(), desc);
+                LOG.info("Found compatible " + desc + " in " + f.getName());
+                PluginDescriptor existingDesc = validPlugins.get(desc.getID());
+                if (existingDesc != null) {
+                    if (existingDesc.getVersion().compareTo(desc.getVersion()) >= 0) {
+                        LOG.info("   Ignored " + desc + " due to presence of existing " + existingDesc);
+                    } else {
+                        LOG.info("   Replaced " + existingDesc);
+                        validPlugins.put(desc.getID(), desc);
+                    }
+                } else {
+                    validPlugins.put(desc.getID(), desc);
+                }
             } else {
-                LOG.info("Found incompatible " + desc.getID() + "-" + desc.getVersion() + " (SDK version " + desc.getSDKVersion() + ")");
+                LOG.info("Found incompatible " + desc + " (SDK version " + desc.getSDKVersion() + ") in " + f.getName());
                 pluginErrors.put(desc.getID(), "Invalid SDK version (" + desc.getSDKVersion() + ")");
                 throw new PluginVersionException("Invalid SDK version (" + desc.getSDKVersion() + ")");
             }
