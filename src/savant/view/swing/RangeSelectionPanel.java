@@ -204,13 +204,17 @@ public class RangeSelectionPanel extends JPanel implements LocationChangedListen
         g.drawLine(0, 0, wid, 0);
         g.drawLine(0, hei - 1, wid, hei - 1);
 
+        String bandPos = "";
+
         if (bands != null) {
             int centromereStart = -1;
             g2d.setComposite(COMPOSITE_50);
             for (Cytoband b: bands) {
                 int bandX = MiscUtils.transformPositionToPixel(b.start, getWidth(), locationController.getMaxRange());
                 int bandWidth = MiscUtils.transformPositionToPixel(b.end, getWidth(), locationController.getMaxRange()) - bandX;
-
+                if (isMouseInside && x_notdragging >= bandX && x_notdragging <= bandX + bandWidth) {
+                    bandPos = " (" + b.name + ")";
+                }
                 g.setColor(b.getColor());
                 g.fillRect(bandX, y + 1, bandWidth, h - 2);
                 
@@ -301,21 +305,16 @@ public class RangeSelectionPanel extends JPanel implements LocationChangedListen
                     g.drawString(to, startTo, ypos);
                 }
             }
-        } else if (this.isMouseInside) {
+        } else if (isMouseInside) {
             g.setColor(Color.black);
-            String msg = "click+drag to change range";
 
             FontMetrics metrics = g.getFontMetrics(g.getFont());
 
             int genomepos = translatePixelToPosition(x_notdragging);
 
-            String mousePos = MiscUtils.posToShortString(genomepos);
-            g.drawString(
-                    mousePos,
-                    x_notdragging-metrics.stringWidth(mousePos)-12,
-                    this.getHeight() / 2 + 4);
+            String mousePos = MiscUtils.posToShortString(genomepos) + bandPos;
 
-            //g.drawString(msg, x_notdragging+12, this.getHeight() / 2 + 4);
+            g.drawString(mousePos, x_notdragging - metrics.stringWidth(mousePos) - 12, getHeight() / 2 + 4);
         }
     }
 

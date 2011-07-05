@@ -241,7 +241,11 @@ public final class Genome implements Serializable, GenomeAdapter {
     private void addCytobands(String chrom, List<Cytoband> bands) {
         if (chrom != null) {
             referenceMap.put(chrom, bands.get(bands.size() - 1).end - bands.get(0).start);
-            cytobands.put(chrom, bands.toArray(new Cytoband[0]));
+
+            // Many genomes just have one entry for the chromosome, and no actual bands.
+            if (bands.size() > 1) {
+                cytobands.put(chrom, bands.toArray(new Cytoband[0]));
+            }
         }
         bands.clear();
     }
