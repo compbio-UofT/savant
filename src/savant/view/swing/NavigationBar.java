@@ -303,7 +303,7 @@ public class NavigationBar extends JToolBar {
             for (Track t: TrackController.getInstance().getTracks()) {
                 Bookmark mark = t.lookup(text);
                 if (mark != null) {
-                    LocationController.getInstance().setLocation(mark.getReference(), mark.getRange().getFrom() - 1, mark.getRange().getTo() + 1);
+                    LocationController.getInstance().setLocation(mark.getReference(), (Range)mark.getRange());
                     return;
                 }
             }
