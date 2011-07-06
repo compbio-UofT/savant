@@ -19,7 +19,6 @@ package savant.selection;
 
 import javax.swing.JLabel;
 import savant.data.sources.DataSource;
-import savant.data.sources.TabixDataSource;
 import savant.data.types.TabixIntervalRecord;
 
 /**
@@ -33,7 +32,7 @@ public class TabixPopup extends PopupPanel {
 
     public TabixPopup(TabixIntervalRecord rec, DataSource dataSource) {
         this.rec = rec;
-        columnNames = ((TabixDataSource)dataSource).getColumnNames();
+        columnNames = dataSource.getColumnNames();
     }
 
     @Override
@@ -60,4 +59,3 @@ public class TabixPopup extends PopupPanel {
         initIntervalJumps(rec);
     }
 }
-

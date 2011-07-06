@@ -75,14 +75,12 @@ public class GenericIntervalDataSource implements DataSource<GenericIntervalReco
 
     @Override
     public List<GenericIntervalRecord> getRecords(String reference, RangeAdapter range, Resolution resolution) throws IOException {
-        List<IntervalRecord> data = null;
-
         IntervalSearchTree ist = getIntervalSearchTreeForReference(reference);
 
         if (ist == null) { return new ArrayList<GenericIntervalRecord>(); }
 
 
-        data = IntervalRecordGetter.getData(this.dFile, reference, (Range)range, ist.getRoot());
+        List<IntervalRecord> data = IntervalRecordGetter.getData(dFile, reference, (Range)range, ist.getRoot());
 
         List<GenericIntervalRecord> girList = new ArrayList<GenericIntervalRecord>(data.size());
         for (int i = 0; i < data.size(); i++) {
@@ -119,5 +117,10 @@ public class GenericIntervalDataSource implements DataSource<GenericIntervalReco
     @Override
     public final DataFormat getDataFormat() {
         return DataFormat.INTERVAL_GENERIC;
+    }
+
+    @Override
+    public final String[] getColumnNames() {
+        return GenericIntervalRecord.COLUMN_NAMES;
     }
 }

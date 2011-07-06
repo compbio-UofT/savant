@@ -48,11 +48,14 @@ public class TabixIntervalRecord implements IntervalRecord {
 
     /**
      * Static factory method to construct a TabixIntervalRecord.  This checks the dataSource
-     * to determine whether to return a plain TabixIntervalRecord or the more capable TabixBedRecord.
+     * to determine whether to return a plain TabixIntervalRecord or the more capable TabixRichIntervalRecord.
+     *
+     * @param s a tab-delimited string full of data
+     * @param mapping defines how the columns in <code>s</code> should be interpreted
      */
     public static TabixIntervalRecord valueOf(String s, ColumnMapping mapping) {
         switch (mapping.format) {
-            case INTERVAL_BED:
+            case INTERVAL_RICH:
                 return new TabixRichIntervalRecord(s, mapping);
             default:
                 return new TabixIntervalRecord(s, mapping);

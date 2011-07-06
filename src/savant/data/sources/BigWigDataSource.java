@@ -114,4 +114,9 @@ public class BigWigDataSource implements DataSource<GenericContinuousRecord> {
     public DataFormat getDataFormat() {
         return DataFormat.CONTINUOUS_GENERIC;
     }
+
+    @Override
+    public final String[] getColumnNames() {
+        return GenericContinuousRecord.COLUMN_NAMES;
+    }
 }

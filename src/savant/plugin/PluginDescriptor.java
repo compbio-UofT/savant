@@ -71,6 +71,11 @@ public class PluginDescriptor implements Comparable<PluginDescriptor> {
         this.file = file;
     }
 
+    @Override
+    public String toString() {
+        return id + "-" + version;
+    }
+
     public String getClassName() {
         return className;
     }

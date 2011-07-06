@@ -36,6 +36,11 @@ public class TabixRichIntervalRecord extends TabixIntervalRecord implements Rich
         super(line, mapping);
     }
 
+    @Override
+    public String getAlternateName() {
+        return mapping.name2 >= 0 ? values[mapping.name2] : null;
+    }
+
     /**
      * Does the actual work of calculating the blocks.  Note that this method allows for
      * the possibility that block starts are specified as positions relative to the start

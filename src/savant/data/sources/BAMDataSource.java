@@ -102,9 +102,9 @@ public class BAMDataSource implements DataSource<BAMIntervalRecord> {
             // todo: actually use the given reference
 
             String ref;
-            if(this.getReferenceNames().contains(reference)){
+            if (getReferenceNames().contains(reference)) {
                 ref = reference;
-            } else if(this.getReferenceNames().contains(MiscUtils.homogenizeSequence(reference))){
+            } else if (getReferenceNames().contains(MiscUtils.homogenizeSequence(reference))) {
                 ref = MiscUtils.homogenizeSequence(reference);
             } else {
                 ref = guessSequence();
@@ -162,59 +162,6 @@ public class BAMDataSource implements DataSource<BAMIntervalRecord> {
         return sequenceName;
     }
 
-    /*
-     * Determine the pair type: NORMAL, INVERTED_READ, INVERTED_MATE, EVERTED pair.
-     *
-    private SAMIntervalRecord.PairType getPairType(int readStart, int mateStart, boolean readNegative, boolean mateNegative) {
-
-        SAMIntervalRecord.PairType type=null;
-        boolean readNegativeStrand, mateNegativeStrand;
-
-        // by switching the negative strand flags based on which read comes first, we can reduce 8 cases to 4
-        if (readStart < mateStart) {
-            readNegativeStrand = readNegative;
-            mateNegativeStrand = mateNegative;
-        }
-        else {
-            readNegativeStrand = mateNegative;
-            mateNegativeStrand = readNegative;
-        }
-
-        // now is the first read pointing forward & mate pointing backward?
-        if (!readNegativeStrand && mateNegativeStrand) {
-            // congratulations, it's a normal pair!
-            type = SAMIntervalRecord.PairType.NORMAL;
-        }
-        // or are both reversed?
-        else if (readNegativeStrand && mateNegativeStrand) {
-            // this is a case of the read being inverted
-            type = SAMIntervalRecord.PairType.INVERTED_READ;
-        }
-        // or are both forward?
-        else if (!readNegativeStrand && !mateNegativeStrand) {
-            // this is a case of the mate being inverted
-            type = SAMIntervalRecord.PairType.INVERTED_MATE;
-        }
-        // are the strands pointing away from each other?
-        else if (readNegativeStrand && !mateNegativeStrand) {
-            // the pair is everted
-            type = SAMIntervalRecord.PairType.EVERTED;
-        }
-        return type;
-    }
-     *
-     */
-
-    /**
-     * Get the name of the sequence we are querying.
-     *
-     * @return sequence name
-     *
-    public String getSequenceName() {
-        return sequenceName;
-    }
-     */
-
     /**
      * {@inheritDoc}
      */
@@ -231,17 +178,13 @@ public class BAMDataSource implements DataSource<BAMIntervalRecord> {
     @Override
     public Set<String> getReferenceNames() {
 
-        if (this.referenceNames == null) {
-            String prefix = MiscUtils.removeNumbersFromString(LocationController.getInstance().getReferenceName());
-
+        if (referenceNames == null) {
             SAMSequenceDictionary ssd = samFileHeader.getSequenceDictionary();
 
             List<SAMSequenceRecord> seqs = ssd.getSequences();
 
             referenceNames = new HashSet<String>();
-            //System.out.println("Reading BAM sequence list");
             for (SAMSequenceRecord ssr : seqs) {
-                //System.out.println(ssr.getSequenceName());
                 referenceNames.add(ssr.getSequenceName());
             }
         }
@@ -281,5 +224,10 @@ public class BAMDataSource implements DataSource<BAMIntervalRecord> {
     @Override
     public final DataFormat getDataFormat() {
         return DataFormat.INTERVAL_BAM;
+    }
+
+    @Override
+    public final String[] getColumnNames() {
+        return new String[] { "Read Name", "Sequence", "Length", "First of Pair", "Position", "Strand +", "Mapping Quality", "Base Qualities", "CIGAR", "Mate Position", "Strand +", "Inferred Insert Size" };
     }
 }

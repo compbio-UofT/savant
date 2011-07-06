@@ -106,8 +106,8 @@ public class ColumnMapping {
     /**
      * Factory method used to map BedInterval formats.
      */
-    public static ColumnMapping createBedMapping(int chrom, int start, int end, int name, int score, int strand, int thickStart, int thickEnd, int itemRGB, int blockStartsRelative, int blockStartsAbsolute, int blockEnds, int blockSizes, int name2, boolean oneBased) {
-        return new ColumnMapping(DataFormat.INTERVAL_BED, chrom, start, end, name, score, strand, thickStart, thickEnd, itemRGB, blockStartsRelative, blockStartsAbsolute, blockEnds, blockSizes, name2, oneBased);
+    public static ColumnMapping createRichIntervalMapping(int chrom, int start, int end, int name, int score, int strand, int thickStart, int thickEnd, int itemRGB, int blockStartsRelative, int blockStartsAbsolute, int blockEnds, int blockSizes, int name2, boolean oneBased) {
+        return new ColumnMapping(DataFormat.INTERVAL_RICH, chrom, start, end, name, score, strand, thickStart, thickEnd, itemRGB, blockStartsRelative, blockStartsAbsolute, blockEnds, blockSizes, name2, oneBased);
     }
 
     /**
@@ -135,7 +135,9 @@ public class ColumnMapping {
 
         for (int i = 0; i < columnNames.length; i++) {
             String colName = columnNames[i].toLowerCase();
-            if (colName.equals("chrom") || colName.equals("seqname")) {
+            if (colName.equals("bin")) {
+                columnNames[i] = null;
+            } else if (colName.equals("chrom") || colName.equals("seqname")) {
                 chrom = i;
                 columnNames[i] = "Reference";
             } else if (colName.equals("start") || colName.equals("txstart") || colName.equals("chromstart") || colName.equals("pos")) {
@@ -190,7 +192,7 @@ public class ColumnMapping {
         }
         if (bed) {
             // We have enough extra columns to justify using a Bed track.
-            return ColumnMapping.createBedMapping(chrom, start, end, name, score, strand, thickStart, thickEnd, itemRGB, -1, blockStarts, blockEnds, blockSizes, name2, oneBased);
+            return ColumnMapping.createRichIntervalMapping(chrom, start, end, name, score, strand, thickStart, thickEnd, itemRGB, -1, blockStarts, blockEnds, blockSizes, name2, oneBased);
         } else {
             return ColumnMapping.createIntervalMapping(chrom, start, end, name, oneBased);
         }

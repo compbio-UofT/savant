@@ -108,6 +108,11 @@ public class BEDDataSource implements DataSource<BEDIntervalRecord> {
 
     @Override
     public final DataFormat getDataFormat() {
-        return DataFormat.INTERVAL_BED;
+        return DataFormat.INTERVAL_RICH;
+    }
+
+    @Override
+    public final String[] getColumnNames() {
+        return new String[] {"Reference", "Start", "End", "Name", "Block Count"};
     }
 }

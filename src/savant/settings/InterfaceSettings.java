@@ -53,7 +53,7 @@ public class InterfaceSettings {
         switch (type) {
             case INTERVAL_BAM:
                 return getBamIntervalHeight();
-            case INTERVAL_BED:
+            case INTERVAL_RICH:
                 return getRichIntervalHeight();
             default:
                 return getGenericIntervalHeight();

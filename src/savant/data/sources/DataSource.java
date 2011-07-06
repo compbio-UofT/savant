@@ -64,4 +64,11 @@ public interface DataSource<E extends Record> {
     public void close();
 
     public DataFormat getDataFormat();
+
+    /**
+     * Get the column names associated with this <code>DataSource</code>.  For most formats,
+     * the list of columns is fixed, but for <code>INTERVAL_TABIX</code> it will depend on the columns
+     * found in the data file.
+     */
+    public String[] getColumnNames();
 }

@@ -31,4 +31,5 @@ public interface RichIntervalRecord extends IntervalRecord {
     int getThickStart();
     int getThickEnd();
     ItemRGB getItemRGB();
+    String getAlternateName();
 }

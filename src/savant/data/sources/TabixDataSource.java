@@ -127,7 +127,7 @@ public class TabixDataSource implements DataSource<TabixIntervalRecord> {
 
         if (mapping == null) {
             if (lastCommentLine != null) {
-                columnNames = lastCommentLine.split("\\t");
+                columnNames = lastCommentLine.substring(1).split("\\t");
                 
                 // If user has screwed up the comment line in a bed file, make sure it doesn't lead us astray.
                 columnNames[reader.getChromColumn()] = "chrom";
@@ -241,18 +241,15 @@ public class TabixDataSource implements DataSource<TabixIntervalRecord> {
         return MiscUtils.getNeatPathFromURI(getURI());
     }
 
+    /**
+     * Tabix can hold data which is actually INTERVAL_GENERIC or INTERVAL_TABIX.
+     */
     @Override
     public final DataFormat getDataFormat() {
-        return DataFormat.TABIX;
-    }
-
-    /**
-     * Tabix can hold data which is actually INTERVAL_GENERIC or INTERVAL_BED.
-     */
-    public final DataFormat getEffectiveDataFormat() {
         return mapping.format;
     }
 
+    @Override
     public final String[] getColumnNames() {
         return columnNames;
     }

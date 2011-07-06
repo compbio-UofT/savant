@@ -289,9 +289,6 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
         }
 
         DataFormat df = t0.getDataSource().getDataFormat();
-        if (df == DataFormat.TABIX) {
-            df = ((TabixDataSource)t0.getDataSource()).getEffectiveDataFormat();
-        }
 
         // TODO: Should we really be doing BAM-specific stuff in this class?
         if (df == DataFormat.INTERVAL_BAM) {
@@ -315,12 +312,12 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
                 //intervalButton.setVisible(true);
                 intervalMenu.setVisible(true);
             }
-        } else if (df == DataFormat.INTERVAL_BED) {
+        } else if (df == DataFormat.INTERVAL_RICH) {
             bedButton = createBEDButton();
             commandBar.add(bedButton);
         }
 
-        if (df == DataFormat.INTERVAL_BED || df == DataFormat.INTERVAL_GENERIC) {
+        if (df == DataFormat.INTERVAL_RICH || df == DataFormat.INTERVAL_GENERIC) {
             //intervalButton = createIntervalButton();
             //commandBar.add(intervalButton);
             intervalMenu = createIntervalMenu();
@@ -651,7 +648,7 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
                 arcButton.setVisible(false);
                 arcLegend.setVisible(false);
             }
-        } else if (track.getDataSource().getDataFormat() == DataFormat.INTERVAL_BED || track.getDataSource().getDataFormat() == DataFormat.INTERVAL_GENERIC) {
+        } else if (track.getDataSource().getDataFormat() == DataFormat.INTERVAL_RICH || track.getDataSource().getDataFormat() == DataFormat.INTERVAL_GENERIC) {
             //intervalButton.setVisible(evt.getMode().equals(RichIntervalTrackRenderer.STANDARD_MODE) || evt.getMode().equals(IntervalTrackRenderer.PACK_MODE));
             intervalMenu.setVisible(evt.getMode().equals(RichIntervalTrackRenderer.STANDARD_MODE) || evt.getMode().equals(IntervalTrackRenderer.PACK_MODE));
         }

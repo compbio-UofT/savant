@@ -117,4 +117,9 @@ public class FASTADataSource implements DataSource<SequenceRecord> {
     public final DataFormat getDataFormat() {
         return DataFormat.SEQUENCE_FASTA;
     }
+
+    @Override
+    public final String[] getColumnNames() {
+        return new String[] { "Sequence" };
+    }
 }

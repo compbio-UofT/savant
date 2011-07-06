@@ -21,6 +21,11 @@ package savant.data.types;
  */
 public class GenericContinuousRecord implements ContinuousRecord {
 
+    /**
+     * Column names shared by our various continuous data-sources.
+     */
+    public static final String[] COLUMN_NAMES = new String[] { "Reference", "Position", "Value" };
+
     private final String reference;
     private final float value;
     private final int position;

@@ -71,19 +71,24 @@ public class PopupPanel extends JPanel {
                     p = new IntervalBamPopup((BAMIntervalRecord)rec);
                 }
                 break;
-            case INTERVAL_BED:
-                if(!mode.equals("SQUISH")){
-                    p = new IntervalBedPopup((BEDIntervalRecord)rec);
+            case INTERVAL_RICH:
+                if (!mode.equals("SQUISH")) {
+                    if (rec instanceof TabixIntervalRecord) {
+                        p = new TabixPopup((TabixIntervalRecord)rec, dataSource);
+                    } else {
+                        p = new IntervalBedPopup((BEDIntervalRecord)rec);
+                    }
                 }
                 break;
             case INTERVAL_GENERIC:
-                p = new IntervalGenericPopup((GenericIntervalRecord)rec);
+                if (rec instanceof TabixIntervalRecord) {
+                    p = new TabixPopup((TabixIntervalRecord)rec, dataSource);
+                } else {
+                    p = new IntervalGenericPopup((GenericIntervalRecord)rec);
+                }
                 break;
             case CONTINUOUS_GENERIC:
                 p = new ContinuousPopup((GenericContinuousRecord)rec);
-                break;
-            case TABIX:
-                p = new TabixPopup((TabixIntervalRecord)rec, dataSource);
                 break;
             default:
                 break;

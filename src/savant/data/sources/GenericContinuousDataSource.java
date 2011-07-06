@@ -181,4 +181,9 @@ public class GenericContinuousDataSource implements DataSource<GenericContinuous
     public final DataFormat getDataFormat() {
         return DataFormat.CONTINUOUS_GENERIC;
     }
+
+    @Override
+    public final String[] getColumnNames() {
+        return GenericContinuousRecord.COLUMN_NAMES;
+    }
 }

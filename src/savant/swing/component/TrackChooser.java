@@ -21,14 +21,17 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.*;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import savant.controller.FrameController;
 import savant.file.DataFormat;
@@ -42,26 +45,12 @@ import savant.view.swing.Frame;
  * @author AndrewBrook
  */
 public class TrackChooser extends JDialog {
+    private static final Log LOG = LogFactory.getLog(TrackChooser.class);
 
     private boolean multiple;
-    private JPanel filler1;
-    private JPanel filler2;
-    private JPanel filler3;
     private JList leftList;
     private JList rightList;
-    private JScrollPane leftScroll;
-    private JScrollPane rightScroll;
-    private JButton moveRight;
-    private JButton moveLeft;
-    private JButton allRight;
-    private JButton allLeft;
-    private JButton okButton;
-    private JButton cancelButton;
     private String[] retVal;
-    private JLabel leftLabel;
-    private JLabel rightLabel;
-    private JPanel filterPanel;
-    private JLabel filterLabel;
     private JComboBox filterCombo;
     private String[] filteredTracks = null;
     private JCheckBox autoSelectAllCheck;
@@ -69,16 +58,16 @@ public class TrackChooser extends JDialog {
     private JTextField selectBaseField;
     private int baseSelected = -1;
 
-    public TrackChooser(JFrame parent, boolean multiple, String title){
+    public TrackChooser(Window parent, boolean multiple, String title){
         this(parent, multiple, title, false, -1);
     }
 
-    public TrackChooser(JFrame parent, boolean multiple, String title, boolean selectBase){
+    public TrackChooser(Window parent, boolean multiple, String title, boolean selectBase){
         this(parent, multiple, title, selectBase, -1);
     }
 
-    public TrackChooser(JFrame parent, boolean multiple, String title, boolean selectBase, int defaultBase){
-        super(parent, true);
+    public TrackChooser(Window parent, boolean multiple, String title, boolean selectBase, int defaultBase){
+        super(parent, ModalityType.APPLICATION_MODAL);
 
         this.multiple = multiple;
         this.selectBase = selectBase;
@@ -112,10 +101,11 @@ public class TrackChooser extends JDialog {
         leftList.updateUI();
         leftList.clearSelection();
 
-        DataFormat ff = MiscUtils.dataFormatFromString((String)filterCombo.getSelectedItem());
+        Object selected = filterCombo.getSelectedItem();
+        DataFormat ff = selected instanceof DataFormat ? (DataFormat)selected : null;
 
         //if(filterCombo.getSelectedItem().equals("All")){
-        if(ff == null){
+        if (ff == null){
             leftList.updateUI();
             leftList.clearSelection();
             return;
@@ -159,165 +149,90 @@ public class TrackChooser extends JDialog {
         GridBagConstraints c = new GridBagConstraints();
 
         //FILLER
-        filler1 = new JPanel();
-        filler1.setPreferredSize(new Dimension(10,10));
-        c.weightx = 1.0;
-        c.weighty = 3.0;
+        //LEFT LABEL
+        JLabel leftLabel = new JLabel("All Tracks");
+        leftLabel.setFont(new Font(null, Font.BOLD, 12));
         c.gridx = 0;
         c.gridy = 0;
-        this.add(filler1, c);
+        c.insets = new Insets(5, 5, 5, 5);
+        add(leftLabel, c);
 
-        //LEFT LABEL
-        leftLabel = new JLabel("All Tracks");
-        leftLabel.setFont(new Font(null, Font.BOLD, 12));
-        c.weightx = 1.0;
-        c.weighty = 1.0;
-        c.gridx = 1;
-        c.gridy = 1;
-        c.gridwidth = 1;
-        c.anchor = GridBagConstraints.CENTER;
-        this.add(leftLabel, c);
-
-        //RIGHT LABEL
-        rightLabel = new JLabel("Selected Tracks");
+        // RIGHT LABEL
+        JLabel rightLabel = new JLabel("Selected Tracks");
         rightLabel.setFont(new Font(null, Font.BOLD, 12));
-        c.weightx = 1.0;
-        c.weighty = 1.0;
-        c.gridx = 3;
-        c.gridy = 1;
-        c.gridwidth = 2;
-        c.anchor = GridBagConstraints.CENTER;
-        this.add(rightLabel, c);
+        c.gridx = 2;
+        c.gridwidth = GridBagConstraints.REMAINDER;
+        add(rightLabel, c);
 
         //LEFT LIST
         leftList = new JList();
-        leftScroll = new JScrollPane();
+        JScrollPane leftScroll = new JScrollPane();
         leftScroll.setViewportView(leftList);
         leftScroll.setMinimumSize(new Dimension(450,300));
         leftScroll.setPreferredSize(new Dimension(450,300));
         c.weightx = 1.0;
         c.weighty = 1.0;
-        c.gridx = 1;
-        c.gridy = 2;
+        c.gridx = 0;
+        c.gridy = 1;
         c.gridwidth = 1;
         c.gridheight = 4;
-        this.add(leftScroll, c);
-
-        //FILLER
-        filler3 = new JPanel();
-        filler3.setSize(60, 10);
-        filler3.setPreferredSize(new Dimension(60,10));
-        c.weightx = 1.0;
-        c.weighty = 1.0;
-        c.gridx = 2;
-        c.gridy = 0;
-        c.gridheight = 1;
-        this.add(filler3, c);
-
-        //MOVE RIGHT
-        c.weightx = 1.0;
-        c.weighty = 1.0;
-        c.gridx = 2;
-        c.gridy = 2;
-        c.gridheight = 1;
-        this.add(moveRight, c);
-
-        //MOVE LEFT
-        c.weightx = 1.0;
-        c.weighty = 1.0;
-        c.gridx = 2;
-        c.gridy = 3;
-        c.gridheight = 1;
-        this.add(moveLeft, c);
-
-        //ALL RIGHT
-        c.weightx = 1.0;
-        c.weighty = 1.0;
-        c.gridx = 2;
-        c.gridy = 4;
-        c.gridheight = 1;
-        this.add(allRight, c);
-
-        //ALL LEFT
-        c.weightx = 1.0;
-        c.weighty = 1.0;
-        c.gridx = 2;
-        c.gridy = 5;
-        c.gridheight = 1;
-        this.add(allLeft, c);
+        add(leftScroll, c);
 
         //RIGHT LIST
         rightList = new JList();
-        rightScroll = new JScrollPane();
+        JScrollPane rightScroll = new JScrollPane();
         rightScroll.setViewportView(rightList);
         rightScroll.setMinimumSize(new Dimension(450,300));
         rightScroll.setPreferredSize(new Dimension(450,300));
-        c.weightx = 1.0;
-        c.weighty = 1.0;
-        c.gridx = 3;
-        c.gridy = 2;
-        c.gridheight = 4;
-        c.gridwidth = 2;
+        c.gridx = 2;
+        c.gridwidth = GridBagConstraints.REMAINDER;
         this.add(rightScroll, c);
 
-        //FILLER
-        filler2 = new JPanel();
-        filler2.setSize(10, 40);
-        filler2.setPreferredSize(new Dimension(10,40));
-        c.weightx = 0;
-        c.weighty = 0;
-        c.gridx = 5;
-        c.gridy = 7;
-        c.gridheight = 1;
+        // MOVE RIGHT
+        c.weightx = 0.0;
+        c.weighty = 0.5;
+        c.gridx = 1;
+        c.gridy = 1;
         c.gridwidth = 1;
-        this.add(filler2, c);
+        c.gridheight = 1;
+        add(createMoveRight(), c);
+
+        // MOVE LEFT
+        c.gridy = 2;
+        add(createMoveLeft(), c);
+
+        // ALL RIGHT
+        c.gridy = 3;
+        add(createAllRight(), c);
+
+        //ALL LEFT
+        c.gridy = 4;
+        this.add(createAllLeft(), c);
 
         //FILTER
-        c.weightx = 1.0;
-        c.weighty = 1.0;
-        c.gridx = 1;
-        c.gridy = 6;
-        c.gridheight = 1;
-        c.gridwidth = 1;
-        this.add(filterPanel, c);
+        c.gridx = 0;
+        c.gridy = 5;
+        add(createFilterPanel(), c);
 
         //AUTO SELECT ALL
-        c.weightx = 1.0;
-        c.weighty = 1.0;
-        c.gridx = 3;
-        c.gridy = 6;
-        c.gridheight = 1;
-        c.gridwidth = 2;
-        this.add(autoSelectAllCheck, c);
+        c.gridx = 2;
+        add(createSelectAllCheck(), c);
 
         //SEPARATOR
-        JPanel sepPanel1 = new JPanel();
-        sepPanel1.setMinimumSize(new Dimension(5, 10));
-        sepPanel1.setLayout(new BorderLayout());
-        sepPanel1.add(new JSeparator(SwingConstants.HORIZONTAL), BorderLayout.CENTER);
+        JSeparator separator1 = new JSeparator(SwingConstants.HORIZONTAL);
         c.fill = GridBagConstraints.HORIZONTAL;
+        c.gridx = 0;
+        c.gridy = GridBagConstraints.RELATIVE;
         c.weightx = 1.0;
-        c.weighty = 1.0;
-        c.gridx = 1;
-        c.gridy = 7;
-        c.gridheight = 1;
-        c.gridwidth = 5;
-        this.add(sepPanel1, c);
+        c.gridwidth = GridBagConstraints.REMAINDER;
+        add(separator1, c);
 
-        int y = 8;
-        if(selectBase){
+        if (selectBase) {
 
             //SELECT BASE PANEL
-            JPanel selectBasePanel = new JPanel();
-            selectBasePanel.setMinimumSize(new Dimension(40, 10));
-            selectBasePanel.setLayout(new BorderLayout());
-            c.weightx = 1.0;
-            c.weighty = 1.0;
-            c.gridx = 1;
-            c.gridy = y;
-            c.gridheight = 1;
+            JPanel selectBasePanel = new JPanel(new BorderLayout());
             c.gridwidth = 2;
-            this.add(selectBasePanel, c);
+            add(selectBasePanel, c);
 
             //SELECT BASE LABEL
             JLabel selectBaseLabel = new JLabel("(Optional) Select Base: ");
@@ -327,92 +242,42 @@ public class TrackChooser extends JDialog {
             selectBaseField = new JTextField();
             selectBasePanel.add(selectBaseField, BorderLayout.CENTER);
 
-            //FILLER
-            JPanel selectBaseFiller = new JPanel();
-            selectBaseFiller.setSize(new Dimension(10,10));
-            selectBaseFiller.setPreferredSize(new Dimension(10,10));
-            selectBasePanel.add(selectBaseFiller, BorderLayout.SOUTH);
-            y++;
-
             //SEPARATOR
-            JPanel sepPanel2 = new JPanel();
-            sepPanel2.setMinimumSize(new Dimension(10, 10));
-            sepPanel2.setLayout(new BorderLayout());
-            sepPanel2.add(new JSeparator(SwingConstants.HORIZONTAL), BorderLayout.CENTER);
-            c.fill = GridBagConstraints.HORIZONTAL;
-            c.weightx = 1.0;
-            c.weighty = 1.0;
-            c.gridx = 1;
-            c.gridy = y;
-            c.gridheight = 1;
-            c.gridwidth = 5;
-            this.add(sepPanel2, c);
-            y++;
-
-            //FILLER
-            JPanel filler5 = new JPanel();
-            filler5.setSize(10, 10);
-            filler5.setPreferredSize(new Dimension(10,10));
-            c.weightx = 0;
-            c.weighty = 0;
-            c.gridx = 0;
-            c.gridy = y;
-            c.gridheight = 1;
-            c.gridwidth = 1;
-            this.add(filler5, c);
-            y++;
+            JSeparator separator2 = new JSeparator(SwingConstants.HORIZONTAL);
+            c.gridwidth = GridBagConstraints.REMAINDER;
+            add(separator2, c);
         }
 
-        //OK
-        c.fill = GridBagConstraints.NONE;
+        JPanel okCancelPanel = new JPanel(new BorderLayout());
+        c.anchor = GridBagConstraints.EAST;
+        c.gridwidth = GridBagConstraints.REMAINDER;
         c.weightx = 1.0;
-        c.weighty = 1.0;
-        c.gridx = 3;
-        c.gridy = y;
-        c.gridheight = 1;
-        c.gridwidth = 1;
-        this.add(okButton, c);
+        c.fill = GridBagConstraints.NONE;
+        add(okCancelPanel, c);
+
+        //OK
+        okCancelPanel.add(createOKButton(), BorderLayout.CENTER);
 
         //CANCEL
-        c.weightx = 1.0;
-        c.weighty = 0.5;
-        c.gridx = 4;
-        c.gridy = y;
-        c.gridheight = 1;
-        c.gridwidth = 1;
-        this.add(cancelButton, c);
-        y++;
-
-        //FILLER
-        JPanel filler4 = new JPanel();
-        filler4.setSize(10, 10);
-        filler4.setPreferredSize(new Dimension(10,10));
-        c.weightx = 0;
-        c.weighty = 0;
-        c.gridx = 0;
-        c.gridy = y;
-        c.gridheight = 1;
-        c.gridwidth = 1;
-        this.add(filler4, c);
+        okCancelPanel.add(createCancelButton(), BorderLayout.EAST);
 
         pack();
     }
 
-    private void createFilter(){
-        filterPanel = new JPanel();
+    private JPanel createFilterPanel(){
+        JPanel filterPanel = new JPanel();
         filterPanel.setLayout(new BorderLayout());
 
-        filterLabel = new JLabel("Filter By: ");
-        filterLabel.setPreferredSize(new Dimension(50,20));
+        JLabel filterLabel = new JLabel("Filter By: ");
         filterPanel.add(filterLabel, BorderLayout.WEST);
 
         filterCombo = new JComboBox();
-        filterCombo.setPreferredSize(new Dimension(140,20));       
         filterPanel.add(filterCombo, BorderLayout.EAST);
+        return filterPanel;
     }
 
-    private void createOkButton(){
-        okButton = new JButton("OK");
+    private JButton createOKButton(){
+        JButton okButton = new JButton("OK");
         okButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -422,7 +287,7 @@ public class TrackChooser extends JDialog {
                     try {
                         PersistentSettings.getInstance().store();
                     } catch (IOException ex) {
-                        Logger.getLogger(TrackChooser.class.getName()).log(Level.SEVERE, null, ex);
+                        LOG.error("Unable to store preferences.", ex);
                     }
                 }
                 if(selectBase){
@@ -434,11 +299,12 @@ public class TrackChooser extends JDialog {
                 }
                 dispose();
             }
-        });    
+        });
+        return okButton;
     }
 
-    private void createCancelButton(){
-        cancelButton = new JButton("Cancel");
+    private JButton createCancelButton(){
+        JButton cancelButton = new JButton("Cancel");
         cancelButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -446,6 +312,7 @@ public class TrackChooser extends JDialog {
                 dispose();
             }
         });
+        return cancelButton;
     }
 
     private boolean getAutoSelect(){
@@ -456,8 +323,8 @@ public class TrackChooser extends JDialog {
         PersistentSettings.getInstance().setBoolean("TRACK_CHOOSER_AUTO_SELECT", value);
     }
 
-    private void createMoveRight(){
-        moveRight = new JButton(">");
+    private JButton createMoveRight(){
+        JButton moveRight = new JButton(">");
         moveRight.setToolTipText("Add item(s) to selected");
         moveRight.addActionListener(new ActionListener() {
             @Override
@@ -475,10 +342,11 @@ public class TrackChooser extends JDialog {
                 rightList.clearSelection();
             }
         });
+        return moveRight;
     }
 
-    private void createMoveLeft(){
-        moveLeft = new JButton("<");
+    private JButton createMoveLeft(){
+        JButton moveLeft = new JButton("<");
         moveLeft.setToolTipText("Remove item(s) from selected");
         moveLeft.addActionListener(new ActionListener() {
             @Override
@@ -495,10 +363,11 @@ public class TrackChooser extends JDialog {
                 rightList.clearSelection();
             }
         });
+        return moveLeft;
     }
 
-    private void createAllRight(){
-        allRight = new JButton(">>");
+    private JButton  createAllRight(){
+        JButton allRight = new JButton(">>");
         allRight.setToolTipText("Add all to selected");
         if(!this.multiple) allRight.setEnabled(false);
         allRight.addActionListener(new ActionListener() {
@@ -507,10 +376,11 @@ public class TrackChooser extends JDialog {
                 selectAll();               
             }
         });
+        return allRight;
     }
 
-    private void createAllLeft(){
-        allLeft = new JButton("<<");
+    private JButton createAllLeft(){
+        JButton allLeft = new JButton("<<");
         allLeft.setToolTipText("Remove all from selected");
         if(!this.multiple) allLeft.setEnabled(false);
         allLeft.addActionListener(new ActionListener() {
@@ -527,27 +397,16 @@ public class TrackChooser extends JDialog {
                 rightList.clearSelection();
             }
         });
+        return allLeft;
     }
 
-    private void createSelectAllCheck(){
+    private JCheckBox createSelectAllCheck(){
         autoSelectAllCheck = new JCheckBox("Always select all");
         autoSelectAllCheck.setSelected(getAutoSelect());
-    }
-
-    private void createSelectBase(){
-        
+        return autoSelectAllCheck;
     }
 
     private void init() {
-        createMoveRight();
-        createMoveLeft();
-        createAllLeft();
-        createAllRight();
-        createOkButton();
-        createCancelButton();
-        createFilter();
-        createSelectAllCheck();
-        if(selectBase) createSelectBase();
         initLayout();
     }
 
@@ -568,7 +427,7 @@ public class TrackChooser extends JDialog {
         }
         filterCombo.addItem("All");
         for(int i = 0; i < fileFormats.size(); i++){
-            filterCombo.addItem(MiscUtils.dataFormatToString(fileFormats.get(i)));
+            filterCombo.addItem(fileFormats.get(i));
         }
         filterCombo.addActionListener(new ActionListener() {
             @Override

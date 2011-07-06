@@ -148,4 +148,9 @@ public class GenericPointDataSource implements DataSource<GenericPointRecord> {
     public final DataFormat getDataFormat() {
         return DataFormat.POINT_GENERIC;
     }
+
+    @Override
+    public final String[] getColumnNames() {
+        return new String[] { "Reference", "Position", "Description" };
+    }
 }

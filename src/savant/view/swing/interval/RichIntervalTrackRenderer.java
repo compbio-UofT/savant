@@ -52,7 +52,7 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
     Resolution resolution;
 
     public RichIntervalTrackRenderer() {
-        super(DataFormat.INTERVAL_BED);
+        super(DataFormat.INTERVAL_RICH);
     }
     
     @Override

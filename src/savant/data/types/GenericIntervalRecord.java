@@ -23,6 +23,11 @@ package savant.data.types;
  */
 public class GenericIntervalRecord implements IntervalRecord {
 
+    /**
+     * Column names shared by our basic interval data-sources.
+     */
+    public static final String[] COLUMN_NAMES = new String[] { "Reference", "From", "To", "Description" };
+
     private final String reference;
     private final Interval interval;
     private final String name;

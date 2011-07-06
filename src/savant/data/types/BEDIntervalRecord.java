@@ -88,6 +88,15 @@ public class BEDIntervalRecord implements RichIntervalRecord {
 
 
     /**
+     * To support alternate names, we would have to change our Bed format.
+     * @return null
+     */
+    @Override
+    public String getAlternateName() {
+        return null;
+    }
+
+    /**
      * In Bed files, we believe all blocks to be relative to the start of the chromosome,
      * not relative to the start of the feature.
      */

@@ -77,7 +77,7 @@ public class TrackFactory {
         switch (ds.getDataFormat()) {
             case SEQUENCE_FASTA:
                 return new SequenceTrack(ds);
-            case INTERVAL_BED:
+            case INTERVAL_RICH:
                 return new RichIntervalTrack(ds);
             case POINT_GENERIC:
                 return new PointTrack(ds);
@@ -87,16 +87,6 @@ public class TrackFactory {
                 return new BAMTrack(ds);
             case INTERVAL_GENERIC:
                 return new IntervalTrack(ds);
-            case TABIX:
-                // Tabix data-sources can store either Bed or interval data.
-                switch (((TabixDataSource)ds).getEffectiveDataFormat()) {
-                    case INTERVAL_BED:
-                        return new RichIntervalTrack(ds);
-                    case INTERVAL_GENERIC:
-                        return new IntervalTrack(ds);
-                    default:
-                        break;
-                }
             default:
                 throw new IllegalArgumentException(String.format("Unknown data format: %s.", ds.getDataFormat()));
         }
