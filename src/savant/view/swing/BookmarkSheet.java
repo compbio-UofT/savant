@@ -80,7 +80,7 @@ public class BookmarkSheet implements BookmarksChangedListener {
 
         JButton previousButton = new JButton();
         previousButton.setIcon(SavantIconFactory.getInstance().getIcon(SavantIconFactory.StandardIcon.UP));
-        previousButton.setToolTipText("Go to previous bookmark");
+        previousButton.setToolTipText("Go to previous bookmark [ Ctrl+( ]");
         previousButton.putClientProperty( "JButton.buttonType", "segmentedRoundRect" );
         previousButton.putClientProperty( "JButton.segmentPosition", "first" );
         previousButton.addActionListener(new ActionListener() {
@@ -94,7 +94,7 @@ public class BookmarkSheet implements BookmarksChangedListener {
 
         JButton nextButton = new JButton();
         nextButton.setIcon(SavantIconFactory.getInstance().getIcon(SavantIconFactory.StandardIcon.DOWN));
-        nextButton.setToolTipText("Go to next bookmark");
+        nextButton.setToolTipText("Go to next bookmark [ Ctrl+) ]");
         nextButton.putClientProperty( "JButton.buttonType", "segmentedRoundRect" );
         nextButton.putClientProperty( "JButton.segmentPosition", "last" );
         nextButton.addActionListener(new ActionListener() {
