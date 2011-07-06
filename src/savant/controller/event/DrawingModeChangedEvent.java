@@ -1,5 +1,5 @@
 /*
- *    Copyright 2010 University of Toronto
+ *    Copyright 2010-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -14,13 +14,9 @@
  *    limitations under the License.
  */
 
-/*
- * DrawModeChangedEvent.java
- * Created on Apr 14, 2010
- */
-
 package savant.controller.event;
 
+import savant.util.DrawingMode;
 import savant.view.swing.Track;
 
 /**
@@ -28,12 +24,12 @@ import savant.view.swing.Track;
  * 
  * @author vwilliams
  */
-public class DrawModeChangedEvent {
+public class DrawingModeChangedEvent {
 
     private Track track;
-    private String mode;
+    private DrawingMode mode;
 
-    public DrawModeChangedEvent(Track track, String mode) {
+    public DrawingModeChangedEvent(Track track, DrawingMode mode) {
         this.track = track;
         this.mode = mode;
 
@@ -43,7 +39,7 @@ public class DrawModeChangedEvent {
         return track;
     }
 
-    public String getMode() {
+    public DrawingMode getMode() {
         return mode;
     }
 }

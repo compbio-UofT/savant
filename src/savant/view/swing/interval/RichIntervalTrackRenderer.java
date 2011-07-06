@@ -48,7 +48,7 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
     public static final String STANDARD_MODE = "Standard";
     public static final String SQUISH_MODE = "Squish";
     
-    String drawMode;
+    private DrawingMode mode;
     Resolution resolution;
 
     public RichIntervalTrackRenderer() {
@@ -64,17 +64,15 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
 
         renderPreCheck(gp);
 
-        drawMode = (String)instructions.get(DrawingInstruction.MODE);
+        mode = (DrawingMode)instructions.get(DrawingInstruction.MODE);
         resolution = (Resolution)instructions.get(DrawingInstruction.RESOLUTION);
 
-        String modeName = drawMode;
-        if (modeName.equals(STANDARD_MODE)) {
-
+        if (mode == DrawingMode.STANDARD) {
             renderPackMode(g2, gp, resolution);
-        } else if (modeName.equals(SQUISH_MODE)) {
-
+        } else if (mode == DrawingMode.SQUISH) {
             renderSquishMode(g2, gp, resolution);
         }
+
         if(data.isEmpty())throw new RenderingException("No data in range.");
     }
 
@@ -557,15 +555,12 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
     }
 
     @Override
-    public List<String> getRenderingModes() {
-        List<String> modes = new ArrayList<String>();
-        modes.add(STANDARD_MODE);
-        modes.add(SQUISH_MODE);
-        return modes;
+    public DrawingMode[] getDrawingModes() {
+        return new DrawingMode[] { DrawingMode.STANDARD, DrawingMode.SQUISH };
     }
 
     @Override
-    public String getDefaultRenderingMode() {
-        return STANDARD_MODE;
+    public DrawingMode getDefaultDrawingMode() {
+        return DrawingMode.STANDARD;
     }
 }

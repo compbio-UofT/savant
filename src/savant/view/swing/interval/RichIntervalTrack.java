@@ -50,8 +50,8 @@ public class RichIntervalTrack extends Track {
     public RichIntervalTrack(DataSource bedSource) throws SavantTrackCreationCancelledException {
         super(bedSource, new RichIntervalTrackRenderer());
         setColorScheme(getDefaultColorScheme());
-        setDrawModes(this.renderer.getRenderingModes());
-        setDrawMode(this.renderer.getDefaultRenderingMode());
+        setValidDrawingModes(renderer.getDrawingModes());
+        setDrawingMode(renderer.getDefaultDrawingMode());
         notifyControllerOfCreation();
     }
 
@@ -71,7 +71,7 @@ public class RichIntervalTrack extends Track {
         renderer.addInstruction(DrawingInstruction.COLOR_SCHEME, getColorScheme());
         renderer.addInstruction(DrawingInstruction.AXIS_RANGE, AxisRange.initWithRanges(range, getDefaultYRange()));
         renderer.addInstruction(DrawingInstruction.REFERENCE_EXISTS, containsReference(reference));
-        renderer.addInstruction(DrawingInstruction.MODE, getDrawMode());
+        renderer.addInstruction(DrawingInstruction.MODE, getDrawingMode());
         renderer.addInstruction(DrawingInstruction.SELECTION_ALLOWED, true);
         renderer.addInstruction(DrawingInstruction.ITEMRGB, this.itemRGBEnabled);
         renderer.addInstruction(DrawingInstruction.SCORE, this.scoreEnabled);

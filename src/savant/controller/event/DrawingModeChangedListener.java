@@ -15,7 +15,7 @@
  */
 
 /*
- * DrawModeChangedListener.java
+ * DrawingModeChangedListener.java
  * Created on Apr 14, 2010
  */
 
@@ -26,7 +26,7 @@ package savant.controller.event;
  * 
  * @author vwilliams
  */
-public interface DrawModeChangedListener {
+public interface DrawingModeChangedListener {
 
-    public void drawModeChanged(DrawModeChangedEvent evt);
+    public void drawModeChanged(DrawingModeChangedEvent evt);
 }

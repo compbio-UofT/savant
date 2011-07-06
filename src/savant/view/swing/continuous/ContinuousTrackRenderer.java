@@ -27,9 +27,6 @@ import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import savant.controller.LocationController;
 import savant.controller.SelectionController;
 import savant.data.event.DataRetrievalEvent;
@@ -40,6 +37,7 @@ import savant.file.DataFormat;
 import savant.util.AxisRange;
 import savant.util.ColorScheme;
 import savant.util.DrawingInstruction;
+import savant.util.DrawingMode;
 import savant.util.Range;
 import savant.view.swing.GraphPane;
 import savant.view.swing.TrackRenderer;
@@ -51,9 +49,6 @@ import savant.view.swing.TrackRenderer;
  * @author vwilliams, tarkvara
  */
 public class ContinuousTrackRenderer extends TrackRenderer {
-    private static final Log LOG = LogFactory.getLog(ContinuousTrackRenderer.class);
-
-    public static final String STANDARD_MODE = "Standard";
 
     public ContinuousTrackRenderer() {
         super(DataFormat.CONTINUOUS_GENERIC);
@@ -187,15 +182,12 @@ public class ContinuousTrackRenderer extends TrackRenderer {
     }
 
     @Override
-    public List<String> getRenderingModes() {
-        List<String> modes = new ArrayList<String>();
-        modes.add(STANDARD_MODE);
-        return modes;
+    public DrawingMode[] getDrawingModes() {
+        return new DrawingMode[] { DrawingMode.STANDARD };
     }
 
     @Override
-    public String getDefaultRenderingMode() {
-        return STANDARD_MODE;
+    public DrawingMode getDefaultDrawingMode() {
+        return DrawingMode.STANDARD;
     }
-
 }

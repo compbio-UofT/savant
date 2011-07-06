@@ -30,7 +30,6 @@ import savant.data.types.IntervalRecord;
 import savant.data.types.Record;
 import savant.exception.RenderingException;
 import savant.file.DataFormat;
-import savant.settings.InterfaceSettings;
 import savant.util.*;
 import savant.view.swing.GraphPane;
 import savant.view.swing.TrackRenderer;
@@ -42,18 +41,14 @@ import savant.view.swing.TrackRenderer;
  */
 public class IntervalTrackRenderer extends TrackRenderer {
 
-    public static final String SQUISH_MODE = "Squish";
-    public static final String PACK_MODE = "Pack";
-    public static final String ARC_MODE = "Arc";
-
     public IntervalTrackRenderer() {
         super(DataFormat.INTERVAL_GENERIC);
     }
 
     @Override
     public void dataRetrievalCompleted(DataRetrievalEvent evt) {
-        String mode = (String)instructions.get(DrawingInstruction.MODE);
-        if (mode.equals(ARC_MODE)) {
+        DrawingMode mode = (DrawingMode)instructions.get(DrawingInstruction.MODE);
+        if (mode == DrawingMode.ARC) {
             int maxDataValue = IntervalTrack.getMaxValue(evt.getData());
             Range range = (Range)instructions.get(DrawingInstruction.RANGE);
             addInstruction(DrawingInstruction.AXIS_RANGE, AxisRange.initWithRanges(range, new Range(0,(int)Math.round(Math.log(maxDataValue)))));
@@ -70,17 +65,19 @@ public class IntervalTrackRenderer extends TrackRenderer {
 
         renderPreCheck(gp);
 
-        String drawMode = (String)instructions.get(DrawingInstruction.MODE);
+        DrawingMode mode = (DrawingMode)instructions.get(DrawingInstruction.MODE);
         Resolution r = (Resolution)instructions.get(DrawingInstruction.RESOLUTION);
 
-        if (drawMode.equals(SQUISH_MODE)) {
+        if (mode == DrawingMode.SQUISH) {
             renderSquishMode(g2, gp, r);
-        } else if (drawMode.equals(ARC_MODE)) {
+        } else if (mode == DrawingMode.ARC) {
             renderArcMode(g2, gp, r);
-        } else if (drawMode.equals(PACK_MODE)) {
+        } else if (mode == DrawingMode.PACK) {
             renderPackMode(g2, gp, r);
         }
-        if(data.isEmpty())throw new RenderingException("No data in range.");
+        if (data.isEmpty()) {
+            throw new RenderingException("No data in range.");
+        }
     }
 
     private void renderSquishMode(Graphics2D g2, GraphPane gp, Resolution r) throws RenderingException {
@@ -242,21 +239,16 @@ public class IntervalTrackRenderer extends TrackRenderer {
 
     @Override
     public boolean hasHorizontalGrid() {
-        String drawMode = (String)instructions.get(DrawingInstruction.MODE);
-        return drawMode.equals(ARC_MODE);
+        return (DrawingMode)instructions.get(DrawingInstruction.MODE) == DrawingMode.ARC;
     }
 
     @Override
-    public List<String> getRenderingModes() {
-        List<String> modes = new ArrayList<String>();
-        modes.add(PACK_MODE);
-        modes.add(SQUISH_MODE);
-        modes.add(ARC_MODE);
-        return modes;
+    public DrawingMode[] getDrawingModes() {
+        return new DrawingMode[] { DrawingMode.PACK, DrawingMode.SQUISH, DrawingMode.ARC };
     }
 
     @Override
-    public String getDefaultRenderingMode() {
-        return PACK_MODE;
+    public DrawingMode getDefaultDrawingMode() {
+        return DrawingMode.PACK;
     }
 }

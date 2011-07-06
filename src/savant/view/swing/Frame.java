@@ -17,13 +17,7 @@
 package savant.view.swing;
 
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ComponentEvent;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,25 +26,24 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import com.jidesoft.docking.DockableFrame;
-import java.awt.event.ComponentListener;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import savant.api.util.DialogUtils;
 import savant.controller.DockableFrameController;
-import savant.controller.DrawModeController;
+import savant.controller.DrawingModeController;
 import savant.controller.FrameController;
 import savant.controller.LocationController;
 import savant.controller.TrackController;
-import savant.controller.event.DrawModeChangedEvent;
+import savant.controller.event.DrawingModeChangedEvent;
 import savant.data.event.DataRetrievalEvent;
 import savant.data.event.DataRetrievalListener;
 import savant.data.event.TrackCreationEvent;
 import savant.data.event.TrackCreationListener;
-import savant.data.sources.TabixDataSource;
 import savant.file.DataFormat;
 import savant.settings.ColourSettings;
 import savant.swing.component.ProgressPanel;
+import savant.util.DrawingMode;
 import savant.util.MiscUtils;
 import savant.util.Range;
 import savant.view.icon.SavantIconFactory;
@@ -160,18 +153,13 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
         //sidePanel.addPanel(new TrackSettingsMenu());
         sidePanel.addPanel(arcLegend);
 
-        this.addComponentListener(new ComponentListener() {
-
+        addComponentListener(new ComponentAdapter() {
             @Override
             public void componentResized(ComponentEvent e) {
                 Dimension dim = getSize();
                 if(dim == null) return;
                 sidePanel.setContainerHeight(dim.height);
             }
-
-            public void componentMoved(ComponentEvent e) {}
-            public void componentShown(ComponentEvent e) {}
-            public void componentHidden(ComponentEvent e) {}
         });
         sidePanel.setShowPanel(false);
 
@@ -256,15 +244,15 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
         Track t0 = tracks[0];
         setName(t0.getName());
         setKey(t0.getName());
-        if (t0.getDrawModes().size() > 0){
+        if (t0.getValidDrawingModes().length > 0){
             JMenu displayMenu = createDisplayMenu();
             commandBar.add(displayMenu);
 
             //determine position of current draw mode
-            String currentDrawMode = t0.getDrawMode();
-            List<String> drawModes = t0.getDrawModes();
-            for(int i = 0; i < drawModes.size(); i++){
-                if(drawModes.get(i).equals(currentDrawMode)){
+            DrawingMode currentMode = t0.getDrawingMode();
+            DrawingMode[] validModes = t0.getValidDrawingModes();
+            for(int i = 0; i < validModes.length; i++){
+                if(validModes[i].equals(currentMode)){
                     drawModePosition = i;
                 }
             }
@@ -303,13 +291,12 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
             commandBar.add(intervalMenu);
 
 
-            String drawMode = t0.getDrawMode();
-            if(drawMode.equals(BAMTrackRenderer.ARC_PAIRED_MODE) || drawMode.equals(BAMTrackRenderer.SNP_MODE)){
+            DrawingMode mode = t0.getDrawingMode();
+            if (mode == DrawingMode.ARC_PAIRED || mode == DrawingMode.SNP){
                 //intervalButton.setVisible(false);
                 intervalMenu.setVisible(false);
             }
-            if (drawMode.equals("STANDARD") || drawMode.equals("VARIANTS")){
-                //intervalButton.setVisible(true);
+            if (mode == DrawingMode.STANDARD || mode == DrawingMode.MISMATCH) {
                 intervalMenu.setVisible(true);
             }
         } else if (df == DataFormat.INTERVAL_RICH) {
@@ -322,11 +309,8 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
             //commandBar.add(intervalButton);
             intervalMenu = createIntervalMenu();
             commandBar.add(intervalMenu);
-            String drawMode = t0.getDrawMode();
-            if(drawMode.equals(RichIntervalTrackRenderer.SQUISH_MODE) ||
-                    drawMode.equals(IntervalTrackRenderer.ARC_MODE) ||
-                    drawMode.equals(IntervalTrackRenderer.SQUISH_MODE)){
-                //intervalButton.setVisible(false);
+            DrawingMode mode = t0.getDrawingMode();
+            if (mode == DrawingMode.SQUISH || mode == DrawingMode.ARC){
                 intervalMenu.setVisible(false);
             }
         }
@@ -388,50 +372,6 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
     public void addToSidePanel(JComponent comp){
         this.sidePanel.addPanel(comp);
     }
-
-    /**
-     * Create the button to hide the commandBar
-     */
-    /*private JideButton createHideButton() {
-        JideButton button = new JideButton();
-        button.setIcon(new javax.swing.ImageIcon(getClass().getResource("/savant/images/arrow_left.png")));
-        button.setToolTipText("Hide this toolbar");
-        button.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                commandBar.setVisible(false);
-                commandBarHidden.setVisible(true);
-                commandBarActive = false;
-                ((JideButton)commandBarHidden.getComponent(commandBarHidden.getComponentCount()-1)).setFocusPainted(false);
-            }
-        });
-        button.setFocusPainted(false);
-        return button;
-    }*/
-
-    /**
-     * Create the button to show the commandBar
-     */
-    /*private JideButton createShowButton() {
-        JideButton button = new JideButton();
-        button.setLayout(new BorderLayout());
-        JLabel l1 = new JLabel("Settings");
-        l1.setOpaque(false);
-        button.add(l1, BorderLayout.WEST);
-        JLabel l2 = new JLabel(new javax.swing.ImageIcon(getClass().getResource("/savant/images/arrow_right.png")));
-        button.add(l2, BorderLayout.EAST);
-        button.setToolTipText("Show the toolbar");
-        button.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                commandBar.setVisible(true);
-                commandBarHidden.setVisible(false);
-                commandBarActive = true;
-            }
-        });
-        button.setFocusPainted(false);
-        return button;
-    }*/
 
     /**
      * Create options menu for commandBar
@@ -563,18 +503,18 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
         JMenu menu = new JMenu("Display Mode");
 
         //display modes
-        List<String> drawModes = this.tracks[0].getDrawModes();
+        DrawingMode[] drawModes = tracks[0].getValidDrawingModes();
         visItems = new ArrayList<JCheckBoxMenuItem>();
-        for(int i = 0; i < drawModes.size(); i++){
-            final JCheckBoxMenuItem item = new JCheckBoxMenuItem(drawModes.get(i));
+        for(int i = 0; i < drawModes.length; i++){
+            final JCheckBoxMenuItem item = new JCheckBoxMenuItem(drawModes[i].toString());
             item.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     if(item.getState()){
                         for(int j = 0; j < visItems.size(); j++){
                             visItems.get(j).setState(false);
-                            if(item.getText().equals(tracks[0].getDrawModes().get(j))){
-                                DrawModeController.getInstance().switchMode(tracks[0], tracks[0].getDrawModes().get(j));
+                            if (item.getText().equals(tracks[0].getValidDrawingModes()[j].toString())) {
+                                DrawingModeController.getInstance().switchMode(tracks[0], tracks[0].getValidDrawingModes()[j]);
                                 drawModePosition = j;
                             }
                         }
@@ -582,7 +522,7 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
                     item.setState(true);
                 }
             });
-            if(drawModes.get(i).equals(tracks[0].getDrawMode())) {
+            if (drawModes[i] == tracks[0].getDrawingMode()) {
                 item.setState(true);
             }
             visItems.add(item);
@@ -628,13 +568,14 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
     public boolean isLocked() { return this.isLocked; }
 
     // FIXME: this is a horrible kludge
-    public void drawModeChanged(DrawModeChangedEvent evt) {
+    public void drawModeChanged(DrawingModeChangedEvent evt) {
 
         Track track = evt.getTrack();
+        DrawingMode mode = evt.getMode();
 
         boolean reRender = true;
         if (track.getDataSource().getDataFormat() == DataFormat.INTERVAL_BAM) {
-            if (evt.getMode().equals(BAMTrackRenderer.ARC_PAIRED_MODE)) {
+            if (mode == DrawingMode.ARC_PAIRED) {
                 setCoverageEnabled(false);
                 //intervalButton.setVisible(false);
                 intervalMenu.setVisible(false);
@@ -642,15 +583,13 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
                 arcLegend.setVisible(true);
             } else {
                 setCoverageEnabled(true);
-                //show interval options button unless in snp or arc modes
-                //intervalButton.setVisible(!evt.getMode().equals(BAMTrackRenderer.SNP_MODE));
-                intervalMenu.setVisible(!evt.getMode().equals(BAMTrackRenderer.SNP_MODE));
+                // Show interval options button unless in SNP mode.
+                intervalMenu.setVisible(mode != DrawingMode.SNP);
                 arcButton.setVisible(false);
                 arcLegend.setVisible(false);
             }
         } else if (track.getDataSource().getDataFormat() == DataFormat.INTERVAL_RICH || track.getDataSource().getDataFormat() == DataFormat.INTERVAL_GENERIC) {
-            //intervalButton.setVisible(evt.getMode().equals(RichIntervalTrackRenderer.STANDARD_MODE) || evt.getMode().equals(IntervalTrackRenderer.PACK_MODE));
-            intervalMenu.setVisible(evt.getMode().equals(RichIntervalTrackRenderer.STANDARD_MODE) || evt.getMode().equals(IntervalTrackRenderer.PACK_MODE));
+            intervalMenu.setVisible(mode == DrawingMode.STANDARD || mode == DrawingMode.PACK);
         }
         if (reRender) {
             validate();
@@ -744,9 +683,9 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
         if(visItems == null) return;
         visItems.get(drawModePosition).setState(false);
         drawModePosition++;
-        List<String> drawModes = tracks[0].getDrawModes();
-        if(drawModePosition >= drawModes.size()) drawModePosition = 0;
+        DrawingMode[] drawModes = tracks[0].getValidDrawingModes();
+        if (drawModePosition >= drawModes.length) drawModePosition = 0;
         visItems.get(drawModePosition).setState(true);
-        DrawModeController.getInstance().switchMode(tracks[0], drawModes.get(drawModePosition));
+        DrawingModeController.getInstance().switchMode(tracks[0], drawModes[drawModePosition]);
     }
     }

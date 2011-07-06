@@ -72,10 +72,10 @@ public class BAMCoverageTrack extends Track {
 
     @Override
     public Resolution getResolution(RangeAdapter range) {
-        return getResolution((Range)range, getDrawMode());
+        return getResolution((Range)range, getDrawingMode());
     }
 
-    public Resolution getResolution(Range range, String mode) {
+    public Resolution getResolution(Range range, DrawingMode mode) {
         return getDefaultModeResolution(range);
     }
 

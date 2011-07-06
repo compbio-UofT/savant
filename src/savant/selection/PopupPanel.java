@@ -22,7 +22,6 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.util.Iterator;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -34,6 +33,7 @@ import savant.data.sources.DataSource;
 import savant.data.types.*;
 import savant.file.DataFormat;
 import savant.util.Bookmark;
+import savant.util.DrawingMode;
 import savant.util.MiscUtils;
 import savant.util.Range;
 import savant.view.swing.GraphPane;
@@ -46,7 +46,7 @@ import savant.view.swing.Track;
 public class PopupPanel extends JPanel {
 
     protected GraphPane gp;
-    protected String mode;
+    protected DrawingMode mode;
     protected DataFormat fileFormat;
     protected Record record;
 
@@ -59,7 +59,7 @@ public class PopupPanel extends JPanel {
     //additional fields
    // protected List<String> addedFields;
 
-    public static PopupPanel create(GraphPane parent, String mode, DataSource dataSource, Record rec){
+    public static PopupPanel create(GraphPane parent, DrawingMode mode, DataSource dataSource, Record rec){
 
         PopupPanel p = null;
         switch(dataSource.getDataFormat()) {
@@ -67,12 +67,12 @@ public class PopupPanel extends JPanel {
                 p = new PointGenericPopup((GenericPointRecord) rec);
                 break;
             case INTERVAL_BAM:
-                if(!mode.equals("SNP")){
+                if (mode != DrawingMode.SNP) {
                     p = new IntervalBamPopup((BAMIntervalRecord)rec);
                 }
                 break;
             case INTERVAL_RICH:
-                if (!mode.equals("SQUISH")) {
+                if (mode != DrawingMode.SQUISH) {
                     if (rec instanceof TabixIntervalRecord) {
                         p = new TabixPopup((TabixIntervalRecord)rec, dataSource);
                     } else {
@@ -98,7 +98,7 @@ public class PopupPanel extends JPanel {
         return p;
     }
 
-    protected void init(GraphPane parent, String mode, DataFormat ff, Record rec){
+    protected void init(GraphPane parent, DrawingMode mode, DataFormat ff, Record rec){
 
         this.fileFormat = ff;
         this.mode = mode;
@@ -210,17 +210,14 @@ public class PopupPanel extends JPanel {
             JLabel endJump = new JLabel("Jump to Start of Interval");
             endJump.setForeground(Color.BLUE);
             endJump.setCursor(new Cursor(Cursor.HAND_CURSOR));
-            endJump.addMouseListener(new MouseListener() {
+            endJump.addMouseListener(new MouseAdapter() {
+                @Override
                 public void mouseClicked(MouseEvent e) {
                     LocationController lc = LocationController.getInstance();
                     int len = lc.getRangeEnd() - lc.getRangeStart();
                     lc.setLocation(rec.getInterval().getStart()-(len/2), rec.getInterval().getStart()+(len/2));
                     hidePopup();
                 }
-                public void mousePressed(MouseEvent e) {}
-                public void mouseReleased(MouseEvent e) {}
-                public void mouseEntered(MouseEvent e) {}
-                public void mouseExited(MouseEvent e) {}
             });
             this.add(endJump);
         }
@@ -230,17 +227,14 @@ public class PopupPanel extends JPanel {
             JLabel endJump = new JLabel("Jump to End of Interval");
             endJump.setForeground(Color.BLUE);
             endJump.setCursor(new Cursor(Cursor.HAND_CURSOR));
-            endJump.addMouseListener(new MouseListener() {
+            endJump.addMouseListener(new MouseAdapter() {
+                @Override
                 public void mouseClicked(MouseEvent e) {
                     LocationController lc = LocationController.getInstance();
                     int len = lc.getRangeEnd() - lc.getRangeStart();
                     lc.setLocation(rec.getInterval().getEnd()-(len/2), rec.getInterval().getEnd()+(len/2));
                     hidePopup();
                 }
-                public void mousePressed(MouseEvent e) {}
-                public void mouseReleased(MouseEvent e) {}
-                public void mouseEntered(MouseEvent e) {}
-                public void mouseExited(MouseEvent e) {}
             });
             this.add(endJump);
         }

@@ -42,6 +42,7 @@ import savant.exception.SavantTrackCreationCancelledException;
 import savant.file.DataFormat;
 import savant.util.Bookmark;
 import savant.util.ColorScheme;
+import savant.util.DrawingMode;
 import savant.util.IOUtils;
 import savant.util.MiscUtils;
 import savant.util.NetworkUtils;
@@ -63,8 +64,8 @@ public abstract class Track implements TrackAdapter {
     private final String name;
     private ColorScheme colorScheme;
     private List<Record> dataInRange;
-    private List<String> drawModes;
-    private String drawMode;
+    private DrawingMode[] validDrawingModes;
+    private DrawingMode drawingMode;
     protected final TrackRenderer renderer;
     private final DataSource dataSource;
 
@@ -91,7 +92,7 @@ public abstract class Track implements TrackAdapter {
      */
     protected Track(DataSource dataSource, TrackRenderer renderer) throws SavantTrackCreationCancelledException {
 
-        drawModes = new ArrayList<String>();
+        validDrawingModes = new DrawingMode[0];
 
         this.dataSource = dataSource;
         this.renderer = renderer;
@@ -184,8 +185,8 @@ public abstract class Track implements TrackAdapter {
      * @return draw mode as Mode
      */
     @Override
-    public String getDrawMode() {
-        return drawMode;
+    public DrawingMode getDrawingMode() {
+        return drawingMode;
     }
 
     /**
@@ -194,8 +195,8 @@ public abstract class Track implements TrackAdapter {
      * @return List of draw Modes
      */
     @Override
-    public List<String> getDrawModes() {
-        return drawModes;
+    public DrawingMode[] getValidDrawingModes() {
+        return validDrawingModes;
     }
 
     /**
@@ -224,8 +225,8 @@ public abstract class Track implements TrackAdapter {
      * @param mode
      */
     @Override
-    public void setDrawMode(String mode) {
-        drawMode = mode;
+    public void setDrawingMode(DrawingMode mode) {
+        drawingMode = mode;
     }
 
     /**
@@ -233,8 +234,8 @@ public abstract class Track implements TrackAdapter {
      *
      * @param modes
      */
-    public final void setDrawModes(List<String> modes) {
-        drawModes = modes;
+    public final void setValidDrawingModes(DrawingMode[] modes) {
+        validDrawingModes = modes;
     }
 
     /**

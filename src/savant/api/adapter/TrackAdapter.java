@@ -20,6 +20,7 @@ import java.util.List;
 import javax.swing.JPanel;
 import savant.data.sources.DataSource;
 import savant.data.types.Record;
+import savant.util.DrawingMode;
 import savant.util.Resolution;
 
 /**
@@ -58,23 +59,21 @@ public interface TrackAdapter {
      *
      * @return draw mode
      */
-    public String getDrawMode();
+    public DrawingMode getDrawingMode();
 
     /**
      * Set the current draw mode.
      *
      * @param mode
      */
-    public void setDrawMode(String mode);
-
+    public void setDrawingMode(DrawingMode mode);
 
     /**
      * Get all valid draw modes for this track.
      *
      * @return List of draw Modes
      */
-    public List<String> getDrawModes();
-
+    public DrawingMode[] getValidDrawingModes();
 
     /**
      * Get the JPanel for the layer to draw on top of the track.

@@ -22,8 +22,6 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.geom.Rectangle2D;
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.List;
 
 import savant.data.types.SequenceRecord;
 import savant.exception.RenderingException;
@@ -31,6 +29,7 @@ import savant.file.DataFormat;
 import savant.util.AxisRange;
 import savant.util.ColorScheme;
 import savant.util.DrawingInstruction;
+import savant.util.DrawingMode;
 import savant.util.Range;
 import savant.view.swing.GraphPane;
 import savant.view.swing.TrackRenderer;
@@ -155,14 +154,12 @@ public class SequenceTrackRenderer extends TrackRenderer {
     }
 
     @Override
-    public List<String> getRenderingModes() {
-        List<String> modes = new ArrayList<String>();
-        modes.add(STANDARD_MODE);
-        return modes;
+    public DrawingMode[] getDrawingModes() {
+        return new DrawingMode[] { DrawingMode.STANDARD };
     }
 
     @Override
-    public String getDefaultRenderingMode() {
-        return STANDARD_MODE;
+    public DrawingMode getDefaultDrawingMode() {
+        return DrawingMode.STANDARD;
     }
 }

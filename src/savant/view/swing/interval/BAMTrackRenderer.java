@@ -35,8 +35,8 @@ import net.sf.samtools.CigarOperator;
 import net.sf.samtools.SAMRecord;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import savant.controller.LocationController;
 
+import savant.controller.LocationController;
 import savant.data.event.DataRetrievalEvent;
 import savant.data.types.BAMIntervalRecord;
 import savant.data.types.Genome;
@@ -44,6 +44,7 @@ import savant.data.types.Interval;
 import savant.data.types.IntervalRecord;
 import savant.data.types.ReadPairIntervalRecord;
 import savant.data.types.Record;
+import savant.data.types.Strand;
 import savant.exception.RenderingException;
 import savant.file.DataFormat;
 import savant.settings.BrowserSettings;
@@ -65,44 +66,27 @@ public class BAMTrackRenderer extends TrackRenderer {
     private static final int maxTransparency = 255;
 
     /** MODE */
-    public static final String STANDARD_MODE = "Standard";
-    public static final String MISMATCH_MODE = "Mismatch";
-    public static final String SEQUENCE_MODE = "Read Sequence";
-    public static final String STANDARD_PAIRED_MODE = "Read Pair (Standard)";
-    public static final String ARC_PAIRED_MODE = "Read Pair (Arc)";
-    public static final String MAPPING_QUALITY_MODE = "Mapping Quality";
-    public static final String BASE_QUALITY_MODE = "Base Quality";
-    public static final String SNP_MODE = "SNP";
-    public static final String COLORSPACE_MODE = "Colour Space Mismatch";
-
     private static final Font SMALL_FONT = new Font("Sans-Serif", Font.PLAIN, 10);
     private static final Stroke ONE_STROKE = new BasicStroke(1.0f);
     private static final Stroke TWO_STROKE = new BasicStroke(2.0f);
 
     private byte[] refSeq = null;
+    private DrawingMode mode;
 
     // The number of standard deviations from the mean an arclength has to be before it's
     // considered discordant
     private static int DISCORDANT_STD_DEV = 3;
 
     @Override
-    public List<String> getRenderingModes() {
-        List<String> modes = new ArrayList<String>();
-        modes.add(STANDARD_MODE);
-        modes.add(MISMATCH_MODE);
-//        modes.add(COLORSPACE_MODE);
-        modes.add(SEQUENCE_MODE);
-        //modes.add(STANDARD_PAIRED_MODE);
-        modes.add(ARC_PAIRED_MODE);
-        modes.add(MAPPING_QUALITY_MODE);
-        modes.add(BASE_QUALITY_MODE);
-        modes.add(SNP_MODE);
-        return modes;
+    public DrawingMode[] getDrawingModes() {
+        return new DrawingMode[] { DrawingMode.STANDARD, DrawingMode.MISMATCH, /*DrawingMode.COLOURSPACE,*/ DrawingMode.SEQUENCE,
+                                   /*DrawingMode.STANDARD_PAIRED,*/ DrawingMode.ARC_PAIRED, DrawingMode.MAPPING_QUALITY, DrawingMode.BASE_QUALITY,
+                                   DrawingMode.SNP };
     }
 
     @Override
-    public String getDefaultRenderingMode() {
-        return MISMATCH_MODE;
+    public DrawingMode getDefaultDrawingMode() {
+        return DrawingMode.MISMATCH;
     }
 
      private char getColor(char fromstate, char tostate) {
@@ -252,18 +236,13 @@ public class BAMTrackRenderer extends TrackRenderer {
         else return true;
     }
 
-    public enum Strand { FORWARD, REVERSE };
-
-    private String drawMode;
-
     public BAMTrackRenderer() {
         super(DataFormat.INTERVAL_BAM);
     }
 
     @Override
     public void dataRetrievalCompleted(DataRetrievalEvent evt) {
-        String mode = (String)instructions.get(DrawingInstruction.MODE);
-        if (mode != null && mode.equals(ARC_PAIRED_MODE)){// && !instructions.containsKey(DrawingInstruction.ERROR)) {
+        if ((DrawingMode)instructions.get(DrawingInstruction.MODE) == DrawingMode.ARC_PAIRED) {
             int maxDataValue = BAMTrack.getArcYMax(evt.getData());
             Range range = (Range)instructions.get(DrawingInstruction.RANGE);
             addInstruction(DrawingInstruction.AXIS_RANGE, AxisRange.initWithRanges(range, new Range(0,(int)Math.round(maxDataValue+maxDataValue*0.1))));
@@ -282,13 +261,11 @@ public class BAMTrackRenderer extends TrackRenderer {
         // Put up an error message if we don't want to do any rendering.
         renderPreCheck(gp);
 
-        drawMode = (String)instructions.get(DrawingInstruction.MODE);
+        mode = (DrawingMode)instructions.get(DrawingInstruction.MODE);
         Resolution r = (Resolution)instructions.get(DrawingInstruction.RESOLUTION);
 
-        String modeName = drawMode;
-
         if (r == Resolution.VERY_HIGH || r == Resolution.HIGH) {
-            if(modeName.equals(MISMATCH_MODE) || modeName.equals(SNP_MODE) || modeName.equals(COLORSPACE_MODE) || modeName.equals(SEQUENCE_MODE) || modeName.equals(BASE_QUALITY_MODE)){
+            if (mode == DrawingMode.MISMATCH || mode == DrawingMode.SNP || mode == DrawingMode.COLOURSPACE || mode == DrawingMode.SEQUENCE || mode == DrawingMode.BASE_QUALITY){
                 // fetch reference sequence for comparison with cigar string
                 Genome genome = LocationController.getInstance().getGenome();
                 if(genome.isSequenceSet()){
@@ -303,33 +280,36 @@ public class BAMTrackRenderer extends TrackRenderer {
             }
         }
 
-        if (modeName.equals(STANDARD_MODE) 
-                || modeName.equals(MISMATCH_MODE)
-                || modeName.equals(SEQUENCE_MODE)
-                || modeName.equals(MAPPING_QUALITY_MODE)
-                || modeName.equals(BASE_QUALITY_MODE)
-                || modeName.equals(COLORSPACE_MODE)) {
-            if (r == Resolution.VERY_HIGH || r == Resolution.HIGH) {
-                renderPackMode(g2, gp, r);
-            } else {
-                resizeFrame(gp);
-            }
-        } else if (modeName.equals(STANDARD_PAIRED_MODE)) {
-            if (r == Resolution.VERY_HIGH || r == Resolution.HIGH) {
-                renderStandardMatepairMode(g2, gp, r);
-            } else {
-                this.resizeFrame(gp);
-            }
-        }
-        else if (modeName.equals(ARC_PAIRED_MODE)) {
-            renderArcMatepairMode(g2, gp);
-        }
-        else if (modeName.equals(SNP_MODE)){
-            if (r == Resolution.VERY_HIGH || r == Resolution.HIGH) {
-                renderSNPMode(g2, gp, r);
-            } else {
-                this.resizeFrame(gp);
-            }
+        switch (mode) {
+            case STANDARD:
+            case MISMATCH:
+            case SEQUENCE:
+            case MAPPING_QUALITY:
+            case BASE_QUALITY:
+            case COLOURSPACE:
+                if (r == Resolution.VERY_HIGH || r == Resolution.HIGH) {
+                    renderPackMode(g2, gp, r);
+                } else {
+                    resizeFrame(gp);
+                }
+                break;
+            case STANDARD_PAIRED:
+                if (r == Resolution.VERY_HIGH || r == Resolution.HIGH) {
+                    renderStandardMatepairMode(g2, gp, r);
+                } else {
+                    this.resizeFrame(gp);
+                }
+                break;
+            case ARC_PAIRED:
+                renderArcMatepairMode(g2, gp);
+                break;
+            case SNP:
+                if (r == Resolution.VERY_HIGH || r == Resolution.HIGH) {
+                    renderSNPMode(g2, gp, r);
+                } else {
+                    resizeFrame(gp);
+                }
+                break;
         }
         if(data.isEmpty())throw new RenderingException("No data in range.");
     }
@@ -441,7 +421,7 @@ public class BAMTrackRenderer extends TrackRenderer {
         else maxYRange = numIntervals;
         gp.setYRange(new Range(0,maxYRange));
        
-        if (drawMode.equals(MISMATCH_MODE)) {
+        if (mode == DrawingMode.MISMATCH) {
             Genome genome = LocationController.getInstance().getGenome();
             if (!genome.isSequenceSet()) {
                 throw new RenderingException("No reference sequence loaded. Switch to standard view");
@@ -475,7 +455,7 @@ public class BAMTrackRenderer extends TrackRenderer {
                 boolean strandFlag = samRecord.getReadNegativeStrandFlag();
                 Strand strand = strandFlag ? Strand.REVERSE : Strand.FORWARD ;
 
-                if (drawMode.equals(MAPPING_QUALITY_MODE)) {
+                if (mode == DrawingMode.MAPPING_QUALITY) {
                     Color basecolor = null;
                     if (strand == Strand.FORWARD) {
                         basecolor = cs.getColor("Forward Strand");
@@ -489,14 +469,12 @@ public class BAMTrackRenderer extends TrackRenderer {
                     alpha = alpha > maxTransparency ? maxTransparency : alpha;
                     
                     readColour = new Color(basecolor.getRed(),basecolor.getGreen(),basecolor.getBlue(),alpha);
-                } else if (drawMode.equals(BASE_QUALITY_MODE)) {
+                } else if (mode == DrawingMode.BASE_QUALITY) {
                     readColour = new Color(0,0,0,0);
                 } else {
-                    
                     if (strand == Strand.FORWARD) {
                         g2.setColor(cs.getColor("Forward Strand"));
-                    }
-                    else {
+                    } else {
                         g2.setColor(cs.getColor("Reverse Strand"));
                     }
                 }
@@ -510,7 +488,7 @@ public class BAMTrackRenderer extends TrackRenderer {
 
                 this.recordToShapeMap.put(intervalRecord, readshape);
 
-                if (drawMode.equals(BASE_QUALITY_MODE)) {
+                if (mode == DrawingMode.BASE_QUALITY) {
                     Color col = null;
                     if (strand == Strand.FORWARD) {
                         col = cs.getColor("Forward Strand");
@@ -524,13 +502,13 @@ public class BAMTrackRenderer extends TrackRenderer {
 
 
 
-                if (drawMode.equals(MISMATCH_MODE)) {
+                if (mode == DrawingMode.MISMATCH) {
                     // visualize variations (indels and mismatches)
                     renderMismatches(g2, gp, samRecord, level, refSeq, range);
-                } else if (drawMode.equals(SEQUENCE_MODE)) {
+                } else if (mode == DrawingMode.SEQUENCE) {
                     renderLetters(g2, gp, samRecord, level, refSeq, range);
                 }
-                else if(drawMode.equals(COLORSPACE_MODE)) {
+                else if (mode == DrawingMode.COLOURSPACE) {
                     renderColorMismatches(g2, gp, samRecord, level, refSeq, range);
                 }
 
@@ -538,9 +516,6 @@ public class BAMTrackRenderer extends TrackRenderer {
                 if (readshape.getBounds().getHeight() > 4) {
                     g2.setColor(linecolor);
                     g2.draw(readshape);
-
-                    //g2.setColor(Color.black);
-                    //g2.drawString(samRecord.getReadName(), (int) readshape.getBounds().getX(), (int) readshape.getBounds().getY() + 10);
                 }
             }
         }
@@ -1846,9 +1821,7 @@ public class BAMTrackRenderer extends TrackRenderer {
 
     @Override
     public boolean hasHorizontalGrid() {
-        String m = (String)instructions.get(DrawingInstruction.MODE);
-        if(m == null) return false;
-        return m.equals(ARC_PAIRED_MODE);
+        return (DrawingMode)instructions.get(DrawingInstruction.MODE) == DrawingMode.ARC_PAIRED;
     }
 
     @Override

@@ -48,7 +48,6 @@ import savant.util.*;
 import savant.view.dialog.BAMParametersDialog;
 import savant.view.swing.continuous.ContinuousTrackRenderer;
 import savant.view.swing.interval.BAMTrack;
-import savant.view.swing.interval.BAMTrackRenderer;
 
 /**
  *
@@ -88,7 +87,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
     //scrolling...
     private BufferedImage bufferedImage;
     private Range prevRange = null;
-    private String prevDrawMode = null;
+    private DrawingMode prevMode = null;
     private Dimension prevSize = null;
     private String prevRef = null;
     public boolean paneResize = false;
@@ -287,12 +286,11 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         yMin = minYRange;
         yMax = maxYRange;
 
-        String currentMode = tracks[0].getDrawMode();
+        DrawingMode currentMode = tracks[0].getDrawingMode();
 
         //boolean sameRange = (prevRange != null && RangeController.getInstance().getRange().equals(prevRange));
         boolean sameRange = (prevRange != null && xRange.equals(prevRange));
-        boolean sameMode = ((currentMode == null && prevDrawMode == null) ||
-                (prevDrawMode != null && currentMode.equals(prevDrawMode)));
+        boolean sameMode = currentMode != prevMode;
         boolean sameSize = (prevSize != null && this.getSize().equals(prevSize) &&
                 this.parentFrame.getFrameLandscape().getWidth() == oldWidth &&
                 this.getParentFrame().getFrameLandscape().getHeight() == oldHeight);
@@ -314,7 +312,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
             if(this.currentOverShape != null){
                 //temporarily shift the origin
                 ((Graphics2D)g).translate(0, getOffset());
-                if(currentMode != null && currentMode.equals(BAMTrackRenderer.ARC_PAIRED_MODE)){
+                if (currentMode == DrawingMode.ARC_PAIRED){
                     g.setColor(Color.red);
                     ((Graphics2D)g).draw(currentOverShape);
                 } else {
@@ -358,7 +356,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
             g3.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             prevRange = LocationController.getInstance().getRange();
             prevSize = this.getSize();
-            prevDrawMode = tracks[0].getDrawMode();
+            prevMode = tracks[0].getDrawingMode();
             prevRef = LocationController.getInstance().getReferenceName();
 
             renderBackground(g3);
@@ -458,13 +456,10 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
             if (t.getRenderer().hasMappedValues()) {
                 List<Shape> currentSelected = t.getRenderer().getCurrentSelectedShapes(this);
                 if(!currentSelected.isEmpty()){
-                    boolean arcMode = false;
-                    if (t.getDrawMode() != null){
-                        arcMode = t.getDrawMode().equals(BAMTrackRenderer.ARC_PAIRED_MODE);
-                    }
+                    boolean arcMode = t.getDrawingMode() == DrawingMode.ARC_PAIRED;
                     for(int i = 0; i < currentSelected.size(); i++){
                         Shape selectedShape = currentSelected.get(i);
-                        if(arcMode){
+                        if(arcMode) {
                             g2.setColor(Color.GREEN);
                             g2.draw(selectedShape);
                         } else {
@@ -1267,7 +1262,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
                 }
 
                 createJidePopup();
-                PopupPanel pp = PopupPanel.create(this, tracks[0].getDrawMode(), t.getDataSource(), currentOverRecord);
+                PopupPanel pp = PopupPanel.create(this, tracks[0].getDrawingMode(), t.getDataSource(), currentOverRecord);
                 fireNewPopup(pp);
                 if (pp != null){
                     popPanel.add(pp, BorderLayout.CENTER);

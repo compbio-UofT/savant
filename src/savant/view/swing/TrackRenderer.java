@@ -36,6 +36,7 @@ import savant.exception.RenderingException;
 import savant.file.DataFormat;
 import savant.settings.InterfaceSettings;
 import savant.util.DrawingInstruction;
+import savant.util.DrawingMode;
 import savant.util.Range;
 import savant.util.Resolution;
 import savant.view.swing.interval.BAMTrackRenderer;
@@ -67,8 +68,8 @@ public abstract class TrackRenderer implements DataRetrievalListener {
         trackName = name;
     }
 
-    public abstract List<String> getRenderingModes();
-    public abstract String getDefaultRenderingMode();
+    public abstract DrawingMode[] getDrawingModes();
+    public abstract DrawingMode getDefaultDrawingMode();
 
 
     /**
@@ -227,8 +228,8 @@ public abstract class TrackRenderer implements DataRetrievalListener {
         
         //check for arcMode
         boolean isArc = false;
-        String mode = (String)instructions.get(DrawingInstruction.MODE);
-        if (mode != null && mode.equals(BAMTrackRenderer.ARC_PAIRED_MODE)){
+        DrawingMode mode = (DrawingMode)instructions.get(DrawingInstruction.MODE);
+        if (mode == DrawingMode.ARC_PAIRED){
             isArc = true;
         }
         

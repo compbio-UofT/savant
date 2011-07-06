@@ -40,13 +40,11 @@ public class IntervalTrack extends Track {
 
     private static Log LOG = LogFactory.getLog(IntervalTrack.class);
 
-    public enum DrawingMode { SQUISH, PACK, ARC };
-
     public IntervalTrack(DataSource intervalTrack) throws SavantTrackCreationCancelledException {
         super(intervalTrack, new IntervalTrackRenderer());
         setColorScheme(getDefaultColorScheme());
-        setDrawModes(this.renderer.getRenderingModes());
-        setDrawMode(this.renderer.getDefaultRenderingMode());
+        setValidDrawingModes(renderer.getDrawingModes());
+        setDrawingMode(renderer.getDefaultDrawingMode());
         this.notifyControllerOfCreation();
     }
 
@@ -69,19 +67,20 @@ public class IntervalTrack extends Track {
 
     @Override
     public Resolution getResolution(RangeAdapter range) {
-        return getResolution((Range)range, getDrawMode());
+        return getResolution((Range)range, getDrawingMode());
     }
 
-    public Resolution getResolution(Range range, String mode) {
-        if (mode.equals(IntervalTrackRenderer.SQUISH_MODE)) {
-            return getSquishModeResolution(range);
-        } else if (mode.equals(IntervalTrackRenderer.ARC_MODE)) {
-            return getArcModeResolution(range);
-        } else if (mode.equals(IntervalTrackRenderer.PACK_MODE)) {
-            return getDefaultModeResolution(range);
-        } else {
-            LOG.warn("Unrecognized draw mode " + mode);
-            return getDefaultModeResolution(range);
+    public Resolution getResolution(Range range, DrawingMode mode) {
+        switch (mode) {
+            case SQUISH:
+                return getSquishModeResolution(range);
+            case ARC:
+                return getArcModeResolution(range);
+            case PACK:
+                return getDefaultModeResolution(range);
+            default:
+                LOG.warn("Unrecognized draw mode " + mode);
+                return getDefaultModeResolution(range);
         }
     }
 
@@ -121,10 +120,10 @@ public class IntervalTrack extends Track {
         renderer.addInstruction(DrawingInstruction.COLOR_SCHEME, getColorScheme());
         renderer.addInstruction(DrawingInstruction.REFERENCE_EXISTS, containsReference(reference));
 
-        if (!getDrawMode().equals(IntervalTrackRenderer.ARC_MODE)) {
+        if (getDrawingMode() != DrawingMode.ARC) {
             renderer.addInstruction(DrawingInstruction.AXIS_RANGE, AxisRange.initWithRanges(range, getDefaultYRange()));
         }
-        renderer.addInstruction(DrawingInstruction.MODE, getDrawMode());
+        renderer.addInstruction(DrawingInstruction.MODE, getDrawingMode());
         renderer.addInstruction(DrawingInstruction.SELECTION_ALLOWED, true);
     }
 
