@@ -309,7 +309,7 @@ public class UCSCNavigationDialog extends JDialog implements SQLConstants {
         formatLabel.setText(track.type);
         if (knownMapping != null) {
             switch (knownMapping.format) {
-                case INTERVAL_BED:
+                case INTERVAL_RICH:
                     formatCombo.setSelectedIndex(0);
                     break;
                 case INTERVAL_GENERIC:

@@ -61,9 +61,13 @@ public class ContinuousSQLDataSource extends SQLDataSource<GenericContinuousReco
         return result;
     }
 
-
     @Override
     public DataFormat getDataFormat() {
         return DataFormat.CONTINUOUS_GENERIC;
+    }
+
+    @Override
+    public String[] getColumnNames() {
+        return GenericContinuousRecord.COLUMN_NAMES;
     }
 }

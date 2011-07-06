@@ -27,7 +27,6 @@ import javax.swing.DefaultComboBoxModel;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import savant.api.util.DialogUtils;
 
 
 /**
@@ -38,7 +37,7 @@ import savant.api.util.DialogUtils;
  */
 public class MappingDialog extends javax.swing.JDialog {
     private static final Log LOG = LogFactory.getLog(MappingDialog.class);
-    public static final DefaultComboBoxModel FORMAT_COMBO_MODEL = new DefaultComboBoxModel(new FormatDef[] { new FormatDef("BED", MappingFormat.INTERVAL_BED), new FormatDef("Generic Interval", MappingFormat.INTERVAL_GENERIC), new FormatDef("Generic Continuous", MappingFormat.CONTINUOUS_VALUE_COLUMN), new FormatDef("WIG", MappingFormat.CONTINUOUS_WIG) });
+    public static final DefaultComboBoxModel FORMAT_COMBO_MODEL = new DefaultComboBoxModel(new FormatDef[] { new FormatDef("BED", MappingFormat.INTERVAL_RICH), new FormatDef("Generic Interval", MappingFormat.INTERVAL_GENERIC), new FormatDef("Generic Continuous", MappingFormat.CONTINUOUS_VALUE_COLUMN), new FormatDef("WIG", MappingFormat.CONTINUOUS_WIG) });
     private SQLDataSourcePlugin plugin;
     private Table table;
     private MappingPanel mappingPanel;

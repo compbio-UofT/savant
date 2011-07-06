@@ -30,6 +30,7 @@ public class ColumnMapping implements SQLConstants {
     public final String end;
     public final String value;
     public final String name;
+    public final String name2;
     public final String score;
     public final String strand;
     public final String thickStart;
@@ -48,7 +49,7 @@ public class ColumnMapping implements SQLConstants {
     public final String lowerLimit;
     public final String dataRange;
 
-    private ColumnMapping(MappingFormat format, String chrom, String start, String end, String value, String name, String score, String strand, String thickStart, String thickEnd, String itemRGB, String blockStartsRelative, String blockStartsAbsolute, String blockEnds, String blockSizes, String span, String count, String offset, String file, String lowerLimit, String dataRange) {
+    private ColumnMapping(MappingFormat format, String chrom, String start, String end, String value, String name, String score, String strand, String thickStart, String thickEnd, String itemRGB, String blockStartsRelative, String blockStartsAbsolute, String blockEnds, String blockSizes, String name2, String span, String count, String offset, String file, String lowerLimit, String dataRange) {
         this.format = format;
         this.chrom = chrom;
         this.start = start;
@@ -64,6 +65,7 @@ public class ColumnMapping implements SQLConstants {
         this.blockStartsRelative = (this.blockStartsAbsolute != null || NO_COLUMN.equals(blockStartsRelative)) ? null : blockStartsRelative;
         this.blockEnds = NO_COLUMN.equals(blockEnds) ? null : blockEnds;
         this.blockSizes = NO_COLUMN.equals(blockSizes) ? null : blockSizes;
+        this.name2 = NO_COLUMN.equals(name) ? null : name2;
         this.span = NO_COLUMN.equals(span) ? null : span;
         this.count = NO_COLUMN.equals(count) ? null : count;
         this.offset = NO_COLUMN.equals(offset) ? null : offset;
@@ -76,28 +78,28 @@ public class ColumnMapping implements SQLConstants {
      * Constructor used to map GenericContinuous formats.
      */
     public static ColumnMapping getContinuousMapping(String chrom, String start, String end, String value) {
-        return new ColumnMapping(MappingFormat.CONTINUOUS_VALUE_COLUMN, chrom, start, end, value, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
+        return new ColumnMapping(MappingFormat.CONTINUOUS_VALUE_COLUMN, chrom, start, end, value, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
     }
 
     /**
      * Constructor used to map GenericInterval formats.
      */
     public static ColumnMapping getIntervalMapping(String chrom, String start, String end, String name) {
-        return new ColumnMapping(MappingFormat.INTERVAL_GENERIC, chrom, start, end, null, name, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
+        return new ColumnMapping(MappingFormat.INTERVAL_GENERIC, chrom, start, end, null, name, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
     }
 
     /**
      * Constructor used to map BEDInterval formats.
      */
-    public static ColumnMapping getBedMapping(String chrom, String start, String end, String name, String score, String strand, String thickStart, String thickEnd, String itemRGB, String blockStartsRelative, String blockStartsAbsolute, String blockEnds, String blockSizes) {
-        return new ColumnMapping(MappingFormat.INTERVAL_BED, chrom, start, end, null, name, score, strand, thickStart, thickEnd, itemRGB, blockStartsRelative, blockStartsAbsolute, blockEnds, blockSizes, null, null, null, null, null, null);
+    public static ColumnMapping getRichIntervalMapping(String chrom, String start, String end, String name, String score, String strand, String thickStart, String thickEnd, String itemRGB, String blockStartsRelative, String blockStartsAbsolute, String blockEnds, String blockSizes, String name2) {
+        return new ColumnMapping(MappingFormat.INTERVAL_RICH, chrom, start, end, null, name, score, strand, thickStart, thickEnd, itemRGB, blockStartsRelative, blockStartsAbsolute, blockEnds, blockSizes, name2, null, null, null, null, null, null);
     }
 
     /**
      * Constructor used to map GenericContinuous formats.
      */
     public static ColumnMapping getWigMapping(String chrom, String start, String end, String span, String count, String offset, String file, String lowerLimit, String dataRange) {
-        return new ColumnMapping(MappingFormat.CONTINUOUS_WIG, chrom, start, end, null, null, null, null, null, null, null, null, null, null, null, span, count, offset, file, lowerLimit, dataRange);
+        return new ColumnMapping(MappingFormat.CONTINUOUS_WIG, chrom, start, end, null, null, null, null, null, null, null, null, null, null, null, null, span, count, offset, file, lowerLimit, dataRange);
     }
 
     private static String findColumn(SQLDataSourcePlugin plugin, String settingName, Column[] columns) {
@@ -143,11 +145,13 @@ public class ColumnMapping implements SQLConstants {
                     String score = findColumn(plugin, SCORE, columns);
                     String strand = findColumn(plugin, STRAND, columns);
                     if (score != null || strand != null) {
-                        return getBedMapping(chrom, start, end, name, score, strand,
+                        return getRichIntervalMapping(chrom, start, end, name,
+                                             score, strand,
                                              findColumn(plugin, THICK_START, columns), findColumn(plugin, THICK_END, columns),
                                              findColumn(plugin, ITEM_RGB, columns),
                                              findColumn(plugin, BLOCK_STARTS_RELATIVE, columns), findColumn(plugin, BLOCK_STARTS_ABSOLUTE, columns),
-                                             findColumn(plugin, BLOCK_ENDS, columns), findColumn(plugin, BLOCK_SIZES, columns));
+                                             findColumn(plugin, BLOCK_ENDS, columns), findColumn(plugin, BLOCK_SIZES, columns),
+                                             findColumn(plugin, NAME2, columns));
                     } else {
                         // No score or strand fields.  We'll fall back on generic interval.
                         return getIntervalMapping(chrom, start, end, name);
@@ -161,7 +165,7 @@ public class ColumnMapping implements SQLConstants {
                 }
             }
         }
-        return new ColumnMapping(null, chrom, start, end, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
+        return new ColumnMapping(null, chrom, start, end, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
     }
 
     /**
@@ -183,6 +187,7 @@ public class ColumnMapping implements SQLConstants {
         saveValue(plugin, BLOCK_STARTS_ABSOLUTE, blockStartsAbsolute);
         saveValue(plugin, BLOCK_ENDS, blockEnds);
         saveValue(plugin, BLOCK_SIZES, blockSizes);
+        saveValue(plugin, NAME2, name2);
         saveValue(plugin, SPAN, span);
         saveValue(plugin, COUNT, count);
         saveValue(plugin, OFFSET, offset);

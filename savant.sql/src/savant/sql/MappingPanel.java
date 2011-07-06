@@ -89,6 +89,8 @@ public class MappingPanel extends JPanel implements SQLConstants {
         treatAsAbsoluteCheck = new javax.swing.JCheckBox();
         treatAsSizeCheck = new javax.swing.JCheckBox();
         byChromosomeCheck = new javax.swing.JCheckBox();
+        name2Label = new javax.swing.JLabel();
+        name2Combo = new javax.swing.JComboBox();
 
         setBorder(javax.swing.BorderFactory.createTitledBorder("Field Mappings"));
         setMinimumSize(new java.awt.Dimension(400, 412));
@@ -272,6 +274,19 @@ public class MappingPanel extends JPanel implements SQLConstants {
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.weightx = 1.0;
         add(byChromosomeCheck, gridBagConstraints);
+
+        name2Label.setText("Alternate Name:");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
+        gridBagConstraints.insets = new java.awt.Insets(8, 8, 8, 8);
+        add(name2Label, gridBagConstraints);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.weightx = 1.0;
+        add(name2Combo, gridBagConstraints);
     }// </editor-fold>//GEN-END:initComponents
 
     private void byChromosomeCheckActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_byChromosomeCheckActionPerformed
@@ -290,6 +305,8 @@ public class MappingPanel extends JPanel implements SQLConstants {
     private javax.swing.JComboBox itemRGBCombo;
     private javax.swing.JLabel itemRGBLabel;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JComboBox name2Combo;
+    private javax.swing.JLabel name2Label;
     private javax.swing.JComboBox nameCombo;
     private javax.swing.JLabel nameLabel;
     private javax.swing.JComboBox scoreCombo;
@@ -308,7 +325,7 @@ public class MappingPanel extends JPanel implements SQLConstants {
     public void setFormat(MappingFormat format) {
         this.format = format;
         switch (format) {
-            case INTERVAL_BED:
+            case INTERVAL_RICH:
                 nameLabel.setText("Name:");
                 scoreLabel.setText("Score:");
                 scoreLabel.setVisible(true);
@@ -331,6 +348,8 @@ public class MappingPanel extends JPanel implements SQLConstants {
                 blockEndsLabel.setVisible(true);
                 blockEndsCombo.setVisible(true);
                 treatAsSizeCheck.setVisible(true);
+                name2Label.setVisible(true);
+                name2Combo.setVisible(true);
                 break;
             case CONTINUOUS_WIG:
                 nameLabel.setText("Span:");
@@ -355,6 +374,8 @@ public class MappingPanel extends JPanel implements SQLConstants {
                 blockEndsLabel.setVisible(false);
                 blockEndsCombo.setVisible(false);
                 treatAsSizeCheck.setVisible(false);
+                name2Label.setVisible(false);
+                name2Combo.setVisible(false);
                 break;
             default:
                 nameLabel.setText(format == MappingFormat.CONTINUOUS_VALUE_COLUMN ? "Value:" : "Name:");
@@ -374,6 +395,8 @@ public class MappingPanel extends JPanel implements SQLConstants {
                 blockEndsLabel.setVisible(false);
                 blockEndsCombo.setVisible(false);
                 treatAsSizeCheck.setVisible(false);
+                name2Label.setVisible(false);
+                name2Combo.setVisible(false);
                 break;
         }
     }
@@ -393,7 +416,7 @@ public class MappingPanel extends JPanel implements SQLConstants {
             case INTERVAL_GENERIC:
                 populateFieldCombo(nameCombo, columns, Types.CHAR, mapping.name);
                 break;
-            case INTERVAL_BED:
+            case INTERVAL_RICH:
                 populateFieldCombo(nameCombo, columns, Types.CHAR, mapping.name);
                 populateFieldCombo(scoreCombo, columns, Types.REAL, mapping.score);
                 populateFieldCombo(strandCombo, columns, Types.CHAR, mapping.strand);
@@ -414,6 +437,7 @@ public class MappingPanel extends JPanel implements SQLConstants {
                     treatAsSizeCheck.setSelected(false);
                     populateFieldCombo(blockEndsCombo, columns, Types.BLOB, mapping.blockEnds);
                 }
+                populateFieldCombo(name2Combo, columns, Types.CHAR, mapping.name2);
                 break;
             case CONTINUOUS_WIG:
                 populateFieldCombo(spanCombo, columns, Types.INTEGER, mapping.span);
@@ -503,7 +527,7 @@ public class MappingPanel extends JPanel implements SQLConstants {
                         startCombo.getSelectedItem().toString(),
                         endCombo.getSelectedItem().toString(),
                         nameCombo.getSelectedItem().toString());
-            case INTERVAL_BED:
+            case INTERVAL_RICH:
                 String relativeStarts = blockStartsCombo.getSelectedItem().toString();
                 String absoluteStarts = null;
                 if (treatAsAbsoluteCheck.isSelected()) {
@@ -516,7 +540,7 @@ public class MappingPanel extends JPanel implements SQLConstants {
                     sizes = ends;
                     ends = null;
                 }
-                return ColumnMapping.getBedMapping(chrom,
+                return ColumnMapping.getRichIntervalMapping(chrom,
                                                    startCombo.getSelectedItem().toString(),
                                                    endCombo.getSelectedItem().toString(),
                                                    nameCombo.getSelectedItem().toString(),
@@ -526,7 +550,8 @@ public class MappingPanel extends JPanel implements SQLConstants {
                                                    thickEndCombo.getSelectedItem().toString(),
                                                    itemRGBCombo.getSelectedItem().toString(),
                                                    relativeStarts, absoluteStarts,
-                                                   ends, sizes);
+                                                   ends, sizes,
+                                                   name2Combo.getSelectedItem().toString());
             case CONTINUOUS_WIG:
                 return ColumnMapping.getWigMapping(chrom,
                                                    startCombo.getSelectedItem().toString(),

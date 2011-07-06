@@ -28,5 +28,5 @@ public enum MappingFormat {
     CONTINUOUS_WIG,             // Data values stored in an external Wig (or Wib) file.
     CONTINUOUS_BIGWIG,          // Data values stored in an external BigWig file.
     INTERVAL_GENERIC,
-    INTERVAL_BED
+    INTERVAL_RICH
 }

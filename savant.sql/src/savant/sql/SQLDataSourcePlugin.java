@@ -243,8 +243,8 @@ public class SQLDataSourcePlugin extends SavantDataSourcePlugin {
             case INTERVAL_GENERIC:
                 result = new IntervalSQLDataSource(table, references);
                 break;
-            case INTERVAL_BED:
-                result = new BedSQLDataSource(table, references);
+            case INTERVAL_RICH:
+                result = new RichIntervalSQLDataSource(table, references);
                 break;
         }
         if (result != null) {

@@ -100,7 +100,7 @@ public class RecordCachingDataSource<E extends Record> implements DataSource<E> 
     }
 
     @Override
-    public Object getExtraData() {
-        return source.getExtraData();
+    public String[] getColumnNames() {
+        return source.getColumnNames();
     }
 }

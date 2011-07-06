@@ -28,6 +28,7 @@ public interface SQLConstants {
     public static final String END = "END";
     public static final String VALUE = "VALUE";
     public static final String NAME = "NAME";
+    public static final String NAME2 = "NAME2";
     public static final String SCORE = "SCORE";
     public static final String STRAND = "STRAND";
     public static final String THICK_START = "THICK_START";

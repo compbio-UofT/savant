@@ -85,10 +85,4 @@ abstract class SQLDataSource<E extends Record> implements DataSource<E> {
     public URI getURI() {
         return table.getURI();
     }
-
-    @Override
-    public Object getExtraData() {
-        return null;
-    }
-
 }

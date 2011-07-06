@@ -40,7 +40,6 @@ public class DataTab extends SavantPanelPlugin {
 
     @Override
     public String getTitle() {
-        return "Table View";
+        return "Data Table";
     }
-
 }

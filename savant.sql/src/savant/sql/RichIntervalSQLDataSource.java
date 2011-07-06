@@ -22,52 +22,42 @@ import java.sql.Blob;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import savant.api.adapter.RangeAdapter;
-import savant.data.types.BEDIntervalRecord;
 import savant.data.types.Block;
 import savant.data.types.ItemRGB;
 import savant.data.types.Strand;
+import savant.data.types.TabixIntervalRecord;
 import savant.file.DataFormat;
 import savant.util.Resolution;
 
 /**
- * DataSource class which retrieves BED data from an SQL database.
+ * DataSource class which retrieves rich interval data from an SQL database.
  *
  * @author tarkvara
  */
-public class BedSQLDataSource extends SQLDataSource<BEDIntervalRecord> {
-    private Map extraData;
+public class RichIntervalSQLDataSource extends SQLDataSource<TabixIntervalRecord> {
+    private final String[] columnNames;
+    private final savant.util.ColumnMapping tabixMapping;
 
-    BedSQLDataSource(MappedTable table, Set<String> references) throws SQLException {
+    RichIntervalSQLDataSource(MappedTable table, Set<String> references) throws SQLException {
         super(table, references);
+        columnNames = new String[] { columns.chrom, columns.start, columns.end, columns.name, columns.score, columns.strand, columns.thickStart, columns.thickEnd, columns.name2 };
+        tabixMapping = savant.util.ColumnMapping.createRichIntervalMapping(0, 1, 2, 3, 4, 5, 6, 7, -1, -1, -1, -1, -1, 8, true);
     }
 
     @Override
-    public List<BEDIntervalRecord> getRecords(String reference, RangeAdapter range, Resolution resolution) throws IOException {
-        List<BEDIntervalRecord> result = new ArrayList<BEDIntervalRecord>();
+    public List<TabixIntervalRecord> getRecords(String reference, RangeAdapter range, Resolution resolution) throws IOException {
+        List<TabixIntervalRecord> result = new ArrayList<TabixIntervalRecord>();
         try {
             ResultSet rs = executeQuery(reference, range.getFrom(), range.getTo());
-
-            // Hack for Aziz.
-            extraData = null;
-            for (Column col: table.getColumns()) {
-                if (col.name.equals("name2")) {
-                    extraData = new HashMap();
-                    break;
-                }
-            }
 
             while (rs.next()) {
                 int start = rs.getInt(columns.start) + 1;
                 String name = rs.getString(columns.name);
-                if (extraData != null) {
-                    extraData.put(name, rs.getString("name2"));
-                }
+                String name2 = rs.getString(columns.name2);
                 float score = 0.0F;
                 if (columns.score != null) {
                     score = rs.getFloat(columns.score);
@@ -109,7 +99,9 @@ public class BedSQLDataSource extends SQLDataSource<BEDIntervalRecord> {
                         throw new IOException("No column provided for block ends/sizes.");
                     }
                 }
-                result.add(BEDIntervalRecord.valueOf(reference, start, rs.getInt(columns.end), name, score, strand, thickStart, thickEnd, itemRGB, blocks));
+                // Because we're pretending to be Tabix, we just slam together a tab-delimited line of data.
+                String line = reference +"\t" + start + "\t" + rs.getInt(columns.end) + "\t" + name + "\t" + score + "\t" + strand + "\t" + thickStart + "\t" + thickEnd + "\t" + name2;
+                result.add(TabixIntervalRecord.valueOf(line, tabixMapping));
             }
         } catch (SQLException sqlx) {
             LOG.error(sqlx);
@@ -147,11 +139,11 @@ public class BedSQLDataSource extends SQLDataSource<BEDIntervalRecord> {
 
     @Override
     public DataFormat getDataFormat() {
-        return DataFormat.INTERVAL_BED;
+        return DataFormat.INTERVAL_RICH;
     }
 
     @Override
-    public Object getExtraData() {
-        return extraData;
+    public String[] getColumnNames() {
+        return columnNames;
     }
 }

@@ -61,4 +61,9 @@ public class IntervalSQLDataSource extends SQLDataSource<GenericIntervalRecord> 
     public DataFormat getDataFormat() {
         return DataFormat.INTERVAL_GENERIC;
     }
+
+    @Override
+    public String[] getColumnNames() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
 }

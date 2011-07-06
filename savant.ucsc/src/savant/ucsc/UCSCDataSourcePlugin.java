@@ -62,35 +62,35 @@ public class UCSCDataSourcePlugin extends SQLDataSourcePlugin implements SQLCons
         ColumnMapping clonePosMapping = ColumnMapping.getIntervalMapping("chrom", "chromStart", "chromEnd", "stage");
         KNOWN_MAPPINGS.put("clonePos", clonePosMapping);
 
-        // Our generic interval format lacks a score field, so treat these as Bed with no blocks or strand.
-        ColumnMapping bed5Mapping = ColumnMapping.getBedMapping("chrom", "chromStart", "chromEnd", "name", "score", null, null, null, null, null, null, null, null);
+        // Our generic interval format lacks a score field, so treat these as rich intervals with no blocks or strand.
+        ColumnMapping bed5Mapping = ColumnMapping.getRichIntervalMapping("chrom", "chromStart", "chromEnd", "name", "score", null, null, null, null, null, null, null, null, null);
         KNOWN_MAPPINGS.put("bed 5", bed5Mapping);
         KNOWN_MAPPINGS.put("bed 5 +", bed5Mapping);
         KNOWN_MAPPINGS.put("bed 5 .", bed5Mapping);
         KNOWN_MAPPINGS.put("bed5FloatScore", bed5Mapping);
         KNOWN_MAPPINGS.put("bed5FloatScoreWithFdr", bed5Mapping);
 
-        // Our generic interval format lacks a score field, so treat these as Bed with no blocks.
-        ColumnMapping bed6Mapping = ColumnMapping.getBedMapping("chrom", "chromStart", "chromEnd", "name", "score", "strand", null, null, null, null, null, null, null);
+        // Our generic interval format lacks a score field, so treat these as rich intervals with no blocks.
+        ColumnMapping bed6Mapping = ColumnMapping.getRichIntervalMapping("chrom", "chromStart", "chromEnd", "name", "score", "strand", null, null, null, null, null, null, null, null);
         KNOWN_MAPPINGS.put("bed 6", bed6Mapping);
         KNOWN_MAPPINGS.put("bed 6 +", bed6Mapping);
         KNOWN_MAPPINGS.put("bed 6 .", bed6Mapping);
         KNOWN_MAPPINGS.put("broadPeak", bed6Mapping);
         KNOWN_MAPPINGS.put("narrowPeak", bed6Mapping);
 
-        // bed 8, like BED, but with no ItemRgb or blocks.
-        ColumnMapping bed8Mapping = ColumnMapping.getBedMapping("chrom", "chromStart", "chromEnd", "name", "score", "strand", "thickStart", "thickEnd", null, null, null, null, null);
+        // bed 8, like Bed, but with no ItemRgb or blocks.
+        ColumnMapping bed8Mapping = ColumnMapping.getRichIntervalMapping("chrom", "chromStart", "chromEnd", "name", "score", "strand", "thickStart", "thickEnd", null, null, null, null, null, null);
         KNOWN_MAPPINGS.put("bed 8", bed8Mapping);
         KNOWN_MAPPINGS.put("bed 8 +", bed8Mapping);
         KNOWN_MAPPINGS.put("bed 8 .", bed8Mapping);
 
-        // bed 9, like BED, but with no blocks.  Note that in bed 9, the itemRGB column is usually called "reserved".
-        ColumnMapping bed9Mapping = ColumnMapping.getBedMapping("chrom", "chromStart", "chromEnd", "name", "score", "strand", "thickStart", "thickEnd", "reserved", null, null, null, null);
+        // bed 9, like Bed, but with no blocks.  Note that in bed 9, the itemRGB column is usually called "reserved".
+        ColumnMapping bed9Mapping = ColumnMapping.getRichIntervalMapping("chrom", "chromStart", "chromEnd", "name", "score", "strand", "thickStart", "thickEnd", "reserved", null, null, null, null, null);
         KNOWN_MAPPINGS.put("bed 9", bed9Mapping);
         KNOWN_MAPPINGS.put("bed 9 +", bed9Mapping);
         KNOWN_MAPPINGS.put("bed 9 .", bed9Mapping);
 
-        ColumnMapping bed12Mapping = ColumnMapping.getBedMapping("chrom", "chromStart", "chromEnd", "name", "score", "strand", "thickStart", "thickEnd", "reserved", "chromStarts", null, null, "blockSizes");
+        ColumnMapping bed12Mapping = ColumnMapping.getRichIntervalMapping("chrom", "chromStart", "chromEnd", "name", "score", "strand", "thickStart", "thickEnd", "reserved", "chromStarts", null, null, "blockSizes", null);
         KNOWN_MAPPINGS.put("bed 12", bed12Mapping);
         KNOWN_MAPPINGS.put("bed 12 +", bed12Mapping);
         KNOWN_MAPPINGS.put("bed 12 .", bed12Mapping);
@@ -98,7 +98,12 @@ public class UCSCDataSourcePlugin extends SQLDataSourcePlugin implements SQLCons
         KNOWN_MAPPINGS.put("factorSource", bed12Mapping);
         KNOWN_MAPPINGS.put("coloredExon", bed12Mapping);    // Colour is actually stored on a per-block level, but we have no way of representing this.
 
-        ColumnMapping geneMapping = ColumnMapping.getBedMapping("chrom", "txStart", "txEnd", "name", "score", "strand", "cdsStart", "cdsEnd", "reserved", null, "exonStarts", "exonEnds", null);
+        // knownGene table has a proteinID column instead of a name2 column.
+        ColumnMapping knownGeneMapping = ColumnMapping.getRichIntervalMapping("chrom", "txStart", "txEnd", "name", "score", "strand", "cdsStart", "cdsEnd", "reserved", null, "exonStarts", "exonEnds", null, "proteinID");
+        KNOWN_MAPPINGS.put("genePred knownGenePep knownGeneMrna", knownGeneMapping);
+
+        // Most genes have a name2 column.
+        ColumnMapping geneMapping = ColumnMapping.getRichIntervalMapping("chrom", "txStart", "txEnd", "name", "score", "strand", "cdsStart", "cdsEnd", "reserved", null, "exonStarts", "exonEnds", null, "name2");
         KNOWN_MAPPINGS.put("genePred", geneMapping);
 
         // TODO: What to do with qStart and qEnd?
@@ -113,7 +118,7 @@ public class UCSCDataSourcePlugin extends SQLDataSourcePlugin implements SQLCons
         KNOWN_MAPPINGS.put("bedGraph 5", bedGraph4Mapping);
 
         //TODO: What do do with qStart, qEnd, and blocks.
-        ColumnMapping pslMapping = ColumnMapping.getBedMapping("tName", "tStart", "tEnd", "qName", null, "strand", null, null, null, null, "tStarts", null, "blockSizes");
+        ColumnMapping pslMapping = ColumnMapping.getRichIntervalMapping("tName", "tStart", "tEnd", "qName", null, "strand", null, null, null, null, "tStarts", null, "blockSizes", null);
         KNOWN_MAPPINGS.put("psl", pslMapping);
         KNOWN_MAPPINGS.put("psl .", pslMapping);
         KNOWN_MAPPINGS.put("psl est", pslMapping);

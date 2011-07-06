@@ -97,7 +97,7 @@ public class RecordCache<E extends Record> {
             List<RangeAdapter> newMissing = new ArrayList<RangeAdapter>();
             for (RangeAdapter r3 : missing) {
                 if (RangeUtils.intersects(r2, r3)) {
-                    newMissing.addAll(RangeUtils.subtract(r3, r2));
+                    newMissing.addAll(Arrays.asList(RangeUtils.subtract(r3, r2)));
                 } else {
                     newMissing.add(r3);
                 }
