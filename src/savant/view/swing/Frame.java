@@ -49,10 +49,7 @@ import savant.util.Range;
 import savant.view.icon.SavantIconFactory;
 import savant.view.swing.interval.BAMCoverageTrack;
 import savant.view.swing.interval.BAMTrack;
-import savant.view.swing.interval.BAMTrackRenderer;
-import savant.view.swing.interval.IntervalTrackRenderer;
 import savant.view.swing.interval.RichIntervalTrack;
-import savant.view.swing.interval.RichIntervalTrackRenderer;
 import savant.view.swing.sequence.SequenceTrack;
 
 /**
@@ -74,7 +71,6 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
     private JPanel arcLegend;
     private List<JCheckBoxMenuItem> visItems;
     private JMenu arcButton;
-    //private JMenu intervalButton;
     private JMenu bedButton;
     private FrameSidePanel sidePanel;
     private int drawModePosition = 0;
@@ -101,23 +97,6 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
         scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         scrollPane.setWheelScrollingEnabled(false);
         scrollPane.setBorder(null);
-
-        //hide commandBar while scrolling
-        /*MouseAdapter ml = new MouseAdapter() {
-            @Override
-            public void mousePressed(MouseEvent e) {
-                tempHideCommands();
-            }
-            @Override
-            public void mouseReleased(MouseEvent e) {
-                tempShowCommands();
-            }
-        };
-        scrollPane.getVerticalScrollBar().addMouseListener(ml);
-        JScrollBar vsb = scrollPane.getVerticalScrollBar();
-        for(int i = 0; i < vsb.getComponentCount(); i++){
-            vsb.getComponent(i).addMouseListener(ml);
-        }*/
 
         //add graphPane -> jlp -> scrollPane
         jlp = new JLayeredPane();
@@ -150,7 +129,6 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
 
         initCommandBar();
         sidePanel.addPanel(commandBar);
-        //sidePanel.addPanel(new TrackSettingsMenu());
         sidePanel.addPanel(arcLegend);
 
         addComponentListener(new ComponentAdapter() {
@@ -466,12 +444,8 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
         JMenu button = new JMenu("BED Options");
         button.setToolTipText("Change BED display parameters");
 
-        final JCheckBoxMenuItem itemRGB = new JCheckBoxMenuItem("Enable ItemRGB");
-        final JCheckBoxMenuItem score = new JCheckBoxMenuItem("Enable Score"){};
-
+        JCheckBoxMenuItem itemRGB = new JCheckBoxMenuItem("Enable ItemRGB");
         itemRGB.setState(false);
-        score.setState(false);
-
         itemRGB.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -480,6 +454,10 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
                 graphPane.repaint();
             }
         });
+        button.add(itemRGB);
+
+        JCheckBoxMenuItem score = new JCheckBoxMenuItem("Enable Score");
+        score.setState(false);
         score.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -488,9 +466,19 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
                 graphPane.repaint();
             }
         });
-
-        button.add(itemRGB);
         button.add(score);
+
+        JCheckBoxMenuItem alternate = new JCheckBoxMenuItem("Display Alternate Name");
+        alternate.setState(false);
+        alternate.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                ((RichIntervalTrack)tracks[0]).toggleAlternateName();
+                graphPane.setRenderForced();
+                graphPane.repaint();
+            }
+        });
+        button.add(alternate);
 
         button.setFocusPainted(false);
         return button;

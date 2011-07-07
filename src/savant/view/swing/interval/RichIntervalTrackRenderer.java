@@ -137,7 +137,7 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
         }
     }
 
-    private void renderGene(Graphics2D g2, GraphPane gp, ColorScheme cs, RichIntervalRecord bedRecord, Interval interval, int level) {
+    private void renderGene(Graphics2D g2, GraphPane gp, ColorScheme cs, RichIntervalRecord rec, Interval interval, int level) {
 
         // for the chevrons
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -147,31 +147,28 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
 
         g2.setFont(BrowserSettings.getTrackFont());
 
-
         // chose the color for the strand
         Color fillColor;
-        if((Boolean)instructions.get(DrawingInstruction.ITEMRGB) && bedRecord.getItemRGB() != null && !bedRecord.getItemRGB().isNull()){
+        if ((Boolean)instructions.get(DrawingInstruction.ITEMRGB) && rec.getItemRGB() != null && !rec.getItemRGB().isNull()){
             //if an RGB value was supplied, use it
-            fillColor = bedRecord.getItemRGB().createColor();
+            fillColor = rec.getItemRGB().createColor();
         } else {
             //otherwise use the default color value
-            fillColor = cs.getColor(bedRecord.getStrand() == Strand.FORWARD ? "Forward Strand" : "Reverse Strand");
+            fillColor = cs.getColor(rec.getStrand() == Strand.FORWARD ? "Forward Strand" : "Reverse Strand");
         }
 
-        //set alpha if score is enabled
-        if ((Boolean)instructions.get(DrawingInstruction.SCORE) && !Float.isNaN(bedRecord.getScore())) {
-            fillColor = new Color(fillColor.getRed(), fillColor.getGreen(), fillColor.getBlue(), (int)(bedRecord.getScore() * 0.255));
+        // Set alpha if score is enabled
+        if ((Boolean)instructions.get(DrawingInstruction.SCORE) && !Float.isNaN(rec.getScore())) {
+            fillColor = new Color(fillColor.getRed(), fillColor.getGreen(), fillColor.getBlue(), (int)(rec.getScore() * 0.255));
         }
 
         Color lineColor = cs.getColor("Line");
         Color textColor = cs.getColor("Text");
 
-
         boolean isInsertion = false;
 
-        //If length is 0, draw insertion rhombus.  It is drawn here so that the
-        //name can be drawn on top of it
-        if(interval.getLength() == 0){
+        // If length is 0, draw insertion rhombus.  It is drawn here so that the name can be drawn on top of it
+        if (interval.getLength() == 0){
 
             g2.setColor(Color.white);
             int xCoordinate = (int)gp.transformXPosExclusive(interval.getStart());
@@ -199,8 +196,10 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
         }
 
         // draw the gene name, if possible
-        String geneName = bedRecord.getName();
-        boolean drawName = (geneName != null);
+        String geneName = rec.getName();
+        if ((Boolean)instructions.get(DrawingInstruction.ALTERNATE_NAME)) {
+            geneName = rec.getAlternateName();
+        }
 
         int startXPos = (int)gp.transformXPosExclusive(interval.getStart());
         int endXPos = (int) gp.transformXPosInclusive(interval.getEnd());
@@ -216,7 +215,7 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
         Area area = new Area(new Line2D.Double(startXPos, yPos, endXPos, yPos));
 
         // for each block, draw a rectangle
-        List<Block> blocks = bedRecord.getBlocks();
+        List<Block> blocks = rec.getBlocks();
         double chevronIntervalStart = gp.transformXPosExclusive(interval.getStart());
 
         if (blocks == null) {
@@ -224,6 +223,7 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
             blocks = new ArrayList<Block>();
             blocks.add(Block.valueOf(0, interval.getLength()));
         }
+
         for (Block block : blocks) {
 
             chevronIntervalStart = Math.max(chevronIntervalStart, 0);
@@ -237,7 +237,7 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
             chevronIntervalEnd = Math.min(chevronIntervalEnd, gp.getWidth());
 
             if (chevronIntervalEnd >= 0 && chevronIntervalStart <= gp.getWidth()) {
-                drawChevrons(g2, chevronIntervalStart, chevronIntervalEnd,  yPos, unitHeight, lineColor, bedRecord.getStrand(), area);
+                drawChevrons(g2, chevronIntervalStart, chevronIntervalEnd,  yPos, unitHeight, lineColor, rec.getStrand(), area);
             }
 
             double w = gp.getWidth(block.getSize());
@@ -255,7 +255,7 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
             chevronIntervalStart = x + w;
         }
 
-        if (drawName) {
+        if (geneName != null) {
             FontMetrics fm = g2.getFontMetrics();
             int stringstartx = startXPos - fm.stringWidth(geneName) - 5;
 
@@ -277,7 +277,7 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
             }
         }
 
-        recordToShapeMap.put(bedRecord, area);
+        recordToShapeMap.put(rec, area);
     }
 
     private void drawChevrons(Graphics2D g2, double start, double end, double y, double height, Color color, Strand strand, Area area) {

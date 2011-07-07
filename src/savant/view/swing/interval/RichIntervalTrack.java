@@ -36,16 +36,7 @@ public class RichIntervalTrack extends Track {
     private static final Log LOG = LogFactory.getLog(RichIntervalTrack.class);
     private boolean itemRGBEnabled = false;
     private boolean scoreEnabled = false;
-
-    /*
-    public enum DrawingMode {
-        STANDARD,
-        SQUISH
-    };
-     * 
-     */
-
-
+    private boolean alternateName = false;
 
     public RichIntervalTrack(DataSource bedSource) throws SavantTrackCreationCancelledException {
         super(bedSource, new RichIntervalTrackRenderer());
@@ -73,8 +64,9 @@ public class RichIntervalTrack extends Track {
         renderer.addInstruction(DrawingInstruction.REFERENCE_EXISTS, containsReference(reference));
         renderer.addInstruction(DrawingInstruction.MODE, getDrawingMode());
         renderer.addInstruction(DrawingInstruction.SELECTION_ALLOWED, true);
-        renderer.addInstruction(DrawingInstruction.ITEMRGB, this.itemRGBEnabled);
-        renderer.addInstruction(DrawingInstruction.SCORE, this.scoreEnabled);
+        renderer.addInstruction(DrawingInstruction.ITEMRGB, itemRGBEnabled);
+        renderer.addInstruction(DrawingInstruction.SCORE, scoreEnabled);
+        renderer.addInstruction(DrawingInstruction.ALTERNATE_NAME, alternateName);
     }
 
     /*
@@ -121,13 +113,18 @@ public class RichIntervalTrack extends Track {
     }
 
     public void toggleItemRGBEnabled(){
-        this.itemRGBEnabled = !this.itemRGBEnabled;
-        renderer.addInstruction(DrawingInstruction.ITEMRGB, this.itemRGBEnabled);
+        itemRGBEnabled = !itemRGBEnabled;
+        renderer.addInstruction(DrawingInstruction.ITEMRGB, itemRGBEnabled);
     }
 
     public void toggleScoreEnabled(){
-        this.scoreEnabled = !this.scoreEnabled;
-        renderer.addInstruction(DrawingInstruction.SCORE, this.scoreEnabled);
+        scoreEnabled = !scoreEnabled;
+        renderer.addInstruction(DrawingInstruction.SCORE, scoreEnabled);
+    }
+
+    public void toggleAlternateName() {
+        alternateName = !alternateName;
+        renderer.addInstruction(DrawingInstruction.ALTERNATE_NAME, alternateName);
     }
 
     @Override
