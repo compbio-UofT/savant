@@ -47,7 +47,7 @@ import savant.util.Resolution;
  *
  * @author vwilliams
  */
-public class GenericIntervalDataSource implements DataSource<GenericIntervalRecord> {
+public class GenericIntervalDataSource extends DataSource<GenericIntervalRecord> {
     private static Log LOG = LogFactory.getLog(GenericIntervalDataSource.class);
 
     private SavantROFile dFile;
@@ -107,11 +107,6 @@ public class GenericIntervalDataSource implements DataSource<GenericIntervalReco
     @Override
     public URI getURI() {
         return dFile.getURI();
-    }
-
-    @Override
-    public String getName() {
-        return MiscUtils.getNeatPathFromURI(getURI());
     }
 
     @Override

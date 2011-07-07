@@ -117,12 +117,12 @@ public class PluginController extends Controller {
             pluginLoader = new PluginLoader(jarURLs.toArray(new URL[0]));
 
             for (final PluginDescriptor desc: validPlugins.values()) {
-                new Thread("PluginLoader") {
+                new Thread("PluginLoader-" + desc) {
                     @Override
                     public void run() {
                         try {
                             loadPlugin(desc);
-                        } catch (Exception x) {
+                        } catch (Throwable x) {
                             LOG.error("Unable to load " + desc.getName(), x);
                             pluginErrors.put(desc.getID(), "Error");
                         }
@@ -269,7 +269,7 @@ public class PluginController extends Controller {
     }
 
 
-    private void loadPlugin(PluginDescriptor desc) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
+    private void loadPlugin(PluginDescriptor desc) throws Throwable {
 
         Class pluginClass = pluginLoader.loadClass(desc.getClassName());
         SavantPlugin plugin = (SavantPlugin)pluginClass.newInstance();
@@ -321,7 +321,7 @@ public class PluginController extends Controller {
      * Copy the given file to the plugins directory, add it, and load it.
      * @param selectedFile
      */
-    public void installPlugin(File selectedFile) throws Exception {
+    public void installPlugin(File selectedFile) throws Throwable {
         File pluginFile = new File(DirectorySettings.getPluginsDirectory(), selectedFile.getName());
         IOUtils.copyFile(selectedFile, pluginFile);
         PluginDescriptor desc = addPlugin(pluginFile);

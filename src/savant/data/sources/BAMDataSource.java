@@ -43,7 +43,7 @@ import savant.util.Resolution;
  *
  * @author vwilliams
  */
-public class BAMDataSource implements DataSource<BAMIntervalRecord> {
+public class BAMDataSource extends DataSource<BAMIntervalRecord> {
 
     private static final Log LOG = LogFactory.getLog(BAMDataSource.class);
 
@@ -214,11 +214,6 @@ public class BAMDataSource implements DataSource<BAMIntervalRecord> {
     @Override
     public URI getURI() {
         return uri;
-    }
-
-    @Override
-    public String getName() {
-        return MiscUtils.getNeatPathFromURI(getURI());
     }
 
     @Override

@@ -40,7 +40,7 @@ import savant.util.SavantFileUtils;
  *
  * @author mfiume, vwilliams
  */
-public class GenericPointDataSource implements DataSource<GenericPointRecord> {
+public class GenericPointDataSource extends DataSource<GenericPointRecord> {
 
     private SavantROFile savantFile;
 
@@ -137,11 +137,6 @@ public class GenericPointDataSource implements DataSource<GenericPointRecord> {
     @Override
     public URI getURI() {
         return savantFile.getURI();
-    }
-
-    @Override
-    public String getName() {
-        return MiscUtils.getNeatPathFromURI(getURI());
     }
 
     @Override

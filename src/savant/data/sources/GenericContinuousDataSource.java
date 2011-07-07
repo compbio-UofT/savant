@@ -44,7 +44,7 @@ import savant.util.SavantFileUtils;
  *
  * @author vwilliams
  */
-public class GenericContinuousDataSource implements DataSource<GenericContinuousRecord> {
+public class GenericContinuousDataSource extends DataSource<GenericContinuousRecord> {
 
     private static final Log LOG = LogFactory.getLog(GenericContinuousDataSource.class);
 
@@ -170,11 +170,6 @@ public class GenericContinuousDataSource implements DataSource<GenericContinuous
     @Override
     public URI getURI() {
         return savantFile.getURI();
-    }
-
-    @Override
-    public String getName() {
-        return MiscUtils.getNeatPathFromURI(getURI());
     }
 
     @Override

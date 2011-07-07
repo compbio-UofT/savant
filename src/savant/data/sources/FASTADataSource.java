@@ -40,7 +40,7 @@ import savant.util.Resolution;
  *
  * @author mfiume
  */
-public class FASTADataSource implements DataSource<SequenceRecord> {
+public class FASTADataSource extends DataSource<SequenceRecord> {
 
     private static Log LOG = LogFactory.getLog(FASTADataSource.class);
 
@@ -106,11 +106,6 @@ public class FASTADataSource implements DataSource<SequenceRecord> {
     public URI getURI() {
         //System.out.println("Getting URI for FASTA file: " + dFile.getURI());
         return dFile.getURI();
-    }
-
-    @Override
-    public String getName() {
-        return MiscUtils.getNeatPathFromURI(getURI());
     }
 
     @Override

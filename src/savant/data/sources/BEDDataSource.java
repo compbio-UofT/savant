@@ -47,7 +47,7 @@ import savant.util.Resolution;
  *
  * @author vwilliams
  */
-public class BEDDataSource implements DataSource<BEDIntervalRecord> {
+public class BEDDataSource extends DataSource<BEDIntervalRecord> {
     private static final Log LOG = LogFactory.getLog(BEDDataSource.class);
 
     private SavantROFile dFile;
@@ -99,11 +99,6 @@ public class BEDDataSource implements DataSource<BEDIntervalRecord> {
     @Override
     public URI getURI() {
         return dFile.getURI();
-    }
-
-    @Override
-    public String getName() {
-        return MiscUtils.getNeatPathFromURI(getURI());
     }
 
     @Override

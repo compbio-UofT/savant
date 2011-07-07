@@ -46,7 +46,7 @@ import savant.util.Resolution;
  *
  * @author mfiume, tarkvara
  */
-public class TabixDataSource implements DataSource<TabixIntervalRecord> {
+public class TabixDataSource extends DataSource<TabixIntervalRecord> {
     private static final Log LOG = LogFactory.getLog(TabixDataSource.class);
 
     TabixReader reader;
@@ -234,11 +234,6 @@ public class TabixDataSource implements DataSource<TabixIntervalRecord> {
     @Override
     public URI getURI() {
         return uri;
-    }
-
-    @Override
-    public String getName() {
-        return MiscUtils.getNeatPathFromURI(getURI());
     }
 
     /**

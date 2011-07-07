@@ -274,13 +274,13 @@ public class TrackFactory {
 
             // This is a good opportunity to load our dictionary.
             for (final Track t: tracks) {
-                final URI dictionaryURI = URI.create(t.getDataSource().getURI().toString() + ".dict");
+                final URI dictionaryURI = t.getDataSource().getDictionaryURI();
                 if (NetworkUtils.exists(dictionaryURI)) {
                     new Thread() {
                         @Override
                         public void run() {
                             try {
-                                t.loadDictionary(dictionaryURI);
+                                t.setDictionary(t.getDataSource().loadDictionary());
                             } catch (Exception x) {
                                 LOG.error("Unable to load dictionary for " + dictionaryURI, x);
                             }

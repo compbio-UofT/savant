@@ -45,7 +45,7 @@ import savant.util.Resolution;
  *
  * @author tarkvara
  */
-public class TDFDataSource implements DataSource<GenericContinuousRecord> {
+public class TDFDataSource extends DataSource<GenericContinuousRecord> {
 
     private static final Log LOG = LogFactory.getLog(TDFDataSource.class);
     private static final double LOG2 = Math.log(2.0);
@@ -148,11 +148,6 @@ public class TDFDataSource implements DataSource<GenericContinuousRecord> {
             return tdf.getDataset(ref, zoom, WindowFunction.mean);
         }
         return tdf.getDataset(String.format("/%s/raw", ref));
-    }
-
-    @Override
-    public String getName() {
-        return MiscUtils.getNeatPathFromURI(getURI());
     }
 
     @Override

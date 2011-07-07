@@ -43,7 +43,7 @@ import savant.util.Resolution;
  *
  * @author tarkvara
  */
-public class BigWigDataSource implements DataSource<GenericContinuousRecord> {
+public class BigWigDataSource extends DataSource<GenericContinuousRecord> {
 
     private static final Log LOG = LogFactory.getLog(BigWigDataSource.class);
 
@@ -103,11 +103,6 @@ public class BigWigDataSource implements DataSource<GenericContinuousRecord> {
 
     @Override
     public void close() {
-    }
-
-    @Override
-    public String getName() {
-        return MiscUtils.getNeatPathFromURI(getURI());
     }
 
     @Override

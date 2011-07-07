@@ -113,7 +113,7 @@ public class PluginRepositoryDialog extends JDialog {
             setVisible(false);
             try {
                 PluginController.getInstance().installPlugin(dd.getDownloadedFile());
-            } catch (Exception x) {
+            } catch (Throwable x) {
                 DialogUtils.displayException("Installation Error", String.format("<html>Unable to install <i>%s</i>: %s.</html>", dd.getDownloadedFile().getName(), x), x);
             }
         } else {

@@ -258,26 +258,10 @@ public abstract class Track implements TrackAdapter {
     }
 
     /**
-     * Load the dictionary from the given URI.
+     * Set the dictionary for this track.
      */
-    public synchronized void loadDictionary(URI uri) throws IOException {
-        LOG.info("Starting to load dictionary from " + uri);
-        dictionary = new HashMap<String, Bookmark>();
-        int lineNum = 0;
-        try {
-            String line = null;
-            InputStream input = new BlockCompressedInputStream(NetworkUtils.getSeekableStreamForURI(uri));
-            while ((line = IOUtils.readLine(input)) != null) {
-                String[] entry = line.split("\\t");
-                dictionary.put(entry[0].toLowerCase(), new Bookmark(entry[1]));
-                lineNum++;
-            }
-        } catch (ParseException x) {
-            throw new IOException("Parse error in dictionary at line " + lineNum, x);
-        } catch (NumberFormatException x) {
-            throw new IOException("Parse error in dictionary at line " + lineNum, x);
-        }
-        LOG.info("Finished loading dictionary from " + uri);
+    public void setDictionary(Map<String, Bookmark> value) {
+        dictionary = value;
     }
 
     /**
