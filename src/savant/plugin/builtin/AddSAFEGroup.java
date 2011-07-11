@@ -134,10 +134,10 @@ public class AddSAFEGroup extends javax.swing.JDialog {
             String d = descriptionField.getText();
             String result = DownloadFile.downloadFile(new URL(BrowserSettings.SAFE_URL + "?"
                     + "type=addgroup"
-                    + "&username=" + URLEncoder.encode(username)
-                    + "&password=" + URLEncoder.encode(password)
-                    + "&name=" + URLEncoder.encode(n)
-                    + "&description=" + URLEncoder.encode(d)));
+                    + "&username=" + URLEncoder.encode(username, "UTF-8")
+                    + "&password=" + URLEncoder.encode(password, "UTF-8")
+                    + "&name=" + URLEncoder.encode(n, "UTF-8")
+                    + "&description=" + URLEncoder.encode(d, "UTF-8")));
             LOG.info(result);
             if (result.contains("Error")) {
                 DialogUtils.displayError(result);

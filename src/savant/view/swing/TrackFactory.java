@@ -28,6 +28,7 @@ import net.sf.samtools.util.RuntimeIOException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import savant.api.adapter.DataSourceAdapter;
 import savant.api.util.DialogUtils;
 import savant.controller.DataSourcePluginController;
 import savant.data.event.TrackCreationEvent;
@@ -69,7 +70,7 @@ public class TrackFactory {
      * @return a freshly-constructed track.
      * @throws SavantTrackCreationCancelledException
      */
-    public static Track createTrack(DataSource ds) throws SavantTrackCreationCancelledException {
+    public static Track createTrack(DataSourceAdapter ds) throws SavantTrackCreationCancelledException {
         if (ds == null) {
             throw new IllegalArgumentException("DataSource cannot be null.");
         }
@@ -132,7 +133,7 @@ public class TrackFactory {
     }
 
 
-    public static DataSource createDataSource(URI trackURI) throws IOException, SavantFileNotFormattedException, SavantUnsupportedVersionException, SavantUnsupportedFileTypeException {
+    public static DataSourceAdapter createDataSource(URI trackURI) throws IOException, SavantFileNotFormattedException, SavantUnsupportedVersionException, SavantUnsupportedFileTypeException {
 
         try {
             // Read file header to determine file type.
@@ -162,7 +163,7 @@ public class TrackFactory {
         } catch (UnknownSchemeException usx) {
             // Not one of our known URI schemes, so see if any of our plugins can handle it.
             for (SavantDataSourcePlugin p: DataSourcePluginController.getInstance().getPlugins()) {
-                DataSource ds = p.getDataSource(trackURI);
+                DataSourceAdapter ds = p.getDataSource(trackURI);
                 if (ds != null) {
                     return ds;
                 }
@@ -191,7 +192,7 @@ public class TrackFactory {
 
             FileType fileType = SavantFileFormatterUtils.guessFileTypeFromPath(uriString);
 
-            DataSource ds = null;
+            DataSourceAdapter ds = null;
 
             try {
                 // A switch statement might be nice here, except for the possibility that fileType == null.
@@ -274,19 +275,16 @@ public class TrackFactory {
 
             // This is a good opportunity to load our dictionary.
             for (final Track t: tracks) {
-                final URI dictionaryURI = t.getDataSource().getDictionaryURI();
-                if (NetworkUtils.exists(dictionaryURI)) {
-                    new Thread() {
-                        @Override
-                        public void run() {
-                            try {
-                                t.setDictionary(t.getDataSource().loadDictionary());
-                            } catch (Exception x) {
-                                LOG.error("Unable to load dictionary for " + dictionaryURI, x);
-                            }
+                new Thread() {
+                    @Override
+                    public void run() {
+                        try {
+                            t.setDictionary(t.getDataSource().loadDictionary());
+                        } catch (Exception x) {
+                            LOG.error("Unable to load dictionary for " + t.getName(), x);
                         }
-                    }.start();
-                }
+                    }
+                }.start();
             }
         }
 

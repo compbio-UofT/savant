@@ -16,36 +16,29 @@
 package savant.view.swing;
 
 import java.awt.Color;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URI;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.swing.JPanel;
 
-import net.sf.samtools.util.BlockCompressedInputStream;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import savant.api.adapter.BookmarkAdapter;
+import savant.api.adapter.DataSourceAdapter;
 import savant.api.adapter.TrackAdapter;
 import savant.controller.SelectionController;
 import savant.controller.DataSourceController;
 import savant.controller.TrackController;
 import savant.data.event.DataRetrievalEvent;
 import savant.data.event.DataRetrievalListener;
-import savant.data.sources.*;
 import savant.data.types.Record;
 import savant.exception.SavantTrackCreationCancelledException;
 import savant.file.DataFormat;
-import savant.util.Bookmark;
 import savant.util.ColorScheme;
 import savant.util.DrawingMode;
-import savant.util.IOUtils;
 import savant.util.MiscUtils;
-import savant.util.NetworkUtils;
 import savant.util.Range;
 import savant.util.Resolution;
 import savant.view.swing.util.DialogUtils;
@@ -67,13 +60,13 @@ public abstract class Track implements TrackAdapter {
     private DrawingMode[] validDrawingModes;
     private DrawingMode drawingMode;
     protected final TrackRenderer renderer;
-    private final DataSource dataSource;
+    private final DataSourceAdapter dataSource;
 
     /**
      * Dictionary which keeps track of gene names and other searchable items for this track.
      * Note that regardless of their original case, all keys are stored as lower-case.
      */
-    private Map<String, Bookmark> dictionary = new HashMap<String, Bookmark>();
+    private Map<String, List<BookmarkAdapter>> dictionary = new HashMap<String, List<BookmarkAdapter>>();
 
     private final List<DataRetrievalListener> listeners = new ArrayList<DataRetrievalListener>();
 
@@ -90,7 +83,7 @@ public abstract class Track implements TrackAdapter {
      * @param dataSource track data source; name, type, and will be derived from this
      * @param renderer the <code>TrackRenderer</code> to be used for this track
      */
-    protected Track(DataSource dataSource, TrackRenderer renderer) throws SavantTrackCreationCancelledException {
+    protected Track(DataSourceAdapter dataSource, TrackRenderer renderer) throws SavantTrackCreationCancelledException {
 
         validDrawingModes = new DrawingMode[0];
 
@@ -244,7 +237,7 @@ public abstract class Track implements TrackAdapter {
      * @return Record Track or null (in the case of a genome.)
      */
     @Override
-    public DataSource getDataSource() {
+    public DataSourceAdapter getDataSource() {
         return dataSource;
     }
 
@@ -260,14 +253,14 @@ public abstract class Track implements TrackAdapter {
     /**
      * Set the dictionary for this track.
      */
-    public void setDictionary(Map<String, Bookmark> value) {
+    public void setDictionary(Map<String, List<BookmarkAdapter>> value) {
         dictionary = value;
     }
 
     /**
      * Look in our dictionary for the given key.  If we find it, set the reference and range appropriately.
      */
-    public Bookmark lookup(String key) {
+    public List<BookmarkAdapter> lookup(String key) {
         return dictionary.get(key.toLowerCase());
     }
 

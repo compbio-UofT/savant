@@ -41,8 +41,8 @@ import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 
+import savant.api.adapter.DataSourceAdapter;
 import savant.api.util.DialogUtils;
-import savant.data.sources.DataSource;
 import savant.view.dialog.tree.TreeBrowserModel;
 import savant.view.dialog.tree.TreeBrowserEntry;
 import savant.settings.BrowserSettings;
@@ -101,13 +101,13 @@ public class SAFEBrowser extends JDialog {
         this.setVisible(false);
     }
 
-    public DataSource getDataSource() {
+    public DataSourceAdapter getDataSource() {
         if (trackPath == null) {
             LOG.error("Trackpath is null");
             return null;
         } else {
             try {
-                DataSource d = TrackFactory.createDataSource(trackPath.toURI());
+                DataSourceAdapter d = TrackFactory.createDataSource(trackPath.toURI());
                 return d;
             } catch (Exception ex) {
                 LOG.error(String.format("Unable to create data source for %s: %s.", trackPath, ex));

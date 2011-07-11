@@ -33,10 +33,10 @@ import javax.swing.JSeparator;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import savant.api.adapter.DataSourceAdapter;
 import savant.api.util.DialogUtils;
 import savant.controller.event.TrackAddedListener;
 import savant.controller.event.TrackAddedOrRemovedEvent;
-import savant.data.sources.DataSource;
 import savant.settings.DirectorySettings;
 import savant.util.MiscUtils;
 import savant.view.swing.Savant;
@@ -86,7 +86,7 @@ public class RecentTracksController implements TrackAddedListener {
 
         if (t instanceof BAMCoverageTrack) { return; }
 
-        DataSource ds = t.getDataSource();
+        DataSourceAdapter ds = t.getDataSource();
 
         if (ds == null || ds.getURI() == null) {
             return;

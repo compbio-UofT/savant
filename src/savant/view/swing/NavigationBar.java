@@ -22,8 +22,10 @@ import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.util.List;
 import javax.swing.*;
 
+import savant.api.adapter.BookmarkAdapter;
 import savant.api.util.DialogUtils;
 import savant.controller.LocationController;
 import savant.controller.TrackController;
@@ -301,9 +303,10 @@ public class NavigationBar extends JToolBar {
         String text = rangeField.getText();
         try {
             for (Track t: TrackController.getInstance().getTracks()) {
-                Bookmark mark = t.lookup(text);
-                if (mark != null) {
-                    LocationController.getInstance().setLocation(mark.getReference(), (Range)mark.getRange());
+                List<BookmarkAdapter> marks = t.lookup(text);
+                if (marks != null) {
+                    // TODO: Support for more than one bookmark at the same location.
+                    LocationController.getInstance().setLocation(marks.get(0).getReference(), (Range)marks.get(0).getRange());
                     return;
                 }
             }

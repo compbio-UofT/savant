@@ -22,8 +22,8 @@ import net.sf.samtools.SAMRecord;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import savant.api.adapter.DataSourceAdapter;
 import savant.api.adapter.RangeAdapter;
-import savant.data.sources.DataSource;
 import savant.data.types.BAMIntervalRecord;
 import savant.data.types.Record;
 import savant.exception.SavantTrackCreationCancelledException;
@@ -64,7 +64,7 @@ public class BAMTrack extends Track {
      *
      * @param dataSource data source which this track represents
      */
-    public BAMTrack(DataSource dataSource) throws SavantTrackCreationCancelledException {
+    public BAMTrack(DataSourceAdapter dataSource) throws SavantTrackCreationCancelledException {
         super(dataSource, new BAMTrackRenderer());
         setColorScheme(getDefaultColorScheme());
         setValidDrawingModes(renderer.getDrawingModes());

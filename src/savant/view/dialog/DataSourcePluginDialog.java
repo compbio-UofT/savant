@@ -21,8 +21,8 @@ import java.util.List;
 import javax.swing.DefaultListModel;
 import javax.swing.JDialog;
 
+import savant.api.adapter.DataSourceAdapter;
 import savant.controller.DataSourcePluginController;
-import savant.data.sources.DataSource;
 import savant.plugin.SavantDataSourcePlugin;
 import savant.util.MiscUtils;
 
@@ -175,7 +175,7 @@ public class DataSourcePluginDialog extends JDialog {
      * @param parent parent window
      * @return the DataSource selected (null if dialog cancelled)
      */
-    public static DataSource getDataSource(Window parent) throws Exception {
+    public static DataSourceAdapter getDataSource(Window parent) throws Exception {
         List<SavantDataSourcePlugin> ps = DataSourcePluginController.getInstance().getPlugins();
         if (DataSourcePluginController.getInstance().hasOnlySavantRepoDataSource()) {
             return ps.get(0).getDataSource();

@@ -39,7 +39,7 @@ import savant.util.DrawingInstruction;
 import savant.util.DrawingMode;
 import savant.util.Range;
 import savant.util.Resolution;
-import savant.view.swing.interval.BAMTrackRenderer;
+
 
 /**
  *

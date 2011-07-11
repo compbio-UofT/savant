@@ -16,7 +16,7 @@
 
 package savant.plugin.builtin;
 
-import savant.data.sources.DataSource;
+import savant.api.adapter.DataSourceAdapter;
 import savant.plugin.SavantDataSourcePlugin;
 
 public class SAFEDataSourcePlugin extends SavantDataSourcePlugin {
@@ -34,7 +34,7 @@ public class SAFEDataSourcePlugin extends SavantDataSourcePlugin {
     private boolean gotCredentials = false;
 
     @Override
-    public DataSource getDataSource() {
+    public DataSourceAdapter getDataSource() {
 
         try {
             SAFEBrowser d = SAFEBrowser.getInstance();

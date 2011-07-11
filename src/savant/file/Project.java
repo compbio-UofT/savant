@@ -25,8 +25,8 @@ import javax.xml.stream.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import savant.api.adapter.DataSourceAdapter;
 import savant.controller.*;
-import savant.data.sources.DataSource;
 import savant.data.types.Genome;
 import savant.data.types.Genome.ReferenceInfo;
 import savant.exception.SavantEmptySessionException;
@@ -231,7 +231,7 @@ public class Project {
 
         for (Track t : TrackController.getInstance().getTracks()) {
             if (!(t instanceof BAMCoverageTrack)) {
-                DataSource ds = t.getDataSource();
+                DataSourceAdapter ds = t.getDataSource();
                 URI uri = ds.getURI();
                 if (uri != null) {
                     writeEmptyElement(XMLElement.track, "  ");

@@ -16,7 +16,7 @@
 
 package savant.plugin.builtin;
 
-import savant.data.sources.DataSource;
+import savant.api.adapter.DataSourceAdapter;
 import savant.plugin.SavantDataSourcePlugin;
 import savant.view.swing.TrackFactory;
 
@@ -33,7 +33,7 @@ public class SavantFileRepositoryDataSourcePlugin extends SavantDataSourcePlugin
     }
 
     @Override
-    public DataSource getDataSource() throws Exception {
+    public DataSourceAdapter getDataSource() throws Exception {
         SavantFileRepositoryBrowser d = SavantFileRepositoryBrowser.getInstance();
         d.setVisible(true);
         return d.getTrackPath() != null ? TrackFactory.createDataSource(d.getTrackPath().toURI()) : null;

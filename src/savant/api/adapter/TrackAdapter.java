@@ -51,7 +51,7 @@ public interface TrackAdapter {
      *
      * @return this track's <code>DataSource</code>
      */
-    public DataSource getDataSource();
+    public DataSourceAdapter getDataSource();
 
 
     /**

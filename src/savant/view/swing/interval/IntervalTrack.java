@@ -20,8 +20,8 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import savant.api.adapter.DataSourceAdapter;
 import savant.api.adapter.RangeAdapter;
-import savant.data.sources.DataSource;
 import savant.data.types.GenericIntervalRecord;
 import savant.data.types.Interval;
 import savant.data.types.Record;
@@ -40,7 +40,7 @@ public class IntervalTrack extends Track {
 
     private static Log LOG = LogFactory.getLog(IntervalTrack.class);
 
-    public IntervalTrack(DataSource intervalTrack) throws SavantTrackCreationCancelledException {
+    public IntervalTrack(DataSourceAdapter intervalTrack) throws SavantTrackCreationCancelledException {
         super(intervalTrack, new IntervalTrackRenderer());
         setColorScheme(getDefaultColorScheme());
         setValidDrawingModes(renderer.getDrawingModes());

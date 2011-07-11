@@ -17,7 +17,9 @@
 package savant.plugin;
 
 import java.net.URI;
-import savant.data.sources.DataSource;
+
+import savant.api.adapter.DataSourceAdapter;
+
 
 /**
  * Base class to be used for any DataSource plugins.  The canonical example is our
@@ -33,7 +35,7 @@ public abstract class SavantDataSourcePlugin extends SavantPlugin {
      */
     public abstract void init();
 
-    public abstract DataSource getDataSource() throws Exception;
+    public abstract DataSourceAdapter getDataSource() throws Exception;
 
     /**
      * Give the data source plugin an opportunity to handle URIs which aren't recognised
@@ -42,7 +44,7 @@ public abstract class SavantDataSourcePlugin extends SavantPlugin {
      * @param uri the URI to be tested
      * @return a DataSource created from the given URI; if it's not a URI this plugin can handle, null is a perfectly good answer.
      */
-    public DataSource getDataSource(URI uri) {
+    public DataSourceAdapter getDataSource(URI uri) {
         return null;
     }
 }

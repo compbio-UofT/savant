@@ -27,9 +27,9 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 
+import savant.api.adapter.DataSourceAdapter;
 import savant.controller.BookmarkController;
 import savant.controller.LocationController;
-import savant.data.sources.DataSource;
 import savant.data.types.*;
 import savant.file.DataFormat;
 import savant.util.Bookmark;
@@ -59,7 +59,7 @@ public class PopupPanel extends JPanel {
     //additional fields
    // protected List<String> addedFields;
 
-    public static PopupPanel create(GraphPane parent, DrawingMode mode, DataSource dataSource, Record rec){
+    public static PopupPanel create(GraphPane parent, DrawingMode mode, DataSourceAdapter dataSource, Record rec){
 
         PopupPanel p = null;
         switch(dataSource.getDataFormat()) {

@@ -25,6 +25,7 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import savant.api.adapter.DataSourceAdapter;
 
 import savant.api.adapter.TrackAdapter;
 import savant.controller.TrackController;
@@ -121,7 +122,7 @@ public class TrackUtils {
      * @param trackName name of track
      * @return the <code>DataSource</code> associated with this track (may be null)
      */
-    public static DataSource getTrackDataSource(String trackName) {
+    public static DataSourceAdapter getTrackDataSource(String trackName) {
         TrackAdapter t = getTrack(trackName);
         if (t == null) { return null; }
         return t.getDataSource();

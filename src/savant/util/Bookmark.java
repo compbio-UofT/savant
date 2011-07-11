@@ -116,6 +116,11 @@ public class Bookmark implements BookmarkAdapter, Serializable {
         range = new Range(from, to);
     }
 
+    public Bookmark(String text, String ann) throws ParseException {
+        this(text);
+        annotation = ann;
+    }
+
     @Override
     public String getReference() { return this.reference; }
 

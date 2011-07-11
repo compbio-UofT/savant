@@ -49,6 +49,7 @@ public class CacheableSABS extends SeekableAdjustableBufferedStream {
     private int positionInBuff = 0;
     protected InputStream inputStream;
     private URI uri;
+    int openCount = 0;
 
     public CacheableSABS(SeekableStream seekable, int bufferSize, URI uri) {
         super(seekable, bufferSize);
@@ -158,12 +159,17 @@ public class CacheableSABS extends SeekableAdjustableBufferedStream {
 
     private void openCache() throws FileNotFoundException{
         cache = new RandomAccessFile(cacheFile, "rw");
+//        LOG.info("Cache opened " + (++openCount));
+//        if (openCount > 1) {
+//            LOG.info("Possible leak of file handles.", new Exception());
+//        }
     }
 
     //TODO: where should this be called?
     private void closeCache() throws IOException{
         cache.close();
         cache = null;
+//        LOG.info("Cache closed " + (--openCount));
     }
 
     private void initCache() throws IOException{

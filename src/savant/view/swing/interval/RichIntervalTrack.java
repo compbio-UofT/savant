@@ -19,8 +19,8 @@ package savant.view.swing.interval;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import savant.api.adapter.DataSourceAdapter;
 import savant.api.adapter.RangeAdapter;
-import savant.data.sources.DataSource;
 import savant.exception.SavantTrackCreationCancelledException;
 import savant.settings.ColourSettings;
 import savant.util.*;
@@ -38,7 +38,7 @@ public class RichIntervalTrack extends Track {
     private boolean scoreEnabled = false;
     private boolean alternateName = false;
 
-    public RichIntervalTrack(DataSource bedSource) throws SavantTrackCreationCancelledException {
+    public RichIntervalTrack(DataSourceAdapter bedSource) throws SavantTrackCreationCancelledException {
         super(bedSource, new RichIntervalTrackRenderer());
         setColorScheme(getDefaultColorScheme());
         setValidDrawingModes(renderer.getDrawingModes());

@@ -17,7 +17,7 @@ package savant.api.adapter;
 
 import java.io.IOException;
 import java.util.Set;
-import savant.data.sources.DataSource;
+
 
 /**
  * Public interface for Savant genome class.
@@ -68,7 +68,7 @@ public interface GenomeAdapter {
      *
      * @return this genome's <code>DataSource</code> (may be null)
      */
-    public DataSource getDataSource();
+    public DataSourceAdapter getDataSource();
 
     /**
      * Determine whether this genome has sequence data.  Equivalent to <code>getSequenceTrack() != null</code>.

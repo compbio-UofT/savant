@@ -18,8 +18,8 @@ package savant.view.swing.continuous;
 
 import java.util.List;
 
+import savant.api.adapter.DataSourceAdapter;
 import savant.api.adapter.RangeAdapter;
-import savant.data.sources.DataSource;
 import savant.data.types.ContinuousRecord;
 import savant.data.types.Record;
 import savant.exception.SavantTrackCreationCancelledException;
@@ -39,7 +39,7 @@ import savant.view.swing.Track;
  */
  public class ContinuousTrack extends Track {
 
-    public ContinuousTrack(DataSource track) throws SavantTrackCreationCancelledException {
+    public ContinuousTrack(DataSourceAdapter track) throws SavantTrackCreationCancelledException {
         super(track, new ContinuousTrackRenderer());
         setColorScheme(getDefaultColorScheme());
         this.notifyControllerOfCreation();

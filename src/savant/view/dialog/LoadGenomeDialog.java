@@ -31,11 +31,11 @@ import javax.swing.JDialog;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import savant.api.adapter.DataSourceAdapter;
 import savant.api.util.DialogUtils;
 import savant.controller.DataSourcePluginController;
 import savant.controller.ProjectController;
 import savant.controller.LocationController;
-import savant.data.sources.DataSource;
 import savant.data.types.Genome;
 import savant.data.types.Genome.Auxiliary;
 import savant.data.types.Genome.AuxiliaryType;
@@ -385,7 +385,7 @@ public class LoadGenomeDialog extends JDialog {
 
     private void fromOtherButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fromOtherButtonActionPerformed
         try {
-            DataSource s = DataSourcePluginDialog.getDataSource(this);
+            DataSourceAdapter s = DataSourcePluginDialog.getDataSource(this);
             if (s != null) {
                 setVisible(false);
                 Track t = TrackFactory.createTrack(s);

@@ -16,10 +16,10 @@
 
 package savant.view.swing.sequence;
 
-import java.awt.*;
+import java.awt.Color;
 
+import savant.api.adapter.DataSourceAdapter;
 import savant.api.adapter.RangeAdapter;
-import savant.data.sources.DataSource;
 import savant.exception.SavantTrackCreationCancelledException;
 import savant.file.SavantROFile;
 import savant.settings.ColourSettings;
@@ -38,7 +38,7 @@ public class SequenceTrack extends Track {
     //Genome genome;
     //String path;
 
-    public SequenceTrack(DataSource dataTrack) throws SavantTrackCreationCancelledException {
+    public SequenceTrack(DataSourceAdapter dataTrack) throws SavantTrackCreationCancelledException {
         super(dataTrack, new SequenceTrackRenderer());
 
         setColorScheme(getDefaultColorScheme());

@@ -1,5 +1,5 @@
 /*
- *    Copyright 2010 University of Toronto
+ *    Copyright 2010-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -14,28 +14,24 @@
  *    limitations under the License.
  */
 
-/*
- * TrackListChangedEvent.java
- * Created on Mar 11, 2010
- */
-
 package savant.controller.event;
-
-import savant.data.sources.DataSource;
 
 import java.util.EventObject;
 import java.util.List;
 
+import savant.api.adapter.DataSourceAdapter;
+
+
 public class DataSourceListChangedEvent extends EventObject {
 
-    private List<DataSource> dataSources;
+    private List<DataSourceAdapter> dataSources;
 
-    public DataSourceListChangedEvent(Object source, List<DataSource> dataSources) {
+    public DataSourceListChangedEvent(Object source, List<DataSourceAdapter> dataSources) {
         super(source);
         this.dataSources = dataSources;
     }
 
-    public List<DataSource> getDataSources() {
-        return this.dataSources;
+    public List<DataSourceAdapter> getDataSources() {
+        return dataSources;
     }
 }

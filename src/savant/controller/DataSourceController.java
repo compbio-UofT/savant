@@ -23,9 +23,10 @@ package savant.controller;
 import java.util.ArrayList;
 import java.util.List;
 
+import savant.api.adapter.DataSourceAdapter;
 import savant.controller.event.DataSourceListChangedEvent;
 import savant.controller.event.DataSourceListChangedListener;
-import savant.data.sources.DataSource;
+
 
 /**
  * Singleton controller class to manage data tracks.
@@ -40,7 +41,7 @@ public class DataSourceController {
     /**
      * List of currently managed data sources
      */
-    private List<DataSource> sources;
+    private List<DataSourceAdapter> sources;
 
     private List<DataSourceListChangedListener> listeners;
 
@@ -48,7 +49,7 @@ public class DataSourceController {
      * Constructor. Private access, use getInstance() instead.
      */
     private DataSourceController() {
-        sources = new ArrayList<DataSource>();
+        sources = new ArrayList<DataSourceAdapter>();
         listeners = new ArrayList<DataSourceListChangedListener>();
     }
 
@@ -59,21 +60,21 @@ public class DataSourceController {
         return instance;
     }
 
-    public void addDataSource(DataSource source) {
+    public void addDataSource(DataSourceAdapter source) {
         sources.add(source);
         fireTracksChangedEvent();
     }
 
-    public void removeDataSource(DataSource dataSource) {
+    public void removeDataSource(DataSourceAdapter dataSource) {
         sources.remove(dataSource);
         fireTracksChangedEvent();
     }
 
-    public List<DataSource> getDataSources() {
+    public List<DataSourceAdapter> getDataSources() {
         return sources;
     }
 
-    public DataSource getDataSource(int index) {
+    public DataSourceAdapter getDataSource(int index) {
         return sources.get(index);
     }
     

@@ -16,11 +16,8 @@
 
 package savant.view.swing.point;
 
-import java.util.List;
-
+import savant.api.adapter.DataSourceAdapter;
 import savant.api.adapter.RangeAdapter;
-import savant.data.sources.DataSource;
-import savant.data.types.Record;
 import savant.exception.SavantTrackCreationCancelledException;
 import savant.settings.ColourSettings;
 import savant.util.*;
@@ -33,9 +30,7 @@ import savant.view.swing.Track;
  */
 public class PointTrack extends Track {
 
-    public List<Record> savedList = null;
-
-    public PointTrack(DataSource dataSource) throws SavantTrackCreationCancelledException {
+    public PointTrack(DataSourceAdapter dataSource) throws SavantTrackCreationCancelledException {
         super(dataSource, new PointTrackRenderer());
 
         setColorScheme(getDefaultColorScheme());

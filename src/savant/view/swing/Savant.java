@@ -50,10 +50,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jdom.JDOMException;
 
+import savant.api.adapter.DataSourceAdapter;
 import savant.api.util.DialogUtils;
 import savant.controller.*;
 import savant.controller.event.*;
-import savant.data.sources.DataSource;
 import savant.data.types.Genome;
 import savant.experimental.XMLTool;
 import savant.plugin.SavantDataSourcePlugin;
@@ -1292,7 +1292,7 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
 
     private void loadFromDataSourcePluginItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loadFromDataSourcePluginItemActionPerformed
         try {
-            DataSource s = DataSourcePluginDialog.getDataSource(this);
+            DataSourceAdapter s = DataSourcePluginDialog.getDataSource(this);
             if (s != null) {
                 Track t = TrackFactory.createTrack(s);
                 createFrameForExistingTrack(new Track[] { t });
