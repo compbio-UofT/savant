@@ -290,7 +290,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
 
         //boolean sameRange = (prevRange != null && RangeController.getInstance().getRange().equals(prevRange));
         boolean sameRange = (prevRange != null && xRange.equals(prevRange));
-        boolean sameMode = currentMode != prevMode;
+        boolean sameMode = currentMode == prevMode;
         boolean sameSize = (prevSize != null && this.getSize().equals(prevSize) &&
                 this.parentFrame.getFrameLandscape().getWidth() == oldWidth &&
                 this.getParentFrame().getFrameLandscape().getHeight() == oldHeight);
@@ -336,7 +336,6 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
             yMax = oldYMax;
 
         } else {
-
             // Otherwise prepare for new render.
             renderRequired = false;
 
