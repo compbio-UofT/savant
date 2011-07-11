@@ -65,7 +65,7 @@ public class ColumnMapping implements SQLConstants {
         this.blockStartsRelative = (this.blockStartsAbsolute != null || NO_COLUMN.equals(blockStartsRelative)) ? null : blockStartsRelative;
         this.blockEnds = NO_COLUMN.equals(blockEnds) ? null : blockEnds;
         this.blockSizes = NO_COLUMN.equals(blockSizes) ? null : blockSizes;
-        this.name2 = NO_COLUMN.equals(name) ? null : name2;
+        this.name2 = NO_COLUMN.equals(name2) ? null : name2;
         this.span = NO_COLUMN.equals(span) ? null : span;
         this.count = NO_COLUMN.equals(count) ? null : count;
         this.offset = NO_COLUMN.equals(offset) ? null : offset;

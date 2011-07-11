@@ -22,7 +22,7 @@ import javax.swing.table.AbstractTableModel;
 
 import net.sf.samtools.SAMRecord;
 
-import savant.data.sources.DataSource;
+import savant.api.adapter.DataSourceAdapter;
 import savant.data.types.*;
 import savant.file.DataFormat;
 
@@ -32,17 +32,11 @@ import savant.file.DataFormat;
  * @author mfiume
  */
 public class DataTableModel extends AbstractTableModel {
-    private static final String[] SEQUENCE_COLUMN_NAMES = { "Sequence" };
     private static final Class[] SEQUENCE_COLUMN_CLASSES = { String.class };
-    private static final String[] POINT_COLUMN_NAMES = { "Reference", "Position", "Description" };
     private static final Class[] POINT_COLUMN_CLASSES = { String.class, Integer.class, String.class };
-    private static final String[] INTERVAL_COLUMN_NAMES = { "Reference", "From", "To", "Description" };
     private static final Class[] INTERVAL_COLUMN_CLASSES = { String.class, Integer.class, Integer.class, String.class };
-    private static final String[] BAM_COLUMN_NAMES = { "Read Name", "Sequence", "Length", "First of Pair", "Position", "Strand +", "Mapping Quality", "Base Qualities", "CIGAR", "Mate Position", "Strand +", "Inferred Insert Size" };
     private static final Class[] BAM_COLUMN_CLASSES = { String.class, String.class, Integer.class, Boolean.class, Integer.class, Boolean.class, Integer.class, String.class, String.class, Integer.class, Boolean.class, Integer.class};
-    private static final String[] BED_COLUMN_NAMES = {"Reference", "Start", "End", "Name", "Block Count"};
     private static final Class[] BED_COLUMN_CLASSES = { String.class, Integer.class, Integer.class, String.class, Integer.class};
-    private static final String[] CONTINUOUS_COLUMN_NAMES = { "Reference", "Position", "Value" };
     private static final Class[] CONTINUOUS_COLUMN_CLASSES = { String.class, Integer.class, Double.class };
 
     private DataFormat dataType;
@@ -58,7 +52,7 @@ public class DataTableModel extends AbstractTableModel {
     /** For tabix, some of the columns may not be meaningful for end-users, so have a little lookup table. */
     private int[] remappedColumns;
 
-    public DataTableModel(DataSource dataSource) {
+    public DataTableModel(DataSourceAdapter dataSource) {
         setDataType(dataSource.getDataFormat());
 
         columnNames = dataSource.getColumnNames();

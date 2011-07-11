@@ -21,9 +21,9 @@ import java.util.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import savant.api.adapter.DataSourceAdapter;
 import savant.api.adapter.RangeAdapter;
 import savant.api.util.RangeUtils;
-import savant.data.sources.DataSource;
 import savant.data.types.GenericContinuousRecord;
 import savant.data.types.Interval;
 import savant.data.types.IntervalRecord;
@@ -39,13 +39,13 @@ import savant.util.Resolution;
 public class RecordCache<E extends Record> {
 
     private static final Log LOG = LogFactory.getLog(RecordCache.class);
-    private DataSource<E> source;
+    private DataSourceAdapter<E> source;
     private String reference;
     private Resolution resolution;
     List<RangeAdapter> covered = new ArrayList<RangeAdapter>();
     RecordStash<E> stash;
 
-    RecordCache(DataSource<E> ds, String ref, Resolution res) {
+    RecordCache(DataSourceAdapter<E> ds, String ref, Resolution res) {
         source = ds;
         reference = ref;
         resolution = res;

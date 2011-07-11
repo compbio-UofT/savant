@@ -104,6 +104,7 @@ public class WigSQLDataSource extends SQLDataSource<GenericContinuousRecord> {
                     }
                 }
             }
+            rs.close();
         } catch (SQLException sqlx) {
             LOG.error(sqlx);
             throw new IOException(sqlx);

@@ -87,6 +87,7 @@ public class Database {
     public ResultSet executeQuery(String format, Object... args) throws SQLException {
         Statement st = getConnection().createStatement();
         String query = String.format(format, args);
+        LOG.debug(query);
         return st.executeQuery(query);
     }
 

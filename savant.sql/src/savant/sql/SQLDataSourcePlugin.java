@@ -30,9 +30,9 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import savant.api.adapter.DataSourceAdapter;
 import savant.api.util.DialogUtils;
 import savant.api.util.SettingsUtils;
-import savant.data.sources.DataSource;
 import savant.plugin.SavantDataSourcePlugin;
 
 
@@ -72,8 +72,8 @@ public class SQLDataSourcePlugin extends SavantDataSourcePlugin {
     }
 
     @Override
-    public DataSource getDataSource() throws Exception {
-        DataSource result = null;
+    public DataSourceAdapter getDataSource() throws Exception {
+        DataSourceAdapter result = null;
         closeConnection();
 
         // By default, log in using the last-used URI.
@@ -148,8 +148,8 @@ public class SQLDataSourcePlugin extends SavantDataSourcePlugin {
     }
 
     @Override
-    public DataSource getDataSource(URI uri) {
-        DataSource result = null;
+    public DataSourceAdapter getDataSource(URI uri) {
+        DataSourceAdapter result = null;
         if (canOpen(uri)) {
             try {
                 closeConnection();
@@ -226,8 +226,8 @@ public class SQLDataSourcePlugin extends SavantDataSourcePlugin {
      * @return
      * @throws SQLException
      */
-    private DataSource createCachedDataSource(MappedTable table) throws SQLException {
-        DataSource result = null;
+    private DataSourceAdapter createCachedDataSource(MappedTable table) throws SQLException {
+        DataSourceAdapter result = null;
         Set<String> references = getReferences(table);
         switch (table.mapping.format) {
             case CONTINUOUS_VALUE_COLUMN:
@@ -305,6 +305,7 @@ public class SQLDataSourcePlugin extends SavantDataSourcePlugin {
         while (rs.next()) {
             references.add(rs.getString(1));
         }
+        rs.close();
         return references;
     }
 

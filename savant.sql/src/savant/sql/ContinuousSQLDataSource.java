@@ -54,6 +54,7 @@ public class ContinuousSQLDataSource extends SQLDataSource<GenericContinuousReco
                     result.add(GenericContinuousRecord.valueOf(chrom, i, rs.getFloat(columns.value)));
                 }
             }
+            rs.close();
         } catch (SQLException sqlx) {
             LOG.error(sqlx);
             throw new IOException(sqlx);

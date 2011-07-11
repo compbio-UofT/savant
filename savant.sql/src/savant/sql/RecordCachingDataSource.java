@@ -26,8 +26,9 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import savant.api.adapter.BookmarkAdapter;
+import savant.api.adapter.DataSourceAdapter;
 import savant.api.adapter.RangeAdapter;
-import savant.data.sources.DataSource;
 import savant.data.types.Record;
 import savant.file.DataFormat;
 import savant.util.Resolution;
@@ -38,10 +39,10 @@ import savant.util.Resolution;
  *
  * @author tarkvara
  */
-public class RecordCachingDataSource<E extends Record> implements DataSource<E> {
+public class RecordCachingDataSource<E extends Record> implements DataSourceAdapter<E> {
     private static final Log LOG = LogFactory.getLog(RecordCachingDataSource.class);
 
-    DataSource<E> source;
+    DataSourceAdapter<E> source;
     Map<String, RecordCache<E>> wholeCache = new HashMap<String, RecordCache<E>>();
 
     /**
@@ -49,7 +50,7 @@ public class RecordCachingDataSource<E extends Record> implements DataSource<E> 
      *
      * @param ds the DataSource to be accessed whenever we get a cache miss
      */
-    public RecordCachingDataSource(DataSource<E> ds) {
+    public RecordCachingDataSource(DataSourceAdapter<E> ds) {
         source = ds;
     }
 
@@ -102,5 +103,10 @@ public class RecordCachingDataSource<E extends Record> implements DataSource<E> 
     @Override
     public String[] getColumnNames() {
         return source.getColumnNames();
+    }
+
+    @Override
+    public Map<String, List<BookmarkAdapter>> loadDictionary() throws IOException {
+        return source.loadDictionary();
     }
 }

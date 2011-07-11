@@ -63,6 +63,7 @@ public class Table {
             for (int i = 0; i < numCols; i++) {
                 columns[i] = new Column(md.getColumnName(i + 1), md.getColumnType(i + 1));
             }
+            rs.close();
         }
         return columns;
     }
