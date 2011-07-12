@@ -21,12 +21,7 @@ import java.net.URI;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -146,7 +141,7 @@ abstract class SQLDataSource<E extends Record> implements DataSourceAdapter<E> {
 
     private void loadDictionaryEntries(ResultSet rs, Map<String, List<BookmarkAdapter>> result) throws SQLException {
         while (rs.next()) {
-            String chrom = rs.getString(1);
+            String chrom = rs.getString(1).intern();    // There will be zillions of copies of the chromosome name strings, so intern them.
             int start = rs.getInt(2);
             int end = rs.getInt(3);
             String name = rs.getString(4);
@@ -162,11 +157,11 @@ abstract class SQLDataSource<E extends Record> implements DataSourceAdapter<E> {
     private void addDictionaryEntry(String name, String chrom, int start, int end, Map<String, List<BookmarkAdapter>> result) {
         String key = name.toLowerCase();
         List<BookmarkAdapter> entry = result.get(key);
-        BookmarkAdapter mark = BookmarkUtils.createBookmark(chrom, RangeUtils.createRange(start, end), name);
+        BookmarkAdapter mark = BookmarkUtils.createBookmark(chrom, RangeUtils.createRange(start, end));
         if (entry == null) {
-            result.put(key, Arrays.asList(mark));
-        } else {
-            entry.add(mark);
+            entry = new ArrayList<BookmarkAdapter>();
+            result.put(key, entry);
         }
+        entry.add(mark);
     }
 }

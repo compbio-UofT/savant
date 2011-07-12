@@ -32,11 +32,11 @@ public class Bookmark implements BookmarkAdapter, Serializable {
     static final long serialVersionUID = 8942835825767587873L;
 
     private String reference;
-    private Range range;
+    private int from, to;
     private String annotation;
 
     public Bookmark(String reference, Range r) {
-        this(reference,r,"");
+        this(reference, r, "");
     }
 
     public Bookmark(String reference, Range r, String ann) {
@@ -64,7 +64,8 @@ public class Bookmark implements BookmarkAdapter, Serializable {
     public Bookmark(String text) throws ParseException {
         LocationController locationController = LocationController.getInstance();
         Range r = locationController.getRange();
-        int from = -1, to = -1;
+        from = -1;
+        to = -1;
         if (r != null) {
             from = r.getFrom();
             to = r.getTo();
@@ -75,7 +76,7 @@ public class Bookmark implements BookmarkAdapter, Serializable {
         // Extract a chromosome name (if any).
         int colonPos = text.indexOf(':');
         if (colonPos >= 0) {
-            reference = text.substring(0, colonPos);
+            reference = text.substring(0, colonPos).intern();
             text = text.substring(colonPos + 1);
         } else {
             reference = locationController.getReferenceName();
@@ -113,9 +114,14 @@ public class Bookmark implements BookmarkAdapter, Serializable {
                 }
             }
         }
-        range = new Range(from, to);
     }
 
+    /**
+     *
+     * @param text a location expression of a form like "chr2:1000-2000"
+     * @param ann the annotation for this bookmark
+     * @throws ParseException if <code>text</code> is not a valid location expression
+     */
     public Bookmark(String text, String ann) throws ParseException {
         this(text);
         annotation = ann;
@@ -125,7 +131,9 @@ public class Bookmark implements BookmarkAdapter, Serializable {
     public String getReference() { return this.reference; }
 
     @Override
-    public RangeAdapter getRange() { return this.range; }
+    public RangeAdapter getRange() {
+        return new Range(from, to);
+    }
 
     @Override
     public String getAnnotation() { return this.annotation; }
@@ -134,7 +142,10 @@ public class Bookmark implements BookmarkAdapter, Serializable {
     public final void setReference(String r) { this.reference = r; }
 
     @Override
-    public final void setRange(RangeAdapter r) { this.range = (Range) r; }
+    public final void setRange(RangeAdapter r) {
+        from = r.getFrom();
+        to = r.getTo();
+    }
 
     @Override
     public final void setAnnotation(String ann) { this.annotation = ann; }
@@ -143,6 +154,6 @@ public class Bookmark implements BookmarkAdapter, Serializable {
      * Get the bookmark's range expressed in its canonical form.
      */
     public final String getRangeText() {
-        return String.format("%s:%d-%d", reference, range.getFrom(), range.getTo());
+        return String.format("%s:%d-%d", reference, from, to);
     }
 }

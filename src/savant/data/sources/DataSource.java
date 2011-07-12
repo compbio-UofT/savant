@@ -24,7 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.text.ParseException;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -76,10 +76,10 @@ public abstract class DataSource<E extends Record> implements DataSourceAdapter 
                     String key = words[0].toLowerCase();
                     List<BookmarkAdapter> marks = dictionary.get(key);
                     if (marks == null) {
-                        dictionary.put(key, Arrays.asList((BookmarkAdapter)new Bookmark(words[1], words[0])));
-                    } else {
-                        marks.add(new Bookmark(words[1], words[0]));
+                        marks = new ArrayList<BookmarkAdapter>();
+                        dictionary.put(key, marks);
                     }
+                    marks.add(new Bookmark(words[1], words[0]));
                     lineNum++;
                 }
             } catch (ParseException x) {
