@@ -108,14 +108,12 @@ public class CacheableSABS extends SeekableAdjustableBufferedStream {
             bufferedStream.skip(positionOffset);
             positionInBuff = positionOffset;
         } catch (IOException x) {
-            // I'm still suspicious of the fix for #593.
-            LOG.info("Exception from cacheStream.skip(" + actualOffset + ")", x);
             throw x;
         }
     }
 
     @Override
-    public void seek(long position) throws IOException {
+    public synchronized void seek(long position) throws IOException {
 
         this.position = position;
 
@@ -139,7 +137,6 @@ public class CacheableSABS extends SeekableAdjustableBufferedStream {
             // Cache block
             byte[] b = new byte[bufferSize];
             int numRead = bufferedStream.read(b, 0, bufferSize); //read buffer into byte[] b
-            if(cache == null) openCache(); //sometimes cache is null after above read... TODO: solve this?
             int storeOffset = (int)((cache.length() - (numBlocks * 4))/this.bufferSize)+1; //offset to data in cache
             long actualOffset = cache.length(); //actual pointer to data in cache            
             cache.seek(block * 4); //seek to write offset
@@ -159,17 +156,12 @@ public class CacheableSABS extends SeekableAdjustableBufferedStream {
 
     private void openCache() throws FileNotFoundException{
         cache = new RandomAccessFile(cacheFile, "rw");
-//        LOG.info("Cache opened " + (++openCount));
-//        if (openCount > 1) {
-//            LOG.info("Possible leak of file handles.", new Exception());
-//        }
     }
 
     //TODO: where should this be called?
     private void closeCache() throws IOException{
         cache.close();
         cache = null;
-//        LOG.info("Cache closed " + (--openCount));
     }
 
     private void initCache() throws IOException{
