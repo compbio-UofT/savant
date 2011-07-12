@@ -19,10 +19,11 @@ package savant.ucsc;
 import java.net.URI;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import savant.api.util.DialogUtils;
 import savant.sql.ColumnMapping;
@@ -31,6 +32,7 @@ import savant.sql.MappedTable;
 import savant.sql.SQLConstants;
 import savant.sql.SQLDataSourcePlugin;
 import savant.sql.Table;
+import savant.util.ReferenceComparator;
 
 
 /**
@@ -186,17 +188,19 @@ public class UCSCDataSourcePlugin extends SQLDataSourcePlugin implements SQLCons
      * where the data is spread over one chromosome per table.
      */
     @Override
-    public Set<String> getReferences(MappedTable table) throws SQLException {
+    public List<String> getReferences(MappedTable table) throws SQLException {
         return getReferences(table.getDatabase());
     }
 
-    Set<String> getReferences(Database db) throws SQLException {
-        Set<String> references = new HashSet<String>();
+    private List<String> getReferences(Database db) throws SQLException {
+        List<String> result = new ArrayList<String>();
         ResultSet rs = db.executeQuery("SELECT chrom FROM chromInfo");
         while (rs.next()) {
-            references.add(rs.getString(1));
+            result.add(rs.getString(1));
         }
-        return references;
+        rs.close();
+        Collections.sort(result, new ReferenceComparator());
+        return result;
     }
 
     @Override

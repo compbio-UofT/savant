@@ -21,7 +21,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import savant.api.adapter.RangeAdapter;
 import savant.data.types.GenericContinuousRecord;
@@ -37,7 +36,7 @@ import savant.util.Resolution;
  */
 public class ContinuousSQLDataSource extends SQLDataSource<GenericContinuousRecord> {
 
-    ContinuousSQLDataSource(MappedTable table, Set<String> references) throws SQLException {
+    ContinuousSQLDataSource(MappedTable table, List<String> references) throws SQLException {
         super(table, references);
     }
 

@@ -50,6 +50,12 @@ import savant.util.NetworkUtils;
 public abstract class DataSource<E extends Record> implements DataSourceAdapter {
     private static final Log LOG = LogFactory.getLog(DataSource.class);
 
+    /**
+     * Dictionary which keeps track of gene names and other searchable items for this track.
+     * Note that regardless of their original case, all keys are stored as lower-case.
+     */
+    private Map<String, List<BookmarkAdapter>> dictionary = new HashMap<String, List<BookmarkAdapter>>();
+
     @Override
     public String getName() {
         return MiscUtils.getNeatPathFromURI(getURI());
@@ -62,8 +68,8 @@ public abstract class DataSource<E extends Record> implements DataSourceAdapter 
      * @return a dictionary containing the bookmarks (may be empty, but never null)
      */
     @Override
-    public synchronized Map<String, List<BookmarkAdapter>> loadDictionary() throws IOException {
-        Map<String, List<BookmarkAdapter>> dictionary = new HashMap<String, List<BookmarkAdapter>>();
+    public void loadDictionary() throws IOException {
+        dictionary = new HashMap<String, List<BookmarkAdapter>>();
         URI dictionaryURI = URI.create(getURI().toString() + ".dict");
         if (NetworkUtils.exists(dictionaryURI)) {
             LOG.info("Starting to load dictionary from " + dictionaryURI);
@@ -89,6 +95,10 @@ public abstract class DataSource<E extends Record> implements DataSourceAdapter 
             }
             LOG.info("Finished loading dictionary from " + dictionaryURI);
         }
-        return dictionary;
+    }
+
+    @Override
+    public List<BookmarkAdapter> lookup(String key) {
+        return dictionary.get(key);
     }
 }

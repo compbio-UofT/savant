@@ -16,7 +16,6 @@
 
 package savant.sql;
 
-import java.io.IOException;
 import java.net.URI;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -45,34 +44,50 @@ abstract class SQLDataSource<E extends Record> implements DataSourceAdapter<E> {
 
     protected MappedTable table;
     protected ColumnMapping columns;
-    private Set<String> references = new HashSet<String>();
+    private List<String> references;
     private PreparedStatement prep;
-    private String lastChrom;
 
-    protected SQLDataSource(MappedTable table, Set<String> references) {
+    protected SQLDataSource(MappedTable table, List<String> references) {
         this.table = table;
         this.columns = table.mapping;
         this.references = references;
     }
 
-    public ResultSet executeQuery(String chrom, long start, long end) throws SQLException {
-        if (columns.chrom == null) {
-            // For some UCSC tracks, the data is divided over multiple tables (e.g. chr1_rmsk, chr2_rmsk,...).
-            return table.database.executeQuery("SELECT * FROM %s WHERE ((%s >= '%d' AND %s <= '%d') OR (%s >= '%d' AND %s <= '%d') OR (%s < '%d' AND %s > '%d')) ORDER BY %s", chrom + "_" + table.trackName,
-                columns.start, start, columns.start, end,
-                columns.end, start, columns.end, end,
-                columns.start, start, columns.end, end, columns.start);
+    public ResultSet executeQuery(String chrom, int start, int end) throws SQLException {
+        if (columns.chrom != null) {
+            // Normal track, where all the data is in one table.
+            if (prep == null) {
+                prep = table.database.prepareStatement("SELECT * FROM %s WHERE %s = ? AND ((%s >= ? AND %s <= ?) OR (%s >= ? AND %s <= ?) OR (%s < ? AND %s > ?)) ORDER BY %s", table.name, columns.chrom,
+                columns.start, columns.start, columns.end, columns.end, columns.start, columns.end, columns.start);
+            }
+            prep.setString(1, chrom);
+            prep.setInt(2, start);
+            prep.setInt(3, end);
+            prep.setInt(4, start);
+            prep.setInt(5, end);
+            prep.setInt(6, start);
+            prep.setInt(7, end);
         } else {
-            return table.database.executeQuery("SELECT * FROM %s WHERE %s = '%s' AND ((%s >= '%d' AND %s <= '%d') OR (%s >= '%d' AND %s <= '%d') OR (%s < '%d' AND %s > '%d')) ORDER BY %s", table.name, columns.chrom, chrom,
-                columns.start, start, columns.start, end,
-                columns.end, start, columns.end, end,
-                columns.start, start, columns.end, end, columns.start);
+            // For some UCSC tracks, the data for each chromosome is in a separate table (e.g. chr1_rmsk, chr2_rmsk,...).
+            if (prep == null) {
+                prep = table.database.prepareStatement("SELECT * FROM %s WHERE ((%s >= ? AND %s <= ?) OR (%s >= ? AND %s <= ?) OR (%s < ? AND %s > ?)) ORDER BY %s",
+                       chrom + "_" + table.trackName, columns.start, columns.start, columns.end, columns.end, columns.start, columns.end, columns.start);
+            }
+            prep.setInt(1, start);
+            prep.setInt(2, end);
+            prep.setInt(3, start);
+            prep.setInt(4, end);
+            prep.setInt(5, start);
+            prep.setInt(6, end);
         }
+        return prep.executeQuery();
     }
 
     @Override
-    public synchronized Set<String> getReferenceNames() {
-        return references;
+    public Set<String> getReferenceNames() {
+        Set<String> result = new LinkedHashSet<String>();
+        result.addAll(references);
+        return result;
     }
 
     @Override
@@ -91,77 +106,52 @@ abstract class SQLDataSource<E extends Record> implements DataSourceAdapter<E> {
     }
 
     /**
-     * Any table which has a name column can potentially be used as the source for a dictionary.
-     *
-     * @return a dictionary of name (and name2) bookmarks; may be empty but never null
+     * For SQL tracks, our dictionary is the database, so this method has nothing to do.
      */
     @Override
-    public Map<String, List<BookmarkAdapter>> loadDictionary() throws IOException {
-        try {
-            final Map<String, List<BookmarkAdapter>> result = new HashMap<String, List<BookmarkAdapter>>();
+    public void loadDictionary() {
+    }
 
+    @Override
+    public List<BookmarkAdapter> lookup(String key) {
+        List<BookmarkAdapter> result = new ArrayList<BookmarkAdapter>();
+        try {
             if (columns.name != null) {
+                long t0 = System.currentTimeMillis();
+                String where = String.format("%s='%s'", columns.name, key);
+                if (columns.name2 != null) {
+                    where += String.format(" OR %s='%s'", columns.name2, key);
+                }
+                ResultSet rs;
                 if (columns.chrom == null) {
-                    int lastTotal = 0;
-                    long t0 = System.currentTimeMillis();
                     // For some UCSC tracks, the data is divided over multiple tables (e.g. chr1_rmsk, chr2_rmsk,...).
+                    StringBuilder query  = new StringBuilder();
                     for (String ref: getReferenceNames()) {
-                        // Skip bogus references like chr1random_rmsk
                         if (!ref.contains("random")) {
-                            ResultSet rs;
-                            if (columns.name2 != null) {
-                                rs = table.database.executeQuery("SELECT '%s',%s,%s,%s,%s FROM %s_%s", ref, columns.start, columns.end, columns.name, columns.name2, ref, table.trackName);
-                            } else {
-                                rs = table.database.executeQuery("SELECT '%s',%s,%s,%s FROM %s_%s", ref, columns.start, columns.end, columns.name, ref, table.trackName);
+                            if (query.length() > 0) {
+                                query.append(" UNION ");
                             }
-                            loadDictionaryEntries(rs, result);
-                            rs.close();
-                            LOG.info("Loaded " + (result.size() - lastTotal) + " bookmarks for " + ref + "_" + table.trackName);
-                            lastTotal = result.size();
+                            query.append(String.format("SELECT '%s',%s,%s FROM %s_%s WHERE %s", ref, columns.start, columns.end, ref, table.trackName, where));
                         }
                     }
-                    LOG.info("Loaded total of " + result.size() + " bookmarks for " + table.trackName + " in " + (System.currentTimeMillis() - t0) + "ms");
+                    rs = table.database.executeQuery(query.toString());
                 } else {
-                    ResultSet rs;
-                    if (columns.name2 != null) {
-                        rs = table.database.executeQuery("SELECT %s,%s,%s,%s,%s FROM %s", columns.chrom, columns.start, columns.end, columns.name, columns.name2, table.name);
-                    } else {
-                        rs = table.database.executeQuery("SELECT %s,%s,%s,%s FROM %s", columns.chrom, columns.start, columns.end, columns.name, table.name);
-                    }
-                    loadDictionaryEntries(rs, result);
-                    rs.close();
-                    LOG.info("Loaded " + result.size() + " bookmarks for " + table.trackName);
+                    rs = table.database.executeQuery("SELECT %s,%s,%s FROM %s WHERE %s", columns.chrom, columns.start, columns.end, table.name, where);
                 }
+                while (rs.next()) {
+                    String chrom = rs.getString(1).intern();
+                    int start = rs.getInt(2);
+                    int end = rs.getInt(3);
+                    BookmarkAdapter mark = BookmarkUtils.createBookmark(chrom, RangeUtils.createRange(start, end));
+
+                    result.add(mark);
+                }
+                rs.close();
+                LOG.info("Found " + result.size() + " bookmarks for " + table.trackName + " in " + (System.currentTimeMillis() - t0) + " ms");
             }
-            return result;
         } catch (SQLException x) {
-            throw new IOException(x);
+            LOG.error("Lookup for \"" + key + "\" failed.", x);
         }
-    }
-
-    private void loadDictionaryEntries(ResultSet rs, Map<String, List<BookmarkAdapter>> result) throws SQLException {
-        while (rs.next()) {
-            String chrom = rs.getString(1).intern();    // There will be zillions of copies of the chromosome name strings, so intern them.
-            int start = rs.getInt(2);
-            int end = rs.getInt(3);
-            String name = rs.getString(4);
-            addDictionaryEntry(name, chrom, start, end, result);
-
-            if (columns.name2 != null) {
-                String name2 = rs.getString(5);
-                addDictionaryEntry(name2, chrom, start, end, result);
-            }
-        }
-    }
-
-    private void addDictionaryEntry(String name, String chrom, int start, int end, Map<String, List<BookmarkAdapter>> result) {
-        String key = name.toLowerCase();
-        List<BookmarkAdapter> entry = result.get(key);
-        BookmarkAdapter mark = BookmarkUtils.createBookmark(chrom, RangeUtils.createRange(start, end));
-        if (entry == null) {
-            entry = new ArrayList<BookmarkAdapter>();
-            result.put(key, entry);
-        }
-        entry.add(mark);
+        return result;
     }
 }

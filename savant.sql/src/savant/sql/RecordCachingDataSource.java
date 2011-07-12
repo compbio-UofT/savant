@@ -106,7 +106,11 @@ public class RecordCachingDataSource<E extends Record> implements DataSourceAdap
     }
 
     @Override
-    public Map<String, List<BookmarkAdapter>> loadDictionary() throws IOException {
-        return source.loadDictionary();
+    public void loadDictionary(){
+    }
+
+    @Override
+    public List<BookmarkAdapter> lookup(String key) {
+        return source.lookup(key);
     }
 }

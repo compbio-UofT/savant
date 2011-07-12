@@ -70,8 +70,13 @@ public interface DataSourceAdapter<E extends Record> {
     /**
      * Get the dictionary for performing lookups on the associated track.  Default
      * behaviour is to load it from a .dict file in the same location as the main URI.
-     *
-     * @return a dictionary containing the bookmarks (may be empty, but never null)
      */
-    public Map<String, List<BookmarkAdapter>> loadDictionary() throws IOException;
+    public void loadDictionary() throws IOException;
+    
+    /**
+     * Look up a feature by name.
+     * @param key e.g. a gene name
+     * @return a list of features which match <code>key</code>
+     */
+    public List<BookmarkAdapter> lookup(String key);
 }

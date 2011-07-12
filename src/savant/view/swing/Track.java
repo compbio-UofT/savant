@@ -62,12 +62,6 @@ public abstract class Track implements TrackAdapter {
     protected final TrackRenderer renderer;
     private final DataSourceAdapter dataSource;
 
-    /**
-     * Dictionary which keeps track of gene names and other searchable items for this track.
-     * Note that regardless of their original case, all keys are stored as lower-case.
-     */
-    private Map<String, List<BookmarkAdapter>> dictionary = new HashMap<String, List<BookmarkAdapter>>();
-
     private final List<DataRetrievalListener> listeners = new ArrayList<DataRetrievalListener>();
 
     // FIXME:
@@ -248,20 +242,6 @@ public abstract class Track implements TrackAdapter {
      */
     public DataFormat getDataFormat() {
         return dataSource.getDataFormat();
-    }
-
-    /**
-     * Set the dictionary for this track.
-     */
-    public void setDictionary(Map<String, List<BookmarkAdapter>> value) {
-        dictionary = value;
-    }
-
-    /**
-     * Look in our dictionary for the given key.  If we find it, set the reference and range appropriately.
-     */
-    public List<BookmarkAdapter> lookup(String key) {
-        return dictionary.get(key.toLowerCase());
     }
 
     /**

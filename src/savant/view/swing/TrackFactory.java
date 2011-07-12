@@ -279,7 +279,7 @@ public class TrackFactory {
                     @Override
                     public void run() {
                         try {
-                            t.setDictionary(t.getDataSource().loadDictionary());
+                            t.getDataSource().loadDictionary();
                         } catch (Exception x) {
                             LOG.error("Unable to load dictionary for " + t.getName(), x);
                         }

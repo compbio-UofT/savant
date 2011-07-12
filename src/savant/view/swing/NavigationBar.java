@@ -303,9 +303,9 @@ public class NavigationBar extends JToolBar {
         String text = rangeField.getText();
         try {
             for (Track t: TrackController.getInstance().getTracks()) {
-                List<BookmarkAdapter> marks = t.lookup(text);
-                if (marks != null) {
-                    // TODO: Support for more than one bookmark at the same location.
+                List<BookmarkAdapter> marks = t.getDataSource().lookup(text);
+                if (marks != null && marks.size() > 0) {
+                    // TODO: UI to support more than one bookmark with the same key.
                     LocationController.getInstance().setLocation(marks.get(0).getReference(), (Range)marks.get(0).getRange());
                     return;
                 }
@@ -314,7 +314,7 @@ public class NavigationBar extends JToolBar {
             Bookmark mark = new Bookmark(text);
             LocationController.getInstance().setLocation(mark.getReference(), (Range)mark.getRange());
         } catch (Exception x) {
-            DialogUtils.displayMessage(String.format("Unabled to parse \"%s\" as a range.", text));
+            DialogUtils.displayMessage(String.format("Unabled to parse \"%s\" as a location.", text));
         }
     }
 

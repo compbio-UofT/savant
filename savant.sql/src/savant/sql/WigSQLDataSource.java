@@ -22,7 +22,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import net.sf.samtools.util.SeekableHTTPStream;
 import net.sf.samtools.util.SeekableStream;
@@ -42,7 +41,7 @@ import savant.util.Resolution;
  */
 public class WigSQLDataSource extends SQLDataSource<GenericContinuousRecord> {
 
-    WigSQLDataSource(MappedTable table, Set<String> references) throws SQLException {
+    WigSQLDataSource(MappedTable table, List<String> references) throws SQLException {
         super(table, references);
     }
 

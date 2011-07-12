@@ -22,7 +22,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import savant.api.adapter.RangeAdapter;
 import savant.data.types.TabixIntervalRecord;
@@ -38,7 +37,7 @@ public class RichIntervalSQLDataSource extends SQLDataSource<TabixIntervalRecord
     private final String[] columnNames;
     private final savant.util.ColumnMapping tabixMapping;
 
-    RichIntervalSQLDataSource(MappedTable table, Set<String> references) throws SQLException {
+    RichIntervalSQLDataSource(MappedTable table, List<String> references) throws SQLException {
         super(table, references);
 
         String startsColumnName = null, endsColumnName = null;

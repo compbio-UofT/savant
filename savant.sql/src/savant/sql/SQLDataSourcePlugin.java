@@ -23,9 +23,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -34,6 +33,7 @@ import savant.api.adapter.DataSourceAdapter;
 import savant.api.util.DialogUtils;
 import savant.api.util.SettingsUtils;
 import savant.plugin.SavantDataSourcePlugin;
+import savant.util.ReferenceComparator;
 
 
 /**
@@ -228,7 +228,7 @@ public class SQLDataSourcePlugin extends SavantDataSourcePlugin {
      */
     private DataSourceAdapter createCachedDataSource(MappedTable table) throws SQLException {
         DataSourceAdapter result = null;
-        Set<String> references = getReferences(table);
+        List<String> references = getReferences(table);
         switch (table.mapping.format) {
             case CONTINUOUS_VALUE_COLUMN:
                 result = new ContinuousSQLDataSource(table, references);
@@ -295,18 +295,21 @@ public class SQLDataSourcePlugin extends SavantDataSourcePlugin {
 
     /**
      * Get a list of references for this data-source.  For the basic SQLDataSource,
-     * this is not needed.  For UCSC, it will use the chromInfo table to determine
+     * this does nothing special.
+     * 
+     * The UCSC plugin overrides this method, using the chromInfo table to determine
      * the list of chromosomes for this genome.  This is necessary to support certain
      * UCSC tracks where the data is spread over one chromosome per table.
      */
-    public Set<String> getReferences(MappedTable table) throws SQLException {
-        Set<String> references = new HashSet<String>();
+    public List<String> getReferences(MappedTable table) throws SQLException {
+        List<String> result = new ArrayList<String>();
         ResultSet rs = table.database.executeQuery("SELECT DISTINCT %s FROM %s", table.mapping.chrom, table);
         while (rs.next()) {
-            references.add(rs.getString(1));
+            result.add(rs.getString(1));
         }
         rs.close();
-        return references;
+        Collections.sort(result, new ReferenceComparator());
+        return result;
     }
 
     /**

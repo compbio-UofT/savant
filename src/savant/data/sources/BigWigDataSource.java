@@ -34,8 +34,8 @@ import org.broad.igv.bbfile.WigItem;
 import savant.api.adapter.RangeAdapter;
 import savant.data.types.GenericContinuousRecord;
 import savant.file.DataFormat;
-import savant.util.MiscUtils;
 import savant.util.Resolution;
+
 
 /**
  * Data source which uses UCSC's BigWig format to display a continuous track.
