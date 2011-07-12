@@ -137,16 +137,16 @@ public class ColumnMapping {
             String colName = columnNames[i].toLowerCase();
             if (colName.equals("bin")) {
                 columnNames[i] = null;
-            } else if (colName.equals("chrom") || colName.equals("seqname")) {
+            } else if (colName.equals("chrom") || colName.equals("seqname") || colName.equals("genoname")) {
                 chrom = i;
                 columnNames[i] = "Reference";
-            } else if (colName.equals("start") || colName.equals("txstart") || colName.equals("chromstart") || colName.equals("pos")) {
+            } else if (colName.equals("start") || colName.equals("txstart") || colName.equals("chromstart") || colName.equals("pos") || colName.equals("genostart")) {
                 start = i;
                 columnNames[i] = "Start";
-            } else if (colName.equals("end") || colName.equals("txend") || colName.equals("chromend")) {
+            } else if (colName.equals("end") || colName.equals("txend") || colName.equals("chromend") || colName.equals("genoend")) {
                 end = i;
                 columnNames[i] = "End";
-            } else if (colName.equals("name") || colName.equals("feature") || colName.equals("qname")) {
+            } else if (colName.equals("name") || colName.equals("feature") || colName.equals("qname") || colName.equals("repname")) {
                 name = i;
                 columnNames[i] = "Name";
             } else if (colName.equals("score")) {
