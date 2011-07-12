@@ -17,6 +17,7 @@
 package savant.data.sources;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
@@ -71,15 +72,10 @@ public class TabixDataSource extends DataSource<TabixIntervalRecord> {
         } else {
             indexFile = getTabixIndexFileLocal(new File(uri));
         }
-        if (indexFile != null) {
-            SeekableStream baseStream = NetworkUtils.getSeekableStreamForURI(uri);
+        SeekableStream baseStream = NetworkUtils.getSeekableStreamForURI(uri);
 
-            TabixReader tr = new TabixReader(baseStream, indexFile);
-            return new TabixDataSource(uri, tr);
-        }
-
-        // no success
-        return null;
+        TabixReader tr = new TabixReader(baseStream, indexFile);
+        return new TabixDataSource(uri, tr);
     }
 
     /**
@@ -212,7 +208,7 @@ public class TabixDataSource extends DataSource<TabixIntervalRecord> {
         return reader.getReferenceNames();
     }
 
-    private static File getTabixIndexFileLocal(File tabixFile) {
+    private static File getTabixIndexFileLocal(File tabixFile) throws FileNotFoundException {
         String tabixPath = tabixFile.getAbsolutePath();
         File indexFile = new File(tabixPath + ".tbi");
         if (indexFile.exists()) {
@@ -224,7 +220,7 @@ public class TabixDataSource extends DataSource<TabixIntervalRecord> {
                 return indexFile;
             }
         }
-        return null;
+        throw new FileNotFoundException(indexFile.toString());
     }
 
     private static File getIndexFileCached(URI tabixURI) throws IOException {
