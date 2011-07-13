@@ -59,7 +59,7 @@ public class UCSCNavigationDialog extends JDialog implements SQLConstants {
 
     private Map<String, List<GenomeDef>> cladeGenomeMap = new HashMap<String, List<GenomeDef>>();
     private Database genomeDB = null;
-    private Set<String> references = null;
+    private List<String> references = null;
     private UCSCDataSourcePlugin plugin = null;
     private Table table = null;
 

@@ -192,7 +192,7 @@ public class UCSCDataSourcePlugin extends SQLDataSourcePlugin implements SQLCons
         return getReferences(table.getDatabase());
     }
 
-    private List<String> getReferences(Database db) throws SQLException {
+    List<String> getReferences(Database db) throws SQLException {
         List<String> result = new ArrayList<String>();
         ResultSet rs = db.executeQuery("SELECT chrom FROM chromInfo");
         while (rs.next()) {

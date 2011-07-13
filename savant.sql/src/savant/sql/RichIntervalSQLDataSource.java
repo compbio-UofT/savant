@@ -58,6 +58,8 @@ public class RichIntervalSQLDataSource extends SQLDataSource<TabixIntervalRecord
         }
 
         columnNames = new String[] { columns.chrom, columns.start, columns.end, columns.name, columns.score, columns.strand, columns.thickStart, columns.thickEnd, columns.itemRGB, startsColumnName, endsColumnName, columns.name2 };
+
+        // TODO: For UCSC, passing false as the final argument makes sense; for other databases it might not.
         tabixMapping = savant.util.ColumnMapping.createRichIntervalMapping(0, 1, 2, 3, 4, 5, 6, 7, 8, relativeStartsColumn, absoluteStartsColumn, endsColumn, sizesColumn, 11, false);
     }
 
@@ -68,7 +70,7 @@ public class RichIntervalSQLDataSource extends SQLDataSource<TabixIntervalRecord
             ResultSet rs = executeQuery(reference, range.getFrom(), range.getTo());
 
             while (rs.next()) {
-                int start = rs.getInt(columns.start) + 1;
+                int start = rs.getInt(columns.start);
                 String name = rs.getString(columns.name);
                 String name2 = "";
                 if (columns.name2 != null) {
