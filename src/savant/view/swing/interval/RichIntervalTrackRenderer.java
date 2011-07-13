@@ -19,7 +19,9 @@ package savant.view.swing.interval;
 import java.awt.*;
 import java.awt.geom.Area;
 import java.awt.geom.Line2D;
+import java.awt.geom.Path2D;
 import java.awt.geom.Rectangle2D;
+import java.awt.geom.RoundRectangle2D;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
@@ -43,7 +45,7 @@ import savant.view.swing.TrackRenderer;
  */
 public class RichIntervalTrackRenderer extends TrackRenderer {
 
-    private static final Log LOG = LogFactory.getLog(BAMTrackRenderer.class);
+    private static final Log LOG = LogFactory.getLog(RichIntervalTrackRenderer.class);
 
     public static final String STANDARD_MODE = "Standard";
     public static final String SQUISH_MODE = "Squish";
@@ -165,34 +167,18 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
         Color lineColor = cs.getColor("Line");
         Color textColor = cs.getColor("Text");
 
+        double startXPos = (int)gp.transformXPosExclusive(interval.getStart());
+        double endXPos = (int) gp.transformXPosInclusive(interval.getEnd());
+
         boolean isInsertion = false;
 
         // If length is 0, draw insertion rhombus.  It is drawn here so that the name can be drawn on top of it
         if (interval.getLength() == 0){
-
-            g2.setColor(Color.white);
-            int xCoordinate = (int)gp.transformXPosExclusive(interval.getStart());
-            int yCoordinate = (int)(gp.transformYPos(0)-((level + 1)*unitHeight)) + 1 - offset;
-            if((int)unitWidth/3 < 4 || (int)(unitHeight/2) < 6){
-                yCoordinate = yCoordinate - 1;
-                int lineWidth = Math.max((int)(unitWidth * (2.0/3.0)), 1);
-                int xCoordinate1 = (int)(xCoordinate - Math.floor(lineWidth/2));
-                int xCoordinate2 = (int)(xCoordinate - Math.floor(lineWidth/2)) + lineWidth - 1;
-                if(xCoordinate1 == xCoordinate2) xCoordinate2++;
-                int[] xPoints = {xCoordinate1, xCoordinate2, xCoordinate2, xCoordinate1};
-                int[] yPoints = {yCoordinate, yCoordinate, yCoordinate+(int)unitHeight, yCoordinate+(int)unitHeight};
-                g2.fillPolygon(xPoints, yPoints, 4);
-            } else {
-                int[] xPoints = {xCoordinate, xCoordinate+(int)(unitWidth/3), xCoordinate, xCoordinate-(int)(unitWidth/3)};
-                int[] yPoints = {yCoordinate, yCoordinate+(int)(unitHeight/2), yCoordinate+(int)unitHeight-1, yCoordinate+(int)(unitHeight/2)};
-                g2.fillPolygon(xPoints, yPoints, 4);
-                if((int)unitWidth/3 >= 7 && (int)(unitHeight/2) >= 5){
-                    g2.setColor(Color.BLACK);
-                    g2.drawLine(xCoordinate, (int)yCoordinate, xCoordinate, (int)(yCoordinate+unitHeight)-1);
-                }
-            }
-
+            Shape rhombus = drawInsertion(interval, level, gp, g2);
             isInsertion = true;
+
+            startXPos -= unitWidth * 0.5;   // So the name won't stamp on the leftward-pointing arrow of the insertion.
+            recordToShapeMap.put(rec, new Area(rhombus));
         }
 
         // draw the gene name, if possible
@@ -201,87 +187,80 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
             geneName = rec.getAlternateName();
         }
 
-        int startXPos = (int)gp.transformXPosExclusive(interval.getStart());
-        int endXPos = (int) gp.transformXPosInclusive(interval.getEnd());
+        if (!isInsertion) {
 
-        if(isInsertion) return;
+            double yPos = gp.getHeight() - (unitHeight * level) - (unitHeight / 2) - offset;
 
-        // draw a line in the middle, the full length of the interval
-        //int yPos = (int) (gp.transformYPos(level)-unitHeight/2);
-        int yPos = (int) (gp.getHeight() - (unitHeight * level) - (unitHeight / 2) - offset);
-        g2.setColor(lineColor);
-        g2.drawLine(startXPos, yPos, endXPos, yPos);
+            Area area = new Area(new Line2D.Double(startXPos, yPos, endXPos, yPos));
 
-        Area area = new Area(new Line2D.Double(startXPos, yPos, endXPos, yPos));
+            // for each block, draw a rectangle
+            List<Block> blocks = rec.getBlocks();
+            double chevronIntervalStart = gp.transformXPosExclusive(interval.getStart());
 
-        // for each block, draw a rectangle
-        List<Block> blocks = rec.getBlocks();
-        double chevronIntervalStart = gp.transformXPosExclusive(interval.getStart());
-
-        if (blocks == null) {
-            // When blocks are null, we fake it out by drawing a single block with the full interval of the feature.
-            blocks = new ArrayList<Block>();
-            blocks.add(Block.valueOf(0, interval.getLength()));
-        }
-
-        for (Block block : blocks) {
-
-            chevronIntervalStart = Math.max(chevronIntervalStart, 0);
-
-            double x = gp.transformXPosExclusive(interval.getStart() + block.getPosition());
-            //double y = gp.transformYPos(level)-unitHeight;
-            double y = gp.getHeight() - (unitHeight * (level + 1)) - offset;
-
-            double chevronIntervalEnd = x;
-
-            chevronIntervalEnd = Math.min(chevronIntervalEnd, gp.getWidth());
-
-            if (chevronIntervalEnd >= 0 && chevronIntervalStart <= gp.getWidth()) {
-                drawChevrons(g2, chevronIntervalStart, chevronIntervalEnd,  yPos, unitHeight, lineColor, rec.getStrand(), area);
+            if (blocks == null) {
+                // When blocks are null, we fake it out by drawing a single block with the full interval of the feature.
+                blocks = new ArrayList<Block>();
+                blocks.add(Block.valueOf(0, interval.getLength()));
             }
 
-            double w = gp.getWidth(block.getSize());
-            double h = unitHeight;
+            for (Block block : blocks) {
 
-            Rectangle2D.Double blockRect = new Rectangle2D.Double(x,y,w,h);
-            g2.setColor(fillColor);
-            g2.fill(blockRect);
-            if (h > 4 && w > 4) {
-                g2.setColor(lineColor);
-                g2.draw(blockRect);
+                chevronIntervalStart = Math.max(chevronIntervalStart, 0);
+
+                double x = gp.transformXPosExclusive(interval.getStart() + block.getPosition());
+                //double y = gp.transformYPos(level)-unitHeight;
+                double y = gp.getHeight() - (unitHeight * (level + 1)) - offset;
+
+                double chevronIntervalEnd = x;
+
+                chevronIntervalEnd = Math.min(chevronIntervalEnd, gp.getWidth());
+
+                if (chevronIntervalStart < chevronIntervalEnd && chevronIntervalEnd >= 0 && chevronIntervalStart <= gp.getWidth()) {
+                    g2.setColor(lineColor);
+                    g2.draw(new Line2D.Double(chevronIntervalStart, yPos, chevronIntervalEnd, yPos));
+                    drawChevrons(g2, chevronIntervalStart, chevronIntervalEnd,  yPos, unitHeight, lineColor, rec.getStrand(), area);
+                }
+
+                double w = gp.getWidth(block.getSize());
+                double h = unitHeight;
+
+                Rectangle2D.Double blockRect = new Rectangle2D.Double(x,y,w,h);
+                g2.setColor(fillColor);
+                g2.fill(blockRect);
+                if (h > 4 && w > 4) {
+                    g2.setColor(lineColor);
+                    g2.draw(blockRect);
+                }
+                area.add(new Area(blockRect));
+
+                chevronIntervalStart = x + w;
             }
-            area.add(new Area(blockRect));
-
-            chevronIntervalStart = x + w;
+            recordToShapeMap.put(rec, area);
         }
 
         if (geneName != null) {
             FontMetrics fm = g2.getFontMetrics();
-            int stringstartx = startXPos - fm.stringWidth(geneName) - 5;
+            double stringstartx = startXPos - fm.stringWidth(geneName) - 5;
 
             g2.setColor(textColor);
 
+            double mid = gp.getHeight() - (level * unitHeight) - unitHeight * 0.5 + (fm.getHeight() - fm.getDescent()) * 0.5;
             if (stringstartx <= 0) {
                 Rectangle2D r = fm.getStringBounds(geneName, g2);
+
                 int b = 2;
                 g2.setColor(new Color(255,255,255,200));
-                //g2.fillRoundRect(5-2,(int)(gp.transformYPos(level) - unitHeight/2 - (fm.getHeight()-fm.getDescent())/2) - b, (int)r.getWidth()+2*b, (int)r.getHeight()+2*b, 5,5);
-                g2.fillRoundRect(5-2,(int)(gp.getHeight() - (level * unitHeight) - unitHeight/2 - (fm.getHeight()-fm.getDescent())/2) - b - offset, (int)r.getWidth()+2*b, (int)r.getHeight()+2*b, 5,5);
+                g2.fill(new RoundRectangle2D.Double(3.0, mid - b - offset, r.getWidth() + 2 * b, r.getHeight() + 2 * b, 5.0, 5.0));
                 g2.setColor(textColor);
-                //g2.drawString(geneName, 5, (int)(gp.transformYPos(level) - unitHeight/2 + (fm.getHeight()-fm.getDescent())/2));
-                g2.drawString(geneName, 5, (int)(gp.getHeight() - (level * unitHeight) - unitHeight/2 + (fm.getHeight()-fm.getDescent())/2) - offset);
+                g2.drawString(geneName, 5.0F, (float)mid - offset);
             } else {
                 g2.setColor(textColor);
-                //g2.drawString(geneName, stringstartx, (int)(gp.transformYPos(level) - unitHeight/2 + (fm.getHeight()-fm.getDescent())/2));
-                g2.drawString(geneName, stringstartx, (int)(gp.getHeight() - (level * unitHeight) - unitHeight/2 + (fm.getHeight()-fm.getDescent())/2) - offset);
+                g2.drawString(geneName, (float)stringstartx, (float)mid - offset);
             }
         }
-
-        recordToShapeMap.put(rec, area);
     }
 
     private void drawChevrons(Graphics2D g2, double start, double end, double y, double height, Color color, Strand strand, Area area) {
-
         final int SCALE_FACTOR = 40;
         final int interval = ((int)height/SCALE_FACTOR+1) * SCALE_FACTOR;
         g2.setColor(color);
@@ -294,45 +273,46 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
             startPos = interval;
         }
 
-        //System.out.println("Start " + start);
-        //System.out.println("End " + end);
+        for (double i=startPos; i<end; i+=interval) {
 
-        for (int i=startPos; i<end; i+=interval) {
-
-            Polygon arrow = new Polygon();
             int arrowWidth = (int)(height/4);
             if ((end - start) > arrowWidth) {
+                Path2D.Double arrow = null;
                 if (strand == Strand.FORWARD) {
                     if ((i-arrowWidth) > start) {
                         if (height > SCALE_FACTOR) {
-                            g2.drawLine(i, (int)y, i-arrowWidth, (int)(y+arrowWidth));
-                            g2.drawLine(i,(int)y, i-arrowWidth, (int)(y-arrowWidth));
+                            g2.draw(new Line2D.Double(i, y, i - arrowWidth, y + arrowWidth + 1.0));
+                            g2.draw(new Line2D.Double(i, y, i - arrowWidth, y - arrowWidth));
                         }
                         else {
-                            arrow.addPoint(i, (int)y);
-                            arrow.addPoint(i-arrowWidth, (int)(y+arrowWidth));
-                            arrow.addPoint(i-arrowWidth, (int)(y-arrowWidth));
-                            g2.fill(arrow);
+                            arrow = new Path2D.Double();
+                            arrow.moveTo(i, y);
+                            arrow.lineTo(i - arrowWidth, y + arrowWidth + 1.0);
+                            arrow.lineTo(i - arrowWidth, y - arrowWidth);
                         }
                     }
-                }
-                else {
+                } else {
                     if ((i+arrowWidth) < end) {
                         if (height > SCALE_FACTOR) {
-                            g2.drawLine(i, (int)y, i+arrowWidth, (int)(y+arrowWidth));
-                            g2.drawLine(i,(int)y, i+arrowWidth, (int)(y-arrowWidth));
+                            g2.draw(new Line2D.Double(i, y, i + arrowWidth, y + arrowWidth + 1.0));
+                            g2.draw(new Line2D.Double(i, y, i + arrowWidth, y - arrowWidth));
                         }
                         else {
-                            arrow.addPoint(i, (int)y);
-                            arrow.addPoint(i+arrowWidth, (int)(y+arrowWidth));
-                            arrow.addPoint(i+arrowWidth, (int)(y-arrowWidth));
-                            g2.fill(arrow);
+                            arrow = new Path2D.Double();
+                            arrow.moveTo(i, y);
+                            arrow.lineTo(i + arrowWidth, y + arrowWidth + 1.0);
+                            arrow.lineTo(i + arrowWidth, y - arrowWidth);
                         }
                     }
                 }
-                if(area != null)area.add(new Area(arrow));
+                if (arrow != null) {
+                    arrow.closePath();
+                    g2.fill(arrow);
+                    if (area != null) {
+                        area.add(new Area(arrow));
+                    }
+                }
             }
-
         }
     }
 
@@ -525,33 +505,30 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
 
     }
 
-    private void drawInsertion(Interval interval, int level, GraphPane gp, Graphics2D g2) {
+    private Shape drawInsertion(Interval interval, int level, GraphPane gp, Graphics2D g2) {
 
         double unitHeight = gp.getUnitHeight();
         double unitWidth = gp.getUnitWidth();
 
         g2.setColor(Color.white);
-        int xCoordinate = (int)gp.transformXPosExclusive(interval.getStart());
-        int yCoordinate = (int)(gp.transformYPos(0)-((level + 1)*unitHeight)) + 1;
-        if((int)unitWidth/3 < 4 || (int)(unitHeight/2) < 6){
-            yCoordinate = yCoordinate - 1;
-            int lineWidth = Math.max((int)(unitWidth * (2.0/3.0)), 1);
-            int xCoordinate1 = (int)(xCoordinate - Math.floor(lineWidth/2));
-            int xCoordinate2 = (int)(xCoordinate - Math.floor(lineWidth/2)) + lineWidth - 1;
-            if(xCoordinate1 == xCoordinate2) xCoordinate2++;
-            int[] xPoints = {xCoordinate1, xCoordinate2, xCoordinate2, xCoordinate1};
-            int[] yPoints = {yCoordinate, yCoordinate, yCoordinate+(int)unitHeight, yCoordinate+(int)unitHeight};
-            g2.fillPolygon(xPoints, yPoints, 4);
-        } else {
-            int[] xPoints = {xCoordinate, xCoordinate+(int)(unitWidth/3), xCoordinate, xCoordinate-(int)(unitWidth/3)};
-            int[] yPoints = {yCoordinate, yCoordinate+(int)(unitHeight/2), yCoordinate+(int)unitHeight-1, yCoordinate+(int)(unitHeight/2)};
-            g2.fillPolygon(xPoints, yPoints, 4);
-            if((int)unitWidth/3 >= 7 && (int)(unitHeight/2) >= 5){
-                g2.setColor(Color.BLACK);
-                g2.drawLine(xCoordinate, (int)yCoordinate, xCoordinate, (int)(yCoordinate+unitHeight)-1);
-            }
+        double xCoordinate = gp.transformXPosExclusive(interval.getStart());
+        double yCoordinate = gp.transformYPos(0) - ((level + 1) * unitHeight) + 1.0;
+        double w = unitWidth * 0.5;
+
+        Path2D.Double rhombus = new Path2D.Double();
+        rhombus.moveTo(xCoordinate, yCoordinate);
+        rhombus.lineTo(xCoordinate + w, yCoordinate + unitHeight * 0.5);
+        rhombus.lineTo(xCoordinate, yCoordinate + unitHeight);
+        rhombus.lineTo(xCoordinate - w, yCoordinate + unitHeight * 0.5);
+        rhombus.closePath();
+        g2.fill(rhombus);
+
+        if (unitWidth > 2.0) {
+            g2.setColor(Color.black);
+            g2.draw(new Line2D.Double(xCoordinate, yCoordinate, xCoordinate, yCoordinate + unitHeight));
         }
 
+        return rhombus;
     }
 
     @Override
