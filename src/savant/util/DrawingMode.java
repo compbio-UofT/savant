@@ -24,7 +24,8 @@ public enum DrawingMode {
     MAPPING_QUALITY,
     BASE_QUALITY,
     SNP,
-    COLOURSPACE;
+    COLOURSPACE,
+    STRAND_SNP;
 
     @Override
     public String toString() {
@@ -53,6 +54,8 @@ public enum DrawingMode {
                 return"SNP";
             case COLOURSPACE:
                 return "Colour Space Mismatch";
+            case STRAND_SNP:
+                return "Strand SNP";
         }
         return null;
     }

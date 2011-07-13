@@ -81,7 +81,7 @@ public class BAMTrackRenderer extends TrackRenderer {
     public DrawingMode[] getDrawingModes() {
         return new DrawingMode[] { DrawingMode.STANDARD, DrawingMode.MISMATCH, /*DrawingMode.COLOURSPACE,*/ DrawingMode.SEQUENCE,
                                    /*DrawingMode.STANDARD_PAIRED,*/ DrawingMode.ARC_PAIRED, DrawingMode.MAPPING_QUALITY, DrawingMode.BASE_QUALITY,
-                                   DrawingMode.SNP };
+                                   DrawingMode.SNP, DrawingMode.STRAND_SNP };
     }
 
     @Override
@@ -265,7 +265,7 @@ public class BAMTrackRenderer extends TrackRenderer {
         Resolution r = (Resolution)instructions.get(DrawingInstruction.RESOLUTION);
 
         if (r == Resolution.VERY_HIGH || r == Resolution.HIGH) {
-            if (mode == DrawingMode.MISMATCH || mode == DrawingMode.SNP || mode == DrawingMode.COLOURSPACE || mode == DrawingMode.SEQUENCE || mode == DrawingMode.BASE_QUALITY){
+            if (mode == DrawingMode.MISMATCH || mode == DrawingMode.SNP || mode == DrawingMode.STRAND_SNP || mode == DrawingMode.COLOURSPACE || mode == DrawingMode.SEQUENCE || mode == DrawingMode.BASE_QUALITY){
                 // fetch reference sequence for comparison with cigar string
                 Genome genome = LocationController.getInstance().getGenome();
                 if(genome.isSequenceSet()){
@@ -306,6 +306,13 @@ public class BAMTrackRenderer extends TrackRenderer {
             case SNP:
                 if (r == Resolution.VERY_HIGH || r == Resolution.HIGH) {
                     renderSNPMode(g2, gp, r);
+                } else {
+                    resizeFrame(gp);
+                }
+                break;
+            case STRAND_SNP:
+                if (r == Resolution.VERY_HIGH || r == Resolution.HIGH) {
+                    renderStrandSNPMode(g2, gp, r);
                 } else {
                     resizeFrame(gp);
                 }
@@ -1704,9 +1711,127 @@ public class BAMTrackRenderer extends TrackRenderer {
             }
         }
     }
+    
+    private void renderStrandSNPMode(Graphics2D g2, GraphPane gp, Resolution r){
+
+        Genome genome = LocationController.getInstance().getGenome();
+
+        AxisRange axisRange = (AxisRange)instructions.get(DrawingInstruction.AXIS_RANGE);
+        ColorScheme cs = (ColorScheme)instructions.get(DrawingInstruction.COLOR_SCHEME);
+
+        List<Pileup> pileups = new ArrayList<Pileup>();
+
+        // make the pileups
+        int length = axisRange.getXMax() - axisRange.getXMin() + 1;
+        assert Math.abs(axisRange.getXMin()) <= Integer.MAX_VALUE;
+        int startPosition = (int)axisRange.getXMin();
+        for (int j = 0; j < length; j++) {
+            pileups.add(new Pileup(startPosition + j));
+        }
+
+        // Go through the samrecords and edit the pileups
+        for (Record record: data) {
+            SAMRecord samRecord = ((BAMIntervalRecord)record).getSamRecord();
+            try {
+                updatePileupsFromSAMRecord(pileups, genome, samRecord, startPosition);
+            } catch (IOException ex) {
+                LOG.error("Unable to update pileups.", ex);
+            }
+        }
+
+        resizeFrame(gp);
+
+        double maxHeight = 0;
+        for(Pileup p : pileups){
+            double current1 = p.getTotalStrandCoverage(true);
+            double current2 = p.getTotalStrandCoverage(false);
+            if(current1 > maxHeight) maxHeight = current1;
+            if(current2 > maxHeight) maxHeight = current2;
+        }
+
+        gp.setIsOrdinal(false);
+        gp.setXRange(axisRange.getXRange());
+        gp.setYRange(new Range(0,(int)Math.rint((double)maxHeight/0.9)));
+
+        double unitHeight = (Math.rint(gp.transformYPos(0) * 0.45)) / maxHeight;
+        double unitWidth =  gp.getUnitWidth();
+
+        for(Pileup p : pileups){
+
+            Nucleotide snpNuc = null;
+            int bottom = (int)gp.transformYPos(0) / 2;
+            int top = (int)gp.transformYPos(0) / 2;
+
+            Nucleotide genomeNuc = null;
+            if(genome.isSequenceSet()){
+                String genomeNucString = "A";
+                byte[] readBase = new byte[1];
+                assert Math.abs(p.getPosition() - startPosition) <= Integer.MAX_VALUE;
+                readBase[0] = refSeq[(int)(p.getPosition() - startPosition)];
+                genomeNucString = new String(readBase);
+                //genomeNucString = genome.getRecords(ReferenceController.getInstance().getReferenceName(), new Range((int) p.getPosition(), (int) p.getPosition()));
+                genomeNuc = Pileup.stringToNuc(genomeNucString);
+                snpNuc = genomeNuc;
+            }
+
+
+            while((genome.isSequenceSet() && p.getCoverage(snpNuc) > 0) || (snpNuc = p.getLargestNucleotide()) != null){
+                
+            /*while((genome.isSequenceSet() && (snpNuc = p.getLargestNucleotide(genomeNuc)) != null) ||
+                    (!genome.isSequenceSet() && (snpNuc = p.getLargestNucleotide()) != null) ||
+                    (genome.isSequenceSet() && p.getCoverage(snpNuc) > 0)){*/
+            
+                double x = gp.transformXPosExclusive(p.getPosition());
+                double coverage1 = p.getStrandCoverage(snpNuc, true);
+                double coverage2 = p.getStrandCoverage(snpNuc, false);
+
+                Color subPileColor = null;
+                if(genome.isSequenceSet() && snpNuc.equals(genomeNuc)){
+                    subPileColor = cs.getColor("Reverse Strand");
+                } else {
+                    if(snpNuc.equals(Nucleotide.A)) subPileColor = ColourSettings.getA();
+                    else if (snpNuc.equals(Nucleotide.C)) subPileColor = ColourSettings.getC();
+                    else if (snpNuc.equals(Nucleotide.G)) subPileColor = ColourSettings.getG();
+                    else if (snpNuc.equals(Nucleotide.T)) subPileColor = ColourSettings.getT();
+                    //FIXME: what do we do here?
+                    else if (snpNuc.equals(Nucleotide.OTHER)) subPileColor = Color.BLACK;
+                }
+
+                if(coverage1 > 0){
+                    int h = (int)(unitHeight * coverage1);
+                    int y = top;
+
+                    g2.setColor(subPileColor);
+                    if(genome.isSequenceSet() && snpNuc.equals(genomeNuc))
+                        g2.setColor(cs.getColor("Reverse Strand"));
+                    g2.fillRect((int)x, y, Math.max((int)Math.ceil(unitWidth), 1), h);
+
+                    top += h;
+                }
+                if(coverage2 > 0){
+                    int h = (int)(unitHeight * coverage2);
+                    int y = bottom-h;
+
+                    g2.setColor(subPileColor);
+                    if(genome.isSequenceSet() && snpNuc.equals(genomeNuc))
+                        g2.setColor(cs.getColor("Forward Strand"));
+                    g2.fillRect((int)x, y, Math.max((int)Math.ceil(unitWidth), 1), h);
+
+                    bottom -= h;
+                }
+                            
+                p.clearNucleotide(snpNuc);
+            }
+        }
+        
+        g2.setColor(Color.BLACK);
+        g2.drawLine(0, (int)gp.transformYPos(0) / 2, gp.getWidth(), (int)gp.transformYPos(0) / 2);
+    }
 
     private void updatePileupsFromSAMRecord(List<Pileup> pileups, Genome genome, SAMRecord samRecord, int startPosition) throws IOException {
-
+        
+        boolean strand = samRecord.getReadNegativeStrandFlag();
+        
         // the start and end of the alignment
         int alignmentStart = samRecord.getAlignmentStart();
         int alignmentEnd = samRecord.getAlignmentEnd();
@@ -1767,7 +1892,7 @@ public class BAMTrackRenderer extends TrackRenderer {
                         //for (int j = pileupcursor; j < operatorLength; j++) {
                         if (j >= 0 && j < pileups.size()) {
                             Pileup p = pileups.get(j);
-                            p.pileOn(readN);
+                            p.pileOn(readN, strand);
 //                            /System.out.println("(P) " + readN + "\t@\t" + p.getPosition());
                         }
                         //}

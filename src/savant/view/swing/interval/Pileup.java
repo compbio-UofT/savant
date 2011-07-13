@@ -33,20 +33,41 @@ class Pileup {
     private String trackName;
 
     //private int totalquality = 0;
-    private List<Double> coverageA = new ArrayList<Double>();
+    //private List<Double> coverageA = new ArrayList<Double>();
+    private List<Double> coverageA1 = new ArrayList<Double>();
+    private List<Double> coverageA2 = new ArrayList<Double>();
     private double totalCoverageA = 0;
+    private double totalCoverageA1 = 0;
+    private double totalCoverageA2 = 0;
+    
     //private double a_quality = 0;
-    private List<Double> coverageC = new ArrayList<Double>();
+    //private List<Double> coverageC = new ArrayList<Double>();
+    private List<Double> coverageC1 = new ArrayList<Double>();
+    private List<Double> coverageC2 = new ArrayList<Double>();
     private double totalCoverageC = 0;
+    private double totalCoverageC1 = 0;
+    private double totalCoverageC2 = 0;
     //private double c_quality = 0;
-    private List<Double> coverageT = new ArrayList<Double>();
+    //private List<Double> coverageT = new ArrayList<Double>();
+    private List<Double> coverageT1 = new ArrayList<Double>();
+    private List<Double> coverageT2 = new ArrayList<Double>();
     private double totalCoverageT = 0;
+    private double totalCoverageT1 = 0;
+    private double totalCoverageT2 = 0;
     //private double t_quality = 0;
-    private List<Double> coverageG = new ArrayList<Double>();
+    //private List<Double> coverageG = new ArrayList<Double>();
+    private List<Double> coverageG1 = new ArrayList<Double>();
+    private List<Double> coverageG2 = new ArrayList<Double>();
     private double totalCoverageG = 0;
+    private double totalCoverageG1 = 0;
+    private double totalCoverageG2 = 0;
     //private double g_quality = 0;
-    private List<Double> coverageOther = new ArrayList<Double>();
+    //private List<Double> coverageOther = new ArrayList<Double>();
+    private List<Double> coverageOther1 = new ArrayList<Double>();
+    private List<Double> coverageOther2 = new ArrayList<Double>();
     private double totalCoverageOther = 0;
+    private double totalCoverageOther1 = 0;
+    private double totalCoverageOther2 = 0;
     //private double other_quality = 0;
 
     public Pileup(String trackName, int position, Nucleotide n) {
@@ -93,34 +114,71 @@ class Pileup {
 
     public void pileOn(char c) { pileOn(c,1.0); }
 
-    public void pileOn(Nucleotide n) { pileOn(n,1.0); }
+    public void pileOn(Nucleotide n) { pileOn(n,1.0,true); }
 
-    public void pileOn(char c, double quality) { pileOn(getNucleotide(c),quality); }
+    public void pileOn(char c, double quality) { pileOn(getNucleotide(c),quality, true); }
 
-    public void pileOn(Nucleotide n, double quality) {
+    public void pileOn(Nucleotide n, boolean strand) { pileOn(n, 1.0, strand); }
+    
+    public void pileOn(Nucleotide n, double quality, boolean strand) {
         double coverage = 1.0 * quality;
 
         //System.out.println("(P) " + n + " @ " + this.getPosition());
 
         switch(n) {
             case A:
-                coverageA.add(coverage);
+                //coverageA.add(coverage);
+                if(strand){
+                    coverageA1.add(coverage);
+                    totalCoverageA1 += coverage;
+                } else {
+                    coverageA2.add(coverage);
+                    totalCoverageA2 += coverage;
+                }
                 totalCoverageA += coverage;
                 break;
             case C:
-                coverageC.add(coverage);
+                //coverageC.add(coverage);
+                if(strand){
+                    coverageC1.add(coverage);
+                    totalCoverageC1 += coverage;
+                } else {
+                    coverageC2.add(coverage);
+                    totalCoverageC2 += coverage;
+                }
                 totalCoverageC += coverage;
                 break;
             case G:
-                coverageA.add(coverage);
+                //coverageA.add(coverage);
+                if(strand){
+                    coverageG1.add(coverage);
+                    totalCoverageG1 += coverage;
+                } else {
+                    coverageG2.add(coverage);
+                    totalCoverageG2 += coverage;
+                }
                 totalCoverageG += coverage;
                 break;
             case T:
-                coverageT.add(coverage);
+                //coverageT.add(coverage);
+                if(strand){
+                    coverageT1.add(coverage);
+                    totalCoverageT1 += coverage;
+                } else {
+                    coverageT2.add(coverage);
+                    totalCoverageT2 += coverage;
+                }
                 totalCoverageT += coverage;
                 break;
             default:
-                coverageOther.add(coverage);
+                //coverageOther.add(coverage);
+                if(strand){
+                    coverageOther1.add(coverage);
+                    totalCoverageOther1 += coverage;
+                } else {
+                    coverageOther2.add(coverage);
+                    totalCoverageOther2 += coverage;
+                }
                 totalCoverageOther += coverage;
                 break;
         }
@@ -154,11 +212,16 @@ class Pileup {
     }
 
     public Nucleotide getLargestNucleotide() {
+        return getLargestNucleotide(Nucleotide.OTHER);
+    }
+    
+    public Nucleotide getLargestNucleotide(Nucleotide notThis) {
         Nucleotide[] nucs = { Nucleotide.A, Nucleotide.C, Nucleotide.G, Nucleotide.T };
 
         Nucleotide snpNuc = null;
 
         for (Nucleotide n : nucs) {
+            if(n == notThis) continue;
             if(this.getCoverage(n) > 0 && (snpNuc == null || this.getCoverage(n) > this.getCoverage(snpNuc))){
                 snpNuc = n;
             }
@@ -179,18 +242,28 @@ class Pileup {
         switch(n) {
             case A:
                 this.totalCoverageA = 0;
+                this.totalCoverageA1 = 0;
+                this.totalCoverageA2 =0;
                 break;
             case C:
                 this.totalCoverageC = 0;
+                this.totalCoverageC1 = 0;
+                this.totalCoverageC2 = 0;
                 break;
             case G:
                 this.totalCoverageG = 0;
+                this.totalCoverageG1 = 0;
+                this.totalCoverageG2 = 0;
                 break;
             case T:
                 this.totalCoverageT = 0;
+                this.totalCoverageT1 = 0;
+                this.totalCoverageT2 = 0;
                 break;
             case OTHER:
                 this.totalCoverageOther = 0;
+                this.totalCoverageOther1 = 0;
+                this.totalCoverageOther2 = 0;
                 break;
             default:
                 break;
@@ -207,6 +280,15 @@ class Pileup {
         totalcoverage += this.getCoverage(Nucleotide.C);
         totalcoverage += this.getCoverage(Nucleotide.G);
         totalcoverage += this.getCoverage(Nucleotide.T);
+        return totalcoverage;
+    }
+    
+    public double getTotalStrandCoverage(boolean strand) {
+        double totalcoverage = 0;
+        totalcoverage += this.getStrandCoverage(Nucleotide.A, strand);
+        totalcoverage += this.getStrandCoverage(Nucleotide.C, strand);
+        totalcoverage += this.getStrandCoverage(Nucleotide.G, strand);
+        totalcoverage += this.getStrandCoverage(Nucleotide.T, strand);
         return totalcoverage;
     }
 
@@ -255,6 +337,29 @@ class Pileup {
                 return this.totalCoverageT;
             case OTHER:
                 return this.totalCoverageOther;
+            default:
+                return -1;
+        }
+    }
+    
+        
+    public double getStrandCoverage(Nucleotide n, boolean strand){
+        switch(n) {
+            case A:
+                if(strand) return this.totalCoverageA1;
+                else return this.totalCoverageA2;
+            case C:
+                if(strand) return this.totalCoverageC1;
+                else return this.totalCoverageC2;
+            case G:
+                if(strand) return this.totalCoverageG1;
+                else return this.totalCoverageG2;
+            case T:
+                if(strand) return this.totalCoverageT1;
+                else return this.totalCoverageT2;
+            case OTHER:
+                if(strand) return this.totalCoverageOther1;
+                else return this.totalCoverageOther2;
             default:
                 return -1;
         }
