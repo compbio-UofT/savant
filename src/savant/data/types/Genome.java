@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.net.URI;
+import java.net.URL;
 import java.util.*;
 import javax.xml.parsers.DocumentBuilderFactory;
 
@@ -213,7 +214,7 @@ public final class Genome implements Serializable, GenomeAdapter {
         cytobands = new LinkedHashMap<String, Cytoband[]>();
 
         try {
-            InputStream input = new BufferedInputStream(NetworkUtils.getSeekableStreamForURI(cytobandURI));
+            InputStream input = new BufferedInputStream(NetworkUtils.openStream(cytobandURI.toURL()));
             String line = null;
             String chrom = null;
             List<Cytoband> chromBands = new ArrayList<Cytoband>();
