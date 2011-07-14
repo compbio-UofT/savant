@@ -29,6 +29,11 @@ import javax.swing.SwingConstants;
 public class Loader extends JPanel {
 
     private JLabel label;
+    
+    private static final String ERROR_MESSAGE = "There was an error processing your request...";
+    private static final String LOADING_MESSAGE = "Your request is being processed...";
+    private static final String GENEINFO_MESSAGE = "Getting gene information...";
+    
 
     public Loader(){
 
@@ -42,9 +47,26 @@ public class Loader extends JPanel {
         this.add(label, BorderLayout.CENTER);
     }
 
+    /*
+     * Change the message. 
+     */
     public void setMessage(String message){
         label.setText(message);
     }
+    
+    
+    //CONVENIENCE FUNCTIONS
+    
+    public void setMessageLoading(){
+        setMessage(LOADING_MESSAGE);
+    }
+    
+    public void setMessageError(){
+        setMessage(ERROR_MESSAGE);
+    }
 
+    public void setMessageGeneInfo(){
+        setMessage(GENEINFO_MESSAGE);
+    }
 
 }

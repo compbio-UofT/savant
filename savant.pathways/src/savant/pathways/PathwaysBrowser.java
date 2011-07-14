@@ -21,16 +21,10 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.FileNotFoundException;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.OutputStream;
 import java.rmi.RemoteException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JLabel;
@@ -38,8 +32,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.table.AbstractTableModel;
-import org.bridgedb.DataSource;
+import javax.swing.SwingWorker;
 import org.bridgedb.bio.Organism;
 import org.pathvisio.wikipathways.WikiPathwaysClient;
 import org.pathvisio.wikipathways.webservice.WSPathwayInfo;
@@ -51,26 +44,32 @@ import savant.settings.DirectorySettings;
  *
  * @author AndrewBrook
  */
-
 public class PathwaysBrowser extends JPanel{
 
     private JLabel messageLabel;
     private JTable table;
     private WikiPathwaysClient wpclient;
-    //private SVGViewer svgPanel;
     private Viewer svgPanel;
     private Loader loader;
     
-    private static final String ALL_ORGANISMS = "All Organisms";
+    //info re download of files
+    private String svgFilename;
+    private String gpmlFilename;
+    private boolean svgDownloaded = false;
+    private boolean gpmlDownloaded = false;
+    private int downloadErrorCount = 0;
+    
+    //label messages
+    public static final String ALL_ORGANISMS = "All Organisms";
     private static final String SELECT_ORGANISM = "Select an organism to display pathways:";
     private static final String SELECT_PATHWAY = "Select a pathway to display:";
     private static final String SEARCH_RESULTS = "Search Results: ";
-    private static final String ERROR_MESSAGE = "There was an error...";
-    private static final String LOADING = "Your request is being processed...";
 
+    //specifies which page/mode browser is in
     private enum location { ORGANISMS, PATHWAYS, SEARCH};
     private location loc = location.ORGANISMS;
 
+    //true iff browser has ever shown results
     private boolean used = false;
     
     public PathwaysBrowser(WikiPathwaysClient client, Viewer svgPanel, Loader loader) {
@@ -118,15 +117,24 @@ public class PathwaysBrowser extends JPanel{
         add(scrollPane, BorderLayout.CENTER);
     }
 
+    /*
+     * True iff browser has ever shown results
+     */
     public boolean hasBeenUsed(){
         return used;
     }
 
+    /*
+     * Begin browsing by organism
+     */
     public void startBrowse(){
         used = true;
         listOrganisms();
     }
 
+    /*
+     * Search for pathways based on text query and organism name. 
+     */
     public void startText(final String query, final String organismString){
         used = true;
         startLoad();
@@ -153,10 +161,11 @@ public class PathwaysBrowser extends JPanel{
             }
         };
         thread.start();
-
-        
     }
 
+    /*
+     * Retrieve names for all organisms in database and display in table. 
+     */
     private void listOrganisms(){    
         startLoad();
         Thread thread = new Thread() {
@@ -176,6 +185,9 @@ public class PathwaysBrowser extends JPanel{
         thread.start();
     }
 
+    /*
+     * Retrieve all pathways for given organism and display in table. 
+     */
     private void listPathways(final String organism){
         startLoad();
         Thread thread = new Thread() {
@@ -198,203 +210,120 @@ public class PathwaysBrowser extends JPanel{
         };
         thread.start();
     }
-
-    public void loadPathway(final String pathwayID){
+    
+    /*
+     * Try to load pathway from given id. 
+     * Download corresponding svg and gpml files - threaded. 
+     */
+    public void loadPathway(String pathwayID){
         startLoad();
-        final PathwaysBrowser instance = this;
-        Thread thread = new Thread() {
-            @Override
-            public void run() {
-                try {
-
-                    //TODO: parallelize data retrieval!
-
-                    //get svg
-                    String filename = DirectorySettings.getTmpDirectory() + System.getProperty("file.separator") + pathwayID + ".svg";
-                    byte[] svgByte = wpclient.getPathwayAs("svg", pathwayID, 0);
-                    OutputStream out;
-                    out = new FileOutputStream(filename);
-                    out.write(svgByte);
-                    out.close();
-
-                    //get gpml
-                    String filename1 = DirectorySettings.getTmpDirectory() + System.getProperty("file.separator") + pathwayID + ".gpml";
-                    byte[] gpmlByte = wpclient.getPathwayAs("gpml", pathwayID, 0);
-                    OutputStream out1;
-                    out1 = new FileOutputStream(filename1);
-                    out1.write(gpmlByte);
-                    out1.close();
-
-                    //set pathway
-                    svgPanel.setPathway(new File(filename).toURI(), new File(filename1).toURI());
-                    setVisible(false);
-                    svgPanel.setVisible(true);
-                    loader.setVisible(false);
-                    
-                } catch (RemoteException ex) {
-                    JOptionPane.showMessageDialog(instance, "The pathway '" + pathwayID + "' could not be found.", "Error", JOptionPane.ERROR_MESSAGE);
-                    loader.setVisible(false);
-                    svgPanel.setVisible(false);
-                    setVisible(false);
-                    //Logger.getLogger(PathwaysBrowser.class.getName()).log(Level.SEVERE, null, ex);
-                } catch (FileNotFoundException ex){
-                    Logger.getLogger(PathwaysBrowser.class.getName()).log(Level.SEVERE, null, ex);
-                } catch (IOException ex){
-                    Logger.getLogger(PathwaysBrowser.class.getName()).log(Level.SEVERE, null, ex);
-                }                
-            }
-        };
-        thread.start();     
+        
+        setSVGDownloaded(false);
+        setGPMLDownloaded(false);
+        downloadErrorCount = 0;
+        svgFilename = DirectorySettings.getTmpDirectory() + System.getProperty("file.separator") + pathwayID + ".svg";
+        gpmlFilename = DirectorySettings.getTmpDirectory() + System.getProperty("file.separator") + pathwayID + ".gpml";
+        
+        (new GetPathwaySwingWorker(pathwayID, svgFilename, "svg")).execute();
+        (new GetPathwaySwingWorker(pathwayID, gpmlFilename, "gpml")).execute();
+    }
+    
+    /*
+     * If necessary files successfully downloaded, display the pathway. 
+     */
+    private synchronized void setPathway(){
+        if(!svgDownloaded || !gpmlDownloaded) return;
+        
+        svgPanel.setPathway(new File(svgFilename).toURI(), new File(gpmlFilename).toURI());
+        setVisible(false);
+        svgPanel.setVisible(true);
+        loader.setVisible(false);
+    }
+    
+    /*
+     * Set whether the given file is current.
+     */
+    private void setDownloaded(String which, boolean value){
+        if(which.equals("svg")){
+            setSVGDownloaded(value);
+        } else if (which.equals("gpml")){
+            setGPMLDownloaded(value);
+        }
+    }
+    
+    private synchronized void setSVGDownloaded(boolean value){
+        svgDownloaded = value;
+    }
+    
+    private synchronized void setGPMLDownloaded(boolean value){
+        gpmlDownloaded = value;
     }
 
+    /*
+     * Set up UI for load. 
+     */
     private void startLoad(){
-        loader.setMessage(LOADING);
+        loader.setMessageLoading();
         loader.setVisible(true);
         svgPanel.setVisible(false);
         this.setVisible(false);
     }
 
+    /*
+     * Set up UI for end of load. 
+     */
     private void endLoad(){
         loader.setVisible(false);
         setVisible(true);
     }
-
-    private class OrganismTableModel extends AbstractTableModel {
-        private List<String> names = new ArrayList<String>();
-        private String[] headers = {"Latin Name", "English Name"};
-
-        OrganismTableModel(String[] names, boolean hasParent){
-            if(hasParent) this.names.add(null);
-            this.names.add(ALL_ORGANISMS);
-            this.names.addAll(Arrays.asList(names));
-        }
-
-        @Override
-        public int getRowCount() {
-            return names.size();
-        }
-
-        @Override
-        public int getColumnCount() {
-            return headers.length;
-        }
-
-        @Override
-        public Object getValueAt(int rowIndex, int columnIndex) {
-            String s = names.get(rowIndex);
-            switch (columnIndex) {
-                case 0:
-                    return s == null ? ".." : s;
-                case 1:
-                    if(s == null) return "..";
-                    else if (s.equals(ALL_ORGANISMS)) return "";
-                    else return Organism.fromLatinName(s).shortName();
-            }
-            return null;
-        }
-
-        @Override
-        public String getColumnName(int column) {
-            return headers[column];
-        }
-
-        public String getEntry(int row){
-            return names.get(row);
-        }
+    
+    /*
+     * Notify user that loading pathway has failed
+     */
+    private void loadFailed(String pathwayID){
+        if(downloadErrorCount == 0){
+            downloadErrorCount++;
+        }   
+        JOptionPane.showMessageDialog(this, "The pathway '" + pathwayID + "' could not be found.", "Error", JOptionPane.ERROR_MESSAGE);
+        loader.setVisible(false);
+        svgPanel.setVisible(false);
+        setVisible(false);
+        downloadErrorCount = 0;
     }
-
-    private class PathwayTableModel extends AbstractTableModel {
-        private List<WSPathwayInfo> pathways = new ArrayList<WSPathwayInfo>();
-        private String[] headers = {"ID", "Name", "Species", "Revision", "URL"};
-
-        PathwayTableModel(WSPathwayInfo[] pathways, boolean hasParent){
-            if(hasParent) this.pathways.add(null);
-            this.pathways.addAll(Arrays.asList(pathways));
-        }
-
-        @Override
-        public int getRowCount() {
-            return pathways.size();
-        }
-
-        @Override
-        public int getColumnCount() {
-            return headers.length;
-        }
-
-        @Override
-        public Object getValueAt(int rowIndex, int columnIndex) {
-            WSPathwayInfo pathway = pathways.get(rowIndex);
-            switch (columnIndex){
-                case 0:
-                    return pathway == null ? ".." : pathway.getId();
-                case 1:
-                    return pathway == null ? "" : pathway.getName();
-                case 2:
-                    return pathway == null ? "" : pathway.getSpecies();
-                case 3:
-                    return pathway == null ? "" : pathway.getRevision();
-                case 4:
-                    return pathway == null ? "" : pathway.getUrl();
-            }
-            return null;
+    
+    /*
+     * SwingWorker for retrieving files from WikiPathways. 
+     */
+    private class GetPathwaySwingWorker extends SwingWorker {
+        
+        private String filename;
+        private String getPathwayAs;
+        private String pathwayID;
+        
+        public GetPathwaySwingWorker (String pathwayID, String filename, String getPathwayAs){
+            this.filename = filename;
+            this.getPathwayAs = getPathwayAs;
+            this.pathwayID = pathwayID;
         }
         
         @Override
-        public String getColumnName(int column) {
-            return headers[column];
-        }
-
-        public WSPathwayInfo getEntry(int row){
-            return pathways.get(row);
-        }
-    }
-
-    private class SearchTableModel extends AbstractTableModel {
-        private List<WSSearchResult> pathways = new ArrayList<WSSearchResult>();
-        private String[] headers = {"Search Relevance", "ID", "Name", "Species", "Revision", "URL"};
-
-        SearchTableModel(WSSearchResult[] pathways){
-            this.pathways.addAll(Arrays.asList(pathways));
-        }
-
-        @Override
-        public int getRowCount() {
-            return pathways.size();
-        }
-
-        @Override
-        public int getColumnCount() {
-            return headers.length;
-        }
-
-        @Override
-        public Object getValueAt(int rowIndex, int columnIndex) {
-            WSSearchResult pathway = pathways.get(rowIndex);
-            switch (columnIndex){
-                case 0:
-                    return pathway.getScore();
-                case 1:
-                    return pathway.getId();
-                case 2:
-                    return pathway.getName();
-                case 3:
-                    return pathway.getSpecies();
-                case 4:
-                    return pathway.getRevision();
-                case 5:
-                    return pathway.getUrl();
+        protected Object doInBackground() {  
+            try {
+                byte[] fileByte = wpclient.getPathwayAs(getPathwayAs, pathwayID, 0);
+                OutputStream out;
+                out = new FileOutputStream(filename);
+                out.write(fileByte);
+                out.close();  
+                setDownloaded(getPathwayAs, true);
+            } catch (Exception ex) {
+                loadFailed(pathwayID);
             }
-            return null;
+            return null; 
         }
-
+        
         @Override
-        public String getColumnName(int column) {
-            return headers[column];
-        }
-
-        public WSSearchResult getEntry(int row){
-            return pathways.get(row);
-        }
+        protected void done() {
+            setPathway();
+        }      
     }
 }

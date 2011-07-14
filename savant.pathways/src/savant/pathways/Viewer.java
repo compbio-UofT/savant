@@ -274,8 +274,8 @@ public class Viewer extends JSplitPane {
 
     private void getGeneInfo(){
 
-        loader.setMessage("Getting gene information");
-
+        loader.setMessageGeneInfo();
+        
         ArrayList<DataNode> entrezNodes = new ArrayList<DataNode>();
 
         //determine url
@@ -287,7 +287,7 @@ public class Viewer extends JSplitPane {
             if(db.equals("Entrez Gene")){
                 urlString += id + ",";
                 entrezNodes.add(n);
-            } else if (db.equals("Ensembl")){
+            } else if (db.equals("Ensembl") || db.equals("Ensembl Human")){
 
 
                 //FIXME: this is a massive hack...is there a better way?
@@ -568,6 +568,7 @@ public class Viewer extends JSplitPane {
         }
   
         //TODO: what if references don't start with "chr"?
+        //TODO: change to plugin api
         if(LocationController.getInstance().isGenomeLoaded()){
             LocationController.getInstance().setLocation("chr" + jumpGene.getChromosome(), new Range(startGene, endGene));
         }

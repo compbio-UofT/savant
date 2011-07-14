@@ -38,8 +38,6 @@ import savant.plugin.SavantPanelPlugin;
 import org.bridgedb.bio.Organism;
 import org.pathvisio.wikipathways.WikiPathwaysClient;
 
-
-
 /**
  *
  * @author AndrewBrook
@@ -127,7 +125,6 @@ public class PathwaysTab extends SavantPanelPlugin {
         //add mainPanel
         mainPanel = new JPanel();
         mainPanel.setLayout(new GridBagLayout());
-        //mainPanel.setBackground(Color.red);
         gbc.fill = GridBagConstraints.BOTH;
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
@@ -140,9 +137,12 @@ public class PathwaysTab extends SavantPanelPlugin {
         gbc.gridy = 0;
         mainPanel.add(loader, gbc, 0);
         loader.setVisible(false);
-
     }
 
+    /*
+     * Initializes connection with WikiPathways web service and creates browser 
+     * object. This is called once when plugin use begins. 
+     */
     private void start(final ReturnFunction r){
 
         loader.setVisible(true);
@@ -196,6 +196,9 @@ public class PathwaysTab extends SavantPanelPlugin {
         thread.start();
     }
 
+    /*
+     * Open browser page. 
+     */
     private void browse(){
         if(!started){
             start(new ReturnFunction() { public void run() { browse(); }});
@@ -204,6 +207,9 @@ public class PathwaysTab extends SavantPanelPlugin {
         browser.startBrowse();
     }
     
+    /*
+     * Display dialog allowing user to search based on arbitrary string, or Regex. 
+     */
     private void beginFindByText(){
         String message = "<HTML> Find pathways using a textual search on the description and text labels of the pathway objects. The query syntax offers several options:<BR>" +
             " - Combine terms with AND and OR. Combining terms with a space is equal to using OR ('p53 OR apoptosis' gives the same result as 'p53 apoptosis').<BR>" +
@@ -222,6 +228,9 @@ public class PathwaysTab extends SavantPanelPlugin {
         findByText(fields);
     }
 
+    /*
+     * Tell browser to begin actual text-based search. 
+     */
     private void findByText(final String[] fields){
         if(!started){
             start(new ReturnFunction() { public void run() { findByText(fields); }});
@@ -230,6 +239,10 @@ public class PathwaysTab extends SavantPanelPlugin {
         browser.startText(fields[1], fields[0]);
     }
 
+    /*
+     * Return to previous search result or browser location. If neither exists, 
+     * start browser. 
+     */
     private void previousSearch(){
         if(!browser.hasBeenUsed()){
             browser.startBrowse();
@@ -240,12 +253,18 @@ public class PathwaysTab extends SavantPanelPlugin {
         }
     }
 
+    /*
+     * Display dialog to retrieve pathway from pathway id. 
+     */
     private void beginGetById(){
-        String input = JOptionPane.showInputDialog(parent, "<HTML>Enter a WikiPathways ID. <BR>ex. WP100 </HTML>", "TITLE", JOptionPane.QUESTION_MESSAGE);
+        String input = JOptionPane.showInputDialog(parent, "<HTML>Enter a WikiPathways ID. <BR>ex. WP100 </HTML>", "Get Pathway by ID", JOptionPane.QUESTION_MESSAGE);
         if(input != null)
             getById(input);
     }
 
+    /*
+     * Tell browser to try loading pathway by id. 
+     */
     private void getById(final String id){
         if(!started){
             start(new ReturnFunction() { public void run() { getById(id); }});
@@ -259,18 +278,17 @@ public class PathwaysTab extends SavantPanelPlugin {
         return "WikiPathways";
     }
 
-    
 }
 
+/*
+ * Dialog for performing search, given a list of options and a custom text field. 
+ */
 class ExtJOptionPane extends JOptionPane {
 
     public static String[] showInputDialog(final String message, final String title, final String[] list) {
         String[] data = null;
 
         class GetData extends JDialog implements ActionListener {
-            //JTextArea ta = new JTextArea(5,10);
-            //JTextField tf1 = new JTextField("");
-
             JComboBox dropDown = new JComboBox(list);
             JTextField tf2 = new JTextField("");
             JButton btnOK = new JButton("Search");
