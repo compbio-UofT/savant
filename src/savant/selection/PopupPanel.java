@@ -1,5 +1,5 @@
 /*
- *    Copyright 2010 University of Toronto
+ *    Copyright 2010-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -40,6 +40,7 @@ import savant.view.swing.GraphPane;
 import savant.view.swing.Track;
 
 /**
+ * Panel to display information about the current selection.
  *
  * @author AndrewBrook
  */
@@ -155,11 +156,12 @@ public class PopupPanel extends JPanel {
                 @Override
                 public void mouseClicked(MouseEvent e) {
                     ref = homogenizeRef(ref);
-                    if(name != null){
+                    if (name != null){
                         BookmarkController.getInstance().addBookmark(new Bookmark(ref, new Range(start, end), name));
                     } else {
                         BookmarkController.getInstance().addBookmark(new Bookmark(ref, new Range(start, end)));
                     }
+                    hidePopup();
                 }
             });
             this.add(bookmark);
