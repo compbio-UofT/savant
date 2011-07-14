@@ -47,9 +47,6 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
 
     private static final Log LOG = LogFactory.getLog(RichIntervalTrackRenderer.class);
 
-    public static final String STANDARD_MODE = "Standard";
-    public static final String SQUISH_MODE = "Squish";
-    
     private DrawingMode mode;
     Resolution resolution;
 
@@ -250,7 +247,7 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
 
                 int b = 2;
                 g2.setColor(new Color(255,255,255,200));
-                g2.fill(new RoundRectangle2D.Double(3.0, mid - b - offset, r.getWidth() + 2 * b, r.getHeight() + 2 * b, 5.0, 5.0));
+                g2.fill(new RoundRectangle2D.Double(3.0, mid - (fm.getHeight() - fm.getDescent()) - b - offset, r.getWidth() + 2 * b, r.getHeight() + 2 * b, 8.0, 8.0));
                 g2.setColor(textColor);
                 g2.drawString(geneName, 5.0F, (float)mid - offset);
             } else {
