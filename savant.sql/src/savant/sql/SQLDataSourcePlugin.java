@@ -17,6 +17,7 @@
 package savant.sql;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -101,6 +102,25 @@ public class SQLDataSourcePlugin extends SavantDataSourcePlugin {
      */
     protected void tryToLogin() throws ClassNotFoundException, SQLException {
         driverName = SettingsUtils.getString(this, DRIVER_NAME_SETTING);
+        if (driverName == null) {
+            driverName = "com.mysql.jdbc.Driver";
+        }
+        // If no driver has been registered, load MySQL so the driver list is not empty.
+        Class.forName(driverName);
+
+        String uriString = SettingsUtils.getString(this, URI_SETTING);
+        if (uriString != null) {
+            try {
+                uri = new URI(uriString);
+            } catch (URISyntaxException x) {
+                LOG.warn(SettingsUtils.getString(this, URI_SETTING) + " could not be parsed as a URI.", x);
+                uri = null;
+            }
+        }
+        // If no URI has been set, stuff in a meaningful default.
+        if (uri == null) {
+            uri = URI.create("jdbc:mysql://hostname");
+        }
         userName = SettingsUtils.getString(this, USER_SETTING);
         password = SettingsUtils.getPassword(this, PASSWORD_SETTING);
 

@@ -58,11 +58,7 @@ public class LoginDialog extends javax.swing.JDialog {
             driverCombo.addItem(drivers.nextElement().getClass().getName());
         }
 
-        if (plugin.driverName == null) {
-            driverCombo.setSelectedIndex(0);
-        } else {
-            driverCombo.setSelectedItem(plugin.driverName);
-        }
+        driverCombo.setSelectedItem(plugin.driverName); // Driver name defaults to "com.mysql.jdbc.Driver" if not set.
         uriField.setText(plugin.uri.toString());
         userField.setText(plugin.userName);
         passwordField.setText(plugin.password);
