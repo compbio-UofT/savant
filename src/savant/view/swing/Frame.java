@@ -26,6 +26,8 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import com.jidesoft.docking.DockableFrame;
+import javax.swing.event.MenuEvent;
+import javax.swing.event.MenuListener;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import savant.api.adapter.DataSourceAdapter;
@@ -484,22 +486,35 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
         button.add(alternate);
 
         final DataSourceAdapter ds = tracks[0].getDataSource();
-        if (ds instanceof DataSource && ((DataSource)ds).getDictionaryCount() > 0) {
-            JSeparator sep = new JSeparator();
-            button.add(sep);
+        JSeparator sep = new JSeparator();
+        button.add(sep);
 
-            JMenuItem bookmarkAll = new JMenuItem("Bookmark All Features");
-            bookmarkAll.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    if (DialogUtils.askYesNo("Bookmark All Features ", String.format("This will create %d bookmarks.  Are you sure you want to do this?", ((DataSource)ds).getDictionaryCount())) == DialogUtils.YES) {
-                        ((DataSource)ds).addDictionaryToBookmarks();
-                    }
+        final JMenuItem bookmarkAll = new JMenuItem("Bookmark All Features");
+        bookmarkAll.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (DialogUtils.askYesNo("Bookmark All Features ", String.format("This will create %d bookmarks.  Are you sure you want to do this?", ((DataSource)ds).getDictionaryCount())) == DialogUtils.YES) {
+                    ((DataSource)ds).addDictionaryToBookmarks();
+                    Savant.getInstance().displayAuxPanels();
                 }
-            });
-            button.add(bookmarkAll);
-        }
+            }
+        });
+        button.add(bookmarkAll);
 
+        button.addMenuListener(new MenuListener() {
+            @Override
+            public void menuSelected(MenuEvent me) {
+                bookmarkAll.setEnabled(ds instanceof DataSource && ((DataSource)ds).getDictionaryCount() > 0);
+            }
+
+            @Override
+            public void menuDeselected(MenuEvent me) {
+            }
+
+            @Override
+            public void menuCanceled(MenuEvent me) {
+            }
+        });
         button.setFocusPainted(false);
         return button;
     }

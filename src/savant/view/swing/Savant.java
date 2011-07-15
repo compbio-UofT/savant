@@ -1937,7 +1937,7 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
         return tracks;
     }
 
-    private void displayAuxPanels() {
+    public void displayAuxPanels() {
         MiscUtils.setFrameVisibility("Bookmarks", true, auxDockingManager);
         auxDockingManager.toggleAutohideState("Bookmarks");
         bookmarksItem.setState(true);
