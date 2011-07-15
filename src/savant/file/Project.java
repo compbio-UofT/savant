@@ -20,6 +20,8 @@ import java.net.URI;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 import javax.xml.stream.*;
 
 import org.apache.commons.logging.Log;
@@ -28,8 +30,6 @@ import org.apache.commons.logging.LogFactory;
 import savant.api.adapter.DataSourceAdapter;
 import savant.controller.*;
 import savant.controller.event.GenomeChangedEvent;
-import savant.controller.event.LocationChangedEvent;
-import savant.controller.event.LocationChangedListener;
 import savant.data.types.Genome;
 import savant.data.types.Genome.ReferenceInfo;
 import savant.exception.SavantEmptySessionException;
@@ -81,8 +81,12 @@ public class Project {
         try {
             createFromSerialization(new FileInputStream(f));
         } catch (StreamCorruptedException x) {
-            // Not a serialization stream.  Let's try opening it as an XML file.
-            createFromXML(new FileInputStream(f));
+            try {
+                // Not a serialization stream.  Let's try opening it as a compressed XML file.
+                createFromXML(new GZIPInputStream(new FileInputStream(f)));
+            } catch (IOException x2) {
+                createFromXML(new FileInputStream(f));
+            }
         }
     }
 
@@ -204,7 +208,8 @@ public class Project {
     }
 
     public static void saveToFile(File f) throws IOException, SavantEmptySessionException, XMLStreamException {
-        writer = XMLOutputFactory.newInstance().createXMLStreamWriter(new FileOutputStream(f), "UTF-8");
+        GZIPOutputStream output = new GZIPOutputStream(new FileOutputStream(f));
+        writer = XMLOutputFactory.newInstance().createXMLStreamWriter(output, "UTF-8");
         writer.writeStartDocument();
         writeStartElement(XMLElement.savant, "");
         writeAttribute(XMLAttribute.version, Integer.toString(FILE_VERSION));
@@ -254,6 +259,8 @@ public class Project {
         writer.writeCharacters("\r\n");
         writer.writeEndElement();
         writer.writeEndDocument();
+        output.finish();
+        writer.close();
     }
 
     private static void writeEmptyElement(XMLElement elem, String indent) throws XMLStreamException {
