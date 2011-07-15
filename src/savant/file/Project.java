@@ -27,6 +27,9 @@ import org.apache.commons.logging.LogFactory;
 
 import savant.api.adapter.DataSourceAdapter;
 import savant.controller.*;
+import savant.controller.event.GenomeChangedEvent;
+import savant.controller.event.LocationChangedEvent;
+import savant.controller.event.LocationChangedListener;
 import savant.data.types.Genome;
 import savant.data.types.Genome.ReferenceInfo;
 import savant.exception.SavantEmptySessionException;
@@ -64,11 +67,13 @@ public class Project {
         length,
         cytoband
     };
-    Genome genome;
-    List<Bookmark> bookmarks;
-    List<String> trackPaths;
-    String reference;
-    Range range;
+    private Genome genome;
+    private List<Bookmark> bookmarks;
+    private List<String> trackPaths;
+    private String reference;
+    private Range range;
+    private String genomePath;
+
     private static XMLStreamWriter writer;
     private static XMLStreamReader reader;
 
@@ -158,6 +163,7 @@ public class Project {
                         case genome:
                             genomeName = readAttribute(XMLAttribute.name);
                             genomeDesc = readAttribute(XMLAttribute.description);
+                            genomePath = readAttribute(XMLAttribute.uri);
                             cytobandPath = readAttribute(XMLAttribute.cytoband);
                             break;
                         case reference:
@@ -204,12 +210,11 @@ public class Project {
         writeAttribute(XMLAttribute.version, Integer.toString(FILE_VERSION));
 
         LocationController locationController = LocationController.getInstance();
-
         Range r = locationController.getRange();
         writeAttribute(XMLAttribute.range, String.format("%s:%d-%d", locationController.getReferenceName(), r.getFrom(), r.getTo()));
 
         writeStartElement(XMLElement.genome, "  ");
-        Genome g = locationController.getGenome();
+        Genome g = GenomeController.getInstance().getGenome();
         writeAttribute(XMLAttribute.name, g.getName());
         URI cytobandURI = g.getCytobandURI();
         if (cytobandURI != null) {
@@ -217,7 +222,6 @@ public class Project {
         }
 
         if (g.isSequenceSet()) {
-            // This is not currently used.  Instead, the genome always gets its sequence from the project's first SequenceTrack.
             writeAttribute(XMLAttribute.uri, MiscUtils.getNeatPathFromURI(g.getDataSource().getURI()));
         } else {
             for (String ref : g.getReferenceNames()) {
@@ -270,11 +274,33 @@ public class Project {
      * Load the project's settings into Savant.
      */
     public void load() throws Exception {
-        LocationController.getInstance().setGenome(genome);
+        GenomeController genomeController = GenomeController.getInstance();
+        genomeController.setGenome(genome);
         LocationController.getInstance().setLocation(reference, range);
 
-        for (String path : trackPaths) {
-            Savant.getInstance().addTrackFromPath(path);
+        if (genome == null) {
+            // Genome is in the form of a sequence track.  Load it first so that the other tracks
+            // will already have a genome in place.
+            genomeController.addListener(new Listener<GenomeChangedEvent>() {
+                @Override
+                public void handleEvent(GenomeChangedEvent event) {
+                    GenomeController.getInstance().removeListener(this);
+                    LOG.info("Received genomeChanged");
+                    for (String path: trackPaths) {
+                        if (!path.equals(genomePath)) {
+                            LOG.info("Adding ordinary track for " + path);
+                            Savant.getInstance().addTrackFromPath(path);
+                        }
+                    }
+                }
+            });
+            LOG.info("Adding sequence track for " + genomePath);
+            Savant.getInstance().addTrackFromPath(genomePath);
+        } else {
+            // Genome in place, so just load the tracks.
+            for (String path : trackPaths) {
+                Savant.getInstance().addTrackFromPath(path);
+            }
         }
         if (bookmarks != null && bookmarks.size() > 0) {
             BookmarkController.getInstance().addBookmarks(bookmarks);

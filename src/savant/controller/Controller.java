@@ -19,8 +19,6 @@ package savant.controller;
 import java.util.ArrayList;
 import java.util.List;
 
-import savant.util.MiscUtils;
-
 
 /**
  * Generic controller class which provides functionality which can be used by other
@@ -30,13 +28,18 @@ import savant.util.MiscUtils;
  */
 public abstract class Controller<E> {
     protected List<Listener<E>> listeners = new ArrayList<Listener<E>>();
+    private List<Listener<E>> listenersToRemove;
 
     /**
      * Fire the specified event to all our listeners.
      */
-    protected void fireEvent(final E event) {
+    protected synchronized void fireEvent(final E event) {
+        listenersToRemove = new ArrayList<Listener<E>>();
         for (final Listener l: listeners) {
             l.handleEvent(event);
+        }
+        for (Listener<E> l: listenersToRemove) {
+            listeners.remove(l);
         }
     }
 
@@ -46,6 +49,12 @@ public abstract class Controller<E> {
 
 
     public void removeListener(Listener<E> l) {
-        listeners.remove(l);
+        if (listenersToRemove != null) {
+            // Currently enumerating, so delay the removal until the loop is done.
+            listenersToRemove.add(l);
+        } else {
+            // Not in a loop, so remove the listener immediately.
+            listeners.remove(l);
+        }
     }
 }

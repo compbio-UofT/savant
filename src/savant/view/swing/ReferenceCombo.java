@@ -22,6 +22,8 @@ import java.util.List;
 import java.util.Set;
 import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
+import savant.controller.GenomeController;
+import savant.controller.Listener;
 
 import savant.controller.LocationController;
 import savant.controller.event.GenomeChangedEvent;
@@ -101,14 +103,22 @@ public class ReferenceCombo extends JComboBox {
         });
 
         locationController.addLocationChangedListener(new LocationChangedListener() {
-
             @Override
-            public void genomeChanged(GenomeChangedEvent event) {
+            public void locationChanged(LocationChangedEvent event) {
+                if(event.isNewReference())
+                    setSelectedItem(event.getReference());
+            }
+
+        });
+
+        GenomeController.getInstance().addListener(new Listener<GenomeChangedEvent>() {
+            @Override
+            public void handleEvent(GenomeChangedEvent event) {
                 String curRef = (String)getSelectedItem();
                 removeAllItems();
 
                 int maxWidth = 0;
-                Set<String> refNames = locationController.getGenome().getReferenceNames();
+                Set<String> refNames = event.getNewGenome().getReferenceNames();
                 for (String s : refNames) {
                     maxWidth = Math.max(maxWidth, s.length());
                     addItem(s);
@@ -120,7 +130,6 @@ public class ReferenceCombo extends JComboBox {
                 setMaximumSize(dim);
                 invalidate();
 
-                //this.referenceDropdown.addItem("[ NON-GENOMIC (" + nongenomicrefnames.size() + ") ]");
                 List<String> nonGenomicRefs = MiscUtils.set2List(locationController.getNonGenomicReferenceNames());
                 if (nonGenomicRefs.size() > 0) {
                     for (String s : nonGenomicRefs) {
@@ -132,13 +141,6 @@ public class ReferenceCombo extends JComboBox {
                     setSelectedItem(curRef);
                 }
             }
-
-            @Override
-            public void locationChanged(LocationChangedEvent event) {
-                if(event.isNewReference())
-                    setSelectedItem(event.getReference());
-            }
-
         });
     }
 }

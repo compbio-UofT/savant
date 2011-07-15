@@ -58,6 +58,15 @@ public class RangeUtils {
     }
 
     /**
+     * Add two ranges together to create the smallest range which covers both of them.
+     * If they intersect, this will be a real union.
+     * @since Savant 1.5.1
+     */
+    public static RangeAdapter union(RangeAdapter r1, RangeAdapter r2) {
+        return new Range(Math.min(r1.getFrom(), r2.getFrom()), Math.max(r1.getTo(), r2.getTo()));
+    }
+
+    /**
      * Subtract r2 from r1, producing an array of 0, 1, or 2 ranges.
      *
      * @param r1 a range

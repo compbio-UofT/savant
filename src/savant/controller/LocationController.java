@@ -32,7 +32,6 @@ import savant.controller.event.LocationChangedEvent;
 import savant.controller.event.LocationChangedListener;
 import savant.data.types.Genome;
 import savant.settings.BrowserSettings;
-import savant.view.swing.sequence.SequenceTrack;
 import savant.util.Range;
 
 
@@ -41,13 +40,11 @@ import savant.util.Range;
  *
  * @author AndrewBrook, vwilliams
  */
-public class LocationController {
+public class LocationController implements Listener<GenomeChangedEvent> {
 
     private static LocationController instance;
     private static final Log LOG = LogFactory.getLog(LocationController.class);
 
-    // Current genome and reference
-    private Genome loadedGenome;
     private String currentReference;
 
     // Undo/Redo Stack
@@ -73,6 +70,7 @@ public class LocationController {
     public static synchronized LocationController getInstance() {
         if (instance == null) {
             instance = new LocationController();
+            GenomeController.getInstance().addListener(instance);
         }
         return instance;
     }
@@ -117,7 +115,7 @@ public class LocationController {
      * overloads should be calling this one.
      */
     public void setLocation(String ref, Range range) {
-        if (loadedGenome != null) {
+        if (GenomeController.getInstance().isGenomeLoaded()) {
             updateHistory();
             boolean newRef = false;
             if (isValidAndNewReference(ref)) {
@@ -136,56 +134,6 @@ public class LocationController {
 
     private void setLocation(History history){
         setLocation(history.reference, history.range);
-    }
-
-    //GENOME////////////////////////////////////////////////////////////////////
-
-    /**
-     * Get the loaded genome.
-     * @return The loaded genome
-     */
-    public Genome getGenome() {
-        return loadedGenome;
-    }
-
-    /**
-     * Get whether or not a genome has been loaded.
-     * @return True iff a genome has been loaded
-     */
-    public boolean isGenomeLoaded() {
-        return loadedGenome != null;
-    }
-
-    public synchronized void setGenome(Genome genome) {
-        if (genome == null) {
-            // Sometimes we need to clear out the current genome in preparation for loading a new one.
-            loadedGenome = null;
-        } else {
-            Genome oldGenome = loadedGenome;
-            if (!genome.equals(oldGenome)) {
-                loadedGenome = genome;
-                fireGenomeChangedEvent(oldGenome);
-
-                if (pendingReference != null) {
-                    setLocation(pendingReference, pendingRange);
-                } else {
-                    // Auto-select the first reference on the new genome.
-                    String ref = loadedGenome.getReferenceNames().iterator().next();
-                    setLocation(ref, true);
-                }
-            }
-        }
-    }
-
-    public synchronized void setSequence(SequenceTrack t) {
-        if (loadedGenome == null) {
-            setGenome(Genome.createFromTrack(t));
-        } else if (!loadedGenome.isSequenceSet()) {
-            // We have a loaded genome, but no sequence yet.  Plug it in.  Listeners can recognise this
-            // event because the oldGenome and the newGenome on the GenomeChangedEvent will be the same.
-            loadedGenome.setSequenceTrack(t);
-            fireGenomeChangedEvent(loadedGenome);
-        }
     }
 
     //REFERENCE/////////////////////////////////////////////////////////////////
@@ -223,17 +171,17 @@ public class LocationController {
 
     public Set<String> getAllReferenceNames() {
         Set<String> all = new HashSet<String>();
-        all.addAll(loadedGenome.getReferenceNames());
+        all.addAll(GenomeController.getInstance().getGenome().getReferenceNames());
         all.addAll(getNonGenomicReferenceNames());
         return all;
     }
 
     public Set<String> getReferenceNames() {
-        return loadedGenome.getReferenceNames();
+        return GenomeController.getInstance().getGenome().getReferenceNames();
     }
 
     public int getReferenceLength(String refname) {
-        return loadedGenome.getLength(refname);
+        return GenomeController.getInstance().getGenome().getLength(refname);
     }
 
     public Set<String> getNonGenomicReferenceNames() {
@@ -247,6 +195,7 @@ public class LocationController {
      * Should only be called before event is to be fired
      */
     private void setDefaultRange(){
+        Genome loadedGenome = GenomeController.getInstance().getGenome();
         setMaxRange(new Range(1, loadedGenome.getLength()));
         setRange(1, Math.min(1000, loadedGenome.getLength()));
     }
@@ -498,6 +447,17 @@ public class LocationController {
         }
     }
 
+    @Override
+    public void handleEvent(GenomeChangedEvent event) {
+        if (pendingReference != null) {
+            setLocation(pendingReference, pendingRange);
+        } else {
+            // Auto-select the first reference on the new genome.
+            String ref = event.getNewGenome().getReferenceNames().iterator().next();
+            setLocation(ref, true);
+        }
+    }
+
     private class History {
         public Range range;
         public String reference;
@@ -508,13 +468,6 @@ public class LocationController {
     }
 
     //EVENTS////////////////////////////////////////////////////////////////////
-
-    private void fireGenomeChangedEvent(Genome oldGenome) {
-        GenomeChangedEvent evt = new GenomeChangedEvent(oldGenome, loadedGenome);
-        for (LocationChangedListener l: locationChangedListeners) {
-            l.genomeChanged(evt);
-        }
-    }
 
     private synchronized void fireLocationChangedEvent(boolean newRef) {
         LocationChangedEvent evt = new LocationChangedEvent(newRef, currentReference, currentViewableRange);
@@ -545,5 +498,4 @@ public class LocationController {
     public synchronized void removeLocationChangeCompletedListener(LocationChangeCompletedListener l) {
         locationChangeCompletedListeners.remove(l);
     }
-
 }

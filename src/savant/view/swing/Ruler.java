@@ -27,7 +27,6 @@ import org.apache.commons.logging.LogFactory;
 import savant.controller.GraphPaneController;
 import savant.controller.Listener;
 import savant.controller.LocationController;
-import savant.controller.event.GenomeChangedEvent;
 import savant.controller.event.GraphPaneEvent;
 import savant.controller.event.LocationChangedEvent;
 import savant.controller.event.LocationChangedListener;
@@ -87,10 +86,6 @@ public class Ruler extends JPanel {
         });
 
         locationController.addLocationChangedListener(new LocationChangedListener() {
-            
-            @Override
-            public void genomeChanged(GenomeChangedEvent event) {}
-
             @Override
             public void locationChanged(LocationChangedEvent event) {
                 repaint();

@@ -23,8 +23,8 @@ import java.io.IOException;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
+import savant.controller.GenomeController;
 import savant.controller.LocationController;
-import savant.controller.event.GenomeChangedEvent;
 import savant.controller.event.LocationChangedEvent;
 import savant.controller.event.LocationChangedListener;
 
@@ -164,7 +164,7 @@ public class RangeSelectionPanel extends JPanel implements LocationChangedListen
         int hei = getHeight();
 
         Cytoband[] bands = null;
-        Genome genome = locationController.getGenome();
+        Genome genome = GenomeController.getInstance().getGenome();
         if (genome != null) {
             bands = genome.getCytobands(locationController.getReferenceName());
         }
@@ -351,12 +351,9 @@ public class RangeSelectionPanel extends JPanel implements LocationChangedListen
     }
 
     @Override
-    public void genomeChanged(GenomeChangedEvent event) {}
-
-    @Override
     public void locationChanged(LocationChangedEvent event) {
-        this.rangeChangedExternally = true;
-        this.setRange(event.getRange());
+        rangeChangedExternally = true;
+        setRange(event.getRange());
     }
 }
 

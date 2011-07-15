@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -375,6 +376,15 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
                         MiscUtils.setUnsavedTitle(Savant.this, "Savant Genome Browser - " + event.getPath(), true);
                         break;
                 }
+            }
+        });
+
+        GenomeController.getInstance().addListener(new Listener<GenomeChangedEvent>() {
+            @Override
+            public void handleEvent(GenomeChangedEvent event) {
+                LOG.info("Genome changed from " + event.getOldGenome() + " to " + event.getNewGenome());
+                loadGenomeItem.setText("Change genome...");
+                showBrowserControls();
             }
         });
 
@@ -1107,7 +1117,7 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
     private File lastTrackDirectory = null;
 
     private void loadFromFileItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loadFromFileItemActionPerformed
-        if (!LocationController.getInstance().isGenomeLoaded()) {
+        if (!GenomeController.getInstance().isGenomeLoaded()) {
             JOptionPane.showMessageDialog(this, "Load a genome first.");
             return;
         }
@@ -1429,7 +1439,11 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
     }
 
     private static String post(String id, String msg) {
-        return id + "=" + id + ":" + ((msg == null) ? "null" : URLEncoder.encode(msg));
+        try {
+            return id + "=" + id + ":" + ((msg == null) ? "null" : URLEncoder.encode(msg, "UTF-8"));
+        } catch (UnsupportedEncodingException ignored) {
+            return null;    // Never happens
+        }
     }
 
     public static void checkVersion(boolean verbose) {
@@ -1772,7 +1786,7 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
      */
     public void promptUserToFormatFile(URI uri) {
         if (DialogUtils.askYesNo("Unformatted File", String.format("<html><i>%s</i> does not appear to be formatted. Format now?</html>", MiscUtils.getFileName(uri))) == DialogUtils.YES) {
-            new DataFormatForm(this, uri, !LocationController.getInstance().isGenomeLoaded()).setVisible(true);
+            new DataFormatForm(this, uri, !GenomeController.getInstance().isGenomeLoaded()).setVisible(true);
         }
     }
 
@@ -1875,16 +1889,9 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
     }
 
     @Override
-    public void genomeChanged(GenomeChangedEvent event) {
-        LOG.info("Genome changed from " + event.getOldGenome() + " to " + event.getNewGenome());
-        loadGenomeItem.setText("Change genome...");
-        showBrowserControls();
-    }
-
-    @Override
     public void locationChanged(LocationChangedEvent event) {
-        if(event.isNewReference()){
-            Genome loadedGenome = locationController.getGenome();
+        if (event.isNewReference()) {
+            Genome loadedGenome = GenomeController.getInstance().getGenome();
             rangeSelector.setMaximum(loadedGenome.getLength());
         }
     }

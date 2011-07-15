@@ -26,9 +26,4 @@ public interface LocationChangedListener {
      * The currently-selected location has changed.
      */
     public void locationChanged(LocationChangedEvent event);
-
-    /**
-     * The genome has changed, invalidating our list of references.
-     */
-    public void genomeChanged(GenomeChangedEvent event);
 }

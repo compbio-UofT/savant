@@ -22,8 +22,9 @@ import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import net.sf.samtools.util.AsciiLineReader;
 import net.sf.samtools.util.BlockCompressedOutputStream;
@@ -41,14 +42,14 @@ import savant.util.ColumnMapping;
  * @author tarkvara
  */
 public class TabixFormatter extends SavantFileFormatter {
-    /** Header-line to be written, definining the list of expected columns. */
+    /** Header-line to be written, defining the list of expected columns. */
     private String header;
 
     private ColumnMapping mapping;
 
     private Conf conf;
 
-    private Map<String, String> dictionary = new LinkedHashMap<String, String>();
+    private List<String> dictionary = new ArrayList<String>();
 
     /**
      * Convert a text-based interval file into a usable format.
@@ -172,13 +173,13 @@ public class TabixFormatter extends SavantFileFormatter {
                     if (mapping.name >= 0) {
                         String name = columns[mapping.name];
                         if (name != null && name.length() > 0) {
-                            dictionary.put(name, value);
+                            dictionary.add(name + "\t" + value);
                         }
                     }
                     if (mapping.name2 >= 0) {
                         String name2 = columns[mapping.name2];
                         if (name2 != null && name2.length() > 0) {
-                            dictionary.put(name2, value);
+                            dictionary.add(name2 + "\t" + value);
                         }
                     }
                 }
@@ -194,8 +195,9 @@ public class TabixFormatter extends SavantFileFormatter {
 
             setSubtaskStatus("Creating dictionary file...");
             output = new PrintWriter(new BlockCompressedOutputStream(outFile.getAbsolutePath() + ".dict"));
-            for (String k: dictionary.keySet()) {
-                output.println(k + "\t" + dictionary.get(k));
+            Collections.sort(dictionary);
+            for (String l: dictionary) {
+                output.println(l);
             }
             output.close();
             setSubtaskProgress(100);

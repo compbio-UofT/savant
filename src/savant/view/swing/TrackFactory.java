@@ -119,6 +119,7 @@ public class TrackFactory {
      * 
      * @param trackURI
      * @return the newly-created tracks corresponding to this URI
+     * @deprecated Wherever possible, use <code>createTrack</code> to create tracks asynchronously.
      */
     public static Track[] createTrackSync(URI trackURI) throws Throwable {
         // Just run the track-creator in the current thread (presumably the AWT thread),

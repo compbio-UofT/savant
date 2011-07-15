@@ -26,6 +26,7 @@ import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
 
 import savant.controller.FrameController;
+import savant.controller.GenomeController;
 import savant.controller.GraphPaneController;
 import savant.controller.LocationController;
 import savant.swing.component.TrackChooser;
@@ -90,7 +91,7 @@ public class ExportImage {
         LocationController lc = LocationController.getInstance();
         int start = lc.getRangeStart();
         int end = lc.getRangeEnd();
-        String toWrite = "Genome:  " + lc.getGenome().getName() + "    Reference:  " + lc.getReferenceName() + "    Range:  " + start + " - " + end;
+        String toWrite = "Genome:  " + GenomeController.getInstance().getGenome().getName() + "    Reference:  " + lc.getReferenceName() + "    Range:  " + start + " - " + end;
         Graphics2D g = out.createGraphics();
         g.setColor(Color.white);
         g.setFont(new Font(null, Font.BOLD, 13));

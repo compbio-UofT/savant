@@ -35,6 +35,7 @@ import net.sf.samtools.CigarOperator;
 import net.sf.samtools.SAMRecord;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import savant.controller.GenomeController;
 
 import savant.controller.LocationController;
 import savant.data.event.DataRetrievalEvent;
@@ -267,7 +268,7 @@ public class BAMTrackRenderer extends TrackRenderer {
         if (r == Resolution.VERY_HIGH || r == Resolution.HIGH) {
             if (mode == DrawingMode.MISMATCH || mode == DrawingMode.SNP || mode == DrawingMode.STRAND_SNP || mode == DrawingMode.COLOURSPACE || mode == DrawingMode.SEQUENCE || mode == DrawingMode.BASE_QUALITY){
                 // fetch reference sequence for comparison with cigar string
-                Genome genome = LocationController.getInstance().getGenome();
+                Genome genome = GenomeController.getInstance().getGenome();
                 if(genome.isSequenceSet()){
                    AxisRange axisRange = (AxisRange)instructions.get(DrawingInstruction.AXIS_RANGE);
                     Range range = axisRange.getXRange();
@@ -429,7 +430,7 @@ public class BAMTrackRenderer extends TrackRenderer {
         gp.setYRange(new Range(0,maxYRange));
        
         if (mode == DrawingMode.MISMATCH) {
-            Genome genome = LocationController.getInstance().getGenome();
+            Genome genome = GenomeController.getInstance().getGenome();
             if (!genome.isSequenceSet()) {
                 throw new RenderingException("No reference sequence loaded. Switch to standard view");
             }
@@ -1625,7 +1626,7 @@ public class BAMTrackRenderer extends TrackRenderer {
 
     private void renderSNPMode(Graphics2D g2, GraphPane gp, Resolution r){
 
-        Genome genome = LocationController.getInstance().getGenome();
+        Genome genome = GenomeController.getInstance().getGenome();
 
         AxisRange axisRange = (AxisRange)instructions.get(DrawingInstruction.AXIS_RANGE);
         ColorScheme cs = (ColorScheme)instructions.get(DrawingInstruction.COLOR_SCHEME);
@@ -1714,7 +1715,7 @@ public class BAMTrackRenderer extends TrackRenderer {
     
     private void renderStrandSNPMode(Graphics2D g2, GraphPane gp, Resolution r){
 
-        Genome genome = LocationController.getInstance().getGenome();
+        Genome genome = GenomeController.getInstance().getGenome();
 
         AxisRange axisRange = (AxisRange)instructions.get(DrawingInstruction.AXIS_RANGE);
         ColorScheme cs = (ColorScheme)instructions.get(DrawingInstruction.COLOR_SCHEME);

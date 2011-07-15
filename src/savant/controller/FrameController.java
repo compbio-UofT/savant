@@ -146,7 +146,4 @@ public class FrameController implements LocationChangedListener {
     public void locationChanged(LocationChangedEvent event) {
         drawFrames();
     }
-
-    @Override
-    public void genomeChanged(GenomeChangedEvent event) {}
 }

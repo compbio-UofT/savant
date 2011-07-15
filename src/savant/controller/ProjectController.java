@@ -30,7 +30,6 @@ import org.apache.commons.logging.LogFactory;
 import savant.api.util.DialogUtils;
 import savant.controller.event.BookmarksChangedEvent;
 import savant.controller.event.BookmarksChangedListener;
-import savant.controller.event.GenomeChangedEvent;
 import savant.controller.event.ProjectEvent;
 import savant.controller.event.LocationChangedEvent;
 import savant.controller.event.LocationChangedListener;
@@ -110,7 +109,7 @@ public class ProjectController extends Controller implements BookmarksChangedLis
     }
 
     public static boolean isProjectOpen() {
-        return LocationController.getInstance().isGenomeLoaded();
+        return GenomeController.getInstance().isGenomeLoaded();
     }
 
     public boolean isProjectSaved() {
@@ -236,9 +235,6 @@ public class ProjectController extends Controller implements BookmarksChangedLis
             setProjectSaved(true);
         }
     }
-
-    @Override
-    public void genomeChanged(GenomeChangedEvent event) {}
 
     @Override
     public void locationChanged(LocationChangedEvent event) {

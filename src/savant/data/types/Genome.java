@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.net.URI;
-import java.net.URL;
 import java.util.*;
 import javax.xml.parsers.DocumentBuilderFactory;
 
@@ -38,6 +37,8 @@ import savant.api.adapter.TrackAdapter;
 import savant.api.util.DialogUtils;
 import savant.controller.LocationController;
 import savant.controller.TrackController;
+import savant.controller.event.TrackAddedOrRemovedEvent;
+import savant.controller.event.TrackRemovedListener;
 import savant.data.sources.FASTADataSource;
 import savant.settings.BrowserSettings;
 import savant.util.IOUtils;
@@ -76,6 +77,15 @@ public final class Genome implements Serializable, GenomeAdapter {
         for (String ref : dataSource.getReferenceNames()) {
             referenceMap.put(ref, dataSource.getLength(ref));
         }
+
+        TrackController.getInstance().addTrackRemovedListener(new TrackRemovedListener() {
+            @Override
+            public void trackRemoved(TrackAddedOrRemovedEvent event) {
+                if (event.getTrack() == sequenceTrack) {
+                    sequenceTrack = null;
+                }
+            }
+        });
     }
 
     /**
@@ -117,10 +127,6 @@ public final class Genome implements Serializable, GenomeAdapter {
      * Factory method to wrap a Genome around an existing sequence track.
      */
     public static Genome createFromTrack(Track sequenceTrack) {
-
-        if (sequenceTrack == null) {
-            return null;
-        }
 
         if (!(sequenceTrack instanceof SequenceTrack)) {
             DialogUtils.displayMessage("Sorry", "Could not load this track as genome.");

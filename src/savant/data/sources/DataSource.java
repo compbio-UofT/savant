@@ -35,6 +35,8 @@ import org.apache.commons.logging.LogFactory;
 
 import savant.api.adapter.BookmarkAdapter;
 import savant.api.adapter.DataSourceAdapter;
+import savant.api.adapter.RangeAdapter;
+import savant.api.util.RangeUtils;
 import savant.data.types.Record;
 import savant.util.Bookmark;
 import savant.util.IOUtils;
@@ -85,7 +87,18 @@ public abstract class DataSource<E extends Record> implements DataSourceAdapter 
                         marks = new ArrayList<BookmarkAdapter>();
                         dictionary.put(key, marks);
                     }
-                    marks.add(new Bookmark(words[1], words[0]));
+                    Bookmark newMark = new Bookmark(words[1], words[0]);
+                    for (BookmarkAdapter m: marks) {
+                        if (m.getReference().equals(newMark.getReference()) && RangeUtils.intersects(m.getRange(), newMark.getRange())) {
+                            RangeAdapter newRange = RangeUtils.union(m.getRange(), newMark.getRange());
+                            m.setRange(newRange);
+                            newMark = null;
+                            break;
+                        }
+                    }
+                    if (newMark != null) {
+                        marks.add(newMark);
+                    }
                     lineNum++;
                 }
             } catch (ParseException x) {

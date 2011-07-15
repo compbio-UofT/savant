@@ -33,6 +33,7 @@ import savant.api.util.DialogUtils;
 import savant.controller.DockableFrameController;
 import savant.controller.DrawingModeController;
 import savant.controller.FrameController;
+import savant.controller.GenomeController;
 import savant.controller.LocationController;
 import savant.controller.TrackController;
 import savant.controller.event.DrawingModeChangedEvent;
@@ -193,7 +194,7 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
      * @param newTracks the tracks to be displayed in this frame
      */
     public void setTracks(Track[] newTracks) {
-        if (!LocationController.getInstance().isGenomeLoaded() && newTracks[0].getDataFormat() != DataFormat.SEQUENCE_FASTA) {
+        if (!GenomeController.getInstance().isGenomeLoaded() && newTracks[0].getDataFormat() != DataFormat.SEQUENCE_FASTA) {
             trackCreationFailed(null);
             for (Track track : newTracks) {
                 TrackController.getInstance().removeTrack(track);
@@ -202,7 +203,7 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
             return;
         }
         if (newTracks[0].getDataFormat() == DataFormat.SEQUENCE_FASTA) {
-            LocationController.getInstance().setSequence((SequenceTrack)newTracks[0]);
+            GenomeController.getInstance().setSequence((SequenceTrack)newTracks[0]);
         }
 
         LOG.trace("Frame being set up with " + newTracks.length + " tracks.");

@@ -29,7 +29,6 @@ import savant.api.adapter.BookmarkAdapter;
 import savant.api.util.DialogUtils;
 import savant.controller.LocationController;
 import savant.controller.TrackController;
-import savant.controller.event.GenomeChangedEvent;
 import savant.controller.event.LocationChangedEvent;
 import savant.controller.event.LocationChangedListener;
 import savant.settings.BrowserSettings;
@@ -279,10 +278,6 @@ public class NavigationBar extends JToolBar {
         add(getRigidPadding());
 
         locationController.addLocationChangedListener(new LocationChangedListener() {
-
-            @Override
-            public void genomeChanged(GenomeChangedEvent event) { }
-
             @Override
             public void locationChanged(LocationChangedEvent event) {
                 updateLocation(event.getReference(), event.getRange());
