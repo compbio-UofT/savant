@@ -115,6 +115,7 @@ public class Genome {
                     chrAliasTable.put(name.substring(3), name);
                 } else {
                     chrAliasTable.put("chr" + name, name);
+                    chrAliasTable.put("Chr" + name, name);
                 }
             }
         }
@@ -131,7 +132,11 @@ public class Genome {
 
 
     public Chromosome getChromosome(String chrName) {
-        return chromosomeMap.get(chrName);
+        Chromosome result = chromosomeMap.get(chrName);
+        if (result == null) {
+            result = chromosomeMap.get(chrAliasTable.get(chrName));
+        }
+        return result;
     }
 
 
