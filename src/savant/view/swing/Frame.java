@@ -28,6 +28,7 @@ import javax.swing.event.ChangeListener;
 import com.jidesoft.docking.DockableFrame;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import savant.api.adapter.DataSourceAdapter;
 
 import savant.api.util.DialogUtils;
 import savant.controller.DockableFrameController;
@@ -41,6 +42,7 @@ import savant.data.event.DataRetrievalEvent;
 import savant.data.event.DataRetrievalListener;
 import savant.data.event.TrackCreationEvent;
 import savant.data.event.TrackCreationListener;
+import savant.data.sources.DataSource;
 import savant.file.DataFormat;
 import savant.settings.ColourSettings;
 import savant.swing.component.ProgressPanel;
@@ -480,6 +482,23 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
             }
         });
         button.add(alternate);
+
+        final DataSourceAdapter ds = tracks[0].getDataSource();
+        if (ds instanceof DataSource && ((DataSource)ds).getDictionaryCount() > 0) {
+            JSeparator sep = new JSeparator();
+            button.add(sep);
+
+            JMenuItem bookmarkAll = new JMenuItem("Bookmark All Features");
+            bookmarkAll.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    if (DialogUtils.askYesNo("Bookmark All Features ", String.format("This will create %d bookmarks.  Are you sure you want to do this?", ((DataSource)ds).getDictionaryCount())) == DialogUtils.YES) {
+                        ((DataSource)ds).addDictionaryToBookmarks();
+                    }
+                }
+            });
+            button.add(bookmarkAll);
+        }
 
         button.setFocusPainted(false);
         return button;

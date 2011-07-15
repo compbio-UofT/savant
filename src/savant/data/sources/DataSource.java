@@ -26,6 +26,7 @@ import java.net.URI;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -37,6 +38,7 @@ import savant.api.adapter.BookmarkAdapter;
 import savant.api.adapter.DataSourceAdapter;
 import savant.api.adapter.RangeAdapter;
 import savant.api.util.RangeUtils;
+import savant.controller.BookmarkController;
 import savant.data.types.Record;
 import savant.util.Bookmark;
 import savant.util.IOUtils;
@@ -58,6 +60,11 @@ public abstract class DataSource<E extends Record> implements DataSourceAdapter 
      */
     private Map<String, List<BookmarkAdapter>> dictionary = new HashMap<String, List<BookmarkAdapter>>();
 
+    /**
+     * So that we know how many entries this dictionary has.
+     */
+    private int dictionaryCount;
+
     @Override
     public String getName() {
         return MiscUtils.getNeatPathFromURI(getURI());
@@ -71,7 +78,8 @@ public abstract class DataSource<E extends Record> implements DataSourceAdapter 
      */
     @Override
     public void loadDictionary() throws IOException {
-        dictionary = new HashMap<String, List<BookmarkAdapter>>();
+        dictionary = new LinkedHashMap<String, List<BookmarkAdapter>>();
+        dictionaryCount = 0;
         URI dictionaryURI = URI.create(getURI().toString() + ".dict");
         if (NetworkUtils.exists(dictionaryURI)) {
             LOG.info("Starting to load dictionary from " + dictionaryURI);
@@ -98,6 +106,7 @@ public abstract class DataSource<E extends Record> implements DataSourceAdapter 
                     }
                     if (newMark != null) {
                         marks.add(newMark);
+                        dictionaryCount++;
                     }
                     lineNum++;
                 }
@@ -113,5 +122,17 @@ public abstract class DataSource<E extends Record> implements DataSourceAdapter 
     @Override
     public List<BookmarkAdapter> lookup(String key) {
         return dictionary.get(key);
+    }
+
+    public int getDictionaryCount() {
+        return dictionaryCount;
+    }
+
+    public void addDictionaryToBookmarks() {
+        for (String k: dictionary.keySet()) {
+            for (BookmarkAdapter b: dictionary.get(k)) {
+                BookmarkController.getInstance().addBookmark((Bookmark)b);
+            }
+        }
     }
 }
