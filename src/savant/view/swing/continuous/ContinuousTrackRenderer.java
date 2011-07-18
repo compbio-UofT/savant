@@ -107,7 +107,7 @@ public class ContinuousTrackRenderer extends TrackRenderer {
                     }
                 } else {
                     haveData = true;
-                    xFormXPos = gp.transformXPosExclusive(xPos);//+gp.getUnitWidth()/2;
+                    xFormXPos = gp.transformXPos(xPos);//+gp.getUnitWidth()/2;
                     xFormYPos = gp.transformYPos(yPos);
                     if (!haveOpenPath) {
                         // Start our path off with a vertical line.
@@ -117,7 +117,7 @@ public class ContinuousTrackRenderer extends TrackRenderer {
                     path.lineTo(xFormXPos, xFormYPos);
                     Rectangle2D rec = new Rectangle2D.Double(xFormXPos - ((xFormXPos-path.getCurrentPoint().getX())/2),0,Math.max(xFormXPos-path.getCurrentPoint().getX(), 1),gp.getHeight());
                     recordToShapeMap.put(continuousRecord, rec);
-                    xFormXPos = gp.transformXPosExclusive(xPos + 1);
+                    xFormXPos = gp.transformXPos(xPos + 1);
                     path.lineTo(xFormXPos, xFormYPos);
                 }
                 if (yPos > maxData) {
@@ -175,7 +175,7 @@ public class ContinuousTrackRenderer extends TrackRenderer {
 
     public static Shape continuousRecordToEllipse(GraphPane gp, Record o){
         GenericContinuousRecord rec = (GenericContinuousRecord) o;
-        Double x = gp.transformXPosExclusive(rec.getPosition()) + (gp.getUnitWidth()/2) -4;
+        Double x = gp.transformXPos(rec.getPosition()) + (gp.getUnitWidth()/2) -4;
         Double y = gp.transformYPos(rec.getValue()) -4;// + (this.getUnitWidth()/2);
         Shape s = new Ellipse2D.Double(x, y, 8, 8);
         return s;

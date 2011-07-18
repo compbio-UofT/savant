@@ -113,15 +113,9 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
         //resize frame if necessary
         if(!determineFrameSize(gp, intervals.size())) return;
 
-        // display only a message if intervals will not be visible at this resolution
-        /*if (gp.getUnitHeight() < 1) {
-            throw new RenderingException("Too many intervals to display\nIncrease vertical pane size");
-        }*/
-
         // scan the map of intervals and draw the intervals for each level
         for (int level=0; level<intervals.size(); level++) {
 
-//            ArrayList<IntervalRecord> intervalsThisLevel = intervals.get(level);
             List<IntervalRecord> intervalsThisLevel = intervals.get(level);
 
             for (IntervalRecord intervalRecord : intervalsThisLevel) {
@@ -164,8 +158,8 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
         Color lineColor = cs.getColor("Line");
         Color textColor = cs.getColor("Text");
 
-        double startXPos = (int)gp.transformXPosExclusive(interval.getStart());
-        double endXPos = (int) gp.transformXPosInclusive(interval.getEnd());
+        double startXPos = gp.transformXPos(interval.getStart());
+        double endXPos = gp.transformXPos(interval.getEnd() + 1);
 
         boolean isInsertion = false;
 
@@ -184,6 +178,10 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
             geneName = rec.getAlternateName();
         }
 
+        int thickStart = rec.getThickStart();
+        int thickEnd = rec.getThickEnd() + 1;
+        double thickStartX = gp.transformXPos(thickStart);
+        double thickEndX = gp.transformXPos(thickEnd);
         if (!isInsertion) {
 
             double yPos = gp.getHeight() - (unitHeight * level) - (unitHeight / 2) - offset;
@@ -192,7 +190,7 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
 
             // for each block, draw a rectangle
             List<Block> blocks = rec.getBlocks();
-            double chevronIntervalStart = gp.transformXPosExclusive(interval.getStart());
+            double chevronIntervalStart = gp.transformXPos(interval.getStart());
 
             if (blocks == null) {
                 // When blocks are null, we fake it out by drawing a single block with the full interval of the feature.
@@ -204,7 +202,9 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
 
                 chevronIntervalStart = Math.max(chevronIntervalStart, 0);
 
-                double x = gp.transformXPosExclusive(interval.getStart() + block.getPosition());
+                int blockStart = interval.getStart() + block.getPosition();
+                int blockEnd = blockStart + block.getSize();
+                double x = gp.transformXPos(blockStart);
                 //double y = gp.transformYPos(level)-unitHeight;
                 double y = gp.getHeight() - (unitHeight * (level + 1)) - offset;
 
@@ -221,14 +221,71 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
                 double w = gp.getWidth(block.getSize());
                 double h = unitHeight;
 
-                Rectangle2D.Double blockRect = new Rectangle2D.Double(x,y,w,h);
+                Shape blockShape;
+                if (blockStart >= thickStart) {
+                    if (blockEnd <= thickEnd) {
+                        // Simplest case.  Entire block is thick (includes case where thickness is not relevant).
+                        blockShape = new Rectangle2D.Double(x, y, w, h);
+                    } else if (blockStart >= thickEnd) {
+                        // Also simple.  Entire block is thin.
+                        blockShape = new Rectangle2D.Double(x, y + h * 0.25, w, h * 0.5);
+                    } else {
+                        // Block starts thick but ends thin.
+                        Path2D.Double blockPath = new Path2D.Double();
+                        blockPath.moveTo(x, y);
+                        blockPath.lineTo(thickEndX, y);
+                        blockPath.lineTo(thickEndX, y + h * 0.25);
+                        blockPath.lineTo(x + w, y + h * 0.25);
+                        blockPath.lineTo(x + w, y + h * 0.75);
+                        blockPath.lineTo(thickEndX, y + h * 0.75);
+                        blockPath.lineTo(thickEndX, y + h);
+                        blockPath.lineTo(x, y + h);
+                        blockPath.closePath();
+                        blockShape = blockPath;
+                    }
+                } else {
+                    if (blockEnd <= thickStart) {
+                        // Entire block is thin.
+                        blockShape = new Rectangle2D.Double(x, y + h * 0.25, w, h * 0.5);
+                    } else if (blockEnd <= thickEnd) {
+                        // Block starts thin but ends thick.
+                        Path2D.Double blockPath = new Path2D.Double();
+                        blockPath.moveTo(x, y + h * 0.25);
+                        blockPath.lineTo(thickStartX, y + h * 0.25);
+                        blockPath.lineTo(thickStartX, y);
+                        blockPath.lineTo(x + w, y);
+                        blockPath.lineTo(x + w, y + h);
+                        blockPath.lineTo(thickStartX, y + h);
+                        blockPath.lineTo(thickStartX, y + h * 0.75);
+                        blockPath.lineTo(x, y + h * 0.75);
+                        blockPath.closePath();
+                        blockShape = blockPath;
+                    } else {
+                        // Worst case.  Block starts thin, goes thick in the middle and ends thin.
+                        Path2D.Double blockPath = new Path2D.Double();
+                        blockPath.moveTo(x, y + h * 0.25);
+                        blockPath.lineTo(thickStartX, y + h * 0.25);
+                        blockPath.lineTo(thickStartX, y);
+                        blockPath.lineTo(thickEndX, y);
+                        blockPath.lineTo(thickEndX, y + h * 0.25);
+                        blockPath.lineTo(x + w, y + h * 0.25);
+                        blockPath.lineTo(x + w, y + h * 0.75);
+                        blockPath.lineTo(thickEndX, y + h * 0.75);
+                        blockPath.lineTo(thickEndX, y + h);
+                        blockPath.lineTo(thickStartX, y + h);
+                        blockPath.lineTo(thickStartX, y + h * 0.75);
+                        blockPath.lineTo(x, y + h * 0.75);
+                        blockPath.closePath();
+                        blockShape = blockPath;
+                    }
+                }
                 g2.setColor(fillColor);
-                g2.fill(blockRect);
+                g2.fill(blockShape);
                 if (h > 4 && w > 4) {
                     g2.setColor(lineColor);
-                    g2.draw(blockRect);
+                    g2.draw(blockShape);
                 }
-                area.add(new Area(blockRect));
+                area.add(new Area(blockShape));
 
                 chevronIntervalStart = x + w;
             }
@@ -393,7 +450,7 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
 
                 Interval interval = bedRecord.getInterval();
 
-                int startXPos = (int)gp.transformXPosExclusive(interval.getStart());
+                int startXPos = (int)gp.transformXPos(interval.getStart());
 
                 //If length is 0, draw insertion rhombus.
                 if(interval.getLength() == 0){
@@ -485,7 +542,7 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
         double x, y, w, h;
         for (Interval block: blocks) {
             if (block.getLength() == 0) continue;
-            x = gp.transformXPosExclusive(block.getStart());
+            x = gp.transformXPos(block.getStart());
             y = gp.transformYPos(level)-gp.getUnitHeight();
             w = gp.getWidth(block.getLength());
             h = gp.getUnitHeight();
@@ -508,7 +565,7 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
         double unitWidth = gp.getUnitWidth();
 
         g2.setColor(Color.white);
-        double xCoordinate = gp.transformXPosExclusive(interval.getStart());
+        double xCoordinate = gp.transformXPos(interval.getStart());
         double yCoordinate = gp.transformYPos(0) - ((level + 1) * unitHeight) + 1.0;
         double w = unitWidth * 0.5;
 

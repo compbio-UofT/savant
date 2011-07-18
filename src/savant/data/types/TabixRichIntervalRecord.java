@@ -98,12 +98,16 @@ public class TabixRichIntervalRecord extends TabixIntervalRecord implements Rich
 
     @Override
     public int getThickStart() {
-        return mapping.thickStart >= 0 ? Integer.parseInt(values[mapping.thickStart]) : -1;
+        if (mapping.thickStart >= 0) {
+            int result = Integer.parseInt(values[mapping.thickStart]);
+            return mapping.oneBased ? result : result + 1;
+        }
+        return interval.getStart();
     }
 
     @Override
     public int getThickEnd() {
-        return mapping.thickEnd >= 0 ? Integer.parseInt(values[mapping.thickEnd]) : -1;
+        return mapping.thickEnd >= 0 ? Integer.parseInt(values[mapping.thickEnd]) : interval.getEnd();
     }
 
     @Override
