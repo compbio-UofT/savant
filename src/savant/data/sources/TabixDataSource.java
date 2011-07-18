@@ -220,7 +220,7 @@ public class TabixDataSource extends DataSource<TabixIntervalRecord> {
                 return indexFile;
             }
         }
-        throw new FileNotFoundException(indexFile.toString());
+        throw new FileNotFoundException(indexFile.getAbsolutePath());
     }
 
     private static File getIndexFileCached(URI tabixURI) throws IOException {

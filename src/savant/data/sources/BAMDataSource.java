@@ -17,6 +17,7 @@
 package savant.data.sources;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
@@ -72,8 +73,8 @@ public class BAMDataSource extends DataSource<BAMIntervalRecord> {
             return new BAMDataSource(bamFile.toURI(), indexFile);
         }
 
-        // no success
-        return null;
+        // Unable to find index file anywhere.
+        throw new FileNotFoundException(bamFile.getAbsolutePath() + ".bai");
     }
 
     private BAMDataSource(URI uri, File index) throws IOException {

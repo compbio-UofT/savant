@@ -212,28 +212,24 @@ public class TrackFactory {
 
                     ds = BAMDataSource.fromURI(trackURI);
                     LOG.info("BAM datasource=" + ds);
-                    if (ds != null) {
-                        List<Track> tracks = new ArrayList<Track>(2);
-                        tracks.add(createTrack(ds));
-                        LOG.trace("BAM Track created.");
-                        try {
-                            // TODO: Only resolves coverage files for local data.  Should also work for network URIs.
-                            URI coverageURI = new URI(trackURI.toString() + ".cov.tdf");
+                    List<Track> tracks = new ArrayList<Track>(2);
+                    tracks.add(createTrack(ds));
+                    LOG.trace("BAM Track created.");
+                    try {
+                        // TODO: Only resolves coverage files for local data.  Should also work for network URIs.
+                        URI coverageURI = new URI(trackURI.toString() + ".cov.tdf");
+                        if (NetworkUtils.exists(coverageURI)) {
+                            tracks.add(new BAMCoverageTrack(new TDFDataSource(coverageURI)));
+                        } else {
+                            coverageURI = new URI(trackURI.toString() + ".cov.savant");
                             if (NetworkUtils.exists(coverageURI)) {
-                                tracks.add(new BAMCoverageTrack(new TDFDataSource(coverageURI)));
-                            } else {
-                                coverageURI = new URI(trackURI.toString() + ".cov.savant");
-                                if (NetworkUtils.exists(coverageURI)) {
-                                    tracks.add(new BAMCoverageTrack(new GenericContinuousDataSource(coverageURI)));
-                                }
+                                tracks.add(new BAMCoverageTrack(new GenericContinuousDataSource(coverageURI)));
                             }
-                            fireTrackCreationCompleted(tracks.toArray(new Track[0]), "");
-                        } catch (URISyntaxException ignored) {
                         }
-                        LOG.info("Finished trying to load coverage file.");
-                    } else {
-                        throw new FileNotFoundException(String.format("Could not create BAM track; check that index file exists and is named \"%1$s.bai\".", name));
+                        fireTrackCreationCompleted(tracks.toArray(new Track[0]), "");
+                    } catch (URISyntaxException ignored) {
                     }
+                    LOG.info("Finished trying to load coverage file.");
                 } else {
                     if (fileType == FileType.CONTINUOUS_BIGWIG) {
                         LOG.info("Opening BigWig file " + trackURI);
