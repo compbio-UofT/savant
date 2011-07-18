@@ -51,9 +51,10 @@ public class TDFDataSource extends DataSource<GenericContinuousRecord> {
     private static final double LOG2 = Math.log(2.0);
     private static final int NOTIONAL_SCREEN_WIDTH = 2000;
 
-    final TDFReader tdf;
-    final URI uri;
-    int maxZoom = -1;
+    private final TDFReader tdf;
+    private final URI uri;
+    private int maxZoom = -1;
+    private String rawUnhomogenised;
 
     public TDFDataSource(URI uri) throws IOException {
         tdf = TDFReader.getReader(uri.getPath());
@@ -124,20 +125,20 @@ public class TDFDataSource extends DataSource<GenericContinuousRecord> {
         ref = MiscUtils.homogenizeSequence(ref);
         int rangeLen = range.getLength();
 
+        // Only do this calculation the first time through.
         if (maxZoom < 0) {
             Collection<String> dsNames = tdf.getDatasetNames();
-            String prefix = String.format("/%s/z", ref);
             for (String dsName: dsNames) {
-                // Dataset names will be of the form /chr1/zoom/0.  We want to find the highest value
-                // stored in the file.
-                if (dsName.startsWith(prefix)) {
-                    dsName = dsName.substring(prefix.length());
-                    if (dsName.endsWith("/mean")) {
-                        int zoom = Integer.valueOf(dsName.substring(0, dsName.length() - 5));
-                        if (zoom > maxZoom) {
-                            maxZoom = zoom;
-                        }
+                // Dataset names expected to be of the form /1/z0/mean.  We want to find the highest zoom
+                // stored in the file.  We have to be on the lookout for references with unhomogenised names.
+                String[] split = dsName.split("/");
+                if (split.length == 4 && MiscUtils.homogenizeSequence(split[1]).equals(ref) && split[2].startsWith("z") && split[3].equals("mean")) {
+                    int zoom = Integer.valueOf(split[2].substring(1));
+                    if (zoom > maxZoom) {
+                        maxZoom = zoom;
                     }
+                } else if (split.length == 3 && MiscUtils.homogenizeSequence(split[1]).equals(ref) && split[2].equals("raw")) {
+                    rawUnhomogenised = dsName;
                 }
             }
         }
@@ -147,7 +148,7 @@ public class TDFDataSource extends DataSource<GenericContinuousRecord> {
             LOG.info("Using zoomed dataset " + zoom);
             return tdf.getDataset(ref, zoom, WindowFunction.mean);
         }
-        return tdf.getDataset(String.format("/%s/raw", ref));
+        return tdf.getDataset(rawUnhomogenised);
     }
 
     @Override
