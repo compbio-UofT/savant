@@ -22,7 +22,9 @@ import java.awt.Font;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.rmi.RemoteException;
 import java.util.logging.Level;
@@ -51,13 +53,6 @@ public class PathwaysBrowser extends JPanel{
     private WikiPathwaysClient wpclient;
     private Viewer svgPanel;
     private Loader loader;
-    
-    //info re download of files
-    private String svgFilename;
-    private String gpmlFilename;
-    private boolean svgDownloaded = false;
-    private boolean gpmlDownloaded = false;
-    private int downloadErrorCount = 0;
     
     //label messages
     public static final String ALL_ORGANISMS = "All Organisms";
@@ -215,49 +210,53 @@ public class PathwaysBrowser extends JPanel{
      * Try to load pathway from given id. 
      * Download corresponding svg and gpml files - threaded. 
      */
-    public void loadPathway(String pathwayID){
+    public void loadPathway(final String pathwayID){
+        
         startLoad();
-        
-        setSVGDownloaded(false);
-        setGPMLDownloaded(false);
-        downloadErrorCount = 0;
-        svgFilename = DirectorySettings.getTmpDirectory() + System.getProperty("file.separator") + pathwayID + ".svg";
-        gpmlFilename = DirectorySettings.getTmpDirectory() + System.getProperty("file.separator") + pathwayID + ".gpml";
-        
-        (new GetPathwaySwingWorker(pathwayID, svgFilename, "svg")).execute();
-        (new GetPathwaySwingWorker(pathwayID, gpmlFilename, "gpml")).execute();
-    }
-    
-    /*
-     * If necessary files successfully downloaded, display the pathway. 
-     */
-    private synchronized void setPathway(){
-        if(!svgDownloaded || !gpmlDownloaded) return;
-        
-        svgPanel.setPathway(new File(svgFilename).toURI(), new File(gpmlFilename).toURI());
-        setVisible(false);
-        svgPanel.setVisible(true);
-        loader.setVisible(false);
-    }
-    
-    /*
-     * Set whether the given file is current.
-     */
-    private void setDownloaded(String which, boolean value){
-        if(which.equals("svg")){
-            setSVGDownloaded(value);
-        } else if (which.equals("gpml")){
-            setGPMLDownloaded(value);
-        }
-    }
-    
-    private synchronized void setSVGDownloaded(boolean value){
-        svgDownloaded = value;
-    }
-    
-    private synchronized void setGPMLDownloaded(boolean value){
-        gpmlDownloaded = value;
-    }
+        final PathwaysBrowser instance = this;
+        Thread thread = new Thread() {
+            @Override
+            public void run() {
+                try {
+
+                    //Parallelization not allowed by wpclient. Downloading files in sequence. 
+
+                    //get svg
+                    String filename = DirectorySettings.getTmpDirectory() + System.getProperty("file.separator") + pathwayID + ".svg";
+                    byte[] svgByte = wpclient.getPathwayAs("svg", pathwayID, 0);
+                    OutputStream out;
+                    out = new FileOutputStream(filename);
+                    out.write(svgByte);
+                    out.close();
+
+                    //get gpml
+                    String filename1 = DirectorySettings.getTmpDirectory() + System.getProperty("file.separator") + pathwayID + ".gpml";
+                    byte[] gpmlByte = wpclient.getPathwayAs("gpml", pathwayID, 0);
+                    OutputStream out1;
+                    out1 = new FileOutputStream(filename1);
+                    out1.write(gpmlByte);
+                    out1.close();
+
+                    //set pathway
+                    svgPanel.setPathway(new File(filename).toURI(), new File(filename1).toURI());
+                    setVisible(false);
+                    svgPanel.setVisible(true);
+                    loader.setVisible(false);
+                    
+                } catch (RemoteException ex) {
+                    JOptionPane.showMessageDialog(instance, "The pathway '" + pathwayID + "' could not be found.", "Error", JOptionPane.ERROR_MESSAGE);
+                    loader.setVisible(false);
+                    svgPanel.setVisible(false);
+                    setVisible(false);
+                } catch (FileNotFoundException ex){
+                    Logger.getLogger(PathwaysBrowser.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (IOException ex){
+                    Logger.getLogger(PathwaysBrowser.class.getName()).log(Level.SEVERE, null, ex);
+                }                
+            }
+        };
+        thread.start();    
+    }    
 
     /*
      * Set up UI for load. 
@@ -277,53 +276,4 @@ public class PathwaysBrowser extends JPanel{
         setVisible(true);
     }
     
-    /*
-     * Notify user that loading pathway has failed
-     */
-    private void loadFailed(String pathwayID){
-        if(downloadErrorCount == 0){
-            downloadErrorCount++;
-        }   
-        JOptionPane.showMessageDialog(this, "The pathway '" + pathwayID + "' could not be found.", "Error", JOptionPane.ERROR_MESSAGE);
-        loader.setVisible(false);
-        svgPanel.setVisible(false);
-        setVisible(false);
-        downloadErrorCount = 0;
-    }
-    
-    /*
-     * SwingWorker for retrieving files from WikiPathways. 
-     */
-    private class GetPathwaySwingWorker extends SwingWorker {
-        
-        private String filename;
-        private String getPathwayAs;
-        private String pathwayID;
-        
-        public GetPathwaySwingWorker (String pathwayID, String filename, String getPathwayAs){
-            this.filename = filename;
-            this.getPathwayAs = getPathwayAs;
-            this.pathwayID = pathwayID;
-        }
-        
-        @Override
-        protected Object doInBackground() {  
-            try {
-                byte[] fileByte = wpclient.getPathwayAs(getPathwayAs, pathwayID, 0);
-                OutputStream out;
-                out = new FileOutputStream(filename);
-                out.write(fileByte);
-                out.close();  
-                setDownloaded(getPathwayAs, true);
-            } catch (Exception ex) {
-                loadFailed(pathwayID);
-            }
-            return null; 
-        }
-        
-        @Override
-        protected void done() {
-            setPathway();
-        }      
-    }
 }

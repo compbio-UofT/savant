@@ -16,15 +16,13 @@
 
 package savant.pathways;
 
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
-
 /**
  *
  * @author AndrewBrook
  */
 public class Gene {
 
+    //database
     public static enum geneType{ ENTREZ, ENSEMBL };
 
     private String chromosome;

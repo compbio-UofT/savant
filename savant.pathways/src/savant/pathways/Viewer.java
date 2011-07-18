@@ -45,6 +45,7 @@ import org.apache.batik.swing.gvt.GVTTreeRendererAdapter;
 import org.apache.batik.swing.gvt.GVTTreeRendererEvent;
 import org.w3c.dom.*;
 import org.xml.sax.SAXException;
+import savant.api.util.GenomeUtils;
 import savant.controller.LocationController;
 import savant.util.Range;
 
@@ -70,9 +71,6 @@ public class Viewer extends JSplitPane {
     private ExtendedJSVGCanvas svgCanvas;
     private Document gpmlDoc;
     private Node pathway;
-    //private NodeList comments;
-    //private NodeList dataNodes;
-    //private NodeList lines;
     private ArrayList<DataNode> dataNodes = new ArrayList<DataNode>();
     private ArrayList<Rectangle> recs = new ArrayList<Rectangle>();
     private String version;
@@ -261,6 +259,10 @@ public class Viewer extends JSplitPane {
         this.browser = browser;
     }
 
+    /*
+     * Given the URI's to the necessary files on the local system, set the current
+     * pathway accordingly. 
+     */
     public void setPathway(URI svgUri, URI gpmlUri) {
         jumpGene = null;
         jumpPathway = null;
@@ -272,6 +274,10 @@ public class Viewer extends JSplitPane {
         getGeneInfo();
     }
 
+    /*
+     * Determine which DataNode's are genes and can be found in Entrez or Ensembl
+     * databases. Try to set gene info accordingly. 
+     */
     private void getGeneInfo(){
 
         loader.setMessageGeneInfo();
@@ -389,6 +395,9 @@ public class Viewer extends JSplitPane {
 
     }
 
+    /*
+     * Create document from gpml file and begin parsing. 
+     */
     private void getGPML(URI uri) {
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         try {
@@ -410,6 +419,9 @@ public class Viewer extends JSplitPane {
         createTree();
     }
 
+    /*
+     * Obtain version from gpml file and create datanodes. 
+     */
     private void parseGPML() {
 
         gpmlDoc.getDocumentElement().normalize();
@@ -428,15 +440,16 @@ public class Viewer extends JSplitPane {
             version = "unknown";
         }
 
-        //comments = ((Element) pathway).getElementsByTagName("Comment");
         dataNodes.clear();
         NodeList dataNodeList = ((Element) pathway).getElementsByTagName("DataNode");
         for(int i = 0; i < dataNodeList.getLength(); i++){
             dataNodes.add(new DataNode((Element) (dataNodeList.item(i))));
         }
-        //lines = ((Element) pathway).getElementsByTagName("Line");
     }
 
+    /*
+     * Create the clickable boxes for each DataNode. 
+     */
     private void generateLinks() {
 
         double scale = 1.0;
@@ -465,12 +478,18 @@ public class Viewer extends JSplitPane {
         }
     }
 
+    /*
+     * SVG has just been clicked, check whether a node was selected. 
+     */
     private void tryClick(Point p) {
         int i = searchShapes(p);
         if (i == -1) return;
         fillInfo(dataNodes.get(i));     
     }
 
+    /*
+     * Clear the info panel. 
+     */
     private void clearInfo(){
         jumpLocationButton.setVisible(false);
         jumpPathwayButton.setVisible(false);
@@ -479,6 +498,10 @@ public class Viewer extends JSplitPane {
         rightPanel.revalidate();
     }
 
+    /*
+     * Given a datanode, fill as much info as possible, including buttons if gene
+     * and/or database references exist. 
+     */
     private void fillInfo(DataNode dataNode){
 
         if(dataNode.hasGene()){
@@ -504,6 +527,10 @@ public class Viewer extends JSplitPane {
         rightPanel.revalidate();
     }
 
+    /*
+     * Generate a tree of objects in the svg image from the current list of 
+     * datanodes. 
+     */
     private void createTree(){
 
         DefaultMutableTreeNode root = new DefaultMutableTreeNode("dataTree");
@@ -553,10 +580,11 @@ public class Viewer extends JSplitPane {
         dataTree.setRootVisible(false);
         treeScroll.getViewport().removeAll();
         treeScroll.getViewport().add(dataTree);
-
-       // rightPanel.setDividerLocation(0.5);
     }
 
+    /*
+     * Try to jump to the position of the currently selected gene in Savant. 
+     */
     private void jumpToGene(){
         if(jumpGene == null) return;
         int startGene = jumpGene.getStart();
@@ -569,16 +597,23 @@ public class Viewer extends JSplitPane {
   
         //TODO: what if references don't start with "chr"?
         //TODO: change to plugin api
-        if(LocationController.getInstance().isGenomeLoaded()){
+        if(GenomeUtils.isGenomeLoaded()){
             LocationController.getInstance().setLocation("chr" + jumpGene.getChromosome(), new Range(startGene, endGene));
         }
     }
 
+    /*
+     * If the current datanode represents a WikiPathway, load this new pathway. 
+     */
     private void jumpToPathway(){
         if(jumpPathway == null) return;
         browser.loadPathway(jumpPathway);       
     }
 
+    /*
+     * If the current datanode references a known database, open the web browser
+     * and navigate to this entry. 
+     */
     private void linkOut(){
 
         if(linkOutUrl == null) return;
@@ -598,6 +633,10 @@ public class Viewer extends JSplitPane {
         }
     }
 
+    /*
+     * Search the locations of datanodes in the svg for point p. Return the 
+     * index of this node in the list of nodes. 
+     */
     private int searchShapes(Point p) {
         for (int i = 0; i < recs.size(); i++) {
             if (recs.get(i) != null && recs.get(i).contains(p)) {
@@ -607,6 +646,9 @@ public class Viewer extends JSplitPane {
         return -1;
     }
 
+    /*
+     * Extended SVG canvas that also draws node rectangles. 
+     */
     private class ExtendedJSVGCanvas extends JSVGCanvas {
 
         ExtendedJSVGCanvas() {
@@ -622,8 +664,7 @@ public class Viewer extends JSplitPane {
                     continue;
                 }
                 g.drawRect((int) rec.getX(), (int) rec.getY(), (int) rec.getWidth(), (int) rec.getHeight());
-            }
-            
+            }        
         }       
     }
 }

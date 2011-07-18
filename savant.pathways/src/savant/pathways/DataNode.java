@@ -30,6 +30,7 @@ import org.w3c.dom.NodeList;
  */
 public class DataNode implements Comparable {
 
+    //possible tags
     public static final String[] elementNames = {"Attribute", "Xref", "Graphics"};
 
     private String tagName;
@@ -37,6 +38,10 @@ public class DataNode implements Comparable {
     private boolean geneInfoSet = false;
     private Gene gene;
 
+    /*
+     * Create a new DataNode by parsing an element. Look for each element in 
+     * elementNames. 
+     */
     public DataNode(Element node){
 
         this.tagName = node.getTagName();
@@ -47,7 +52,6 @@ public class DataNode implements Comparable {
             attributes.get(tagName).put(nnm.item(j).getNodeName(), nnm.item(j).getNodeValue());
         }
 
-        //TODO: just iterate through all children instead of using predefined list of names?
         for (int j = 0; j < elementNames.length; j++) {
             NodeList elements = node.getElementsByTagName(elementNames[j]);
             if (elements == null || elements.getLength() == 0) {
@@ -65,6 +69,10 @@ public class DataNode implements Comparable {
         }    
     }
 
+    /*
+     * This node is a gene in the Entrez database, so parse the new info from node
+     * and create a new Gene object for it. 
+     */
     public void setEntrezGeneInfo(Element node){
         //check to make sure ids match
         NodeList idList = node.getElementsByTagName("Id");
@@ -99,6 +107,10 @@ public class DataNode implements Comparable {
         geneInfoSet = true;
     }
 
+    /*
+     * This DataNode represents a gene in the Ensembl database. Create a new Gene
+     * object from the given information. 
+     */
     public void setEnsemblGeneInfo(String id, String chrom, String start, String end){
         gene = new Gene(Gene.geneType.ENSEMBL, id);
         gene.setChromosome(chrom);
@@ -108,7 +120,9 @@ public class DataNode implements Comparable {
         geneInfoSet = true;
     }
 
-    //print formatted info in no particular order
+    /*
+     * Print formatted info in no particular order. 
+     */
     public String getInfoString(){
         String s = "<HTML>";
 
@@ -148,12 +162,18 @@ public class DataNode implements Comparable {
         return s;
     }
 
+    /*
+     * Get an attribute name from subcategory subNodeName. 
+     */
     public String getAttribute(String subNodeName, String name){
         Map<String,String> map = attributes.get(subNodeName);
         if(map == null) return null;
         return map.get(name);
     }
 
+    /*
+     * Return true iff DataNode has attribute name. 
+     */
     public boolean hasSubNode(String name){
         return attributes.get(name) != null;
     }
@@ -184,14 +204,24 @@ public class DataNode implements Comparable {
         return getAttribute(this.tagName, "TextLabel");
     }
 
+    /*
+     * Returns true iff this gene is in either Entrez or Ensembl databases. 
+     */
     public boolean hasGene(){
         return this.geneInfoSet;
     }
 
+    /*
+     * Assuming this DataNode represents either Entrez or Enseml gene, return 
+     * Gene object. 
+     */
     public Gene getGene(){
         return this.gene;
     }
 
+    /*
+     * Returns true iff this DataNode represents a WikiPathway. 
+     */
     public boolean hasWikiPathway(){
         if(getType().equals("Pathway")){
             String db = getAttribute("Xref", "Database");
@@ -200,6 +230,9 @@ public class DataNode implements Comparable {
         return false;
     }
 
+    /*
+     * If this DataNode represents a WikiPathway, return the id. 
+     */
     public String getWikiPathway(){
         String db = getAttribute("Xref", "Database");
         String id = getAttribute("Xref", "ID");
@@ -207,8 +240,10 @@ public class DataNode implements Comparable {
         return id;
     }
 
+    /*
+     * Generate a link to DataNode's web page if applicable. 
+     */
     public String getLinkOut(){
-        //TODO: change to cases!
         String id = getDbId();
         
         if (isFromDb("GeneProduct", "Entrez Gene")){
@@ -248,6 +283,9 @@ public class DataNode implements Comparable {
         return null;
     }
 
+    /*
+     * Return true iff DataNode is of the given type and from database dbName.
+     */
     public boolean isFromDb(String type, String dbName){
         if(getType().equals(type)){
             String db = getAttribute("Xref", "Database");
@@ -257,6 +295,9 @@ public class DataNode implements Comparable {
         return false;
     }
 
+    /*
+     * The the id of the DataNode in its repective database. 
+     */
     public String getDbId(){
         String db = getAttribute("Xref", "Database");
         if(db == null) return null;
