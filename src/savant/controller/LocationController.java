@@ -451,7 +451,7 @@ public class LocationController implements Listener<GenomeChangedEvent> {
     public void handleEvent(GenomeChangedEvent event) {
         if (pendingReference != null) {
             setLocation(pendingReference, pendingRange);
-        } else {
+        } else if (event.getNewGenome() != event.getOldGenome()) {
             // Auto-select the first reference on the new genome.
             String ref = event.getNewGenome().getReferenceNames().iterator().next();
             setLocation(ref, true);
