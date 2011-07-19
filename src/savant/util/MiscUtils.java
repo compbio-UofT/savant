@@ -42,6 +42,7 @@ import javax.swing.KeyStroke;
 import com.jidesoft.docking.DockableFrame;
 import com.jidesoft.docking.DockingManager;
 import java.awt.Color;
+import java.awt.geom.Path2D;
 import javax.swing.SwingUtilities;
 import net.sf.samtools.SAMRecord;
 import org.apache.commons.logging.Log;
@@ -463,5 +464,21 @@ public class MiscUtils {
 
         // This constructor expects values from 0.0F to 1.0F, so weights have to be scaled appropriately.
         return new Color(col1.getRed() * weight1 + col2.getRed() * weight2, col1.getGreen() * weight1 + col2.getGreen() * weight2, col1.getBlue() * weight1 + col2.getBlue() * weight2);
+    }
+
+    /**
+     * Utility method to create a polygonal path from a list of coordinates
+     * @param coords a sequence of x,y coordinates (should be an even number and at least 4)
+     */
+    public static Path2D.Double createPolygon(double... coords) {
+        if (coords.length < 4 || (coords.length & 1) != 0) throw new IllegalArgumentException("Invalid coordinates for createPolygon");
+
+        Path2D.Double result = new Path2D.Double(Path2D.WIND_NON_ZERO, coords.length / 2);
+        result.moveTo(coords[0], coords[1]);
+        for (int i = 2; i < coords.length; i += 2) {
+            result.moveTo(coords[i], coords[i + 1]);
+        }
+        result.closePath();
+        return result;
     }
 }

@@ -37,9 +37,11 @@ import savant.controller.DockableFrameController;
 import savant.controller.DrawingModeController;
 import savant.controller.FrameController;
 import savant.controller.GenomeController;
+import savant.controller.Listener;
 import savant.controller.LocationController;
 import savant.controller.TrackController;
 import savant.controller.event.DrawingModeChangedEvent;
+import savant.controller.event.GenomeChangedEvent;
 import savant.data.event.DataRetrievalEvent;
 import savant.data.event.DataRetrievalListener;
 import savant.data.event.TrackCreationEvent;
@@ -241,20 +243,15 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
             }
 
             //allow cycling through display modes
-            graphPane.addKeyListener(new KeyListener() {
+            graphPane.addKeyListener(new KeyAdapter() {
                 @Override
                 public void keyTyped(KeyEvent e) {
-
                     //check for: Mac + Command + 'm' OR !Mac + Ctrl + 'm'
                     if((MiscUtils.MAC && e.getModifiersEx() == 256 && e.getKeyChar() == 'm') ||
                             (!MiscUtils.MAC && e.getKeyChar() == '\n' && e.isControlDown())){
                         cycleDisplayMode();
                     }
                 }
-                @Override
-                public void keyPressed(KeyEvent e) {}
-                @Override
-                public void keyReleased(KeyEvent e) {}
             });
 
         }
@@ -282,6 +279,18 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
             if (mode == DrawingMode.STANDARD || mode == DrawingMode.MISMATCH) {
                 intervalMenu.setVisible(true);
             }
+
+
+            // We need to listen to genome changes so that we can redraw mismatches as appropriate.
+            GenomeController.getInstance().addListener(new Listener<GenomeChangedEvent>() {
+                @Override
+                public void handleEvent(GenomeChangedEvent event) {
+                    // In certain BAM modes, we care about whether the sequence has been set (or unset).
+                    if (event.getNewGenome() == event.getOldGenome()) {
+                        forceRedraw();
+                    }
+                }
+            });
         } else if (df == DataFormat.INTERVAL_RICH) {
             bedButton = createBEDButton();
             commandBar.add(bedButton);

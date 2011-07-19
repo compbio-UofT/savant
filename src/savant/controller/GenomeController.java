@@ -5,7 +5,12 @@
 
 package savant.controller;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import savant.controller.event.GenomeChangedEvent;
+import savant.controller.event.TrackAddedOrRemovedEvent;
+import savant.controller.event.TrackRemovedListener;
 import savant.data.types.Genome;
 import savant.view.swing.sequence.SequenceTrack;
 
@@ -14,6 +19,7 @@ import savant.view.swing.sequence.SequenceTrack;
  * @author tarkvara
  */
 public class GenomeController extends Controller<GenomeChangedEvent> {
+    private static final Log LOG = LogFactory.getLog(GenomeController.class);
     private static GenomeController instance;
 
     /** Current genome. */
@@ -22,6 +28,14 @@ public class GenomeController extends Controller<GenomeChangedEvent> {
     public static GenomeController getInstance() {
         if (instance == null) {
             instance = new GenomeController();
+            TrackController.getInstance().addTrackRemovedListener(new TrackRemovedListener() {
+            @Override
+                public void trackRemoved(TrackAddedOrRemovedEvent event) {
+                    if (event.getTrack() == instance.loadedGenome.getSequenceTrack()) {
+                        instance.setSequence(null);
+                    }
+                }
+            });
         }
         return instance;
     }
@@ -61,10 +75,9 @@ public class GenomeController extends Controller<GenomeChangedEvent> {
     public synchronized void setSequence(SequenceTrack t) {
         if (loadedGenome == null) {
             setGenome(Genome.createFromTrack(t));
-        } else if (!loadedGenome.isSequenceSet()) {
-            // We have a loaded genome, but no sequence yet.  Plug it in.  Listeners can recognise this
-            // event because the oldGenome and the newGenome on the GenomeChangedEvent will be the same.
+        } else if (loadedGenome.getSequenceTrack() != t) {
             loadedGenome.setSequenceTrack(t);
+            LOG.info("Firing sequence set/unset event for " + loadedGenome);
             fireEvent(new GenomeChangedEvent(loadedGenome, loadedGenome));
         }
     }

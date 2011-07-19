@@ -77,15 +77,6 @@ public final class Genome implements Serializable, GenomeAdapter {
         for (String ref : dataSource.getReferenceNames()) {
             referenceMap.put(ref, dataSource.getLength(ref));
         }
-
-        TrackController.getInstance().addTrackRemovedListener(new TrackRemovedListener() {
-            @Override
-            public void trackRemoved(TrackAddedOrRemovedEvent event) {
-                if (event.getTrack() == sequenceTrack) {
-                    sequenceTrack = null;
-                }
-            }
-        });
     }
 
     /**
