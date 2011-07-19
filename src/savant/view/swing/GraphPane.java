@@ -183,11 +183,11 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
      *
      * @param g The Graphics object into which to draw.
      */
-    public Dimension render(Graphics g) {
-        return render(g, new Range(xMin, xMax), null);
+    public void render(Graphics g) {
+        render(g, new Range(xMin, xMax), null);
     }
 
-    public Dimension render(Graphics g, Range xRange, Range yRange) {
+    public void render(Graphics g, Range xRange, Range yRange) {
         LOG.debug("GraphPane.render(g, " + xRange + ", " + yRange + ")");
         double oldUnitHeight = unitHeight;
         int oldYMax = yMax;
@@ -196,61 +196,32 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         Graphics2D g2d0 = (Graphics2D)g;
 
         // Paint a gradient from top to bottom
-        GradientPaint gp0 = new GradientPaint(
-            0, 0, ColourSettings.getGraphPaneBackgroundTop(),
-            0, this.getHeight(), ColourSettings.getGraphPaneBackgroundBottom());
+        GradientPaint gp0 = new GradientPaint(0, 0, ColourSettings.getGraphPaneBackgroundTop(), 0, getHeight(), ColourSettings.getGraphPaneBackgroundBottom());
         g2d0.setPaint( gp0 );
         g2d0.fillRect( 0, 0, getWidth(), getHeight() );
 
         GraphPaneController gpc = GraphPaneController.getInstance();
 
-        if (gpc.isPanning() && !this.isLocked()) {
+        if (gpc.isPanning() && !isLocked()) {
 
-            int fromx = MiscUtils.transformPositionToPixel(gpc.getMouseDragRange().getFrom(), this.getWidth(), new Range(this.xMin, this.xMax));
-            int tox = MiscUtils.transformPositionToPixel(gpc.getMouseDragRange().getTo(), this.getWidth(), new Range(this.xMin, this.xMax));
+            int fromx = MiscUtils.transformPositionToPixel(gpc.getMouseDragRange().getFrom(), getWidth(), new Range(xMin, xMax));
+            int tox = MiscUtils.transformPositionToPixel(gpc.getMouseDragRange().getTo(), getWidth(), new Range(xMin, xMax));
 
             double pixelshiftamount = tox-fromx;
             g.translate((int) pixelshiftamount, 0);
-
-            /*
-            // shifting left
-            if (pixelshiftamount < 0) {
-                pixelshiftamount = -pixelshiftamount;
-                int maxlefttranslation = (RangeController.getInstance().getRangeStart()-1)
-                        *MiscUtils.transformPositionToPixel(
-                            RangeController.getInstance().getRangeStart()+1,
-                            this.getWidth(),
-                            RangeController.getInstance().getRange());
-                System.out.println("Max left = " + maxlefttranslation);
-                System.out.println("before shifting " + (pixelshiftamount)) ;
-                System.out.println("after shifting " + (pixelshiftamount)) ;
-                pixelshiftamount = Math.min(maxlefttranslation,pixelshiftamount);
-                g.translate((int) (pixelshiftamount*unitWidth), 0);
-                System.out.println("shifting " + pixelshiftamount);
-            // shifting right
-            } else {
-                int maxrighttranslation = (RangeController.getInstance().getMaxRangeEnd() - RangeController.getInstance().getRangeEnd())*MiscUtils.transformPositionToPixel(RangeController.getInstance().getRangeStart()+1, this.getWidth(), RangeController.getInstance().getRange());
-                System.out.println("Max right = " + maxrighttranslation);
-                System.out.println("before shifting " + (-pixelshiftamount)) ;
-                pixelshiftamount = Math.min(maxrighttranslation,pixelshiftamount);
-                System.out.println("after shifting " + (-pixelshiftamount)) ;
-                g.translate((int) -(pixelshiftamount*unitWidth), 0);
-                System.out.println("after shifting " + (-pixelshiftamount)) ;
-            }
-             *
-             */
         }
 
         // Deal with the progress-bar.
         if (tracks == null) {
             showProgress("Creating track...");
-            return getSize();
+            return;
         } else {
             for (Track t: tracks) {
                 if (t.getRenderer().isWaitingForData()) {
                     String progressMsg = (String)t.getRenderer().getInstruction(DrawingInstruction.PROGRESS);
+                    setPreferredSize(new Dimension(getWidth(), 0));
                     showProgress(progressMsg);
-                    return getSize();
+                    return;
                 }
             }
         }
@@ -287,17 +258,11 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
 
         DrawingMode currentMode = tracks[0].getDrawingMode();
 
-        //boolean sameRange = (prevRange != null && RangeController.getInstance().getRange().equals(prevRange));
         boolean sameRange = (prevRange != null && xRange.equals(prevRange));
         boolean sameMode = currentMode == prevMode;
-        boolean sameSize = (prevSize != null && this.getSize().equals(prevSize) &&
-                this.parentFrame.getFrameLandscape().getWidth() == oldWidth &&
-                this.getParentFrame().getFrameLandscape().getHeight() == oldHeight);
+        boolean sameSize = prevSize != null && getSize().equals(prevSize) && parentFrame.getFrameLandscape().getWidth() == oldWidth && getParentFrame().getFrameLandscape().getHeight() == oldHeight;
         boolean sameRef = prevRef != null && LocationController.getInstance().getReferenceName().equals(prevRef);
-
-        boolean withinScrollBounds = this.bufferedImage != null &&
-                (((JScrollPane)this.getParent().getParent().getParent()).getVerticalScrollBar().getValue() >= this.getOffset()) &&
-                (((JScrollPane)this.getParent().getParent().getParent()).getVerticalScrollBar().getValue() < this.getOffset() + this.parentFrame.scrollPane.getViewport().getHeight() * 2);
+        boolean withinScrollBounds = bufferedImage != null && getVerticalScrollBar().getValue() >= getOffset() && getVerticalScrollBar().getValue() < getOffset() + getViewportHeight() * 2;
 
         //bufferedImage stores the current graphic for future use. If nothing
         //has changed in the track since the last render, bufferedImage will
@@ -308,25 +273,22 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         if(sameRange && sameMode && sameSize && sameRef && !renderRequired && withinScrollBounds){
             g.drawImage(bufferedImage, 0, getOffset(), this);
 
-            if(this.currentOverShape != null){
+            if (currentOverShape != null){
                 //temporarily shift the origin
-                ((Graphics2D)g).translate(0, getOffset());
-                if (currentMode == DrawingMode.ARC_PAIRED){
+                g.translate(0, getOffset());
+                if (currentMode == DrawingMode.ARC_PAIRED) {
                     g.setColor(Color.red);
                     ((Graphics2D)g).draw(currentOverShape);
                 } else {
-                    //g.setColor(Color.red);
                     g.setColor(new Color(255,0,0,200));
                     ((Graphics2D) g).fill(currentOverShape);
-                    if(currentOverShape.getBounds() != null &&
-                            currentOverShape.getBounds().getWidth() > 5 &&
-                            currentOverShape.getBounds().getHeight() > 3){
+                    if (currentOverShape.getBounds() != null && currentOverShape.getBounds().getWidth() > 5 && currentOverShape.getBounds().getHeight() > 3) {
                         g.setColor(Color.BLACK);
                         ((Graphics2D)g).draw(currentOverShape);
                     }
                 }
                 //shift origin back
-                ((Graphics2D)g).translate(0, -1 * this.getOffset());
+                g.translate(0, -getOffset());
             }
             renderCurrentSelected(g);
 
@@ -340,13 +302,13 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
 
             int h = getHeight();
             if (!forcedHeight) {
-                h = Math.min(h, parentFrame.scrollPane.getViewport().getHeight() * 3);
+                h = Math.min(h, getViewportHeight() * 3);
             }
             bufferedImage = new BufferedImage(getWidth(), h, BufferedImage.TYPE_INT_RGB);
             if (bufferedImage.getHeight() == getHeight()){
                 setOffset(0);
             } else {
-                setOffset(((JScrollPane)getParent().getParent().getParent()).getVerticalScrollBar().getValue() - parentFrame.scrollPane.getViewport().getHeight());
+                setOffset(getVerticalScrollBar().getValue() - getViewportHeight());
             }
             LOG.trace("Rendering fresh " + bufferedImage.getWidth() + "x" + bufferedImage.getHeight() + " bufferedImage at (0, " + getOffset() + ")");
 
@@ -358,11 +320,6 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
             prevRef = LocationController.getInstance().getReferenceName();
 
             renderBackground(g3);
-
-            /*
-            // Get current time
-            long start = System.currentTimeMillis();
-             */
 
             // Call the actual render() methods.
             boolean nothingRendered = true;
@@ -380,6 +337,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
                 }
             }
             if (nothingRendered && message != null) {
+                setPreferredSize(new Dimension(getWidth(), 0));
                 drawMessage(g3, message);
             }
 
@@ -391,9 +349,9 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
                 paneResize = false;
 
                 //get old scroll position
-                int oldScroll = ((JScrollPane)this.getParent().getParent().getParent()).getVerticalScrollBar().getValue();
+                int oldScroll = getVerticalScrollBar().getValue();
                 int oldBottomHeight = oldHeight - oldScroll - oldViewHeight;
-                int newViewHeight = ((JViewport)this.getParent().getParent()).getHeight();
+                int newViewHeight = getViewportHeight();
 
                 //change size of current frame
                 Frame frame = this.getParentFrame();
@@ -407,17 +365,17 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
                 newScroll = newHeight - newViewHeight - oldBottomHeight;
                 oldViewHeight = newViewHeight;
 
-                return new Dimension(frame.getFrameLandscape().getWidth(), newHeight);
+                return; // new Dimension(frame.getFrameLandscape().getWidth(), newHeight);
 
-            } else if(oldViewHeight != ((JViewport)this.getParent().getParent()).getHeight()) {
-                int newViewHeight = ((JViewport)this.getParent().getParent()).getHeight();
-                int oldScroll = ((JScrollPane)this.getParent().getParent().getParent()).getVerticalScrollBar().getValue();
+            } else if (oldViewHeight != getViewportHeight()) {
+                int newViewHeight = getViewportHeight();
+                int oldScroll = getVerticalScrollBar().getValue();
                 newScroll = oldScroll + (oldViewHeight - newViewHeight);
                 oldViewHeight = newViewHeight;
             }
 
-            if(newScroll != -1){
-                ((JScrollPane)this.getParent().getParent().getParent()).getVerticalScrollBar().setValue(newScroll);
+            if (newScroll != -1){
+                getVerticalScrollBar().setValue(newScroll);
                 newScroll = -1;
             }
 
@@ -441,8 +399,22 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
             parentFrame.redrawSidePanel();
         }
 
-        return getSize();
+        return;
 
+    }
+
+    /**
+     * Get the height of the viewport.  The viewport is the grandparent of this GraphPane.
+     */
+    private int getViewportHeight() {
+        return getParent().getParent().getHeight();
+    }
+
+    /**
+     * Access to the scrollbar associated with this GraphPane.  The JScrollPane is our great-grandparent.
+     */
+    private JScrollBar getVerticalScrollBar() {
+        return ((JScrollPane)getParent().getParent().getParent()).getVerticalScrollBar();
     }
 
     private void renderCurrentSelected(Graphics g){
@@ -493,8 +465,8 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
     }
 
     /**
-     * Force the bufferedImage to contain entire height at current range
-     * Make sure you unforce immediately after!
+     * Force the bufferedImage to contain entire height at current range.  Intended
+     * for creating images for track export.  Make sure you unforce immediately after!
      */
     public void forceFullHeight(){
         forcedHeight = true;
@@ -1455,6 +1427,4 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
             size = popupListeners.size(); //a listener may get removed
         }
     }
-
-
 }

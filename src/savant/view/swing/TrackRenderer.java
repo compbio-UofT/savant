@@ -152,12 +152,10 @@ public abstract class TrackRenderer implements DataRetrievalListener {
     protected void renderPreCheck(GraphPane gp) throws RenderingException {
         Boolean refexists = (Boolean)instructions.get(DrawingInstruction.REFERENCE_EXISTS);
         if (!refexists) {
-            resizeFrame(gp);
             throw new RenderingException("No data for reference");
         }
         String errorMessage = (String)instructions.get(DrawingInstruction.ERROR);
         if (errorMessage != null){
-            resizeFrame(gp);
             throw new RenderingException(errorMessage);
         }
         if (data == null || data.isEmpty()) {
@@ -193,23 +191,6 @@ public abstract class TrackRenderer implements DataRetrievalListener {
     public JPanel arcLegendPaint(){
         return null;
     }
-
-    /*
-     * Fit the graphPane to the JViewport of its corresponding scrollPane.
-     * Call if vertical scrolling may have been enabled on previous render.
-     */
-    public void resizeFrame(GraphPane gp){
-        Frame frame = gp.getParentFrame();
-        int h1 = ((JViewport)gp.getParent().getParent()).getHeight();
-        int h2 = gp.getHeight();
-        if(h1 != h2){
-            gp.revalidate();
-            gp.setPreferredSize(((JViewport)gp.getParent().getParent()).getSize());
-            frame.getFrameLandscape().setPreferredSize(((JViewport)gp.getParent().getParent()).getSize());
-        }
-    }
-
-    public void setIntervalMode(String mode){};
 
     // SHAPES
     // access shapes for current view
@@ -340,10 +321,6 @@ public abstract class TrackRenderer implements DataRetrievalListener {
 
         return true;
     }
-
-    //public int[] getAvailableIntervalHeights(){
-    //    return new int[]{1,4,8,12,16,20,30,50,100};
-    //}
 
     public int getIntervalHeightFromSlider(int slider){
         slider--; //starts at 1

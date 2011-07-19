@@ -326,9 +326,6 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
     }
 
 
-    public boolean isOpen() { return getGraphPane() != null; }
-
-
     public void setActiveFrame(){
         sidePanel.setVisible(true);
         sidePanel.setShowPanel(true);
@@ -389,7 +386,9 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
         item1.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                tracks[0].captureColorParameters();
+                ColorSchemeDialog dlg = new ColorSchemeDialog(tracks[0]);
+                dlg.setLocationRelativeTo(Frame.this);
+                dlg.setVisible(true);
             }
         });
         menu.add(item1);
@@ -411,22 +410,6 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
         button.setFocusPainted(false);
         return button;
     }
-
-    /**
-     * Create interval button for commandBar
-     */
-    /*private JMenu createIntervalButton() {
-        JMenu button = new JMenu("Interval Options");
-        button.setToolTipText("Change interval display parameters");
-        button.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                tracks[0].captureIntervalParameters();
-            }
-        });
-        button.setFocusPainted(false);
-        return button;
-    }*/
 
     /**
      * Create interval height slider for commandBar
@@ -720,4 +703,4 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
         visItems.get(drawModePosition).setState(true);
         DrawingModeController.getInstance().switchMode(tracks[0], drawModes[drawModePosition]);
     }
-    }
+}

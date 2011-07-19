@@ -17,15 +17,12 @@ package savant.view.swing;
 
 import java.awt.Color;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import javax.swing.JPanel;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import savant.api.adapter.BookmarkAdapter;
 import savant.api.adapter.DataSourceAdapter;
 import savant.api.adapter.TrackAdapter;
 import savant.controller.SelectionController;
@@ -201,11 +198,6 @@ public abstract class Track implements TrackAdapter {
      */
     public abstract void resetColorScheme();
 
-    /*
-    public void setDrawingInstructions(DrawingInstructions di) {
-    this.DRAWING_INSTRUCTIONS = di;
-    }
-     */
     /**
      * Set the current draw mode.
      *
@@ -426,17 +418,5 @@ public abstract class Track implements TrackAdapter {
      */
     protected synchronized List<Record> retrieveData(String reference, Range range, Resolution resolution) throws Exception {
         return getDataSource().getRecords(reference, range, resolution);
-    }
-
-    public void captureColorParameters() {
-        ColorSchemeDialog dlg = new ColorSchemeDialog(this);
-        dlg.setLocationRelativeTo(frame);
-        dlg.setVisible(true);
-    }
-
-    public void captureIntervalParameters() {
-        IntervalDialog dlg = new IntervalDialog(this);
-        dlg.setLocationRelativeTo(frame);
-        dlg.setVisible(true);
     }
 }

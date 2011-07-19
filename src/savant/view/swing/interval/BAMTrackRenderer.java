@@ -291,15 +291,11 @@ public class BAMTrackRenderer extends TrackRenderer {
             case COLOURSPACE:
                 if (r == Resolution.VERY_HIGH || r == Resolution.HIGH) {
                     renderPackMode(g2, gp, r);
-                } else {
-                    resizeFrame(gp);
                 }
                 break;
             case STANDARD_PAIRED:
                 if (r == Resolution.VERY_HIGH || r == Resolution.HIGH) {
                     renderStandardMatepairMode(g2, gp, r);
-                } else {
-                    this.resizeFrame(gp);
                 }
                 break;
             case ARC_PAIRED:
@@ -308,15 +304,11 @@ public class BAMTrackRenderer extends TrackRenderer {
             case SNP:
                 if (r == Resolution.VERY_HIGH || r == Resolution.HIGH) {
                     renderSNPMode(g2, gp, r);
-                } else {
-                    resizeFrame(gp);
                 }
                 break;
             case STRAND_SNP:
                 if (r == Resolution.VERY_HIGH || r == Resolution.HIGH) {
                     renderStrandSNPMode(g2, gp, r);
-                } else {
-                    resizeFrame(gp);
                 }
                 break;
         }
@@ -1280,8 +1272,6 @@ public class BAMTrackRenderer extends TrackRenderer {
         Color evertedPairColor = cs.getColor("Everted Pair");
         Color discordantLengthColor = cs.getColor("Discordant Length");
 
-        resizeFrame(gp);
-
         // set graph pane's range parameters
         gp.setIsOrdinal(false);
         gp.setXRange(axisRange.getXRange());
@@ -1417,8 +1407,6 @@ public class BAMTrackRenderer extends TrackRenderer {
             }
         }
 
-        resizeFrame(gp);
-
         double maxHeight = 0;
         for(Pileup p : pileups){
             double current = p.getTotalCoverage();
@@ -1505,8 +1493,6 @@ public class BAMTrackRenderer extends TrackRenderer {
                 LOG.error("Unable to update pileups.", ex);
             }
         }
-
-        resizeFrame(gp);
 
         double maxHeight = 0;
         for(Pileup p : pileups){

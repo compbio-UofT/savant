@@ -378,8 +378,6 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
         gp.setXRange(axisRange.getXRange());
         // y range is set where levels are sorted out, after block merging pass
 
-        resizeFrame(gp);
-
         if (resolution == Resolution.VERY_HIGH || resolution == Resolution.HIGH) {
 
 

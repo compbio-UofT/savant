@@ -86,8 +86,6 @@ public class IntervalTrackRenderer extends TrackRenderer {
         Color bgcolor = cs.getColor("Translucent Graph");
         Color linecolor = cs.getColor("Line");
 
-        resizeFrame(gp);
-
         AxisRange axisRange = (AxisRange)instructions.get(DrawingInstruction.AXIS_RANGE);
         
         if (r == Resolution.VERY_HIGH || r == Resolution.HIGH) {
@@ -130,8 +128,6 @@ public class IntervalTrackRenderer extends TrackRenderer {
 
         ColorScheme cs = (ColorScheme)instructions.get(DrawingInstruction.COLOR_SCHEME);
         Color bgcolor = cs.getColor("Opaque Graph");
-
-        resizeFrame(gp);
 
         AxisRange axisRange = (AxisRange)instructions.get(DrawingInstruction.AXIS_RANGE);
 
