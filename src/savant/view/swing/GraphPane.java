@@ -119,7 +119,6 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
     //private boolean mouseWheel = false; //used by popupThread
 
     private JLabel yMaxPanel;
-    private boolean yMaxInit = false;
 
     /**
      * Provides progress indication when loading a track.
@@ -384,8 +383,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
                 drawMessage(g3, message);
             }
 
-            //drawMaxYPlotValue(g3);
-            this.YMaxPanel();
+            updateYMax();
             renderSides(g3);
 
             //if a change has occured that affects scrollbar...
@@ -1399,20 +1397,17 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         progressPanel.setMessage(msg);
     }
 
-    private void YMaxPanel(){
-        if (!this.isYGridOn || this.getOffset() != 0) return;
-        if(!yMaxInit){
+    private void updateYMax(){
+        if (!isYGridOn || getOffset() != 0) return;
+        if (yMaxPanel == null) {
             yMaxPanel = new JLabel();
             yMaxPanel.setBorder(BorderFactory.createLineBorder(Color.darkGray));
             yMaxPanel.setBackground(new Color(240,240,240));
             yMaxPanel.setOpaque(true);
-            yMaxPanel.setPreferredSize(new Dimension(60, 20));
             yMaxPanel.setAlignmentX(0.5f);
             parentFrame.addToSidePanel(yMaxPanel);
-            yMaxInit = true;
         }
-        String maxPlotString = " ymax=" + yMax + " ";
-        yMaxPanel.setText(maxPlotString);
+        yMaxPanel.setText(String.format(" ymax=%d ", yMax));
     }
 
     public void addExportEventListener(ExportEventListener eel){
