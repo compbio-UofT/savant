@@ -268,7 +268,7 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
 
 
             DrawingMode mode = t0.getDrawingMode();
-            if (mode == DrawingMode.ARC_PAIRED || mode == DrawingMode.SNP){
+            if (mode == DrawingMode.ARC_PAIRED || mode == DrawingMode.SNP || mode == DrawingMode.STRAND_SNP){
                 //intervalButton.setVisible(false);
                 intervalMenu.setVisible(false);
             }
@@ -584,7 +584,7 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
             } else {
                 setCoverageEnabled(true);
                 // Show interval options button unless in SNP mode.
-                intervalMenu.setVisible(mode != DrawingMode.SNP);
+                intervalMenu.setVisible(mode != DrawingMode.SNP && mode != DrawingMode.STRAND_SNP);
                 arcButton.setVisible(false);
                 arcLegend.setVisible(false);
             }
