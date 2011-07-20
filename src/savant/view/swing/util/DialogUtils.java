@@ -72,11 +72,11 @@ public class DialogUtils {
             public void run() {
                 String msg = message;
                 if (t.getCause() != null) {
-                    msg += "\r\nCause: " + t.getCause().getMessage() + ".";
+                    msg += "\r\nCause: " + MiscUtils.getMessage(t.getCause()) + ".";
                 }
                 JideOptionPane optionPane = new JideOptionPane(msg, JOptionPane.ERROR_MESSAGE, JideOptionPane.CLOSE_OPTION);
                 optionPane.setTitle(title);
-                 optionPane.setOptions(new String[] {});
+                optionPane.setOptions(new String[] {});
                 JButton reportButton = new JButton("Report Issue");
                 ((JComponent) optionPane.getComponent(optionPane.getComponentCount()-1)).add(reportButton);
                 final JDialog dialog = optionPane.createDialog(Savant.getInstance(),"Error encountered");

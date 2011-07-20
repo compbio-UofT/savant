@@ -201,12 +201,8 @@ public class TrackFactory {
                     LOG.info("Opening Tabix file " + trackURI);
                     ds = TabixDataSource.fromURI(trackURI);
                     LOG.info("Tabix datasource=" + ds);
-                    if (ds != null) {
-                        fireTrackCreationCompleted(new Track[] { createTrack(ds) }, "");
-                        LOG.debug("Tabix track created.");
-                    } else {
-                        throw new FileNotFoundException(String.format("Could not create Tabix track; check that index file exists and is named \"%1$s.tbi\".", name));
-                    }
+                    fireTrackCreationCompleted(new Track[] { createTrack(ds) }, "");
+                    LOG.debug("Tabix track created.");
                 } else if (fileType == FileType.INTERVAL_BAM) {
                     LOG.info("Opening BAM file " + trackURI);
 
@@ -319,7 +315,7 @@ public class TrackFactory {
             } else if (x instanceof FileNotFoundException) {
                 DialogUtils.displayMessage("File not found", String.format("<html>File <i>%s</i> not found.</html>", x.getMessage()));
             } else {
-                DialogUtils.displayException("Error opening track", "There was a problem opening this file: " + x.getLocalizedMessage(), x);
+                DialogUtils.displayException("Error opening track", String.format("There was a problem opening this file: %s.", MiscUtils.getMessage(x)), x);
             }
         }
     }

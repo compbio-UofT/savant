@@ -16,11 +16,14 @@
 
 package savant.util;
 
+import java.awt.Color;
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.awt.geom.Path2D;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
@@ -33,22 +36,13 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JDialog;
-import javax.swing.JFrame;
-import javax.swing.KeyStroke;
+import javax.swing.*;
 
 import com.jidesoft.docking.DockableFrame;
 import com.jidesoft.docking.DockingManager;
-import java.awt.Color;
-import java.awt.geom.Path2D;
-import javax.swing.SwingUtilities;
 import net.sf.samtools.SAMRecord;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import savant.file.DataFormat;
 
 
 /**
@@ -83,7 +77,6 @@ public class MiscUtils {
      }
 
     public static String numToString(double num, int significantdigits) {
-        //TODO: implement formatter
         String formatString = "###,###";
 
         if (significantdigits > 0) {
@@ -294,10 +287,24 @@ public class MiscUtils {
     }
 
 
-    public static String getStackTrace(Throwable aThrowable) {
+    /**
+     * Sometimes Throwable.getMessage() returns a useless string (e.g. "null" for a NullPointerException).
+     * Return a string which is more meaningful to the end-user.
+     */
+    public static String getMessage(Throwable t) {
+        if (t instanceof NullPointerException) {
+            return "Null pointer exception";
+        } else if (t instanceof FileNotFoundException) {
+            return String.format("File %s not found", t.getMessage());
+        } else {
+            return t.getMessage();
+        }
+    }
+
+    public static String getStackTrace(Throwable t) {
         final Writer result = new StringWriter();
         final PrintWriter printWriter = new PrintWriter(result);
-        aThrowable.printStackTrace(printWriter);
+        t.printStackTrace(printWriter);
         return result.toString();
    }
 

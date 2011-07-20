@@ -169,7 +169,7 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
             isInsertion = true;
 
             startXPos -= unitWidth * 0.5;   // So the name won't stamp on the leftward-pointing arrow of the insertion.
-            recordToShapeMap.put(rec, new Area(rhombus));
+            recordToShapeMap.put(rec, rhombus);
         }
 
         // draw the gene name, if possible
@@ -186,7 +186,7 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
 
             double yPos = gp.getHeight() - (unitHeight * level) - (unitHeight / 2) - offset;
 
-            Area area = new Area(new Line2D.Double(startXPos, yPos, endXPos, yPos));
+            Area area = new Area();
 
             // for each block, draw a rectangle
             List<Block> blocks = rec.getBlocks();
@@ -361,7 +361,7 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
                 }
                 if (arrow != null) {
                     arrow.closePath();
-                    g2.fill(arrow);
+                    g2.fill(new Area(arrow));
                     if (area != null) {
                         area.add(new Area(arrow));
                     }

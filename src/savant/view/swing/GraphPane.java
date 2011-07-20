@@ -272,24 +272,6 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         //if nothing has changed draw buffered image
         if(sameRange && sameMode && sameSize && sameRef && !renderRequired && withinScrollBounds){
             g.drawImage(bufferedImage, 0, getOffset(), this);
-
-            if (currentOverShape != null){
-                //temporarily shift the origin
-                g.translate(0, getOffset());
-                if (currentMode == DrawingMode.ARC_PAIRED) {
-                    g.setColor(Color.red);
-                    ((Graphics2D)g).draw(currentOverShape);
-                } else {
-                    g.setColor(new Color(255,0,0,200));
-                    ((Graphics2D) g).fill(currentOverShape);
-                    if (currentOverShape.getBounds() != null && currentOverShape.getBounds().getWidth() > 5 && currentOverShape.getBounds().getHeight() > 3) {
-                        g.setColor(Color.BLACK);
-                        ((Graphics2D)g).draw(currentOverShape);
-                    }
-                }
-                //shift origin back
-                g.translate(0, -getOffset());
-            }
             renderCurrentSelected(g);
 
             //force unitHeight from last render
@@ -382,16 +364,6 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
             oldWidth = getParentFrame().getFrameLandscape().getWidth();
             oldHeight = getParentFrame().getFrameLandscape().getHeight();
 
-            /*
-            // Get elapsed time in milliseconds
-            long elapsedTimeMillis = System.currentTimeMillis()-start;
-
-            // Get elapsed time in seconds
-            float elapsedTimeSec = elapsedTimeMillis/1000F;
-
-            System.out.println("\tRendering of " + tracks.get(0).getName() + " took " + elapsedTimeSec + " seconds");
-             */
-
             g.drawImage(bufferedImage, 0, getOffset(), this);
             fireExportReady(xRange, bufferedImage);
 
@@ -420,22 +392,22 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
     private void renderCurrentSelected(Graphics g){
         //temporarily shift the origin
         Graphics2D g2 = (Graphics2D) g;
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g2.translate(0, getOffset());
         for (Track t: tracks) {
             if (t.getRenderer().hasMappedValues()) {
                 List<Shape> currentSelected = t.getRenderer().getCurrentSelectedShapes(this);
-                if(!currentSelected.isEmpty()){
-                    boolean arcMode = t.getDrawingMode() == DrawingMode.ARC_PAIRED;
-                    for(int i = 0; i < currentSelected.size(); i++){
-                        Shape selectedShape = currentSelected.get(i);
-                        if(arcMode) {
+                boolean arcMode = t.getDrawingMode() == DrawingMode.ARC_PAIRED;
+                for (Shape selectedShape: currentSelected) {
+                    if (selectedShape != currentOverShape) {
+                        if (arcMode) {
                             g2.setColor(Color.GREEN);
                             g2.draw(selectedShape);
                         } else {
                             //g2.setColor(Color.GREEN);
                             g2.setColor(new Color(0,255,0,150));
                             g2.fill(selectedShape);
-                            if(selectedShape.getBounds().getWidth() > 5){
+                            if (selectedShape.getBounds().getWidth() > 5){
                                 g2.setColor(Color.BLACK);
                                 g2.draw(selectedShape);
                             }
@@ -445,8 +417,21 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
                 break;
             }
         }
+        if (currentOverShape != null) {
+            if (tracks[0].getDrawingMode() == DrawingMode.ARC_PAIRED) {
+                g.setColor(Color.RED);
+                ((Graphics2D)g).draw(currentOverShape);
+            } else {
+                g.setColor(new Color(255,0,0,150));
+                ((Graphics2D) g).fill(currentOverShape);
+                if (currentOverShape.getBounds() != null && currentOverShape.getBounds().getWidth() > 5 && currentOverShape.getBounds().getHeight() > 3) {
+                    g.setColor(Color.BLACK);
+                    ((Graphics2D)g).draw(currentOverShape);
+                }
+            }
+        }
         //shift the origin back
-        g2.translate(0, -1 * this.getOffset());
+        g2.translate(0, -getOffset());
     }
 
     public void setRenderForced(){

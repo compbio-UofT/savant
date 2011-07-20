@@ -69,8 +69,6 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
     private GraphPane graphPane;
     private JLayeredPane frameLandscape;
     private Track[] tracks = new Track[0];
-    private boolean isLocked;
-    private Range currentRange;
 
     private JLayeredPane jlp;
 
@@ -92,8 +90,6 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
         arcLegend = new JPanel();
         arcLegend.setLayout(new BorderLayout());
         arcLegend.setVisible(false);
-
-        isLocked = false;
 
         frameLandscape = new JLayeredPane();
         graphPane = new GraphPane(this);
@@ -550,8 +546,8 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
      * Force the associated track to redraw.  Used when the colour scheme has been changed by the Preferences dialog.
      */
     public void forceRedraw() {
-        getGraphPane().setRenderForced();
-        drawTracksInRange(LocationController.getInstance().getReferenceName(), currentRange);
+        graphPane.setRenderForced();
+        drawTracksInRange(LocationController.getInstance().getReferenceName(), graphPane.getXRange());
     }
 
     /**
@@ -560,10 +556,9 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
      * @param range
      */
     public void drawTracksInRange(String reference, Range range) {
-        if (!isLocked()) { currentRange = range; }
         if (graphPane.isLocked()) { return; }
 
-        graphPane.setXRange(currentRange);
+        graphPane.setXRange(range);
 
         for (Track t : tracks) {
             t.getRenderer().clearInstructions();
@@ -571,16 +566,6 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
         }
         resetLayers();
     }
-
-    // TODO: what is locking for?
-    public void lockRange(Range r) { setLocked(true, r); }
-    public void unlockRange() { setLocked(false, null); }
-    public void setLocked(boolean b, Range r) {
-        this.isLocked = b;
-        this.currentRange = r;
-    }
-
-    public boolean isLocked() { return this.isLocked; }
 
     // FIXME: this is a horrible kludge
     public void drawModeChanged(DrawingModeChangedEvent evt) {

@@ -16,6 +16,7 @@
 
 package savant.data.sources;
 
+import java.io.EOFException;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -88,6 +89,9 @@ public class TabixDataSource extends DataSource<TabixIntervalRecord> {
     private void inferMapping() throws IOException {
         BlockCompressedInputStream input = new BlockCompressedInputStream(NetworkUtils.getSeekableStreamForURI(uri));
         String line = TabixReader.readLine(input);
+        if (line == null) {
+            throw new EOFException("End of file");
+        }
 
         // If we're lucky, the file starts with a comment line with the field-names in it.
         // That's what UCSC puts there, as does Savant.  In some files (e.g. VCF), this
