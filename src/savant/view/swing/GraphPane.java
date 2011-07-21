@@ -326,6 +326,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
             }
             if (nothingRendered && message != null) {
                 setPreferredSize(new Dimension(getWidth(), 0));
+                revalidate();
                 drawMessage(g3, message);
             }
 
