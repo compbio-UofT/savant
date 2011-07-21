@@ -217,25 +217,28 @@ public class SeekableFTPStream extends SeekableStream {
 
     private FTPClient getFTPClient() throws IOException {
         if (ftpClient == null) {
-            ftpClient = createClient();
+            FTPClient client = new FTPClient();
+            try {
+                client.connect(host, port);
+                int reply = client.getReplyCode();
+                if (!FTPReply.isPositiveCompletion(reply)) {
+                    throw new IOException("Unable to connect to " + host);
+                }
+                if (!client.login(username, password)) {
+                    throw new IOException("Unable to login to " + host + " as " + username);
+                }
+                client.setFileType(FTP.BINARY_FILE_TYPE);
+                client.enterLocalPassiveMode();
+                client.setSoTimeout(SOCKET_TIMEOUT);
+                ftpClient = client;
+                client = null;
+            } finally {
+                if (client != null) {
+                    client.disconnect();
+                }
+            }
         }
 
         return ftpClient;
-    }
-
-    private FTPClient createClient() throws IOException {
-        FTPClient client = new FTPClient();
-        client.connect(host, port);
-        client.login(username, password);
-        client.setFileType(FTP.BINARY_FILE_TYPE);
-        client.enterLocalPassiveMode();
-        client.setSoTimeout(SOCKET_TIMEOUT);
-        int reply = client.getReplyCode();
-        if (!FTPReply.isPositiveCompletion(reply)) {
-            client.disconnect();
-            LOG.error("FTP server refused connection.");
-            return null;
-        }
-        return client;
     }
 }
