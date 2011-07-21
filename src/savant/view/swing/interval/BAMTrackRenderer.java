@@ -1335,12 +1335,12 @@ public class BAMTrackRenderer extends TrackRenderer {
                     break;
                 default:
                     // make sure arclength is over our threshold
-                    if (threshold != 0.0d && threshold < 1.0d && arcLength < axisRange.getXRange().getLength()*threshold) {
+                    /*if (threshold != 0.0d && threshold < 1.0d && arcLength < axisRange.getXRange().getLength()*threshold) {
                         continue;
                     }
                     else if (threshold > 1.0d && arcLength < threshold) {
                         continue;
-                    }
+                    }*/
                     
                     intervalStart = alignmentStart;
 

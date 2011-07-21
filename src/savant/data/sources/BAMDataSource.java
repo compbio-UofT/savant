@@ -35,6 +35,7 @@ import savant.controller.LocationController;
 import savant.util.IndexCache;
 import savant.data.types.BAMIntervalRecord;
 import savant.file.DataFormat;
+import savant.util.AxisRange;
 import savant.util.MiscUtils;
 import savant.util.NetworkUtils;
 import savant.util.Resolution;
@@ -89,12 +90,16 @@ public class BAMDataSource extends DataSource<BAMIntervalRecord> {
         samFileReader.setValidationStringency(SAMFileReader.ValidationStringency.SILENT);
         samFileHeader = samFileReader.getFileHeader();
     }
-
+    
     /**
      * {@inheritDoc}
      */
     @Override
     public List<BAMIntervalRecord> getRecords(String reference, RangeAdapter range, Resolution resolution) {
+        return getRecords(reference, range, resolution, Double.MAX_VALUE, null, false);
+    }
+
+    public List<BAMIntervalRecord> getRecords(String reference, RangeAdapter range, Resolution resolution, double threshold, AxisRange axisRange, boolean arcMode) {
 
         //CloseableIterator<SAMRecord> recordIterator=null;
         SAMRecordIterator recordIterator=null;
@@ -117,8 +122,21 @@ public class BAMDataSource extends DataSource<BAMIntervalRecord> {
             BAMIntervalRecord record;
             while (recordIterator.hasNext()) {
                 samRecord = recordIterator.next();
+                
                 // don't keep unmapped reads
                 if (samRecord.getReadUnmappedFlag()) continue;
+                
+                //discard reads that
+                if(arcMode){
+                    int arcLength = Math.abs(samRecord.getInferredInsertSize());
+                    // skip reads with a zero insert length--probably mapping errors
+                    if (arcLength == 0) continue;               
+
+                    if ((axisRange != null && threshold != 0.0d && threshold < 1.0d && arcLength < axisRange.getXRange().getLength()*threshold)
+                            || (threshold > 1.0d && arcLength < threshold)) {
+                        continue;
+                    }
+                }
 
                 record = BAMIntervalRecord.valueOf(samRecord);
 

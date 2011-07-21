@@ -24,6 +24,7 @@ import org.apache.commons.logging.LogFactory;
 
 import savant.api.adapter.DataSourceAdapter;
 import savant.api.adapter.RangeAdapter;
+import savant.data.sources.BAMDataSource;
 import savant.data.types.BAMIntervalRecord;
 import savant.data.types.Record;
 import savant.exception.SavantTrackCreationCancelledException;
@@ -220,5 +221,10 @@ public class BAMTrack extends Track {
 
     public void setmaxBPForYMax(double max){
         maxBPForYMax = max;
+    }
+    
+    @Override
+    protected synchronized List<Record> retrieveData(String reference, Range range, Resolution resolution) throws Exception {
+        return (List<Record>)(List<?>)((BAMDataSource)getDataSource()).getRecords(reference, range, resolution, getArcSizeVisibilityThreshold(), AxisRange.initWithRanges(range, getDefaultYRange()), getDrawingMode() == DrawingMode.ARC_PAIRED);
     }
 }
