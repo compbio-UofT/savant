@@ -58,6 +58,8 @@ public class SequenceTrackRenderer extends TrackRenderer {
         gp.setIsOrdinal(true);
 
         renderPreCheck(gp);
+        
+        gp.setYMaxVisible(false);
 
         double unitWidth = gp.getUnitWidth();
 

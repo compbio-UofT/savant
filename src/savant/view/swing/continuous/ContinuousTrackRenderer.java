@@ -126,6 +126,7 @@ public class ContinuousTrackRenderer extends TrackRenderer {
             }
         }
         if (!haveData) {
+            //gp.setYMaxVisible(false);
             throw new RenderingException("No data in range.");
         }
         if (haveOpenPath) {

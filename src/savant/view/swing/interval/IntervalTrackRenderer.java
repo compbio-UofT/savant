@@ -69,6 +69,7 @@ public class IntervalTrackRenderer extends TrackRenderer {
         Resolution r = (Resolution)instructions.get(DrawingInstruction.RESOLUTION);
 
         if (mode == DrawingMode.SQUISH) {
+            gp.setYMaxVisible(false);
             renderSquishMode(g2, gp, r);
         } else if (mode == DrawingMode.ARC) {
             renderArcMode(g2, gp, r);
@@ -76,6 +77,7 @@ public class IntervalTrackRenderer extends TrackRenderer {
             renderPackMode(g2, gp, r);
         }
         if (data.isEmpty()) {
+            //gp.setYMaxVisible(false);
             throw new RenderingException("No data in range.");
         }
     }
@@ -119,6 +121,7 @@ public class IntervalTrackRenderer extends TrackRenderer {
                 }
             }
         } else {
+            //gp.setYMaxVisible(false);
             throw new RenderingException("Zoom in to see intervals");
         }
     }

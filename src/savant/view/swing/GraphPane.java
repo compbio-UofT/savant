@@ -149,7 +149,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
 
         popupThread = new Thread(new PopupThread(this));
         popupThread.start();
-
+        
         GraphPaneController.getInstance().addListener(new Listener<GraphPaneEvent>() {
             @Override
             public void handleEvent(GraphPaneEvent event) {
@@ -301,18 +301,24 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
             prevMode = tracks[0].getDrawingMode();
             prevRef = LocationController.getInstance().getReferenceName();
 
-            renderBackground(g3);
+            renderBackground(g3);            
 
             // Call the actual render() methods.
             boolean nothingRendered = true;
             String message = null;
             for (Track t: tracks) {
+                if(nothingRendered){
+                    setYMaxVisible(true);
+                }
                 // Change renderers' drawing instructions to reflect consolidated YRange
                 t.getRenderer().addInstruction(DrawingInstruction.AXIS_RANGE, AxisRange.initWithRanges(xRange, consolidatedYRange));
                 try {
                     t.getRenderer().render(g3, this);
                     nothingRendered = false;
                 } catch (RenderingException rx) {
+                    if(nothingRendered){
+                        setYMaxVisible(false);
+                    }
                     if (message == null) {
                         message = rx.getMessage();
                     }
@@ -1353,18 +1359,25 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         }
         progressPanel.setMessage(msg);
     }
+    
+    private void createYMaxPanel(){
+        yMaxPanel = new JLabel();
+        yMaxPanel.setBorder(BorderFactory.createLineBorder(Color.darkGray));
+        yMaxPanel.setBackground(new Color(240,240,240));
+        yMaxPanel.setOpaque(true);
+        yMaxPanel.setAlignmentX(0.5f);
+        parentFrame.addToSidePanel(yMaxPanel);
+    }
 
     private void updateYMax(){
-        if (!isYGridOn || getOffset() != 0) return;
-        if (yMaxPanel == null) {
-            yMaxPanel = new JLabel();
-            yMaxPanel.setBorder(BorderFactory.createLineBorder(Color.darkGray));
-            yMaxPanel.setBackground(new Color(240,240,240));
-            yMaxPanel.setOpaque(true);
-            yMaxPanel.setAlignmentX(0.5f);
-            parentFrame.addToSidePanel(yMaxPanel);
+        yMaxPanel.setText(String.format(" ymax=%d ", yMax));       
+    }
+    
+    public void setYMaxVisible(boolean visible){
+        if(yMaxPanel == null){
+            createYMaxPanel();
         }
-        yMaxPanel.setText(String.format(" ymax=%d ", yMax));
+        yMaxPanel.setVisible(visible);
     }
 
     public void addExportEventListener(ExportEventListener eel){
@@ -1411,5 +1424,19 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
             popupListeners.get(i).newPopup(new PopupEvent(popup));
             size = popupListeners.size(); //a listener may get removed
         }
+    }
+    
+    public boolean modeHasYMax(){
+        DrawingMode mode = tracks[0].getDrawingMode();
+        return mode == DrawingMode.ARC_PAIRED 
+                || mode == DrawingMode.BASE_QUALITY
+                || mode == DrawingMode.COLOURSPACE
+                || mode == DrawingMode.MAPPING_QUALITY
+                || mode == DrawingMode.MISMATCH
+                || mode == DrawingMode.PACK
+                || mode == DrawingMode.SNP
+                || mode == DrawingMode.STANDARD
+                || mode == DrawingMode.STANDARD_PAIRED
+                || mode == null; //continuous
     }
 }

@@ -69,10 +69,14 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
         if (mode == DrawingMode.STANDARD) {
             renderPackMode(g2, gp, resolution);
         } else if (mode == DrawingMode.SQUISH) {
+            gp.setYMaxVisible(false);
             renderSquishMode(g2, gp, resolution);
         }
 
-        if(data.isEmpty())throw new RenderingException("No data in range.");
+        if(data.isEmpty()){
+            //gp.setYMaxVisible(false);
+            throw new RenderingException("No data in range.");
+        }
     }
 
     private void renderPackMode(Graphics2D g2, GraphPane gp, Resolution resolution) throws RenderingException {
@@ -432,6 +436,7 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
             double unitHeight = gp.getUnitHeight();
             // display only a message if intervals will not be visible at this resolution
             if (unitHeight < 1) {
+                //gp.setYMaxVisible(false);
                 throw new RenderingException("Increase vertical pane size");
             }            
 
@@ -474,6 +479,7 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
             drawBlocks(negStrandBlocks, negStrandLevel, gp, fillColor, lineColor, g2);
             drawBlocks(noStrandBlocks, noStrandLevel, gp, fillColor, lineColor, g2);
         } else {
+            //gp.setYMaxVisible(false);
             throw new RenderingException("Zoom in to see genes/intervals");
         }
     }

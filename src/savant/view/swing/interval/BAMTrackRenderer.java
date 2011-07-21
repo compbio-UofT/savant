@@ -276,6 +276,7 @@ public class BAMTrackRenderer extends TrackRenderer {
                     try {
                         refSeq = genome.getSequence(LocationController.getInstance().getReferenceName(), range);
                     } catch (IOException e) {
+                        //gp.setYMaxVisible(false);
                         throw new RenderingException(e.getMessage());
                     }
                 }
@@ -309,10 +310,14 @@ public class BAMTrackRenderer extends TrackRenderer {
             case STRAND_SNP:
                 if (r == Resolution.VERY_HIGH || r == Resolution.HIGH) {
                     renderStrandSNPMode(g2, gp, r);
+                    gp.setYMaxVisible(false);
                 }
                 break;
         }
-        if(data.isEmpty())throw new RenderingException("No data in range.");
+        if(data.isEmpty()){
+            //gp.setYMaxVisible(false);
+            throw new RenderingException("No data in range.");
+        }
     }
 
     private void renderStandardMatepairMode(Graphics2D g2, GraphPane gp, Resolution resolution) throws RenderingException {
@@ -425,6 +430,7 @@ public class BAMTrackRenderer extends TrackRenderer {
         if (mode == DrawingMode.MISMATCH) {
             Genome genome = GenomeController.getInstance().getGenome();
             if (!genome.isSequenceSet()) {
+                //gp.setYMaxVisible(false);
                 throw new RenderingException("No reference sequence loaded. Switch to standard view");
             }
         }
