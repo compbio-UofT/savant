@@ -156,7 +156,6 @@ public class Ruler extends JPanel {
             g2.drawLine(x, 0, x, getHeight());
 
             String numStr = MiscUtils.posToShortStringWithSeparation(p, separation);
-            LOG.info("Drawing " + p + " as \"" + numStr  + "\"");
             g2.setColor(Color.black);
             g2.drawString(numStr, x + 3, getHeight() / 2 + 3);
         }
