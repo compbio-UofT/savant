@@ -152,16 +152,13 @@ public abstract class TrackRenderer implements DataRetrievalListener {
     protected void renderPreCheck(GraphPane gp) throws RenderingException {
         Boolean refexists = (Boolean)instructions.get(DrawingInstruction.REFERENCE_EXISTS);
         if (!refexists) {
-            //gp.setYMaxVisible(false);
             throw new RenderingException("No data for reference");
         }
         String errorMessage = (String)instructions.get(DrawingInstruction.ERROR);
         if (errorMessage != null){
-            //gp.setYMaxVisible(false);
             throw new RenderingException(errorMessage);
         }
         if (data == null || data.isEmpty()) {
-            //gp.setYMaxVisible(false);
             throw new RenderingException("No data in range.");
         }
     }

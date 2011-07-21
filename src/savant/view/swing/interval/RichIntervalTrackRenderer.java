@@ -74,7 +74,6 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
         }
 
         if(data.isEmpty()){
-            //gp.setYMaxVisible(false);
             throw new RenderingException("No data in range.");
         }
     }
@@ -436,7 +435,6 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
             double unitHeight = gp.getUnitHeight();
             // display only a message if intervals will not be visible at this resolution
             if (unitHeight < 1) {
-                //gp.setYMaxVisible(false);
                 throw new RenderingException("Increase vertical pane size");
             }            
 
@@ -479,7 +477,6 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
             drawBlocks(negStrandBlocks, negStrandLevel, gp, fillColor, lineColor, g2);
             drawBlocks(noStrandBlocks, noStrandLevel, gp, fillColor, lineColor, g2);
         } else {
-            //gp.setYMaxVisible(false);
             throw new RenderingException("Zoom in to see genes/intervals");
         }
     }

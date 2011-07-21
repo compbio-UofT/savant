@@ -61,7 +61,6 @@ public class PointTrackRenderer extends TrackRenderer {
 
         // don't draw things which are too small to be seen: less than 1 pixel wide
         if (width < 1 || data == null) {
-            //gp.setYMaxVisible(false);
             throw new RenderingException("Zoom in to see points");
         }
 
@@ -103,7 +102,6 @@ public class PointTrackRenderer extends TrackRenderer {
             }
         }
         if(data.isEmpty()){
-            //gp.setYMaxVisible(false);
             throw new RenderingException("No data in range.");
         }
     }

@@ -77,7 +77,6 @@ public class IntervalTrackRenderer extends TrackRenderer {
             renderPackMode(g2, gp, r);
         }
         if (data.isEmpty()) {
-            //gp.setYMaxVisible(false);
             throw new RenderingException("No data in range.");
         }
     }
@@ -121,7 +120,6 @@ public class IntervalTrackRenderer extends TrackRenderer {
                 }
             }
         } else {
-            //gp.setYMaxVisible(false);
             throw new RenderingException("Zoom in to see intervals");
         }
     }
