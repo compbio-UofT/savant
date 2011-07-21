@@ -87,12 +87,16 @@ public class NetworkUtils {
         } else if (proto.equals("ftp")) {
             SeekableFTPStream ftp = new SeekableFTPStream(url, "anonymous", "");
 
-            // List the files.  We should only get one match.
-            FTPFile[] files = ftp.listFiles(url.getFile());
-            if (files.length > 0) {
-                return String.format("%016x-%016x", files[0].getTimestamp().getTimeInMillis(), files[0].getSize());
-            } else {
-                throw new IOException("URL not found: " + url);
+            try {
+                // List the files.  We should only get one match.
+                FTPFile[] files = ftp.listFiles(url.getFile());
+                if (files.length > 0) {
+                    return String.format("%016x-%016x", files[0].getTimestamp().getTimeInMillis(), files[0].getSize());
+                } else {
+                    throw new IOException("URL not found: " + url);
+                }
+            } finally {
+                ftp.close();
             }
         } else {
             throw new IllegalArgumentException("Invalid argument; cannot get hash for " + proto + " URLs");
