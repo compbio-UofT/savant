@@ -23,6 +23,7 @@ import javax.swing.SwingConstants;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import savant.api.adapter.RangeAdapter;
 
 import savant.controller.GraphPaneController;
 import savant.controller.Listener;
@@ -31,6 +32,7 @@ import savant.controller.event.GraphPaneEvent;
 import savant.controller.event.LocationChangedEvent;
 import savant.controller.event.LocationChangedListener;
 import savant.util.MiscUtils;
+import savant.util.Range;
 
 
 /**
@@ -109,6 +111,22 @@ public class Ruler extends JPanel {
     }
 
     /**
+     * Given a range, return a reasonable set of tick positions for that range.
+     */
+    private static int[] getTickPositions(RangeAdapter r) {
+        // The 0.7 is a factor which gives us roughly the right number of ticks at all magnifications.
+        int log = (int)Math.floor(Math.log10(r.getLength()) + 0.7) - 1;
+        int step = log > 0 ? (int)Math.pow(10, log) : 1;
+        int[] result = new int[r.getLength() / step];
+        int p0 = (((r.getFrom() - 1) / step) + 1) * step;
+        for (int i = 0; i < result.length; i++) {
+            result[i] = p0;
+            p0 += step;
+        }
+        return result;
+    }
+
+    /**
      * Render the background of this graphpane
      * @param g The graphics object to use
      */
@@ -127,70 +145,44 @@ public class Ruler extends JPanel {
             LOG.error("Error drawing image background");
         }
 
-        int numseparators = (int) Math.max(Math.ceil(Math.log(this.maximum-this.minimum)),2);
-        int genomicSeparation = (maximum -  minimum) / Math.max(1, numseparators);
+        Range r = locationController.getRange();
+        int[] tickPositions = getTickPositions(r);
+        int separation = tickPositions.length > 1 ? tickPositions[1] - tickPositions[0] : 0;
 
-        if (numseparators != 0) {
-            int width = this.getWidth();
-            double barseparation = width / numseparators;
+        for (int p: tickPositions) {
 
-            int minstringseparation = 200;
-            int skipstring = (int) Math.round(minstringseparation / barseparation);
+            int x = MiscUtils.transformPositionToPixel(p, getWidth(), r);
+            g2.setColor(new Color(50,50,50,50)); //BrowserDefaults.colorAxisGrid);
+            g2.drawLine(x, 0, x, getHeight());
 
-            int startbarsfrom = MiscUtils.transformPositionToPixel(
-                    (int) (Math.floor((locationController.getRange().getFrom() / Math.max(1, genomicSeparation)))*genomicSeparation), width, locationController.getRange());
+            String numStr = MiscUtils.posToShortStringWithSeparation(p, separation);
+            LOG.info("Drawing " + p + " as \"" + numStr  + "\"");
+            g2.setColor(Color.black);
+            g2.drawString(numStr, x + 3, getHeight() / 2 + 3);
+        }
 
-            FontMetrics fm = g2.getFontMetrics();
-
-            for (int i = 0; i <= numseparators*3; i++) {
-                g2.setColor(new Color(50,50,50,50)); //BrowserDefaults.colorAxisGrid);
-                int xOne = startbarsfrom + (int)Math.ceil(i*barseparation)+1 - this.getWidth();
-                int xTwo = xOne;
-                int yOne = this.getHeight();
-                int yTwo = 0;
-                g2.drawLine(xOne,yOne,xTwo,yTwo);
-
-                if (skipstring != 0) {
-                    if (i % skipstring == 0) {
-                        g2.setColor(Color.black);
-                        int a = MiscUtils.transformPixelToPosition(xOne, width, locationController.getRange());
-                        if (a >= 1 && a <= locationController.getMaxRangeEnd()) {
-                            String numstr = MiscUtils.posToShortStringWithSeparation(a, genomicSeparation);
-                            g2.setColor(Color.black);
-                            g2.drawString(numstr, (float) (xOne + 3), (float) ((this.getHeight()*0.5)+3));
-                        }
-                    }
-                } else {
-                    int a = MiscUtils.transformPixelToPosition(xOne, width, locationController.getRange());
-                    String numstr = MiscUtils.numToString(a);
-                    g2.setColor(Color.black);
-                    g2.drawString(numstr, (float) (xOne + 3), (float) ((this.getHeight()*0.5)+3));
-                }
+        if (locationController.getRange().getLength() >= locationController.getRangeStart()) {
+            try {
+                Image image_left_cap = javax.imageio.ImageIO.read(getClass().getResource("/savant/images/round_cap_left_bordered.png"));
+                int pos = getLeftCapPos();
+                g.drawImage(image_left_cap, pos, 0, CAP_WIDTH, CAP_HEIGHT, this);
+                g.setColor(Savant.getInstance().getBackground());
+                g.fillRect(pos,0, -getWidth(), getHeight());
+            } catch (IOException ex) {
+                LOG.error("Drawing failed.", ex);
             }
+        }
 
-            if (locationController.getRange().getLength() >= locationController.getRangeStart()) {
-                try {
-                    Image image_left_cap = javax.imageio.ImageIO.read(getClass().getResource("/savant/images/round_cap_left_bordered.png"));
-                    int pos = getLeftCapPos();
-                    g.drawImage(image_left_cap, pos, 0, CAP_WIDTH, CAP_HEIGHT, this);
-                    g.setColor(Savant.getInstance().getBackground());
-                    g.fillRect(pos,0, -getWidth(), getHeight());
-                } catch (IOException ex) {
-                    LOG.error("Drawing failed.", ex);
-                }
-            }
+        if (locationController.getRange().getLength() >= locationController.getMaxRangeEnd() - locationController.getRangeEnd()) {
+            try {
+                Image image_right_cap = javax.imageio.ImageIO.read(getClass().getResource("/savant/images/round_cap_right_bordered.png"));
+                int pos = MiscUtils.transformPositionToPixel(locationController.getMaxRangeEnd(), getWidth(), locationController.getRange());
+                g.drawImage(image_right_cap, pos - CAP_WIDTH, 0, CAP_WIDTH, CAP_HEIGHT, this);
+                g.setColor(Savant.getInstance().getBackground());
+                g.fillRect(pos,0, this.getWidth(), this.getHeight());
 
-            if (locationController.getRange().getLength() >= locationController.getMaxRangeEnd() - locationController.getRangeEnd()) {
-                try {
-                    Image image_right_cap = javax.imageio.ImageIO.read(getClass().getResource("/savant/images/round_cap_right_bordered.png"));
-                    int pos = MiscUtils.transformPositionToPixel(locationController.getMaxRangeEnd(), getWidth(), locationController.getRange());
-                    g.drawImage(image_right_cap, pos - CAP_WIDTH, 0, CAP_WIDTH, CAP_HEIGHT, this);
-                    g.setColor(Savant.getInstance().getBackground());
-                    g.fillRect(pos,0, this.getWidth(), this.getHeight());
-                    
-                } catch (IOException ex) {
-                    LOG.error("Drawing failed.", ex);
-                } 
+            } catch (IOException ex) {
+                LOG.error("Drawing failed.", ex);
             }
         }
     }

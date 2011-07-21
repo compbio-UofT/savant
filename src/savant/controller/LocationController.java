@@ -404,7 +404,9 @@ public class LocationController implements Listener<GenomeChangedEvent> {
      * Zoom in one level
      */
     public void zoomIn() {
-        zoomToLength(currentViewableRange.getLength() / BrowserSettings.zoomAmount);
+        if (currentViewableRange.getLength() > 1) {
+            zoomToLength(currentViewableRange.getLength() / BrowserSettings.zoomAmount);
+        }
     }
 
     public void zoomInOnMouse() {

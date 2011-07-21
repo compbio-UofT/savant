@@ -236,56 +236,41 @@ public class MiscUtils {
         return posToShortString(genomepos, 0);
     }
 
-     public static String posToShortStringWithSeparation(int genomepos, int separation) {
+    public static String posToShortStringWithSeparation(int pos, int separation) {
 
-         int backdigits = (int) Math.floor(Math.log10(separation));
-         int significantdigits = 0;
+        if (separation > 1) {
+            int backdigits = (int) Math.floor(Math.log10(separation));
+            int significantDigits = 0;
+            if (pos > 1000000000) {
+                significantDigits = 9 - backdigits;
+            } else if (pos > 1000000) {
+                significantDigits = 6 - backdigits;
+            } else if (pos > 1000) {
+                significantDigits = 3 - backdigits;
+            }
 
-         float gp = ((float) genomepos);
-         float quotient;
-
-         if ((quotient = gp / 1000000000) > 1) {
-            significantdigits = 9-backdigits;
-        } else if ((quotient = gp / 1000000) > 1) {
-            significantdigits = 6-backdigits;
-        } else if ((quotient = gp / 1000) > 1) {
-            significantdigits = 3-backdigits;
+            return posToShortString(pos, significantDigits);
         } else {
-            significantdigits = 0;
+            // For separation 1, there's no point in using the G/M/k forms.
+            return MiscUtils.numToString(pos);
         }
-
-        return posToShortString(genomepos,significantdigits);
-
      }
 
-    public static String posToShortString(long genomepos, int significantdigits) {
-        String mousePos;
+    public static String posToShortString(int pos, int significantDigits) {
+        String result;
 
-        float gp = ((float) genomepos);
-
-        float quotient;
-        if ((quotient =  gp / 1000000000) > 1) {
-            mousePos = MiscUtils.numToString(quotient,significantdigits) + " G";
-        } else if ((quotient = gp / 1000000) > 1) {
-            mousePos = MiscUtils.numToString(quotient,significantdigits) + " M";
-        } else if ((quotient = gp / 1000) > 1) {
-            mousePos = MiscUtils.numToString(quotient,significantdigits) + " K";
+        if (pos > 1000000000) {
+            result = MiscUtils.numToString(pos / 1.0E9, significantDigits) + " G";
+        } else if (pos > 1000000) {
+            result = MiscUtils.numToString(pos / 1.0E6, significantDigits) + " M";
+        } else if (pos > 1000) {
+            result = MiscUtils.numToString(pos / 1000.0, significantDigits) + " k";
         } else {
-            mousePos = MiscUtils.numToString(gp,significantdigits) + "";
+            result = MiscUtils.numToString(pos, significantDigits);
         }
 
-        return mousePos;
+        return result;
     }
-
-    // get chr from chr1, for e.g.
-    public static String removeNumbersFromString(String str) {
-        // get the prefix of the current reference (e.g. "chr" in "chr1")
-        for (int i = 0; i < 10; i++) {
-            str = MiscUtils.removeChar(str, (i + "").charAt(0));
-        }
-        return str;
-    }
-
 
     /**
      * Sometimes Throwable.getMessage() returns a useless string (e.g. "null" for a NullPointerException).
