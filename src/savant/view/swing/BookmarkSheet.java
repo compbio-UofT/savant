@@ -21,6 +21,8 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -223,9 +225,16 @@ public class BookmarkSheet implements BookmarksChangedListener {
 
         subpanel.add(table);
 
-        JScrollPane sp = new JScrollPane(table,
+        final JScrollPane sp = new JScrollPane(table,
         JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
         JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        sp.setWheelScrollingEnabled(false);
+        sp.addMouseWheelListener(new MouseWheelListener() {
+            @Override
+            public void mouseWheelMoved(MouseWheelEvent e) {
+                sp.getVerticalScrollBar().setValue(sp.getVerticalScrollBar().getValue() + e.getUnitsToScroll()*2);
+            }
+        });
 
         c.add(sp);
 
