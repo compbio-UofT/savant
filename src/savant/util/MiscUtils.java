@@ -43,6 +43,7 @@ import com.jidesoft.docking.DockingManager;
 import net.sf.samtools.SAMRecord;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import savant.api.adapter.RangeAdapter;
 
 
 /**
@@ -271,6 +272,23 @@ public class MiscUtils {
 
         return result;
     }
+
+    /**
+     * Given a range, return a reasonable set of tick positions for that range.
+     */
+    public static int[] getTickPositions(RangeAdapter r) {
+        // The 0.7 is a factor which gives us roughly the right number of ticks at all magnifications.
+        int log = (int)Math.floor(Math.log10(r.getLength()) + 0.7) - 1;
+        int step = log > 0 ? (int)Math.pow(10, log) : 1;
+        int[] result = new int[r.getLength() / step + 1];
+        int p0 = (((r.getFrom() - 1) / step) + 1) * step;
+        for (int i = 0; i < result.length; i++) {
+            result[i] = p0;
+            p0 += step;
+        }
+        return result;
+    }
+
 
     /**
      * Sometimes Throwable.getMessage() returns a useless string (e.g. "null" for a NullPointerException).

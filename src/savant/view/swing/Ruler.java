@@ -111,22 +111,6 @@ public class Ruler extends JPanel {
     }
 
     /**
-     * Given a range, return a reasonable set of tick positions for that range.
-     */
-    private static int[] getTickPositions(RangeAdapter r) {
-        // The 0.7 is a factor which gives us roughly the right number of ticks at all magnifications.
-        int log = (int)Math.floor(Math.log10(r.getLength()) + 0.7) - 1;
-        int step = log > 0 ? (int)Math.pow(10, log) : 1;
-        int[] result = new int[r.getLength() / step];
-        int p0 = (((r.getFrom() - 1) / step) + 1) * step;
-        for (int i = 0; i < result.length; i++) {
-            result[i] = p0;
-            p0 += step;
-        }
-        return result;
-    }
-
-    /**
      * Render the background of this graphpane
      * @param g The graphics object to use
      */
@@ -146,7 +130,7 @@ public class Ruler extends JPanel {
         }
 
         Range r = locationController.getRange();
-        int[] tickPositions = getTickPositions(r);
+        int[] tickPositions = MiscUtils.getTickPositions(r);
         int separation = tickPositions.length > 1 ? tickPositions[1] - tickPositions[0] : 0;
 
         for (int p: tickPositions) {

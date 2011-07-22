@@ -114,7 +114,7 @@ public class PluginController extends Controller {
                 } catch (MalformedURLException ignored) {
                 }
             }
-            pluginLoader = new PluginLoader(jarURLs.toArray(new URL[0]));
+            pluginLoader = new PluginLoader(jarURLs.toArray(new URL[0]), getClass().getClassLoader());
 
             for (final PluginDescriptor desc: validPlugins.values()) {
                 new Thread("PluginLoader-" + desc) {
@@ -270,7 +270,6 @@ public class PluginController extends Controller {
 
 
     private void loadPlugin(PluginDescriptor desc) throws Throwable {
-
         Class pluginClass = pluginLoader.loadClass(desc.getClassName());
         SavantPlugin plugin = (SavantPlugin)pluginClass.newInstance();
         plugin.setDescriptor(desc);
@@ -330,8 +329,8 @@ public class PluginController extends Controller {
     }
 
     class PluginLoader extends URLClassLoader {
-        PluginLoader(URL[] urls) {
-            super(urls);
+        PluginLoader(URL[] urls, ClassLoader parent) {
+            super(urls, parent);
         }
 
         void addJar(File f) {

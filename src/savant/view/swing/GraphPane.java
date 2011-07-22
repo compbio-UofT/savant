@@ -619,22 +619,12 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
             g2d0.fillRect( 0, 0, this.getWidth(), this.getHeight() );
 
         if (this.isXGridOn) {
-
-            int numseparators = (int) Math.max(Math.ceil(Math.log(xMax-xMin)),2);
-
-            if (numseparators != 0) {
-                int width = this.getWidth();
-                double pixelSeparation = width / numseparators;
-                int genomicSeparation = (xMax-xMin)/numseparators;
-
-                int startbarsfrom = MiscUtils.transformPositionToPixel(
-                    (int) (Math.floor(LocationController.getInstance().getRange().getFrom()/Math.max(1, genomicSeparation))*genomicSeparation),
-                    width, (LocationController.getInstance()).getRange());
-
-                g2.setColor(ColourSettings.getAxisGrid());
-                for (int i = 0; i <= numseparators; i++) {
-                    g2.drawLine(startbarsfrom + (int)Math.ceil(i*pixelSeparation)+1, this.getHeight(), startbarsfrom + (int) Math.ceil(i*pixelSeparation)+1, 0);
-                }
+            Range r = LocationController.getInstance().getRange();
+            int[] ticks = MiscUtils.getTickPositions(r);
+            g2.setColor(ColourSettings.getAxisGrid());
+            for (int t: ticks) {
+                int x = MiscUtils.transformPositionToPixel(t, getWidth(), r);
+                g2.drawLine(x, 0, x, getHeight());
             }
         }
 
