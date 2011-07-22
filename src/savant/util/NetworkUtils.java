@@ -73,7 +73,7 @@ public class NetworkUtils {
      */
     public static String getHash(URL url) throws IOException {
         String proto = url.getProtocol().toLowerCase();
-        if (proto.equals("http")) {
+        if (proto.equals("http") || proto.equals("https")) {
             URLConnection conn = null;
             try {
                 conn = url.openConnection();
@@ -110,14 +110,14 @@ public class NetworkUtils {
      * @return a SeekableStream which can be passed to SavantROFile or BAMDataSource
      */
     public static SeekableStream getSeekableStreamForURI(URI uri) throws IOException {
-        String scheme = uri.getScheme().toLowerCase();
+        String proto = uri.getScheme().toLowerCase();
         SeekableStream result;
-        if (scheme.equals("file")) {
+        if (proto.equals("file")) {
             result = new SeekableFileStream(new File(uri));
         } else {
-            if (scheme.equals("http")) {
+            if (proto.equals("http") || proto.equals("https")) {
                 result = new SeekableHTTPStream(uri.toURL());
-            } else if (scheme.equals("ftp")) {
+            } else if (proto.equals("ftp")) {
                 result = new SeekableFTPStream(uri.toURL());
             } else {
                 throw new UnknownSchemeException(uri);

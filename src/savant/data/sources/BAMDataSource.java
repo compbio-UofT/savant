@@ -59,8 +59,8 @@ public class BAMDataSource extends DataSource<BAMIntervalRecord> {
 
         File indexFile = null;
         // if no exception is thrown, this is an absolute URL
-        String scheme = uri.getScheme();
-        if ("http".equals(scheme) || "ftp".equals(scheme)) {
+        String proto = uri.getScheme();
+        if ("http".equals(proto) || "https".equals(proto) || "ftp".equals(proto)) {
             indexFile = getIndexFileCached(uri);
             if (indexFile != null) {
                 return new BAMDataSource(uri, indexFile);

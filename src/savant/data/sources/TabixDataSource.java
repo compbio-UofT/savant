@@ -68,7 +68,7 @@ public class TabixDataSource extends DataSource<TabixIntervalRecord> {
         File indexFile = null;
         // if no exception is thrown, this is an absolute URL
         String scheme = uri.getScheme();
-        if ("http".equals(scheme) || "ftp".equals(scheme)) {
+        if ("http".equals(scheme) || "https".equals(scheme) || "ftp".equals(scheme)) {
             indexFile = getIndexFileCached(uri);
         } else {
             indexFile = getTabixIndexFileLocal(new File(uri));

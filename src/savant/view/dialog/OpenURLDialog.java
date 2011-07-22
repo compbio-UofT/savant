@@ -157,7 +157,7 @@ public class OpenURLDialog extends JDialog {
 
         if (dialog.url != null) {
             String proto = dialog.url.getProtocol().toLowerCase();
-            if (!proto.equals("http") && !proto.equals("ftp")) {
+            if (!proto.equals("http") && !proto.equals("https") && !proto.equals("ftp")) {
                 DialogUtils.displayMessage("Sorry", "Only files accessible via HTTP or FTP can be opened via URL.");
                 return null;
             }

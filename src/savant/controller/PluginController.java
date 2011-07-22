@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import javax.swing.JPanel;
 
@@ -34,11 +35,14 @@ import org.apache.commons.logging.LogFactory;
 import savant.api.util.DialogUtils;
 import savant.controller.event.PluginEvent;
 import savant.experimental.PluginTool;
+import savant.net.DownloadFile;
 import savant.plugin.PluginDescriptor;
+import savant.plugin.PluginIndex;
 import savant.plugin.PluginVersionException;
 import savant.plugin.SavantDataSourcePlugin;
 import savant.plugin.SavantPanelPlugin;
 import savant.plugin.SavantPlugin;
+import savant.settings.BrowserSettings;
 import savant.settings.DirectorySettings;
 import savant.util.IOUtils;
 import savant.util.MiscUtils;
@@ -57,10 +61,11 @@ public class PluginController extends Controller {
 
     private File uninstallFile;
     private List<String> pluginsToRemove = new ArrayList<String>();
-    private HashMap<String, PluginDescriptor> validPlugins = new HashMap<String, PluginDescriptor>();
-    private HashMap<String, SavantPlugin> loadedPlugins = new HashMap<String, SavantPlugin>();
-    private HashMap<String, String> pluginErrors = new HashMap<String, String>();
+    private Map<String, PluginDescriptor> validPlugins = new HashMap<String, PluginDescriptor>();
+    private Map<String, SavantPlugin> loadedPlugins = new HashMap<String, SavantPlugin>();
+    private Map<String, String> pluginErrors = new HashMap<String, String>();
     private PluginLoader pluginLoader;
+    private PluginIndex repositoryIndex = null;
     
 
     /** SINGLETON **/
@@ -102,7 +107,17 @@ public class PluginController extends Controller {
             try {
                 addPlugin(f);
             } catch (PluginVersionException x) {
-                LOG.warn("No plugin found in " + f);
+                LOG.warn("No compatible plugins found in " + f);
+            }
+        }
+
+        // Check to see if we have any outdated plugins.
+        if (pluginErrors.size() > 0) {
+            for (String s: pluginErrors.keySet()) {
+                if (!validPlugins.containsKey(s)) {
+                    // Plugin is invalid, and we don't have a newer version.
+                    checkForPluginUpdate(s);
+                }
             }
         }
 
@@ -327,6 +342,22 @@ public class PluginController extends Controller {
         pluginLoader.addJar(pluginFile);
         loadPlugin(desc);
     }
+
+    private void checkForPluginUpdate(String id) {
+        try {
+            if (repositoryIndex == null) {
+                repositoryIndex = new PluginIndex(BrowserSettings.PLUGIN_URL);
+            }
+            URL updateURL = repositoryIndex.getPluginURL(id);
+            LOG.info("Downloading updated version of " + id + " from " + updateURL);
+            addPlugin(DownloadFile.downloadFile(updateURL, DirectorySettings.getPluginsDirectory()));
+        } catch (IOException x) {
+            LOG.error("Unable to install update for " + id, x);
+        } catch (PluginVersionException x) {
+            LOG.error("Update for " + id + " not loaded.");
+        }
+    }
+
 
     class PluginLoader extends URLClassLoader {
         PluginLoader(URL[] urls, ClassLoader parent) {
