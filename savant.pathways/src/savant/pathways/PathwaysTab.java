@@ -37,6 +37,7 @@ import savant.plugin.SavantPanelPlugin;
 
 import org.bridgedb.bio.Organism;
 import org.pathvisio.wikipathways.WikiPathwaysClient;
+import savant.api.util.DialogUtils;
 
 /**
  *
@@ -156,7 +157,7 @@ public class PathwaysTab extends SavantPanelPlugin {
                 try {
                     wpclient = new WikiPathwaysClient(new URL("http://www.wikipathways.org/wpi/webservice/webservice.php"));
                 } catch(Exception e) {
-                    System.err.println("COULDNT CREATE CLIENT"); //TODO
+                    DialogUtils.displayException("WikiPathways Error", "Unable to connect to WikiPathways web service. ", e);
                 }
 
                 //create panel for viewing svgs

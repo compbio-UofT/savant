@@ -27,14 +27,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.rmi.RemoteException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.SwingWorker;
 import org.bridgedb.bio.Organism;
 import org.pathvisio.wikipathways.WikiPathwaysClient;
 import org.pathvisio.wikipathways.webservice.WSPathwayInfo;
@@ -150,7 +147,7 @@ public class PathwaysBrowser extends JPanel{
                     messageLabel.setText(SEARCH_RESULTS);
                     loc = location.SEARCH;
                 } catch (RemoteException ex) {
-                    Logger.getLogger(PathwaysBrowser.class.getName()).log(Level.SEVERE, null, ex);
+                    DialogUtils.displayException("WikiPathways Error", "Unable to connect to WikiPathways web service. ", ex);
                 }
                 endLoad();
             }
@@ -172,7 +169,7 @@ public class PathwaysBrowser extends JPanel{
                     loc = location.ORGANISMS;
                     messageLabel.setText(SELECT_ORGANISM);
                 } catch (RemoteException ex) {
-                    DialogUtils.displayException("WikiPathways Error", "Unable to process request.", ex);
+                    DialogUtils.displayException("WikiPathways Error", "Unable to connect to WikiPathways web service. ", ex);
                 }
                 endLoad();
             }
@@ -198,7 +195,7 @@ public class PathwaysBrowser extends JPanel{
                     loc = location.PATHWAYS;
                     messageLabel.setText(SELECT_PATHWAY);
                 } catch (RemoteException ex) {
-                    DialogUtils.displayException("WikiPathways Error", "Unable to process request.", ex);
+                    DialogUtils.displayException("WikiPathways Error", "Unable to connect to WikiPathways web service. ", ex);
                 }
                 endLoad();
             }
@@ -249,9 +246,9 @@ public class PathwaysBrowser extends JPanel{
                     svgPanel.setVisible(false);
                     setVisible(false);
                 } catch (FileNotFoundException ex){
-                    Logger.getLogger(PathwaysBrowser.class.getName()).log(Level.SEVERE, null, ex);
+                    DialogUtils.displayException("WikiPathways Error", "Could not save WikiPathways files. ", ex);
                 } catch (IOException ex){
-                    Logger.getLogger(PathwaysBrowser.class.getName()).log(Level.SEVERE, null, ex);
+                    DialogUtils.displayException("WikiPathways Error", "Could not save WikiPathways files. ", ex);
                 }                
             }
         };

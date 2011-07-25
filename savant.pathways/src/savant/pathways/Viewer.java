@@ -45,6 +45,7 @@ import org.apache.batik.swing.gvt.GVTTreeRendererAdapter;
 import org.apache.batik.swing.gvt.GVTTreeRendererEvent;
 import org.w3c.dom.*;
 import org.xml.sax.SAXException;
+import savant.api.util.DialogUtils;
 import savant.api.util.GenomeUtils;
 import savant.controller.LocationController;
 import savant.util.Range;
@@ -310,7 +311,6 @@ public class Viewer extends JSplitPane {
                         HttpURLConnection httpConnection = (HttpURLConnection)url.openConnection();
                         httpConnection.setInstanceFollowRedirects(false);
                         httpConnection.connect();
-                        int responseCode = httpConnection.getResponseCode();
                         String header = httpConnection.getHeaderField("Location");
                         if(header.contains(";r=")){
                             success = true;
@@ -364,27 +364,18 @@ public class Viewer extends JSplitPane {
                 }
                 line = reader.readLine();
             }
-        } catch (MalformedURLException e) {
-            //todo
-            return;
-        } catch (IOException e) {
-             //todo
-            return;
+        } catch (MalformedURLException ex) {
+            Logger.getLogger(Viewer.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(Viewer.class.getName()).log(Level.SEVERE, null, ex);
         }
 	
         //create document
         Element root = null;
         try {
             root = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new ByteArrayInputStream(xmlString.getBytes())).getDocumentElement();
-        } catch (ParserConfigurationException ex) {
-            Logger.getLogger(Viewer.class.getName()).log(Level.SEVERE, null, ex);
-            return;
-        } catch (SAXException ex) {
-            Logger.getLogger(Viewer.class.getName()).log(Level.SEVERE, null, ex);
-            return;
-        } catch (IOException ex) {
-            Logger.getLogger(Viewer.class.getName()).log(Level.SEVERE, null, ex);
-            return;
+        } catch (Exception ex){
+            DialogUtils.displayException("WikiPathways Error", "Error parsing gpml file. ", ex);
         }
 
         //TODO: can we really make assumptions about ordering of xml?
@@ -403,15 +394,8 @@ public class Viewer extends JSplitPane {
         try {
             DocumentBuilder db = dbf.newDocumentBuilder();
             gpmlDoc = db.parse(uri.toString());
-        } catch (ParserConfigurationException pce) {
-            System.out.println("ERROR");
-            //TODO
-        } catch (SAXException se) {
-            System.out.println("ERROR");
-            //TODO
-        } catch (IOException ioe) {
-            System.out.println("ERROR");
-            //TODO
+        } catch (Exception ex){
+            DialogUtils.displayException("WikiPathways Error", "Error parsing gpml file. ", ex);
         }
 
         parseGPML();
@@ -628,8 +612,8 @@ public class Viewer extends JSplitPane {
             java.net.URI uri = new java.net.URI(linkOutUrl);
             desktop.browse(uri);
         }
-        catch ( Exception e ) {
-            //TODO: something
+        catch ( Exception ex ) {
+            JOptionPane.showMessageDialog(this, "<HTML>This operation is not supported by your computer.<BR>Web page: " + linkOutUrl + "</HTML>");
         }
     }
 

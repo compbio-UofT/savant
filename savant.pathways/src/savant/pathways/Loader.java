@@ -54,6 +54,10 @@ public class Loader extends JPanel {
         label.setText(message);
     }
     
+    public void setMessageAndShow(String message){
+        label.setText(message);
+        this.setVisible(true);
+    }
     
     //CONVENIENCE FUNCTIONS
     
