@@ -40,6 +40,7 @@ import javax.swing.*;
 
 import com.jidesoft.docking.DockableFrame;
 import com.jidesoft.docking.DockingManager;
+import java.util.Collection;
 import net.sf.samtools.SAMRecord;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -114,6 +115,19 @@ public class MiscUtils {
         return DateFormat.getTimeInstance().format(cal.getTime());
     }
 
+
+    public static String join(Collection<? extends Object> strs, String separator) {
+        StringBuilder result = null;
+        for (Object o: strs) {
+            if (result == null) {
+                result = new StringBuilder();
+            } else {
+                result.append(separator);
+            }
+            result.append(o);
+        }
+        return result.toString();
+    }
 
     /**
      * Remove the specified character from the given string.

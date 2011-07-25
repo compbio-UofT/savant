@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -63,7 +64,7 @@ public class PluginController extends Controller {
     private List<String> pluginsToRemove = new ArrayList<String>();
     private Map<String, PluginDescriptor> validPlugins = new HashMap<String, PluginDescriptor>();
     private Map<String, SavantPlugin> loadedPlugins = new HashMap<String, SavantPlugin>();
-    private Map<String, String> pluginErrors = new HashMap<String, String>();
+    private Map<String, String> pluginErrors = new LinkedHashMap<String, String>();
     private PluginLoader pluginLoader;
     private PluginIndex repositoryIndex = null;
     
@@ -113,10 +114,37 @@ public class PluginController extends Controller {
 
         // Check to see if we have any outdated plugins.
         if (pluginErrors.size() > 0) {
+            List<String> updated = new ArrayList<String>();
             for (String s: pluginErrors.keySet()) {
                 if (!validPlugins.containsKey(s)) {
                     // Plugin is invalid, and we don't have a newer version.
-                    checkForPluginUpdate(s);
+                    if (checkForPluginUpdate(s)) {
+                        updated.add(s);
+                    }
+                }
+            }
+            if (updated.size() > 0) {
+                DialogUtils.displayMessage("Plugins Updated", String.format("<html>The following plugins were updated to be compatible with Savant %s:<br><br><i>%s</i></html>", BrowserSettings.VERSION, MiscUtils.join(updated, ", ")));
+                for (String s: updated) {
+                    pluginErrors.remove(s);
+                }
+            }
+            if (pluginErrors.size() > 0) {
+                StringBuilder errorStr = null;
+                for (String s: pluginErrors.keySet()) {
+                    if (!validPlugins.containsKey(s)) {
+                        if (errorStr == null) {
+                            errorStr = new StringBuilder();
+                        } else {
+                            errorStr.append("\n");
+                        }
+                        errorStr.append(s);
+                        errorStr.append(" – ");
+                        errorStr.append(pluginErrors.get(s));
+                    }
+                }
+                if (errorStr != null) {
+                    DialogUtils.displayMessage("Plugins Not Loaded", String.format("<html>The following plugins could not be loaded:<br><br><i>%s</i><br><br>They will not be available to Savant.</html>", errorStr));
                 }
             }
         }
@@ -343,19 +371,23 @@ public class PluginController extends Controller {
         loadPlugin(desc);
     }
 
-    private void checkForPluginUpdate(String id) {
+    private boolean checkForPluginUpdate(String id) {
         try {
             if (repositoryIndex == null) {
                 repositoryIndex = new PluginIndex(BrowserSettings.PLUGIN_URL);
             }
             URL updateURL = repositoryIndex.getPluginURL(id);
-            LOG.info("Downloading updated version of " + id + " from " + updateURL);
-            addPlugin(DownloadFile.downloadFile(updateURL, DirectorySettings.getPluginsDirectory()));
+            if (updateURL != null) {
+                LOG.info("Downloading updated version of " + id + " from " + updateURL);
+                addPlugin(DownloadFile.downloadFile(updateURL, DirectorySettings.getPluginsDirectory()));
+                return true;
+            }
         } catch (IOException x) {
             LOG.error("Unable to install update for " + id, x);
         } catch (PluginVersionException x) {
             LOG.error("Update for " + id + " not loaded.");
         }
+        return false;
     }
 
 
