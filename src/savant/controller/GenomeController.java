@@ -5,6 +5,7 @@
 
 package savant.controller;
 
+import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -12,6 +13,7 @@ import savant.controller.event.GenomeChangedEvent;
 import savant.controller.event.TrackAddedOrRemovedEvent;
 import savant.controller.event.TrackRemovedListener;
 import savant.data.types.Genome;
+import savant.view.swing.Frame;
 import savant.view.swing.sequence.SequenceTrack;
 
 /**
@@ -67,6 +69,10 @@ public class GenomeController extends Controller<GenomeChangedEvent> {
             Genome oldGenome = loadedGenome;
             if (!genome.equals(oldGenome)) {
                 loadedGenome = genome;
+                List<Frame> frames = FrameController.getInstance().getFrames();
+                for(Frame f : frames){
+                    f.toggleSetAsGenomeButton();
+                }
                 fireEvent(new GenomeChangedEvent(oldGenome, loadedGenome));
             }
         }
@@ -75,10 +81,10 @@ public class GenomeController extends Controller<GenomeChangedEvent> {
     public synchronized void setSequence(SequenceTrack t) {
         if (loadedGenome == null) {
             setGenome(Genome.createFromTrack(t));
-        } else if (loadedGenome.getSequenceTrack() != t) {
+        } /*else if (loadedGenome.getSequenceTrack() != t) {
             loadedGenome.setSequenceTrack(t);
             LOG.info("Firing sequence set/unset event for " + loadedGenome);
             fireEvent(new GenomeChangedEvent(loadedGenome, loadedGenome));
-        }
+        }*/
     }
 }

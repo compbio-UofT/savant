@@ -31,6 +31,7 @@ import javax.swing.event.MenuListener;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import savant.api.adapter.DataSourceAdapter;
+import savant.api.adapter.TrackAdapter;
 
 import savant.api.util.DialogUtils;
 import savant.controller.DockableFrameController;
@@ -47,6 +48,8 @@ import savant.data.event.DataRetrievalListener;
 import savant.data.event.TrackCreationEvent;
 import savant.data.event.TrackCreationListener;
 import savant.data.sources.DataSource;
+import savant.data.sources.FASTADataSource;
+import savant.data.types.Genome;
 import savant.file.DataFormat;
 import savant.settings.ColourSettings;
 import savant.swing.component.ProgressPanel;
@@ -80,6 +83,7 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
     private FrameSidePanel sidePanel;
     private int drawModePosition = 0;
     private JMenu intervalMenu;
+    private JMenu setAsGenomeButton;
 
     public JScrollPane scrollPane;
 
@@ -290,6 +294,10 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
         } else if (df == DataFormat.INTERVAL_RICH) {
             bedButton = createBEDButton();
             commandBar.add(bedButton);
+        } else if (df == DataFormat.SEQUENCE_FASTA){
+            setAsGenomeButton = createSetAsGenomeButton();
+            toggleSetAsGenomeButton();
+            commandBar.add(setAsGenomeButton);           
         }
 
         if (df == DataFormat.INTERVAL_RICH || df == DataFormat.INTERVAL_GENERIC) {
@@ -505,6 +513,39 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
         });
         button.setFocusPainted(false);
         return button;
+    }
+    
+    /**
+     * Create set as genome button for sequence tracks
+     */
+    private JMenu createSetAsGenomeButton() {
+        final JMenu button = new JMenu("Set Genome");   
+        button.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                Genome newGenome = Genome.createFromTrack((SequenceTrack)tracks[0]);
+                GenomeController.getInstance().setGenome(newGenome);
+                button.setSelected(false);
+            }
+        });
+        button.setFocusPainted(false);
+        return button;
+    }
+    
+    /**
+     * If track is a sequence, check whether it is the current reference. 
+     * If so, enable "Set Genome" button. And vice versa. 
+     */
+    public void toggleSetAsGenomeButton(){
+        if(setAsGenomeButton == null) return; //all non-sequence tracks
+        TrackAdapter ta = GenomeController.getInstance().getGenome().getSequenceTrack();    
+        if(ta != null && ta.getName() != null && ta.getName().equals(tracks[0].getName())){
+            setAsGenomeButton.setEnabled(false);
+            setAsGenomeButton.setToolTipText("This track is already the reference sequence");
+        } else {
+            setAsGenomeButton.setEnabled(true);
+            setAsGenomeButton.setToolTipText("Use this track as the reference sequence");
+        }
     }
 
     /**
