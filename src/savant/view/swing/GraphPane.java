@@ -149,14 +149,18 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
 
         popupThread = new Thread(new PopupThread(this));
         popupThread.start();
-        
-        GraphPaneController.getInstance().addListener(new Listener<GraphPaneEvent>() {
+
+        GraphPaneController controller = GraphPaneController.getInstance();
+        controller.addListener(new Listener<GraphPaneEvent>() {
             @Override
             public void handleEvent(GraphPaneEvent event) {
                 parentFrame.resetLayers();
             }
-
         });
+
+        // GraphPaneController listens to popup events to make sure that only one
+        // popup is open at a time.
+        addPopupEventListener(controller);
     }
 
     /**
@@ -259,6 +263,10 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         DrawingMode currentMode = tracks[0].getDrawingMode();
 
         boolean sameRange = (prevRange != null && xRange.equals(prevRange));
+        if (!sameRange) {
+            LOG.info("Hiding popup because range is now " + xRange);
+            hidePopup();
+        }
         boolean sameMode = currentMode == prevMode;
         boolean sameSize = prevSize != null && getSize().equals(prevSize) && parentFrame.getFrameLandscape().getWidth() == oldWidth && getParentFrame().getFrameLandscape().getHeight() == oldHeight;
         boolean sameRef = prevRef != null && LocationController.getInstance().getReferenceName().equals(prevRef);
@@ -1204,7 +1212,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
 
                 currentOverRecord = (Record)map.keySet().toArray()[0];
                 currentOverShape = map.get(currentOverRecord);
-                if (currentOverRecord.getClass().equals(GenericContinuousRecord.class)){
+                if (currentOverRecord instanceof GenericContinuousRecord){
                     currentOverShape = ContinuousTrackRenderer.continuousRecordToEllipse(this, currentOverRecord);
                 }
 
@@ -1228,9 +1236,11 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
     }
 
     public void hidePopup(){
-        if(this.popupVisible){
+        if (popupVisible){
             popupVisible = false;
             jp.hidePopupImmediately();
+        }
+        if (currentOverShape != null) {
             currentOverShape = null;
             currentOverRecord = null;
             repaint();
@@ -1397,7 +1407,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         }
     }
 
-    public void addPopupEventListener(PopupEventListener pel){
+    public final void addPopupEventListener(PopupEventListener pel){
         synchronized (popupListeners) {
             popupListeners.add(pel);
         }

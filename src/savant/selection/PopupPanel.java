@@ -44,7 +44,7 @@ import savant.view.swing.Track;
  *
  * @author AndrewBrook
  */
-public class PopupPanel extends JPanel {
+public abstract class PopupPanel extends JPanel {
 
     protected GraphPane gp;
     protected DrawingMode mode;
@@ -56,9 +56,6 @@ public class PopupPanel extends JPanel {
     protected String ref;
     protected int start;
     protected int end;
-
-    //additional fields
-   // protected List<String> addedFields;
 
     public static PopupPanel create(GraphPane parent, DrawingMode mode, DataSourceAdapter dataSource, Record rec){
 
@@ -170,13 +167,7 @@ public class PopupPanel extends JPanel {
 
     protected void initSpecificButtons(){};
 
-    //default...should be overridden in subclasses
-    protected void calculateInfo(){
-        name = null;
-        ref = null;
-        start = -1;
-        end = -1;
-    };
+    protected abstract void calculateInfo();
 
     protected void initInfo(){};
 
@@ -193,17 +184,12 @@ public class PopupPanel extends JPanel {
         return orig;
     }
 
-    public void addField(String text){
-        this.add(new JSeparator());
-        this.add(new JLabel(text));
-    }
-
-    public Record getRecord(){
+    public Record getRecord() {
         return record;
     }
 
-    protected void hidePopup(){
-        this.gp.hidePopup();
+    public void hidePopup() {
+        gp.hidePopup();
     }
 
     protected void initIntervalJumps(final IntervalRecord rec){

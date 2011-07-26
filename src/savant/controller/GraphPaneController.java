@@ -20,7 +20,13 @@ import java.awt.Point;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import savant.controller.event.GraphPaneEvent;
+import savant.data.event.PopupEvent;
+import savant.data.event.PopupEventListener;
+import savant.selection.PopupPanel;
 import savant.util.Range;
 import savant.view.swing.GraphPane;
 
@@ -29,7 +35,8 @@ import savant.view.swing.GraphPane;
  *
  * @author mfiume
  */
-public class GraphPaneController extends Controller {
+public class GraphPaneController extends Controller implements PopupEventListener {
+    private static final Log LOG = LogFactory.getLog(GraphPaneController.class);
 
     private boolean isSpotlight;
     private boolean isPlumbing;
@@ -51,6 +58,9 @@ public class GraphPaneController extends Controller {
     private static GraphPaneController instance;
 
     private boolean changeMade = false;
+
+    /** Panel (if any) which is currently popped up. */
+    private PopupPanel poppedUp = null;
 
     public void clearRenderingList() {
         graphpanesQueuedForRendering.clear();
@@ -236,5 +246,17 @@ public class GraphPaneController extends Controller {
 
     public int getSpotlightSize() {
         return this.spotlightSize;
+    }
+
+    /**
+     * Recognise when a new popup has opened so that we can close the previous one.
+     */
+    @Override
+    public void newPopup(PopupEvent evt) {
+        if (poppedUp != null && evt.getPopup() != poppedUp) {
+            LOG.info("Hiding popup for " + poppedUp.getRecord());
+            poppedUp.hidePopup();
+        }
+        poppedUp = evt.getPopup();
     }
 }
