@@ -71,6 +71,7 @@ public class RichIntervalSQLDataSource extends SQLDataSource<TabixIntervalRecord
 
             while (rs.next()) {
                 int start = rs.getInt(columns.start);
+                int end = rs.getInt(columns.end);
                 String name = rs.getString(columns.name);
                 String name2 = "";
                 if (columns.name2 != null) {
@@ -84,13 +85,13 @@ public class RichIntervalSQLDataSource extends SQLDataSource<TabixIntervalRecord
                 if (columns.strand != null) {
                     strand = rs.getString(columns.strand);
                 }
-                int thickStart = -1;
+                int thickStart = start;
                 if (columns.thickStart != null) {
                     thickStart = rs.getInt(columns.thickStart);
                 }
-                int thickEnd = -1;
+                int thickEnd = end;
                 if (columns.thickEnd != null) {
-                    thickEnd = rs.getInt(columns.thickEnd) - 1;
+                    thickEnd = rs.getInt(columns.thickEnd);
                 }
                 int itemRGB = 0;
                 if (columns.itemRGB != null) {
