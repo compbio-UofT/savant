@@ -62,7 +62,7 @@ public class PluginController extends Controller {
 
     private File uninstallFile;
     private List<String> pluginsToRemove = new ArrayList<String>();
-    private Map<String, PluginDescriptor> validPlugins = new HashMap<String, PluginDescriptor>();
+    private Map<String, PluginDescriptor> knownPlugins = new HashMap<String, PluginDescriptor>();
     private Map<String, SavantPlugin> loadedPlugins = new HashMap<String, SavantPlugin>();
     private Map<String, String> pluginErrors = new LinkedHashMap<String, String>();
     private PluginLoader pluginLoader;
@@ -116,11 +116,9 @@ public class PluginController extends Controller {
         if (pluginErrors.size() > 0) {
             List<String> updated = new ArrayList<String>();
             for (String s: pluginErrors.keySet()) {
-                if (!validPlugins.containsKey(s)) {
-                    // Plugin is invalid, and we don't have a newer version.
-                    if (checkForPluginUpdate(s)) {
-                        updated.add(s);
-                    }
+                // Plugin is invalid, and we don't have a newer version.
+                if (checkForPluginUpdate(s)) {
+                    updated.add(s);
                 }
             }
             if (updated.size() > 0) {
@@ -132,16 +130,14 @@ public class PluginController extends Controller {
             if (pluginErrors.size() > 0) {
                 StringBuilder errorStr = null;
                 for (String s: pluginErrors.keySet()) {
-                    if (!validPlugins.containsKey(s)) {
-                        if (errorStr == null) {
-                            errorStr = new StringBuilder();
-                        } else {
-                            errorStr.append("\n");
-                        }
-                        errorStr.append(s);
-                        errorStr.append(" – ");
-                        errorStr.append(pluginErrors.get(s));
+                    if (errorStr == null) {
+                        errorStr = new StringBuilder();
+                    } else {
+                        errorStr.append("\n");
                     }
+                    errorStr.append(s);
+                    errorStr.append(" – ");
+                    errorStr.append(pluginErrors.get(s));
                 }
                 if (errorStr != null) {
                     DialogUtils.displayMessage("Plugins Not Loaded", String.format("<html>The following plugins could not be loaded:<br><br><i>%s</i><br><br>They will not be available to Savant.</html>", errorStr));
@@ -149,35 +145,39 @@ public class PluginController extends Controller {
             }
         }
 
-        if (validPlugins.size() > 0) {
-            Set<URL> jarURLs = new HashSet<URL>();
-            for (PluginDescriptor desc: validPlugins.values()) {
-                try {
+        Set<URL> jarURLs = new HashSet<URL>();
+        for (PluginDescriptor desc: knownPlugins.values()) {
+            try {
+                if (!pluginErrors.containsKey(desc.getID())) {
                     jarURLs.add(desc.getFile().toURI().toURL());
-                } catch (MalformedURLException ignored) {
                 }
+            } catch (MalformedURLException ignored) {
             }
+        }
+        if (jarURLs.size() > 0) {
             pluginLoader = new PluginLoader(jarURLs.toArray(new URL[0]), getClass().getClassLoader());
 
-            for (final PluginDescriptor desc: validPlugins.values()) {
-                new Thread("PluginLoader-" + desc) {
-                    @Override
-                    public void run() {
-                        try {
-                            loadPlugin(desc);
-                        } catch (Throwable x) {
-                            LOG.error("Unable to load " + desc.getName(), x);
-                            pluginErrors.put(desc.getID(), "Error");
+            for (final PluginDescriptor desc: knownPlugins.values()) {
+                if (!pluginErrors.containsKey(desc.getID())) {
+                    new Thread("PluginLoader-" + desc) {
+                        @Override
+                        public void run() {
+                            try {
+                                loadPlugin(desc);
+                            } catch (Throwable x) {
+                                LOG.error("Unable to load " + desc.getName(), x);
+                                pluginErrors.put(desc.getID(), "Error");
+                            }
                         }
-                    }
-                }.start();
+                    }.start();
+                }
             }
         }
     }
 
     public List<PluginDescriptor> getDescriptors() {
         List<PluginDescriptor> result = new ArrayList<PluginDescriptor>();
-        result.addAll(validPlugins.values());
+        result.addAll(knownPlugins.values());
         Collections.sort(result);
         return result;
     }
@@ -189,7 +189,7 @@ public class PluginController extends Controller {
     public void queuePluginForRemoval(String id) {
         FileWriter fstream = null;
         try {
-            PluginDescriptor info = validPlugins.get(id);
+            PluginDescriptor info = knownPlugins.get(id);
             LOG.info("Adding plugin " + info.getFile().getAbsolutePath() + " to uninstall list " + uninstallFile.getPath());
 
             if (!uninstallFile.exists()) {
@@ -223,13 +223,13 @@ public class PluginController extends Controller {
         if (loadedPlugins.get(id) != null) {
             return "Loaded";
         }
-        if (validPlugins.get(id) != null) {
-            // Plugin is valid, but hasn't shown up in the loadedPlugins map.
-            return "Loading";
-        }
         String err = pluginErrors.get(id);
         if (err != null) {
             return err;
+        }
+        if (knownPlugins.get(id) != null) {
+            // Plugin is valid, but hasn't shown up in the loadedPlugins map.
+            return "Loading";
         }
         return "Unknown";
     }
@@ -337,18 +337,17 @@ public class PluginController extends Controller {
     public PluginDescriptor addPlugin(File f) throws PluginVersionException {
         PluginDescriptor desc = PluginDescriptor.fromFile(f);
         if (desc != null) {
+            LOG.info("Found possible " + desc + " in " + f.getName());
+            PluginDescriptor existingDesc = knownPlugins.get(desc.getID());
+            if (existingDesc != null && existingDesc.getVersion().compareTo(desc.getVersion()) >= 0) {
+                LOG.info("   Ignored " + desc + " due to presence of existing " + existingDesc);
+                return null;
+            }
+            knownPlugins.put(desc.getID(), desc);
             if (desc.isCompatible()) {
-                LOG.info("Found compatible " + desc + " in " + f.getName());
-                PluginDescriptor existingDesc = validPlugins.get(desc.getID());
                 if (existingDesc != null) {
-                    if (existingDesc.getVersion().compareTo(desc.getVersion()) >= 0) {
-                        LOG.info("   Ignored " + desc + " due to presence of existing " + existingDesc);
-                    } else {
-                        LOG.info("   Replaced " + existingDesc);
-                        validPlugins.put(desc.getID(), desc);
-                    }
-                } else {
-                    validPlugins.put(desc.getID(), desc);
+                    LOG.info("   Replaced " + existingDesc);
+                    pluginErrors.remove(desc.getID());
                 }
             } else {
                 LOG.info("Found incompatible " + desc + " (SDK version " + desc.getSDKVersion() + ") in " + f.getName());
