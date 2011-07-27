@@ -39,7 +39,8 @@ public class TabixPopup extends PopupPanel {
 
     @Override
     protected void calculateInfo() {
-        //name = rec.getDescription();
+        //name = rec.getDescription();w
+        name = rec.getName();
         ref = rec.getReference();
         start = rec.getInterval().getStart();
         end = rec.getInterval().getEnd();
