@@ -264,7 +264,6 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
 
         boolean sameRange = (prevRange != null && xRange.equals(prevRange));
         if (!sameRange) {
-            LOG.info("Hiding popup because range is now " + xRange);
             hidePopup();
         }
         boolean sameMode = currentMode == prevMode;
