@@ -330,8 +330,12 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
                     if (message == null) {
                         message = rx.getMessage();
                         //TODO: this shouldn't really be done here...
-                        if(message.equals("Zoom in to see data")){
-                            subMessage = "To view data at this range, change Edit > Preferences > Track Resolutions";
+                        if (message.equals("Zoom in to see data")){
+                            if (MiscUtils.MAC) {
+                                subMessage = "To view data at this range, change Preferences > Track Resolutions";
+                            } else {
+                                subMessage = "To view data at this range, change Edit > Preferences > Track Resolutions";
+                            }
                         }
                     }
                 }
