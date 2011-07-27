@@ -314,6 +314,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
             // Call the actual render() methods.
             boolean nothingRendered = true;
             String message = null;
+            String subMessage = null;
             for (Track t: tracks) {
                 if(nothingRendered){
                     setYMaxVisible(true);
@@ -329,13 +330,17 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
                     }
                     if (message == null) {
                         message = rx.getMessage();
+                        //TODO: this shouldn't really be done here...
+                        if(message.equals("Zoom in to see data")){
+                            subMessage = "To view data at this range, change Edit > Preferences > Track Resolutions";
+                        }
                     }
                 }
             }
             if (nothingRendered && message != null) {
                 setPreferredSize(new Dimension(getWidth(), 0));
                 revalidate();
-                drawMessage(g3, message);
+                drawMessage(g3, message, subMessage);
             }
 
             updateYMax();
@@ -587,7 +592,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         }
 
         if (isLocked()) {
-            drawMessage((Graphics2D)g, "Locked");
+            drawMessage((Graphics2D)g, "Locked", null);
         }
 
         GraphPaneController.getInstance().delistRenderingGraphpane(this);
@@ -1307,21 +1312,35 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
      * @param g2 the graphics to be rendered
      * @param message text of the message to be displayed
      */
-    private void drawMessage(Graphics2D g2, String message) {
+    private void drawMessage(Graphics2D g2, String message, String subMessage) {
 
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_ON);
         Font font = g2.getFont();
+        Font subFont = font;
 
         int h = getSize().height/3;
         int w = getWidth();
 
         if (w > 500) {
             font = font.deriveFont(Font.PLAIN, 36);
+            subFont = subFont.deriveFont(Font.PLAIN, 18);
         } else if (w > 150) {
             font = font.deriveFont(Font.PLAIN, 24);
+            subFont = subFont.deriveFont(Font.PLAIN, 12);
         } else {
             font = font.deriveFont(Font.PLAIN, 12);
+            subFont = subFont.deriveFont(Font.PLAIN, 8);
         }
+
+        if(subMessage != null){
+            drawMessageHelper(g2, message, font, w, h, -(subFont.getSize()/2));
+            drawMessageHelper(g2, subMessage, subFont, w, h, font.getSize()-(subFont.getSize()/2));
+        } else {
+            drawMessageHelper(g2, message, font, w, h, 0);
+        }
+    }
+    
+    private void drawMessageHelper(Graphics2D g2, String message, Font font, int w, int h, int offset){
         g2.setFont(font);
         FontMetrics metrics = g2.getFontMetrics();
 
@@ -1336,14 +1355,9 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         int x = (getWidth() - w) / 2;
         int y = (getHeight() - h) / 2;
 
-        //Color vColor = new Color(0, 105, 134, 196);
-
-        //g2.setColor(vColor);
-        //g2.fillRoundRect(x, y, w, h, arc, arc);
-
         g2.setColor(ColourSettings.getGlassPaneBackground());
         x = (getWidth() - (int)stringBounds.getWidth()) / 2;
-        y = (getHeight() / 2) + ((metrics.getAscent()- metrics.getDescent()) / 2);
+        y = (getHeight() / 2) + ((metrics.getAscent()- metrics.getDescent()) / 2) + offset;
 
         g2.drawString(message,x,y);
     }
