@@ -82,7 +82,7 @@ public class BookmarkController {
         this.fireBookmarksChangedEvent(bkmks.get(bkmks.size()-1), true);
     }
     
-     private static Bookmark parseBookmark(String line) {
+     private static Bookmark parseBookmark(String line, boolean addMargin) {
 
         StringTokenizer st = new StringTokenizer(line,"\t");
 
@@ -96,10 +96,10 @@ public class BookmarkController {
         }
         annotation.trim();
 
-        return new Bookmark(ref, new Range(from,to), annotation);
+        return new Bookmark(ref, new Range(from,to), annotation, addMargin);
     }
 
-     public void addBookmarksFromFile(File f) throws FileNotFoundException, IOException {
+     public void addBookmarksFromFile(File f, boolean addMargin) throws FileNotFoundException, IOException {
 
         BufferedReader br = new BufferedReader(new FileReader(f));
 
@@ -108,7 +108,7 @@ public class BookmarkController {
         List<Bookmark> newBookmarks = new ArrayList<Bookmark>();
 
         while ((line = br.readLine()) != null) {
-            newBookmarks.add(parseBookmark(line));
+            newBookmarks.add(parseBookmark(line, addMargin));
         }
 
         //bookmarks.addAll(newBookmarks);

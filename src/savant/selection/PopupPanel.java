@@ -154,9 +154,9 @@ public abstract class PopupPanel extends JPanel {
                 public void mouseClicked(MouseEvent e) {
                     ref = homogenizeRef(ref);
                     if (name != null){
-                        BookmarkController.getInstance().addBookmark(new Bookmark(ref, new Range(start, end), name));
+                        BookmarkController.getInstance().addBookmark(new Bookmark(ref, new Range(start, end), name, true));
                     } else {
-                        BookmarkController.getInstance().addBookmark(new Bookmark(ref, new Range(start, end)));
+                        BookmarkController.getInstance().addBookmark(new Bookmark(ref, new Range(start, end), true));
                     }
                     hidePopup();
                 }

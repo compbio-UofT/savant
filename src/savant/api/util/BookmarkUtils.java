@@ -131,4 +131,17 @@ public class BookmarkUtils {
     public static BookmarkAdapter createBookmark(String ref, RangeAdapter range, String ann) {
         return new Bookmark(ref, (Range)range, ann);
     }
+    
+    /**
+     * Factory method for creating a new BookmarkAdapter object with text annotation.
+     *
+     * @param ref the reference for the new bookmark (e.g. "chrX")
+     * @param range the range for the new bookmark
+     * @param ann the annotation text for the new bookmark
+     * @param addMargin if true add padding to range
+     * @return a newly-created <code>BookmarkAdapter</code> corresponding to <code>ref</code> and <code>range</code>.
+     */
+    public static BookmarkAdapter createBookmark(String ref, RangeAdapter range, String ann, boolean addMargin) {
+        return new Bookmark(ref, (Range)range, ann, addMargin);
+    }
 }

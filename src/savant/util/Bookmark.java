@@ -36,12 +36,26 @@ public class Bookmark implements BookmarkAdapter, Serializable {
     private String annotation;
 
     public Bookmark(String reference, Range r) {
-        this(reference, r, "");
+        this(reference, r, "", false);
+    }
+    
+    public Bookmark(String reference, Range r, boolean addMargin){
+        this(reference, r, "", addMargin);
     }
 
     public Bookmark(String reference, Range r, String ann) {
+        this(reference, r, "", false);
+    }
+    
+    public Bookmark(String reference, Range r, String ann, boolean addMargin){
         this.setReference(reference);
-        this.setRange(r);
+        if(addMargin){
+            int buffer = (int)Math.max(250, r.getLength()*0.25);
+            int newStart = Math.max(1, r.getFrom()-buffer);
+            this.setRange(new Range(newStart, r.getTo()+buffer));
+        } else {
+            this.setRange(r);
+        }    
         this.setAnnotation(ann);
     }
 

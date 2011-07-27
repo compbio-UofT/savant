@@ -38,6 +38,7 @@ import org.apache.commons.logging.LogFactory;
 
 import savant.api.util.DialogUtils;
 import savant.controller.BookmarkController;
+import savant.controller.GenomeController;
 import savant.controller.LocationController;
 import savant.controller.event.BookmarksChangedEvent;
 import savant.controller.event.BookmarksChangedListener;
@@ -276,6 +277,9 @@ public class BookmarkSheet implements BookmarksChangedListener {
 
         // set the genome
         if (selectedFile != null) {
+            
+            int result = JOptionPane.showOptionDialog(null, "Would you like to add padding to each bookmark range?", "Add a margin?", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, null, null);
+            final boolean addMargin = (result == JOptionPane.YES_OPTION);
 
             Thread thread = new Thread() {
                 @Override
@@ -287,7 +291,7 @@ public class BookmarkSheet implements BookmarksChangedListener {
                     dialog.setLocationRelativeTo(parent);
                     dialog.setVisible(true);
                     try {
-                        BookmarkController.getInstance().addBookmarksFromFile(selectedFile);
+                        BookmarkController.getInstance().addBookmarksFromFile(selectedFile, addMargin);
                         btm.fireTableDataChanged();
                     } catch (Exception ex) {
                         DialogUtils.displayError("Error", "Unable to load bookmarks: " + ex.getMessage());
@@ -363,6 +367,11 @@ public class BookmarkSheet implements BookmarksChangedListener {
         LocationController lc = LocationController.getInstance();
         BookmarksTableModel tableModel = (BookmarksTableModel) table.getModel();
         Bookmark bookmark = tableModel.getData().get(i);
+        /*int buffer = (int)Math.max(250, bookmark.getRange().getLength()*0.25);
+        int start = Math.max(0, bookmark.getRange().getFrom()-buffer);
+        int end = Math.min(XXX, bookmark.getRange().getTo()+buffer);
+        Range newRange = new Range(start, end);
+        lc.setLocation(bookmark.getReference(),newRange);*/
         lc.setLocation(bookmark.getReference(),(Range) bookmark.getRange());
     }
 }
