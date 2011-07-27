@@ -81,10 +81,11 @@ public class GenomeController extends Controller<GenomeChangedEvent> {
     public synchronized void setSequence(SequenceTrack t) {
         if (loadedGenome == null) {
             setGenome(Genome.createFromTrack(t));
-        } /*else if (loadedGenome.getSequenceTrack() != t) {
+        //} else if (loadedGenome.getSequenceTrack() != t) {
+        } else if (!loadedGenome.isSequenceSet()) {
             loadedGenome.setSequenceTrack(t);
             LOG.info("Firing sequence set/unset event for " + loadedGenome);
             fireEvent(new GenomeChangedEvent(loadedGenome, loadedGenome));
-        }*/
+        }
     }
 }
