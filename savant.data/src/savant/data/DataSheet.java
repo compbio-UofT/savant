@@ -29,9 +29,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.*;
+import javax.swing.RowFilter.Entry;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableRowSorter;
 
 import savant.api.adapter.TrackAdapter;
 import savant.api.util.DialogUtils;
@@ -55,8 +57,8 @@ public class DataSheet implements LocationChangeCompletedListener, TrackListChan
     private JComboBox trackList;
     private ExtendedTable table;
     private boolean autoUpdate = true;
-    private JCheckBox autoUpdateCheckBox;
-    private JLabel label_num_items;
+    private boolean onlySelected = false;
+    private JLabel numItemsLabel;
     private TrackAdapter currentTrack;
     private DataTableModel tableModel;
     private List<Record> data;
@@ -92,30 +94,34 @@ public class DataSheet implements LocationChangeCompletedListener, TrackListChan
                 }
             }
         });
-        /*
-        trackList.setMinimumSize(new Dimension(100,100));
-        trackList.setMaximumSize(new Dimension(500,500));
-        trackList.setPreferredSize(new Dimension(300,300));
-         * 
-         */
+
         trackList.setBackground(Color.lightGray);
         toolbar.add(trackList);
 
         toolbar.add(Box.createHorizontalGlue());
 
-        autoUpdateCheckBox = new JCheckBox();
-        autoUpdateCheckBox.setText("Auto Update");
-        autoUpdateCheckBox.setSelected(autoUpdate);
-        toolbar.add(autoUpdateCheckBox);
+        JCheckBox autoUpdateCheck = new JCheckBox();
+        autoUpdateCheck.setText("Auto Update");
+        autoUpdateCheck.setSelected(autoUpdate);
+        toolbar.add(autoUpdateCheck);
 
-        autoUpdateCheckBox.addChangeListener(
-            new ChangeListener() {
-                @Override
-                public void stateChanged(ChangeEvent e) {
-                    setAutoUpdate(autoUpdateCheckBox.isSelected());
-                }
+        autoUpdateCheck.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent ce) {
+                setAutoUpdate(((JCheckBox)ce.getSource()).isSelected());
             }
-        );
+        });
+
+        JCheckBox onlySelectedCheck = new JCheckBox("Show Only Selected");
+        onlySelectedCheck.setSelected(false);
+        toolbar.add(onlySelectedCheck);
+
+        onlySelectedCheck.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent ce) {
+                setOnlySelected(((JCheckBox)ce.getSource()).isSelected());
+            }
+        });
 
         JButton exportButton = new JButton("Export");
         exportButton.addActionListener(new ActionListener() {
@@ -127,7 +133,6 @@ public class DataSheet implements LocationChangeCompletedListener, TrackListChan
         toolbar.add(exportButton);
 
         // create a table (the most important component)
-        //table = new JTable();
         table = new ExtendedTable();
         table.setAutoCreateRowSorter(true);
         table.setFillsViewportHeight(true);
@@ -147,6 +152,9 @@ public class DataSheet implements LocationChangeCompletedListener, TrackListChan
                         Record r = data.get(table.getRowSorter().convertRowIndexToModel(row));
                         SelectionUtils.toggleSelection(currentTrack, r);
                         currentTrack.repaint();
+                        if (onlySelected) {
+                            refreshData();
+                        }
                     }
                 }
             }
@@ -160,18 +168,33 @@ public class DataSheet implements LocationChangeCompletedListener, TrackListChan
         JLabel label_num_items_title = new JLabel("Number of records: ");
         label_num_items_title.setBackground(jtb.getBackground());
         jtb.add(label_num_items_title);
-        label_num_items = new JLabel("0");
-        jtb.add(label_num_items);
+        numItemsLabel = new JLabel("0");
+        jtb.add(numItemsLabel);
 
         jtb.setVisible(true);
         jtb.setFloatable(false);
         panel.add(jtb);
     }
 
-    private void setAutoUpdate(boolean au) {
-        autoUpdate = au;
+    private void setAutoUpdate(boolean value) {
+        autoUpdate = value;
         if (autoUpdate) {
             refreshData();
+        }
+    }
+
+    private void setOnlySelected(boolean value) {
+        onlySelected = value;
+        TableRowSorter sorter = (TableRowSorter<DataTableModel>)table.getRowSorter();
+        if (onlySelected) {
+            sorter.setRowFilter(new RowFilter<DataTableModel, Integer>() {
+                @Override
+                public boolean include(Entry<? extends DataTableModel, ? extends Integer> entry) {
+                    return table.selectedRows.contains(entry.getIdentifier());
+                }
+            });
+        } else {
+            sorter.setRowFilter(null);
         }
     }
 
@@ -204,7 +227,7 @@ public class DataSheet implements LocationChangeCompletedListener, TrackListChan
         tableModel.fireTableDataChanged();
         if (data == null) {
             //label_num_items.setText(MiscUtils.intToString(0));
-            label_num_items.setText("(zoom in for records)");
+            numItemsLabel.setText("(zoom in for records)");
         } else {
             String s = "";
 
@@ -212,12 +235,16 @@ public class DataSheet implements LocationChangeCompletedListener, TrackListChan
             //s += String.format("###,###", data.size());
             s += data.size();
 
-            DataTableModel dtm = (DataTableModel) table.getModel();
-            if (dtm.getIsNumRowsLimited() && data.size() > dtm.getMaxRows()) {
-                s += " (showing first " + dtm.getMaxRows() + ")";
+            if (((TableRowSorter<DataTableModel>)table.getRowSorter()).getRowFilter() != null) {
+                s += " (showing " + table.getRowSorter().getViewRowCount() + " selected)";
+            } else {
+                DataTableModel dtm = (DataTableModel)tableModel;
+                if (dtm.getIsNumRowsLimited() && data.size() > dtm.getMaxRows()) {
+                    s += " (showing first " + dtm.getMaxRows() + ")";
+                }
             }
 
-            label_num_items.setText(s);
+            numItemsLabel.setText(s);
         }
 
 
@@ -308,10 +335,6 @@ public class DataSheet implements LocationChangeCompletedListener, TrackListChan
 
     private static void exportAllSelected(JTable table, TrackAdapter track, File selectedFile) throws IOException {
         BufferedWriter bw = new BufferedWriter(new FileWriter(selectedFile));
-        
-        // FIXME: Does this actually do the same as the commented-out lines?
-//      List dataInRange = SelectionController.getInstance().getSelections(track.getURI());
-//      DataTableModel dtm = new DataTableModel(track.getDataType(), dataInRange);
         DataTableModel dtm = new DataTableModel(track.getDataSource());
         dtm.setData(track.getDataInRange());
         int numRows = dtm.getRowCount();
@@ -329,7 +352,10 @@ public class DataSheet implements LocationChangeCompletedListener, TrackListChan
 
     @Override
     public void selectionChanged(SelectionChangedEvent event) {
-        if (autoUpdate) {
+        if (onlySelected) {
+            refreshSelection();
+            refreshData();
+        } else if (autoUpdate) {
             refreshSelection();
         }
     }
@@ -337,7 +363,6 @@ public class DataSheet implements LocationChangeCompletedListener, TrackListChan
     public void refreshSelection(){
         if(currentTrack == null || table == null || data == null) return;
         table.clearSelectedRows();
-        //List<Comparable> selected = SelectionController.getInstance().getSelections(currentTrack.getURI());
         List<Record> selected = currentTrack.getSelectedDataInRange();
 
         if (selected != null) {
@@ -397,14 +422,9 @@ public class DataSheet implements LocationChangeCompletedListener, TrackListChan
             }
             return super.getCellRenderer(row, column);
         }
-
-        @Override
-        public int getRowCount() {
-            return modelSet ? ((DataTableModel)getModel()).getLimitedRowCount() : 0;
-        }
     }
 
-    /*
+    /**
      * This class is used to override background colour of selected Boolean cells
      * in table, which cannot be done as other cells are (JCheckBox). 
      */
@@ -431,6 +451,5 @@ public class DataSheet implements LocationChangeCompletedListener, TrackListChan
             return comp;
 
         }
-
     }
 }

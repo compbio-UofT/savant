@@ -36,7 +36,6 @@ public class DataTableModel extends AbstractTableModel {
     private static final Class[] POINT_COLUMN_CLASSES = { String.class, Integer.class, String.class };
     private static final Class[] INTERVAL_COLUMN_CLASSES = { String.class, Integer.class, Integer.class, String.class };
     private static final Class[] BAM_COLUMN_CLASSES = { String.class, String.class, Integer.class, Boolean.class, Integer.class, Boolean.class, Integer.class, String.class, String.class, Integer.class, Boolean.class, Integer.class};
-    private static final Class[] BED_COLUMN_CLASSES = { String.class, Integer.class, Integer.class, String.class, Integer.class};
     private static final Class[] CONTINUOUS_COLUMN_CLASSES = { String.class, Integer.class, Double.class };
 
     private DataFormat dataType;
@@ -45,7 +44,6 @@ public class DataTableModel extends AbstractTableModel {
 
     private static boolean dontAllowMoreThanMaxRows = true;
     private static int maxRows = 500;
-
 
     protected List<Record> data;
 
@@ -195,15 +193,18 @@ public class DataTableModel extends AbstractTableModel {
         }
     }
 
-    //actual count of all data
+    /**
+     * Count of records stored in this model.
+     */
     @Override
     public int getRowCount() {
-        return data != null ? data.size() : 0;
-    }
-
-    //count of data to be displayed
-    public int getLimitedRowCount() {
-        return data != null ? Math.min(data.size(), maxRows) : 0;
+        if (data != null) {
+            if (dontAllowMoreThanMaxRows && data.size() > maxRows) {
+                return maxRows;
+            }
+            return data.size();
+        }
+        return 0;
     }
 
     @Override
