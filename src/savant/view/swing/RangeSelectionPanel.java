@@ -268,8 +268,6 @@ public class RangeSelectionPanel extends JPanel implements LocationChangedListen
 
         g.drawImage(image_left_cap, 0, 0, Ruler.CAP_WIDTH, Ruler.CAP_HEIGHT, this);
         g.drawImage(image_right_cap, getWidth() - Ruler.CAP_WIDTH, 0, Ruler.CAP_WIDTH, Ruler.CAP_HEIGHT,this);
-        g.setColor(LINE_COLOUR);
-        g.drawLine(0, hei - 1, Ruler.CAP_WIDTH + 1, hei - 1);
 
         if (isDragging) {
             g.setColor(Color.black);

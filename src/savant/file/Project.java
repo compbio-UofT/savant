@@ -251,7 +251,7 @@ public class Project {
 
         for (Bookmark b : BookmarkController.getInstance().getBookmarks()) {
             writeStartElement(XMLElement.bookmark, "  ");
-            writeAttribute(XMLAttribute.range, b.getRangeText());
+            writeAttribute(XMLAttribute.range, b.getLocationText());
             writer.writeCharacters(b.getAnnotation());
             writer.writeEndElement();
         }

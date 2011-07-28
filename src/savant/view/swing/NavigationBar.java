@@ -17,18 +17,32 @@
 package savant.view.swing;
 
 import java.awt.Component;
+import java.awt.Cursor;
 import java.awt.Dimension;
+import java.awt.KeyboardFocusManager;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
 import javax.swing.*;
+import javax.swing.event.PopupMenuEvent;
+import javax.swing.event.PopupMenuListener;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import savant.api.adapter.BookmarkAdapter;
 import savant.api.util.DialogUtils;
+import savant.controller.GenomeController;
+import savant.controller.Listener;
 import savant.controller.LocationController;
 import savant.controller.TrackController;
+import savant.controller.event.GenomeChangedEvent;
 import savant.controller.event.LocationChangedEvent;
 import savant.controller.event.LocationChangedListener;
 import savant.settings.BrowserSettings;
@@ -37,20 +51,36 @@ import savant.util.MiscUtils;
 import savant.util.Range;
 import savant.view.icon.SavantIconFactory;
 
+
 /**
  * Contains the various widgets for providing easy range navigation.
  *
  * @author tarkvara
  */
 public class NavigationBar extends JToolBar {
+    private static final Log LOG = LogFactory.getLog(NavigationBar.class);
+    private static final Dimension LOCATION_SIZE = new Dimension(270, 22);
+    private static final Dimension LENGTH_SIZE = new Dimension(100, 22);
+    private static final Dimension ICON_SIZE = MiscUtils.MAC ? new Dimension(50, 23) : new Dimension(27, 27);
 
     private LocationController locationController = LocationController.getInstance();
 
     /** Range text-box */
-    JTextField rangeField;
+    JComboBox locationField;
 
     /** Length being displayed */
     private JLabel lengthLabel;
+
+    /**
+     * Last string used when popping up the combo-box.  Saves us from having to regenerate the menu.
+     * Initially set to non-null so that first call to populateCombo() will actually do something.
+     */
+    private String lastPoppedUp = "INVALID";
+
+    /**
+     * Flag to prevent action-events from being fired when we're populating the menu.
+     */
+    private boolean currentlyPopulating = false;
 
     NavigationBar() {
 
@@ -58,7 +88,6 @@ public class NavigationBar extends JToolBar {
 
         String buttonStyle = "segmentedTextured";
 
-        Dimension iconDimension = MiscUtils.MAC ? new Dimension(50, 23) : new Dimension(27, 27);
         String shortcutMod = MiscUtils.MAC ? "Cmd" : "Ctrl";
 
         add(getRigidPadding());
@@ -66,53 +95,95 @@ public class NavigationBar extends JToolBar {
         JLabel rangeText = new JLabel("Location: ");
         add(rangeText);
 
-        int tfwidth = 240;
-        int labwidth = 100;
-        int tfheight = 22;
-        rangeField = new JTextField() {
+        locationField = new JComboBox();
+        locationField.setEditable(true);
+
+
+        // When the item is chosen from the menu, navigate to the given feature/reference.
+        locationField.addActionListener(new ActionListener() {
             @Override
-            public void processKeyEvent(KeyEvent evt) {
-                if (evt.getID() == KeyEvent.KEY_PRESSED) {
-                    if(evt.getKeyCode() == KeyEvent.VK_ENTER) {
-                        setRangeFromTextBox();
-                    } else if (evt.getModifiers() == KeyEvent.SHIFT_MASK) {
-                        switch (evt.getKeyCode()) {
-                            case KeyEvent.VK_LEFT:
-                                locationController.shiftRangeLeft();
-                                evt.consume();
-                                break;
-                            case KeyEvent.VK_RIGHT:
-                                locationController.shiftRangeRight();
-                                evt.consume();
-                                break;
-                            case KeyEvent.VK_UP:
-                                locationController.zoomIn();
-                                evt.consume();
-                                break;
-                            case KeyEvent.VK_DOWN:
-                                locationController.zoomOut();
-                                evt.consume();
-                                break;
-                            case KeyEvent.VK_HOME:
-                                locationController.shiftRangeFarLeft();
-                                evt.consume();
-                                break;
-                            case KeyEvent.VK_END:
-                                locationController.shiftRangeFarRight();
-                                evt.consume();
-                                break;
-                        }
+            public void actionPerformed(ActionEvent ae) {
+                if (!currentlyPopulating) {
+                    if (ae.getActionCommand().equals("comboBoxChanged")) {
+                        setRangeFromText(locationField.getSelectedItem().toString());
                     }
                 }
-                super.processKeyEvent(evt);
             }
-        };
-        add(rangeField);
-        rangeField.setToolTipText("Current display range");
-        rangeField.setHorizontalAlignment(JTextField.CENTER);
-        rangeField.setPreferredSize(new Dimension(tfwidth, tfheight));
-        rangeField.setMaximumSize(new Dimension(tfwidth, tfheight));
-        rangeField.setMinimumSize(new Dimension(tfwidth, tfheight));
+        });
+
+        // When the combo-box is popped open, we may want to repopulate the menu.
+        locationField.addPopupMenuListener(new PopupMenuListener() {
+            @Override
+            public void popupMenuWillBecomeVisible(PopupMenuEvent pme) {
+                String text = (String)locationField.getEditor().getItem();
+                if (!text.equals(lastPoppedUp)) {
+                    try {
+                        // Building the menu could take a while.
+                        setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+                        populateCombo();
+                    } finally {
+                        setCursor(Cursor.getDefaultCursor());
+                    }
+                }
+            }
+
+            @Override
+            public void popupMenuWillBecomeInvisible(PopupMenuEvent pme) {
+            }
+
+            @Override
+            public void popupMenuCanceled(PopupMenuEvent pme) {
+            }
+        });
+
+        // Add our special keystroke-handling to the JComboBox' text-field.
+        // We have to turn off default tab-handling so that tab can pop up our list.
+        Component textField = locationField.getEditor().getEditorComponent();
+        textField.setFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS, Collections.EMPTY_SET);
+        textField.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent evt) {
+                if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
+                    if (!locationField.isPopupVisible()) {
+                        setRangeFromText(locationField.getEditor().getItem().toString());
+                    }
+                } else if (evt.getKeyCode() == KeyEvent.VK_TAB) {
+                    locationField.showPopup();
+                } else if (evt.getModifiers() == KeyEvent.SHIFT_MASK) {
+                    switch (evt.getKeyCode()) {
+                        case KeyEvent.VK_LEFT:
+                            locationController.shiftRangeLeft();
+                            evt.consume();
+                            break;
+                        case KeyEvent.VK_RIGHT:
+                            locationController.shiftRangeRight();
+                            evt.consume();
+                            break;
+                        case KeyEvent.VK_UP:
+                            locationController.zoomIn();
+                            evt.consume();
+                            break;
+                        case KeyEvent.VK_DOWN:
+                            locationController.zoomOut();
+                            evt.consume();
+                            break;
+                        case KeyEvent.VK_HOME:
+                            locationController.shiftRangeFarLeft();
+                            evt.consume();
+                            break;
+                        case KeyEvent.VK_END:
+                            locationController.shiftRangeFarRight();
+                            evt.consume();
+                            break;
+                    }
+                }
+            }
+        });
+        add(locationField);
+        locationField.setToolTipText("Current display range");
+        locationField.setPreferredSize(LOCATION_SIZE);
+        locationField.setMaximumSize(LOCATION_SIZE);
+        locationField.setMinimumSize(LOCATION_SIZE);
 
         add(getRigidPadding());
 
@@ -123,7 +194,7 @@ public class NavigationBar extends JToolBar {
         goButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                setRangeFromTextBox();
+                setRangeFromText(locationField.getEditor().getItem().toString());
             }
         });
 
@@ -134,9 +205,9 @@ public class NavigationBar extends JToolBar {
 
         lengthLabel = (JLabel)add(new JLabel());
         lengthLabel.setToolTipText("Length of the current range");
-        lengthLabel.setPreferredSize(new Dimension(labwidth, tfheight));
-        lengthLabel.setMaximumSize(new Dimension(labwidth, tfheight));
-        lengthLabel.setMinimumSize(new Dimension(labwidth, tfheight));
+        lengthLabel.setPreferredSize(LENGTH_SIZE);
+        lengthLabel.setMaximumSize(LENGTH_SIZE);
+        lengthLabel.setMinimumSize(LENGTH_SIZE);
 
         add(Box.createGlue());
 
@@ -156,9 +227,9 @@ public class NavigationBar extends JToolBar {
             });
             undoButton.putClientProperty("JButton.buttonType", buttonStyle);
             undoButton.putClientProperty("JButton.segmentPosition", "first");
-            undoButton.setPreferredSize(iconDimension);
-            undoButton.setMinimumSize(iconDimension);
-            undoButton.setMaximumSize(iconDimension);
+            undoButton.setPreferredSize(ICON_SIZE);
+            undoButton.setMinimumSize(ICON_SIZE);
+            undoButton.setMaximumSize(ICON_SIZE);
 
             JButton redo = (JButton)add(new JButton(""));
             redo.setIcon(SavantIconFactory.getInstance().getIcon(SavantIconFactory.StandardIcon.REDO));
@@ -171,9 +242,9 @@ public class NavigationBar extends JToolBar {
             });
             redo.putClientProperty("JButton.buttonType", buttonStyle);
             redo.putClientProperty("JButton.segmentPosition", "last");
-            redo.setPreferredSize(iconDimension);
-            redo.setMinimumSize(iconDimension);
-            redo.setMaximumSize(iconDimension);
+            redo.setPreferredSize(ICON_SIZE);
+            redo.setMinimumSize(ICON_SIZE);
+            redo.setMaximumSize(ICON_SIZE);
         }
 
         add(getRigidPadding());
@@ -186,9 +257,9 @@ public class NavigationBar extends JToolBar {
         zoomInButton.setIcon(SavantIconFactory.getInstance().getIcon(SavantIconFactory.StandardIcon.ZOOMIN));
         zoomInButton.putClientProperty("JButton.buttonType", buttonStyle);
         zoomInButton.putClientProperty("JButton.segmentPosition", "first");
-        zoomInButton.setPreferredSize(iconDimension);
-        zoomInButton.setMinimumSize(iconDimension);
-        zoomInButton.setMaximumSize(iconDimension);
+        zoomInButton.setPreferredSize(ICON_SIZE);
+        zoomInButton.setMinimumSize(ICON_SIZE);
+        zoomInButton.setMaximumSize(ICON_SIZE);
         zoomInButton.setToolTipText("Zoom in (Shift+Up)");
         zoomInButton.addActionListener(new ActionListener() {
             @Override
@@ -208,9 +279,9 @@ public class NavigationBar extends JToolBar {
         });
         zoomOut.putClientProperty("JButton.buttonType", buttonStyle);
         zoomOut.putClientProperty("JButton.segmentPosition", "last");
-        zoomOut.setPreferredSize(iconDimension);
-        zoomOut.setMinimumSize(iconDimension);
-        zoomOut.setMaximumSize(iconDimension);
+        zoomOut.setPreferredSize(ICON_SIZE);
+        zoomOut.setMinimumSize(ICON_SIZE);
+        zoomOut.setMaximumSize(ICON_SIZE);
 
         add(getRigidPadding());
         add(getRigidPadding());
@@ -220,9 +291,9 @@ public class NavigationBar extends JToolBar {
         shiftFarLeft.putClientProperty("JButton.buttonType", buttonStyle);
         shiftFarLeft.putClientProperty("JButton.segmentPosition", "first");
         shiftFarLeft.setToolTipText("Move to the beginning of the genome (Home)");
-        shiftFarLeft.setPreferredSize(iconDimension);
-        shiftFarLeft.setMinimumSize(iconDimension);
-        shiftFarLeft.setMaximumSize(iconDimension);
+        shiftFarLeft.setPreferredSize(ICON_SIZE);
+        shiftFarLeft.setMinimumSize(ICON_SIZE);
+        shiftFarLeft.setMaximumSize(ICON_SIZE);
         shiftFarLeft.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -235,9 +306,9 @@ public class NavigationBar extends JToolBar {
         shiftLeft.putClientProperty("JButton.buttonType", buttonStyle);
         shiftLeft.putClientProperty("JButton.segmentPosition", "middle");
         shiftLeft.setToolTipText("Move left (Shift+Left)");
-        shiftLeft.setPreferredSize(iconDimension);
-        shiftLeft.setMinimumSize(iconDimension);
-        shiftLeft.setMaximumSize(iconDimension);
+        shiftLeft.setPreferredSize(ICON_SIZE);
+        shiftLeft.setMinimumSize(ICON_SIZE);
+        shiftLeft.setMaximumSize(ICON_SIZE);
         shiftLeft.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -250,9 +321,9 @@ public class NavigationBar extends JToolBar {
         shiftRight.putClientProperty("JButton.buttonType", buttonStyle);
         shiftRight.putClientProperty("JButton.segmentPosition", "middle");
         shiftRight.setToolTipText("Move right (Shift+Right)");
-        shiftRight.setPreferredSize(iconDimension);
-        shiftRight.setMinimumSize(iconDimension);
-        shiftRight.setMaximumSize(iconDimension);
+        shiftRight.setPreferredSize(ICON_SIZE);
+        shiftRight.setMinimumSize(ICON_SIZE);
+        shiftRight.setMaximumSize(ICON_SIZE);
         shiftRight.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -265,9 +336,9 @@ public class NavigationBar extends JToolBar {
         shiftFarRight.putClientProperty("JButton.buttonType", buttonStyle);
         shiftFarRight.putClientProperty("JButton.segmentPosition", "last");
         shiftFarRight.setToolTipText("Move to the end of the genome (End)");
-        shiftFarRight.setPreferredSize(iconDimension);
-        shiftFarRight.setMinimumSize(iconDimension);
-        shiftFarRight.setMaximumSize(iconDimension);
+        shiftFarRight.setPreferredSize(ICON_SIZE);
+        shiftFarRight.setMinimumSize(ICON_SIZE);
+        shiftFarRight.setMaximumSize(ICON_SIZE);
         shiftFarRight.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -284,6 +355,13 @@ public class NavigationBar extends JToolBar {
             }
         });
 
+        // When the genome changes, we may need to invalidate our menu.
+        GenomeController.getInstance().addListener(new Listener<GenomeChangedEvent>() {
+            @Override
+            public void handleEvent(GenomeChangedEvent event) {
+                lastPoppedUp = "INVALID";
+            }
+        });
     }
 
     private static Component getRigidPadding() {
@@ -291,32 +369,72 @@ public class NavigationBar extends JToolBar {
     }
 
     /**
-     * Set the current range from the Zoom track bar.
+     * Set the current range from a string which has been entered or selected.
      */
-    private void setRangeFromTextBox() {
-
-        String text = rangeField.getText();
+    private void setRangeFromText(String text) {
         try {
             for (Track t: TrackController.getInstance().getTracks()) {
-                List<BookmarkAdapter> marks = t.getDataSource().lookup(text);
+                List<BookmarkAdapter> marks = t.getDataSource().lookup(text.toLowerCase());
                 if (marks != null && marks.size() > 0) {
                     // TODO: UI to support more than one bookmark with the same key.
-                    LocationController.getInstance().setLocation(marks.get(0).getReference(), (Range)marks.get(0).getRange());
+                    locationController.setLocation(marks.get(0).getReference(), (Range)marks.get(0).getRange());
                     return;
                 }
             }
             // No lookup found, so try to parse it as a range string.
             Bookmark mark = new Bookmark(text);
-            LocationController.getInstance().setLocation(mark.getReference(), (Range)mark.getRange());
+            locationController.setLocation(mark.getReference(), (Range)mark.getRange());
         } catch (Exception x) {
             DialogUtils.displayMessage(String.format("Unabled to parse \"%s\" as a location.", text));
         }
     }
 
     private void updateLocation(String ref, Range r) {
-        rangeField.setText(String.format("%s: %,d - %,d", ref, r.getFrom(), r.getTo()));
+        LOG.debug("updateLocation(" + ref + ", " + r + ")");
+        String s = String.format("%s: %,d - %,d", ref, r.getFrom(), r.getTo());
+        locationField.setSelectedItem(s);
         lengthLabel.setText(String.format("%,d", r.getLength()));
-        rangeField.requestFocusInWindow();
-        rangeField.selectAll();
+        locationField.requestFocusInWindow();
+        locationField.getEditor().selectAll();
+    }
+
+    /**
+     * The menu needs to be popped up.  We may need to repopulate it.
+     */
+    private void populateCombo() {
+        String text = (String)locationField.getEditor().getItem();
+        if (!text.equals(lastPoppedUp)) {
+            Collection<String> newItems = new LinkedHashSet<String>();
+            if (text.length() > 0) {
+                for (Track t: TrackController.getInstance().getTracks()) {
+                    List<BookmarkAdapter> marks = t.getDataSource().lookup(text.toLowerCase() + "*");
+                    if (marks != null && marks.size() > 0) {
+                        for (BookmarkAdapter bm: marks) {
+                            // TODO: Provide a mechanism for descriminating between multiple bookmarks with the same key.  For now we suppress duplicates by using a set.
+                            newItems.add(bm.getAnnotation());
+                        }
+                    }
+                }
+            }
+            if (newItems.size() > 0 || lastPoppedUp != null) {
+                if (newItems.size() > 0) {
+                    LOG.debug("Found " + newItems.size() + " matches for \"" + text + "\"");
+                    lastPoppedUp = text;
+                } else {
+                    LOG.debug("No matches for \"" + text + "\", falling back on references.");
+                    lastPoppedUp = null;
+                    newItems = GenomeController.getInstance().getGenome().getReferenceNames();
+                }
+                try {
+                    currentlyPopulating = true;
+                    locationField.removeAllItems();
+                    for (String s: newItems) {
+                        locationField.addItem(s);
+                    }
+                } finally {
+                    currentlyPopulating = false;
+                }
+            }
+        }
     }
 }

@@ -74,7 +74,7 @@ public interface DataSourceAdapter<E extends Record> {
     public void loadDictionary() throws IOException;
     
     /**
-     * Look up a feature by name.
+     * Look up a feature by name.  Implementors should recognise "*" as a wild-card.
      * @param key e.g. a gene name
      * @return a list of features which match <code>key</code>
      */

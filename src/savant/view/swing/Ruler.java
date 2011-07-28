@@ -23,7 +23,6 @@ import javax.swing.SwingConstants;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import savant.api.adapter.RangeAdapter;
 
 import savant.controller.GraphPaneController;
 import savant.controller.Listener;
@@ -52,14 +51,10 @@ public class Ruler extends JPanel {
 
     static final AlphaComposite COMPOSITE_85 = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.75F);
 
-    private int minimum = 0;
-    private int maximum = 100;
-    private static final long serialVersionUID = 1L;
     private final JLabel mousePosition;
     private final JLabel recStart;
     private final JLabel recStop;
     private final JLabel cords; // set up GUI and register mouse event handlers
-    boolean isNewRect = true;
     private GraphPaneController graphPaneController = GraphPaneController.getInstance();
     private LocationController locationController = LocationController.getInstance();
 

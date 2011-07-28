@@ -49,13 +49,7 @@ public class Bookmark implements BookmarkAdapter, Serializable {
     
     public Bookmark(String reference, Range r, String ann, boolean addMargin){
         this.setReference(reference);
-        if(addMargin){
-            int buffer = (int)Math.max(250, r.getLength()*0.25);
-            int newStart = Math.max(1, r.getFrom()-buffer);
-            this.setRange(new Range(newStart, r.getTo()+buffer));
-        } else {
-            this.setRange(r);
-        }    
+        this.setRange(addMargin ? addMargin(r) : r);
         this.setAnnotation(ann);
     }
 
@@ -93,6 +87,7 @@ public class Bookmark implements BookmarkAdapter, Serializable {
             reference = text.substring(0, colonPos).intern();
             text = text.substring(colonPos + 1);
         } else {
+            // No reference before a colon, so le
             reference = locationController.getReferenceName();
         }
 
@@ -121,16 +116,25 @@ public class Bookmark implements BookmarkAdapter, Serializable {
                     from = numberParser.parse(text.substring(0, plusPos)).intValue();
                     to = from + numberParser.parse(text.substring(plusPos + 1)).intValue() - 1;
                 } else {
-                    // No plusses or minusses.  User is specifying a new start position, but the length remains unchanged.
-                    int newFrom = numberParser.parse(text).intValue();
-                    to += newFrom - from;
-                    from = newFrom;
+                    // No plusses or minusses.
+                    if (locationController.getReferenceNames().contains(text)) {
+                        // User has just specified a bare chromosome name.
+                        reference = text;
+                        from = 1;
+                        to = 1000;
+                    } else {
+                        // User is specifying a new start position, but the length remains unchanged.
+                        int newFrom = numberParser.parse(text).intValue();
+                        to += newFrom - from;
+                        from = newFrom;
+                    }
                 }
             }
         }
     }
 
     /**
+     * Constructor used when loading bookmarks from a dictionary.
      *
      * @param text a location expression of a form like "chr2:1000-2000"
      * @param ann the annotation for this bookmark
@@ -139,18 +143,34 @@ public class Bookmark implements BookmarkAdapter, Serializable {
     public Bookmark(String text, String ann) throws ParseException {
         this(text);
         annotation = ann;
+
+        // Dictionary bookmarks are all given a margin.
+        setRange(addMargin(getRange()));
+    }
+
+    /**
+     * Intended for use when we want to display bookmarks in a list or combo-box.
+     * @return
+     */
+    @Override
+    public String toString() {
+        return annotation;
     }
 
     @Override
-    public String getReference() { return this.reference; }
+    public String getReference() {
+        return reference;
+    }
 
     @Override
-    public RangeAdapter getRange() {
+    public final RangeAdapter getRange() {
         return new Range(from, to);
     }
 
     @Override
-    public String getAnnotation() { return this.annotation; }
+    public String getAnnotation() {
+        return annotation;
+    }
 
     @Override
     public final void setReference(String r) { this.reference = r; }
@@ -165,9 +185,20 @@ public class Bookmark implements BookmarkAdapter, Serializable {
     public final void setAnnotation(String ann) { this.annotation = ann; }
 
     /**
-     * Get the bookmark's range expressed in its canonical form.
+     * Get the bookmark's location expressed in its canonical form.
      */
-    public final String getRangeText() {
+    public final String getLocationText() {
         return String.format("%s:%d-%d", reference, from, to);
+    }
+
+    /**
+     * Calculate the range with an added margin for better display.
+     * @param r the range before adjustment
+     * @return a larger range.
+     */
+    public static Range addMargin(RangeAdapter r) {
+        int buffer = Math.max(250, r.getLength() / 4);
+        int newStart = Math.max(1, r.getFrom() - buffer);
+        return new Range(newStart, r.getTo() + buffer);
     }
 }

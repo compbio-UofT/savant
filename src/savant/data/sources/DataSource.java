@@ -1,9 +1,5 @@
 /*
- * DataSource.java
- * Created on Aug 23, 2010
- *
- *
- *    Copyright 2010 University of Toronto
+ *    Copyright 2010-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -25,10 +21,9 @@ import java.io.InputStream;
 import java.net.URI;
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import net.sf.samtools.util.BlockCompressedInputStream;
 import org.apache.commons.logging.Log;
@@ -58,7 +53,7 @@ public abstract class DataSource<E extends Record> implements DataSourceAdapter 
      * Dictionary which keeps track of gene names and other searchable items for this track.
      * Note that regardless of their original case, all keys are stored as lower-case.
      */
-    private Map<String, List<BookmarkAdapter>> dictionary = new HashMap<String, List<BookmarkAdapter>>();
+    private TreeMap<String, List<BookmarkAdapter>> dictionary = new TreeMap<String, List<BookmarkAdapter>>();
 
     /**
      * So that we know how many entries this dictionary has.
@@ -78,7 +73,7 @@ public abstract class DataSource<E extends Record> implements DataSourceAdapter 
      */
     @Override
     public void loadDictionary() throws IOException {
-        dictionary = new LinkedHashMap<String, List<BookmarkAdapter>>();
+        dictionary = new TreeMap<String, List<BookmarkAdapter>>();
         dictionaryCount = 0;
         URI dictionaryURI = URI.create(getURI().toString() + ".dict");
         if (NetworkUtils.exists(dictionaryURI)) {
@@ -120,8 +115,21 @@ public abstract class DataSource<E extends Record> implements DataSourceAdapter 
     }
 
     @Override
-    public List<BookmarkAdapter> lookup(String key) {
-        return dictionary.get(key);
+    public synchronized List<BookmarkAdapter> lookup(String key) {
+        if (key.endsWith("*")) {
+            // Looking for a prefix-match.  Get the submap from k0 (inclusive) to k1 (exclusive);
+            String k0 = key.substring(0, key.length() - 1);
+            String k1 = k0 + Character.MAX_VALUE;
+            Map<String, List<BookmarkAdapter>> subDict = dictionary.subMap(k0, k1);
+            List<BookmarkAdapter> result = new ArrayList<BookmarkAdapter>();
+            for (List<BookmarkAdapter> bms: subDict.values()) {
+                result.addAll(bms);
+            }
+            return result;
+        } else {
+            // Looking for an exact match.
+            return dictionary.get(key);
+        }
     }
 
     public int getDictionaryCount() {

@@ -205,28 +205,13 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
         locationController.addLocationChangedListener(rangeSelector);
         rangeSelector.setVisible(false);
 
-        referenceCombo = new ReferenceCombo();
-        referenceCombo.setVisible(false);
-
         ruler = new Ruler();
         ruler.setPreferredSize(new Dimension(10000, 23));
         ruler.setMaximumSize(new Dimension(10000, 23));
         ruler.setVisible(false);
 
-        Box box1 = new Box(BoxLayout.LINE_AXIS) {
-            @Override
-            public void paintComponent(Graphics g) {
-                super.paintComponent(g);
-                g.setColor(RangeSelectionPanel.LINE_COLOUR);
-                int capPos = ruler.getLeftCapPos() + Ruler.CAP_IMAGE_WIDTH;
-                g.drawLine(capPos, getHeight() - 1, rangeSelector.getX(), getHeight() - 1);
-            }
-        };
-        box1.add(referenceCombo);
-        box1.add(rangeSelector);
-
         Box box2 = Box.createVerticalBox();
-        box2.add(box1);
+        box2.add(rangeSelector);
         box2.add(ruler);
 
         trackPanel.add(box2, BorderLayout.NORTH);
@@ -266,7 +251,6 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
     //private Genome loadedGenome;
     /** The log */
     private static JTextArea log;
-    private ReferenceCombo referenceCombo;
     /** Click and drag control for range selection */
     private RangeSelectionPanel rangeSelector;
     private Ruler ruler;
@@ -1206,9 +1190,7 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
     }//GEN-LAST:event_rulerItemActionPerformed
 
     private void genomeItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_genomeItemActionPerformed
-        boolean flag = !rangeSelector.isVisible();
-        rangeSelector.setVisible(flag);
-        referenceCombo.setVisible(flag);
+        rangeSelector.setVisible(!rangeSelector.isVisible());
     }//GEN-LAST:event_genomeItemActionPerformed
 
     private void statusBarItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_statusBarItemActionPerformed
@@ -1799,7 +1781,6 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
         navigationItem.setSelected(true);
 
         rangeSelector.setVisible(true);
-        referenceCombo.setVisible(true);
         genomeItem.setSelected(true);
 
         ruler.setVisible(true);
