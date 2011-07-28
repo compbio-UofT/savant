@@ -159,7 +159,7 @@ public class LocationController implements Listener<GenomeChangedEvent> {
             }
         } else {
             if (DataSourceController.getInstance().getDataSources().size() > 0) {
-                DialogUtils.displayMessage("Reference " + ref + " not found in loaded tracks.");
+                DialogUtils.displayMessage(String.format("<html>Reference <i>%s</i> not found in loaded tracks.</html>", ref));
             }
         }
         return false;

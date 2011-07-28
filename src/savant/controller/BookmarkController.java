@@ -91,10 +91,10 @@ public class BookmarkController {
         int to = Integer.parseInt(st.nextToken());
         String annotation = "";
 
-        while (st.hasMoreElements()) {
-            annotation += st.nextToken() + " ";
+        if (st.hasMoreElements()) {
+            annotation = st.nextToken();
+            annotation.trim();
         }
-        annotation.trim();
 
         return new Bookmark(ref, new Range(from,to), annotation, addMargin);
     }

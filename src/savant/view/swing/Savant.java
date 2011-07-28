@@ -1658,7 +1658,7 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
         df.getContentPane().setLayout(new BorderLayout());
 
         //JPanel tablePanel = createTabPanel(jtp, "Bookmarks");
-        favoriteSheet = new BookmarkSheet(this, df.getContentPane());
+        favoriteSheet = new BookmarkSheet(df.getContentPane());
         favoriteController.addBookmarksChangedListener(favoriteSheet);
         favoriteController.addBookmarksChangedListener(this);
     }

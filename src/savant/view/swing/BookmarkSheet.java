@@ -18,7 +18,9 @@ package savant.view.swing;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
+import java.awt.Dialog;
 import java.awt.Dimension;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseWheelEvent;
@@ -29,8 +31,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
 import java.util.Arrays;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.*;
 
 import org.apache.commons.logging.Log;
@@ -38,7 +38,6 @@ import org.apache.commons.logging.LogFactory;
 
 import savant.api.util.DialogUtils;
 import savant.controller.BookmarkController;
-import savant.controller.GenomeController;
 import savant.controller.LocationController;
 import savant.controller.event.BookmarksChangedEvent;
 import savant.controller.event.BookmarksChangedListener;
@@ -51,7 +50,7 @@ import savant.view.swing.model.BookmarksTableModel;
  *
  * @author mfiume
  */
-public class BookmarkSheet implements BookmarksChangedListener {
+public class BookmarkSheet extends JPanel implements BookmarksChangedListener {
 
     private static final Log LOG = LogFactory.getLog(BookmarkSheet.class);
 
@@ -62,17 +61,11 @@ public class BookmarkSheet implements BookmarksChangedListener {
     static JButton addButton;
     static boolean confirmDelete = true;
 
-    private static Savant parent;
-
-    public BookmarkSheet(Savant parent, Container c) {
-
-        this.parent = parent;
-
-        JPanel subpanel = new JPanel();
+    public BookmarkSheet(Container c) {
 
         // set the layout of the data sheet
         c.setLayout(new BorderLayout());
-        subpanel.setLayout(new BoxLayout(subpanel, BoxLayout.Y_AXIS));
+        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
         /**
          * Create a toolbar. 
@@ -215,7 +208,7 @@ public class BookmarkSheet implements BookmarksChangedListener {
 
         // create a table (the most important component)
         table = new JTable(new BookmarksTableModel());
-        //table.setAutoCreateRowSorter(true);
+        table.setAutoCreateRowSorter(true);
         table.setFillsViewportHeight(true);
         table.setShowGrid(true);
         table.setGridColor(Color.gray);
@@ -224,7 +217,7 @@ public class BookmarkSheet implements BookmarksChangedListener {
         // add the table and its header to the subpanel
         c.add(table.getTableHeader());
 
-        subpanel.add(table);
+        add(table);
 
         final JScrollPane sp = new JScrollPane(table,
         JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
@@ -240,12 +233,7 @@ public class BookmarkSheet implements BookmarksChangedListener {
         c.add(sp);
 
         // add glue to fill the remaining space
-        subpanel.add(Box.createGlue());
-
-        //RangeController lc = RangeController.getInstance();
-        //lc.addRangeChangedListener(this);
-
-        // initContextualMenu();
+        add(Box.createGlue());
     }
 
     @Override
@@ -258,7 +246,7 @@ public class BookmarkSheet implements BookmarksChangedListener {
         ((BookmarksTableModel) table.getModel()).fireTableDataChanged();
     }
 
-    private static void loadBookmarks(JTable table) {
+    private void loadBookmarks(JTable table) {
         final BookmarksTableModel btm = (BookmarksTableModel) table.getModel();
         List<Bookmark> bookmarks = btm.getData();
 
@@ -281,28 +269,27 @@ public class BookmarkSheet implements BookmarksChangedListener {
             int result = JOptionPane.showOptionDialog(null, "Would you like to add padding to each bookmark range?", "Add a margin?", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, null, null);
             final boolean addMargin = (result == JOptionPane.YES_OPTION);
 
-            Thread thread = new Thread() {
+            Window w = SwingUtilities.getWindowAncestor(BookmarkSheet.this);
+            JOptionPane optionPane = new JOptionPane("<html>Loading bookmarks from file.<br>This may take a moment.</html>", JOptionPane.INFORMATION_MESSAGE, JOptionPane.CANCEL_OPTION);
+            final JDialog dialog = new JDialog(w, "Loading Bookmarks", Dialog.ModalityType.MODELESS);
+            dialog.setContentPane(optionPane);
+            dialog.pack();
+            dialog.setLocationRelativeTo(w);
+            dialog.setVisible(true);
+            new Thread() {
                 @Override
                 public void run() {
-                    JOptionPane optionPane = new JOptionPane("<HTML>Loading bookmarks from file.<BR>This may take a moment.<HTML", JOptionPane.INFORMATION_MESSAGE, JOptionPane.CANCEL_OPTION);
-                    JDialog dialog = new JDialog(parent, "Loading Bookmarks", false);
-                    dialog.setContentPane(optionPane);
-                    dialog.pack();
-                    dialog.setLocationRelativeTo(parent);
-                    dialog.setVisible(true);
                     try {
                         BookmarkController.getInstance().addBookmarksFromFile(selectedFile, addMargin);
                         btm.fireTableDataChanged();
                     } catch (Exception ex) {
                         DialogUtils.displayError("Error", "Unable to load bookmarks: " + ex.getMessage());
+                    } finally {
                         dialog.setVisible(false);
                         dialog.dispose();
                     }
-                    dialog.setVisible(false);
-                    dialog.dispose();
                 }
-            };
-            thread.start();
+            }.start();
         }
     }
 
@@ -334,44 +321,40 @@ public class BookmarkSheet implements BookmarksChangedListener {
     }
 
     public void goToSelectedBookmark() {
-        int selectedRow = table.getSelectedRow();
-        if (selectedRow > -1) {
-            goToBookmark(selectedRow);
+        int viewRow = table.getSelectedRow();
+        if (viewRow > -1) {
+            goToBookmark(viewRow);
         }
     }
 
     public void goToNextBookmark() {
         if(table.getRowCount() == 0) return;
-        int row = table.getSelectedRow();
-        if (row == -1 || row == table.getRowCount()-1) { row = 0; }
-        else { row += 1; }
-        selectRow(row);
+        int viewRow = table.getSelectedRow();
+        if (viewRow == -1 || viewRow == table.getRowCount()-1) { viewRow = 0; }
+        else { viewRow += 1; }
+        selectRow(viewRow);
     }
 
-    private void selectRow(int row) {
+    private void selectRow(int viewRow) {
+        int modelRow = table.convertRowIndexToModel(viewRow);
         table.removeRowSelectionInterval(0, table.getRowCount()-1);
-        table.addRowSelectionInterval(row, row);
+        table.addRowSelectionInterval(viewRow, viewRow);
         goToSelectedBookmark();
     }
 
     public void goToPreviousBookmark() {
         if(table.getRowCount() == 0) return;
-        int row = table.getSelectedRow();
-        if (row == -1 || row == 0) { row = table.getRowCount()-1; }
-        else { row -= 1; }       
-        selectRow(row);
+        int viewRow = table.getSelectedRow();
+        if (viewRow == -1 || viewRow == 0) { viewRow = table.getRowCount()-1; }
+        else { viewRow -= 1; }
+        selectRow(viewRow);
     }
 
-    public void goToBookmark(int i) {
-        if (i == -1 && table.getRowCount() == 0) { return; }
+    public void goToBookmark(int viewRow) {
+        if (viewRow == -1 || table.getRowCount() == 0) { return; }
         LocationController lc = LocationController.getInstance();
         BookmarksTableModel tableModel = (BookmarksTableModel) table.getModel();
-        Bookmark bookmark = tableModel.getData().get(i);
-        /*int buffer = (int)Math.max(250, bookmark.getRange().getLength()*0.25);
-        int start = Math.max(0, bookmark.getRange().getFrom()-buffer);
-        int end = Math.min(XXX, bookmark.getRange().getTo()+buffer);
-        Range newRange = new Range(start, end);
-        lc.setLocation(bookmark.getReference(),newRange);*/
-        lc.setLocation(bookmark.getReference(),(Range) bookmark.getRange());
+        Bookmark bookmark = tableModel.getData().get(table.convertRowIndexToModel(viewRow));
+        lc.setLocation(bookmark.getReference(), (Range)bookmark.getRange());
     }
 }
