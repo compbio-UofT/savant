@@ -16,7 +16,6 @@
 
 package savant.controller;
 
-import java.awt.Point;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,7 +47,8 @@ public class GraphPaneController extends Controller implements PopupEventListene
     private int mouseClickPosition;
     private int mouseReleasePosition;
     private int mouseXPosition;
-    private int mouseYPosition;
+    private double mouseYPosition;
+    private boolean yIntegral;
 
     private List<GraphPane> graphpanesQueuedForRendering;
 
@@ -220,23 +220,24 @@ public class GraphPaneController extends Controller implements PopupEventListene
     }
     
     public int getMouseXPosition() {
-        return this.mouseXPosition;
+        return mouseXPosition;
     }
 
-    public void setMouseXPosition(int position) {
-        this.mouseXPosition = position;
+    public void setMouseXPosition(int x) {
+        mouseXPosition = x;
         askForRefresh();
-        fireEvent(new GraphPaneEvent(new Point(mouseXPosition, mouseYPosition)));
+        fireEvent(new GraphPaneEvent(mouseXPosition, mouseYPosition, yIntegral));
     }
 
-    public int getMouseYPosition() {
-        return this.mouseYPosition;
+    public double getMouseYPosition() {
+        return mouseYPosition;
     }
 
-    public void setMouseYPosition(int position) {
-        this.mouseYPosition = position;
+    public void setMouseYPosition(double y, boolean integral) {
+        mouseYPosition = y;
+        yIntegral = integral;
         askForRefresh();
-        fireEvent(new GraphPaneEvent(new Point(mouseXPosition, mouseYPosition)));
+        fireEvent(new GraphPaneEvent(mouseXPosition, mouseYPosition, integral));
     }
     
     public void setSpotlightSize(int size) {

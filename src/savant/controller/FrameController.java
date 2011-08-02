@@ -18,18 +18,14 @@ package savant.controller;
 
 import java.beans.PropertyVetoException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import javax.swing.JComponent;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import savant.controller.event.GenomeChangedEvent;
 import savant.controller.event.LocationChangedEvent;
 import savant.controller.event.LocationChangedListener;
 import savant.view.swing.Frame;
-import savant.view.swing.GraphPane;
 import savant.view.swing.Track;
 
 
@@ -44,9 +40,6 @@ public class FrameController implements LocationChangedListener {
     private static FrameController instance;
     private static LocationController locationController = LocationController.getInstance();
 
-    private HashMap<GraphPane,JComponent> graphpane2dockable;
-    private HashMap<GraphPane,Frame> graphpane2frame;
-
     List<Frame> frames;
 
     public static synchronized FrameController getInstance() {
@@ -59,14 +52,10 @@ public class FrameController implements LocationChangedListener {
 
     private FrameController() {
         frames = new ArrayList<Frame>();
-        graphpane2dockable = new HashMap<GraphPane,JComponent>();
-        graphpane2frame = new HashMap<GraphPane,Frame>();
     }
 
-    public void addFrame(Frame f, JComponent panel) {
+    public void addFrame(Frame f) {
         frames.add(f);
-        graphpane2dockable.put(f.getGraphPane(), panel);
-        graphpane2frame.put(f.getGraphPane(), f);
 
         GraphPaneController.getInstance().enlistRenderingGraphpane(f.getGraphPane());
         f.drawTracksInRange(locationController.getReferenceName(), locationController.getRange());
@@ -90,35 +79,21 @@ public class FrameController implements LocationChangedListener {
 
 
     public void hideFrame(Frame frame) {
-        JComponent jc = this.graphpane2dockable.get(frame.getGraphPane());
         try {
             frame.setHidden(true);
         } catch (PropertyVetoException ignored) {
         }
     }
 
-    public void hideFrame(GraphPane graphpane) {
-        hideFrame(graphpane2frame.get(graphpane));
-    }
-
     public void showFrame(Frame frame) {
-        JComponent jc = graphpane2dockable.get(frame.getGraphPane());
         try {
             frame.setHidden(false);
         } catch (PropertyVetoException ignored) {
         }
     }
 
-    public void showFrame(GraphPane graphpane) {
-        showFrame(graphpane2frame.get(graphpane));
-    }
-
-    public void closeFrame(GraphPane graphpane) {
-        closeFrame(graphpane2frame.get(graphpane));
-    }
-
     public void closeFrame(Frame frame) {
-        this.hideFrame(frame);
+        hideFrame(frame);
 
         try {
             

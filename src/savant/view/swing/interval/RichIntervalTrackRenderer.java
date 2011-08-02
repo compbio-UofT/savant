@@ -39,9 +39,9 @@ import savant.view.swing.TrackRenderer;
 
 
 /**
- * Renderer for BED gene tracks.
+ * Renderer for interval tracks which have extra information (and possibly blocks)
  *
- * @author vwilliams
+ * @author vwilliams, tarkvara
  */
 public class RichIntervalTrackRenderer extends TrackRenderer {
 
@@ -55,11 +55,7 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
     }
     
     @Override
-    public void render(Graphics g, GraphPane gp) throws RenderingException {
-
-        Graphics2D g2 = (Graphics2D)g;
-        gp.setIsOrdinal(true);
-        this.clearShapes();
+    public void render(Graphics2D g2, GraphPane gp) throws RenderingException {
 
         renderPreCheck(gp);
 
@@ -69,12 +65,11 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
         if (mode == DrawingMode.STANDARD) {
             renderPackMode(g2, gp, resolution);
         } else if (mode == DrawingMode.SQUISH) {
-            gp.setYMaxVisible(false);
             renderSquishMode(g2, gp, resolution);
         }
 
         if(data.isEmpty()){
-            throw new RenderingException("No data in range.");
+            throw new RenderingException("No data in range");
         }
     }
 
@@ -101,7 +96,7 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
 //        Map<Integer, ArrayList<IntervalRecord>> intervals = packer.pack(10);
         List<List<IntervalRecord>> intervals = StuffedIntervalRecord.getOriginalIntervals(packer.pack(2));
 
-        gp.setIsOrdinal(false);
+        gp.setYAxisType(AxisType.INTEGER);
         gp.setXRange(axisRange.getXRange());
         int maxYRange;
         int numIntervals = intervals.size();
@@ -155,7 +150,7 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
 
         // Set alpha if score is enabled
         if ((Boolean)instructions.get(DrawingInstruction.SCORE) && !Float.isNaN(rec.getScore())) {
-            fillColor = new Color(fillColor.getRed(), fillColor.getGreen(), fillColor.getBlue(), (int)(rec.getScore() * 0.255));
+            fillColor = new Color(fillColor.getRed(), fillColor.getGreen(), fillColor.getBlue(), getConstrainedAlpha((int)(rec.getScore() * 0.255)));
         }
 
         Color lineColor = cs.getColor("Line");
@@ -166,16 +161,16 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
 
         boolean isInsertion = false;
 
-        // If length is 0, draw insertion rhombus.  It is drawn here so that the name can be drawn on top of it
+        // If length is 0, draw insertion rhombus.  It is drawn here so that the name can be drawn on top of it.
         if (interval.getLength() == 0){
             Shape rhombus = drawInsertion(interval, level, gp, g2);
             isInsertion = true;
 
-            startXPos -= unitWidth * 0.5;   // So the name won't stamp on the leftward-pointing arrow of the insertion.
+            startXPos -= unitWidth * 0.5;   // So the name won't stomp on the leftward-pointing arrow of the insertion.
             recordToShapeMap.put(rec, rhombus);
         }
 
-        // draw the gene name, if possible
+        // Draw the gene name, if possible.
         String geneName = rec.getName();
         if ((Boolean)instructions.get(DrawingInstruction.ALTERNATE_NAME)) {
             geneName = rec.getAlternateName();
@@ -208,7 +203,6 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
                 int blockStart = interval.getStart() + block.getPosition();
                 int blockEnd = blockStart + block.getSize();
                 double x = gp.transformXPos(blockStart);
-                //double y = gp.transformYPos(level)-unitHeight;
                 double y = gp.getHeight() - (unitHeight * (level + 1)) - offset;
 
                 double chevronIntervalEnd = x;
@@ -377,7 +371,7 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
 
         // ranges, width, and height
         AxisRange axisRange = (AxisRange)instructions.get(DrawingInstruction.AXIS_RANGE);
-        gp.setIsOrdinal(false);
+        gp.setYAxisType(AxisType.INTEGER);
         gp.setXRange(axisRange.getXRange());
         // y range is set where levels are sorted out, after block merging pass
 
@@ -422,15 +416,13 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
                 negStrandLevel = 1;
                 noStrandLevel = 2;
                 gp.setYRange(new Range(0,3));
-            }
-            else if (signedStrandCount > 0 && noStrandCount == 0) {
+            } else if (signedStrandCount > 0 && noStrandCount == 0) {
                 posStrandLevel = 0;
                 negStrandLevel = 1;
                 gp.setYRange(new Range(0,2));
-            }
-            else if (signedStrandCount == 0 && noStrandCount > 0) {
+            } else if (signedStrandCount == 0 && noStrandCount > 0) {
                 noStrandLevel = 0;
-                gp.setIsOrdinal(true);
+                gp.setYAxisType(AxisType.NONE);
             }
             double unitHeight = gp.getUnitHeight();
             // display only a message if intervals will not be visible at this resolution
@@ -462,11 +454,11 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
                 }
 
                 // draw a line in the middle, the full length of the interval
-                int yPos = (int) (gp.transformYPos(level)-unitHeight/2);
+                double yPos = gp.transformYPos(level) - unitHeight * 0.5;
                 g2.setColor(lineColor);
                 int lineWidth = (int)gp.getWidth(interval.getLength());
                 if (lineWidth > 4) {
-                    g2.drawLine(startXPos, yPos, startXPos + lineWidth, yPos);
+                    g2.draw(new Line2D.Double(startXPos, yPos, startXPos + lineWidth, yPos));
                     drawChevrons(g2, startXPos, startXPos + lineWidth,  yPos, unitHeight, lineColor, strand, null);
                 }
 
@@ -479,23 +471,6 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
         } else {
             throw new RenderingException("Zoom in to see genes/intervals");
         }
-    }
-
-    private boolean fontFits(String string, Font font, double height, Graphics2D g2) {
-
-        Rectangle2D charRect = font.getStringBounds(string, g2.getFontRenderContext());
-        if (charRect.getHeight() > height) return false;
-        else return true;
-    }
-
-    @Override
-    public boolean isOrdinal() {
-        return true;
-    }
-
-    @Override
-    public Range getDefaultYRange() {
-        return new Range(0,1);
     }
 
     private void mergeBlocks(List<Interval> intervals, RichIntervalRecord bedRecord) {

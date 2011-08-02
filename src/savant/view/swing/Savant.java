@@ -330,7 +330,7 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
                         crosshairItem.setSelected(controller.isAiming());
                         break;
                     case MOUSE:
-                        updateMousePosition(event.getMouse());
+                        updateMousePosition(event.getMouseX(), event.getMouseY(), event.isYIntegral());
                         break;
                     case STATUS:
                         updateStatus(event.getStatus());
@@ -1903,11 +1903,16 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
         }
     }
 
-    public void updateMousePosition(Point p) {
-        if (p.x == -1 && p.y == -1) {
+    private void updateMousePosition(int x, double y, boolean yIntegral) {
+        if (x == -1 && Double.isNaN(y)) {
             mousePositionLabel.setText("Mouse not over track");
         } else {
-            mousePositionLabel.setText((p.x == -1 ? "" : "X: " + MiscUtils.numToString(p.x)) + (p.y == -1 ? "" : " Y: " + MiscUtils.numToString(p.y)));
+            String s = x == -1 ? "" : "X: " + MiscUtils.numToString(x);
+            if (!Double.isNaN(y)) {
+                // If the value is an exact integer (e.g. for interval tracks) display it with no decimal places.
+                s += yIntegral ? String.format(" Y: %d", (int)y) : String.format(" Y: %.3f", y);
+            }
+            mousePositionLabel.setText(s);
         }
     }
 
@@ -1918,7 +1923,7 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
         return tracks;
     }
 
-    public void displayAuxPanels() {
+    public final void displayAuxPanels() {
         MiscUtils.setFrameVisibility("Bookmarks", true, auxDockingManager);
         auxDockingManager.toggleAutohideState("Bookmarks");
         bookmarksItem.setState(true);

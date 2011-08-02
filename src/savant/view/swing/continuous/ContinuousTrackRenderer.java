@@ -17,12 +17,12 @@
 package savant.view.swing.continuous;
 
 import java.awt.Color;
-import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.Shape;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.GeneralPath;
+import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,6 +35,7 @@ import savant.data.types.Record;
 import savant.exception.RenderingException;
 import savant.file.DataFormat;
 import savant.util.AxisRange;
+import savant.util.AxisType;
 import savant.util.ColorScheme;
 import savant.util.DrawingInstruction;
 import savant.util.DrawingMode;
@@ -67,10 +68,7 @@ public class ContinuousTrackRenderer extends TrackRenderer {
     }
 
     @Override
-    public void render(Graphics g, GraphPane gp) throws RenderingException {
-
-        Graphics2D g2 = (Graphics2D) g;
-        clearShapes();
+    public void render(Graphics2D g2, GraphPane gp) throws RenderingException {
 
         renderPreCheck(gp);
 
@@ -81,14 +79,14 @@ public class ContinuousTrackRenderer extends TrackRenderer {
         Color linecolor = cs.getColor("Line");
         AxisRange axisRange = (AxisRange)instructions.get(DrawingInstruction.AXIS_RANGE);
 
-        gp.setIsOrdinal(false);
+        gp.setYAxisType(AxisType.REAL);
         gp.setXRange(axisRange.getXRange());
         gp.setYRange(axisRange.getYRange());
 
         GeneralPath path = new GeneralPath();
         double xFormXPos = Double.NaN, xFormYPos = Double.NaN;
 
-        double xFormYZero = gp.transformYPos(0.0);
+        double yPixel0 = gp.transformYPos(0);
         
         double maxData = 0;
         boolean haveOpenPath = false;
@@ -101,7 +99,7 @@ public class ContinuousTrackRenderer extends TrackRenderer {
                 if (Float.isNaN(yPos)) {
                     // Hit a position with no data.  May need to close off the current path.
                     if (haveOpenPath) {
-                        path.lineTo(xFormXPos, xFormYZero);
+                        path.lineTo(xFormXPos, yPixel0);
                         path.closePath();
                         haveOpenPath = false;
                     }
@@ -111,7 +109,7 @@ public class ContinuousTrackRenderer extends TrackRenderer {
                     xFormYPos = gp.transformYPos(yPos);
                     if (!haveOpenPath) {
                         // Start our path off with a vertical line.
-                        path.moveTo(xFormXPos, xFormYZero);
+                        path.moveTo(xFormXPos, yPixel0);
                         haveOpenPath = true;
                     }
                     path.lineTo(xFormXPos, xFormYPos);
@@ -126,11 +124,11 @@ public class ContinuousTrackRenderer extends TrackRenderer {
             }
         }
         if (!haveData) {
-            throw new RenderingException("No data in range.");
+            throw new RenderingException("No data in range");
         }
         if (haveOpenPath) {
             // Path needs to be closed.
-            path.lineTo(xFormXPos, xFormYZero);
+            path.lineTo(xFormXPos, yPixel0);
             path.closePath();
         }
         
@@ -141,18 +139,8 @@ public class ContinuousTrackRenderer extends TrackRenderer {
 
         if (axisRange.getYRange().getFrom() < 0) {
             g2.setColor(Color.darkGray);
-            g2.drawLine(0, (int)gp.transformYPos(0), gp.getWidth(), (int)gp.transformYPos(0));
+            g2.draw(new Line2D.Double(0.0, yPixel0, gp.getWidth(), yPixel0));
         }
-    }
-
-    @Override
-    public boolean isOrdinal() {
-        return false;
-    }
-
-    @Override
-    public Range getDefaultYRange() {
-        return new Range(0, 1);
     }
 
     @Override

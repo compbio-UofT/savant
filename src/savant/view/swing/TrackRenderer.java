@@ -16,7 +16,7 @@
 
 package savant.view.swing;
 
-import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Shape;
 import java.awt.geom.Rectangle2D;
@@ -35,6 +35,7 @@ import savant.data.types.Record;
 import savant.exception.RenderingException;
 import savant.file.DataFormat;
 import savant.settings.InterfaceSettings;
+import savant.util.AxisType;
 import savant.util.DrawingInstruction;
 import savant.util.DrawingMode;
 import savant.util.Range;
@@ -47,6 +48,9 @@ import savant.util.Resolution;
  */
 public abstract class TrackRenderer implements DataRetrievalListener {
     private static final Log LOG = LogFactory.getLog(TrackRenderer.class);
+
+    private static final int MIN_TRANSPARENCY = 20;
+    private static final int MAX_TRANSPARENCY = 255;
 
     protected List<Record> data;
     protected final EnumMap<DrawingInstruction, Object> instructions = new EnumMap<DrawingInstruction, Object>(DrawingInstruction.class);
@@ -139,7 +143,7 @@ public abstract class TrackRenderer implements DataRetrievalListener {
         instructions.clear();
     }
 
-    public abstract void render(Graphics g, GraphPane gp) throws RenderingException;
+    public abstract void render(Graphics2D g2, GraphPane gp) throws RenderingException;
 
     /**
      * Before doing any actual rendering, derived classes should call this in their
@@ -150,22 +154,23 @@ public abstract class TrackRenderer implements DataRetrievalListener {
      * @throws RenderingException
      */
     protected void renderPreCheck(GraphPane gp) throws RenderingException {
+
+        // Clear away the y-axis and any shapes.
+        gp.setYAxisType(AxisType.NONE);
+        recordToShapeMap.clear();
+
         Boolean refexists = (Boolean)instructions.get(DrawingInstruction.REFERENCE_EXISTS);
         if (!refexists) {
-            throw new RenderingException("No data for reference");
+            throw new RenderingException("No data for " + LocationController.getInstance().getReferenceName());
         }
         String errorMessage = (String)instructions.get(DrawingInstruction.ERROR);
         if (errorMessage != null){
             throw new RenderingException(errorMessage);
         }
         if (data == null || data.isEmpty()) {
-            throw new RenderingException("No data in range.");
+            throw new RenderingException("No data in range");
         }
     }
-
-    public abstract boolean isOrdinal();
-
-    public abstract Range getDefaultYRange();
 
     /**
      * Check whether to perform selection for this track.
@@ -192,15 +197,8 @@ public abstract class TrackRenderer implements DataRetrievalListener {
         return null;
     }
 
-    // SHAPES
-    // access shapes for current view
-
-    public void clearShapes(){
-        this.recordToShapeMap.clear();
-    }
-
     public boolean hasMappedValues(){
-        return !this.recordToShapeMap.isEmpty();
+        return !recordToShapeMap.isEmpty();
     }
 
     public Map<Record, Shape> searchPoint(Point p){
@@ -216,7 +214,7 @@ public abstract class TrackRenderer implements DataRetrievalListener {
         
         for(int i = 0; i < data.size(); i++){
             if(data.get(i) == null) continue;
-            Shape s = this.recordToShapeMap.get((Record)data.get(i));
+            Shape s = recordToShapeMap.get((Record)data.get(i));
             if(s == null) continue;
             //if(contains AND (notArc OR (isEdge...))
             if(s.contains(p.x, p.y) &&
@@ -287,8 +285,6 @@ public abstract class TrackRenderer implements DataRetrievalListener {
         return shapes;
     }
 
-    //INTERVAL SPECIFIC CODE
-
     protected int getIntervalHeight(){
         if (intervalHeight > 0) {
             return intervalHeight;
@@ -347,5 +343,10 @@ public abstract class TrackRenderer implements DataRetrievalListener {
         return AVAILABLE_INTERVAL_HEIGHTS.length;
     }
 
-    //END INTERVAL SPECIFIC CODE
+    /**
+     * For practical reasons, we never want alpha to be less than 20 or more than 255.
+     */
+    public static int getConstrainedAlpha(int alpha) {
+        return alpha < MIN_TRANSPARENCY ? MIN_TRANSPARENCY : (alpha > MAX_TRANSPARENCY ? MAX_TRANSPARENCY : alpha);
+    }
 }

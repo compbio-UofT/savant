@@ -112,28 +112,6 @@ public class TrackFactory {
         }
     }
 
-    /**
-     * Use this method if you want to create tracks the old synchronous way.  Our own
-     * code should migrate to the asynchronous createTrack, but the external API's
-     * createTrack is synchronous, and we should probably keep it that way.
-     * 
-     * @param trackURI
-     * @return the newly-created tracks corresponding to this URI
-     * @deprecated Wherever possible, use <code>createTrack</code> to create tracks asynchronously.
-     */
-    public static Track[] createTrackSync(URI trackURI) throws Throwable {
-        // Just run the track-creator in the current thread (presumably the AWT thread),
-        // instead of spawning a new one.
-        SyncTrackCreationListener listener = new SyncTrackCreationListener();
-        TrackCreator t = new TrackCreator(trackURI, listener);
-        t.run();
-        if (listener.error != null) {
-            throw listener.error;
-        }
-        return listener.result;
-    }
-
-
     public static DataSourceAdapter createDataSource(URI trackURI) throws IOException, SavantFileNotFormattedException, SavantUnsupportedVersionException, SavantUnsupportedFileTypeException {
 
         try {
@@ -317,28 +295,6 @@ public class TrackFactory {
             } else {
                 DialogUtils.displayException("Error opening track", String.format("There was a problem opening this file: %s.", MiscUtils.getMessage(x)), x);
             }
-        }
-    }
-
-    /**
-     * Listener used to pass results back to the sync version of createTrack.
-     */
-    static class SyncTrackCreationListener implements TrackCreationListener {
-        Track[] result;
-        Throwable error;
-
-        @Override
-        public void trackCreationStarted(TrackCreationEvent evt) {
-        }
-
-        @Override
-        public void trackCreationCompleted(TrackCreationEvent evt) {
-            result = evt.getTracks();
-        }
-
-        @Override
-        public void trackCreationFailed(TrackCreationEvent evt) {
-            error = evt.getError();
         }
     }
 }

@@ -24,15 +24,16 @@ import java.util.List;
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-
-import com.jidesoft.docking.DockableFrame;
 import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuListener;
+
+import com.jidesoft.docking.DockableFrame;
+import java.awt.geom.Line2D;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import savant.api.adapter.DataSourceAdapter;
 import savant.api.adapter.TrackAdapter;
-
 import savant.api.util.DialogUtils;
 import savant.controller.DockableFrameController;
 import savant.controller.DrawingModeController;
@@ -48,7 +49,6 @@ import savant.data.event.DataRetrievalListener;
 import savant.data.event.TrackCreationEvent;
 import savant.data.event.TrackCreationListener;
 import savant.data.sources.DataSource;
-import savant.data.sources.FASTADataSource;
 import savant.data.types.Genome;
 import savant.file.DataFormat;
 import savant.settings.ColourSettings;
@@ -84,6 +84,7 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
     private int drawModePosition = 0;
     private JMenu intervalMenu;
     private JMenu setAsGenomeButton;
+    private JLabel yMaxPanel;
 
     public JScrollPane scrollPane;
 
@@ -310,12 +311,23 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
                 intervalMenu.setVisible(false);
             }
         }
+        switch (df) {
+            case SEQUENCE_FASTA:
+                break;
+            default:
+                yMaxPanel = new JLabel();
+                yMaxPanel.setBorder(BorderFactory.createLineBorder(Color.darkGray));
+                yMaxPanel.setBackground(new Color(240,240,240));
+                yMaxPanel.setOpaque(true);
+                yMaxPanel.setAlignmentX(0.5f);
+                sidePanel.addPanel(yMaxPanel);
+                break;
+        }
+
+        // This calls drawTracksInRange() which sets up the initial render.
+        FrameController.getInstance().addFrame(this);
 
         JPanel contentPane = (JPanel)getContentPane();
-
-        // This calls drawFrames() which sets up the initial render.
-        FrameController.getInstance().addFrame(this, contentPane);
-
         contentPane.setLayout(new BorderLayout());
         contentPane.add(frameLandscape);
     }
@@ -356,38 +368,25 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
     }
 
     public void redrawSidePanel(){
-        this.sidePanel.repaint();
-    }
-
-    /**
-     * Add a component to the set of panels on side
-     */
-    public void addToSidePanel(JComponent comp){
-        this.sidePanel.addPanel(comp);
+        sidePanel.repaint();
     }
 
     /**
      * Create options menu for commandBar
      */
     private JMenu createOptionsMenu() {
-        JCheckBoxMenuItem item;
-        //JMenu menu = new JideMenu("Settings");
         JMenu menu = new JMenu("Settings");
-        item = new JCheckBoxMenuItem("Lock Track");
+        JMenuItem item = new JCheckBoxMenuItem("Lock Track");
         item.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 graphPane.setLocked(!graphPane.isLocked());
-                if(!graphPane.isLocked()){
-                    forceRedraw();
-                }
             }
         });
         menu.add(item);
 
-        JMenuItem item1;
-        item1 = new JMenuItem("Colour Settings...");
-        item1.addActionListener(new ActionListener() {
+        item = new JMenuItem("Colour Settings...");
+        item.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 ColorSchemeDialog dlg = new ColorSchemeDialog(tracks[0]);
@@ -395,7 +394,18 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
                 dlg.setVisible(true);
             }
         });
-        menu.add(item1);
+        menu.add(item);
+
+        if (yMaxPanel != null) {
+            item = new JCheckBoxMenuItem("Scale to Contents");
+            item.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent ae) {
+                    graphPane.setScaledToContents(!graphPane.isScaledToContents());
+                }
+            });
+            menu.add(item);
+        }
         return menu;
     }
 
@@ -403,11 +413,11 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
      * Create the button to show the arc params dialog
      */
     private JMenu createArcButton() {
-        JMenu button = new JMenu("Read Pair Settings");
+        JMenu button = new JMenu("Read Pair Settings...");
         button.setToolTipText("Change mate pair parameters");
-        button.addMouseListener(new MouseAdapter() {
+        button.addActionListener(new ActionListener() {
             @Override
-            public void mouseClicked(MouseEvent e) {
+            public void actionPerformed(ActionEvent e) {
                 graphPane.getBAMParams((BAMTrack)tracks[0]);
             }
         });
@@ -516,16 +526,16 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
     }
     
     /**
-     * Create set as genome button for sequence tracks
+     * Create set as genome button for sequence tracks.
      */
     private JMenu createSetAsGenomeButton() {
-        final JMenu button = new JMenu("Set Genome");   
-        button.addMouseListener(new MouseAdapter() {
+        JMenu button = new JMenu("Set Genome");   
+        button.addActionListener(new ActionListener() {
             @Override
-            public void mouseClicked(MouseEvent e) {
-                Genome newGenome = Genome.createFromTrack((SequenceTrack)tracks[0]);
+            public void actionPerformed(ActionEvent e) {
+                Genome newGenome = Genome.createFromTrack(tracks[0]);
                 GenomeController.getInstance().setGenome(newGenome);
-                button.setSelected(false);
+                ((JMenu)e.getSource()).setSelected(false);
             }
         });
         button.setFocusPainted(false);
@@ -583,6 +593,25 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
         return menu;
     }
 
+    public void updateYMax(int value) {
+        if (yMaxPanel != null) {
+            yMaxPanel.setText(String.format(" ymax=%d ", value));
+        }
+    }
+
+    /**
+     * When the drawing mode has changed, or data has been retrieved, update the visibility
+     * of the yMax value (if one is appropriate for this track).
+     */
+    private void setYMaxVisible(boolean flag) {
+        if (yMaxPanel != null) {
+            DrawingMode mode = tracks[0].getDrawingMode();
+            flag &= (mode == DrawingMode.ARC_PAIRED || mode == DrawingMode.BASE_QUALITY || mode == DrawingMode.COLOURSPACE || mode == DrawingMode.MAPPING_QUALITY
+                     || mode == DrawingMode.MISMATCH || mode == DrawingMode.PACK || mode == DrawingMode.SNP || mode == DrawingMode.STANDARD || mode == DrawingMode.STANDARD_PAIRED);
+            yMaxPanel.setVisible(flag);
+        }
+    }
+
     /**
      * Force the associated track to redraw.  Used when the colour scheme has been changed by the Preferences dialog.
      */
@@ -632,6 +661,8 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
         } else if (track.getDataSource().getDataFormat() == DataFormat.INTERVAL_RICH || track.getDataSource().getDataFormat() == DataFormat.INTERVAL_GENERIC) {
             intervalMenu.setVisible(mode == DrawingMode.STANDARD || mode == DrawingMode.PACK);
         }
+        setYMaxVisible(true);
+
         if (reRender) {
             validate();
             drawTracksInRange(LocationController.getInstance().getReferenceName(), LocationController.getInstance().getRange());
@@ -671,20 +702,21 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
      */
     public BufferedImage frameToImage(int baseSelected){
         BufferedImage bufferedImage = new BufferedImage(graphPane.getWidth(), graphPane.getHeight(), BufferedImage.TYPE_INT_RGB);
-        Graphics2D g = bufferedImage.createGraphics();
+        Graphics2D g2 = bufferedImage.createGraphics();
         graphPane.setRenderForced();
         graphPane.forceFullHeight();
-        graphPane.render(g);
+        graphPane.render(g2);
         graphPane.unforceFullHeight();
-        g.setColor(Color.black);
+        g2.setColor(Color.black);
         if(baseSelected > 0){
-            int spos = MiscUtils.transformPositionToPixel(baseSelected, this.graphPane.getWidth(), this.graphPane.getHorizontalPositionalRange());
-            g.drawLine(spos, 0, spos, this.graphPane.getHeight());
-            int rpos = MiscUtils.transformPositionToPixel(baseSelected+1, this.graphPane.getWidth(), this.graphPane.getHorizontalPositionalRange());
-            g.drawLine(rpos, 0, rpos, this.graphPane.getHeight());
+            double h = (double)graphPane.getHeight();
+            double spos = graphPane.transformXPos(baseSelected);
+            g2.draw(new Line2D.Double(spos, 0.0, spos, h));
+            double rpos = graphPane.transformXPos(baseSelected + 1);
+            g2.draw(new Line2D.Double(rpos, 0.0, rpos, h));
         }
-        g.setFont(new Font(null, Font.BOLD, 13));
-        g.drawString(tracks[0].getName(), 2, 15);
+        g2.setFont(new Font(null, Font.BOLD, 13));
+        g2.drawString(tracks[0].getName(), 2, 15);
         return bufferedImage;
     }
 
@@ -695,6 +727,7 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
     @Override
     public void dataRetrievalCompleted(DataRetrievalEvent evt) {
         LOG.trace("Frame received dataRetrievalCompleted.  Forcing full render.");
+        setYMaxVisible(evt.getData() != null && evt.getData().size() > 0);
         graphPane.setRenderForced();
         graphPane.repaint();
     }
@@ -702,6 +735,7 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
     @Override
     public void dataRetrievalFailed(DataRetrievalEvent evt) {
         LOG.trace("Frame received dataRetrievalFailed.  Forcing full render.");
+        setYMaxVisible(false);
         graphPane.setRenderForced();
         graphPane.repaint();
     }

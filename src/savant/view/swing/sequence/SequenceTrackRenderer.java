@@ -18,7 +18,6 @@ package savant.view.swing.sequence;
 
 import java.awt.Color;
 import java.awt.Font;
-import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.geom.Rectangle2D;
 import java.io.UnsupportedEncodingException;
@@ -30,7 +29,6 @@ import savant.util.AxisRange;
 import savant.util.ColorScheme;
 import savant.util.DrawingInstruction;
 import savant.util.DrawingMode;
-import savant.util.Range;
 import savant.view.swing.GraphPane;
 import savant.view.swing.TrackRenderer;
 
@@ -52,15 +50,10 @@ public class SequenceTrackRenderer extends TrackRenderer {
     }
 
     @Override
-    public void render(Graphics g, GraphPane gp) throws RenderingException {
-
-        Graphics2D g2 = (Graphics2D) g;
-        gp.setIsOrdinal(true);
+    public void render(Graphics2D g2, GraphPane gp) throws RenderingException {
 
         renderPreCheck(gp);
         
-        gp.setYMaxVisible(false);
-
         double unitWidth = gp.getUnitWidth();
 
         byte[] sequence = ((SequenceRecord)data.get(0)).getSequence();
@@ -126,7 +119,7 @@ public class SequenceTrackRenderer extends TrackRenderer {
                     Rectangle2D charRect = font.getStringBounds(base, g2.getFontRenderContext());
                     // center the font rectangle in the coloured sequence rectangle
                     charX = (float) (rect.getX() + (rect.getWidth() - charRect.getWidth())/2);
-                    charY = (float) ((rect.getHeight()-5)/2 + g.getFontMetrics().getAscent()/2);
+                    charY = (float) ((rect.getHeight()-5)/2 + g2.getFontMetrics().getAscent()/2);
                     // draw character
                     g2.setColor(Color.black);
                     g2.drawString(base, charX, charY);
@@ -143,16 +136,6 @@ public class SequenceTrackRenderer extends TrackRenderer {
         Rectangle2D charRect = font.getStringBounds(baseChar, g2.getFontRenderContext());
         if (charRect.getWidth() > width) return false;
         else return true;
-    }
-
-    @Override
-    public boolean isOrdinal() {
-        return true;
-    }
-
-    @Override
-    public Range getDefaultYRange() {
-        return new Range(0,1);
     }
 
     @Override

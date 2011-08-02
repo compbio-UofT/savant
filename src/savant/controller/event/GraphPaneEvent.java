@@ -15,8 +15,6 @@
  */
 package savant.controller.event;
 
-import java.awt.Point;
-
 
 /**
  * Something has changed in the state of our GraphPaneController.  Tell our clients about it.
@@ -25,7 +23,9 @@ import java.awt.Point;
  */
 public class GraphPaneEvent {
     private final Type type;
-    private final Point mouse;
+    private final int mouseX;
+    private final double mouseY;
+    private final boolean yIntegral;
     private final String status;
 
     /**
@@ -33,19 +33,25 @@ public class GraphPaneEvent {
      */
     public GraphPaneEvent() {
         this.type = Type.HIGHLIGHTING;
-        this.mouse = null;
+        this.mouseX = -1;
+        this.mouseY = Double.NaN;
+        this.yIntegral = false;
         this.status = null;
     }
 
-    public GraphPaneEvent(Point mouse) {
+    public GraphPaneEvent(int mouseX, double mouseY, boolean yIntegral) {
         this.type = Type.MOUSE;
-        this.mouse = mouse;
+        this.mouseX = mouseX;
+        this.mouseY = mouseY;
+        this.yIntegral = yIntegral;
         this.status = null;
     }
 
     public GraphPaneEvent(String status) {
         this.type = Type.STATUS;
-        this.mouse = null;
+        this.mouseX = -1;
+        this.mouseY = Double.NaN;
+        this.yIntegral = false;
         this.status = status;
     }
 
@@ -53,8 +59,16 @@ public class GraphPaneEvent {
         return type;
     }
 
-    public Point getMouse() {
-        return mouse;
+    public int getMouseX() {
+        return mouseX;
+    }
+
+    public double getMouseY() {
+        return mouseY;
+    }
+
+    public boolean isYIntegral() {
+        return yIntegral;
     }
 
     public String getStatus() {

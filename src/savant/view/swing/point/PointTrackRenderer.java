@@ -17,7 +17,6 @@
 package savant.view.swing.point;
 
 import java.awt.Color;
-import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Polygon;
 import java.awt.geom.Point2D;
@@ -30,7 +29,6 @@ import savant.util.DrawingInstruction;
 import savant.util.Resolution;
 import savant.util.ColorScheme;
 import savant.util.DrawingMode;
-import savant.util.Range;
 import savant.view.swing.GraphPane;
 import savant.view.swing.TrackRenderer;
 
@@ -47,20 +45,15 @@ public class PointTrackRenderer extends TrackRenderer {
     }
 
     @Override
-    public void render(Graphics g, GraphPane gp) throws RenderingException {
-
-        Graphics2D g2 = (Graphics2D) g;
-        gp.setIsOrdinal(true);
-        this.clearShapes();
-
-        double width = gp.getUnitWidth();
+    public void render(Graphics2D g2, GraphPane gp) throws RenderingException {
 
         renderPreCheck(gp);
 
         Resolution r = (Resolution)instructions.get(DrawingInstruction.RESOLUTION);
 
-        // don't draw things which are too small to be seen: less than 1 pixel wide
-        if (width < 1 || data == null) {
+        // don't draw things which are too small to be seen: less than 1/2 pixel wide
+        double width = gp.getUnitWidth();
+        if (width < 0.5 || data == null) {
             throw new RenderingException("Zoom in to see points");
         }
 
@@ -70,8 +63,6 @@ public class PointTrackRenderer extends TrackRenderer {
             ColorScheme cs = (ColorScheme)instructions.get(DrawingInstruction.COLOR_SCHEME);
             Color bgcolor = cs.getColor("Background");
             Color linecolor = cs.getColor("Line");
-
-            float pointiness = 0.1F;
 
             for (Record record: data) {
                 Polygon p = new Polygon();
@@ -102,18 +93,8 @@ public class PointTrackRenderer extends TrackRenderer {
             }
         }
         if(data.isEmpty()){
-            throw new RenderingException("No data in range.");
+            throw new RenderingException("No data in range");
         }
-    }
-
-    @Override
-    public boolean isOrdinal() {
-        return true;
-    }
-
-    @Override
-    public Range getDefaultYRange() {
-        return new Range(0,1);
     }
 
     @Override

@@ -1,8 +1,4 @@
 /*
- * BAMTrackRenderer.java
- * Created on Feb 1, 2010
- *
- *
  *    Copyright 2010-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
@@ -36,8 +32,8 @@ import net.sf.samtools.CigarOperator;
 import net.sf.samtools.SAMRecord;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import savant.controller.GenomeController;
 
+import savant.controller.GenomeController;
 import savant.controller.LocationController;
 import savant.data.event.DataRetrievalEvent;
 import savant.data.types.BAMIntervalRecord;
@@ -63,9 +59,6 @@ import savant.view.swing.interval.Pileup.Nucleotide;
  */
 public class BAMTrackRenderer extends TrackRenderer {
     private static final Log LOG = LogFactory.getLog(BAMTrackRenderer.class);
-
-    private static final int minTransparency = 20;
-    private static final int maxTransparency = 255;
 
     /** MODE */
     private static final Font SMALL_FONT = new Font("Sans-Serif", Font.PLAIN, 10);
@@ -253,12 +246,7 @@ public class BAMTrackRenderer extends TrackRenderer {
     }
 
     @Override
-    public void render(Graphics g, GraphPane gp) throws RenderingException {
-
-        Graphics2D g2 = (Graphics2D) g;
-
-        gp.setIsOrdinal(true);
-        this.clearShapes();
+    public void render(Graphics2D g2, GraphPane gp) throws RenderingException {
 
         // Put up an error message if we don't want to do any rendering.
         renderPreCheck(gp);
@@ -309,12 +297,11 @@ public class BAMTrackRenderer extends TrackRenderer {
             case STRAND_SNP:
                 if (r == Resolution.VERY_HIGH || r == Resolution.HIGH) {
                     renderStrandSNPMode(g2, gp, r);
-                    gp.setYMaxVisible(false);
                 }
                 break;
         }
         if(data.isEmpty()){
-            throw new RenderingException("No data in range.");
+            throw new RenderingException("No data in range");
         }
     }
 
@@ -333,7 +320,7 @@ public class BAMTrackRenderer extends TrackRenderer {
         IntervalPacker packer = new IntervalPacker(mates);
         ArrayList<List<IntervalRecord>> intervals = packer.pack(2);
 
-        gp.setIsOrdinal(false);
+        gp.setYAxisType(AxisType.INTEGER);
         gp.setXRange(axisRange.getXRange());
         int maxYRange;
         int numIntervals = intervals.size();
@@ -413,7 +400,7 @@ public class BAMTrackRenderer extends TrackRenderer {
 
         ArrayList<List<IntervalRecord>> intervals = packer.pack(breathingRoom);
 
-        gp.setIsOrdinal(false);
+        gp.setYAxisType(AxisType.INTEGER);
         gp.setXRange(axisRange.getXRange());
         int maxYRange;
         int numIntervals = intervals.size();
@@ -468,10 +455,7 @@ public class BAMTrackRenderer extends TrackRenderer {
                         basecolor = cs.getColor("Reverse Strand");
                     }
 
-                    int alpha = samRecord.getMappingQuality();
-                    alpha = alpha < minTransparency ? minTransparency : alpha;
-                    alpha = alpha > maxTransparency ? maxTransparency : alpha;
-                    
+                    int alpha = getConstrainedAlpha(samRecord.getMappingQuality());
                     readColour = new Color(basecolor.getRed(),basecolor.getGreen(),basecolor.getBlue(),alpha);
                 } else if (mode == DrawingMode.BASE_QUALITY) {
                     readColour = new Color(0,0,0,0);
@@ -620,10 +604,7 @@ public class BAMTrackRenderer extends TrackRenderer {
         int sequenceCursor = alignmentStart;
 
         for (byte q : samRecord.getBaseQualities()) {
-            int alpha = (int) q;
-            alpha = (int) Math.round(((double) alpha/40)*255);
-            alpha = alpha < minTransparency ? minTransparency : alpha;
-            alpha = alpha > maxTransparency ? maxTransparency : alpha;
+            int alpha = getConstrainedAlpha((int)Math.round((q * 0.025) * 255));
 
             int xCoordinate = (int)gp.transformXPos(sequenceCursor);
              Rectangle2D.Double opRect = new Rectangle2D.Double(xCoordinate,
@@ -1201,10 +1182,8 @@ public class BAMTrackRenderer extends TrackRenderer {
                             }
 
 
-                            int alpha = (int) baseQualities[readIndex];
-                            alpha = (int) Math.round(((double) alpha/40)*255);
-                            alpha = alpha < minTransparency ? minTransparency : alpha;
-                            alpha = alpha > maxTransparency ? maxTransparency : alpha;
+                            byte q = baseQualities[readIndex];
+                            int alpha = getConstrainedAlpha((int)Math.round((q * 0.025) * 255));
                             baseColor = new Color(baseColor.getRed(),baseColor.getGreen(),baseColor.getBlue(),alpha);
 
                             double xCoordinate = gp.transformXPos(sequenceCursor+i);
@@ -1276,12 +1255,10 @@ public class BAMTrackRenderer extends TrackRenderer {
         Color discordantLengthColor = cs.getColor("Discordant Length");
 
         // set graph pane's range parameters
-        gp.setIsOrdinal(false);
+        gp.setYAxisType(AxisType.INTEGER);
         gp.setXRange(axisRange.getXRange());
         // Y range is given to us by BAMTrack for this mode
         gp.setYRange(axisRange.getYRange());
-
-        this.clearShapes();
 
         // iterate through the data and draw
         LOG.info("BAMTrackRenderer.renderArcMatePairMode: " + data.size() + " records.");
@@ -1416,7 +1393,7 @@ public class BAMTrackRenderer extends TrackRenderer {
             if(current > maxHeight) maxHeight = current;
         }
 
-        gp.setIsOrdinal(false);
+        gp.setYAxisType(AxisType.INTEGER);
         gp.setXRange(axisRange.getXRange());
         gp.setYRange(new Range(0,(int)Math.rint((double)maxHeight/0.9)));
 
@@ -1505,7 +1482,7 @@ public class BAMTrackRenderer extends TrackRenderer {
             if(current2 > maxHeight) maxHeight = current2;
         }
 
-        gp.setIsOrdinal(false);
+        gp.setYAxisType(AxisType.INTEGER);
         gp.setXRange(axisRange.getXRange());
         gp.setYRange(new Range(0,(int)Math.rint((double)maxHeight/0.9)));
 
@@ -1703,16 +1680,6 @@ public class BAMTrackRenderer extends TrackRenderer {
     @Override
     public boolean hasHorizontalGrid() {
         return (DrawingMode)instructions.get(DrawingInstruction.MODE) == DrawingMode.ARC_PAIRED;
-    }
-
-    @Override
-    public boolean isOrdinal() {
-        return true;
-    }
-
-    @Override
-    public Range getDefaultYRange() {
-        return new Range(0,1);
     }
 
     //THIS IS A BIT MESSY

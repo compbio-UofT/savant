@@ -17,9 +17,9 @@
 package savant.view.swing.interval;
 
 import java.awt.Color;
-import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+import java.awt.geom.Arc2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
@@ -57,11 +57,7 @@ public class IntervalTrackRenderer extends TrackRenderer {
     }
 
     @Override
-    public void render(Graphics g, GraphPane gp) throws RenderingException {
-
-        Graphics2D g2 = (Graphics2D) g;
-        gp.setIsOrdinal(true);
-        this.clearShapes();
+    public void render(Graphics2D g2, GraphPane gp) throws RenderingException {
 
         renderPreCheck(gp);
 
@@ -69,7 +65,6 @@ public class IntervalTrackRenderer extends TrackRenderer {
         Resolution r = (Resolution)instructions.get(DrawingInstruction.RESOLUTION);
 
         if (mode == DrawingMode.SQUISH) {
-            gp.setYMaxVisible(false);
             renderSquishMode(g2, gp, r);
         } else if (mode == DrawingMode.ARC) {
             renderArcMode(g2, gp, r);
@@ -77,7 +72,7 @@ public class IntervalTrackRenderer extends TrackRenderer {
             renderPackMode(g2, gp, r);
         }
         if (data.isEmpty()) {
-            throw new RenderingException("No data in range.");
+            throw new RenderingException("No data in range");
         }
     }
 
@@ -91,7 +86,7 @@ public class IntervalTrackRenderer extends TrackRenderer {
         
         if (r == Resolution.VERY_HIGH || r == Resolution.HIGH) {
 
-            gp.setIsOrdinal(true);
+            gp.setYAxisType(AxisType.NONE);
             gp.setXRange(axisRange.getXRange());
             gp.setYRange(axisRange.getYRange());
  
@@ -136,7 +131,7 @@ public class IntervalTrackRenderer extends TrackRenderer {
 
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-            gp.setIsOrdinal(false);
+            gp.setYAxisType(AxisType.INTEGER);
             gp.setXRange(axisRange.getXRange());
             gp.setYRange(axisRange.getYRange());
 
@@ -144,16 +139,16 @@ public class IntervalTrackRenderer extends TrackRenderer {
                 Interval inter = ((IntervalRecord)record).getInterval();
 
                 int arcLength = inter.getLength();
-                int arcHeight = (int)(Math.log((double)arcLength));
+                double arcHeight = Math.log((double)arcLength);
 
-                int rectWidth = (int)(gp.getWidth(arcLength));
-                int rectHeight = (int)(gp.getHeight(arcHeight)*2);
+                double rectWidth = gp.getWidth(arcLength);
+                double rectHeight = gp.getHeight(arcHeight)*2;
 
-                int xOrigin = (int)(gp.transformXPos(inter.getStart()));
-                int yOrigin = (int)(gp.transformYPos(arcHeight));
+                double xOrigin = gp.transformXPos(inter.getStart());
+                double yOrigin = gp.transformYPos(arcHeight);
 
                 g2.setColor(bgcolor);
-                g2.drawArc(xOrigin, yOrigin, rectWidth, rectHeight, -180, -180);
+                g2.draw(new Arc2D.Double(xOrigin, yOrigin, rectWidth, rectHeight, -180, -180, Arc2D.OPEN));
             }
         }
 
@@ -173,10 +168,9 @@ public class IntervalTrackRenderer extends TrackRenderer {
         if (r == Resolution.VERY_HIGH || r == Resolution.HIGH) {
 
             IntervalPacker packer = new IntervalPacker(data);
-//            Map<Integer, ArrayList<IntervalRecord>> intervals = packer.pack(2);
             ArrayList<List<IntervalRecord>> intervals = packer.pack(2);
 
-            gp.setIsOrdinal(false);
+            gp.setYAxisType(AxisType.INTEGER);
             gp.setXRange(axisRange.getXRange());
             int maxYRange;
             int numIntervals = intervals.size();
@@ -196,7 +190,6 @@ public class IntervalTrackRenderer extends TrackRenderer {
             // scan the map of intervals and draw the intervals for each level
             for (int k=0; k<intervals.size(); k++) {
 
-//                ArrayList<IntervalRecord> intervalsThisLevel = intervals.get(k);
                 List<IntervalRecord> intervalsThisLevel = intervals.get(k);
 
                 for (IntervalRecord intervalRecord : intervalsThisLevel) {
@@ -222,16 +215,6 @@ public class IntervalTrackRenderer extends TrackRenderer {
             }
         }
 
-    }
-
-    @Override
-    public boolean isOrdinal() {
-        return true;
-    }
-
-    @Override
-    public Range getDefaultYRange() {
-        return new Range(0,1);
     }
 
     @Override
