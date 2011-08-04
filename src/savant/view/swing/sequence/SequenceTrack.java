@@ -35,8 +35,6 @@ import savant.view.swing.Track;
 public class SequenceTrack extends Track {
 
     SavantROFile dFile;
-    //Genome genome;
-    //String path;
 
     public SequenceTrack(DataSourceAdapter dataTrack) throws SavantTrackCreationCancelledException {
         super(dataTrack, new SequenceTrackRenderer());
@@ -68,10 +66,7 @@ public class SequenceTrack extends Track {
 
     @Override
     public Resolution getResolution(RangeAdapter range) {
-        int length = range.getLength();
-
-        if (length > TrackResolutionSettings.getSequenceLowToHighThresh()) { return Resolution.VERY_LOW; }
-            return Resolution.VERY_HIGH;
+        return range.getLength() > TrackResolutionSettings.getSequenceLowToHighThresh() ? Resolution.LOW : Resolution.HIGH;
     }
 
     @Override
@@ -81,11 +76,11 @@ public class SequenceTrack extends Track {
 
         Resolution r = getResolution(range);
 
-        if (r == Resolution.VERY_HIGH) {
+        if (r == Resolution.HIGH) {
             renderer.addInstruction(DrawingInstruction.PROGRESS, "Loading sequence track...");
             requestData(reference, range);
         } else {
-            renderer.addInstruction(DrawingInstruction.ERROR, "Zoom in to see data");
+            renderer.addInstruction(DrawingInstruction.ERROR, ZOOM_MESSAGE);
             saveNullData();
         }
 
@@ -94,7 +89,7 @@ public class SequenceTrack extends Track {
         renderer.addInstruction(DrawingInstruction.REFERENCE_EXISTS, containsReference(reference));
         renderer.addInstruction(DrawingInstruction.SELECTION_ALLOWED, false);
 
-        if (r == Resolution.VERY_HIGH) {
+        if (r == Resolution.HIGH) {
             renderer.addInstruction(DrawingInstruction.RANGE, range);
             renderer.addInstruction(DrawingInstruction.COLOR_SCHEME, this.getColorScheme());
         }

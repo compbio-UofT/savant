@@ -151,7 +151,7 @@ public final class Genome implements Serializable, GenomeAdapter {
 
     @Override
     public byte[] getSequence(String reference, RangeAdapter range) throws IOException {
-        return isSequenceSet() ? ((FASTADataSource)sequenceTrack.getDataSource()).getRecords(reference, range, Resolution.VERY_HIGH).get(0).getSequence() : null;
+        return isSequenceSet() ? ((FASTADataSource)sequenceTrack.getDataSource()).getRecords(reference, range, Resolution.HIGH).get(0).getSequence() : null;
     }
 
     @Override

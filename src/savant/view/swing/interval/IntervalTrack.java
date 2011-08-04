@@ -85,19 +85,15 @@ public class IntervalTrack extends Track {
     }
 
     public static Resolution getDefaultModeResolution(Range range) {
-        if (range.getLength() > TrackResolutionSettings.getIntervalLowToHighThresh()) { return Resolution.LOW; }
-        else { return Resolution.VERY_HIGH; }
+        return range.getLength() > TrackResolutionSettings.getIntervalLowToHighThresh() ? Resolution.LOW : Resolution.HIGH;
     }
 
-    public static Resolution getArcModeResolution(Range range)
-    {
-        if (range.getLength() > TrackResolutionSettings.getIntervalLowToHighThresh()) { return Resolution.LOW; }
-        else { return Resolution.VERY_HIGH; }
+    public static Resolution getArcModeResolution(Range range) {
+        return range.getLength() > TrackResolutionSettings.getIntervalLowToHighThresh() ? Resolution.LOW : Resolution.HIGH;
     }
 
     public static Resolution getSquishModeResolution(Range range) {
-        if (range.getLength() > TrackResolutionSettings.getIntervalLowToHighThresh()) { return Resolution.LOW; }
-        else { return Resolution.VERY_HIGH; }
+        return range.getLength() > TrackResolutionSettings.getIntervalLowToHighThresh() ? Resolution.LOW : Resolution.HIGH;
     }
 
     @Override
@@ -106,12 +102,12 @@ public class IntervalTrack extends Track {
         Resolution r = getResolution(range);
 
         switch (r) {
-            case VERY_HIGH:
+            case HIGH:
                 renderer.addInstruction(DrawingInstruction.PROGRESS, "Loading track...");
                 requestData(reference, range);
                 break;
             default:
-                renderer.addInstruction(DrawingInstruction.ERROR, "Zoom in to see data");
+                renderer.addInstruction(DrawingInstruction.ERROR, ZOOM_MESSAGE);
                 break;
         }
 

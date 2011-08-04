@@ -50,6 +50,7 @@ import savant.view.swing.util.DialogUtils;
  */
 public abstract class Track implements TrackAdapter {
     private static final Log LOG = LogFactory.getLog(Track.class);
+    protected static final String ZOOM_MESSAGE = MiscUtils.MAC ? "Zoom in to see data\nTo view data at this range, change Preferences > Track Resolutions" : "Zoom in to see data\nTo view data at this range, change Edit > Preferences > Track Resolutions";
 
     private final String name;
     private ColorScheme colorScheme;
@@ -292,10 +293,8 @@ public abstract class Track implements TrackAdapter {
      */
     @Override
     public void repaint() {
-        boolean b = frame.getGraphPane().isRenderForced();
         frame.getGraphPane().setRenderForced();
         frame.getGraphPane().repaint();
-        //frame.getGraphPane().setRenderForced(b);
     }
 
     @Override

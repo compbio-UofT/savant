@@ -50,11 +50,11 @@ public class RichIntervalTrack extends Track {
     @Override
     public void prepareForRendering(String reference, Range range) {
         Resolution r = getResolution(range);
-        renderer.addInstruction(DrawingInstruction.PROGRESS, "Loading track...");
-        if (r == Resolution.VERY_HIGH || r == Resolution.HIGH){
+        if (r == Resolution.HIGH){
+            renderer.addInstruction(DrawingInstruction.PROGRESS, "Loading track...");
             requestData(reference, range);
         } else {
-            renderer.addInstruction(DrawingInstruction.ERROR, "Zoom in to see data");
+            renderer.addInstruction(DrawingInstruction.ERROR, ZOOM_MESSAGE);
         }
         
         renderer.addInstruction(DrawingInstruction.RANGE, range);

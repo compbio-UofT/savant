@@ -96,13 +96,13 @@ public class BAMTrack extends Track {
     public void prepareForRendering(String reference, Range range) {
 
         Resolution r = getResolution(range, getDrawingMode());
-        if (r == Resolution.VERY_HIGH) {
+        if (r == Resolution.HIGH) {
             renderer.addInstruction(DrawingInstruction.PROGRESS, "Loading BAM track...");
             requestData(reference, range);
         } else {
             saveNullData();
             if (getDrawingMode() == DrawingMode.ARC_PAIRED){
-                renderer.addInstruction(DrawingInstruction.ERROR, "Zoom in to see data");
+                renderer.addInstruction(DrawingInstruction.ERROR, ZOOM_MESSAGE);
             } else {
                 // If there is an actual coverage track, this error message will never be drawn.
                 renderer.addInstruction(DrawingInstruction.ERROR, "No coverage file available");
@@ -170,17 +170,11 @@ public class BAMTrack extends Track {
     }
 
     private Resolution getArcModeResolution(Range range) {
-        int length = range.getLength();
-
-        if (length > TrackResolutionSettings.getBamArcModeLowToHighThresh()) { return Resolution.LOW; }
-        else { return Resolution.VERY_HIGH; }
+        return range.getLength() > TrackResolutionSettings.getBamArcModeLowToHighThresh() ? Resolution.LOW : Resolution.HIGH;
     }
 
     private Resolution getDefaultModeResolution(Range range) {
-        int length = range.getLength();
-
-        if (length > TrackResolutionSettings.getBamDefaultModeLowToHighThresh()) { return Resolution.LOW; }
-        else { return Resolution.VERY_HIGH; }
+        return range.getLength() > TrackResolutionSettings.getBamDefaultModeLowToHighThresh() ? Resolution.LOW : Resolution.HIGH;
     }
 
     public double getArcSizeVisibilityThreshold() {

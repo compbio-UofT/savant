@@ -63,8 +63,7 @@ public class SequenceTrackRenderer extends TrackRenderer {
         if (fontFits(LARGE_FONT, unitWidth, g2)) {
             g2.setFont(LARGE_FONT);
             baseRenderable = true;
-        }
-        else if (fontFits(SMALL_FONT, unitWidth, g2)) {
+        } else if (fontFits(SMALL_FONT, unitWidth, g2)) {
             g2.setFont(SMALL_FONT);
             baseRenderable = true;
         }
@@ -74,9 +73,9 @@ public class SequenceTrackRenderer extends TrackRenderer {
         int len = sequence.length;
         for (int i = 0; i < len; i++) {
             double x = gp.transformXPos(axisRange.getXMin()+i);
-            double y = 0;//gp.transformYPos(1);
-            double w = Math.ceil(gp.getUnitWidth());
-            double h = gp.getUnitHeight();
+            double y = 0.0;
+            double w = Math.ceil(unitWidth);    // If we don't do the ceil(), the sequence looks washed out at lower resolutions.
+            double h = gp.getHeight();
 
             Rectangle2D.Double rect = new Rectangle2D.Double(x, y, w, h);
 
@@ -106,7 +105,7 @@ public class SequenceTrackRenderer extends TrackRenderer {
             g2.setColor(c);
             g2.fill(rect);
 
-            if (w > 5) {
+            if (w > 5.0) {
                 g2.draw(rect);
             }
 
@@ -114,12 +113,11 @@ public class SequenceTrackRenderer extends TrackRenderer {
                 String base = new String(sequence, i, 1, "ISO-8859-1");
 
                 if (baseRenderable) {
-                    float charX, charY;
                     Font font = g2.getFont();
                     Rectangle2D charRect = font.getStringBounds(base, g2.getFontRenderContext());
                     // center the font rectangle in the coloured sequence rectangle
-                    charX = (float) (rect.getX() + (rect.getWidth() - charRect.getWidth())/2);
-                    charY = (float) ((rect.getHeight()-5)/2 + g2.getFontMetrics().getAscent()/2);
+                    float charX = (float) (rect.getX() + (rect.getWidth() - charRect.getWidth())/2);
+                    float charY = (float) ((rect.getHeight()-5)/2 + g2.getFontMetrics().getAscent()/2);
                     // draw character
                     g2.setColor(Color.black);
                     g2.drawString(base, charX, charY);

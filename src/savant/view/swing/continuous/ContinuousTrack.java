@@ -67,10 +67,7 @@ import savant.view.swing.Track;
      */
     @Override
     public Resolution getResolution(RangeAdapter range) {
-        int length = range.getLength();
-
-        if (length > TrackResolutionSettings.getConservationLowToHighThresh()) { return Resolution.LOW; }
-        else { return Resolution.VERY_HIGH; }
+        return range.getLength() > TrackResolutionSettings.getConservationLowToHighThresh() ? Resolution.LOW : Resolution.HIGH;
     }
 
     private ColorScheme getDefaultColorScheme() {
@@ -87,10 +84,6 @@ import savant.view.swing.Track;
     @Override
     public void resetColorScheme() {
         setColorScheme(getDefaultColorScheme());
-    }
-
-    private Range getDefaultYRange() {
-        return new Range(0, 1);
     }
 
     public static float[] getExtremeValues(List<Record> data) {

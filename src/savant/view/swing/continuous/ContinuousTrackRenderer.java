@@ -27,6 +27,9 @@ import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import savant.controller.LocationController;
 import savant.controller.SelectionController;
 import savant.data.event.DataRetrievalEvent;
@@ -50,6 +53,7 @@ import savant.view.swing.TrackRenderer;
  * @author vwilliams, tarkvara
  */
 public class ContinuousTrackRenderer extends TrackRenderer {
+    private static final Log LOG = LogFactory.getLog(ContinuousTrackRenderer.class);
 
     public ContinuousTrackRenderer() {
         super(DataFormat.CONTINUOUS_GENERIC);
@@ -72,21 +76,24 @@ public class ContinuousTrackRenderer extends TrackRenderer {
 
         renderPreCheck(gp);
 
+        AxisRange axisRange = (AxisRange)instructions.get(DrawingInstruction.AXIS_RANGE);
+        gp.setYAxisType(AxisType.REAL);
+        gp.setXRange(axisRange.getXRange());
+        gp.setYRange(axisRange.getYRange());
+
+        if (gp.needsToResize()) return;
+
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
         ColorScheme cs = (ColorScheme)instructions.get(DrawingInstruction.COLOR_SCHEME);
         Color fillcolor = cs.getColor("Fill");
         Color linecolor = cs.getColor("Line");
-        AxisRange axisRange = (AxisRange)instructions.get(DrawingInstruction.AXIS_RANGE);
-
-        gp.setYAxisType(AxisType.REAL);
-        gp.setXRange(axisRange.getXRange());
-        gp.setYRange(axisRange.getYRange());
 
         GeneralPath path = new GeneralPath();
         double xFormXPos = Double.NaN, xFormYPos = Double.NaN;
 
-        double yPixel0 = gp.transformYPos(0);
+        double yPixel0 = gp.transformYPos(0.0);
+        LOG.debug("h=" + gp.getHeight() + ", yMin=" + gp.getYRange().getFrom() + ", unitHeight=" + gp.getUnitHeight() + " ➤ yPixel0=" + yPixel0);
         
         double maxData = 0;
         boolean haveOpenPath = false;

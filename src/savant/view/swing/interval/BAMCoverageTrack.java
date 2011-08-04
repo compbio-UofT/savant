@@ -41,7 +41,7 @@ public class BAMCoverageTrack extends Track {
     public void prepareForRendering(String reference, Range range) {
 
         Resolution r = getResolution(range);
-        if (isEnabled() && r != Resolution.VERY_HIGH) {
+        if (isEnabled() && r != Resolution.HIGH) {
             renderer.addInstruction(DrawingInstruction.PROGRESS, "Loading coverage track...");
             renderer.addInstruction(DrawingInstruction.AXIS_RANGE, AxisRange.initWithRanges(range, getDefaultYRange()));
             requestData(reference, range);
@@ -80,10 +80,7 @@ public class BAMCoverageTrack extends Track {
     }
 
     public Resolution getDefaultModeResolution(Range range) {
-        int length = range.getLength();
-
-        if (length > TrackResolutionSettings.getBamDefaultModeLowToHighThresh()) { return Resolution.LOW; }
-        else { return Resolution.VERY_HIGH; }
+        return range.getLength() > TrackResolutionSettings.getBamDefaultModeLowToHighThresh() ? Resolution.LOW : Resolution.HIGH;
     }
 
     private Range getDefaultYRange() {

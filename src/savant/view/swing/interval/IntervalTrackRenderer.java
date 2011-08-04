@@ -84,7 +84,7 @@ public class IntervalTrackRenderer extends TrackRenderer {
 
         AxisRange axisRange = (AxisRange)instructions.get(DrawingInstruction.AXIS_RANGE);
         
-        if (r == Resolution.VERY_HIGH || r == Resolution.HIGH) {
+        if (r == Resolution.HIGH) {
 
             gp.setYAxisType(AxisType.NONE);
             gp.setXRange(axisRange.getXRange());
@@ -127,7 +127,7 @@ public class IntervalTrackRenderer extends TrackRenderer {
 
         AxisRange axisRange = (AxisRange)instructions.get(DrawingInstruction.AXIS_RANGE);
 
-        if (r == Resolution.VERY_HIGH || r == Resolution.HIGH) {
+        if (r == Resolution.HIGH) {
 
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
@@ -160,12 +160,9 @@ public class IntervalTrackRenderer extends TrackRenderer {
         Color bgcolor = cs.getColor("Opaque Graph");
         Color linecolor = cs.getColor("Line");
 
-        //set position offset for scrollpane
-        this.offset = gp.getOffset();
-
         AxisRange axisRange = (AxisRange)instructions.get(DrawingInstruction.AXIS_RANGE);
 
-        if (r == Resolution.VERY_HIGH || r == Resolution.HIGH) {
+        if (r == Resolution.HIGH) {
 
             IntervalPacker packer = new IntervalPacker(data);
             ArrayList<List<IntervalRecord>> intervals = packer.pack(2);
@@ -183,9 +180,9 @@ public class IntervalTrackRenderer extends TrackRenderer {
             gp.setYRange(new Range(0,maxYRange));
 
             //resize frame if necessary
-            if(!determineFrameSize(gp, intervals.size())) return;
+            if (gp.needsToResize()) return;
 
-            double unitHeight = getIntervalHeight();
+            double unitHeight = gp.getUnitHeight();
 
             // scan the map of intervals and draw the intervals for each level
             for (int k=0; k<intervals.size(); k++) {
@@ -196,7 +193,7 @@ public class IntervalTrackRenderer extends TrackRenderer {
                     Interval interval = intervalRecord.getInterval();
                     double x = gp.transformXPos(interval.getStart());
                     //double y = gp.transformYPos(k)-unitHeight;
-                    double y = gp.getHeight() - unitHeight * (k+1) - offset;
+                    double y = gp.getHeight() - unitHeight * (k+1) - gp.getOffset();
                     double w = gp.getWidth(interval.getLength());
                     //if (w < 1) continue; // don't draw intervals less than one pixel wide
                     double h = unitHeight;

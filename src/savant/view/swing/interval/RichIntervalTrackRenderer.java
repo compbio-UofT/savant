@@ -80,9 +80,6 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
 
         double unitWidth = gp.getUnitWidth();
 
-        //set position offset for scrollpane
-        this.offset = gp.getOffset();
-
         FontMetrics fm = g2.getFontMetrics();
         List<Record> stuffedRecords = new ArrayList<Record>();
         for (Record r : data) {
@@ -109,7 +106,7 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
         gp.setYRange(new Range(0,maxYRange));
 
         //resize frame if necessary
-        if(!determineFrameSize(gp, intervals.size())) return;
+        if (gp.needsToResize()) return;
 
         // scan the map of intervals and draw the intervals for each level
         for (int level=0; level<intervals.size(); level++) {
@@ -134,7 +131,8 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
         double unitWidth = gp.getUnitWidth();
-        double unitHeight = getIntervalHeight();
+        double unitHeight = gp.getUnitHeight();
+        int offset = gp.getOffset();
 
         g2.setFont(BrowserSettings.getTrackFont());
 
@@ -157,7 +155,6 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
         Color textColor = cs.getColor("Text");
 
         double startXPos = gp.transformXPos(interval.getStart());
-        double endXPos = gp.transformXPos(interval.getEnd() + 1);
 
         boolean isInsertion = false;
 
@@ -375,7 +372,7 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
         gp.setXRange(axisRange.getXRange());
         // y range is set where levels are sorted out, after block merging pass
 
-        if (resolution == Resolution.VERY_HIGH || resolution == Resolution.HIGH) {
+        if (resolution == Resolution.HIGH) {
 
 
             // colours

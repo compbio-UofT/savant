@@ -47,6 +47,7 @@ import savant.exception.RenderingException;
 import savant.file.DataFormat;
 import savant.settings.BrowserSettings;
 import savant.settings.ColourSettings;
+import savant.settings.InterfaceSettings;
 import savant.util.*;
 import savant.view.swing.GraphPane;
 import savant.view.swing.TrackRenderer;
@@ -67,6 +68,7 @@ public class BAMTrackRenderer extends TrackRenderer {
 
     private byte[] refSeq = null;
     private DrawingMode mode;
+    private Resolution lastResolution;
 
     // The number of standard deviations from the mean an arclength has to be before it's
     // considered discordant
@@ -251,15 +253,16 @@ public class BAMTrackRenderer extends TrackRenderer {
         // Put up an error message if we don't want to do any rendering.
         renderPreCheck(gp);
 
+        DrawingMode oldMode = mode;
         mode = (DrawingMode)instructions.get(DrawingInstruction.MODE);
         Resolution r = (Resolution)instructions.get(DrawingInstruction.RESOLUTION);
 
-        if (r == Resolution.VERY_HIGH || r == Resolution.HIGH) {
+        if (r == Resolution.HIGH) {
             if (mode == DrawingMode.MISMATCH || mode == DrawingMode.SNP || mode == DrawingMode.STRAND_SNP || mode == DrawingMode.COLOURSPACE || mode == DrawingMode.SEQUENCE || mode == DrawingMode.BASE_QUALITY){
                 // fetch reference sequence for comparison with cigar string
                 Genome genome = GenomeController.getInstance().getGenome();
                 if(genome.isSequenceSet()){
-                   AxisRange axisRange = (AxisRange)instructions.get(DrawingInstruction.AXIS_RANGE);
+                    AxisRange axisRange = (AxisRange)instructions.get(DrawingInstruction.AXIS_RANGE);
                     Range range = axisRange.getXRange();
                     try {
                         refSeq = genome.getSequence(LocationController.getInstance().getReferenceName(), range);
@@ -267,6 +270,25 @@ public class BAMTrackRenderer extends TrackRenderer {
                         throw new RenderingException(e.getMessage());
                     }
                 }
+            }
+        }
+        if (mode != DrawingMode.ARC_PAIRED) {
+            // For non-arc modes, we want to establish our interval height when we switch from coverage to non-coverage.
+            if (lastResolution != r || oldMode == DrawingMode.ARC_PAIRED) {
+                if (r == Resolution.HIGH) {
+                    // We're switching from coverage (or arc mode) to high resolution.
+                    gp.setScaledToContents(false);
+                    gp.setUnitHeight(InterfaceSettings.getIntervalHeight(DataFormat.INTERVAL_BAM));
+                } else {
+                    // We're switching to coverage.  Initially scaled by default.
+                    gp.setScaledToContents(true);
+                }
+                lastResolution = r;                
+            }
+        } else {
+            // Arc mode is always initially scaled to contents.
+            if (oldMode != DrawingMode.ARC_PAIRED) {
+                gp.setScaledToContents(true);
             }
         }
 
@@ -277,12 +299,12 @@ public class BAMTrackRenderer extends TrackRenderer {
             case MAPPING_QUALITY:
             case BASE_QUALITY:
             case COLOURSPACE:
-                if (r == Resolution.VERY_HIGH || r == Resolution.HIGH) {
+                if (r == Resolution.HIGH) {
                     renderPackMode(g2, gp, r);
                 }
                 break;
             case STANDARD_PAIRED:
-                if (r == Resolution.VERY_HIGH || r == Resolution.HIGH) {
+                if (r == Resolution.HIGH) {
                     renderStandardMatepairMode(g2, gp, r);
                 }
                 break;
@@ -290,28 +312,24 @@ public class BAMTrackRenderer extends TrackRenderer {
                 renderArcMatepairMode(g2, gp);
                 break;
             case SNP:
-                if (r == Resolution.VERY_HIGH || r == Resolution.HIGH) {
+                if (r == Resolution.HIGH) {
                     renderSNPMode(g2, gp, r);
                 }
                 break;
             case STRAND_SNP:
-                if (r == Resolution.VERY_HIGH || r == Resolution.HIGH) {
+                if (r == Resolution.HIGH) {
                     renderStrandSNPMode(g2, gp, r);
                 }
                 break;
         }
-        if(data.isEmpty()){
+        if (data.isEmpty()){
             throw new RenderingException("No data in range");
         }
     }
 
     private void renderStandardMatepairMode(Graphics2D g2, GraphPane gp, Resolution resolution) throws RenderingException {
-        //set position offset for scrollpane
-        this.offset = gp.getOffset();
 
         AxisRange axisRange = (AxisRange) instructions.get(DrawingInstruction.AXIS_RANGE);
-        ColorScheme cs = (ColorScheme) instructions.get(DrawingInstruction.COLOR_SCHEME);
-        Color linecolor = cs.getColor("Line");
         Range range = axisRange.getXRange();
 
         List mates = ReadPairIntervalRecord.getMatePairs(data);
@@ -334,7 +352,10 @@ public class BAMTrackRenderer extends TrackRenderer {
         gp.setYRange(new Range(0,maxYRange));
 
         //resize frame if necessary
-        if(!determineFrameSize(gp, intervals.size())) return;
+        if (gp.needsToResize()) return;
+
+        ColorScheme cs = (ColorScheme) instructions.get(DrawingInstruction.COLOR_SCHEME);
+        Color linecolor = cs.getColor("Line");
 
         // scan the map of intervals and draw the intervals for each level
         for (int level=0; level<intervals.size(); level++) {
@@ -380,28 +401,27 @@ public class BAMTrackRenderer extends TrackRenderer {
 
     private void renderPackMode(Graphics2D g2, GraphPane gp, Resolution r) throws RenderingException {
 
-        //set position offset for scrollpane
-        this.offset = gp.getOffset();
+        if (mode == DrawingMode.MISMATCH) {
+            Genome genome = GenomeController.getInstance().getGenome();
+            if (!genome.isSequenceSet()) {
+                throw new RenderingException("No reference sequence loaded. Switch to standard view");
+            }
+        }
 
         AxisRange axisRange = (AxisRange) instructions.get(DrawingInstruction.AXIS_RANGE);
-        ColorScheme cs = (ColorScheme) instructions.get(DrawingInstruction.COLOR_SCHEME);
-        Color linecolor = cs.getColor("Line");
         Range range = axisRange.getXRange();
 
-        IntervalPacker packer = new IntervalPacker(data);
-        // TODO: when it becomes possible, choose an appropriate number for breathing room parameter
-//        Map<Integer, ArrayList<IntervalRecord>> intervals = packer.pack(10);
-
-
         //calculate breathing room parameter
-        double arrowWidth = getIntervalHeight() / 4;
-        double pixelsPerBase = Math.max(0.01, (double)gp.getWidth() / (double)axisRange.getXRange().getLength());
+        double arrowWidth = gp.getUnitHeight() * 0.25;
+        double pixelsPerBase = Math.max(0.01, (double)gp.getWidth() / (double)range.getLength());
         int breathingRoom = (int)Math.ceil(2 * (arrowWidth / pixelsPerBase) + 2);
 
-        ArrayList<List<IntervalRecord>> intervals = packer.pack(breathingRoom);
+        // TODO: when it becomes possible, choose an appropriate number for breathing room parameter
+//        Map<Integer, ArrayList<IntervalRecord>> intervals = packer.pack(10);
+        ArrayList<List<IntervalRecord>> intervals = new IntervalPacker(data).pack(breathingRoom);
 
         gp.setYAxisType(AxisType.INTEGER);
-        gp.setXRange(axisRange.getXRange());
+        gp.setXRange(range);
         int maxYRange;
         int numIntervals = intervals.size();
         // Set the Y range to the closest value of 10, 20, 50, 100, n*100
@@ -411,17 +431,13 @@ public class BAMTrackRenderer extends TrackRenderer {
         else if (numIntervals <= 100) maxYRange = 100;
         else maxYRange = numIntervals;
         gp.setYRange(new Range(0,maxYRange));
-       
-        if (mode == DrawingMode.MISMATCH) {
-            Genome genome = GenomeController.getInstance().getGenome();
-            if (!genome.isSequenceSet()) {
-                throw new RenderingException("No reference sequence loaded. Switch to standard view");
-            }
-        }
 
         //resize frame if necessary
-        if(!determineFrameSize(gp, intervals.size())) return;
+        if (gp.needsToResize()) return;
         
+        ColorScheme cs = (ColorScheme) instructions.get(DrawingInstruction.COLOR_SCHEME);
+        Color linecolor = cs.getColor("Line");
+
         // scan the map of intervals and draw the intervals for each level
         for (int level=0; level<intervals.size(); level++) {
 
@@ -530,7 +546,7 @@ public class BAMTrackRenderer extends TrackRenderer {
 
         boolean drawPoint = false;
         //y = gp.transformYPos(0) - (level + 1)*unitHeight;
-        y = gp.transformYPos(0) - (level + 1)*unitHeight - offset;
+        y = gp.transformYPos(0) - (level + 1)*unitHeight - gp.getOffset();
         
         w = gp.getWidth(interval.getLength());
 
@@ -608,7 +624,7 @@ public class BAMTrackRenderer extends TrackRenderer {
 
             int xCoordinate = (int)gp.transformXPos(sequenceCursor);
              Rectangle2D.Double opRect = new Rectangle2D.Double(xCoordinate,
-                                    gp.transformYPos(0)-((level + 1)*unitHeight) - offset,
+                                    gp.transformYPos(0)-((level + 1)*unitHeight) - gp.getOffset(),
                                     unitWidth,
                                     unitHeight);
                             g2.setColor(new Color(baseColor.getRed(),baseColor.getGreen(),baseColor.getBlue(),alpha));
@@ -650,6 +666,7 @@ public class BAMTrackRenderer extends TrackRenderer {
 
         double unitHeight = gp.getUnitHeight();
         double unitWidth = gp.getUnitWidth();
+        int offset = gp.getOffset();
         int xCoordinate;
         int yCoordinate;
         int cursor = 0;
@@ -800,11 +817,9 @@ public class BAMTrackRenderer extends TrackRenderer {
         ColorScheme cs = (ColorScheme) instructions.get(DrawingInstruction.COLOR_SCHEME);
         Color linecolor = cs.getColor("Line");
 
-        double unitHeight;
-        double unitWidth;
-        unitHeight = gp.getUnitHeight();
-        unitWidth = gp.getUnitWidth();
-        //unitHeight = intervalHeight;
+        double unitHeight = gp.getUnitHeight();
+        double unitWidth = gp.getUnitWidth();
+        int offset = gp.getOffset();
 
         // cutoffs to determine when not to draw
         double leftMostX = gp.transformXPos(range.getFrom());
@@ -935,11 +950,9 @@ public class BAMTrackRenderer extends TrackRenderer {
         ColorScheme cs = (ColorScheme) instructions.get(DrawingInstruction.COLOR_SCHEME);
         Color linecolor = cs.getColor("Line");
 
-        double unitHeight;
-        double unitWidth;
-        unitHeight = gp.getUnitHeight();
-        unitWidth = gp.getUnitWidth();
-        //unitHeight = intervalHeight;
+        double unitHeight = gp.getUnitHeight();
+        double unitWidth = gp.getUnitWidth();
+        int offset = gp.getOffset();
 
         // cutoffs to determine when not to draw
         double leftMostX = gp.transformXPos(range.getFrom());
@@ -1085,6 +1098,7 @@ public class BAMTrackRenderer extends TrackRenderer {
 
         double unitHeight = gp.getUnitHeight();
         double unitWidth = gp.getUnitWidth();
+        int offset = gp.getOffset();
 
         // cutoffs to determine when not to draw
         double leftMostX = gp.transformXPos(range.getFrom());

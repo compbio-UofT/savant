@@ -1,5 +1,5 @@
 /*
- *    Copyright 2009-2010 University of Toronto
+ *    Copyright 2009-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -17,10 +17,7 @@ package savant.util;
 
 public enum Resolution {
     
-    VERY_LOW,
     LOW,
-    MEDIUM,
-    HIGH,
-    VERY_HIGH
-    ;
+    MEDIUM,     // Not currently used.
+    HIGH;
 }

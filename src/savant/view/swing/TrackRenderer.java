@@ -22,7 +22,6 @@ import java.awt.Shape;
 import java.awt.geom.Rectangle2D;
 import java.util.*;
 import javax.swing.JPanel;
-import javax.swing.JViewport;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -58,11 +57,6 @@ public abstract class TrackRenderer implements DataRetrievalListener {
     private DataFormat dataType;
 
     protected Map<Record, Shape> recordToShapeMap = new HashMap<Record, Shape>();
-
-    //specific to interval renderers
-    private int intervalHeight = -1;
-    private static final int[] AVAILABLE_INTERVAL_HEIGHTS = new int[] { 1, 4, 8, 12, 16, 20, 24, 28, 32, 36, 40};
-    protected int offset = 0; //of scrollbar (interval only for now)
 
     protected TrackRenderer(DataFormat dataType) {
         this.dataType = dataType;
@@ -183,7 +177,7 @@ public abstract class TrackRenderer implements DataRetrievalListener {
         if(instr_select == null || instr_select.equals(false)) return false;
         if(checkRes){
             Object instr_res = instructions.get(DrawingInstruction.RESOLUTION);
-            if(instr_res == null || !instr_res.equals(Resolution.VERY_HIGH))
+            if (instr_res == null || !instr_res.equals(Resolution.HIGH))
                  return false;
         }
         return true;
@@ -283,64 +277,6 @@ public abstract class TrackRenderer implements DataRetrievalListener {
             }
         }
         return shapes;
-    }
-
-    protected int getIntervalHeight(){
-        if (intervalHeight > 0) {
-            return intervalHeight;
-        }
-        return InterfaceSettings.getIntervalHeight(dataType);
-    }
-
-    protected void setIntervalHeight(int height){
-        intervalHeight = height;
-    }
-
-    /*
-     * Resize frame if necessary
-     * @return false if pane needs to be resized
-     */
-    protected boolean determineFrameSize(GraphPane gp, int numIntervals){
-        
-        int currentHeight = gp.getHeight();
-        int currentWidth = gp.getParentFrame().getFrameLandscape().getWidth();
-        int currentHeight1 = ((JViewport)gp.getParent().getParent()).getHeight();
-        int expectedHeight = Math.max((int)((numIntervals * getIntervalHeight()) / 0.9), currentHeight1);
-
-        if(expectedHeight != currentHeight || currentWidth != gp.getWidth()){
-            gp.newHeight = expectedHeight;
-            gp.setPaneResize(true);
-            return false;
-        }
-        gp.setUnitHeight(getIntervalHeight());
-        gp.setYRange(new Range(0,(int)Math.ceil(expectedHeight / getIntervalHeight())));
-
-        return true;
-    }
-
-    public int getIntervalHeightFromSlider(int slider){
-        slider--; //starts at 1
-        if(slider < 0) return AVAILABLE_INTERVAL_HEIGHTS[0];
-        if(slider >= AVAILABLE_INTERVAL_HEIGHTS.length) return AVAILABLE_INTERVAL_HEIGHTS[AVAILABLE_INTERVAL_HEIGHTS.length - 1];
-        return AVAILABLE_INTERVAL_HEIGHTS[slider];
-    }
-
-    public int getValueForIntervalSlider(){
-        int newValue = 0;
-        int diff = Math.abs(AVAILABLE_INTERVAL_HEIGHTS[0] - getIntervalHeight());
-        for(int i = 1; i < AVAILABLE_INTERVAL_HEIGHTS.length; i++){
-            int currVal = AVAILABLE_INTERVAL_HEIGHTS[i];
-            int currDiff = Math.abs(currVal - getIntervalHeight());
-            if(currDiff < diff){
-                newValue = i;
-                diff = currDiff;
-            }
-        }
-        return newValue + 1; //can't be 0
-    }
-
-    public int getNumAvailableIntervalHeights(){
-        return AVAILABLE_INTERVAL_HEIGHTS.length;
     }
 
     /**

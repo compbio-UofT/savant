@@ -18,6 +18,7 @@ package savant.view.swing;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.geom.Line2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +29,6 @@ import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuListener;
 
 import com.jidesoft.docking.DockableFrame;
-import java.awt.geom.Line2D;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -52,10 +52,12 @@ import savant.data.sources.DataSource;
 import savant.data.types.Genome;
 import savant.file.DataFormat;
 import savant.settings.ColourSettings;
+import savant.settings.InterfaceSettings;
 import savant.swing.component.ProgressPanel;
 import savant.util.DrawingMode;
 import savant.util.MiscUtils;
 import savant.util.Range;
+import savant.view.dialog.BAMParametersDialog;
 import savant.view.icon.SavantIconFactory;
 import savant.view.swing.interval.BAMCoverageTrack;
 import savant.view.swing.interval.BAMTrack;
@@ -69,17 +71,19 @@ import savant.view.swing.sequence.SequenceTrack;
 public class Frame extends DockableFrame implements DataRetrievalListener, TrackCreationListener {
     private static final Log LOG = LogFactory.getLog(Frame.class);
 
+    // Specific to interval renderers
+    private static final int[] AVAILABLE_INTERVAL_HEIGHTS = new int[] { 1, 4, 8, 12, 16, 20, 24, 28, 32, 36, 40};
+
     private GraphPane graphPane;
     private JLayeredPane frameLandscape;
     private Track[] tracks = new Track[0];
 
     private JLayeredPane jlp;
 
-    private JMenuBar commandBar;
     private JPanel arcLegend;
     private List<JCheckBoxMenuItem> visItems;
+    private JMenuItem scaleToContentsItem;
     private JMenu arcButton;
-    private JMenu bedButton;
     private FrameSidePanel sidePanel;
     private int drawModePosition = 0;
     private JMenu intervalMenu;
@@ -100,7 +104,7 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
         graphPane = new GraphPane(this);
         graphPane.setBackground(ColourSettings.getFrameBackground());
 
-                //scrollpane
+        //scrollpane
         scrollPane = new JScrollPane();
         scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         scrollPane.setWheelScrollingEnabled(false);
@@ -134,10 +138,6 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
         c.gridy = 0;
         frameLandscape.add(sidePanel, c, 5);
 
-
-        initCommandBar();
-        sidePanel.addPanel(commandBar);
-        sidePanel.addPanel(arcLegend);
 
         addComponentListener(new ComponentAdapter() {
             @Override
@@ -201,6 +201,13 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
      * @param newTracks the tracks to be displayed in this frame
      */
     public void setTracks(Track[] newTracks) {
+        JMenuBar commandBar = createCommandBar();
+        JMenu optionsMenu = createOptionsMenu();
+        commandBar.add(optionsMenu);
+
+        sidePanel.addPanel(commandBar);
+        sidePanel.addPanel(arcLegend);
+
         if (!GenomeController.getInstance().isGenomeLoaded() && newTracks[0].getDataFormat() != DataFormat.SEQUENCE_FASTA) {
             trackCreationFailed(null);
             for (Track track : newTracks) {
@@ -293,8 +300,8 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
                 }
             });
         } else if (df == DataFormat.INTERVAL_RICH) {
-            bedButton = createBEDButton();
-            commandBar.add(bedButton);
+            JMenu bedMenu = createBEDButton();
+            commandBar.add(bedMenu);
         } else if (df == DataFormat.SEQUENCE_FASTA){
             setAsGenomeButton = createSetAsGenomeButton();
             toggleSetAsGenomeButton();
@@ -321,6 +328,30 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
                 yMaxPanel.setOpaque(true);
                 yMaxPanel.setAlignmentX(0.5f);
                 sidePanel.addPanel(yMaxPanel);
+
+                scaleToContentsItem = new JCheckBoxMenuItem("Scale to Contents");
+                scaleToContentsItem.setSelected(true);
+                scaleToContentsItem.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent ae) {
+                        graphPane.setScaledToContents(scaleToContentsItem.isSelected());
+                    }
+                });
+                optionsMenu.addMenuListener(new MenuListener() {
+                    @Override
+                    public void menuSelected(MenuEvent me) {
+                        scaleToContentsItem.setSelected(graphPane.isScaledToContents());
+                    }
+
+                    @Override
+                    public void menuDeselected(MenuEvent me) {
+                    }
+
+                    @Override
+                    public void menuCanceled(MenuEvent me) {
+                    }
+                });
+                optionsMenu.add(scaleToContentsItem);
                 break;
         }
 
@@ -358,13 +389,12 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
     /**
      * Create command bar
      */
-    private void initCommandBar() {
-        commandBar = new JMenuBar();
+    private JMenuBar createCommandBar() {
+        JMenuBar commandBar = new JMenuBar();
         commandBar.setName("commandBar"); //used by sidePanel
         commandBar.setMinimumSize(new Dimension(50,22));
-        JMenu optionsMenu = createOptionsMenu();
-        commandBar.add(optionsMenu);
         commandBar.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY));
+        return commandBar;
     }
 
     public void redrawSidePanel(){
@@ -395,17 +425,6 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
             }
         });
         menu.add(item);
-
-        if (yMaxPanel != null) {
-            item = new JCheckBoxMenuItem("Scale to Contents");
-            item.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent ae) {
-                    graphPane.setScaledToContents(!graphPane.isScaledToContents());
-                }
-            });
-            menu.add(item);
-        }
         return menu;
     }
 
@@ -415,10 +434,24 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
     private JMenu createArcButton() {
         JMenu button = new JMenu("Read Pair Settings...");
         button.setToolTipText("Change mate pair parameters");
-        button.addActionListener(new ActionListener() {
+
+        // Because we're using a JMenu, we have to hang our action of mouseClicked rather than actionPerformed.
+        button.addMouseListener(new MouseAdapter() {
             @Override
-            public void actionPerformed(ActionEvent e) {
-                graphPane.getBAMParams((BAMTrack)tracks[0]);
+            public void mouseClicked(MouseEvent e) {
+                BAMTrack bamTrack = (BAMTrack)tracks[0];
+                BAMParametersDialog d = new BAMParametersDialog(Savant.getInstance(), true);
+                d.showDialog(bamTrack);
+                if (d.isAccepted()) {
+                    bamTrack.setArcSizeVisibilityThreshold(d.getArcLengthThreshold());
+                    bamTrack.setPairedProtocol(d.getSequencingProtocol());
+                    bamTrack.setDiscordantMin(d.getDiscordantMin());
+                    bamTrack.setDiscordantMax(d.getDiscordantMax());
+                    bamTrack.setmaxBPForYMax(d.getMaxBPForYMax());
+
+                    bamTrack.prepareForRendering(LocationController.getInstance().getReferenceName() , LocationController.getInstance().getRange());
+                    graphPane.repaint();
+                }
             }
         });
         button.setFocusPainted(false);
@@ -430,22 +463,53 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
      */
     private JMenu createIntervalMenu() {
         JMenu menu = new JMenu("Interval Height");
-        final JSlider slider = new JSlider(JSlider.VERTICAL, 1, tracks[0].renderer.getNumAvailableIntervalHeights(), tracks[0].renderer.getValueForIntervalSlider());
+        final JSlider slider = new JSlider(JSlider.VERTICAL, 1, AVAILABLE_INTERVAL_HEIGHTS.length, 1);
         slider.setMinorTickSpacing(1);
-        slider.setMajorTickSpacing(tracks[0].renderer.getNumAvailableIntervalHeights()/2);
+        slider.setMajorTickSpacing(AVAILABLE_INTERVAL_HEIGHTS.length / 2);
         slider.setSnapToTicks(true);
         slider.setPaintTicks(true);
+        slider.setValue(getSliderFromIntervalHeight(InterfaceSettings.getIntervalHeight(tracks[0].getDataFormat())));
         slider.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
-                int newHeight = tracks[0].renderer.getIntervalHeightFromSlider(slider.getValue());
-                tracks[0].renderer.setIntervalHeight(newHeight);
-                getGraphPane().setRenderForced();
-                getGraphPane().repaint();
+                int newHeight = getIntervalHeightFromSlider(slider.getValue());
+                graphPane.setUnitHeight(newHeight);
+                graphPane.setScaledToContents(false);
+                scaleToContentsItem.setSelected(false);
+                graphPane.setRenderForced();
+                graphPane.repaint();
             }
         });
         menu.add(slider);
         return menu;
+    }
+
+    /**
+     * Given a slider value, determine the interval height which corresponds to it.
+     */
+    private static int getIntervalHeightFromSlider(int slider) {
+        slider--; //starts at 1
+        if(slider < 0) return AVAILABLE_INTERVAL_HEIGHTS[0];
+        if(slider >= AVAILABLE_INTERVAL_HEIGHTS.length) return AVAILABLE_INTERVAL_HEIGHTS[AVAILABLE_INTERVAL_HEIGHTS.length - 1];
+        return AVAILABLE_INTERVAL_HEIGHTS[slider];
+    }
+
+    /**
+     * Given an interval height, determine the slider value which corresponds to it.
+     * @return
+     */
+    private static int getSliderFromIntervalHeight(int intervalHeight){
+        int newValue = 0;
+        int diff = Math.abs(AVAILABLE_INTERVAL_HEIGHTS[0] - intervalHeight);
+        for(int i = 1; i < AVAILABLE_INTERVAL_HEIGHTS.length; i++){
+            int currVal = AVAILABLE_INTERVAL_HEIGHTS[i];
+            int currDiff = Math.abs(currVal - intervalHeight);
+            if(currDiff < diff){
+                newValue = i;
+                diff = currDiff;
+            }
+        }
+        return newValue + 1; //can't be 0
     }
 
     /**
@@ -600,14 +664,10 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
     }
 
     /**
-     * When the drawing mode has changed, or data has been retrieved, update the visibility
-     * of the yMax value (if one is appropriate for this track).
+     * When the GraphPane's y-axis type has been updated, update the visibility of the yMax value.
      */
-    private void setYMaxVisible(boolean flag) {
+    public void setYMaxVisible(boolean flag) {
         if (yMaxPanel != null) {
-            DrawingMode mode = tracks[0].getDrawingMode();
-            flag &= (mode == DrawingMode.ARC_PAIRED || mode == DrawingMode.BASE_QUALITY || mode == DrawingMode.COLOURSPACE || mode == DrawingMode.MAPPING_QUALITY
-                     || mode == DrawingMode.MISMATCH || mode == DrawingMode.PACK || mode == DrawingMode.SNP || mode == DrawingMode.STANDARD || mode == DrawingMode.STANDARD_PAIRED);
             yMaxPanel.setVisible(flag);
         }
     }

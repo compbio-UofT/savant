@@ -54,10 +54,7 @@ public class PointTrack extends Track {
 
     @Override
     public Resolution getResolution(RangeAdapter range) {
-        int length = range.getLength();
-
-        if (length > 100000) { return Resolution.VERY_LOW; }
-        return Resolution.VERY_HIGH;
+        return range.getLength() > 100000 ? Resolution.LOW : Resolution.HIGH;
     }
 
     @Override
@@ -65,7 +62,7 @@ public class PointTrack extends Track {
         Resolution r = getResolution(range);
 
         switch (r) {
-            case VERY_HIGH:
+            case HIGH:
                 renderer.addInstruction(DrawingInstruction.PROGRESS, "Loading track...");
                 requestData(reference, range);
                 break;
