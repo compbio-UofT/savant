@@ -24,6 +24,12 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
+import java.security.SecureRandom;
+import java.security.cert.X509Certificate;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 
 import net.sf.samtools.util.SeekableFileStream;
 import net.sf.samtools.util.SeekableHTTPStream;
@@ -46,6 +52,36 @@ public class NetworkUtils {
 
     private static final int CONNECT_TIMEOUT = 30000; // 30s timeout for making connection
     private static final int READ_TIMEOUT = 30000;    // 30s timeout for reading data
+
+    static {
+        // Create a trust manager that does not validate certificate chains.
+        TrustManager[] trustAllCerts = new TrustManager[] {
+            new X509TrustManager() {
+                @Override
+                public X509Certificate[] getAcceptedIssuers() {
+                    return null;
+                }
+
+                @Override
+                public void checkClientTrusted(X509Certificate[] certs, String authType) {
+                }
+                
+                @Override
+                public void checkServerTrusted(X509Certificate[] certs, String authType) {
+                }
+            }
+        };
+
+        // Install the all-trusting trust manager
+        try {
+            SSLContext sc = SSLContext.getInstance("SSL");
+            sc.init(null, trustAllCerts, new SecureRandom());
+            LOG.info("Setting default SSL socket factory...");
+            HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+        } catch (Exception x) {
+            LOG.error("Unable to set socket factory.", x);
+        }
+    }
 
     /**
      * Given a URI, determine whether it exists or not.
