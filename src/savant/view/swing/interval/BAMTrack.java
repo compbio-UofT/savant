@@ -27,6 +27,7 @@ import savant.api.adapter.RangeAdapter;
 import savant.data.sources.BAMDataSource;
 import savant.data.types.BAMIntervalRecord;
 import savant.data.types.Record;
+import savant.exception.RenderingException;
 import savant.exception.SavantTrackCreationCancelledException;
 import savant.settings.ColourSettings;
 import savant.settings.TrackResolutionSettings;
@@ -105,7 +106,7 @@ public class BAMTrack extends Track {
                 renderer.addInstruction(DrawingInstruction.ERROR, ZOOM_MESSAGE);
             } else {
                 // If there is an actual coverage track, this error message will never be drawn.
-                renderer.addInstruction(DrawingInstruction.ERROR, "No coverage file available");
+                renderer.addInstruction(DrawingInstruction.ERROR, new RenderingException("No coverage file available", 0));
             }
         }
 

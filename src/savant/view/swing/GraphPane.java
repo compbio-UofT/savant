@@ -318,6 +318,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
             // Call the actual render() methods.
             boolean nothingRendered = true;
             String message = null;
+            int priority = -1;
             for (Track t: tracks) {
                 // Change renderers' drawing instructions to reflect consolidated YRange
                 t.getRenderer().addInstruction(DrawingInstruction.AXIS_RANGE, AxisRange.initWithRanges(xRange, consolidatedYRange));
@@ -325,8 +326,12 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
                     t.getRenderer().render(g3, this);
                     nothingRendered = false;
                 } catch (RenderingException rx) {
-                    // If we have more than one message, the last one will end up being drawn.
-                    message = rx.getMessage();
+                    if (rx.getPriority() > priority) {
+                        // If we have more than one message with the same priority, the first one will end up being drawn.
+                        LOG.info(t.getName() + " threw \"" + rx.getMessage() + "\".");
+                        message = rx.getMessage();
+                        priority = rx.getPriority();
+                    }
                 }
             }
             if (nothingRendered && message != null) {
@@ -650,14 +655,8 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
      */
     public void setYRange(Range r) {
         if (r != null && yAxisType != AxisType.NONE) {
-            if (scaledToContents) {
-                yMin = r.getFrom();
-                yMax = r.getTo();
-            } else {
-                // When height is not scaled, the range can only expand.
-                yMin = Math.min(yMin, r.getFrom());
-                yMax = Math.max(yMax, r.getTo());
-            }
+            yMin = r.getFrom();
+            yMax = r.getTo();
 
             // Special case.  If any y-values are negative, we want the x-axis to go in the middle.
             // This is important for !scaledToContents mode, or else the axis jumps up and down, ruining the effect.
@@ -678,7 +677,6 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
     public void setYAxisType(AxisType type) {
         yAxisType = type;
         parentFrame.setYMaxVisible(type != AxisType.NONE);
-        LOG.info("y-axis for " + tracks[0].getName() + " set to " + type);
     }
 
     /**

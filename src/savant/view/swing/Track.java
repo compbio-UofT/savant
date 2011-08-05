@@ -31,6 +31,7 @@ import savant.controller.TrackController;
 import savant.data.event.DataRetrievalEvent;
 import savant.data.event.DataRetrievalListener;
 import savant.data.types.Record;
+import savant.exception.RenderingException;
 import savant.exception.SavantTrackCreationCancelledException;
 import savant.file.DataFormat;
 import savant.util.AxisType;
@@ -51,7 +52,7 @@ import savant.view.swing.util.DialogUtils;
  */
 public abstract class Track implements TrackAdapter {
     private static final Log LOG = LogFactory.getLog(Track.class);
-    protected static final String ZOOM_MESSAGE = MiscUtils.MAC ? "Zoom in to see data\nTo view data at this range, change Preferences > Track Resolutions" : "Zoom in to see data\nTo view data at this range, change Edit > Preferences > Track Resolutions";
+    protected static final RenderingException ZOOM_MESSAGE = new RenderingException(MiscUtils.MAC ? "Zoom in to see data\nTo view data at this range, change Preferences > Track Resolutions" : "Zoom in to see data\nTo view data at this range, change Edit > Preferences > Track Resolutions", 0);
 
     private final String name;
     private ColorScheme colorScheme;

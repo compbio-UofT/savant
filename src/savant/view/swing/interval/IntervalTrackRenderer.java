@@ -70,7 +70,7 @@ public class IntervalTrackRenderer extends TrackRenderer {
             renderPackMode(g2, gp, r);
         }
         if (data.isEmpty()) {
-            throw new RenderingException("No data in range");
+            throw new RenderingException("No data in range", 1);
         }
     }
 
@@ -112,7 +112,7 @@ public class IntervalTrackRenderer extends TrackRenderer {
                 }
             }
         } else {
-            throw new RenderingException("Zoom in to see intervals");
+            throw new RenderingException("Zoom in to see intervals", 0);
         }
     }
 

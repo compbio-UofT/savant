@@ -1,5 +1,5 @@
 /*
- *    Copyright 2010 University of Toronto
+ *    Copyright 2010-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -23,7 +23,20 @@ package savant.exception;
  * @author tarkvara
  */
 public class RenderingException extends Exception {
-    public RenderingException(String message) {
+    private final int priority;
+
+    /**
+     * Construct a new RenderingException.
+     *
+     * @param message the error message to be rendered
+     * @param priority higher-priority messages will override lower-priority ones.
+     */
+    public RenderingException(String message, int priority) {
         super(message);
+        this.priority = priority;
+    }
+
+    public int getPriority() {
+        return priority;
     }
 }

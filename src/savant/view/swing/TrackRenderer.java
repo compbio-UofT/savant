@@ -99,7 +99,7 @@ public abstract class TrackRenderer implements DataRetrievalListener {
     @Override
     public void dataRetrievalFailed(DataRetrievalEvent evt) {
         instructions.remove(DrawingInstruction.PROGRESS);
-        instructions.put(DrawingInstruction.ERROR, evt.getError().getLocalizedMessage());
+        instructions.put(DrawingInstruction.ERROR, new RenderingException(evt.getError().getLocalizedMessage(), 3));
     }
 
     public void addInstruction(DrawingInstruction key, Object value) {
@@ -149,14 +149,14 @@ public abstract class TrackRenderer implements DataRetrievalListener {
 
         Boolean refexists = (Boolean)instructions.get(DrawingInstruction.REFERENCE_EXISTS);
         if (!refexists) {
-            throw new RenderingException("No data for " + LocationController.getInstance().getReferenceName());
+            throw new RenderingException("No data for " + LocationController.getInstance().getReferenceName(), 1);
         }
-        String errorMessage = (String)instructions.get(DrawingInstruction.ERROR);
-        if (errorMessage != null){
-            throw new RenderingException(errorMessage);
+        RenderingException error = (RenderingException)instructions.get(DrawingInstruction.ERROR);
+        if (error != null){
+            throw error;
         }
         if (data == null || data.isEmpty()) {
-            throw new RenderingException("No data in range");
+            throw new RenderingException("No data in range", 1);
         }
     }
 

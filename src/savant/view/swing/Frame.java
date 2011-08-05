@@ -481,15 +481,13 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
         });
         menu.add(intervalSlider);
 
-        // If a track is one of those which create an interval-height slider, we set the default height accordingly.
-//        setHeightFromSlider();
         return menu;
     }
 
     /**
      * Set the unit-height based on the current position of the interval slider.
      */
-    private void setHeightFromSlider() {
+    public void setHeightFromSlider() {
         int slider = intervalSlider.getValue() - 1; //starts at 1
         int height;
         if (slider < 0) {

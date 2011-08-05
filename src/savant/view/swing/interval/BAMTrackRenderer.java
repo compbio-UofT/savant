@@ -266,7 +266,7 @@ public class BAMTrackRenderer extends TrackRenderer {
                     try {
                         refSeq = genome.getSequence(LocationController.getInstance().getReferenceName(), range);
                     } catch (IOException e) {
-                        throw new RenderingException(e.getMessage());
+                        throw new RenderingException(e.getMessage(), 2);
                     }
                 }
             }
@@ -275,9 +275,9 @@ public class BAMTrackRenderer extends TrackRenderer {
             // For non-arc modes, we want to establish our interval height when we switch from coverage to non-coverage.
             if (lastResolution != r || oldMode == DrawingMode.ARC_PAIRED) {
                 if (r == Resolution.HIGH) {
-                    // We're switching from coverage (or arc mode) to high resolution.
-                    gp.setScaledToContents(false);
-                    gp.setUnitHeight(InterfaceSettings.getIntervalHeight(DataFormat.INTERVAL_BAM));
+                    // We're switching from coverage (or arc mode) to high resolution.  The initial interval height
+                    // will be taken from the slider.
+                    gp.getParentFrame().setHeightFromSlider();
                 } else {
                     // We're switching to coverage.  Initially scaled by default.
                     gp.setScaledToContents(true);
@@ -322,7 +322,7 @@ public class BAMTrackRenderer extends TrackRenderer {
                 break;
         }
         if (data.isEmpty()){
-            throw new RenderingException("No data in range");
+            throw new RenderingException("No data in range", 1);
         }
     }
 
@@ -401,7 +401,7 @@ public class BAMTrackRenderer extends TrackRenderer {
         if (mode == DrawingMode.MISMATCH) {
             Genome genome = GenomeController.getInstance().getGenome();
             if (!genome.isSequenceSet()) {
-                throw new RenderingException("No reference sequence loaded. Switch to standard view");
+                throw new RenderingException("No reference sequence loaded. Switch to standard view", 2);
             }
         }
 

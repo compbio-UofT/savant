@@ -37,7 +37,6 @@ import savant.data.types.GenericContinuousRecord;
 import savant.data.types.Record;
 import savant.exception.RenderingException;
 import savant.util.AxisRange;
-import savant.util.AxisType;
 import savant.util.ColorScheme;
 import savant.util.DrawingInstruction;
 import savant.util.DrawingMode;
@@ -128,7 +127,7 @@ public class ContinuousTrackRenderer extends TrackRenderer {
             }
         }
         if (!haveData) {
-            throw new RenderingException("No data in range");
+            throw new RenderingException("No data in range", 1);
         }
         if (haveOpenPath) {
             // Path needs to be closed.

@@ -67,7 +67,7 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
         }
 
         if(data.isEmpty()){
-            throw new RenderingException("No data in range");
+            throw new RenderingException("No data in range", 1);
         }
     }
 
@@ -420,7 +420,7 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
             double unitHeight = gp.getUnitHeight();
             // display only a message if intervals will not be visible at this resolution
             if (unitHeight < 1) {
-                throw new RenderingException("Increase vertical pane size");
+                throw new RenderingException("Increase vertical pane size", 0);
             }            
 
             for (Record record: data) {
@@ -462,7 +462,7 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
             drawBlocks(negStrandBlocks, negStrandLevel, gp, fillColor, lineColor, g2);
             drawBlocks(noStrandBlocks, noStrandLevel, gp, fillColor, lineColor, g2);
         } else {
-            throw new RenderingException("Zoom in to see genes/intervals");
+            throw new RenderingException("Zoom in to see genes/intervals", 0);
         }
     }
 
