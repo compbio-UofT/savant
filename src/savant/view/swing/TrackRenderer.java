@@ -32,12 +32,9 @@ import savant.data.event.DataRetrievalEvent;
 import savant.data.event.DataRetrievalListener;
 import savant.data.types.Record;
 import savant.exception.RenderingException;
-import savant.file.DataFormat;
-import savant.settings.InterfaceSettings;
 import savant.util.AxisType;
 import savant.util.DrawingInstruction;
 import savant.util.DrawingMode;
-import savant.util.Range;
 import savant.util.Resolution;
 
 
@@ -54,12 +51,10 @@ public abstract class TrackRenderer implements DataRetrievalListener {
     protected List<Record> data;
     protected final EnumMap<DrawingInstruction, Object> instructions = new EnumMap<DrawingInstruction, Object>(DrawingInstruction.class);
     protected String trackName;
-    private DataFormat dataType;
 
     protected Map<Record, Shape> recordToShapeMap = new HashMap<Record, Shape>();
 
-    protected TrackRenderer(DataFormat dataType) {
-        this.dataType = dataType;
+    protected TrackRenderer() {
     }
 
     public void setTrackName(String name) {
@@ -149,8 +144,7 @@ public abstract class TrackRenderer implements DataRetrievalListener {
      */
     protected void renderPreCheck(GraphPane gp) throws RenderingException {
 
-        // Clear away the y-axis and any shapes.
-        gp.setYAxisType(AxisType.NONE);
+        // Clear away any shapes.
         recordToShapeMap.clear();
 
         Boolean refexists = (Boolean)instructions.get(DrawingInstruction.REFERENCE_EXISTS);
@@ -181,10 +175,6 @@ public abstract class TrackRenderer implements DataRetrievalListener {
                  return false;
         }
         return true;
-    }
-
-    public boolean hasHorizontalGrid() {
-        return false;
     }
 
     public JPanel arcLegendPaint(){

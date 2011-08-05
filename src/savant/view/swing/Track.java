@@ -33,6 +33,7 @@ import savant.data.event.DataRetrievalListener;
 import savant.data.types.Record;
 import savant.exception.SavantTrackCreationCancelledException;
 import savant.file.DataFormat;
+import savant.util.AxisType;
 import savant.util.ColorScheme;
 import savant.util.DrawingMode;
 import savant.util.MiscUtils;
@@ -300,6 +301,11 @@ public abstract class Track implements TrackAdapter {
     @Override
     public boolean isSelectionAllowed() {
         return renderer.selectionAllowed(false);
+    }
+
+    @Override
+    public AxisType getYAxisType(Resolution r) {
+        return AxisType.NONE;
     }
 
     /**

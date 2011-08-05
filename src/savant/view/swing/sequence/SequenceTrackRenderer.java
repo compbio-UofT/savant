@@ -24,7 +24,6 @@ import java.io.UnsupportedEncodingException;
 
 import savant.data.types.SequenceRecord;
 import savant.exception.RenderingException;
-import savant.file.DataFormat;
 import savant.util.AxisRange;
 import savant.util.ColorScheme;
 import savant.util.DrawingInstruction;
@@ -46,7 +45,6 @@ public class SequenceTrackRenderer extends TrackRenderer {
     private static final Font LARGE_FONT = new Font("Sans-Serif", Font.PLAIN, 36);
 
     public SequenceTrackRenderer() {
-        super(DataFormat.SEQUENCE_FASTA);
     }
 
     @Override

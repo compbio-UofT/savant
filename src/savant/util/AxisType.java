@@ -23,6 +23,7 @@ package savant.util;
  */
 public enum AxisType {
     NONE,       // sequence tracks, and tracks displaying an error or progress-bar
-    INTEGER,    // BAM and other interval tracks
+    INTEGER,    // BAM in arc mode.  Has an integral value, with a grid.
+    INTEGER_GRIDLESS,    // BAM and other interval tracks.  Have an integral value, but no grid is drawn.
     REAL        // continuous tracks
 }

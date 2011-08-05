@@ -36,7 +36,6 @@ import savant.data.event.DataRetrievalEvent;
 import savant.data.types.GenericContinuousRecord;
 import savant.data.types.Record;
 import savant.exception.RenderingException;
-import savant.file.DataFormat;
 import savant.util.AxisRange;
 import savant.util.AxisType;
 import savant.util.ColorScheme;
@@ -56,7 +55,6 @@ public class ContinuousTrackRenderer extends TrackRenderer {
     private static final Log LOG = LogFactory.getLog(ContinuousTrackRenderer.class);
 
     public ContinuousTrackRenderer() {
-        super(DataFormat.CONTINUOUS_GENERIC);
     }
 
     @Override
@@ -77,7 +75,6 @@ public class ContinuousTrackRenderer extends TrackRenderer {
         renderPreCheck(gp);
 
         AxisRange axisRange = (AxisRange)instructions.get(DrawingInstruction.AXIS_RANGE);
-        gp.setYAxisType(AxisType.REAL);
         gp.setXRange(axisRange.getXRange());
         gp.setYRange(axisRange.getYRange());
 
@@ -148,11 +145,6 @@ public class ContinuousTrackRenderer extends TrackRenderer {
             g2.setColor(Color.darkGray);
             g2.draw(new Line2D.Double(0.0, yPixel0, gp.getWidth(), yPixel0));
         }
-    }
-
-    @Override
-    public boolean hasHorizontalGrid() {
-        return true;
     }
 
     /**

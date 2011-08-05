@@ -87,6 +87,7 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
     private FrameSidePanel sidePanel;
     private int drawModePosition = 0;
     private JMenu intervalMenu;
+    private JSlider intervalSlider;
     private JMenu setAsGenomeButton;
     private JLabel yMaxPanel;
 
@@ -288,7 +289,6 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
                 intervalMenu.setVisible(true);
             }
 
-
             // We need to listen to genome changes so that we can redraw mismatches as appropriate.
             GenomeController.getInstance().addListener(new Listener<GenomeChangedEvent>() {
                 @Override
@@ -330,11 +330,13 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
                 sidePanel.addPanel(yMaxPanel);
 
                 scaleToContentsItem = new JCheckBoxMenuItem("Scale to Contents");
-                scaleToContentsItem.setSelected(true);
                 scaleToContentsItem.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent ae) {
                         graphPane.setScaledToContents(scaleToContentsItem.isSelected());
+                        if (intervalSlider != null && !graphPane.isScaledToContents()) {
+                            setHeightFromSlider();
+                        }
                     }
                 });
                 optionsMenu.addMenuListener(new MenuListener() {
@@ -463,35 +465,42 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
      */
     private JMenu createIntervalMenu() {
         JMenu menu = new JMenu("Interval Height");
-        final JSlider slider = new JSlider(JSlider.VERTICAL, 1, AVAILABLE_INTERVAL_HEIGHTS.length, 1);
-        slider.setMinorTickSpacing(1);
-        slider.setMajorTickSpacing(AVAILABLE_INTERVAL_HEIGHTS.length / 2);
-        slider.setSnapToTicks(true);
-        slider.setPaintTicks(true);
-        slider.setValue(getSliderFromIntervalHeight(InterfaceSettings.getIntervalHeight(tracks[0].getDataFormat())));
-        slider.addChangeListener(new ChangeListener() {
+        intervalSlider = new JSlider(JSlider.VERTICAL, 1, AVAILABLE_INTERVAL_HEIGHTS.length, 1);
+        intervalSlider.setMinorTickSpacing(1);
+        intervalSlider.setMajorTickSpacing(AVAILABLE_INTERVAL_HEIGHTS.length / 2);
+        intervalSlider.setSnapToTicks(true);
+        intervalSlider.setPaintTicks(true);
+        intervalSlider.setValue(getSliderFromIntervalHeight(InterfaceSettings.getIntervalHeight(tracks[0].getDataFormat())));
+        intervalSlider.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
-                int newHeight = getIntervalHeightFromSlider(slider.getValue());
-                graphPane.setUnitHeight(newHeight);
-                graphPane.setScaledToContents(false);
-                scaleToContentsItem.setSelected(false);
+                setHeightFromSlider();
                 graphPane.setRenderForced();
                 graphPane.repaint();
             }
         });
-        menu.add(slider);
+        menu.add(intervalSlider);
+
+        // If a track is one of those which create an interval-height slider, we set the default height accordingly.
+//        setHeightFromSlider();
         return menu;
     }
 
     /**
-     * Given a slider value, determine the interval height which corresponds to it.
+     * Set the unit-height based on the current position of the interval slider.
      */
-    private static int getIntervalHeightFromSlider(int slider) {
-        slider--; //starts at 1
-        if(slider < 0) return AVAILABLE_INTERVAL_HEIGHTS[0];
-        if(slider >= AVAILABLE_INTERVAL_HEIGHTS.length) return AVAILABLE_INTERVAL_HEIGHTS[AVAILABLE_INTERVAL_HEIGHTS.length - 1];
-        return AVAILABLE_INTERVAL_HEIGHTS[slider];
+    private void setHeightFromSlider() {
+        int slider = intervalSlider.getValue() - 1; //starts at 1
+        int height;
+        if (slider < 0) {
+            height = AVAILABLE_INTERVAL_HEIGHTS[0];
+        } else if (slider >= AVAILABLE_INTERVAL_HEIGHTS.length) {
+            height = AVAILABLE_INTERVAL_HEIGHTS[AVAILABLE_INTERVAL_HEIGHTS.length - 1];
+        } else {
+            height = AVAILABLE_INTERVAL_HEIGHTS[slider];
+        }
+        graphPane.setUnitHeight(height);
+        graphPane.setScaledToContents(false);
     }
 
     /**

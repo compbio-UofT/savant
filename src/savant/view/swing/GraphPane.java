@@ -18,6 +18,7 @@ package savant.view.swing;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.geom.Area;
 import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
@@ -72,8 +73,6 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
     private double unitHeight;
 
     private AxisType yAxisType = AxisType.NONE;
-    private boolean yGridOn = true;
-    private boolean isXGridOn = true;
     private boolean mouseInside = false;
 
     // Locking
@@ -230,7 +229,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
 
         int minYRange = Integer.MAX_VALUE;
         int maxYRange = Integer.MIN_VALUE;
-        yGridOn = false;
+        AxisType bestYAxis = AxisType.NONE;
         for (Track t: tracks) {
 
             // ask renderers for extra info on range; consolidate to maximum Y range
@@ -243,11 +242,26 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
                 if (axisYMax > maxYRange) maxYRange = axisYMax;
             }
 
-            // Ask renderers if they want horizontal lines; if any say yes, draw them.
-            yGridOn |= t.getRenderer().hasHorizontalGrid();
+            // Ask renderers if they want horizontal grid-lines; if any say yes, draw them.
+            switch (t.getYAxisType(t.getResolution(xRange))) {
+                case INTEGER_GRIDLESS:
+                    if (bestYAxis == AxisType.NONE) {
+                        bestYAxis = AxisType.INTEGER_GRIDLESS;
+                    }
+                    break;
+                case INTEGER:
+                    if (bestYAxis != AxisType.REAL) {
+                        bestYAxis = AxisType.INTEGER;
+                    }
+                    break;
+                case REAL:
+                    bestYAxis = AxisType.REAL;
+                    break;
+            }
         }
 
         setXRange(xRange);
+        setYAxisType(bestYAxis);
         Range consolidatedYRange = new Range(minYRange, maxYRange);
         setYRange(consolidatedYRange);
 
@@ -295,11 +309,11 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
             Graphics2D g3 = bufferedImage.createGraphics();
             g3.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             prevRange = LocationController.getInstance().getRange();
-            prevSize = this.getSize();
+            prevSize = getSize();
             prevMode = tracks[0].getDrawingMode();
             prevRef = LocationController.getInstance().getReferenceName();
 
-            renderBackground(g3);            
+            renderBackground(g3, true, yAxisType == AxisType.INTEGER || yAxisType == AxisType.REAL);
 
             // Call the actual render() methods.
             boolean nothingRendered = true;
@@ -322,7 +336,6 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
             }
 
             parentFrame.updateYMax(yMax);
-            renderSides(g3);
 
             // If a change has occured that affects scrollbar...
             if (paneResize) {
@@ -369,9 +382,6 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
             renderCurrentSelected(g2);
             parentFrame.redrawSidePanel();
         }
-
-        return;
-
     }
 
     /**
@@ -478,7 +488,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         /* AIMING ADJUSTMENTS */
         if (gpc.isAiming() && mouseInside) {
             g2.setColor(Color.BLACK);
-            Font thickfont = new Font("Arial", Font.BOLD, 15);
+            Font thickfont = g2.getFont().deriveFont(Font.BOLD, 15.0F);
             g2.setFont(thickfont);
             int genomeX = gpc.getMouseXPosition();
             double genomeY = gpc.getMouseYPosition();
@@ -557,55 +567,59 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
     }
 
     /**
-     * Render the sides of this GraphPane
-     * @param g The graphics object to use
-     */
-    private void renderSides(Graphics g) {
-        g.setColor(getBackground());
-        int w = getWidth();
-        int h = getHeight();
-        g.fillRect(w, 0, w, h);
-        g.fillRect(-w, 0, w, h);
-    }
-
-    /**
      * Render the background of this GraphPane
      * @param g The graphics object to use
      */
-    public void renderBackground(Graphics2D g2) {
+    private void renderBackground(Graphics2D g2, boolean xGridOn, boolean yGridOn) {
         int h = getHeight();
         int w = getWidth();
 
         // Paint a gradient from top to bottom
         GradientPaint gp0 = new GradientPaint(0, 0, ColourSettings.getGraphPaneBackgroundTop(), 0, h, ColourSettings.getGraphPaneBackgroundBottom());
-
         g2.setPaint(gp0);
         g2.fillRect(0, 0, w, h);
 
-        if (isXGridOn) {
-            Range r = LocationController.getInstance().getRange();
-            int[] ticks = MiscUtils.getTickPositions(r);
+        // We don't want the axes stomping on our labels, so make sure the clip excludes them.
+        Area clipArea = new Area(new Rectangle(0, 0, w, h));
+
+        if (yGridOn) {
+            // Smallish font for tick labels.
+            Font tickFont = g2.getFont().deriveFont(Font.PLAIN, 9);
+
+            int[] yTicks = MiscUtils.getTickPositions(getYRange());
+            LOG.info("Range " + getYRange() + " yielded " + yTicks.length + " ticks.");
+
             g2.setColor(ColourSettings.getAxisGrid());
-            for (int t: ticks) {
+            g2.setFont(tickFont);
+            for (int t: yTicks) {
+                double y = transformYPos(t);
+
+                // Skip labels at the top or bottom of the window because they look stupid.
+                if (y != 0.0 && y != getHeight()) {
+                    String s = Integer.toString(t);
+                    Rectangle2D labelRect = tickFont.getStringBounds(s, g2.getFontRenderContext());
+                    double baseline = y + labelRect.getHeight() * 0.5 - 2.0;
+                    g2.drawString(s, 4.0F, (float)baseline);
+                    clipArea.subtract(new Area(new Rectangle2D.Double(3.0, baseline - labelRect.getHeight() - 1.0, labelRect.getWidth() + 2.0, labelRect.getHeight() + 2.0)));
+                }
+            }
+            g2.setClip(clipArea);
+            for (int t2: yTicks) {
+                double y = transformYPos(t2);
+                g2.draw(new Line2D.Double(0.0, y, w, y));
+            }
+        }
+        if (xGridOn) {
+            Range r = LocationController.getInstance().getRange();
+            int[] xTicks = MiscUtils.getTickPositions(r);
+
+            g2.setColor(ColourSettings.getAxisGrid());
+            for (int t: xTicks) {
                 double x = transformXPos(t);
                 g2.draw(new Line2D.Double(x, 0, x, h));
             }
         }
-
-        if (yGridOn) {
-            // FIXME: This method of determining separators is broken.
-            int numseparators = (int) Math.ceil(Math.log(yMax-yMin));
-
-            if (numseparators != 0) {
-                int height = this.getHeight();
-                double separation = height / numseparators;
-
-                g2.setColor(ColourSettings.getAxisGrid());
-                for (int i = 0; i <= numseparators; i++) {
-                    g2.drawLine(0, (int)Math.ceil(i*separation)+1, w, (int) Math.ceil(i*separation)+1);
-                }
-            }
-        }
+        g2.setClip(null);
     }
 
     public Range getXRange() {
@@ -636,8 +650,14 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
      */
     public void setYRange(Range r) {
         if (r != null && yAxisType != AxisType.NONE) {
-            yMin = r.getFrom();
-            yMax = r.getTo();
+            if (scaledToContents) {
+                yMin = r.getFrom();
+                yMax = r.getTo();
+            } else {
+                // When height is not scaled, the range can only expand.
+                yMin = Math.min(yMin, r.getFrom());
+                yMax = Math.max(yMax, r.getTo());
+            }
 
             // Special case.  If any y-values are negative, we want the x-axis to go in the middle.
             // This is important for !scaledToContents mode, or else the axis jumps up and down, ruining the effect.
@@ -645,7 +665,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
                 yMax = Math.max(yMax, -yMin);
                 yMin = -yMax;
             }
-            // If the height is scaled to the track's contents, change the unit-height.
+
             if (scaledToContents) {
                 setUnitHeight();
             }
@@ -658,6 +678,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
     public void setYAxisType(AxisType type) {
         yAxisType = type;
         parentFrame.setYMaxVisible(type != AxisType.NONE);
+        LOG.info("y-axis for " + tracks[0].getName() + " set to " + type);
     }
 
     /**
@@ -1116,10 +1137,6 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
 
     public Frame getParentFrame(){
         return parentFrame;
-    }
-
-    public void setYGridOn(boolean value){
-        this.yGridOn = value;
     }
 
     public void setBufferedImage(BufferedImage bi){

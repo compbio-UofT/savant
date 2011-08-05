@@ -79,6 +79,11 @@ public class BAMCoverageTrack extends Track {
         return getDefaultModeResolution(range);
     }
 
+    @Override
+    public AxisType getYAxisType(Resolution r) {
+        return r == Resolution.HIGH ? AxisType.NONE : AxisType.REAL;
+    }
+
     public Resolution getDefaultModeResolution(Range range) {
         return range.getLength() > TrackResolutionSettings.getBamDefaultModeLowToHighThresh() ? Resolution.LOW : Resolution.HIGH;
     }

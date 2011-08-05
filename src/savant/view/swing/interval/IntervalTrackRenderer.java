@@ -29,7 +29,6 @@ import savant.data.types.Interval;
 import savant.data.types.IntervalRecord;
 import savant.data.types.Record;
 import savant.exception.RenderingException;
-import savant.file.DataFormat;
 import savant.util.*;
 import savant.view.swing.GraphPane;
 import savant.view.swing.TrackRenderer;
@@ -42,7 +41,6 @@ import savant.view.swing.TrackRenderer;
 public class IntervalTrackRenderer extends TrackRenderer {
 
     public IntervalTrackRenderer() {
-        super(DataFormat.INTERVAL_GENERIC);
     }
 
     @Override
@@ -86,7 +84,6 @@ public class IntervalTrackRenderer extends TrackRenderer {
         
         if (r == Resolution.HIGH) {
 
-            gp.setYAxisType(AxisType.NONE);
             gp.setXRange(axisRange.getXRange());
             gp.setYRange(axisRange.getYRange());
  
@@ -131,7 +128,6 @@ public class IntervalTrackRenderer extends TrackRenderer {
 
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-            gp.setYAxisType(AxisType.INTEGER);
             gp.setXRange(axisRange.getXRange());
             gp.setYRange(axisRange.getYRange());
 
@@ -167,7 +163,6 @@ public class IntervalTrackRenderer extends TrackRenderer {
             IntervalPacker packer = new IntervalPacker(data);
             ArrayList<List<IntervalRecord>> intervals = packer.pack(2);
 
-            gp.setYAxisType(AxisType.INTEGER);
             gp.setXRange(axisRange.getXRange());
             int maxYRange;
             int numIntervals = intervals.size();
@@ -212,11 +207,6 @@ public class IntervalTrackRenderer extends TrackRenderer {
             }
         }
 
-    }
-
-    @Override
-    public boolean hasHorizontalGrid() {
-        return (DrawingMode)instructions.get(DrawingInstruction.MODE) == DrawingMode.ARC;
     }
 
     @Override

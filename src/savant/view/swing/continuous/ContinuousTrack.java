@@ -25,6 +25,7 @@ import savant.data.types.Record;
 import savant.exception.SavantTrackCreationCancelledException;
 import savant.settings.ColourSettings;
 import savant.settings.TrackResolutionSettings;
+import savant.util.AxisType;
 import savant.util.ColorScheme;
 import savant.util.DrawingInstruction;
 import savant.util.Range;
@@ -68,6 +69,11 @@ import savant.view.swing.Track;
     @Override
     public Resolution getResolution(RangeAdapter range) {
         return range.getLength() > TrackResolutionSettings.getConservationLowToHighThresh() ? Resolution.LOW : Resolution.HIGH;
+    }
+
+    @Override
+    public AxisType getYAxisType(Resolution r) {
+        return AxisType.REAL;
     }
 
     private ColorScheme getDefaultColorScheme() {

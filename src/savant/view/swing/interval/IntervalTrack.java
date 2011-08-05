@@ -84,6 +84,11 @@ public class IntervalTrack extends Track {
         }
     }
 
+    @Override
+    public AxisType getYAxisType(Resolution r) {
+        return getDrawingMode() == DrawingMode.ARC ? AxisType.INTEGER : AxisType.INTEGER_GRIDLESS;
+    }
+
     public static Resolution getDefaultModeResolution(Range range) {
         return range.getLength() > TrackResolutionSettings.getIntervalLowToHighThresh() ? Resolution.LOW : Resolution.HIGH;
     }

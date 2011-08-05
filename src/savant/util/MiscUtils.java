@@ -291,8 +291,8 @@ public class MiscUtils {
      * Given a range, return a reasonable set of tick positions for that range.
      */
     public static int[] getTickPositions(RangeAdapter r) {
-        // The 0.7 is a factor which gives us roughly the right density of ticks at all magnifications.
-        int log = (int)Math.floor(Math.log10(r.getLength()) + 0.7) - 1;
+        // The 0.35 is a factor which gives us roughly the right density of ticks at all magnifications.
+        int log = (int)Math.floor(Math.log10(r.getLength()) - 0.35);
         int step = log > 0 ? (int)Math.pow(10, log) : 1;
         int[] result = new int[r.getLength() / step + 1];
         int p0 = (((r.getFrom() - 1) / step) + 1) * step;

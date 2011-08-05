@@ -24,7 +24,6 @@ import java.awt.geom.Point2D;
 import savant.data.types.PointRecord;
 import savant.data.types.Record;
 import savant.exception.RenderingException;
-import savant.file.DataFormat;
 import savant.util.DrawingInstruction;
 import savant.util.Resolution;
 import savant.util.ColorScheme;
@@ -41,7 +40,6 @@ public class PointTrackRenderer extends TrackRenderer {
     public static final String STANDARD_MODE = "Standard";
 
     public PointTrackRenderer() {
-        super(DataFormat.POINT_GENERIC);
     }
 
     @Override

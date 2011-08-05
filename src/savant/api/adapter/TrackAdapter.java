@@ -20,6 +20,7 @@ import java.util.List;
 import javax.swing.JPanel;
 import savant.data.sources.DataSource;
 import savant.data.types.Record;
+import savant.util.AxisType;
 import savant.util.DrawingMode;
 import savant.util.Resolution;
 
@@ -99,6 +100,10 @@ public interface TrackAdapter {
      */
     public Resolution getResolution(RangeAdapter range);
 
+    /**
+     * Determine what kind of y-axis would be appropriate for this track at the given resolution.
+     */
+    public AxisType getYAxisType(Resolution r);
 
     /**
      * Does this track allow selections?

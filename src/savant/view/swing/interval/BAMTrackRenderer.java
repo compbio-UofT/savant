@@ -234,7 +234,6 @@ public class BAMTrackRenderer extends TrackRenderer {
     }
 
     public BAMTrackRenderer() {
-        super(DataFormat.INTERVAL_BAM);
     }
 
     @Override
@@ -338,7 +337,6 @@ public class BAMTrackRenderer extends TrackRenderer {
         IntervalPacker packer = new IntervalPacker(mates);
         ArrayList<List<IntervalRecord>> intervals = packer.pack(2);
 
-        gp.setYAxisType(AxisType.INTEGER);
         gp.setXRange(axisRange.getXRange());
         int maxYRange;
         int numIntervals = intervals.size();
@@ -382,7 +380,6 @@ public class BAMTrackRenderer extends TrackRenderer {
                     Color readcolor = null;
 
                     boolean strandFlag = samRecord.getReadNegativeStrandFlag();
-                    Strand strand = strandFlag ? Strand.REVERSE : Strand.FORWARD ;
                     g2.setColor(cs.getColor(strandFlag ? "Reverse Strand" : "Forward Strand"));
 
                     Polygon readshape = renderRead(g2, gp, cs, samRecord, intervalRecord.getInterval(), level, range, readcolor);
@@ -420,7 +417,6 @@ public class BAMTrackRenderer extends TrackRenderer {
 //        Map<Integer, ArrayList<IntervalRecord>> intervals = packer.pack(10);
         ArrayList<List<IntervalRecord>> intervals = new IntervalPacker(data).pack(breathingRoom);
 
-        gp.setYAxisType(AxisType.INTEGER);
         gp.setXRange(range);
         int maxYRange;
         int numIntervals = intervals.size();
@@ -431,6 +427,7 @@ public class BAMTrackRenderer extends TrackRenderer {
         else if (numIntervals <= 100) maxYRange = 100;
         else maxYRange = numIntervals;
         gp.setYRange(new Range(0,maxYRange));
+        LOG.info("Trying to set yMax to " + maxYRange + ", but it ended up as " + gp.getYRange().getTo());
 
         //resize frame if necessary
         if (gp.needsToResize()) return;
@@ -1269,9 +1266,7 @@ public class BAMTrackRenderer extends TrackRenderer {
         Color discordantLengthColor = cs.getColor("Discordant Length");
 
         // set graph pane's range parameters
-        gp.setYAxisType(AxisType.INTEGER);
         gp.setXRange(axisRange.getXRange());
-        // Y range is given to us by BAMTrack for this mode
         gp.setYRange(axisRange.getYRange());
 
         // iterate through the data and draw
@@ -1407,7 +1402,6 @@ public class BAMTrackRenderer extends TrackRenderer {
             if(current > maxHeight) maxHeight = current;
         }
 
-        gp.setYAxisType(AxisType.INTEGER);
         gp.setXRange(axisRange.getXRange());
         gp.setYRange(new Range(0,(int)Math.rint((double)maxHeight/0.9)));
 
@@ -1496,7 +1490,6 @@ public class BAMTrackRenderer extends TrackRenderer {
             if(current2 > maxHeight) maxHeight = current2;
         }
 
-        gp.setYAxisType(AxisType.INTEGER);
         gp.setXRange(axisRange.getXRange());
         gp.setYRange(new Range(0,(int)Math.rint((double)maxHeight/0.9)));
 
@@ -1689,11 +1682,6 @@ public class BAMTrackRenderer extends TrackRenderer {
             y += stringRect.getHeight()+2;
 
         }
-    }
-
-    @Override
-    public boolean hasHorizontalGrid() {
-        return (DrawingMode)instructions.get(DrawingInstruction.MODE) == DrawingMode.ARC_PAIRED;
     }
 
     //THIS IS A BIT MESSY

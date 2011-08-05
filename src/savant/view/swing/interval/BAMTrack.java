@@ -216,7 +216,13 @@ public class BAMTrack extends Track {
     public void setmaxBPForYMax(double max){
         maxBPForYMax = max;
     }
-    
+
+    @Override
+    public AxisType getYAxisType(Resolution r) {
+        return getDrawingMode() == DrawingMode.ARC_PAIRED ? AxisType.INTEGER : AxisType.INTEGER_GRIDLESS;
+    }
+
+
     @Override
     protected synchronized List<Record> retrieveData(String reference, Range range, Resolution resolution) throws Exception {
         return (List<Record>)(List<?>)((BAMDataSource)getDataSource()).getRecords(reference, range, resolution, getArcSizeVisibilityThreshold(), AxisRange.initWithRanges(range, getDefaultYRange()), getDrawingMode() == DrawingMode.ARC_PAIRED);

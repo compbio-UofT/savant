@@ -31,7 +31,6 @@ import org.apache.commons.logging.LogFactory;
 
 import savant.data.types.*;
 import savant.exception.RenderingException;
-import savant.file.DataFormat;
 import savant.settings.BrowserSettings;
 import savant.util.*;
 import savant.view.swing.GraphPane;
@@ -51,7 +50,6 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
     Resolution resolution;
 
     public RichIntervalTrackRenderer() {
-        super(DataFormat.INTERVAL_RICH);
     }
     
     @Override
@@ -93,7 +91,6 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
 //        Map<Integer, ArrayList<IntervalRecord>> intervals = packer.pack(10);
         List<List<IntervalRecord>> intervals = StuffedIntervalRecord.getOriginalIntervals(packer.pack(2));
 
-        gp.setYAxisType(AxisType.INTEGER);
         gp.setXRange(axisRange.getXRange());
         int maxYRange;
         int numIntervals = intervals.size();
@@ -368,7 +365,7 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
 
         // ranges, width, and height
         AxisRange axisRange = (AxisRange)instructions.get(DrawingInstruction.AXIS_RANGE);
-        gp.setYAxisType(AxisType.INTEGER);
+
         gp.setXRange(axisRange.getXRange());
         // y range is set where levels are sorted out, after block merging pass
 
@@ -419,7 +416,6 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
                 gp.setYRange(new Range(0,2));
             } else if (signedStrandCount == 0 && noStrandCount > 0) {
                 noStrandLevel = 0;
-                gp.setYAxisType(AxisType.NONE);
             }
             double unitHeight = gp.getUnitHeight();
             // display only a message if intervals will not be visible at this resolution
