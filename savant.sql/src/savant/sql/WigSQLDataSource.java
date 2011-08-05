@@ -29,6 +29,7 @@ import net.sf.samtools.util.SeekableStream;
 import savant.api.adapter.RangeAdapter;
 import savant.data.types.GenericContinuousRecord;
 import savant.file.DataFormat;
+import savant.util.NetworkUtils;
 import savant.util.Resolution;
 
 
@@ -47,7 +48,7 @@ public class WigSQLDataSource extends SQLDataSource<GenericContinuousRecord> {
 
     @Override
     public List<GenericContinuousRecord> getRecords(String reference, RangeAdapter range, Resolution resolution) throws IOException {
-        if (resolution != Resolution.VERY_HIGH) {
+        if (resolution != Resolution.HIGH) {
             throw new IOException("Zoom in to see data");
         }
         // TODO: This is wrong.  We should be stuffing in NaNs, not zeroes.
@@ -78,11 +79,7 @@ public class WigSQLDataSource extends SQLDataSource<GenericContinuousRecord> {
                         wibStream.close();
                     }
                     wibURI = newWibURI;
-                    // Note, we can't use NetworkUtils.getSeekableStreamForURI because it imposes
-                    // block-based cacheing on us.  In theory, it should work, but for 1.4.4 it
-                    // throws an EOFError.
-                    wibStream = new SeekableHTTPStream(wibURI.toURL());
-//                    wibStream = NetworkUtils.getSeekableStreamForURI(wibURI);
+                    wibStream = NetworkUtils.getSeekableStreamForURI(wibURI);
                 }
 
                 wibStream.seek(offset);
