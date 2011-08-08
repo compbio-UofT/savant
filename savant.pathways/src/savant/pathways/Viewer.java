@@ -672,6 +672,7 @@ public class Viewer extends javax.swing.JPanel {
 
         splitPane.setRightComponent(rightPanel);
 
+        scrollPane.setMinimumSize(new java.awt.Dimension(200, 23));
         scrollPane.setPreferredSize(new java.awt.Dimension(2000, 2));
         splitPane.setLeftComponent(scrollPane);
 
