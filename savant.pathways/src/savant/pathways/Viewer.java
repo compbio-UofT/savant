@@ -1,18 +1,8 @@
 /*
- *    Copyright 2011 University of Toronto
- *
- *    Licensed under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License.
- *    You may obtain a copy of the License at
- *
- *        http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software
- *    distributed under the License is distributed on an "AS IS" BASIS,
- *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *    See the License for the specific language governing permissions and
- *    limitations under the License.
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
  */
+
 package savant.pathways;
 
 import java.awt.*;
@@ -54,17 +44,17 @@ import savant.util.Range;
  *
  * @author AndrewBrook
  */
-public class Viewer extends JSplitPane {
-
+public class Viewer extends javax.swing.JPanel {
+    
     private Loader loader;
     private PathwaysBrowser browser;
 
-    private JScrollPane scrollPane;
-    private JScrollPane infoScroll;
+    //private JScrollPane scrollPane;
+    //private JScrollPane infoScroll;
     private JPanel infoPanel;
     private JLabel infoLabel;
-    private JScrollPane treeScroll;
-    private JSplitPane rightPanel;
+    //private JScrollPane treeScroll;
+    //private JSplitPane rightPanel;
     private JTree dataTree;
     private JLabel jumpLocationButton;
     private JLabel linkOutButton;
@@ -84,19 +74,21 @@ public class Viewer extends JSplitPane {
     private int initialVerticalScroll = 0;
     private int initialHorizontalScroll = 0;
 
-    Viewer(Loader loader) {
-
+    /** Creates new form Viewer1 */
+    public Viewer(Loader loader) {
+        initComponents();
+        
         this.loader = loader;
 
-        this.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
-        this.setBackground(Color.white);
+        //this.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
+        //this.setBackground(Color.white);
 
         //scrollPane
-        scrollPane = new JScrollPane();
-        scrollPane.setMinimumSize(new Dimension(200,50));
-        scrollPane.setPreferredSize(new Dimension(10000,10000));
-        scrollPane.getViewport().setBackground(Color.white);
-        this.setLeftComponent(scrollPane);
+        //scrollPane = new JScrollPane();
+        //scrollPane.setMinimumSize(new Dimension(200,50));
+        //scrollPane.setPreferredSize(new Dimension(10000,10000));
+        //scrollPane.getViewport().setBackground(Color.white);
+        //this.setLeftComponent(scrollPane);
 
         //svgCanvas
         svgCanvas = new ExtendedJSVGCanvas();
@@ -104,17 +96,17 @@ public class Viewer extends JSplitPane {
         scrollPane.getViewport().add(svgCanvas);
 
         //treeScroll
-        treeScroll = new JScrollPane();
-        treeScroll.getViewport().setLayout(new FlowLayout(FlowLayout.LEFT));
-        treeScroll.getViewport().setBackground(Color.white);
-        treeScroll.setMinimumSize(new Dimension(200,200));
+        //treeScroll = new JScrollPane();
+        //treeScroll.getViewport().setLayout(new FlowLayout(FlowLayout.LEFT));
+        //treeScroll.getViewport().setBackground(Color.white);
+        //treeScroll.setMinimumSize(new Dimension(200,200));
 
         //infoScroll
-        infoScroll = new JScrollPane();
-        infoScroll.setBackground(Color.white);
-        infoScroll.getViewport().setBackground(Color.white);
-        infoScroll.setMaximumSize(new Dimension(100,100));
-        infoScroll.setPreferredSize(new Dimension(100,100));
+        //infoScroll = new JScrollPane();
+        //infoScroll.setBackground(Color.white);
+        //infoScroll.getViewport().setBackground(Color.white);
+        //infoScroll.setMaximumSize(new Dimension(100,100));
+        //infoScroll.setPreferredSize(new Dimension(100,100));
 
         //infoPanel
         infoPanel = new JPanel();
@@ -209,17 +201,17 @@ public class Viewer extends JSplitPane {
         infoPanel.add(filler, gbc);
         
         //rightPanel
-        rightPanel = new JSplitPane(JSplitPane.VERTICAL_SPLIT, treeScroll, infoScroll);
-        rightPanel.setMinimumSize(new Dimension(200,20));
-        this.setRightComponent(rightPanel);
+        //rightPanel = new JSplitPane(JSplitPane.VERTICAL_SPLIT, treeScroll, infoScroll);
+        //rightPanel.setMinimumSize(new Dimension(200,20));
+        //this.setRightComponent(rightPanel);
         
-        this.setDividerLocation(0.8);
+        //this.setDividerLocation(0.8);
 
         svgCanvas.addGVTTreeRendererListener(new GVTTreeRendererAdapter() {
             @Override
             public void gvtRenderingCompleted(GVTTreeRendererEvent e) {
                 revalidate();
-                setDividerLocation(0.8);
+                //setDividerLocation(0.8);
             }
         });
 
@@ -254,7 +246,7 @@ public class Viewer extends JSplitPane {
             }
         });
     }
-
+    
     //must always be set
     public void setBrowser(PathwaysBrowser browser){
         this.browser = browser;
@@ -651,4 +643,54 @@ public class Viewer extends JSplitPane {
             }        
         }       
     }
+
+    /** This method is called from within the constructor to
+     * initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is
+     * always regenerated by the Form Editor.
+     */
+    @SuppressWarnings("unchecked")
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    private void initComponents() {
+
+        splitPane = new javax.swing.JSplitPane();
+        rightPanel = new javax.swing.JSplitPane();
+        treeScroll = new javax.swing.JScrollPane();
+        infoScroll = new javax.swing.JScrollPane();
+        scrollPane = new javax.swing.JScrollPane();
+
+        splitPane.setDividerSize(2);
+
+        rightPanel.setDividerSize(2);
+        rightPanel.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
+
+        treeScroll.setMinimumSize(new java.awt.Dimension(250, 100));
+        rightPanel.setTopComponent(treeScroll);
+
+        infoScroll.setMinimumSize(new java.awt.Dimension(250, 100));
+        rightPanel.setRightComponent(infoScroll);
+
+        splitPane.setRightComponent(rightPanel);
+
+        scrollPane.setPreferredSize(new java.awt.Dimension(2000, 2));
+        splitPane.setLeftComponent(scrollPane);
+
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
+        this.setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(splitPane, javax.swing.GroupLayout.DEFAULT_SIZE, 926, Short.MAX_VALUE)
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(splitPane, javax.swing.GroupLayout.DEFAULT_SIZE, 443, Short.MAX_VALUE)
+        );
+    }// </editor-fold>//GEN-END:initComponents
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JScrollPane infoScroll;
+    private javax.swing.JSplitPane rightPanel;
+    private javax.swing.JScrollPane scrollPane;
+    private javax.swing.JSplitPane splitPane;
+    private javax.swing.JScrollPane treeScroll;
+    // End of variables declaration//GEN-END:variables
 }
