@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="jpf">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/extlib/jpf-1.5.1/jpf.jar!/" />
+      <root url="jar://$PROJECT_DIR$/extlib/jpf-1.5.1/jpf-boot.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

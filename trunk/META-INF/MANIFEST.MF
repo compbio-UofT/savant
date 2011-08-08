@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Class-Path: . lib/commons-logging-1.1.1.jar lib/sam-1.31.jar lib/jpf.j
+ ar lib/fastutil5-5.0.9.jar lib/jargs.jar lib/mg4j-2.0.1.jar lib/small
+ text-0.4.1.jar lib/jide-action.jar lib/jide-common.jar lib/jide-dock.
+ jar lib/jide-components.jar lib/jide-grids.jar lib/log4j.jar lib/jdom
+ .jar
+Main-Class: savant.view.swing.Savant
+
