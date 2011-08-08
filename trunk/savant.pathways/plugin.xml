@@ -1,0 +1,15 @@
+<?xml version="1.0" ?>
+<!DOCTYPE plugin PUBLIC "-//JPF//Java Plug-in Manifest 1.0" "http://jpf.sourceforge.net/plugin_1_0.dtd">
+<plugin id="savant.pathways" version="1.0.0" class="savant.pathways.PathwaysTab">
+    <attributes>
+        <attribute id="sdk-version" value="1.5.1"/>
+    </attributes>
+    <requires><import plugin-id="savant.core"/></requires>
+	<runtime>
+		<library id="root" path="/" type="code"></library>
+	</runtime>
+    <extension plugin-id="savant.core" point-id="AuxData" id="extensionCore">
+	<parameter id="class" value="savant.pathways.PathwaysTab"/>
+	<parameter id="name" value="WikiPathways"/>
+    </extension>
+</plugin>
