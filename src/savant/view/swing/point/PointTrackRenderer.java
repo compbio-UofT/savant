@@ -45,7 +45,7 @@ public class PointTrackRenderer extends TrackRenderer {
     @Override
     public void render(Graphics2D g2, GraphPane gp) throws RenderingException {
 
-        renderPreCheck(gp);
+        renderPreCheck();
 
         Resolution r = (Resolution)instructions.get(DrawingInstruction.RESOLUTION);
 

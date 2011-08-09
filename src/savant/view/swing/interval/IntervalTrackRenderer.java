@@ -57,7 +57,7 @@ public class IntervalTrackRenderer extends TrackRenderer {
     @Override
     public void render(Graphics2D g2, GraphPane gp) throws RenderingException {
 
-        renderPreCheck(gp);
+        renderPreCheck();
 
         DrawingMode mode = (DrawingMode)instructions.get(DrawingInstruction.MODE);
         Resolution r = (Resolution)instructions.get(DrawingInstruction.RESOLUTION);

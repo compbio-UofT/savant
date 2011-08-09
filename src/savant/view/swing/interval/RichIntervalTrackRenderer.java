@@ -55,7 +55,7 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
     @Override
     public void render(Graphics2D g2, GraphPane gp) throws RenderingException {
 
-        renderPreCheck(gp);
+        renderPreCheck();
 
         mode = (DrawingMode)instructions.get(DrawingInstruction.MODE);
         resolution = (Resolution)instructions.get(DrawingInstruction.RESOLUTION);

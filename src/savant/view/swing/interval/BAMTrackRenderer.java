@@ -250,7 +250,7 @@ public class BAMTrackRenderer extends TrackRenderer {
     public void render(Graphics2D g2, GraphPane gp) throws RenderingException {
 
         // Put up an error message if we don't want to do any rendering.
-        renderPreCheck(gp);
+        renderPreCheck();
 
         DrawingMode oldMode = mode;
         mode = (DrawingMode)instructions.get(DrawingInstruction.MODE);
@@ -280,14 +280,14 @@ public class BAMTrackRenderer extends TrackRenderer {
                     gp.getParentFrame().setHeightFromSlider();
                 } else {
                     // We're switching to coverage.  Initially scaled by default.
-                    gp.setScaledToContents(true);
+                    gp.setScaledToFit(true);
                 }
                 lastResolution = r;                
             }
         } else {
-            // Arc mode is always initially scaled to contents.
+            // Arc mode is always initially scaled to fit.
             if (oldMode != DrawingMode.ARC_PAIRED) {
-                gp.setScaledToContents(true);
+                gp.setScaledToFit(true);
             }
         }
 

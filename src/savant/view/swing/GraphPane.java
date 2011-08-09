@@ -78,8 +78,8 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
     // Locking
     private Range lockedRange;
 
-    /** By default, tracks change their unitHeight to accommodate the contents without a scroll-bar. */
-    private boolean scaledToContents = true;
+    /** By default, tracks adjust their unitHeight to accommodate the contents without a scroll-bar. */
+    private boolean scaledToFit = true;
 
     /** Selection Variables */
     private Rectangle2D selectionRect = new Rectangle2D.Double();
@@ -91,15 +91,14 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
     private DrawingMode prevMode = null;
     private Dimension prevSize = null;
     private String prevRef = null;
-    public boolean paneResize = false;
+    private boolean paneResize = false;
+    private double axisYPixel;
     private int newHeight;
     private int oldWidth = -1;
     private int oldHeight = -1;
     private int oldViewHeight = -1;
     private int newScroll = 0;
     private boolean renderRequired = false;
-    //private int buffTop = -1;
-    //private int buffBottom = -1;
     private int posOffset = 0;
     private boolean forcedHeight = false;
 
@@ -199,6 +198,8 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         g2.fillRect( 0, 0, getWidth(), getHeight() );
 
         GraphPaneController gpc = GraphPaneController.getInstance();
+        LocationController lc = LocationController.getInstance();
+        JScrollBar scroller = getVerticalScrollBar();
 
         if (gpc.isPanning() && !isLocked()) {
 
@@ -273,8 +274,8 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         }
         boolean sameMode = currentMode == prevMode;
         boolean sameSize = prevSize != null && getSize().equals(prevSize) && parentFrame.getFrameLandscape().getWidth() == oldWidth && getParentFrame().getFrameLandscape().getHeight() == oldHeight;
-        boolean sameRef = prevRef != null && LocationController.getInstance().getReferenceName().equals(prevRef);
-        boolean withinScrollBounds = bufferedImage != null && getVerticalScrollBar().getValue() >= getOffset() && getVerticalScrollBar().getValue() < getOffset() + getViewportHeight() * 2;
+        boolean sameRef = prevRef != null && lc.getReferenceName().equals(prevRef);
+        boolean withinScrollBounds = bufferedImage != null && scroller.getValue() >= getOffset() && scroller.getValue() < getOffset() + getViewportHeight() * 2;
 
         //bufferedImage stores the current graphic for future use. If nothing
         //has changed in the track since the last render, bufferedImage will
@@ -302,16 +303,16 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
             if (bufferedImage.getHeight() == getHeight()){
                 setOffset(0);
             } else {
-                setOffset(getVerticalScrollBar().getValue() - getViewportHeight());
+                setOffset(scroller.getValue() - getViewportHeight());
             }
             LOG.trace("Rendering fresh " + bufferedImage.getWidth() + "x" + bufferedImage.getHeight() + " bufferedImage at (0, " + getOffset() + ")");
 
             Graphics2D g3 = bufferedImage.createGraphics();
             g3.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            prevRange = LocationController.getInstance().getRange();
+            prevRange = lc.getRange();
             prevSize = getSize();
             prevMode = tracks[0].getDrawingMode();
-            prevRef = LocationController.getInstance().getReferenceName();
+            prevRef = lc.getReferenceName();
 
             renderBackground(g3, true, yAxisType == AxisType.INTEGER || yAxisType == AxisType.REAL);
 
@@ -328,7 +329,6 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
                 } catch (RenderingException rx) {
                     if (rx.getPriority() > priority) {
                         // If we have more than one message with the same priority, the first one will end up being drawn.
-                        LOG.info(t.getName() + " threw \"" + rx.getMessage() + "\".");
                         message = rx.getMessage();
                         priority = rx.getPriority();
                     }
@@ -346,35 +346,27 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
             if (paneResize) {
                 paneResize = false;
 
-                //get old scroll position
-                int oldScroll = getVerticalScrollBar().getValue();
-                int oldBottomHeight = oldHeight - oldScroll - oldViewHeight;
-                int newViewHeight = getViewportHeight();
-
                 // Change size of current frame
-                parentFrame.getFrameLandscape().setPreferredSize(new Dimension(this.getWidth(), newHeight));
-                setPreferredSize(new Dimension(parentFrame.getFrameLandscape().getWidth(), newHeight));
-                parentFrame.getFrameLandscape().setSize(new Dimension(parentFrame.getFrameLandscape().getWidth(), newHeight));
-                setSize(new Dimension(parentFrame.getFrameLandscape().getWidth(), newHeight));
+                JLayeredPane landscape = parentFrame.getFrameLandscape();
+                landscape.setPreferredSize(new Dimension(getWidth(), newHeight));
+                setPreferredSize(new Dimension(landscape.getWidth(), newHeight));
+                landscape.setSize(new Dimension(landscape.getWidth(), newHeight));
+                setSize(new Dimension(landscape.getWidth(), newHeight));
                 revalidate();
 
-                // Scroll so that bottom matches previous view.
-                // TODO: Match should be based on x-axis.
-                newScroll = newHeight - newViewHeight - oldBottomHeight;
-                LOG.debug("viewHeight changed from " + oldViewHeight + " to " + newViewHeight + "; scroll changing from " + oldScroll + " to " + newScroll);
-                oldViewHeight = newViewHeight;
-
+                // If we have a scroll-bar, scroll so that vertical position of the x-axis matches previous view.
+                newScroll = (int)Math.round(transformYPos(0.0) - axisYPixel);
                 return;
 
             } else if (oldViewHeight != getViewportHeight()) {
                 int newViewHeight = getViewportHeight();
-                int oldScroll = getVerticalScrollBar().getValue();
+                int oldScroll = scroller.getValue();
                 newScroll = oldScroll + (oldViewHeight - newViewHeight);
                 oldViewHeight = newViewHeight;
             }
 
             if (newScroll != -1){
-                getVerticalScrollBar().setValue(newScroll);
+                scroller.setValue(newScroll);
                 newScroll = -1;
             }
 
@@ -475,7 +467,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         return posOffset;
     }
 
-    public void requestHeight(int h) {
+    private void requestHeight(int h) {
         newHeight = h;
         paneResize = true;
     }
@@ -591,8 +583,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
             // Smallish font for tick labels.
             Font tickFont = g2.getFont().deriveFont(Font.PLAIN, 9);
 
-            int[] yTicks = MiscUtils.getTickPositions(getYRange());
-            LOG.info("Range " + getYRange() + " yielded " + yTicks.length + " ticks.");
+            int[] yTicks = MiscUtils.getTickPositions(transformYPixel(getHeight()), transformYPixel(0.0));
 
             g2.setColor(ColourSettings.getAxisGrid());
             g2.setFont(tickFont);
@@ -655,18 +646,17 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
      */
     public void setYRange(Range r) {
         if (r != null && yAxisType != AxisType.NONE) {
+            int oldYMin = yMin;
             yMin = r.getFrom();
             yMax = r.getTo();
 
-            // Special case.  If any y-values are negative, we want the x-axis to go in the middle.
-            // This is important for !scaledToContents mode, or else the axis jumps up and down, ruining the effect.
-            if (yMin < 0.0) {
-                yMax = Math.max(yMax, -yMin);
-                yMin = -yMax;
-            }
-
-            if (scaledToContents) {
+            if (scaledToFit) {
                 setUnitHeight();
+            } else {
+                // Adjust ymin to keep the x-axis from dropping down as we scroll along.
+                if ((yMin < 0.0 || oldYMin < 0.0) && oldYMin < yMin) {
+                    yMin = oldYMin;
+                }
             }
         }
     }
@@ -722,18 +712,18 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
      * @param len height in graph units
      * @return corresponding number of pixels
      */
-    public double getHeight(double len) {
-        return unitHeight * len;
+    public double getHeight(double h) {
+        return unitHeight * h;
     }
 
     /**
      * Transform a graph width into a pixel width
      *
-     * @param len width in graph units
+     * @param w width in graph units (i.e. bases)
      * @return corresponding number of pixels
      */
-    public double getWidth(int len) {
-        return unitWidth * len;
+    public double getWidth(int w) {
+        return unitWidth * w;
     }
 
     /**
@@ -757,7 +747,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
     }
 
     /**
-     * Transform a vertical position in terms of drawing coordinate into graph units.
+     * Transform a vertical position in terms of pixels into graph units.
      *
      * @param pos position in graph coordinates
      * @return a corresponding drawing coordinate
@@ -768,7 +758,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
 
 
     /**
-     * Transform a vertical position in terms of graph units into a drawing coordinate
+     * Transform a vertical position in terms of graph units into a pixel position.
      *
      * @param pos position in graph coordinates
      * @return a corresponding drawing coordinate
@@ -931,8 +921,6 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
 
         GraphPaneController gpc = GraphPaneController.getInstance();
         LocationController lc = LocationController.getInstance();
-        Range xRange = getXRange();
-        int w = getWidth();
         int x2 = getConstrainedX(event);
 
         resetCursor();
@@ -1025,7 +1013,8 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         }
 
         // Check if scrollbar is present (only vertical pan if present)
-        boolean scroll = parentFrame.getVerticalScrollBar().isVisible();
+        JScrollBar scroller = getVerticalScrollBar();
+        boolean scroll = scroller.isVisible();
 
         if (scroll) {
 
@@ -1043,12 +1032,12 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
                 //pan horizontally, reset vertical pan
                 panVert = false;
                 gpc.setMouseReleasePosition(transformXPixel(x2));
-                parentFrame.getVerticalScrollBar().setValue(initialScroll);
+                scroller.setValue(initialScroll);
             } else {
                 //pan vertically, reset horizontal pan
                 panVert = true;
                 gpc.setMouseReleasePosition(baseX);
-                parentFrame.getVerticalScrollBar().setValue(initialScroll - (currY - startY));
+                scroller.setValue(initialScroll - (currY - startY));
             }
         } else {
             //pan horizontally
@@ -1363,34 +1352,35 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         }
     }
     
-    public void setScaledToContents(boolean value) {
-        if (scaledToContents != value) {
-            scaledToContents = value;
+    public void setScaledToFit(boolean value) {
+        if (scaledToFit != value) {
+            scaledToFit = value;
             if (value) {
-                // If we have just switched to scaled-to-contents view, we will have to rerender.
-                requestHeight(getHeight());
+                // If we have just switched to scaled-to-fit mode, we will have to reevaluate our scroll-bars.
+                requestHeight(getViewportHeight());
                 renderRequired = true;
                 repaint();
+            } else {
+                axisYPixel = transformYPos(0.0);
             }
         }
     }
 
-    public boolean isScaledToContents() {
-        return scaledToContents;
+    public boolean isScaledToFit() {
+        return scaledToFit;
     }
 
     /**
-     * Check to see if the frame needs to be resized.  Only required if we're not using scaledToContents mode,
-     * and have a pre-existing notion of what the unit-height (or interval height) should be.
+     * Check to see if the frame needs to be resized.  Only required if we're not using scaledToFit mode,
+     * and thus have a pre-existing notion of what the unit-height (or interval height) should be.
      *
      * @return true if pane needs to be resized
      */
     public boolean needsToResize() {
-        if (!scaledToContents) {
+        if (!scaledToFit) {
             int currentHeight = getHeight();
-            int currentViewportHeight = getParent().getParent().getHeight();
+            int currentViewportHeight = getViewportHeight();
             int expectedHeight = (int)((yMax - yMin) * unitHeight);
-            LOG.debug("unitHeight=" + unitHeight + ", height=" + currentHeight + ", viewport=" + currentViewportHeight + ", expectedHeight=" + expectedHeight);
 
             expectedHeight = Math.max(expectedHeight, currentViewportHeight);
             if (expectedHeight != currentHeight) {

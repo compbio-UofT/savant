@@ -287,20 +287,24 @@ public class MiscUtils {
         return result;
     }
 
-    /**
-     * Given a range, return a reasonable set of tick positions for that range.
-     */
-    public static int[] getTickPositions(RangeAdapter r) {
+    public static int[] getTickPositions(double min, double max) {
         // The 0.35 is a factor which gives us roughly the right density of ticks at all magnifications.
-        int log = (int)Math.floor(Math.log10(r.getLength()) - 0.35);
+        int log = (int)Math.floor(Math.log10(max - min) - 0.35);
         int step = log > 0 ? (int)Math.pow(10, log) : 1;
-        int[] result = new int[r.getLength() / step + 1];
-        int p0 = (((r.getFrom() - 1) / step) + 1) * step;
+        int[] result = new int[(int)(max - min) / step + 1];
+        int p0 = ((((int)min - 1) / step) + 1) * step;
         for (int i = 0; i < result.length; i++) {
             result[i] = p0;
             p0 += step;
         }
         return result;
+    }
+
+    /**
+     * Given a range, return a reasonable set of tick positions for that range.
+     */
+    public static int[] getTickPositions(RangeAdapter r) {
+        return getTickPositions(r.getFrom(), r.getTo() + 1);
     }
 
 

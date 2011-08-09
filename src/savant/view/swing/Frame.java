@@ -82,7 +82,7 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
 
     private JPanel arcLegend;
     private List<JCheckBoxMenuItem> visItems;
-    private JMenuItem scaleToContentsItem;
+    private JMenuItem scaleToFitItem;
     private JMenu arcButton;
     private FrameSidePanel sidePanel;
     private int drawModePosition = 0;
@@ -184,10 +184,6 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
 
     public GraphPane getGraphPane() {
         return graphPane;
-    }
-
-    public JScrollBar getVerticalScrollBar() {
-        return scrollPane.getVerticalScrollBar();
     }
 
     public final Track[] getTracks() {
@@ -329,20 +325,21 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
                 yMaxPanel.setAlignmentX(0.5f);
                 sidePanel.addPanel(yMaxPanel);
 
-                scaleToContentsItem = new JCheckBoxMenuItem("Scale to Contents");
-                scaleToContentsItem.addActionListener(new ActionListener() {
+                scaleToFitItem = new JCheckBoxMenuItem("Scale to Fit");
+                scaleToFitItem.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent ae) {
-                        graphPane.setScaledToContents(scaleToContentsItem.isSelected());
-                        if (intervalSlider != null && !graphPane.isScaledToContents()) {
+                        graphPane.setScaledToFit(scaleToFitItem.isSelected());
+                        if (intervalSlider != null && !graphPane.isScaledToFit()) {
                             setHeightFromSlider();
                         }
                     }
                 });
+                scaleToFitItem.setToolTipText("If selected, the track's display will be scaled to fit the available height.");
                 optionsMenu.addMenuListener(new MenuListener() {
                     @Override
                     public void menuSelected(MenuEvent me) {
-                        scaleToContentsItem.setSelected(graphPane.isScaledToContents());
+                        scaleToFitItem.setSelected(graphPane.isScaledToFit());
                     }
 
                     @Override
@@ -353,7 +350,7 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
                     public void menuCanceled(MenuEvent me) {
                     }
                 });
-                optionsMenu.add(scaleToContentsItem);
+                optionsMenu.add(scaleToFitItem);
                 break;
         }
 
@@ -498,7 +495,7 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
             height = AVAILABLE_INTERVAL_HEIGHTS[slider];
         }
         graphPane.setUnitHeight(height);
-        graphPane.setScaledToContents(false);
+        graphPane.setScaledToFit(false);
     }
 
     /**

@@ -71,7 +71,7 @@ public class ContinuousTrackRenderer extends TrackRenderer {
     @Override
     public void render(Graphics2D g2, GraphPane gp) throws RenderingException {
 
-        renderPreCheck(gp);
+        renderPreCheck();
 
         AxisRange axisRange = (AxisRange)instructions.get(DrawingInstruction.AXIS_RANGE);
         gp.setXRange(axisRange.getXRange());

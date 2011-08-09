@@ -142,7 +142,7 @@ public abstract class TrackRenderer implements DataRetrievalListener {
      *
      * @throws RenderingException
      */
-    protected void renderPreCheck(GraphPane gp) throws RenderingException {
+    protected void renderPreCheck() throws RenderingException {
 
         // Clear away any shapes.
         recordToShapeMap.clear();
