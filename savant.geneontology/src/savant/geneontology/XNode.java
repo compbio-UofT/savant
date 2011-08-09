@@ -42,8 +42,7 @@ public class XNode implements Comparable{
     /**
      * Keep track of the uniprot ID associated with this node, if any.
      */
-    private ArrayList<ArrayList<String>> locs;
-    
+    private ArrayList<ArrayList<String>> locs;    
     
     /**
      * Useful for the GUI implementation; says if this node has already been 
@@ -51,14 +50,17 @@ public class XNode implements Comparable{
      */
     private boolean hasBeenSelected;
     
-    
+    /**
+     * Do we include the identifier of this node in its toString description?
+     */
+    private boolean includeIdentifierInDescription;
     
     
     /**
      * Constructor of this node given an identifier.
      * @param identifier  "key" of this node.
      */
-    public XNode(String identifier){
+    public XNode(String identifier, boolean includeIdentifierInDescription){
         
         this.children = new TreeSet<XNode>();
         this.identifier = identifier;
@@ -66,9 +68,16 @@ public class XNode implements Comparable{
         this.description = null;
         this.locs = null;
         this.hasBeenSelected = false;
+        this.includeIdentifierInDescription = includeIdentifierInDescription;
     }
     
-    
+    /**
+     * By default, include identifier in description.
+     * @param identifier 
+     */
+    public XNode(String identifier){
+        this(identifier, true);
+    }
     
     
     public void setLocs(ArrayList<ArrayList<String>> locs){
@@ -170,8 +179,12 @@ public class XNode implements Comparable{
     
     @Override
     public String toString(){
-        
-        return this.description;
+        if (this.includeIdentifierInDescription){
+            return this.description + " [" + this.identifier + "]";
+        }
+        else{
+            return this.description;
+        }
     }
     
     /**

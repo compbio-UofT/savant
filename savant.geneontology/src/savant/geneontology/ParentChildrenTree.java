@@ -175,7 +175,7 @@ HyperlinkListener, WindowListener, PropertyChangeListener{
         this.setLayout(new BorderLayout());
         
         // Root of the tree (dummy).
-        XNode root = new XNode("...");
+        XNode root = new XNode("...", false);
         root.setDescription("...");
         root.setLocs(new ArrayList< ArrayList<String> >());
         root.setURL("http://amigo.geneontology.org/cgi-bin/amigo/go.cgi");
