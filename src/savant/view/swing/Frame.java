@@ -44,6 +44,7 @@ import savant.controller.LocationController;
 import savant.controller.TrackController;
 import savant.controller.event.DrawingModeChangedEvent;
 import savant.controller.event.GenomeChangedEvent;
+import savant.controller.event.TrackEvent;
 import savant.data.event.DataRetrievalEvent;
 import savant.data.event.DataRetrievalListener;
 import savant.data.event.TrackCreationEvent;
@@ -351,11 +352,17 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
                     }
                 });
                 optionsMenu.add(scaleToFitItem);
+                if (intervalMenu != null) {
+                    setHeightFromSlider();
+                }
                 break;
         }
 
         // This calls drawTracksInRange() which sets up the initial render.
         FrameController.getInstance().addFrame(this);
+        for (Track t: tracks) {
+            TrackController.getInstance().fireEvent(new TrackEvent(TrackEvent.Type.OPENED, t));
+        }
 
         JPanel contentPane = (JPanel)getContentPane();
         contentPane.setLayout(new BorderLayout());

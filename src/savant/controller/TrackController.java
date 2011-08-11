@@ -1,9 +1,5 @@
 /*
- * TrackController.java
- * Created on Jan 19, 2010
- *
- *
- *    Copyright 2010 University of Toronto
+ *    Copyright 2010-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -18,11 +14,6 @@
  *    limitations under the License.
  */
 
-/**
- * Controller object to manage changes to the list of tracks.
- *
- * @author vwilliams
- */
 package savant.controller;
 
 import java.util.ArrayList;
@@ -30,6 +21,7 @@ import java.util.List;
 
 import savant.controller.event.TrackAddedListener;
 import savant.controller.event.TrackAddedOrRemovedEvent;
+import savant.controller.event.TrackEvent;
 import savant.controller.event.TrackListChangedEvent;
 import savant.controller.event.TrackListChangedListener;
 import savant.controller.event.TrackRemovedListener;
@@ -37,7 +29,12 @@ import savant.file.DataFormat;
 import savant.view.swing.Savant;
 import savant.view.swing.Track;
 
-public class TrackController {
+/**
+ * Controller object to manage changes to the list of tracks.
+ *
+ * @author vwilliams
+ */
+public class TrackController extends Controller<TrackEvent> {
 
     private static TrackController instance;
 
@@ -81,11 +78,12 @@ public class TrackController {
 
     /**
      * Add a track to the list of tracks.
-     * @param track The track to add
+     * @param t The track to add
      */
-    public void addTrack(Track track) {
-        tracks.add(track);
-        fireTrackAddedEvent(track);
+    public void addTrack(Track t) {
+        tracks.add(t);
+        fireEvent(new TrackEvent(TrackEvent.Type.ADDED, t));
+        fireTrackAddedEvent(t); // For backwards compatibility.
         fireTrackListChangedEvent();
     }
 
@@ -106,6 +104,7 @@ public class TrackController {
 
     /**
      * Fire the RangeChangedEvent
+     * @deprecated
      */
     private synchronized void fireTrackListChangedEvent() {
         TrackListChangedEvent evt = new TrackListChangedEvent(this, this.tracks);
@@ -114,15 +113,23 @@ public class TrackController {
         }
     }
 
-
+    /**
+     * @deprecated
+     */
     public synchronized void addTrackListChangedListener(TrackListChangedListener l) {
         trackListChangedListeners.add(l);
     }
 
+    /**
+     * @deprecated
+     */
     public synchronized void removeTrackListChangedListener(TrackListChangedListener l) {
         trackListChangedListeners.remove(l);
     }
 
+    /**
+     * @deprecated
+     */
     private synchronized void fireTrackRemovedEvent(Track track) {
         TrackAddedOrRemovedEvent evt = new TrackAddedOrRemovedEvent(track);
         for (TrackRemovedListener l: trackRemovedListeners) {
@@ -130,15 +137,23 @@ public class TrackController {
         }
     }
 
-
+    /**
+     * @deprecated
+     */
     public synchronized void addTrackRemovedListener(TrackRemovedListener l) {
         trackRemovedListeners.add(l);
     }
 
+    /**
+     * @deprecated
+     */
     public synchronized void removeTrackRemovedListener(TrackRemovedListener l) {
         trackRemovedListeners.remove(l);
     }
 
+    /**
+     * @deprecated
+     */
     private synchronized void fireTrackAddedEvent(Track track) {
         TrackAddedOrRemovedEvent evt = new TrackAddedOrRemovedEvent(track);
         for (TrackAddedListener l: trackAddedListeners) {
@@ -146,17 +161,24 @@ public class TrackController {
         }
     }
 
+    /**
+     * @deprecated
+     */
     public synchronized void addTrackAddedListener(TrackAddedListener l) {
         trackAddedListeners.add(l);
     }
 
+    /**
+     * @deprecated
+     */
     public synchronized void removeTrackAddedListener(TrackAddedListener l) {
         trackAddedListeners.remove(l);
     }
 
-    public void removeTrack(Track track) {
-        tracks.remove(track);
-        fireTrackRemovedEvent(track);
+    public void removeTrack(Track t) {
+        tracks.remove(t);
+        fireEvent(new TrackEvent(TrackEvent.Type.REMOVED, t));
+        fireTrackRemovedEvent(t);
         fireTrackListChangedEvent();
     }
 

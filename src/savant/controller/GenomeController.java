@@ -10,8 +10,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import savant.controller.event.GenomeChangedEvent;
-import savant.controller.event.TrackAddedOrRemovedEvent;
-import savant.controller.event.TrackRemovedListener;
+import savant.controller.event.TrackEvent;
 import savant.data.types.Genome;
 import savant.view.swing.Frame;
 import savant.view.swing.sequence.SequenceTrack;
@@ -30,10 +29,10 @@ public class GenomeController extends Controller<GenomeChangedEvent> {
     public static GenomeController getInstance() {
         if (instance == null) {
             instance = new GenomeController();
-            TrackController.getInstance().addTrackRemovedListener(new TrackRemovedListener() {
-            @Override
-                public void trackRemoved(TrackAddedOrRemovedEvent event) {
-                    if (event.getTrack() == instance.loadedGenome.getSequenceTrack()) {
+            TrackController.getInstance().addListener(new Listener<TrackEvent>() {
+                @Override
+                public void handleEvent(TrackEvent event) {
+                    if (event.getTrack() == instance.loadedGenome.getSequenceTrack() && event.getType() == TrackEvent.Type.REMOVED) {
                         instance.setSequence(null);
                     }
                 }

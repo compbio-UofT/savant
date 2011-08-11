@@ -22,8 +22,9 @@ import java.util.EventObject;
 import java.util.List;
 
 /**
- *
+ * Event which reflects a change to the track-list as a whole.  Use TrackEvent instead.
  * @author mfiume
+ * @deprecated
  */
 public class TrackListChangedEvent extends EventObject {
 

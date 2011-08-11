@@ -72,7 +72,7 @@ public abstract class DataSource<E extends Record> implements DataSourceAdapter 
      * @return a dictionary containing the bookmarks (may be empty, but never null)
      */
     @Override
-    public void loadDictionary() throws IOException {
+    public synchronized void loadDictionary() throws IOException {
         dictionary = new TreeMap<String, List<BookmarkAdapter>>();
         dictionaryCount = 0;
         URI dictionaryURI = URI.create(getURI().toString() + ".dict");

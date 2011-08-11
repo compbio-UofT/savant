@@ -18,7 +18,6 @@ package savant.api.adapter;
 
 import java.util.List;
 import javax.swing.JPanel;
-import savant.data.sources.DataSource;
 import savant.data.types.Record;
 import savant.util.AxisType;
 import savant.util.DrawingMode;
@@ -104,6 +103,18 @@ public interface TrackAdapter {
      * Determine what kind of y-axis would be appropriate for this track at the given resolution.
      */
     public AxisType getYAxisType(Resolution r);
+
+    /**
+     * Convert a base-position into a pixel position along the x-axis.
+     * @since 1.6.0
+     */
+    public double transformPos(int pos);
+
+    /**
+     * Convert pixel position along the x-axis into a base-position.
+     * @since 1.6.0
+     */
+    public int transformPixel(double pixel);
 
     /**
      * Does this track allow selections?

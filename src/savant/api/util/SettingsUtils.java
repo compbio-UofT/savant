@@ -87,6 +87,31 @@ public class SettingsUtils {
     }
 
     /**
+     * Get an integer setting associated with this plugin.
+     *
+     * @param p the plugin making the call
+     * @param key a string identifying the setting
+     * @param dflt a default value if the setting is not found
+     * @return the setting's value (or dflt if not found)
+     * @since 1.6.0
+     */
+    public static int getInt(SavantPlugin p, String key, int dflt) {
+        return PersistentSettings.getInstance().getInt(makePluginKey(p, key), dflt);
+    }
+
+    /**
+     * Store an integer setting associated with this plugin.
+     *
+     * @param p the plugin making the call
+     * @param key a string identifying the setting
+     * @param value the value to be set
+     * @since 1.6.0
+     */
+    public static void setInt(SavantPlugin p, String key, int value) {
+        PersistentSettings.getInstance().setInt(makePluginKey(p, key), value);
+    }
+
+    /**
      * Get a File setting associated with this plugin.
      *
      * @param p the plugin making the call

@@ -8,6 +8,7 @@ package savant.controller.event;
 /**
  *
  * @author mfiume
+ * @deprecated
  */
 public interface TrackListChangedListener
 {

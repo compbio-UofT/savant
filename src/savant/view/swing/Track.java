@@ -250,15 +250,34 @@ public abstract class Track implements TrackAdapter {
     }
 
     /**
-     * Get the JPanel for the layer to draw on top of the track.
+     * Get the JPanel for the layer which plugins can use to draw on top of the track.
      *
      * @return component to draw onto or null if frame not initialized yet
      */
     @Override
     public JPanel getLayerCanvas() {
-        if(frame == null) return null;
-        return frame.getLayerCanvas();
+        return frame != null ? frame.getLayerCanvas() : null;
     }
+
+    /**
+     * For use by plugins.  Scale a pixel position along the x-axis into a base position.
+     * @since 1.6.0
+     */
+    @Override
+    public int transformPixel(double pix) {
+        return frame.getGraphPane().transformXPixel(pix);
+    }
+    
+
+    /**
+     * For use by plugins.  Scale a position in bases into a pixel position along the x-axis.
+     * @since 1.6.0
+     */
+    @Override
+    public double transformPos(int pos) {
+        return frame.getGraphPane().transformXPos(pos);
+    }
+
 
     // FIXME:
     public Frame getFrame() {

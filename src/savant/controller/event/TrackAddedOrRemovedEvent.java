@@ -20,8 +20,9 @@ import savant.view.swing.Track;
 
 
 /**
- *
+ * Event which reflects a change to the state of a track.  Use TrackEvent instead.
  * @author mfiume
+ * @deprecated
  */
 public class TrackAddedOrRemovedEvent {
 

@@ -18,7 +18,6 @@ package savant.data.types;
 
 /**
  * Immutable class to represent a block, e.g. an exome
- * FIXME: this class is redundant; use Interval with a different static factory instead.
  * @author mfiume
  */
 public final class Block {
@@ -41,6 +40,14 @@ public final class Block {
 
     public int getSize() {
         return size;
+    }
+
+    /**
+     * End-position of the block.
+     * @since 1.6.0
+     */
+    public int getEnd() {
+        return position + size;
     }
 
     /**

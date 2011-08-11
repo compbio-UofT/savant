@@ -1,5 +1,5 @@
 /*
- *    Copyright 2009-2011 University of Toronto
+ *    Copyright 2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -16,11 +16,37 @@
 
 package savant.controller.event;
 
+import savant.view.swing.Track;
+
+
 /**
+ * New class which is used for indicating changes to the state of a single track.
  *
- * @author mfiume
- * @deprecated
+ * @author tarkvara
+ * @since 1.6.0
  */
-public interface TrackRemovedListener {
-    public void trackRemoved(TrackAddedOrRemovedEvent event);
+public class TrackEvent {
+
+    private final Type type;
+    private final Track track;
+
+    public TrackEvent(Type t, Track tr) {
+        type = t;
+        track = tr;
+    }
+
+    public Track getTrack() {
+        return track;
+    }
+
+    public Type getType() {
+        return type;
+    }
+
+    public enum Type {
+        ADDED,
+        REMOVED,
+        OPENED
+    }
 }
+

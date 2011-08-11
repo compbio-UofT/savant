@@ -33,7 +33,7 @@ public abstract class Controller<E> {
     /**
      * Fire the specified event to all our listeners.
      */
-    protected synchronized void fireEvent(final E event) {
+    public synchronized void fireEvent(final E event) {
         listenersToRemove = new ArrayList<Listener<E>>();
         for (final Listener l: listeners) {
             l.handleEvent(event);

@@ -44,10 +44,8 @@ import savant.data.types.ReadPairIntervalRecord;
 import savant.data.types.Record;
 import savant.data.types.Strand;
 import savant.exception.RenderingException;
-import savant.file.DataFormat;
 import savant.settings.BrowserSettings;
 import savant.settings.ColourSettings;
-import savant.settings.InterfaceSettings;
 import savant.util.*;
 import savant.view.swing.GraphPane;
 import savant.view.swing.TrackRenderer;
@@ -427,7 +425,6 @@ public class BAMTrackRenderer extends TrackRenderer {
         else if (numIntervals <= 100) maxYRange = 100;
         else maxYRange = numIntervals;
         gp.setYRange(new Range(0,maxYRange));
-        LOG.info("Trying to set yMax to " + maxYRange + ", but it ended up as " + gp.getYRange().getTo());
 
         //resize frame if necessary
         if (gp.needsToResize()) return;
