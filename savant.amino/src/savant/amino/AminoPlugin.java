@@ -26,10 +26,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import savant.api.adapter.TrackAdapter;
+import savant.api.util.NavigationUtils;
 import savant.api.util.SettingsUtils;
+import savant.api.util.TrackUtils;
 import savant.controller.Listener;
-import savant.controller.LocationController;
-import savant.controller.TrackController;
 import savant.controller.event.TrackEvent;
 import savant.file.DataFormat;
 import savant.plugin.SavantPanelPlugin;
@@ -61,7 +61,7 @@ public class AminoPlugin extends SavantPanelPlugin {
             canvas.add(label);
         }
 
-        TrackController.getInstance().addListener(new Listener<TrackEvent>() {
+        TrackUtils.addTrackListener(new Listener<TrackEvent>() {
             @Override
             public void handleEvent(TrackEvent event) {
                 LOG.info("Received " + event.getType() + " for " + event.getTrack().getName());
@@ -74,7 +74,7 @@ public class AminoPlugin extends SavantPanelPlugin {
                             JPanel layerCanvas = t.getLayerCanvas();
                             layerCanvas.setLayout(new BorderLayout());
                             layerCanvas.add(c, BorderLayout.CENTER);
-                            LocationController.getInstance().addLocationChangeCompletedListener(c);
+                            NavigationUtils.addLocationChangeListener(c);
                             break;
                         case REMOVED:
                             t.getLayerCanvas().removeAll();

@@ -31,8 +31,8 @@ import org.apache.commons.logging.LogFactory;
 
 import savant.api.adapter.TrackAdapter;
 import savant.api.util.GenomeUtils;
+import savant.api.util.NavigationUtils;
 import savant.api.util.RangeUtils;
-import savant.controller.LocationController;
 import savant.controller.event.LocationChangeCompletedListener;
 import savant.controller.event.LocationChangedEvent;
 import savant.data.types.Block;
@@ -90,7 +90,7 @@ public class AminoCanvas extends JPanel implements LocationChangeCompletedListen
                         int thickEnd = rr.getThickEnd() + 1;
                         LOG.debug(rr.getAlternateName() + ": thickStart=" + thickStart + ", thickEnd=" + thickEnd);
 
-                        sequence = GenomeUtils.getGenome().getSequence(LocationController.getInstance().getReferenceName(), RangeUtils.createRange(thickStart, thickEnd));
+                        sequence = GenomeUtils.getGenome().getSequence(NavigationUtils.getCurrentReferenceName(), RangeUtils.createRange(thickStart, thickEnd));
 
                         int pos = thickStart;
                         int leftovers = -1;    // Left-overs from the previous block.
