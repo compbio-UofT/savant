@@ -1,5 +1,5 @@
 /*
- *    Copyright 2009-2010 University of Toronto
+ *    Copyright 2009-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -22,9 +22,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -43,16 +41,15 @@ import savant.controller.event.LocationChangedEvent;
 import savant.controller.event.LocationChangeCompletedListener;
 import savant.controller.event.SelectionChangedEvent;
 import savant.controller.event.SelectionChangedListener;
-import savant.controller.event.TrackListChangedEvent;
-import savant.controller.event.TrackListChangedListener;
 import savant.data.types.Record;
 
 
 /**
+ * Manages the UI for the Data Table Plugin.
  *
  * @author mfiume
  */
-public class DataSheet implements LocationChangeCompletedListener, TrackListChangedListener, SelectionChangedListener {
+public class DataSheet implements LocationChangeCompletedListener, SelectionChangedListener {
 
     private JComboBox trackList;
     private ExtendedTable table;
@@ -127,7 +124,7 @@ public class DataSheet implements LocationChangeCompletedListener, TrackListChan
         exportButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                exportTable(table, (TrackAdapter)trackList.getSelectedItem());
+                exportTable((TrackAdapter)trackList.getSelectedItem());
             }
         });
         toolbar.add(exportButton);
@@ -190,7 +187,7 @@ public class DataSheet implements LocationChangeCompletedListener, TrackListChan
             sorter.setRowFilter(new RowFilter<DataTableModel, Integer>() {
                 @Override
                 public boolean include(Entry<? extends DataTableModel, ? extends Integer> entry) {
-                    return table.selectedRows.contains(entry.getIdentifier());
+                    return table.getRowSelected(entry.getIdentifier());
                 }
             });
         } else {
@@ -206,13 +203,12 @@ public class DataSheet implements LocationChangeCompletedListener, TrackListChan
         TrackAdapter t = currentTrack;
         tableModel = new DataTableModel(currentTrack.getDataSource());
         table.setModel(tableModel);
-        table.setIsModelSet();
         table.setSurrendersFocusOnKeystroke(true);
         refreshData();
         refreshSelection();
     }
 
-    private void updateTrackList() {
+    void updateTrackList() {
         trackList.removeAllItems();
         for (TrackAdapter t : TrackUtils.getTracks()) {
             trackList.addItem(t);
@@ -231,24 +227,19 @@ public class DataSheet implements LocationChangeCompletedListener, TrackListChan
         } else {
             String s = "";
 
-            //TODO: add commas? current formatting doesn't work
-            //s += String.format("###,###", data.size());
             s += data.size();
 
             if (((TableRowSorter<DataTableModel>)table.getRowSorter()).getRowFilter() != null) {
                 s += " (showing " + table.getRowSorter().getViewRowCount() + " selected)";
             } else {
                 DataTableModel dtm = (DataTableModel)tableModel;
-                if (dtm.getIsNumRowsLimited() && data.size() > dtm.getMaxRows()) {
+                if (data.size() > dtm.getMaxRows()) {
                     s += " (showing first " + dtm.getMaxRows() + ")";
                 }
             }
 
             numItemsLabel.setText(s);
         }
-
-
-
     }
 
     @Override
@@ -259,95 +250,70 @@ public class DataSheet implements LocationChangeCompletedListener, TrackListChan
         }
     }
 
-    @Override
-    public void trackListChanged(TrackListChangedEvent event) {
-        updateTrackList();
-    }
+    private void exportTable(TrackAdapter track) {
 
-    private static void exportTable(JTable table, TrackAdapter track) {
+        String[] choices = { "All records", "Only selected records" };
+        Object input = choices[0];
+        if (table.hasSelectedRows()) {
+            input = JOptionPane.showInputDialog(null, "Export: ", "Export", JOptionPane.QUESTION_MESSAGE, null, choices,  choices[0]);
+        }
 
-        String[] choices = { "All data in view", "All selected data in view", "All selected data"};
-        String input = (String) JOptionPane.showInputDialog(null, "Export: ",
-            "Export", JOptionPane.QUESTION_MESSAGE, null,
-            choices, // Array of choices
-            choices[0]); // Initial choice
+        if (input != null) {
 
-        if(input == null) return;
+            String defaultName;
+            switch (track.getDataSource().getDataFormat()) {
+                case SEQUENCE_FASTA:
+                    defaultName = "Export.fa";
+                    break;
+                case INTERVAL_BAM:
+                    // If the file-extension is .bam, we will create both a .bam and .bai file.
+                    defaultName = "Export.bam";
+                    break;
+                default:
+                    defaultName = "Export.txt";
+            }
+            File selectedFile = DialogUtils.chooseFileForSave("Export Data", defaultName);
 
-        File selectedFile = DialogUtils.chooseFileForSave("Export Data", "Export.txt");
-
-        // set the genome
-        if (selectedFile != null) {
-            try {
-                if(input.equals("All data in view")){
-                    exportAllInView(table, track, selectedFile);
-                } else if(input.equals("All selected data in view")){
-                    exportSelectedInView(table, track, selectedFile);
-                } else if(input.equals("All selected data")){
-                    exportAllSelected(table, track, selectedFile);
-                }                
-            } catch (IOException ex) {
-                String message = "Export unsuccessful";
-                String title = "Uh oh...";
-                // display the JOptionPane showConfirmDialog
-                JOptionPane.showConfirmDialog(null, message, title, JOptionPane.ERROR_MESSAGE);
+            if (selectedFile != null) {
+                try {
+                    if (input.equals(choices[0])){
+                        exportAllInView(track, selectedFile);
+                    } else if (input.equals(choices[1])){
+                        exportSelectedInView(track, selectedFile);
+                    }
+                } catch (IOException ex) {
+                    DialogUtils.displayException("Export unsuccessful", "Unable to export rows to file.", ex);
+                }
             }
         }
     }
 
-    private static void exportAllInView(JTable table, TrackAdapter track, File selectedFile) throws IOException {
-        BufferedWriter bw = new BufferedWriter(new FileWriter(selectedFile));
-
-        DataTableModel dtm = (DataTableModel) table.getModel();
-        int numRows = dtm.getRowCount();
-        int numCols = dtm.getColumnCount();
-
-        for (int i = 0; i < numRows; i++) {
-            for (int j = 0; j < numCols; j++) {
-                bw.write(dtm.getValueAt(i, j) + "\t");
-            }
-            bw.write("\n");
-        }
-
-        bw.close();
-    }
-
-    private static void exportSelectedInView(JTable table, TrackAdapter track, File selectedFile) throws IOException {
-        BufferedWriter bw = new BufferedWriter(new FileWriter(selectedFile));
-
-        DataTableModel dtm = (DataTableModel) table.getModel();
-        int numRows = dtm.getRowCount();
-        int numCols = dtm.getColumnCount();
-
-        List<Integer> selectedRows = ((ExtendedTable)table).getRowsSelected();
-        for (int i = 0; i < numRows; i++) {
-            if(!selectedRows.contains(i)){
-                continue;
-            }
-            for (int j = 0; j < numCols; j++) {
-                bw.write(dtm.getValueAt(i, j) + "\t");
-            }
-            bw.write("\n");
-        }
-
-        bw.close();
-    }
-
-    private static void exportAllSelected(JTable table, TrackAdapter track, File selectedFile) throws IOException {
-        BufferedWriter bw = new BufferedWriter(new FileWriter(selectedFile));
+    private void exportAllInView(TrackAdapter track, File selectedFile) throws IOException {
         DataTableModel dtm = new DataTableModel(track.getDataSource());
+        dtm.setMaxRows(Integer.MAX_VALUE);
         dtm.setData(track.getDataInRange());
+        dtm.openExport(selectedFile);
+
         int numRows = dtm.getRowCount();
-        int numCols = dtm.getColumnCount();
-
         for (int i = 0; i < numRows; i++) {
-            for (int j = 0; j < numCols; j++) {
-                bw.write(dtm.getValueAt(i, j) + "\t");
-            }
-            bw.write("\n");
+            dtm.exportRow(i);
         }
+        dtm.closeExport();
+    }
 
-        bw.close();        
+    private void exportSelectedInView(TrackAdapter track, File selectedFile) throws IOException {
+        DataTableModel dtm = new DataTableModel(track.getDataSource());
+        dtm.setMaxRows(Integer.MAX_VALUE);
+        dtm.setData(track.getDataInRange());
+        dtm.openExport(selectedFile);
+
+        int numRows = dtm.getRowCount();
+        for (int i = 0; i < numRows; i++) {
+            if (table.getRowSelected(i)){
+                dtm.exportRow(i);
+            }
+        }
+        dtm.closeExport();
     }
 
     @Override
@@ -379,12 +345,9 @@ public class DataSheet implements LocationChangeCompletedListener, TrackListChan
     private class ExtendedTable extends JTable {
 
         private List<Integer> selectedRows = new ArrayList<Integer>();
-        private boolean modelSet = false;
 
         public ExtendedTable(){
-            super();
-            TableCellRenderer booleanRenderer = new BooleanRenderer(this);
-            this.setDefaultRenderer(Boolean.class, booleanRenderer);
+            setDefaultRenderer(Boolean.class, new BooleanRenderer());
         }
 
         public void clearSelectedRows(){
@@ -395,21 +358,12 @@ public class DataSheet implements LocationChangeCompletedListener, TrackListChan
             selectedRows.add(i);
         }
 
-        public List<Integer> getRowsSelected(){
-            return selectedRows;
-        }
-
         public boolean getRowSelected(int row){
             return selectedRows.contains(row);
         }
 
-        //true as soon as default model replaced by DataTableModel
-        public boolean isModelSet(){
-            return modelSet;
-        }
-
-        public void setIsModelSet(){
-            modelSet = true;
+        public boolean hasSelectedRows() {
+            return selectedRows.size() > 0;
         }
 
         @Override
@@ -422,34 +376,29 @@ public class DataSheet implements LocationChangeCompletedListener, TrackListChan
             }
             return super.getCellRenderer(row, column);
         }
-    }
 
-    /**
-     * This class is used to override background colour of selected Boolean cells
-     * in table, which cannot be done as other cells are (JCheckBox). 
-     */
-    private class BooleanRenderer implements TableCellRenderer {
+        /**
+         * This class is used to override background colour of selected Boolean cells
+         * in table, which cannot be done as other cells are (JCheckBox).
+         */
+        private class BooleanRenderer implements TableCellRenderer {
 
-        private ExtendedTable extendedTable;
-        private TableCellRenderer defaultRenderer;
+            private TableCellRenderer defaultRenderer;
 
-        public BooleanRenderer (ExtendedTable table){
-            super();
-            defaultRenderer = table.getDefaultRenderer(Boolean.class);
-            extendedTable = table;
-        }
-
-        @Override
-        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-            
-            Component comp = defaultRenderer.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-            int modRow = extendedTable.getRowSorter().convertRowIndexToModel(row);
-            if(extendedTable.getRowSelected(modRow) && !isSelected){
-                comp.setBackground(Color.green);
+            public BooleanRenderer(){
+                defaultRenderer = getDefaultRenderer(Boolean.class);
             }
 
-            return comp;
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+                Component comp = defaultRenderer.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                int modRow = getRowSorter().convertRowIndexToModel(row);
+                if (!isSelected && getRowSelected(modRow)) {
+                    comp.setBackground(Color.green);
+                }
 
+                return comp;
+            }
         }
     }
 }

@@ -25,16 +25,26 @@ import javax.swing.JPanel;
 import savant.api.util.NavigationUtils;
 import savant.api.util.SelectionUtils;
 import savant.api.util.TrackUtils;
+import savant.controller.Listener;
+import savant.controller.event.TrackEvent;
 import savant.plugin.SavantPanelPlugin;
 
 public class DataTab extends SavantPanelPlugin {
+    private DataSheet dataSheet;
 
     @Override
     public void init(JPanel tablePanel) {
-        DataSheet currentRangeDataSheet = new DataSheet(tablePanel);
-        NavigationUtils.addLocationChangeListener(currentRangeDataSheet);
-        SelectionUtils.addSelectionChangedListener(currentRangeDataSheet);
-        TrackUtils.addTracksChangedListener(currentRangeDataSheet);
+        dataSheet = new DataSheet(tablePanel);
+
+        TrackUtils.addTrackListener(new Listener<TrackEvent>() {
+            @Override
+            public void handleEvent(TrackEvent event) {
+                dataSheet.updateTrackList();
+            }
+        });
+
+        NavigationUtils.addLocationChangeListener(dataSheet);
+        SelectionUtils.addSelectionChangedListener(dataSheet);
     }
 
 

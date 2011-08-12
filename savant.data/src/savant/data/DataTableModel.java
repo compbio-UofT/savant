@@ -16,13 +16,20 @@
 
 package savant.data;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.table.AbstractTableModel;
 
+import net.sf.samtools.SAMFileWriter;
+import net.sf.samtools.SAMFileWriterFactory;
 import net.sf.samtools.SAMRecord;
 
 import savant.api.adapter.DataSourceAdapter;
+import savant.api.util.NavigationUtils;
+import savant.data.sources.BAMDataSource;
 import savant.data.types.*;
 import savant.file.DataFormat;
 
@@ -38,23 +45,28 @@ public class DataTableModel extends AbstractTableModel {
     private static final Class[] BAM_COLUMN_CLASSES = { String.class, String.class, Integer.class, Boolean.class, Integer.class, Boolean.class, Integer.class, String.class, String.class, Integer.class, Boolean.class, Integer.class};
     private static final Class[] CONTINUOUS_COLUMN_CLASSES = { String.class, Integer.class, Double.class };
 
-    private DataFormat dataType;
+    private final DataSourceAdapter dataSource;
     private String[] columnNames;
     private Class[] columnClasses;
 
-    private static boolean dontAllowMoreThanMaxRows = true;
-    private static int maxRows = 500;
+    private int maxRows = 500;
 
     protected List<Record> data;
 
     /** For tabix, some of the columns may not be meaningful for end-users, so have a little lookup table. */
     private int[] remappedColumns;
 
-    public DataTableModel(DataSourceAdapter dataSource) {
-        setDataType(dataSource.getDataFormat());
+    /** Destination for export of non-BAM tracks. */
+    private PrintWriter exportWriter;
 
-        columnNames = dataSource.getColumnNames();
-        switch (dataType) {
+    /** Destination for export of BAM tracks. */
+    private SAMFileWriter samWriter;
+
+    public DataTableModel(DataSourceAdapter ds) {
+        dataSource = ds;
+
+        columnNames = ds.getColumnNames();
+        switch (ds.getDataFormat()) {
             case SEQUENCE_FASTA:
                 columnClasses = SEQUENCE_COLUMN_CLASSES;
                 break;
@@ -112,7 +124,7 @@ public class DataTableModel extends AbstractTableModel {
         if (remappedColumns != null) {
             return ((TabixIntervalRecord)datum).getValues()[remappedColumns[column]];
         } else {
-            switch (dataType) {
+            switch (dataSource.getDataFormat()) {
                 case SEQUENCE_FASTA:
                     return new String(((SequenceRecord)datum).getSequence());
                 case POINT_GENERIC:
@@ -199,7 +211,7 @@ public class DataTableModel extends AbstractTableModel {
     @Override
     public int getRowCount() {
         if (data != null) {
-            if (dontAllowMoreThanMaxRows && data.size() > maxRows) {
+            if (data.size() > maxRows) {
                 return maxRows;
             }
             return data.size();
@@ -216,31 +228,21 @@ public class DataTableModel extends AbstractTableModel {
         if (dataInRange == null) { 
             data = null;
         } else {
-            if (dataType == DataFormat.CONTINUOUS_GENERIC) {
+            if (dataSource.getDataFormat() == DataFormat.CONTINUOUS_GENERIC) {
                 // Continuous tracks now use NaNs for missing values.  Filter them out.
                 data = new ArrayList<Record>();
                 for (Record r: dataInRange) {
                     if (!Float.isNaN(((GenericContinuousRecord)r).getValue())) {
                         data.add(r);
-                        if (dontAllowMoreThanMaxRows && data.size() >= maxRows) {
+                        if (data.size() >= maxRows) {
                             break;
                         }
                     }
                 }
             } else {
-                if (dontAllowMoreThanMaxRows && dataInRange.size() > maxRows) {
-                    //data = dataInRange.subList(0, maxRows);
-                    data = dataInRange;
-                } else {
-                    data = dataInRange;
-                }
+                data = dataInRange;
             }
         }
-    }
-
-    public final void setDataType(DataFormat k) {
-        dataType = k;
-        fireTableChanged(null);
     }
 
     public void setMaxRows(int maxNumRows) {
@@ -251,11 +253,86 @@ public class DataTableModel extends AbstractTableModel {
         return maxRows;
     }
 
-    public void setIsNumRowsLimited(boolean isNumRowsLimited) {
-        dontAllowMoreThanMaxRows = isNumRowsLimited;
+    /**
+     * Open the given file for export.  Write the file header (if any).
+     * @param destFile
+     */
+    public void openExport(File destFile) throws IOException {
+        if (dataSource.getDataFormat() == DataFormat.INTERVAL_BAM) {
+            // If the file extension is .sam, it will create a SAM text file.
+            // If it's .bam, it will create a BAM file and corresponding index.
+            samWriter = new SAMFileWriterFactory().setCreateIndex(true).makeSAMOrBAMWriter(((BAMDataSource)dataSource).getHeader(), true, destFile);
+        } else {
+            exportWriter = new PrintWriter(destFile);
+        }
+
+        // Write an appropriate header.
+        switch (dataSource.getDataFormat()) {
+            case SEQUENCE_FASTA:
+                exportWriter.printf(">%s", NavigationUtils.getCurrentReferenceName()).println();
+                break;
+            case POINT_GENERIC:
+            case CONTINUOUS_GENERIC:
+            case INTERVAL_GENERIC:
+            case INTERVAL_RICH:
+                exportWriter.println("# Savant Data Table Plugin 1.2.4");
+                exportWriter.printf("#%s", columnNames[0]);
+                for (int i = 1; i < columnNames.length; i++) {
+                    exportWriter.printf("\t%s", columnNames[i]);
+                }
+                exportWriter.println();
+                break;
+            case INTERVAL_BAM:
+                break;
+        }
     }
 
-    public boolean getIsNumRowsLimited() {
-        return dontAllowMoreThanMaxRows;
+    /**
+     * Close the current export file.
+     */
+    public void closeExport() {
+        if (dataSource.getDataFormat() == DataFormat.INTERVAL_BAM) {
+            samWriter.close();
+            samWriter = null;
+        } else {
+            exportWriter.close();
+            exportWriter = null;
+        }
+    }
+
+    /**
+     * Export an entire row in the format appropriate for the data contained in the table.
+     * @param row
+     */
+    public void exportRow(int row) {
+        Record datum = data.get(row);
+        switch (dataSource.getDataFormat()) {
+            case SEQUENCE_FASTA:
+                exportWriter.println(new String(((SequenceRecord)datum).getSequence()));
+                break;
+            case POINT_GENERIC:
+                exportWriter.printf("%s\t%d\t%s", datum.getReference(), ((GenericPointRecord)datum).getPoint().getPosition(), ((GenericPointRecord)datum).getDescription()).println();
+                break;
+            case CONTINUOUS_GENERIC:
+                exportWriter.printf("%s\t%d\t%f", datum.getReference(), ((GenericContinuousRecord)datum).getPosition(), ((GenericContinuousRecord)datum).getValue()).println();
+                break;
+            case INTERVAL_GENERIC:
+                Interval inter = ((IntervalRecord)datum).getInterval();
+                exportWriter.printf("%d\t%d\t%d\t%s", datum.getReference(), inter.getStart(), inter.getEnd(), ((IntervalRecord)datum).getName()).println();
+                break;
+            case INTERVAL_BAM:
+                samWriter.addAlignment(((BAMIntervalRecord)datum).getSamRecord());
+                break;
+            case INTERVAL_RICH:
+                String[] values = ((TabixIntervalRecord)datum).getValues();
+                for (int i = 0; i < columnNames.length; i++) {
+                    if (i > 0) {
+                        exportWriter.print('\t');
+                    }
+                    exportWriter.print(values[remappedColumns[i]]);
+                }
+                exportWriter.println();
+                break;
+        }
     }
 }
