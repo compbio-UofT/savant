@@ -48,7 +48,6 @@ import savant.settings.DirectorySettings;
 import savant.util.NetworkUtils;
 import savant.view.dialog.tree.TreeBrowserModel;
 import savant.view.dialog.tree.TreeBrowserEntry;
-import savant.view.swing.Savant;
 import savant.view.swing.TrackFactory;
 
 /**
@@ -77,7 +76,7 @@ public class SAFEBrowser extends JDialog {
     }
 
     private SAFEBrowser() throws JDOMException, IOException {
-        super(Savant.getInstance(), "Savant File Exchange", true);
+        super(DialogUtils.getMainWindow(), "Savant File Exchange", Dialog.ModalityType.APPLICATION_MODAL);
         init();
     }
 
@@ -170,7 +169,7 @@ public class SAFEBrowser extends JDialog {
         this.setPreferredSize(new Dimension(800, 500));
         this.pack();
 
-        setLocationRelativeTo(Savant.getInstance());
+        setLocationRelativeTo(getParent());
     }
 
     void initSafe(final String username, final String password) throws MalformedURLException, JDOMException, IOException {
@@ -273,7 +272,7 @@ public class SAFEBrowser extends JDialog {
     }
 
     public static void addGroup(String username, String password) {
-        (new AddSAFEGroup(Savant.getInstance(), true, username, password)).setVisible(true);
+        (new AddSAFEGroup(DialogUtils.getMainWindow(), username, password)).setVisible(true);
     }
 
     public static class FileRowCellRenderer extends DefaultTableCellRenderer {

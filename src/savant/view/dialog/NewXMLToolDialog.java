@@ -1,29 +1,35 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
-/*
- * NewXMLToolDialog.java
+ *    Copyright 2010-2011 University of Toronto
  *
- * Created on Sep 1, 2010, 2:23:48 PM
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
  */
-
 package savant.view.dialog;
 
+import java.awt.Dialog;
+import java.awt.Window;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import javax.swing.JOptionPane;
 
 import org.jdom.JDOMException;
 
+import savant.api.util.DialogUtils;
 import savant.experimental.ProgramInformation;
 import savant.experimental.XMLTool;
 import savant.settings.DirectorySettings;
 import savant.tools.program.ProgramArgument;
-import savant.view.swing.Savant;
+
 
 /**
  *
@@ -41,8 +47,8 @@ public class NewXMLToolDialog extends javax.swing.JDialog {
 
 
     /** Creates new form NewXMLToolDialog */
-    public NewXMLToolDialog(java.awt.Frame parent, boolean modal) {
-        super(parent, modal);
+    public NewXMLToolDialog(Window parent) {
+        super(parent, Dialog.ModalityType.APPLICATION_MODAL);
         initComponents();
     }
 
@@ -218,8 +224,7 @@ public class NewXMLToolDialog extends javax.swing.JDialog {
     }// </editor-fold>//GEN-END:initComponents
 
     private void butt_addActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_butt_addActionPerformed
-        NewXMLToolParameterDialog d = new NewXMLToolParameterDialog(Savant.getInstance(),true);
-        d.setVisible(true);
+        new NewXMLToolParameterDialog(this).setVisible(true);
     }//GEN-LAST:event_butt_addActionPerformed
 
     private void butt_okActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_butt_okActionPerformed
@@ -228,7 +233,7 @@ public class NewXMLToolDialog extends javax.swing.JDialog {
             dialogComplete = true;
             this.setVisible(false);
         } else {
-            JOptionPane.showMessageDialog(this.getParent(), "Error creating tool. Please edit the fields and try again.");
+            DialogUtils.displayError("Error creating tool. Please edit the fields and try again.");
         }
     }//GEN-LAST:event_butt_okActionPerformed
 

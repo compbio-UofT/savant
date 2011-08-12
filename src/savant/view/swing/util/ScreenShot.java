@@ -25,8 +25,8 @@ import javax.imageio.ImageIO;
 import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileFilter;
 
+import savant.api.util.DialogUtils;
 import savant.util.MiscUtils;
-import savant.view.swing.Savant;
 
 
 /**
@@ -39,8 +39,7 @@ public class ScreenShot {
     public static BufferedImage take() {
         try {
             Robot robot = new Robot();
-            BufferedImage screenShot = robot.createScreenCapture(Savant.getInstance().getBounds());
-//                    new Rectangle(Toolkit.getDefaultToolkit().getScreenSize()));
+            BufferedImage screenShot = robot.createScreenCapture(DialogUtils.getMainWindow().getBounds());
             return screenShot;
         } 
         catch (AWTException e) {}
@@ -114,7 +113,7 @@ public class ScreenShot {
         //Custom button text
         Object[] options = {"OK",
                             "Don't show again"};
-        int n = JOptionPane.showOptionDialog(Savant.getInstance(),
+        int n = JOptionPane.showOptionDialog(DialogUtils.getMainWindow(),
             "Saved to " + name,
             "Screenshot Taken",
             JOptionPane.YES_NO_CANCEL_OPTION,

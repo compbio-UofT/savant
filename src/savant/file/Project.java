@@ -37,7 +37,6 @@ import savant.util.Bookmark;
 import savant.util.Listener;
 import savant.util.MiscUtils;
 import savant.util.Range;
-import savant.view.swing.Savant;
 import savant.view.swing.Track;
 import savant.view.swing.interval.BAMCoverageTrack;
 
@@ -297,17 +296,17 @@ public class Project {
                     for (String path: trackPaths) {
                         if (!path.equals(genomePath)) {
                             LOG.info("Adding ordinary track for " + path);
-                            Savant.getInstance().addTrackFromPath(path);
+                            FrameController.getInstance().addTrackFromPath(path);
                         }
                     }
                 }
             });
             LOG.info("Adding sequence track for " + genomePath);
-            Savant.getInstance().addTrackFromPath(genomePath);
+            FrameController.getInstance().addTrackFromPath(genomePath);
         } else {
             // Genome in place, so just load the tracks.
             for (String path : trackPaths) {
-                Savant.getInstance().addTrackFromPath(path);
+                FrameController.getInstance().addTrackFromPath(path);
             }
         }
         if (bookmarks != null && bookmarks.size() > 0) {

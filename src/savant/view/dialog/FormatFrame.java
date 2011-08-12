@@ -27,6 +27,7 @@ import javax.swing.JOptionPane;
 import com.jidesoft.dialog.JideOptionPane;
 
 import savant.api.util.DialogUtils;
+import savant.controller.FrameController;
 import savant.controller.GenomeController;
 import savant.file.FileType;
 import savant.format.DataFormatter;
@@ -35,7 +36,7 @@ import savant.format.FormatProgressListener;
 import savant.format.SavantFileFormattingException;
 import savant.util.MiscUtils;
 import savant.view.icon.SavantIconFactory;
-import savant.view.swing.Savant;
+
 
 /**
  * Form which displays progress during the formatting process.
@@ -267,7 +268,7 @@ public class FormatFrame extends JDialog implements FormatProgressListener {
                 this.setVisible(false);
                 if (result == JOptionPane.YES_OPTION) {
                     try {
-                        Savant.getInstance().addTrackFromPath(dataFormatter.getOutputFile().getAbsolutePath());
+                        FrameController.getInstance().addTrackFromPath(dataFormatter.getOutputFile().getAbsolutePath());
                     } catch (Exception ex) {
                     }
                 }
@@ -312,17 +313,14 @@ public class FormatFrame extends JDialog implements FormatProgressListener {
                     issue += MiscUtils.getStackTrace(e);
 
                     dialog.dispose();
-                    (new BugReportDialog(Savant.getInstance(),true,issue,dataFormatter.getInputFile().getAbsolutePath())).setVisible(true);
-                    
+                    (new BugReportDialog(DialogUtils.getMainWindow(), issue, dataFormatter.getInputFile().getAbsolutePath())).setVisible(true);
                 }
 
-                });
+            });
 
-                dialog.setVisible(true);
+            dialog.setVisible(true);
 
-                //System.out.println("Option chosen: " + optionPane.get)
-
-                this.dispose();
+            dispose();
         }
     }
 

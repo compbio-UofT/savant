@@ -18,22 +18,23 @@ package savant.view.swing.util;
 
 import java.awt.FileDialog;
 import java.awt.Frame;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FilenameFilter;
+import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileFilter;
 
 import com.jidesoft.dialog.JideOptionPane;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import javax.swing.JButton;
-import javax.swing.JComponent;
 
 import savant.util.MiscUtils;
 import savant.view.dialog.BugReportDialog;
 import savant.view.swing.Savant;
+
 
 /**
  * Some utility methods for displaying message dialogs to the user.
@@ -99,7 +100,7 @@ public class DialogUtils {
                     issue += MiscUtils.getStackTrace(t);
 
                     dialog.dispose();
-                    (new BugReportDialog(Savant.getInstance(),true,issue)).setVisible(true);
+                    (new BugReportDialog(savant.api.util.DialogUtils.getMainWindow(), issue, null)).setVisible(true);
                 }
 
                 });

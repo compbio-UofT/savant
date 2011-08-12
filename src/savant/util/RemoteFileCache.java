@@ -23,14 +23,13 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.net.URI;
 import java.util.List;
-import javax.swing.JOptionPane;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import savant.api.util.DialogUtils;
 import savant.controller.TrackController;
 import savant.settings.DirectorySettings;
-import savant.view.swing.Savant;
 import savant.view.swing.Track;
 
 /**
@@ -48,10 +47,7 @@ public class RemoteFileCache {
             URI uri = tracks.get(i).getDataSource().getURI();
             String scheme = uri.getScheme().toLowerCase();
             if (!scheme.equals("file")) {
-                JOptionPane.showMessageDialog(Savant.getInstance(), 
-                        "You have one or more remote files currently open. Close them and try again. ",
-                        "Cannot clear cache",
-                        JOptionPane.WARNING_MESSAGE);
+                DialogUtils.displayMessage("Cannot clear cache", "You have one or more remote files currently open. Close them and try again.");
                 return;
             }
         }

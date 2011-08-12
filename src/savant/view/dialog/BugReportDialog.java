@@ -1,17 +1,23 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
-/*
- * FeatureRequestDialog.java
+ *    Copyright 2010-2011 University of Toronto
  *
- * Created on Mar 31, 2011, 3:56:01 PM
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
  */
-
 package savant.view.dialog;
 
 import java.awt.BorderLayout;
+import java.awt.Dialog;
+import java.awt.Window;
 import java.io.File;
 import javax.swing.JFileChooser;
 import savant.api.util.DialogUtils;
@@ -26,20 +32,11 @@ import savant.swing.component.PathField;
 public class BugReportDialog extends javax.swing.JDialog {
     private final PathField pf;
 
-    /** Creates new form FeatureRequestDialog */
-    public BugReportDialog(java.awt.Frame parent, boolean modal) {
-        this(parent,modal,null,null);
-    }
-
-     public BugReportDialog(java.awt.Frame parent, boolean modal, String description) {
-         this(parent,modal,description,null);
-     }
-
-    public BugReportDialog(java.awt.Frame parent, boolean modal, String description, String path) {
-        super(parent, modal);
+    public BugReportDialog(Window parent, String description, String path) {
+        super(parent, Dialog.ModalityType.APPLICATION_MODAL);
         initComponents();
-        this.setLocationRelativeTo(parent);
-        this.attachment_panel.setLayout(new BorderLayout());
+        setLocationRelativeTo(parent);
+        attachment_panel.setLayout(new BorderLayout());
         pf = new PathField(JFileChooser.OPEN_DIALOG);
         this.attachment_panel.add(pf, BorderLayout.CENTER);
         if (path != null) {
@@ -312,23 +309,6 @@ public class BugReportDialog extends javax.swing.JDialog {
             this.dispose();
         }
     }//GEN-LAST:event_button_sendActionPerformed
-
-    /**
-    * @param args the command line arguments
-    */
-    public static void main(String args[]) {
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                BugReportDialog dialog = new BugReportDialog(new javax.swing.JFrame(), true);
-                dialog.addWindowListener(new java.awt.event.WindowAdapter() {
-                    public void windowClosing(java.awt.event.WindowEvent e) {
-                        System.exit(0);
-                    }
-                });
-                dialog.setVisible(true);
-            }
-        });
-    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel attachment_panel;

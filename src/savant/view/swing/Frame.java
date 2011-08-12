@@ -13,7 +13,6 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-
 package savant.view.swing;
 
 import java.awt.*;
@@ -64,6 +63,7 @@ import savant.view.swing.interval.BAMCoverageTrack;
 import savant.view.swing.interval.BAMTrack;
 import savant.view.swing.interval.RichIntervalTrack;
 import savant.view.swing.sequence.SequenceTrack;
+
 
 /**
  *
@@ -446,7 +446,7 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
             @Override
             public void mouseClicked(MouseEvent e) {
                 BAMTrack bamTrack = (BAMTrack)tracks[0];
-                BAMParametersDialog d = new BAMParametersDialog(Savant.getInstance(), true);
+                BAMParametersDialog d = new BAMParametersDialog(DialogUtils.getMainWindow());
                 d.showDialog(bamTrack);
                 if (d.isAccepted()) {
                     bamTrack.setArcSizeVisibilityThreshold(d.getArcLengthThreshold());

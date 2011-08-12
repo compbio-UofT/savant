@@ -37,6 +37,7 @@ import org.jdom.Element;
 import org.jdom.input.SAXBuilder;
 
 import savant.api.util.DialogUtils;
+import savant.controller.FrameController;
 import savant.controller.ProjectController;
 import savant.controller.RecentProjectsController;
 import savant.controller.RecentTracksController;
@@ -46,7 +47,7 @@ import savant.settings.PersistentSettings;
 import savant.swing.component.HyperlinkButton;
 import savant.util.NetworkUtils;
 import savant.view.icon.SavantIconFactory;
-import savant.view.swing.Savant;
+
 
 /**
  * Panel which displays news, recent tracks, and recent projects.
@@ -264,7 +265,7 @@ public class StartPanel extends JPanel {
                     @Override
                     public void actionPerformed(ActionEvent e) {
                         try {
-                            Savant.getInstance().addTrackFromPath(t);
+                            FrameController.getInstance().addTrackFromPath(t);
                         } catch (Exception x) {
                             DialogUtils.displayException("Track Error", String.format("<html>Unable to load track <i>%s</i>: %s.</html>", t, x), x);
                         }

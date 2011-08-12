@@ -24,6 +24,7 @@ import java.util.List;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
+import savant.api.util.DialogUtils;
 
 import savant.controller.FrameController;
 import savant.controller.GenomeController;
@@ -45,12 +46,11 @@ public class ExportImage {
             defaultBase = GraphPaneController.getInstance().getMouseXPosition();
         }
 
-        TrackChooser tc = new TrackChooser(Savant.getInstance(), true, "Select Tracks to Export", true, defaultBase);
+        TrackChooser tc = new TrackChooser(DialogUtils.getMainWindow(), true, "Select Tracks to Export", true, defaultBase);
         tc.setVisible(true);
         String[] trackNames = tc.getSelectedTracks();
         int base = tc.getBaseSelected();
 
-        //String[] trackNames = Savant.getInstance().getSelectedTracks(true, "Select Tracks to Export", true);
         if(trackNames == null) return;
 
         BufferedImage bf = beginExport(trackNames, base);

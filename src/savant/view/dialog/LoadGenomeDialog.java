@@ -34,9 +34,9 @@ import org.apache.commons.logging.LogFactory;
 import savant.api.adapter.DataSourceAdapter;
 import savant.api.util.DialogUtils;
 import savant.controller.DataSourcePluginController;
+import savant.controller.FrameController;
 import savant.controller.GenomeController;
 import savant.controller.ProjectController;
-import savant.controller.LocationController;
 import savant.data.types.Genome;
 import savant.data.types.Genome.Auxiliary;
 import savant.data.types.Genome.AuxiliaryType;
@@ -387,7 +387,7 @@ public class LoadGenomeDialog extends JDialog {
             if (s != null) {
                 setVisible(false);
                 Track t = TrackFactory.createTrack(s);
-                Savant.getInstance().createFrameForExistingTrack(new Track[] { t });
+                FrameController.getInstance().createFrame(new Track[] { t });
                 GenomeController.getInstance().setGenome(Genome.createFromTrack(t));
             }
         } catch (Exception x) {
@@ -404,7 +404,7 @@ public class LoadGenomeDialog extends JDialog {
                 if (projectController.promptToSaveChanges(false)) {
                     projectController.clearExistingProject();
                     GenomeController.getInstance().setGenome(null);
-                    Savant.getInstance().addTrackFromURI(url.toURI());
+                    FrameController.getInstance().addTrackFromURI(url.toURI());
                 }
             } catch (Throwable x) {
                 DialogUtils.displayException("Error Loading Genome", String.format("Unable to load genome from %s.", url), x);
@@ -423,7 +423,7 @@ public class LoadGenomeDialog extends JDialog {
                     projectController.clearExistingProject();
                     GenomeController.getInstance().setGenome(null);
                     Savant.getInstance().setLastTrackDirectory(selectedFile.getParentFile());
-                    Savant.getInstance().addTrackFromPath(selectedFile.getAbsolutePath());
+                    FrameController.getInstance().addTrackFromPath(selectedFile.getAbsolutePath());
                 }
             } catch (Throwable x) {
                 DialogUtils.displayException("Error Loading Genome", String.format("Unable to load genome from %s.", selectedFile.getName()), x);

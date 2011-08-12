@@ -16,6 +16,8 @@
 
 package savant.plugin.builtin;
 
+import java.awt.Dialog;
+import java.awt.Window;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -39,8 +41,8 @@ public class AddSAFEGroup extends javax.swing.JDialog {
     private String password;
 
     /** Creates new form AddSAFEGroup */
-    public AddSAFEGroup(java.awt.Frame parent, boolean modal, String username, String password) {
-        super(parent, modal);
+    public AddSAFEGroup(Window parent, String username, String password) {
+        super(parent, Dialog.ModalityType.APPLICATION_MODAL);
         initComponents();
         this.username = username;
         this.password = password;

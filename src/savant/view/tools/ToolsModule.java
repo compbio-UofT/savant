@@ -74,6 +74,7 @@ import savant.view.dialog.PluginManagerDialog;
 import savant.view.swing.DockableFrameFactory;
 import savant.view.swing.Savant;
 
+
 /**
  *
  * @author mfiume
@@ -209,7 +210,7 @@ public class ToolsModule {
 
     private void initDocking(JPanel canvas) {
 
-        DefaultDockingManager toolsDockingManager = new DefaultDockingManager(Savant.getInstance(),canvas);
+        DefaultDockingManager toolsDockingManager = new DefaultDockingManager(Savant.getInstance(), canvas);
         canvas.setBackground(ColourSettings.getSplitter());
 
         toolsDockingManager.setInitSplitPriority(DockingManager.SPLIT_EAST_SOUTH_WEST_NORTH);
@@ -598,19 +599,17 @@ public class ToolsModule {
                     File destDir = DirectorySettings.getXMLToolDescriptionsDirectory();
                     try {
                         IOUtils.copyFile(selectedFile, new File(destDir, selectedFile.getName()));
-                        JOptionPane.showMessageDialog(Savant.getInstance(), "Installation of tool complete. Please restart Savant.");
+                        DialogUtils.displayMessage("Installation of tool complete. Please restart Savant.");
                     } catch (IOException iox) {
                         DialogUtils.displayException("Add Plugin", "Unable to add plugin " + selectedFile, iox);
                     }
                 }
                 break;
             case 2:
-                NewXMLToolDialog d = new NewXMLToolDialog(Savant.getInstance(), true);
+                NewXMLToolDialog d = new NewXMLToolDialog(DialogUtils.getMainWindow());
                 d.setVisible(true);
                 break;
         }
-
-        System.out.println("You chose option: " + n);
     }
 
     private static void updateThreadsList() {

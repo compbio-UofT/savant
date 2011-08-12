@@ -1,5 +1,5 @@
 /*
- *    Copyright 2009-2010 University of Toronto
+ *    Copyright 2009-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -13,13 +13,6 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-
-/*
- * BAMParametersDialog.java
- *
- * Created on Apr 20, 2010, 11:20:40 AM
- */
-
 package savant.view.dialog;
 
 import java.awt.*;
@@ -27,6 +20,7 @@ import javax.swing.ImageIcon;
 import savant.util.SAMReadUtils;
 import savant.view.swing.ImagePanel;
 import savant.view.swing.interval.BAMTrack;
+
 
 /**
  *
@@ -44,8 +38,8 @@ public class BAMParametersDialog extends javax.swing.JDialog {
     private boolean accepted  = true;
 
     /** Creates new form BAMParametersDialog */
-    public BAMParametersDialog(java.awt.Frame parent, boolean modal) {
-        super(parent, modal);
+    public BAMParametersDialog(Window parent) {
+        super(parent, Dialog.ModalityType.APPLICATION_MODAL);
         initComponents();
 
         Image i = new ImageIcon(getClass().getResource("/savant/images/reads_opposite.png")).getImage();
@@ -66,7 +60,6 @@ public class BAMParametersDialog extends javax.swing.JDialog {
         this.reads_same_container.setLayout(new BorderLayout());
         this.reads_same_container.add(ip, BorderLayout.CENTER);
 
-        this.setModal(modal);
         this.getRootPane().setDefaultButton(buttonOK);
         this.setLocationRelativeTo(parent);
         this.setVisible(false);

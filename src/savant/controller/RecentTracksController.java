@@ -39,7 +39,6 @@ import savant.controller.event.TrackEvent;
 import savant.settings.DirectorySettings;
 import savant.util.Listener;
 import savant.util.MiscUtils;
-import savant.view.swing.Savant;
 import savant.view.swing.Track;
 import savant.view.swing.interval.BAMCoverageTrack;
 
@@ -124,7 +123,7 @@ public class RecentTracksController {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     try {
-                        Savant.getInstance().addTrackFromPath(s);
+                        FrameController.getInstance().addTrackFromPath(s);
                     } catch (Exception ex) {
                         LOG.error("Unable to open file.", ex);
                         DialogUtils.displayError("Problem opening track from file " + s);

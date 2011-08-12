@@ -17,6 +17,9 @@
 package savant.controller;
 
 import java.beans.PropertyVetoException;
+import java.io.File;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,8 +28,10 @@ import org.apache.commons.logging.LogFactory;
 
 import savant.controller.event.LocationChangedEvent;
 import savant.controller.event.LocationChangedListener;
+import savant.view.swing.DockableFrameFactory;
 import savant.view.swing.Frame;
 import savant.view.swing.Track;
+import savant.view.swing.TrackFactory;
 
 
 /**
@@ -34,7 +39,7 @@ import savant.view.swing.Track;
  *
  * @author vwilliams
  */
-public class FrameController implements LocationChangedListener {
+public class FrameController {
     private static final Log LOG = LogFactory.getLog(FrameController.class);
 
     private static FrameController instance;
@@ -45,14 +50,60 @@ public class FrameController implements LocationChangedListener {
     public static synchronized FrameController getInstance() {
         if (instance == null) {
             instance = new FrameController();
-            locationController.addLocationChangedListener(instance);
         }
         return instance;
     }
 
+
     private FrameController() {
         frames = new ArrayList<Frame>();
+        locationController.addLocationChangedListener(new LocationChangedListener() {
+            /**
+             * Listen for RangeChangedEvents, which will cause all the frames to be drawn.
+             * This code used to be in Savant.java.
+             */
+
+            @Override
+            public void locationChanged(LocationChangedEvent event) {
+                drawFrames();
+            }
+        });
     }
+
+    /**
+     * Create a frame for the given tracks.
+     */
+    public Frame createFrame(Track[] tracks) {
+        Frame frame = DockableFrameFactory.createTrackFrame();
+        frame.setTracks(tracks);
+        return frame;
+    }
+
+
+    public Frame addTrackFromPath(String fileOrURI) {
+
+        URI uri = null;
+        try {
+            uri = new URI(fileOrURI);
+            if (uri.getScheme() == null) {
+                uri = new File(fileOrURI).toURI();
+            }
+        } catch (URISyntaxException usx) {
+            // This can happen if we're passed a file-name containing spaces.
+            uri = new File(fileOrURI).toURI();
+        }
+        return addTrackFromURI(uri);
+    }
+
+    public Frame addTrackFromURI(URI uri) {
+        LOG.info("Loading track " + uri);
+        Frame frame = DockableFrameFactory.createTrackFrame();
+        //Force a unique frame key. The title of frame is overwritten by track name later.
+        frame.setKey(uri.toString()+System.nanoTime());
+        TrackFactory.createTrack(uri, frame);
+        return frame;
+    }
+
 
     public void addFrame(Frame f) {
         frames.add(f);
@@ -110,15 +161,7 @@ public class FrameController implements LocationChangedListener {
         }
     }
 
-    public List<Frame> getFrames() { return frames; }
-
-    /**
-     * Listen for RangeChangedEvents, which will cause all the frames to be drawn.
-     * This code used to be in Savant.java.
-     */
-
-    @Override
-    public void locationChanged(LocationChangedEvent event) {
-        drawFrames();
+    public List<Frame> getFrames() {
+        return frames;
     }
 }

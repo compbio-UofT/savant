@@ -28,6 +28,7 @@ import org.apache.commons.logging.LogFactory;
 import savant.api.adapter.DataSourceAdapter;
 
 import savant.api.adapter.TrackAdapter;
+import savant.controller.FrameController;
 import savant.controller.TrackController;
 import savant.controller.event.TrackAddedListener;
 import savant.controller.event.TrackAddedOrRemovedEvent;
@@ -38,8 +39,8 @@ import savant.controller.event.TrackRemovedListener;
 import savant.data.sources.DataSource;
 import savant.file.DataFormat;
 import savant.util.Listener;
+import savant.view.swing.DockableFrameFactory;
 import savant.view.swing.Frame;
-import savant.view.swing.Savant;
 import savant.view.swing.TrackFactory;
 import savant.view.swing.Track;
 
@@ -85,7 +86,8 @@ public class TrackUtils {
         for (int i = 0; i < tracks.size(); i++) {
             myTracks[i] = (Track)tracks.get(i);
         }
-        Savant.getInstance().createFrameForExistingTrack(myTracks);
+        Frame f = DockableFrameFactory.createTrackFrame();
+        f.setTracks(myTracks);
     }
 
     /**
@@ -104,7 +106,7 @@ public class TrackUtils {
      * @throws IOException Exception opening the track at path
      */
     public static TrackAdapter[] createTrack(URI uri) throws Throwable {
-        Frame f = Savant.getInstance().addTrackFromURI(uri);
+        Frame f = FrameController.getInstance().addTrackFromURI(uri);
         return f.getTracks();
     }
 
@@ -116,7 +118,7 @@ public class TrackUtils {
      * @throws IOException Exception opening the track at path
      */
     public static TrackAdapter[] createTrack(File file) throws Throwable {
-        Frame f = Savant.getInstance().addTrackFromURI(file.toURI());
+        Frame f = FrameController.getInstance().addTrackFromURI(file.toURI());
         return f.getTracks();
     }
 

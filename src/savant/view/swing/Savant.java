@@ -123,45 +123,6 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
         pluginToolbarItem.setSelected(isVisible);
     }
 
-    public Frame addTrackFromPath(String fileOrURI) {
-
-        URI uri = null;
-        try {
-            uri = new URI(fileOrURI);
-            if (uri.getScheme() == null) {
-                uri = new File(fileOrURI).toURI();
-            }
-        } catch (URISyntaxException usx) {
-            // This can happen if we're passed a file-name containing spaces.
-            uri = new File(fileOrURI).toURI();
-        }
-        return addTrackFromURI(uri);
-    }
-
-    public Frame addTrackFromURI(URI uri) {
-        LOG.info("Loading track " + uri);
-        Frame frame = DockableFrameFactory.createTrackFrame();
-        //Force a unique frame key. The title of frame is overwritten by track name later.
-        frame.setKey(uri.toString()+System.nanoTime());
-        TrackFactory.createTrack(uri, frame);
-        addTrackFrame(frame);
-        return frame;
-    }
-
-    /**
-     * Create a frame for a track (or bundle of tracks) which already exists.
-     *
-     * @param tracks the tracks to be added to the frame
-     */
-    public Frame createFrameForExistingTrack(Track[] tracks) {
-        Frame frame = DockableFrameFactory.createTrackFrame();
-        frame.setTracks(tracks);
-        LOG.trace("Savant.createFrameForExistingTrack calling trackDockingManager.addFrame");
-        addTrackFrame(frame);
-        LOG.info("Frame created for track " + frame.getName());
-        return frame;
-    }
-
     /** == [[ DOCKING ]] ==
      *  Components (such as frames, the Task Pane, etc.)
      *  can be docked to regions of the UI
@@ -373,6 +334,32 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
             }
         });
 
+        TrackController.getInstance().addListener(new Listener<TrackEvent>() {
+
+            @Override
+            public void handleEvent(TrackEvent event) {
+                if (event.getType() == TrackEvent.Type.OPENED) {
+                    Frame f = event.getTrack().getFrame();
+                    if (startpage != null && startpage.isVisible()) {
+                        startpage.setVisible(false);
+                    }
+
+                    // remove bogus "#Workspace" frame
+                    List<FrameHandle> simpleFrames = getCleanedOrderedFrames(trackDockingManager);
+
+                    // the number of frames, currently
+                    int numframes = simpleFrames.size();
+
+                    trackDockingManager.addFrame(f);
+
+                    // move the frame to the bottom of the stack
+                    if (numframes != 0) {
+                        FrameHandle lastFrame = simpleFrames.get(0);
+                        trackDockingManager.moveFrame(f.getKey(), lastFrame.getKey(),DockContext.DOCK_SIDE_SOUTH);
+                    }
+                }
+            }
+        });
         s.setStatus("Initializing GUI");
 
         initComponents();       
@@ -1110,7 +1097,7 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
         File[] selectedFiles = DialogUtils.chooseFilesForOpen("Open Tracks", null, lastTrackDirectory);
         for (File f : selectedFiles) {
             // This creates the tracks asynchronously, which handles all exceptions internally.
-            addTrackFromPath(f.getAbsolutePath());
+            FrameController.getInstance().addTrackFromPath(f.getAbsolutePath());
         }
         if (selectedFiles.length > 0) {
             this.setLastTrackDirectory(selectedFiles[0].getParentFile());
@@ -1121,7 +1108,7 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
         URL url = OpenURLDialog.getURL(this);
         if (url != null) {
             try {
-                addTrackFromURI(url.toURI());
+                FrameController.getInstance().addTrackFromURI(url.toURI());
             } catch (URISyntaxException ignored) {
             }
         }
@@ -1287,8 +1274,7 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
         try {
             DataSourceAdapter s = DataSourcePluginDialog.getDataSource(this);
             if (s != null) {
-                Track t = TrackFactory.createTrack(s);
-                createFrameForExistingTrack(new Track[] { t });
+                FrameController.getInstance().createFrame(new Track[] { TrackFactory.createTrack(s) });
             }
         } catch (Exception x) {
             DialogUtils.displayException("Track Creation Failed", "Unable to create track.", x);
@@ -1300,7 +1286,7 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
     }//GEN-LAST:event_featureRequestItemActionPerformed
 
     private void bugReportItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bugReportItemActionPerformed
-        (new BugReportDialog(this,false)).setVisible(true);
+        (new BugReportDialog(this, "Bug Report", null)).setVisible(true);
     }//GEN-LAST:event_bugReportItemActionPerformed
 
     /**
@@ -1837,27 +1823,6 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
             showBookmarksChangedDialog = false;
         }
         //JOptionPane.showMessageDialog(this, , , JOptionPane.INFORMATION_MESSAGE);
-    }
-
-    private void addTrackFrame(savant.view.swing.Frame frame) {
-
-        if (startpage != null && startpage.isVisible()) {
-            startpage.setVisible(false);
-        }
-
-        // remove bogus "#Workspace" frame
-        List<FrameHandle> simpleFrames = getCleanedOrderedFrames(trackDockingManager);
-
-        // the number of frames, currently
-        int numframes = simpleFrames.size();
-
-        trackDockingManager.addFrame(frame);
-
-        // move the frame to the bottom of the stack
-        if (numframes != 0) {
-            FrameHandle lastFrame = simpleFrames.get(0);
-            trackDockingManager.moveFrame(frame.getKey(), lastFrame.getKey(),DockContext.DOCK_SIDE_SOUTH);
-        }
     }
 
     private List<FrameHandle> getCleanedOrderedFrames(DockingManager dm) {
