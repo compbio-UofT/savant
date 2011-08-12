@@ -244,4 +244,11 @@ public class BAMDataSource extends DataSource<BAMIntervalRecord> {
     public final String[] getColumnNames() {
         return new String[] { "Read Name", "Sequence", "Length", "First of Pair", "Position", "Strand +", "Mapping Quality", "Base Qualities", "CIGAR", "Mate Position", "Strand +", "Inferred Insert Size" };
     }
+
+    /**
+     * For use by the Data Table plugin, which needs to know the header for export purposes.
+     */
+    public SAMFileHeader getHeader() {
+        return samFileHeader;
+    }
 }

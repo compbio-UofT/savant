@@ -28,8 +28,10 @@ import org.apache.commons.logging.LogFactory;
 import savant.api.adapter.DataSourceAdapter;
 
 import savant.api.adapter.TrackAdapter;
+import savant.controller.Listener;
 import savant.controller.TrackController;
 import savant.controller.event.TrackAddedListener;
+import savant.controller.event.TrackEvent;
 import savant.controller.event.TrackListChangedListener;
 import savant.controller.event.TrackRemovedListener;
 import savant.data.sources.DataSource;
@@ -143,9 +145,28 @@ public class TrackUtils {
     }
 
     /**
+     * Register a listener to be notified of tracks being added, removed, or opened.
+     * @param l the listener to receive notifications
+     * @since 1.6.0
+     */
+    public static synchronized void addTrackListener(Listener<TrackEvent> l) {
+        trackController.addListener(l);
+    }
+
+    /**
+     * Remove a track event listener.
+     * @param l the listener to be removed
+     */
+    public static synchronized void removeTrackListener(Listener<TrackEvent> l) {
+        trackController.removeListener(l);
+    }
+
+
+    /**
      * Subscribe a listener to be notified when the track list changes
      *
      * @param l The listener to subscribe
+     * @deprecated Use addTrackListener instead
      */
     public static synchronized void addTracksChangedListener(TrackListChangedListener l) {
         trackController.addTrackListChangedListener(l);
@@ -154,6 +175,7 @@ public class TrackUtils {
     /**
      * Unsubscribe a listener from being notified when the track list changes
      * @param l The listener to unsubscribe
+     * @deprecated Use removeTrackListener instead
      */
     public static synchronized void removeTracksChangedListener(TrackListChangedListener l) {
         trackController.removeTrackListChangedListener(l);
@@ -162,6 +184,7 @@ public class TrackUtils {
     /**
      * Subscribe a listener to be notified when a track is added
      * @param l The listener to subscribe
+     * @deprecated Use addTrackListener instead
      */
     public static synchronized void addTrackAddedListener(TrackAddedListener l) {
         trackController.addTrackAddedListener(l);
@@ -170,6 +193,7 @@ public class TrackUtils {
     /**
      * Unsubscribe a listener from being notified when a track is added
      * @param l The listener to unsubscribe
+     * @deprecated Use removeTrackListener instead
      */
     public static synchronized void removeTrackAddedListener(TrackAddedListener l) {
         trackController.removeTrackAddedListener(l);
@@ -178,6 +202,7 @@ public class TrackUtils {
     /**
      * Subscribe a listener to be notified when a track is removed
      * @param l The listener to subscribe
+     * @deprecated Use addTrackListener instead
      */
     public static synchronized void addTrackRemovedListener(TrackRemovedListener l) {
         trackController.addTrackRemovedListener(l);
@@ -186,6 +211,7 @@ public class TrackUtils {
     /**
      * Unsubscribe a listener from being notified when a track is removed
      * @param l The listener to unsubscribe
+     * @deprecated Use removeTrackListener instead
      */
     public static synchronized void removeTrackRemovedListener(TrackRemovedListener l) {
         trackController.removeTrackRemovedListener(l);

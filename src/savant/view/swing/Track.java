@@ -383,8 +383,10 @@ public abstract class Track implements TrackAdapter {
      * thread so it doesn't need to use invokeLater.
      */
     private void fireDataRetrievalStarted() {
-        for (DataRetrievalListener l: listeners) {
-            l.dataRetrievalStarted(new DataRetrievalEvent());
+        synchronized (listeners) {
+            for (DataRetrievalListener l: listeners) {
+                l.dataRetrievalStarted(new DataRetrievalEvent());
+            }
         }
     }
 
@@ -396,8 +398,10 @@ public abstract class Track implements TrackAdapter {
         MiscUtils.invokeLaterIfNecessary(new Runnable() {
             @Override
             public void run() {
-                for (DataRetrievalListener l: listeners) {
-                    l.dataRetrievalCompleted(new DataRetrievalEvent(dataInRange));
+                synchronized (listeners) {
+                    for (DataRetrievalListener l: listeners) {
+                        l.dataRetrievalCompleted(new DataRetrievalEvent(dataInRange));
+                    }
                 }
             }
         });
