@@ -35,6 +35,7 @@ import java.util.Set;
 import javax.swing.*;
 import javax.swing.border.LineBorder;
 import javax.swing.filechooser.FileFilter;
+
 import com.jidesoft.swing.JideTabbedPane;
 import com.jidesoft.docking.DefaultDockingManager;
 import com.jidesoft.docking.DockContext;
@@ -58,16 +59,16 @@ import savant.controller.event.LocationChangeCompletedListener;
 import savant.controller.event.LocationChangedEvent;
 import savant.controller.event.ThreadActivityChangedEvent;
 import savant.controller.event.ThreadActivityChangedListener;
-import savant.controller.event.TrackListChangedEvent;
-import savant.controller.event.TrackListChangedListener;
+import savant.controller.event.TrackEvent;
 import savant.experimental.PluginTool;
 import savant.experimental.Tool;
 import savant.experimental.XMLTool;
-import savant.util.MiscUtils;
-import savant.view.icon.SavantIconFactory;
 import savant.settings.ColourSettings;
 import savant.settings.DirectorySettings;
 import savant.util.IOUtils;
+import savant.util.Listener;
+import savant.util.MiscUtils;
+import savant.view.icon.SavantIconFactory;
 import savant.view.dialog.NewXMLToolDialog;
 import savant.view.dialog.PluginManagerDialog;
 import savant.view.swing.DockableFrameFactory;
@@ -77,7 +78,7 @@ import savant.view.swing.Savant;
  *
  * @author mfiume
  */
-public class ToolsModule implements BookmarksChangedListener, LocationChangeCompletedListener, TrackListChangedListener, ThreadActivityChangedListener {
+public class ToolsModule {
 
     private static Map<String, List<Tool>> organizeToolsByCategory(List<Tool> tools) {
 
@@ -104,12 +105,6 @@ public class ToolsModule implements BookmarksChangedListener, LocationChangeComp
         //updateThreadsList();
     }
 
-    @Override
-    public void bookmarksChanged(BookmarksChangedEvent event) {
-        runTools(toolsSubscribedToBookmarksChangeEvent);
-    }
-
-
     /*
     @Override
     public void rangeChangeReceived(RangeChangedEvent event) {
@@ -117,22 +112,6 @@ public class ToolsModule implements BookmarksChangedListener, LocationChangeComp
     }
      * 
      */
-
-    @Override
-    public void trackListChanged(TrackListChangedEvent event) {
-        runTools(toolsSubscribedToTrackListChangeEvent);
-    }
-
-    @Override
-    public void threadActivityChanged(ThreadActivityChangedEvent event) {
-        //System.out.println("Tools module was notified of thread status change to " + event.getActivity());
-        updateThreadsList();
-    }
-
-    @Override
-    public void locationChangeCompleted(LocationChangedEvent event) {
-        runTools(toolsSubscribedToRangeChangeEvent);
-    }
 
     public enum STANDARD_CATEGORIES { Analyze, Convert, Format };
 
@@ -185,10 +164,31 @@ public class ToolsModule implements BookmarksChangedListener, LocationChangeComp
     }
 
     private void subscribeToEvents() {
-        BookmarkController.getInstance().addBookmarksChangedListener(this);
-        LocationController.getInstance().addLocationChangeCompletedListener(this);
-        TrackController.getInstance().addTrackListChangedListener(this);
-        ThreadController.getInstance().addThreadActivityListener(this);
+        BookmarkController.getInstance().addBookmarksChangedListener(new BookmarksChangedListener() {
+            @Override
+            public void bookmarksChanged(BookmarksChangedEvent event) {
+                runTools(toolsSubscribedToBookmarksChangeEvent);
+            }
+        });
+        LocationController.getInstance().addLocationChangeCompletedListener(new LocationChangeCompletedListener() {
+            @Override
+            public void locationChangeCompleted(LocationChangedEvent event) {
+                runTools(toolsSubscribedToRangeChangeEvent);
+            }
+        });
+        TrackController.getInstance().addListener(new Listener<TrackEvent>() {
+            @Override
+            public void handleEvent(TrackEvent event) {
+                runTools(toolsSubscribedToTrackListChangeEvent);
+            }
+        });
+        ThreadController.getInstance().addThreadActivityListener(new ThreadActivityChangedListener() {
+            @Override
+            public void threadActivityChanged(ThreadActivityChangedEvent event) {
+                //System.out.println("Tools module was notified of thread status change to " + event.getActivity());
+                updateThreadsList();
+            }
+        });
     }
 
     public static void addTool(Tool plugin) {

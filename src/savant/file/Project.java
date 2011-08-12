@@ -34,6 +34,7 @@ import savant.data.types.Genome;
 import savant.data.types.Genome.ReferenceInfo;
 import savant.exception.SavantEmptySessionException;
 import savant.util.Bookmark;
+import savant.util.Listener;
 import savant.util.MiscUtils;
 import savant.util.Range;
 import savant.view.swing.Savant;

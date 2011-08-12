@@ -63,6 +63,7 @@ import savant.plugin.builtin.SAFEDataSourcePlugin;
 import savant.plugin.builtin.SavantFileRepositoryDataSourcePlugin;
 import savant.settings.*;
 import savant.swing.component.TrackChooser;
+import savant.util.Listener;
 import savant.util.MiscUtils;
 import savant.util.Version;
 import savant.view.dialog.*;

@@ -29,10 +29,10 @@ import savant.api.adapter.TrackAdapter;
 import savant.api.util.NavigationUtils;
 import savant.api.util.SettingsUtils;
 import savant.api.util.TrackUtils;
-import savant.controller.Listener;
 import savant.controller.event.TrackEvent;
 import savant.file.DataFormat;
 import savant.plugin.SavantPanelPlugin;
+import savant.util.Listener;
 
 
 /**
@@ -102,7 +102,7 @@ public class AminoPlugin extends SavantPanelPlugin {
 
 
     /**
-     * Just as a simple example of the settings API, the plugin stores the desired text colour in the savant.settings file.
+     * Just as a simple example of the settings API, the plugin retrieves the desired text colour from the savant.settings file.
      */
     public Color getLabelColour() {
         return SettingsUtils.getColour(this, "LABEL", Color.GRAY);

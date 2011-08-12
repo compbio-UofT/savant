@@ -37,8 +37,6 @@ import savant.api.adapter.TrackAdapter;
 import savant.api.util.DialogUtils;
 import savant.controller.LocationController;
 import savant.controller.TrackController;
-import savant.controller.event.TrackAddedOrRemovedEvent;
-import savant.controller.event.TrackRemovedListener;
 import savant.data.sources.FASTADataSource;
 import savant.settings.BrowserSettings;
 import savant.util.IOUtils;
@@ -103,9 +101,7 @@ public final class Genome implements Serializable, GenomeAdapter {
     }
 
     /**
-     * Construct a user-defined genome.  We don't believe that this functionality is actually in use,
-     * so it may be eliminated.
-     * @deprecated
+     * Construct a user-defined genome with a given length.  Has proved to be useful in certain situations.
      */
     public Genome(String name, int length) {
         this.name = "user defined";

@@ -25,7 +25,6 @@ import java.awt.BorderLayout;
 import java.awt.Dialog;
 import java.awt.Window;
 import java.io.File;
-import java.net.URL;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
@@ -35,12 +34,12 @@ import org.apache.commons.logging.LogFactory;
 
 import savant.api.util.DialogUtils;
 import savant.controller.PluginController;
-import savant.net.DownloadFile;
 import savant.settings.BrowserSettings;
 import savant.settings.DirectorySettings;
 import savant.util.MiscUtils;
+import savant.util.NetworkUtils;
 import savant.view.dialog.tree.PluginRepositoryDialog;
-import savant.view.swing.Savant;
+
 
 /**
  *
@@ -57,7 +56,7 @@ public class PluginManagerDialog extends JDialog {
 
     public static PluginManagerDialog getInstance() {
         if (instance == null) {
-            instance = new PluginManagerDialog(Savant.getInstance());
+            instance = new PluginManagerDialog(DialogUtils.getMainWindow());
         }
         return instance;
     }
@@ -171,7 +170,7 @@ public class PluginManagerDialog extends JDialog {
     private void fromRepositoryButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fromRepositoryButtonActionPerformed
         try {
             if (repositoryBrowser == null) {
-                File file = DownloadFile.downloadFile(BrowserSettings.PLUGIN_URL, DirectorySettings.getTmpDirectory());
+                File file = NetworkUtils.downloadFile(BrowserSettings.PLUGIN_URL, DirectorySettings.getTmpDirectory());
                 repositoryBrowser = new PluginRepositoryDialog(this, "Install Plugins", "Install", file);
             }
             repositoryBrowser.setVisible(true);

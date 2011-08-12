@@ -26,6 +26,7 @@ import savant.controller.event.GraphPaneEvent;
 import savant.data.event.PopupEvent;
 import savant.data.event.PopupEventListener;
 import savant.selection.PopupPanel;
+import savant.util.Controller;
 import savant.util.Range;
 import savant.view.swing.GraphPane;
 

@@ -32,7 +32,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import savant.controller.GraphPaneController;
-import savant.controller.Listener;
 import savant.controller.LocationController;
 import savant.controller.event.GraphPaneEvent;
 import savant.data.event.ExportEvent;

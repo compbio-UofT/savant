@@ -33,11 +33,12 @@ import savant.controller.event.BookmarksChangedListener;
 import savant.controller.event.ProjectEvent;
 import savant.controller.event.LocationChangedEvent;
 import savant.controller.event.LocationChangedListener;
-import savant.controller.event.TrackListChangedEvent;
-import savant.controller.event.TrackListChangedListener;
+import savant.controller.event.TrackEvent;
 import savant.data.types.Genome;
 import savant.file.Project;
 import savant.settings.DirectorySettings;
+import savant.util.Controller;
+import savant.util.Listener;
 import savant.util.MiscUtils;
 
 
@@ -45,8 +46,9 @@ import savant.util.MiscUtils;
  *
  * @author mfiume, tarkvara
  */
-public class ProjectController extends Controller implements BookmarksChangedListener, LocationChangedListener, TrackListChangedListener {
+public class ProjectController extends Controller {
     private static final Log LOG = LogFactory.getLog(ProjectController.class);
+
     private static final FileFilter PROJECT_FILTER = new FileFilter() {
         @Override
         public boolean accept(File f) {
@@ -77,14 +79,32 @@ public class ProjectController extends Controller implements BookmarksChangedLis
     public static ProjectController getInstance() {
         if (instance == null) {
             instance = new ProjectController();
-            BookmarkController.getInstance().addBookmarksChangedListener(instance);
-            LocationController.getInstance().addLocationChangedListener(instance);
-            TrackController.getInstance().addTrackListChangedListener(instance);
         }
         return instance;
     }
 
     private ProjectController() {
+        // Set up listeners so that when the project's state changes, we know that we have something to save.
+        BookmarkController.getInstance().addBookmarksChangedListener(new BookmarksChangedListener() {
+            @Override
+            public void bookmarksChanged(BookmarksChangedEvent event) {
+                setProjectSaved(false);
+            }
+        });
+        LocationController.getInstance().addLocationChangedListener(new LocationChangedListener() {
+            @Override
+            public void locationChanged(LocationChangedEvent event) {
+                setProjectSaved(false);
+            }
+        });
+        TrackController.getInstance().addListener(new Listener<TrackEvent>() {
+            @Override
+            public void handleEvent(TrackEvent event) {
+                if (event.getType() == TrackEvent.Type.ADDED || event.getType() == TrackEvent.Type.REMOVED) {
+                    setProjectSaved(false);
+                }
+            }
+        });
     }
 
     public void clearExistingProject() {
@@ -121,16 +141,6 @@ public class ProjectController extends Controller implements BookmarksChangedLis
             projectSaved = saved;
             fireEvent(new ProjectEvent(saved ? ProjectEvent.Type.SAVED : ProjectEvent.Type.UNSAVED, getCurrentFile()));
         }
-    }
-
-    @Override
-    public void trackListChanged(TrackListChangedEvent event) {
-//        setProjectSaved(false);
-    }
-
-    @Override
-    public void bookmarksChanged(BookmarksChangedEvent event) {
-        setProjectSaved(false);
     }
 
     public void promptToLoadProject() throws Exception {
@@ -234,10 +244,5 @@ public class ProjectController extends Controller implements BookmarksChangedLis
             proj.load();
             setProjectSaved(true);
         }
-    }
-
-    @Override
-    public void locationChanged(LocationChangedEvent event) {
-        setProjectSaved(false);
     }
 }

@@ -111,10 +111,12 @@ public class PluginRepositoryDialog extends JDialog {
             // When the download is complete, we hide the dialog.  This makes its
             // behaviour more parallel to Install from File.
             setVisible(false);
-            try {
-                PluginController.getInstance().installPlugin(dd.getDownloadedFile());
-            } catch (Throwable x) {
-                DialogUtils.displayException("Installation Error", String.format("<html>Unable to install <i>%s</i>: %s.</html>", dd.getDownloadedFile().getName(), x), x);
+            if (dd.getDownloadedFile() != null) {
+                try {
+                    PluginController.getInstance().installPlugin(dd.getDownloadedFile());
+                } catch (Throwable x) {
+                    DialogUtils.displayException("Installation Error", String.format("<html>Unable to install <i>%s</i>: %s.</html>", dd.getDownloadedFile().getName(), x), x);
+                }
             }
         } else {
             if (!ignoreBranchSelected) {

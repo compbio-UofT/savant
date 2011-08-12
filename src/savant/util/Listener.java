@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 
-package savant.controller;
+package savant.util;
 
 /**
  * Generic event-listener class so that we don't have to write a new class for every

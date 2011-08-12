@@ -22,7 +22,6 @@ import java.awt.font.TextAttribute;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
-import java.net.URL;
 import java.text.BreakIterator;
 import java.util.List;
 import javax.swing.*;
@@ -45,7 +44,7 @@ import savant.settings.BrowserSettings;
 import savant.settings.DirectorySettings;
 import savant.settings.PersistentSettings;
 import savant.swing.component.HyperlinkButton;
-import savant.net.DownloadFile;
+import savant.util.NetworkUtils;
 import savant.view.icon.SavantIconFactory;
 import savant.view.swing.Savant;
 
@@ -347,7 +346,7 @@ public class StartPanel extends JPanel {
         p.setOpaque(false);
 
         try {
-            File newsFile = DownloadFile.downloadFile(BrowserSettings.NEWS_URL, DirectorySettings.getTmpDirectory());
+            File newsFile = NetworkUtils.downloadFile(BrowserSettings.NEWS_URL, DirectorySettings.getTmpDirectory());
             p = parseNewsFile(newsFile);
             if (newsFile.exists()) { newsFile.delete(); }
 

@@ -12,6 +12,8 @@ import org.apache.commons.logging.LogFactory;
 import savant.controller.event.GenomeChangedEvent;
 import savant.controller.event.TrackEvent;
 import savant.data.types.Genome;
+import savant.util.Controller;
+import savant.util.Listener;
 import savant.view.swing.Frame;
 import savant.view.swing.sequence.SequenceTrack;
 

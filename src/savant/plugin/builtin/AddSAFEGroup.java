@@ -25,7 +25,7 @@ import org.apache.commons.logging.LogFactory;
 
 import savant.api.util.DialogUtils;
 import savant.settings.BrowserSettings;
-import savant.net.DownloadFile;
+import savant.util.NetworkUtils;
 
 
 /**
@@ -132,7 +132,7 @@ public class AddSAFEGroup extends javax.swing.JDialog {
         try {
             String n = nameField.getText();
             String d = descriptionField.getText();
-            String result = DownloadFile.downloadFile(new URL(BrowserSettings.SAFE_URL + "?"
+            String result = NetworkUtils.downloadFile(new URL(BrowserSettings.SAFE_URL + "?"
                     + "type=addgroup"
                     + "&username=" + URLEncoder.encode(username, "UTF-8")
                     + "&password=" + URLEncoder.encode(password, "UTF-8")

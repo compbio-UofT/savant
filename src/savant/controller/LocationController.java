@@ -32,6 +32,7 @@ import savant.controller.event.LocationChangedEvent;
 import savant.controller.event.LocationChangedListener;
 import savant.data.types.Genome;
 import savant.settings.BrowserSettings;
+import savant.util.Listener;
 import savant.util.Range;
 
 

@@ -36,7 +36,6 @@ import org.apache.commons.logging.LogFactory;
 import savant.api.util.DialogUtils;
 import savant.controller.event.PluginEvent;
 import savant.experimental.PluginTool;
-import savant.net.DownloadFile;
 import savant.plugin.PluginDescriptor;
 import savant.plugin.PluginIndex;
 import savant.plugin.PluginVersionException;
@@ -45,8 +44,10 @@ import savant.plugin.SavantPanelPlugin;
 import savant.plugin.SavantPlugin;
 import savant.settings.BrowserSettings;
 import savant.settings.DirectorySettings;
+import savant.util.Controller;
 import savant.util.IOUtils;
 import savant.util.MiscUtils;
+import savant.util.NetworkUtils;
 import savant.view.tools.ToolsModule;
 
 /**
@@ -337,7 +338,7 @@ public class PluginController extends Controller {
     public PluginDescriptor addPlugin(File f) throws PluginVersionException {
         PluginDescriptor desc = PluginDescriptor.fromFile(f);
         if (desc != null) {
-            LOG.info("Found possible " + desc + " in " + f.getName());
+            LOG.info("Found compatible " + desc + " in " + f.getName());
             PluginDescriptor existingDesc = knownPlugins.get(desc.getID());
             if (existingDesc != null && existingDesc.getVersion().compareTo(desc.getVersion()) >= 0) {
                 LOG.info("   Ignored " + desc + " due to presence of existing " + existingDesc);
@@ -378,7 +379,7 @@ public class PluginController extends Controller {
             URL updateURL = repositoryIndex.getPluginURL(id);
             if (updateURL != null) {
                 LOG.info("Downloading updated version of " + id + " from " + updateURL);
-                addPlugin(DownloadFile.downloadFile(updateURL, DirectorySettings.getPluginsDirectory()));
+                addPlugin(NetworkUtils.downloadFile(updateURL, DirectorySettings.getPluginsDirectory()));
                 return true;
             }
         } catch (IOException x) {

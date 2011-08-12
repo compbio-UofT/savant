@@ -37,10 +37,10 @@ import com.jidesoft.grid.HierarchicalTableModel;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import savant.controller.Listener;
 import savant.controller.PluginController;
 import savant.controller.event.PluginEvent;
 import savant.plugin.PluginDescriptor;
+import savant.util.Listener;
 
 
 /**

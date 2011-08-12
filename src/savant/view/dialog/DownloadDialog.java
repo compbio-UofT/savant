@@ -23,25 +23,19 @@ import java.awt.event.WindowEvent;
 import java.io.File;
 import java.net.URL;
 import javax.swing.JDialog;
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
-import javax.swing.JProgressBar;
 import javax.swing.WindowConstants;
 
 import savant.api.util.DialogUtils;
-import savant.net.DownloadEvent;
-import savant.net.DownloadFile;
-import savant.net.DownloadMonitor;
+import savant.util.DownloadEvent;
+import savant.util.DownloadMonitor;
 import savant.util.MiscUtils;
+import savant.util.NetworkUtils;
 
 /**
  *
- * @author mfiume
+ * @author mfiume, tarkvara
  */
 public class DownloadDialog extends JDialog implements DownloadMonitor {
-
-    @Deprecated
-    private Thread t;
 
     private boolean complete;
     private boolean cancelled;
@@ -50,20 +44,14 @@ public class DownloadDialog extends JDialog implements DownloadMonitor {
     /** Successfully downloaded file (or null on failure). */
     private File downloadedFile;
 
-    @Deprecated
-    public DownloadDialog(JFrame parent, boolean modal, Thread t) {
-        this(parent, modal);
-        this.t = t;
-    }
-
     public DownloadDialog(Window parent, boolean modal) {
         super(parent, modal ? Dialog.ModalityType.APPLICATION_MODAL : Dialog.ModalityType.MODELESS);
         initComponents();
         setLocationRelativeTo(parent);
 
-        this.setAlwaysOnTop(true);
-        this.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
-        this.addWindowListener(new WindowAdapter() {
+        setAlwaysOnTop(true);
+        setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+        addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
                 askToDispose();
@@ -167,52 +155,20 @@ public class DownloadDialog extends JDialog implements DownloadMonitor {
     private javax.swing.JLabel stageLabel;
     // End of variables declaration//GEN-END:variables
 
-    @Deprecated
-    public void setProgress(int i) {
-        progressBar.setValue(i);
-    }
-
-    @Deprecated
-    public JProgressBar getProgressBar() {
-        return progressBar;
-    }
-
-    @Deprecated
-    public void setSource(String arg) {
-        setTitle("Downloading " + arg);
-        fileLabel.setText(arg);
-    }
-
-    @Deprecated
-    public void setDestination(File arg) {
-        destinationLabel.setText(arg.getPath());
-    }
-
-    @Deprecated
-    public void setAmountDownloaded(String string) {
-        stageLabel.setText(string);
-    }
-
     private void askToDispose() {
         if (!complete) {
-            int result = JOptionPane.showConfirmDialog(this, "Are you sure you want to cancel?", "Cancel download", JOptionPane.YES_NO_OPTION);
-            if (result == JOptionPane.YES_OPTION) {
-                t.interrupt();
-                this.dispose();
+            int result = DialogUtils.askYesNo("Cancel Download", "Are you sure you want to cancel?");
+            if (result == DialogUtils.YES) {
+                try {
+                    downloadedFile.delete();
+                } catch (Exception ignored) {
+                }
+                downloadedFile = null;
+                dispose();
             }
         } else {
-            this.dispose();
+            dispose();
         }
-    }
-
-    @Deprecated
-    public void setComplete() {
-        stageLabel.setText("Download Complete");
-        progressBar.setValue(100);
-        cancelButton.setText("Close");
-        complete = true;
-        dispose();
-        DialogUtils.displayMessage("Download complete", "Download finished successfully.");
     }
 
     /**
@@ -224,7 +180,7 @@ public class DownloadDialog extends JDialog implements DownloadMonitor {
         fileLabel.setText(url.toString());
         destinationLabel.setText(destDir.getPath());
         downloadedFile = new File(destDir, shortName);
-        DownloadFile.downloadFile(url, destDir, this);
+        NetworkUtils.downloadFile(url, destDir, this);
         setVisible(true);
     }
 
@@ -249,6 +205,7 @@ public class DownloadDialog extends JDialog implements DownloadMonitor {
             case PROGRESS:
                 int progress = (int)(event.getProgress() * 100.0);
                 stageLabel.setText(String.format("Downloaded %d%%",  progress));
+                progressBar.setValue(progress);
                 break;
             case COMPLETED:
                 dispose();

@@ -43,10 +43,11 @@ import org.jdom.input.SAXBuilder;
 
 import savant.api.adapter.DataSourceAdapter;
 import savant.api.util.DialogUtils;
+import savant.settings.BrowserSettings;
+import savant.settings.DirectorySettings;
+import savant.util.NetworkUtils;
 import savant.view.dialog.tree.TreeBrowserModel;
 import savant.view.dialog.tree.TreeBrowserEntry;
-import savant.settings.BrowserSettings;
-import savant.net.DownloadFile;
 import savant.view.swing.Savant;
 import savant.view.swing.TrackFactory;
 
@@ -177,7 +178,7 @@ public class SAFEBrowser extends JDialog {
         safeCard.removeAll();
         safeCard.setLayout(new BorderLayout());
 
-        File f = DownloadFile.downloadFile(new URL(BrowserSettings.SAFE_URL + "?type=list&username=" + username + "&password=" + password), new File(System.getProperty("java.io.tmpdir")));
+        File f = NetworkUtils.downloadFile(new URL(BrowserSettings.SAFE_URL + "?type=list&username=" + username + "&password=" + password), DirectorySettings.getTmpDirectory());
 
         if (!wereCredentialsValid(f)) {
             DialogUtils.displayMessage("Login failed.");

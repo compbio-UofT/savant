@@ -28,14 +28,16 @@ import org.apache.commons.logging.LogFactory;
 import savant.api.adapter.DataSourceAdapter;
 
 import savant.api.adapter.TrackAdapter;
-import savant.controller.Listener;
 import savant.controller.TrackController;
 import savant.controller.event.TrackAddedListener;
+import savant.controller.event.TrackAddedOrRemovedEvent;
 import savant.controller.event.TrackEvent;
+import savant.controller.event.TrackListChangedEvent;
 import savant.controller.event.TrackListChangedListener;
 import savant.controller.event.TrackRemovedListener;
 import savant.data.sources.DataSource;
 import savant.file.DataFormat;
+import savant.util.Listener;
 import savant.view.swing.Frame;
 import savant.view.swing.Savant;
 import savant.view.swing.TrackFactory;
@@ -168,8 +170,15 @@ public class TrackUtils {
      * @param l The listener to subscribe
      * @deprecated Use addTrackListener instead
      */
-    public static synchronized void addTracksChangedListener(TrackListChangedListener l) {
-        trackController.addTrackListChangedListener(l);
+    public static synchronized void addTracksChangedListener(final TrackListChangedListener l) {
+        trackController.addListener(new Listener<TrackEvent>() {
+            @Override
+            public void handleEvent(TrackEvent event) {
+                if (event.getType() == TrackEvent.Type.ADDED || event.getType() == TrackEvent.Type.REMOVED) {
+                    l.trackListChanged(new TrackListChangedEvent(event, Arrays.asList(getTracks())));
+                }
+            }
+        });
     }
 
     /**
@@ -178,7 +187,7 @@ public class TrackUtils {
      * @deprecated Use removeTrackListener instead
      */
     public static synchronized void removeTracksChangedListener(TrackListChangedListener l) {
-        trackController.removeTrackListChangedListener(l);
+        throw new UnsupportedOperationException("TrackUtils.removeTracksChangedListener no longer supported.  Use removeTrackListener instead.");
     }
 
     /**
@@ -186,17 +195,24 @@ public class TrackUtils {
      * @param l The listener to subscribe
      * @deprecated Use addTrackListener instead
      */
-    public static synchronized void addTrackAddedListener(TrackAddedListener l) {
-        trackController.addTrackAddedListener(l);
+    public static synchronized void addTrackAddedListener(final TrackAddedListener l) {
+        trackController.addListener(new Listener<TrackEvent>() {
+            @Override
+            public void handleEvent(TrackEvent event) {
+                if (event.getType() == TrackEvent.Type.ADDED) {
+                    l.trackAdded(new TrackAddedOrRemovedEvent(event.getTrack()));
+                }
+            }
+        });
     }
 
     /**
-     * Unsubscribe a listener from being notified when a track is added
+     * Unsubscribe a listener from being notified when a track is added.
      * @param l The listener to unsubscribe
      * @deprecated Use removeTrackListener instead
      */
     public static synchronized void removeTrackAddedListener(TrackAddedListener l) {
-        trackController.removeTrackAddedListener(l);
+        throw new UnsupportedOperationException("TrackUtils.removeTrackAddedListener no longer supported.  Use removeTrackListener instead.");
     }
 
     /**
@@ -204,8 +220,15 @@ public class TrackUtils {
      * @param l The listener to subscribe
      * @deprecated Use addTrackListener instead
      */
-    public static synchronized void addTrackRemovedListener(TrackRemovedListener l) {
-        trackController.addTrackRemovedListener(l);
+    public static synchronized void addTrackRemovedListener(final TrackRemovedListener l) {
+        trackController.addListener(new Listener<TrackEvent>() {
+            @Override
+            public void handleEvent(TrackEvent event) {
+                if (event.getType() == TrackEvent.Type.REMOVED) {
+                    l.trackRemoved(new TrackAddedOrRemovedEvent(event.getTrack()));
+                }
+            }
+        });
     }
 
     /**
@@ -214,11 +237,12 @@ public class TrackUtils {
      * @deprecated Use removeTrackListener instead
      */
     public static synchronized void removeTrackRemovedListener(TrackRemovedListener l) {
-        trackController.removeTrackRemovedListener(l);
+        throw new UnsupportedOperationException("TrackUtils.removeTrackRemovedListener no longer supported.  Use removeTrackListener instead.");
     }
 
     /**
-     * Get a track
+     * Get a track by name.
+     *
      * @param trackname Name of the track to get
      * @return The track with the specified name, null if none
      */

@@ -14,7 +14,7 @@
  *    limitations under the License.
  */
 
-package savant.controller;
+package savant.util;
 
 import java.util.ArrayList;
 import java.util.List;

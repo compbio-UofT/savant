@@ -19,13 +19,9 @@ package savant.controller;
 import java.util.ArrayList;
 import java.util.List;
 
-import savant.controller.event.TrackAddedListener;
-import savant.controller.event.TrackAddedOrRemovedEvent;
 import savant.controller.event.TrackEvent;
-import savant.controller.event.TrackListChangedEvent;
-import savant.controller.event.TrackListChangedListener;
-import savant.controller.event.TrackRemovedListener;
 import savant.file.DataFormat;
+import savant.util.Controller;
 import savant.view.swing.Savant;
 import savant.view.swing.Track;
 
@@ -40,11 +36,6 @@ public class TrackController extends Controller<TrackEvent> {
 
     List<Track> tracks;
 
-    /** Tracks Changed Listeners */
-    private List<TrackListChangedListener> trackListChangedListeners;
-    private List<TrackAddedListener> trackAddedListeners;
-    private List<TrackRemovedListener> trackRemovedListeners;
-
     public static synchronized TrackController getInstance() {
         if (instance == null) {
             instance = new TrackController();
@@ -53,9 +44,6 @@ public class TrackController extends Controller<TrackEvent> {
     }
 
     private TrackController() {
-        trackListChangedListeners = new ArrayList<TrackListChangedListener>();
-        trackAddedListeners = new ArrayList<TrackAddedListener>();
-        trackRemovedListeners = new ArrayList<TrackRemovedListener>();
         tracks = new ArrayList<Track>();
     }
 
@@ -83,8 +71,6 @@ public class TrackController extends Controller<TrackEvent> {
     public void addTrack(Track t) {
         tracks.add(t);
         fireEvent(new TrackEvent(TrackEvent.Type.ADDED, t));
-        fireTrackAddedEvent(t); // For backwards compatibility.
-        fireTrackListChangedEvent();
     }
 
     /**
@@ -102,84 +88,9 @@ public class TrackController extends Controller<TrackEvent> {
         return tracksOfKind;
     }
 
-    /**
-     * Fire the RangeChangedEvent
-     * @deprecated
-     */
-    private synchronized void fireTrackListChangedEvent() {
-        TrackListChangedEvent evt = new TrackListChangedEvent(this, this.tracks);
-        for (TrackListChangedListener l: trackListChangedListeners) {
-            l.trackListChanged(evt);
-        }
-    }
-
-    /**
-     * @deprecated
-     */
-    public synchronized void addTrackListChangedListener(TrackListChangedListener l) {
-        trackListChangedListeners.add(l);
-    }
-
-    /**
-     * @deprecated
-     */
-    public synchronized void removeTrackListChangedListener(TrackListChangedListener l) {
-        trackListChangedListeners.remove(l);
-    }
-
-    /**
-     * @deprecated
-     */
-    private synchronized void fireTrackRemovedEvent(Track track) {
-        TrackAddedOrRemovedEvent evt = new TrackAddedOrRemovedEvent(track);
-        for (TrackRemovedListener l: trackRemovedListeners) {
-            l.trackRemoved(evt);
-        }
-    }
-
-    /**
-     * @deprecated
-     */
-    public synchronized void addTrackRemovedListener(TrackRemovedListener l) {
-        trackRemovedListeners.add(l);
-    }
-
-    /**
-     * @deprecated
-     */
-    public synchronized void removeTrackRemovedListener(TrackRemovedListener l) {
-        trackRemovedListeners.remove(l);
-    }
-
-    /**
-     * @deprecated
-     */
-    private synchronized void fireTrackAddedEvent(Track track) {
-        TrackAddedOrRemovedEvent evt = new TrackAddedOrRemovedEvent(track);
-        for (TrackAddedListener l: trackAddedListeners) {
-            l.trackAdded(evt);
-        }
-    }
-
-    /**
-     * @deprecated
-     */
-    public synchronized void addTrackAddedListener(TrackAddedListener l) {
-        trackAddedListeners.add(l);
-    }
-
-    /**
-     * @deprecated
-     */
-    public synchronized void removeTrackAddedListener(TrackAddedListener l) {
-        trackAddedListeners.remove(l);
-    }
-
     public void removeTrack(Track t) {
         tracks.remove(t);
         fireEvent(new TrackEvent(TrackEvent.Type.REMOVED, t));
-        fireTrackRemovedEvent(t);
-        fireTrackListChangedEvent();
     }
 
     public Track getTrack(String tname) {
@@ -212,6 +123,4 @@ public class TrackController extends Controller<TrackEvent> {
         }
         return false;
     }
-
-
 }

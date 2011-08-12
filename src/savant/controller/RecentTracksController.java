@@ -35,9 +35,9 @@ import org.apache.commons.logging.LogFactory;
 
 import savant.api.adapter.DataSourceAdapter;
 import savant.api.util.DialogUtils;
-import savant.controller.event.TrackAddedListener;
-import savant.controller.event.TrackAddedOrRemovedEvent;
+import savant.controller.event.TrackEvent;
 import savant.settings.DirectorySettings;
+import savant.util.Listener;
 import savant.util.MiscUtils;
 import savant.view.swing.Savant;
 import savant.view.swing.Track;
@@ -47,7 +47,7 @@ import savant.view.swing.interval.BAMCoverageTrack;
  *
  * @author mfiume
  */
-public class RecentTracksController implements TrackAddedListener {
+public class RecentTracksController {
     private static final Log LOG = LogFactory.getLog(RecentTracksController.class);
 
     private static RecentTracksController instance;
@@ -60,14 +60,6 @@ public class RecentTracksController implements TrackAddedListener {
     
     private File recentTracksFile;
 
-    public RecentTracksController() throws IOException {
-        TrackController.getInstance().addTrackAddedListener(this);
-        recentTracksFile = new File(DirectorySettings.getSavantDirectory(), RECENT_TRACKS_FILE);
-        if (!recentTracksFile.exists()) { recentTracksFile.createNewFile(); }
-        queue = new LinkedList<String>();
-        loadRecents(recentTracksFile);
-    }
-
     public static RecentTracksController getInstance() throws IOException {
         if (instance == null) {
             instance = new RecentTracksController();
@@ -75,33 +67,42 @@ public class RecentTracksController implements TrackAddedListener {
         return instance;
     }
 
-    public List<String> getRecentTracks() {
-        return this.queue;
+    private RecentTracksController() throws IOException {
+        TrackController.getInstance().addListener(new Listener<TrackEvent>() {
+
+            @Override
+            public void handleEvent(TrackEvent event) {
+                Track t = event.getTrack();
+
+                if (t instanceof BAMCoverageTrack) { return; }
+
+                DataSourceAdapter ds = t.getDataSource();
+
+                if (ds == null || ds.getURI() == null) {
+                    return;
+                }
+
+                String path = MiscUtils.getNeatPathFromURI(ds.getURI());
+
+                queue.remove(path);
+                resizeQueue(queue, NUM_RECENTS_TO_SAVE);
+                queue.add(0,path);
+                updateMenuList();
+
+                try { saveRecents(queue); } catch (IOException ex) {
+                    LOG.error("Could not save recents to file", ex);
+                }
+            }
+        });
+
+        recentTracksFile = new File(DirectorySettings.getSavantDirectory(), RECENT_TRACKS_FILE);
+        if (!recentTracksFile.exists()) { recentTracksFile.createNewFile(); }
+        queue = new LinkedList<String>();
+        loadRecents(recentTracksFile);
     }
 
-    @Override
-    public void trackAdded(TrackAddedOrRemovedEvent event) {
-
-        Track t = event.getTrack();
-
-        if (t instanceof BAMCoverageTrack) { return; }
-
-        DataSourceAdapter ds = t.getDataSource();
-
-        if (ds == null || ds.getURI() == null) {
-            return;
-        }
-
-        String path = MiscUtils.getNeatPathFromURI(ds.getURI());
-        
-        queue.remove(path);
-        resizeQueue(queue, NUM_RECENTS_TO_SAVE);
-        queue.add(0,path);
-        updateMenuList();
-        
-        try { saveRecents(queue); } catch (IOException ex) {
-            LOG.error("Could not save recents to file", ex);
-        }
+    public List<String> getRecentTracks() {
+        return queue;
     }
 
     private void resizeQueue(LinkedList queue, int size) {
