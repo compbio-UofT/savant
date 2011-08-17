@@ -1145,11 +1145,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
                 hidePopup();
 
                 currentOverRecord = (Record)map.keySet().toArray()[0];
-                currentOverShape = map.get(currentOverRecord);
-                if (currentOverRecord instanceof GenericContinuousRecord){
-                    currentOverShape = ContinuousTrackRenderer.continuousRecordToEllipse(this, currentOverRecord);
-                }
-
+                
                 createJidePopup();
                 PopupPanel pp = PopupPanel.create(this, tracks[0].getDrawingMode(), t.getDataSource(), currentOverRecord);
                 fireNewPopup(pp);
@@ -1160,6 +1156,12 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
                     jp.showPopup(p1.x -2, p1.y -2);
                     popupVisible = true;
                 }
+                
+                currentOverShape = map.get(currentOverRecord);
+                if (currentOverRecord instanceof GenericContinuousRecord){
+                    currentOverShape = ContinuousTrackRenderer.continuousRecordToEllipse(this, currentOverRecord);
+                }
+
                 repaint();
                 return;
             }
