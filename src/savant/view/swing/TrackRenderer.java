@@ -195,16 +195,15 @@ public abstract class TrackRenderer implements DataRetrievalListener {
         if (mode == DrawingMode.ARC_PAIRED){
             isArc = true;
         }
-        
+               
+        Rectangle2D testIntersection = new Rectangle2D.Double(p.x-3, p.y-3, 7, 7);
         for(int i = 0; i < data.size(); i++){
             if(data.get(i) == null) continue;
             Shape s = recordToShapeMap.get((Record)data.get(i));
             if(s == null) continue;
-            //if(contains AND (notArc OR (isEdge...))
-            if(s.contains(p.x, p.y) &&
-                (!isArc || (!s.contains(p.x-1, p.y) ||
-                    !s.contains(p.x+1, p.y) ||
-                    !s.contains(p.x, p.y-1)))){
+            //if(contains AND (notArc OR (isEdge...))          
+            if( (!isArc && s.contains(p)) || 
+                (isArc && s.intersects(testIntersection) && (!s.contains(p.x-3, p.y-3) || !s.contains(p.x+3, p.y-3)))){
                 Map<Record, Shape> map = new HashMap<Record, Shape>();
                 map.put((Record)data.get(i), s);
                 return map;
