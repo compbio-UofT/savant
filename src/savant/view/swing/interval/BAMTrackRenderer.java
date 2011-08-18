@@ -380,7 +380,7 @@ public class BAMTrackRenderer extends TrackRenderer {
                     boolean strandFlag = samRecord.getReadNegativeStrandFlag();
                     g2.setColor(cs.getColor(strandFlag ? "Reverse Strand" : "Forward Strand"));
 
-                    Polygon readshape = renderRead(g2, gp, cs, samRecord, intervalRecord.getInterval(), level, range, readcolor);
+                    Polygon readshape = renderRead(g2, gp, samRecord, intervalRecord.getInterval(), level, range, readcolor);
 
                     recordToShapeMap.put(intervalRecord, readshape);
 
@@ -482,7 +482,7 @@ public class BAMTrackRenderer extends TrackRenderer {
                     readColour = override;
                 }
                 
-                Polygon readshape = renderRead(g2, gp, cs, samRecord, interval, level, range, readColour);
+                Polygon readshape = renderRead(g2, gp, samRecord, interval, level, range, readColour);
 
                 this.recordToShapeMap.put(intervalRecord, readshape);
 
@@ -520,15 +520,25 @@ public class BAMTrackRenderer extends TrackRenderer {
 
     }
 
-    private Polygon renderRead(Graphics2D g2, GraphPane gp, ColorScheme cs, SAMRecord samRecord, Interval interval,
+    public Polygon renderRead(Graphics2D g2, GraphPane gp, SAMRecord samRecord, Interval interval,
                                  int level, Range range, Color c) {
+        return renderRead(g2, gp, samRecord, interval, level, range, c, -1);
+    }
+        
+    public Polygon renderRead(Graphics2D g2, GraphPane gp, SAMRecord samRecord, Interval interval,
+                                 int level, Range range, Color c, double forcedHeight) {
 
         double x=0;
         double y=0;
         double w=0;
         double h=0;
 
-        double unitHeight = gp.getUnitHeight();
+        double unitHeight;
+        if(forcedHeight > 0){
+            unitHeight = forcedHeight;
+        } else {
+            unitHeight = gp.getUnitHeight();
+        }
 
         //unitHeight = intervalHeight;
         double arrowHeight = unitHeight/2;
@@ -1242,7 +1252,7 @@ public class BAMTrackRenderer extends TrackRenderer {
         }
 
     }
-
+   
     private void renderArcMatepairMode(Graphics2D g2, GraphPane gp) {
 
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);

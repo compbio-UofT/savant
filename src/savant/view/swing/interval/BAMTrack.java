@@ -228,4 +228,16 @@ public class BAMTrack extends Track {
     protected synchronized List<Record> retrieveData(String reference, Range range, Resolution resolution) throws Exception {
         return (List<Record>)(List<?>)((BAMDataSource)getDataSource()).getRecords(reference, range, resolution, getArcSizeVisibilityThreshold(), AxisRange.initWithRanges(range, getDefaultYRange()), getDrawingMode() == DrawingMode.ARC_PAIRED);
     }
+    
+    public BAMIntervalRecord getMate(BAMIntervalRecord rec){
+        List<Record> data = this.getDataInRange();
+        SAMRecord samRec = rec.getSamRecord();
+        for(int i = 0; i < data.size(); i++){
+            SAMRecord current = ((BAMIntervalRecord)data.get(i)).getSamRecord();
+            if(MiscUtils.isMate(samRec, current)){
+                return (BAMIntervalRecord)data.get(i);
+            }
+        }       
+        return null;
+    }
 }

@@ -38,6 +38,7 @@ import savant.data.event.ExportEvent;
 import savant.data.event.ExportEventListener;
 import savant.data.event.PopupEvent;
 import savant.data.event.PopupEventListener;
+import savant.data.types.BAMIntervalRecord;
 import savant.data.types.GenericContinuousRecord;
 import savant.data.types.Record;
 import savant.exception.RenderingException;
@@ -47,6 +48,8 @@ import savant.settings.ColourSettings;
 import savant.swing.component.ProgressPanel;
 import savant.util.*;
 import savant.view.swing.continuous.ContinuousTrackRenderer;
+import savant.view.swing.interval.BAMTrack;
+import savant.view.swing.interval.BAMTrackRenderer;
 
 
 /**
@@ -425,6 +428,20 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
             if (tracks[0].getDrawingMode() == DrawingMode.ARC_PAIRED) {
                 g2.setColor(Color.RED);
                 g2.draw(currentOverShape);
+                
+                BAMIntervalRecord rec1 = (BAMIntervalRecord)currentOverRecord;
+                BAMIntervalRecord rec2 = ((BAMTrack)tracks[0]).getMate(rec1); //mate
+                
+                Polygon p1 = ((BAMTrackRenderer)tracks[0].renderer).renderRead(g2, this, rec1.getSamRecord(), rec1.getInterval(), 0, prevRange, Color.red, 25);
+                g2.setColor(Color.BLACK);
+                g2.draw(p1);
+                
+                if(rec2 != null){
+                    Polygon p2 = ((BAMTrackRenderer)tracks[0].renderer).renderRead(g2, this, rec2.getSamRecord(), rec2.getInterval(), 0, prevRange, Color.red, 25);
+                    g2.setColor(Color.BLACK);
+                    g2.draw(p2);
+                }
+                
             } else {
                 g2.setColor(new Color(255,0,0,150));
                 g2.fill(currentOverShape);
@@ -1144,10 +1161,10 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
                  */
                 hidePopup();
 
-                currentOverRecord = (Record)map.keySet().toArray()[0];
+                Record overRecord = (Record)map.keySet().toArray()[0];
                 
                 createJidePopup();
-                PopupPanel pp = PopupPanel.create(this, tracks[0].getDrawingMode(), t.getDataSource(), currentOverRecord);
+                PopupPanel pp = PopupPanel.create(this, tracks[0].getDrawingMode(), t.getDataSource(), overRecord);
                 fireNewPopup(pp);
                 if (pp != null){
                     popPanel.add(pp, BorderLayout.CENTER);
@@ -1157,6 +1174,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
                     popupVisible = true;
                 }
                 
+                currentOverRecord = overRecord;
                 currentOverShape = map.get(currentOverRecord);
                 if (currentOverRecord instanceof GenericContinuousRecord){
                     currentOverShape = ContinuousTrackRenderer.continuousRecordToEllipse(this, currentOverRecord);
