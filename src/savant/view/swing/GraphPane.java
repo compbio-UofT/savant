@@ -28,8 +28,10 @@ import java.util.Map;
 import javax.swing.*;
 
 import com.jidesoft.popup.JidePopup;
+import java.io.IOException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import savant.controller.GenomeController;
 
 import savant.controller.GraphPaneController;
 import savant.controller.LocationController;
@@ -40,7 +42,9 @@ import savant.data.event.PopupEvent;
 import savant.data.event.PopupEventListener;
 import savant.data.types.BAMIntervalRecord;
 import savant.data.types.GenericContinuousRecord;
+import savant.data.types.Genome;
 import savant.data.types.Record;
+import savant.data.types.Strand;
 import savant.exception.RenderingException;
 import savant.selection.PopupThread;
 import savant.selection.PopupPanel;
@@ -428,20 +432,14 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
             if (tracks[0].getDrawingMode() == DrawingMode.ARC_PAIRED) {
                 g2.setColor(Color.RED);
                 g2.draw(currentOverShape);
-                
+                             
+                //get record pair
                 BAMIntervalRecord rec1 = (BAMIntervalRecord)currentOverRecord;
                 BAMIntervalRecord rec2 = ((BAMTrack)tracks[0]).getMate(rec1); //mate
                 
-                Polygon p1 = ((BAMTrackRenderer)tracks[0].renderer).renderRead(g2, this, rec1.getSamRecord(), rec1.getInterval(), 0, prevRange, Color.red, 25);
-                g2.setColor(Color.BLACK);
-                g2.draw(p1);
-                
-                if(rec2 != null){
-                    Polygon p2 = ((BAMTrackRenderer)tracks[0].renderer).renderRead(g2, this, rec2.getSamRecord(), rec2.getInterval(), 0, prevRange, Color.red, 25);
-                    g2.setColor(Color.BLACK);
-                    g2.draw(p2);
-                }
-                
+                //render reads with mismatches
+                ((BAMTrackRenderer)tracks[0].renderer).renderReadsFromArc(g2, this, rec1, rec2, prevRange);
+
             } else {
                 g2.setColor(new Color(255,0,0,150));
                 g2.fill(currentOverShape);

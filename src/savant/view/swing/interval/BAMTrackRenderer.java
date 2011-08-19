@@ -948,13 +948,22 @@ public class BAMTrackRenderer extends TrackRenderer {
         }
 
     }
+    
+    public void renderMismatches(Graphics2D g2, GraphPane gp, SAMRecord samRecord, int level, byte[] refSeq, Range range) {
+        renderMismatches(g2, gp, samRecord, level, refSeq, range, -1);
+    }
 
-    private void renderMismatches(Graphics2D g2, GraphPane gp, SAMRecord samRecord, int level, byte[] refSeq, Range range) {
+    public void renderMismatches(Graphics2D g2, GraphPane gp, SAMRecord samRecord, int level, byte[] refSeq, Range range, double forcedHeight) {
 
         ColorScheme cs = (ColorScheme) instructions.get(DrawingInstruction.COLOR_SCHEME);
         Color linecolor = cs.getColor("Line");
 
         double unitHeight = gp.getUnitHeight();
+        if(forcedHeight > 0){
+            unitHeight = forcedHeight;
+        }
+        
+        
         double unitWidth = gp.getUnitWidth();
         int offset = gp.getOffset();
 
@@ -1667,6 +1676,48 @@ public class BAMTrackRenderer extends TrackRenderer {
                 pileupcursor += operatorLength;
             }
         }
+    }
+    
+    public void renderReadsFromArc(Graphics2D g2, GraphPane gp, BAMIntervalRecord rec1, BAMIntervalRecord rec2, Range range){
+        
+        ColorScheme cs = (ColorScheme) getInstruction(DrawingInstruction.COLOR_SCHEME);
+        boolean strandFlag = rec1.getSamRecord().getReadNegativeStrandFlag();
+        Strand strand = strandFlag ? Strand.REVERSE : Strand.FORWARD ;             
+        Color c1 = null;
+        Color c2 = null;
+        if (strand == Strand.FORWARD) {
+            c1 = cs.getColor("Forward Strand");
+            c2 = cs.getColor("Reverse Strand");
+        } else {
+            c1 = cs.getColor("Reverse Strand");
+            c2 = cs.getColor("Forward Strand");
+        }
+        
+        int readHeight = 30;
+
+        Polygon p1 = renderRead(g2, gp, rec1.getSamRecord(), rec1.getInterval(), 0, range, c1, readHeight);
+        g2.setColor(Color.BLACK);
+        g2.draw(p1);
+
+        if(rec2 != null){
+            Polygon p2 = renderRead(g2, gp, rec2.getSamRecord(), rec2.getInterval(), 0, range, c2, readHeight);
+            g2.setColor(Color.BLACK);
+            g2.draw(p2);
+        }
+
+        Genome genome = GenomeController.getInstance().getGenome();
+        if(genome.isSequenceSet()){
+            byte[] sequence = null;
+            try {
+                sequence = genome.getSequence(LocationController.getInstance().getReferenceName(), range);
+            } catch (IOException e) {
+                //do nothing
+            }
+            renderMismatches(g2, gp, rec1.getSamRecord(), 0, sequence, range, readHeight);
+            if(rec2 != null)
+                renderMismatches(g2, gp, rec2.getSamRecord(), 0, sequence, range, readHeight);
+        }
+        
     }
 
     private void drawLegend(Graphics2D g2, String[] legendStrings, Color[] legendColors, int startx, int starty) {
