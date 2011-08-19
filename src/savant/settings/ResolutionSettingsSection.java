@@ -30,6 +30,9 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.Border;
+import savant.controller.FrameController;
+import savant.controller.GraphPaneController;
+import savant.view.swing.Frame;
 
 
 /**
@@ -73,6 +76,11 @@ public class ResolutionSettingsSection extends Section {
             TrackResolutionSettings.setIntervalLowToHighThresh(Integer.parseInt(intervalAmountField.getText().replaceAll(",", "")));
             TrackResolutionSettings.setSequenceLowToHighThresh(Integer.parseInt(sequenceAmountField.getText().replaceAll(",", "")));
             TrackResolutionSettings.setConservationLowToHighThresh(Integer.parseInt(conservationAmountField.getText().replaceAll(",", "")));
+            
+            //redraw all tracks
+            for(Frame f : FrameController.getInstance().getFrames()){
+                f.forceRedraw();
+            }
 
             try {
                 PersistentSettings.getInstance().store();
