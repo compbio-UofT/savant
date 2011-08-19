@@ -1440,10 +1440,11 @@ public class BAMTrackRenderer extends TrackRenderer {
                 genomeNuc = Pileup.stringToNuc(genomeNucString);
                 snpNuc = genomeNuc;
             }
-
-
-            while((genome.isSequenceSet() && p.getCoverage(snpNuc) > 0) || (snpNuc = p.getLargestNucleotide()) != null){
-
+            
+            
+            while((genome.isSequenceSet() && (snpNuc = p.getLargestNucleotide(genomeNuc)) != null)
+                    || ((snpNuc = p.getLargestNucleotide()) != null)){         
+            //while((genome.isSequenceSet() && p.getCoverage(snpNuc) > 0) || (snpNuc = p.getLargestNucleotide()) != null){
                 double x = gp.transformXPos(p.getPosition());
                 double coverage = p.getCoverage(snpNuc);
 
@@ -1531,11 +1532,9 @@ public class BAMTrackRenderer extends TrackRenderer {
             }
 
 
-            while((genome.isSequenceSet() && p.getCoverage(snpNuc) > 0) || (snpNuc = p.getLargestNucleotide()) != null){
-                
-            /*while((genome.isSequenceSet() && (snpNuc = p.getLargestNucleotide(genomeNuc)) != null) ||
-                    (!genome.isSequenceSet() && (snpNuc = p.getLargestNucleotide()) != null) ||
-                    (genome.isSequenceSet() && p.getCoverage(snpNuc) > 0)){*/
+            while((genome.isSequenceSet() && (snpNuc = p.getLargestNucleotide(genomeNuc)) != null)
+                    || ((snpNuc = p.getLargestNucleotide()) != null)){       
+            //while((genome.isSequenceSet() && p.getCoverage(snpNuc) > 0) || (snpNuc = p.getLargestNucleotide()) != null){
             
                 double x = gp.transformXPos(p.getPosition());
                 double coverage1 = p.getStrandCoverage(snpNuc, true);
