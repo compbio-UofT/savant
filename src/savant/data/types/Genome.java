@@ -145,6 +145,10 @@ public final class Genome implements Serializable, GenomeAdapter {
         return name;
     }
 
+    public String getDescription() {
+        return description;
+    }
+
     @Override
     public byte[] getSequence(String reference, RangeAdapter range) throws IOException {
         return isSequenceSet() ? ((FASTADataSource)sequenceTrack.getDataSource()).getRecords(reference, range, Resolution.HIGH).get(0).getSequence() : null;
@@ -274,7 +278,7 @@ public final class Genome implements Serializable, GenomeAdapter {
             }
             return result.toArray(new Genome[0]);
         } catch (Exception x) {
-            LOG.error("Unable to load default genomes from " + BrowserSettings.DATA_URL + "; using built-ins.", x);
+            LOG.error("Unable to load default genomes from " + BrowserSettings.GENOMES_URL + "; using built-ins.", x);
 
             return new Genome[] {
                 new Genome("hg19", "Human - Feb. 2009 (GRCh37/hg19)", new ReferenceInfo[] {

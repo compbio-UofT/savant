@@ -18,10 +18,8 @@ package savant.plugin.builtin;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.File;
-import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,23 +29,19 @@ import javax.swing.table.TableCellRenderer;
 
 import com.jidesoft.grid.TreeTable;
 import com.jidesoft.swing.TableSearchable;
-import java.awt.event.MouseAdapter;
+import java.net.MalformedURLException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.JDOMException;
-import org.jdom.input.SAXBuilder;
 
 import savant.api.util.DialogUtils;
-import savant.settings.BrowserSettings;
-import savant.settings.DirectorySettings;
-import savant.util.NetworkUtils;
+import savant.data.types.Genome;
+import savant.util.MiscUtils;
 import savant.view.dialog.tree.TreeBrowserModel;
 import savant.view.dialog.tree.TreeBrowserEntry;
 
 
 /**
+ * Dialog which allows users to browse contents of Savant data-file repository.
  *
  * @author mfiume
  */
@@ -60,31 +54,21 @@ public class SavantFileRepositoryBrowser extends JDialog {
     private URL trackPath = null;
     private static SavantFileRepositoryBrowser instance;
 
-    public static SavantFileRepositoryBrowser getInstance() throws JDOMException, IOException {
+    public static SavantFileRepositoryBrowser getInstance() {
         if (instance == null) {
-            instance = new SavantFileRepositoryBrowser();
+            instance = new SavantFileRepositoryBrowser(DialogUtils.getMainWindow());
         }
         instance.trackPath = null;
         return instance;
     }
 
-    private SavantFileRepositoryBrowser() throws JDOMException, IOException {
-        this(DialogUtils.getMainWindow(), "Public Savant File Repository Browser",
-             //getDownloadTreeRows(DownloadFile.downloadFile(new URL("http://savantbrowser.com/safe/savantsafe.php?username=mfiume&password=fiume3640"), System.getProperty("java.io.tmpdir"))));
-             getDownloadTreeRows(NetworkUtils.downloadFile(BrowserSettings.DATA_URL, DirectorySettings.getTmpDirectory())));
-    }
+    private SavantFileRepositoryBrowser(Window parent) {
+        super(parent, "Public Savant File Repository Browser", Dialog.ModalityType.APPLICATION_MODAL);
 
-    private SavantFileRepositoryBrowser(
-            Window parent,
-            String title,
-            List<TreeBrowserEntry> roots) {
-
-        super(parent, title, Dialog.ModalityType.APPLICATION_MODAL);
-
-        this.setDefaultCloseOperation(JDialog.HIDE_ON_CLOSE);
-        this.setResizable(true);
-        this.setLayout(new BorderLayout());
-        this.add(getCenterPanel(roots), BorderLayout.CENTER);
+        setDefaultCloseOperation(JDialog.HIDE_ON_CLOSE);
+        setResizable(true);
+        setLayout(new BorderLayout());
+        add(getCenterPanel(getDownloadTreeRows()), BorderLayout.CENTER);
 
         JMenuBar bottombar = new JMenuBar();
         bottombar.setAlignmentX(RIGHT_ALIGNMENT);
@@ -108,10 +92,10 @@ public class SavantFileRepositoryBrowser extends JDialog {
         });
         bottombar.add(cancelButton);
 
-        this.add(bottombar, BorderLayout.SOUTH);
+        add(bottombar, BorderLayout.SOUTH);
 
-        this.setPreferredSize(new Dimension(800, 500));
-        this.pack();
+        setPreferredSize(new Dimension(800, 500));
+        pack();
 
         setLocationRelativeTo(parent);
     }
@@ -141,30 +125,7 @@ public class SavantFileRepositoryBrowser extends JDialog {
         return trackPath;
     }
 
-    private static TreeBrowserEntry parseDocumentTreeRow(Element root) {
-        if (root.getName().equals("branch")) {
-            List<TreeBrowserEntry> children = new ArrayList<TreeBrowserEntry>();
-            for (Object o : root.getChildren()) {
-                Element c = (Element) o;
-                children.add(parseDocumentTreeRow(c));
-            }
-            return new TreeBrowserEntry(root.getAttributeValue("name"), children);
-        } else if (root.getName().equals("leaf")) {
-            try {
-                return new TreeBrowserEntry(
-                        root.getAttributeValue("name"),
-                        root.getChildText("type"),
-                        root.getChildText("description"),
-                        new URL(root.getChildText("url")),
-                        root.getChildText("size"));
-            } catch (MalformedURLException x) {
-                LOG.error(x);
-            }
-        }
-        return null;
-    }
-
-    public static class FileRowCellRenderer extends DefaultTableCellRenderer {
+    private static class FileRowCellRenderer extends DefaultTableCellRenderer {
 
         @Override
         public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
@@ -185,17 +146,32 @@ public class SavantFileRepositoryBrowser extends JDialog {
         }
     }
 
-    private static List<TreeBrowserEntry> getDownloadTreeRows(File f) throws JDOMException, IOException {
-        List<TreeBrowserEntry> roots = new ArrayList<TreeBrowserEntry>();
-        Document d = new SAXBuilder().build(f);
-        Element root = d.getRootElement();
-        TreeBrowserEntry treeroot = parseDocumentTreeRow(root);
-        roots.add(treeroot);
+    private static List<TreeBrowserEntry> getDownloadTreeRows() {
+        Genome[] genomes = Genome.getDefaultGenomes();
+        List<TreeBrowserEntry> roots = new ArrayList<TreeBrowserEntry>(genomes.length);
+        try {
+            for (Genome g: genomes) {
+                Genome.Auxiliary[] auxes = g.getAuxiliaries();
+                if (auxes.length > 0) {
+                    List<TreeBrowserEntry> auxEntries = new ArrayList<TreeBrowserEntry>(auxes.length);
+                    for (Genome.Auxiliary aux: g.getAuxiliaries()) {
+                        auxEntries.add(new TreeBrowserEntry(MiscUtils.getFileName(aux.uri), aux.type.toString(), aux.description, aux.uri.toURL(), "0"));
+                    }
+                    roots.add(new TreeBrowserEntry(g.getDescription(), auxEntries));
+                }
+            }
+        } catch (MalformedURLException ignored) {
+        }
         return roots;
     }
 
     public final Component getCenterPanel(List<TreeBrowserEntry> roots) {
-        table = new TreeTable(new TreeBrowserModel(roots));
+        table = new TreeTable(new TreeBrowserModel(roots) {
+            @Override
+            public String[] getColumnNames() {
+                return new String[] { "Name", "Description" };
+            }
+        });
         table.setSortable(true);
         table.setRespectRenderPreferredHeight(true);
 

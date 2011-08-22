@@ -306,7 +306,13 @@ public class SAFEBrowser extends JDialog {
     }
 
     public final Component getCenterPanel(List<TreeBrowserEntry> roots) {
-        table = new TreeTable(new TreeBrowserModel(roots));
+        table = new TreeTable(new TreeBrowserModel(roots) {
+            @Override
+            public String[] getColumnNames() {
+                return new String[] { "Name", "Description" };
+            }
+
+        });
         table.setSortable(false);
         table.setRespectRenderPreferredHeight(true);
 

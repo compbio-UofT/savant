@@ -58,6 +58,7 @@ import savant.controller.event.*;
 import savant.data.types.Genome;
 import savant.experimental.XMLTool;
 import savant.plugin.SavantDataSourcePlugin;
+import savant.plugin.SavantPanelPlugin;
 import savant.plugin.SavantPlugin;
 import savant.plugin.builtin.SAFEDataSourcePlugin;
 import savant.plugin.builtin.SavantFileRepositoryDataSourcePlugin;
@@ -381,27 +382,16 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
         pluginController.addListener(new Listener<PluginEvent>() {
             @Override
             public void handleEvent(PluginEvent event) {
+                SavantPlugin plugin = event.getPlugin();
                 if (event.getType() == PluginEvent.Type.LOADED) {
-                    if (event.getCanvas() != null) {
-                        SavantPlugin plugin = event.getPlugin();
+                    if (plugin instanceof SavantPanelPlugin) {
                         final DockableFrame f = DockableFrameFactory.createGUIPluginFrame(plugin.getTitle());
                         JPanel p = (JPanel)f.getContentPane();
                         p.setLayout(new BorderLayout());
                         p.add(event.getCanvas(), BorderLayout.CENTER);
                         auxDockingManager.addFrame(f);
 //                      auxDockingManager.autohideFrame(f, 100, 100);
-                        JCheckBoxMenuItem cb = new JCheckBoxMenuItem(plugin.getTitle());
-                        cb.addActionListener(new ActionListener() {
-                            @Override
-                            public void actionPerformed(ActionEvent e) {
-                                String frameKey = f.getTitle();
-                                boolean isVisible = auxDockingManager.getFrame(frameKey).isHidden();
-                                MiscUtils.setFrameVisibility(frameKey, isVisible, auxDockingManager);
-                                ((JCheckBoxMenuItem)e.getSource()).setSelected(isVisible);
-                            }
-                        });
-                        cb.setSelected(!auxDockingManager.getFrame(f.getTitle()).isHidden());
-                        addPluginToMenu(cb);
+                        addPluginToMenu(new PluginMenuItem((SavantPanelPlugin)plugin));
                     } else if (event.getPlugin() instanceof SavantDataSourcePlugin) {
                         loadFromDataSourcePluginItem.setText("Load Track from Other Datasource...");
                     }
@@ -1600,6 +1590,10 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
 
     private void disableExperimentalFeatures() {
         toolsItem.setVisible(false);
+    }
+
+    public DockingManager getAuxDockingManager() {
+        return auxDockingManager;
     }
 
     public DockingManager getTrackDockingManager() {

@@ -113,41 +113,62 @@ public class TrackFactory {
     }
 
     public static DataSourceAdapter createDataSource(URI trackURI) throws IOException, SavantFileNotFormattedException, SavantUnsupportedVersionException, SavantUnsupportedFileTypeException {
+        return createDataSource(trackURI, SavantFileFormatterUtils.guessFileTypeFromPath(trackURI.toString()));
+    }
 
-        try {
-            // Read file header to determine file type.
-            SavantROFile trkFile = new SavantROFile(trackURI);
-            trkFile.close();
+    /**
+     * Create a DataSource for the given URI.
+     */
+    public static DataSourceAdapter createDataSource(URI trackURI, FileType fileType) throws IOException, SavantFileNotFormattedException, SavantUnsupportedVersionException, SavantUnsupportedFileTypeException {
+        // A switch statement might be nice here, except for the possibility that fileType == null.
+        if (fileType == FileType.TABIX) {
+            LOG.info("Opening Tabix file " + trackURI);
+            return new TabixDataSource(trackURI);
+        } else if (fileType == FileType.INTERVAL_BAM) {
+            LOG.info("Opening BAM file " + trackURI);
+            return new BAMDataSource(trackURI);
+        } else if (fileType == FileType.CONTINUOUS_BIGWIG) {
+            LOG.info("Opening BigWig file " + trackURI);
+            return new BigWigDataSource(new File(trackURI));
+        } else if (fileType == FileType.CONTINUOUS_TDF) {
+            LOG.info("Opening TDF file " + trackURI);
+            return new TDFDataSource(trackURI);
+        } else {
+            try {
+                // Read file header to determine file type.
+                SavantROFile trkFile = new SavantROFile(trackURI);
+                trkFile.close();
 
-            if (trkFile.getFileType() == null) {
-                throw new SavantFileNotFormattedException();
-            }
-
-            switch (trkFile.getFileType()) {
-                case SEQUENCE_FASTA:
-                    return new FASTADataSource(trackURI);
-                case POINT_GENERIC:
-                    return new GenericPointDataSource(trackURI);
-                case CONTINUOUS_GENERIC:
-                    return new GenericContinuousDataSource(trackURI);
-                case INTERVAL_GENERIC:
-                    return new GenericIntervalDataSource(trackURI);
-                case INTERVAL_GFF:
-                    return new GenericIntervalDataSource(trackURI);
-                case INTERVAL_BED:
-                    return new BEDDataSource(trackURI);
-                default:
-                    throw new SavantUnsupportedFileTypeException("This version of Savant does not support file type " + trkFile.getFileType());
-            }
-        } catch (UnknownSchemeException usx) {
-            // Not one of our known URI schemes, so see if any of our plugins can handle it.
-            for (SavantDataSourcePlugin p: DataSourcePluginController.getInstance().getPlugins()) {
-                DataSourceAdapter ds = p.getDataSource(trackURI);
-                if (ds != null) {
-                    return ds;
+                if (trkFile.getFileType() == null) {
+                    throw new SavantFileNotFormattedException();
                 }
+
+                switch (trkFile.getFileType()) {
+                    case SEQUENCE_FASTA:
+                        return new FASTADataSource(trackURI);
+                    case POINT_GENERIC:
+                        return new GenericPointDataSource(trackURI);
+                    case CONTINUOUS_GENERIC:
+                        return new GenericContinuousDataSource(trackURI);
+                    case INTERVAL_GENERIC:
+                        return new GenericIntervalDataSource(trackURI);
+                    case INTERVAL_GFF:
+                        return new GenericIntervalDataSource(trackURI);
+                    case INTERVAL_BED:
+                        return new BEDDataSource(trackURI);
+                    default:
+                        throw new SavantUnsupportedFileTypeException("This version of Savant does not support file type " + trkFile.getFileType());
+                }
+            } catch (UnknownSchemeException usx) {
+                // Not one of our known URI schemes, so see if any of our plugins can handle it.
+                for (SavantDataSourcePlugin p: DataSourcePluginController.getInstance().getPlugins()) {
+                    DataSourceAdapter ds = p.getDataSource(trackURI);
+                    if (ds != null) {
+                        return ds;
+                    }
+                }
+                throw usx;
             }
-            throw usx;
         }
     }
 
@@ -171,51 +192,29 @@ public class TrackFactory {
 
             FileType fileType = SavantFileFormatterUtils.guessFileTypeFromPath(uriString);
 
-            DataSourceAdapter ds = null;
-
             try {
-                // A switch statement might be nice here, except for the possibility that fileType == null.
-                if (fileType == FileType.TABIX) {
-                    LOG.info("Opening Tabix file " + trackURI);
-                    ds = TabixDataSource.fromURI(trackURI);
-                    LOG.info("Tabix datasource=" + ds);
-                    fireTrackCreationCompleted(new Track[] { createTrack(ds) }, "");
-                    LOG.debug("Tabix track created.");
-                } else if (fileType == FileType.INTERVAL_BAM) {
-                    LOG.info("Opening BAM file " + trackURI);
+                DataSourceAdapter ds = createDataSource(trackURI, fileType);
 
-                    ds = BAMDataSource.fromURI(trackURI);
-                    LOG.info("BAM datasource=" + ds);
-                    List<Track> tracks = new ArrayList<Track>(2);
-                    tracks.add(createTrack(ds));
-                    LOG.trace("BAM Track created.");
+                List<Track> tracks = new ArrayList<Track>(2);
+                tracks.add(createTrack(ds));
+                if (fileType == FileType.INTERVAL_BAM) {
+                    URI coverageURI = new URI(trackURI.toString() + ".cov.tdf");
                     try {
-                        // TODO: Only resolves coverage files for local data.  Should also work for network URIs.
-                        URI coverageURI = new URI(trackURI.toString() + ".cov.tdf");
                         if (NetworkUtils.exists(coverageURI)) {
-                            tracks.add(new BAMCoverageTrack(new TDFDataSource(coverageURI)));
+                            ds = new TDFDataSource(coverageURI);
+                            tracks.add(new BAMCoverageTrack(ds));
                         } else {
                             coverageURI = new URI(trackURI.toString() + ".cov.savant");
                             if (NetworkUtils.exists(coverageURI)) {
-                                tracks.add(new BAMCoverageTrack(new GenericContinuousDataSource(coverageURI)));
+                                ds = new GenericContinuousDataSource(coverageURI);
+                                tracks.add(new BAMCoverageTrack(ds));
                             }
                         }
-                        fireTrackCreationCompleted(tracks.toArray(new Track[0]), "");
-                    } catch (URISyntaxException ignored) {
+                    } catch (Exception x) {
+                        LOG.error("Unable to load coverage track for " + trackURI, x);
                     }
-                    LOG.info("Finished trying to load coverage file.");
-                } else {
-                    if (fileType == FileType.CONTINUOUS_BIGWIG) {
-                        LOG.info("Opening BigWig file " + trackURI);
-                        ds = new BigWigDataSource(new File(trackURI));
-                    } else if (fileType == FileType.CONTINUOUS_TDF) {
-                        LOG.info("Opening TDF file " + trackURI);
-                        ds = new TDFDataSource(trackURI);
-                    } else {
-                        ds = TrackFactory.createDataSource(trackURI);
-                    }
-                    fireTrackCreationCompleted(new Track[] { createTrack(ds) }, "");
                 }
+                fireTrackCreationCompleted(tracks.toArray(new Track[0]), "");
             } catch (RuntimeIOException x) {
                 // Special case: SamTools I/O Exception which contains the real exception nested within.
                 LOG.error("Track creation failed.", x);

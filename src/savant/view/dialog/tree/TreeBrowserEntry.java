@@ -29,7 +29,7 @@ import savant.util.MiscUtils;
 
 /**
  * Class which represents an entry in a tree-like display.  Used for the repository
- * browser.
+ * browser and the plugin browser.
  *
  * @author mfiume
  */

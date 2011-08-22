@@ -34,6 +34,7 @@ import savant.data.types.Record;
 import savant.exception.RenderingException;
 import savant.exception.SavantTrackCreationCancelledException;
 import savant.file.DataFormat;
+import savant.plugin.SavantPanelPlugin;
 import savant.util.AxisType;
 import savant.util.ColorScheme;
 import savant.util.DrawingMode;
@@ -250,13 +251,25 @@ public abstract class Track implements TrackAdapter {
     }
 
     /**
-     * Get the JPanel for the layer which plugins can use to draw on top of the track.
+     * Retrieve a JPanel for the layer which plugins can use to draw on top of the track, creating one if necessary.
      *
      * @return component to draw onto or null if frame not initialized yet
+     * @since 1.6.0
+     */
+    @Override
+    public JPanel getLayerCanvas(SavantPanelPlugin plugin) {
+        return frame != null ? frame.getLayerCanvas(plugin, true) : null;
+    }
+
+    /**
+     * Create a JPanel for the layer which a plugin can use to draw on top of the track.
+     *
+     * @return component to draw onto or null if frame not initialized yet
+     * @deprecated Renamed to <code>createLayerCanvas()</code>.
      */
     @Override
     public JPanel getLayerCanvas() {
-        return frame != null ? frame.getLayerCanvas() : null;
+        return getLayerCanvas(null);
     }
 
     /**
@@ -348,7 +361,7 @@ public abstract class Track implements TrackAdapter {
                         LOG.debug("Retrieved " + (dataInRange != null ? Integer.toString(dataInRange.size()) : "no") + " records for " + name + "(" + reference + ":" + range + ")");
                     }
                     fireDataRetrievalCompleted();
-                } catch (Exception x) {
+                } catch (Throwable x) {
                     LOG.error("Data retrieval failed.", x);
                     fireDataRetrievalFailed(x);
                 }
@@ -412,7 +425,7 @@ public abstract class Track implements TrackAdapter {
      * Fires a DataSource error event.  It will be posted to the AWT event-queue
      * thread, so that UI code can function properly.
      */
-    private void fireDataRetrievalFailed(final Exception x) {
+    private void fireDataRetrievalFailed(final Throwable x) {
         MiscUtils.invokeLaterIfNecessary(new Runnable() {
             @Override
             public void run() {

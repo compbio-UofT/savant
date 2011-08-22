@@ -19,6 +19,7 @@ package savant.api.adapter;
 import java.util.List;
 import javax.swing.JPanel;
 import savant.data.types.Record;
+import savant.plugin.SavantPanelPlugin;
 import savant.util.AxisType;
 import savant.util.DrawingMode;
 import savant.util.Resolution;
@@ -76,12 +77,22 @@ public interface TrackAdapter {
     public DrawingMode[] getValidDrawingModes();
 
     /**
-     * Get the JPanel for the layer to draw on top of the track.
+     * Get the JPanel for the plugin to draw on top of the track.  This version of the
+     * method will create a fresh canvas every time it is called.
      *
      * @return component to draw onto
+     * @deprecated Renamed to <code>getLayerCanvas(SavantPanelPlugin)</code>.
      */
     public JPanel getLayerCanvas();
 
+    /**
+     * Get a JPanel for the given plugin to draw on top of the track.
+     *
+     * @param plugin the plugin which is requesting a canvas
+     * @return component to draw onto
+     * @since 1.6.0
+     */
+    public JPanel getLayerCanvas(SavantPanelPlugin plugin);
 
     /**
      * Get the name of this track. Usually constructed from the file name.

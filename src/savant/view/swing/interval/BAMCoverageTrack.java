@@ -16,8 +16,8 @@
 
 package savant.view.swing.interval;
 
+import savant.api.adapter.DataSourceAdapter;
 import savant.api.adapter.RangeAdapter;
-import savant.data.sources.DataSource;
 import savant.exception.SavantTrackCreationCancelledException;
 import savant.settings.ColourSettings;
 import savant.settings.TrackResolutionSettings;
@@ -30,8 +30,7 @@ public class BAMCoverageTrack extends Track {
 
     private boolean enabled = true;
 
-    // DO NOT DELETE THIS CONSTRUCTOR!!! THIS SHOULD BE THE DEFAULT
-    public BAMCoverageTrack(DataSource dataSource) throws SavantTrackCreationCancelledException {
+    public BAMCoverageTrack(DataSourceAdapter dataSource) throws SavantTrackCreationCancelledException {
         super(dataSource, new ContinuousTrackRenderer());
         setColorScheme(getDefaultColorScheme());
         this.notifyControllerOfCreation();

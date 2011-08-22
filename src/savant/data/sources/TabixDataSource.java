@@ -61,9 +61,7 @@ public class TabixDataSource extends DataSource<TabixIntervalRecord> {
 
     private URI uri;
 
-    public static TabixDataSource fromURI(URI uri) throws IOException {
-
-        if (uri == null) throw new IllegalArgumentException("Invalid argument: URI must be non-null");
+    public TabixDataSource(URI uri) throws IOException {
 
         File indexFile = null;
         // if no exception is thrown, this is an absolute URL
@@ -74,9 +72,11 @@ public class TabixDataSource extends DataSource<TabixIntervalRecord> {
             indexFile = getTabixIndexFileLocal(new File(uri));
         }
         SeekableStream baseStream = NetworkUtils.getSeekableStreamForURI(uri);
+        this.uri = uri.normalize();
+        this.reader = new TabixReader(baseStream, indexFile);
 
-        TabixReader tr = new TabixReader(baseStream, indexFile);
-        return new TabixDataSource(uri, tr);
+        // Check to see how many columns we actually have, and try to initialise a mapping.
+        inferMapping();
     }
 
     /**
@@ -142,17 +142,6 @@ public class TabixDataSource extends DataSource<TabixIntervalRecord> {
 
     private boolean matchesMapping(ColumnMapping mapping) {
         return reader.getChromColumn() == mapping.chrom && reader.getStartColumn() == mapping.start && reader.getEndColumn() == mapping.end;
-    }
-
-    /**
-     * Constructor for internal use only.  Clients should invoke fromURI method.
-     */
-    TabixDataSource(URI uri, TabixReader reader) throws IOException {
-        this.uri = uri.normalize();
-        this.reader = reader;
-
-        // Check to see how many columns we actually have, and try to initialise a mapping.
-        inferMapping();
     }
 
     /**

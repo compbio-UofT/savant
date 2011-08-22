@@ -28,25 +28,37 @@ import java.util.List;
  */
 public abstract class Controller<E> {
     protected List<Listener<E>> listeners = new ArrayList<Listener<E>>();
+    private List<Listener<E>> listenersToAdd;
     private List<Listener<E>> listenersToRemove;
 
     /**
      * Fire the specified event to all our listeners.
      */
-    public synchronized void fireEvent(final E event) {
+    public synchronized void fireEvent(E event) {
+        listenersToAdd = new ArrayList<Listener<E>>();
         listenersToRemove = new ArrayList<Listener<E>>();
         for (final Listener l: listeners) {
             l.handleEvent(event);
         }
+        for (Listener<E> l: listenersToAdd) {
+            listeners.add(l);
+        }
+        listenersToAdd = null;
         for (Listener<E> l: listenersToRemove) {
             listeners.remove(l);
         }
+        listenersToRemove = null;
     }
 
     public void addListener(Listener<E> l) {
-        listeners.add(l);
+        if (listenersToAdd != null) {
+            // Currently enumerating, so delay the add until the loop is done.
+            listenersToAdd.add(l);
+        } else {
+            // Not in a loop, so add the listener immediately.
+            listeners.add(l);
+        }
     }
-
 
     public void removeListener(Listener<E> l) {
         if (listenersToRemove != null) {

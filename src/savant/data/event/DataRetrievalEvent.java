@@ -34,7 +34,7 @@ public class DataRetrievalEvent {
     };
     Type type;
     List<Record> data;
-    Exception error;
+    Throwable error;
 
     /**
      * Constructor for retrieval starting.
@@ -57,7 +57,7 @@ public class DataRetrievalEvent {
      *
      * @param error
      */
-    public DataRetrievalEvent(Exception error) {
+    public DataRetrievalEvent(Throwable error) {
         this.type = Type.FAILED;
         this.error = error;
     }
@@ -66,7 +66,7 @@ public class DataRetrievalEvent {
         return data;
     }
 
-    public Exception getError() {
+    public Throwable getError() {
         return error;
     }
 }

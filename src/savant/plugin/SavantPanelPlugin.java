@@ -16,7 +16,12 @@
 
 package savant.plugin;
 
+import com.jidesoft.docking.DockingManager;
 import javax.swing.JPanel;
+import savant.controller.TrackController;
+import savant.util.MiscUtils;
+import savant.view.swing.Savant;
+import savant.view.swing.Track;
 
 
 /**
@@ -34,4 +39,29 @@ public abstract class SavantPanelPlugin extends SavantPlugin {
      * @param panel parent panel for auxiliary data components
      */
     public abstract void init(JPanel panel);
+
+    /**
+     * Show or hide all UI elements associated with this plugin.  This includes both the
+     * frame for the plugin's GUI as well as any layer canvasses which have been created on
+     * the plugin's behalf.
+     */
+    public void setVisible(boolean value) {
+        String frameKey = getTitle();
+        DockingManager auxDockingManager = Savant.getInstance().getAuxDockingManager();
+        MiscUtils.setFrameVisibility(frameKey, value, auxDockingManager);
+
+        for (Track t: TrackController.getInstance().getTracks()) {
+            JPanel layerCanvas = t.getFrame().getLayerCanvas(this, false);
+            if (layerCanvas != null) {
+                layerCanvas.setVisible(value);
+            }
+        }
+    }
+
+    /**
+     * Is the associated plugin currently visible?
+     */
+    public boolean isVisible() {
+        return Savant.getInstance().getAuxDockingManager().getFrame(getTitle()).isVisible();
+    }
 }

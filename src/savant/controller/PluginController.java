@@ -203,6 +203,9 @@ public class PluginController extends Controller {
 
             DialogUtils.displayMessage("Uninstallation Complete", "Please restart Savant for changes to take effect.");
             pluginsToRemove.add(id);
+
+            fireEvent(new PluginEvent(PluginEvent.Type.QUEUED_FOR_REMOVAL, id, null));
+
         } catch (IOException ex) {
             LOG.error("Error uninstalling plugin: " + uninstallFile, ex);
         } finally {

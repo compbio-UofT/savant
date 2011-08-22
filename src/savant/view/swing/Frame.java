@@ -28,6 +28,8 @@ import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuListener;
 
 import com.jidesoft.docking.DockableFrame;
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -50,6 +52,7 @@ import savant.data.event.TrackCreationListener;
 import savant.data.sources.DataSource;
 import savant.data.types.Genome;
 import savant.file.DataFormat;
+import savant.plugin.SavantPanelPlugin;
 import savant.settings.ColourSettings;
 import savant.settings.InterfaceSettings;
 import savant.swing.component.ProgressPanel;
@@ -91,6 +94,7 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
     private JSlider intervalSlider;
     private JMenu setAsGenomeButton;
     private JLabel yMaxPanel;
+    private Map<SavantPanelPlugin, JPanel> pluginLayers = new HashMap<SavantPanelPlugin, JPanel>();
 
     public JScrollPane scrollPane;
 
@@ -750,21 +754,28 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
     }
 
     /**
-     * Create a new panel to draw on.
+     * Get a panel for a plugin to draw on.  If necessary, a new one will be created.
      */
-    public JPanel getLayerCanvas(){
-        JPanel p = new JPanel();
-        p.setOpaque(false);
-        GridBagConstraints c = new GridBagConstraints();
-        c.fill = GridBagConstraints.BOTH;
-        c.weightx = 1.0;
-        c.weighty = 1.0;
-        c.gridx = 0;
-        c.gridy = 0;
-        c.gridwidth = 3;
-        c.gridheight = 2;
-        jlp.add(p,c,2);
-        jlp.setLayer(p, 50);
+    public JPanel getLayerCanvas(SavantPanelPlugin plugin, boolean mayCreate) {
+        JPanel p = pluginLayers.get(plugin);
+        if (p == null && mayCreate) {
+            p = new JPanel();
+            p.setOpaque(false);
+            GridBagConstraints c = new GridBagConstraints();
+            c.fill = GridBagConstraints.BOTH;
+            c.weightx = 1.0;
+            c.weighty = 1.0;
+            c.gridx = 0;
+            c.gridy = 0;
+            c.gridwidth = 3;
+            c.gridheight = 2;
+            jlp.add(p,c,2);
+            jlp.setLayer(p, 50);
+            pluginLayers.put(plugin, p);
+            if (plugin != null) {
+                p.setVisible(plugin.isVisible());
+            }
+        }
         return p;
     }
 

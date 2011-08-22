@@ -22,8 +22,7 @@ import com.jidesoft.grid.TreeTableModel;
 import java.awt.*;
 import java.util.List;
 
-public class TreeBrowserModel extends TreeTableModel implements StyleModel {
-    static final protected String[] COLUMN_NAMES = {"Name", /*"Description", "Type" /*, "Filename", "Size"*/}; //, "Download"};
+public abstract class TreeBrowserModel extends TreeTableModel implements StyleModel {
     static final Color BACKGROUND = new Color(247, 247, 247);
     static final CellStyle CELL_STYLE = new CellStyle();
 
@@ -31,18 +30,23 @@ public class TreeBrowserModel extends TreeTableModel implements StyleModel {
         CELL_STYLE.setBackground(BACKGROUND);
     }
 
-    public TreeBrowserModel(List rows) {
+    public TreeBrowserModel(List<TreeBrowserEntry> rows) {
         super(rows);
     }
 
+    /**
+     * Different browsers can override this to present a different list of columns to the user.
+     */
+    public abstract String[] getColumnNames();
+
     @Override
     public String getColumnName(int column) {
-        return COLUMN_NAMES[column];
+        return getColumnNames()[column];
     }
 
     @Override
     public int getColumnCount() {
-        return COLUMN_NAMES.length;
+        return getColumnNames().length;
     }
 
     @Override

@@ -152,11 +152,6 @@ public class PluginRepositoryDialog extends JDialog {
                 JLabel label = (JLabel) super.getTableCellRendererComponent(table,
                         fileRow.getName(),
                         isSelected, hasFocus, row, column);
-                try {
-                    label.setIcon(fileRow.getIcon());
-                } catch (Exception e) {
-                    //System.out.println(fileRow.getFile().getAbsolutePath());
-                }
                 label.setBorder(BorderFactory.createEmptyBorder(0, 3, 0, 3));
                 return label;
             }
@@ -174,7 +169,12 @@ public class PluginRepositoryDialog extends JDialog {
     }
 
     public final Component getCenterPanel(List<TreeBrowserEntry> roots) {
-        table = new TreeTable(new TreeBrowserModel(roots));
+        table = new TreeTable(new TreeBrowserModel(roots) {
+            @Override
+            public String[] getColumnNames() {
+                return new String[] { "Name" };
+            }
+        });
         table.setSortable(true);
         table.setRespectRenderPreferredHeight(true);
 

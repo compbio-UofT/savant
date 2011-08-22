@@ -53,44 +53,29 @@ public class BAMDataSource extends DataSource<BAMIntervalRecord> {
     private SAMFileHeader samFileHeader;
     private URI uri;
 
-    public static BAMDataSource fromURI(URI uri) throws IOException {
-
-        if (uri == null) throw new IllegalArgumentException("Invalid argument: URI must be non-null");
+    public BAMDataSource(URI uri) throws IOException {
+        this.uri = uri.normalize();
 
         File indexFile = null;
-        // if no exception is thrown, this is an absolute URL
         String proto = uri.getScheme();
         if ("http".equals(proto) || "https".equals(proto) || "ftp".equals(proto)) {
             indexFile = getIndexFileCached(uri);
-            if (indexFile != null) {
-                return new BAMDataSource(uri, indexFile);
-            }
+        } else {
+            // infer index file name from track filename
+            indexFile = getIndexFileLocal(new File(uri));
         }
 
-        // infer index file name from track filename
-        File bamFile = new File(uri);
-        indexFile = getIndexFileLocal(bamFile);
-        if (indexFile != null) {
-            return new BAMDataSource(bamFile.toURI(), indexFile);
+        if (indexFile.exists()) {
+            SeekableStream stream = NetworkUtils.getSeekableStreamForURI(uri);
+            samFileReader = new SAMFileReader(stream, indexFile, false);
+            samFileReader.setValidationStringency(SAMFileReader.ValidationStringency.SILENT);
+            samFileHeader = samFileReader.getFileHeader();
+        } else {
+            // Unable to find index file anywhere.
+            throw new FileNotFoundException(indexFile.toString());
         }
-
-        // Unable to find index file anywhere.
-        throw new FileNotFoundException(bamFile.getAbsolutePath() + ".bai");
     }
 
-    private BAMDataSource(URI uri, File index) throws IOException {
-
-        if (uri == null) throw new IllegalArgumentException("URI must not be null");
-        if (index == null) throw new IllegalArgumentException("Index file must not be null");
-
-        this.uri = uri.normalize();
-
-        SeekableStream stream = NetworkUtils.getSeekableStreamForURI(uri);
-        samFileReader = new SAMFileReader(stream, index, false);
-        samFileReader.setValidationStringency(SAMFileReader.ValidationStringency.SILENT);
-        samFileHeader = samFileReader.getFileHeader();
-    }
-    
     /**
      * {@inheritDoc}
      */
@@ -215,15 +200,10 @@ public class BAMDataSource extends DataSource<BAMIntervalRecord> {
         File indexFile = new File(bamPath + ".bai");
         if (indexFile.exists()) {
             return indexFile;
-        }
-        else {
+        } else {
             // try alternate index file name
-            indexFile = new File(bamPath.replace(".bam", ".bai"));
-            if (indexFile.exists()) {
-                return indexFile;
-            }
+            return new File(bamPath.replace(".bam", ".bai"));
         }
-        return null;
     }
 
     private static File getIndexFileCached(URI bamURI) throws IOException {
