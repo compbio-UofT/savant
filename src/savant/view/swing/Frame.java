@@ -20,7 +20,9 @@ import java.awt.event.*;
 import java.awt.geom.Line2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -28,8 +30,6 @@ import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuListener;
 
 import com.jidesoft.docking.DockableFrame;
-import java.util.HashMap;
-import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -38,13 +38,11 @@ import savant.api.adapter.TrackAdapter;
 import savant.api.util.DialogUtils;
 import savant.controller.DockableFrameController;
 import savant.controller.DrawingModeController;
-import savant.controller.FrameController;
 import savant.controller.GenomeController;
 import savant.controller.LocationController;
 import savant.controller.TrackController;
 import savant.controller.event.DrawingModeChangedEvent;
 import savant.controller.event.GenomeChangedEvent;
-import savant.controller.event.TrackEvent;
 import savant.data.event.DataRetrievalEvent;
 import savant.data.event.DataRetrievalListener;
 import savant.data.event.TrackCreationEvent;
@@ -55,11 +53,11 @@ import savant.file.DataFormat;
 import savant.plugin.SavantPanelPlugin;
 import savant.settings.ColourSettings;
 import savant.settings.InterfaceSettings;
-import savant.swing.component.ProgressPanel;
 import savant.util.DrawingMode;
 import savant.util.Listener;
 import savant.util.MiscUtils;
 import savant.util.Range;
+import savant.util.swing.ProgressPanel;
 import savant.view.dialog.BAMParametersDialog;
 import savant.view.icon.SavantIconFactory;
 import savant.view.swing.interval.BAMCoverageTrack;
@@ -180,7 +178,7 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
 
         // Add our progress-panel.  If setTracks is called promptly, it will be cleared
         // away before it ever has a chance to draw.
-        getContentPane().add(new ProgressPanel());
+        getContentPane().add(new ProgressPanel(null));
     }
 
     public JLayeredPane getFrameLandscape() {
@@ -222,15 +220,15 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
             GenomeController.getInstance().setSequence((SequenceTrack)newTracks[0]);
         }
 
-        LOG.trace("Frame being set up with " + newTracks.length + " tracks.");
         tracks = newTracks;
         graphPane.setTracks(tracks);
+        drawTracksInRange(LocationController.getInstance().getReferenceName(), LocationController.getInstance().getRange());
 
         for (Track t: tracks) {
             t.setFrame(this);
 
             //CREATE LEGEND PANEL
-            if (t.getDataSource().getDataFormat() == DataFormat.INTERVAL_BAM) {
+            if (t.getDataFormat() == DataFormat.INTERVAL_BAM) {
                 arcLegend.add(t.getRenderer().arcLegendPaint());
             }
         }
@@ -266,7 +264,7 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
 
         }
 
-        DataFormat df = t0.getDataSource().getDataFormat();
+        DataFormat df = t0.getDataFormat();
 
         // TODO: Should we really be doing BAM-specific stuff in this class?
         if (df == DataFormat.INTERVAL_BAM) {
@@ -360,12 +358,6 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
                     setHeightFromSlider();
                 }
                 break;
-        }
-
-        // This calls drawTracksInRange() which sets up the initial render.
-        FrameController.getInstance().addFrame(this);
-        for (Track t: tracks) {
-            TrackController.getInstance().fireEvent(new TrackEvent(TrackEvent.Type.OPENED, t));
         }
 
         JPanel contentPane = (JPanel)getContentPane();
@@ -719,7 +711,7 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
         DrawingMode mode = evt.getMode();
 
         boolean reRender = true;
-        if (track.getDataSource().getDataFormat() == DataFormat.INTERVAL_BAM) {
+        if (track.getDataFormat() == DataFormat.INTERVAL_BAM) {
             if (mode == DrawingMode.ARC_PAIRED) {
                 setCoverageEnabled(false);
                 //intervalButton.setVisible(false);
@@ -733,7 +725,7 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
                 arcButton.setVisible(false);
                 arcLegend.setVisible(false);
             }
-        } else if (track.getDataSource().getDataFormat() == DataFormat.INTERVAL_RICH || track.getDataSource().getDataFormat() == DataFormat.INTERVAL_GENERIC) {
+        } else if (track.getDataFormat() == DataFormat.INTERVAL_RICH || track.getDataFormat() == DataFormat.INTERVAL_GENERIC) {
             intervalMenu.setVisible(mode == DrawingMode.STANDARD || mode == DrawingMode.PACK);
         }
         setYMaxVisible(true);

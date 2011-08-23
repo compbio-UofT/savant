@@ -55,7 +55,7 @@ public class DialogUtils {
      * Display a Savant dialog to ask a yes/no question.
      */
     public static int askYesNo(String title, String prompt) {
-        return savant.view.swing.util.DialogUtils.askYesNo(title, prompt);
+        return savant.util.swing.DialogUtils.askYesNo(title, prompt);
     }
 
     /**
@@ -69,7 +69,7 @@ public class DialogUtils {
      * Display a Savant dialog to ask a yes/no/cancel question with the title "Savant".
      */
     public static int askYesNoCancel(String prompt) {
-        return savant.view.swing.util.DialogUtils.askYesNoCancel("Savant", prompt);
+        return savant.util.swing.DialogUtils.askYesNoCancel("Savant", prompt);
     }
 
     /**
@@ -78,7 +78,7 @@ public class DialogUtils {
      * @param message the message to be displayed
      */
     public static void displayError(String message) {
-        savant.view.swing.util.DialogUtils.displayError("Savant Error", message);
+        savant.util.swing.DialogUtils.displayError("Savant Error", message);
     }
 
     /**
@@ -88,14 +88,14 @@ public class DialogUtils {
      * @param message the message to be displayed
      */
     public static void displayError(String title, String message) {
-        savant.view.swing.util.DialogUtils.displayError(title, message);
+        savant.util.swing.DialogUtils.displayError(title, message);
     }
 
     /**
      * Display a dialog that gets an input string from the user.
      */
     public static String displayInputMessage(String message, String defaultInput) {
-        return savant.view.swing.util.DialogUtils.displayInputMessage("Savant", message, defaultInput);
+        return savant.util.swing.DialogUtils.displayInputMessage("Savant", message, defaultInput);
     }
 
     /**
@@ -104,7 +104,7 @@ public class DialogUtils {
      * @param message the message to be displayed
      */
     public static void displayMessage(String message) {
-        savant.view.swing.util.DialogUtils.displayMessage("Savant", message);
+        savant.util.swing.DialogUtils.displayMessage("Savant", message);
     }
 
     /**
@@ -114,7 +114,7 @@ public class DialogUtils {
      * @param message the message to be displayed
      */
     public static void displayMessage(String title, String message) {
-        savant.view.swing.util.DialogUtils.displayMessage(title, message);
+        savant.util.swing.DialogUtils.displayMessage(title, message);
     }
 
 
@@ -126,7 +126,7 @@ public class DialogUtils {
      * @param x exception whose stack trace will be displayed in the Details section
      */
     public static void displayException(String title, String message, Throwable x) {
-        savant.view.swing.util.DialogUtils.displayException(title, message, x);
+        savant.util.swing.DialogUtils.displayException(title, message, x);
     }
 
     /**
@@ -138,7 +138,7 @@ public class DialogUtils {
      * @return a <code>File</code>, or null if cancelled
      */
     public static File chooseFileForOpen(String title, FileFilter filter, File initialDir) {
-        return savant.view.swing.util.DialogUtils.chooseFileForOpen(Savant.getInstance(), title, filter, initialDir);
+        return savant.util.swing.DialogUtils.chooseFileForOpen(Savant.getInstance(), title, filter, initialDir);
     }
 
     /**
@@ -151,7 +151,7 @@ public class DialogUtils {
      * @return an array of selected files; an empty array if nothing is selected
      */
     public static File[] chooseFilesForOpen(String title, FileFilter filter, File initialDir) {
-        return savant.view.swing.util.DialogUtils.chooseFilesForOpen(Savant.getInstance(), title, filter, initialDir);
+        return savant.util.swing.DialogUtils.chooseFilesForOpen(Savant.getInstance(), title, filter, initialDir);
     }
 
     /**
@@ -162,7 +162,7 @@ public class DialogUtils {
      * @return a <code>File</code>, or null if cancelled
      */
     public static File chooseFileForSave(String title, String defaultName) {
-        return savant.view.swing.util.DialogUtils.chooseFileForSave(Savant.getInstance(), title, defaultName, null, null);
+        return savant.util.swing.DialogUtils.chooseFileForSave(Savant.getInstance(), title, defaultName, null, null);
     }
 
     /**
@@ -173,7 +173,7 @@ public class DialogUtils {
      * @return a <code>File</code>, or null if cancelled
      */
     public static File chooseFileForSave(String title, String defaultName, FileFilter filter) {
-        return savant.view.swing.util.DialogUtils.chooseFileForSave(Savant.getInstance(), title, defaultName, filter, null);
+        return savant.util.swing.DialogUtils.chooseFileForSave(Savant.getInstance(), title, defaultName, filter, null);
     }
 
     /**
@@ -185,7 +185,7 @@ public class DialogUtils {
      * @return a <code>File</code>, or null if cancelled
      */
     public static File chooseFileForSave(String title, String defaultName, FileFilter filter, File dir) {
-        return savant.view.swing.util.DialogUtils.chooseFileForSave(Savant.getInstance(), title, defaultName, filter, dir);
+        return savant.util.swing.DialogUtils.chooseFileForSave(Savant.getInstance(), title, defaultName, filter, dir);
     }
 
     /**
@@ -202,6 +202,6 @@ public class DialogUtils {
      * @param fraction fraction of the process which is complete (-1.0 for an indeterminate process; 1.0 to dismiss the dialog)
      */
     public static void showProgress(String message, double fraction) {
-        savant.view.swing.util.ProgressDialog.showProgress(message, fraction);
+        savant.util.swing.ProgressDialog.showProgress(message, fraction);
     }
 }

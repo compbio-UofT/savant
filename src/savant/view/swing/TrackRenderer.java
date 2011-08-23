@@ -32,7 +32,6 @@ import savant.data.event.DataRetrievalEvent;
 import savant.data.event.DataRetrievalListener;
 import savant.data.types.Record;
 import savant.exception.RenderingException;
-import savant.util.AxisType;
 import savant.util.DrawingInstruction;
 import savant.util.DrawingMode;
 import savant.util.Resolution;

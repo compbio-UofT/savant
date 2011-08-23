@@ -25,8 +25,8 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import savant.api.adapter.DataSourceAdapter;
 
+import savant.api.adapter.DataSourceAdapter;
 import savant.api.adapter.TrackAdapter;
 import savant.controller.FrameController;
 import savant.controller.TrackController;
@@ -36,7 +36,6 @@ import savant.controller.event.TrackEvent;
 import savant.controller.event.TrackListChangedEvent;
 import savant.controller.event.TrackListChangedListener;
 import savant.controller.event.TrackRemovedListener;
-import savant.data.sources.DataSource;
 import savant.file.DataFormat;
 import savant.util.Listener;
 import savant.view.swing.DockableFrameFactory;
@@ -86,6 +85,7 @@ public class TrackUtils {
         for (int i = 0; i < tracks.size(); i++) {
             myTracks[i] = (Track)tracks.get(i);
         }
+        TrackController.getInstance().fireEvent(new TrackEvent(TrackEvent.Type.WILL_BE_ADDED, null));
         Frame f = DockableFrameFactory.createTrackFrame();
         f.setTracks(myTracks);
     }
@@ -95,7 +95,7 @@ public class TrackUtils {
      *
      * @param ds a DataSource object which has already been created
      */
-    public static TrackAdapter createTrack(DataSource ds) throws Throwable {
+    public static TrackAdapter createTrack(DataSourceAdapter ds) throws Throwable {
         return TrackFactory.createTrack(ds);
     }
 

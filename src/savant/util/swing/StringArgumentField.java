@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 
-package savant.swing.component;
+package savant.util.swing;
 
 import javax.swing.BoxLayout;
 import javax.swing.JPanel;

@@ -23,7 +23,7 @@ import javax.swing.JFileChooser;
 import savant.api.util.DialogUtils;
 import savant.mail.Mail;
 import savant.settings.BrowserSettings;
-import savant.swing.component.PathField;
+import savant.util.swing.PathField;
 
 /**
  *

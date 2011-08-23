@@ -27,7 +27,7 @@ import savant.data.types.IntervalRecord;
  */
 public class StuffedIntervalRecord implements IntervalRecord {
 
-    static List<List<IntervalRecord>> getOriginalIntervals(ArrayList<List<IntervalRecord>> pack) {
+    static List<List<IntervalRecord>> getOriginalIntervals(List<List<IntervalRecord>> pack) {
 
         List<List<IntervalRecord>> result = new ArrayList<List<IntervalRecord>>();
 

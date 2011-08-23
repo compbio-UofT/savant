@@ -19,6 +19,9 @@ package savant.util;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 
 /**
  * Generic controller class which provides functionality which can be used by other
@@ -27,6 +30,8 @@ import java.util.List;
  * @author tarkvara
  */
 public abstract class Controller<E> {
+    private static final Log LOG = LogFactory.getLog(Controller.class);
+
     protected List<Listener<E>> listeners = new ArrayList<Listener<E>>();
     private List<Listener<E>> listenersToAdd;
     private List<Listener<E>> listenersToRemove;
@@ -38,7 +43,11 @@ public abstract class Controller<E> {
         listenersToAdd = new ArrayList<Listener<E>>();
         listenersToRemove = new ArrayList<Listener<E>>();
         for (final Listener l: listeners) {
-            l.handleEvent(event);
+            try {
+                l.handleEvent(event);
+            } catch (Throwable x) {
+                LOG.warn(l + " threw exception while handling event.", x);
+            }
         }
         for (Listener<E> l: listenersToAdd) {
             listeners.add(l);

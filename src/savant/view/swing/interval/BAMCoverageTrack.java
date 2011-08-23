@@ -33,7 +33,6 @@ public class BAMCoverageTrack extends Track {
     public BAMCoverageTrack(DataSourceAdapter dataSource) throws SavantTrackCreationCancelledException {
         super(dataSource, new ContinuousTrackRenderer());
         setColorScheme(getDefaultColorScheme());
-        this.notifyControllerOfCreation();
     }
 
     @Override
@@ -41,7 +40,7 @@ public class BAMCoverageTrack extends Track {
 
         Resolution r = getResolution(range);
         if (isEnabled() && r != Resolution.HIGH) {
-            renderer.addInstruction(DrawingInstruction.PROGRESS, "Loading coverage track...");
+            renderer.addInstruction(DrawingInstruction.PROGRESS, "Retrieving coverage data...");
             renderer.addInstruction(DrawingInstruction.AXIS_RANGE, AxisRange.initWithRanges(range, getDefaultYRange()));
             requestData(reference, range);
         } else {

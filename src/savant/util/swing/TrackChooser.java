@@ -13,7 +13,7 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package savant.swing.component;
+package savant.util.swing;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -121,7 +121,7 @@ public class TrackChooser extends JDialog {
             String current = leftTracks[i];
             for(int j = 0; j <frames.size(); j++){
                 if(frames.get(j).getName().equals(current)){
-                    if(!frames.get(j).getTracks()[0].getDataSource().getDataFormat().equals(ff)){
+                    if(!frames.get(j).getTracks()[0].getDataFormat().equals(ff)){
                         remove[count] = i;
                         removed[count] = current;
                         count++;
@@ -422,7 +422,7 @@ public class TrackChooser extends JDialog {
         for(int i = 0; i <frames.size(); i++){
             //tracks[i] = frames.get(i).getTracks().get(0).getName();
             trackNames[i] = frames.get(i).getName();
-            DataFormat ff = frames.get(i).getTracks()[0].getDataSource().getDataFormat();
+            DataFormat ff = frames.get(i).getTracks()[0].getDataFormat();
             if(!fileFormats.contains(ff)) fileFormats.add(ff);
         }
         filterCombo.addItem("All");

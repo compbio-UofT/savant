@@ -196,13 +196,15 @@ public class RangeSelectionPanel extends JPanel implements LocationChangedListen
         int x = width < 0 ? this.x1 : this.x2;
         int y = 0;
 
-        int startrange = locationController.getRangeStart();
-        int endrange = locationController.getRangeEnd();
-
         // Lines on top and bottom
         g.setColor(LINE_COLOUR);
         g.drawLine(0, 0, wid, 0);
         g.drawLine(0, hei - 1, wid, hei - 1);
+
+        // At early points in the GUI initialisation, the range has not yet been set.
+        if (locationController.getRange() == null) {
+            return;
+        }
 
         String bandPos = "";
 
@@ -252,8 +254,11 @@ public class RangeSelectionPanel extends JPanel implements LocationChangedListen
             g.drawRect(x, y, w, h);
             
         } else {
-            int startx = MiscUtils.transformPositionToPixel(startrange, this.getWidth(), locationController.getMaxRange());
-            int endx = MiscUtils.transformPositionToPixel(endrange, this.getWidth(), locationController.getMaxRange());
+            int startrange = locationController.getRangeStart();
+            int endrange = locationController.getRangeEnd();
+
+            int startx = MiscUtils.transformPositionToPixel(startrange, getWidth(), locationController.getMaxRange());
+            int endx = MiscUtils.transformPositionToPixel(endrange, getWidth(), locationController.getMaxRange());
             int widpixels = Math.max(5, endx-startx);
 
             //Graphics2D g2d = (Graphics2D) g;

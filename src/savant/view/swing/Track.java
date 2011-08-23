@@ -26,7 +26,6 @@ import org.apache.commons.logging.LogFactory;
 import savant.api.adapter.DataSourceAdapter;
 import savant.api.adapter.TrackAdapter;
 import savant.controller.SelectionController;
-import savant.controller.DataSourceController;
 import savant.controller.TrackController;
 import savant.data.event.DataRetrievalEvent;
 import savant.data.event.DataRetrievalListener;
@@ -41,7 +40,7 @@ import savant.util.DrawingMode;
 import savant.util.MiscUtils;
 import savant.util.Range;
 import savant.util.Resolution;
-import savant.view.swing.util.DialogUtils;
+import savant.util.swing.DialogUtils;
 
 /**
  * Class to handle the preparation for rendering of a track. Handles colour schemes and
@@ -62,6 +61,7 @@ public abstract class Track implements TrackAdapter {
     private DrawingMode drawingMode;
     protected final TrackRenderer renderer;
     private final DataSourceAdapter dataSource;
+    private Thread retriever;
 
     private final List<DataRetrievalListener> listeners = new ArrayList<DataRetrievalListener>();
 
@@ -113,14 +113,6 @@ public abstract class Track implements TrackAdapter {
             }
         }
         return result;
-    }
-
-    public void notifyControllerOfCreation() {
-        TrackController tc = TrackController.getInstance();
-        tc.addTrack(this);
-        if (dataSource != null) {
-            DataSourceController.getInstance().addDataSource(dataSource);
-        }
     }
 
     /**
@@ -351,7 +343,7 @@ public abstract class Track implements TrackAdapter {
     public void requestData(final String reference, final Range range) {
         dataInRange = null;
         fireDataRetrievalStarted();
-        Thread retriever = new Thread("DataRetriever") {
+        retriever = new Thread("DataRetriever") {
             @Override
             public void run() {
                 try {
@@ -365,17 +357,21 @@ public abstract class Track implements TrackAdapter {
                     LOG.error("Data retrieval failed.", x);
                     fireDataRetrievalFailed(x);
                 }
+                retriever = null;
             }
         };
         retriever.start();
         try {
-            retriever.join(1000);
-            if (retriever.isAlive()) {
-                // Join timed out, but we are still waiting for data to arrive.
-                LOG.trace("Join timed out, putting up progress-bar.");
+            if (retriever != null) {
+                retriever.join(1000);
+                if (retriever != null && retriever.isAlive()) {
+                    // Join timed out, but we are still waiting for data to arrive.
+                    LOG.trace("Join timed out, putting up progress-bar.");
+                }
             }
         } catch (InterruptedException ix) {
             LOG.error("DataRetriever interrupted during join.", ix);
+            retriever = null;
         }
     }
 
@@ -436,6 +432,16 @@ public abstract class Track implements TrackAdapter {
                 }
             }
         });
+    }
+
+    /**
+     * Cancel an in-progress request to retrieve data.
+     */
+    public void cancelDataRequest() {
+        if (retriever != null) {
+            retriever.interrupt();
+            fireDataRetrievalFailed(new Exception("Data retrieval cancelled"));
+        }
     }
 
     /**

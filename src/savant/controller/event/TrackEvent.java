@@ -46,7 +46,7 @@ public class TrackEvent {
     public enum Type {
         ADDED,
         REMOVED,
-        OPENED
+        WILL_BE_ADDED
     }
 }
 

@@ -180,7 +180,9 @@ public class ToolsModule {
         TrackController.getInstance().addListener(new Listener<TrackEvent>() {
             @Override
             public void handleEvent(TrackEvent event) {
-                runTools(toolsSubscribedToTrackListChangeEvent);
+                if (event.getType() == TrackEvent.Type.ADDED || event.getType() == TrackEvent.Type.REMOVED) {
+                    runTools(toolsSubscribedToTrackListChangeEvent);
+                }
             }
         });
         ThreadController.getInstance().addThreadActivityListener(new ThreadActivityChangedListener() {

@@ -14,7 +14,7 @@
  *    limitations under the License.
  */
 
-package savant.view.swing.util;
+package savant.util.swing;
 
 import java.awt.KeyboardFocusManager;
 import java.awt.Window;

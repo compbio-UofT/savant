@@ -333,7 +333,7 @@ public class BAMTrackRenderer extends TrackRenderer {
         Collections.sort(mates);
 
         IntervalPacker packer = new IntervalPacker(mates);
-        ArrayList<List<IntervalRecord>> intervals = packer.pack(2);
+        List<List<IntervalRecord>> intervals = packer.pack(2);
 
         gp.setXRange(axisRange.getXRange());
         int maxYRange;
@@ -412,8 +412,7 @@ public class BAMTrackRenderer extends TrackRenderer {
         int breathingRoom = (int)Math.ceil(2 * (arrowWidth / pixelsPerBase) + 2);
 
         // TODO: when it becomes possible, choose an appropriate number for breathing room parameter
-//        Map<Integer, ArrayList<IntervalRecord>> intervals = packer.pack(10);
-        ArrayList<List<IntervalRecord>> intervals = new IntervalPacker(data).pack(breathingRoom);
+        List<List<IntervalRecord>> intervals = new IntervalPacker(data).pack(breathingRoom);
 
         gp.setXRange(range);
         int maxYRange;
@@ -1371,8 +1370,7 @@ public class BAMTrackRenderer extends TrackRenderer {
             g2.draw(arc);
 
             //this.dataShapes.set(i, arc);
-            this.recordToShapeMap.put(record, arc);
-
+            recordToShapeMap.put(record, arc);
         }
 
         // draw legend

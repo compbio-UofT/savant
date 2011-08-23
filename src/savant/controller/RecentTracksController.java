@@ -71,25 +71,27 @@ public class RecentTracksController {
 
             @Override
             public void handleEvent(TrackEvent event) {
-                Track t = event.getTrack();
+                if (event.getType() == TrackEvent.Type.ADDED) {
+                    Track t = event.getTrack();
 
-                if (t instanceof BAMCoverageTrack) { return; }
+                    if (t instanceof BAMCoverageTrack) { return; }
 
-                DataSourceAdapter ds = t.getDataSource();
+                    DataSourceAdapter ds = t.getDataSource();
 
-                if (ds == null || ds.getURI() == null) {
-                    return;
-                }
+                    if (ds == null || ds.getURI() == null) {
+                        return;
+                    }
 
-                String path = MiscUtils.getNeatPathFromURI(ds.getURI());
+                    String path = MiscUtils.getNeatPathFromURI(ds.getURI());
 
-                queue.remove(path);
-                resizeQueue(queue, NUM_RECENTS_TO_SAVE);
-                queue.add(0,path);
-                updateMenuList();
+                    queue.remove(path);
+                    resizeQueue(queue, NUM_RECENTS_TO_SAVE);
+                    queue.add(0,path);
+                    updateMenuList();
 
-                try { saveRecents(queue); } catch (IOException ex) {
-                    LOG.error("Could not save recents to file", ex);
+                    try { saveRecents(queue); } catch (IOException ex) {
+                        LOG.error("Could not save recents to file", ex);
+                    }
                 }
             }
         });

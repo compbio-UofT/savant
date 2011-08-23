@@ -18,7 +18,9 @@ package savant.api.adapter;
 
 import java.util.List;
 import javax.swing.JPanel;
+
 import savant.data.types.Record;
+import savant.file.DataFormat;
 import savant.plugin.SavantPanelPlugin;
 import savant.util.AxisType;
 import savant.util.DrawingMode;
@@ -53,6 +55,15 @@ public interface TrackAdapter {
      * @return this track's <code>DataSource</code>
      */
     public DataSourceAdapter getDataSource();
+
+
+    /**
+     * Utility method to get a track's data format.  Equivalent to calling getDataSource().getDataFormat().
+     *
+     * @return this track's <code>DataFormat</code>
+     * @since 1.6.0
+     */
+    public DataFormat getDataFormat();
 
 
     /**

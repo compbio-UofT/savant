@@ -38,9 +38,7 @@ public class SequenceTrack extends Track {
 
     public SequenceTrack(DataSourceAdapter dataTrack) throws SavantTrackCreationCancelledException {
         super(dataTrack, new SequenceTrackRenderer());
-
         setColorScheme(getDefaultColorScheme());
-        notifyControllerOfCreation();
     }
 
     private ColorScheme getDefaultColorScheme()
@@ -77,7 +75,7 @@ public class SequenceTrack extends Track {
         Resolution r = getResolution(range);
 
         if (r == Resolution.HIGH) {
-            renderer.addInstruction(DrawingInstruction.PROGRESS, "Loading sequence track...");
+            renderer.addInstruction(DrawingInstruction.PROGRESS, "Loading sequence data...");
             requestData(reference, range);
         } else {
             renderer.addInstruction(DrawingInstruction.ERROR, ZOOM_MESSAGE);

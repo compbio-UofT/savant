@@ -20,7 +20,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,6 +30,7 @@ import org.apache.commons.logging.LogFactory;
 import savant.api.adapter.DataSourceAdapter;
 import savant.api.util.DialogUtils;
 import savant.controller.DataSourcePluginController;
+import savant.controller.TrackController;
 import savant.data.event.TrackCreationEvent;
 import savant.data.event.TrackCreationListener;
 import savant.data.sources.*;
@@ -75,22 +75,31 @@ public class TrackFactory {
             throw new IllegalArgumentException("DataSource cannot be null.");
         }
 
+        Track t;
         switch (ds.getDataFormat()) {
             case SEQUENCE_FASTA:
-                return new SequenceTrack(ds);
+                t = new SequenceTrack(ds);
+                break;
             case INTERVAL_RICH:
-                return new RichIntervalTrack(ds);
+                t = new RichIntervalTrack(ds);   // BED or Tabix
+                break;
             case POINT_GENERIC:
-                return new PointTrack(ds);
+                t = new PointTrack(ds);
+                break;
             case CONTINUOUS_GENERIC:
-                return new ContinuousTrack(ds);
+                t = new ContinuousTrack(ds);     // Savant or TDF
+                break;
             case INTERVAL_BAM:
-                return new BAMTrack(ds);
+                t = new BAMTrack(ds);
+                break;
             case INTERVAL_GENERIC:
-                return new IntervalTrack(ds);
+                t = new IntervalTrack(ds);
+                break;
             default:
                 throw new IllegalArgumentException(String.format("Unknown data format: %s.", ds.getDataFormat()));
         }
+        TrackController.getInstance().addTrack(t);
+        return t;
     }
 
     /**
@@ -112,6 +121,9 @@ public class TrackFactory {
         }
     }
 
+    /**
+     * Create a DataSource, guessing the file-type from the file's extension.
+     */
     public static DataSourceAdapter createDataSource(URI trackURI) throws IOException, SavantFileNotFormattedException, SavantUnsupportedVersionException, SavantUnsupportedFileTypeException {
         return createDataSource(trackURI, SavantFileFormatterUtils.guessFileTypeFromPath(trackURI.toString()));
     }
@@ -187,8 +199,6 @@ public class TrackFactory {
         public void run() {
             // determine default track name from filename
             String uriString = trackURI.toString();
-            int lastSlashIndex = uriString.lastIndexOf(System.getProperty("file.separator"));
-            String name = uriString.substring(lastSlashIndex + 1);
 
             FileType fileType = SavantFileFormatterUtils.guessFileTypeFromPath(uriString);
 
@@ -198,22 +208,23 @@ public class TrackFactory {
                 List<Track> tracks = new ArrayList<Track>(2);
                 tracks.add(createTrack(ds));
                 if (fileType == FileType.INTERVAL_BAM) {
-                    URI coverageURI = new URI(trackURI.toString() + ".cov.tdf");
+                    URI coverageURI = new URI(uriString + ".cov.tdf");
                     try {
                         if (NetworkUtils.exists(coverageURI)) {
                             ds = new TDFDataSource(coverageURI);
                             tracks.add(new BAMCoverageTrack(ds));
                         } else {
-                            coverageURI = new URI(trackURI.toString() + ".cov.savant");
+                            coverageURI = new URI(uriString + ".cov.savant");
                             if (NetworkUtils.exists(coverageURI)) {
                                 ds = new GenericContinuousDataSource(coverageURI);
                                 tracks.add(new BAMCoverageTrack(ds));
                             }
                         }
                     } catch (Exception x) {
-                        LOG.error("Unable to load coverage track for " + trackURI, x);
+                        LOG.error("Unable to load coverage track for " + uriString, x);
                     }
                 }
+                LOG.debug("Firing trackCreationCompleted for " + tracks.get(0));
                 fireTrackCreationCompleted(tracks.toArray(new Track[0]), "");
             } catch (RuntimeIOException x) {
                 // Special case: SamTools I/O Exception which contains the real exception nested within.

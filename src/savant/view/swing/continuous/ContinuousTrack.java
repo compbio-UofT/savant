@@ -43,14 +43,13 @@ import savant.view.swing.Track;
     public ContinuousTrack(DataSourceAdapter track) throws SavantTrackCreationCancelledException {
         super(track, new ContinuousTrackRenderer());
         setColorScheme(getDefaultColorScheme());
-        this.notifyControllerOfCreation();
     }
 
     @Override
     public void prepareForRendering(String reference, Range range) {
 
         Resolution r = getResolution(range);
-        renderer.addInstruction(DrawingInstruction.PROGRESS, "Loading track...");
+        renderer.addInstruction(DrawingInstruction.PROGRESS, "Retrieving data...");
         requestData(reference, new Range(range.getFrom(), range.getTo()+2));
         renderer.addInstruction(DrawingInstruction.RANGE, range);
         renderer.addInstruction(DrawingInstruction.RESOLUTION, r);

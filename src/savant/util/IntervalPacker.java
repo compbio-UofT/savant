@@ -46,8 +46,7 @@ public class IntervalPacker {
         this.data = data;
     }
 
-//    public Map<Integer, ArrayList<IntervalRecord>> pack(int breathingSpace) {
-    public ArrayList<List<IntervalRecord>> pack(int breathingSpace) {
+    public List<List<IntervalRecord>> pack(int breathingSpace) {
 
         int numdata = data.size();
 

@@ -39,7 +39,6 @@ import javax.swing.*;
 
 import com.apple.eawt.*;
 import com.jidesoft.docking.*;
-import com.jidesoft.docking.DockingManager.FrameHandle;
 import com.jidesoft.docking.event.DockableFrameAdapter;
 import com.jidesoft.docking.event.DockableFrameEvent;
 import com.jidesoft.plaf.LookAndFeelFactory;
@@ -63,10 +62,10 @@ import savant.plugin.SavantPlugin;
 import savant.plugin.builtin.SAFEDataSourcePlugin;
 import savant.plugin.builtin.SavantFileRepositoryDataSourcePlugin;
 import savant.settings.*;
-import savant.swing.component.TrackChooser;
 import savant.util.Listener;
 import savant.util.MiscUtils;
 import savant.util.Version;
+import savant.util.swing.TrackChooser;
 import savant.view.dialog.*;
 import savant.view.icon.SavantIconFactory;
 import savant.view.tools.ToolsModule;
@@ -339,25 +338,9 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
 
             @Override
             public void handleEvent(TrackEvent event) {
-                if (event.getType() == TrackEvent.Type.OPENED) {
-                    Frame f = event.getTrack().getFrame();
-                    if (startpage != null && startpage.isVisible()) {
-                        startpage.setVisible(false);
-                    }
-
-                    // remove bogus "#Workspace" frame
-                    List<FrameHandle> simpleFrames = getCleanedOrderedFrames(trackDockingManager);
-
-                    // the number of frames, currently
-                    int numframes = simpleFrames.size();
-
-                    trackDockingManager.addFrame(f);
-
-                    // move the frame to the bottom of the stack
-                    if (numframes != 0) {
-                        FrameHandle lastFrame = simpleFrames.get(0);
-                        trackDockingManager.moveFrame(f.getKey(), lastFrame.getKey(),DockContext.DOCK_SIDE_SOUTH);
-                    }
+                if (event.getType() == TrackEvent.Type.WILL_BE_ADDED) {
+                    showBrowserControls();
+                    TrackController.getInstance().removeListener(this);
                 }
             }
         });
@@ -596,6 +579,7 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
 
         loadFromFileItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_T, java.awt.event.InputEvent.CTRL_MASK));
         loadFromFileItem.setText("Load Track from File...");
+        loadFromFileItem.setEnabled(false);
         loadFromFileItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 loadFromFileItemActionPerformed(evt);
@@ -1758,6 +1742,10 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
             return;
         }
 
+        if (startpage != null) {
+            startpage.setVisible(false);
+        }
+
         panel_top.setVisible(true);
         navigationItem.setSelected(true);
 
@@ -1771,7 +1759,6 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
         loadFromURLItem.setEnabled(true);
         loadFromDataSourcePluginItem.setEnabled(true);
 
-        //setStartPageVisible(false);
         navigationBar.setVisible(true);
         browserControlsShown = true;
     }
@@ -1817,16 +1804,6 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
             showBookmarksChangedDialog = false;
         }
         //JOptionPane.showMessageDialog(this, , , JOptionPane.INFORMATION_MESSAGE);
-    }
-
-    private List<FrameHandle> getCleanedOrderedFrames(DockingManager dm) {
-        List<FrameHandle> cleanFrames = new ArrayList<FrameHandle>();
-        for (FrameHandle h : dm.getOrderedFrames()) {
-            if (!h.getKey().startsWith("#")) {
-                cleanFrames.add(h);
-            }
-        }
-        return cleanFrames;
     }
 
     @Override

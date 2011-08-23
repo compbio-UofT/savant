@@ -43,7 +43,6 @@ public class RichIntervalTrack extends Track {
         setColorScheme(getDefaultColorScheme());
         setValidDrawingModes(renderer.getDrawingModes());
         setDrawingMode(renderer.getDefaultDrawingMode());
-        notifyControllerOfCreation();
     }
 
 
@@ -51,7 +50,7 @@ public class RichIntervalTrack extends Track {
     public void prepareForRendering(String reference, Range range) {
         Resolution r = getResolution(range);
         if (r == Resolution.HIGH){
-            renderer.addInstruction(DrawingInstruction.PROGRESS, "Loading track...");
+            renderer.addInstruction(DrawingInstruction.PROGRESS, "Retrieving data...");
             requestData(reference, range);
         } else {
             renderer.addInstruction(DrawingInstruction.ERROR, ZOOM_MESSAGE);

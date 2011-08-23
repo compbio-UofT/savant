@@ -182,14 +182,14 @@ public class SelectionController {
     * but it uses range to check whether anything has changed since the last
     * request. If nothing has changed, return the same list. 
     */
-   public List getSelectedFromList(String name, Range range, List<Record> data){
+   public List<Record> getSelectedFromList(String name, Range range, List<Record> data){
        
        if(range.equals(rangeMap.get(name)) && currentMap.get(name) != null){
            return currentMap.get(name);
        }
 
        rangeMap.put(name, range);
-       List<Record> currentSelected = this.getSelectedFromList(name, data);
+       List<Record> currentSelected = getSelectedFromList(name, data);
        currentMap.put(name, currentSelected);
 
        return currentSelected;

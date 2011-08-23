@@ -161,7 +161,7 @@ public class IntervalTrackRenderer extends TrackRenderer {
         if (r == Resolution.HIGH) {
 
             IntervalPacker packer = new IntervalPacker(data);
-            ArrayList<List<IntervalRecord>> intervals = packer.pack(2);
+            List<List<IntervalRecord>> intervals = packer.pack(2);
 
             gp.setXRange(axisRange.getXRange());
             int maxYRange;

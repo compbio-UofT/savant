@@ -28,6 +28,7 @@
                   <KeyStroke key="Ctrl+T"/>
                 </Property>
                 <Property name="text" type="java.lang.String" value="Load Track from File..."/>
+                <Property name="enabled" type="boolean" value="false"/>
               </Properties>
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="loadFromFileItemActionPerformed"/>

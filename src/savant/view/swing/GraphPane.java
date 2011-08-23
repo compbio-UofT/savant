@@ -28,10 +28,8 @@ import java.util.Map;
 import javax.swing.*;
 
 import com.jidesoft.popup.JidePopup;
-import java.io.IOException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import savant.controller.GenomeController;
 
 import savant.controller.GraphPaneController;
 import savant.controller.LocationController;
@@ -42,14 +40,12 @@ import savant.data.event.PopupEvent;
 import savant.data.event.PopupEventListener;
 import savant.data.types.BAMIntervalRecord;
 import savant.data.types.GenericContinuousRecord;
-import savant.data.types.Genome;
 import savant.data.types.Record;
-import savant.data.types.Strand;
 import savant.exception.RenderingException;
 import savant.selection.PopupThread;
 import savant.selection.PopupPanel;
 import savant.settings.ColourSettings;
-import savant.swing.component.ProgressPanel;
+import savant.util.swing.ProgressPanel;
 import savant.util.*;
 import savant.view.swing.continuous.ContinuousTrackRenderer;
 import savant.view.swing.interval.BAMTrack;
@@ -1317,13 +1313,13 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
      */
     private void showProgress(String msg) {
         if (progressPanel == null) {
-            progressPanel = new ProgressPanel();
+            progressPanel = new ProgressPanel(new TrackCancellationListener(parentFrame));
             add(progressPanel);
         }
         progressPanel.setMessage(msg);
     }
     
-    public void addExportEventListener(ExportEventListener eel){
+    public void addExportEventListener(ExportEventListener eel) {
         synchronized (exportListeners) {
             exportListeners.add(eel);
         }

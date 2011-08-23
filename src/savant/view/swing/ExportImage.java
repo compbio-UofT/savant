@@ -30,7 +30,7 @@ import savant.controller.FrameController;
 import savant.controller.GenomeController;
 import savant.controller.GraphPaneController;
 import savant.controller.LocationController;
-import savant.swing.component.TrackChooser;
+import savant.util.swing.TrackChooser;
 import savant.util.MiscUtils;
 
 /**

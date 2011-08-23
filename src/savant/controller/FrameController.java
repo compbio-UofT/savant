@@ -23,13 +23,18 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.jidesoft.docking.DockContext;
+import com.jidesoft.docking.DockingManager;
+import com.jidesoft.docking.DockingManager.FrameHandle;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import savant.controller.event.LocationChangedEvent;
 import savant.controller.event.LocationChangedListener;
+import savant.controller.event.TrackEvent;
 import savant.view.swing.DockableFrameFactory;
 import savant.view.swing.Frame;
+import savant.view.swing.Savant;
 import savant.view.swing.Track;
 import savant.view.swing.TrackFactory;
 
@@ -71,10 +76,15 @@ public class FrameController {
     }
 
     /**
-     * Create a frame for the given tracks.
+     * Create a frame for the given tracks.  Currently only used when creating a frame for
+     * a track which has been created by a DataSource plugin.
+     *
+     * FIXME: Can we use the normal track-creation code?
      */
     public Frame createFrame(Track[] tracks) {
+        TrackController.getInstance().fireEvent(new TrackEvent(TrackEvent.Type.WILL_BE_ADDED, null));
         Frame frame = DockableFrameFactory.createTrackFrame();
+        addFrame(frame);
         frame.setTracks(tracks);
         return frame;
     }
@@ -96,10 +106,11 @@ public class FrameController {
     }
 
     public Frame addTrackFromURI(URI uri) {
-        LOG.info("Loading track " + uri);
+        TrackController.getInstance().fireEvent(new TrackEvent(TrackEvent.Type.WILL_BE_ADDED, null));
         Frame frame = DockableFrameFactory.createTrackFrame();
         //Force a unique frame key. The title of frame is overwritten by track name later.
         frame.setKey(uri.toString()+System.nanoTime());
+        addFrame(frame);
         TrackFactory.createTrack(uri, frame);
         return frame;
     }
@@ -108,9 +119,36 @@ public class FrameController {
     public void addFrame(Frame f) {
         frames.add(f);
 
-        GraphPaneController.getInstance().enlistRenderingGraphpane(f.getGraphPane());
-        f.drawTracksInRange(locationController.getReferenceName(), locationController.getRange());
+        DockingManager trackDockingManager = Savant.getInstance().getTrackDockingManager();
+
+        // remove bogus "#Workspace" frame
+        List<FrameHandle> simpleFrames = getCleanedOrderedFrames(trackDockingManager);
+
+        // the number of frames, currently
+        int numframes = simpleFrames.size();
+
+        trackDockingManager.addFrame(f);
+
+        // Move the frame to the bottom of the stack
+        if (numframes != 0) {
+            FrameHandle lastFrame = simpleFrames.get(0);
+            trackDockingManager.moveFrame(f.getKey(), lastFrame.getKey(), DockContext.DOCK_SIDE_SOUTH);
+        }
     }
+
+    /**
+     * Get a list of frames without the bogus "#Workspace" frame.
+     */
+    private List<FrameHandle> getCleanedOrderedFrames(DockingManager dm) {
+        List<FrameHandle> cleanFrames = new ArrayList<FrameHandle>();
+        for (FrameHandle h : dm.getOrderedFrames()) {
+            if (!h.getKey().startsWith("#")) {
+                cleanFrames.add(h);
+            }
+        }
+        return cleanFrames;
+    }
+
 
     /**
      * Draw the frames in the current viewable range
@@ -122,7 +160,6 @@ public class FrameController {
             if (f.getTracks() != null) {
                 // added to detect when rendering has completed
                 GraphPaneController.getInstance().enlistRenderingGraphpane(f.getGraphPane());
-
                 f.drawTracksInRange(locationController.getReferenceName(), locationController.getRange());
             }
         }

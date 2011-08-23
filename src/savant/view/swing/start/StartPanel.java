@@ -44,8 +44,8 @@ import savant.controller.RecentTracksController;
 import savant.settings.BrowserSettings;
 import savant.settings.DirectorySettings;
 import savant.settings.PersistentSettings;
-import savant.swing.component.HyperlinkButton;
 import savant.util.NetworkUtils;
+import savant.util.swing.HyperlinkButton;
 import savant.view.icon.SavantIconFactory;
 
 

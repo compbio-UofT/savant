@@ -19,8 +19,8 @@ package savant.selection;
 
 import java.awt.Color;
 import java.awt.Cursor;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.util.List;
 import javax.swing.JLabel;
 
@@ -44,7 +44,6 @@ public class IntervalBamPopup extends PopupPanel implements DataRetrievalListene
 
     private BAMIntervalRecord rec;
     private SAMRecord samRec;
-    private String homogenizedRef;
     private IntervalBamPopup instance;
 
     public IntervalBamPopup(BAMIntervalRecord rec){
@@ -91,7 +90,8 @@ public class IntervalBamPopup extends PopupPanel implements DataRetrievalListene
             JLabel mateJump = new JLabel("Jump to Mate");
             mateJump.setForeground(Color.BLUE);
             mateJump.setCursor(new Cursor(Cursor.HAND_CURSOR));
-            mateJump.addMouseListener(new MouseListener() {
+            mateJump.addMouseListener(new MouseAdapter() {
+                @Override
                 public void mouseClicked(MouseEvent e) {
                     LocationController lc = LocationController.getInstance();
                     int offset = (int)Math.ceil(((float) lc.getRange().getLength())/2);
@@ -100,10 +100,6 @@ public class IntervalBamPopup extends PopupPanel implements DataRetrievalListene
                     lc.setLocation(homogenizeRef(samRec.getMateReferenceName()), new Range(start, end));
                     hidePopup();
                 }
-                public void mousePressed(MouseEvent e) {}
-                public void mouseReleased(MouseEvent e) {}
-                public void mouseEntered(MouseEvent e) {}
-                public void mouseExited(MouseEvent e) {}
             });
             this.add(mateJump);
 
@@ -111,8 +107,8 @@ public class IntervalBamPopup extends PopupPanel implements DataRetrievalListene
             JLabel mateJump1 = new JLabel("Select Pair");
             mateJump1.setForeground(Color.BLUE);
             mateJump1.setCursor(new Cursor(Cursor.HAND_CURSOR));
-            final IntervalBamPopup instance = this;
-            mateJump1.addMouseListener(new MouseListener() {
+            mateJump1.addMouseListener(new MouseAdapter() {
+                @Override
                 public void mouseClicked(MouseEvent e) {
                     for (Track t: gp.getTracks()) {
                         if (t.getDataFormat() == fileFormat){
@@ -125,13 +121,9 @@ public class IntervalBamPopup extends PopupPanel implements DataRetrievalListene
                     int offset = (int)Math.ceil(((float) lc.getRange().getLength())/2);
                     int start = samRec.getMateAlignmentStart()-offset;
                     int end = start + lc.getRange().getLength() - 1;
-                    gp.getTracks()[0].addDataRetrievalListener(instance);
+                    gp.getTracks()[0].addDataRetrievalListener(IntervalBamPopup.this);
                     lc.setLocation(homogenizeRef(samRec.getMateReferenceName()), new Range(start, end));
                 }
-                public void mousePressed(MouseEvent e) {}
-                public void mouseReleased(MouseEvent e) {}
-                public void mouseEntered(MouseEvent e) {}
-                public void mouseExited(MouseEvent e) {}
             });
             this.add(mateJump1);
         }
@@ -144,13 +136,12 @@ public class IntervalBamPopup extends PopupPanel implements DataRetrievalListene
 
     @Override
     public void dataRetrievalCompleted(DataRetrievalEvent evt) {
-        List<Record> data = evt.getData();
-        for(int i = 0; i < data.size(); i++){
-            SAMRecord current = ((BAMIntervalRecord)data.get(i)).getSamRecord();
+        for (Record rec: evt.getData()) {
+            SAMRecord current = ((BAMIntervalRecord)rec).getSamRecord();
             if(MiscUtils.isMate(samRec, current)){
                 for (Track t: gp.getTracks()) {
                     if (t.getDataFormat() == fileFormat){
-                        t.getRenderer().forceAddToSelected(data.get(i));
+                        t.getRenderer().forceAddToSelected(rec);
                         break;
                     }
                 }
@@ -171,6 +162,7 @@ public class IntervalBamPopup extends PopupPanel implements DataRetrievalListene
 
     //remove DataRetrievalListener after "Select Pair".
     class RemoveDataThread implements Runnable {
+        @Override
         public void run() {
             gp.getTracks()[0].removeDataRetrievalListener(instance);
         }

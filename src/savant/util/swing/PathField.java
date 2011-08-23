@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package savant.swing.component;
+package savant.util.swing;
 
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
@@ -13,7 +13,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import savant.view.icon.SavantIconFactory;
-import savant.view.swing.util.DocumentViewer;
+import savant.util.swing.DocumentViewer;
 
 /**
  *

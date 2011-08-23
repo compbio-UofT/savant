@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 
-package savant.view.swing.util;
+package savant.util.swing;
 
 import com.jidesoft.document.DocumentComponent;
 import com.jidesoft.document.DocumentPane;

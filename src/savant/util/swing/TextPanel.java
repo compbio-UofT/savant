@@ -9,7 +9,7 @@
  * Created on Apr 1, 2011, 12:24:48 PM
  */
 
-package savant.swing.component;
+package savant.util.swing;
 
 /**
  *

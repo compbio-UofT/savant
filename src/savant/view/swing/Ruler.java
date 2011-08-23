@@ -125,6 +125,12 @@ public class Ruler extends JPanel {
         }
 
         Range r = locationController.getRange();
+
+        // At early points in the GUI initialisation, the range has not yet been set.
+        if (r == null) {
+            return;
+        }
+
         int[] tickPositions = MiscUtils.getTickPositions(r);
         int separation = tickPositions.length > 1 ? tickPositions[1] - tickPositions[0] : 0;
 
@@ -139,7 +145,7 @@ public class Ruler extends JPanel {
             g2.drawString(numStr, x + 3, getHeight() / 2 + 3);
         }
 
-        if (locationController.getRange().getLength() >= locationController.getRangeStart()) {
+        if (r.getLength() >= locationController.getRangeStart()) {
             try {
                 Image image_left_cap = javax.imageio.ImageIO.read(getClass().getResource("/savant/images/round_cap_left_bordered.png"));
                 int pos = getLeftCapPos();
@@ -151,7 +157,7 @@ public class Ruler extends JPanel {
             }
         }
 
-        if (locationController.getRange().getLength() >= locationController.getMaxRangeEnd() - locationController.getRangeEnd()) {
+        if (r.getLength() >= locationController.getMaxRangeEnd() - locationController.getRangeEnd()) {
             try {
                 Image image_right_cap = javax.imageio.ImageIO.read(getClass().getResource("/savant/images/round_cap_right_bordered.png"));
                 int pos = MiscUtils.transformPositionToPixel(locationController.getMaxRangeEnd(), getWidth(), locationController.getRange());

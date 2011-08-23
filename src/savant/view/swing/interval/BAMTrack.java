@@ -71,7 +71,6 @@ public class BAMTrack extends Track {
         setColorScheme(getDefaultColorScheme());
         setValidDrawingModes(renderer.getDrawingModes());
         setDrawingMode(renderer.getDefaultDrawingMode());
-        notifyControllerOfCreation();
     }
 
     private ColorScheme getDefaultColorScheme() {
@@ -98,7 +97,7 @@ public class BAMTrack extends Track {
 
         Resolution r = getResolution(range, getDrawingMode());
         if (r == Resolution.HIGH) {
-            renderer.addInstruction(DrawingInstruction.PROGRESS, "Loading BAM track...");
+            renderer.addInstruction(DrawingInstruction.PROGRESS, "Retrieving BAM data...");
             requestData(reference, range);
         } else {
             saveNullData();
@@ -223,21 +222,20 @@ public class BAMTrack extends Track {
         return getDrawingMode() == DrawingMode.ARC_PAIRED ? AxisType.INTEGER : AxisType.INTEGER_GRIDLESS;
     }
 
-
     @Override
     protected synchronized List<Record> retrieveData(String reference, Range range, Resolution resolution) throws Exception {
-        return (List<Record>)(List<?>)((BAMDataSource)getDataSource()).getRecords(reference, range, resolution, getArcSizeVisibilityThreshold(), AxisRange.initWithRanges(range, getDefaultYRange()), getDrawingMode() == DrawingMode.ARC_PAIRED);
+        return (List<Record>)(List)((BAMDataSource)getDataSource()).getRecords(reference, range, resolution, getArcSizeVisibilityThreshold(), AxisRange.initWithRanges(range, getDefaultYRange()), getDrawingMode() == DrawingMode.ARC_PAIRED);
     }
     
-    public BAMIntervalRecord getMate(BAMIntervalRecord rec){
-        List<Record> data = this.getDataInRange();
+    public BAMIntervalRecord getMate(BAMIntervalRecord rec) {
+        List<Record> data = getDataInRange();
         SAMRecord samRec = rec.getSamRecord();
-        for(int i = 0; i < data.size(); i++){
-            SAMRecord current = ((BAMIntervalRecord)data.get(i)).getSamRecord();
+        for (Record rec2: data) {
+            SAMRecord current = ((BAMIntervalRecord)rec2).getSamRecord();
             if(MiscUtils.isMate(samRec, current)){
-                return (BAMIntervalRecord)data.get(i);
+                return (BAMIntervalRecord)rec2;
             }
-        }       
+        }
         return null;
     }
 }

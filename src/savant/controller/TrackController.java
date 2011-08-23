@@ -81,7 +81,7 @@ public class TrackController extends Controller<TrackEvent> {
     public List<Track> getTracks(DataFormat kind) {
         List<Track> tracksOfKind = new ArrayList<Track>();
         for (Track t : tracks) {
-            if (t.getDataSource().getDataFormat() == kind) {
+            if (t.getDataFormat() == kind) {
                 tracksOfKind.add(t);
             }
         }

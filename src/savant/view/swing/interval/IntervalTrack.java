@@ -45,7 +45,6 @@ public class IntervalTrack extends Track {
         setColorScheme(getDefaultColorScheme());
         setValidDrawingModes(renderer.getDrawingModes());
         setDrawingMode(renderer.getDefaultDrawingMode());
-        this.notifyControllerOfCreation();
     }
 
     private ColorScheme getDefaultColorScheme() {
@@ -108,7 +107,7 @@ public class IntervalTrack extends Track {
 
         switch (r) {
             case HIGH:
-                renderer.addInstruction(DrawingInstruction.PROGRESS, "Loading track...");
+                renderer.addInstruction(DrawingInstruction.PROGRESS, "Retrieving data...");
                 requestData(reference, range);
                 break;
             default:

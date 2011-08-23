@@ -32,9 +32,7 @@ public class PointTrack extends Track {
 
     public PointTrack(DataSourceAdapter dataSource) throws SavantTrackCreationCancelledException {
         super(dataSource, new PointTrackRenderer());
-
         setColorScheme(getDefaultColorScheme());
-        this.notifyControllerOfCreation();
     }
 
     private ColorScheme getDefaultColorScheme() {
@@ -63,7 +61,7 @@ public class PointTrack extends Track {
 
         switch (r) {
             case HIGH:
-                renderer.addInstruction(DrawingInstruction.PROGRESS, "Loading track...");
+                renderer.addInstruction(DrawingInstruction.PROGRESS, "Retrieving data...");
                 requestData(reference, range);
                 break;
             default:
