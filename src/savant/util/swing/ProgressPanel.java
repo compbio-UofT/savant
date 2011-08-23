@@ -25,6 +25,7 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
+import savant.view.icon.SavantIconFactory;
 
 
 /**
@@ -48,7 +49,8 @@ public class ProgressPanel extends JPanel {
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(12, 0, 3, 0);
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.weightx = 1.0;
+        gbc.gridwidth = 1;
 
         JProgressBar bar = new JProgressBar();
         bar.setIndeterminate(true);
@@ -57,16 +59,22 @@ public class ProgressPanel extends JPanel {
         bar.setPreferredSize(prefSize);
         add(bar, gbc);
 
-        message = new JLabel();
-        gbc.insets = new Insets(3, 0, 3, 0);
-        add(message, gbc);
-
         if (cancellationListener != null) {
-            cancelButton = new JButton("Cancel");
+            cancelButton = new JButton(SavantIconFactory.getInstance().getIcon(SavantIconFactory.StandardIcon.CLOSE_LIGHT));
+            cancelButton.setBorderPainted(false);
+            cancelButton.setRolloverIcon(SavantIconFactory.getInstance().getIcon(SavantIconFactory.StandardIcon.CLOSE_DARK));
             cancelButton.addActionListener(cancellationListener);
             gbc.fill = GridBagConstraints.NONE;
+            gbc.gridwidth = GridBagConstraints.REMAINDER;
+            gbc.weightx = 0.0;
             add(cancelButton, gbc);
         }
+
+        message = new JLabel();
+        gbc.insets = new Insets(3, 0, 3, 0);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        add(message, gbc);
+
     }
 
     public void setMessage(String msg) {
