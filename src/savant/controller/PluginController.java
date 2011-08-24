@@ -141,6 +141,8 @@ public class PluginController extends Controller {
                     errorStr.append(pluginErrors.get(s));
                 }
                 if (errorStr != null) {
+                    // The following dialog will only report plugins which we can tell are faulty before calling loadPlugin(), typically
+                    // by checking the version in plugin.xml.
                     DialogUtils.displayMessage("Plugins Not Loaded", String.format("<html>The following plugins could not be loaded:<br><br><i>%s</i><br><br>They will not be available to Savant.</html>", errorStr));
                 }
             }
@@ -167,7 +169,8 @@ public class PluginController extends Controller {
                                 loadPlugin(desc);
                             } catch (Throwable x) {
                                 LOG.error("Unable to load " + desc.getName(), x);
-                                pluginErrors.put(desc.getID(), "Error");
+                                pluginErrors.put(desc.getID(), x.getClass().getName());
+                                DialogUtils.displayMessage("Plugin Not Loaded", String.format("<html>The following plugin could not be loaded:<br><br><i>%s – %s</i><br><br>It will not be available to Savant.</html>", desc.getID(), x));
                             }
                         }
                     }.start();
