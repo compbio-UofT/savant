@@ -1,12 +1,24 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ *    Copyright 2010-2011 University of Toronto
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
  */
-
 package savant.snp;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.ArrayList;
+import java.util.EnumMap;
+import java.util.Map;
 
 /**
  *
@@ -16,36 +28,77 @@ class Pileup {
 
     private Nucleotide referenceNucleotide;
     private Nucleotide snpNucleotide;
+    private double snpNucleotideConfidence;
+    private double snpVariabilityConfidence;
+    private boolean isHet;
 
     private int position;
 
-    private String trackName;
+    private String viewTrackName;
 
-    //private int totalquality = 0;
     private List<Double> coverageA = new ArrayList<Double>();
     private double totalCoverageA = 0;
-    //private double a_quality = 0;
+    private double totalQualityA = 0;
     private List<Double> coverageC = new ArrayList<Double>();
     private double totalCoverageC = 0;
-    //private double c_quality = 0;
+    private double totalQualityC = 0;
     private List<Double> coverageT = new ArrayList<Double>();
     private double totalCoverageT = 0;
-    //private double t_quality = 0;
+    private double totalQualityT = 0;
     private List<Double> coverageG = new ArrayList<Double>();
     private double totalCoverageG = 0;
-    //private double g_quality = 0;
+    private double totalQualityG = 0;
     private List<Double> coverageOther = new ArrayList<Double>();
     private double totalCoverageOther = 0;
-    //private double other_quality = 0;
+    private double totalQualityOther = 0;
+    private Map<Nucleotide, List<Double>> coverageAll;
 
-    public Pileup(String trackName, int position, Nucleotide n) {
-        this.trackName = trackName;
+    private double snpPrior = 0;
+    private int pseudoCount = 5;
+    private double baseline_rate = 0.01;
+
+    public Pileup(String viewTrackName, int position, Nucleotide n) {
+        this.viewTrackName = viewTrackName;
         this.position = position;
         this.referenceNucleotide = n;
+
+        Nucleotide[] nucs = { Nucleotide.A, Nucleotide.C, Nucleotide.G, Nucleotide.T, Nucleotide.OTHER };
+        coverageAll = new EnumMap<Nucleotide, List<Double>>(Nucleotide.class);
+        for (Nucleotide let : nucs) {
+            this.coverageAll.put(let, new ArrayList<Double>());
+        }
     }
 
+    public Pileup(String viewTrackName, int position, Nucleotide n, double baseline_rate) {
+        this.viewTrackName = viewTrackName;
+        this.position = position;
+        this.referenceNucleotide = n;
+        this.baseline_rate = baseline_rate;
+
+        Nucleotide[] nucs = { Nucleotide.A, Nucleotide.C, Nucleotide.G, Nucleotide.T, Nucleotide.OTHER };
+        coverageAll = new EnumMap<Nucleotide, List<Double>>(Nucleotide.class);
+        for (Nucleotide let : nucs) {
+            this.coverageAll.put(let, new ArrayList<Double>());
+        }
+    }
+
+    public Pileup(String viewTrackName, int position, Nucleotide n, double baseline_rate, int pseudoCount) {
+        this.viewTrackName = viewTrackName;
+        this.position = position;
+        this.referenceNucleotide = n;
+        this.baseline_rate = baseline_rate;
+        this.pseudoCount = pseudoCount;
+
+        Nucleotide[] nucs = { Nucleotide.A, Nucleotide.C, Nucleotide.G, Nucleotide.T, Nucleotide.OTHER };
+        coverageAll = new EnumMap<Nucleotide, List<Double>>(Nucleotide.class);
+        for (Nucleotide let : nucs) {
+            this.coverageAll.put(let, new ArrayList<Double>());
+        }
+    }
+
+
     public String getTrackName() {
-        return this.trackName;
+        return this.viewTrackName;
     }
 
     @Override
@@ -67,44 +120,49 @@ class Pileup {
     @Override
     public int hashCode() {
         int hash = 7;
-        hash = 89 * hash + referenceNucleotide.hashCode();
-        hash = 89 * hash + snpNucleotide.hashCode();
-        hash = 89 * hash + position;
-        hash = 89 * hash + (trackName != null ? trackName.hashCode() : 0);
+        hash = 89 * hash + this.referenceNucleotide.hashCode();
+        hash = 89 * hash + this.snpNucleotide.hashCode();
+        hash = 89 * hash + this.position;
+        hash = 89 * hash + (this.viewTrackName != null ? this.viewTrackName.hashCode() : 0);
         return hash;
     }
 
-    public void pileOn(byte c) { pileOn(c,1.0); }
+    public void pileOn(byte c) { pileOn(c,0.0); }
 
-    public void pileOn(Nucleotide n) { pileOn(n,1.0); }
+    public void pileOn(Nucleotide n) { pileOn(n,0.0); }
 
     public void pileOn(byte c, double quality) { pileOn(getNucleotide(c),quality); }
 
     public void pileOn(Nucleotide n, double quality) {
-        double coverage = 1.0 * quality;
+        double coverage = 1.0;
 
-        //System.out.println("(P) " + n + " @ " + this.getPosition());
+//        System.out.println("(P) " + n + " @ " + this.getPosition());
 
         switch(n) {
             case A:
-                coverageA.add(coverage);
+                coverageAll.get(n).add(quality);
                 totalCoverageA += coverage;
+                totalQualityA += quality;
                 break;
             case C:
-                coverageC.add(coverage);
+                coverageAll.get(n).add(quality);
                 totalCoverageC += coverage;
+                totalQualityC += quality;
                 break;
             case G:
-                coverageA.add(coverage);
+                coverageAll.get(n).add(quality);
                 totalCoverageG += coverage;
+                totalQualityG += quality;
                 break;
             case T:
-                coverageT.add(coverage);
+                 coverageAll.get(n).add(quality);
                 totalCoverageT += coverage;
+                totalQualityT += quality;
                 break;
             default:
-                coverageOther.add(coverage);
+                coverageAll.get(Nucleotide.OTHER).add(quality);
                 totalCoverageOther += coverage;
+                totalQualityOther += quality;
                 break;
         }
 
@@ -118,26 +176,210 @@ class Pileup {
      */
 
     public Nucleotide getSNPNucleotide() {
+        if (snpNucleotide != null) {
+            return snpNucleotide;
+        }
+        else  throw new RuntimeException("getSNPNucleotide w/o prior and not computed!!!");
+    }
 
-        if (snpNucleotide != null) { return snpNucleotide; }
+
+    private static double logGamma(double x) {
+      double tmp = (x - 0.5) * Math.log(x + 4.5) - (x + 4.5);
+      double ser = 1.0 + 76.18009173    / (x + 0)   - 86.50532033    / (x + 1)
+                       + 24.01409822    / (x + 2)   -  1.231739516   / (x + 3)
+                       +  0.00120858003 / (x + 4)   -  0.00000536382 / (x + 5);
+      return Math.log10(Math.exp(tmp + Math.log(ser * Math.sqrt(2 * Math.PI))));
+    }
+    
+    private static double logBinomial (int x, int y) {
+
+        double res = logNchooseK(x,y) + y * Math.log10(0.5);
+       // System.out.println("logbinomial = " + res);
+        return res;
+
+    }
+
+    private static double logMultinomial (int[] counts, double[] probs) {
+        int total = 0;
+        double res = 0;
+        for (int i = 0; i < counts.length; i++) {
+//            System.out.println("lm: "+counts[i]+ " " + probs[i]);
+            total += counts[i];
+            res -= logGamma(counts[i]+1);
+//            System.out.println("res prenow " + res);
+
+            res += (counts[i] * Math.log10(probs[i]));
+//            System.out.println("res now " + res);
+        }
+        res += logGamma(total+1);
+//        System.out.println("res finally " + res);
+        return res;
+    }
+
+    private static double logNchooseK (int x, int y) {
+
+        double res = logGamma(y+1) - logGamma(x+1) - logGamma(y-x+1);
+       // System.out.println("longnchooske = " + res);
+        return res;
+
+    }
+
+    private double learnErrRate() {
+        Nucleotide[] nucs = { Nucleotide.A, Nucleotide.C, Nucleotide.G, Nucleotide.T };
+        double pseudoRate = this.baseline_rate;
+        double errrate = 0;
+        double cov = 0;
+        double eprob;
+
+        for (Nucleotide o : nucs) {
+            for (Double d : this.coverageAll.get(o)) {
+                    //reverse the quality value since called correctly
+                eprob = Math.pow(10, -d/10);
+                errrate += eprob;
+                cov += 1;
+            }
+        }
+        errrate += (pseudoCount*pseudoRate);
+        cov += pseudoCount;
+        return errrate/cov;
+    }
+
+    public Nucleotide getSNPNucleotide(double snpPrior) {
+
+        if (snpNucleotide != null && !snpNucleotide.equals(this.referenceNucleotide) && snpPrior == this.snpPrior) {
+                return snpNucleotide;
+        }
+        if (snpNucleotide != null && snpNucleotide.equals(this.referenceNucleotide) && snpPrior == this.snpPrior) {
+                return null;
+        }
+
+        this.snpPrior = snpPrior;
 
         Nucleotide[] nucs = { Nucleotide.A, Nucleotide.C, Nucleotide.G, Nucleotide.T };
+        int[] counts = new int[nucs.length];
+        double[] probs = new double[nucs.length];
 
         Nucleotide snpNuc = null;
+        double totProb = 0;
+        double maxProb = -1;
+        double errRate = learnErrRate();
+        boolean ih = false;
+
 
         for (Nucleotide n : nucs) {
-            if ((snpNuc == null && n != this.referenceNucleotide) || (n != this.referenceNucleotide &&
-                    this.getCoverageProportion(n) > this.getCoverageProportion(snpNuc) )) {
-                snpNuc = n;
+            double thisProb = 1.0;
+            double binProb = 0;
+            double binProb2 = 0;
+            double thisProb2;
+            double Qval;
+
+            if (n != this.referenceNucleotide)
+                thisProb *= (snpPrior/3);
+            else
+                thisProb *= 1-snpPrior;
+            thisProb = Math.log10(thisProb);
+            thisProb2 = thisProb;
+
+            if (n != this.referenceNucleotide) {
+                for (Nucleotide o : nucs) {
+                    for (Double d : this.coverageAll.get(o)) {
+                        if (o == n || o == this.referenceNucleotide) {
+                          //System.out.println("cons: " + n.toString() + " ref: " + this.referenceNucleotide.toString() + " nuc: " + o.toString() + " qval " + d);
+                            //reverse the quality value since called correctly
+                            Qval = Math.pow(10, -d/10);
+                            Qval = 1-Qval;
+                            Qval = Math.log10(Qval);
+                        }
+                        else {
+                            Qval = d;
+                       }
+                       thisProb += Qval/-10;
+
+                    }
+                }
+            //het
+                for (int i = 0; i < nucs.length; i++) {
+                   counts[i] = this.coverageAll.get(nucs[i]).size();
+                   if (this.referenceNucleotide == nucs[i] || n == nucs[i]) {
+                      probs[i] = (1-errRate)/2.0;
+                   }
+                   else {
+                       probs[i] = (errRate/2.0);
+                   }
+                }
+                binProb = logMultinomial(counts, probs);
+
+             //   binProb = logBinomial(this.coverageAll.get(n).size(), this.coverageAll.get(n).size()
+             //               + this.coverageAll.get(this.referenceNucleotide).size());
+
+
+
+                thisProb += binProb;
+   
             }
+            for (Nucleotide o : nucs) {
+                for (Double d : this.coverageAll.get(o)) {
+                    if (o == n) {
+                      //  System.out.println("cons: " + n.toString() + " nuc: " + o.toString() + " qval " + d);
+                        //reverse the quality value since called correctly
+                        Qval = Math.pow(10, -d/10);
+                        Qval = 1-Qval;
+                        Qval = Math.log10(Qval);
+                    }
+                    else {
+                        Qval = d;
+                    }
+                    thisProb2 += Qval/-10;
+                }
+            }
+            for (int i = 0; i < nucs.length; i++) {
+                counts[i] = this.coverageAll.get(nucs[i]).size();
+                if (n == nucs[i]) {
+                   probs[i] = (1-errRate);
+                }
+                else {
+                   probs[i] = (errRate/3);
+                }
+            }
+            binProb2 = logMultinomial(counts, probs);
+
+            thisProb2 += binProb2;
+
+
+
+            if (n == this.referenceNucleotide) {
+                thisProb = 0;
+                snpVariabilityConfidence = 1 - Math.pow(10, thisProb2);
+            }
+            else   {
+                thisProb = Math.pow(10, thisProb);
+            }
+            thisProb2 = Math.pow(10, thisProb2);
+            if (thisProb2 + thisProb >= maxProb) {
+                maxProb = thisProb2 + thisProb;
+                snpNuc = n;
+                ih = (thisProb > thisProb2);
+            }
+
+//            System.out.println("nuc: " + n.toString() + " prob " + thisProb + " (multininProb = " + Math.pow(10,binProb) +
+//                    ") prob2 " + thisProb2 + " (multininProb = " + Math.pow(10,binProb2) +  ") ref " + this.referenceNucleotide.toString());
+            totProb = totProb + thisProb + thisProb2;
         }
 
         snpNucleotide = snpNuc;
-        return snpNucleotide;
+        snpNucleotideConfidence = maxProb/totProb;
+//        System.out.println("Confidence set to " + snpNucleotideConfidence);
+        isHet = ih;
+        if (!referenceNucleotide.equals(snpNucleotide))
+            return snpNucleotide;
+        else
+            return null;
     }
 
-    public double getSNPNucleotideConfidence() {
-        return getCoverageProportion(getSNPNucleotide());
+    public double getSNPNucleotideConfidence(double snpPrior) {
+        if (snpNucleotide == null || snpPrior != this.snpPrior)
+               getSNPNucleotide(snpPrior);
+        return snpNucleotideConfidence;  //or NucleotideConfidence
     }
 
     public double getTotalCoverage() {
@@ -148,17 +390,6 @@ class Pileup {
         totalcoverage += this.getCoverage(Nucleotide.T);
         return totalcoverage;
     }
-
-    /*
-    public double getTotalQuality() {
-        double totalquality = 0;
-        totalquality += this.a_quality;
-        totalquality += this.totalCoverageC;
-        totalquality += this.totalCoverageT;
-        totalquality += this.totalCoverageG;
-        return totalquality;
-    }
-     */
 
     public static Nucleotide getNucleotide(byte c) {
         switch (Character.toUpperCase(c)) {
@@ -197,31 +428,6 @@ class Pileup {
                 return -1;
         }
     }
-
-    /*
-    public double getQuality(Nucleotide n) {
-        switch(n) {
-            case A:
-               return this.a_quality;
-            case C:
-                return this.c_quality;
-            case G:
-                return this.g_quality;
-            case T:
-                return this.t_quality;
-            case OTHER:
-                return this.other_quality;
-            default:
-                return -1;
-        }
-    }
-     */
-
-    /*
-    public double getAverageQuality(Nucleotide n) {
-        return ((double) this.getQuality(n)) / this.getTotalQuality();
-    }
-     */
 
     public double getCoverageProportion(Nucleotide n) {
         return ((double) this.getCoverage(n)) / this.getTotalCoverage();

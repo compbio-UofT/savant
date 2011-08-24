@@ -1,5 +1,5 @@
 /*
- *    Copyright 2010 University of Toronto
+ *    Copyright 2010-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -13,10 +13,10 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-
 package savant.snp;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -33,6 +33,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.JTextArea;
+import javax.swing.JTextField;
 import javax.swing.JToolBar;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ChangeEvent;
@@ -49,36 +50,54 @@ import savant.api.adapter.TrackAdapter;
 import savant.api.util.BookmarkUtils;
 import savant.api.util.GenomeUtils;
 import savant.api.util.NavigationUtils;
+import savant.api.util.RangeUtils;
 import savant.api.util.TrackUtils;
-import savant.controller.LocationController;
 import savant.controller.event.LocationChangeCompletedListener;
 import savant.controller.event.LocationChangedEvent;
-import savant.controller.event.TrackListChangedEvent;
-import savant.controller.event.TrackListChangedListener;
+import savant.controller.event.TrackEvent;
 import savant.data.types.BAMIntervalRecord;
 import savant.data.types.Record;
 import savant.file.DataFormat;
 import savant.plugin.SavantPanelPlugin;
 import savant.snp.Pileup.Nucleotide;
+import savant.util.Listener;
 
-public class SNPFinderPlugin extends SavantPanelPlugin implements LocationChangeCompletedListener, TrackListChangedListener {
+public class SNPFinderPlugin extends SavantPanelPlugin
+        implements
+        LocationChangeCompletedListener,
+        Listener<TrackEvent> {
+
+    // a logger
     private static final Log LOG = LogFactory.getLog(SNPFinderPlugin.class);
 
+    // stop looking for SNPs when range is bigger than this number
     private final int MAX_RANGE_TO_SEARCH = 5000;
+
+    // text area to write to
     private JTextArea info;
-    private boolean isSNPFinderOn = true;
-    private int sensitivity = 80;
+
+    // whether the snp finder is on or not
+    private boolean isSNPFinderOn = false;
+    private boolean addBookmarks = false;
+    // sensitivity and transparency
+    private int confidence = 10;
     private int transparency = 50;
+    private double snpPrior = 0.001;
+
+    // reference sequence in this range
     private byte[] sequence;
 
-    private Map<TrackAdapter, JPanel> trackToCanvasMap;
-    private Map<TrackAdapter, List<Pileup>> trackToPilesMap;
-    private Map<TrackAdapter, List<Pileup>> trackToSNPsMap;
+    // keep track of canvases
+    private Map<TrackAdapter, JPanel> viewTrackToCanvasMap;
+
+    // keep track of piles
+    private Map<TrackAdapter, List<Pileup>> viewTrackToPilesMap;
+
+    // keep track of snps in range
+    private Map<TrackAdapter, List<Pileup>> viewTrackToSNPsMap;
+
+    // keep track of all snps found
     private Map<TrackAdapter, List<Pileup>> snpsFound;
-
-
-
-    //private Map<Track,JPanel> lastTrackToCanvasMapDrawn;
 
     /* == INITIALIZATION == */
 
@@ -86,68 +105,121 @@ public class SNPFinderPlugin extends SavantPanelPlugin implements LocationChange
 
     @Override
     public void init(JPanel canvas) {
+        // subscribe to events
         NavigationUtils.addLocationChangeListener(this);
-        TrackUtils.addTracksChangedListener(this);
+        TrackUtils.addTrackListener(this);
+
+        // initialize SNP list
         snpsFound = new HashMap<TrackAdapter, List<Pileup>>();
+        
+        // set up the GUI
         setupGUI(canvas);
+
         addMessage("SNP finder initialized");
     }
 
     @Override
     public String getTitle() {
-        return "SNP Finder";
+        return "SNP Finder 2";
     }
 
 
     /* INIT THE UI */
     private void setupGUI(JPanel panel) {
 
+        // add a toolbar
         JToolBar tb = new JToolBar();
         tb.setName("SNP Finder Toolbar");
 
-        JLabel lab_on = new JLabel("On: ");
+        // add an ON/OFF checkbox
+        JLabel lab_on = new JLabel("On/Off: ");
         JCheckBox cb_on = new JCheckBox();
         cb_on.setSelected(isSNPFinderOn);
-        cb_on.addActionListener(new ActionListener() {
 
+        // what to do when a user clicks the checkbox
+        cb_on.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                // switch the SNP finder on/off
                 setIsOn(!isSNPFinderOn);
                 addMessage("Turning SNP finder " + (isSNPFinderOn ? "on" : "off"));
             }
         });
+        // add a  Bookmarking ON/OFF checkbox
+        JLabel lab_bm = new JLabel("Add Bookmarks: ");
+        JCheckBox cb_bm = new JCheckBox();
+        cb_bm.setSelected(addBookmarks);
 
-        JLabel lab_sensitivity = new JLabel("Sensitivity: ");
-        final JSlider sens_slider = new JSlider(0, 100);
-        sens_slider.setValue(sensitivity);
-        final JLabel lab_sensitivity_status = new JLabel("" + sens_slider.getValue());
-        sens_slider.addChangeListener(new ChangeListener() {
+        // what to do when a user clicks the checkbox
+        cb_bm.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // switch the SNP finder on/off
+                setBookmarking(!addBookmarks);
+                addMessage("Turning Bookmarking " + (addBookmarks ? "on" : "off"));
+            }
+        });
+
+        JLabel lab_sp = new JLabel("Heterozygosity: ");
+        	//add snp prior textfield
+         final JTextField snpPriorField = new JTextField(String.valueOf(snpPrior), 4);
+         snpPriorField.addActionListener(new ActionListener() {
 
             @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                  setSNPPrior(Double.valueOf(snpPriorField.getText()));
+                } catch (NumberFormatException ex) {
+                    snpPriorField.setText(String.valueOf(snpPrior));
+                }
+            }
+        });
+        int tfwidth = 35;
+        int tfheight = 22;
+        snpPriorField.setPreferredSize(new Dimension(tfwidth, tfheight));
+        snpPriorField.setMaximumSize(new Dimension(tfwidth, tfheight));
+        snpPriorField.setMinimumSize(new Dimension(tfwidth, tfheight));
+
+        // add a sensitivity slider
+        JLabel lab_confidence = new JLabel("Confidence: ");
+        final JSlider sens_slider = new JSlider(0, 50);
+        sens_slider.setValue(confidence);
+        final JLabel lab_confidence_status = new JLabel("" + sens_slider.getValue());
+
+        // what to do when a user slides the slider
+        sens_slider.addChangeListener(new ChangeListener() {
+            @Override
             public void stateChanged(ChangeEvent e) {
-                lab_sensitivity_status.setText("" + sens_slider.getValue());
+                // set the snp finder's sensitivity
+                lab_confidence_status.setText("" + sens_slider.getValue());
                 setSensitivity(sens_slider.getValue());
             }
         });
+        // don't report the new setting until the user stops sliding
         sens_slider.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseReleased(MouseEvent e) {
-                addMessage("Changed sensitivity to " + sensitivity);
+                addMessage("Changed confidence to " + confidence);
             }
         });
 
+        // add a transparency slider
         JLabel lab_trans = new JLabel("Transparency: ");
         final JSlider trans_slider = new JSlider(0, 100);
         trans_slider.setValue(transparency);
         final JLabel lab_transparency_status = new JLabel("" + trans_slider.getValue());
-        trans_slider.addChangeListener(new ChangeListener() {
 
+        // what to do when a user slides the slider
+        trans_slider.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
+                // set the snp finder's transparency
                 lab_transparency_status.setText("" + trans_slider.getValue());
                 setTransparency(trans_slider.getValue());
             }
         });
+
+        // don't report the new setting until the user stops sliding
         trans_slider.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseReleased(MouseEvent e) {
@@ -155,15 +227,19 @@ public class SNPFinderPlugin extends SavantPanelPlugin implements LocationChange
             }
         });
 
-
+        // add the components to the GUI
         panel.setLayout(new BorderLayout());
         tb.add(lab_on);
         tb.add(cb_on);
+        tb.add(lab_bm);
+        tb.add(cb_bm);
         tb.add(new JToolBar.Separator());
-
-        tb.add(lab_sensitivity);
+        tb.add(lab_sp);
+        tb.add(snpPriorField);
+        tb.add(new JToolBar.Separator());
+        tb.add(lab_confidence);
         tb.add(sens_slider);
-        tb.add(lab_sensitivity_status);
+        tb.add(lab_confidence_status);
 
         tb.add(new JToolBar.Separator());
 
@@ -173,6 +249,7 @@ public class SNPFinderPlugin extends SavantPanelPlugin implements LocationChange
 
         panel.add(tb, BorderLayout.NORTH);
 
+        // add a text area to the GUI
         info = new JTextArea();
         JScrollPane scrollPane = new JScrollPane(info);
         panel.add(scrollPane, BorderLayout.CENTER);
@@ -194,8 +271,8 @@ public class SNPFinderPlugin extends SavantPanelPlugin implements LocationChange
      */
     private List<PileupPanel> getPileupPanels() {
         List<PileupPanel> panels = new ArrayList<PileupPanel>();
-        if (trackToCanvasMap != null) {
-            for (JPanel p : this.trackToCanvasMap.values()) {
+        if (viewTrackToCanvasMap != null) {
+            for (JPanel p : this.viewTrackToCanvasMap.values()) {
                 try {
                     panels.add((PileupPanel) p.getComponent(0));
                 } catch (ArrayIndexOutOfBoundsException e) {}
@@ -211,7 +288,11 @@ public class SNPFinderPlugin extends SavantPanelPlugin implements LocationChange
      */
     @Override
     public void locationChangeCompleted(LocationChangedEvent event) {
+        // get the reference sequencing in range (if allowed by resolution)
         setSequence();
+
+        // if a sequence could be retreived, run the SNP finder on the
+        // data in range
         if (sequence != null) {
             updateTrackCanvasMap();
             runSNPFinder();
@@ -222,8 +303,7 @@ public class SNPFinderPlugin extends SavantPanelPlugin implements LocationChange
      * Track change.
      */
     @Override
-    public void trackListChanged(TrackListChangedEvent event) {
-        //updateTrackCanvasMap();
+    public void handleEvent(TrackEvent event) {
     }
 
     /**
@@ -231,9 +311,17 @@ public class SNPFinderPlugin extends SavantPanelPlugin implements LocationChange
      */
     private void updateTrackCanvasMap() {
 
-        if (trackToCanvasMap == null) {
-            trackToCanvasMap = new HashMap<TrackAdapter, JPanel>();
+        if (viewTrackToCanvasMap == null) {
+            viewTrackToCanvasMap = new HashMap<TrackAdapter, JPanel>();
         }
+
+        // TODO: should get rid of old JPanels here!
+        // START
+        for (JPanel p : viewTrackToCanvasMap.values()) {
+            p.removeAll();
+        }
+        viewTrackToCanvasMap.clear();
+        // END
 
         Map<TrackAdapter, JPanel> newmap = new HashMap<TrackAdapter, JPanel>();
 
@@ -241,18 +329,17 @@ public class SNPFinderPlugin extends SavantPanelPlugin implements LocationChange
 
             if (t.getDataSource().getDataFormat() == DataFormat.INTERVAL_BAM) {
 
-                if(trackToCanvasMap.containsKey(t) && trackToCanvasMap.get(t) != null){
-                    newmap.put(t, trackToCanvasMap.get(t));
+                if (viewTrackToCanvasMap.containsKey(t)) {
+                    newmap.put(t, viewTrackToCanvasMap.get(t));
+                    viewTrackToCanvasMap.remove(t);
                 } else {
-                    JPanel canvas = t.getLayerCanvas();
-                    if(canvas != null){
-                        newmap.put(t, canvas);
-                    } 
+                    //System.out.println("putting " + t.getName() + " in BAM map");
+                    newmap.put(t, t.getLayerCanvas(this));
                 }
             }
         }
 
-        trackToCanvasMap = newmap;
+        viewTrackToCanvasMap = newmap;
     }
 
     /**
@@ -267,15 +354,27 @@ public class SNPFinderPlugin extends SavantPanelPlugin implements LocationChange
             p.setIsOn(isSNPFinderOn);
         }
         this.repaintPileupPanels();
+        this.doEverything();
+    }
+
+    private void setBookmarking(boolean isOn) {
+        this.addBookmarks = isOn;
+        this.doEverything();
     }
 
     /**
      * Change the sensitivity of the finder.
      */
     private void setSensitivity(int s) {
-        sensitivity = s;
+        confidence = s;
         this.doEverything();
     }
+
+    private void setSNPPrior(double s) {
+        snpPrior = s;
+        this.doEverything();
+    }
+
 
     /**
      * Change the transparency of the renderer.
@@ -300,17 +399,16 @@ public class SNPFinderPlugin extends SavantPanelPlugin implements LocationChange
                 return;
             }
 
-            //System.out.println("checking for snps");
             doEverything();
         }
-
-        //System.out.println("done checking for snps");
     }
 
     /**
      * Do everything.
      */
     private void doEverything() {
+        if (!isSNPFinderOn)
+            return;
         if (sequence == null) {
             setSequence();
         }
@@ -327,61 +425,58 @@ public class SNPFinderPlugin extends SavantPanelPlugin implements LocationChange
      */
     private void createPileups() {
 
-        if (this.trackToPilesMap != null) {
-            trackToPilesMap.clear();
+        // clear existing piles
+        if (this.viewTrackToPilesMap != null) {
+            viewTrackToPilesMap.clear();
         }
-        trackToPilesMap = new HashMap<TrackAdapter, List<Pileup>>();
+        // create a new map (key=track, value=list of piles)
+        viewTrackToPilesMap = new HashMap<TrackAdapter, List<Pileup>>();
 
-        for (TrackAdapter t : trackToCanvasMap.keySet()) {
+        // for each track
+        for (TrackAdapter t : viewTrackToCanvasMap.keySet()) {
             try {
-                //List<Integer> snps =
+                // get the genomic start position of the current range
                 int startPosition = NavigationUtils.getCurrentRange().getFrom();
-                List<Pileup> piles = makePileupsFromSAMRecords(t.getName(), t.getDataInRange(), sequence, startPosition);
-                this.trackToPilesMap.put(t, piles);
-                //drawPiles(piles, trackToCanvasMap.get(t));
 
-                //addMessag(snps.)
+                // make piles from SAM records in this track
+                List<Pileup> piles = makePileupsFromSAMRecords(t.getName(), t.getDataInRange(), sequence, startPosition);
+
+                // save the piles
+                this.viewTrackToPilesMap.put(t, piles);
+
+            // report errors and move on
             } catch (IOException ex) {
                 addMessage("Error: " + ex.getMessage());
                 break;
             }
-            //addMessag(snps.)
         }
     }
 
     /**
      * Make pileups for SAM records.
      */
-    private List<Pileup> makePileupsFromSAMRecords(String trackName, List<Record> samRecords, byte[] sequence, int startPosition) throws IOException {
+    private List<Pileup> makePileupsFromSAMRecords(String viewTrackName, List<Record> samRecords, byte[] sequence, int startPosition) throws IOException {
 
-        //addMessage("Examining each position");
-
+        // list of pileups, one per genomic position in range
         List<Pileup> pileups = new ArrayList<Pileup>();
 
-        // make the pileups
-        int length = sequence.length;
-        for (int i = 0; i < length; i++) {
-            pileups.add(new Pileup(trackName, startPosition + i, Pileup.getNucleotide(sequence[i])));
+        if (samRecords != null) {
+            // initialize the piles
+            int length = sequence.length;
+            for (int i = 0; i < length; i++) {
+                pileups.add(new Pileup(viewTrackName, startPosition + i, Pileup.getNucleotide(sequence[i])));
+            }
+
+            // go through all the samrecords and update the pileups
+            for (Record r : samRecords) {
+                SAMRecord sr = ((BAMIntervalRecord)r).getSamRecord();
+                updatePileupsFromSAMRecord(pileups, GenomeUtils.getGenome(), sr, startPosition);
+            }
         }
-
-        //System.out.println("Pileup start: " + startPosition);
-
-        //FIXME: this is here to prevent a null pointer exception seen once that
-        //could not be reproduced. SamRecords should never be null...
-        if(samRecords == null) return pileups;
-
-        // go through the samrecords and edit the pileups
-        for (Record r : samRecords) {
-            SAMRecord sr = ((BAMIntervalRecord)r).getSamRecord();
-            updatePileupsFromSAMRecord(pileups, GenomeUtils.getGenome(), sr, startPosition);
-        }
-
-        //addMessage("Done examining each position");
 
         return pileups;
     }
 
-    /* UPDATE PILEUP INFORMATION FROM SAM RECORD */
     private void updatePileupsFromSAMRecord(List<Pileup> pileups, GenomeAdapter genome, SAMRecord samRecord, int startPosition) throws IOException {
 
         // the start and end of the alignment
@@ -392,14 +487,16 @@ public class SNPFinderPlugin extends SavantPanelPlugin implements LocationChange
         byte[] readBases = samRecord.getReadBases();
         boolean sequenceSaved = readBases.length > 0; // true iff read sequence is set
 
+   
+        byte[] baseQualities = samRecord.getBaseQualities();
+
         // return if no bases (can't be used for SNP calling)
         if (!sequenceSaved) {
             return;
         }
 
         // the reference sequence
-        //byte[] refSeq = genome.getSequence(new Range(alignmentStart, alignmentEnd)).getBytes();
-        //byte[] refSeq = genome.getSequence(NavigationUtils.getCurrentReferenceName(), NavigationUtils.createRange(alignmentStart, alignmentEnd));
+        byte[] refSeq = genome.getSequence(NavigationUtils.getCurrentReferenceName(), NavigationUtils.createRange(alignmentStart, alignmentEnd));
 
         // get the cigar object for this alignment
         Cigar cigar = samRecord.getCigar();
@@ -407,8 +504,6 @@ public class SNPFinderPlugin extends SavantPanelPlugin implements LocationChange
         // set cursors for the reference and read
         int sequenceCursor = alignmentStart;
         int readCursor = alignmentStart;
-
-        //System.out.println("Alignment start: " + alignmentStart);
 
         int pileupcursor = (int) (alignmentStart - startPosition);
 
@@ -423,34 +518,42 @@ public class SNPFinderPlugin extends SavantPanelPlugin implements LocationChange
             operator = cigarElement.getOperator();
 
             // delete
-            if (operator == CigarOperator.D) {
-                // [ DRAW ]
-            } // insert
-            else if (operator == CigarOperator.I) {
-                // [ DRAW ]
-            } // match **or mismatch**
+            if (operator == CigarOperator.D) {}
+            // insert
+            else if (operator == CigarOperator.I) {}
+            // match **or mismatch**
             else if (operator == CigarOperator.M) {
 
                 // some SAM files do not contain the read bases
                 if (sequenceSaved) {
+
                     // determine if there's a mismatch
                     for (int i = 0; i < operatorLength; i++) {
+
                         int refIndex = sequenceCursor - alignmentStart + i;
                         int readIndex = readCursor - alignmentStart + i;
 
+                        // get the base of the read at this position
                         byte[] readBase = new byte[1];
                         readBase[0] = readBases[readIndex];
 
+                        /*
+                         * MIKE: use this base quality to update pileup
+                         * via the 'pileOn' method.
+                         */
+                        byte[] baseQ = new byte[1];
+                        baseQ[0] = baseQualities[readIndex];
+
+                        // get the nucleotide corresponding the the readbase
                         Nucleotide readN = Pileup.getNucleotide(readBase[0]);
 
-                        int j = i + (int) (sequenceCursor - startPosition);
-                        //for (int j = pileupcursor; j < operatorLength; j++) {
+                        // adjust the pileup for this position, if it lies in the
+                        // current window
+                        int j = i + (int) (alignmentStart - startPosition);
                         if (j >= 0 && j < pileups.size()) {
                             Pileup p = pileups.get(j);
-                            p.pileOn(readN);
-//                            /System.out.println("(P) " + readN + "\t@\t" + p.getPosition());
+                            p.pileOn(readN, baseQ[0]);
                         }
-                        //}
                     }
                 }
             } // skipped
@@ -467,7 +570,6 @@ public class SNPFinderPlugin extends SavantPanelPlugin implements LocationChange
                 // draw nothing
             }
 
-
             if (operator.consumesReadBases()) {
                 readCursor += operatorLength;
             }
@@ -478,23 +580,16 @@ public class SNPFinderPlugin extends SavantPanelPlugin implements LocationChange
         }
     }
 
-
-    private void addSNPBookmarks() {
-
-    }
-
-    /**
-     * Call SNPs for all tracks.
-     */
+    /* CALL SNPS FOR ALL VIEWTRACKS*/
     private void callSNPs() {
 
-        if (this.trackToSNPsMap != null) { this.trackToSNPsMap.clear(); }
-        this.trackToSNPsMap = new HashMap<TrackAdapter, List<Pileup>>();
+        if (this.viewTrackToSNPsMap != null) { this.viewTrackToSNPsMap.clear(); }
+        this.viewTrackToSNPsMap = new HashMap<TrackAdapter, List<Pileup>>();
 
-        for (TrackAdapter t : trackToCanvasMap.keySet()) {
-            List<Pileup> piles = trackToPilesMap.get(t);
+        for (TrackAdapter t : viewTrackToCanvasMap.keySet()) {
+            List<Pileup> piles = viewTrackToPilesMap.get(t);
             List<Pileup> snps = callSNPsFromPileups(piles, sequence);
-            this.trackToSNPsMap.put(t, snps);
+            this.viewTrackToSNPsMap.put(t, snps);
             addFoundSNPs(t, snps);
         }
     }
@@ -514,26 +609,21 @@ public class SNPFinderPlugin extends SavantPanelPlugin implements LocationChange
         for (int i = 0; i < length; i++) {
             n = Pileup.getNucleotide(sequence[i]);
             p = piles.get(i);
+            //System.out.println ("I am here");
+            if (p.getSNPNucleotide(snpPrior) != null) {
+              //  System.out.println ("I am inside");
+                double snpConfidence = -10 * Math.log10(1-p.getSNPNucleotideConfidence(snpPrior));
+                double z = this.confidence; //-Math.log(1 - ((double)this.confidence)/50.0);
 
-            double confidence = p.getSNPNucleotideConfidence()*100;
-
-            /*
-            System.out.println("Position: " + p.getPosition());
-            System.out.println("\tAverage coverage: " + p.getCoverageProportion(n));
-            System.out.println("\tAverage quality: " + p.getAverageQuality(n));
-            System.out.println("\tConfidence: " + confidence);
-            System.out.println("\tSensitivity: " + sensitivity);
-             */
-
-            if (confidence > 100-this.sensitivity) {
-                //System.out.println("== Adding " + p.getPosition() + " as SNP");
-                snps.add(p);
+                // criteria for calling snps
+                if (snpConfidence > z) {
+                    snps.add(p);
+                }
+                LOG.debug("conf " + p.getSNPNucleotideConfidence(snpPrior) + "logconf " + snpConfidence + " sens "+ z);
             }
         }
 
         addMessage(snps.size() + " SNPs found");
-
-        //addMessage("Done calling SNPs");
 
         return snps;
     }
@@ -554,17 +644,17 @@ public class SNPFinderPlugin extends SavantPanelPlugin implements LocationChange
     }
 
     /**
-     * Draw piles on panels for all Tracks.
+     * Draw piles on panels for all ViewTracks.
      */
     private void drawPiles() {
 
-        //lastTrackToCanvasMapDrawn = trackToCanvasMap;
+        //lastViewTrackToCanvasMapDrawn = viewTrackToCanvasMap;
 
         //System.out.println("Drawing annotations");
 
-        for (TrackAdapter t : trackToSNPsMap.keySet()) {
-            List<Pileup> pile = trackToSNPsMap.get(t);
-            drawPiles(pile, trackToCanvasMap.get(t));
+        for (TrackAdapter t : viewTrackToSNPsMap.keySet()) {
+            List<Pileup> pile = viewTrackToSNPsMap.get(t);
+            drawPiles(pile, viewTrackToCanvasMap.get(t));
         }
 
         //System.out.println("Done drawing annotations");
@@ -590,7 +680,7 @@ public class SNPFinderPlugin extends SavantPanelPlugin implements LocationChange
      */
     private void setSequence() {
         sequence = null;
-        if (GenomeUtils.isGenomeLoaded() && LocationController.getInstance().getRange().getLength() < this.MAX_RANGE_TO_SEARCH) {
+        if (GenomeUtils.isGenomeLoaded()) {
             try {
                 sequence = GenomeUtils.getGenome().getSequence(NavigationUtils.getCurrentReferenceName(), NavigationUtils.getCurrentRange());
             } catch (IOException ex) {
@@ -625,13 +715,14 @@ public class SNPFinderPlugin extends SavantPanelPlugin implements LocationChange
                 List<Pileup> snps = new ArrayList<Pileup>();
                 snpsFound.put(t, snps);
             }
-
-            BookmarkUtils.addBookmark(BookmarkUtils.createBookmark(NavigationUtils.getCurrentReferenceName(), NavigationUtils.createRange(snp.getPosition(), snp.getPosition()),
+            if (addBookmarks) {
+                BookmarkUtils.addBookmark(BookmarkUtils.createBookmark(NavigationUtils.getCurrentReferenceName(), RangeUtils.createRange(snp.getPosition(), snp.getPosition()),
                     snp.getSNPNucleotide() + "/" + snp.getReferenceNucleotide()
                     + " SNP "
                     + (int) snp.getCoverage(snp.getSNPNucleotide()) + "/" + (int) snp.getCoverage(snp.getReferenceNucleotide())
-                    + " = " + shortenPercentage(snp.getSNPNucleotideConfidence())
+                    + "; Conf = " + shortenPercentage(snp.getSNPNucleotideConfidence(snpPrior))
                     + " in " + t.getName()));
+            }
             snpsFound.get(t).add(snp);
         }
     }
