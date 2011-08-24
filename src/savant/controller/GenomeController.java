@@ -34,7 +34,7 @@ public class GenomeController extends Controller<GenomeChangedEvent> {
             TrackController.getInstance().addListener(new Listener<TrackEvent>() {
                 @Override
                 public void handleEvent(TrackEvent event) {
-                    if (event.getType() == TrackEvent.Type.REMOVED && event.getTrack() == instance.loadedGenome.getSequenceTrack()) {
+                    if (event.getType() == TrackEvent.Type.REMOVED && instance.loadedGenome != null && event.getTrack() == instance.loadedGenome.getSequenceTrack()) {
                         instance.setSequence(null);
                     }
                 }
