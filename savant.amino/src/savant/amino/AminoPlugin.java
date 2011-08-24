@@ -68,17 +68,13 @@ public class AminoPlugin extends SavantPanelPlugin {
         TrackUtils.addTrackListener(new Listener<TrackEvent>() {
             @Override
             public void handleEvent(TrackEvent event) {
-                LOG.info("Received " + event.getType() + " for " + event.getTrack().getName());
-                TrackAdapter t = event.getTrack();
-                if (t.getDataSource().getDataFormat() == DataFormat.INTERVAL_RICH) {
-                    JPanel layerCanvas;
-                    switch (event.getType()) {
-                        case OPENED:
-                            layerCanvas = t.getLayerCanvas(AminoPlugin.this);
-                            layerCanvas.setLayout(new BorderLayout());
-                            AminoCanvas c = new AminoCanvas(AminoPlugin.this, t);
-                            layerCanvas.add(c, BorderLayout.CENTER);
-                            break;
+                if (event.getType() == TrackEvent.Type.ADDED) {
+                    TrackAdapter t = event.getTrack();
+                    if (t.getDataFormat() == DataFormat.INTERVAL_RICH) {
+                        JPanel layerCanvas = t.getLayerCanvas(AminoPlugin.this);
+                        layerCanvas.setLayout(new BorderLayout());
+                        AminoCanvas c = new AminoCanvas(AminoPlugin.this, t);
+                        layerCanvas.add(c, BorderLayout.CENTER);
                     }
                 }
             }
@@ -88,7 +84,7 @@ public class AminoPlugin extends SavantPanelPlugin {
             @Override
             public void locationChangeCompleted(LocationChangedEvent event) {
                 for (TrackAdapter t: TrackUtils.getTracks()) {
-                    if (t.getDataSource().getDataFormat() == DataFormat.INTERVAL_RICH) {
+                    if (t.getDataFormat() == DataFormat.INTERVAL_RICH) {
                         t.getLayerCanvas(AminoPlugin.this).repaint();
                     }
                 }
