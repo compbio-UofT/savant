@@ -106,7 +106,7 @@ public class PluginRepositoryDialog extends JDialog {
         TreeBrowserEntry r = (TreeBrowserEntry) table.getRowAt(table.getSelectedRow());
         if (r != null && r.isLeaf()) {
             DownloadDialog dd = new DownloadDialog(this, true);
-            dd.downloadFile(r.getURL(), DirectorySettings.getPluginsDirectory());
+            dd.downloadFile(r.getURL(), DirectorySettings.getPluginsDirectory(), null);
 
             // When the download is complete, we hide the dialog.  This makes its
             // behaviour more parallel to Install from File.

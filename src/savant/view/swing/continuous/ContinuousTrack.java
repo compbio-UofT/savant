@@ -20,7 +20,7 @@ import java.util.List;
 
 import savant.api.adapter.DataSourceAdapter;
 import savant.api.adapter.RangeAdapter;
-import savant.data.types.ContinuousRecord;
+import savant.data.types.GenericContinuousRecord;
 import savant.data.types.Record;
 import savant.exception.SavantTrackCreationCancelledException;
 import savant.settings.ColourSettings;
@@ -96,7 +96,7 @@ import savant.view.swing.Track;
         float min = Float.MAX_VALUE;
         if (data != null) {
             for (Record r: data) {
-                float val = ((ContinuousRecord)r).getValue();
+                float val = ((GenericContinuousRecord)r).getValue();
                 if (val > max) max = val;
                 if (val < min) min = val;
             }

@@ -98,7 +98,6 @@ public class TrackFactory {
             default:
                 throw new IllegalArgumentException(String.format("Unknown data format: %s.", ds.getDataFormat()));
         }
-        TrackController.getInstance().addTrack(t);
         return t;
     }
 
@@ -187,9 +186,16 @@ public class TrackFactory {
     static class TrackCreator implements Runnable {
         private URI trackURI;
         
-        /** For now, we only allow a single external listener for a given track-creator thread. */
-        private TrackCreationListener listener;
+        /**
+         * We only allow a single external listener for a given track-creator thread.
+         */
+        private final TrackCreationListener listener;
 
+        /**
+         *
+         * @param trackURI the URI for loading the base track (URIs of additional tracks like coverage will be derived)
+         * @param l the single listener for TrackCreationEvents, generally a Frame
+         */
         TrackCreator(URI trackURI, TrackCreationListener l) {
             this.trackURI = trackURI;
             listener = l;
@@ -250,7 +256,9 @@ public class TrackFactory {
             MiscUtils.invokeLaterIfNecessary(new Runnable() {
                 @Override
                 public void run() {
-                    listener.trackCreationCompleted(new TrackCreationEvent(tracks, name));
+                    if (listener != null) {
+                        listener.trackCreationCompleted(new TrackCreationEvent(tracks, name));
+                    }
                 }
             });
 
@@ -259,10 +267,12 @@ public class TrackFactory {
                 new Thread() {
                     @Override
                     public void run() {
-                        try {
-                            t.getDataSource().loadDictionary();
-                        } catch (Exception x) {
-                            LOG.error("Unable to load dictionary for " + t.getName(), x);
+                        if (listener != null) {
+                            try {
+                                t.getDataSource().loadDictionary();
+                            } catch (Exception x) {
+                                LOG.error("Unable to load dictionary for " + t.getName(), x);
+                            }
                         }
                     }
                 }.start();
@@ -272,39 +282,34 @@ public class TrackFactory {
         /**
          * Fires a track-creation error event.  It will be posted to the AWT event-queue
          * thread, so that UI code can function properly.
-         */
-        private void fireTrackCreationFailed(final Throwable x) {
-            MiscUtils.invokeLaterIfNecessary(new Runnable() {
-                @Override
-                public void run() {
-                    trackCreationFailed(x);
-                    listener.trackCreationFailed(new TrackCreationEvent(x));
-                }
-            });
-        }
-
-        /**
+         *
          * Internally we handle most common error messages, so that the listener class
          * doesn't need to.  It might make more sense to move this application-specific
          * UI code out to an adapter class.
          *
          * @param x
          */
-        public void trackCreationFailed(Throwable x) {
-            if (x instanceof SavantUnsupportedFileTypeException) {
-                DialogUtils.displayMessage("Sorry", "Files of this type are not supported.");
-            } else if (x instanceof SavantFileNotFormattedException) {
-                Savant s = Savant.getInstance();
-                s.promptUserToFormatFile(trackURI);
-            } else if (x instanceof SavantUnsupportedVersionException) {
-                DialogUtils.displayMessage("Sorry", "This file was created using an older version of Savant. Please re-format the source.");
-            } else if (x instanceof SavantTrackCreationCancelledException) {
-                // Nothing to do.  The user already knows they cancelled, so no point in putting up a dialog.
-            } else if (x instanceof FileNotFoundException) {
-                DialogUtils.displayMessage("File not found", String.format("<html>File <i>%s</i> not found.</html>", x.getMessage()));
-            } else {
-                DialogUtils.displayException("Error opening track", String.format("There was a problem opening this file: %s.", MiscUtils.getMessage(x)), x);
-            }
+        private void fireTrackCreationFailed(final Throwable x) {
+            MiscUtils.invokeLaterIfNecessary(new Runnable() {
+                @Override
+                public void run() {
+                    if (x instanceof SavantUnsupportedFileTypeException) {
+                        DialogUtils.displayMessage("Sorry", "Files of this type are not supported.");
+                    } else if (x instanceof SavantFileNotFormattedException) {
+                        Savant s = Savant.getInstance();
+                        s.promptUserToFormatFile(trackURI);
+                    } else if (x instanceof SavantUnsupportedVersionException) {
+                        DialogUtils.displayMessage("Sorry", "This file was created using an older version of Savant. Please re-format the source.");
+                    } else if (x instanceof SavantTrackCreationCancelledException) {
+                        // Nothing to do.  The user already knows they cancelled, so no point in putting up a dialog.
+                    } else if (x instanceof FileNotFoundException) {
+                        DialogUtils.displayMessage("File not found", String.format("<html>File <i>%s</i> not found.</html>", x.getMessage()));
+                    } else {
+                        DialogUtils.displayException("Error opening track", String.format("There was a problem opening this file: %s.", MiscUtils.getMessage(x)), x);
+                    }
+                    listener.trackCreationFailed(new TrackCreationEvent(x));
+                }
+            });
         }
     }
 }

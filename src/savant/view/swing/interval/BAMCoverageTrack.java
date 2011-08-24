@@ -28,8 +28,6 @@ import savant.view.swing.continuous.ContinuousTrackRenderer;
 
 public class BAMCoverageTrack extends Track {
 
-    private boolean enabled = true;
-
     public BAMCoverageTrack(DataSourceAdapter dataSource) throws SavantTrackCreationCancelledException {
         super(dataSource, new ContinuousTrackRenderer());
         setColorScheme(getDefaultColorScheme());
@@ -39,7 +37,7 @@ public class BAMCoverageTrack extends Track {
     public void prepareForRendering(String reference, Range range) {
 
         Resolution r = getResolution(range);
-        if (isEnabled() && r != Resolution.HIGH) {
+        if (r != Resolution.HIGH) {
             renderer.addInstruction(DrawingInstruction.PROGRESS, "Retrieving coverage data...");
             renderer.addInstruction(DrawingInstruction.AXIS_RANGE, AxisRange.initWithRanges(range, getDefaultYRange()));
             requestData(reference, range);
@@ -70,11 +68,12 @@ public class BAMCoverageTrack extends Track {
 
     @Override
     public Resolution getResolution(RangeAdapter range) {
-        return getResolution((Range)range, getDrawingMode());
-    }
-
-    public Resolution getResolution(Range range, DrawingMode mode) {
-        return getDefaultModeResolution(range);
+        switch (getDrawingMode()) {
+            case ARC_PAIRED:
+                return range.getLength() > TrackResolutionSettings.getBamArcModeLowToHighThresh() ? Resolution.LOW : Resolution.HIGH;
+            default:
+                return range.getLength() > TrackResolutionSettings.getBamDefaultModeLowToHighThresh() ? Resolution.LOW : Resolution.HIGH;
+        }
     }
 
     @Override
@@ -82,21 +81,7 @@ public class BAMCoverageTrack extends Track {
         return r == Resolution.HIGH ? AxisType.NONE : AxisType.REAL;
     }
 
-    public Resolution getDefaultModeResolution(Range range) {
-        return range.getLength() > TrackResolutionSettings.getBamDefaultModeLowToHighThresh() ? Resolution.LOW : Resolution.HIGH;
-    }
-
     private Range getDefaultYRange() {
         return new Range(0, 1);
     }
-
-    // TODO: pull this property up into Track
-    public boolean isEnabled() {
-        return enabled;
-    }
-
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
-    }
-
 }

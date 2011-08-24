@@ -177,7 +177,7 @@ public class SAFEBrowser extends JDialog {
         safeCard.removeAll();
         safeCard.setLayout(new BorderLayout());
 
-        File f = NetworkUtils.downloadFile(new URL(BrowserSettings.SAFE_URL + "?type=list&username=" + username + "&password=" + password), DirectorySettings.getTmpDirectory());
+        File f = NetworkUtils.downloadFile(new URL(BrowserSettings.SAFE_URL + "?type=list&username=" + username + "&password=" + password), DirectorySettings.getTmpDirectory(), null);
 
         if (!wereCredentialsValid(f)) {
             DialogUtils.displayMessage("Login failed.");

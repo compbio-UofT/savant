@@ -170,7 +170,7 @@ public class PluginManagerDialog extends JDialog {
     private void fromRepositoryButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fromRepositoryButtonActionPerformed
         try {
             if (repositoryBrowser == null) {
-                File file = NetworkUtils.downloadFile(BrowserSettings.PLUGIN_URL, DirectorySettings.getTmpDirectory());
+                File file = NetworkUtils.downloadFile(BrowserSettings.PLUGIN_URL, DirectorySettings.getTmpDirectory(), null);
                 repositoryBrowser = new PluginRepositoryDialog(this, "Install Plugins", "Install", file);
             }
             repositoryBrowser.setVisible(true);

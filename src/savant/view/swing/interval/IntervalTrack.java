@@ -43,8 +43,7 @@ public class IntervalTrack extends Track {
     public IntervalTrack(DataSourceAdapter intervalTrack) throws SavantTrackCreationCancelledException {
         super(intervalTrack, new IntervalTrackRenderer());
         setColorScheme(getDefaultColorScheme());
-        setValidDrawingModes(renderer.getDrawingModes());
-        setDrawingMode(renderer.getDefaultDrawingMode());
+        drawingMode = DrawingMode.PACK;
     }
 
     private ColorScheme getDefaultColorScheme() {
@@ -81,6 +80,11 @@ public class IntervalTrack extends Track {
                 LOG.warn("Unrecognized draw mode " + mode);
                 return getDefaultModeResolution(range);
         }
+    }
+
+    @Override
+    public DrawingMode[] getValidDrawingModes() {
+        return new DrawingMode[] { DrawingMode.PACK, DrawingMode.SQUISH, DrawingMode.ARC };
     }
 
     @Override

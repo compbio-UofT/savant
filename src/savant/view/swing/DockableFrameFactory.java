@@ -21,11 +21,8 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeListener;
-import java.beans.PropertyVetoException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.Action;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -33,10 +30,9 @@ import javax.swing.JScrollPane;
 import com.jidesoft.docking.DockContext;
 import com.jidesoft.docking.DockableFrame;
 import com.jidesoft.swing.JideScrollPane;
-import savant.api.util.DialogUtils;
 
-import savant.controller.DockableFrameController;
-import savant.view.icon.SavantIconFactory;
+import savant.controller.FrameController;
+
 
 /**
  * Factory for creating dockable frames.  This come in two flavours: one for tracks
@@ -93,7 +89,7 @@ public class DockableFrameFactory {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                DockableFrameController.getInstance().closeDockableFrame(frame,true);
+                FrameController.getInstance().closeFrame(frame, true);
             }
 
             @Override

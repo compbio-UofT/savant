@@ -69,8 +69,7 @@ public class BAMTrack extends Track {
     public BAMTrack(DataSourceAdapter dataSource) throws SavantTrackCreationCancelledException {
         super(dataSource, new BAMTrackRenderer());
         setColorScheme(getDefaultColorScheme());
-        setValidDrawingModes(renderer.getDrawingModes());
-        setDrawingMode(renderer.getDefaultDrawingMode());
+        drawingMode = DrawingMode.MISMATCH;
     }
 
     private ColorScheme getDefaultColorScheme() {
@@ -93,15 +92,22 @@ public class BAMTrack extends Track {
     }
 
     @Override
+    public DrawingMode[] getValidDrawingModes() {
+        return new DrawingMode[] { DrawingMode.STANDARD, DrawingMode.MISMATCH, /*DrawingMode.COLOURSPACE,*/ DrawingMode.SEQUENCE,
+                                   /*DrawingMode.STANDARD_PAIRED,*/ DrawingMode.ARC_PAIRED, DrawingMode.MAPPING_QUALITY, DrawingMode.BASE_QUALITY,
+                                   DrawingMode.SNP, DrawingMode.STRAND_SNP };
+    }
+
+    @Override
     public void prepareForRendering(String reference, Range range) {
 
-        Resolution r = getResolution(range, getDrawingMode());
+        Resolution r = getResolution(range);
         if (r == Resolution.HIGH) {
             renderer.addInstruction(DrawingInstruction.PROGRESS, "Retrieving BAM data...");
             requestData(reference, range);
         } else {
             saveNullData();
-            if (getDrawingMode() == DrawingMode.ARC_PAIRED){
+            if (getDrawingMode() == DrawingMode.ARC_PAIRED) {
                 renderer.addInstruction(DrawingInstruction.ERROR, ZOOM_MESSAGE);
             } else {
                 // If there is an actual coverage track, this error message will never be drawn.
@@ -135,25 +141,24 @@ public class BAMTrack extends Track {
      */
     public static int getArcYMax(List<Record> data) {
 
-        double max = 0;
+        int max = 0;
 
-        for (Record r: data) {
+        if (data != null) {
+            for (Record r: data) {
 
-            SAMRecord samRecord = ((BAMIntervalRecord)r).getSamRecord();
+                SAMRecord samRecord = ((BAMIntervalRecord)r).getSamRecord();
 
-            double val;
+                int val = Math.abs(samRecord.getInferredInsertSize());
 
-            val = Math.abs(samRecord.getInferredInsertSize());
+                //TODO: make this value user settable
+                // never adjust max greater than this value
+                if (val > maxBPForYMax) { continue; }
 
-            //TODO: make this value user settable
-            // never adjust max greater than this value
-            if (val > maxBPForYMax) { continue; }
-
-            // adjust the max if this value is larger
-            if (val > max) { max = val; }
-
+                // adjust the max if this value is larger
+                if (val > max) { max = val; }
+            }
         }
-        return (int)Math.ceil(max);
+        return max;
     }
 
     private Range getDefaultYRange() {
@@ -162,19 +167,12 @@ public class BAMTrack extends Track {
 
     @Override
     public Resolution getResolution(RangeAdapter range) {
-        return getResolution((Range)range, getDrawingMode());
-    }
-
-    private Resolution getResolution(Range range, DrawingMode mode) {
-        return mode == DrawingMode.ARC_PAIRED ? getArcModeResolution(range) : getDefaultModeResolution(range);
-    }
-
-    private Resolution getArcModeResolution(Range range) {
-        return range.getLength() > TrackResolutionSettings.getBamArcModeLowToHighThresh() ? Resolution.LOW : Resolution.HIGH;
-    }
-
-    private Resolution getDefaultModeResolution(Range range) {
-        return range.getLength() > TrackResolutionSettings.getBamDefaultModeLowToHighThresh() ? Resolution.LOW : Resolution.HIGH;
+        switch (getDrawingMode()) {
+            case ARC_PAIRED:
+                return range.getLength() > TrackResolutionSettings.getBamArcModeLowToHighThresh() ? Resolution.LOW : Resolution.HIGH;
+            default:
+                return range.getLength() > TrackResolutionSettings.getBamDefaultModeLowToHighThresh() ? Resolution.LOW : Resolution.HIGH;
+        }
     }
 
     public double getArcSizeVisibilityThreshold() {

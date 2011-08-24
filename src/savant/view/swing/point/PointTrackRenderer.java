@@ -27,7 +27,6 @@ import savant.exception.RenderingException;
 import savant.util.DrawingInstruction;
 import savant.util.Resolution;
 import savant.util.ColorScheme;
-import savant.util.DrawingMode;
 import savant.view.swing.GraphPane;
 import savant.view.swing.TrackRenderer;
 
@@ -36,8 +35,6 @@ import savant.view.swing.TrackRenderer;
  * @author mfiume
  */
 public class PointTrackRenderer extends TrackRenderer {
-
-    public static final String STANDARD_MODE = "Standard";
 
     public PointTrackRenderer() {
     }
@@ -93,15 +90,5 @@ public class PointTrackRenderer extends TrackRenderer {
         if(data.isEmpty()){
             throw new RenderingException("No data in range", 1);
         }
-    }
-
-    @Override
-    public DrawingMode[] getDrawingModes() {
-        return new DrawingMode[] { DrawingMode.STANDARD };
-    }
-
-    @Override
-    public DrawingMode getDefaultDrawingMode() {
-        return DrawingMode.STANDARD;
     }
 }

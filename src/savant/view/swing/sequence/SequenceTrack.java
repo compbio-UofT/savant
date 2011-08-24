@@ -41,8 +41,7 @@ public class SequenceTrack extends Track {
         setColorScheme(getDefaultColorScheme());
     }
 
-    private ColorScheme getDefaultColorScheme()
-    {
+    private ColorScheme getDefaultColorScheme() {
         ColorScheme c = new ColorScheme();
 
         /* add settings here */

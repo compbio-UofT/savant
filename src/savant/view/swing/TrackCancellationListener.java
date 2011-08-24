@@ -21,8 +21,6 @@ import java.awt.event.ActionListener;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import savant.controller.DockableFrameController;
-
 
 /**
  * ActionListener which is attached to the cancel button on a ProgressPanel to allow users to cancel a lengthy track-related operation.
@@ -31,6 +29,7 @@ import savant.controller.DockableFrameController;
  */
 public class TrackCancellationListener implements ActionListener {
     private static final Log LOG = LogFactory.getLog(TrackCancellationListener.class);
+
     private final Frame frame;
 
     public TrackCancellationListener(Frame f) {
@@ -48,7 +47,7 @@ public class TrackCancellationListener implements ActionListener {
         } else {
             // User has decided to cancel initial creation of the frame, so close it.
             LOG.info("Closing frame for track.");
-            DockableFrameController.getInstance().closeDockableFrame(frame, false);
+            frame.trackCreationFailed(null);
         }
     }
 }

@@ -39,7 +39,6 @@ import savant.exception.RenderingException;
 import savant.util.AxisRange;
 import savant.util.ColorScheme;
 import savant.util.DrawingInstruction;
-import savant.util.DrawingMode;
 import savant.util.Range;
 import savant.view.swing.GraphPane;
 import savant.view.swing.TrackRenderer;
@@ -165,15 +164,5 @@ public class ContinuousTrackRenderer extends TrackRenderer {
         Double y = gp.transformYPos(rec.getValue()) -4;// + (this.getUnitWidth()/2);
         Shape s = new Ellipse2D.Double(x, y, 8, 8);
         return s;
-    }
-
-    @Override
-    public DrawingMode[] getDrawingModes() {
-        return new DrawingMode[] { DrawingMode.STANDARD };
-    }
-
-    @Override
-    public DrawingMode getDefaultDrawingMode() {
-        return DrawingMode.STANDARD;
     }
 }

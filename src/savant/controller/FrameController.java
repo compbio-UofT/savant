@@ -26,12 +26,14 @@ import java.util.List;
 import com.jidesoft.docking.DockContext;
 import com.jidesoft.docking.DockingManager;
 import com.jidesoft.docking.DockingManager.FrameHandle;
+import com.jidesoft.docking.event.DockableFrameAdapter;
+import com.jidesoft.docking.event.DockableFrameEvent;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import savant.api.util.DialogUtils;
 
 import savant.controller.event.LocationChangedEvent;
 import savant.controller.event.LocationChangedListener;
-import savant.controller.event.TrackEvent;
 import savant.view.swing.DockableFrameFactory;
 import savant.view.swing.Frame;
 import savant.view.swing.Savant;
@@ -73,6 +75,70 @@ public class FrameController {
                 drawFrames();
             }
         });
+
+        Savant.getInstance().getTrackDockingManager().addDockableFrameListener(new DockableFrameAdapter() {
+            /**
+             * The appearance of the first frame is a good opportunity to clear away
+             * the start page and set up the main window's navigation widgets.
+             */
+            @Override
+            public void dockableFrameAdded(DockableFrameEvent evt) {
+                Savant.getInstance().showBrowserControls();
+            }
+
+            @Override
+            public void dockableFrameRemoved(DockableFrameEvent evt) {
+                Frame f = (Frame)evt.getDockableFrame();
+                hideFrame(f);
+
+                try {
+
+                    TrackController vtc = TrackController.getInstance();
+                    SelectionController sc = SelectionController.getInstance();
+                    LOG.info("Closing " + f + " with " + f.getTracks().length + " tracks.");
+                    for (Track t : f.getTracks()) {
+                        vtc.removeTrack(t);
+                        sc.removeAll(t.getName());
+                    }
+                    frames.remove(f);
+
+                } catch (Exception e) {
+                    LOG.error("Error closing frame.", e);
+                }
+            }
+
+            @Override
+            public void dockableFrameActivated(DockableFrameEvent evt) {
+                ((Frame)evt.getDockableFrame()).setActiveFrame();
+            }
+
+            @Override
+            public void dockableFrameDeactivated(DockableFrameEvent evt) {
+                ((Frame)evt.getDockableFrame()).setInactiveFrame();
+            }
+        });
+    }
+
+    public void closeAllFrames(boolean askFirst) {
+        if (askFirst) {
+            if (DialogUtils.askYesNo("Confirm", "Are you sure you want to close all tracks?") == DialogUtils.NO) {
+                return;
+            }
+        }
+
+        for (Frame f: frames) {
+            closeFrame(f, false);
+        }
+    }
+
+    public void closeFrame(Frame frame, boolean askFirst) {
+
+        if (askFirst) {
+            if (DialogUtils.askYesNo("Confirm", "Are you sure you want to close this track?") == DialogUtils.NO) {
+                return;
+            }
+        }
+        frame.getDockingManager().removeFrame(frame.getName());
     }
 
     /**
@@ -82,7 +148,6 @@ public class FrameController {
      * FIXME: Can we use the normal track-creation code?
      */
     public Frame createFrame(Track[] tracks) {
-        TrackController.getInstance().fireEvent(new TrackEvent(TrackEvent.Type.WILL_BE_ADDED, null));
         Frame frame = DockableFrameFactory.createTrackFrame();
         addFrame(frame);
         frame.setTracks(tracks);
@@ -106,7 +171,6 @@ public class FrameController {
     }
 
     public Frame addTrackFromURI(URI uri) {
-        TrackController.getInstance().fireEvent(new TrackEvent(TrackEvent.Type.WILL_BE_ADDED, null));
         Frame frame = DockableFrameFactory.createTrackFrame();
         //Force a unique frame key. The title of frame is overwritten by track name later.
         frame.setKey(uri.toString()+System.nanoTime());
@@ -116,7 +180,7 @@ public class FrameController {
     }
 
 
-    public void addFrame(Frame f) {
+    private void addFrame(Frame f) {
         frames.add(f);
 
         DockingManager trackDockingManager = Savant.getInstance().getTrackDockingManager();
@@ -180,23 +244,6 @@ public class FrameController {
         }
     }
 
-    public void closeFrame(Frame frame) {
-        hideFrame(frame);
-
-        try {
-            
-            TrackController vtc = TrackController.getInstance();
-            SelectionController sc = SelectionController.getInstance();
-            for (Track t : frame.getTracks()) {
-                vtc.removeTrack(t);
-                sc.removeAll(t.getName());
-            }
-            frames.remove(frame);
-
-        } catch (Exception e) {
-            LOG.error("Error closing frame.", e);
-        }
-    }
 
     public List<Frame> getFrames() {
         return frames;

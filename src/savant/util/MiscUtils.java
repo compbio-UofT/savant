@@ -40,6 +40,7 @@ import javax.swing.*;
 
 import com.jidesoft.docking.DockableFrame;
 import com.jidesoft.docking.DockingManager;
+import java.awt.event.InputEvent;
 import java.util.Collection;
 import net.sf.samtools.SAMRecord;
 import org.apache.commons.logging.Log;
@@ -59,6 +60,9 @@ public class MiscUtils {
     public static final boolean LINUX;
     public static final String UNSAVED_MARK = " *";
 
+    /** OS-specific constant for determining menu-options. Either CTRL_MASK or META_MASK. */
+    public static final int MENU_MASK;
+
     private static final Log LOG = LogFactory.getLog(MiscUtils.class);
 
     static {
@@ -66,6 +70,7 @@ public class MiscUtils {
         MAC = os.startsWith("mac");
         WINDOWS = os.startsWith("windows");
         LINUX = os.contains("linux");
+        MENU_MASK = MAC ? InputEvent.META_MASK : InputEvent.CTRL_MASK;
     }
 
     /** [[ Miscellaneous Functions ]] */

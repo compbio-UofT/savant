@@ -41,8 +41,6 @@ public class RichIntervalTrack extends Track {
     public RichIntervalTrack(DataSourceAdapter bedSource) throws SavantTrackCreationCancelledException {
         super(bedSource, new RichIntervalTrackRenderer());
         setColorScheme(getDefaultColorScheme());
-        setValidDrawingModes(renderer.getDrawingModes());
-        setDrawingMode(renderer.getDefaultDrawingMode());
     }
 
 
@@ -106,7 +104,12 @@ public class RichIntervalTrack extends Track {
     public void resetColorScheme() {
         setColorScheme(getDefaultColorScheme());
     }
-    
+
+    @Override
+    public DrawingMode[] getValidDrawingModes() {
+        return new DrawingMode[] { DrawingMode.STANDARD, DrawingMode.SQUISH };
+    }
+
     private Range getDefaultYRange() {
         return new Range(0, 1);
     }

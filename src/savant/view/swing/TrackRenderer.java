@@ -60,10 +60,6 @@ public abstract class TrackRenderer implements DataRetrievalListener {
         trackName = name;
     }
 
-    public abstract DrawingMode[] getDrawingModes();
-    public abstract DrawingMode getDefaultDrawingMode();
-
-
     /**
      * Sets the data to null so we know that there's nothing to render.
      *

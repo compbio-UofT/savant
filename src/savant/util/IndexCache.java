@@ -34,7 +34,6 @@ import savant.settings.DirectorySettings;
  */
 public class IndexCache {
     private static final Log LOG = LogFactory.getLog(IndexCache.class);
-    private static final int BUF_SIZE = 8 * 1024; // 8K is optimal size for HTTP transfer
     
     private static IndexCache instance;
 
@@ -92,7 +91,7 @@ public class IndexCache {
             }
         }
         if (!indexFile.exists()) {
-            loadRemoteIndex(indexURL, indexFile);
+            NetworkUtils.downloadFile(indexURL, cacheDir, indexFilename);
             setETagForURL(hash, indexURLString);
         }
         return indexFile;
@@ -194,25 +193,6 @@ public class IndexCache {
         } catch (IOException e) {
             LOG.error("Unable to save Cache properties file",e);
         } finally {
-            if (os != null) try { os.close(); } catch (IOException ignore) {}
-        }
-    }
-
-    private void loadRemoteIndex(URL indexURL, File indexFile) throws IOException {
-        
-        InputStream is = null;
-        OutputStream os = null;
-        try {
-            is = indexURL.openStream();
-            os = new FileOutputStream(indexFile);
-            byte[] buf = new byte[BUF_SIZE];
-            int read;
-            while ((read=is.read(buf)) != -1) {
-                os.write(buf, 0, read);
-            }
-        }
-        finally {
-            if (is != null) try { is.close(); } catch (IOException ignore) {}
             if (os != null) try { os.close(); } catch (IOException ignore) {}
         }
     }

@@ -341,7 +341,7 @@ public class PluginController extends Controller {
     public PluginDescriptor addPlugin(File f) throws PluginVersionException {
         PluginDescriptor desc = PluginDescriptor.fromFile(f);
         if (desc != null) {
-            LOG.info("Found compatible " + desc + " in " + f.getName());
+            LOG.info("Found possible " + desc + " in " + f.getName());
             PluginDescriptor existingDesc = knownPlugins.get(desc.getID());
             if (existingDesc != null && existingDesc.getVersion().compareTo(desc.getVersion()) >= 0) {
                 LOG.info("   Ignored " + desc + " due to presence of existing " + existingDesc);
@@ -382,7 +382,7 @@ public class PluginController extends Controller {
             URL updateURL = repositoryIndex.getPluginURL(id);
             if (updateURL != null) {
                 LOG.info("Downloading updated version of " + id + " from " + updateURL);
-                addPlugin(NetworkUtils.downloadFile(updateURL, DirectorySettings.getPluginsDirectory()));
+                addPlugin(NetworkUtils.downloadFile(updateURL, DirectorySettings.getPluginsDirectory(), null));
                 return true;
             }
         } catch (IOException x) {

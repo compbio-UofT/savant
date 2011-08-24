@@ -19,9 +19,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.Line2D;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
@@ -36,12 +34,10 @@ import org.apache.commons.logging.LogFactory;
 import savant.api.adapter.DataSourceAdapter;
 import savant.api.adapter.TrackAdapter;
 import savant.api.util.DialogUtils;
-import savant.controller.DockableFrameController;
-import savant.controller.DrawingModeController;
+import savant.controller.FrameController;
 import savant.controller.GenomeController;
 import savant.controller.LocationController;
 import savant.controller.TrackController;
-import savant.controller.event.DrawingModeChangedEvent;
 import savant.controller.event.GenomeChangedEvent;
 import savant.data.event.DataRetrievalEvent;
 import savant.data.event.DataRetrievalListener;
@@ -60,7 +56,6 @@ import savant.util.Range;
 import savant.util.swing.ProgressPanel;
 import savant.view.dialog.BAMParametersDialog;
 import savant.view.icon.SavantIconFactory;
-import savant.view.swing.interval.BAMCoverageTrack;
 import savant.view.swing.interval.BAMTrack;
 import savant.view.swing.interval.RichIntervalTrack;
 import savant.view.swing.sequence.SequenceTrack;
@@ -76,6 +71,9 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
     // Specific to interval renderers
     private static final int[] AVAILABLE_INTERVAL_HEIGHTS = new int[] { 1, 4, 8, 12, 16, 20, 24, 28, 32, 36, 40};
 
+    /** If true, the frame's construction was halted by an error or by the user cancelling. */
+    private boolean aborted;
+
     private GraphPane graphPane;
     private JLayeredPane frameLandscape;
     private Track[] tracks = new Track[0];
@@ -83,7 +81,7 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
     private JLayeredPane jlp;
 
     private JPanel arcLegend;
-    private List<JCheckBoxMenuItem> visItems;
+    private JCheckBoxMenuItem[] modeItems;
     private JMenuItem scaleToFitItem;
     private JMenu arcButton;
     private FrameSidePanel sidePanel;
@@ -222,7 +220,6 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
 
         tracks = newTracks;
         graphPane.setTracks(tracks);
-        drawTracksInRange(LocationController.getInstance().getReferenceName(), LocationController.getInstance().getRange());
 
         for (Track t: tracks) {
             t.setFrame(this);
@@ -231,6 +228,9 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
             if (t.getDataFormat() == DataFormat.INTERVAL_BAM) {
                 arcLegend.add(t.getRenderer().arcLegendPaint());
             }
+
+            // Adds the track to the TrackController's internal list, and fires a TrackEvent.ADDED event to all listeners.
+            TrackController.getInstance().addTrack(t);
         }
 
         // We get the name and other properties from the zero'th track.
@@ -359,6 +359,7 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
                 }
                 break;
         }
+        drawTracksInRange(LocationController.getInstance().getReferenceName(), LocationController.getInstance().getRange());
 
         JPanel contentPane = (JPanel)getContentPane();
         contentPane.setLayout(new BorderLayout());
@@ -636,29 +637,34 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
         JMenu menu = new JMenu("Display Mode");
 
         //display modes
-        DrawingMode[] drawModes = tracks[0].getValidDrawingModes();
-        visItems = new ArrayList<JCheckBoxMenuItem>();
-        for(int i = 0; i < drawModes.length; i++){
-            final JCheckBoxMenuItem item = new JCheckBoxMenuItem(drawModes[i].toString());
+        DrawingMode[] validModes = tracks[0].getValidDrawingModes();
+        modeItems = new JCheckBoxMenuItem[validModes.length];
+        for(int i = 0; i < validModes.length; i++){
+            JCheckBoxMenuItem item = new JCheckBoxMenuItem(validModes[i].toString());
             item.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    if(item.getState()){
-                        for(int j = 0; j < visItems.size(); j++){
-                            visItems.get(j).setState(false);
-                            if (item.getText().equals(tracks[0].getValidDrawingModes()[j].toString())) {
-                                DrawingModeController.getInstance().switchMode(tracks[0], tracks[0].getValidDrawingModes()[j]);
+                    JCheckBoxMenuItem item = (JCheckBoxMenuItem)e.getSource();
+                    if (item.getState()) {
+                        DrawingMode[] validModes = tracks[0].getValidDrawingModes();
+                        for (int j = 0; j < modeItems.length; j++){
+                            modeItems[j].setState(false);
+                            if (item.getText().equals(validModes[j].toString())) {
+                                for (Track t: tracks) {
+                                    t.setDrawingMode(validModes[j]);
+                                }
                                 drawModePosition = j;
+                                break;
                             }
                         }
                     }
                     item.setState(true);
                 }
             });
-            if (drawModes[i] == tracks[0].getDrawingMode()) {
+            if (validModes[i] == tracks[0].getDrawingMode()) {
                 item.setState(true);
             }
-            visItems.add(item);
+            modeItems[i] = item;
             menu.add(item);
         }
         return menu;
@@ -704,22 +710,16 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
         resetLayers();
     }
 
-    // FIXME: this is a horrible kludge
-    public void drawModeChanged(DrawingModeChangedEvent evt) {
-
-        Track track = evt.getTrack();
-        DrawingMode mode = evt.getMode();
+    public void drawModeChanged(Track track, DrawingMode mode) {
 
         boolean reRender = true;
         if (track.getDataFormat() == DataFormat.INTERVAL_BAM) {
             if (mode == DrawingMode.ARC_PAIRED) {
-                setCoverageEnabled(false);
                 //intervalButton.setVisible(false);
                 intervalMenu.setVisible(false);
                 arcButton.setVisible(true);
                 arcLegend.setVisible(true);
             } else {
-                setCoverageEnabled(true);
                 // Show interval options button unless in SNP mode.
                 intervalMenu.setVisible(mode != DrawingMode.SNP && mode != DrawingMode.STRAND_SNP);
                 arcButton.setVisible(false);
@@ -733,15 +733,6 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
         if (reRender) {
             validate();
             drawTracksInRange(LocationController.getInstance().getReferenceName(), LocationController.getInstance().getRange());
-        }
-    }
-
-    private void setCoverageEnabled(boolean enabled) {
-
-        for (Track track: getTracks()) {
-            if (track instanceof BAMCoverageTrack) {
-                ((BAMCoverageTrack) track).setEnabled(enabled);
-            }
         }
     }
 
@@ -820,21 +811,25 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
 
     @Override
     public void trackCreationCompleted(TrackCreationEvent evt) {
-        setTracks(evt.getTracks());
+        if (!aborted) {
+            setTracks(evt.getTracks());
+        }
     }
 
     @Override
     public void trackCreationFailed(TrackCreationEvent evt) {
-        DockableFrameController.getInstance().closeDockableFrame(this, false);
+        aborted = true;
+        FrameController.getInstance().closeFrame(this, false);
     }
 
     public void cycleDisplayMode(){
-        if(visItems == null) return;
-        visItems.get(drawModePosition).setState(false);
+        if(modeItems == null) return;
+        modeItems[drawModePosition].setState(false);
         drawModePosition++;
         DrawingMode[] drawModes = tracks[0].getValidDrawingModes();
         if (drawModePosition >= drawModes.length) drawModePosition = 0;
-        visItems.get(drawModePosition).setState(true);
-        DrawingModeController.getInstance().switchMode(tracks[0], drawModes[drawModePosition]);
+        modeItems[drawModePosition].setState(true);
+
+        tracks[0].setDrawingMode(drawModes[drawModePosition]);
     }
 }

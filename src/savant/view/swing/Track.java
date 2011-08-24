@@ -57,8 +57,7 @@ public abstract class Track implements TrackAdapter {
     private final String name;
     private ColorScheme colorScheme;
     private List<Record> dataInRange;
-    private DrawingMode[] validDrawingModes;
-    private DrawingMode drawingMode;
+    protected DrawingMode drawingMode = DrawingMode.STANDARD;
     protected final TrackRenderer renderer;
     private final DataSourceAdapter dataSource;
     private Thread retriever;
@@ -68,10 +67,6 @@ public abstract class Track implements TrackAdapter {
     // FIXME:
     private Frame frame;
 
-    // TODO: put all of this in a TrackFactory class
-    // TODO: inform the user when there is a problem
-
-
     /**
      * Constructor a new track with the given renderer.
      *
@@ -79,8 +74,6 @@ public abstract class Track implements TrackAdapter {
      * @param renderer the <code>TrackRenderer</code> to be used for this track
      */
     protected Track(DataSourceAdapter dataSource, TrackRenderer renderer) throws SavantTrackCreationCancelledException {
-
-        validDrawingModes = new DrawingMode[0];
 
         this.dataSource = dataSource;
         this.renderer = renderer;
@@ -176,7 +169,7 @@ public abstract class Track implements TrackAdapter {
      */
     @Override
     public DrawingMode[] getValidDrawingModes() {
-        return validDrawingModes;
+        return new DrawingMode[] { DrawingMode.STANDARD };
     }
 
     /**
@@ -202,15 +195,7 @@ public abstract class Track implements TrackAdapter {
     @Override
     public void setDrawingMode(DrawingMode mode) {
         drawingMode = mode;
-    }
-
-    /**
-     * Set the list of valid draw modes
-     *
-     * @param modes
-     */
-    public final void setValidDrawingModes(DrawingMode[] modes) {
-        validDrawingModes = modes;
+        frame.drawModeChanged(this, mode);
     }
 
     /**
@@ -228,6 +213,7 @@ public abstract class Track implements TrackAdapter {
      * 
      * @return the DataFormat of the track's DataSource
      */
+    @Override
     public DataFormat getDataFormat() {
         return dataSource.getDataFormat();
     }
@@ -245,12 +231,12 @@ public abstract class Track implements TrackAdapter {
     /**
      * Retrieve a JPanel for the layer which plugins can use to draw on top of the track, creating one if necessary.
      *
-     * @return component to draw onto or null if frame not initialized yet
+     * @return component to draw onto (guaranteed to be non-null if called after <code>TrackEvent.OPENED<code> notification has been received)
      * @since 1.6.0
      */
     @Override
     public JPanel getLayerCanvas(SavantPanelPlugin plugin) {
-        return frame != null ? frame.getLayerCanvas(plugin, true) : null;
+        return frame.getLayerCanvas(plugin, true);
     }
 
     /**

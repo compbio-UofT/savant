@@ -21,7 +21,6 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.geom.Arc2D;
 import java.awt.geom.Rectangle2D;
-import java.util.ArrayList;
 import java.util.List;
 
 import savant.data.event.DataRetrievalEvent;
@@ -207,15 +206,5 @@ public class IntervalTrackRenderer extends TrackRenderer {
             }
         }
 
-    }
-
-    @Override
-    public DrawingMode[] getDrawingModes() {
-        return new DrawingMode[] { DrawingMode.PACK, DrawingMode.SQUISH, DrawingMode.ARC };
-    }
-
-    @Override
-    public DrawingMode getDefaultDrawingMode() {
-        return DrawingMode.PACK;
     }
 }

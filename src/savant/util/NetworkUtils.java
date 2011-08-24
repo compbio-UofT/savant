@@ -212,10 +212,11 @@ public class NetworkUtils {
      *
      * @param u the URL to be downloaded
      * @param destDir the destination directory
+     * @param fileName the destination file within <code>destDir</code>; use <code>null</code> to infer the name from the URL
      * @return the downloaded file
      */
-    public static File downloadFile(URL u, File destDir) throws IOException {
-        File f = new File(destDir, MiscUtils.getFilenameFromPath(u.getPath()));
+    public static File downloadFile(URL u, File destDir, String fileName) throws IOException {
+        File f = new File(destDir, fileName != null ? fileName : MiscUtils.getFilenameFromPath(u.getPath()));
 
         InputStream in = NetworkUtils.openStream(u);
         OutputStream out = new FileOutputStream(f);
@@ -255,9 +256,10 @@ public class NetworkUtils {
      *
      * @param u the HTTP URL to be downloaded
      * @param destDir destination directory for the file
+     * @param fileName the destination file within <code>destDir</code>; use <code>null</code> to infer the name from the URL
      * @param monitor will receive DownloadEvents
      */
-    public static void downloadFile(final URL u, final File destDir, final DownloadMonitor monitor) {
+    public static void downloadFile(final URL u, final File destDir, final String fileName, final DownloadMonitor monitor) {
         new Thread() {
             double totalBytes;
 
@@ -267,7 +269,7 @@ public class NetworkUtils {
                     HttpURLConnection httpConn = (HttpURLConnection) u.openConnection();
                     totalBytes = httpConn.getContentLength();
 
-                    File destFile = new File(destDir, MiscUtils.getFilenameFromPath(u.getPath()));
+                    File destFile = new File(destDir, fileName != null ? fileName : MiscUtils.getFilenameFromPath(u.getPath()));
                     OutputStream out = new FileOutputStream(destFile);
                     InputStream in = NetworkUtils.openStream(u);
                     fireDownloadEvent(monitor, new DownloadEvent(DownloadEvent.Type.STARTED));

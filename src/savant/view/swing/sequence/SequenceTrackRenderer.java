@@ -27,7 +27,6 @@ import savant.exception.RenderingException;
 import savant.util.AxisRange;
 import savant.util.ColorScheme;
 import savant.util.DrawingInstruction;
-import savant.util.DrawingMode;
 import savant.view.swing.GraphPane;
 import savant.view.swing.TrackRenderer;
 
@@ -38,8 +37,6 @@ import savant.view.swing.TrackRenderer;
  * @author mfiume
  */
 public class SequenceTrackRenderer extends TrackRenderer {
-
-    public static final String STANDARD_MODE = "Standard";
 
     private static final Font SMALL_FONT = new Font("Sans-Serif", Font.PLAIN, 12);
     private static final Font LARGE_FONT = new Font("Sans-Serif", Font.PLAIN, 36);
@@ -132,15 +129,5 @@ public class SequenceTrackRenderer extends TrackRenderer {
         Rectangle2D charRect = font.getStringBounds(baseChar, g2.getFontRenderContext());
         if (charRect.getWidth() > width) return false;
         else return true;
-    }
-
-    @Override
-    public DrawingMode[] getDrawingModes() {
-        return new DrawingMode[] { DrawingMode.STANDARD };
-    }
-
-    @Override
-    public DrawingMode getDefaultDrawingMode() {
-        return DrawingMode.STANDARD;
     }
 }

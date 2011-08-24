@@ -59,32 +59,19 @@ import savant.view.swing.interval.Pileup.Nucleotide;
 public class BAMTrackRenderer extends TrackRenderer {
     private static final Log LOG = LogFactory.getLog(BAMTrackRenderer.class);
 
-    /** MODE */
     private static final Font SMALL_FONT = new Font("Sans-Serif", Font.PLAIN, 10);
     private static final Stroke ONE_STROKE = new BasicStroke(1.0f);
     private static final Stroke TWO_STROKE = new BasicStroke(2.0f);
 
     private byte[] refSeq = null;
-    private DrawingMode mode;
+    private DrawingMode lastMode;
     private Resolution lastResolution;
 
     // The number of standard deviations from the mean an arclength has to be before it's
     // considered discordant
     private static int DISCORDANT_STD_DEV = 3;
 
-    @Override
-    public DrawingMode[] getDrawingModes() {
-        return new DrawingMode[] { DrawingMode.STANDARD, DrawingMode.MISMATCH, /*DrawingMode.COLOURSPACE,*/ DrawingMode.SEQUENCE,
-                                   /*DrawingMode.STANDARD_PAIRED,*/ DrawingMode.ARC_PAIRED, DrawingMode.MAPPING_QUALITY, DrawingMode.BASE_QUALITY,
-                                   DrawingMode.SNP, DrawingMode.STRAND_SNP };
-    }
-
-    @Override
-    public DrawingMode getDefaultDrawingMode() {
-        return DrawingMode.MISMATCH;
-    }
-
-     private char getColor(char fromstate, char tostate) {
+    private char getColor(char fromstate, char tostate) {
          switch(fromstate) {
              case 'A':
                  switch(tostate) {
@@ -250,12 +237,12 @@ public class BAMTrackRenderer extends TrackRenderer {
         // Put up an error message if we don't want to do any rendering.
         renderPreCheck();
 
-        DrawingMode oldMode = mode;
-        mode = (DrawingMode)instructions.get(DrawingInstruction.MODE);
+        DrawingMode oldMode = lastMode;
+        lastMode = (DrawingMode)instructions.get(DrawingInstruction.MODE);
         Resolution r = (Resolution)instructions.get(DrawingInstruction.RESOLUTION);
 
         if (r == Resolution.HIGH) {
-            if (mode == DrawingMode.MISMATCH || mode == DrawingMode.SNP || mode == DrawingMode.STRAND_SNP || mode == DrawingMode.COLOURSPACE || mode == DrawingMode.SEQUENCE || mode == DrawingMode.BASE_QUALITY){
+            if (lastMode == DrawingMode.MISMATCH || lastMode == DrawingMode.SNP || lastMode == DrawingMode.STRAND_SNP || lastMode == DrawingMode.COLOURSPACE || lastMode == DrawingMode.SEQUENCE || lastMode == DrawingMode.BASE_QUALITY){
                 // fetch reference sequence for comparison with cigar string
                 Genome genome = GenomeController.getInstance().getGenome();
                 if(genome.isSequenceSet()){
@@ -269,7 +256,7 @@ public class BAMTrackRenderer extends TrackRenderer {
                 }
             }
         }
-        if (mode != DrawingMode.ARC_PAIRED) {
+        if (lastMode != DrawingMode.ARC_PAIRED) {
             // For non-arc modes, we want to establish our interval height when we switch from coverage to non-coverage.
             if (lastResolution != r || oldMode == DrawingMode.ARC_PAIRED) {
                 if (r == Resolution.HIGH) {
@@ -289,7 +276,7 @@ public class BAMTrackRenderer extends TrackRenderer {
             }
         }
 
-        switch (mode) {
+        switch (lastMode) {
             case STANDARD:
             case MISMATCH:
             case SEQUENCE:
@@ -396,7 +383,7 @@ public class BAMTrackRenderer extends TrackRenderer {
 
     private void renderPackMode(Graphics2D g2, GraphPane gp, Resolution r) throws RenderingException {
 
-        if (mode == DrawingMode.MISMATCH) {
+        if (lastMode == DrawingMode.MISMATCH) {
             Genome genome = GenomeController.getInstance().getGenome();
             if (!genome.isSequenceSet()) {
                 throw new RenderingException("No reference sequence loaded. Switch to standard view", 2);
@@ -455,7 +442,7 @@ public class BAMTrackRenderer extends TrackRenderer {
                 boolean strandFlag = samRecord.getReadNegativeStrandFlag();
                 Strand strand = strandFlag ? Strand.REVERSE : Strand.FORWARD ;
 
-                if (mode == DrawingMode.MAPPING_QUALITY) {
+                if (lastMode == DrawingMode.MAPPING_QUALITY) {
                     Color basecolor = null;
                     if (strand == Strand.FORWARD) {
                         basecolor = cs.getColor("Forward Strand");
@@ -466,7 +453,7 @@ public class BAMTrackRenderer extends TrackRenderer {
 
                     int alpha = getConstrainedAlpha(samRecord.getMappingQuality());
                     readColour = new Color(basecolor.getRed(),basecolor.getGreen(),basecolor.getBlue(),alpha);
-                } else if (mode == DrawingMode.BASE_QUALITY) {
+                } else if (lastMode == DrawingMode.BASE_QUALITY) {
                     readColour = new Color(0,0,0,0);
                 } else {
                     if (strand == Strand.FORWARD) {
@@ -485,7 +472,7 @@ public class BAMTrackRenderer extends TrackRenderer {
 
                 this.recordToShapeMap.put(intervalRecord, readshape);
 
-                if (mode == DrawingMode.BASE_QUALITY) {
+                if (lastMode == DrawingMode.BASE_QUALITY) {
                     Color col = null;
                     if (strand == Strand.FORWARD) {
                         col = cs.getColor("Forward Strand");
@@ -499,13 +486,13 @@ public class BAMTrackRenderer extends TrackRenderer {
 
 
 
-                if (mode == DrawingMode.MISMATCH) {
+                if (lastMode == DrawingMode.MISMATCH) {
                     // visualize variations (indels and mismatches)
                     renderMismatches(g2, gp, samRecord, level, refSeq, range);
-                } else if (mode == DrawingMode.SEQUENCE) {
+                } else if (lastMode == DrawingMode.SEQUENCE) {
                     renderLetters(g2, gp, samRecord, level, refSeq, range);
                 }
-                else if (mode == DrawingMode.COLOURSPACE) {
+                else if (lastMode == DrawingMode.COLOURSPACE) {
                     renderColorMismatches(g2, gp, samRecord, level, refSeq, range);
                 }
 

@@ -19,6 +19,9 @@ package savant.controller;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import savant.controller.event.TrackEvent;
 import savant.file.DataFormat;
 import savant.util.Controller;
@@ -31,6 +34,7 @@ import savant.view.swing.Track;
  * @author vwilliams
  */
 public class TrackController extends Controller<TrackEvent> {
+    private static final Log LOG = LogFactory.getLog(TrackController.class);
 
     private static TrackController instance;
 
@@ -69,6 +73,7 @@ public class TrackController extends Controller<TrackEvent> {
      * @param t The track to add
      */
     public void addTrack(Track t) {
+        LOG.info("Added " + t + " to track list.");
         tracks.add(t);
         fireEvent(new TrackEvent(TrackEvent.Type.ADDED, t));
     }
@@ -103,7 +108,7 @@ public class TrackController extends Controller<TrackEvent> {
     }
 
     public void closeTracks() {
-        DockableFrameController.getInstance().closeAllDockableFrames(Savant.getInstance().getTrackDockingManager(),false);
+        FrameController.getInstance().closeAllFrames(false);
     }
 
     /**

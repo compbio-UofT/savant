@@ -174,13 +174,13 @@ public class DownloadDialog extends JDialog implements DownloadMonitor {
     /**
      * Set up the dialog, start the download process, and make it visible.
      */
-    public void downloadFile(URL url, File destDir) {
-        shortName = MiscUtils.getFilenameFromPath(url.getPath());
+    public void downloadFile(URL url, File destDir, String fileName) {
+        shortName = fileName != null ? fileName : MiscUtils.getFilenameFromPath(url.getPath());
         setTitle("Downloading " + shortName);
         fileLabel.setText(url.toString());
         destinationLabel.setText(destDir.getPath());
         downloadedFile = new File(destDir, shortName);
-        NetworkUtils.downloadFile(url, destDir, this);
+        NetworkUtils.downloadFile(url, downloadedFile, shortName, this);
         setVisible(true);
     }
 

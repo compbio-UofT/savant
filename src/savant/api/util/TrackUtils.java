@@ -85,7 +85,6 @@ public class TrackUtils {
         for (int i = 0; i < tracks.size(); i++) {
             myTracks[i] = (Track)tracks.get(i);
         }
-        TrackController.getInstance().fireEvent(new TrackEvent(TrackEvent.Type.WILL_BE_ADDED, null));
         Frame f = DockableFrameFactory.createTrackFrame();
         f.setTracks(myTracks);
     }

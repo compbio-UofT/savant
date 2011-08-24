@@ -39,8 +39,6 @@ import javax.swing.*;
 
 import com.apple.eawt.*;
 import com.jidesoft.docking.*;
-import com.jidesoft.docking.event.DockableFrameAdapter;
-import com.jidesoft.docking.event.DockableFrameEvent;
 import com.jidesoft.plaf.LookAndFeelFactory;
 import com.jidesoft.plaf.UIDefaultsLookup;
 import com.jidesoft.plaf.basic.ThemePainter;
@@ -89,7 +87,6 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
     private ToolsModule savantTools;
     static boolean showNonGenomicReferenceDialog = true;
     private static boolean showBookmarksChangedDialog = false; // turned off, its kind of annoying
-    public static final int osSpecificModifier = (MiscUtils.MAC ? java.awt.event.InputEvent.META_MASK : java.awt.event.InputEvent.CTRL_MASK);
     private MemoryStatusBarItem memorystatusbar;
     private Application macOSXApplication;
     private boolean browserControlsShown = false;
@@ -184,22 +181,6 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
         trackBackground.setLayout(new BorderLayout());
 
         trackDockingManager.getWorkspace().add(trackBackground);
-        trackDockingManager.addDockableFrameListener(new DockableFrameAdapter() {
-            @Override
-            public void dockableFrameRemoved(DockableFrameEvent arg0) {
-                FrameController.getInstance().closeFrame((Frame)arg0.getDockableFrame());
-            }
-
-            @Override
-            public void dockableFrameActivated(DockableFrameEvent arg0) {
-                ((Frame)arg0.getDockableFrame()).setActiveFrame();
-            }
-
-            @Override
-            public void dockableFrameDeactivated(DockableFrameEvent arg0) {
-                ((Frame)arg0.getDockableFrame()).setInactiveFrame();
-            }
-        });
         trackDockingManager.setAllowedDockSides(DockContext.DOCK_SIDE_HORIZONTAL);
 
         // make sure only one active frame
@@ -248,10 +229,6 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
 
         Splash s = new Splash(instance, false);
         s.setVisible(true);
-
-        loadPreferences();
-
-        //removeTmpFiles();
 
         addComponentListener(new ComponentAdapter() {
 
@@ -334,16 +311,6 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
             }
         });
 
-        TrackController.getInstance().addListener(new Listener<TrackEvent>() {
-
-            @Override
-            public void handleEvent(TrackEvent event) {
-                if (event.getType() == TrackEvent.Type.WILL_BE_ADDED) {
-                    showBrowserControls();
-                    TrackController.getInstance().removeListener(this);
-                }
-            }
-        });
         s.setStatus("Initializing GUI");
 
         initComponents();       
@@ -1328,13 +1295,6 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
         }
     }
 
-    public static void loadPreferences() {
-    }
-
-    private static String getPost(String name, String value) {
-        return name + "=" + value;
-    }
-
     private static void logUsageStats() {
         try {
             URLConnection urlConn;
@@ -1661,35 +1621,35 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
     }
 
     private void initMenu() {
-        loadGenomeItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_G, osSpecificModifier));
-        loadFromFileItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_T, osSpecificModifier));
-        loadFromURLItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_U, osSpecificModifier));
-        loadFromDataSourcePluginItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_E, osSpecificModifier));
-        openProjectItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_O, osSpecificModifier));
-        saveProjectItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_S, osSpecificModifier));
-        saveProjectAsItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_S, osSpecificModifier | java.awt.event.InputEvent.SHIFT_MASK));
-        formatItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F, osSpecificModifier));
-        exitItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Q, osSpecificModifier));
-        undoItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Z, osSpecificModifier));
-        redoItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Y, osSpecificModifier));
-        bookmarkItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_B, osSpecificModifier));
-        navigationItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_R, java.awt.event.InputEvent.SHIFT_MASK | osSpecificModifier));
+        loadGenomeItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_G, MiscUtils.MENU_MASK));
+        loadFromFileItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_T, MiscUtils.MENU_MASK));
+        loadFromURLItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_U, MiscUtils.MENU_MASK));
+        loadFromDataSourcePluginItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_E, MiscUtils.MENU_MASK));
+        openProjectItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_O, MiscUtils.MENU_MASK));
+        saveProjectItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_S, MiscUtils.MENU_MASK));
+        saveProjectAsItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_S, MiscUtils.MENU_MASK | java.awt.event.InputEvent.SHIFT_MASK));
+        formatItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F, MiscUtils.MENU_MASK));
+        exitItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Q, MiscUtils.MENU_MASK));
+        undoItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Z, MiscUtils.MENU_MASK));
+        redoItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Y, MiscUtils.MENU_MASK));
+        bookmarkItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_B, MiscUtils.MENU_MASK));
+        navigationItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_R, java.awt.event.InputEvent.SHIFT_MASK | MiscUtils.MENU_MASK));
         panLeftItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_LEFT, java.awt.event.InputEvent.SHIFT_MASK));
         panRightItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_RIGHT, java.awt.event.InputEvent.SHIFT_MASK));
         zoomInItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_UP, java.awt.event.InputEvent.SHIFT_MASK));
         zoomOutItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_DOWN, java.awt.event.InputEvent.SHIFT_MASK));
         toStartItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_HOME, java.awt.event.InputEvent.SHIFT_MASK));
         toEndItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_END, java.awt.event.InputEvent.SHIFT_MASK));
-        preferencesItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_P, osSpecificModifier));
-        crosshairItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_J, osSpecificModifier));
-        plumblineItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_K, osSpecificModifier));
-        spotlightItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_L, osSpecificModifier));
-        bookmarksItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_B, osSpecificModifier | java.awt.event.InputEvent.SHIFT_MASK));
-        genomeItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_C, osSpecificModifier | java.awt.event.InputEvent.SHIFT_MASK));
-        rulerItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_L, osSpecificModifier | java.awt.event.InputEvent.SHIFT_MASK));
-        statusBarItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_S, osSpecificModifier | java.awt.event.InputEvent.SHIFT_MASK));
-        pluginToolbarItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_T, osSpecificModifier | java.awt.event.InputEvent.SHIFT_MASK));
-        exportItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_I, osSpecificModifier));
+        preferencesItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_P, MiscUtils.MENU_MASK));
+        crosshairItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_J, MiscUtils.MENU_MASK));
+        plumblineItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_K, MiscUtils.MENU_MASK));
+        spotlightItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_L, MiscUtils.MENU_MASK));
+        bookmarksItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_B, MiscUtils.MENU_MASK | java.awt.event.InputEvent.SHIFT_MASK));
+        genomeItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_C, MiscUtils.MENU_MASK | java.awt.event.InputEvent.SHIFT_MASK));
+        rulerItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_L, MiscUtils.MENU_MASK | java.awt.event.InputEvent.SHIFT_MASK));
+        statusBarItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_S, MiscUtils.MENU_MASK | java.awt.event.InputEvent.SHIFT_MASK));
+        pluginToolbarItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_T, MiscUtils.MENU_MASK | java.awt.event.InputEvent.SHIFT_MASK));
+        exportItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_I, MiscUtils.MENU_MASK));
 
         if (!Desktop.isDesktopSupported() || !Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
             tutorialsItem.setEnabled(false);
@@ -1737,7 +1697,11 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
         }
     }
 
-    private void showBrowserControls() {
+    /**
+     * Move our start page out of the way and open up our rulers and navigation widgets.
+     * Called by FrameController when the first Frame is opened.
+     */
+    public void showBrowserControls() {
         if (browserControlsShown) {
             return;
         }
@@ -1933,7 +1897,7 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
         hiddenBar.setPreferredSize(new Dimension(0,0));
 
         JMenuItem hiddenBookmarkPrev = new JMenuItem("");
-        hiddenBookmarkPrev.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_9, osSpecificModifier));
+        hiddenBookmarkPrev.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_9, MiscUtils.MENU_MASK));
         hiddenBookmarkPrev.addActionListener(new java.awt.event.ActionListener() {
             @Override
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -1944,7 +1908,7 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
         });
 
         JMenuItem hiddenBookmarkNext = new JMenuItem("");
-        hiddenBookmarkNext.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_0, osSpecificModifier));
+        hiddenBookmarkNext.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_0, MiscUtils.MENU_MASK));
         hiddenBookmarkNext.addActionListener(new java.awt.event.ActionListener() {
             @Override
             public void actionPerformed(java.awt.event.ActionEvent evt) {

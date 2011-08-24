@@ -553,14 +553,4 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
 
         return rhombus;
     }
-
-    @Override
-    public DrawingMode[] getDrawingModes() {
-        return new DrawingMode[] { DrawingMode.STANDARD, DrawingMode.SQUISH };
-    }
-
-    @Override
-    public DrawingMode getDefaultDrawingMode() {
-        return DrawingMode.STANDARD;
-    }
 }
