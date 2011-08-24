@@ -71,7 +71,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
     private int xMax;
     private int yMin;
     private int yMax;
-    private double unitWidth;
+    private double unitWidth = Double.NaN;
     private double unitHeight;
 
     private AxisType yAxisType = AxisType.NONE;
@@ -1067,22 +1067,24 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         mouse_x = event.getX();
         mouse_y = event.getY();
 
-        GraphPaneController gpc = GraphPaneController.getInstance();
+        if (!Double.isNaN(unitWidth)) {
+            GraphPaneController gpc = GraphPaneController.getInstance();
 
-        // Update the GraphPaneController's record of the mouse position
-        gpc.setMouseXPosition(transformXPixel(event.getX()));
-        switch (yAxisType) {
-            case NONE:
-                gpc.setMouseYPosition(Double.NaN, false);
-                break;
-            case INTEGER:
-                gpc.setMouseYPosition(Math.floor(transformYPixel(event.getY())), true);
-                break;
-            case REAL:
-                gpc.setMouseYPosition(transformYPixel(event.getY()), false);
-                break;
+            // Update the GraphPaneController's record of the mouse position
+            gpc.setMouseXPosition(transformXPixel(event.getX()));
+            switch (yAxisType) {
+                case NONE:
+                    gpc.setMouseYPosition(Double.NaN, false);
+                    break;
+                case INTEGER:
+                    gpc.setMouseYPosition(Math.floor(transformYPixel(event.getY())), true);
+                    break;
+                case REAL:
+                    gpc.setMouseYPosition(transformYPixel(event.getY()), false);
+                    break;
+            }
+            gpc.setSpotlightSize(getXRange().getLength());
         }
-        gpc.setSpotlightSize(getXRange().getLength());
     }
 
     /**
