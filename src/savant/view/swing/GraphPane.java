@@ -63,8 +63,8 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
     private Track[] tracks;
     private Frame parentFrame;
 
-    private int mouse_x = 0;
-    private int mouse_y = 0;
+    private int mouseX = 0;
+    private int mouseY = 0;
 
     /** min / max axis values */
     private int xMin;
@@ -505,9 +505,9 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
                 target += " Y: " + MiscUtils.numToString(genomeY);
             }
 
-            g2.drawLine(mouse_x, 0, mouse_x, h);
-            if (genomeY != -1) g.drawLine(0, mouse_y, this.getWidth(), mouse_y);
-            g2.drawString(target, mouse_x + 5, mouse_y - 5);
+            g2.drawLine(mouseX, 0, mouseX, h);
+            if (genomeY != -1) g.drawLine(0, mouseY, this.getWidth(), mouseY);
+            g2.drawString(target, mouseX + 5, mouseY - 5);
         }
 
         double x1 = transformXPos(gpc.getMouseDragRange().getFrom());
@@ -1064,23 +1064,24 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
     @Override
     public void mouseMoved(MouseEvent event) {
 
-        mouse_x = event.getX();
-        mouse_y = event.getY();
+        mouseX = event.getX();
+        mouseY = event.getY();
 
         if (!Double.isNaN(unitWidth)) {
             GraphPaneController gpc = GraphPaneController.getInstance();
 
             // Update the GraphPaneController's record of the mouse position
-            gpc.setMouseXPosition(transformXPixel(event.getX()));
+            gpc.setMouseXPosition(transformXPixel(mouseX));
             switch (yAxisType) {
                 case NONE:
                     gpc.setMouseYPosition(Double.NaN, false);
                     break;
                 case INTEGER:
-                    gpc.setMouseYPosition(Math.floor(transformYPixel(event.getY())), true);
+                case INTEGER_GRIDLESS:
+                    gpc.setMouseYPosition(Math.floor(transformYPixel(mouseY)), true);
                     break;
                 case REAL:
-                    gpc.setMouseYPosition(transformYPixel(event.getY()), false);
+                    gpc.setMouseYPosition(transformYPixel(mouseY), false);
                     break;
             }
             gpc.setSpotlightSize(getXRange().getLength());

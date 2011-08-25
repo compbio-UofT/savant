@@ -673,9 +673,6 @@
           </Properties>
         </Component>
         <Component class="javax.swing.JLabel" name="mousePositionLabel">
-          <Properties>
-            <Property name="text" type="java.lang.String" value="mouse over track"/>
-          </Properties>
         </Component>
         <Component class="javax.swing.JLabel" name="timeCaption">
           <Properties>

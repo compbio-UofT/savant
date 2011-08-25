@@ -503,8 +503,6 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
 
         label_mouseposition_title.setText(" Position: ");
         toolbar_bottom.add(label_mouseposition_title);
-
-        mousePositionLabel.setText("mouse over track");
         toolbar_bottom.add(mousePositionLabel);
 
         timeCaption.setText("Time: ");
@@ -1806,7 +1804,7 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
 
     private void updateMousePosition(int x, double y, boolean yIntegral) {
         if (x == -1 && Double.isNaN(y)) {
-            mousePositionLabel.setText("Mouse not over track");
+            mousePositionLabel.setText("");
         } else {
             String s = x == -1 ? "" : "X: " + MiscUtils.numToString(x);
             if (!Double.isNaN(y)) {
