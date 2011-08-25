@@ -126,8 +126,8 @@ public class FrameController {
             }
         }
 
-        for (Frame f: frames) {
-            closeFrame(f, false);
+        for (int i = frames.size() - 1; i >= 0; i--) {
+            closeFrame(frames.get(i), false);
         }
     }
 
