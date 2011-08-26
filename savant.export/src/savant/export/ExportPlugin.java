@@ -48,9 +48,9 @@ import savant.controller.LocationController;
 import savant.data.event.ExportEvent;
 import savant.data.event.ExportEventListener;
 import savant.plugin.SavantPanelPlugin;
-import savant.swing.component.PathField;
 import savant.util.Bookmark;
 import savant.util.Range;
+import savant.util.swing.PathField;
 import savant.view.swing.GraphPane;
 import savant.view.swing.Track;
 import savant.view.swing.ExportImage;
@@ -65,7 +65,6 @@ public class ExportPlugin extends SavantPanelPlugin {
     //interface
     private PathField pf;
     private JLabel outputLabel;
-    private JPanel canvas;
 
     //file string
     private String baseFolder = "";
@@ -92,7 +91,6 @@ public class ExportPlugin extends SavantPanelPlugin {
     @Override
     public void init(JPanel canvas) {
         setupGUI(canvas);
-        this.canvas = canvas;
     }
 
     @Override
@@ -133,7 +131,7 @@ public class ExportPlugin extends SavantPanelPlugin {
 
             @Override
             public void mouseClicked(MouseEvent e) {               
-                    exportThread = new Thread() {
+                    exportThread = new Thread("Export Plugin") {
                     @Override
                         public void run() {
                             try {
