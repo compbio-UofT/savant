@@ -78,79 +78,81 @@ public class AminoCanvas extends JPanel {
                 g2.setFont(g2.getFont().deriveFont(Font.PLAIN, 8));
                 boolean labelled = g2.getFontMetrics().charWidth('W') < aminoWidth;
 
-                List<Record> records = track.getDataInRange();
 
                 try {
-                    for (Record r: records) {
-                        RichIntervalRecord rr = (RichIntervalRecord)r;
-                        int recordStart = rr.getInterval().getStart();
-                        thickStart = rr.getThickStart();
-                        int thickEnd = rr.getThickEnd() + 1;
-                        LOG.debug(rr.getAlternateName() + ": thickStart=" + thickStart + ", thickEnd=" + thickEnd);
+                    List<Record> records = track.getDataInRange();
+                    if (records != null) {
+                        for (Record r: records) {
+                            RichIntervalRecord rr = (RichIntervalRecord)r;
+                            int recordStart = rr.getInterval().getStart();
+                            thickStart = rr.getThickStart();
+                            int thickEnd = rr.getThickEnd() + 1;
+                            LOG.debug(rr.getAlternateName() + ": thickStart=" + thickStart + ", thickEnd=" + thickEnd);
 
-                        sequence = GenomeUtils.getGenome().getSequence(NavigationUtils.getCurrentReferenceName(), RangeUtils.createRange(thickStart, thickEnd));
+                            sequence = GenomeUtils.getGenome().getSequence(NavigationUtils.getCurrentReferenceName(), RangeUtils.createRange(thickStart, thickEnd));
 
-                        int pos = thickStart;
-                        int leftovers = -1;    // Left-overs from the previous block.
-                        List<Block> blocks = rr.getBlocks();
-                        if (blocks != null) {
-                            for (Block b: blocks) {
+                            int pos = thickStart;
+                            int leftovers = -1;    // Left-overs from the previous block.
+                            List<Block> blocks = rr.getBlocks();
+                            if (blocks != null) {
+                                for (Block b: blocks) {
 
-                                if (pos + 3 <= thickEnd) {
-                                    // Block positions are relative to the start of the record.
-                                    int blockStart = b.getPosition() + recordStart;
-                                    int blockEnd = b.getEnd() + recordStart;
-                                    LOG.debug(rr.getAlternateName() + ": blockStart=" + thickStart + ", blockEnd=" + thickEnd);
+                                    if (pos + 3 <= thickEnd) {
+                                        // Block positions are relative to the start of the record.
+                                        int blockStart = b.getPosition() + recordStart;
+                                        int blockEnd = b.getEnd() + recordStart;
+                                        LOG.debug(rr.getAlternateName() + ": blockStart=" + thickStart + ", blockEnd=" + thickEnd);
 
-                                    AminoAcid a;
+                                        AminoAcid a;
 
-                                    // If we have leftovers, take care of them first.
-                                    switch (leftovers) {
-                                        case -1:
-                                            // Fresh record with no leftovers.
-                                            break;
-                                        case 0:
-                                            // No leftovers, so we can start immediately on the new block.
-                                            pos = blockStart;
-                                            break;
-                                        case 1:
-                                            // One base from previous block, two bases from current one.
-                                            LOG.debug(rr.getAlternateName() + ": handling leftover " + getBase(pos) + " at " + pos);
-                                            if (rr.getStrand() == Strand.FORWARD) {
-                                                a = AminoAcid.lookup(getBase(pos), getBase(blockStart), getBase(blockStart + 1));
-                                            } else {
-                                                a = AminoAcid.lookup(getComplement(blockStart + 1), getComplement(blockStart), getComplement(pos));
-                                            }
-                                            paintAminoAcid(g2, a, pos, 1, pos, labelled);
-                                            paintAminoAcid(g2, a, blockStart, 2, blockStart - 1, labelled);
-                                            pos = blockStart + 2;
-                                            break;
-                                        case 2:
-                                            // Two bases from previous block, one base from current one.
-                                            LOG.debug(rr.getAlternateName() + ": handling leftover " + getBase(pos) + "," + getBase(pos + 1) + " at " + pos + "," + (pos + 1));
-                                            if (rr.getStrand() == Strand.FORWARD) {
-                                                a = AminoAcid.lookup(getBase(pos), getBase(pos + 1), getBase(blockStart));
-                                            } else {
-                                                a = AminoAcid.lookup(getComplement(blockStart), getComplement(pos + 1), getComplement(pos));
-                                            }
-                                            paintAminoAcid(g2, a, pos, 2, pos, labelled);
-                                            paintAminoAcid(g2, a, blockStart, 1, blockStart - 2, labelled);
-                                            pos = blockStart + 1;
-                                            break;
-                                    }
-
-                                    // Now, handle codons which are entirely contained within the block.
-                                    while (pos + 3 <= blockEnd && pos + 3 <= thickEnd) {
-                                        if (rr.getStrand() == Strand.FORWARD) {
-                                            a = AminoAcid.lookup(getBase(pos), getBase(pos + 1), getBase(pos + 2));
-                                        } else {
-                                            a = AminoAcid.lookup(getComplement(pos + 2), getComplement(pos + 1), getComplement(pos));
+                                        // If we have leftovers, take care of them first.
+                                        switch (leftovers) {
+                                            case -1:
+                                                // Fresh record with no leftovers.
+                                                break;
+                                            case 0:
+                                                // No leftovers, so we can start immediately on the new block.
+                                                pos = blockStart;
+                                                break;
+                                            case 1:
+                                                // One base from previous block, two bases from current one.
+                                                LOG.debug(rr.getAlternateName() + ": handling leftover " + getBase(pos) + " at " + pos);
+                                                if (rr.getStrand() == Strand.FORWARD) {
+                                                    a = AminoAcid.lookup(getBase(pos), getBase(blockStart), getBase(blockStart + 1));
+                                                } else {
+                                                    a = AminoAcid.lookup(getComplement(blockStart + 1), getComplement(blockStart), getComplement(pos));
+                                                }
+                                                paintAminoAcid(g2, a, pos, 1, pos, labelled);
+                                                paintAminoAcid(g2, a, blockStart, 2, blockStart - 1, labelled);
+                                                pos = blockStart + 2;
+                                                break;
+                                            case 2:
+                                                // Two bases from previous block, one base from current one.
+                                                LOG.debug(rr.getAlternateName() + ": handling leftover " + getBase(pos) + "," + getBase(pos + 1) + " at " + pos + "," + (pos + 1));
+                                                if (rr.getStrand() == Strand.FORWARD) {
+                                                    a = AminoAcid.lookup(getBase(pos), getBase(pos + 1), getBase(blockStart));
+                                                } else {
+                                                    a = AminoAcid.lookup(getComplement(blockStart), getComplement(pos + 1), getComplement(pos));
+                                                }
+                                                paintAminoAcid(g2, a, pos, 2, pos, labelled);
+                                                paintAminoAcid(g2, a, blockStart, 1, blockStart - 2, labelled);
+                                                pos = blockStart + 1;
+                                                break;
                                         }
-                                        paintAminoAcid(g2, a, pos, 3, pos, labelled);
-                                        pos += 3;
+
+                                        // Now, handle codons which are entirely contained within the block.
+                                        while (pos + 3 <= blockEnd && pos + 3 <= thickEnd) {
+                                            if (rr.getStrand() == Strand.FORWARD) {
+                                                a = AminoAcid.lookup(getBase(pos), getBase(pos + 1), getBase(pos + 2));
+                                            } else {
+                                                a = AminoAcid.lookup(getComplement(pos + 2), getComplement(pos + 1), getComplement(pos));
+                                            }
+                                            paintAminoAcid(g2, a, pos, 3, pos, labelled);
+                                            pos += 3;
+                                        }
+                                        leftovers = (blockEnd - pos) % 3;
+                                        LOG.debug(rr.getAlternateName() + ": breaking out of loop: pos=" + pos + ", blockEnd=" + blockEnd + ", leftovers=" + leftovers);
                                     }
-                                    leftovers = (blockEnd - pos) % 3;
-                                    LOG.debug(rr.getAlternateName() + ": breaking out of loop: pos=" + pos + ", blockEnd=" + blockEnd + ", leftovers=" + leftovers);
                                 }
                             }
                         }
