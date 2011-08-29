@@ -88,7 +88,7 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
     private int drawModePosition = 0;
     private JMenu intervalMenu;
     private JSlider intervalSlider;
-    private JMenu setAsGenomeButton;
+    private JCheckBoxMenuItem setAsGenomeButton;
     private JLabel yMaxPanel;
     private Map<SavantPanelPlugin, JPanel> pluginLayers = new HashMap<SavantPanelPlugin, JPanel>();
 
@@ -200,8 +200,8 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
      */
     public void setTracks(Track[] newTracks) {
         JMenuBar commandBar = createCommandBar();
-        JMenu optionsMenu = createOptionsMenu();
-        commandBar.add(optionsMenu);
+        JMenu settingsMenu = createSettingsMenu();
+        commandBar.add(settingsMenu);
 
         sidePanel.addPanel(commandBar);
         sidePanel.addPanel(arcLegend);
@@ -238,7 +238,7 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
         setName(t0.getName());
         setKey(t0.getName());
         if (t0.getValidDrawingModes().length > 0){
-            JMenu displayMenu = createDisplayMenu();
+            JMenu displayMenu = createDisplayModeMenu();
             commandBar.add(displayMenu);
 
             //determine position of current draw mode
@@ -302,9 +302,9 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
             JMenu bedMenu = createBEDButton();
             commandBar.add(bedMenu);
         } else if (df == DataFormat.SEQUENCE_FASTA){
-            setAsGenomeButton = createSetAsGenomeButton();
+            JMenu sequenceMenu = createSequenceMenu();
             toggleSetAsGenomeButton();
-            commandBar.add(setAsGenomeButton);           
+            commandBar.add(sequenceMenu);
         }
 
         if (df == DataFormat.INTERVAL_RICH || df == DataFormat.INTERVAL_GENERIC) {
@@ -339,7 +339,7 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
                     }
                 });
                 scaleToFitItem.setToolTipText("If selected, the track's display will be scaled to fit the available height.");
-                optionsMenu.addMenuListener(new MenuListener() {
+                settingsMenu.addMenuListener(new MenuListener() {
                     @Override
                     public void menuSelected(MenuEvent me) {
                         scaleToFitItem.setSelected(graphPane.isScaledToFit());
@@ -353,7 +353,7 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
                     public void menuCanceled(MenuEvent me) {
                     }
                 });
-                optionsMenu.add(scaleToFitItem);
+                settingsMenu.add(scaleToFitItem);
                 if (intervalMenu != null) {
                     setHeightFromSlider();
                 }
@@ -405,9 +405,9 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
     }
 
     /**
-     * Create options menu for commandBar
+     * Create settings menu for commandBar.  This is common to all track types.
      */
-    private JMenu createOptionsMenu() {
+    private JMenu createSettingsMenu() {
         JMenu menu = new JMenu("Settings");
         JMenuItem item = new JCheckBoxMenuItem("Lock Track");
         item.addActionListener(new ActionListener() {
@@ -598,18 +598,20 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
     }
     
     /**
-     * Create set as genome button for sequence tracks.
+     * Create a menu for controlling sequence options.  Currently the only one is to set this as the current genome.
      */
-    private JMenu createSetAsGenomeButton() {
-        JMenu button = new JMenu("Set Genome");   
-        button.addActionListener(new ActionListener() {
+    private JMenu createSequenceMenu() {
+        JMenu button = new JMenu("Sequence Options");
+        button.setToolTipText("Change sequence parameters");
+        setAsGenomeButton = new JCheckBoxMenuItem("Set as Genome");
+        setAsGenomeButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 Genome newGenome = Genome.createFromTrack(tracks[0]);
                 GenomeController.getInstance().setGenome(newGenome);
-                ((JMenu)e.getSource()).setSelected(false);
             }
         });
+        button.add(setAsGenomeButton);
         button.setFocusPainted(false);
         return button;
     }
@@ -622,9 +624,11 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
         if(setAsGenomeButton == null) return; //all non-sequence tracks
         TrackAdapter ta = GenomeController.getInstance().getGenome().getSequenceTrack();    
         if(ta != null && ta.getName() != null && ta.getName().equals(tracks[0].getName())){
+            setAsGenomeButton.setSelected(true);
             setAsGenomeButton.setEnabled(false);
             setAsGenomeButton.setToolTipText("This track is already the reference sequence");
         } else {
+            setAsGenomeButton.setSelected(false);
             setAsGenomeButton.setEnabled(true);
             setAsGenomeButton.setToolTipText("Use this track as the reference sequence");
         }
@@ -633,7 +637,7 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
     /**
      * Create display menu for commandBar
      */
-    private JMenu createDisplayMenu() {
+    private JMenu createDisplayModeMenu() {
         JMenu menu = new JMenu("Display Mode");
 
         //display modes

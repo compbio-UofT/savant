@@ -264,7 +264,7 @@ public class TrackFactory {
 
             // This is a good opportunity to load our dictionary.
             for (final Track t: tracks) {
-                new Thread() {
+                new Thread("Dictionary Loader-" + MiscUtils.getFilenameFromPath(t.getName())) {
                     @Override
                     public void run() {
                         if (listener != null) {

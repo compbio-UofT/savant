@@ -53,7 +53,7 @@ public abstract class DataSource<E extends Record> implements DataSourceAdapter 
      * Dictionary which keeps track of gene names and other searchable items for this track.
      * Note that regardless of their original case, all keys are stored as lower-case.
      */
-    private TreeMap<String, List<BookmarkAdapter>> dictionary = new TreeMap<String, List<BookmarkAdapter>>();
+    private TreeMap<String, List<BookmarkAdapter>> dictionary;
 
     /**
      * So that we know how many entries this dictionary has.
@@ -72,8 +72,8 @@ public abstract class DataSource<E extends Record> implements DataSourceAdapter 
      * @return a dictionary containing the bookmarks (may be empty, but never null)
      */
     @Override
-    public synchronized void loadDictionary() throws IOException {
-        dictionary = new TreeMap<String, List<BookmarkAdapter>>();
+    public void loadDictionary() throws IOException {
+        TreeMap<String, List<BookmarkAdapter>> newDict = new TreeMap<String, List<BookmarkAdapter>>();
         dictionaryCount = 0;
         URI dictionaryURI = URI.create(getURI().toString() + ".dict");
         if (NetworkUtils.exists(dictionaryURI)) {
@@ -85,10 +85,10 @@ public abstract class DataSource<E extends Record> implements DataSourceAdapter 
                 while ((line = IOUtils.readLine(input)) != null) {
                     String[] words = line.split("\\t");
                     String key = words[0].toLowerCase();
-                    List<BookmarkAdapter> marks = dictionary.get(key);
+                    List<BookmarkAdapter> marks = newDict.get(key);
                     if (marks == null) {
                         marks = new ArrayList<BookmarkAdapter>();
-                        dictionary.put(key, marks);
+                        newDict.put(key, marks);
                     }
                     Bookmark newMark = new Bookmark(words[1], words[0]);
                     for (BookmarkAdapter m: marks) {
@@ -105,6 +105,7 @@ public abstract class DataSource<E extends Record> implements DataSourceAdapter 
                     }
                     lineNum++;
                 }
+                dictionary = newDict;
             } catch (ParseException x) {
                 throw new IOException("Parse error in dictionary at line " + lineNum, x);
             } catch (NumberFormatException x) {
@@ -115,21 +116,24 @@ public abstract class DataSource<E extends Record> implements DataSourceAdapter 
     }
 
     @Override
-    public synchronized List<BookmarkAdapter> lookup(String key) {
-        if (key.endsWith("*")) {
-            // Looking for a prefix-match.  Get the submap from k0 (inclusive) to k1 (exclusive);
-            String k0 = key.substring(0, key.length() - 1);
-            String k1 = k0 + Character.MAX_VALUE;
-            Map<String, List<BookmarkAdapter>> subDict = dictionary.subMap(k0, k1);
-            List<BookmarkAdapter> result = new ArrayList<BookmarkAdapter>();
-            for (List<BookmarkAdapter> bms: subDict.values()) {
-                result.addAll(bms);
+    public List<BookmarkAdapter> lookup(String key) {
+        if (dictionary != null) {
+            if (key.endsWith("*")) {
+                // Looking for a prefix-match.  Get the submap from k0 (inclusive) to k1 (exclusive);
+                String k0 = key.substring(0, key.length() - 1);
+                String k1 = k0 + Character.MAX_VALUE;
+                Map<String, List<BookmarkAdapter>> subDict = dictionary.subMap(k0, k1);
+                List<BookmarkAdapter> result = new ArrayList<BookmarkAdapter>();
+                for (List<BookmarkAdapter> bms: subDict.values()) {
+                    result.addAll(bms);
+                }
+                return result;
+            } else {
+                // Looking for an exact match.
+                return dictionary.get(key);
             }
-            return result;
-        } else {
-            // Looking for an exact match.
-            return dictionary.get(key);
         }
+        return null;
     }
 
     public int getDictionaryCount() {
@@ -137,9 +141,11 @@ public abstract class DataSource<E extends Record> implements DataSourceAdapter 
     }
 
     public void addDictionaryToBookmarks() {
-        for (String k: dictionary.keySet()) {
-            for (BookmarkAdapter b: dictionary.get(k)) {
-                BookmarkController.getInstance().addBookmark((Bookmark)b);
+        if (dictionary != null) {
+            for (String k: dictionary.keySet()) {
+                for (BookmarkAdapter b: dictionary.get(k)) {
+                    BookmarkController.getInstance().addBookmark((Bookmark)b);
+                }
             }
         }
     }

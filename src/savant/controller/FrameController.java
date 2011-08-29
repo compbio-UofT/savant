@@ -149,6 +149,7 @@ public class FrameController {
      */
     public Frame createFrame(Track[] tracks) {
         Frame frame = DockableFrameFactory.createTrackFrame();
+        frame.setKey(tracks[0].getName());
         addFrame(frame);
         frame.setTracks(tracks);
         return frame;

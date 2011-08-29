@@ -153,7 +153,7 @@ public class IntervalBamPopup extends PopupPanel implements DataRetrievalListene
         //remove listener (doing it immediately throws concurrent mod exception)
         instance = this;
         Runnable runnable = new RemoveDataThread();
-        Thread thread = new Thread(runnable);
+        Thread thread = new Thread(runnable, "BAM RemoveDataThread");
         thread.start();
     }
 

@@ -146,7 +146,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         getInputMap().allKeys();
         addMouseWheelListener(this);
 
-        popupThread = new Thread(new PopupThread(this));
+        popupThread = new Thread(new PopupThread(this), "PopupThread");
         popupThread.start();
 
         GraphPaneController controller = GraphPaneController.getInstance();

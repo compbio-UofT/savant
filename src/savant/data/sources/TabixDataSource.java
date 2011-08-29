@@ -184,7 +184,7 @@ public class TabixDataSource extends DataSource<TabixIntervalRecord> {
             }
         } catch (ArrayIndexOutOfBoundsException x) {
             // If the chromosome isn't found, the Tabix library manifests it by throwing an ArrayIndexOutOfBoundsException.
-            throw new IOException(String.format("Reference \"%s\" not found.", reference));
+            LOG.info(String.format("Reference \"%s\" not found.", reference));
         }
         return result;
 

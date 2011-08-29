@@ -260,7 +260,7 @@ public class NetworkUtils {
      * @param monitor will receive DownloadEvents
      */
     public static void downloadFile(final URL u, final File destDir, final String fileName, final DownloadMonitor monitor) {
-        new Thread() {
+        new Thread("NetworkUtils.downloadFile") {
             double totalBytes;
 
             @Override

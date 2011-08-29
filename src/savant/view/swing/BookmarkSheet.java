@@ -276,7 +276,7 @@ public class BookmarkSheet extends JPanel implements BookmarksChangedListener {
             dialog.pack();
             dialog.setLocationRelativeTo(w);
             dialog.setVisible(true);
-            new Thread() {
+            new Thread("BookmarkSheet.loadBookmarks") {
                 @Override
                 public void run() {
                     try {

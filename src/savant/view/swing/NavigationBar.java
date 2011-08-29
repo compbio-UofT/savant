@@ -410,7 +410,7 @@ public class NavigationBar extends JToolBar {
                     List<BookmarkAdapter> marks = t.getDataSource().lookup(text.toLowerCase() + "*");
                     if (marks != null && marks.size() > 0) {
                         for (BookmarkAdapter bm: marks) {
-                            // TODO: Provide a mechanism for descriminating between multiple bookmarks with the same key.  For now we suppress duplicates by using a set.
+                            // TODO: Provide a mechanism for discriminating between multiple bookmarks with the same key.  For now we suppress duplicates by using a set.
                             newItems.add(bm.getAnnotation());
                         }
                     }
