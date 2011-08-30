@@ -110,8 +110,9 @@ public class NavigationBar extends JToolBar {
                         String itemText = locationField.getSelectedItem().toString();
                         int lastBracketPos = itemText.lastIndexOf('(');
                         if (lastBracketPos > 0) {
-                            setRangeFromText(itemText.substring(lastBracketPos + 1, itemText.length() - 1));
+                            itemText = itemText.substring(lastBracketPos + 1, itemText.length() - 1);
                         }
+                        setRangeFromText(itemText);
                     }
                 }
             }
