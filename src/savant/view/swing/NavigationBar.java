@@ -25,9 +25,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.LinkedHashSet;
 import java.util.List;
 import javax.swing.*;
 import javax.swing.event.PopupMenuEvent;
@@ -97,6 +97,7 @@ public class NavigationBar extends JToolBar {
 
         locationField = new JComboBox();
         locationField.setEditable(true);
+        locationField.setRenderer(new ReferenceListRenderer());
 
 
         // When the item is chosen from the menu, navigate to the given feature/reference.
@@ -105,7 +106,12 @@ public class NavigationBar extends JToolBar {
             public void actionPerformed(ActionEvent ae) {
                 if (!currentlyPopulating) {
                     if (ae.getActionCommand().equals("comboBoxChanged")) {
-                        setRangeFromText(locationField.getSelectedItem().toString());
+                        // Assumes that combo-box items created by populateCombo() are of the form "GENE (chrX:1-1000)".
+                        String itemText = locationField.getSelectedItem().toString();
+                        int lastBracketPos = itemText.lastIndexOf('(');
+                        if (lastBracketPos > 0) {
+                            setRangeFromText(itemText.substring(lastBracketPos + 1, itemText.length() - 1));
+                        }
                     }
                 }
             }
@@ -376,7 +382,8 @@ public class NavigationBar extends JToolBar {
             for (Track t: TrackController.getInstance().getTracks()) {
                 List<BookmarkAdapter> marks = t.getDataSource().lookup(text.toLowerCase());
                 if (marks != null && marks.size() > 0) {
-                    // TODO: UI to support more than one bookmark with the same key.
+                    // Note that if there is more than one matching bookmark, this will select the first one.
+                    // This allows a knowledgeable user to go directly to the desired gene without having to pop up the combo.
                     locationController.setLocation(marks.get(0).getReference(), (Range)marks.get(0).getRange());
                     return;
                 }
@@ -385,7 +392,7 @@ public class NavigationBar extends JToolBar {
             Bookmark mark = new Bookmark(text);
             locationController.setLocation(mark.getReference(), (Range)mark.getRange());
         } catch (Exception x) {
-            DialogUtils.displayMessage(String.format("Unabled to parse \"%s\" as a location.", text));
+            DialogUtils.displayMessage(String.format("Unable to parse \"%s\" as a location.", text));
         }
     }
 
@@ -404,14 +411,13 @@ public class NavigationBar extends JToolBar {
     private void populateCombo() {
         String text = (String)locationField.getEditor().getItem();
         if (!text.equals(lastPoppedUp)) {
-            Collection<String> newItems = new LinkedHashSet<String>();
+            Collection<String> newItems = new ArrayList<String>();
             if (text.length() > 0) {
                 for (Track t: TrackController.getInstance().getTracks()) {
                     List<BookmarkAdapter> marks = t.getDataSource().lookup(text.toLowerCase() + "*");
                     if (marks != null && marks.size() > 0) {
                         for (BookmarkAdapter bm: marks) {
-                            // TODO: Provide a mechanism for discriminating between multiple bookmarks with the same key.  For now we suppress duplicates by using a set.
-                            newItems.add(bm.getAnnotation());
+                            newItems.add(String.format("%s (%s)", bm.getAnnotation(), ((Bookmark)bm).getLocationText()));
                         }
                     }
                 }
@@ -435,6 +441,19 @@ public class NavigationBar extends JToolBar {
                     currentlyPopulating = false;
                 }
             }
+        }
+    }
+
+    private class ReferenceListRenderer extends DefaultListCellRenderer {
+        @Override
+        public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+            JLabel c = (JLabel)super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+            String s = (String)value;
+            int bracketPos = s.lastIndexOf('(');
+            if (bracketPos > 0) {
+                c.setText(String.format("<html>%s <small>%s</small></html>", s.substring(0, bracketPos - 1), s.substring(bracketPos)));
+            }
+            return c;
         }
     }
 }
