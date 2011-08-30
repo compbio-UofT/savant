@@ -265,7 +265,7 @@ public class StartPanel extends JPanel {
                     @Override
                     public void actionPerformed(ActionEvent e) {
                         try {
-                            FrameController.getInstance().addTrackFromPath(t);
+                            FrameController.getInstance().addTrackFromPath(t, false);
                         } catch (Exception x) {
                             DialogUtils.displayException("Track Error", String.format("<html>Unable to load track <i>%s</i>: %s.</html>", t, x), x);
                         }

@@ -296,17 +296,17 @@ public class Project {
                     for (String path: trackPaths) {
                         if (!path.equals(genomePath)) {
                             LOG.info("Adding ordinary track for " + path);
-                            FrameController.getInstance().addTrackFromPath(path);
+                            FrameController.getInstance().addTrackFromPath(path, false);
                         }
                     }
                 }
             });
             LOG.info("Adding sequence track for " + genomePath);
-            FrameController.getInstance().addTrackFromPath(genomePath);
+            FrameController.getInstance().addTrackFromPath(genomePath, true);
         } else {
             // Genome in place, so just load the tracks.
             for (String path : trackPaths) {
-                FrameController.getInstance().addTrackFromPath(path);
+                FrameController.getInstance().addTrackFromPath(path, false);
             }
         }
         if (bookmarks != null && bookmarks.size() > 0) {

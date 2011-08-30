@@ -1036,7 +1036,7 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
         File[] selectedFiles = DialogUtils.chooseFilesForOpen("Open Tracks", null, lastTrackDirectory);
         for (File f : selectedFiles) {
             // This creates the tracks asynchronously, which handles all exceptions internally.
-            FrameController.getInstance().addTrackFromPath(f.getAbsolutePath());
+            FrameController.getInstance().addTrackFromPath(f.getAbsolutePath(), false);
         }
         if (selectedFiles.length > 0) {
             this.setLastTrackDirectory(selectedFiles[0].getParentFile());
@@ -1047,7 +1047,7 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
         URL url = OpenURLDialog.getURL(this);
         if (url != null) {
             try {
-                FrameController.getInstance().addTrackFromURI(url.toURI());
+                FrameController.getInstance().addTrackFromURI(url.toURI(), false);
             } catch (URISyntaxException ignored) {
             }
         }

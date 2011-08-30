@@ -58,20 +58,11 @@ public class DockableFrameFactory {
         return f;
     }
 
-    public static Frame createTrackFrame() {
-        return createTrackFrame(true);
-    }
+    public static Frame createTrackFrame(boolean seq) {
 
-    public static Frame createTrackFrame(boolean allowClose) {
-
-        final Frame frame = new Frame();
+        final Frame frame = new Frame(seq);
         
-        //frame.setInitIndex(numTracks);
-        if (allowClose) {
-            frame.setAvailableButtons(DockableFrame.BUTTON_AUTOHIDE | DockableFrame.BUTTON_MAXIMIZE | DockableFrame.BUTTON_CLOSE );
-        } else {
-            frame.setAvailableButtons(DockableFrame.BUTTON_AUTOHIDE | DockableFrame.BUTTON_MAXIMIZE );
-        }
+        frame.setAvailableButtons(DockableFrame.BUTTON_AUTOHIDE | DockableFrame.BUTTON_MAXIMIZE | DockableFrame.BUTTON_CLOSE );
         
         frame.setInitMode(DockContext.STATE_FRAMEDOCKED);
         frame.setInitSide(DockContext.DOCK_SIDE_NORTH);
@@ -81,7 +72,6 @@ public class DockableFrameFactory {
         //frame.setPreferredAutohideSide(DockContext.DOCK_SIDE_SOUTH);
         
         frame.add(new JPanel());
-        frame.setPreferredSize(new Dimension(200, 200));
 
         frame.setCloseAction(new Action() {
             private boolean isEnabled = true;
@@ -125,7 +115,6 @@ public class DockableFrameFactory {
         JPanel panel = (JPanel)frame.getContentPane();
         panel.setLayout(new BorderLayout());
         panel.add(frame.getFrameLandscape());
-
         return frame;
     }
 

@@ -268,7 +268,7 @@ public class FormatFrame extends JDialog implements FormatProgressListener {
                 this.setVisible(false);
                 if (result == JOptionPane.YES_OPTION) {
                     try {
-                        FrameController.getInstance().addTrackFromPath(dataFormatter.getOutputFile().getAbsolutePath());
+                        FrameController.getInstance().addTrackFromPath(dataFormatter.getOutputFile().getAbsolutePath(), false);
                     } catch (Exception ex) {
                     }
                 }

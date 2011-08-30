@@ -34,6 +34,7 @@ import savant.api.util.DialogUtils;
 
 import savant.controller.event.LocationChangedEvent;
 import savant.controller.event.LocationChangedListener;
+import savant.file.DataFormat;
 import savant.view.swing.DockableFrameFactory;
 import savant.view.swing.Frame;
 import savant.view.swing.Savant;
@@ -148,7 +149,7 @@ public class FrameController {
      * FIXME: Can we use the normal track-creation code?
      */
     public Frame createFrame(Track[] tracks) {
-        Frame frame = DockableFrameFactory.createTrackFrame();
+        Frame frame = DockableFrameFactory.createTrackFrame(tracks[0].getDataFormat() == DataFormat.SEQUENCE_FASTA);
         frame.setKey(tracks[0].getName());
         addFrame(frame);
         frame.setTracks(tracks);
@@ -156,7 +157,7 @@ public class FrameController {
     }
 
 
-    public Frame addTrackFromPath(String fileOrURI) {
+    public Frame addTrackFromPath(String fileOrURI, boolean seq) {
 
         URI uri = null;
         try {
@@ -168,11 +169,11 @@ public class FrameController {
             // This can happen if we're passed a file-name containing spaces.
             uri = new File(fileOrURI).toURI();
         }
-        return addTrackFromURI(uri);
+        return addTrackFromURI(uri, seq || fileOrURI.endsWith(".fa.savant"));
     }
 
-    public Frame addTrackFromURI(URI uri) {
-        Frame frame = DockableFrameFactory.createTrackFrame();
+    public Frame addTrackFromURI(URI uri, boolean seq) {
+        Frame frame = DockableFrameFactory.createTrackFrame(seq);
         //Force a unique frame key. The title of frame is overwritten by track name later.
         frame.setKey(uri.toString()+System.nanoTime());
         addFrame(frame);

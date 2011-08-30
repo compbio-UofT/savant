@@ -85,7 +85,7 @@ public class TrackUtils {
         for (int i = 0; i < tracks.size(); i++) {
             myTracks[i] = (Track)tracks.get(i);
         }
-        Frame f = DockableFrameFactory.createTrackFrame();
+        Frame f = DockableFrameFactory.createTrackFrame(myTracks[0].getDataFormat() == DataFormat.SEQUENCE_FASTA);
         f.setTracks(myTracks);
     }
 
@@ -105,7 +105,7 @@ public class TrackUtils {
      * @throws IOException Exception opening the track at path
      */
     public static TrackAdapter[] createTrack(URI uri) throws Throwable {
-        Frame f = FrameController.getInstance().addTrackFromURI(uri);
+        Frame f = FrameController.getInstance().addTrackFromURI(uri, false);
         return f.getTracks();
     }
 
@@ -117,7 +117,7 @@ public class TrackUtils {
      * @throws IOException Exception opening the track at path
      */
     public static TrackAdapter[] createTrack(File file) throws Throwable {
-        Frame f = FrameController.getInstance().addTrackFromURI(file.toURI());
+        Frame f = FrameController.getInstance().addTrackFromURI(file.toURI(), false);
         return f.getTracks();
     }
 

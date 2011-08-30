@@ -68,11 +68,14 @@ import savant.view.swing.sequence.SequenceTrack;
 public class Frame extends DockableFrame implements DataRetrievalListener, TrackCreationListener {
     private static final Log LOG = LogFactory.getLog(Frame.class);
 
-    // Specific to interval renderers
+    /** Possible interval heights available to interval renderers. */
     private static final int[] AVAILABLE_INTERVAL_HEIGHTS = new int[] { 1, 4, 8, 12, 16, 20, 24, 28, 32, 36, 40};
 
     /** If true, the frame's construction was halted by an error or by the user cancelling. */
     private boolean aborted;
+
+    /** If true, the frame will be holding a sequence track, so it can be shorter than usual. */
+    private boolean sequence;
 
     private GraphPane graphPane;
     private JLayeredPane frameLandscape;
@@ -94,8 +97,14 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
 
     public JScrollPane scrollPane;
 
-    public Frame() {
+    /**
+     * Construct a new Frame for holding a track.
+     *
+     * @param seq if true, the Frame will be holding a sequence track
+     */
+    public Frame(boolean seq) {
         super(SavantIconFactory.getInstance().getIcon(SavantIconFactory.StandardIcon.TRACK));
+        sequence = seq;
 
         // Panel which holds the legend component (when present).
         arcLegend = new JPanel();
@@ -139,7 +148,6 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
         c.gridx = 1;
         c.gridy = 0;
         frameLandscape.add(sidePanel, c, 5);
-
 
         addComponentListener(new ComponentAdapter() {
             @Override
@@ -364,6 +372,11 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
         JPanel contentPane = (JPanel)getContentPane();
         contentPane.setLayout(new BorderLayout());
         contentPane.add(frameLandscape);
+    }
+
+    @Override
+    public Dimension getPreferredSize() {
+        return new Dimension(100, sequence ? 100 : 200);
     }
 
     /**
