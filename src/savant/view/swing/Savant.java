@@ -607,7 +607,7 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
         fileMenu.add(saveProjectAsItem);
         fileMenu.add(jSeparator2);
 
-        formatItem.setText("Format Text File...");
+        formatItem.setText("Format File...");
         formatItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 formatItemActionPerformed(evt);

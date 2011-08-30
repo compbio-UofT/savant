@@ -115,7 +115,7 @@
             </MenuItem>
             <MenuItem class="javax.swing.JMenuItem" name="formatItem">
               <Properties>
-                <Property name="text" type="java.lang.String" value="Format Text File..."/>
+                <Property name="text" type="java.lang.String" value="Format File..."/>
               </Properties>
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="formatItemActionPerformed"/>
