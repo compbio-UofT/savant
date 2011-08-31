@@ -360,14 +360,14 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
                 newScroll = (int)Math.round(transformYPos(0.0) - axisYPixel);
                 return;
 
-            } else if (oldViewHeight != getViewportHeight()) {
+            } else if (oldViewHeight != -1 && oldViewHeight != getViewportHeight()) {
                 int newViewHeight = getViewportHeight();
                 int oldScroll = scroller.getValue();
                 newScroll = oldScroll + (oldViewHeight - newViewHeight);
                 oldViewHeight = newViewHeight;
             }
 
-            if (newScroll != -1){
+            if (newScroll != -1) {
                 scroller.setValue(newScroll);
                 newScroll = -1;
             }
