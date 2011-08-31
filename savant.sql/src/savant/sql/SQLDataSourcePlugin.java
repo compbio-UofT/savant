@@ -82,7 +82,7 @@ public class SQLDataSourcePlugin extends SavantDataSourcePlugin {
         if (lastUsed != null) {
             uri = new URI(lastUsed);
         }
-        tryToLogin();
+        tryToLogin(false);
 
         // Connection will be null if user cancelled login dialog.
         if (connection != null) {
@@ -100,7 +100,7 @@ public class SQLDataSourcePlugin extends SavantDataSourcePlugin {
      * Try to make a connection using the saved login info.  If that fails, put up
      * the login dialog.
      */
-    protected void tryToLogin() throws ClassNotFoundException, SQLException {
+    protected void tryToLogin(boolean silent) throws ClassNotFoundException, SQLException {
         driverName = SettingsUtils.getString(this, DRIVER_NAME_SETTING);
         if (driverName == null) {
             driverName = "com.mysql.jdbc.Driver";
@@ -125,12 +125,16 @@ public class SQLDataSourcePlugin extends SavantDataSourcePlugin {
         password = SettingsUtils.getPassword(this, PASSWORD_SETTING);
 
         // If possible, open the database connection without a dialog.
-        try {
-            getConnection();
-        } catch (Exception ignored) {
-            LoginDialog login = new LoginDialog(DialogUtils.getMainWindow(), this);
-            login.setVisible(true);
+        if (silent) {
+            try {
+                getConnection();
+                return;
+            } catch (Exception ignored) {
+            }
         }
+        // Couldn't (or didn't want to) make a silent login, so put up the login dialog.
+        LoginDialog login = new LoginDialog(DialogUtils.getMainWindow(), this);
+        login.setVisible(true);
     }
 
 
@@ -184,7 +188,7 @@ public class SQLDataSourcePlugin extends SavantDataSourcePlugin {
 
                 // Try to log in to the given URI using credentials from the
                 this.uri = new URI(uriString.substring(0, penultimateSlash));
-                tryToLogin();
+                tryToLogin(true);
 
                 if (connection != null) {
                     MappedTable table = getTableByName(tableName, dbName, tableName);

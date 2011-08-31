@@ -156,7 +156,7 @@ public class UCSCDataSourcePlugin extends SQLDataSourcePlugin implements SQLCons
      * @throws SQLException
      */
     @Override
-    protected void tryToLogin() throws ClassNotFoundException, SQLException {
+    protected void tryToLogin(boolean silent) throws ClassNotFoundException, SQLException {
         getConnection();
     }
 

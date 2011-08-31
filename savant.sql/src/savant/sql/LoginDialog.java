@@ -1,9 +1,4 @@
 /*
- * LoginDialog.java
- *
- * Created on Jan 19, 2011, 5:49:24 PM
- *
- *
  *    Copyright 2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
@@ -33,7 +28,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import savant.api.util.DialogUtils;
-import savant.api.util.SettingsUtils;
 
 
 /**
@@ -50,6 +44,7 @@ public class LoginDialog extends javax.swing.JDialog {
     public LoginDialog(Window parent, SQLDataSourcePlugin plugin) {
         super(parent, ModalityType.APPLICATION_MODAL);
         initComponents();
+        getRootPane().setDefaultButton(okButton);
         setLocationRelativeTo(parent);
         this.plugin = plugin;
 

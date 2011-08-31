@@ -57,10 +57,10 @@ public class MappingDialog extends javax.swing.JDialog {
         gbc.insets = new Insets(8, 8, 8, 8);
         add(mappingPanel, gbc);
 
-        populateDatabaseCombo();
         formatCombo.setModel(FORMAT_COMBO_MODEL);
         formatCombo.setSelectedIndex(0);
         formatComboActionPerformed(null);   // So that the correct components are displayed.
+        populateDatabaseCombo();
         pack();
         setLocationRelativeTo(parent);
     }

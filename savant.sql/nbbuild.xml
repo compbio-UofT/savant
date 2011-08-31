@@ -79,7 +79,7 @@
     <target name="-post-jar">
         <jar jarfile="${dist.jar}-all">
             <zipfileset src="${dist.jar}" excludes="META-INF/*" />
-            <zipfileset src="lib/mysql-connector-java-5.1.13-bin.jar" excludes="META-INF/*" />
+            <zipfileset src="lib/mysql-connector-java-5.1.17-bin.jar" excludes="META-INF/*" />
         </jar>
         <delete dir="${dist.dir}/lib"/>
         <move file="${dist.jar}-all" tofile="${dist.jar}"/>
