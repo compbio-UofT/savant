@@ -19,7 +19,6 @@ package savant.view.swing.interval;
 import savant.api.adapter.DataSourceAdapter;
 import savant.api.adapter.RangeAdapter;
 import savant.exception.SavantTrackCreationCancelledException;
-import savant.settings.ColourSettings;
 import savant.settings.TrackResolutionSettings;
 import savant.util.*;
 import savant.view.swing.Track;
@@ -30,7 +29,6 @@ public class BAMCoverageTrack extends Track {
 
     public BAMCoverageTrack(DataSourceAdapter dataSource) throws SavantTrackCreationCancelledException {
         super(dataSource, new ContinuousTrackRenderer());
-        setColorScheme(getDefaultColorScheme());
     }
 
     @Override
@@ -46,24 +44,15 @@ public class BAMCoverageTrack extends Track {
         }
 
         renderer.addInstruction(DrawingInstruction.REFERENCE_EXISTS, containsReference(reference));
-        renderer.addInstruction(DrawingInstruction.COLOR_SCHEME, this.getColorScheme());
+        renderer.addInstruction(DrawingInstruction.COLOR_SCHEME, this.getColourScheme());
         renderer.addInstruction(DrawingInstruction.RANGE, range);
         renderer.addInstruction(DrawingInstruction.RESOLUTION, r);
         renderer.addInstruction(DrawingInstruction.SELECTION_ALLOWED, true);
     }
 
-    private ColorScheme getDefaultColorScheme() {
-        ColorScheme c = new ColorScheme();
-
-        /* add settings here */
-        c.addColorSetting("Line", ColourSettings.getContinuousFill());
-
-        return c;
-    }
-
     @Override
-    public void resetColorScheme() {
-        setColorScheme(getDefaultColorScheme());
+    public ColourScheme getDefaultColourScheme() {
+        return new ColourScheme(ColourKey.CONTINUOUS_FILL, ColourKey.CONTINUOUS_LINE);
     }
 
     @Override

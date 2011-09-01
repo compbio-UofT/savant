@@ -29,7 +29,6 @@ import savant.data.types.BAMIntervalRecord;
 import savant.data.types.Record;
 import savant.exception.RenderingException;
 import savant.exception.SavantTrackCreationCancelledException;
-import savant.settings.ColourSettings;
 import savant.settings.TrackResolutionSettings;
 import savant.util.*;
 import savant.util.SAMReadUtils.PairedSequencingProtocol;
@@ -68,27 +67,12 @@ public class BAMTrack extends Track {
      */
     public BAMTrack(DataSourceAdapter dataSource) throws SavantTrackCreationCancelledException {
         super(dataSource, new BAMTrackRenderer());
-        setColorScheme(getDefaultColorScheme());
         drawingMode = DrawingMode.MISMATCH;
     }
 
-    private ColorScheme getDefaultColorScheme() {
-        ColorScheme c = new ColorScheme();
-        
-        c.addColorSetting("Forward Strand", ColourSettings.getForwardStrand());
-        c.addColorSetting("Reverse Strand", ColourSettings.getReverseStrand());
-        c.addColorSetting("Inverted Read", ColourSettings.getInvertedRead());
-        c.addColorSetting("Inverted Mate", ColourSettings.getInvertedMate());
-        c.addColorSetting("Everted Pair", ColourSettings.getEvertedPair());
-        c.addColorSetting("Discordant Length", ColourSettings.getDiscordantLength());
-        c.addColorSetting("Line", ColourSettings.getLine());
-
-        return c;
-    }
-
     @Override
-    public void resetColorScheme() {
-        setColorScheme(getDefaultColorScheme());
+    public ColourScheme getDefaultColourScheme() {
+        return new ColourScheme(ColourKey.FORWARD_STRAND, ColourKey.REVERSE_STRAND, ColourKey.CONCORDANT_LENGTH, ColourKey.DISCORDANT_LENGTH, ColourKey.ONE_READ_INVERTED, ColourKey.EVERTED_PAIR);
     }
 
     @Override
@@ -117,7 +101,7 @@ public class BAMTrack extends Track {
 
         renderer.addInstruction(DrawingInstruction.RANGE, range);
         renderer.addInstruction(DrawingInstruction.RESOLUTION, r);
-        renderer.addInstruction(DrawingInstruction.COLOR_SCHEME, getColorScheme());
+        renderer.addInstruction(DrawingInstruction.COLOR_SCHEME, getColourScheme());
         renderer.addInstruction(DrawingInstruction.PAIRED_PROTOCOL, pairedProtocol);
 
         boolean f = containsReference(reference);

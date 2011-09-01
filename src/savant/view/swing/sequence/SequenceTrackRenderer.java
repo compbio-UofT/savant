@@ -25,7 +25,7 @@ import java.io.UnsupportedEncodingException;
 import savant.data.types.SequenceRecord;
 import savant.exception.RenderingException;
 import savant.util.AxisRange;
-import savant.util.ColorScheme;
+import savant.util.ColourScheme;
 import savant.util.DrawingInstruction;
 import savant.view.swing.GraphPane;
 import savant.view.swing.TrackRenderer;
@@ -74,31 +74,12 @@ public class SequenceTrackRenderer extends TrackRenderer {
 
             Rectangle2D.Double rect = new Rectangle2D.Double(x, y, w, h);
 
-            ColorScheme colorScheme = (ColorScheme)instructions.get(DrawingInstruction.COLOR_SCHEME);
-            Color c = colorScheme.getColor("Background");
-            switch (sequence[i]) {
-
-                case 'A':
-                    c = colorScheme.getColor("A");
-                    break;
-                case 'T':
-                    c = colorScheme.getColor("T");
-                    break;
-                case 'G':
-                    c = colorScheme.getColor("G");
-                    break;
-                case 'C':
-                    c = colorScheme.getColor("C");
-                    break;
-                case 'N':
-                    c = colorScheme.getColor("N");
-                    break;
-                default:
-                    break;
+            ColourScheme cs = (ColourScheme)instructions.get(DrawingInstruction.COLOR_SCHEME);
+            Color c = cs.getBaseColor((char)sequence[i]);
+            if (c != null) {
+                g2.setColor(c);
+                g2.fill(rect);
             }
-
-            g2.setColor(c);
-            g2.fill(rect);
 
             if (w > 5.0) {
                 g2.draw(rect);
@@ -114,7 +95,7 @@ public class SequenceTrackRenderer extends TrackRenderer {
                     float charX = (float) (rect.getX() + (rect.getWidth() - charRect.getWidth())/2);
                     float charY = (float) ((rect.getHeight()-5)/2 + g2.getFontMetrics().getAscent()/2);
                     // draw character
-                    g2.setColor(Color.black);
+                    g2.setColor(Color.BLACK);
                     g2.drawString(base, charX, charY);
 
                 }

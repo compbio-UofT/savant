@@ -26,7 +26,6 @@ import savant.data.types.GenericIntervalRecord;
 import savant.data.types.Interval;
 import savant.data.types.Record;
 import savant.exception.SavantTrackCreationCancelledException;
-import savant.settings.ColourSettings;
 import savant.settings.TrackResolutionSettings;
 import savant.util.*;
 import savant.view.swing.Track;
@@ -42,25 +41,12 @@ public class IntervalTrack extends Track {
 
     public IntervalTrack(DataSourceAdapter intervalTrack) throws SavantTrackCreationCancelledException {
         super(intervalTrack, new IntervalTrackRenderer());
-        setColorScheme(getDefaultColorScheme());
         drawingMode = DrawingMode.PACK;
     }
 
-    private ColorScheme getDefaultColorScheme() {
-        ColorScheme c = new ColorScheme();
-
-        /* add settings here */
-        //c.addColorSetting("Background", BrowserDefaults.colorGraphMain);
-        c.addColorSetting("Translucent Graph", ColourSettings.getTranslucentGraph());
-        c.addColorSetting("Opaque Graph", ColourSettings.getOpaqueGraph());
-        c.addColorSetting("Line", ColourSettings.getPointLine());
-
-        return c;
-    }
-
     @Override
-    public void resetColorScheme() {
-        setColorScheme(getDefaultColorScheme());
+    public ColourScheme getDefaultColourScheme() {
+        return new ColourScheme(ColourKey.TRANSLUCENT_GRAPH, ColourKey.OPAQUE_GRAPH, ColourKey.INTERVAL_LINE);
     }
 
     @Override
@@ -121,7 +107,7 @@ public class IntervalTrack extends Track {
 
         renderer.addInstruction(DrawingInstruction.RESOLUTION, r);
         renderer.addInstruction(DrawingInstruction.RANGE, range);
-        renderer.addInstruction(DrawingInstruction.COLOR_SCHEME, getColorScheme());
+        renderer.addInstruction(DrawingInstruction.COLOR_SCHEME, getColourScheme());
         renderer.addInstruction(DrawingInstruction.REFERENCE_EXISTS, containsReference(reference));
 
         if (getDrawingMode() != DrawingMode.ARC) {

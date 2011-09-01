@@ -25,6 +25,7 @@ import java.util.Properties;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import savant.util.ColourKey;
 
 /**
  * Class which makes settings persistent.
@@ -95,8 +96,16 @@ public class PersistentSettings extends Properties {
         return dflt;
     }
 
+    public Color getColor(ColourKey key, Color dflt) {
+        return getColour(key.toString(), dflt);
+    }
+
     public void setColour(String key, Color value) {
         setProperty(key, String.format("%02X%02X%02X%02X", value.getRed(), value.getGreen(), value.getBlue(), value.getAlpha()));
+    }
+
+    public void setColor(ColourKey key, Color value) {
+        setColour(key.toString(), value);
     }
 
     public boolean getBoolean(String key, boolean dflt) {

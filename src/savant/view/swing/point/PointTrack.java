@@ -19,7 +19,6 @@ package savant.view.swing.point;
 import savant.api.adapter.DataSourceAdapter;
 import savant.api.adapter.RangeAdapter;
 import savant.exception.SavantTrackCreationCancelledException;
-import savant.settings.ColourSettings;
 import savant.util.*;
 import savant.view.swing.Track;
 
@@ -32,22 +31,11 @@ public class PointTrack extends Track {
 
     public PointTrack(DataSourceAdapter dataSource) throws SavantTrackCreationCancelledException {
         super(dataSource, new PointTrackRenderer());
-        setColorScheme(getDefaultColorScheme());
-    }
-
-    private ColorScheme getDefaultColorScheme() {
-        ColorScheme c = new ColorScheme();
-
-        /* add settings here */
-        c.addColorSetting("Background", ColourSettings.getPointFill());
-        c.addColorSetting("Line", ColourSettings.getPointLine());
-
-        return c; 
     }
 
     @Override
-    public void resetColorScheme() {
-        setColorScheme(getDefaultColorScheme());
+    public ColourScheme getDefaultColourScheme() {
+        return new ColourScheme(ColourKey.POINT_FILL, ColourKey.POINT_LINE);
     }
 
     @Override
@@ -70,7 +58,7 @@ public class PointTrack extends Track {
         }
 
         renderer.addInstruction(DrawingInstruction.RESOLUTION, r);
-        renderer.addInstruction(DrawingInstruction.COLOR_SCHEME, this.getColorScheme());
+        renderer.addInstruction(DrawingInstruction.COLOR_SCHEME, this.getColourScheme());
         renderer.addInstruction(DrawingInstruction.AXIS_RANGE, AxisRange.initWithRanges(range, getDefaultYRange()));
         renderer.addInstruction(DrawingInstruction.REFERENCE_EXISTS, containsReference(reference));
         renderer.addInstruction(DrawingInstruction.SELECTION_ALLOWED, true);

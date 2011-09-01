@@ -60,6 +60,7 @@ import savant.plugin.SavantPlugin;
 import savant.plugin.builtin.SAFEDataSourcePlugin;
 import savant.plugin.builtin.SavantFileRepositoryDataSourcePlugin;
 import savant.settings.*;
+import savant.util.ColourKey;
 import savant.util.Listener;
 import savant.util.MiscUtils;
 import savant.util.Version;
@@ -133,9 +134,9 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
         panel_main.add(masterPlaceholderPanel, BorderLayout.CENTER);
 
         auxDockingManager = new DefaultDockingManager(this, masterPlaceholderPanel);
-        masterPlaceholderPanel.setBackground(ColourSettings.getSplitter());
+        masterPlaceholderPanel.setBackground(ColourSettings.getColor(ColourKey.SPLITTER));
         //auxDockingManager.setSidebarRollover(false);
-        auxDockingManager.getWorkspace().setBackground(ColourSettings.getSplitter());
+        auxDockingManager.getWorkspace().setBackground(ColourSettings.getColor(ColourKey.SPLITTER));
         auxDockingManager.setInitSplitPriority(DockingManager.SPLIT_EAST_SOUTH_WEST_NORTH);
         //auxDockingManager.loadLayoutData();
         //auxDockingManager.setAutohidable(false);
@@ -146,8 +147,8 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
         auxDockingManager.getWorkspace().add(trackPanel, BorderLayout.CENTER);
 
         trackDockingManager = new DefaultDockingManager(this, trackPanel);
-        trackPanel.setBackground(ColourSettings.getSplitter());
-        trackDockingManager.getWorkspace().setBackground(ColourSettings.getSplitter());
+        trackPanel.setBackground(ColourSettings.getColor(ColourKey.SPLITTER));
+        trackDockingManager.getWorkspace().setBackground(ColourSettings.getColor(ColourKey.SPLITTER));
         //trackDockingManager.setSidebarRollover(false);
         trackDockingManager.getWorkspace().setBackground(Color.red);
         trackDockingManager.setInitNorthSplit(JideSplitPane.VERTICAL_SPLIT);
@@ -1137,20 +1138,10 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
     private void toEndItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_toEndItemActionPerformed
         locationController.shiftRangeFarRight();
     }//GEN-LAST:event_toEndItemActionPerformed
-    static boolean arePreferencesInitialized = false;
 
     private void preferencesItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_preferencesItemActionPerformed
-
-        if (!arePreferencesInitialized) {
-            SettingsDialog.addSection(new ColourSchemeSettingsSection());
-            SettingsDialog.addSection(new GeneralSettingsSection());
-            SettingsDialog.addSection(new InterfaceSection());
-            SettingsDialog.addSection(new RemoteFilesSettingsSection());
-            SettingsDialog.addSection(new ResolutionSettingsSection());
-            arePreferencesInitialized = true;
-        }
-
-        SettingsDialog.showOptionsDialog(this);
+        SettingsDialog dlg = new SettingsDialog(this);
+        dlg.setVisible(true);
     }//GEN-LAST:event_preferencesItemActionPerformed
 
     private void toolsItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_toolsItemActionPerformed

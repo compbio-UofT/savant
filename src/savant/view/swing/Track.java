@@ -34,12 +34,7 @@ import savant.exception.RenderingException;
 import savant.exception.SavantTrackCreationCancelledException;
 import savant.file.DataFormat;
 import savant.plugin.SavantPanelPlugin;
-import savant.util.AxisType;
-import savant.util.ColorScheme;
-import savant.util.DrawingMode;
-import savant.util.MiscUtils;
-import savant.util.Range;
-import savant.util.Resolution;
+import savant.util.*;
 import savant.util.swing.DialogUtils;
 
 /**
@@ -55,7 +50,7 @@ public abstract class Track implements TrackAdapter {
     protected static final RenderingException ZOOM_MESSAGE = new RenderingException(MiscUtils.MAC ? "Zoom in to see data\nTo view data at this range, change Preferences > Track Resolutions" : "Zoom in to see data\nTo view data at this range, change Edit > Preferences > Track Resolutions", 0);
 
     private final String name;
-    private ColorScheme colorScheme;
+    private ColourScheme colourScheme;
     private List<Record> dataInRange;
     protected DrawingMode drawingMode = DrawingMode.STANDARD;
     protected final TrackRenderer renderer;
@@ -111,21 +106,26 @@ public abstract class Track implements TrackAdapter {
     /**
      * Get the current colour scheme.
      *
-     * @return ColorScheme
+     * @return ColourScheme
      */
-    public ColorScheme getColorScheme() {
-        return colorScheme;
+    public ColourScheme getColourScheme() {
+        if (colourScheme == null) {
+            colourScheme = getDefaultColourScheme();
+        }
+        return colourScheme;
     }
 
     /**
      * Set individual colour.
      *
-     * @param name color name
+     * @param key one of Savant's standard colour keys
      * @param color new color
      */
-    public void setColor(String name, Color color) {
-        colorScheme.addColorSetting(name, color);
+    public void setColor(ColourKey key, Color color) {
+        getColourScheme().setColor(key, color);
     }
+
+    public abstract ColourScheme getDefaultColourScheme();
 
     /**
      * Get the name of this track. Usually constructed from the file name.
@@ -171,21 +171,6 @@ public abstract class Track implements TrackAdapter {
     public DrawingMode[] getValidDrawingModes() {
         return new DrawingMode[] { DrawingMode.STANDARD };
     }
-
-    /**
-     * Set colour scheme.
-     *
-     * @param cs new colour scheme
-     */
-    public void setColorScheme(ColorScheme cs) {
-        this.colorScheme = cs;
-    }
-
-    /**
-     * Reset colour scheme.
-     *
-     */
-    public abstract void resetColorScheme();
 
     /**
      * Set the current draw mode.

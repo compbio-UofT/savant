@@ -47,8 +47,8 @@ import savant.data.sources.DataSource;
 import savant.data.types.Genome;
 import savant.file.DataFormat;
 import savant.plugin.SavantPanelPlugin;
-import savant.settings.ColourSettings;
 import savant.settings.InterfaceSettings;
+import savant.settings.SettingsDialog;
 import savant.util.DrawingMode;
 import savant.util.Listener;
 import savant.util.MiscUtils;
@@ -113,7 +113,6 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
 
         frameLandscape = new JLayeredPane();
         graphPane = new GraphPane(this);
-        graphPane.setBackground(ColourSettings.getFrameBackground());
 
         //scrollpane
         scrollPane = new JScrollPane();
@@ -435,8 +434,7 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
         item.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                ColorSchemeDialog dlg = new ColorSchemeDialog(tracks[0]);
-                dlg.setLocationRelativeTo(Frame.this);
+                SettingsDialog dlg = new SettingsDialog(DialogUtils.getMainWindow(), "Colour Settings", new TrackColourSchemePanel(tracks[0]));
                 dlg.setVisible(true);
             }
         });

@@ -23,13 +23,8 @@ import savant.api.adapter.RangeAdapter;
 import savant.data.types.GenericContinuousRecord;
 import savant.data.types.Record;
 import savant.exception.SavantTrackCreationCancelledException;
-import savant.settings.ColourSettings;
 import savant.settings.TrackResolutionSettings;
-import savant.util.AxisType;
-import savant.util.ColorScheme;
-import savant.util.DrawingInstruction;
-import savant.util.Range;
-import savant.util.Resolution;
+import savant.util.*;
 import savant.view.swing.Track;
 
 
@@ -42,7 +37,6 @@ import savant.view.swing.Track;
 
     public ContinuousTrack(DataSourceAdapter track) throws SavantTrackCreationCancelledException {
         super(track, new ContinuousTrackRenderer());
-        setColorScheme(getDefaultColorScheme());
     }
 
     @Override
@@ -53,7 +47,7 @@ import savant.view.swing.Track;
         requestData(reference, new Range(range.getFrom(), range.getTo()+2));
         renderer.addInstruction(DrawingInstruction.RANGE, range);
         renderer.addInstruction(DrawingInstruction.RESOLUTION, r);
-        renderer.addInstruction(DrawingInstruction.COLOR_SCHEME, getColorScheme());
+        renderer.addInstruction(DrawingInstruction.COLOR_SCHEME, getColourScheme());
         renderer.addInstruction(DrawingInstruction.REFERENCE_EXISTS, containsReference(reference));
         renderer.addInstruction(DrawingInstruction.SELECTION_ALLOWED, true);
     }
@@ -75,20 +69,9 @@ import savant.view.swing.Track;
         return AxisType.REAL;
     }
 
-    private ColorScheme getDefaultColorScheme() {
-        ColorScheme c = new ColorScheme();
-
-        /* add settings here */
-
-        c.addColorSetting("Fill", ColourSettings.getContinuousFill());
-        c.addColorSetting("Line", ColourSettings.getContinuousLine());
-
-        return c;
-    }
-
     @Override
-    public void resetColorScheme() {
-        setColorScheme(getDefaultColorScheme());
+    public ColourScheme getDefaultColourScheme() {
+        return new ColourScheme(ColourKey.CONTINUOUS_FILL, ColourKey.CONTINUOUS_LINE);
     }
 
     public static float[] getExtremeValues(List<Record> data) {

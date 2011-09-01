@@ -16,13 +16,10 @@
 
 package savant.view.swing.sequence;
 
-import java.awt.Color;
-
 import savant.api.adapter.DataSourceAdapter;
 import savant.api.adapter.RangeAdapter;
 import savant.exception.SavantTrackCreationCancelledException;
 import savant.file.SavantROFile;
-import savant.settings.ColourSettings;
 import savant.settings.TrackResolutionSettings;
 import savant.util.*;
 import savant.view.swing.Track;
@@ -38,27 +35,11 @@ public class SequenceTrack extends Track {
 
     public SequenceTrack(DataSourceAdapter dataTrack) throws SavantTrackCreationCancelledException {
         super(dataTrack, new SequenceTrackRenderer());
-        setColorScheme(getDefaultColorScheme());
-    }
-
-    private ColorScheme getDefaultColorScheme() {
-        ColorScheme c = new ColorScheme();
-
-        /* add settings here */
-        c.addColorSetting("A", ColourSettings.getA());
-        c.addColorSetting("C", ColourSettings.getC());
-        c.addColorSetting("G", ColourSettings.getG());
-        c.addColorSetting("T", ColourSettings.getT());
-        c.addColorSetting("N", ColourSettings.getN());
-        c.addColorSetting("Line", Color.black);
-        c.addColorSetting("Background", new Color(100,100,100,220));
-
-        return c;
     }
 
     @Override
-    public void resetColorScheme() {
-        setColorScheme(getDefaultColorScheme());
+    public ColourScheme getDefaultColourScheme() {
+        return new ColourScheme(ColourKey.A, ColourKey.C, ColourKey.G, ColourKey.T, ColourKey.N);
     }
 
     @Override
@@ -88,7 +69,7 @@ public class SequenceTrack extends Track {
 
         if (r == Resolution.HIGH) {
             renderer.addInstruction(DrawingInstruction.RANGE, range);
-            renderer.addInstruction(DrawingInstruction.COLOR_SCHEME, this.getColorScheme());
+            renderer.addInstruction(DrawingInstruction.COLOR_SCHEME, this.getColourScheme());
         }
     }
 

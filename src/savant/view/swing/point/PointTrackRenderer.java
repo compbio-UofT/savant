@@ -24,9 +24,10 @@ import java.awt.geom.Point2D;
 import savant.data.types.PointRecord;
 import savant.data.types.Record;
 import savant.exception.RenderingException;
+import savant.util.ColourKey;
 import savant.util.DrawingInstruction;
 import savant.util.Resolution;
-import savant.util.ColorScheme;
+import savant.util.ColourScheme;
 import savant.view.swing.GraphPane;
 import savant.view.swing.TrackRenderer;
 
@@ -55,9 +56,9 @@ public class PointTrackRenderer extends TrackRenderer {
 
         if (r == Resolution.HIGH) {
             
-            ColorScheme cs = (ColorScheme)instructions.get(DrawingInstruction.COLOR_SCHEME);
-            Color bgcolor = cs.getColor("Background");
-            Color linecolor = cs.getColor("Line");
+            ColourScheme cs = (ColourScheme)instructions.get(DrawingInstruction.COLOR_SCHEME);
+            Color bgcolor = cs.getColor(ColourKey.POINT_FILL);
+            Color linecolor = cs.getColor(ColourKey.POINT_LINE);
 
             for (Record record: data) {
                 Polygon p = new Polygon();

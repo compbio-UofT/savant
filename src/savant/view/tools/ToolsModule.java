@@ -65,6 +65,7 @@ import savant.experimental.Tool;
 import savant.experimental.XMLTool;
 import savant.settings.ColourSettings;
 import savant.settings.DirectorySettings;
+import savant.util.ColourKey;
 import savant.util.IOUtils;
 import savant.util.Listener;
 import savant.util.MiscUtils;
@@ -213,7 +214,7 @@ public class ToolsModule {
     private void initDocking(JPanel canvas) {
 
         DefaultDockingManager toolsDockingManager = new DefaultDockingManager(Savant.getInstance(), canvas);
-        canvas.setBackground(ColourSettings.getSplitter());
+        canvas.setBackground(ColourSettings.getColor(ColourKey.SPLITTER));
 
         toolsDockingManager.setInitSplitPriority(DockingManager.SPLIT_EAST_SOUTH_WEST_NORTH);
         //toolsDockingManager.loadLayoutData();
@@ -232,7 +233,7 @@ public class ToolsModule {
 
 
         toolCanvas = new JPanel();
-        toolCanvas.setBackground(ColourSettings.getToolsBackground());
+        toolCanvas.setBackground(ColourSettings.getColor(ColourKey.TOOLS_BACKGROUND));
         //toolCanvas.setPreferredSize(new Dimension(2000, 2000));
         JComponent workspace = toolsDockingManager.getWorkspace();
         workspace.setLayout(new BorderLayout());
@@ -251,7 +252,7 @@ public class ToolsModule {
         toolsListCanvas = new JPanel();
 
         Container tlworkspace = toolsListBar.getContentPane();
-        tlworkspace.setBackground(ColourSettings.getToolsBackground());
+        tlworkspace.setBackground(ColourSettings.getColor(ColourKey.TOOLS_BACKGROUND));
         pad(toolsListCanvas,tlworkspace,0);
 
         toolsDockingManager.addFrame(toolsListBar);
@@ -510,7 +511,7 @@ public class ToolsModule {
         _container.add(createPanel("Range Change", toolsSubscribedToRangeChangeEvent,true));
         _container.add(createPanel("Track List Change", toolsSubscribedToTrackListChangeEvent,true));
 
-        _container.setBackground(ColourSettings.getToolsMarginBackground());
+        _container.setBackground(ColourSettings.getColor(ColourKey.TOOLS_MARGIN_BACKGROUND));
         _container.setGap(0);
         //_container.setBorder(new LineBorder(Color.lightGray, 1));
 
@@ -535,7 +536,7 @@ public class ToolsModule {
             _container.add(pane);
         }
 
-        _container.setBackground(ColourSettings.getToolsMarginBackground());
+        _container.setBackground(ColourSettings.getColor(ColourKey.TOOLS_MARGIN_BACKGROUND));
         _container.setGap(0);
         //_container.setBorder(new LineBorder(Color.lightGray, 1));
 
@@ -627,7 +628,7 @@ public class ToolsModule {
             _container.add(pane);
         }
 
-        _container.setBackground(ColourSettings.getToolsMarginBackground());
+        _container.setBackground(ColourSettings.getColor(ColourKey.TOOLS_MARGIN_BACKGROUND));
         _container.setGap(0);
         //_container.setBorder(new LineBorder(Color.lightGray, 1));
 
@@ -710,7 +711,7 @@ public class ToolsModule {
                 break;
         }
 
-        panel.setBackground(ColourSettings.getToolsMarginBackground());
+        panel.setBackground(ColourSettings.getColor(ColourKey.TOOLS_MARGIN_BACKGROUND));
 
 
         pane.setStyle(CollapsiblePane.PLAIN_STYLE);
@@ -799,7 +800,7 @@ public class ToolsModule {
             //_container.add(createPanel("Event Subscriptions", getEventSubscriptionCanvas(p), true));
         }
 
-        jtp.setBackground(ColourSettings.getToolsBackground());
+        jtp.setBackground(ColourSettings.getColor(ColourKey.TOOLS_BACKGROUND));
         jtp.setBorder(new LineBorder(Color.lightGray, 1));
 
         /*
@@ -815,7 +816,7 @@ public class ToolsModule {
         toolCanvas.repaint();
         toolCanvas.setLayout(new BorderLayout());
         //toolCanvas.setLayout(new BoxLayout(toolCanvas, BoxLayout.PAGE_AXIS));
-        toolCanvas.setBackground(ColourSettings.getToolsBackground());
+        toolCanvas.setBackground(ColourSettings.getColor(ColourKey.TOOLS_BACKGROUND));
 
         JPanel toppan = new JPanel();
         toppan.setLayout(new BoxLayout(toppan,BoxLayout.Y_AXIS));
@@ -833,7 +834,7 @@ public class ToolsModule {
             toppan.add(plugin);
         }
 
-        toppan.setBackground(ColourSettings.getToolsBackground());
+        toppan.setBackground(ColourSettings.getColor(ColourKey.TOOLS_BACKGROUND));
 
         toolCanvas.add(toppan, BorderLayout.NORTH);
         toolCanvas.add(jtp, BorderLayout.CENTER);

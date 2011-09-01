@@ -22,7 +22,6 @@ import org.apache.commons.logging.LogFactory;
 import savant.api.adapter.DataSourceAdapter;
 import savant.api.adapter.RangeAdapter;
 import savant.exception.SavantTrackCreationCancelledException;
-import savant.settings.ColourSettings;
 import savant.util.*;
 import savant.view.swing.Track;
 
@@ -40,7 +39,6 @@ public class RichIntervalTrack extends Track {
 
     public RichIntervalTrack(DataSourceAdapter bedSource) throws SavantTrackCreationCancelledException {
         super(bedSource, new RichIntervalTrackRenderer());
-        setColorScheme(getDefaultColorScheme());
     }
 
 
@@ -56,7 +54,7 @@ public class RichIntervalTrack extends Track {
         
         renderer.addInstruction(DrawingInstruction.RANGE, range);
         renderer.addInstruction(DrawingInstruction.RESOLUTION, r);
-        renderer.addInstruction(DrawingInstruction.COLOR_SCHEME, getColorScheme());
+        renderer.addInstruction(DrawingInstruction.COLOR_SCHEME, getColourScheme());
         renderer.addInstruction(DrawingInstruction.AXIS_RANGE, AxisRange.initWithRanges(range, getDefaultYRange()));
         renderer.addInstruction(DrawingInstruction.REFERENCE_EXISTS, containsReference(reference));
         renderer.addInstruction(DrawingInstruction.MODE, getDrawingMode());
@@ -66,43 +64,9 @@ public class RichIntervalTrack extends Track {
         renderer.addInstruction(DrawingInstruction.ALTERNATE_NAME, alternateName);
     }
 
-    /*
     @Override
-    public Resolution getResolution(RangeAdapter range) {
-        return getResolution(range, getDrawMode());
-    }
-
-    public Resolution getResolution(RangeAdapter range, String mode)
-    {
-        return getDefaultModeResolution(range);
-    }
-
-    public Resolution getDefaultModeResolution(RangeAdapter range)
-    {
-        long length = range.getLength();
-
-        if (length > 1000000) { return Resolution.LOW; }
-        else { return Resolution.VERY_HIGH; }
-    }
-     * 
-     */
-
-    private ColorScheme getDefaultColorScheme() {
-        ColorScheme c = new ColorScheme();
-
-        /* add settings here */
-        c.addColorSetting("Forward Strand", ColourSettings.getForwardStrand());
-        c.addColorSetting("Reverse Strand", ColourSettings.getReverseStrand());
-        c.addColorSetting("Translucent Graph", ColourSettings.getTranslucentGraph());
-        c.addColorSetting("Line", ColourSettings.getLine());
-        c.addColorSetting("Text", ColourSettings.getText());
-
-        return c;
-    }
-
-    @Override
-    public void resetColorScheme() {
-        setColorScheme(getDefaultColorScheme());
+    public ColourScheme getDefaultColourScheme() {
+        return new ColourScheme(ColourKey.FORWARD_STRAND, ColourKey.REVERSE_STRAND, ColourKey.TRANSLUCENT_GRAPH, ColourKey.INTERVAL_LINE);
     }
 
     @Override

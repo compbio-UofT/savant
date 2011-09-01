@@ -195,7 +195,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         int oldYMax = yMax;
 
         // Paint a gradient from top to bottom
-        GradientPaint gp0 = new GradientPaint(0, 0, ColourSettings.getGraphPaneBackgroundTop(), 0, getHeight(), ColourSettings.getGraphPaneBackgroundBottom());
+        GradientPaint gp0 = new GradientPaint(0, 0, ColourSettings.getColor(ColourKey.GRAPH_PANE_BACKGROUND_TOP), 0, getHeight(), ColourSettings.getColor(ColourKey.GRAPH_PANE_BACKGROUND_BOTTOM));
         g2.setPaint( gp0 );
         g2.fillRect( 0, 0, getWidth(), getHeight() );
 
@@ -529,9 +529,9 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
             g2.draw(rectangle);
 
             if (gpc.isZooming()) {
-                g.setColor(ColourSettings.getGraphPaneZoomFill());
+                g.setColor(ColourSettings.getColor(ColourKey.GRAPH_PANE_ZOOM_FILL));
             } else if (gpc.isSelecting()) {
-                g.setColor(ColourSettings.getGraphPaneSelectionFill());
+                g.setColor(ColourSettings.getColor(ColourKey.GRAPH_PANE_SELECTION_FILL));
             }
             g2.fill(selectionRect);
         }
@@ -582,12 +582,13 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         int w = getWidth();
 
         // Paint a gradient from top to bottom
-        GradientPaint gp0 = new GradientPaint(0, 0, ColourSettings.getGraphPaneBackgroundTop(), 0, h, ColourSettings.getGraphPaneBackgroundBottom());
+        GradientPaint gp0 = new GradientPaint(0, 0, ColourSettings.getColor(ColourKey.GRAPH_PANE_BACKGROUND_TOP), 0, h, ColourSettings.getColor(ColourKey.GRAPH_PANE_BACKGROUND_BOTTOM));
         g2.setPaint(gp0);
         g2.fillRect(0, 0, w, h);
 
         // We don't want the axes stomping on our labels, so make sure the clip excludes them.
         Area clipArea = new Area(new Rectangle(0, 0, w, h));
+        Color gridColor = ColourSettings.getColor(ColourKey.AXIS_GRID);
 
         if (yGridOn) {
             // Smallish font for tick labels.
@@ -595,7 +596,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
 
             int[] yTicks = MiscUtils.getTickPositions(transformYPixel(getHeight()), transformYPixel(0.0));
 
-            g2.setColor(ColourSettings.getAxisGrid());
+            g2.setColor(gridColor);
             g2.setFont(tickFont);
             for (int t: yTicks) {
                 double y = transformYPos(t);
@@ -619,7 +620,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
             Range r = LocationController.getInstance().getRange();
             int[] xTicks = MiscUtils.getTickPositions(r);
 
-            g2.setColor(ColourSettings.getAxisGrid());
+            g2.setColor(gridColor);
             for (int t: xTicks) {
                 double x = transformXPos(t);
                 g2.draw(new Line2D.Double(x, 0, x, h));
@@ -1260,7 +1261,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
      */
     private void drawMessage(Graphics2D g2, String message) {
 
-        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_ON);
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         Font font = g2.getFont();
         Font subFont = font;
 
@@ -1279,6 +1280,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         }
 
         int returnPos = message.indexOf('\n');
+        g2.setColor(ColourSettings.getColor(ColourKey.GRAPH_PANE_MESSAGE));
         if (returnPos > 0) {
             drawMessageHelper(g2, message.substring(0, returnPos), font, w, h, -(subFont.getSize()/2));
             drawMessageHelper(g2, message.substring(returnPos + 1), subFont, w, h, font.getSize()-(subFont.getSize()/2));
@@ -1296,15 +1298,11 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         int preferredWidth = (int)stringBounds.getWidth()+metrics.getHeight();
         int preferredHeight = (int)stringBounds.getHeight()+metrics.getHeight();
 
-        w = Math.min(preferredWidth,w);
-        h = Math.min(preferredHeight,h);
+        w = Math.min(preferredWidth, w);
+        h = Math.min(preferredHeight, h);
 
-        int x = (getWidth() - w) / 2;
-        int y = (getHeight() - h) / 2;
-
-        g2.setColor(ColourSettings.getGlassPaneBackground());
-        x = (getWidth() - (int)stringBounds.getWidth()) / 2;
-        y = (getHeight() / 2) + ((metrics.getAscent()- metrics.getDescent()) / 2) + offset;
+        int x = (getWidth() - (int)stringBounds.getWidth()) / 2;
+        int y = (getHeight() / 2) + ((metrics.getAscent()- metrics.getDescent()) / 2) + offset;
 
         g2.drawString(message,x,y);
     }

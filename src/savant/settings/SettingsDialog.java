@@ -26,16 +26,54 @@ import javax.swing.border.EtchedBorder;
 
 import com.jidesoft.dialog.*;
 import com.jidesoft.plaf.UIDefaultsLookup;
-import com.jidesoft.swing.JideSwingUtilities;
 import com.jidesoft.swing.PartialEtchedBorder;
 
 
 public class SettingsDialog extends MultiplePageDialog {
 
-    private static PageList model = new PageList();
+    public SettingsDialog(Window parent, String title, Section... sections) throws HeadlessException {
+        super((Frame)parent, title);
+        setStyle(MultiplePageDialog.LIST_STYLE);
+        setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 
-    public SettingsDialog(Frame owner, String title) throws HeadlessException {
-        super(owner, title);
+        PageList model = new PageList();
+        for (Section s: sections) {
+            model.append(s);
+        }
+        setPageList(model);
+
+        pack();
+
+        for(int i = 0; i < model.getPageCount(); i++){
+            ((Section)model.getPage(i)).populate();
+        }
+
+        getOkButton().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (getApplyButton().isEnabled()){
+                    applySectionChanges();
+                }
+            }
+        });
+        getApplyButton().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                applySectionChanges();
+            }
+        });
+
+        setLocationRelativeTo(parent);
+    }
+
+    /**
+     * Default constructor for our main settings dialog.
+     *
+     * @param parent the Savant main window
+     * @throws HeadlessException
+     */
+    public SettingsDialog(Window parent) throws HeadlessException {
+        this(parent, "Preferences", new ColourSchemeSettingsSection(), new GeneralSettingsSection(), new InterfaceSection(), new RemoteFilesSettingsSection(), new ResolutionSettingsSection());
     }
 
     private static Border createSeparatorBorder() {
@@ -58,9 +96,13 @@ public class SettingsDialog extends MultiplePageDialog {
     protected void initComponents() {
         super.initComponents();
         getContentPanel().setBorder(BorderFactory.createEmptyBorder(10, 10, 0, 10));
-        getIndexPanel().setOpaque(true);
-        JLabel label = new JLabel("Category");
-        getIndexPanel().add(label, BorderLayout.BEFORE_FIRST_LINE);
+
+        JComponent indexPanel = getIndexPanel();
+        if (indexPanel != null) {
+            indexPanel.setOpaque(true);
+            JLabel label = new JLabel("Category");
+            indexPanel.add(label, BorderLayout.BEFORE_FIRST_LINE);
+        }
         getButtonPanel().setBorder(BorderFactory.createEmptyBorder(20, 10, 10, 10));
         getPagesPanel().setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 0));
     }
@@ -92,49 +134,21 @@ public class SettingsDialog extends MultiplePageDialog {
     }
 
     @Override
+    public JComponent createIndexPanel() {
+        if (getPageList().getPageCount() > 1) {
+            return super.createIndexPanel();
+        }
+        return null;
+    }
+
+    @Override
     public Dimension getPreferredSize() {
         return new Dimension(750, 500);
     }
 
-    public static void showOptionsDialog(Frame f) {
-
-        final SettingsDialog dialog = new SettingsDialog(f, "Preferences");
-        dialog.setStyle(MultiplePageDialog.LIST_STYLE);
-        dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-        
-        dialog.setPageList(model);      
-        dialog.pack();
-
-        for(int i = 0; i < dialog.getPageList().getPageCount(); i++){
-            ((Section)dialog.getPageList().getPage(i)).populate();
-        }
-
-        dialog.getOkButton().addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (dialog.getApplyButton().isEnabled()){
-                    dialog.applySectionChanges();
-                }               
-            }
-        });
-        dialog.getApplyButton().addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                dialog.applySectionChanges();
-            }
-        });
-
-        JideSwingUtilities.globalCenterWindow(dialog);
-        dialog.setVisible(true);
-    }
-
     private void applySectionChanges() {
-        for (int i = 0; i < model.getPageCount(); i++){
+        for (int i = 0; i < getPageList().getPageCount(); i++){
             ((Section)getPageList().getPage(i)).applyChanges();
         }
-    }
-
-    public static void addSection(Section s) {
-        model.append(s);
     }
 }

@@ -37,7 +37,8 @@ import savant.data.types.GenericContinuousRecord;
 import savant.data.types.Record;
 import savant.exception.RenderingException;
 import savant.util.AxisRange;
-import savant.util.ColorScheme;
+import savant.util.ColourKey;
+import savant.util.ColourScheme;
 import savant.util.DrawingInstruction;
 import savant.util.Range;
 import savant.view.swing.GraphPane;
@@ -80,9 +81,9 @@ public class ContinuousTrackRenderer extends TrackRenderer {
 
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-        ColorScheme cs = (ColorScheme)instructions.get(DrawingInstruction.COLOR_SCHEME);
-        Color fillcolor = cs.getColor("Fill");
-        Color linecolor = cs.getColor("Line");
+        ColourScheme cs = (ColourScheme)instructions.get(DrawingInstruction.COLOR_SCHEME);
+        Color fillcolor = cs.getColor(ColourKey.CONTINUOUS_FILL);
+        Color linecolor = cs.getColor(ColourKey.CONTINUOUS_LINE);
 
         GeneralPath path = new GeneralPath();
         double xFormXPos = Double.NaN, xFormYPos = Double.NaN;

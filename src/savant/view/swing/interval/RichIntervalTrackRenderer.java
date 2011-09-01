@@ -74,7 +74,7 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
     private void renderPackMode(Graphics2D g2, GraphPane gp, Resolution resolution) throws RenderingException {
 
         AxisRange axisRange = (AxisRange)instructions.get(DrawingInstruction.AXIS_RANGE);
-        ColorScheme cs = (ColorScheme)instructions.get(DrawingInstruction.COLOR_SCHEME);
+        ColourScheme cs = (ColourScheme)instructions.get(DrawingInstruction.COLOR_SCHEME);
 
         double unitWidth = gp.getUnitWidth();
 
@@ -122,7 +122,7 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
         }
     }
 
-    private void renderGene(Graphics2D g2, GraphPane gp, ColorScheme cs, RichIntervalRecord rec, Interval interval, int level) {
+    private void renderGene(Graphics2D g2, GraphPane gp, ColourScheme cs, RichIntervalRecord rec, Interval interval, int level) {
 
         // for the chevrons
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -140,7 +140,7 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
             fillColor = rec.getItemRGB().createColor();
         } else {
             //otherwise use the default color value
-            fillColor = cs.getColor(rec.getStrand() == Strand.FORWARD ? "Forward Strand" : "Reverse Strand");
+            fillColor = cs.getColor(rec.getStrand() == Strand.FORWARD ? ColourKey.FORWARD_STRAND : ColourKey.REVERSE_STRAND);
         }
 
         // Set alpha if score is enabled
@@ -148,8 +148,8 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
             fillColor = new Color(fillColor.getRed(), fillColor.getGreen(), fillColor.getBlue(), getConstrainedAlpha((int)(rec.getScore() * 0.255)));
         }
 
-        Color lineColor = cs.getColor("Line");
-        Color textColor = cs.getColor("Text");
+        Color lineColor = cs.getColor(ColourKey.INTERVAL_LINE);
+        Color textColor = Color.BLACK;
 
         double startXPos = gp.transformXPos(interval.getStart());
 
@@ -373,9 +373,9 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
 
 
             // colours
-            ColorScheme cs = (ColorScheme)instructions.get(DrawingInstruction.COLOR_SCHEME);
-            Color fillColor = cs.getColor("Forward Strand");
-            Color lineColor = cs.getColor("Line");
+            ColourScheme cs = (ColourScheme)instructions.get(DrawingInstruction.COLOR_SCHEME);
+            Color fillColor = cs.getColor(ColourKey.FORWARD_STRAND);
+            Color lineColor = cs.getColor(ColourKey.INTERVAL_LINE);
 
             // antialising, for the chevrons
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
