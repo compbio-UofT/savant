@@ -86,10 +86,8 @@ public class IntervalTrackRenderer extends TrackRenderer {
             gp.setXRange(axisRange.getXRange());
             gp.setYRange(axisRange.getYRange());
  
-            double unitWidth;
-            double unitHeight;
-            unitWidth = gp.getUnitWidth();
-            unitHeight = gp.getUnitHeight();
+            double unitWidth = gp.getUnitWidth();
+            double unitHeight = gp.getUnitHeight();
 
             for (Record record: data) {
                 Interval inter = ((IntervalRecord)record).getInterval();

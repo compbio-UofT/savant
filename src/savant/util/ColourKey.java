@@ -36,7 +36,8 @@ public enum ColourKey {
     ONE_READ_INVERTED,
     EVERTED_PAIR,
 
-    INTERVAL_LINE,          // Grey outline for interval tracks.
+    INTERVAL_LINE,          // Grey lines on for interval tracks.
+    INTERVAL_TEXT,          // Dark grey text for interval tracks.
 
     CONTINUOUS_FILL,        // Blue fill colour for continuous tracks
     CONTINUOUS_LINE,        // Bluish translucent outline colour for continuous tracks
@@ -80,6 +81,8 @@ public enum ColourKey {
                 return "Everted Pair";
             case INTERVAL_LINE:
                 return "Interval Line";
+            case INTERVAL_TEXT:
+                return "Interval Text";
             case CONTINUOUS_FILL:
                 return "Continuous Line";
             case CONTINUOUS_LINE:
@@ -124,7 +127,9 @@ public enum ColourKey {
                 return "Colour of everted pairs";
 
             case INTERVAL_LINE:
-                return "Outline colour for interval tracks";
+                return "Line colour for interval tracks";
+            case INTERVAL_TEXT:
+                return "Text colour for interval tracks";
 
             case CONTINUOUS_FILL:
                 return "Fill colour for continuous tracks";

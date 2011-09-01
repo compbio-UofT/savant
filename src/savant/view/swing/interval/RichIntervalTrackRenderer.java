@@ -26,9 +26,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import savant.data.types.*;
 import savant.exception.RenderingException;
 import savant.settings.BrowserSettings;
@@ -43,8 +40,6 @@ import savant.view.swing.TrackRenderer;
  * @author vwilliams, tarkvara
  */
 public class RichIntervalTrackRenderer extends TrackRenderer {
-
-    private static final Log LOG = LogFactory.getLog(RichIntervalTrackRenderer.class);
 
     private DrawingMode mode;
     Resolution resolution;
@@ -88,7 +83,6 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
 
         IntervalPacker packer = new IntervalPacker(stuffedRecords);
         // TODO: when it becomes possible, choose an appropriate number for breathing room parameter
-//        Map<Integer, ArrayList<IntervalRecord>> intervals = packer.pack(10);
         List<List<IntervalRecord>> intervals = StuffedIntervalRecord.getOriginalIntervals(packer.pack(2));
 
         gp.setXRange(axisRange.getXRange());
@@ -149,7 +143,7 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
         }
 
         Color lineColor = cs.getColor(ColourKey.INTERVAL_LINE);
-        Color textColor = Color.BLACK;
+        Color textColor = cs.getColor(ColourKey.INTERVAL_TEXT);
 
         double startXPos = gp.transformXPos(interval.getStart());
 

@@ -66,7 +66,7 @@ public class RichIntervalTrack extends Track {
 
     @Override
     public ColourScheme getDefaultColourScheme() {
-        return new ColourScheme(ColourKey.FORWARD_STRAND, ColourKey.REVERSE_STRAND, ColourKey.TRANSLUCENT_GRAPH, ColourKey.INTERVAL_LINE);
+        return new ColourScheme(ColourKey.FORWARD_STRAND, ColourKey.REVERSE_STRAND, ColourKey.INTERVAL_LINE, ColourKey.INTERVAL_TEXT);
     }
 
     @Override

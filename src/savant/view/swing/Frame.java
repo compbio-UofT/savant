@@ -663,17 +663,18 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
                     if (item.getState()) {
                         DrawingMode[] validModes = tracks[0].getValidDrawingModes();
                         for (int j = 0; j < modeItems.length; j++){
-                            modeItems[j].setState(false);
                             if (item.getText().equals(validModes[j].toString())) {
                                 for (Track t: tracks) {
                                     t.setDrawingMode(validModes[j]);
                                 }
                                 drawModePosition = j;
-                                break;
+                            } else {
+                                modeItems[j].setState(false);
                             }
                         }
+                    } else {
+                        item.setState(true);
                     }
-                    item.setState(true);
                 }
             });
             if (validModes[i] == tracks[0].getDrawingMode()) {

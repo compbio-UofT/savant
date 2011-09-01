@@ -52,7 +52,8 @@ public class ColourSettings {
         DEFAULT_SETTINGS.put(ColourKey.POINT_FILL, new Color(0, 174, 255, 150));
         DEFAULT_SETTINGS.put(ColourKey.POINT_LINE, Color.BLACK);
 
-        DEFAULT_SETTINGS.put(ColourKey.INTERVAL_LINE, Color.BLACK);
+        DEFAULT_SETTINGS.put(ColourKey.INTERVAL_LINE, Color.GRAY);
+        DEFAULT_SETTINGS.put(ColourKey.INTERVAL_TEXT, Color.DARK_GRAY);
         DEFAULT_SETTINGS.put(ColourKey.OPAQUE_GRAPH, new Color(0, 174, 255));
         DEFAULT_SETTINGS.put(ColourKey.TRANSLUCENT_GRAPH, new Color(0, 174, 255, 100));
       
