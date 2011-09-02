@@ -56,9 +56,9 @@ public class BAMTrack extends Track {
     private double arcSizeVisibilityThreshold=0.0d;
 
     // arcs below discordantMin or above discordantMax are coloured as discordant-by-length
-    private int discordantMin=Integer.MIN_VALUE;
-    private int discordantMax=Integer.MAX_VALUE;
-    private static double maxBPForYMax = 10000;
+    private int concordantMin = 50;
+    private int concordantMax = 1000;
+    private static int maxBPForYMax = 10000;
 
     /**
      * Constructor.
@@ -110,8 +110,8 @@ public class BAMTrack extends Track {
         //if (errorMessage == null) {
             if (getDrawingMode() == DrawingMode.ARC_PAIRED) {
                 renderer.addInstruction(DrawingInstruction.ARC_MIN, getArcSizeVisibilityThreshold());
-                renderer.addInstruction(DrawingInstruction.DISCORDANT_MIN, getDiscordantMin());
-                renderer.addInstruction(DrawingInstruction.DISCORDANT_MAX, getDiscordantMax());
+                renderer.addInstruction(DrawingInstruction.DISCORDANT_MIN, getConcordantMin());
+                renderer.addInstruction(DrawingInstruction.DISCORDANT_MAX, getConcordantMax());
             } else {
                 renderer.addInstruction(DrawingInstruction.AXIS_RANGE, AxisRange.initWithRanges(range, getDefaultYRange()));
             }
@@ -167,16 +167,20 @@ public class BAMTrack extends Track {
         this.arcSizeVisibilityThreshold = arcSizeVisibilityThreshold;
     }
 
-    public int getDiscordantMin() {
-        return discordantMin;
+    public int getConcordantMin() {
+        return concordantMin;
     }
 
-    public void setDiscordantMin(int discordantMin) {
-        this.discordantMin = discordantMin;
+    public void setConcordantMin(int value) {
+        this.concordantMin = value;
     }
 
-    public int getDiscordantMax() {
-        return discordantMax;
+    public int getConcordantMax() {
+        return concordantMax;
+    }
+
+    public void setConcordantMax(int value) {
+        this.concordantMax = value;
     }
 
     public void setPairedProtocol(PairedSequencingProtocol t) {
@@ -187,15 +191,11 @@ public class BAMTrack extends Track {
         return this.pairedProtocol;
     }
 
-    public void setDiscordantMax(int discordantMax) {
-        this.discordantMax = discordantMax;
-    }
-
-    public double getmaxBPForYMax(){
+    public int getMaxBPForYMax(){
         return maxBPForYMax;
     }
 
-    public void setmaxBPForYMax(double max){
+    public void setMaxBPForYMax(int max) {
         maxBPForYMax = max;
     }
 

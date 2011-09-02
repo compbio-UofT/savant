@@ -449,23 +449,12 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
         JMenu button = new JMenu("Read Pair Settings...");
         button.setToolTipText("Change mate pair parameters");
 
-        // Because we're using a JMenu, we have to hang our action of mouseClicked rather than actionPerformed.
+        // Because we're using a JMenu, we have to hang our action off mouseClicked rather than actionPerformed.
         button.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                BAMTrack bamTrack = (BAMTrack)tracks[0];
-                BAMParametersDialog d = new BAMParametersDialog(DialogUtils.getMainWindow());
-                d.showDialog(bamTrack);
-                if (d.isAccepted()) {
-                    bamTrack.setArcSizeVisibilityThreshold(d.getArcLengthThreshold());
-                    bamTrack.setPairedProtocol(d.getSequencingProtocol());
-                    bamTrack.setDiscordantMin(d.getDiscordantMin());
-                    bamTrack.setDiscordantMax(d.getDiscordantMax());
-                    bamTrack.setmaxBPForYMax(d.getMaxBPForYMax());
-
-                    bamTrack.prepareForRendering(LocationController.getInstance().getReferenceName() , LocationController.getInstance().getRange());
-                    graphPane.repaint();
-                }
+                BAMParametersDialog dlg = new BAMParametersDialog(DialogUtils.getMainWindow(), (BAMTrack)tracks[0]);
+                dlg.setVisible(true);
             }
         });
         button.setFocusPainted(false);

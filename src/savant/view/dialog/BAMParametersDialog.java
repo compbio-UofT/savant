@@ -16,9 +16,10 @@
 package savant.view.dialog;
 
 import java.awt.*;
-import javax.swing.ImageIcon;
+import javax.swing.JTextField;
+import savant.controller.LocationController;
+import savant.util.MiscUtils;
 import savant.util.SAMReadUtils;
-import savant.view.swing.ImagePanel;
 import savant.view.swing.interval.BAMTrack;
 
 
@@ -27,42 +28,38 @@ import savant.view.swing.interval.BAMTrack;
  * @author vwilliam
  */
 public class BAMParametersDialog extends javax.swing.JDialog {
+    private static final int DEFAULT_DISCORDANT_MIN = 50;
+    private static final int DEFAULT_DISCORDANT_MAX = 1000;
+    private static final int DEFAULT_ARC_THRESHOLD = 1;
+    private static final int DEFAULT_ARC_YMAX_THRESHOLD = 10000;
 
-    private int discordantMin;
-    private int discordantMax;
-    private double arcLengthThreshold;
-    private double maxBPForYMax;
-    private SAMReadUtils.PairedSequencingProtocol prot;
-
-    private boolean cancelled = false;
-    private boolean accepted  = true;
+    private final BAMTrack track;
+    private JTextField errField = null;
 
     /** Creates new form BAMParametersDialog */
-    public BAMParametersDialog(Window parent) {
+    public BAMParametersDialog(Window parent, BAMTrack t) {
         super(parent, Dialog.ModalityType.APPLICATION_MODAL);
         initComponents();
+        track = t;
 
-        Image i = new ImageIcon(getClass().getResource("/savant/images/reads_opposite.png")).getImage();
-        this.setPreferredSize(new Dimension(i.getWidth(null),i.getHeight(null)));
-        this.setMaximumSize(new Dimension(i.getWidth(null),i.getHeight(null)));
-        this.setMinimumSize(new Dimension(i.getWidth(null),i.getHeight(null)));
-        ImagePanel ip = new ImagePanel(i);
+        double arcThreshold = t.getArcSizeVisibilityThreshold();
+        if (arcThreshold < 1.0 && arcThreshold > 0.0) {
+            arcThresholdField.setText(String.format("%d%%", (int)(arcThreshold * 100.0)));
+        } else {
+            arcThresholdField.setText(String.valueOf((int)arcThreshold));
+        }
+        discordantMinField.setText(String.valueOf(t.getConcordantMin()));
+        discordantMaxField.setText(String.valueOf(t.getConcordantMax()));
+        arcYMaxThresholdField.setText(String.valueOf(t.getMaxBPForYMax()));
+        if (t.getPairedSequencingProtocol() == SAMReadUtils.PairedSequencingProtocol.PAIREDEND){
+            pairedEndRadio.setSelected(true);
+        } else {
+            oppositeRadio.setSelected(true);
+        }
 
-        this.reads_opposite_container.setLayout(new BorderLayout());
-        this.reads_opposite_container.add(ip, BorderLayout.CENTER);
-
-        i = new ImageIcon(getClass().getResource("/savant/images/reads_same.png")).getImage();
-        this.setPreferredSize(new Dimension(i.getWidth(null),i.getHeight(null)));
-        this.setMaximumSize(new Dimension(i.getWidth(null),i.getHeight(null)));
-        this.setMinimumSize(new Dimension(i.getWidth(null),i.getHeight(null)));
-        ip = new ImagePanel(i);
-
-        this.reads_same_container.setLayout(new BorderLayout());
-        this.reads_same_container.add(ip, BorderLayout.CENTER);
-
-        this.getRootPane().setDefaultButton(buttonOK);
-        this.setLocationRelativeTo(parent);
-        this.setVisible(false);
+        getRootPane().setDefaultButton(okButton);
+        MiscUtils.registerCancelButton(cancelButton);
+        setLocationRelativeTo(parent);
     }
 
     /** This method is called from within the constructor to
@@ -75,114 +72,74 @@ public class BAMParametersDialog extends javax.swing.JDialog {
     private void initComponents() {
 
         buttonGroup1 = new javax.swing.ButtonGroup();
-        jLabel1 = new javax.swing.JLabel();
-        jLabel2 = new javax.swing.JLabel();
-        jLabel3 = new javax.swing.JLabel();
-        textDiscordantMin = new javax.swing.JTextField();
-        textDiscordantMax = new javax.swing.JTextField();
-        textArcThreshold = new javax.swing.JTextField();
-        buttonCancel = new javax.swing.JButton();
-        buttonOK = new javax.swing.JButton();
-        jLabel4 = new javax.swing.JLabel();
-        jLabel5 = new javax.swing.JLabel();
-        pairedend_button = new javax.swing.JRadioButton();
-        matepair_button = new javax.swing.JRadioButton();
-        reads_opposite_container = new javax.swing.JPanel();
-        reads_same_container = new javax.swing.JPanel();
-        textArcYMaxThreshold = new javax.swing.JTextField();
-        jLabel6 = new javax.swing.JLabel();
-        jLabel7 = new javax.swing.JLabel();
+        javax.swing.JLabel minConcordantLabel = new javax.swing.JLabel();
+        javax.swing.JLabel maxConcordantLabel = new javax.swing.JLabel();
+        javax.swing.JLabel arcThresholdLabel = new javax.swing.JLabel();
+        discordantMinField = new javax.swing.JTextField();
+        discordantMaxField = new javax.swing.JTextField();
+        arcThresholdField = new javax.swing.JTextField();
+        cancelButton = new javax.swing.JButton();
+        okButton = new javax.swing.JButton();
+        javax.swing.JLabel pairLabel = new javax.swing.JLabel();
+        pairedEndRadio = new javax.swing.JRadioButton();
+        oppositeRadio = new javax.swing.JRadioButton();
+        arcYMaxThresholdField = new javax.swing.JTextField();
+        javax.swing.JLabel arcYMaxThresholdLabel = new javax.swing.JLabel();
+        javax.swing.JLabel oppositeIcon = new javax.swing.JLabel();
+        javax.swing.JLabel pairedEndIcon = new javax.swing.JLabel();
+        javax.swing.JLabel jLabel1 = new javax.swing.JLabel();
+        javax.swing.JLabel jLabel2 = new javax.swing.JLabel();
+        javax.swing.JLabel jLabel3 = new javax.swing.JLabel();
+        javax.swing.JLabel jLabel4 = new javax.swing.JLabel();
 
-        buttonGroup1.add(pairedend_button);
-        buttonGroup1.add(matepair_button);
+        buttonGroup1.add(pairedEndRadio);
+        buttonGroup1.add(oppositeRadio);
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
         setTitle("Read Pair Settings");
 
-        jLabel1.setText("Min normal insert size:");
+        minConcordantLabel.setText("Min concordant insert size:");
 
-        jLabel2.setText("Max normal insert size:");
+        maxConcordantLabel.setText("Max concordant insert size:");
 
-        jLabel3.setText("Ignore sizes smaller than:");
+        arcThresholdLabel.setText("Ignore sizes smaller than:");
 
-        textDiscordantMin.addActionListener(new java.awt.event.ActionListener() {
+        arcThresholdField.setToolTipText("Either enter an absolute number of base pairs, or a percentage of ymax");
+
+        cancelButton.setText("Cancel");
+        cancelButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                textDiscordantMinActionPerformed(evt);
+                cancelButtonActionPerformed(evt);
             }
         });
 
-        textDiscordantMax.addActionListener(new java.awt.event.ActionListener() {
+        okButton.setText("OK");
+        okButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                textDiscordantMaxActionPerformed(evt);
+                okButtonActionPerformed(evt);
             }
         });
 
-        textArcThreshold.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                textArcThresholdActionPerformed(evt);
-            }
-        });
+        pairLabel.setText("Pairs are sequenced from:");
 
-        buttonCancel.setText("Cancel");
-        buttonCancel.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                buttonCancelActionPerformed(evt);
-            }
-        });
+        pairedEndRadio.setText("same strand");
 
-        buttonOK.setText("OK");
-        buttonOK.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                buttonOKActionPerformed(evt);
-            }
-        });
+        oppositeRadio.setSelected(true);
+        oppositeRadio.setText("opposite strands");
 
-        jLabel4.setText("eg. 100 or 10%");
+        arcYMaxThresholdLabel.setText("Don't adjust ymax for arcs larger than:");
 
-        jLabel5.setText("Pairs are sequenced from:");
+        oppositeIcon.setIcon(new javax.swing.ImageIcon(getClass().getResource("/savant/images/reads_opposite.png"))); // NOI18N
 
-        pairedend_button.setText("same strand");
+        pairedEndIcon.setIcon(new javax.swing.ImageIcon(getClass().getResource("/savant/images/reads_same.png"))); // NOI18N
 
-        matepair_button.setSelected(true);
-        matepair_button.setText("opposite strands");
+        jLabel1.setText("bp");
 
-        reads_opposite_container.setBackground(new java.awt.Color(255, 204, 204));
-        reads_opposite_container.setPreferredSize(new java.awt.Dimension(144, 14));
+        jLabel2.setText("bp");
 
-        javax.swing.GroupLayout reads_opposite_containerLayout = new javax.swing.GroupLayout(reads_opposite_container);
-        reads_opposite_container.setLayout(reads_opposite_containerLayout);
-        reads_opposite_containerLayout.setHorizontalGroup(
-            reads_opposite_containerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 133, Short.MAX_VALUE)
-        );
-        reads_opposite_containerLayout.setVerticalGroup(
-            reads_opposite_containerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 20, Short.MAX_VALUE)
-        );
+        jLabel3.setText("bp or %");
 
-        reads_same_container.setBackground(new java.awt.Color(255, 204, 204));
-        reads_same_container.setPreferredSize(new java.awt.Dimension(144, 14));
-
-        javax.swing.GroupLayout reads_same_containerLayout = new javax.swing.GroupLayout(reads_same_container);
-        reads_same_container.setLayout(reads_same_containerLayout);
-        reads_same_containerLayout.setHorizontalGroup(
-            reads_same_containerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 133, Short.MAX_VALUE)
-        );
-        reads_same_containerLayout.setVerticalGroup(
-            reads_same_containerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 19, Short.MAX_VALUE)
-        );
-
-        textArcYMaxThreshold.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                textArcYMaxActionPerformed(evt);
-            }
-        });
-
-        jLabel6.setText("Don't adjust ymax for arcs larger than (bp):");
-
-        jLabel7.setText("eg. 10000");
+        jLabel4.setText("bp");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -190,318 +147,158 @@ public class BAMParametersDialog extends javax.swing.JDialog {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(pairLabel)
+                    .addComponent(minConcordantLabel)
+                    .addComponent(maxConcordantLabel)
+                    .addComponent(arcYMaxThresholdLabel)
+                    .addComponent(arcThresholdLabel))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(buttonOK)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(buttonCancel, javax.swing.GroupLayout.PREFERRED_SIZE, 71, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel5)
+                            .addComponent(oppositeRadio)
+                            .addComponent(pairedEndRadio))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(pairedEndIcon)
+                            .addComponent(oppositeIcon)))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                            .addComponent(arcYMaxThresholdField, javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(arcThresholdField, javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(discordantMaxField, javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(discordantMinField, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 143, Short.MAX_VALUE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel3)
                             .addComponent(jLabel2)
                             .addComponent(jLabel1)
-                            .addComponent(jLabel3)
-                            .addComponent(jLabel6))
-                        .addGap(10, 10, 10)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(textArcThreshold, javax.swing.GroupLayout.DEFAULT_SIZE, 147, Short.MAX_VALUE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(layout.createSequentialGroup()
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(matepair_button)
-                                    .addComponent(pairedend_button))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(reads_opposite_container, javax.swing.GroupLayout.DEFAULT_SIZE, 133, Short.MAX_VALUE)
-                                    .addComponent(reads_same_container, javax.swing.GroupLayout.DEFAULT_SIZE, 133, Short.MAX_VALUE)))
-                            .addComponent(textDiscordantMin, javax.swing.GroupLayout.DEFAULT_SIZE, 240, Short.MAX_VALUE)
-                            .addComponent(textDiscordantMax, javax.swing.GroupLayout.DEFAULT_SIZE, 240, Short.MAX_VALUE)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(textArcYMaxThreshold, javax.swing.GroupLayout.DEFAULT_SIZE, 147, Short.MAX_VALUE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE)))))
+                            .addComponent(jLabel4))))
+                .addContainerGap(31, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addContainerGap(403, Short.MAX_VALUE)
+                .addComponent(okButton)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(cancelButton, javax.swing.GroupLayout.PREFERRED_SIZE, 71, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 14, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(14, 14, 14))
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(reads_opposite_container, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(8, 8, 8)))
-                        .addComponent(reads_same_container, javax.swing.GroupLayout.PREFERRED_SIZE, 19, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(matepair_button)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(pairedend_button)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(textDiscordantMin, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 14, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(textDiscordantMax, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel2))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(textArcThreshold, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel4)
-                    .addComponent(jLabel3))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel7)
-                            .addComponent(textArcYMaxThreshold, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addContainerGap()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
+                            .addComponent(oppositeIcon)
+                            .addComponent(oppositeRadio))
+                        .addGap(5, 5, 5)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
+                            .addComponent(pairedEndIcon)
+                            .addComponent(pairedEndRadio))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(buttonCancel)
-                            .addComponent(buttonOK)))
-                    .addComponent(jLabel6))
+                            .addComponent(discordantMinField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(minConcordantLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 14, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel1))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(discordantMaxField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(maxConcordantLabel)
+                            .addComponent(jLabel2))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(arcThresholdField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(arcThresholdLabel)
+                            .addComponent(jLabel3))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(arcYMaxThresholdField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(arcYMaxThresholdLabel)
+                            .addComponent(jLabel4)))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(20, 20, 20)
+                        .addComponent(pairLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 47, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(cancelButton)
+                    .addComponent(okButton))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void textDiscordantMinActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_textDiscordantMinActionPerformed
-//        parseDiscordantMin();
-    }//GEN-LAST:event_textDiscordantMinActionPerformed
+    private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelButtonActionPerformed
+        setVisible(false);
+        dispose();
+    }//GEN-LAST:event_cancelButtonActionPerformed
 
-    private void textDiscordantMaxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_textDiscordantMaxActionPerformed
-//        parseDiscordantMax();
-    }//GEN-LAST:event_textDiscordantMaxActionPerformed
-
-    private void textArcThresholdActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_textArcThresholdActionPerformed
-//        parseArcThreshold();
-    }//GEN-LAST:event_textArcThresholdActionPerformed
-
-    private void buttonCancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonCancelActionPerformed
-        setCancelled(true);
-        setAccepted(false);
-        this.setVisible(false);
-        this.dispose();
-    }//GEN-LAST:event_buttonCancelActionPerformed
-
-    private void buttonOKActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonOKActionPerformed
-        if (parseProtocol() && parseDiscordantMin() && parseDiscordantMax() && parseArcThreshold() && parseArcYMaxThreshold()) {
-            setAccepted(true);
-            setCancelled(false);
-            this.setVisible(false);
+    private void okButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_okButtonActionPerformed
+        try {
+            SAMReadUtils.PairedSequencingProtocol prot = parseProtocol();
+            int discordantMin = parseField(discordantMinField, DEFAULT_DISCORDANT_MIN);
+            int discordantMax = parseField(discordantMaxField, DEFAULT_DISCORDANT_MAX);
+            double arcThreshold = parseArcThreshold();
+            int maxBPForYMax = parseField(arcYMaxThresholdField, DEFAULT_ARC_YMAX_THRESHOLD);
+            track.setPairedProtocol(prot);
+            track.setConcordantMin(discordantMin);
+            track.setConcordantMax(discordantMax);
+            track.setArcSizeVisibilityThreshold(arcThreshold);
+            track.setMaxBPForYMax(maxBPForYMax);
+            setVisible(false);
+            track.prepareForRendering(LocationController.getInstance().getReferenceName() , LocationController.getInstance().getRange());
+            track.repaint();
+        } catch (NumberFormatException e) {
+            Toolkit.getDefaultToolkit().beep();
+            errField.setText("");
+            errField.grabFocus();
         }
-    }//GEN-LAST:event_buttonOKActionPerformed
+    }//GEN-LAST:event_okButtonActionPerformed
 
-    private void textArcYMaxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_textArcYMaxActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_textArcYMaxActionPerformed
-
-    private boolean parseDiscordantMin() {
-
-        boolean result = false;
-        String minStr = textDiscordantMin.getText();
-        if (minStr == null || minStr.equals("")) {
-            setDiscordantMin(Integer.MIN_VALUE);
-            result = true;
-        }
-        else {
-            try {
-                setDiscordantMin(Integer.parseInt(minStr));
-                result = true;
-            } catch (NumberFormatException e) {
-                Toolkit.getDefaultToolkit().beep();
-                textDiscordantMin.setText("");
-                textDiscordantMin.grabFocus();
-            }
-        }
-        return result;
+    private SAMReadUtils.PairedSequencingProtocol parseProtocol() {
+        return pairedEndRadio.isSelected() ? SAMReadUtils.PairedSequencingProtocol.PAIREDEND : SAMReadUtils.PairedSequencingProtocol.MATEPAIR;
     }
 
-    private boolean parseDiscordantMax() {
-
-        boolean result = false;
-        String maxStr = textDiscordantMax.getText();
-        if (maxStr == null || maxStr.equals("")) {
-            setDiscordantMax(Integer.MAX_VALUE);
-            result = true;
-        }
-        else {
-            try {
-                setDiscordantMax(Integer.parseInt(maxStr));
-                result = true;
-            } catch (NumberFormatException e) {
-                Toolkit.getDefaultToolkit().beep();
-                textDiscordantMax.setText("");
-                textDiscordantMax.grabFocus();
-            }
-        }
-        return result;
+    private int parseField(JTextField f, int dflt) throws NumberFormatException {
+        errField = f;
+        String str = f.getText();
+        return str.equals("") ? dflt : Integer.parseInt(str);
     }
 
-    private boolean parseProtocol() {
-        if (pairedend_button.isSelected()) {
-            prot = SAMReadUtils.PairedSequencingProtocol.PAIREDEND;
-        } else if (matepair_button.isSelected()) {
-            prot = SAMReadUtils.PairedSequencingProtocol.MATEPAIR;
-        }
-        return true;
-    }
-
-    private boolean parseArcThreshold() {
-
-        boolean result = false;
-        String threshStr = textArcThreshold.getText();
-        if (threshStr == null || threshStr.equals("")) {
-            setArcLengthThreshold(Integer.MIN_VALUE);
-            result = true;
-        }
-        else {
-            boolean percent = false;
+    /**
+     * Parsing the arc threshold is more complicated, because it can be either an absolute number or a percentage.
+     */
+    private double parseArcThreshold() {
+        errField = arcThresholdField;
+        double result;
+        String threshStr = arcThresholdField.getText();
+        if (threshStr.equals("")) {
+            result = DEFAULT_ARC_THRESHOLD;
+        } else {
             if (threshStr.endsWith("%")) {
-                threshStr = threshStr.substring(0, threshStr.length()-1);
-                percent = true;
-            }
-            try {
-                double tempThresh = Double.parseDouble(threshStr);
-                if (percent) {
-                    setArcLengthThreshold(tempThresh/100.0d);
+                // It's a percentage value.  Note that if they type in a percentage greater than 100, it
+                // will be misinterpreted as an absolute number of bps.
+                result = Double.parseDouble(threshStr.substring(0, threshStr.length() - 1)) * 0.01;
+                if (result >= 1.0) {
+                    throw new NumberFormatException();
                 }
-                else {
-                    setArcLengthThreshold(tempThresh);
-                }
-                result = true;
-            } catch (NumberFormatException e) {
-                Toolkit.getDefaultToolkit().beep();
-                textArcThreshold.setText("");
-                textArcThreshold.grabFocus();
-            }
-        }
-        return result;
-    }
-
-    private boolean parseArcYMaxThreshold() {
-        boolean result = false;
-        String maxStr = textArcYMaxThreshold.getText();
-        if (maxStr == null || maxStr.equals("")) {
-            setMaxBPForYMax(10000);
-            result = true;
-        }
-        else {
-            try {
-                setMaxBPForYMax(Double.parseDouble(maxStr));
-                result = true;
-            } catch (NumberFormatException e) {
-                Toolkit.getDefaultToolkit().beep();
-                textArcYMaxThreshold.setText("10000");
-                textArcYMaxThreshold.grabFocus();
+            } else {
+                result = Double.parseDouble(threshStr);
             }
         }
         return result;
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton buttonCancel;
+    private javax.swing.JTextField arcThresholdField;
+    private javax.swing.JTextField arcYMaxThresholdField;
     private javax.swing.ButtonGroup buttonGroup1;
-    private javax.swing.JButton buttonOK;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel4;
-    private javax.swing.JLabel jLabel5;
-    private javax.swing.JLabel jLabel6;
-    private javax.swing.JLabel jLabel7;
-    private javax.swing.JRadioButton matepair_button;
-    private javax.swing.JRadioButton pairedend_button;
-    private javax.swing.JPanel reads_opposite_container;
-    private javax.swing.JPanel reads_same_container;
-    private javax.swing.JTextField textArcThreshold;
-    private javax.swing.JTextField textArcYMaxThreshold;
-    private javax.swing.JTextField textDiscordantMax;
-    private javax.swing.JTextField textDiscordantMin;
+    private javax.swing.JButton cancelButton;
+    private javax.swing.JTextField discordantMaxField;
+    private javax.swing.JTextField discordantMinField;
+    private javax.swing.JButton okButton;
+    private javax.swing.JRadioButton oppositeRadio;
+    private javax.swing.JRadioButton pairedEndRadio;
     // End of variables declaration//GEN-END:variables
-
-
-    public int getDiscordantMin() {
-        return discordantMin;
-    }
-
-    public void setDiscordantMin(int discordantMin) {
-        this.discordantMin = discordantMin;
-    }
-
-    public int getDiscordantMax() {
-        return discordantMax;
-    }
-
-    public void setDiscordantMax(int discordantMax) {
-        this.discordantMax = discordantMax;
-    }
-
-    public SAMReadUtils.PairedSequencingProtocol getSequencingProtocol() {
-        return prot;
-    }
-
-    public double getArcLengthThreshold() {
-        return arcLengthThreshold;
-    }
-
-    public void setArcLengthThreshold(double arcLengthThreshold) {
-        this.arcLengthThreshold = arcLengthThreshold;
-    }
-
-    public double getMaxBPForYMax(){
-        return this.maxBPForYMax;
-    }
-
-    public void setMaxBPForYMax(double max){
-        this.maxBPForYMax = max;
-    }
-
-    public boolean isCancelled() {
-        return cancelled;
-    }
-
-    public void setCancelled(boolean cancelled) {
-        this.cancelled = cancelled;
-    }
-
-    public boolean isAccepted() {
-        return accepted;
-    }
-
-    public void setAccepted(boolean accepted) {
-        this.accepted = accepted;
-    }
-
-    /*
-     * Show dialog with values set to those of bamTrack
-     */
-    public void showDialog(BAMTrack bamTrack){
-
-        setArcLengthThreshold(bamTrack.getArcSizeVisibilityThreshold());
-        setDiscordantMin(bamTrack.getDiscordantMin());
-        setDiscordantMax(bamTrack.getDiscordantMax());
-        prot = bamTrack.getPairedSequencingProtocol();
-
-        textArcThreshold.setText(String.valueOf(bamTrack.getArcSizeVisibilityThreshold()));
-        textDiscordantMin.setText(String.valueOf(bamTrack.getDiscordantMin()));
-        textDiscordantMax.setText(String.valueOf(bamTrack.getDiscordantMax()));
-        textArcYMaxThreshold.setText(String.valueOf(bamTrack.getmaxBPForYMax()));
-        if(prot == SAMReadUtils.PairedSequencingProtocol.PAIREDEND){
-            pairedend_button.setSelected(true);
-        } else {
-            matepair_button.setSelected(true);
-        }
-
-        this.setVisible(true);
-    }
-
-
 }
