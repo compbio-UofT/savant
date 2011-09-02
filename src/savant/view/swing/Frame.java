@@ -28,6 +28,8 @@ import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuListener;
 
 import com.jidesoft.docking.DockableFrame;
+import java.awt.datatransfer.StringSelection;
+import java.io.IOException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -45,6 +47,7 @@ import savant.data.event.TrackCreationEvent;
 import savant.data.event.TrackCreationListener;
 import savant.data.sources.DataSource;
 import savant.data.types.Genome;
+import savant.data.types.SequenceRecord;
 import savant.file.DataFormat;
 import savant.plugin.SavantPanelPlugin;
 import savant.settings.InterfaceSettings;
@@ -53,6 +56,7 @@ import savant.util.DrawingMode;
 import savant.util.Listener;
 import savant.util.MiscUtils;
 import savant.util.Range;
+import savant.util.Resolution;
 import savant.util.swing.ProgressPanel;
 import savant.view.dialog.BAMParametersDialog;
 import savant.view.icon.SavantIconFactory;
@@ -601,8 +605,8 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
      * Create a menu for controlling sequence options.  Currently the only one is to set this as the current genome.
      */
     private JMenu createSequenceMenu() {
-        JMenu button = new JMenu("Sequence Options");
-        button.setToolTipText("Change sequence parameters");
+        JMenu menu = new JMenu("Sequence Options");
+        menu.setToolTipText("Change sequence parameters");
         setAsGenomeButton = new JCheckBoxMenuItem("Set as Genome");
         setAsGenomeButton.addActionListener(new ActionListener() {
             @Override
@@ -611,9 +615,25 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
                 GenomeController.getInstance().setGenome(newGenome);
             }
         });
-        button.add(setAsGenomeButton);
-        button.setFocusPainted(false);
-        return button;
+        menu.add(setAsGenomeButton);
+        JMenuItem copyItem = new JMenuItem("Copy to Clipboard");
+        copyItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                try {
+                    LocationController lc = LocationController.getInstance();
+                    byte[] seq = ((SequenceRecord)tracks[0].getDataSource().getRecords(lc.getReferenceName(), lc.getRange(), Resolution.HIGH).get(0)).getSequence();
+                    Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(new String(seq)), null);
+                } catch (IOException x) {
+                    LOG.error(x);
+                    DialogUtils.displayError("Unable to copy sequence to clipboard.");
+                }
+                throw new UnsupportedOperationException("Not supported yet.");
+            }
+        });
+        menu.add(copyItem);
+        menu.setFocusPainted(false);
+        return menu;
     }
     
     /**
