@@ -23,7 +23,10 @@ import java.awt.geom.Rectangle2D;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import javax.swing.JPanel;
 
 import net.sf.samtools.Cigar;
@@ -242,7 +245,7 @@ public class BAMTrackRenderer extends TrackRenderer {
         Resolution r = (Resolution)instructions.get(DrawingInstruction.RESOLUTION);
 
         if (r == Resolution.HIGH) {
-            if (lastMode == DrawingMode.MISMATCH || lastMode == DrawingMode.SNP || lastMode == DrawingMode.STRAND_SNP || lastMode == DrawingMode.COLOURSPACE || lastMode == DrawingMode.SEQUENCE || lastMode == DrawingMode.BASE_QUALITY){
+            if (lastMode == DrawingMode.MISMATCH || lastMode == DrawingMode.SNP || lastMode == DrawingMode.STRAND_SNP || lastMode == DrawingMode.COLOURSPACE || lastMode == DrawingMode.SEQUENCE || lastMode == DrawingMode.BASE_QUALITY || lastMode == DrawingMode.READ_PAIRED){
                 // fetch reference sequence for comparison with cigar string
                 Genome genome = GenomeController.getInstance().getGenome();
                 if(genome.isSequenceSet()){
@@ -305,6 +308,10 @@ public class BAMTrackRenderer extends TrackRenderer {
                     renderStrandSNPMode(g2, gp, r);
                 }
                 break;
+            case READ_PAIRED:
+                if (r == Resolution.HIGH) {
+                    renderReadPairMode(g2, gp);
+                }
         }
         if (data.isEmpty()){
             throw new RenderingException("No data in range", 1);
@@ -1640,6 +1647,218 @@ public class BAMTrackRenderer extends TrackRenderer {
         
     }
 
+    private void renderReadPairMode(Graphics2D g2, GraphPane gp) throws RenderingException {
+
+        AxisRange axisRange = (AxisRange) instructions.get(DrawingInstruction.AXIS_RANGE);
+        ColourScheme cs = (ColourScheme) instructions.get(DrawingInstruction.COLOR_SCHEME);
+        Color linecolor = cs.getColor(ColourKey.INTERVAL_LINE);
+        Range range = axisRange.getXRange();
+
+        gp.setXRange(axisRange.getXRange());
+
+        Map<Integer, ArrayList<IntervalRecord>> mateQueue = new HashMap<Integer, ArrayList<IntervalRecord>>();
+        ArrayList<ArrayList<Interval>> levels = new ArrayList<ArrayList<Interval>>();
+        levels.add(new ArrayList<Interval>()); 
+        ArrayList<DrawStore> savedDraws = new ArrayList<DrawStore>();
+
+        for(int i = 0; i < data.size(); i++){
+
+            IntervalRecord intervalRecord = (IntervalRecord)data.get(i);
+            Interval interval = intervalRecord.getInterval();
+            BAMIntervalRecord bamRecord = (BAMIntervalRecord) intervalRecord;
+            SAMRecord samRecord = bamRecord.getSamRecord();
+            SAMReadUtils.PairedSequencingProtocol prot = (SAMReadUtils.PairedSequencingProtocol) instructions.get(DrawingInstruction.PAIRED_PROTOCOL);
+            SAMReadUtils.PairMappingType type = SAMReadUtils.getPairType(samRecord,prot);
+            int arcLength = Math.abs(samRecord.getInferredInsertSize());
+
+            //discard unmapped reads
+            if (samRecord.getReadUnmappedFlag() || !samRecord.getReadPairedFlag() 
+                    || samRecord.getMateUnmappedFlag() || type == null
+                    || arcLength == 0) { // this read is unmapped, don't visualize it
+                this.recordToShapeMap.put(intervalRecord, null);
+                continue;
+            }
+
+            //if mate off screen to the right, draw immediately
+            if(samRecord.getMateAlignmentStart() > range.getTo()){
+                int level = computePiledIntervalLevel(levels, Interval.valueOf(interval.getStart(), range.getTo()));
+                savedDraws.add(new DrawStore(intervalRecord, samRecord, level, Interval.valueOf(range.getTo(), range.getTo()), null));
+                continue;
+            }
+
+            //check if mate has already been found
+            IntervalRecord mate = popMate(mateQueue.get(samRecord.getMateAlignmentStart()), samRecord);
+            if(mate != null){
+                int level = computePiledIntervalLevel(levels, 
+                        Interval.valueOf(Math.min(interval.getStart(), mate.getInterval().getStart()),
+                        Math.max(interval.getEnd(), mate.getInterval().getEnd())));
+                savedDraws.add(new DrawStore(intervalRecord, samRecord, level, null, null));
+                savedDraws.add(new DrawStore(mate, ((BAMIntervalRecord)mate).getSamRecord(), level, interval, intervalRecord));
+
+
+                continue;
+            }
+
+            //if mate not yet found, add to map queue
+            if(mateQueue.get(interval.getStart()) == null){
+                mateQueue.put(interval.getStart(), new ArrayList<IntervalRecord>());
+            }
+            mateQueue.get(interval.getStart()).add(intervalRecord);          
+        }
+
+        //if there are records remaining without a mate, they are probably off screen to the left
+        Iterator<ArrayList<IntervalRecord>> it = mateQueue.values().iterator();
+        while(it.hasNext()){
+            ArrayList<IntervalRecord> list = it.next();
+            for (IntervalRecord intervalRecord : list) {
+                Interval interval = intervalRecord.getInterval();
+                BAMIntervalRecord bamRecord = (BAMIntervalRecord) intervalRecord;
+                SAMRecord samRecord = bamRecord.getSamRecord();
+                int level = computePiledIntervalLevel(levels, Interval.valueOf(range.getFrom(), interval.getEnd()));
+                savedDraws.add(new DrawStore(intervalRecord, samRecord, level, Interval.valueOf(range.getFrom(), range.getFrom()), null));
+            }
+        }
+
+        //resize frame if necessary
+        gp.setYRange(new Range(0,levels.size()+2));
+        if (gp.needsToResize()) return;
+
+        //now, draw everything
+        for(DrawStore drawStore : savedDraws){
+            drawPiledInterval(g2, gp, cs, range, linecolor, drawStore);
+            renderMismatches(g2, gp, drawStore.sam, drawStore.level, refSeq, range);
+            if(drawStore.mateInterval != null){
+                connectPiledInterval(g2, gp, drawStore.interval, drawStore.mateInterval, drawStore.level, linecolor, drawStore.intervalRecord, drawStore.mateIntervalRecord);
+            }
+        }
+    }
+
+    /*
+     * Find the mate for record with name readName in the list records.
+     * If mate found, remove and return. Otherwise, return null.
+     */
+    private IntervalRecord popMate(ArrayList<IntervalRecord> records, SAMRecord samRecord){
+
+        if(records == null) return null;
+        for(int i = 0; i < records.size(); i++){
+            if(MiscUtils.isMate(samRecord, ((BAMIntervalRecord)records.get(i)).getSamRecord())){
+                IntervalRecord intervalRecord = records.get(i);
+                records.remove(i);
+                return intervalRecord;
+            }
+        }
+        return null;
+    }
+
+    private void drawPiledInterval(Graphics2D g2, GraphPane gp, ColourScheme cs,
+                                  Range range, Color linecolor, DrawStore drawStore){
+        if(drawStore.sam.getReadNegativeStrandFlag()){
+            g2.setColor(cs.getColor(ColourKey.REVERSE_STRAND));
+        } else {
+            g2.setColor(cs.getColor(ColourKey.FORWARD_STRAND));
+        }
+        
+        Polygon readshape = renderRead(g2, gp, drawStore.sam, drawStore.interval, drawStore.level, range, null);
+
+        this.recordToShapeMap.put(drawStore.intervalRecord, readshape);
+
+        // draw outline, if there's room
+        if (readshape.getBounds().getHeight() > 4) {
+            g2.setColor(linecolor);
+            g2.draw(readshape);
+        }
+    }
+
+    /*
+     * Connect intervals i1 and i2 with a dashed line to show mates. 
+     */
+    private void connectPiledInterval(Graphics2D g2, GraphPane gp, Interval i1, Interval i2, int level, Color linecolor, IntervalRecord ir1, IntervalRecord ir2){
+
+        Interval mateInterval = computeMateInterval(i1, i2);
+
+        Stroke currentStroke = g2.getStroke();
+        //Stroke drawingStroke = new BasicStroke(3, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, new float[]{9}, 0);
+        Stroke drawingStroke = new BasicStroke(2);
+        double yPos = gp.transformYPos(0) - (level + 1)*gp.getUnitHeight() + gp.getUnitHeight()/2.0 - gp.getOffset();
+        Line2D line = new Line2D.Double(gp.transformXPos(mateInterval.getStart()), yPos, gp.transformXPos(mateInterval.getEnd()), yPos);
+        g2.setStroke(drawingStroke);
+        g2.setColor(linecolor);
+        g2.draw(line);
+        g2.setStroke(currentStroke);//reset stroke
+
+        Rectangle2D bound = new Rectangle2D.Double(Math.min(gp.transformXPos(mateInterval.getStart()),
+                gp.transformXPos(mateInterval.getEnd())),
+                yPos - gp.getUnitHeight()/2.0, Math.abs(gp.transformXPos(mateInterval.getEnd())-gp.transformXPos(mateInterval.getStart())),
+                gp.getUnitHeight());
+        if(ir1 != null) this.artifactMap.put(ir1, bound);
+        if(ir2 != null) this.artifactMap.put(ir2, bound);
+
+    }
+
+    private Interval computeMateInterval(Interval i1, Interval i2){
+
+        int start;
+        int end;
+        if(i1.getEnd() < i2.getEnd()){
+            start = i1.getEnd();
+            end = i2.getStart();
+        } else {
+            start = i2.getEnd();
+            end = i1.getStart();
+        }
+
+        return Interval.valueOf(start, end);
+
+    }
+
+    /*
+     * Determine at what level a piled interval should be drawn.
+     */
+    private int computePiledIntervalLevel(ArrayList<ArrayList<Interval>> levels, Interval interval){
+        ArrayList<Interval> level;
+        for(int i = 0; i < levels.size(); i++){
+            level = levels.get(i);
+            boolean conflict = false;
+            for(Interval current : level){
+                if(current.intersects(interval)){
+                    conflict = true;
+                    break;
+                }
+            }
+            if(!conflict){
+                level.add(interval);
+                return i;
+            }
+        }
+        levels.add(new ArrayList<Interval>());
+        levels.get(levels.size()-1).add(interval);
+        return levels.size()-1;
+    }
+    
+    /*
+     * Store information for drawing a read so that it can be done later.
+     * Used for piled interval mode
+     */
+    private class DrawStore extends JPanel{
+
+        public IntervalRecord intervalRecord;
+        public Interval interval;
+        public SAMRecord sam;
+        public int level;
+        public Interval mateInterval; //only set if line connection generated from this read
+        public IntervalRecord mateIntervalRecord; //as above + mate in view
+
+        public DrawStore(IntervalRecord intervalRecord, SAMRecord samRecord, int level, Interval mateInterval, IntervalRecord mateIntervalRecord){
+            this.intervalRecord = intervalRecord;
+            this.interval = intervalRecord.getInterval();
+            this.sam = samRecord;
+            this.level = level;
+            this.mateInterval = mateInterval;
+            this.mateIntervalRecord = mateIntervalRecord;
+        }
+    }
+    
+    
     private void drawLegend(Graphics2D g2, String[] legendStrings, Color[] legendColors, int startx, int starty) {
         ColourScheme cs = (ColourScheme)instructions.get(DrawingInstruction.COLOR_SCHEME);
         g2.setFont(SMALL_FONT);
