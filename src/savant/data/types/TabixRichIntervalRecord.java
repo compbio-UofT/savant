@@ -84,7 +84,7 @@ public class TabixRichIntervalRecord extends TabixIntervalRecord implements Rich
 
     @Override
     public Strand getStrand() {
-        if (mapping.strand >= 0) {
+        if (mapping.strand >= 0 && values[mapping.strand].length() > 0) {
             switch (values[mapping.strand].charAt(0)) {
                 case '-':
                     return Strand.REVERSE;
