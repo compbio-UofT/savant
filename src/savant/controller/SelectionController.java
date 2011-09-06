@@ -106,6 +106,11 @@ public class SelectionController {
             this.addToCurrentSelected(name, o);
         }
     }
+    
+    public void removeSelectionWithoutEvent(String name, Record o) {
+        map.get(name).remove(o);
+        this.removeFromCurrentSelected(name, o);
+    }
 
     public void removeSelection(String name, Record o){
         map.get(name).remove(o);
@@ -221,5 +226,30 @@ public class SelectionController {
        if (map.get(name) == null) addKey(name);
        Collections.sort(map.get(name));
        this.fireSelectionChangedEvent();
+   }
+   
+   /*
+    * If any of group is not selected, select all. 
+    * Otherwise unselect all. 
+    */
+   public void toggleGroup(String name, List<Record> group){
+       if(this.map.get(name) == null) addKey(name);
+       
+       boolean notSelected = false;
+       for(Record r : group){
+           if(binarySearchSelected(name, r) == -1){
+               notSelected = true;
+               break;
+           }
+       }
+       
+       if(notSelected){ //select all
+           for(Record r : group) addSelectionWithoutEvent(name, r);
+       } else {         //deselect all
+           for(Record r : group) removeSelectionWithoutEvent(name, r);
+       }
+       
+       this.fireSelectionChangedEvent();
+       
    }
 }

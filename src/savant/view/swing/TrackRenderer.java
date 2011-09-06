@@ -52,6 +52,7 @@ public abstract class TrackRenderer implements DataRetrievalListener {
     protected String trackName;
 
     protected Map<Record, Shape> recordToShapeMap = new HashMap<Record, Shape>();
+    protected Map<Record, Shape> artifactMap = new HashMap<Record, Shape>(); //meta info pointing to reads (ie. lines in read pair mode)
 
     protected TrackRenderer() {
     }
@@ -141,6 +142,7 @@ public abstract class TrackRenderer implements DataRetrievalListener {
 
         // Clear away any shapes.
         recordToShapeMap.clear();
+        artifactMap.clear();
 
         Boolean refexists = (Boolean)instructions.get(DrawingInstruction.REFERENCE_EXISTS);
         if (!refexists) {
@@ -190,21 +192,34 @@ public abstract class TrackRenderer implements DataRetrievalListener {
         if (mode == DrawingMode.ARC_PAIRED){
             isArc = true;
         }
+        
+        Map<Record, Shape> map = new HashMap<Record, Shape>();
+        boolean found = false;
                
         Rectangle2D testIntersection = new Rectangle2D.Double(p.x-3, p.y-3, 7, 7);
         for(int i = 0; i < data.size(); i++){
             if(data.get(i) == null) continue;
             Shape s = recordToShapeMap.get((Record)data.get(i));
             if(s == null) continue;
+
             //if(contains AND (notArc OR (isEdge...))          
             if( (!isArc && s.contains(p)) || 
                 (isArc && s.intersects(testIntersection) && (!s.contains(p.x-3, p.y-3) || !s.contains(p.x+3, p.y-3)))){
-                Map<Record, Shape> map = new HashMap<Record, Shape>();
                 map.put((Record)data.get(i), s);
-                return map;
+                found = true;
+                continue;
+            }
+            
+            //check other artifacts
+            Shape artifact = artifactMap.get((Record)data.get(i));
+            if(artifact != null && artifact.contains(p.x, p.y)){
+                map.put((Record)data.get(i), s);
+                found = true;
             }
         }
-        return null;
+        
+        if(found) return map;
+        else return null;
     }
 
     public boolean rectangleSelect(Rectangle2D rect){
@@ -268,5 +283,11 @@ public abstract class TrackRenderer implements DataRetrievalListener {
      */
     public static int getConstrainedAlpha(int alpha) {
         return alpha < MIN_TRANSPARENCY ? MIN_TRANSPARENCY : (alpha > MAX_TRANSPARENCY ? MAX_TRANSPARENCY : alpha);
+    }
+    
+    public void toggleGroup(ArrayList<Record> recs){
+        if(selectionAllowed(false)){
+            SelectionController.getInstance().toggleGroup(trackName, recs);
+        }
     }
 }

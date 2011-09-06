@@ -1158,8 +1158,14 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
                  * and before we set currentOverRecord. Otherwise, it won't work.
                  */
                 hidePopup();
+                
+                Object[] recs = map.keySet().toArray();
+                if(recs.length > 1) { //if there is more than one record, stop here
+                    repaint();
+                    return;
+                }
 
-                Record overRecord = (Record)map.keySet().toArray()[0];
+                Record overRecord = (Record)recs[0];
                 
                 createJidePopup();
                 PopupPanel pp = PopupPanel.create(this, tracks[0].getDrawingMode(), t.getDataSource(), overRecord);
@@ -1206,8 +1212,16 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         for (Track t: tracks) {
             Map<Record, Shape> map = t.getRenderer().searchPoint(p_offset);
             if (map != null) {
-                Record o = (Record)map.keySet().toArray()[0];
-                t.getRenderer().addToSelected(o);
+                Object[] recs = map.keySet().toArray();
+                if(recs.length == 1){
+                    t.getRenderer().addToSelected((Record)recs[0]);
+                } else {
+                    ArrayList<Record> array = new ArrayList<Record>();
+                    for(Object rec : recs){
+                        array.add((Record)rec);
+                    }
+                    t.getRenderer().toggleGroup(array);
+                }
                 repaint();
                 break;
             }

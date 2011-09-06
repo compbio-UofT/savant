@@ -135,7 +135,7 @@ public abstract class DataSource<E extends Record> implements DataSourceAdapter 
         }
         return null;
     }
-
+    
     public int getDictionaryCount() {
         return dictionaryCount;
     }
