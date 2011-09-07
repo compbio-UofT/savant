@@ -1,24 +1,21 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
-/*
- * StartSubPanel.java
+ *    Copyright 2011 University of Toronto
  *
- * Created on Mar 29, 2011, 12:02:22 AM
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
  */
-
 package savant.view.swing.start;
 
-import java.awt.BasicStroke;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.GradientPaint;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
+import java.awt.*;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -26,6 +23,7 @@ import javax.swing.JScrollPane;
 import javax.swing.border.EmptyBorder;
 
 /**
+ * Sub-panel within the StartPanel.
  *
  * @author mfiume
  */
@@ -37,33 +35,27 @@ public class StartSubPanel extends JPanel {
     }
 
     @Override
-protected void paintComponent(Graphics g) {
+    protected void paintComponent(Graphics g) {
 
-       // g.setColor(new Color(0,0,0,0));
-       // g.fillRect(0, 0, this.getWidth(), this.getHeight());
+        int x = 2;
+        int y = 2;
+        int w = getWidth() - 4;
+        int h = getHeight() - 4;
+        int arc = 30;
 
-    int x = 2;
-    int y = 2;
-    int w = getWidth() - 4;
-    int h = getHeight() - 4;
-    int arc = 30;
+        Graphics2D g2 = (Graphics2D)g;
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-    Graphics2D g2 = (Graphics2D) g.create();
-    g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-            RenderingHints.VALUE_ANTIALIAS_ON);
+        GradientPaint gradient = new GradientPaint(x, y-40, StartPanel.SUBPANEL_TOP_BACKGROUND_COLOR, x, y+40,StartPanel.SUBPANEL_BOTTOM_BACKGROUND_COLOR);
+        g2.setPaint(gradient);
 
-    GradientPaint gradient = new GradientPaint(x, y-40, StartPanel.subpanelbgcolortop, x, y+40,StartPanel.subpanelbgcolor);
-    g2.setPaint(gradient);
+        //g2.setColor(StartPanel.SUBPANEL_BOTTOM_BACKGROUND_COLOR);//new Color(11, 16, 27, 255));
+        g2.fillRoundRect(x, y, w, h, arc, arc);
 
-    //g2.setColor(StartPanel.subpanelbgcolor);//new Color(11, 16, 27, 255));
-    g2.fillRoundRect(x, y, w, h, arc, arc);
-
-    g2.setStroke(new BasicStroke(1f));
-    g2.setColor(StartPanel.outlinecolor);
-    g2.drawRoundRect(x, y, w, h, arc, arc);
-
-    g2.dispose();
-}
+        g2.setStroke(new BasicStroke(1f));
+        g2.setColor(StartPanel.SUBPANEL_OUTLINE_COLOR);
+        g2.drawRoundRect(x, y, w, h, arc, arc);
+    }
 
     /** This method is called from within the constructor to
      * initialize the form.
@@ -90,14 +82,14 @@ protected void paintComponent(Graphics g) {
 
         int margin = 15;
 
-        this.setBorder(new EmptyBorder(margin, margin, margin, margin));
+        setBorder(new EmptyBorder(margin, margin, margin, margin));
 
-        JLabel titlelabel = new JLabel(title);
-        titlelabel.setFont(new Font("Arial", Font.BOLD, 22));
-        titlelabel.setForeground(Color.white);
+        JLabel titleLabel = new JLabel(title);
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 22));
+        titleLabel.setForeground(Color.white);
 
         this.setLayout(new BorderLayout());
-        this.add(titlelabel, BorderLayout.NORTH);
+        this.add(titleLabel, BorderLayout.NORTH);
 
         JScrollPane scroll = new JScrollPane(body);
         scroll.setOpaque(false);

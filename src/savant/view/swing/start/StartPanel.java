@@ -37,10 +37,8 @@ import org.jdom.Element;
 import org.jdom.input.SAXBuilder;
 
 import savant.api.util.DialogUtils;
-import savant.controller.FrameController;
 import savant.controller.ProjectController;
 import savant.controller.RecentProjectsController;
-import savant.controller.RecentTracksController;
 import savant.settings.BrowserSettings;
 import savant.settings.DirectorySettings;
 import savant.settings.PersistentSettings;
@@ -60,14 +58,19 @@ public class StartPanel extends JPanel {
     private static final Font TITLE_FONT = new Font("Arial", Font.BOLD, 16);
     private static final Font DATE_FONT = new Font("Arial", Font.ITALIC, 12);
 
-    static Color bgcolor = Color.darkGray;
-    static Color subpanelbgcolortop = new Color(50,50,50);//
-    static Color subpanelbgcolor = new Color(10,10,10);
-    static Color textcolortop = new Color(0,77,250); //new Color(0,47,125);
-    static Color textcolor = new Color(240,240,240);
-    static Color outlinecolor = new Color(10,10,10);
+    private static final int VERT_SEP = 10;
+    private static final int HOR_SEP = 10;
+    private static final int HEADER_OFFSET = 30;
+    private static final double VERT_MARGIN_PERCENT = 0.1;
+    private static final double HOR_MARGIN_PERCENT = 0.05;
 
-    private StartSubPanel recentTracksPanel;
+
+    private static final Color BACKGROUND_COLOR = Color.DARK_GRAY;
+    private static final Color TEXT_COLOR = new Color(240, 240, 240);
+    static Color SUBPANEL_TOP_BACKGROUND_COLOR = new Color(50, 50, 50);
+    static Color SUBPANEL_BOTTOM_BACKGROUND_COLOR = new Color(10, 10, 10);
+    static Color SUBPANEL_OUTLINE_COLOR = new Color(10, 10, 10);
+
     private StartSubPanel recentProjectsPanel;
     private StartSubPanel helpPanel;
     private StartSubPanel newsPanel;
@@ -110,22 +113,20 @@ public class StartPanel extends JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void init() {
-        this.setBackground(bgcolor);
+        this.setBackground(BACKGROUND_COLOR);
         this.setOpaque(false);
 
-        recentTracksPanel = new StartSubPanel("Recent Tracks", getRecentTracksInnerPanel());
         recentProjectsPanel = new StartSubPanel("Recent Projects", getRecentProjectsInnerPanel());
         newsPanel = new StartSubPanel("Latest News", getNewsInnerPanel());
         helpPanel = new StartSubPanel("Become a Genome Savant", getHelpPanel());
 
-        this.add(recentTracksPanel);
-        this.add(recentProjectsPanel);
-        this.add(newsPanel);
-        //this.add(helpPanel);
+        add(recentProjectsPanel);
+//        add(helpPanel);   Currently disabled.
+        add(newsPanel);
 
         dontShowStartPageButton = new JCheckBox("Don't show Start Page");
         dontShowStartPageButton.setOpaque(false);
-        dontShowStartPageButton.setForeground(textcolor);
+        dontShowStartPageButton.setForeground(TEXT_COLOR);
         dontShowStartPageButton.addActionListener(new ActionListener() {
 
             @Override
@@ -160,7 +161,7 @@ public class StartPanel extends JPanel {
         ((Graphics2D)g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, // Anti-alias!
         RenderingHints.VALUE_ANTIALIAS_ON);
 
-        g.setColor(bgcolor);
+        g.setColor(BACKGROUND_COLOR);
         g.fillRect(0, 0, this.getWidth(), this.getHeight());
         //centerImage(g, logo.getImage(), new Point(this.getWidth()/2, 50));
 
@@ -169,35 +170,17 @@ public class StartPanel extends JPanel {
         int totalwidth = this.getWidth();
         int totalheight = this.getHeight();
 
-        int sideoffset = (int) (totalwidth * percentsidemargin);
-        int topoffset = (int) (totalheight * percenttopmargin);
-
-        int unitheight = (int) (totalheight - (2 * topoffset) - vertsep) / 2;
-        int unitwidth = (int) (totalwidth - (2 * sideoffset) - horsep) / 2;
+        int topoffset = (int) (totalheight * VERT_MARGIN_PERCENT);
 
         g.setFont(new Font("Tahoma", Font.BOLD, 60));
         FontMetrics fm = g.getFontMetrics();
         String bannerstr = "Savant Genome Browser";
         int bannershift = fm.stringWidth(bannerstr)/2;
 
-        int stringx = totalwidth/2 + - bannershift;
-        int stringy = topoffset+pushdownoffset- 20;
-        //GradientPaint gp = new GradientPaint(stringx,stringy-fm.getMaxAscent(),textcolortop,stringx,stringy-fm.getMaxAscent()+40,textcolor);
-        //((Graphics2D)g).setPaint(gp);
-        g.setColor(textcolor);
-        g.drawString(bannerstr, stringx, stringy);
-        //drawScaledImage(g, logo.getImage(), totalwidth/2 - bannershift, topoffset-5, pushdownoffset, pushdownoffset);
-
-        //g.drawImage(logo.getImage().getScaledInstance(10, 10, Image.SCALE_SMOOTH), sideoffset, topoffset, this);
-
-        /*
-        g.drawImage(hint_loadtracks.getImage(), buffer, buffer, this);
-        g.drawImage(hint_activeplugins.getImage(), buffer, this.getHeight() - hint_activeplugins.getIconHeight() - buffer, this);
-        g.drawImage(hint_bookmarks.getImage(), this.getWidth() - hint_bookmarks.getIconWidth() - buffer, buffer, this);
-         * 
-         */
-
-        //g.drawImage(hint_loadtracks.getImage().getScaledInstance(20, -1, Image.SCALE_DEFAULT), buffer, buffer, this);
+        int stringX = totalwidth/2 + - bannershift;
+        int stringY = topoffset+HEADER_OFFSET- 20;
+        g.setColor(TEXT_COLOR);
+        g.drawString(bannerstr, stringX, stringY);
     }
 
     public static void main(String[] argv) {
@@ -218,70 +201,28 @@ public class StartPanel extends JPanel {
         return image.getScaledInstance((int) (image.getWidth(null) * d), (int) (image.getHeight(null) * d), Image.SCALE_SMOOTH);
     }
     
-    int vertsep = 10;
-    int horsep = 10;
-    int pushdownoffset = 30;
-    double percenttopmargin = 0.1;
-    double percentsidemargin = 0.05;
-
     private void configureSizes() {
-        int totalwidth = this.getWidth();
-        int totalheight = this.getHeight();
+        int totalWidth = getWidth();
+        int totalHeight = getHeight();
 
-        int sideoffset = (int) (totalwidth * percentsidemargin);
-        int topoffset = (int) (totalheight * percenttopmargin);
+        int horMargin = (int)(totalWidth * HOR_MARGIN_PERCENT);
+        int vertMargin = (int)(totalHeight * VERT_MARGIN_PERCENT);
 
-        int unitheight = (int) (totalheight - (2 * topoffset) - vertsep) / 2;
-        int unitwidth = (int) (totalwidth - (2 * sideoffset) - horsep) / 2;
+        int unitHeight = (int) (totalHeight - (2 * vertMargin) - VERT_SEP) / 2;
+        int unitWidth = (int) (totalWidth - (2 * horMargin) - HOR_SEP) / 2;
 
-        Dimension unitDim = new Dimension(unitwidth, unitheight);
-        Dimension bigUnitDim = new Dimension(unitwidth, unitheight*2 + vertsep);
+        Dimension unitDim = new Dimension(unitWidth, unitHeight);
+        Dimension bigUnitDim = new Dimension(unitWidth, unitHeight * 2 + VERT_SEP);
 
-        placeComponent(recentTracksPanel, new Point(sideoffset, pushdownoffset+topoffset), unitDim);
-        placeComponent(recentProjectsPanel, new Point(sideoffset, pushdownoffset+totalheight - topoffset - unitheight), unitDim);
-        placeComponent(newsPanel, new Point(sideoffset + unitwidth + horsep, pushdownoffset + topoffset), bigUnitDim);
-        placeComponent(helpPanel, new Point(sideoffset + unitwidth + horsep, pushdownoffset + totalheight - topoffset - unitheight), unitDim);
-        placeComponent(dontShowStartPageButton, new Point(totalwidth-(int) dontShowStartPageButton.getWidth()-5,totalheight-(int) dontShowStartPageButton.getHeight()-5), dontShowStartPageButton.getPreferredSize() );
-        //placeComponent(dontShowStartPageButton, new Point(totalwidth - (int) dontShowStartPageButton.getWidth() - sideoffset, totalheight - (int) dontShowStartPageButton.getHeight() - sideoffset), dontShowStartPageButton.getPreferredSize() );
+        placeComponent(recentProjectsPanel, new Point(horMargin, HEADER_OFFSET + vertMargin), bigUnitDim);
+//        placeComponent(helpPanel, new Point(horMargin, HEADER_OFFSET + totalHeight - vertMargin - unitHeight), unitDim);
+        placeComponent(newsPanel, new Point(horMargin + unitWidth + HOR_SEP, HEADER_OFFSET + vertMargin), bigUnitDim);
+        placeComponent(dontShowStartPageButton, new Point(totalWidth-(int) dontShowStartPageButton.getWidth()-5,totalHeight-(int) dontShowStartPageButton.getHeight()-5), dontShowStartPageButton.getPreferredSize() );
     }
 
     private void placeComponent(JComponent c, Point p, Dimension dim) {
         c.setBounds(p.x, p.y, dim.width, dim.height);
         c.revalidate();
-    }
-
-    private JPanel getRecentTracksInnerPanel() {
-
-        JPanel pan = new JPanel();
-        pan.setOpaque(false);
-        pan.setLayout(new BoxLayout(pan, BoxLayout.Y_AXIS));
-
-        try {
-            List<String> tracks = RecentTracksController.getInstance().getRecentTracks();
-            for (final String t : tracks) {
-
-                pan.add(HyperlinkButton.createHyperlinkButton(t, StartPanel.textcolor, new ActionListener() {
-
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        try {
-                            FrameController.getInstance().addTrackFromPath(t, false);
-                        } catch (Exception x) {
-                            DialogUtils.displayException("Track Error", String.format("<html>Unable to load track <i>%s</i>: %s.</html>", t, x), x);
-                        }
-                    }
-                }));
-            }
-            if (tracks.isEmpty()) {
-                pan.add(createLabel("No recent tracks"));
-            }
-        } // Variables declaration - do not modify
-        // End of variables declaration
-        catch (IOException ex) {
-            pan.add(createLabel("No recent tracks"));
-        }
-
-        return pan;
     }
 
     private JPanel getRecentProjectsInnerPanel() {
@@ -294,7 +235,7 @@ public class StartPanel extends JPanel {
             List<String> projects = RecentProjectsController.getInstance().getRecentProjects();
             for (final String t : projects) {
 
-                pan.add(HyperlinkButton.createHyperlinkButton(t, StartPanel.textcolor, new ActionListener() {
+                pan.add(HyperlinkButton.createHyperlinkButton(t, StartPanel.TEXT_COLOR, new ActionListener() {
 
                     @Override
                     public void actionPerformed(ActionEvent e) {
@@ -310,9 +251,7 @@ public class StartPanel extends JPanel {
             if (projects.isEmpty()) {
                 pan.add(createLabel("No recent projects"));
             }
-        } // Variables declaration - do not modify
-        // End of variables declaration
-        catch (IOException ex) {
+        } catch (IOException ex) {
         }
 
         return pan;
@@ -325,7 +264,7 @@ public class StartPanel extends JPanel {
         l.setLineWrap(true);
         l.setWrapStyleWord(true);
         l.setEditable(false);
-        l.setForeground(StartPanel.textcolor);
+        l.setForeground(StartPanel.TEXT_COLOR);
         l.setOpaque(false);
         return l;
     }
@@ -333,7 +272,7 @@ public class StartPanel extends JPanel {
     private JLabel createLabel(String lab) {
         JLabel l = new JLabel(lab);
         l.setOpaque(false);
-        l.setForeground(StartPanel.textcolor);
+        l.setForeground(StartPanel.TEXT_COLOR);
         l.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         //l.setFont(new Font("Arial", Font.PLAIN, 12));
@@ -385,7 +324,7 @@ public class StartPanel extends JPanel {
 
                 AutoResizingTextArea ta = new AutoResizingTextArea(text);
                 ta.setMaximumSize(new Dimension(99999,1));
-                ta.setForeground(StartPanel.textcolor);
+                ta.setForeground(StartPanel.TEXT_COLOR);
                 ta.setLineWrap(true);
                 ta.setHighlighter(new BlankHighlighter());
                 ta.addMouseListener(new MouseListener() {
@@ -422,11 +361,11 @@ public class StartPanel extends JPanel {
 
                 JLabel title = new JLabel(e.getChildText("title"));
                 title.setFont(TITLE_FONT);
-                title.setForeground(StartPanel.textcolor);
+                title.setForeground(StartPanel.TEXT_COLOR);
 
                 JLabel date = new JLabel(e.getChildText("date"));
                 date.setFont(DATE_FONT);
-                date.setForeground(textcolor);
+                date.setForeground(TEXT_COLOR);
 
                 p.add(Box.createVerticalStrut(10));
 
@@ -440,7 +379,7 @@ public class StartPanel extends JPanel {
                 final String more = e.getChildText("more");
                 if (more != null && more.length() > 0) {
                     JLabel link = new JLabel("More...");
-                    link.setForeground(textcolor);
+                    link.setForeground(TEXT_COLOR);
                     link.setFont(underlined);
                     link.addMouseListener(new MouseAdapter() {
                         @Override
@@ -460,7 +399,7 @@ public class StartPanel extends JPanel {
 
         } catch (Exception e) {
             JLabel l = new JLabel("Problem getting news");
-            l.setForeground(StartPanel.textcolor);
+            l.setForeground(StartPanel.TEXT_COLOR);
             p.add(l);
         }
 
@@ -543,7 +482,7 @@ public class StartPanel extends JPanel {
         pan.setOpaque(false);
         pan.setLayout(new BoxLayout(pan, BoxLayout.Y_AXIS));
 
-        pan.add(HyperlinkButton.createHyperlinkButton("Video Tutorials", StartPanel.textcolor, new ActionListener() {
+        pan.add(HyperlinkButton.createHyperlinkButton("Video Tutorials", StartPanel.TEXT_COLOR, new ActionListener() {
 
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -555,7 +494,7 @@ public class StartPanel extends JPanel {
             }
         }));
 
-        pan.add(HyperlinkButton.createHyperlinkButton("Useful Shortcuts", StartPanel.textcolor, new ActionListener() {
+        pan.add(HyperlinkButton.createHyperlinkButton("Useful Shortcuts", StartPanel.TEXT_COLOR, new ActionListener() {
 
             @Override
             public void actionPerformed(ActionEvent e) {
