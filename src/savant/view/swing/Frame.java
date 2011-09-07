@@ -33,6 +33,7 @@ import savant.controller.FrameController;
 import savant.controller.GenomeController;
 import savant.controller.LocationController;
 import savant.controller.TrackController;
+import savant.controller.event.GenomeChangedEvent;
 import savant.data.event.DataRetrievalEvent;
 import savant.data.event.DataRetrievalListener;
 import savant.data.event.TrackCreationEvent;
@@ -40,6 +41,7 @@ import savant.data.event.TrackCreationListener;
 import savant.file.DataFormat;
 import savant.plugin.SavantPanelPlugin;
 import savant.util.DrawingMode;
+import savant.util.Listener;
 import savant.util.Range;
 import savant.util.swing.ProgressPanel;
 import savant.view.icon.SavantIconFactory;
@@ -223,13 +225,27 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
         setName(t0.getName());
         setKey(t0.getName());
 
-        if (t0.getDataFormat() != DataFormat.SEQUENCE_FASTA) {
+        DataFormat df = t0.getDataFormat();
+        if (df != DataFormat.SEQUENCE_FASTA) {
             yMaxPanel = new JLabel();
             yMaxPanel.setBorder(BorderFactory.createLineBorder(Color.darkGray));
             yMaxPanel.setBackground(new Color(240,240,240));
             yMaxPanel.setOpaque(true);
             yMaxPanel.setAlignmentX(0.5f);
             sidePanel.addPanel(yMaxPanel);
+
+            if (df == DataFormat.INTERVAL_BAM) {
+                // We need to listen to genome changes so that we can redraw mismatches as appropriate.
+                GenomeController.getInstance().addListener(new Listener<GenomeChangedEvent>() {
+                    @Override
+                    public void handleEvent(GenomeChangedEvent event) {
+                        // In certain BAM modes, we care about whether the sequence has been set (or unset).
+                        if (event.getNewGenome() == event.getOldGenome()) {
+                            forceRedraw();
+                        }
+                    }
+                });
+            }
         }
 
         drawTracksInRange(LocationController.getInstance().getReferenceName(), LocationController.getInstance().getRange());
@@ -403,5 +419,9 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
     public void trackCreationFailed(TrackCreationEvent evt) {
         aborted = true;
         FrameController.getInstance().closeFrame(this, false);
+    }
+
+    public void setHeightFromSlider() {
+        commandBar.setHeightFromSlider();
     }
 }

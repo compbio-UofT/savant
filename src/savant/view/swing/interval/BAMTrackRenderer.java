@@ -265,7 +265,7 @@ public class BAMTrackRenderer extends TrackRenderer {
                 if (r == Resolution.HIGH) {
                     // We're switching from coverage (or arc mode) to high resolution.  The initial interval height
                     // will be taken from the slider.
-                    gp.getParentFrame().getCommandBar().setHeightFromSlider();
+                    gp.getParentFrame().setHeightFromSlider();
                 } else {
                     // We're switching to coverage.  Initially scaled by default.
                     gp.setScaledToFit(true);

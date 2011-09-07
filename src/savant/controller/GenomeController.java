@@ -70,12 +70,6 @@ public class GenomeController extends Controller<GenomeChangedEvent> {
             Genome oldGenome = loadedGenome;
             if (!genome.equals(oldGenome)) {
                 loadedGenome = genome;
-                List<Frame> frames = FrameController.getInstance().getFrames();
-                for (Frame f : frames){
-                    if (f.getCommandBar() != null) {
-                        f.getCommandBar().toggleSetAsGenomeButton();
-                    }
-                }
                 fireEvent(new GenomeChangedEvent(oldGenome, loadedGenome));
             }
         }

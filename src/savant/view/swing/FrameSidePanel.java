@@ -168,16 +168,16 @@ public class FrameSidePanel extends JPanel {
     public void setShowPanel(boolean show){
         showPanel = show;
         int necessaryHeight = getNecessaryHeight();
-        if(!show || containerHeight < necessaryHeight){
-            for(JComponent comp : componentList){
-                if(comp.getName() != null && comp.getName().equals("commandBar")) continue;
-                if(comp.isVisible()){
+        if (!show || containerHeight < necessaryHeight) {
+            for (JComponent comp : componentList) {
+                if (comp instanceof FrameCommandBar) continue;
+                if (comp.isVisible()) {
                     tempHidden.add(comp);
                     comp.setVisible(false);
                 }
             }
         } else {
-            for(JComponent comp :tempHidden){
+            for (JComponent comp: tempHidden) {
                 comp.setVisible(true);
             }
             tempHidden.clear();

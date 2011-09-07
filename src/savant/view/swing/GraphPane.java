@@ -663,6 +663,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
 
             if (scaledToFit) {
                 setUnitHeight();
+                LOG.info("setYRange set unit height to " + unitHeight);
             } else {
                 // Adjust ymin to keep the x-axis from dropping down as we scroll along.
                 if ((yMin < 0.0 || oldYMin < 0.0) && oldYMin < yMin) {
@@ -1386,11 +1387,11 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
             if (value) {
                 // If we have just switched to scaled-to-fit mode, we will have to reevaluate our scroll-bars.
                 requestHeight(getViewportHeight());
-                renderRequired = true;
-                repaint();
             } else {
                 axisYPixel = transformYPos(0.0);
             }
+            renderRequired = true;
+            repaint();
         }
     }
 
