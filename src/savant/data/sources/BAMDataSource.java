@@ -77,14 +77,16 @@ public class BAMDataSource extends DataSource<BAMIntervalRecord> {
     }
 
     /**
-     * {@inheritDoc}
+     * Since <code>BAMTrack.retrieveData</code> uses the version of <code>getRecords</code>
+     * which applies filter parameters, this method is not actually used.  It is retained
+     * to keep the compiler happy, and possibly for use by plugins.
      */
     @Override
     public List<BAMIntervalRecord> getRecords(String reference, RangeAdapter range, Resolution resolution) {
-        return getRecords(reference, range, resolution, Double.MAX_VALUE, null, false);
+        return getRecords(reference, range, resolution, Double.MAX_VALUE, null, false, true, true, 0);
     }
 
-    public List<BAMIntervalRecord> getRecords(String reference, RangeAdapter range, Resolution resolution, double threshold, AxisRange axisRange, boolean arcMode) {
+    public List<BAMIntervalRecord> getRecords(String reference, RangeAdapter range, Resolution resolution, double lengthThreshold, AxisRange axisRange, boolean arcMode, boolean includeDuplicates, boolean includeVendorFailed, int qualityThreshold) {
 
         //CloseableIterator<SAMRecord> recordIterator=null;
         SAMRecordIterator recordIterator=null;
@@ -108,17 +110,23 @@ public class BAMDataSource extends DataSource<BAMIntervalRecord> {
             while (recordIterator.hasNext()) {
                 samRecord = recordIterator.next();
                 
-                // don't keep unmapped reads
+                // Don't keep unmapped reads
                 if (samRecord.getReadUnmappedFlag()) continue;
-                
-                //discard reads that
-                if(arcMode){
+
+                // Discard reads that don't match our criteria.
+                if (!includeDuplicates && samRecord.getDuplicateReadFlag()) continue;
+
+                if (!includeVendorFailed && samRecord.getReadFailsVendorQualityCheckFlag()) continue;
+
+                if (samRecord.getMappingQuality() < qualityThreshold) continue;
+
+                if (arcMode) {
                     int arcLength = Math.abs(samRecord.getInferredInsertSize());
                     // skip reads with a zero insert length--probably mapping errors
                     if (arcLength == 0) continue;               
 
-                    if ((axisRange != null && threshold != 0.0d && threshold < 1.0d && arcLength < axisRange.getXRange().getLength()*threshold)
-                            || (threshold > 1.0d && arcLength < threshold)) {
+                    if ((axisRange != null && lengthThreshold != 0.0d && lengthThreshold < 1.0d && arcLength < axisRange.getXRange().getLength()*lengthThreshold)
+                            || (lengthThreshold > 1.0d && arcLength < lengthThreshold)) {
                         continue;
                     }
                 }

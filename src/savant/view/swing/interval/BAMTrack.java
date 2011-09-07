@@ -55,10 +55,13 @@ public class BAMTrack extends Track {
     // if = 0, draw all arcs
     private double arcSizeVisibilityThreshold=0.0d;
 
-    // arcs below discordantMin or above discordantMax are coloured as discordant-by-length
+    // arcs below concordantMin or above concordantMax are coloured as discordant-by-length
     private int concordantMin = 50;
     private int concordantMax = 1000;
     private static int maxBPForYMax = 10000;
+    private boolean includeVendorFailedReads = true;
+    private boolean includeDuplicateReads = true;
+    private int mappingQualityThreshold = 0;
 
     /**
      * Constructor.
@@ -199,6 +202,30 @@ public class BAMTrack extends Track {
         maxBPForYMax = max;
     }
 
+    public boolean getIncludeDuplicateReads() {
+        return includeDuplicateReads;
+    }
+
+    public void setIncludeDuplicateReads(boolean value) {
+        includeDuplicateReads = value;
+    }
+
+    public boolean getIncludeVendorFailedReads() {
+        return includeVendorFailedReads;
+    }
+
+    public void setIncludeVendorFailedReads(boolean value) {
+        includeVendorFailedReads = value;
+    }
+
+    public int getMappingQualityThreshold() {
+        return mappingQualityThreshold;
+    }
+
+    public void setMappingQualityThreshold(int value) {
+        mappingQualityThreshold = value;
+    }
+
     @Override
     public AxisType getYAxisType(Resolution r) {
         return getDrawingMode() == DrawingMode.ARC_PAIRED ? AxisType.INTEGER : AxisType.INTEGER_GRIDLESS;
@@ -206,7 +233,7 @@ public class BAMTrack extends Track {
 
     @Override
     protected synchronized List<Record> retrieveData(String reference, Range range, Resolution resolution) throws Exception {
-        return (List<Record>)(List)((BAMDataSource)getDataSource()).getRecords(reference, range, resolution, getArcSizeVisibilityThreshold(), AxisRange.initWithRanges(range, getDefaultYRange()), getDrawingMode() == DrawingMode.ARC_PAIRED);
+        return (List<Record>)(List)((BAMDataSource)getDataSource()).getRecords(reference, range, resolution, getArcSizeVisibilityThreshold(), AxisRange.initWithRanges(range, getDefaultYRange()), getDrawingMode() == DrawingMode.ARC_PAIRED, includeDuplicateReads, includeVendorFailedReads, mappingQualityThreshold);
     }
     
     public BAMIntervalRecord getMate(BAMIntervalRecord rec) {

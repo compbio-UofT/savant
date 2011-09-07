@@ -42,7 +42,7 @@ import savant.settings.SettingsDialog;
 import savant.util.DrawingMode;
 import savant.util.MiscUtils;
 import savant.util.Resolution;
-import savant.view.dialog.BAMParametersDialog;
+import savant.view.dialog.BamFilterDialog;
 import savant.view.swing.interval.BAMTrack;
 import savant.view.swing.interval.RichIntervalTrack;
 
@@ -191,7 +191,7 @@ public final class FrameCommandBar extends JMenuBar {
             item.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    BAMParametersDialog dlg = new BAMParametersDialog(DialogUtils.getMainWindow(), (BAMTrack)mainTrack);
+                    BamFilterDialog dlg = new BamFilterDialog(DialogUtils.getMainWindow(), (BAMTrack)mainTrack);
                     dlg.setVisible(true);
                 }
             });
