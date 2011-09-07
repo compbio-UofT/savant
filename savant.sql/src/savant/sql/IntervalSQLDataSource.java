@@ -35,9 +35,11 @@ import savant.util.Resolution;
  * @author tarkvara
  */
 public class IntervalSQLDataSource extends SQLDataSource<GenericIntervalRecord> {
+    private final String[] columnNames;
 
     IntervalSQLDataSource(MappedTable table, List<String> references) throws SQLException {
         super(table, references);
+        columnNames = new String[] { columns.chrom, columns.start, columns.end, columns.name };
     }
 
     @Override
@@ -64,6 +66,6 @@ public class IntervalSQLDataSource extends SQLDataSource<GenericIntervalRecord> 
 
     @Override
     public String[] getColumnNames() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return columnNames;
     }
 }
