@@ -368,7 +368,8 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
 
             // colours
             ColourScheme cs = (ColourScheme)instructions.get(DrawingInstruction.COLOR_SCHEME);
-            Color fillColor = cs.getColor(ColourKey.FORWARD_STRAND);
+            Color forwardColor = cs.getColor(ColourKey.FORWARD_STRAND);     // Color also used for no-strand.
+            Color reverseColor = cs.getColor(ColourKey.REVERSE_STRAND);
             Color lineColor = cs.getColor(ColourKey.INTERVAL_LINE);
 
             // antialising, for the chevrons
@@ -380,7 +381,7 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
             List<Interval> noStrandBlocks = new ArrayList<Interval>();
             for (Record record: data) {
                 RichIntervalRecord bedRecord = (RichIntervalRecord)record;
-                Strand strand =  bedRecord.getStrand();
+                Strand strand = bedRecord.getStrand();
 
                 if (strand == Strand.FORWARD) {
                     mergeBlocks(posStrandBlocks, bedRecord);
@@ -452,9 +453,9 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
             }
 
             // Now draw all blocks
-            drawBlocks(posStrandBlocks, posStrandLevel, gp, fillColor, lineColor, g2);
-            drawBlocks(negStrandBlocks, negStrandLevel, gp, fillColor, lineColor, g2);
-            drawBlocks(noStrandBlocks, noStrandLevel, gp, fillColor, lineColor, g2);
+            drawBlocks(posStrandBlocks, posStrandLevel, gp, forwardColor, lineColor, g2);
+            drawBlocks(negStrandBlocks, negStrandLevel, gp, reverseColor, lineColor, g2);
+            drawBlocks(noStrandBlocks, noStrandLevel, gp, forwardColor, lineColor, g2);
         } else {
             throw new RenderingException("Zoom in to see genes/intervals", 0);
         }

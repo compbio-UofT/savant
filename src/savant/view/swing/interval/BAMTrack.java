@@ -81,8 +81,8 @@ public class BAMTrack extends Track {
     @Override
     public DrawingMode[] getValidDrawingModes() {
         return new DrawingMode[] { DrawingMode.STANDARD, DrawingMode.MISMATCH, /*DrawingMode.COLOURSPACE,*/ DrawingMode.SEQUENCE,
-                                   /*DrawingMode.STANDARD_PAIRED,*/ DrawingMode.ARC_PAIRED, DrawingMode.MAPPING_QUALITY, DrawingMode.BASE_QUALITY,
-                                   DrawingMode.SNP, DrawingMode.STRAND_SNP, DrawingMode.READ_PAIRED };
+                                   /*DrawingMode.STANDARD_PAIRED,*/ DrawingMode.READ_PAIRED, DrawingMode.ARC_PAIRED, DrawingMode.MAPPING_QUALITY, DrawingMode.BASE_QUALITY,
+                                   DrawingMode.SNP, DrawingMode.STRAND_SNP };
     }
 
     @Override
