@@ -43,12 +43,10 @@ import savant.data.types.BAMIntervalRecord;
 import savant.data.types.Genome;
 import savant.data.types.Interval;
 import savant.data.types.IntervalRecord;
-import savant.data.types.ReadPairIntervalRecord;
 import savant.data.types.Record;
 import savant.data.types.Strand;
 import savant.exception.RenderingException;
 import savant.settings.BrowserSettings;
-import savant.settings.ColourSettings;
 import savant.util.*;
 import savant.view.swing.GraphPane;
 import savant.view.swing.TrackRenderer;
@@ -245,7 +243,7 @@ public class BAMTrackRenderer extends TrackRenderer {
         Resolution r = (Resolution)instructions.get(DrawingInstruction.RESOLUTION);
 
         if (r == Resolution.HIGH) {
-            if (lastMode == DrawingMode.MISMATCH || lastMode == DrawingMode.SNP || lastMode == DrawingMode.STRAND_SNP || lastMode == DrawingMode.COLOURSPACE || lastMode == DrawingMode.SEQUENCE || lastMode == DrawingMode.BASE_QUALITY || lastMode == DrawingMode.READ_PAIRED){
+            if (lastMode == DrawingMode.MISMATCH || lastMode == DrawingMode.SNP || lastMode == DrawingMode.STRAND_SNP || lastMode == DrawingMode.COLOURSPACE || lastMode == DrawingMode.SEQUENCE || lastMode == DrawingMode.BASE_QUALITY || lastMode == DrawingMode.STANDARD_PAIRED) {
                 // fetch reference sequence for comparison with cigar string
                 Genome genome = GenomeController.getInstance().getGenome();
                 if(genome.isSequenceSet()){
@@ -292,11 +290,11 @@ public class BAMTrackRenderer extends TrackRenderer {
                 break;
             case STANDARD_PAIRED:
                 if (r == Resolution.HIGH) {
-                    renderStandardMatepairMode(g2, gp, r);
+                    renderStandardPairedMode(g2, gp);
                 }
                 break;
             case ARC_PAIRED:
-                renderArcMatepairMode(g2, gp);
+                renderArcPairedMode(g2, gp);
                 break;
             case SNP:
                 if (r == Resolution.HIGH) {
@@ -308,83 +306,9 @@ public class BAMTrackRenderer extends TrackRenderer {
                     renderStrandSNPMode(g2, gp, r);
                 }
                 break;
-            case READ_PAIRED:
-                if (r == Resolution.HIGH) {
-                    renderReadPairMode(g2, gp);
-                }
         }
         if (data.isEmpty()){
             throw new RenderingException("No data in range", 1);
-        }
-    }
-
-    private void renderStandardMatepairMode(Graphics2D g2, GraphPane gp, Resolution resolution) throws RenderingException {
-
-        AxisRange axisRange = (AxisRange) instructions.get(DrawingInstruction.AXIS_RANGE);
-        Range range = axisRange.getXRange();
-
-        List mates = ReadPairIntervalRecord.getMatePairs(data);
-        Collections.sort(mates);
-
-        IntervalPacker packer = new IntervalPacker(mates);
-        List<List<IntervalRecord>> intervals = packer.pack(2);
-
-        gp.setXRange(axisRange.getXRange());
-        int maxYRange;
-        int numIntervals = intervals.size();
-
-        // Set the Y range to the closest value of 10, 20, 50, 100, n*100
-        if (numIntervals <= 10) maxYRange = 10;
-        else if (numIntervals <= 20) maxYRange = 20;
-        else if (numIntervals <=50) maxYRange = 50;
-        else if (numIntervals <= 100) maxYRange = 100;
-        else maxYRange = numIntervals;
-        gp.setYRange(new Range(0,maxYRange));
-
-        //resize frame if necessary
-        if (gp.needsToResize()) return;
-
-        ColourScheme cs = (ColourScheme) instructions.get(DrawingInstruction.COLOR_SCHEME);
-        Color linecolor = cs.getColor(ColourKey.INTERVAL_LINE);
-
-        // scan the map of intervals and draw the intervals for each level
-        for (int level=0; level<intervals.size(); level++) {
-
-            List<IntervalRecord> intervalsThisLevel = intervals.get(level);
-
-            for (IntervalRecord intervalRecord : intervalsThisLevel) {
-
-                //Interval interval = intervalRecord.getInterval();
-
-                ReadPairIntervalRecord mrecord = (ReadPairIntervalRecord) intervalRecord;
-
-                if (mrecord.isSingleton()) {
-
-                    SAMRecord samRecord = mrecord.getSingletonRecord();
-
-                    if (samRecord.getReadUnmappedFlag()) { // this read is unmapped, don't visualize it
-
-                        recordToShapeMap.put(intervalRecord, null);
-
-                        continue;
-                    }
-
-                    Color readcolor = null;
-
-                    boolean strandFlag = samRecord.getReadNegativeStrandFlag();
-                    g2.setColor(cs.getColor(strandFlag ? ColourKey.REVERSE_STRAND : ColourKey.FORWARD_STRAND));
-
-                    Polygon readshape = renderRead(g2, gp, samRecord, intervalRecord.getInterval(), level, range, readcolor);
-
-                    recordToShapeMap.put(intervalRecord, readshape);
-
-                    // Draw outline, if there's room.
-                    if (readshape.getBounds().getHeight() > 4) {
-                        g2.setColor(linecolor);
-                        g2.draw(readshape);
-                    }
-                }
-            }
         }
     }
 
@@ -492,13 +416,11 @@ public class BAMTrackRenderer extends TrackRenderer {
 
     }
 
-    public Polygon renderRead(Graphics2D g2, GraphPane gp, SAMRecord samRecord, Interval interval,
-                                 int level, Range range, Color c) {
+    public Polygon renderRead(Graphics2D g2, GraphPane gp, SAMRecord samRecord, Interval interval, int level, Range range, Color c) {
         return renderRead(g2, gp, samRecord, interval, level, range, c, -1);
     }
         
-    public Polygon renderRead(Graphics2D g2, GraphPane gp, SAMRecord samRecord, Interval interval,
-                                 int level, Range range, Color c, double forcedHeight) {
+    public Polygon renderRead(Graphics2D g2, GraphPane gp, SAMRecord samRecord, Interval interval, int level, Range range, Color c, double forcedHeight) {
 
         double x=0;
         double y=0;
@@ -575,38 +497,6 @@ public class BAMTrackRenderer extends TrackRenderer {
         g2.fill(pointyBar);
 
         return pointyBar;
-
-    }
-
-    private void renderBaseQualities(Graphics2D g2, GraphPane gp, SAMRecord samRecord, int level, Range range, Color baseColor) {
-        
-        double unitHeight;
-        double unitWidth;
-        unitHeight = gp.getUnitHeight();
-        unitWidth = gp.getUnitWidth();
-        
-        // cutoffs to determine when not to draw
-        double leftMostX = gp.transformXPos(range.getFrom());
-        double rightMostX = gp.transformXPos(range.getTo() + 1);
-
-        // visualize variations (indels and mismatches)
-        int alignmentStart = samRecord.getAlignmentStart();
-        //int alignmentEnd = samRecord.getAlignmentEnd();
-
-        int sequenceCursor = alignmentStart;
-
-        for (byte q : samRecord.getBaseQualities()) {
-            int alpha = getConstrainedAlpha((int)Math.round((q * 0.025) * 255));
-
-            int xCoordinate = (int)gp.transformXPos(sequenceCursor);
-             Rectangle2D.Double opRect = new Rectangle2D.Double(xCoordinate,
-                                    gp.transformYPos(0)-((level + 1)*unitHeight) - gp.getOffset(),
-                                    unitWidth,
-                                    unitHeight);
-                            g2.setColor(new Color(baseColor.getRed(),baseColor.getGreen(),baseColor.getBlue(),alpha));
-                            g2.fill(opRect);
-            sequenceCursor++;
-        }
 
     }
 
@@ -1216,7 +1106,7 @@ public class BAMTrackRenderer extends TrackRenderer {
 
     }
    
-    private void renderArcMatepairMode(Graphics2D g2, GraphPane gp) {
+    private void renderArcPairedMode(Graphics2D g2, GraphPane gp) {
 
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
@@ -1647,7 +1537,7 @@ public class BAMTrackRenderer extends TrackRenderer {
         
     }
 
-    private void renderReadPairMode(Graphics2D g2, GraphPane gp) throws RenderingException {
+    private void renderStandardPairedMode(Graphics2D g2, GraphPane gp) throws RenderingException {
 
         AxisRange axisRange = (AxisRange) instructions.get(DrawingInstruction.AXIS_RANGE);
         ColourScheme cs = (ColourScheme) instructions.get(DrawingInstruction.COLOR_SCHEME);
