@@ -663,7 +663,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
 
             if (scaledToFit) {
                 setUnitHeight();
-                LOG.info("setYRange set unit height to " + unitHeight);
+                LOG.debug("setYRange set unit height to " + unitHeight);
             } else {
                 // Adjust ymin to keep the x-axis from dropping down as we scroll along.
                 if ((yMin < 0.0 || oldYMin < 0.0) && oldYMin < yMin) {

@@ -106,7 +106,9 @@ public final class FrameCommandBar extends JMenuBar {
             add(intervalMenu);
 
             drawModeChanged(mainTrack.getDrawingMode());
-            setHeightFromSlider();
+            int h = getIntervalHeight();
+            graphPane.setUnitHeight(h);
+            graphPane.setScaledToFit(false);
         }
     }
 
@@ -323,11 +325,13 @@ public final class FrameCommandBar extends JMenuBar {
                     if (scaleToFitItem.isSelected()) {
                         graphPane.setScaledToFit(true);
                     } else {
-                        if (intervalSlider != null) {
-                            setHeightFromSlider();      // Calls setScaledToFit(false) internally.
-                        } else {
-                            graphPane.setScaledToFit(false);
+                        // This check is kinda ugly, but we only want to set the interval height from the slider
+                        // if we're showing intervals (i.e. not arc mode and not coverage).
+                        if (intervalSlider != null && mainTrack.getDrawingMode() != DrawingMode.ARC && mainTrack.getDrawingMode() != DrawingMode.ARC_PAIRED && mainTrack.getResolution(LocationController.getInstance().getRange()) == Resolution.HIGH) {
+                            int h = getIntervalHeight();
+                            graphPane.setUnitHeight(h);
                         }
+                        graphPane.setScaledToFit(false);
                     }
                 }
             });
@@ -402,9 +406,9 @@ public final class FrameCommandBar extends JMenuBar {
         intervalSlider.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
-                setHeightFromSlider();
-                graphPane.setRenderForced();
-                graphPane.repaint();
+                int h = getIntervalHeight();
+                graphPane.setUnitHeight(h);
+                graphPane.setScaledToFit(false);
             }
         });
         menu.add(intervalSlider);
@@ -413,20 +417,17 @@ public final class FrameCommandBar extends JMenuBar {
     }
 
     /**
-     * Set the unit-height based on the current position of the interval slider.
+     * Get the unit-height which corresponds to the current position of the interval slider.
      */
-    void setHeightFromSlider() {
+    public int getIntervalHeight() {
         int slider = intervalSlider.getValue() - 1; //starts at 1
-        int height;
         if (slider < 0) {
-            height = AVAILABLE_INTERVAL_HEIGHTS[0];
+            return AVAILABLE_INTERVAL_HEIGHTS[0];
         } else if (slider >= AVAILABLE_INTERVAL_HEIGHTS.length) {
-            height = AVAILABLE_INTERVAL_HEIGHTS[AVAILABLE_INTERVAL_HEIGHTS.length - 1];
+            return AVAILABLE_INTERVAL_HEIGHTS[AVAILABLE_INTERVAL_HEIGHTS.length - 1];
         } else {
-            height = AVAILABLE_INTERVAL_HEIGHTS[slider];
+            return AVAILABLE_INTERVAL_HEIGHTS[slider];
         }
-        graphPane.setUnitHeight(height);
-        graphPane.setScaledToFit(false);
     }
 
     /**

@@ -235,9 +235,6 @@ public class BAMTrackRenderer extends TrackRenderer {
     @Override
     public void render(Graphics2D g2, GraphPane gp) throws RenderingException {
 
-        // Put up an error message if we don't want to do any rendering.
-        renderPreCheck();
-
         DrawingMode oldMode = lastMode;
         lastMode = (DrawingMode)instructions.get(DrawingInstruction.MODE);
         Resolution r = (Resolution)instructions.get(DrawingInstruction.RESOLUTION);
@@ -276,6 +273,10 @@ public class BAMTrackRenderer extends TrackRenderer {
                 gp.setScaledToFit(true);
             }
         }
+
+        // Put up an error message if we don't want to do any rendering.
+        // The pre-check is here so that necessary calls to setScaledToFit() have a chance to happen.
+        renderPreCheck();
 
         switch (lastMode) {
             case STANDARD:
@@ -811,8 +812,7 @@ public class BAMTrackRenderer extends TrackRenderer {
         if(forcedHeight > 0){
             unitHeight = forcedHeight;
         }
-        
-        
+
         double unitWidth = gp.getUnitWidth();
         int offset = gp.getOffset();
 
