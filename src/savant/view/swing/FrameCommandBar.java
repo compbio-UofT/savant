@@ -419,7 +419,7 @@ public final class FrameCommandBar extends JMenuBar {
     /**
      * Get the unit-height which corresponds to the current position of the interval slider.
      */
-    public int getIntervalHeight() {
+    int getIntervalHeight() {
         int slider = intervalSlider.getValue() - 1; //starts at 1
         if (slider < 0) {
             return AVAILABLE_INTERVAL_HEIGHTS[0];

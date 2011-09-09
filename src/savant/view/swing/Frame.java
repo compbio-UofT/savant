@@ -421,6 +421,10 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
         FrameController.getInstance().closeFrame(this, false);
     }
 
+    public int getIntervalHeight() {
+        return commandBar.getIntervalHeight();
+    }
+
     public void setHeightFromSlider() {
         int h = commandBar.getIntervalHeight();
         graphPane.setUnitHeight(h);

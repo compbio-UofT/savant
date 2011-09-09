@@ -1510,7 +1510,7 @@ public class BAMTrackRenderer extends TrackRenderer {
             c2 = cs.getColor(ColourKey.FORWARD_STRAND);
         }
         
-        int readHeight = 30;
+        int readHeight = gp.getParentFrame().getIntervalHeight();
 
         Polygon p1 = renderRead(g2, gp, rec1.getSamRecord(), rec1.getInterval(), 0, range, c1, readHeight);
         g2.setColor(Color.BLACK);
