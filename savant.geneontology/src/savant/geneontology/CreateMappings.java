@@ -12,17 +12,13 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Writer;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import javax.xml.parsers.ParserConfigurationException;
 import org.jdom.Document;
 import org.jdom.Element;
-import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
-import org.xml.sax.SAXException;
 import savant.settings.DirectorySettings;
 
 
@@ -39,7 +35,7 @@ public class CreateMappings {
      * Location of the XML file which is to be parsed for location of files.
      */
     public static final String LOCATION_XML = 
-            "http://savantbrowser.com/nirvana/GOmap.xml";
+            "http://genomesavant.com//nirvana/GOmap.xml";
     
     /**
      * Tries to open an input stream from the url given.

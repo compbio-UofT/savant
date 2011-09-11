@@ -3,10 +3,6 @@
  * and open the template in the editor.
  */
 
-//ftp://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/idmapping/
-// Use idmapping.dat.gz to map to RefSeq, then, use UCSC to map to genomic positions.
-
-// See http://www.java2s.com/Code/Java/File-Input-Output/GZipwithGZIPOutputStream.htm
 package savant.geneontology;
 
 import java.awt.BorderLayout;
