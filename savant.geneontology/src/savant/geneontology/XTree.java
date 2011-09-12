@@ -65,6 +65,11 @@ public class XTree {
 //        makeMapRefSeqToLoc(goToLocs);
     }
     
+    
+    public int getSize(){
+        return identifierToNode.keySet().size();
+    }
+    
     /**
      * Get the root nodes of this tree.
      * @return the actual roots of this forest (XNode objects).
@@ -168,6 +173,10 @@ public class XTree {
             rootRef = root;
             identifierToNode.put(rootRef.getIdentifier(), rootRef);
         }
+        else{
+            root.copyInfoExceptChildrenTo(rootRef);
+            root = rootRef;
+        }
         
         // Add this node as a child to the fake root.
         fakeRoot.addChild(root);
@@ -177,7 +186,7 @@ public class XTree {
     }
     
         /**
-     * Map GO ID to Uniprot ID.
+     * Map GO ID to locations.
      * @param filename the name of the file containing the information.
      * @return a map of GO ID to Uniprot ID. 
      */

@@ -47,6 +47,7 @@ import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeSelectionModel;
 import savant.api.util.NavigationUtils;
+import savant.api.util.RangeUtils;
 
 /**
  *
@@ -204,7 +205,6 @@ HyperlinkListener, WindowListener, PropertyChangeListener{
         Box buttonBox = new Box(BoxLayout.X_AXIS);
         buttonBox.setBorder(new EmptyBorder(new Insets(5, 10, 5, 10)));
         center.add(buttonBox, BorderLayout.NORTH);
-        // http://java.sun.com/developer/technicalArticles/GUI/swing/wizard/
         backButton = new JButton("<Back");
         backButton.addActionListener(new BackAndForwardListener("<Back", this));
         forwardButton = new JButton("Next>");
@@ -424,7 +424,7 @@ HyperlinkListener, WindowListener, PropertyChangeListener{
         int start = Integer.parseInt( (dialogTable.getValueAt(row, 1) + "").trim() );
         int end = Integer.parseInt( (dialogTable.getValueAt(row, 2) + "").trim() );
 
-        NavigationUtils.navigateTo(chromosome, NavigationUtils.createRange(start, end));
+        NavigationUtils.navigateTo(chromosome, RangeUtils.createRange(start, end));
     }
 
     @Override
@@ -630,6 +630,7 @@ HyperlinkListener, WindowListener, PropertyChangeListener{
             // (o/w, we do not have records for this anyway).
             if (loc.get(0).equals(located) && !loc.get(1).matches(".*_.*")){
                 
+                // BED-formatting: need to subtract 1.
                 int endPos = Integer.parseInt(loc.get(3).trim()) - 1;
                 String acc = loc.get(1) + "\t" + loc.get(2) + "\t" + endPos;
                 locations.add(acc);

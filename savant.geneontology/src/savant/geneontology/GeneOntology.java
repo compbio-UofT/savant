@@ -62,7 +62,7 @@ public class GeneOntology extends SavantPanelPlugin {
             catch(Exception e){
 
                 container.add(new JLabel("Could not load Gene Ontology plug-in"), BorderLayout.CENTER);
-//                System.out.println(e);
+                System.out.println(e);
             }
             // say when we are done
             setProgress(100);

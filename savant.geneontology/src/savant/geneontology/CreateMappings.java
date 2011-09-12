@@ -165,7 +165,7 @@ public class CreateMappings {
         while ((line = buffer.readLine()) != null){
             
             String[] split = line.split("\t");
-            
+           
             // forget about those lines where the qualifier is NOT.
             if (split[5].trim().equals("NOT")){
                 continue;
@@ -204,7 +204,7 @@ public class CreateMappings {
      * @return the map from ref seq ID to genome information. Genome information
      * is contained in a list with at index 0: the chromosome, at index 1: the 
      * start position, at index 2: the end position.  Note that the value may 
-     * contain many such arrays.
+     * contain many such arrays. (Note BED formatting.)
      */
     private static HashMap<String, ArrayList<ArrayList<String>>> 
             mapRefSeqToGenome() throws Exception{

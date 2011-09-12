@@ -63,8 +63,7 @@ class XMLontology {
         // Parse through the file, and get the xtree to be made and return it.
         parseXMLFile(true, handler);
         
-        // No need to delete the file here coz it is automatically deleted.
-        
+        // No need to delete the file here: it is automatically deleted.
         return tree;
     }
     
@@ -106,7 +105,7 @@ class XMLontology {
          */
         private String stringAcc;
         
-        private StringBuilder strBuilder;
+//        private StringBuilder strBuilder;
         
         Handler(XTree tree, String locationOfFile){
             
@@ -117,7 +116,7 @@ class XMLontology {
             this.haveSeenTerm = false;
             this.isRoot = false;
             stringAcc = "";
-            strBuilder = new StringBuilder();
+//            strBuilder = new StringBuilder();
         }
         
         @Override
@@ -134,9 +133,8 @@ class XMLontology {
                 haveSeenTerm = true;
             }
             
-            strBuilder = new StringBuilder();
+//            strBuilder = new StringBuilder();
             stringAcc = "";
-
         }
         
         @Override
@@ -208,10 +206,6 @@ class XMLontology {
          */
         public void characters(char[] ch, int start, int length){
             
-//            stringAcc = "";
-//            StringBuffer buf = new StringBuffer();
-//            buf.append(ch, start, length);
-//            stringAcc = buf.toString();
             StringBuilder buf = new StringBuilder();
             buf.append(ch, start, length);
             stringAcc = stringAcc + buf.toString();

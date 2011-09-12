@@ -40,7 +40,7 @@ public class XNode implements Comparable{
     private String url;
     
     /**
-     * Keep track of the uniprot ID associated with this node, if any.
+     * Keep track of the locations associated with this node, if any.
      */
     private ArrayList<ArrayList<String>> locs;    
     
