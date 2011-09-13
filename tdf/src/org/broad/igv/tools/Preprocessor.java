@@ -575,7 +575,7 @@ public class Preprocessor implements DataConsumer {
         int tileNumber;
         int tileStart;
         int lastFinishedBin = 0;
-        float binWidth;
+        double binWidth;
         int nBins;
         int nonEmptyBins;
         Accumulator[][] accumulators;
@@ -588,7 +588,7 @@ public class Preprocessor implements DataConsumer {
             this.tileNumber = tileNumber;
             this.tileStart = tileNumber * tileWidth;
             this.nBins = nBins;
-            this.binWidth = ((float) tileWidth) / nBins;
+            this.binWidth = ((double) tileWidth) / nBins;
             this.accumulators = new Accumulator[nTracks][nBins];
         }
 

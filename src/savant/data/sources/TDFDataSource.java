@@ -88,12 +88,17 @@ public class TDFDataSource extends DataSource<GenericContinuousRecord> {
                     int datumEnd = t.getEndPosition(i);
                     if (nextPos < datumEnd) {
                         int datumStart = t.getStartPosition(i);
-                        LOG.debug("Tile " + i + " from " + datumStart + " to " + datumEnd);
                         // If there's a gap before the data starts, fill it with NaNs.
-                        while (nextPos < datumStart && nextPos <= rangeEnd) {
-                            result.add(GenericContinuousRecord.valueOf(ref, nextPos += usefulStep, Float.NaN));
+                        if (datumStart == nextPos + 1 && usefulStep > 2) {
+                            // Special case.  TDF formatter occasionally leaves a gap of one base between tiles.  This isn't a real NaN.
+                            LOG.debug("Skipping NaN hole at " + nextPos);
+                        } else {
+                            while (nextPos < datumStart && nextPos <= rangeEnd) {
+                                result.add(GenericContinuousRecord.valueOf(ref, nextPos += usefulStep, Float.NaN));
+                            }
                         }
                         float datum = t.getValue(0, i);
+                        LOG.debug("Tile " + i + " from " + datumStart + " to " + datumEnd + "=" + datum);
                         while (nextPos < datumEnd && nextPos <= rangeEnd) {
                             result.add(GenericContinuousRecord.valueOf(ref, nextPos += usefulStep, datum));
                         }
