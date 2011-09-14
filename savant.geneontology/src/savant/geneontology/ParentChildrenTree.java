@@ -652,7 +652,9 @@ HyperlinkListener, WindowListener, PropertyChangeListener{
         dialogTable = new JTable(data, headers);
         dialogTable.setVisible(true);
         dialogTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        
+        if (dialogTable.getRowCount() > 0) {
+            dialogTable.getSelectionModel().setSelectionInterval(0, 0);
+        }
         JScrollPane paneForTable = new JScrollPane(dialogTable);
         paneForTable.setPreferredSize(new Dimension(400, 70));
         
