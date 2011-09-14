@@ -233,7 +233,8 @@ public class BAMTrack extends Track {
 
     @Override
     protected synchronized List<Record> retrieveData(String reference, Range range, Resolution resolution) throws Exception {
-        return (List<Record>)(List)((BAMDataSource)getDataSource()).getRecords(reference, range, resolution, getArcSizeVisibilityThreshold(), AxisRange.initWithRanges(range, getDefaultYRange()), getDrawingMode() == DrawingMode.ARC_PAIRED, includeDuplicateReads, includeVendorFailedReads, mappingQualityThreshold);
+        DrawingMode mode = getDrawingMode();
+        return (List<Record>)(List)((BAMDataSource)getDataSource()).getRecords(reference, range, resolution, getArcSizeVisibilityThreshold(), AxisRange.initWithRanges(range, getDefaultYRange()), mode == DrawingMode.STANDARD_PAIRED || mode == DrawingMode.ARC_PAIRED, includeDuplicateReads, includeVendorFailedReads, mappingQualityThreshold);
     }
     
     public BAMIntervalRecord getMate(BAMIntervalRecord rec) {

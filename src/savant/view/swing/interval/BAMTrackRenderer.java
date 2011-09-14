@@ -318,7 +318,7 @@ public class BAMTrackRenderer extends TrackRenderer {
         if (lastMode == DrawingMode.MISMATCH) {
             Genome genome = GenomeController.getInstance().getGenome();
             if (!genome.isSequenceSet()) {
-                throw new RenderingException("No reference sequence loaded. Switch to standard view", 2);
+                throw new RenderingException("No reference sequence loaded\nSwitch to standard display mode", 2);
             }
         }
 
@@ -1087,7 +1087,7 @@ public class BAMTrackRenderer extends TrackRenderer {
         gp.setYRange(axisRange.getYRange());
 
         // iterate through the data and draw
-        LOG.info("BAMTrackRenderer.renderArcMatePairMode: " + data.size() + " records.");
+        LOG.debug("BAMTrackRenderer.renderArcMatePairMode: " + data.size() + " records.");
         for (Record record: data) {
             BAMIntervalRecord bamRecord = (BAMIntervalRecord)record;
             SAMRecord samRecord = bamRecord.getSamRecord();
@@ -1531,7 +1531,6 @@ public class BAMTrackRenderer extends TrackRenderer {
 
             //if mate off screen to the right, draw immediately
             if(samRecord.getMateAlignmentStart() > range.getTo()){
-                LOG.info("Offscreen right for " + interval);
                 int level = computePiledIntervalLevel(levels, Interval.valueOf(interval.getStart(), effectiveEnd));
                 savedDraws.add(new DrawStore(intervalRecord, samRecord, level, Interval.valueOf(effectiveEnd + 1, Integer.MAX_VALUE), null));
                 continue;
@@ -1540,7 +1539,6 @@ public class BAMTrackRenderer extends TrackRenderer {
             //check if mate has already been found
             IntervalRecord mate = popMate(mateQueue.get(samRecord.getMateAlignmentStart()), samRecord);
             if(mate != null){
-                LOG.info("Piling pair " + interval + " with " + mate.getInterval());
                 int level = computePiledIntervalLevel(levels, 
                         Interval.valueOf(Math.min(interval.getStart(), mate.getInterval().getStart()),
                         Math.max(interval.getEnd(), mate.getInterval().getEnd())));
@@ -1550,7 +1548,6 @@ public class BAMTrackRenderer extends TrackRenderer {
 
                 continue;
             }
-            LOG.info("No mate yet, queuing read at " + interval);
 
             //if mate not yet found, add to map queue
             if(mateQueue.get(interval.getStart()) == null){
@@ -1627,7 +1624,6 @@ public class BAMTrackRenderer extends TrackRenderer {
      * Connect intervals i1 and i2 with a dashed line to show mates. 
      */
     private void connectPiledInterval(Graphics2D g2, GraphPane gp, Interval i1, Interval i2, int level, Color linecolor, IntervalRecord ir1, IntervalRecord ir2){
-        LOG.debug("connectPiledInterval " + i1 + "–" + i2 + " at level " + level);
         Interval mateInterval = computeMateInterval(i1, i2);
 
         Stroke currentStroke = g2.getStroke();

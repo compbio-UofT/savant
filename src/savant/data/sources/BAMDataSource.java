@@ -86,7 +86,7 @@ public class BAMDataSource extends DataSource<BAMIntervalRecord> {
         return getRecords(reference, range, resolution, Double.MAX_VALUE, null, false, true, true, 0);
     }
 
-    public List<BAMIntervalRecord> getRecords(String reference, RangeAdapter range, Resolution resolution, double lengthThreshold, AxisRange axisRange, boolean arcMode, boolean includeDuplicates, boolean includeVendorFailed, int qualityThreshold) {
+    public List<BAMIntervalRecord> getRecords(String reference, RangeAdapter range, Resolution resolution, double lengthThreshold, AxisRange axisRange, boolean pairMode, boolean includeDuplicates, boolean includeVendorFailed, int qualityThreshold) {
 
         //CloseableIterator<SAMRecord> recordIterator=null;
         SAMRecordIterator recordIterator=null;
@@ -120,7 +120,7 @@ public class BAMDataSource extends DataSource<BAMIntervalRecord> {
 
                 if (samRecord.getMappingQuality() < qualityThreshold) continue;
 
-                if (arcMode) {
+                if (pairMode) {
                     int arcLength = Math.abs(samRecord.getInferredInsertSize());
                     // skip reads with a zero insert length--probably mapping errors
                     if (arcLength == 0) continue;               
