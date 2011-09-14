@@ -57,7 +57,7 @@ public class TDFDataSource extends DataSource<GenericContinuousRecord> {
     private String rawUnhomogenised;
 
     public TDFDataSource(URI uri) throws IOException {
-        tdf = TDFReader.getReader(uri.getPath());
+        tdf = TDFReader.getReader(uri.toString());
         this.uri = uri;
     }
 
@@ -148,12 +148,19 @@ public class TDFDataSource extends DataSource<GenericContinuousRecord> {
             }
         }
         // The desired zoom is the one for which the screen is filled.
+        TDFDataset result = null;
         int zoom = (int)(Math.log(refLen / rangeLen) / LOG2);
         if (zoom <= maxZoom) {
             LOG.info("Using zoomed dataset " + zoom);
-            return tdf.getDataset(ref, zoom, WindowFunction.mean);
+            result = tdf.getDataset(ref, zoom, WindowFunction.mean);
+            if (result == null) {
+                result = tdf.getDataset("chr" + ref, zoom, WindowFunction.mean);
+            }
         }
-        return tdf.getDataset(rawUnhomogenised);
+        if (result == null) {
+            result = tdf.getDataset(rawUnhomogenised);
+        }
+        return result;
     }
 
     @Override
