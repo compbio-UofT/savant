@@ -61,6 +61,7 @@ public class ProgressPanel extends JPanel {
 
         if (cancellationListener != null) {
             cancelButton = new JButton(SavantIconFactory.getInstance().getIcon(SavantIconFactory.StandardIcon.CLOSE_LIGHT));
+            cancelButton.setContentAreaFilled(false);
             cancelButton.setBorderPainted(false);
             cancelButton.setRolloverIcon(SavantIconFactory.getInstance().getIcon(SavantIconFactory.StandardIcon.CLOSE_DARK));
             cancelButton.addActionListener(cancellationListener);
