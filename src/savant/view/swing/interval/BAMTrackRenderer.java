@@ -806,7 +806,6 @@ public class BAMTrackRenderer extends TrackRenderer {
     public void renderMismatches(Graphics2D g2, GraphPane gp, SAMRecord samRecord, int level, byte[] refSeq, Range range, double forcedHeight) {
 
         ColourScheme cs = (ColourScheme) instructions.get(DrawingInstruction.COLOR_SCHEME);
-        Color linecolor = cs.getColor(ColourKey.INTERVAL_LINE);
 
         double unitHeight = gp.getUnitHeight();
         if(forcedHeight > 0){
@@ -851,40 +850,10 @@ public class BAMTrackRenderer extends TrackRenderer {
 
             if (operator == CigarOperator.D) {
                 // Deletion
-                double width = gp.getWidth(operatorLength);
-                if (width < 1) width = 1;
-                opRect = new Rectangle2D.Double(
-                        opStart,
-                        gp.transformYPos(0)-((level + 1)*unitHeight)-offset,
-                        Math.max(opWidth, 1),
-                        unitHeight);
-                g2.setColor(Color.black);
-                g2.fill(opRect);
+                renderDeletion(g2, gp, opStart, level, operatorLength);
             } else if (operator == CigarOperator.I) {
                 // Insertion
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(Color.white);
-                int xCoordinate = (int)gp.transformXPos(sequenceCursor);
-                int yCoordinate = (int)(gp.transformYPos(0)-((level + 1)*unitHeight)) + 1 - offset;
-                if((int)unitWidth/3 < 4 || (int)(unitHeight/2) < 6){
-                    yCoordinate = yCoordinate - 1;
-                    int lineWidth = Math.max((int)(unitWidth * (2.0/3.0)), 1);
-                    int xCoordinate1 = (int)(opStart - Math.floor(lineWidth/2));
-                    int xCoordinate2 = (int)(opStart - Math.floor(lineWidth/2)) + lineWidth - 1;
-                    if(xCoordinate1 == xCoordinate2) xCoordinate2++;
-                    int[] xPoints = {xCoordinate1, xCoordinate2, xCoordinate2, xCoordinate1};
-                    int[] yPoints = {yCoordinate, yCoordinate, yCoordinate+(int)unitHeight, yCoordinate+(int)unitHeight};
-                    g2.fillPolygon(xPoints, yPoints, 4);
-                } else {
-                    int[] xPoints = {xCoordinate, xCoordinate+(int)(unitWidth/3), xCoordinate, xCoordinate-(int)(unitWidth/3)};
-                    int[] yPoints = {yCoordinate, yCoordinate+(int)(unitHeight/2), yCoordinate+(int)unitHeight-1, yCoordinate+(int)(unitHeight/2)};
-                    g2.fillPolygon(xPoints, yPoints, 4);
-                    if((int)unitWidth/3 >= 7 && (int)(unitHeight/2) >= 5){
-                        g2.setColor(linecolor);
-                        g2.drawLine(xCoordinate, (int)yCoordinate, xCoordinate, (int)(yCoordinate+unitHeight)-1);
-                    }
-                }
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
+                renderInsertion(g2, gp, sequenceCursor, level);
             } else if (operator == CigarOperator.M) {
                 // Match or mismatch
 
@@ -956,7 +925,6 @@ public class BAMTrackRenderer extends TrackRenderer {
     private void renderBQMismatches(Graphics2D g2, GraphPane gp, SAMRecord samRecord, int level, byte[] refSeq, Range range) {
 
         ColourScheme cs = (ColourScheme) instructions.get(DrawingInstruction.COLOR_SCHEME);
-        Color linecolor = cs.getColor(ColourKey.INTERVAL_LINE);
 
         double unitHeight = gp.getUnitHeight();
         double unitWidth = gp.getUnitWidth();
@@ -995,43 +963,13 @@ public class BAMTrackRenderer extends TrackRenderer {
             opStart = Math.max(leftMostX, opStart);
             opWidth = x2 - opStart;
 
-            // delete
             if (operator == CigarOperator.D) {
+                renderDeletion(g2, gp, opStart, level, operatorLength);
+            } else if (operator == CigarOperator.I) {
+                renderInsertion(g2, gp, sequenceCursor, level);
 
-                double width = gp.getWidth(operatorLength);
-                if (width < 1) width = 1;
-                opRect = new Rectangle2D.Double( opStart, gp.transformYPos(0)-((level + 1)*unitHeight)-offset, Math.max(opWidth, 1), unitHeight);
-                g2.setColor(Color.black);
-                g2.fill(opRect);
-            }
-            // insert
-            else if (operator == CigarOperator.I) {
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(Color.white);
-                int xCoordinate = (int)gp.transformXPos(sequenceCursor);
-                int yCoordinate = (int)(gp.transformYPos(0)-((level + 1)*unitHeight)) + 1 - offset;
-                if((int)unitWidth/3 < 4 || (int)(unitHeight/2) < 6){
-                    yCoordinate = yCoordinate - 1;
-                    int lineWidth = Math.max((int)(unitWidth * (2.0/3.0)), 1);
-                    int xCoordinate1 = (int)(opStart - Math.floor(lineWidth/2));
-                    int xCoordinate2 = (int)(opStart - Math.floor(lineWidth/2)) + lineWidth - 1;
-                    if(xCoordinate1 == xCoordinate2) xCoordinate2++;
-                    int[] xPoints = {xCoordinate1, xCoordinate2, xCoordinate2, xCoordinate1};
-                    int[] yPoints = {yCoordinate, yCoordinate, yCoordinate+(int)unitHeight, yCoordinate+(int)unitHeight};
-                    g2.fillPolygon(xPoints, yPoints, 4);
-                } else {
-                    int[] xPoints = {xCoordinate, xCoordinate+(int)(unitWidth/3), xCoordinate, xCoordinate-(int)(unitWidth/3)};
-                    int[] yPoints = {yCoordinate, yCoordinate+(int)(unitHeight/2), yCoordinate+(int)unitHeight-1, yCoordinate+(int)(unitHeight/2)};
-                    g2.fillPolygon(xPoints, yPoints, 4);
-                    if((int)unitWidth/3 >= 7 && (int)(unitHeight/2) >= 5){
-                        g2.setColor(linecolor);
-                        g2.drawLine(xCoordinate, (int)yCoordinate, xCoordinate, (int)(yCoordinate+unitHeight)-1);
-                    }
-                }
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
-            }
-            // match or mismatch
-            else if (operator == CigarOperator.M) {
+            } else if (operator == CigarOperator.M) {
+                // Match or mismatch
 
                 // some SAM files do not contain the read bases
                 if (sequenceSaved) {
@@ -1105,7 +1043,27 @@ public class BAMTrackRenderer extends TrackRenderer {
         }
 
     }
-   
+
+    /**
+     * Render the black rectangle which indicates a deletion.
+     */
+    private void renderDeletion(Graphics2D g2, GraphPane gp, double opStart, int level, int operatorLength) {
+        double width = gp.getWidth(operatorLength);
+        if (width < 1.0) {
+            width = 1.0;
+        }
+        double unitHeight = gp.getUnitHeight();
+        Rectangle2D opRect = new Rectangle2D.Double(opStart, gp.transformYPos(0) - (level + 1) * unitHeight - gp.getOffset(), width, unitHeight);
+        g2.setColor(Color.BLACK);
+        g2.fill(opRect);
+    }
+
+    private void renderInsertion(Graphics2D g2, GraphPane gp, int pos, int level) {
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        drawInsertion(g2, gp, pos, level);
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
+    }
+
     private void renderArcPairedMode(Graphics2D g2, GraphPane gp) {
 
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -1543,6 +1501,8 @@ public class BAMTrackRenderer extends TrackRenderer {
         ColourScheme cs = (ColourScheme) instructions.get(DrawingInstruction.COLOR_SCHEME);
         Color linecolor = cs.getColor(ColourKey.INTERVAL_LINE);
         Range range = axisRange.getXRange();
+        int effectiveEnd = range.getTo() + 1;
+        int effectiveStart = range.getFrom() - 1;
 
         gp.setXRange(axisRange.getXRange());
 
@@ -1571,14 +1531,16 @@ public class BAMTrackRenderer extends TrackRenderer {
 
             //if mate off screen to the right, draw immediately
             if(samRecord.getMateAlignmentStart() > range.getTo()){
-                int level = computePiledIntervalLevel(levels, Interval.valueOf(interval.getStart(), range.getTo()));
-                savedDraws.add(new DrawStore(intervalRecord, samRecord, level, Interval.valueOf(range.getTo(), range.getTo()), null));
+                LOG.info("Offscreen right for " + interval);
+                int level = computePiledIntervalLevel(levels, Interval.valueOf(interval.getStart(), effectiveEnd));
+                savedDraws.add(new DrawStore(intervalRecord, samRecord, level, Interval.valueOf(effectiveEnd + 1, Integer.MAX_VALUE), null));
                 continue;
             }
 
             //check if mate has already been found
             IntervalRecord mate = popMate(mateQueue.get(samRecord.getMateAlignmentStart()), samRecord);
             if(mate != null){
+                LOG.info("Piling pair " + interval + " with " + mate.getInterval());
                 int level = computePiledIntervalLevel(levels, 
                         Interval.valueOf(Math.min(interval.getStart(), mate.getInterval().getStart()),
                         Math.max(interval.getEnd(), mate.getInterval().getEnd())));
@@ -1588,6 +1550,7 @@ public class BAMTrackRenderer extends TrackRenderer {
 
                 continue;
             }
+            LOG.info("No mate yet, queuing read at " + interval);
 
             //if mate not yet found, add to map queue
             if(mateQueue.get(interval.getStart()) == null){
@@ -1604,8 +1567,8 @@ public class BAMTrackRenderer extends TrackRenderer {
                 Interval interval = intervalRecord.getInterval();
                 BAMIntervalRecord bamRecord = (BAMIntervalRecord) intervalRecord;
                 SAMRecord samRecord = bamRecord.getSamRecord();
-                int level = computePiledIntervalLevel(levels, Interval.valueOf(range.getFrom(), interval.getEnd()));
-                savedDraws.add(new DrawStore(intervalRecord, samRecord, level, Interval.valueOf(range.getFrom(), range.getFrom()), null));
+                int level = computePiledIntervalLevel(levels, Interval.valueOf(effectiveStart, interval.getEnd()));
+                savedDraws.add(new DrawStore(intervalRecord, samRecord, level, Interval.valueOf(0, effectiveStart - 1), null));
             }
         }
 
@@ -1631,7 +1594,8 @@ public class BAMTrackRenderer extends TrackRenderer {
 
         if(records == null) return null;
         for(int i = 0; i < records.size(); i++){
-            if(MiscUtils.isMate(samRecord, ((BAMIntervalRecord)records.get(i)).getSamRecord())){
+            SAMRecord samRecord2 = ((BAMIntervalRecord)records.get(i)).getSamRecord();
+            if(MiscUtils.isMate(samRecord, samRecord2)){
                 IntervalRecord intervalRecord = records.get(i);
                 records.remove(i);
                 return intervalRecord;
@@ -1663,14 +1627,16 @@ public class BAMTrackRenderer extends TrackRenderer {
      * Connect intervals i1 and i2 with a dashed line to show mates. 
      */
     private void connectPiledInterval(Graphics2D g2, GraphPane gp, Interval i1, Interval i2, int level, Color linecolor, IntervalRecord ir1, IntervalRecord ir2){
-
+        LOG.debug("connectPiledInterval " + i1 + "–" + i2 + " at level " + level);
         Interval mateInterval = computeMateInterval(i1, i2);
 
         Stroke currentStroke = g2.getStroke();
         //Stroke drawingStroke = new BasicStroke(3, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, new float[]{9}, 0);
         Stroke drawingStroke = new BasicStroke(2);
         double yPos = gp.transformYPos(0) - (level + 1)*gp.getUnitHeight() + gp.getUnitHeight()/2.0 - gp.getOffset();
-        Line2D line = new Line2D.Double(gp.transformXPos(mateInterval.getStart()), yPos, gp.transformXPos(mateInterval.getEnd()), yPos);
+
+        double arrowWidth = gp.getUnitHeight() * 0.25;
+        Line2D line = new Line2D.Double(gp.transformXPos(mateInterval.getStart()) + arrowWidth, yPos, gp.transformXPos(mateInterval.getEnd()) - arrowWidth, yPos);
         g2.setStroke(drawingStroke);
         g2.setColor(linecolor);
         g2.draw(line);
@@ -1697,7 +1663,7 @@ public class BAMTrackRenderer extends TrackRenderer {
             end = i1.getStart();
         }
 
-        return Interval.valueOf(start, end);
+        return Interval.valueOf(start + 1, end);
 
     }
 
