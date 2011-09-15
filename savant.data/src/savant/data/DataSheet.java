@@ -213,6 +213,10 @@ public class DataSheet implements LocationChangeCompletedListener, SelectionChan
         for (TrackAdapter t : TrackUtils.getTracks()) {
             trackList.addItem(t);
         }
+        if (autoUpdate) {
+            refreshData();
+            refreshSelection();
+        }
     }
 
     private void refreshData() {
@@ -261,7 +265,7 @@ public class DataSheet implements LocationChangeCompletedListener, SelectionChan
         if (input != null) {
 
             String defaultName;
-            switch (track.getDataSource().getDataFormat()) {
+            switch (track.getDataFormat()) {
                 case SEQUENCE_FASTA:
                     defaultName = "Export.fa";
                     break;

@@ -25,9 +25,10 @@ import javax.swing.JPanel;
 import savant.api.util.NavigationUtils;
 import savant.api.util.SelectionUtils;
 import savant.api.util.TrackUtils;
-import savant.controller.Listener;
 import savant.controller.event.TrackEvent;
 import savant.plugin.SavantPanelPlugin;
+import savant.util.Listener;
+
 
 public class DataTab extends SavantPanelPlugin {
     private DataSheet dataSheet;
