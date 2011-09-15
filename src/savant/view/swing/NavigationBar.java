@@ -16,6 +16,7 @@
 
 package savant.view.swing;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
@@ -95,7 +96,8 @@ public class NavigationBar extends JToolBar {
         JLabel rangeText = new JLabel("Location: ");
         add(rangeText);
 
-        locationField = new JComboBox();
+        String[] a = {" "," "," "," "," "," "," "," "," "," "};
+        locationField = new JComboBox(a);
         locationField.setEditable(true);
         locationField.setRenderer(new ReferenceListRenderer());
 
