@@ -147,7 +147,7 @@ public class CacheableSABS extends SeekableAdjustableBufferedStream {
             cache.seek(block * 4); //seek to write offset
             cache.writeInt(storeOffset); //write the offset
             cache.seek(actualOffset); //seek to where data will be written
-            cache.write(b, 0, numRead); //write data
+            cache.write(b, 0, bufferSize); //write data
 
             //skip to position % buffersize
             positionInBuff = 0;
