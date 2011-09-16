@@ -240,7 +240,7 @@ public abstract class Track implements TrackAdapter {
      * @since 1.6.0
      */
     @Override
-    public int transformPixel(double pix) {
+    public int transformXPixel(double pix) {
         return frame.getGraphPane().transformXPixel(pix);
     }
     
@@ -250,8 +250,27 @@ public abstract class Track implements TrackAdapter {
      * @since 1.6.0
      */
     @Override
-    public double transformPos(int pos) {
+    public double transformXPos(int pos) {
         return frame.getGraphPane().transformXPos(pos);
+    }
+
+    /**
+     * For use by plugins.  Scale a pixel position along the y-axis into a logical vertical position.
+     * @since 1.6.0
+     */
+    @Override
+    public double transformYPixel(double pix) {
+        return frame.getGraphPane().transformYPixel(pix);
+    }
+
+
+    /**
+     * For use by plugins.  Scale a logical vertical position into a pixel position along the y-axis.
+     * @since 1.6.0
+     */
+    @Override
+    public double transformYPos(double pos) {
+        return frame.getGraphPane().transformYPos(pos);
     }
 
 

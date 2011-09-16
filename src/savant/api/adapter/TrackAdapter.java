@@ -127,16 +127,39 @@ public interface TrackAdapter {
     public AxisType getYAxisType(Resolution r);
 
     /**
-     * Convert a base-position into a pixel position along the x-axis.
+     * Convert pixel position along the x-axis into a base-position.
+     *
+     * @param pix drawing position in pixels
+     * @return the corresponding logical position
      * @since 1.6.0
      */
-    public double transformPos(int pos);
+    public int transformXPixel(double pix);
 
     /**
-     * Convert pixel position along the x-axis into a base-position.
+     * Transform a horizontal position in terms of bases into a drawing coordinate.
+     * @param pos position in bases
+     * @return the corresponding drawing coordinate
      * @since 1.6.0
      */
-    public int transformPixel(double pixel);
+    public double transformXPos(int pos);
+
+    /**
+     * Transform a vertical position in terms of pixels into graph units.
+     *
+     * @param pos position in graph coordinates
+     * @return a corresponding drawing coordinate
+     * @since 1.6.0
+     */
+    public double transformYPixel(double pix);
+
+    /**
+     * Transform a vertical position in terms of graph units into a pixel position.
+     *
+     * @param pos position in pixel coordinates
+     * @return corresponding graph coordinate
+     * @since 1.6.0
+     */
+    public double transformYPos(double pos);
 
     /**
      * Does this track allow selections?

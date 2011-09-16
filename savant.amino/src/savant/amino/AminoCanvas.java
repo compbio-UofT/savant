@@ -68,7 +68,7 @@ public class AminoCanvas extends JPanel {
     public void paintComponent(Graphics g) {
         if (GenomeUtils.getGenome().isSequenceSet()) {
 
-            double aminoWidth = track.transformPos(3) - track.transformPos(0);
+            double aminoWidth = track.transformXPos(3) - track.transformXPos(0);
             if (aminoWidth > 0.5) {
 
                 Graphics2D g2 = (Graphics2D)g;
@@ -172,13 +172,13 @@ public class AminoCanvas extends JPanel {
     private void paintAminoAcid(Graphics2D g2, AminoAcid a, int pos, int bases, int labelPos, boolean labelled) {
         if (a != null) {
             g2.setColor(new Color(a.color.getRed(), a.color.getGreen(), a.color.getBlue(), plugin.getAlpha()));
-            double x0 = track.transformPos(pos);
-            double x1 = track.transformPos(pos + bases);
+            double x0 = track.transformXPos(pos);
+            double x1 = track.transformXPos(pos + bases);
             g2.fill(new Rectangle2D.Double(x0, 0.0, x1 - x0, getHeight()));
             if (labelled) {
                 g2.setColor(a == AminoAcid.STOP ? Color.WHITE : Color.BLACK);
                 double charWidth = g2.getFontMetrics().charWidth(a.code);
-                g2.drawString(Character.toString(a.code), (float)(track.transformPos(labelPos) + track.transformPos(labelPos + 3) - charWidth) * 0.5F, getHeight() * 0.5F);
+                g2.drawString(Character.toString(a.code), (float)(track.transformXPos(labelPos) + track.transformXPos(labelPos + 3) - charWidth) * 0.5F, getHeight() * 0.5F);
             }
         }
     }
