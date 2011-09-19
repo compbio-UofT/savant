@@ -55,7 +55,7 @@ public abstract class Track implements TrackAdapter {
     protected DrawingMode drawingMode = DrawingMode.STANDARD;
     protected final TrackRenderer renderer;
     private final DataSourceAdapter dataSource;
-    private Thread retriever;
+    private DataRetriever retriever;
 
     private final List<DataRetrievalListener> listeners = new ArrayList<DataRetrievalListener>();
 
@@ -240,7 +240,7 @@ public abstract class Track implements TrackAdapter {
      * @since 1.6.0
      */
     @Override
-    public int transformPixel(double pix) {
+    public int transformXPixel(double pix) {
         return frame.getGraphPane().transformXPixel(pix);
     }
     
@@ -250,8 +250,27 @@ public abstract class Track implements TrackAdapter {
      * @since 1.6.0
      */
     @Override
-    public double transformPos(int pos) {
+    public double transformXPos(int pos) {
         return frame.getGraphPane().transformXPos(pos);
+    }
+
+    /**
+     * For use by plugins.  Scale a pixel position along the y-axis into a logical vertical position.
+     * @since 1.6.0
+     */
+    @Override
+    public double transformYPixel(double pix) {
+        return frame.getGraphPane().transformYPixel(pix);
+    }
+
+
+    /**
+     * For use by plugins.  Scale a logical vertical position into a pixel position along the y-axis.
+     * @since 1.6.0
+     */
+    @Override
+    public double transformYPos(double pos) {
+        return frame.getGraphPane().transformYPos(pos);
     }
 
 
@@ -311,26 +330,18 @@ public abstract class Track implements TrackAdapter {
      * @param reference The reference within which to retrieve objects
      * @param range The range within which to retrieve objects
      */
-    public void requestData(final String reference, final Range range) {
+    public void requestData(String reference, Range range) {
+        if (retriever != null) {
+            if (retriever.reference.equals(reference) && retriever.range.equals(range)) {
+                LOG.debug("Nothing to request, already busy retrieving " + reference + ":" + range);
+                return;
+            } else {
+                LOG.debug("You're wasting your time on " + reference + ":" + range);
+            }
+        }
         dataInRange = null;
         fireDataRetrievalStarted();
-        retriever = new Thread("DataRetriever") {
-            @Override
-            public void run() {
-                try {
-                    LOG.debug("Retrieving data for " + name + "(" + reference + ":" + range + ")");
-                    dataInRange = retrieveData(reference, range, getResolution(range));
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("Retrieved " + (dataInRange != null ? Integer.toString(dataInRange.size()) : "no") + " records for " + name + "(" + reference + ":" + range + ")");
-                    }
-                    fireDataRetrievalCompleted();
-                } catch (Throwable x) {
-                    LOG.error("Data retrieval failed.", x);
-                    fireDataRetrievalFailed(x);
-                }
-                retriever = null;
-            }
-        };
+        retriever = new DataRetriever(reference, range);
         retriever.start();
         try {
             if (retriever != null) {
@@ -437,5 +448,32 @@ public abstract class Track implements TrackAdapter {
      */
     protected synchronized List<Record> retrieveData(String reference, Range range, Resolution resolution) throws Exception {
         return getDataSource().getRecords(reference, range, resolution);
+    }
+
+    private class DataRetriever extends Thread {
+        String reference;
+        Range range;
+ 
+        DataRetriever(String ref, Range r) {
+            super("DataRetriever-" + ref + ":" + r);
+            reference = ref;
+            range = r;
+        }
+
+        @Override
+        public void run() {
+            try {
+                LOG.debug("Retrieving data for " + name + "(" + reference + ":" + range + ")");
+                dataInRange = retrieveData(reference, range, getResolution(range));
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Retrieved " + (dataInRange != null ? Integer.toString(dataInRange.size()) : "no") + " records for " + name + "(" + reference + ":" + range + ")");
+                }
+                fireDataRetrievalCompleted();
+            } catch (Throwable x) {
+                LOG.error("Data retrieval failed.", x);
+                fireDataRetrievalFailed(x);
+            }
+            retriever = null;
+        }
     }
 }

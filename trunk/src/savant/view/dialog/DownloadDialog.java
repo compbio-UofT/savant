@@ -180,7 +180,7 @@ public class DownloadDialog extends JDialog implements DownloadMonitor {
         fileLabel.setText(url.toString());
         destinationLabel.setText(destDir.getPath());
         downloadedFile = new File(destDir, shortName);
-        NetworkUtils.downloadFile(url, downloadedFile, shortName, this);
+        NetworkUtils.downloadFile(url, destDir, shortName, this);
         setVisible(true);
     }
 

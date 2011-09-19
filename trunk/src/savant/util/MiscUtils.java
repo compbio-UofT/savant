@@ -460,13 +460,19 @@ public class MiscUtils {
      * If rec1 is likely a mate of rec2, return true.
      */
     public static boolean isMate(SAMRecord rec1, SAMRecord rec2){
+        if (rec1 == rec2) {
+            // Avoid mating with ourselves.
+            return false;
+        }
         String name1 = rec1.getReadName();
         String name2 = rec2.getReadName();
         int len1 = name1.length();
         int len2 = name2.length();
 
-        //check if strings equal
-        if(name1.equals(name2) && rec1.getAlignmentStart() != rec2.getAlignmentStart()) return true;
+        // Check if names equal.
+        if (name1.equals(name2)) {
+            return true;
+        }
 
         //list of possible suffices...may grow over time.
         String[][] suffices = {{"\\1","\\2"},{"_F","_R"},{"_F3","_R3"}};     

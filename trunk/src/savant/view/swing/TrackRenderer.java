@@ -16,9 +16,12 @@
 
 package savant.view.swing;
 
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Shape;
+import java.awt.geom.Line2D;
+import java.awt.geom.Path2D;
 import java.awt.geom.Rectangle2D;
 import java.util.*;
 import javax.swing.JPanel;
@@ -32,6 +35,8 @@ import savant.data.event.DataRetrievalEvent;
 import savant.data.event.DataRetrievalListener;
 import savant.data.types.Record;
 import savant.exception.RenderingException;
+import savant.util.ColourKey;
+import savant.util.ColourScheme;
 import savant.util.DrawingInstruction;
 import savant.util.DrawingMode;
 import savant.util.Resolution;
@@ -289,5 +294,35 @@ public abstract class TrackRenderer implements DataRetrievalListener {
         if(selectionAllowed(false)){
             SelectionController.getInstance().toggleGroup(trackName, recs);
         }
+    }
+
+    /**
+     * Shared by BAMTrackRenderer and RichIntervalTrackRenderer to draw the white diamond
+     * which indicates an insertion.
+     */
+    public Shape drawInsertion(Graphics2D g2,GraphPane gp, int xStart, int level) {
+
+        double unitHeight = gp.getUnitHeight();
+        double unitWidth = gp.getUnitWidth();
+
+        g2.setColor(Color.WHITE);
+        double xCoordinate = gp.transformXPos(xStart);
+        double yCoordinate = gp.transformYPos(0) - ((level + 1) * unitHeight) - gp.getOffset();
+        double w = unitWidth * 0.5;
+
+        Path2D.Double rhombus = new Path2D.Double();
+        rhombus.moveTo(xCoordinate, yCoordinate);
+        rhombus.lineTo(xCoordinate + w, yCoordinate + unitHeight * 0.5);
+        rhombus.lineTo(xCoordinate, yCoordinate + unitHeight);
+        rhombus.lineTo(xCoordinate - w, yCoordinate + unitHeight * 0.5);
+        rhombus.closePath();
+        g2.fill(rhombus);
+
+        if (unitWidth > 16.0) {
+            g2.setColor(((ColourScheme)instructions.get(DrawingInstruction.COLOR_SCHEME)).getColor(ColourKey.INTERVAL_LINE));
+            g2.draw(new Line2D.Double(xCoordinate, yCoordinate, xCoordinate, yCoordinate + unitHeight));
+        }
+
+        return rhombus;
     }
 }

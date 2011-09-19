@@ -57,7 +57,7 @@ public class TDFDataSource extends DataSource<GenericContinuousRecord> {
     private String rawUnhomogenised;
 
     public TDFDataSource(URI uri) throws IOException {
-        tdf = TDFReader.getReader(uri.getPath());
+        tdf = TDFReader.getReader(MiscUtils.getNeatPathFromURI(uri));
         this.uri = uri;
     }
 
@@ -88,12 +88,17 @@ public class TDFDataSource extends DataSource<GenericContinuousRecord> {
                     int datumEnd = t.getEndPosition(i);
                     if (nextPos < datumEnd) {
                         int datumStart = t.getStartPosition(i);
-                        LOG.debug("Tile " + i + " from " + datumStart + " to " + datumEnd);
                         // If there's a gap before the data starts, fill it with NaNs.
-                        while (nextPos < datumStart && nextPos <= rangeEnd) {
-                            result.add(GenericContinuousRecord.valueOf(ref, nextPos += usefulStep, Float.NaN));
+                        if (datumStart == nextPos + 1 && usefulStep > 2) {
+                            // Special case.  TDF formatter occasionally leaves a gap of one base between tiles.  This isn't a real NaN.
+                            LOG.debug("Skipping NaN hole at " + nextPos);
+                        } else {
+                            while (nextPos < datumStart && nextPos <= rangeEnd) {
+                                result.add(GenericContinuousRecord.valueOf(ref, nextPos += usefulStep, Float.NaN));
+                            }
                         }
                         float datum = t.getValue(0, i);
+                        LOG.debug("Tile " + i + " from " + datumStart + " to " + datumEnd + "=" + datum);
                         while (nextPos < datumEnd && nextPos <= rangeEnd) {
                             result.add(GenericContinuousRecord.valueOf(ref, nextPos += usefulStep, datum));
                         }
@@ -143,12 +148,19 @@ public class TDFDataSource extends DataSource<GenericContinuousRecord> {
             }
         }
         // The desired zoom is the one for which the screen is filled.
+        TDFDataset result = null;
         int zoom = (int)(Math.log(refLen / rangeLen) / LOG2);
         if (zoom <= maxZoom) {
             LOG.info("Using zoomed dataset " + zoom);
-            return tdf.getDataset(ref, zoom, WindowFunction.mean);
+            result = tdf.getDataset(ref, zoom, WindowFunction.mean);
+            if (result == null) {
+                result = tdf.getDataset("chr" + ref, zoom, WindowFunction.mean);
+            }
         }
-        return tdf.getDataset(rawUnhomogenised);
+        if (result == null) {
+            result = tdf.getDataset(rawUnhomogenised);
+        }
+        return result;
     }
 
     @Override

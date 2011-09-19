@@ -44,8 +44,8 @@ public class TDFFormatter extends SavantFileFormatter {
     /** For our purposes, the only stat we want is mean. */
     protected static final List<WindowFunction> MEAN = Arrays.asList(WindowFunction.mean);
 
-    /** 12 zoom levels means that we switch from raw to zoomed around 20kbp. */
-    protected static final int DEFAULT_ZOOMS = 12;
+    /** 9 zoom levels is plenty */
+    protected static final int DEFAULT_ZOOMS = 9;
 
     private static final int RECORDS_PER_INTERRUPT_CHECK = 100;
 

@@ -151,7 +151,7 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
 
         // If length is 0, draw insertion rhombus.  It is drawn here so that the name can be drawn on top of it.
         if (interval.getLength() == 0){
-            Shape rhombus = drawInsertion(interval, level, gp, g2);
+            Shape rhombus = drawInsertion(g2, gp, interval.getStart(), level);
             isInsertion = true;
 
             startXPos -= unitWidth * 0.5;   // So the name won't stomp on the leftward-pointing arrow of the insertion.
@@ -436,7 +436,7 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
                 //If length is 0, draw insertion rhombus.
                 if(interval.getLength() == 0){
 
-                    drawInsertion(interval, level, gp, g2);
+                    drawInsertion(g2, gp, interval.getStart(), level);
                     // draw nothing else for this interval
                     continue;
                 }
@@ -521,31 +521,5 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
                 }
         }
 
-    }
-
-    private Shape drawInsertion(Interval interval, int level, GraphPane gp, Graphics2D g2) {
-
-        double unitHeight = gp.getUnitHeight();
-        double unitWidth = gp.getUnitWidth();
-
-        g2.setColor(Color.white);
-        double xCoordinate = gp.transformXPos(interval.getStart());
-        double yCoordinate = gp.transformYPos(0) - ((level + 1) * unitHeight) + 1.0;
-        double w = unitWidth * 0.5;
-
-        Path2D.Double rhombus = new Path2D.Double();
-        rhombus.moveTo(xCoordinate, yCoordinate);
-        rhombus.lineTo(xCoordinate + w, yCoordinate + unitHeight * 0.5);
-        rhombus.lineTo(xCoordinate, yCoordinate + unitHeight);
-        rhombus.lineTo(xCoordinate - w, yCoordinate + unitHeight * 0.5);
-        rhombus.closePath();
-        g2.fill(rhombus);
-
-        if (unitWidth > 2.0) {
-            g2.setColor(Color.black);
-            g2.draw(new Line2D.Double(xCoordinate, yCoordinate, xCoordinate, yCoordinate + unitHeight));
-        }
-
-        return rhombus;
     }
 }

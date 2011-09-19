@@ -663,7 +663,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
 
             if (scaledToFit) {
                 setUnitHeight();
-                LOG.info("setYRange set unit height to " + unitHeight);
+                LOG.debug("setYRange set unit height to " + unitHeight);
             } else {
                 // Adjust ymin to keep the x-axis from dropping down as we scroll along.
                 if ((yMin < 0.0 || oldYMin < 0.0) && oldYMin < yMin) {
@@ -742,7 +742,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
      * Transform a horizontal position in terms of drawing coordinates into graph units.
      *
      * @param pix drawing position in pixels
-     * @return a corresponding logical position
+     * @return corresponding logical position
      */
     public int transformXPixel(double pix) {
         return (int)Math.floor(pix / unitWidth + xMin);
@@ -752,7 +752,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
      * Transform a horizontal position in terms of graph units into a drawing coordinate.
      *
      * @param pos position in graph coordinates
-     * @return a corresponding drawing coordinate
+     * @return corresponding drawing coordinate
      */
     public double transformXPos(int pos) {
         return (pos - xMin) * unitWidth;
@@ -761,8 +761,8 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
     /**
      * Transform a vertical position in terms of pixels into graph units.
      *
-     * @param pos position in graph coordinates
-     * @return a corresponding drawing coordinate
+     * @param pix position in pixel coordinates
+     * @return corresponding graph coordinate
      */
     public double transformYPixel(double pix) {
         return (getHeight() - pix) / unitHeight + yMin;
