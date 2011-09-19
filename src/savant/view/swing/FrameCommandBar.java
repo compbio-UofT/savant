@@ -408,7 +408,12 @@ public final class FrameCommandBar extends JMenuBar {
             public void stateChanged(ChangeEvent e) {
                 int h = getIntervalHeight();
                 graphPane.setUnitHeight(h);
-                graphPane.setScaledToFit(false);
+                if (graphPane.isScaledToFit()) {
+                    graphPane.setScaledToFit(false);    // Forces rerender and repaint internally.
+                } else {
+                    graphPane.setRenderForced();
+                    graphPane.repaint();
+                }
             }
         });
         menu.add(intervalSlider);
