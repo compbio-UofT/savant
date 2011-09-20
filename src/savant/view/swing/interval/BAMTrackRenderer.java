@@ -254,9 +254,9 @@ public class BAMTrackRenderer extends TrackRenderer {
                 }
             }
         }
-        if (lastMode != DrawingMode.ARC_PAIRED) {
+        if (lastMode != DrawingMode.ARC_PAIRED && lastMode != DrawingMode.SNP && lastMode != DrawingMode.STRAND_SNP) {
             // For non-arc modes, we want to establish our interval height when we switch from coverage to non-coverage.
-            if (lastResolution != r || oldMode == DrawingMode.ARC_PAIRED) {
+            if (lastResolution != r || oldMode == DrawingMode.ARC_PAIRED || oldMode == DrawingMode.SNP || oldMode == DrawingMode.STRAND_SNP) {
                 if (r == Resolution.HIGH) {
                     // We're switching from coverage (or arc mode) to high resolution.  The initial interval height
                     // will be taken from the slider.
@@ -268,8 +268,8 @@ public class BAMTrackRenderer extends TrackRenderer {
                 lastResolution = r;                
             }
         } else {
-            // Arc mode is always initially scaled to fit.
-            if (oldMode != DrawingMode.ARC_PAIRED) {
+            // Arc mode and the SNP modes are always initially scaled to fit.
+            if (oldMode != DrawingMode.ARC_PAIRED && oldMode != DrawingMode.SNP && oldMode != DrawingMode.STRAND_SNP) {
                 gp.setScaledToFit(true);
             }
         }
@@ -1354,7 +1354,7 @@ public class BAMTrackRenderer extends TrackRenderer {
                 p.clearNucleotide(snpNuc);
             }
         }
-        
+
         g2.setColor(Color.BLACK);
         g2.drawLine(0, (int)gp.transformYPos(0) / 2, gp.getWidth(), (int)gp.transformYPos(0) / 2);
     }

@@ -350,14 +350,16 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
 
                 // Change size of current frame
                 JLayeredPane landscape = parentFrame.getFrameLandscape();
-                landscape.setPreferredSize(new Dimension(getWidth(), newHeight));
-                setPreferredSize(new Dimension(landscape.getWidth(), newHeight));
-                landscape.setSize(new Dimension(landscape.getWidth(), newHeight));
-                setSize(new Dimension(landscape.getWidth(), newHeight));
-                revalidate();
+                if (landscape.getHeight() != newHeight) {
+                    Dimension newSize = new Dimension(landscape.getWidth(), newHeight);
+                    setPreferredSize(newSize);
+                    setSize(newSize);
+                }
 
                 // If we have a scroll-bar, scroll so that vertical position of the x-axis matches previous view.
                 newScroll = (int)Math.round(transformYPos(0.0) - axisYPixel);
+
+                // Resizing the components will trigger a paintComponent() which will cause render() to be reentered.
                 return;
 
             } else if (oldViewHeight != -1 && oldViewHeight != getViewportHeight()) {
@@ -477,7 +479,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         return posOffset;
     }
 
-    private void requestHeight(int h) {
+    void requestHeight(int h) {
         newHeight = h;
         paneResize = true;
     }
@@ -1193,6 +1195,18 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         currentOverShape = null;
         currentOverRecord = null;
     }
+
+    @Override
+    public void reshape(int x, int y, int w, int h) {
+        if (tracks != null) {
+            LOG.info("GraphPane.setWidth(" + w + ") for " + tracks[0]);
+            if (w > 1800 && getWidth() == 994) {
+                LOG.info("WTF?");
+            }
+        }
+        super.reshape(x, y, w, h);
+    }
+
 
     public void hidePopup(){
         if (popupVisible){
