@@ -241,6 +241,10 @@ public class TrackChooser extends JDialog {
             //SELECT BASE FIELD
             selectBaseField = new JTextField();
             selectBasePanel.add(selectBaseField, BorderLayout.CENTER);
+            
+            //SELECT BASE EXAMPLE
+            JLabel selectBaseExample = new JLabel("  ex. 123,456,789");
+            selectBasePanel.add(selectBaseExample, BorderLayout.EAST); 
 
             //SEPARATOR
             JSeparator separator2 = new JSeparator(SwingConstants.HORIZONTAL);
