@@ -47,7 +47,6 @@ public class BAMTrack extends Track {
     
     private static final Log LOG = LogFactory.getLog(BAMTrack.class);
 
-
     private SAMReadUtils.PairedSequencingProtocol pairedProtocol = SAMReadUtils.PairedSequencingProtocol.MATEPAIR;
 
     // if > 1, treat as absolute size below which an arc will not be drawn
@@ -110,15 +109,13 @@ public class BAMTrack extends Track {
         boolean f = containsReference(reference);
         renderer.addInstruction(DrawingInstruction.REFERENCE_EXISTS, containsReference(reference));
 
-        //if (errorMessage == null) {
-            if (getDrawingMode() == DrawingMode.ARC_PAIRED) {
-                renderer.addInstruction(DrawingInstruction.ARC_MIN, getArcSizeVisibilityThreshold());
-                renderer.addInstruction(DrawingInstruction.DISCORDANT_MIN, getConcordantMin());
-                renderer.addInstruction(DrawingInstruction.DISCORDANT_MAX, getConcordantMax());
-            } else {
-                renderer.addInstruction(DrawingInstruction.AXIS_RANGE, AxisRange.initWithRanges(range, getDefaultYRange()));
-            }
-        //}
+        if (getDrawingMode() == DrawingMode.ARC_PAIRED) {
+            renderer.addInstruction(DrawingInstruction.ARC_MIN, getArcSizeVisibilityThreshold());
+            renderer.addInstruction(DrawingInstruction.DISCORDANT_MIN, getConcordantMin());
+            renderer.addInstruction(DrawingInstruction.DISCORDANT_MAX, getConcordantMax());
+        } else {
+            renderer.addInstruction(DrawingInstruction.AXIS_RANGE, AxisRange.initWithRanges(range, getDefaultYRange()));
+        }
         renderer.addInstruction(DrawingInstruction.SELECTION_ALLOWED, true);
         renderer.addInstruction(DrawingInstruction.MODE, getDrawingMode());
     }
@@ -228,7 +225,15 @@ public class BAMTrack extends Track {
 
     @Override
     public AxisType getYAxisType(Resolution r) {
-        return getDrawingMode() == DrawingMode.ARC_PAIRED ? AxisType.INTEGER : AxisType.INTEGER_GRIDLESS;
+        switch (getDrawingMode()) {
+            case ARC_PAIRED:
+                return AxisType.INTEGER;
+            case SNP:
+            case STRAND_SNP:
+                return AxisType.REAL;
+            default:
+                return AxisType.INTEGER_GRIDLESS;
+        }
     }
 
     @Override

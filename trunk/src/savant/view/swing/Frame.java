@@ -132,6 +132,14 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
                 Dimension dim = getSize();
                 if(dim == null) return;
                 sidePanel.setContainerHeight(dim.height);
+
+                // TODO: The following is all bullshit.
+                int expectedWidth = frameLandscape.getWidth();
+                if (expectedWidth != graphPane.getWidth()) {
+                    Dimension goodSize = new Dimension(expectedWidth, graphPane.getHeight());
+                    graphPane.setPreferredSize(goodSize);
+                    graphPane.setSize(goodSize);
+                }
             }
         });
         sidePanel.setShowPanel(false);
