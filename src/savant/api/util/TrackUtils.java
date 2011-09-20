@@ -139,7 +139,7 @@ public class TrackUtils {
      * @param kind The format of tracks requested
      * @return An array of all tracks of a specific format
      */
-    public TrackAdapter[] getTracks(DataFormat kind) {
+    public static TrackAdapter[] getTracks(DataFormat kind) {
         List<TrackAdapter> r = new ArrayList<TrackAdapter>();
         for (Track t : trackController.getTracks(kind)) {
             r.add((TrackAdapter)t);
