@@ -45,7 +45,7 @@ public class BrowserSettings {
     /*
      * Website URLs
      */
-    public static final URL URL = NetworkUtils.getKnownGoodURL("http://www.savantbrowser.com");
+    public static final URL URL = NetworkUtils.getKnownGoodURL("http://www.genomesavant.com/savant");
     public static final URL VERSION_URL = NetworkUtils.getKnownGoodURL(URL, "serve/version/version.xml");
     public static final URL GENOMES_URL = NetworkUtils.getKnownGoodURL(URL, "serve/data/genomes.xml");
     public static final URL DATA_URL = NetworkUtils.getKnownGoodURL(URL, "serve/data/data.xml");
@@ -58,7 +58,7 @@ public class BrowserSettings {
     public static final URL SAFE_URL = NetworkUtils.getKnownGoodURL(URL, "safe/savantsafe.php");
 
     public static final String VERSION = "1.6.0";
-    public static String BUILD = "beta";
+    public static String BUILD = "";
 
     /**
      * Is this version a beta release?

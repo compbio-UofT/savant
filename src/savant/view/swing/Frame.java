@@ -135,8 +135,8 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
 
                 // TODO: The following is all bullshit.
                 int expectedWidth = frameLandscape.getWidth();
-                if (expectedWidth != jlp.getWidth()) {
-                    Dimension goodSize = new Dimension(expectedWidth, jlp.getHeight());
+                if (expectedWidth != graphPane.getWidth()) {
+                    Dimension goodSize = new Dimension(expectedWidth, graphPane.getHeight());
                     graphPane.setPreferredSize(goodSize);
                     graphPane.setSize(goodSize);
                 }

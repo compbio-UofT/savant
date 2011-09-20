@@ -479,7 +479,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         return posOffset;
     }
 
-    void requestHeight(int h) {
+    private void requestHeight(int h) {
         newHeight = h;
         paneResize = true;
     }
@@ -1195,18 +1195,6 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         currentOverShape = null;
         currentOverRecord = null;
     }
-
-    @Override
-    public void reshape(int x, int y, int w, int h) {
-        if (tracks != null) {
-            LOG.info("GraphPane.setWidth(" + w + ") for " + tracks[0]);
-            if (w > 1800 && getWidth() == 994) {
-                LOG.info("WTF?");
-            }
-        }
-        super.reshape(x, y, w, h);
-    }
-
 
     public void hidePopup(){
         if (popupVisible){
