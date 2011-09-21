@@ -30,8 +30,10 @@ import savant.api.adapter.TrackAdapter;
 import savant.api.util.NavigationUtils;
 import savant.api.util.SettingsUtils;
 import savant.api.util.TrackUtils;
+import savant.controller.PluginController;
 import savant.controller.event.LocationChangeCompletedListener;
 import savant.controller.event.LocationChangedEvent;
+import savant.controller.event.PluginEvent;
 import savant.controller.event.TrackEvent;
 import savant.file.DataFormat;
 import savant.plugin.SavantPanelPlugin;
@@ -65,17 +67,27 @@ public class AminoPlugin extends SavantPanelPlugin {
             panel.add(label);
         }
 
+        // First time through, create canvasses for any existing gene tracks.  We
+        // hook this onto a listener so that we'll know that Savant has fully loaded
+        // the plugin before we try to do anything.
+        PluginController.getInstance().addListener(new Listener<PluginEvent>() {
+            @Override
+            public void handleEvent(PluginEvent event) {
+                if (event.getType() == PluginEvent.Type.LOADED && event.getPlugin() instanceof AminoPlugin) {
+                    PluginController.getInstance().removeListener(this);
+                    TrackAdapter[] existingTracks = TrackUtils.getTracks(DataFormat.INTERVAL_RICH);
+                    for (TrackAdapter t: existingTracks) {
+                        createCanvas(t);
+                    }
+                }
+            }
+        });
+
         TrackUtils.addTrackListener(new Listener<TrackEvent>() {
             @Override
             public void handleEvent(TrackEvent event) {
                 if (event.getType() == TrackEvent.Type.ADDED) {
-                    TrackAdapter t = event.getTrack();
-                    if (t.getDataFormat() == DataFormat.INTERVAL_RICH) {
-                        JPanel layerCanvas = t.getLayerCanvas(AminoPlugin.this);
-                        layerCanvas.setLayout(new BorderLayout());
-                        AminoCanvas c = new AminoCanvas(AminoPlugin.this, t);
-                        layerCanvas.add(c, BorderLayout.CENTER);
-                    }
+                    createCanvas(event.getTrack());
                 }
             }
         });
@@ -105,5 +117,20 @@ public class AminoPlugin extends SavantPanelPlugin {
      */
     public int getAlpha() {
         return SettingsUtils.getInt(this, "ALPHA", 40);
+    }
+
+    /**
+     * Creates the actual canvas which gets drawn on top of the tracks.  If the track
+     * is not a gene track, does nothing.
+     *
+     * @param t the track to be considered
+     */
+    private void createCanvas(TrackAdapter t) {
+        if (t.getDataFormat() == DataFormat.INTERVAL_RICH) {
+            JPanel layerCanvas = t.getLayerCanvas(AminoPlugin.this);
+            layerCanvas.setLayout(new BorderLayout());
+            AminoCanvas c = new AminoCanvas(AminoPlugin.this, t);
+            layerCanvas.add(c, BorderLayout.CENTER);
+        }
     }
 }
