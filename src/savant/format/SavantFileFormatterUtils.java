@@ -89,7 +89,12 @@ public class SavantFileFormatterUtils {
             return FileType.INTERVAL_BIGBED;
         }
         if (extension.equals("tdf")) {
-            return FileType.CONTINUOUS_TDF;
+            // TODO: TDF currently only works for local files.
+            if (path.startsWith("/") || path.startsWith("file://")) {
+                return FileType.CONTINUOUS_TDF;
+            } else {
+                return null;
+            }
         }
         if (extension.equals("psl")) {
             return FileType.INTERVAL_PSL;
