@@ -84,7 +84,7 @@ public enum ColourKey {
             case INTERVAL_TEXT:
                 return "Interval Text";
             case CONTINUOUS_FILL:
-                return "Continuous Line";
+                return "Continuous Fill";
             case CONTINUOUS_LINE:
                 return "Continuous Line";
             case POINT_LINE:
