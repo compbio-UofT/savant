@@ -134,7 +134,7 @@ public class PluginController extends Controller {
                     if (errorStr == null) {
                         errorStr = new StringBuilder();
                     } else {
-                        errorStr.append("\n");
+                        errorStr.append("<br>");
                     }
                     errorStr.append(s);
                     errorStr.append(" – ");
@@ -344,7 +344,7 @@ public class PluginController extends Controller {
     public PluginDescriptor addPlugin(File f) throws PluginVersionException {
         PluginDescriptor desc = PluginDescriptor.fromFile(f);
         if (desc != null) {
-            LOG.info("Found possible " + desc + " in " + f.getName());
+            LOG.info("Found usable " + desc + " in " + f.getName());
             PluginDescriptor existingDesc = knownPlugins.get(desc.getID());
             if (existingDesc != null && existingDesc.getVersion().compareTo(desc.getVersion()) >= 0) {
                 LOG.info("   Ignored " + desc + " due to presence of existing " + existingDesc);
