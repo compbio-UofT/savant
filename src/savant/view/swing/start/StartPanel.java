@@ -44,7 +44,6 @@ import savant.settings.DirectorySettings;
 import savant.settings.PersistentSettings;
 import savant.util.NetworkUtils;
 import savant.util.swing.HyperlinkButton;
-import savant.view.icon.SavantIconFactory;
 
 
 /**
@@ -143,17 +142,6 @@ public class StartPanel extends JPanel {
         this.add(dontShowStartPageButton);
     }
     int buffer = 10;
-    ImageIcon logo = SavantIconFactory.getInstance().getIcon("/savant/images/logo_large.png");
-    ImageIcon hint_loadtracks = SavantIconFactory.getInstance().getIcon("/savant/images/hint_loadtracks.png");
-    ImageIcon hint_activeplugins = SavantIconFactory.getInstance().getIcon("/savant/images/hint_activeplugins.png");
-    ImageIcon hint_bookmarks = SavantIconFactory.getInstance().getIcon("/savant/images/hint_bookmarks.png");
-
-    private void drawScaledImage(Graphics g, Image img, int startx, int starty, int width, int height) {
-            g.drawImage(img,
-                           startx, starty, startx+width, starty+height,
-                           0, 0, logo.getImage().getWidth(this), logo.getImage().getHeight(this),
-                           this);
-    }
 
     @Override
     public void paintComponent(Graphics g) {

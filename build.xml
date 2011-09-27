@@ -10,8 +10,7 @@
 <project name="SavantGenomeBrowser" default="default" basedir=".">
     <description>Builds, tests, and runs the project SavantGenomeBrowser.</description>
     <import file="nbproject/build-impl.xml"/>
-
-    <import file="nbproject/profiler-build-impl.xml"/>    <!--
+    <!--
 
     There exist several targets which are by default empty and which can be 
     used for execution of your tasks. These targets are usually executed 
@@ -77,11 +76,11 @@
          </copy>
      </target>
 
-    <target  name="-post-jar">
+<!--    <target  name="-post-jar">
         <echo>Copying plugins...</echo>
-        <mkdir dir="${plugins.dir}" />
-         <copy todir="${plugins.dir}">
+        <mkdir dir="${dist.dir}/plugins" />
+         <copy todir="${dist.dir}/plugins">
             <fileset dir="plugins"/>
         </copy>
-    </target>
+    </target>-->
 </project>
