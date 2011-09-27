@@ -79,7 +79,7 @@
     <target name="-post-jar">
         <jar jarfile="${dist.jar}-all">
             <zipfileset src="${dist.jar}" excludes="META-INF/*" />
-            <zipfileset src="lib/sequencing-1.8.1.jar" excludes="META-INF/*" />
+            <zipfileset src="lib/sequencing-1.8.1-savant.jar" excludes="META-INF/*" />
             <zipfileset src="lib/core-1.8.1.jar" excludes="META-INF/*" />
         </jar>
         <delete dir="${dist.dir}/lib"/>
