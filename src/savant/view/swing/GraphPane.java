@@ -394,7 +394,6 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
             if (t.getRenderer().hasMappedValues()) {
                 List<Shape> currentSelected = t.getRenderer().getCurrentSelectedShapes(this);
                 if (currentSelected.size() > 0) {
-                    LOG.info(currentSelected.size() + " selected shapes on " + t.getName());
                     boolean arcMode = t.getDrawingMode() == DrawingMode.ARC_PAIRED;
                     for (Shape selectedShape: currentSelected) {
                         if (selectedShape != currentOverShape) {

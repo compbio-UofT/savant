@@ -80,12 +80,10 @@ public class SelectionController extends Controller<SelectionChangedEvent> {
     private void addSelectionWithoutEvent(String name, Record o) {
         ensureKey(name);
         int pos = binarySearchSelected(name, o);
-        System.out.println("binarySearchSelected(\"" + name + "\", o) returned " + pos);
         if (pos == -1) {
             map.get(name).add(o);
             Collections.sort(map.get(name));
             addToCurrentSelected(name, o);
-            System.out.println("Added to selection: map=" + map.get(name).size() + ", currentMap=" + currentMap.get(name).size() + ", rangeMap=" + rangeMap.get(name));
         }
     }
     

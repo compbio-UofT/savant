@@ -140,10 +140,8 @@ public class IntervalBamPopup extends PopupPanel implements Listener<DataRetriev
                 for (Record r: evt.getData()) {
                     SAMRecord current = ((BAMIntervalRecord)r).getSamRecord();
                     if (MiscUtils.isMate(samRec, current, true)) {
-                        System.out.println("Found match for " + samRec.getAlignmentStart() + " at " + current.getAlignmentStart());
                         for (Track t: gp.getTracks()) {
                             if (t.getDataFormat() == fileFormat){
-                                System.out.println("Adding " + r + " at " + current.getAlignmentStart());
                                 t.getRenderer().forceAddToSelected(r);
                                 break;
                             }
