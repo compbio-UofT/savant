@@ -354,6 +354,19 @@ public abstract class Track extends Controller<DataRetrievalEvent> implements Tr
     }
 
     /**
+     * Fires a DataSource successful completion event.  It will be posted to the
+     * AWT event-queue thread, so that UI code can function properly.
+     */
+    private void fireDataRetrievalCompleted() {
+        MiscUtils.invokeLaterIfNecessary(new Runnable() {
+            @Override
+            public void run() {
+                fireEvent(new DataRetrievalEvent(dataInRange));
+            }
+        });
+    }
+
+    /**
      * Fires a DataSource error event.  It will be posted to the AWT event-queue
      * thread, so that UI code can function properly.
      */
@@ -372,7 +385,7 @@ public abstract class Track extends Controller<DataRetrievalEvent> implements Tr
     public void cancelDataRequest() {
         if (retriever != null) {
             retriever.interrupt();
-            fireEvent(new DataRetrievalEvent(new Exception("Data retrieval cancelled")));
+            fireDataRetrievalFailed(new Exception("Data retrieval cancelled"));
         }
     }
 
@@ -384,7 +397,7 @@ public abstract class Track extends Controller<DataRetrievalEvent> implements Tr
      */
     public void saveNullData() {
         dataInRange = null;
-        fireEvent(new DataRetrievalEvent(dataInRange));
+        fireDataRetrievalCompleted();
     }
 
     /**
@@ -418,7 +431,7 @@ public abstract class Track extends Controller<DataRetrievalEvent> implements Tr
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("Retrieved " + (dataInRange != null ? Integer.toString(dataInRange.size()) : "no") + " records for " + name + "(" + reference + ":" + range + ")");
                 }
-                fireEvent(new DataRetrievalEvent(dataInRange));
+                fireDataRetrievalCompleted();
             } catch (Throwable x) {
                 LOG.error("Data retrieval failed.", x);
                 fireDataRetrievalFailed(x);
