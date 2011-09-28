@@ -57,7 +57,7 @@ public class TDFDataSource extends DataSource<GenericContinuousRecord> {
     private String rawUnhomogenised;
 
     public TDFDataSource(URI uri) throws IOException {
-        tdf = TDFReader.getReader(MiscUtils.getNeatPathFromURI(uri));
+        tdf = TDFReader.getReader(uri);
         this.uri = uri;
     }
 
