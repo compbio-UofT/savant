@@ -16,7 +16,6 @@
 package savant.view.swing;
 
 import java.awt.Color;
-import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JPanel;
 
@@ -28,7 +27,6 @@ import savant.api.adapter.TrackAdapter;
 import savant.controller.SelectionController;
 import savant.controller.TrackController;
 import savant.data.event.DataRetrievalEvent;
-import savant.data.event.DataRetrievalListener;
 import savant.data.types.Record;
 import savant.exception.RenderingException;
 import savant.exception.SavantTrackCreationCancelledException;
@@ -45,7 +43,7 @@ import savant.util.swing.DialogUtils;
  *
  * @author mfiume
  */
-public abstract class Track implements TrackAdapter {
+public abstract class Track extends Controller<DataRetrievalEvent> implements TrackAdapter {
     private static final Log LOG = LogFactory.getLog(Track.class);
     protected static final RenderingException ZOOM_MESSAGE = new RenderingException(MiscUtils.MAC ? "Zoom in to see data\nTo view data at this range, change Preferences > Track Resolutions" : "Zoom in to see data\nTo view data at this range, change Edit > Preferences > Track Resolutions", 0);
 
@@ -56,8 +54,6 @@ public abstract class Track implements TrackAdapter {
     protected final TrackRenderer renderer;
     private final DataSourceAdapter dataSource;
     private DataRetriever retriever;
-
-    private final List<DataRetrievalListener> listeners = new ArrayList<DataRetrievalListener>();
 
     // FIXME:
     private Frame frame;
@@ -82,7 +78,7 @@ public abstract class Track implements TrackAdapter {
         name = n;
 
         renderer.setTrackName(name);
-        addDataRetrievalListener(renderer);
+        addListener(renderer);
     }
 
     @Override
@@ -282,7 +278,7 @@ public abstract class Track implements TrackAdapter {
     // FIXME:
     public void setFrame(Frame frame) {
         this.frame = frame;
-        addDataRetrievalListener(frame);
+        addListener(frame);
     }
 
     /**
@@ -340,7 +336,7 @@ public abstract class Track implements TrackAdapter {
             }
         }
         dataInRange = null;
-        fireDataRetrievalStarted();
+        fireEvent(new DataRetrievalEvent());
         retriever = new DataRetriever(reference, range);
         retriever.start();
         try {
@@ -357,48 +353,6 @@ public abstract class Track implements TrackAdapter {
         }
     }
 
-    public final void addDataRetrievalListener(DataRetrievalListener l) {
-        synchronized (listeners){
-            listeners.add(l);
-        }
-    }
-
-    public void removeDataRetrievalListener(DataRetrievalListener l) {
-        synchronized (listeners) {
-            listeners.remove(l);
-        }
-    }
-
-    /**
-     * Fires a DataSource started event.  This is called from the AWT-EventQueue
-     * thread so it doesn't need to use invokeLater.
-     */
-    private void fireDataRetrievalStarted() {
-        synchronized (listeners) {
-            for (DataRetrievalListener l: listeners) {
-                l.dataRetrievalStarted(new DataRetrievalEvent());
-            }
-        }
-    }
-
-    /**
-     * Fires a DataSource successful completion event.  It will be posted to the
-     * AWT event-queue thread, so that UI code can function properly.
-     */
-    private void fireDataRetrievalCompleted() {
-        MiscUtils.invokeLaterIfNecessary(new Runnable() {
-            @Override
-            public void run() {
-                synchronized (listeners) {
-                    for (DataRetrievalListener l: listeners) {
-                        l.dataRetrievalCompleted(new DataRetrievalEvent(dataInRange));
-                    }
-                }
-            }
-        });
-
-    }
-
     /**
      * Fires a DataSource error event.  It will be posted to the AWT event-queue
      * thread, so that UI code can function properly.
@@ -407,11 +361,7 @@ public abstract class Track implements TrackAdapter {
         MiscUtils.invokeLaterIfNecessary(new Runnable() {
             @Override
             public void run() {
-                synchronized (listeners) {
-                    for (DataRetrievalListener l: listeners) {
-                        l.dataRetrievalFailed(new DataRetrievalEvent(x));
-                    }
-                }
+                fireEvent(new DataRetrievalEvent(x));
             }
         });
     }
@@ -422,7 +372,7 @@ public abstract class Track implements TrackAdapter {
     public void cancelDataRequest() {
         if (retriever != null) {
             retriever.interrupt();
-            fireDataRetrievalFailed(new Exception("Data retrieval cancelled"));
+            fireEvent(new DataRetrievalEvent(new Exception("Data retrieval cancelled")));
         }
     }
 
@@ -434,7 +384,7 @@ public abstract class Track implements TrackAdapter {
      */
     public void saveNullData() {
         dataInRange = null;
-        fireDataRetrievalCompleted();
+        fireEvent(new DataRetrievalEvent(dataInRange));
     }
 
     /**
@@ -468,7 +418,7 @@ public abstract class Track implements TrackAdapter {
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("Retrieved " + (dataInRange != null ? Integer.toString(dataInRange.size()) : "no") + " records for " + name + "(" + reference + ":" + range + ")");
                 }
-                fireDataRetrievalCompleted();
+                fireEvent(new DataRetrievalEvent(dataInRange));
             } catch (Throwable x) {
                 LOG.error("Data retrieval failed.", x);
                 fireDataRetrievalFailed(x);

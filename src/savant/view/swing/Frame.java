@@ -35,7 +35,6 @@ import savant.controller.LocationController;
 import savant.controller.TrackController;
 import savant.controller.event.GenomeChangedEvent;
 import savant.data.event.DataRetrievalEvent;
-import savant.data.event.DataRetrievalListener;
 import savant.data.event.TrackCreationEvent;
 import savant.data.event.TrackCreationListener;
 import savant.file.DataFormat;
@@ -52,7 +51,7 @@ import savant.view.swing.sequence.SequenceTrack;
  *
  * @author mfiume, AndrewBrook
  */
-public class Frame extends DockableFrame implements DataRetrievalListener, TrackCreationListener {
+public class Frame extends DockableFrame implements Listener<DataRetrievalEvent>, TrackCreationListener {
     private static final Log LOG = LogFactory.getLog(Frame.class);
 
     /** If true, the frame's construction was halted by an error or by the user cancelling. */
@@ -393,23 +392,21 @@ public class Frame extends DockableFrame implements DataRetrievalListener, Track
     }
 
     @Override
-    public void dataRetrievalStarted(DataRetrievalEvent evt) {
-    }
-
-    @Override
-    public void dataRetrievalCompleted(DataRetrievalEvent evt) {
-        LOG.trace("Frame received dataRetrievalCompleted.  Forcing full render.");
-        setYMaxVisible(evt.getData() != null && evt.getData().size() > 0);
-        graphPane.setRenderForced();
-        graphPane.repaint();
-    }
-
-    @Override
-    public void dataRetrievalFailed(DataRetrievalEvent evt) {
-        LOG.trace("Frame received dataRetrievalFailed.  Forcing full render.");
-        setYMaxVisible(false);
-        graphPane.setRenderForced();
-        graphPane.repaint();
+    public void handleEvent(DataRetrievalEvent evt) {
+        switch (evt.getType()) {
+            case COMPLETED:
+                LOG.trace("Frame received dataRetrievalCompleted.  Forcing full render.");
+                setYMaxVisible(evt.getData() != null && evt.getData().size() > 0);
+                graphPane.setRenderForced();
+                graphPane.repaint();
+                break;
+            case FAILED:
+                LOG.trace("Frame received dataRetrievalFailed.  Forcing full render.");
+                setYMaxVisible(false);
+                graphPane.setRenderForced();
+                graphPane.repaint();
+                break;
+        }
     }
 
     @Override

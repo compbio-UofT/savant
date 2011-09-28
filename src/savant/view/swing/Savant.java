@@ -450,6 +450,8 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
         menuitem_pluginmanager = new javax.swing.JMenuItem();
         jSeparator10 = new javax.swing.JPopupMenu.Separator();
         helpMenu = new javax.swing.JMenu();
+        userManualItem = new javax.swing.JMenuItem();
+        tutorialsItem = new javax.swing.JMenuItem();
         javax.swing.JMenuItem checkForUpdatesItem = new javax.swing.JMenuItem();
         javax.swing.JMenuItem bugReportItem = new javax.swing.JMenuItem();
         javax.swing.JMenuItem featureRequestItem = new javax.swing.JMenuItem();
@@ -877,6 +879,22 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
 
         helpMenu.setText("Help");
 
+        userManualItem.setText("Manuals");
+        userManualItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                userManualItemActionPerformed(evt);
+            }
+        });
+        helpMenu.add(userManualItem);
+
+        tutorialsItem.setText("Video Tutorials");
+        tutorialsItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                tutorialsItemActionPerformed(evt);
+            }
+        });
+        helpMenu.add(tutorialsItem);
+
         checkForUpdatesItem.setText("Check for updates");
         checkForUpdatesItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -1078,6 +1096,22 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
         MiscUtils.setFrameVisibility(frameKey, isVisible, auxDockingManager);
         bookmarksItem.setSelected(isVisible);
     }//GEN-LAST:event_bookmarksItemActionPerformed
+
+    private void tutorialsItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tutorialsItemActionPerformed
+        try {
+            Desktop.getDesktop().browse(BrowserSettings.MEDIA_URL.toURI());
+        } catch (Exception ex) {
+            LOG.error("Unable to access online tutorials.", ex);
+        }
+    }//GEN-LAST:event_tutorialsItemActionPerformed
+
+    private void userManualItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_userManualItemActionPerformed
+        try {
+            Desktop.getDesktop().browse(BrowserSettings.DOCUMENTATION_URL.toURI());
+        } catch (Exception ex) {
+            LOG.error("Unable to access online user manual.", ex);
+        }
+    }//GEN-LAST:event_userManualItemActionPerformed
 
     private void rulerItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rulerItemActionPerformed
         this.ruler.setVisible(!this.ruler.isVisible());
@@ -1381,7 +1415,9 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
     private javax.swing.JMenuItem toStartItem;
     private javax.swing.JToolBar toolbar_bottom;
     private javax.swing.JCheckBoxMenuItem toolsItem;
+    private javax.swing.JMenuItem tutorialsItem;
     private javax.swing.JMenuItem undoItem;
+    private javax.swing.JMenuItem userManualItem;
     private javax.swing.JMenu viewMenu;
     private javax.swing.ButtonGroup view_buttongroup;
     private javax.swing.JMenuItem websiteItem;
@@ -1605,6 +1641,8 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
         exportItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_I, MiscUtils.MENU_MASK));
 
         if (!Desktop.isDesktopSupported() || !Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
+            tutorialsItem.setEnabled(false);
+            userManualItem.setEnabled(false);
             websiteItem.setEnabled(false);
         }
         initBrowseMenu();

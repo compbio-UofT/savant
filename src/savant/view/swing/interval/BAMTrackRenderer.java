@@ -223,13 +223,17 @@ public class BAMTrackRenderer extends TrackRenderer {
     }
 
     @Override
-    public void dataRetrievalCompleted(DataRetrievalEvent evt) {
-        if ((DrawingMode)instructions.get(DrawingInstruction.MODE) == DrawingMode.ARC_PAIRED) {
-            int maxDataValue = BAMTrack.getArcYMax(evt.getData());
-            Range range = (Range)instructions.get(DrawingInstruction.RANGE);
-            addInstruction(DrawingInstruction.AXIS_RANGE, AxisRange.initWithRanges(range, new Range(0,(int)Math.round(maxDataValue+maxDataValue*0.1))));
+    public void handleEvent(DataRetrievalEvent evt) {
+        switch (evt.getType()) {
+            case COMPLETED:
+                if ((DrawingMode)instructions.get(DrawingInstruction.MODE) == DrawingMode.ARC_PAIRED) {
+                    int maxDataValue = BAMTrack.getArcYMax(evt.getData());
+                    Range range = (Range)instructions.get(DrawingInstruction.RANGE);
+                    addInstruction(DrawingInstruction.AXIS_RANGE, AxisRange.initWithRanges(range, new Range(0,(int)Math.round(maxDataValue+maxDataValue*0.1))));
+                }
+                break;
         }
-        super.dataRetrievalCompleted(evt);
+        super.handleEvent(evt);
     }
 
     @Override
@@ -1583,7 +1587,7 @@ public class BAMTrackRenderer extends TrackRenderer {
         }
     }
 
-    /*
+    /**
      * Find the mate for record with name readName in the list records.
      * If mate found, remove and return. Otherwise, return null.
      */
@@ -1592,7 +1596,7 @@ public class BAMTrackRenderer extends TrackRenderer {
         if(records == null) return null;
         for(int i = 0; i < records.size(); i++){
             SAMRecord samRecord2 = ((BAMIntervalRecord)records.get(i)).getSamRecord();
-            if(MiscUtils.isMate(samRecord, samRecord2)){
+            if (MiscUtils.isMate(samRecord, samRecord2, false)){
                 IntervalRecord intervalRecord = records.get(i);
                 records.remove(i);
                 return intervalRecord;

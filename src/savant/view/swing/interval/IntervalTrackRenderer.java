@@ -43,14 +43,18 @@ public class IntervalTrackRenderer extends TrackRenderer {
     }
 
     @Override
-    public void dataRetrievalCompleted(DataRetrievalEvent evt) {
-        DrawingMode mode = (DrawingMode)instructions.get(DrawingInstruction.MODE);
-        if (mode == DrawingMode.ARC) {
-            int maxDataValue = IntervalTrack.getMaxValue(evt.getData());
-            Range range = (Range)instructions.get(DrawingInstruction.RANGE);
-            addInstruction(DrawingInstruction.AXIS_RANGE, AxisRange.initWithRanges(range, new Range(0,(int)Math.round(Math.log(maxDataValue)))));
+    public void handleEvent(DataRetrievalEvent evt) {
+        switch (evt.getType()) {
+            case COMPLETED:
+                DrawingMode mode = (DrawingMode)instructions.get(DrawingInstruction.MODE);
+                if (mode == DrawingMode.ARC) {
+                    int maxDataValue = IntervalTrack.getMaxValue(evt.getData());
+                    Range range = (Range)instructions.get(DrawingInstruction.RANGE);
+                    addInstruction(DrawingInstruction.AXIS_RANGE, AxisRange.initWithRanges(range, new Range(0,(int)Math.round(Math.log(maxDataValue)))));
+                }
+                break;
         }
-        super.dataRetrievalCompleted(evt);
+        super.handleEvent(evt);
     }
 
     @Override

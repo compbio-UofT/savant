@@ -62,6 +62,10 @@ public class DataRetrievalEvent {
         this.error = error;
     }
 
+    public Type getType() {
+        return type;
+    }
+
     public List<Record> getData() {
         return data;
     }

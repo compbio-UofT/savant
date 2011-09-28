@@ -34,10 +34,6 @@ import org.apache.commons.logging.LogFactory;
 import savant.controller.GraphPaneController;
 import savant.controller.LocationController;
 import savant.controller.event.GraphPaneEvent;
-import savant.data.event.ExportEvent;
-import savant.data.event.ExportEventListener;
-import savant.data.event.PopupEvent;
-import savant.data.event.PopupEventListener;
 import savant.data.types.BAMIntervalRecord;
 import savant.data.types.GenericContinuousRecord;
 import savant.data.types.Record;
@@ -131,10 +127,6 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
     private enum keyModifier { DEFAULT, CTRL, SHIFT, META, ALT; };
     private keyModifier keyMod = keyModifier.DEFAULT;
 
-    //awaiting exported images
-    private final List<ExportEventListener> exportListeners = new ArrayList<ExportEventListener>();
-    private final List<PopupEventListener> popupListeners = new ArrayList<PopupEventListener>();
-
     /**
      * CONSTRUCTOR
      */
@@ -156,10 +148,6 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
                 parentFrame.resetLayers();
             }
         });
-
-        // GraphPaneController listens to popup events to make sure that only one
-        // popup is open at a time.
-        addPopupEventListener(controller);
     }
 
     /**
@@ -378,7 +366,6 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
             oldHeight = parentFrame.getFrameLandscape().getHeight();
 
             g2.drawImage(bufferedImage, 0, getOffset(), this);
-            fireExportReady(xRange, bufferedImage);
 
             renderCurrentSelected(g2);
             parentFrame.redrawSidePanel();
@@ -406,19 +393,22 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         for (Track t: tracks) {
             if (t.getRenderer().hasMappedValues()) {
                 List<Shape> currentSelected = t.getRenderer().getCurrentSelectedShapes(this);
-                boolean arcMode = t.getDrawingMode() == DrawingMode.ARC_PAIRED;
-                for (Shape selectedShape: currentSelected) {
-                    if (selectedShape != currentOverShape) {
-                        if (arcMode) {
-                            g2.setColor(Color.GREEN);
-                            g2.draw(selectedShape);
-                        } else {
-                            //g2.setColor(Color.GREEN);
-                            g2.setColor(new Color(0,255,0,150));
-                            g2.fill(selectedShape);
-                            if (selectedShape.getBounds().getWidth() > 5){
-                                g2.setColor(Color.BLACK);
+                if (currentSelected.size() > 0) {
+                    LOG.info(currentSelected.size() + " selected shapes on " + t.getName());
+                    boolean arcMode = t.getDrawingMode() == DrawingMode.ARC_PAIRED;
+                    for (Shape selectedShape: currentSelected) {
+                        if (selectedShape != currentOverShape) {
+                            if (arcMode) {
+                                g2.setColor(Color.GREEN);
                                 g2.draw(selectedShape);
+                            } else {
+                                //g2.setColor(Color.GREEN);
+                                g2.setColor(new Color(0,255,0,150));
+                                g2.fill(selectedShape);
+                                if (selectedShape.getBounds().getWidth() > 5){
+                                    g2.setColor(Color.BLACK);
+                                    g2.draw(selectedShape);
+                                }
                             }
                         }
                     }
@@ -1172,7 +1162,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
                 
                 createJidePopup();
                 PopupPanel pp = PopupPanel.create(this, tracks[0].getDrawingMode(), t.getDataSource(), overRecord);
-                fireNewPopup(pp);
+                GraphPaneController.getInstance().setPopup(pp);
                 if (pp != null){
                     popPanel.add(pp, BorderLayout.CENTER);
                     Point p1 = (Point)p.clone();
@@ -1335,52 +1325,6 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
             add(progressPanel);
         }
         progressPanel.setMessage(msg);
-    }
-    
-    public void addExportEventListener(ExportEventListener eel) {
-        synchronized (exportListeners) {
-            exportListeners.add(eel);
-        }
-    }
-
-    public void removeExportListener(ExportEventListener eel){
-        synchronized (exportListeners) {
-            exportListeners.remove(eel);
-        }
-    }
-
-    public void removeExportListeners(){
-        synchronized (exportListeners) {
-            exportListeners.clear();
-        }
-    }
-
-    public void fireExportReady(Range range, BufferedImage image){
-        int size = exportListeners.size();
-        for (int i = 0; i < size; i++){
-            exportListeners.get(i).exportCompleted(new ExportEvent(range, image));
-            size = exportListeners.size(); //a listener may get removed
-        }
-    }
-
-    public final void addPopupEventListener(PopupEventListener pel){
-        synchronized (popupListeners) {
-            popupListeners.add(pel);
-        }
-    }
-
-    public void removePopupListener(PopupEventListener eel){
-        synchronized (popupListeners) {
-            popupListeners.remove(eel);
-        }
-    }
-
-    public void fireNewPopup(PopupPanel popup){
-        int size = popupListeners.size();
-        for (int i = 0; i < size; i++){
-            popupListeners.get(i).newPopup(new PopupEvent(popup));
-            size = popupListeners.size(); //a listener may get removed
-        }
     }
     
     public void setScaledToFit(boolean value) {

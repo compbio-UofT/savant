@@ -32,13 +32,13 @@ import org.apache.commons.logging.LogFactory;
 import savant.controller.LocationController;
 import savant.controller.SelectionController;
 import savant.data.event.DataRetrievalEvent;
-import savant.data.event.DataRetrievalListener;
 import savant.data.types.Record;
 import savant.exception.RenderingException;
 import savant.util.ColourKey;
 import savant.util.ColourScheme;
 import savant.util.DrawingInstruction;
 import savant.util.DrawingMode;
+import savant.util.Listener;
 import savant.util.Resolution;
 
 
@@ -46,7 +46,7 @@ import savant.util.Resolution;
  *
  * @author mfiume, AndrewBrook, tarkvara
  */
-public abstract class TrackRenderer implements DataRetrievalListener {
+public abstract class TrackRenderer implements Listener<DataRetrievalEvent> {
     private static final Log LOG = LogFactory.getLog(TrackRenderer.class);
 
     private static final int MIN_TRANSPARENCY = 20;
@@ -62,6 +62,11 @@ public abstract class TrackRenderer implements DataRetrievalListener {
     protected TrackRenderer() {
     }
 
+    /**
+     * Set the track's name.  This is used only to provide a key when dealing with the SelectionController.
+     *
+     * @param name 
+     */
     public void setTrackName(String name) {
         trackName = name;
     }
@@ -69,38 +74,31 @@ public abstract class TrackRenderer implements DataRetrievalListener {
     /**
      * Sets the data to null so we know that there's nothing to render.
      *
-     * @param evt ignored
-     */
-    @Override
-    public void dataRetrievalStarted(DataRetrievalEvent evt) {
-        data = null;
-    }
-
-    /**
-     * Default handler just calls sets the renderer to have the newly-received data.
-     *
      * @param evt describes the data being received
      */
     @Override
-    public void dataRetrievalCompleted(DataRetrievalEvent evt) {
-        LOG.debug("TrackRenderer received dataRetrievalCompleted, removing PROGRESS.");
-        instructions.remove(DrawingInstruction.PROGRESS);
-        data = evt.getData();
+    public void handleEvent(DataRetrievalEvent evt) {
+        switch (evt.getType()) {
+            case STARTED:
+                // Sets the data to null so we know that there's nothing to render.
+                data = null;
+                break;
+            case COMPLETED:
+                // Default handler just sets the renderer to have the newly-received data.
+                LOG.debug("TrackRenderer received dataRetrievalCompleted, removing PROGRESS.");
+                instructions.remove(DrawingInstruction.PROGRESS);
+                data = evt.getData();
+                break;
+            case FAILED:
+                // Data retrieval has failed for some reason.
+                instructions.remove(DrawingInstruction.PROGRESS);
+                instructions.put(DrawingInstruction.ERROR, new RenderingException(evt.getError().getLocalizedMessage(), 3));
+                break;
+        }
     }
 
     public boolean isWaitingForData() {
         return data == null && instructions.containsKey(DrawingInstruction.PROGRESS);
-    }
-
-    /**
-     * Data retrieval has failed for some reason.
-     *
-     * @param evt describes the error
-     */
-    @Override
-    public void dataRetrievalFailed(DataRetrievalEvent evt) {
-        instructions.remove(DrawingInstruction.PROGRESS);
-        instructions.put(DrawingInstruction.ERROR, new RenderingException(evt.getError().getLocalizedMessage(), 3));
     }
 
     public void addInstruction(DrawingInstruction key, Object value) {
@@ -154,7 +152,7 @@ public abstract class TrackRenderer implements DataRetrievalListener {
             throw new RenderingException("No data for " + LocationController.getInstance().getReferenceName(), 1);
         }
         RenderingException error = (RenderingException)instructions.get(DrawingInstruction.ERROR);
-        if (error != null){
+        if (error != null) {
             throw error;
         }
         if (data == null || data.isEmpty()) {
@@ -165,13 +163,13 @@ public abstract class TrackRenderer implements DataRetrievalListener {
     /**
      * Check whether to perform selection for this track.
      *
-     * @param checkRes if true, return true only if resolution is very high
+     * @param checkRes if true, return true only if resolution is HIGH
      * @return whether or not to allow selection at this time
      */
-    public boolean selectionAllowed(boolean checkRes){
+    public boolean selectionAllowed(boolean checkRes) {
         Object instr_select = instructions.get(DrawingInstruction.SELECTION_ALLOWED);
-        if(instr_select == null || instr_select.equals(false)) return false;
-        if(checkRes){
+        if (instr_select == null || instr_select.equals(false)) return false;
+        if (checkRes) {
             Object instr_res = instructions.get(DrawingInstruction.RESOLUTION);
             if (instr_res == null || !instr_res.equals(Resolution.HIGH))
                  return false;
@@ -179,22 +177,22 @@ public abstract class TrackRenderer implements DataRetrievalListener {
         return true;
     }
 
-    public JPanel arcLegendPaint(){
+    public JPanel arcLegendPaint() {
         return null;
     }
 
-    public boolean hasMappedValues(){
+    public boolean hasMappedValues() {
         return !recordToShapeMap.isEmpty();
     }
 
-    public Map<Record, Shape> searchPoint(Point p){
+    public Map<Record, Shape> searchPoint(Point p) {
 
-        if(!selectionAllowed(true) || !hasMappedValues() || data == null) return null;
+        if (!selectionAllowed(true) || !hasMappedValues() || data == null) return null;
         
         //check for arcMode
         boolean isArc = false;
         DrawingMode mode = (DrawingMode)instructions.get(DrawingInstruction.MODE);
-        if (mode == DrawingMode.ARC_PAIRED){
+        if (mode == DrawingMode.ARC_PAIRED) {
             isArc = true;
         }
         
@@ -202,14 +200,14 @@ public abstract class TrackRenderer implements DataRetrievalListener {
         boolean found = false;
                
         Rectangle2D testIntersection = new Rectangle2D.Double(p.x-3, p.y-3, 7, 7);
-        for(int i = 0; i < data.size(); i++){
-            if(data.get(i) == null) continue;
+        for(int i = 0; i < data.size(); i++) {
+            if (data.get(i) == null) continue;
             Shape s = recordToShapeMap.get((Record)data.get(i));
-            if(s == null) continue;
+            if (s == null) continue;
 
-            //if(contains AND (notArc OR (isEdge...))          
-            if( (!isArc && s.contains(p)) || 
-                (isArc && s.intersects(testIntersection) && (!s.contains(p.x-3, p.y-3) || !s.contains(p.x+3, p.y-3)))){
+            //if (contains AND (notArc OR (isEdge...))          
+            if ( (!isArc && s.contains(p)) || 
+                (isArc && s.intersects(testIntersection) && (!s.contains(p.x-3, p.y-3) || !s.contains(p.x+3, p.y-3)))) {
                 map.put((Record)data.get(i), s);
                 found = true;
                 continue;
@@ -217,36 +215,37 @@ public abstract class TrackRenderer implements DataRetrievalListener {
             
             //check other artifacts
             Shape artifact = artifactMap.get((Record)data.get(i));
-            if(artifact != null && artifact.contains(p.x, p.y)){
+            if (artifact != null && artifact.contains(p.x, p.y)) {
                 map.put((Record)data.get(i), s);
                 found = true;
             }
         }
         
-        if(found) return map;
+        if (found) return map;
         else return null;
     }
 
-    public boolean rectangleSelect(Rectangle2D rect){
+    public boolean rectangleSelect(Rectangle2D rect) {
 
-        if(!selectionAllowed(false) || !hasMappedValues()) return false;
+        if (!selectionAllowed(false) || !hasMappedValues()) return false;
 
         boolean repaint = false;
         List<Record> toAdd = new ArrayList<Record>();
 
         Iterator<Record> it = this.recordToShapeMap.keySet().iterator();
-        while(it.hasNext()){
+        while (it.hasNext()) {
             Record o = it.next();
             Shape s = recordToShapeMap.get(o);
-            if(s == null) continue;
-            if(s.intersects(rect)){
+            if (s == null) continue;
+            if (s.intersects(rect)) {
                 toAdd.add(o);
                 repaint = true;
             }
         }
 
-        if(repaint)
+        if (repaint) {
             SelectionController.getInstance().addMultipleSelections(trackName, toAdd);
+        }
 
         return repaint;
     }
@@ -255,28 +254,30 @@ public abstract class TrackRenderer implements DataRetrievalListener {
 
     // GLOBAL SELECTED
 
-    public void addToSelected(Record i){
-        if(selectionAllowed(false)){
+    public void addToSelected(Record i) {
+        if (selectionAllowed(false)) {
             SelectionController.getInstance().toggleSelection(trackName, i);
         }
     }
-    
-    public void forceAddToSelected(Record i){
-        if(selectionAllowed(false)){
-            SelectionController.getInstance().addSelection(trackName, i);
-        }
+
+    /**
+     * Invoked when the user chooses "Select Pair" from the Bam popup menu.
+     * @param i record to be selected
+     */
+    public void forceAddToSelected(Record i) {
+        SelectionController.getInstance().addSelection(trackName, i);
     }
 
 
     /**
      * Current selected shapes.
      */
-    public List<Shape> getCurrentSelectedShapes(GraphPane gp){
+    public List<Shape> getCurrentSelectedShapes(GraphPane gp) {
         List<Shape> shapes = new ArrayList<Shape>();
         List<Record> currentSelected = SelectionController.getInstance().getSelectedFromList(trackName, LocationController.getInstance().getRange(), data);
-        for(int i = 0; i < currentSelected.size(); i++){
+        for(int i = 0; i < currentSelected.size(); i++) {
             Shape s = recordToShapeMap.get(currentSelected.get(i));
-            if (s != null){
+            if (s != null) {
                 shapes.add(s);
             }
         }
@@ -290,8 +291,8 @@ public abstract class TrackRenderer implements DataRetrievalListener {
         return alpha < MIN_TRANSPARENCY ? MIN_TRANSPARENCY : (alpha > MAX_TRANSPARENCY ? MAX_TRANSPARENCY : alpha);
     }
     
-    public void toggleGroup(ArrayList<Record> recs){
-        if(selectionAllowed(false)){
+    public void toggleGroup(ArrayList<Record> recs) {
+        if (selectionAllowed(false)) {
             SelectionController.getInstance().toggleGroup(trackName, recs);
         }
     }

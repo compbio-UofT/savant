@@ -458,10 +458,16 @@ public class MiscUtils {
 
     /**
      * If rec1 is likely a mate of rec2, return true.
+     * 
+     * @param rec1 first record
+     * @param rec2 second record
+     * @param extraCheck if true, equality check is insufficient to avoid self-mating; check positions as well
      */
-    public static boolean isMate(SAMRecord rec1, SAMRecord rec2){
+    public static boolean isMate(SAMRecord rec1, SAMRecord rec2, boolean extraCheck) {
+
+        // If rec1 and rec2 came from the same source (e.g. the same call to getRecords),
+        // an equality test is sufficient to avoid mating with ourselves.
         if (rec1 == rec2) {
-            // Avoid mating with ourselves.
             return false;
         }
         String name1 = rec1.getReadName();
@@ -469,9 +475,16 @@ public class MiscUtils {
         int len1 = name1.length();
         int len2 = name2.length();
 
-        // Check if names equal.
-        if (name1.equals(name2)) {
-            return true;
+        if (extraCheck) {
+            // Check if names equal and coordinates match as expected.
+            if (name1.equals(name2) && rec1.getMateAlignmentStart() == rec2.getAlignmentStart() && rec1.getAlignmentStart() == rec2.getMateAlignmentStart()) {
+                return true;
+            }
+        } else {
+            // Check if names equal.
+            if (name1.equals(name2)) {
+                return true;
+            }
         }
 
         //list of possible suffices...may grow over time.

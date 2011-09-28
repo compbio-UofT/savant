@@ -21,6 +21,7 @@ import java.text.ParseException;
 
 import savant.api.adapter.BookmarkAdapter;
 import savant.api.adapter.RangeAdapter;
+import savant.api.util.RangeUtils;
 import savant.controller.LocationController;
 
 
@@ -49,7 +50,7 @@ public class Bookmark implements BookmarkAdapter, Serializable {
     
     public Bookmark(String reference, Range r, String ann, boolean addMargin){
         this.setReference(reference);
-        this.setRange(addMargin ? addMargin(r) : r);
+        this.setRange(addMargin ? RangeUtils.addMargin(r) : r);
         this.setAnnotation(ann);
     }
 
@@ -145,7 +146,7 @@ public class Bookmark implements BookmarkAdapter, Serializable {
         annotation = ann;
 
         // Dictionary bookmarks are all given a margin.
-        setRange(addMargin(getRange()));
+        setRange(RangeUtils.addMargin(getRange()));
     }
 
     /**
@@ -189,16 +190,5 @@ public class Bookmark implements BookmarkAdapter, Serializable {
      */
     public final String getLocationText() {
         return String.format("%s:%d-%d", reference, from, to);
-    }
-
-    /**
-     * Calculate the range with an added margin for better display.
-     * @param r the range before adjustment
-     * @return a larger range.
-     */
-    public static Range addMargin(RangeAdapter r) {
-        int buffer = Math.max(250, r.getLength() / 4);
-        int newStart = Math.max(1, r.getFrom() - buffer);
-        return new Range(newStart, r.getTo() + buffer);
     }
 }

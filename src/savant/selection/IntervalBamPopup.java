@@ -21,16 +21,16 @@ import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.List;
 import javax.swing.JLabel;
 
 import net.sf.samtools.SAMRecord;
 
+import savant.api.util.RangeUtils;
 import savant.controller.LocationController;
 import savant.data.event.DataRetrievalEvent;
-import savant.data.event.DataRetrievalListener;
 import savant.data.types.BAMIntervalRecord;
 import savant.data.types.Record;
+import savant.util.Listener;
 import savant.util.MiscUtils;
 import savant.util.Range;
 import savant.view.swing.Track;
@@ -40,11 +40,10 @@ import savant.view.swing.Track;
  *
  * @author AndrewBrook
  */
-public class IntervalBamPopup extends PopupPanel implements DataRetrievalListener {
+public class IntervalBamPopup extends PopupPanel implements Listener<DataRetrievalEvent> {
 
     private BAMIntervalRecord rec;
     private SAMRecord samRec;
-    private IntervalBamPopup instance;
 
     public IntervalBamPopup(BAMIntervalRecord rec){
         this.rec = rec;
@@ -105,26 +104,29 @@ public class IntervalBamPopup extends PopupPanel implements DataRetrievalListene
 
             //jump to mate and select button
             JLabel mateJump1 = new JLabel("Select Pair");
-            mateJump1.setForeground(Color.BLUE);
-            mateJump1.setCursor(new Cursor(Cursor.HAND_CURSOR));
-            mateJump1.addMouseListener(new MouseAdapter() {
-                @Override
-                public void mouseClicked(MouseEvent e) {
-                    for (Track t: gp.getTracks()) {
-                        if (t.getDataFormat() == fileFormat){
-                            t.getRenderer().forceAddToSelected(record);
-                            break;
+            if (samRec.getReferenceName().equals(samRec.getMateReferenceName())) {
+                mateJump1.setForeground(Color.BLUE);
+                mateJump1.setCursor(new Cursor(Cursor.HAND_CURSOR));
+                mateJump1.addMouseListener(new MouseAdapter() {
+                    @Override
+                    public void mouseClicked(MouseEvent e) {
+                        for (Track t: gp.getTracks()) {
+                            if (t.getDataFormat() == fileFormat){
+                                t.getRenderer().forceAddToSelected(record);
+                                break;
+                            }
                         }
+                        int start = Math.min(samRec.getAlignmentStart(), samRec.getMateAlignmentStart());
+                        int end = Math.max(samRec.getAlignmentEnd(), samRec.getMateAlignmentStart() + samRec.getReadLength());
+                        gp.getTracks()[0].addListener(IntervalBamPopup.this);
+                        LocationController.getInstance().setLocation((Range)RangeUtils.addMargin(new Range(start, end)));
                     }
-                    //SelectionController.getInstance().addSelection(gp.getTracks()[0].getName(), rec);
-                    LocationController lc = LocationController.getInstance();
-                    int offset = (int)Math.ceil(((float) lc.getRange().getLength())/2);
-                    int start = samRec.getMateAlignmentStart()-offset;
-                    int end = start + lc.getRange().getLength() - 1;
-                    gp.getTracks()[0].addDataRetrievalListener(IntervalBamPopup.this);
-                    lc.setLocation(homogenizeRef(samRec.getMateReferenceName()), new Range(start, end));
-                }
-            });
+                });
+            } else {
+                // Mate is in a different ref, so Select Pair unavailable.
+                mateJump1.setEnabled(false);
+                mateJump1.setToolTipText("Disabled because mate is in " + samRec.getMateReferenceName());
+            }
             this.add(mateJump1);
         }
 
@@ -132,40 +134,26 @@ public class IntervalBamPopup extends PopupPanel implements DataRetrievalListene
     }
 
     @Override
-    public void dataRetrievalStarted(DataRetrievalEvent evt) {}
-
-    @Override
-    public void dataRetrievalCompleted(DataRetrievalEvent evt) {
-        for (Record rec: evt.getData()) {
-            SAMRecord current = ((BAMIntervalRecord)rec).getSamRecord();
-            if(MiscUtils.isMate(samRec, current)){
-                for (Track t: gp.getTracks()) {
-                    if (t.getDataFormat() == fileFormat){
-                        t.getRenderer().forceAddToSelected(rec);
+    public void handleEvent(DataRetrievalEvent evt) {
+        switch (evt.getType()) {
+            case COMPLETED:
+                for (Record r: evt.getData()) {
+                    SAMRecord current = ((BAMIntervalRecord)r).getSamRecord();
+                    if (MiscUtils.isMate(samRec, current, true)) {
+                        System.out.println("Found match for " + samRec.getAlignmentStart() + " at " + current.getAlignmentStart());
+                        for (Track t: gp.getTracks()) {
+                            if (t.getDataFormat() == fileFormat){
+                                System.out.println("Adding " + r + " at " + current.getAlignmentStart());
+                                t.getRenderer().forceAddToSelected(r);
+                                break;
+                            }
+                        }
                         break;
                     }
-                }
+                }       
+                hidePopup();
+                gp.getTracks()[0].removeListener(this);
                 break;
-            }
-        }       
-        hidePopup();
-
-        //remove listener (doing it immediately throws concurrent mod exception)
-        instance = this;
-        Runnable runnable = new RemoveDataThread();
-        Thread thread = new Thread(runnable, "BAM RemoveDataThread");
-        thread.start();
-    }
-
-    @Override
-    public void dataRetrievalFailed(DataRetrievalEvent evt) {}
-
-    //remove DataRetrievalListener after "Select Pair".
-    class RemoveDataThread implements Runnable {
-        @Override
-        public void run() {
-            gp.getTracks()[0].removeDataRetrievalListener(instance);
         }
     }
-
 }

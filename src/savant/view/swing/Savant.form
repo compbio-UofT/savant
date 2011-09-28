@@ -462,6 +462,22 @@
             <Property name="text" type="java.lang.String" value="Help"/>
           </Properties>
           <SubComponents>
+            <MenuItem class="javax.swing.JMenuItem" name="userManualItem">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Manuals"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="userManualItemActionPerformed"/>
+              </Events>
+            </MenuItem>
+            <MenuItem class="javax.swing.JMenuItem" name="tutorialsItem">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Video Tutorials"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="tutorialsItemActionPerformed"/>
+              </Events>
+            </MenuItem>
             <MenuItem class="javax.swing.JMenuItem" name="checkForUpdatesItem">
               <Properties>
                 <Property name="text" type="java.lang.String" value="Check for updates"/>

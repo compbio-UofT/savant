@@ -120,4 +120,17 @@ public class RangeUtils {
         }
         return new RangeAdapter[0];
     }
+    
+    /**
+     * Add a reasonable margin around the given range for a mor attractive display.
+     * Used for centring and highlighting bookmarks.
+     * @param r the range before adjustment
+     * @return a larger range.
+     * @since 1.6.1
+     */
+    public static RangeAdapter addMargin(RangeAdapter r) {
+        int buffer = Math.max(250, r.getLength() / 4);
+        int newStart = Math.max(1, r.getFrom() - buffer);
+        return new Range(newStart, r.getTo() + buffer);
+    }
 }

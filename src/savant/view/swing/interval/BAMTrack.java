@@ -247,7 +247,7 @@ public class BAMTrack extends Track {
         SAMRecord samRec = rec.getSamRecord();
         for (Record rec2: data) {
             SAMRecord current = ((BAMIntervalRecord)rec2).getSamRecord();
-            if(MiscUtils.isMate(samRec, current)){
+            if (MiscUtils.isMate(samRec, current, false)){
                 return (BAMIntervalRecord)rec2;
             }
         }

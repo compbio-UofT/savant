@@ -1,5 +1,5 @@
 /*
- *    Copyright 2010 University of Toronto
+ *    Copyright 2010-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -18,8 +18,10 @@ package savant.api.util;
 
 import savant.api.adapter.TrackAdapter;
 import savant.controller.SelectionController;
+import savant.controller.event.SelectionChangedEvent;
 import savant.controller.event.SelectionChangedListener;
 import savant.data.types.Record;
+import savant.util.Listener;
 
 /**
  * Utilities for data selection in Savant.
@@ -56,8 +58,8 @@ public class SelectionUtils {
      *
      * @param l the listener to subscribe
      */
-    public static void addSelectionChangedListener(SelectionChangedListener l) {
-        sc.addSelectionChangedListener(l);
+    public static void addListener(Listener<SelectionChangedEvent> l) {
+        sc.addListener(l);
     }
 
     /**
@@ -65,7 +67,32 @@ public class SelectionUtils {
      *
      * @param l the listener to unsubscribe
      */
+    public static void removeListener(Listener<SelectionChangedEvent> l) {
+        sc.removeListener(l);
+    }
+
+    /**
+     * Subscribe a listener to be notified when the selection changes.
+     *
+     * @param l the listener to subscribe
+     * @deprecated Use <code>addListener</code> instead
+     */
+    public static void addSelectionChangedListener(final SelectionChangedListener l) {
+        sc.addListener(new Listener<SelectionChangedEvent>() {
+            @Override
+            public void handleEvent(SelectionChangedEvent event) {
+                l.selectionChanged(event);
+            }
+        });
+    }
+
+    /**
+     * Unsubscribe a listener from being notified when the selection changes.
+     *
+     * @param l the listener to unsubscribe
+     * @deprecated Use <code>removeListener</code> instead
+     */
     public static void removeSelectionChangedListener(SelectionChangedListener l) {
-        sc.removeSelectionChangedListener(l);
+        // Does nothing.  Don't think anybody's actually using this method.
     }
 }
