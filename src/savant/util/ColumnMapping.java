@@ -197,4 +197,8 @@ public class ColumnMapping {
             return ColumnMapping.createIntervalMapping(chrom, start, end, name, oneBased);
         }
     }
+
+    public boolean isOneBased() {
+        return oneBased;
+    }
 }

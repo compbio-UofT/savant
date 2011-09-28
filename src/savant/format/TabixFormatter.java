@@ -117,7 +117,7 @@ public class TabixFormatter extends SavantFileFormatter {
     }
 
     @Override
-    public void format() throws InterruptedException, IOException {
+    public void format() throws InterruptedException, SavantFileFormattingException {
         try {
             // Sort the input file.
             setSubtaskStatus("Sorting input file...");
@@ -148,6 +148,8 @@ public class TabixFormatter extends SavantFileFormatter {
                             }
                         }
                         writer.println("#" + header);
+                        // Readjust our mapping now that we know the actual number of columns.
+                        mapping = ColumnMapping.inferMapping(header, mapping.oneBased);
                     }
                     return nextLine;
                 }
@@ -193,17 +195,19 @@ public class TabixFormatter extends SavantFileFormatter {
             writer.createIndex(outFile);
             setSubtaskProgress(75);
 
-            setSubtaskStatus("Creating dictionary file...");
-            output = new PrintWriter(new BlockCompressedOutputStream(outFile.getAbsolutePath() + ".dict"));
-            Collections.sort(dictionary);
-            for (String l: dictionary) {
-                output.println(l);
+            if (dictionary.size() > 0) {
+                setSubtaskStatus("Creating dictionary file...");
+                output = new PrintWriter(new BlockCompressedOutputStream(outFile.getAbsolutePath() + ".dict"));
+                Collections.sort(dictionary);
+                for (String l: dictionary) {
+                    output.println(l);
+                }
+                output.close();
             }
-            output.close();
             setSubtaskProgress(100);
         } catch (Exception x) {
             LOG.error("Unable to create tabix index.", x);
-            throw new IOException(x.getLocalizedMessage());
+            throw new SavantFileFormattingException(x.getLocalizedMessage());
         }
     }
 }
