@@ -16,11 +16,14 @@
 
 package savant.controller;
 
+import java.awt.Component;
 import java.beans.PropertyVetoException;
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 
 import com.jidesoft.docking.DockContext;
@@ -30,8 +33,8 @@ import com.jidesoft.docking.event.DockableFrameAdapter;
 import com.jidesoft.docking.event.DockableFrameEvent;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import savant.api.util.DialogUtils;
 
+import savant.api.util.DialogUtils;
 import savant.controller.event.LocationChangedEvent;
 import savant.controller.event.LocationChangedListener;
 import savant.file.DataFormat;
@@ -187,32 +190,27 @@ public class FrameController {
 
         DockingManager trackDockingManager = Savant.getInstance().getTrackDockingManager();
 
-        // remove bogus "#Workspace" frame
-        List<FrameHandle> simpleFrames = getCleanedOrderedFrames(trackDockingManager);
-
-        // the number of frames, currently
-        int numframes = simpleFrames.size();
-
         trackDockingManager.addFrame(f);
 
-        // Move the frame to the bottom of the stack
-        if (numframes != 0) {
-            FrameHandle lastFrame = simpleFrames.get(0);
+        // Insert the frame immediately below the currently-active frame.
+        if (frames.size() > 1) {
+            FrameHandle lastFrame = getFrontmostFrame(trackDockingManager);
             trackDockingManager.moveFrame(f.getKey(), lastFrame.getKey(), DockContext.DOCK_SIDE_SOUTH);
         }
     }
 
     /**
-     * Get a list of frames without the bogus "#Workspace" frame.
+     * Determine which one of our frames is the frontmost.  This will be used to determine the
+     * insertion position for the next frame.
      */
-    private List<FrameHandle> getCleanedOrderedFrames(DockingManager dm) {
-        List<FrameHandle> cleanFrames = new ArrayList<FrameHandle>();
+    private FrameHandle getFrontmostFrame(DockingManager dm) {
+        FrameHandle result = null;
         for (FrameHandle h : dm.getOrderedFrames()) {
             if (!h.getKey().startsWith("#")) {
-                cleanFrames.add(h);
+                result = h;
             }
         }
-        return cleanFrames;
+        return result;
     }
 
 
@@ -249,5 +247,26 @@ public class FrameController {
 
     public List<Frame> getFrames() {
         return frames;
+    }
+    
+    /**
+     * Returns the Frames ordered by their on-screen locations.
+     */
+    public Frame[] getOrderedFrames() {
+        Frame[] result = frames.toArray(new Frame[0]);
+        Arrays.sort(result, new Comparator<Component>() {
+            @Override
+            public int compare(Component t, Component t1) {
+                int result = t.getY() - t1.getY();
+                if (result == 0) {
+                    result = t.getX() - t1.getX();
+                }
+                if (result == 0) {
+                    result = compare(t.getParent(), t1.getParent());
+                }
+                return result;
+            }
+        });
+        return result;
     }
 }

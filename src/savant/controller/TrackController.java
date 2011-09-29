@@ -25,7 +25,6 @@ import org.apache.commons.logging.LogFactory;
 import savant.controller.event.TrackEvent;
 import savant.file.DataFormat;
 import savant.util.Controller;
-import savant.view.swing.Savant;
 import savant.view.swing.Track;
 
 /**

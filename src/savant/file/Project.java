@@ -27,7 +27,6 @@ import javax.xml.stream.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import savant.api.adapter.DataSourceAdapter;
 import savant.controller.*;
 import savant.controller.event.GenomeChangedEvent;
 import savant.data.types.Genome;
@@ -37,8 +36,8 @@ import savant.util.Bookmark;
 import savant.util.Listener;
 import savant.util.MiscUtils;
 import savant.util.Range;
-import savant.view.swing.Track;
-import savant.view.swing.interval.BAMCoverageTrack;
+import savant.view.swing.Frame;
+
 
 /**
  * Class which represents a Savant project file.
@@ -238,14 +237,11 @@ public class Project {
         writer.writeCharacters("\r\n  ");
         writer.writeEndElement();
 
-        for (Track t : TrackController.getInstance().getTracks()) {
-            if (!(t instanceof BAMCoverageTrack)) {
-                DataSourceAdapter ds = t.getDataSource();
-                URI uri = ds.getURI();
-                if (uri != null) {
-                    writeEmptyElement(XMLElement.track, "  ");
-                    writeAttribute(XMLAttribute.uri, MiscUtils.getNeatPathFromURI(uri));
-                }
+        for (Frame fr: FrameController.getInstance().getOrderedFrames()) {
+            URI uri = fr.getTracks()[0].getDataSource().getURI();
+            if (uri != null) {
+                writeEmptyElement(XMLElement.track, "  ");
+                writeAttribute(XMLAttribute.uri, MiscUtils.getNeatPathFromURI(uri));
             }
         }
 
