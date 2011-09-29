@@ -116,15 +116,6 @@ public abstract class TrackRenderer implements Listener<DataRetrievalEvent> {
     }
 
     /**
-     * Remove a drawing instruction from this renderer.
-     * 
-     * @param key the drawing instruction to be removed
-     */
-    public void removeInstruction(DrawingInstruction key) {
-        instructions.remove(key);
-    }
-
-    /**
      * Remove all instructions to allow for a fresh render.
      */
     public void clearInstructions() {
@@ -301,9 +292,8 @@ public abstract class TrackRenderer implements Listener<DataRetrievalEvent> {
      * Shared by BAMTrackRenderer and RichIntervalTrackRenderer to draw the white diamond
      * which indicates an insertion.
      */
-    public Shape drawInsertion(Graphics2D g2,GraphPane gp, int xStart, int level) {
+    public Shape drawInsertion(Graphics2D g2,GraphPane gp, int xStart, int level, double unitHeight) {
 
-        double unitHeight = gp.getUnitHeight();
         double unitWidth = gp.getUnitWidth();
 
         g2.setColor(Color.WHITE);

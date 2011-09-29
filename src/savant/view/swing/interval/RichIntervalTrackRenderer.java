@@ -151,7 +151,7 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
 
         // If length is 0, draw insertion rhombus.  It is drawn here so that the name can be drawn on top of it.
         if (interval.getLength() == 0){
-            Shape rhombus = drawInsertion(g2, gp, interval.getStart(), level);
+            Shape rhombus = drawInsertion(g2, gp, interval.getStart(), level, unitHeight);
             isInsertion = true;
 
             startXPos -= unitWidth * 0.5;   // So the name won't stomp on the leftward-pointing arrow of the insertion.
@@ -436,7 +436,7 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
                 //If length is 0, draw insertion rhombus.
                 if(interval.getLength() == 0){
 
-                    drawInsertion(g2, gp, interval.getStart(), level);
+                    drawInsertion(g2, gp, interval.getStart(), level, unitHeight);
                     // draw nothing else for this interval
                     continue;
                 }

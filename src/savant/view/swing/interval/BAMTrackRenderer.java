@@ -22,7 +22,6 @@ import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -44,7 +43,6 @@ import savant.data.types.Genome;
 import savant.data.types.Interval;
 import savant.data.types.IntervalRecord;
 import savant.data.types.Record;
-import savant.data.types.Strand;
 import savant.exception.RenderingException;
 import savant.settings.BrowserSettings;
 import savant.util.*;
@@ -61,6 +59,7 @@ public class BAMTrackRenderer extends TrackRenderer {
     private static final Log LOG = LogFactory.getLog(BAMTrackRenderer.class);
 
     private static final Font SMALL_FONT = new Font("Sans-Serif", Font.PLAIN, 10);
+    private static final Font MISMATCH_FONT = new Font("Sans-Serif", Font.PLAIN, 12);
     private static final Stroke ONE_STROKE = new BasicStroke(1.0f);
     private static final Stroke TWO_STROKE = new BasicStroke(2.0f);
 
@@ -68,151 +67,7 @@ public class BAMTrackRenderer extends TrackRenderer {
     private DrawingMode lastMode;
     private Resolution lastResolution;
 
-    // The number of standard deviations from the mean an arclength has to be before it's
-    // considered discordant
-    private static int DISCORDANT_STD_DEV = 3;
-
-    private char getColor(char fromstate, char tostate) {
-         switch(fromstate) {
-             case 'A':
-                 switch(tostate) {
-                     case 'A':
-                         return '0';
-                     case 'C':
-                         return '1';
-                     case 'T':
-                         return '3';
-                     case 'G':
-                         return '2';
-                 }
-             case 'C':
-                 switch(tostate) {
-                     case 'A':
-                         return '1';
-                     case 'C':
-                         return '0';
-                     case 'T':
-                         return '2';
-                     case 'G':
-                         return '3';
-                 }
-             case 'G':
-                 switch(tostate) {
-                     case 'A':
-                         return '2';
-                     case 'C':
-                         return '3';
-                     case 'T':
-                         return '1';
-                     case 'G':
-                         return '0';
-                 }
-             case 'T':
-                 switch(tostate) {
-                     case 'A':
-                         return '3';
-                     case 'C':
-                         return '2';
-                     case 'T':
-                         return '0';
-                     case 'G':
-                         return '1';
-                 }
-         }
-
-         //LOG.error("BMATrackRenderer.getColor : impossible state");
-         return '4';
-     }
-
-    private String translateColorSpaceToLetterSpace(String colors) {
-        char[] lettarr = new char[colors.length()-1];
-
-        char currentState = colors.charAt(0);
-        for (int i = 1; i < colors.length(); i++) {
-            currentState = translateColor(currentState,colors.charAt(i));
-            lettarr[i-1] = currentState;
-        }
-
-        return new String(lettarr);
-    }
-
-    private char translateColor(char letterState, char nextColor) {
-        switch(letterState) {
-            case 'A':
-                switch(nextColor) {
-                    case '0':
-                        return 'A';
-                    case '1':
-                        return 'C';
-                    case '2':
-                        return 'G';
-                    case '3':
-                        return 'T';
-                }
-            case 'T':
-                switch(nextColor) {
-                    case '0':
-                        return 'T';
-                    case '1':
-                        return 'G';
-                    case '2':
-                        return 'C';
-                    case '3':
-                        return 'A';
-                }
-            case 'C':
-                switch(nextColor) {
-                    case '0':
-                        return 'C';
-                    case '1':
-                        return 'A';
-                    case '2':
-                        return 'T';
-                    case '3':
-                        return 'G';
-                }
-            case 'G':
-                switch(nextColor) {
-                    case '0':
-                        return 'G';
-                    case '1':
-                        return 'T';
-                    case '2':
-                        return 'A';
-                    case '3':
-                        return 'C';
-                }
-            default:
-                LOG.error("Invalid letter state: " + letterState);
-                return 'N';
-        }
-    }
-
-    private String complement(String str) {
-        byte[] result = new byte[str.length()];
-        for (int i = 0; i < str.length(); i++) {
-            result[i] = complement((byte)str.charAt(i));
-        }
-        return new String(result);
-    }
-
-    private byte complement(byte c) {
-        switch(c) {
-            case 'A':
-                return 'T';
-            case 'T':
-                return 'A';
-            case 'C':
-                return 'G';
-            case 'G':
-                return 'C';
-            default:
-                LOG.error("BAMTrackRenderer.complement : unsupported character " + c);
-                return 'N';
-        }
-    }
-
-    private boolean fontFits(Font f, double width, double height, Graphics2D g2) {
+    private static boolean fontFits(Font f, double width, double height, Graphics2D g2) {
         String baseChar = "G";
         Rectangle2D charRect = f.getStringBounds(baseChar, g2.getFontRenderContext());
         if (charRect.getWidth() > width || charRect.getHeight() > height) return false;
@@ -244,10 +99,10 @@ public class BAMTrackRenderer extends TrackRenderer {
         Resolution r = (Resolution)instructions.get(DrawingInstruction.RESOLUTION);
 
         if (r == Resolution.HIGH) {
-            if (lastMode == DrawingMode.MISMATCH || lastMode == DrawingMode.SNP || lastMode == DrawingMode.STRAND_SNP || lastMode == DrawingMode.COLOURSPACE || lastMode == DrawingMode.SEQUENCE || lastMode == DrawingMode.BASE_QUALITY || lastMode == DrawingMode.STANDARD_PAIRED) {
+            if (lastMode == DrawingMode.MISMATCH || lastMode == DrawingMode.SNP || lastMode == DrawingMode.STRAND_SNP || lastMode == DrawingMode.SEQUENCE || lastMode == DrawingMode.STANDARD_PAIRED) {
                 // fetch reference sequence for comparison with cigar string
                 Genome genome = GenomeController.getInstance().getGenome();
-                if(genome.isSequenceSet()){
+                if (genome.isSequenceSet()) {
                     AxisRange axisRange = (AxisRange)instructions.get(DrawingInstruction.AXIS_RANGE);
                     Range range = axisRange.getXRange();
                     try {
@@ -286,9 +141,6 @@ public class BAMTrackRenderer extends TrackRenderer {
             case STANDARD:
             case MISMATCH:
             case SEQUENCE:
-            case MAPPING_QUALITY:
-            case BASE_QUALITY:
-            case COLOURSPACE:
                 if (r == Resolution.HIGH) {
                     renderPackMode(g2, gp, r);
                 }
@@ -312,7 +164,7 @@ public class BAMTrackRenderer extends TrackRenderer {
                 }
                 break;
         }
-        if (data.isEmpty()){
+        if (data.isEmpty()) {
             throw new RenderingException("No data in range", 1);
         }
     }
@@ -351,9 +203,6 @@ public class BAMTrackRenderer extends TrackRenderer {
         //resize frame if necessary
         if (gp.needsToResize()) return;
         
-        ColourScheme cs = (ColourScheme) instructions.get(DrawingInstruction.COLOR_SCHEME);
-        Color linecolor = cs.getColor(ColourKey.INTERVAL_LINE);
-
         // scan the map of intervals and draw the intervals for each level
         for (int level=0; level<intervals.size(); level++) {
 
@@ -361,85 +210,42 @@ public class BAMTrackRenderer extends TrackRenderer {
 
             for (IntervalRecord intervalRecord : intervalsThisLevel) {
 
-                Interval interval = intervalRecord.getInterval();
-
                 BAMIntervalRecord bamRecord = (BAMIntervalRecord) intervalRecord;
-                SAMRecord samRecord = bamRecord.getSamRecord();
 
-                if (samRecord.getReadUnmappedFlag()) { // this read is unmapped, don't visualize it
-
-                    this.recordToShapeMap.put(intervalRecord, null);
-
-                    continue;
-                }
-
-                Color readColour = null;
-
-                boolean strandFlag = samRecord.getReadNegativeStrandFlag();
-                Strand strand = strandFlag ? Strand.REVERSE : Strand.FORWARD ;
-
-                if (lastMode == DrawingMode.MAPPING_QUALITY) {
-                    Color basecolor = cs.getColor(strand == Strand.FORWARD ? ColourKey.FORWARD_STRAND : ColourKey.REVERSE_STRAND);
-
-                    int alpha = getConstrainedAlpha(samRecord.getMappingQuality());
-                    readColour = new Color(basecolor.getRed(),basecolor.getGreen(),basecolor.getBlue(),alpha);
-                } else if (lastMode == DrawingMode.BASE_QUALITY) {
-                    readColour = new Color(0,0,0,0);
+                if (bamRecord.getSamRecord().getReadUnmappedFlag()) {
+                    // this read is unmapped, don't visualize it
+                    recordToShapeMap.put(intervalRecord, null);
                 } else {
-                    g2.setColor(cs.getColor(strand == Strand.FORWARD ? ColourKey.FORWARD_STRAND : ColourKey.REVERSE_STRAND));
-                }
-
-                Color override = ((BAMIntervalRecord)intervalRecord).getColor();
-                if (override != null){
-                    readColour = override;
-                }
-                
-                Polygon readshape = renderRead(g2, gp, samRecord, interval, level, range, readColour);
-
-                this.recordToShapeMap.put(intervalRecord, readshape);
-
-                if (lastMode == DrawingMode.BASE_QUALITY) {
-                    renderBQMismatches(g2, gp, samRecord, level, refSeq, range);
-                }
-
-                if (lastMode == DrawingMode.MISMATCH) {
-                    // visualize variations (indels and mismatches)
-                    renderMismatches(g2, gp, samRecord, level, refSeq, range);
-                } else if (lastMode == DrawingMode.SEQUENCE) {
-                    renderLetters(g2, gp, samRecord, level, refSeq, range);
-                } else if (lastMode == DrawingMode.COLOURSPACE) {
-                    renderColorMismatches(g2, gp, samRecord, level, refSeq, range);
-                }
-
-                // draw outline, if there's room
-                if (readshape.getBounds().getHeight() > 4) {
-                    g2.setColor(linecolor);
-                    g2.draw(readshape);
+                    Polygon readshape = renderRead(g2, gp, bamRecord, level, range, gp.getUnitHeight());
+                    recordToShapeMap.put(intervalRecord, readshape);
                 }
             }
         }
 
     }
 
-    public Polygon renderRead(Graphics2D g2, GraphPane gp, SAMRecord samRecord, Interval interval, int level, Range range, Color c) {
-        return renderRead(g2, gp, samRecord, interval, level, range, c, -1);
-    }
-        
-    public Polygon renderRead(Graphics2D g2, GraphPane gp, SAMRecord samRecord, Interval interval, int level, Range range, Color c, double forcedHeight) {
+    public Polygon renderRead(Graphics2D g2, GraphPane gp, BAMIntervalRecord rec, int level, Range range, double unitHeight) {
+
+        SAMRecord samRec = rec.getSamRecord();
+        boolean reverseStrand = samRec.getReadNegativeStrandFlag();
+
+        ColourScheme cs = (ColourScheme) instructions.get(DrawingInstruction.COLOR_SCHEME);
+        Color readColor = cs.getColor(reverseStrand ? ColourKey.REVERSE_STRAND : ColourKey.FORWARD_STRAND);
+
+        Color override = rec.getColor();
+        if (override != null) {
+            readColor = override;
+        }
+        if ((Boolean)instructions.get(DrawingInstruction.MAPPING_QUALITY)) {
+            int alpha = getConstrainedAlpha(samRec.getMappingQuality());
+            readColor = new Color(readColor.getRed(), readColor.getGreen(), readColor.getBlue(), alpha);
+        }
 
         double x=0;
         double y=0;
         double w=0;
         double h=0;
 
-        double unitHeight;
-        if(forcedHeight > 0){
-            unitHeight = forcedHeight;
-        } else {
-            unitHeight = gp.getUnitHeight();
-        }
-
-        //unitHeight = intervalHeight;
         double arrowHeight = unitHeight/2;
         double arrowWidth = unitHeight/4;
 
@@ -451,29 +257,22 @@ public class BAMTrackRenderer extends TrackRenderer {
         //y = gp.transformYPos(0) - (level + 1)*unitHeight;
         y = gp.transformYPos(0) - (level + 1)*unitHeight - gp.getOffset();
         
-        w = gp.getWidth(interval.getLength());
+        w = gp.getWidth(rec.getInterval().getLength());
 
-        //if (w < 1) {
-        //    return null; // don't draw intervals less than one pixel wide
-        //}
         if (w > arrowWidth) {
             drawPoint = true;
         }
         h = unitHeight;
-        x = gp.transformXPos(interval.getStart());
+        x = gp.transformXPos(rec.getInterval().getStart());
 
         // cut off x and w so no drawing happens off-screen
-//        double x2 = Math.min(rightMostX, x+w);
-//        x = Math.max(leftMostX, x);
-//        w = x2 - x;
         boolean cutoffLeft = false;
         boolean cutoffRight = false;
         double x2;
         if (rightMostX < x+w) {
             x2 = rightMostX;
             cutoffRight = true;
-        }
-        else {
+        } else {
             x2 = x+w;
         }
         if (leftMostX > x) {
@@ -483,192 +282,41 @@ public class BAMTrackRenderer extends TrackRenderer {
         w = x2 - x;
 
         // find out which direction we're pointing
-        boolean strandFlag = samRecord.getReadNegativeStrandFlag();
-        Strand strand = strandFlag ? Strand.REVERSE : Strand.FORWARD ;
-
         Polygon pointyBar = new Polygon();
         pointyBar.addPoint((int)x, (int)y);
         pointyBar.addPoint((int)(x+w), (int)y);
-        if (strand == Strand.FORWARD && drawPoint && !cutoffRight) {
+        if (!reverseStrand && drawPoint && !cutoffRight) {
             pointyBar.addPoint((int)(x+w+arrowWidth), (int)(y+arrowHeight));
         }
         pointyBar.addPoint((int)(x+w), (int)(y+h));
         pointyBar.addPoint((int)x, (int)(y+h));
-        if (strand == Strand.REVERSE && drawPoint && !cutoffLeft) {
+        if (reverseStrand && drawPoint && !cutoffLeft) {
             pointyBar.addPoint((int)(x-arrowWidth), (int)(y+arrowHeight));
         }
-        g2.setColor(c);
         
-        g2.fill(pointyBar);
+        // Only fill in the read if we're not going to slam bases on top of it.
+        boolean baseQuality = (Boolean)instructions.get(DrawingInstruction.BASE_QUALITY);
+        if (lastMode != DrawingMode.SEQUENCE && !baseQuality) {
+            g2.setColor(readColor);
+            g2.fill(pointyBar);
+        }
 
+        // Render individual bases/mismatches as appropriate for the current mode.
+        if (lastMode != DrawingMode.STANDARD || baseQuality) {
+            renderBases(g2, gp, samRec, level, refSeq, range, unitHeight);
+        }
+
+        // Draw outline, if there's room
+        if (pointyBar.getBounds().getHeight() > 4) {
+            g2.setColor(cs.getColor(ColourKey.INTERVAL_LINE));
+            g2.draw(pointyBar);
+        }
         return pointyBar;
 
     }
 
-    private void renderColorMismatches(Graphics2D g2, GraphPane gp, SAMRecord samRecord, int level, byte[] refSeq, Range range) {
-
-
-        // colours
-        String colors = samRecord.getStringAttribute("CS");
-        String readseq = samRecord.getReadString();
-        ColourScheme cs = (ColourScheme)instructions.get(DrawingInstruction.COLOR_SCHEME);
-
-        boolean revstrand = samRecord.getReadNegativeStrandFlag();
-
-        if (samRecord.getReadNegativeStrandFlag()) {
-            readseq = MiscUtils.reverseString(readseq);
-        }
-
-        String modreadseq;
-        
-        if (revstrand) {
-            modreadseq = colors.charAt(0) + complement(readseq.trim());
-        } else {
-            modreadseq = colors.charAt(0) + readseq.trim();
-        }
-
-
-        LOG.debug(samRecord.getReadName());
-        LOG.debug(colors);
-        LOG.debug(modreadseq);
-        LOG.debug(refSeq);
-
-
-        if (colors == null || colors.equals("")) { return; }
-
-        double unitHeight = gp.getUnitHeight();
-        double unitWidth = gp.getUnitWidth();
-        int offset = gp.getOffset();
-        int xCoordinate;
-        int yCoordinate;
-        int cursor = 0;
-        int deladvance = 0;
-        int insadvance = 0;
-        int clipOffset = 0;
-        Cigar cigar = samRecord.getCigar();
-        CigarOperator operator;
-        int operatorLength;
-
-        char currentState = colors.charAt(0);
-        char nextState;
-
-        colors = colors.substring(1);
-
-        List<CigarElement> cigars = cigar.getCigarElements();
-        List<CigarElement> cigsclone = new ArrayList<CigarElement>();
-        cigsclone.addAll(cigars);
-        if (revstrand) {
-            Collections.reverse(cigsclone);
-        }
-
-        for (CigarElement cigarElement : cigsclone) {
-            operatorLength = cigarElement.getLength();
-            operator = cigarElement.getOperator();
-
-            if (operator == CigarOperator.H) {
-                clipOffset += operatorLength;
-            }
-
-            //System.out.println("OP=" + operator + "\tL=" + operatorLength + "\tRD=" + operator.consumesReadBases() + "\tRF=" + operator.consumesReferenceBases());
-            if (operator.consumesReadBases()) {
-                if (operator == CigarOperator.I) {
-
-                    cursor += operatorLength;
-                    insadvance += operatorLength;
-
-                    g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                    g2.setColor(Color.white);
-                    if (revstrand) {
-                        xCoordinate = (int)gp.transformXPos(samRecord.getAlignmentEnd() - cursor + operatorLength + 1);
-                    } else {
-                        xCoordinate = (int)gp.transformXPos(samRecord.getAlignmentStart() + cursor);
-                    }
-                    yCoordinate = (int)(gp.transformYPos(0)-((level + 1)*unitHeight)) + 1 - offset;
-                    if((int)unitWidth/3 < 4 || (int)(unitHeight/2) < 6){
-                        yCoordinate = yCoordinate - 1;
-                        int lineWidth = Math.max((int)(unitWidth * (2.0/3.0)), 1);
-                        int xCoordinate1 = (int)(xCoordinate - Math.floor(lineWidth/2));
-                        int xCoordinate2 = (int)(xCoordinate - Math.floor(lineWidth/2)) + lineWidth - 1;
-                        if(xCoordinate1 == xCoordinate2) xCoordinate2++;
-                        int[] xPoints = {xCoordinate1, xCoordinate2, xCoordinate2, xCoordinate1};
-                        int[] yPoints = {yCoordinate, yCoordinate, yCoordinate+(int)unitHeight, yCoordinate+(int)unitHeight};
-                        g2.fillPolygon(xPoints, yPoints, 4);
-                    } else {
-                        int[] xPoints = {xCoordinate, xCoordinate+(int)(unitWidth/3), xCoordinate, xCoordinate-(int)(unitWidth/3)};
-                        int[] yPoints = {yCoordinate, yCoordinate+(int)(unitHeight/2), yCoordinate+(int)unitHeight-1, yCoordinate+(int)(unitHeight/2)};
-                        g2.fillPolygon(xPoints, yPoints, 4);
-                        if((int)unitWidth/3 >= 7 && (int)(unitHeight/2) >= 5){
-                            g2.setColor(cs.getColor(ColourKey.INTERVAL_LINE));
-                            g2.drawLine(xCoordinate, (int)yCoordinate, xCoordinate, (int)(yCoordinate+unitHeight)-1);
-                        }
-                    }
-
-                    
-                } else {
-
-                    for (int i = cursor;(i < cursor + operatorLength); i++) {
-                        int askForIndex = i - deladvance + insadvance;
-
-                        if (revstrand) {
-                            xCoordinate = (int) gp.transformXPos(samRecord.getAlignmentEnd() - i - deladvance + insadvance);
-                        } else {
-                            xCoordinate = (int) gp.transformXPos(samRecord.getAlignmentStart() + i + deladvance - insadvance);
-                        }
-                        yCoordinate = (int) (gp.transformYPos(0)-((level)*unitHeight) - offset);
-
-                        if (askForIndex >= 0 && (
-                                (revstrand && ((samRecord.getAlignmentEnd() - askForIndex + 2*insadvance ) >= range.getFrom() - 1))
-                                || (!revstrand && ((askForIndex + samRecord.getAlignmentStart() - 2*insadvance) <= range.getTo() + 1))
-                                )) {
-
-                            if (getColor(modreadseq.charAt(i),modreadseq.charAt(i+1)) != colors.charAt(i + clipOffset)) {
-
-                                Rectangle.Double rect = new Rectangle.Double(xCoordinate, yCoordinate - unitHeight, unitWidth, unitHeight);
-                                Color fillcol = cs.getBaseColor(translateColor(modreadseq.charAt(i), colors.charAt(i + clipOffset)));
-                                g2.setPaint(fillcol != null ? fillcol : cs.getColor(ColourKey.DELETED_BASE));
-                                g2.fill(rect);
-
-                                if (unitWidth > 10 && unitHeight > 10) {
-                                    g2.setPaint(Color.black);
-                                    if (revstrand) {
-                                        g2.drawString("" + colors.charAt(i+clipOffset), xCoordinate + (int) unitWidth - 3, yCoordinate - (int) (unitHeight/2) + 3);
-                                    } else {
-                                        g2.drawString("" + colors.charAt(i+clipOffset), xCoordinate - 3, yCoordinate - (int) (unitHeight/2) + 4);
-                                    }
-                                }
-                            }
-
-                            if (unitWidth > 10 && unitHeight > 10) {
-                                    g2.setPaint(Color.black);
-                                    if (revstrand) {
-                                        g2.drawString("" + colors.charAt(i), xCoordinate + (int) unitWidth - 3, yCoordinate - (int) (unitHeight/2) + 3);
-                                    } else {
-                                        g2.drawString("" + colors.charAt(i), xCoordinate - 3, yCoordinate - (int) (unitHeight/2) + 4);
-                                    }
-                                }
-                        }
-                    }
-                    cursor += operatorLength;
-                }
-            } else if (operator.consumesReferenceBases()) {
-                deladvance += operatorLength;
-                if (operator == CigarOperator.D) {
-                    if (revstrand) {
-                        xCoordinate = (int) gp.transformXPos(samRecord.getAlignmentEnd() - cursor - operatorLength + 1);
-                    } else {
-                        xCoordinate = (int) gp.transformXPos(samRecord.getAlignmentStart() + cursor);
-                    }
-                        yCoordinate = (int) (gp.transformYPos(0)-((level)*unitHeight) - offset);
-                        Rectangle.Double rect = new Rectangle.Double(xCoordinate, yCoordinate - unitHeight, unitWidth*operatorLength, unitHeight);
-                        g2.setColor(Color.black);
-                        g2.fill(rect);
-                }
-            }
-        }
-    }
-
     private ColourKey getSubPileColour(Nucleotide snpNuc, Nucleotide genomeNuc) {
-        if (snpNuc.equals(genomeNuc)){
+        if (snpNuc.equals(genomeNuc)) {
             return ColourKey.REVERSE_STRAND;
         } else {
             if (snpNuc.equals(Nucleotide.A)) {
@@ -685,117 +333,109 @@ public class BAMTrackRenderer extends TrackRenderer {
         }
     }
 
-    private void renderLetters(Graphics2D g2, GraphPane gp, SAMRecord samRecord, int level, byte[] refSeq, Range range) {
+    /**
+     * Render the individual bases on top of the read.  Depending on the drawing mode
+     * this can be either bases read or mismatches.
+     */
+    private void renderBases(Graphics2D g2, GraphPane gp, SAMRecord samRecord, int level, byte[] refSeq, Range range, double unitHeight) {
 
         ColourScheme cs = (ColourScheme) instructions.get(DrawingInstruction.COLOR_SCHEME);
-        Color linecolor = cs.getColor(ColourKey.INTERVAL_LINE);
-
-        double unitHeight = gp.getUnitHeight();
+        
+        boolean baseQualityEnabled = (Boolean)instructions.get(DrawingInstruction.BASE_QUALITY);
+        boolean drawingAllBases = lastMode == DrawingMode.SEQUENCE || baseQualityEnabled;
+        
         double unitWidth = gp.getUnitWidth();
         int offset = gp.getOffset();
 
-        // cutoffs to determine when not to draw
+        // Cutoffs to determine when not to draw
         double leftMostX = gp.transformXPos(range.getFrom());
         double rightMostX = gp.transformXPos(range.getTo()) + unitWidth;
 
-        // visualize variations (indels and mismatches)
         int alignmentStart = samRecord.getAlignmentStart();
-        int alignmentEnd = samRecord.getAlignmentEnd();
 
         byte[] readBases = samRecord.getReadBases();
+        byte[] baseQualities = samRecord.getBaseQualities();
         boolean sequenceSaved = readBases.length > 0;
         Cigar cigar = samRecord.getCigar();
 
-        // absolute positions in the reference sequence and the read bases, set after each cigar operator is processed
+        // Absolute positions in the reference sequence and the read bases, set after each cigar operator is processed
         int sequenceCursor = alignmentStart;
         int readCursor = alignmentStart;
 
-        CigarOperator operator;
-        int operatorLength;
         for (CigarElement cigarElement : cigar.getCigarElements()) {
 
-            operatorLength = cigarElement.getLength();
-            operator = cigarElement.getOperator();
+            int operatorLength = cigarElement.getLength();
+            CigarOperator operator = cigarElement.getOperator();
             Rectangle2D.Double opRect = null;
 
             double opStart = gp.transformXPos(sequenceCursor);
             double opWidth = gp.getWidth(operatorLength);
 
-            // cut off start and width so no drawing happens off-screen, must be done in the order w, then x, since w depends on first value of x
-            double x2 = Math.min(rightMostX, opStart+opWidth);
+            // Cut off start and width so no drawing happens off-screen, must be done in the order w, then x, since w depends on first value of x
+            double x2 = Math.min(rightMostX, opStart + opWidth);
             opStart = Math.max(leftMostX, opStart);
             opWidth = x2 - opStart;
 
-            if (operator == CigarOperator.D) {
-                // Deletion
-                double width = gp.getWidth(operatorLength);
-                if (width < 1) width = 1;
-                opRect = new Rectangle2D.Double(opStart, gp.transformYPos(0)-((level + 1)*unitHeight)-offset, Math.max(opWidth, 1), unitHeight);
-                g2.setColor(Color.black);
-                g2.fill(opRect);
+            switch (operator) {
+                case D: // Deletion
+                    renderDeletion(g2, gp, opStart, level, operatorLength, unitHeight);
+                    break;
+                
+                case I: // Insertion
+                    renderInsertion(g2, gp, sequenceCursor, level, unitHeight);
+                    break;
+                    
+                case M: // Match or mismatch
+                    // some SAM files do not contain the read bases
+                    if (sequenceSaved) {
+                        for (int i=0; i < operatorLength; i++) {
+                            // indices into refSeq and readBases associated with this position in the cigar string
+                            int readIndex = readCursor-alignmentStart+i;
+                            int refIndex = sequenceCursor + i - range.getFrom();
+                            if (refIndex >= 0 && (refSeq == null || refIndex < refSeq.length)) {
+                                
+                                boolean mismatched = refSeq[refIndex] != readBases[readIndex];
+                                
+                                if (mismatched || drawingAllBases) {
+                                    Color col;
+                                    if ((mismatched && lastMode != DrawingMode.STANDARD) || lastMode == DrawingMode.SEQUENCE) {
+                                        col = cs.getBaseColor((char)readBases[readIndex]);
+                                    } else {
+                                        col = cs.getColor(samRecord.getReadNegativeStrandFlag() ? ColourKey.REVERSE_STRAND : ColourKey.FORWARD_STRAND);
+                                    }
 
-            } else if (operator == CigarOperator.I) {
-                // Insertion
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(Color.white);
-                double xCoord = gp.transformXPos(sequenceCursor);
-                double yCoord = gp.transformYPos(0) - ((level + 1) * unitHeight) + 1 - offset;
-                if ((int)unitWidth/3 < 4 || (int)(unitHeight/2) < 6){
-                    yCoord--;
-                    double lineWidth = Math.max((int)(unitWidth * (2.0/3.0)), 1);
-                    double xCoord1 = opStart - Math.floor(lineWidth/2);
-                    double xCoord2 = opStart - Math.floor(lineWidth/2) + lineWidth - 1;
-                    if (xCoord1 == xCoord2) xCoord2++;
-                    g2.fill(MiscUtils.createPolygon(xCoord1, yCoord, xCoord2, yCoord, xCoord2, yCoord + unitHeight, xCoord1, yCoord + unitHeight));
-                } else {
-                    g2.fill(MiscUtils.createPolygon(xCoord, yCoord, xCoord + unitWidth / 3, yCoord + unitWidth * 0.5, xCoord, yCoord + unitHeight - 1.0, xCoord - unitWidth / 3, yCoord + unitHeight * 0.5));
-                    if (unitWidth >= 21.0 && unitHeight >= 10.0) {
-                        g2.setColor(linecolor);
-                        g2.draw(new Line2D.Double(xCoord, yCoord, xCoord, yCoord + unitHeight - 1.0));
-                    }
-                }
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
+                                    if (baseQualityEnabled && col != null) {
+                                        col = new Color(col.getRed(), col.getGreen(), col.getBlue(), getConstrainedAlpha((int)Math.round((baseQualities[readIndex] * 0.025) * 255)));
+                                    }
 
-            } else if (operator == CigarOperator.M) {
-                // match or mismatch
-
-                // some SAM files do not contain the read bases
-                if (sequenceSaved) {
-                    // determine if there's a mismatch
-                    for (int i=0; i<operatorLength; i++) {
-                        // indices into refSeq and readBases associated with this position in the cigar string
-                        int readIndex = readCursor-alignmentStart+i;
-                        int refIndex = sequenceCursor + i - range.getFrom();
-
-                        if (refIndex < 0 || (refSeq != null && refIndex >= refSeq.length)) {
-                            // Outside sequence and drawing range.
-                            continue;
-                        }
-                        Color baseColor = cs.getBaseColor((char)readBases[readIndex]);
-                        if (baseColor != null) {
-                            double xCoordinate = gp.transformXPos(sequenceCursor+i);
-                            opRect = new Rectangle2D.Double(xCoordinate, gp.transformYPos(0)-((level + 1)*unitHeight) - offset, unitWidth, unitHeight);
-                            g2.setColor(baseColor);
-                            g2.fill(opRect);
+                                    double xCoordinate = gp.transformXPos(sequenceCursor + i);
+                                    if (col != null) {
+                                        opRect = new Rectangle2D.Double(xCoordinate, gp.transformYPos(0)-((level + 1)*unitHeight) - offset, unitWidth, unitHeight);
+                                        g2.setColor(col);
+                                        g2.fill(opRect);
+                                    }
+                                    if (mismatched && fontFits(BrowserSettings.getTrackFont(),unitWidth,unitHeight,g2)) {
+                                        // If it's a real mismatch, we want to draw the base letter (space permitting).
+                                        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                                        g2.setColor(new Color(10, 10, 10));
+                                        g2.setFont(MISMATCH_FONT);
+                                        g2.drawBytes(readBases, readIndex, 1, (int) (xCoordinate + unitWidth/2 - g2.getFontMetrics().bytesWidth(readBases, readIndex, 1)/2), (int) ((gp.transformYPos(0)-((level)*unitHeight))-unitHeight/2+g2.getFontMetrics().getMaxAscent()/2));
+                                        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
+                                    }
+                                }
+                            }
                         }
                     }
-                }
-            } else if (operator == CigarOperator.N) {
-                // skipped
-                // draw nothing
-                opRect = new Rectangle2D.Double(opStart, gp.transformYPos(0)-((level+1)*unitHeight) - offset, opWidth, unitHeight);
-                g2.setColor(Color.gray);
-                g2.fill(opRect);
+                    break;
+               
+                case N: // Skipped
+                    opRect = new Rectangle2D.Double(opStart, gp.transformYPos(0)-((level+1)*unitHeight) - offset, opWidth, unitHeight);
+                    g2.setColor(Color.gray);
+                    g2.fill(opRect);
+                    break;
 
-            } else if (operator == CigarOperator.P) {
-                // padding
-                // draw nothing
-            } else if (operator == CigarOperator.H) {
-                // hard clip
-                // draw nothing
-            } else if (operator == CigarOperator.S) {
-                // soft clip
-                // draw nothing
+                default:    // P - passing, H - hard clip, or S - soft clip
+                    break;
             }
             if (operator.consumesReadBases()) readCursor += operatorLength;
             if (operator.consumesReferenceBases()) sequenceCursor += operatorLength;
@@ -803,268 +443,22 @@ public class BAMTrackRenderer extends TrackRenderer {
 
     }
     
-    public void renderMismatches(Graphics2D g2, GraphPane gp, SAMRecord samRecord, int level, byte[] refSeq, Range range) {
-        renderMismatches(g2, gp, samRecord, level, refSeq, range, -1);
-    }
-
-    public void renderMismatches(Graphics2D g2, GraphPane gp, SAMRecord samRecord, int level, byte[] refSeq, Range range, double forcedHeight) {
-
-        ColourScheme cs = (ColourScheme) instructions.get(DrawingInstruction.COLOR_SCHEME);
-
-        double unitHeight = gp.getUnitHeight();
-        if(forcedHeight > 0){
-            unitHeight = forcedHeight;
-        }
-
-        double unitWidth = gp.getUnitWidth();
-        int offset = gp.getOffset();
-
-        // cutoffs to determine when not to draw
-        double leftMostX = gp.transformXPos(range.getFrom());
-        double rightMostX = gp.transformXPos(range.getTo()) + unitWidth;
-
-        // visualize variations (indels and mismatches)
-        int alignmentStart = samRecord.getAlignmentStart();
-        int alignmentEnd = samRecord.getAlignmentEnd();
-
-        byte[] readBases = samRecord.getReadBases();
-        byte[] baseQualities = samRecord.getBaseQualities();
-        boolean sequenceSaved = readBases.length > 0;
-        Cigar cigar = samRecord.getCigar();
-
-        // absolute positions in the reference sequence and the read bases, set after each cigar operator is processed
-        int sequenceCursor = alignmentStart;
-        int readCursor = alignmentStart;
-
-        CigarOperator operator;
-        int operatorLength;
-        for (CigarElement cigarElement : cigar.getCigarElements()) {
-
-            operatorLength = cigarElement.getLength();
-            operator = cigarElement.getOperator();
-            Rectangle2D.Double opRect = null;
-
-            double opStart = gp.transformXPos(sequenceCursor);
-            double opWidth = gp.getWidth(operatorLength);
-
-            // cut off start and width so no drawing happens off-screen, must be done in the order w, then x, since w depends on first value of x
-            double x2 = Math.min(rightMostX, opStart+opWidth);
-            opStart = Math.max(leftMostX, opStart);
-            opWidth = x2 - opStart;
-
-            if (operator == CigarOperator.D) {
-                // Deletion
-                renderDeletion(g2, gp, opStart, level, operatorLength);
-            } else if (operator == CigarOperator.I) {
-                // Insertion
-                renderInsertion(g2, gp, sequenceCursor, level);
-            } else if (operator == CigarOperator.M) {
-                // Match or mismatch
-
-                // Some SAM files do not contain the read bases.
-                if (sequenceSaved) {
-                    // determine if there's a mismatch
-                    for (int i=0; i<operatorLength; i++) {
-                        // indices into refSeq and readBases associated with this position in the cigar string
-                        int readIndex = readCursor-alignmentStart+i;
-                        int refIndex = sequenceCursor + i - range.getFrom();
-
-                        if (refIndex < 0) continue;  // outside sequence and drawing range
-                        if (refIndex > refSeq.length-1) continue;
-
-                        if (refSeq[refIndex] != readBases[readIndex]) {
-
-                            Color mismatchColor = cs.getBaseColor((char)readBases[readIndex]);
-
-                            double xCoordinate = gp.transformXPos(sequenceCursor+i);
-                            double width = gp.getUnitWidth();
-                            if (width < 1) width = 1;
-                            opRect = new Rectangle2D.Double(xCoordinate, gp.transformYPos(0)-((level + 1)*unitHeight) - offset, unitWidth, unitHeight);
-                            if (mismatchColor != null) {
-                                g2.setColor(mismatchColor);
-                                g2.fill(opRect);
-                            }
-
-                            if (fontFits(BrowserSettings.getTrackFont(),unitWidth,unitHeight,g2)) {
-                                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                                g2.setColor(new Color(10,10,10));
-                                g2.setFont(new Font("Sans-Serif", Font.PLAIN, 12));
-                                g2.drawBytes(readBases, readIndex, 1, (int) (xCoordinate + unitWidth/2 - g2.getFontMetrics().bytesWidth(readBases, readIndex, 1)/2), (int) ((gp.transformYPos(0)-((level)*unitHeight))-unitHeight/2+g2.getFontMetrics().getMaxAscent()/2));
-                            }
-                        }
-                    }
-                }
-            } else if (operator == CigarOperator.N) {
-                // Skipped.  Draw nothing
-                opRect = new Rectangle2D.Double(opStart,
-                                                    gp.transformYPos(0)-((level+1)*unitHeight) - offset,
-                                                    opWidth,
-                                                    unitHeight);
-                g2.setColor(Color.gray);
-                g2.fill(opRect);
-
-            }
-            // padding
-            else if (operator == CigarOperator.P) {
-                // draw nothing
-
-            }
-            // hard clip
-            else if (operator == CigarOperator.H) {
-                // draw nothing
-
-            }
-            // soft clip
-            else if (operator == CigarOperator.S) {
-                // draw nothing
-
-            }
-            if (operator.consumesReadBases()) readCursor += operatorLength;
-            if (operator.consumesReferenceBases()) sequenceCursor += operatorLength;
-        }
-
-    }
-
-
-    private void renderBQMismatches(Graphics2D g2, GraphPane gp, SAMRecord samRecord, int level, byte[] refSeq, Range range) {
-
-        ColourScheme cs = (ColourScheme) instructions.get(DrawingInstruction.COLOR_SCHEME);
-
-        double unitHeight = gp.getUnitHeight();
-        double unitWidth = gp.getUnitWidth();
-        int offset = gp.getOffset();
-
-        // cutoffs to determine when not to draw
-        double leftMostX = gp.transformXPos(range.getFrom());
-        double rightMostX = gp.transformXPos(range.getTo()) + unitWidth;
-
-        // visualize variations (indels and mismatches)
-        int alignmentStart = samRecord.getAlignmentStart();
-        int alignmentEnd = samRecord.getAlignmentEnd();
-
-        byte[] readBases = samRecord.getReadBases();
-        byte[] baseQualities = samRecord.getBaseQualities();
-        boolean sequenceSaved = readBases.length > 0;
-        Cigar cigar = samRecord.getCigar();
-
-        // absolute positions in the reference sequence and the read bases, set after each cigar operator is processed
-        int sequenceCursor = alignmentStart;
-        int readCursor = alignmentStart;
-
-        CigarOperator operator;
-        int operatorLength;
-        for (CigarElement cigarElement : cigar.getCigarElements()) {
-
-            operatorLength = cigarElement.getLength();
-            operator = cigarElement.getOperator();
-            Rectangle2D.Double opRect = null;
-
-            double opStart = gp.transformXPos(sequenceCursor);
-            double opWidth = gp.getWidth(operatorLength);
-
-            // cut off start and width so no drawing happens off-screen, must be done in the order w, then x, since w depends on first value of x
-            double x2 = Math.min(rightMostX, opStart+opWidth);
-            opStart = Math.max(leftMostX, opStart);
-            opWidth = x2 - opStart;
-
-            if (operator == CigarOperator.D) {
-                renderDeletion(g2, gp, opStart, level, operatorLength);
-            } else if (operator == CigarOperator.I) {
-                renderInsertion(g2, gp, sequenceCursor, level);
-
-            } else if (operator == CigarOperator.M) {
-                // Match or mismatch
-
-                // some SAM files do not contain the read bases
-                if (sequenceSaved) {
-                    // determine if there's a mismatch
-                    for (int i=0; i<operatorLength; i++) {
-                        // indices into refSeq and readBases associated with this position in the cigar string
-                        int readIndex = readCursor-alignmentStart+i;
-                        int refIndex = sequenceCursor + i - range.getFrom();
-
-                        if (refIndex >= 0 && (refSeq == null || refIndex < refSeq.length)) {
-
-                            Color baseColor = null;
-                            boolean isMismatch = refSeq != null && refSeq[refIndex] != readBases[readIndex];
-
-                            if (isMismatch) {
-                                baseColor = cs.getBaseColor((char)readBases[readIndex]);
-                            } else {
-                                baseColor = cs.getColor(samRecord.getReadNegativeStrandFlag() ? ColourKey.REVERSE_STRAND : ColourKey.FORWARD_STRAND);
-                            }
-
-
-                            byte q = baseQualities[readIndex];
-                            int alpha = getConstrainedAlpha((int)Math.round((q * 0.025) * 255));
-                            baseColor = new Color(baseColor.getRed(),baseColor.getGreen(),baseColor.getBlue(),alpha);
-
-                            double xCoordinate = gp.transformXPos(sequenceCursor+i);
-                            double width = gp.getUnitWidth();
-                            if (width < 1) width = 1;
-                            opRect = new Rectangle2D.Double(xCoordinate, gp.transformYPos(0)-((level + 1)*unitHeight) - offset, unitWidth, unitHeight);
-                            g2.setColor(baseColor);
-                            g2.fill(opRect);
-
-                            if (isMismatch && fontFits(BrowserSettings.getTrackFont(),unitWidth,unitHeight,g2)) {
-                                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                                g2.setColor(new Color(10,10,10));
-                                g2.setFont(new Font("Sans-Serif", Font.PLAIN, 12));
-                                g2.drawBytes(readBases, readIndex, 1, (int) (xCoordinate + unitWidth/2 - g2.getFontMetrics().bytesWidth(readBases, readIndex, 1)/2), (int) ((gp.transformYPos(0)-((level)*unitHeight))-unitHeight/2+g2.getFontMetrics().getMaxAscent()/2));
-                            }
-                        }
-                    }
-                }
-            }
-            // skipped
-            else if (operator == CigarOperator.N) {
-                // draw nothing
-                opRect = new Rectangle2D.Double(opStart,
-                                                    gp.transformYPos(0)-((level+1)*unitHeight) - offset,
-                                                    opWidth,
-                                                    unitHeight);
-                g2.setColor(Color.gray);
-                g2.fill(opRect);
-
-            }
-            // padding
-            else if (operator == CigarOperator.P) {
-                // draw nothing
-
-            }
-            // hard clip
-            else if (operator == CigarOperator.H) {
-                // draw nothing
-
-            }
-            // soft clip
-            else if (operator == CigarOperator.S) {
-                // draw nothing
-
-            }
-            if (operator.consumesReadBases()) readCursor += operatorLength;
-            if (operator.consumesReferenceBases()) sequenceCursor += operatorLength;
-        }
-
-    }
-
     /**
      * Render the black rectangle which indicates a deletion.
      */
-    private void renderDeletion(Graphics2D g2, GraphPane gp, double opStart, int level, int operatorLength) {
+    private void renderDeletion(Graphics2D g2, GraphPane gp, double opStart, int level, int operatorLength, double unitHeight) {
         double width = gp.getWidth(operatorLength);
         if (width < 1.0) {
             width = 1.0;
         }
-        double unitHeight = gp.getUnitHeight();
         Rectangle2D opRect = new Rectangle2D.Double(opStart, gp.transformYPos(0) - (level + 1) * unitHeight - gp.getOffset(), width, unitHeight);
         g2.setColor(Color.BLACK);
         g2.fill(opRect);
     }
 
-    private void renderInsertion(Graphics2D g2, GraphPane gp, int pos, int level) {
+    private void renderInsertion(Graphics2D g2, GraphPane gp, int pos, int level, double unitHeight) {
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        drawInsertion(g2, gp, pos, level);
+        drawInsertion(g2, gp, pos, level, unitHeight);
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
     }
 
@@ -1185,7 +579,7 @@ public class BAMTrackRenderer extends TrackRenderer {
 */
     }
 
-    private void renderSNPMode(Graphics2D g2, GraphPane gp, Resolution r){
+    private void renderSNPMode(Graphics2D g2, GraphPane gp, Resolution r) {
 
         Genome genome = GenomeController.getInstance().getGenome();
 
@@ -1213,9 +607,9 @@ public class BAMTrackRenderer extends TrackRenderer {
         }
 
         double maxHeight = 0;
-        for(Pileup p : pileups){
+        for(Pileup p : pileups) {
             double current = p.getTotalCoverage();
-            if(current > maxHeight) maxHeight = current;
+            if (current > maxHeight) maxHeight = current;
         }
 
         gp.setXRange(axisRange.getXRange());
@@ -1224,13 +618,13 @@ public class BAMTrackRenderer extends TrackRenderer {
         double unitHeight = (Math.rint(gp.transformYPos(0) * 0.9)) / maxHeight;
         double unitWidth =  gp.getUnitWidth();
 
-        for(Pileup p : pileups){
+        for(Pileup p : pileups) {
 
             Nucleotide snpNuc = null;
             int bottom = (int)gp.transformYPos(0);
 
             Nucleotide genomeNuc = null;
-            if(genome.isSequenceSet()){
+            if (genome.isSequenceSet()) {
                 String genomeNucString = "A";
                 byte[] readBase = new byte[1];
                 assert Math.abs(p.getPosition() - startPosition) <= Integer.MAX_VALUE;
@@ -1242,7 +636,7 @@ public class BAMTrackRenderer extends TrackRenderer {
             }
             
             
-            while ((genome.isSequenceSet() && (snpNuc = p.getLargestNucleotide(genomeNuc)) != null) || ((snpNuc = p.getLargestNucleotide()) != null)){
+            while ((genome.isSequenceSet() && (snpNuc = p.getLargestNucleotide(genomeNuc)) != null) || ((snpNuc = p.getLargestNucleotide()) != null)) {
                 double x = gp.transformXPos(p.getPosition());
                 double coverage = p.getCoverage(snpNuc);
 
@@ -1260,7 +654,7 @@ public class BAMTrackRenderer extends TrackRenderer {
         }
     }
     
-    private void renderStrandSNPMode(Graphics2D g2, GraphPane gp, Resolution r){
+    private void renderStrandSNPMode(Graphics2D g2, GraphPane gp, Resolution r) {
 
         Genome genome = GenomeController.getInstance().getGenome();
 
@@ -1288,11 +682,11 @@ public class BAMTrackRenderer extends TrackRenderer {
         }
 
         double maxHeight = 0;
-        for(Pileup p : pileups){
+        for(Pileup p : pileups) {
             double current1 = p.getTotalStrandCoverage(true);
             double current2 = p.getTotalStrandCoverage(false);
-            if(current1 > maxHeight) maxHeight = current1;
-            if(current2 > maxHeight) maxHeight = current2;
+            if (current1 > maxHeight) maxHeight = current1;
+            if (current2 > maxHeight) maxHeight = current2;
         }
 
         gp.setXRange(axisRange.getXRange());
@@ -1301,14 +695,14 @@ public class BAMTrackRenderer extends TrackRenderer {
         double unitHeight = (Math.rint(gp.transformYPos(0) * 0.45)) / maxHeight;
         double unitWidth =  gp.getUnitWidth();
 
-        for(Pileup p : pileups){
+        for(Pileup p : pileups) {
 
             Nucleotide snpNuc = null;
             int bottom = (int)gp.transformYPos(0) / 2;
             int top = (int)gp.transformYPos(0) / 2;
 
             Nucleotide genomeNuc = null;
-            if(genome.isSequenceSet()){
+            if (genome.isSequenceSet()) {
                 String genomeNucString = "A";
                 byte[] readBase = new byte[1];
                 assert Math.abs(p.getPosition() - startPosition) <= Integer.MAX_VALUE;
@@ -1320,7 +714,7 @@ public class BAMTrackRenderer extends TrackRenderer {
             }
 
 
-            while ((genome.isSequenceSet() && (snpNuc = p.getLargestNucleotide(genomeNuc)) != null) || ((snpNuc = p.getLargestNucleotide()) != null)){
+            while ((genome.isSequenceSet() && (snpNuc = p.getLargestNucleotide(genomeNuc)) != null) || ((snpNuc = p.getLargestNucleotide()) != null)) {
             
                 double x = gp.transformXPos(p.getPosition());
                 double coverage1 = p.getStrandCoverage(snpNuc, true);
@@ -1328,7 +722,7 @@ public class BAMTrackRenderer extends TrackRenderer {
 
                 Color subPileColor = cs.getColor(getSubPileColour(snpNuc, genomeNuc));
 
-                if (coverage1 > 0){
+                if (coverage1 > 0) {
                     int h = (int)(unitHeight * coverage1);
                     int y = top;
 
@@ -1341,7 +735,7 @@ public class BAMTrackRenderer extends TrackRenderer {
 
                     top += h;
                 }
-                if (coverage2 > 0){
+                if (coverage2 > 0) {
                     int h = (int)(unitHeight * coverage2);
                     int y = bottom-h;
 
@@ -1389,8 +783,6 @@ public class BAMTrackRenderer extends TrackRenderer {
         // set cursors for the reference and read
         int sequenceCursor = alignmentStart;
         int readCursor = alignmentStart;
-
-        int pileupcursor = (int) (alignmentStart - startPosition);
 
         // cigar variables
         CigarOperator operator;
@@ -1452,51 +844,19 @@ public class BAMTrackRenderer extends TrackRenderer {
             }
             if (operator.consumesReferenceBases()) {
                 sequenceCursor += operatorLength;
-                pileupcursor += operatorLength;
             }
         }
     }
     
-    public void renderReadsFromArc(Graphics2D g2, GraphPane gp, BAMIntervalRecord rec1, BAMIntervalRecord rec2, Range range){
-        
-        ColourScheme cs = (ColourScheme) getInstruction(DrawingInstruction.COLOR_SCHEME);
-        boolean strandFlag = rec1.getSamRecord().getReadNegativeStrandFlag();
-        Strand strand = strandFlag ? Strand.REVERSE : Strand.FORWARD ;             
-        Color c1 = null;
-        Color c2 = null;
-        if (strand == Strand.FORWARD) {
-            c1 = cs.getColor(ColourKey.FORWARD_STRAND);
-            c2 = cs.getColor(ColourKey.REVERSE_STRAND);
-        } else {
-            c1 = cs.getColor(ColourKey.REVERSE_STRAND);
-            c2 = cs.getColor(ColourKey.FORWARD_STRAND);
-        }
+    public void renderReadsFromArc(Graphics2D g2, GraphPane gp, BAMIntervalRecord rec1, BAMIntervalRecord rec2, Range range) {
         
         int readHeight = gp.getParentFrame().getIntervalHeight();
 
-        Polygon p1 = renderRead(g2, gp, rec1.getSamRecord(), rec1.getInterval(), 0, range, c1, readHeight);
-        g2.setColor(Color.BLACK);
-        g2.draw(p1);
+        renderRead(g2, gp, rec1, 0, range, readHeight);
 
-        if(rec2 != null){
-            Polygon p2 = renderRead(g2, gp, rec2.getSamRecord(), rec2.getInterval(), 0, range, c2, readHeight);
-            g2.setColor(Color.BLACK);
-            g2.draw(p2);
+        if (rec2 != null) {
+            renderRead(g2, gp, rec2, 0, range, readHeight);
         }
-
-        Genome genome = GenomeController.getInstance().getGenome();
-        if(genome.isSequenceSet()){
-            byte[] sequence = null;
-            try {
-                sequence = genome.getSequence(LocationController.getInstance().getReferenceName(), range);
-            } catch (IOException e) {
-                //do nothing
-            }
-            renderMismatches(g2, gp, rec1.getSamRecord(), 0, sequence, range, readHeight);
-            if(rec2 != null)
-                renderMismatches(g2, gp, rec2.getSamRecord(), 0, sequence, range, readHeight);
-        }
-        
     }
 
     private void renderStandardPairedMode(Graphics2D g2, GraphPane gp) throws RenderingException {
@@ -1510,16 +870,15 @@ public class BAMTrackRenderer extends TrackRenderer {
 
         gp.setXRange(axisRange.getXRange());
 
-        Map<Integer, ArrayList<IntervalRecord>> mateQueue = new HashMap<Integer, ArrayList<IntervalRecord>>();
+        Map<Integer, ArrayList<BAMIntervalRecord>> mateQueue = new HashMap<Integer, ArrayList<BAMIntervalRecord>>();
         ArrayList<ArrayList<Interval>> levels = new ArrayList<ArrayList<Interval>>();
         levels.add(new ArrayList<Interval>()); 
         ArrayList<DrawStore> savedDraws = new ArrayList<DrawStore>();
 
-        for(int i = 0; i < data.size(); i++){
+        for(int i = 0; i < data.size(); i++) {
 
-            IntervalRecord intervalRecord = (IntervalRecord)data.get(i);
-            Interval interval = intervalRecord.getInterval();
-            BAMIntervalRecord bamRecord = (BAMIntervalRecord) intervalRecord;
+            BAMIntervalRecord bamRecord = (BAMIntervalRecord)data.get(i);
+            Interval interval = bamRecord.getInterval();
             SAMRecord samRecord = bamRecord.getSamRecord();
             SAMReadUtils.PairedSequencingProtocol prot = (SAMReadUtils.PairedSequencingProtocol) instructions.get(DrawingInstruction.PAIRED_PROTOCOL);
             SAMReadUtils.PairMappingType type = SAMReadUtils.getPairType(samRecord,prot);
@@ -1529,47 +888,45 @@ public class BAMTrackRenderer extends TrackRenderer {
             if (samRecord.getReadUnmappedFlag() || !samRecord.getReadPairedFlag() 
                     || samRecord.getMateUnmappedFlag() || type == null
                     || arcLength == 0) { // this read is unmapped, don't visualize it
-                this.recordToShapeMap.put(intervalRecord, null);
+                recordToShapeMap.put(bamRecord, null);
                 continue;
             }
 
             //if mate off screen to the right, draw immediately
-            if(samRecord.getMateAlignmentStart() > range.getTo()){
+            if (samRecord.getMateAlignmentStart() > range.getTo()) {
                 int level = computePiledIntervalLevel(levels, Interval.valueOf(interval.getStart(), effectiveEnd));
-                savedDraws.add(new DrawStore(intervalRecord, samRecord, level, Interval.valueOf(effectiveEnd + 1, Integer.MAX_VALUE), null));
+                savedDraws.add(new DrawStore(bamRecord, level, Interval.valueOf(effectiveEnd + 1, Integer.MAX_VALUE), null));
                 continue;
             }
 
             //check if mate has already been found
-            IntervalRecord mate = popMate(mateQueue.get(samRecord.getMateAlignmentStart()), samRecord);
-            if(mate != null){
+            BAMIntervalRecord mate = popMate(mateQueue.get(samRecord.getMateAlignmentStart()), samRecord);
+            if (mate != null) {
                 int level = computePiledIntervalLevel(levels, 
                         Interval.valueOf(Math.min(interval.getStart(), mate.getInterval().getStart()),
                         Math.max(interval.getEnd(), mate.getInterval().getEnd())));
-                savedDraws.add(new DrawStore(intervalRecord, samRecord, level, null, null));
-                savedDraws.add(new DrawStore(mate, ((BAMIntervalRecord)mate).getSamRecord(), level, interval, intervalRecord));
+                savedDraws.add(new DrawStore(bamRecord, level, null, null));
+                savedDraws.add(new DrawStore(mate, level, interval, bamRecord));
 
 
                 continue;
             }
 
             //if mate not yet found, add to map queue
-            if(mateQueue.get(interval.getStart()) == null){
-                mateQueue.put(interval.getStart(), new ArrayList<IntervalRecord>());
+            if (mateQueue.get(interval.getStart()) == null) {
+                mateQueue.put(interval.getStart(), new ArrayList<BAMIntervalRecord>());
             }
-            mateQueue.get(interval.getStart()).add(intervalRecord);          
+            mateQueue.get(interval.getStart()).add(bamRecord);          
         }
 
         //if there are records remaining without a mate, they are probably off screen to the left
-        Iterator<ArrayList<IntervalRecord>> it = mateQueue.values().iterator();
-        while(it.hasNext()){
-            ArrayList<IntervalRecord> list = it.next();
-            for (IntervalRecord intervalRecord : list) {
-                Interval interval = intervalRecord.getInterval();
-                BAMIntervalRecord bamRecord = (BAMIntervalRecord) intervalRecord;
-                SAMRecord samRecord = bamRecord.getSamRecord();
+        Iterator<ArrayList<BAMIntervalRecord>> it = mateQueue.values().iterator();
+        while(it.hasNext()) {
+            ArrayList<BAMIntervalRecord> list = it.next();
+            for (BAMIntervalRecord bamRecord : list) {
+                Interval interval = bamRecord.getInterval();
                 int level = computePiledIntervalLevel(levels, Interval.valueOf(effectiveStart, interval.getEnd()));
-                savedDraws.add(new DrawStore(intervalRecord, samRecord, level, Interval.valueOf(0, effectiveStart - 1), null));
+                savedDraws.add(new DrawStore(bamRecord, level, Interval.valueOf(0, effectiveStart - 1), null));
             }
         }
 
@@ -1578,11 +935,11 @@ public class BAMTrackRenderer extends TrackRenderer {
         if (gp.needsToResize()) return;
 
         //now, draw everything
-        for(DrawStore drawStore : savedDraws){
-            drawPiledInterval(g2, gp, cs, range, linecolor, drawStore);
-            renderMismatches(g2, gp, drawStore.sam, drawStore.level, refSeq, range);
-            if(drawStore.mateInterval != null){
-                connectPiledInterval(g2, gp, drawStore.interval, drawStore.mateInterval, drawStore.level, linecolor, drawStore.intervalRecord, drawStore.mateIntervalRecord);
+        for(DrawStore drawStore : savedDraws) {
+            Polygon readshape = renderRead(g2, gp, drawStore.intervalRecord, drawStore.level, range, gp.getUnitHeight());
+            recordToShapeMap.put(drawStore.intervalRecord, readshape);
+            if (drawStore.mateInterval != null) {
+                connectPiledInterval(g2, gp, drawStore.intervalRecord.getInterval(), drawStore.mateInterval, drawStore.level, linecolor, drawStore.intervalRecord, drawStore.mateIntervalRecord);
             }
         }
     }
@@ -1591,43 +948,23 @@ public class BAMTrackRenderer extends TrackRenderer {
      * Find the mate for record with name readName in the list records.
      * If mate found, remove and return. Otherwise, return null.
      */
-    private IntervalRecord popMate(ArrayList<IntervalRecord> records, SAMRecord samRecord){
+    private BAMIntervalRecord popMate(ArrayList<BAMIntervalRecord> records, SAMRecord samRecord) {
 
-        if(records == null) return null;
-        for(int i = 0; i < records.size(); i++){
+        if (records == null) return null;
+        for(int i = 0; i < records.size(); i++) {
             SAMRecord samRecord2 = ((BAMIntervalRecord)records.get(i)).getSamRecord();
-            if (MiscUtils.isMate(samRecord, samRecord2, false)){
-                IntervalRecord intervalRecord = records.get(i);
+            if (MiscUtils.isMate(samRecord, samRecord2, false)) {
+                BAMIntervalRecord intervalRecord = records.get(i);
                 records.remove(i);
                 return intervalRecord;
             }
         }
         return null;
     }
-
-    private void drawPiledInterval(Graphics2D g2, GraphPane gp, ColourScheme cs,
-                                  Range range, Color linecolor, DrawStore drawStore){
-        if(drawStore.sam.getReadNegativeStrandFlag()){
-            g2.setColor(cs.getColor(ColourKey.REVERSE_STRAND));
-        } else {
-            g2.setColor(cs.getColor(ColourKey.FORWARD_STRAND));
-        }
-        
-        Polygon readshape = renderRead(g2, gp, drawStore.sam, drawStore.interval, drawStore.level, range, null);
-
-        this.recordToShapeMap.put(drawStore.intervalRecord, readshape);
-
-        // draw outline, if there's room
-        if (readshape.getBounds().getHeight() > 4) {
-            g2.setColor(linecolor);
-            g2.draw(readshape);
-        }
-    }
-
     /*
      * Connect intervals i1 and i2 with a dashed line to show mates. 
      */
-    private void connectPiledInterval(Graphics2D g2, GraphPane gp, Interval i1, Interval i2, int level, Color linecolor, IntervalRecord ir1, IntervalRecord ir2){
+    private void connectPiledInterval(Graphics2D g2, GraphPane gp, Interval i1, Interval i2, int level, Color linecolor, IntervalRecord ir1, IntervalRecord ir2) {
         Interval mateInterval = computeMateInterval(i1, i2);
 
         Stroke currentStroke = g2.getStroke();
@@ -1646,16 +983,16 @@ public class BAMTrackRenderer extends TrackRenderer {
                 gp.transformXPos(mateInterval.getEnd())),
                 yPos - gp.getUnitHeight()/2.0, Math.abs(gp.transformXPos(mateInterval.getEnd())-gp.transformXPos(mateInterval.getStart())),
                 gp.getUnitHeight());
-        if(ir1 != null) this.artifactMap.put(ir1, bound);
-        if(ir2 != null) this.artifactMap.put(ir2, bound);
+        if (ir1 != null) artifactMap.put(ir1, bound);
+        if (ir2 != null) artifactMap.put(ir2, bound);
 
     }
 
-    private Interval computeMateInterval(Interval i1, Interval i2){
+    private Interval computeMateInterval(Interval i1, Interval i2) {
 
         int start;
         int end;
-        if(i1.getEnd() < i2.getEnd()){
+        if (i1.getEnd() < i2.getEnd()) {
             start = i1.getEnd();
             end = i2.getStart();
         } else {
@@ -1670,18 +1007,18 @@ public class BAMTrackRenderer extends TrackRenderer {
     /*
      * Determine at what level a piled interval should be drawn.
      */
-    private int computePiledIntervalLevel(ArrayList<ArrayList<Interval>> levels, Interval interval){
+    private int computePiledIntervalLevel(ArrayList<ArrayList<Interval>> levels, Interval interval) {
         ArrayList<Interval> level;
-        for(int i = 0; i < levels.size(); i++){
+        for(int i = 0; i < levels.size(); i++) {
             level = levels.get(i);
             boolean conflict = false;
-            for(Interval current : level){
-                if(current.intersects(interval)){
+            for(Interval current : level) {
+                if (current.intersects(interval)) {
                     conflict = true;
                     break;
                 }
             }
-            if(!conflict){
+            if (!conflict) {
                 level.add(interval);
                 return i;
             }
@@ -1697,17 +1034,13 @@ public class BAMTrackRenderer extends TrackRenderer {
      */
     private class DrawStore extends JPanel{
 
-        public IntervalRecord intervalRecord;
-        public Interval interval;
-        public SAMRecord sam;
+        public BAMIntervalRecord intervalRecord;
         public int level;
         public Interval mateInterval; //only set if line connection generated from this read
         public IntervalRecord mateIntervalRecord; //as above + mate in view
 
-        public DrawStore(IntervalRecord intervalRecord, SAMRecord samRecord, int level, Interval mateInterval, IntervalRecord mateIntervalRecord){
+        public DrawStore(BAMIntervalRecord intervalRecord, int level, Interval mateInterval, IntervalRecord mateIntervalRecord) {
             this.intervalRecord = intervalRecord;
-            this.interval = intervalRecord.getInterval();
-            this.sam = samRecord;
             this.level = level;
             this.mateInterval = mateInterval;
             this.mateIntervalRecord = mateIntervalRecord;
@@ -1739,7 +1072,7 @@ public class BAMTrackRenderer extends TrackRenderer {
 
     //THIS IS A BIT MESSY
     @Override
-    public JPanel arcLegendPaint(){
+    public JPanel arcLegendPaint() {
         JPanel panel = new LegendPanel();
         panel.setPreferredSize(new Dimension(125,61));
         return panel;
@@ -1748,11 +1081,11 @@ public class BAMTrackRenderer extends TrackRenderer {
     private class LegendPanel extends JPanel{
         private boolean isHidden = false;
 
-        public LegendPanel(){
+        public LegendPanel() {
         }
 
         @Override
-        public void paint(Graphics g){
+        public void paint(Graphics g) {
 
             if (isHidden) {
                 drawHidden((Graphics2D)g);
@@ -1761,7 +1094,7 @@ public class BAMTrackRenderer extends TrackRenderer {
             }
         }
 
-        private void drawLegend(Graphics2D g2, ColourKey... keys){
+        private void drawLegend(Graphics2D g2, ColourKey... keys) {
             ColourScheme cs = (ColourScheme)instructions.get(DrawingInstruction.COLOR_SCHEME);
 
             g2.setFont(SMALL_FONT);
@@ -1794,7 +1127,7 @@ public class BAMTrackRenderer extends TrackRenderer {
             }
         }
 
-        private void drawHidden(Graphics2D g2){
+        private void drawHidden(Graphics2D g2) {
 
             g2.setFont(SMALL_FONT);
 

@@ -78,6 +78,8 @@ public final class FrameCommandBar extends JMenuBar {
     private JSlider intervalSlider;
     private JCheckBoxMenuItem setAsGenomeButton;
 
+    private JCheckBoxMenuItem baseQualityItem, mappingQualityItem;
+
     /**
      * Create command bar
      */
@@ -163,7 +165,7 @@ public final class FrameCommandBar extends JMenuBar {
                 }
             });
             menu.add(setAsGenomeButton);
-            menu.addMenuListener(new MenuListener() {
+            menu.addMenuListener(new MenuAdapter() {
                 @Override
                 public void menuSelected(MenuEvent me) {
                     Track seqTrack = (Track)GenomeController.getInstance().getGenome().getSequenceTrack();
@@ -177,12 +179,6 @@ public final class FrameCommandBar extends JMenuBar {
                         setAsGenomeButton.setToolTipText("Use this track as the reference sequence");
                     }
                 }
-
-                @Override
-                public void menuDeselected(MenuEvent me) {}
-
-                @Override
-                public void menuCanceled(MenuEvent me) {}
             });
         } else if (df == DataFormat.INTERVAL_BAM) {
             menu.add(new JSeparator());
@@ -214,17 +210,11 @@ public final class FrameCommandBar extends JMenuBar {
             });
             menu.add(bookmarkAll);
 
-            menu.addMenuListener(new MenuListener() {
+            menu.addMenuListener(new MenuAdapter() {
                 @Override
                 public void menuSelected(MenuEvent me) {
                     bookmarkAll.setEnabled(mainTrack.getDataSource() instanceof DataSource && ((DataSource)mainTrack.getDataSource()).getDictionaryCount() > 0);
                 }
-
-                @Override
-                public void menuDeselected(MenuEvent me) {}
-
-                @Override
-                public void menuCanceled(MenuEvent me) {}
             });
         }
         return menu;
@@ -336,17 +326,11 @@ public final class FrameCommandBar extends JMenuBar {
                 }
             });
             scaleToFitItem.setToolTipText("If selected, the track's display will be scaled to fit the available height.");
-            menu.addMenuListener(new MenuListener() {
+            menu.addMenuListener(new MenuAdapter() {
                 @Override
                 public void menuSelected(MenuEvent me) {
                     scaleToFitItem.setSelected(graphPane.isScaledToFit());
                 }
-
-                @Override
-                public void menuDeselected(MenuEvent me) {}
-
-                @Override
-                public void menuCanceled(MenuEvent me) {}
             });
             menu.add(scaleToFitItem);
         }
@@ -388,6 +372,35 @@ public final class FrameCommandBar extends JMenuBar {
                 }
             });
             menu.add(alternate);
+        } else if (df == DataFormat.INTERVAL_BAM) {
+            menu.add(new JSeparator());
+            baseQualityItem = new JCheckBoxMenuItem("Enable Base Quality");
+            baseQualityItem.setState(false);
+            baseQualityItem.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    if (((BAMTrack)mainTrack).toggleBaseQualityEnabled()) {
+                        mappingQualityItem.setState(false);
+                    }
+                    graphPane.setRenderForced();
+                    graphPane.repaint();
+                }
+            });
+            menu.add(baseQualityItem);
+
+            mappingQualityItem = new JCheckBoxMenuItem("Enable Mapping Quality");
+            mappingQualityItem.setState(false);
+            mappingQualityItem.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    if (((BAMTrack)mainTrack).toggleMappingQualityEnabled()) {
+                        baseQualityItem.setState(false);
+                    }
+                    graphPane.setRenderForced();
+                    graphPane.repaint();
+                }
+            });
+            menu.add(mappingQualityItem);
         }
         return menu;
     }
@@ -457,5 +470,16 @@ public final class FrameCommandBar extends JMenuBar {
         if (intervalMenu != null) {
             intervalMenu.setVisible(mode != DrawingMode.ARC && mode != DrawingMode.ARC_PAIRED && mode != DrawingMode.SNP && mode != DrawingMode.STRAND_SNP);
         }
+    }
+
+    /**
+     * We're generally only interested in menuSelected.
+     */
+    private abstract class MenuAdapter implements MenuListener {
+        @Override
+        public void menuDeselected(MenuEvent me) {}
+
+        @Override
+        public void menuCanceled(MenuEvent me) {}
     }
 }

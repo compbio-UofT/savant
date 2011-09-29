@@ -28,7 +28,6 @@ public enum DrawingInstruction {
     RESOLUTION,         // Resolution
     RANGE,              // Range
     COLOR_SCHEME,       // ColorScheme
-    GENOME,             // not used
     ARC_MIN,            // double
     DISCORDANT_MIN,     // int
     DISCORDANT_MAX,     // int
@@ -38,7 +37,9 @@ public enum DrawingInstruction {
     PROGRESS,           // String (progress message)
     PAIRED_PROTOCOL,    // PairedProtocol enum, how paired sequencing is done
     ITEMRGB,            // itemRGB color for BED
-    SCORE,              // score tint for BED
-    ALTERNATE_NAME      // display alternate name instead of name
+    SCORE,              // boolean; use score tint for BED
+    ALTERNATE_NAME,     // boolean; display alternate name instead of name
+    BASE_QUALITY,       // boolean; alpha will be based on base quality
+    MAPPING_QUALITY     // boolean; alpha will be based on mapping quality
 }
 

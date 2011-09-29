@@ -21,10 +21,7 @@ public enum DrawingMode {
     SEQUENCE,
     STANDARD_PAIRED,
     ARC_PAIRED,
-    MAPPING_QUALITY,
-    BASE_QUALITY,
     SNP,
-    COLOURSPACE,
     STRAND_SNP;
 
     @Override
@@ -46,14 +43,8 @@ public enum DrawingMode {
                 return "Read Pair (Standard)";
             case ARC_PAIRED:
                 return "Read Pair (Arc)";
-            case MAPPING_QUALITY:
-                return "Mapping Quality";
-            case BASE_QUALITY:
-                return "Base Quality";
             case SNP:
                 return"SNP";
-            case COLOURSPACE:
-                return "Colour Space Mismatch";
             case STRAND_SNP:
                 return "Strand SNP";
         }

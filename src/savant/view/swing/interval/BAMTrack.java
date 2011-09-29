@@ -61,6 +61,8 @@ public class BAMTrack extends Track {
     private boolean includeVendorFailedReads = true;
     private boolean includeDuplicateReads = true;
     private int mappingQualityThreshold = 0;
+    private boolean baseQualityEnabled = false;
+    private boolean mappingQualityEnabled = false;
 
     /**
      * Constructor.
@@ -80,7 +82,7 @@ public class BAMTrack extends Track {
     @Override
     public DrawingMode[] getValidDrawingModes() {
         return new DrawingMode[] { DrawingMode.STANDARD, DrawingMode.MISMATCH, /*DrawingMode.COLOURSPACE,*/ DrawingMode.SEQUENCE,
-                                   DrawingMode.STANDARD_PAIRED, DrawingMode.ARC_PAIRED, DrawingMode.MAPPING_QUALITY, DrawingMode.BASE_QUALITY,
+                                   DrawingMode.STANDARD_PAIRED, DrawingMode.ARC_PAIRED,
                                    DrawingMode.SNP, DrawingMode.STRAND_SNP };
     }
 
@@ -118,6 +120,8 @@ public class BAMTrack extends Track {
         }
         renderer.addInstruction(DrawingInstruction.SELECTION_ALLOWED, true);
         renderer.addInstruction(DrawingInstruction.MODE, getDrawingMode());
+        renderer.addInstruction(DrawingInstruction.BASE_QUALITY, baseQualityEnabled);
+        renderer.addInstruction(DrawingInstruction.MAPPING_QUALITY, mappingQualityEnabled);
     }
 
     /**
@@ -252,5 +256,49 @@ public class BAMTrack extends Track {
             }
         }
         return null;
+    }
+    
+    /**
+     * Toggle our current setting for Base Quality.  Returns true if the mapping quality
+     * was disabled as a side-effect.
+     */
+    public boolean toggleBaseQualityEnabled(){
+        boolean result = false;
+        if (baseQualityEnabled) {
+            baseQualityEnabled = false;
+        } else {
+            baseQualityEnabled = true;
+
+            // When user enables base quality, it disables mapping quality.
+            if (mappingQualityEnabled) {
+                mappingQualityEnabled = false;
+                renderer.addInstruction(DrawingInstruction.MAPPING_QUALITY, false);
+                result = true;
+            }
+        }
+        renderer.addInstruction(DrawingInstruction.BASE_QUALITY, baseQualityEnabled);
+        return result;
+    }
+
+    /**
+     * Toggle our current setting for Mapping Quality.  Returns true if the base quality
+     * was disabled as a side-effect.
+     */
+    public boolean toggleMappingQualityEnabled(){
+        boolean result = false;
+        if (mappingQualityEnabled) {
+            mappingQualityEnabled = false;
+        } else {
+            mappingQualityEnabled = true;
+
+            if (baseQualityEnabled) {
+                // When user enables mapping quality, it disables base quality.
+                baseQualityEnabled = false;
+                renderer.addInstruction(DrawingInstruction.BASE_QUALITY, false);
+                result = true;
+            }
+        }
+        renderer.addInstruction(DrawingInstruction.MAPPING_QUALITY, mappingQualityEnabled);
+        return result;
     }
 }

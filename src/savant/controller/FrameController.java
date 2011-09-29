@@ -204,13 +204,12 @@ public class FrameController {
      * insertion position for the next frame.
      */
     private FrameHandle getFrontmostFrame(DockingManager dm) {
-        FrameHandle result = null;
         for (FrameHandle h : dm.getOrderedFrames()) {
             if (!h.getKey().startsWith("#")) {
-                result = h;
+                return h;
             }
         }
-        return result;
+        return null;
     }
 
 
