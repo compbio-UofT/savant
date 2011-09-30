@@ -19,6 +19,7 @@ import java.awt.*;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.geom.Line2D;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.HashMap;
 import java.util.Map;
@@ -67,7 +68,7 @@ public class Frame extends DockableFrame implements Listener<DataRetrievalEvent>
     private JLayeredPane jlp;
 
     private FrameCommandBar commandBar;
-    private JPanel arcLegend;
+    private JComponent legend;
     private FrameSidePanel sidePanel;
     private JLabel yMaxPanel;
     private Map<SavantPanelPlugin, JPanel> pluginLayers = new HashMap<SavantPanelPlugin, JPanel>();
@@ -83,10 +84,37 @@ public class Frame extends DockableFrame implements Listener<DataRetrievalEvent>
         super(SavantIconFactory.getInstance().getIcon(SavantIconFactory.StandardIcon.TRACK));
         sequence = seq;
 
-        // Panel which holds the legend component (when present).
-        arcLegend = new JPanel();
-        arcLegend.setLayout(new BorderLayout());
-        arcLegend.setVisible(false);
+        // Component which displays the legend component.
+        legend = new JComponent() {
+            @Override
+            public Dimension getPreferredSize() {
+                for (Track t: tracks) {
+                    Dimension d = t.getRenderer().getLegendSize(t.getDrawingMode());
+                    if (d != null) {
+                        return d;
+                    }
+                }
+                return new Dimension(0, 0);
+            }
+            
+            @Override
+            public void paintComponent(Graphics g) {
+                for (Track t: tracks) {
+                    Dimension d = t.getRenderer().getLegendSize(t.getDrawingMode());
+                    if (d != null) {
+                        Graphics2D g2 = (Graphics2D)g;
+                        GradientPaint gp = new GradientPaint(0, 0, Color.WHITE, 0, 60, new Color(230,230,230));
+                        g2.setPaint(gp);
+                        g2.fillRect(0, 0, d.width, d.height);
+
+                        g2.setColor(Color.BLACK);
+                        g2.draw(new Rectangle2D.Double(0, 0, d.width - 1, d.height - 1));
+                        t.getRenderer().drawLegend(g2, t.getDrawingMode());
+                        return;
+                    }
+                }
+            }
+        };
 
         frameLandscape = new JLayeredPane();
         graphPane = new GraphPane(this);
@@ -213,15 +241,10 @@ public class Frame extends DockableFrame implements Listener<DataRetrievalEvent>
         commandBar = new FrameCommandBar(this);
 
         sidePanel.addPanel(commandBar);
-        sidePanel.addPanel(arcLegend);
+        sidePanel.addPanel(legend);
 
         for (Track t: tracks) {
             t.setFrame(this);
-
-            //CREATE LEGEND PANEL
-            if (t.getDataFormat() == DataFormat.INTERVAL_BAM) {
-                arcLegend.add(t.getRenderer().arcLegendPaint());
-            }
 
             // Adds the track to the TrackController's internal list, and fires a TrackEvent.ADDED event to all listeners.
             TrackController.getInstance().addTrack(t);
@@ -338,6 +361,7 @@ public class Frame extends DockableFrame implements Listener<DataRetrievalEvent>
 
         commandBar.drawModeChanged(mode);
         setYMaxVisible(true);
+        legend.invalidate();
         validate();
         drawTracksInRange(LocationController.getInstance().getReferenceName(), LocationController.getInstance().getRange());
     }

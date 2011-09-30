@@ -16,14 +16,15 @@
 
 package savant.view.swing;
 
-import java.awt.Color;
-import java.awt.Graphics2D;
-import java.awt.Point;
-import java.awt.Shape;
+import java.awt.*;
 import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
 import java.awt.geom.Rectangle2D;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import javax.swing.JPanel;
 
 import org.apache.commons.logging.Log;
@@ -51,6 +52,10 @@ public abstract class TrackRenderer implements Listener<DataRetrievalEvent> {
 
     private static final int MIN_TRANSPARENCY = 20;
     private static final int MAX_TRANSPARENCY = 255;
+
+    protected static final Font SMALL_FONT = new Font("Sans-Serif", Font.PLAIN, 10);
+    protected static final Stroke ONE_STROKE = new BasicStroke(1.0f);
+    protected static final Stroke TWO_STROKE = new BasicStroke(2.0f);
 
     protected List<Record> data;
     protected final EnumMap<DrawingInstruction, Object> instructions = new EnumMap<DrawingInstruction, Object>(DrawingInstruction.class);
@@ -168,10 +173,6 @@ public abstract class TrackRenderer implements Listener<DataRetrievalEvent> {
         return true;
     }
 
-    public JPanel arcLegendPaint() {
-        return null;
-    }
-
     public boolean hasMappedValues() {
         return !recordToShapeMap.isEmpty();
     }
@@ -223,9 +224,7 @@ public abstract class TrackRenderer implements Listener<DataRetrievalEvent> {
         boolean repaint = false;
         List<Record> toAdd = new ArrayList<Record>();
 
-        Iterator<Record> it = this.recordToShapeMap.keySet().iterator();
-        while (it.hasNext()) {
-            Record o = it.next();
+        for (Record o: recordToShapeMap.keySet()) {
             Shape s = recordToShapeMap.get(o);
             if (s == null) continue;
             if (s.intersects(rect)) {
@@ -315,5 +314,45 @@ public abstract class TrackRenderer implements Listener<DataRetrievalEvent> {
         }
 
         return rhombus;
+    }
+    
+    
+    /**
+     * Return the dimensions of the legend which this renderer currently requires.
+     * If the derived renderer doesn't have a legend, it should return null.
+     */
+    public Dimension getLegendSize(DrawingMode mode) {
+        return null;
+    }
+    
+    /**
+     * Draw the actual legend.
+     */
+    public void drawLegend(Graphics2D g2, DrawingMode mode) {
+    }
+
+    /**
+     * Simplest kind of legend is just a list of coloured lines with names next to them.
+     */
+    protected void drawSimpleLegend(Graphics2D g2, ColourKey... keys) {
+        ColourScheme cs = (ColourScheme)instructions.get(DrawingInstruction.COLOR_SCHEME);
+
+        g2.setFont(SMALL_FONT);
+
+        int x = 30;
+        int y = 15;
+
+        for (ColourKey k: keys) {
+            String legendString = k.getName();
+            g2.setColor(cs.getColor(k));
+            g2.setStroke(TWO_STROKE );
+            Rectangle2D stringRect = SMALL_FONT.getStringBounds(legendString, g2.getFontRenderContext());
+            g2.drawLine(x-25, y-(int)stringRect.getHeight()/2, x-5, y-(int)stringRect.getHeight()/2);
+            g2.setColor(cs.getColor(ColourKey.INTERVAL_LINE));
+            g2.setStroke(ONE_STROKE);
+            g2.drawString(legendString, x, y);
+
+            y += stringRect.getHeight()+2;
+        }
     }
 }

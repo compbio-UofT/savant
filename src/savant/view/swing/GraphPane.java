@@ -34,6 +34,8 @@ import org.apache.commons.logging.LogFactory;
 import savant.controller.GraphPaneController;
 import savant.controller.LocationController;
 import savant.controller.event.GraphPaneEvent;
+import savant.data.event.ExportEvent;
+import savant.data.event.ExportEventListener;
 import savant.data.types.BAMIntervalRecord;
 import savant.data.types.GenericContinuousRecord;
 import savant.data.types.Record;
@@ -126,6 +128,9 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
 
     private enum keyModifier { DEFAULT, CTRL, SHIFT, META, ALT; };
     private keyModifier keyMod = keyModifier.DEFAULT;
+
+    //awaiting exported images
+    private final List<ExportEventListener> exportListeners = new ArrayList<ExportEventListener>();
 
     /**
      * CONSTRUCTOR
@@ -366,7 +371,8 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
             oldHeight = parentFrame.getFrameLandscape().getHeight();
 
             g2.drawImage(bufferedImage, 0, getOffset(), this);
-
+            fireExportReady(xRange, bufferedImage);
+            
             renderCurrentSelected(g2);
             parentFrame.redrawSidePanel();
         }
@@ -1326,6 +1332,32 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         progressPanel.setMessage(msg);
     }
     
+    public void addExportEventListener(ExportEventListener eel) {
+        synchronized (exportListeners) {
+            exportListeners.add(eel);
+        }
+    }
+
+    public void removeExportListener(ExportEventListener eel){
+        synchronized (exportListeners) {
+            exportListeners.remove(eel);
+        }
+    }
+
+    public void removeExportListeners(){
+        synchronized (exportListeners) {
+            exportListeners.clear();
+        }
+    }
+
+    public void fireExportReady(Range range, BufferedImage image){
+        int size = exportListeners.size();
+        for (int i = 0; i < size; i++){
+            exportListeners.get(i).exportCompleted(new ExportEvent(range, image));
+            size = exportListeners.size(); //a listener may get removed
+        }
+    }
+
     public void setScaledToFit(boolean value) {
         if (scaledToFit != value) {
             scaledToFit = value;

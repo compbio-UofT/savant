@@ -26,7 +26,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import javax.swing.JPanel;
 
 import net.sf.samtools.Cigar;
 import net.sf.samtools.CigarElement;
@@ -58,10 +57,7 @@ import savant.view.swing.interval.Pileup.Nucleotide;
 public class BAMTrackRenderer extends TrackRenderer {
     private static final Log LOG = LogFactory.getLog(BAMTrackRenderer.class);
 
-    private static final Font SMALL_FONT = new Font("Sans-Serif", Font.PLAIN, 10);
-    private static final Font MISMATCH_FONT = new Font("Sans-Serif", Font.PLAIN, 12);
-    private static final Stroke ONE_STROKE = new BasicStroke(1.0f);
-    private static final Stroke TWO_STROKE = new BasicStroke(2.0f);
+    private static final Font MISMATCH_FONT = SMALL_FONT.deriveFont(12.0f);
 
     private byte[] refSeq = null;
     private DrawingMode lastMode;
@@ -1028,11 +1024,11 @@ public class BAMTrackRenderer extends TrackRenderer {
         return levels.size()-1;
     }
     
-    /*
+    /**
      * Store information for drawing a read so that it can be done later.
      * Used for piled interval mode
      */
-    private class DrawStore extends JPanel{
+    private class DrawStore {
 
         public BAMIntervalRecord intervalRecord;
         public int level;
@@ -1047,103 +1043,16 @@ public class BAMTrackRenderer extends TrackRenderer {
         }
     }
     
-    
-    private void drawLegend(Graphics2D g2, String[] legendStrings, Color[] legendColors, int startx, int starty) {
-        ColourScheme cs = (ColourScheme)instructions.get(DrawingInstruction.COLOR_SCHEME);
-        g2.setFont(SMALL_FONT);
-
-        int x = startx;
-        int y = starty;
-        String legendString;
-        for (int i=0; i<legendStrings.length; i++) {
-            legendString = legendStrings[i];
-            g2.setColor(legendColors[i]);
-            g2.setStroke(TWO_STROKE );
-            Rectangle2D stringRect = SMALL_FONT.getStringBounds(legendString, g2.getFontRenderContext());
-            g2.drawLine(x-25, y-(int)stringRect.getHeight()/2, x-5, y-(int)stringRect.getHeight()/2);
-            g2.setColor(cs.getColor(ColourKey.POINT_LINE));
-            g2.setStroke(ONE_STROKE);
-            g2.drawString(legendString, x, y);
-
-            y += stringRect.getHeight()+2;
-
-        }
-    }
-
-    //THIS IS A BIT MESSY
     @Override
-    public JPanel arcLegendPaint() {
-        JPanel panel = new LegendPanel();
-        panel.setPreferredSize(new Dimension(125,61));
-        return panel;
+    public Dimension getLegendSize(DrawingMode mode) {
+        if (mode == DrawingMode.ARC_PAIRED) {
+            return new Dimension(125, 65);
+        }
+        return null;
     }
 
-    private class LegendPanel extends JPanel{
-        private boolean isHidden = false;
-
-        public LegendPanel() {
-        }
-
-        @Override
-        public void paint(Graphics g) {
-
-            if (isHidden) {
-                drawHidden((Graphics2D)g);
-            }else{
-                drawLegend((Graphics2D)g, ColourKey.CONCORDANT_LENGTH, ColourKey.DISCORDANT_LENGTH, ColourKey.ONE_READ_INVERTED, ColourKey.EVERTED_PAIR);
-            }
-        }
-
-        private void drawLegend(Graphics2D g2, ColourKey... keys) {
-            ColourScheme cs = (ColourScheme)instructions.get(DrawingInstruction.COLOR_SCHEME);
-
-            g2.setFont(SMALL_FONT);
-
-            GradientPaint gp = new GradientPaint(0, 0,
-                Color.WHITE, 0, 60,
-                new Color(230,230,230));
-
-            g2.setPaint(gp);
-            g2.fillRect(0, 0, 125, 60);
-
-
-            g2.setColor(Color.BLACK);
-            g2.draw(new Rectangle2D.Double(0, 0, 124, 60));
-
-            int x = 30;
-            int y = 15;
-
-            for (ColourKey k: keys) {
-                String legendString = k.getName();
-                g2.setColor(cs.getColor(k));
-                g2.setStroke(TWO_STROKE );
-                Rectangle2D stringRect = SMALL_FONT.getStringBounds(legendString, g2.getFontRenderContext());
-                g2.drawLine(x-25, y-(int)stringRect.getHeight()/2, x-5, y-(int)stringRect.getHeight()/2);
-                g2.setColor(cs.getColor(ColourKey.INTERVAL_LINE));
-                g2.setStroke(ONE_STROKE);
-                g2.drawString(legendString, x, y);
-
-                y += stringRect.getHeight()+2;
-            }
-        }
-
-        private void drawHidden(Graphics2D g2) {
-
-            g2.setFont(SMALL_FONT);
-
-            GradientPaint gp = new GradientPaint(0, 0,
-                Color.WHITE, 0, 22,
-                new Color(230,230,230));
-
-            g2.setPaint(gp);
-            g2.fillRect(0, 0, 125, 60);
-
-            g2.setColor(Color.darkGray);
-            g2.draw(new Rectangle2D.Double(0, 0, 22, 22));
-
-            int[] xp = {8,14,14};
-            int[] yp = {11,5,17};
-            g2.fillPolygon(new Polygon(xp,yp,3));
-        }
+    @Override
+    public void drawLegend(Graphics2D g2, DrawingMode mode) {
+        drawSimpleLegend(g2, ColourKey.CONCORDANT_LENGTH, ColourKey.DISCORDANT_LENGTH, ColourKey.ONE_READ_INVERTED, ColourKey.EVERTED_PAIR);
     }
 }

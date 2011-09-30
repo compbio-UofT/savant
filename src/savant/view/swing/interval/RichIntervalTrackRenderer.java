@@ -511,14 +511,14 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
             w = gp.getWidth(block.getLength());
             h = gp.getUnitHeight();
 
-                Rectangle2D.Double blockRect = new Rectangle2D.Double(x,y,w,h);
+            Rectangle2D.Double blockRect = new Rectangle2D.Double(x,y,w,h);
 
-                g2.setColor(fillColor);
-                g2.fill(blockRect);
-                if (h > 4 && w > 4) {
-                    g2.setColor(lineColor);
-                    g2.draw(blockRect);
-                }
+            g2.setColor(fillColor);
+            g2.fill(blockRect);
+            if (h > 4 && w > 4) {
+                g2.setColor(lineColor);
+                g2.draw(blockRect);
+            }
         }
 
     }
