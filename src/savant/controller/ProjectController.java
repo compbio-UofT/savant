@@ -38,8 +38,8 @@ import savant.data.types.Genome;
 import savant.file.Project;
 import savant.settings.DirectorySettings;
 import savant.util.Controller;
+import savant.util.FileExtensionFilter;
 import savant.util.Listener;
-import savant.util.MiscUtils;
 
 
 /**
@@ -49,26 +49,7 @@ import savant.util.MiscUtils;
 public class ProjectController extends Controller {
     private static final Log LOG = LogFactory.getLog(ProjectController.class);
 
-    private static final FileFilter PROJECT_FILTER = new FileFilter() {
-        @Override
-        public boolean accept(File f) {
-            if (f.isDirectory()) {
-                return true;
-            }
-
-            String extension = MiscUtils.getExtension(f.getAbsolutePath());
-            if (extension != null) {
-                return extension.equalsIgnoreCase("svp");
-            }
-            return false;
-        }
-
-        @Override
-        public String getDescription() {
-            return "Savant project files (*.svp)";
-        }
-    };
-
+    private static final FileFilter PROJECT_FILTER = new FileExtensionFilter("Savant project files", "svp");
     private static final File UNTITLED_PROJECT_FILE = new File(DirectorySettings.getProjectsDirectory(), "UntitledProject.svp");
 
     private static ProjectController instance;

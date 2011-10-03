@@ -34,7 +34,6 @@ import java.util.Map;
 import java.util.Set;
 import javax.swing.*;
 import javax.swing.border.LineBorder;
-import javax.swing.filechooser.FileFilter;
 
 import com.jidesoft.swing.JideTabbedPane;
 import com.jidesoft.docking.DefaultDockingManager;
@@ -66,6 +65,7 @@ import savant.experimental.XMLTool;
 import savant.settings.ColourSettings;
 import savant.settings.DirectorySettings;
 import savant.util.ColourKey;
+import savant.util.FileExtensionFilter;
 import savant.util.IOUtils;
 import savant.util.Listener;
 import savant.util.MiscUtils;
@@ -588,16 +588,7 @@ public class ToolsModule {
                 pd.setVisible(true);
                 break;
             case 1:
-                File selectedFile = DialogUtils.chooseFileForOpen("Add Plugin", new FileFilter() {
-                    @Override
-                    public boolean accept(File f) {
-                        return f.isDirectory() || (f.isFile() && f.getAbsolutePath().toLowerCase().endsWith(".xml"));
-                    }
-                    @Override
-                    public String getDescription() {
-                        return "XML files (*.xml)";
-                    }
-                }, null);
+                File selectedFile = DialogUtils.chooseFileForOpen("Add Plugin Tool", new FileExtensionFilter("XML files", "xml"), null);
                 if (selectedFile != null) {
                     File destDir = DirectorySettings.getXMLToolDescriptionsDirectory();
                     try {

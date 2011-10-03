@@ -23,13 +23,13 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.imageio.ImageIO;
 import javax.swing.*;
-import javax.swing.filechooser.FileFilter;
-import savant.api.util.DialogUtils;
 
+import savant.api.util.DialogUtils;
 import savant.controller.FrameController;
 import savant.controller.GenomeController;
 import savant.controller.GraphPaneController;
 import savant.controller.LocationController;
+import savant.util.FileExtensionFilter;
 import savant.util.swing.TrackChooser;
 import savant.util.MiscUtils;
 
@@ -123,103 +123,22 @@ public class ExportImage {
         return out;
     }
 
-    private String save(BufferedImage screen) {
+    private void save(BufferedImage screen) {
 
         JFrame jf = new JFrame();
-        String selectedFileName;
-        // TODO: Switch this to use DialogUtils.chooseFileForSave.
-        if (MiscUtils.MAC) {
-            FileDialog fd = new FileDialog(jf, "Output File", FileDialog.SAVE);
-            fd.setVisible(true);
-            jf.setAlwaysOnTop(true);
-            // get the path (null if none selected)
-            selectedFileName = fd.getFile();
-            if (selectedFileName != null) {
-                selectedFileName = fd.getDirectory() + selectedFileName;
-                if(!selectedFileName.endsWith(".png")){
-                    selectedFileName = selectedFileName + ".png";
-                }
-            }
-        } else {
-            JFileChooser fd = new JFileChooser(){
-                @Override
-                public void approveSelection(){
-                    File f = getSelectedFile();
-                    if(!f.getPath().endsWith(".png")){
-                        f = new File(f.getPath() + ".png");
-                    }
-                    if(f.exists() && getDialogType() == SAVE_DIALOG){
-                        int result = JOptionPane.showConfirmDialog(this,"The file exists, overwrite?","Existing file",JOptionPane.YES_NO_OPTION);
-                        switch(result){
-                            case JOptionPane.YES_OPTION:
-                                super.approveSelection();
-                                return;
-                            case JOptionPane.NO_OPTION:
-                                return;
-                        }
-                    }
-                    super.approveSelection();
-                }
-            };
-            fd.setDialogTitle("Output File");
-            fd.setSelectedFile(new File("Untitled.png"));
-            fd.setDialogType(JFileChooser.SAVE_DIALOG);
-            fd.setFileFilter(new FileFilter() {
-
-                @Override
-                public boolean accept(File f) {
-                        if (f.isDirectory()) {
-                            return true;
-                        }
-
-                        String path = f.getAbsolutePath();
-                        String extension = "";
-                        int indexOfDot = path.lastIndexOf(".");
-                        if (indexOfDot == -1 || indexOfDot == path.length() - 1) {
-                            extension = "";
-                        } else {
-                            extension = path.substring(indexOfDot + 1);
-                        }
-
-                        //String extension = DataFormatUtils.getExtension(f.getAbsolutePath());
-                        if (extension != null) {
-                            if (extension.equals("png")) {
-                                return true;
-                            } else {
-                                return false;
-                            }
-                        }
-
-                        return false;
-                }
-
-                @Override
-                public String getDescription() {
-                    return "Image files (*.png)";
-                }
-
-            });
-            int result = fd.showSaveDialog(jf);
-            if (result == JFileChooser.CANCEL_OPTION || result == JFileChooser.ERROR_OPTION ) return null;
-            selectedFileName = fd.getSelectedFile().getPath();
-        }
+        File selectedFile = DialogUtils.chooseFileForSave("Output File", "Untitled.png", new FileExtensionFilter("Image files", "png"));
 
         // set the genome
-        if (selectedFileName != null) {
-            if(!selectedFileName.endsWith(".png")){
-                selectedFileName = selectedFileName + ".png";
+        if (selectedFile != null) {
+            String selectedPath = selectedFile.getAbsolutePath();
+            if (!MiscUtils.getExtension(selectedPath).equals("png")) {
+                selectedFile = new File(selectedPath + ".png");
             }
             try {
-                ImageIO.write(screen, "PNG", new File(selectedFileName));
+                ImageIO.write(screen, "PNG", selectedFile);
             } catch (IOException ex) {
-                String message = "Screenshot unsuccessful";
-                String title = "Uh oh...";
-                // display the JOptionPane showConfirmDialog
-                JOptionPane.showConfirmDialog(null, message, title, JOptionPane.ERROR_MESSAGE);
+                DialogUtils.displayException("Sorry", "Unable to take screenshot.", ex);
             }
         }
-
-        return null;
     }
-
 }
