@@ -47,6 +47,7 @@ class ChromatogramCanvas extends JPanel {
     int startBase;
     FixedBaseWidthScaler scaler;
     TrackAdapter track;
+    boolean fillBackground;
 
     public ChromatogramCanvas(Chromatogram c, TrackAdapter t) {
         chromatogram = c;
@@ -87,8 +88,14 @@ class ChromatogramCanvas extends JPanel {
         cg.setBaseColor(DNATools.g(), calculateTraceColor(ColourSettings.getColor(ColourKey.G)));
         cg.setBaseColor(DNATools.t(), calculateTraceColor(ColourSettings.getColor(ColourKey.T)));
 
+        int w = (int)(track.transformXPos(startBase + chromatogram.getSequenceLength()) - startX);
+
+        if (fillBackground) {
+            g2.setColor(new Color(255, 255, 255, 200));
+            g2.fillRect(0, 0, w, getHeight());
+        }
         cg.setHeight(getHeight());
-        cg.setWidth((int)(track.transformXPos(startBase + chromatogram.getSequenceLength()) - startX));
+        cg.setWidth(w);
         cg.drawTo(g2);
     }
     
@@ -97,16 +104,25 @@ class ChromatogramCanvas extends JPanel {
      * change the range so the chromatogram is on-screen and centred.
      */
     public void updatePos(int start) {
-        startBase = start;
-        RangeAdapter r = RangeUtils.createRange(startBase, startBase + chromatogram.getSequenceLength());
-        if (RangeUtils.intersects(r, NavigationUtils.getCurrentRange())) {
-            // Already onscreen, so just repaint.
+        if (startBase != start) {
+            startBase = start;
+            RangeAdapter r = RangeUtils.createRange(startBase, startBase + chromatogram.getSequenceLength());
+            if (RangeUtils.intersects(r, NavigationUtils.getCurrentRange())) {
+                // Already onscreen, so just repaint.
+                repaint();
+            } else {
+                // Centre the chromatogram using our bookmark-centring logic.
+                int buffer = Math.max(250, r.getLength() / 4);
+                int newStart = Math.max(1, r.getFrom() - buffer);
+                NavigationUtils.navigateTo(RangeUtils.createRange(newStart, r.getTo() + buffer));
+            }
+        }
+    }
+
+    public void updateFillbackground(boolean value) {
+        if (value != fillBackground) {
+            fillBackground = value;
             repaint();
-        } else {
-            // Centre the chromatogram using our bookmark-centring logic.
-            int buffer = Math.max(250, r.getLength() / 4);
-            int newStart = Math.max(1, r.getFrom() - buffer);
-            NavigationUtils.navigateTo(RangeUtils.createRange(newStart, r.getTo() + buffer));
         }
     }
 

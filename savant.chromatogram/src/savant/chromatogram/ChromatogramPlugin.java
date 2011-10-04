@@ -26,6 +26,7 @@ import java.text.NumberFormat;
 import java.text.ParseException;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -105,6 +106,7 @@ public class ChromatogramPlugin extends SavantPanelPlugin {
                             canvas = null;
                         }
                         chromatogram = ChromatogramFactory.create(f);
+                        updateEndField();
                         updateChromatogram();
                     } catch (UnsupportedChromatogramFormatException x) {
                         DialogUtils.displayMessage("Unable to Open Chromatogram", String.format("<html><i>%s</i> does not appear to be a valid chromatogram file.<br><br><small>Supported formats are ABI and SCF.</small></html>", f.getName()));
@@ -129,18 +131,7 @@ public class ChromatogramPlugin extends SavantPanelPlugin {
         startField.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent ae) {
-                try {
-                    NumberFormat numberParser = NumberFormat.getIntegerInstance();
-                    int startBase = numberParser.parse(startField.getText()).intValue();
-                    if (chromatogram != null) {
-                        endField.setText(String.valueOf(startBase + chromatogram.getSequenceLength()));
-                        if (canvas != null) {
-                            canvas.updatePos(startBase);
-                        }
-                    }
-                } catch (ParseException x) {
-                    Toolkit.getDefaultToolkit().beep();
-                }
+                updateEndField();
             }
         });
         gbc.weightx = 0.5;
@@ -176,7 +167,19 @@ public class ChromatogramPlugin extends SavantPanelPlugin {
         gbc.anchor = GridBagConstraints.WEST;
         panel.add(endField, gbc);
         
-        
+        JCheckBox fillCheck = new JCheckBox("Fill Background");
+        fillCheck.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                canvas.updateFillbackground(((JCheckBox)ae.getSource()).isSelected());
+            }
+        });
+        gbc.gridy++;
+        gbc.gridx = 1;
+        gbc.weightx = 0.0;
+        panel.add(fillCheck, gbc);
+
+        // Add a filler panel at the bottom to force our components to the top.
         gbc.gridy++;
         gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.fill = GridBagConstraints.BOTH;
@@ -188,7 +191,25 @@ public class ChromatogramPlugin extends SavantPanelPlugin {
     public String getTitle() {
         return "Chromatogram";
     }
-    
+
+    /**
+     * The start field has changed or a chromatogram has been loaded.  Update the end field appropriately.
+     */
+    private void updateEndField() {
+        try {
+            NumberFormat numberParser = NumberFormat.getIntegerInstance();
+            int startBase = numberParser.parse(startField.getText()).intValue();
+            if (chromatogram != null) {
+                endField.setText(String.valueOf(startBase + chromatogram.getSequenceLength()));
+                if (canvas != null) {
+                    canvas.updatePos(startBase);
+                }
+            }
+        } catch (ParseException x) {
+            Toolkit.getDefaultToolkit().beep();
+        }
+    }
+
     private void updateChromatogram() {
         if (chromatogram != null) {
             if (GenomeUtils.isGenomeLoaded() && GenomeUtils.getGenome().isSequenceSet()) {
