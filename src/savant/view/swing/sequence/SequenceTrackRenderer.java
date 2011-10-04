@@ -17,6 +17,7 @@
 package savant.view.swing.sequence;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.geom.Rectangle2D;
@@ -25,8 +26,10 @@ import java.io.UnsupportedEncodingException;
 import savant.data.types.SequenceRecord;
 import savant.exception.RenderingException;
 import savant.util.AxisRange;
+import savant.util.ColourKey;
 import savant.util.ColourScheme;
 import savant.util.DrawingInstruction;
+import savant.util.DrawingMode;
 import savant.view.swing.GraphPane;
 import savant.view.swing.TrackRenderer;
 
@@ -38,8 +41,8 @@ import savant.view.swing.TrackRenderer;
  */
 public class SequenceTrackRenderer extends TrackRenderer {
 
-    private static final Font SMALL_FONT = new Font("Sans-Serif", Font.PLAIN, 12);
-    private static final Font LARGE_FONT = new Font("Sans-Serif", Font.PLAIN, 36);
+    private static final Font SMALL_BASE_FONT = new Font("Sans-Serif", Font.PLAIN, 12);
+    private static final Font LARGE_BASE_FONT = new Font("Sans-Serif", Font.PLAIN, 36);
 
     public SequenceTrackRenderer() {
     }
@@ -55,11 +58,11 @@ public class SequenceTrackRenderer extends TrackRenderer {
 
         // Set the font size, if base name is renderable at all.
         boolean baseRenderable = false;
-        if (fontFits(LARGE_FONT, unitWidth, g2)) {
-            g2.setFont(LARGE_FONT);
+        if (fontFits(LARGE_BASE_FONT, unitWidth, g2)) {
+            g2.setFont(LARGE_BASE_FONT);
             baseRenderable = true;
-        } else if (fontFits(SMALL_FONT, unitWidth, g2)) {
-            g2.setFont(SMALL_FONT);
+        } else if (fontFits(SMALL_BASE_FONT, unitWidth, g2)) {
+            g2.setFont(SMALL_BASE_FONT);
             baseRenderable = true;
         }
 
@@ -74,7 +77,7 @@ public class SequenceTrackRenderer extends TrackRenderer {
 
             Rectangle2D.Double rect = new Rectangle2D.Double(x, y, w, h);
 
-            ColourScheme cs = (ColourScheme)instructions.get(DrawingInstruction.COLOR_SCHEME);
+            ColourScheme cs = (ColourScheme)instructions.get(DrawingInstruction.COLOUR_SCHEME);
             Color c = cs.getBaseColor((char)sequence[i]);
             if (c != null) {
                 g2.setColor(c);
@@ -110,5 +113,15 @@ public class SequenceTrackRenderer extends TrackRenderer {
         Rectangle2D charRect = font.getStringBounds(baseChar, g2.getFontRenderContext());
         if (charRect.getWidth() > width) return false;
         else return true;
+    }
+    
+    @Override
+    public Dimension getLegendSize(DrawingMode ignored) {
+        return new Dimension(150, 24);
+    }
+    
+    @Override
+    public void drawLegend(Graphics2D g2, DrawingMode ignored) {
+        drawBaseLegend(g2, 6, 17, ColourKey.A, ColourKey.C, ColourKey.G, ColourKey.T, ColourKey.N);
     }
 }

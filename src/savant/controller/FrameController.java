@@ -113,12 +113,12 @@ public class FrameController {
 
             @Override
             public void dockableFrameActivated(DockableFrameEvent evt) {
-                ((Frame)evt.getDockableFrame()).setActiveFrame();
+                ((Frame)evt.getDockableFrame()).setActiveFrame(true);
             }
 
             @Override
             public void dockableFrameDeactivated(DockableFrameEvent evt) {
-                ((Frame)evt.getDockableFrame()).setInactiveFrame();
+                ((Frame)evt.getDockableFrame()).setActiveFrame(false);
             }
         });
     }

@@ -27,7 +27,7 @@ public enum DrawingInstruction {
     AXIS_RANGE,         // AxisRange
     RESOLUTION,         // Resolution
     RANGE,              // Range
-    COLOR_SCHEME,       // ColorScheme
+    COLOUR_SCHEME,       // ColorScheme
     ARC_MIN,            // double
     DISCORDANT_MIN,     // int
     DISCORDANT_MAX,     // int

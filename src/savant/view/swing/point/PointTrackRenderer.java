@@ -56,7 +56,7 @@ public class PointTrackRenderer extends TrackRenderer {
 
         if (r == Resolution.HIGH) {
             
-            ColourScheme cs = (ColourScheme)instructions.get(DrawingInstruction.COLOR_SCHEME);
+            ColourScheme cs = (ColourScheme)instructions.get(DrawingInstruction.COLOUR_SCHEME);
             Color bgcolor = cs.getColor(ColourKey.POINT_FILL);
             Color linecolor = cs.getColor(ColourKey.POINT_LINE);
 

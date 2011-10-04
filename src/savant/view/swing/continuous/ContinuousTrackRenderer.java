@@ -85,7 +85,7 @@ public class ContinuousTrackRenderer extends TrackRenderer {
 
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-        ColourScheme cs = (ColourScheme)instructions.get(DrawingInstruction.COLOR_SCHEME);
+        ColourScheme cs = (ColourScheme)instructions.get(DrawingInstruction.COLOUR_SCHEME);
         Color fillcolor = cs.getColor(ColourKey.CONTINUOUS_FILL);
         Color linecolor = cs.getColor(ColourKey.CONTINUOUS_LINE);
 

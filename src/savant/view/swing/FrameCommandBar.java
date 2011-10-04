@@ -435,6 +435,14 @@ public final class FrameCommandBar extends JMenuBar {
     }
 
     /**
+     * We don't want our menu-bar to get squozen, so make its minimum size the preferred size.
+     */
+    @Override
+    public Dimension getMinimumSize() {
+        return getPreferredSize();
+    }
+
+    /**
      * Get the unit-height which corresponds to the current position of the interval slider.
      */
     int getIntervalHeight() {

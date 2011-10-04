@@ -25,7 +25,6 @@ import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import javax.swing.JPanel;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -53,9 +52,15 @@ public abstract class TrackRenderer implements Listener<DataRetrievalEvent> {
     private static final int MIN_TRANSPARENCY = 20;
     private static final int MAX_TRANSPARENCY = 255;
 
-    protected static final Font SMALL_FONT = new Font("Sans-Serif", Font.PLAIN, 10);
+    protected static final Font LEGEND_FONT = new Font("Sans-Serif", Font.PLAIN, 10);
     protected static final Stroke ONE_STROKE = new BasicStroke(1.0f);
     protected static final Stroke TWO_STROKE = new BasicStroke(2.0f);
+    
+    /** Size of colour swatch used in legend for bases. */
+    protected static final Dimension SWATCH_SIZE = new Dimension(6, 13);
+    
+    /** Notional line-height in legends. */
+    protected static final int LEGEND_LINE_HEIGHT = 18;
 
     protected List<Record> data;
     protected final EnumMap<DrawingInstruction, Object> instructions = new EnumMap<DrawingInstruction, Object>(DrawingInstruction.class);
@@ -291,26 +296,22 @@ public abstract class TrackRenderer implements Listener<DataRetrievalEvent> {
      * Shared by BAMTrackRenderer and RichIntervalTrackRenderer to draw the white diamond
      * which indicates an insertion.
      */
-    public Shape drawInsertion(Graphics2D g2,GraphPane gp, int xStart, int level, double unitHeight) {
-
-        double unitWidth = gp.getUnitWidth();
+    public Shape drawInsertion(Graphics2D g2, double x, double y, double unitWidth, double unitHeight) {
 
         g2.setColor(Color.WHITE);
-        double xCoordinate = gp.transformXPos(xStart);
-        double yCoordinate = gp.transformYPos(0) - ((level + 1) * unitHeight) - gp.getOffset();
         double w = unitWidth * 0.5;
 
         Path2D.Double rhombus = new Path2D.Double();
-        rhombus.moveTo(xCoordinate, yCoordinate);
-        rhombus.lineTo(xCoordinate + w, yCoordinate + unitHeight * 0.5);
-        rhombus.lineTo(xCoordinate, yCoordinate + unitHeight);
-        rhombus.lineTo(xCoordinate - w, yCoordinate + unitHeight * 0.5);
+        rhombus.moveTo(x, y);
+        rhombus.lineTo(x + w, y + unitHeight * 0.5);
+        rhombus.lineTo(x, y + unitHeight);
+        rhombus.lineTo(x - w, y + unitHeight * 0.5);
         rhombus.closePath();
         g2.fill(rhombus);
 
         if (unitWidth > 16.0) {
-            g2.setColor(((ColourScheme)instructions.get(DrawingInstruction.COLOR_SCHEME)).getColor(ColourKey.INTERVAL_LINE));
-            g2.draw(new Line2D.Double(xCoordinate, yCoordinate, xCoordinate, yCoordinate + unitHeight));
+            g2.setColor(Color.BLACK);
+            g2.draw(new Line2D.Double(x, y, x, y + unitHeight));
         }
 
         return rhombus;
@@ -334,25 +335,38 @@ public abstract class TrackRenderer implements Listener<DataRetrievalEvent> {
     /**
      * Simplest kind of legend is just a list of coloured lines with names next to them.
      */
-    protected void drawSimpleLegend(Graphics2D g2, ColourKey... keys) {
-        ColourScheme cs = (ColourScheme)instructions.get(DrawingInstruction.COLOR_SCHEME);
+    protected void drawSimpleLegend(Graphics2D g2, int x, int y, ColourKey... keys) {
+        ColourScheme cs = (ColourScheme)instructions.get(DrawingInstruction.COLOUR_SCHEME);
 
-        g2.setFont(SMALL_FONT);
-
-        int x = 30;
-        int y = 15;
+        g2.setFont(LEGEND_FONT);
 
         for (ColourKey k: keys) {
             String legendString = k.getName();
             g2.setColor(cs.getColor(k));
             g2.setStroke(TWO_STROKE );
-            Rectangle2D stringRect = SMALL_FONT.getStringBounds(legendString, g2.getFontRenderContext());
+            Rectangle2D stringRect = LEGEND_FONT.getStringBounds(legendString, g2.getFontRenderContext());
             g2.drawLine(x-25, y-(int)stringRect.getHeight()/2, x-5, y-(int)stringRect.getHeight()/2);
             g2.setColor(cs.getColor(ColourKey.INTERVAL_LINE));
             g2.setStroke(ONE_STROKE);
             g2.drawString(legendString, x, y);
 
-            y += stringRect.getHeight()+2;
+            y += LEGEND_LINE_HEIGHT;
+        }
+    }
+    
+    /**
+     * Draw a legend which consists of the given bases arranged horizontally
+     */
+    protected void drawBaseLegend(Graphics2D g2, int x, int y, ColourKey... keys) {
+        ColourScheme cs = (ColourScheme)instructions.get(DrawingInstruction.COLOUR_SCHEME);
+        g2.setFont(LEGEND_FONT);
+
+        for (ColourKey k: keys) {
+            g2.setColor(cs.getColor(k));
+            g2.fillRect(x, y - SWATCH_SIZE.height + 2, SWATCH_SIZE.width, SWATCH_SIZE.height);
+            g2.setColor(Color.BLACK);
+            g2.drawString(k.getName(), x + SWATCH_SIZE.width + 3, y);
+            x += 27;
         }
     }
 }

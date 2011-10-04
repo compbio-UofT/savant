@@ -528,7 +528,7 @@ public class MiscUtils {
         Path2D.Double result = new Path2D.Double(Path2D.WIND_NON_ZERO, coords.length / 2);
         result.moveTo(coords[0], coords[1]);
         for (int i = 2; i < coords.length; i += 2) {
-            result.moveTo(coords[i], coords[i + 1]);
+            result.lineTo(coords[i], coords[i + 1]);
         }
         result.closePath();
         return result;

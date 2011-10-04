@@ -57,7 +57,7 @@ import savant.view.swing.interval.Pileup.Nucleotide;
 public class BAMTrackRenderer extends TrackRenderer {
     private static final Log LOG = LogFactory.getLog(BAMTrackRenderer.class);
 
-    private static final Font MISMATCH_FONT = SMALL_FONT.deriveFont(12.0f);
+    private static final Font MISMATCH_FONT = LEGEND_FONT.deriveFont(12.0f);
 
     private byte[] refSeq = null;
     private DrawingMode lastMode;
@@ -212,7 +212,7 @@ public class BAMTrackRenderer extends TrackRenderer {
                     // this read is unmapped, don't visualize it
                     recordToShapeMap.put(intervalRecord, null);
                 } else {
-                    Polygon readshape = renderRead(g2, gp, bamRecord, level, range, gp.getUnitHeight());
+                    Shape readshape = renderRead(g2, gp, bamRecord, level, range, gp.getUnitHeight());
                     recordToShapeMap.put(intervalRecord, readshape);
                 }
             }
@@ -220,12 +220,12 @@ public class BAMTrackRenderer extends TrackRenderer {
 
     }
 
-    public Polygon renderRead(Graphics2D g2, GraphPane gp, BAMIntervalRecord rec, int level, Range range, double unitHeight) {
+    public Shape renderRead(Graphics2D g2, GraphPane gp, BAMIntervalRecord rec, int level, Range range, double unitHeight) {
 
         SAMRecord samRec = rec.getSamRecord();
         boolean reverseStrand = samRec.getReadNegativeStrandFlag();
 
-        ColourScheme cs = (ColourScheme) instructions.get(DrawingInstruction.COLOR_SCHEME);
+        ColourScheme cs = (ColourScheme) instructions.get(DrawingInstruction.COLOUR_SCHEME);
         Color readColor = cs.getColor(reverseStrand ? ColourKey.REVERSE_STRAND : ColourKey.FORWARD_STRAND);
 
         Color override = rec.getColor();
@@ -237,59 +237,30 @@ public class BAMTrackRenderer extends TrackRenderer {
             readColor = new Color(readColor.getRed(), readColor.getGreen(), readColor.getBlue(), alpha);
         }
 
-        double x=0;
-        double y=0;
-        double w=0;
-        double h=0;
-
-        double arrowHeight = unitHeight/2;
-        double arrowWidth = unitHeight/4;
-
         // cutoffs to determine when not to draw
         double leftMostX = gp.transformXPos(range.getFrom());
         double rightMostX = gp.transformXPos(range.getTo() + 1);
 
-        boolean drawPoint = false;
         //y = gp.transformYPos(0) - (level + 1)*unitHeight;
-        y = gp.transformYPos(0) - (level + 1)*unitHeight - gp.getOffset();
-        
-        w = gp.getWidth(rec.getInterval().getLength());
+        double x = gp.transformXPos(rec.getInterval().getStart());
+        double y = gp.transformYPos(0) - (level + 1)*unitHeight - gp.getOffset();
+        double w = gp.getWidth(rec.getInterval().getLength());
 
-        if (w > arrowWidth) {
-            drawPoint = true;
-        }
-        h = unitHeight;
-        x = gp.transformXPos(rec.getInterval().getStart());
 
         // cut off x and w so no drawing happens off-screen
-        boolean cutoffLeft = false;
-        boolean cutoffRight = false;
         double x2;
         if (rightMostX < x+w) {
             x2 = rightMostX;
-            cutoffRight = true;
         } else {
             x2 = x+w;
         }
         if (leftMostX > x) {
             x = leftMostX;
-            cutoffLeft = true;
         }
         w = x2 - x;
 
-        // find out which direction we're pointing
-        Polygon pointyBar = new Polygon();
-        pointyBar.addPoint((int)x, (int)y);
-        pointyBar.addPoint((int)(x+w), (int)y);
-        if (!reverseStrand && drawPoint && !cutoffRight) {
-            pointyBar.addPoint((int)(x+w+arrowWidth), (int)(y+arrowHeight));
-        }
-        pointyBar.addPoint((int)(x+w), (int)(y+h));
-        pointyBar.addPoint((int)x, (int)(y+h));
-        if (reverseStrand && drawPoint && !cutoffLeft) {
-            pointyBar.addPoint((int)(x-arrowWidth), (int)(y+arrowHeight));
-        }
-        
+        Shape pointyBar = getPointyBar(reverseStrand, x, y, w, unitHeight);
+
         // Only fill in the read if we're not going to slam bases on top of it.
         boolean baseQuality = (Boolean)instructions.get(DrawingInstruction.BASE_QUALITY);
         if (lastMode != DrawingMode.SEQUENCE && !baseQuality) {
@@ -309,6 +280,19 @@ public class BAMTrackRenderer extends TrackRenderer {
         }
         return pointyBar;
 
+    }
+
+    private Shape getPointyBar(boolean reverseStrand, double x, double y, double w, double h) {
+        double arrowHeight = h * 0.5;
+        double arrowWidth = h * 0.25;
+        if (w > arrowWidth) {
+            if (reverseStrand) {
+                return MiscUtils.createPolygon(x, y, x + w, y, x + w, y + h, x, y + h, x - arrowWidth, y + arrowHeight);
+            } else {
+                return MiscUtils.createPolygon(x, y, x + w, y, x + w + arrowWidth, y + arrowHeight, x + w, y + h, x, y + h);
+            }
+        }
+        return MiscUtils.createPolygon(x, y, x + w, y, x + w, y + h, x, y + h);
     }
 
     private ColourKey getSubPileColour(Nucleotide snpNuc, Nucleotide genomeNuc) {
@@ -335,7 +319,7 @@ public class BAMTrackRenderer extends TrackRenderer {
      */
     private void renderBases(Graphics2D g2, GraphPane gp, SAMRecord samRecord, int level, byte[] refSeq, Range range, double unitHeight) {
 
-        ColourScheme cs = (ColourScheme) instructions.get(DrawingInstruction.COLOR_SCHEME);
+        ColourScheme cs = (ColourScheme) instructions.get(DrawingInstruction.COLOUR_SCHEME);
         
         boolean baseQualityEnabled = (Boolean)instructions.get(DrawingInstruction.BASE_QUALITY);
         boolean drawingAllBases = lastMode == DrawingMode.SEQUENCE || baseQualityEnabled;
@@ -426,7 +410,7 @@ public class BAMTrackRenderer extends TrackRenderer {
                
                 case N: // Skipped
                     opRect = new Rectangle2D.Double(opStart, gp.transformYPos(0)-((level+1)*unitHeight) - offset, opWidth, unitHeight);
-                    g2.setColor(Color.gray);
+                    g2.setColor(cs.getColor(ColourKey.SKIPPED));
                     g2.fill(opRect);
                     break;
 
@@ -454,7 +438,7 @@ public class BAMTrackRenderer extends TrackRenderer {
 
     private void renderInsertion(Graphics2D g2, GraphPane gp, int pos, int level, double unitHeight) {
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        drawInsertion(g2, gp, pos, level, unitHeight);
+        drawInsertion(g2, gp.transformXPos(pos), gp.transformYPos(0) - ((level + 1) * unitHeight) - gp.getOffset(), gp.getUnitWidth(), unitHeight);
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
     }
 
@@ -464,7 +448,7 @@ public class BAMTrackRenderer extends TrackRenderer {
 
         LOG.debug("YMAX for ARC mode: " + ((AxisRange) instructions.get(DrawingInstruction.AXIS_RANGE)).getYMax());
         AxisRange axisRange = (AxisRange) instructions.get(DrawingInstruction.AXIS_RANGE);
-        ColourScheme cs = (ColourScheme) instructions.get(DrawingInstruction.COLOR_SCHEME);
+        ColourScheme cs = (ColourScheme) instructions.get(DrawingInstruction.COLOUR_SCHEME);
         double threshold = (Double) instructions.get(DrawingInstruction.ARC_MIN);
         int discordantMin = (Integer) instructions.get(DrawingInstruction.DISCORDANT_MIN);
         int discordantMax = (Integer) instructions.get(DrawingInstruction.DISCORDANT_MAX);
@@ -580,7 +564,7 @@ public class BAMTrackRenderer extends TrackRenderer {
         Genome genome = GenomeController.getInstance().getGenome();
 
         AxisRange axisRange = (AxisRange)instructions.get(DrawingInstruction.AXIS_RANGE);
-        ColourScheme cs = (ColourScheme)instructions.get(DrawingInstruction.COLOR_SCHEME);
+        ColourScheme cs = (ColourScheme)instructions.get(DrawingInstruction.COLOUR_SCHEME);
 
         List<Pileup> pileups = new ArrayList<Pileup>();
 
@@ -655,7 +639,7 @@ public class BAMTrackRenderer extends TrackRenderer {
         Genome genome = GenomeController.getInstance().getGenome();
 
         AxisRange axisRange = (AxisRange)instructions.get(DrawingInstruction.AXIS_RANGE);
-        ColourScheme cs = (ColourScheme)instructions.get(DrawingInstruction.COLOR_SCHEME);
+        ColourScheme cs = (ColourScheme)instructions.get(DrawingInstruction.COLOUR_SCHEME);
 
         List<Pileup> pileups = new ArrayList<Pileup>();
 
@@ -858,7 +842,7 @@ public class BAMTrackRenderer extends TrackRenderer {
     private void renderStandardPairedMode(Graphics2D g2, GraphPane gp) throws RenderingException {
 
         AxisRange axisRange = (AxisRange) instructions.get(DrawingInstruction.AXIS_RANGE);
-        ColourScheme cs = (ColourScheme) instructions.get(DrawingInstruction.COLOR_SCHEME);
+        ColourScheme cs = (ColourScheme) instructions.get(DrawingInstruction.COLOUR_SCHEME);
         Color linecolor = cs.getColor(ColourKey.INTERVAL_LINE);
         Range range = axisRange.getXRange();
         int effectiveEnd = range.getTo() + 1;
@@ -932,7 +916,7 @@ public class BAMTrackRenderer extends TrackRenderer {
 
         //now, draw everything
         for(DrawStore drawStore : savedDraws) {
-            Polygon readshape = renderRead(g2, gp, drawStore.intervalRecord, drawStore.level, range, gp.getUnitHeight());
+            Shape readshape = renderRead(g2, gp, drawStore.intervalRecord, drawStore.level, range, gp.getUnitHeight());
             recordToShapeMap.put(drawStore.intervalRecord, readshape);
             if (drawStore.mateInterval != null) {
                 connectPiledInterval(g2, gp, drawStore.intervalRecord.getInterval(), drawStore.mateInterval, drawStore.level, linecolor, drawStore.intervalRecord, drawStore.mateIntervalRecord);
@@ -1045,14 +1029,99 @@ public class BAMTrackRenderer extends TrackRenderer {
     
     @Override
     public Dimension getLegendSize(DrawingMode mode) {
-        if (mode == DrawingMode.ARC_PAIRED) {
-            return new Dimension(125, 65);
+        switch (mode) {
+            case STANDARD:
+            case SEQUENCE:
+                return new Dimension(168, LEGEND_LINE_HEIGHT * 2 + 6);
+            case MISMATCH:
+            case STANDARD_PAIRED:
+                return new Dimension(168, LEGEND_LINE_HEIGHT * 4 + 6);
+            case ARC_PAIRED:
+                // Four lines, but not as wide as the others.
+                return new Dimension(125, LEGEND_LINE_HEIGHT * 4 + 6);
+            case SNP:
+                return new Dimension(168, LEGEND_LINE_HEIGHT + 6);
+            case STRAND_SNP:
+                return new Dimension(186, LEGEND_LINE_HEIGHT * 2 + 6);
+            default:
+                return null;
         }
-        return null;
     }
 
     @Override
     public void drawLegend(Graphics2D g2, DrawingMode mode) {
-        drawSimpleLegend(g2, ColourKey.CONCORDANT_LENGTH, ColourKey.DISCORDANT_LENGTH, ColourKey.ONE_READ_INVERTED, ColourKey.EVERTED_PAIR);
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        int x = 6, y = 17;
+        switch (mode) {
+            case STANDARD:
+                drawStrandLegends(g2, x, y);
+                break;
+            case MISMATCH:
+            case STANDARD_PAIRED:
+                drawStrandLegends(g2, x, y);
+                y += LEGEND_LINE_HEIGHT * 2;
+                drawBaseLegendExtended(g2, x, y);
+                break;
+            case SEQUENCE:
+                drawBaseLegendExtended(g2, x, y);
+                break;
+            case ARC_PAIRED:
+                drawSimpleLegend(g2, 30, 15, ColourKey.CONCORDANT_LENGTH, ColourKey.DISCORDANT_LENGTH, ColourKey.ONE_READ_INVERTED, ColourKey.EVERTED_PAIR);
+                break;
+            case SNP:
+                drawBaseLegend(g2, x, y, ColourKey.A, ColourKey.C, ColourKey.G, ColourKey.T);
+                break;
+            case STRAND_SNP:
+                drawBaseLegend(g2, x, y, ColourKey.A, ColourKey.C, ColourKey.G, ColourKey.T);
+                y += LEGEND_LINE_HEIGHT;
+                drawBaseLegend(g2, x, y, ColourKey.FORWARD_STRAND);
+                x += 90;
+                drawBaseLegend(g2, x, y, ColourKey.REVERSE_STRAND);
+                break;
+            default:
+                break;
+        }
+    }
+    
+    /**
+     * Draw two read-shapes: one for forward and one for reverse.
+     */
+    private void drawStrandLegends(Graphics2D g2, int x, int y) {
+        ColourScheme cs = (ColourScheme)instructions.get(DrawingInstruction.COLOUR_SCHEME);
+        Shape pointyBar = getPointyBar(false, x, y - 12, 36.0, 12.0);
+        g2.setColor(cs.getColor(ColourKey.FORWARD_STRAND));
+        g2.fill(pointyBar);
+        g2.setColor(cs.getColor(ColourKey.INTERVAL_LINE));
+        g2.draw(pointyBar);
+        
+        pointyBar = getPointyBar(true, x, y - 12 + LEGEND_LINE_HEIGHT, 36.0, 12.0);
+        g2.setColor(cs.getColor(ColourKey.REVERSE_STRAND));
+        g2.fill(pointyBar);
+        g2.setColor(cs.getColor(ColourKey.INTERVAL_LINE));
+        g2.draw(pointyBar);
+        
+        g2.setColor(Color.BLACK);
+        g2.setFont(LEGEND_FONT);
+        g2.drawString(ColourKey.FORWARD_STRAND.getName(), x + 45, y);
+        g2.drawString(ColourKey.REVERSE_STRAND.getName(), x + 45, y + LEGEND_LINE_HEIGHT);
+    }
+
+    /**
+     * Draw the legend for bases, but also the entries for insertions and deletions.
+     */
+    private void drawBaseLegendExtended(Graphics2D g2, int x, int y) {
+        drawBaseLegend(g2, x, y, ColourKey.A, ColourKey.C, ColourKey.G, ColourKey.T, ColourKey.SKIPPED);
+
+        y += LEGEND_LINE_HEIGHT;
+        g2.setColor(Color.BLACK);
+        g2.fillRect(x, y - SWATCH_SIZE.height + 2, SWATCH_SIZE.width, SWATCH_SIZE.height);
+        g2.setColor(Color.BLACK);
+        g2.drawString("Deletion", x + SWATCH_SIZE.width + 3, y);
+        x += 66;
+        Shape s = drawInsertion(g2, x, y - SWATCH_SIZE.height + 2, 12.0, SWATCH_SIZE.height);
+        g2.setColor(Color.BLACK);
+        g2.setStroke(new BasicStroke(0.25f));
+        g2.draw(s);
+        g2.drawString("Insertion", x + 12, y);
     }
 }

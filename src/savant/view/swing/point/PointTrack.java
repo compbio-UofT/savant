@@ -58,7 +58,7 @@ public class PointTrack extends Track {
         }
 
         renderer.addInstruction(DrawingInstruction.RESOLUTION, r);
-        renderer.addInstruction(DrawingInstruction.COLOR_SCHEME, this.getColourScheme());
+        renderer.addInstruction(DrawingInstruction.COLOUR_SCHEME, this.getColourScheme());
         renderer.addInstruction(DrawingInstruction.AXIS_RANGE, AxisRange.initWithRanges(range, getDefaultYRange()));
         renderer.addInstruction(DrawingInstruction.REFERENCE_EXISTS, containsReference(reference));
         renderer.addInstruction(DrawingInstruction.SELECTION_ALLOWED, true);

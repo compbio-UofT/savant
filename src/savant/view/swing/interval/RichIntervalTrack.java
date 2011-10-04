@@ -54,7 +54,7 @@ public class RichIntervalTrack extends Track {
         
         renderer.addInstruction(DrawingInstruction.RANGE, range);
         renderer.addInstruction(DrawingInstruction.RESOLUTION, r);
-        renderer.addInstruction(DrawingInstruction.COLOR_SCHEME, getColourScheme());
+        renderer.addInstruction(DrawingInstruction.COLOUR_SCHEME, getColourScheme());
         renderer.addInstruction(DrawingInstruction.AXIS_RANGE, AxisRange.initWithRanges(range, getDefaultYRange()));
         renderer.addInstruction(DrawingInstruction.REFERENCE_EXISTS, containsReference(reference));
         renderer.addInstruction(DrawingInstruction.MODE, getDrawingMode());

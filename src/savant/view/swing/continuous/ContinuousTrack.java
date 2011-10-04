@@ -47,7 +47,7 @@ import savant.view.swing.Track;
         requestData(reference, new Range(range.getFrom(), range.getTo()+2));
         renderer.addInstruction(DrawingInstruction.RANGE, range);
         renderer.addInstruction(DrawingInstruction.RESOLUTION, r);
-        renderer.addInstruction(DrawingInstruction.COLOR_SCHEME, getColourScheme());
+        renderer.addInstruction(DrawingInstruction.COLOUR_SCHEME, getColourScheme());
         renderer.addInstruction(DrawingInstruction.REFERENCE_EXISTS, containsReference(reference));
         renderer.addInstruction(DrawingInstruction.SELECTION_ALLOWED, true);
     }

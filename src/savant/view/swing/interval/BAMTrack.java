@@ -105,7 +105,7 @@ public class BAMTrack extends Track {
 
         renderer.addInstruction(DrawingInstruction.RANGE, range);
         renderer.addInstruction(DrawingInstruction.RESOLUTION, r);
-        renderer.addInstruction(DrawingInstruction.COLOR_SCHEME, getColourScheme());
+        renderer.addInstruction(DrawingInstruction.COLOUR_SCHEME, getColourScheme());
         renderer.addInstruction(DrawingInstruction.PAIRED_PROTOCOL, pairedProtocol);
 
         boolean f = containsReference(reference);

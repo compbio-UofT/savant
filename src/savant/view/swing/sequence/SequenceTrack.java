@@ -69,7 +69,7 @@ public class SequenceTrack extends Track {
 
         if (r == Resolution.HIGH) {
             renderer.addInstruction(DrawingInstruction.RANGE, range);
-            renderer.addInstruction(DrawingInstruction.COLOR_SCHEME, this.getColourScheme());
+            renderer.addInstruction(DrawingInstruction.COLOUR_SCHEME, this.getColourScheme());
         }
     }
 

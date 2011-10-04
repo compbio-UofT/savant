@@ -28,6 +28,7 @@ public enum ColourKey {
     T,
     N,                  // Grey used for missing bases
     DELETED_BASE,       // Orange to make deletions show up nicely in mismatch mode
+    SKIPPED,            // Grey for skipped regions in reads
 
     FORWARD_STRAND,
     REVERSE_STRAND,
@@ -67,6 +68,8 @@ public enum ColourKey {
      */
     public String getName() {
         switch (this) {
+            case SKIPPED:
+                return "Skipped";
             case FORWARD_STRAND:
                 return "Forward Strand";
             case REVERSE_STRAND:

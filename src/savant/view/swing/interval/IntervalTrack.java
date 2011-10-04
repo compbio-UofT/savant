@@ -107,7 +107,7 @@ public class IntervalTrack extends Track {
 
         renderer.addInstruction(DrawingInstruction.RESOLUTION, r);
         renderer.addInstruction(DrawingInstruction.RANGE, range);
-        renderer.addInstruction(DrawingInstruction.COLOR_SCHEME, getColourScheme());
+        renderer.addInstruction(DrawingInstruction.COLOUR_SCHEME, getColourScheme());
         renderer.addInstruction(DrawingInstruction.REFERENCE_EXISTS, containsReference(reference));
 
         if (getDrawingMode() != DrawingMode.ARC) {

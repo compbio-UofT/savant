@@ -69,7 +69,7 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
     private void renderPackMode(Graphics2D g2, GraphPane gp, Resolution resolution) throws RenderingException {
 
         AxisRange axisRange = (AxisRange)instructions.get(DrawingInstruction.AXIS_RANGE);
-        ColourScheme cs = (ColourScheme)instructions.get(DrawingInstruction.COLOR_SCHEME);
+        ColourScheme cs = (ColourScheme)instructions.get(DrawingInstruction.COLOUR_SCHEME);
 
         double unitWidth = gp.getUnitWidth();
 
@@ -151,7 +151,7 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
 
         // If length is 0, draw insertion rhombus.  It is drawn here so that the name can be drawn on top of it.
         if (interval.getLength() == 0){
-            Shape rhombus = drawInsertion(g2, gp, interval.getStart(), level, unitHeight);
+            Shape rhombus = drawInsertion(g2, gp.transformXPos(interval.getStart()), gp.transformYPos(0) - ((level + 1) * unitHeight) - gp.getOffset(), gp.getUnitWidth(), unitHeight);
             isInsertion = true;
 
             startXPos -= unitWidth * 0.5;   // So the name won't stomp on the leftward-pointing arrow of the insertion.
@@ -200,7 +200,7 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
                 if (chevronIntervalStart < chevronIntervalEnd && chevronIntervalEnd >= 0 && chevronIntervalStart <= gp.getWidth()) {
                     g2.setColor(lineColor);
                     g2.draw(new Line2D.Double(chevronIntervalStart, yPos, chevronIntervalEnd, yPos));
-                    drawChevrons(g2, chevronIntervalStart, chevronIntervalEnd,  yPos, unitHeight, lineColor, rec.getStrand(), area);
+                    drawChevrons(g2, chevronIntervalStart, chevronIntervalEnd,  yPos, unitHeight, rec.getStrand(), area);
                 }
 
                 double w = gp.getWidth(block.getSize());
@@ -216,17 +216,14 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
                         blockShape = new Rectangle2D.Double(x, y + h * 0.25, w, h * 0.5);
                     } else {
                         // Block starts thick but ends thin.
-                        Path2D.Double blockPath = new Path2D.Double();
-                        blockPath.moveTo(x, y);
-                        blockPath.lineTo(thickEndX, y);
-                        blockPath.lineTo(thickEndX, y + h * 0.25);
-                        blockPath.lineTo(x + w, y + h * 0.25);
-                        blockPath.lineTo(x + w, y + h * 0.75);
-                        blockPath.lineTo(thickEndX, y + h * 0.75);
-                        blockPath.lineTo(thickEndX, y + h);
-                        blockPath.lineTo(x, y + h);
-                        blockPath.closePath();
-                        blockShape = blockPath;
+                        blockShape = MiscUtils.createPolygon(x, y,
+                                                             thickEndX, y,
+                                                             thickEndX, y + h * 0.25,
+                                                             x + w, y + h * 0.25,
+                                                             x + w, y + h * 0.75,
+                                                             thickEndX, y + h * 0.75,
+                                                             thickEndX, y + h,
+                                                             x, y + h);
                     }
                 } else {
                     if (blockEnd <= thickStart) {
@@ -234,34 +231,28 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
                         blockShape = new Rectangle2D.Double(x, y + h * 0.25, w, h * 0.5);
                     } else if (blockEnd <= thickEnd) {
                         // Block starts thin but ends thick.
-                        Path2D.Double blockPath = new Path2D.Double();
-                        blockPath.moveTo(x, y + h * 0.25);
-                        blockPath.lineTo(thickStartX, y + h * 0.25);
-                        blockPath.lineTo(thickStartX, y);
-                        blockPath.lineTo(x + w, y);
-                        blockPath.lineTo(x + w, y + h);
-                        blockPath.lineTo(thickStartX, y + h);
-                        blockPath.lineTo(thickStartX, y + h * 0.75);
-                        blockPath.lineTo(x, y + h * 0.75);
-                        blockPath.closePath();
-                        blockShape = blockPath;
+                        blockShape = MiscUtils.createPolygon(x, y + h * 0.25,
+                                                             thickStartX, y + h * 0.25,
+                                                             thickStartX, y,
+                                                             x + w, y,
+                                                             x + w, y + h,
+                                                             thickStartX, y + h,
+                                                             thickStartX, y + h * 0.75,
+                                                             x, y + h * 0.75);
                     } else {
                         // Worst case.  Block starts thin, goes thick in the middle and ends thin.
-                        Path2D.Double blockPath = new Path2D.Double();
-                        blockPath.moveTo(x, y + h * 0.25);
-                        blockPath.lineTo(thickStartX, y + h * 0.25);
-                        blockPath.lineTo(thickStartX, y);
-                        blockPath.lineTo(thickEndX, y);
-                        blockPath.lineTo(thickEndX, y + h * 0.25);
-                        blockPath.lineTo(x + w, y + h * 0.25);
-                        blockPath.lineTo(x + w, y + h * 0.75);
-                        blockPath.lineTo(thickEndX, y + h * 0.75);
-                        blockPath.lineTo(thickEndX, y + h);
-                        blockPath.lineTo(thickStartX, y + h);
-                        blockPath.lineTo(thickStartX, y + h * 0.75);
-                        blockPath.lineTo(x, y + h * 0.75);
-                        blockPath.closePath();
-                        blockShape = blockPath;
+                        blockShape = MiscUtils.createPolygon(x, y + h * 0.25,
+                                                             thickStartX, y + h * 0.25,
+                                                             thickStartX, y,
+                                                             thickEndX, y,
+                                                             thickEndX, y + h * 0.25,
+                                                             x + w, y + h * 0.25,
+                                                             x + w, y + h * 0.75,
+                                                             thickEndX, y + h * 0.75,
+                                                             thickEndX, y + h,
+                                                             thickStartX, y + h,
+                                                             thickStartX, y + h * 0.75,
+                                                             x, y + h * 0.75);
                     }
                 }
                 g2.setColor(fillColor);
@@ -299,53 +290,42 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
         }
     }
 
-    private void drawChevrons(Graphics2D g2, double start, double end, double y, double height, Color color, Strand strand, Area area) {
+    private void drawChevrons(Graphics2D g2, double start, double end, double y, double height, Strand strand, Area area) {
         final int SCALE_FACTOR = 40;
         final int interval = ((int)height/SCALE_FACTOR+1) * SCALE_FACTOR;
-        g2.setColor(color);
         // start the drawing on the next multiple of interval
         int startPos;
         if (start != interval) {
             startPos = (int)start + interval - ((int)start % interval);
-        }
-        else {
+        } else {
             startPos = interval;
         }
 
-        for (double i=startPos; i<end; i+=interval) {
+        for (double x = startPos; x < end; x+=interval) {
 
-            int arrowWidth = (int)(height/4);
+            double arrowWidth = height * 0.25;
             if ((end - start) > arrowWidth) {
                 Path2D.Double arrow = null;
                 if (strand == Strand.FORWARD) {
-                    if ((i-arrowWidth) > start) {
+                    if ((x-arrowWidth) > start) {
                         if (height > SCALE_FACTOR) {
-                            g2.draw(new Line2D.Double(i, y, i - arrowWidth, y + arrowWidth + 1.0));
-                            g2.draw(new Line2D.Double(i, y, i - arrowWidth, y - arrowWidth));
-                        }
-                        else {
-                            arrow = new Path2D.Double();
-                            arrow.moveTo(i, y);
-                            arrow.lineTo(i - arrowWidth, y + arrowWidth + 1.0);
-                            arrow.lineTo(i - arrowWidth, y - arrowWidth);
+                            g2.draw(new Line2D.Double(x, y, x - arrowWidth, y + arrowWidth + 1.0));
+                            g2.draw(new Line2D.Double(x, y, x - arrowWidth, y - arrowWidth));
+                        } else {
+                            arrow = MiscUtils.createPolygon(x, y, x - arrowWidth, y + arrowWidth + 1.0, x - arrowWidth, y - arrowWidth);
                         }
                     }
                 } else {
-                    if ((i+arrowWidth) < end) {
+                    if ((x+arrowWidth) < end) {
                         if (height > SCALE_FACTOR) {
-                            g2.draw(new Line2D.Double(i, y, i + arrowWidth, y + arrowWidth + 1.0));
-                            g2.draw(new Line2D.Double(i, y, i + arrowWidth, y - arrowWidth));
-                        }
-                        else {
-                            arrow = new Path2D.Double();
-                            arrow.moveTo(i, y);
-                            arrow.lineTo(i + arrowWidth, y + arrowWidth + 1.0);
-                            arrow.lineTo(i + arrowWidth, y - arrowWidth);
+                            g2.draw(new Line2D.Double(x, y, x + arrowWidth, y + arrowWidth + 1.0));
+                            g2.draw(new Line2D.Double(x, y, x + arrowWidth, y - arrowWidth));
+                        } else {
+                            arrow = MiscUtils.createPolygon(x, y, x + arrowWidth, y + arrowWidth + 1.0, x + arrowWidth, y - arrowWidth);
                         }
                     }
                 }
                 if (arrow != null) {
-                    arrow.closePath();
                     g2.fill(new Area(arrow));
                     if (area != null) {
                         area.add(new Area(arrow));
@@ -367,7 +347,7 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
 
 
             // colours
-            ColourScheme cs = (ColourScheme)instructions.get(DrawingInstruction.COLOR_SCHEME);
+            ColourScheme cs = (ColourScheme)instructions.get(DrawingInstruction.COLOUR_SCHEME);
             Color forwardColor = cs.getColor(ColourKey.FORWARD_STRAND);     // Color also used for no-strand.
             Color reverseColor = cs.getColor(ColourKey.REVERSE_STRAND);
             Color lineColor = cs.getColor(ColourKey.INTERVAL_LINE);
@@ -436,7 +416,7 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
                 //If length is 0, draw insertion rhombus.
                 if(interval.getLength() == 0){
 
-                    drawInsertion(g2, gp, interval.getStart(), level, unitHeight);
+                    drawInsertion(g2, gp.transformXPos(interval.getStart()), gp.transformYPos(0) - ((level + 1) * unitHeight) - gp.getOffset(), gp.getUnitWidth(), unitHeight);
                     // draw nothing else for this interval
                     continue;
                 }
@@ -447,7 +427,7 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
                 int lineWidth = (int)gp.getWidth(interval.getLength());
                 if (lineWidth > 4) {
                     g2.draw(new Line2D.Double(startXPos, yPos, startXPos + lineWidth, yPos));
-                    drawChevrons(g2, startXPos, startXPos + lineWidth,  yPos, unitHeight, lineColor, strand, null);
+                    drawChevrons(g2, startXPos, startXPos + lineWidth,  yPos, unitHeight, strand, null);
                 }
 
             }
@@ -520,6 +500,58 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
                 g2.draw(blockRect);
             }
         }
+    }
+    
+    @Override
+    public Dimension getLegendSize(DrawingMode mode) {
+        switch (mode) {
+            case STANDARD:
+                return new Dimension(150, LEGEND_LINE_HEIGHT * 4 + 6);
+            case SQUISH:
+                return new Dimension(150, LEGEND_LINE_HEIGHT * 3 + 6);
+            default:
+                return null;
+        }
+    }
 
+    @Override
+    public void drawLegend(Graphics2D g2, DrawingMode mode) {
+        ColourScheme cs = (ColourScheme)instructions.get(DrawingInstruction.COLOUR_SCHEME);
+        int x = 6, y = 17;
+        
+        g2.setColor(cs.getColor(ColourKey.FORWARD_STRAND));
+        g2.fillRect(x, y - 10, 36, 12);
+        g2.setColor(cs.getColor(ColourKey.INTERVAL_LINE));
+        g2.drawRect(x, y - 10, 36, 12);
+        g2.setColor(Color.BLACK);
+        g2.setFont(LEGEND_FONT);
+        g2.drawString(ColourKey.FORWARD_STRAND.getName(), x + 45, y);
+
+        y += LEGEND_LINE_HEIGHT;
+        g2.setColor(cs.getColor(ColourKey.REVERSE_STRAND));
+        g2.fillRect(x, y - 10, 36, 12);
+        g2.setColor(cs.getColor(ColourKey.INTERVAL_LINE));
+        g2.drawRect(x, y - 10, 36, 12);
+        g2.setColor(Color.BLACK);
+        g2.drawString(ColourKey.REVERSE_STRAND.getName(), x + 45, y);
+        
+        y += LEGEND_LINE_HEIGHT - 3;
+        g2.setColor(cs.getColor(ColourKey.INTERVAL_LINE));
+        g2.drawLine(x, y, x + 36, y);
+        g2.fill(MiscUtils.createPolygon(x + 15, y - 4, x + 19, y, x + 15, y + 5));
+        y += 3;
+        g2.setColor(Color.BLACK);
+        g2.drawString("Intron", x + 45, y);
+        
+
+        if (mode == DrawingMode.STANDARD) {
+            y += LEGEND_LINE_HEIGHT;
+            g2.setColor(cs.getColor(ColourKey.FORWARD_STRAND));
+            g2.fillRect(x, y - 8, 36, 6);
+            g2.setColor(cs.getColor(ColourKey.INTERVAL_LINE));
+            g2.drawRect(x, y - 8, 36, 6);
+            g2.setColor(Color.BLACK);
+            g2.drawString("Non-coding", x + 45, y);
+        }
     }
 }

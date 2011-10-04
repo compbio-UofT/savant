@@ -69,7 +69,7 @@ public class Frame extends DockableFrame implements Listener<DataRetrievalEvent>
 
     private FrameCommandBar commandBar;
     private JComponent legend;
-    private FrameSidePanel sidePanel;
+    private JPanel sidePanel;
     private JLabel yMaxPanel;
     private Map<SavantPanelPlugin, JPanel> pluginLayers = new HashMap<SavantPanelPlugin, JPanel>();
 
@@ -98,6 +98,11 @@ public class Frame extends DockableFrame implements Listener<DataRetrievalEvent>
             }
             
             @Override
+            public Dimension getMinimumSize() {
+                return getPreferredSize();
+            }
+
+            @Override
             public void paintComponent(Graphics g) {
                 for (Track t: tracks) {
                     Dimension d = t.getRenderer().getLegendSize(t.getDrawingMode());
@@ -115,6 +120,7 @@ public class Frame extends DockableFrame implements Listener<DataRetrievalEvent>
                 }
             }
         };
+        legend.setVisible(false);
 
         frameLandscape = new JLayeredPane();
         graphPane = new GraphPane(this);
@@ -144,42 +150,48 @@ public class Frame extends DockableFrame implements Listener<DataRetrievalEvent>
         c.fill = GridBagConstraints.HORIZONTAL;
 
         //add sidepanel
-        sidePanel = new FrameSidePanel();
+        sidePanel = new JPanel() {
+            @Override
+            public Dimension getMinimumSize() {
+                return new Dimension(0, 0);
+            }
+        };
+        sidePanel.setLayout(new GridBagLayout());
+        sidePanel.setOpaque(false);
         sidePanel.setVisible(false);
         c.weightx = 1.0;
-        c.weighty = 0;
+        c.weighty = 1.0;
         c.fill = GridBagConstraints.BOTH;
         c.gridx = 1;
         c.gridy = 0;
-        frameLandscape.add(sidePanel, c, 5);
+        c.insets = new Insets(0, 0, 0, 16); // Leave 16 pixels so that we don't sit on top of the scroll-bar.
+        frameLandscape.add(sidePanel, c);
 
         addComponentListener(new ComponentAdapter() {
             @Override
             public void componentResized(ComponentEvent e) {
                 Dimension dim = getSize();
-                if(dim == null) return;
-                sidePanel.setContainerHeight(dim.height);
-
-                // TODO: The following is all bullshit.
-                int expectedWidth = frameLandscape.getWidth();
-                if (expectedWidth != graphPane.getWidth()) {
-                    Dimension goodSize = new Dimension(expectedWidth, graphPane.getHeight());
-                    graphPane.setPreferredSize(goodSize);
-                    graphPane.setSize(goodSize);
+                if (dim != null) {
+                    // TODO: The following shouldn't be necessary, but it seems to be.
+                    int expectedWidth = frameLandscape.getWidth();
+                    if (expectedWidth != graphPane.getWidth()) {
+                        Dimension goodSize = new Dimension(expectedWidth, graphPane.getHeight());
+                        graphPane.setPreferredSize(goodSize);
+                        graphPane.setSize(goodSize);
+                    }
+                    
+                    // This is also an opportunity to hide/show our legend depending on the available height.
+                    setYMaxVisible(true);
+                    legend.setVisible(legend.getPreferredSize().height > 0);
+                    
+                    // We have 24 pixels of slop to allow for margins and title-bars.
+                    if (dim.height < sidePanel.getPreferredSize().height + 24) {
+                        setYMaxVisible(false);
+                        legend.setVisible(false);
+                    }
                 }
             }
         });
-        sidePanel.setShowPanel(false);
-
-        //add filler to left
-        JLabel l = new JLabel();
-        l.setOpaque(false);
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.weightx = 1.0;
-        c.weighty = 1.0;
-        c.gridx = 0;
-        c.gridy = 0;
-        frameLandscape.add(l, c);
 
         //add graphPane to all cells
         c.fill = GridBagConstraints.BOTH;
@@ -189,7 +201,8 @@ public class Frame extends DockableFrame implements Listener<DataRetrievalEvent>
         c.gridy = 0;
         c.gridwidth = 2;
         c.gridheight = 1;
-        frameLandscape.add(scrollPane, c, 0);
+        c.insets = new Insets(0, 0, 0, 0);
+        frameLandscape.add(scrollPane, c);
 
         frameLandscape.setLayer(sidePanel, JLayeredPane.PALETTE_LAYER);
         frameLandscape.setLayer(scrollPane, JLayeredPane.DEFAULT_LAYER);
@@ -240,9 +253,6 @@ public class Frame extends DockableFrame implements Listener<DataRetrievalEvent>
 
         commandBar = new FrameCommandBar(this);
 
-        sidePanel.addPanel(commandBar);
-        sidePanel.addPanel(legend);
-
         for (Track t: tracks) {
             t.setFrame(this);
 
@@ -256,13 +266,12 @@ public class Frame extends DockableFrame implements Listener<DataRetrievalEvent>
         setKey(t0.getName());
 
         DataFormat df = t0.getDataFormat();
-        if (df != DataFormat.SEQUENCE_FASTA) {
+        if (df != DataFormat.SEQUENCE_FASTA && df != DataFormat.INTERVAL_RICH) {
             yMaxPanel = new JLabel();
             yMaxPanel.setBorder(BorderFactory.createLineBorder(Color.darkGray));
             yMaxPanel.setBackground(new Color(240,240,240));
             yMaxPanel.setOpaque(true);
             yMaxPanel.setAlignmentX(0.5f);
-            sidePanel.addPanel(yMaxPanel);
 
             if (df == DataFormat.INTERVAL_BAM) {
                 // We need to listen to genome changes so that we can redraw mismatches as appropriate.
@@ -276,6 +285,21 @@ public class Frame extends DockableFrame implements Listener<DataRetrievalEvent>
                     }
                 });
             }
+        }
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.anchor = GridBagConstraints.NORTHEAST;
+        gbc.weightx = 1.0;
+        gbc.insets = new Insets(4, 0, 0, 0);
+        sidePanel.add(commandBar, gbc);
+        if (yMaxPanel != null) {
+            sidePanel.add(legend, gbc);
+            gbc.weighty = 1.0;
+            sidePanel.add(yMaxPanel, gbc);
+        } else {
+            gbc.weighty = 1.0;
+            sidePanel.add(legend, gbc);
         }
 
         drawTracksInRange(LocationController.getInstance().getReferenceName(), LocationController.getInstance().getRange());
@@ -300,13 +324,13 @@ public class Frame extends DockableFrame implements Listener<DataRetrievalEvent>
     }
 
 
-    public void setActiveFrame(){
-        sidePanel.setVisible(true);
-        sidePanel.setShowPanel(true);
-    }
-
-    public void setInactiveFrame(){
-        sidePanel.setVisible(false);
+    public void setActiveFrame(boolean value) {
+        sidePanel.setVisible(value);
+        if (value) {
+            // We may have to kick the legend to make it show up.
+            legend.setVisible(legend.getPreferredSize().height > 0);
+            legend.invalidate();
+        }
     }
 
     public void resetLayers(){
@@ -357,10 +381,11 @@ public class Frame extends DockableFrame implements Listener<DataRetrievalEvent>
         resetLayers();
     }
 
-    public void drawModeChanged(Track track, DrawingMode mode) {
-
+    public void drawModeChanged(Track t) {
+        DrawingMode mode = t.getDrawingMode();
         commandBar.drawModeChanged(mode);
         setYMaxVisible(true);
+        legend.setVisible(legend.getPreferredSize().height > 0);
         legend.invalidate();
         validate();
         drawTracksInRange(LocationController.getInstance().getReferenceName(), LocationController.getInstance().getRange());

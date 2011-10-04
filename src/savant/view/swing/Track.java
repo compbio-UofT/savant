@@ -176,7 +176,7 @@ public abstract class Track extends Controller<DataRetrievalEvent> implements Tr
     @Override
     public void setDrawingMode(DrawingMode mode) {
         drawingMode = mode;
-        frame.drawModeChanged(this, mode);
+        frame.drawModeChanged(this);
     }
 
     /**

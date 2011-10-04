@@ -79,7 +79,7 @@ public class IntervalTrackRenderer extends TrackRenderer {
 
     private void renderSquishMode(Graphics2D g2, GraphPane gp, Resolution r) throws RenderingException {
 
-        ColourScheme cs = (ColourScheme)instructions.get(DrawingInstruction.COLOR_SCHEME);
+        ColourScheme cs = (ColourScheme)instructions.get(DrawingInstruction.COLOUR_SCHEME);
         Color bgcolor = cs.getColor(ColourKey.TRANSLUCENT_GRAPH);
         Color linecolor = cs.getColor(ColourKey.INTERVAL_LINE);
 
@@ -120,7 +120,7 @@ public class IntervalTrackRenderer extends TrackRenderer {
     private void renderArcMode(Graphics2D g2, GraphPane gp, Resolution r) {
 
 
-        ColourScheme cs = (ColourScheme)instructions.get(DrawingInstruction.COLOR_SCHEME);
+        ColourScheme cs = (ColourScheme)instructions.get(DrawingInstruction.COLOUR_SCHEME);
         Color bgcolor = cs.getColor(ColourKey.OPAQUE_GRAPH);
 
         AxisRange axisRange = (AxisRange)instructions.get(DrawingInstruction.AXIS_RANGE);
@@ -152,7 +152,7 @@ public class IntervalTrackRenderer extends TrackRenderer {
     }
 
     private void renderPackMode(Graphics2D g2, GraphPane gp, Resolution r) throws RenderingException {
-        ColourScheme cs = (ColourScheme)instructions.get(DrawingInstruction.COLOR_SCHEME);
+        ColourScheme cs = (ColourScheme)instructions.get(DrawingInstruction.COLOUR_SCHEME);
         Color bgcolor = cs.getColor(ColourKey.OPAQUE_GRAPH);
         Color linecolor = cs.getColor(ColourKey.INTERVAL_LINE);
 
