@@ -27,7 +27,7 @@ public enum ColourKey {
     G,
     T,
     N,                  // Grey used for missing bases
-    DELETED_BASE,       // Orange to make deletions show up nicely in mismatch mode
+    DELETED_BASE,       // Black for deletions
     SKIPPED,            // Grey for skipped regions in reads
 
     FORWARD_STRAND,

@@ -293,14 +293,15 @@ public class Frame extends DockableFrame implements Listener<DataRetrievalEvent>
         gbc.weightx = 1.0;
         gbc.insets = new Insets(4, 0, 0, 0);
         sidePanel.add(commandBar, gbc);
+        sidePanel.add(legend, gbc);
         if (yMaxPanel != null) {
-            sidePanel.add(legend, gbc);
-            gbc.weighty = 1.0;
             sidePanel.add(yMaxPanel, gbc);
-        } else {
-            gbc.weighty = 1.0;
-            sidePanel.add(legend, gbc);
         }
+        gbc.weighty = 1.0;
+        gbc.fill = GridBagConstraints.VERTICAL;
+        JPanel filler = new JPanel();
+        filler.setOpaque(false);
+        sidePanel.add(filler, gbc);
 
         drawTracksInRange(LocationController.getInstance().getReferenceName(), LocationController.getInstance().getRange());
 

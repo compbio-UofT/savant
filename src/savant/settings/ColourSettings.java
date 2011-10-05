@@ -36,7 +36,7 @@ public class ColourSettings {
         DEFAULT_SETTINGS.put(ColourKey.G, new Color(36, 130, 36));
         DEFAULT_SETTINGS.put(ColourKey.T, new Color(162, 98, 45));
         DEFAULT_SETTINGS.put(ColourKey.N, new Color(100,100,100));
-        DEFAULT_SETTINGS.put(ColourKey.DELETED_BASE, Color.ORANGE);
+        DEFAULT_SETTINGS.put(ColourKey.DELETED_BASE, Color.BLACK);
         DEFAULT_SETTINGS.put(ColourKey.SKIPPED, Color.GRAY);
 
         DEFAULT_SETTINGS.put(ColourKey.FORWARD_STRAND, new Color(0, 131, 192));

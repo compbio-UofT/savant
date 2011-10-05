@@ -18,10 +18,12 @@ package savant.view.swing.interval;
 
 import java.awt.*;
 import java.awt.geom.Arc2D;
+import java.awt.geom.Area;
 import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -296,19 +298,22 @@ public class BAMTrackRenderer extends TrackRenderer {
     }
 
     private ColourKey getSubPileColour(Nucleotide snpNuc, Nucleotide genomeNuc) {
-        if (snpNuc.equals(genomeNuc)) {
+        if (snpNuc == genomeNuc || snpNuc == Nucleotide.INSERTION) {
             return ColourKey.REVERSE_STRAND;
         } else {
-            if (snpNuc.equals(Nucleotide.A)) {
-                return ColourKey.A;
-            } else if (snpNuc.equals(Nucleotide.C)) {
-                return ColourKey.C;
-            } else if (snpNuc.equals(Nucleotide.G)) {
-                return ColourKey.G;
-            } else if (snpNuc.equals(Nucleotide.T)) {
-                return ColourKey.T;
-            } else {
-                return null;
+            switch (snpNuc) {
+                case A:
+                    return ColourKey.A;
+                case C:
+                    return ColourKey.C;
+                case G:
+                    return ColourKey.G;
+                case T:
+                    return ColourKey.T;
+                case DELETION:
+                    return ColourKey.DELETED_BASE;
+                default:
+                    return null;
             }
         }
     }
@@ -548,15 +553,6 @@ public class BAMTrackRenderer extends TrackRenderer {
             //this.dataShapes.set(i, arc);
             recordToShapeMap.put(record, arc);
         }
-
-        // draw legend
-        /*String[] legendStrings = {"Discordant Length", "Inverted Read", "Inverted Mate", "Everted Pair"};
-        Color[] legendColors = {discordantLengthColor, invertedReadColor, invertedMateColor, evertedPairColor};
-        String sizingString = legendStrings[0];
-        Rectangle2D stringRect = smallFont.getStringBounds(sizingString, g2.getFontRenderContext());
-
-        drawLegend(g2, legendStrings, legendColors, (int)(gp.getWidth()-stringRect.getWidth()-5), (int)(2*stringRect.getHeight() + 5+2));
-*/
     }
 
     private void renderSNPMode(Graphics2D g2, GraphPane gp, Resolution r) {
@@ -579,15 +575,11 @@ public class BAMTrackRenderer extends TrackRenderer {
         // Go through the samrecords and edit the pileups
         for (Record record: data) {
             SAMRecord samRecord = ((BAMIntervalRecord)record).getSamRecord();
-            try {
-                updatePileupsFromSAMRecord(pileups, genome, samRecord, startPosition);
-            } catch (IOException ex) {
-                LOG.error("Unable to update pileups.", ex);
-            }
+            updatePileupsFromSAMRecord(pileups, samRecord, startPosition);
         }
 
         double maxHeight = 0;
-        for(Pileup p : pileups) {
+        for (Pileup p : pileups) {
             double current = p.getTotalCoverage();
             if (current > maxHeight) maxHeight = current;
         }
@@ -598,42 +590,43 @@ public class BAMTrackRenderer extends TrackRenderer {
         double unitHeight = (Math.rint(gp.transformYPos(0) * 0.9)) / maxHeight;
         double unitWidth =  gp.getUnitWidth();
 
-        for(Pileup p : pileups) {
+        Map<ColourKey, Area> areas = new EnumMap<ColourKey, Area>(ColourKey.class);
+        List<Rectangle2D> insertions = new ArrayList<Rectangle2D>();
+
+        for (Pileup p : pileups) {
 
             Nucleotide snpNuc = null;
-            int bottom = (int)gp.transformYPos(0);
+            double bottom = gp.transformYPos(0);
 
             Nucleotide genomeNuc = null;
             if (genome.isSequenceSet()) {
-                String genomeNucString = "A";
-                byte[] readBase = new byte[1];
-                assert Math.abs(p.getPosition() - startPosition) <= Integer.MAX_VALUE;
-                readBase[0] = refSeq[(int)(p.getPosition() - startPosition)];
-                genomeNucString = new String(readBase);
-                //genomeNucString = genome.getRecords(ReferenceController.getInstance().getReferenceName(), new Range((int) p.getPosition(), (int) p.getPosition()));
-                genomeNuc = Pileup.stringToNuc(genomeNucString);
+                genomeNuc = Pileup.getNucleotide((char)refSeq[p.getPosition() - startPosition]);
                 snpNuc = genomeNuc;
             }
             
             
-            while ((genome.isSequenceSet() && (snpNuc = p.getLargestNucleotide(genomeNuc)) != null) || ((snpNuc = p.getLargestNucleotide()) != null)) {
-                double x = gp.transformXPos(p.getPosition());
-                double coverage = p.getCoverage(snpNuc);
-
-                Color subPileColor = cs.getColor(getSubPileColour(snpNuc, genomeNuc));
-
-                int h = (int)(unitHeight * coverage);
-                int y = bottom-h;
-
-                g2.setColor(subPileColor);
-                g2.fillRect((int)x, y, Math.max((int)Math.ceil(unitWidth), 1), h);
-
-                bottom -= h;
+            while ((genome.isSequenceSet() && (snpNuc = p.getLargestNucleotide(genomeNuc)) != null) || ((snpNuc = p.getLargestNucleotide(Nucleotide.OTHER)) != null)) {
+                double h = unitHeight * p.getCoverage(snpNuc);
+                Rectangle2D rect = new Rectangle2D.Double(gp.transformXPos(p.getPosition()), bottom - h, unitWidth, h);
+                addRegion(getSubPileColour(snpNuc, genomeNuc), rect, areas);
+                if (snpNuc == Nucleotide.INSERTION) {
+                    insertions.add(rect);
+                } else {
+                    bottom -= h;
+                }
                 p.clearNucleotide(snpNuc);
             }
         }
+        
+        for (ColourKey col: areas.keySet()) {
+            g2.setColor(cs.getColor(col));
+            g2.fill(areas.get(col));
+        }
+        for (Rectangle2D ins: insertions) {
+            drawInsertion(g2, ins.getX(), ins.getY(), ins.getWidth(), ins.getHeight());
+        }
     }
-    
+
     private void renderStrandSNPMode(Graphics2D g2, GraphPane gp, Resolution r) {
 
         Genome genome = GenomeController.getInstance().getGenome();
@@ -654,15 +647,11 @@ public class BAMTrackRenderer extends TrackRenderer {
         // Go through the samrecords and edit the pileups
         for (Record record: data) {
             SAMRecord samRecord = ((BAMIntervalRecord)record).getSamRecord();
-            try {
-                updatePileupsFromSAMRecord(pileups, genome, samRecord, startPosition);
-            } catch (IOException ex) {
-                LOG.error("Unable to update pileups.", ex);
-            }
+            updatePileupsFromSAMRecord(pileups, samRecord, startPosition);
         }
 
         double maxHeight = 0;
-        for(Pileup p : pileups) {
+        for (Pileup p : pileups) {
             double current1 = p.getTotalStrandCoverage(true);
             double current2 = p.getTotalStrandCoverage(false);
             if (current1 > maxHeight) maxHeight = current1;
@@ -672,87 +661,93 @@ public class BAMTrackRenderer extends TrackRenderer {
         gp.setXRange(axisRange.getXRange());
         gp.setYRange(new Range(0,(int)Math.rint((double)maxHeight/0.9)));
 
+        Map<ColourKey, Area> areas = new EnumMap<ColourKey, Area>(ColourKey.class);
+        List<Rectangle2D> insertions = new ArrayList<Rectangle2D>();
+
         double unitHeight = (Math.rint(gp.transformYPos(0) * 0.45)) / maxHeight;
         double unitWidth =  gp.getUnitWidth();
 
-        for(Pileup p : pileups) {
+        for (Pileup p : pileups) {
 
             Nucleotide snpNuc = null;
-            int bottom = (int)gp.transformYPos(0) / 2;
-            int top = (int)gp.transformYPos(0) / 2;
+            double bottom = gp.transformYPos(0) * 0.5;
+            double top = gp.transformYPos(0) * 0.5;
 
             Nucleotide genomeNuc = null;
             if (genome.isSequenceSet()) {
-                String genomeNucString = "A";
-                byte[] readBase = new byte[1];
-                assert Math.abs(p.getPosition() - startPosition) <= Integer.MAX_VALUE;
-                readBase[0] = refSeq[(int)(p.getPosition() - startPosition)];
-                genomeNucString = new String(readBase);
-                //genomeNucString = genome.getRecords(ReferenceController.getInstance().getReferenceName(), new Range((int) p.getPosition(), (int) p.getPosition()));
-                genomeNuc = Pileup.stringToNuc(genomeNucString);
+                genomeNuc = Pileup.getNucleotide((char)refSeq[(int)(p.getPosition() - startPosition)]);
                 snpNuc = genomeNuc;
             }
 
-
-            while ((genome.isSequenceSet() && (snpNuc = p.getLargestNucleotide(genomeNuc)) != null) || ((snpNuc = p.getLargestNucleotide()) != null)) {
+            while ((genome.isSequenceSet() && (snpNuc = p.getLargestNucleotide(genomeNuc)) != null) || ((snpNuc = p.getLargestNucleotide(Nucleotide.OTHER)) != null)) {
             
                 double x = gp.transformXPos(p.getPosition());
-                double coverage1 = p.getStrandCoverage(snpNuc, true);
-                double coverage2 = p.getStrandCoverage(snpNuc, false);
+                double coverage1 = p.getStrandCoverage(snpNuc, false);
+                double coverage2 = p.getStrandCoverage(snpNuc, true);
 
-                Color subPileColor = cs.getColor(getSubPileColour(snpNuc, genomeNuc));
-
-                if (coverage1 > 0) {
-                    int h = (int)(unitHeight * coverage1);
-                    int y = top;
-
-                    if (genome.isSequenceSet() && snpNuc.equals(genomeNuc)) {
-                        g2.setColor(cs.getColor(ColourKey.REVERSE_STRAND));
+                ColourKey col = getSubPileColour(snpNuc, genomeNuc);
+                if (coverage1 > 0.0) {
+                    double h = unitHeight * coverage1;
+                    Rectangle2D rect = new Rectangle2D.Double(x, top, unitWidth, h);
+                    addRegion(col == ColourKey.REVERSE_STRAND ? ColourKey.FORWARD_STRAND : col, rect, areas);
+                    if (snpNuc == Nucleotide.INSERTION) {
+                        insertions.add(rect);
                     } else {
-                        g2.setColor(subPileColor);
+                        top += h;
                     }
-                    g2.fillRect((int)x, y, Math.max((int)Math.ceil(unitWidth), 1), h);
-
-                    top += h;
                 }
-                if (coverage2 > 0) {
-                    int h = (int)(unitHeight * coverage2);
-                    int y = bottom-h;
-
-                    if (genome.isSequenceSet() && snpNuc.equals(genomeNuc)) {
-                        g2.setColor(cs.getColor(ColourKey.FORWARD_STRAND));
+                if (coverage2 > 0.0) {
+                    double h = unitHeight * coverage2;
+                    Rectangle2D rect = new Rectangle2D.Double(x, bottom - h, unitWidth, h);
+                    addRegion(col, rect, areas);
+                    if (snpNuc == Nucleotide.INSERTION) {
+                        insertions.add(rect);
                     } else {
-                        g2.setColor(subPileColor);
+                        bottom -= h;
                     }
-                    g2.fillRect((int)x, y, Math.max((int)Math.ceil(unitWidth), 1), h);
-
-                    bottom -= h;
                 }
-                            
+
                 p.clearNucleotide(snpNuc);
             }
         }
 
+        for (ColourKey col: areas.keySet()) {
+            g2.setColor(cs.getColor(col));
+            g2.fill(areas.get(col));
+        }
+        for (Rectangle2D ins: insertions) {
+            drawInsertion(g2, ins.getX(), ins.getY(), ins.getWidth(), ins.getHeight());
+        }
+
         g2.setColor(Color.BLACK);
-        g2.drawLine(0, (int)gp.transformYPos(0) / 2, gp.getWidth(), (int)gp.transformYPos(0) / 2);
+        g2.draw(new Line2D.Double(0, gp.transformYPos(0) * 0.5, gp.getWidth(), gp.transformYPos(0) * 0.5));
     }
 
-    private void updatePileupsFromSAMRecord(List<Pileup> pileups, Genome genome, SAMRecord samRecord, int startPosition) throws IOException {
-        
-        boolean strand = samRecord.getReadNegativeStrandFlag();
-        
-        // the start and end of the alignment
-        int alignmentStart = samRecord.getAlignmentStart();
-        int alignmentEnd = samRecord.getAlignmentEnd();
+    /**
+     * Add a SNP region to our visual representation.  We accumulate an Area for each colour, because drawing the
+     * rectangles separately causes unsightly banding when anti-aliasing is turned on.
+     */
+    private void addRegion(ColourKey col, Rectangle2D rect, Map<ColourKey, Area> areas) {
+        if (!areas.containsKey(col)) {
+            areas.put(col, new Area());
+        }
+        areas.get(col).add(new Area(rect));
+    }
 
+
+    private void updatePileupsFromSAMRecord(List<Pileup> pileups, SAMRecord samRecord, int startPosition) {
+        
         // the read sequence
         byte[] readBases = samRecord.getReadBases();
-        boolean sequenceSaved = readBases.length > 0; // true iff read sequence is set
 
-        // return if no bases (can't be used for SNP calling)
-        if (!sequenceSaved) {
+        // Return if no bases (can't be used for SNP calling)
+        if (readBases.length == 0) {
             return;
         }
+
+        boolean strand = samRecord.getReadNegativeStrandFlag();
+        
+        int alignmentStart = samRecord.getAlignmentStart();
 
         // the reference sequence
         //byte[] refSeq = genome.getRecords(new Range(alignmentStart, alignmentEnd)).getBytes();
@@ -764,59 +759,50 @@ public class BAMTrackRenderer extends TrackRenderer {
         int sequenceCursor = alignmentStart;
         int readCursor = alignmentStart;
 
-        // cigar variables
-        CigarOperator operator;
-        int operatorLength;
-
         // consider each cigar element
         for (CigarElement cigarElement : cigar.getCigarElements()) {
 
-            operatorLength = cigarElement.getLength();
-            operator = cigarElement.getOperator();
+            int operatorLength = cigarElement.getLength();
+            CigarOperator operator = cigarElement.getOperator();
 
-            // delete
-            if (operator == CigarOperator.D) {
-                // [ DRAW ]
-            } // insert
-            else if (operator == CigarOperator.I) {
-                // [ DRAW ]
-            } // match **or mismatch**
-            else if (operator == CigarOperator.M) {
-
-                // some SAM files do not contain the read bases
-                if (sequenceSaved) {
-                    // determine if there's a mismatch
+            switch (operator) {
+                case D:
+                    // Deletion
                     for (int i = 0; i < operatorLength; i++) {
-                        int refIndex = sequenceCursor - alignmentStart + i;
-                        int readIndex = readCursor - alignmentStart + i;
-
-                        byte[] readBase = new byte[1];
-                        readBase[0] = readBases[readIndex];
-
-                        Nucleotide readN = Pileup.getNucleotide((new String(readBase)).charAt(0));
-
-                        int j = i + (int) (sequenceCursor - startPosition);
-                        //for (int j = pileupcursor; j < operatorLength; j++) {
+                        int j = i + sequenceCursor - startPosition;
                         if (j >= 0 && j < pileups.size()) {
                             Pileup p = pileups.get(j);
-                            p.pileOn(readN, strand);
-//                            /System.out.println("(P) " + readN + "\t@\t" + p.getPosition());
+                            p.pileOn(Nucleotide.DELETION, 1.0, strand);
                         }
-                        //}
                     }
-                }
-            } // skipped
-            else if (operator == CigarOperator.N) {
-                // draw nothing
-            } // padding
-            else if (operator == CigarOperator.P) {
-                // draw nothing
-            } // hard clip
-            else if (operator == CigarOperator.H) {
-                // draw nothing
-            } // soft clip
-            else if (operator == CigarOperator.S) {
-                // draw nothing
+                    break;
+                case I:
+                    // Insertion
+                    int insPos = sequenceCursor - startPosition;
+                    if (insPos >= 0 && insPos < pileups.size()) {
+                        Pileup p = pileups.get(insPos);
+                        p.pileOn(Nucleotide.INSERTION, 1.0, strand);
+                    }
+                    break;
+                case M:
+                    // Match or mismatch; we're only interested in mismatches.
+                    for (int i = 0; i < operatorLength; i++) {
+                        int readIndex = readCursor - alignmentStart + i;
+
+                        Nucleotide readN = Pileup.getNucleotide((char)readBases[readIndex]);
+
+                        int j = i + sequenceCursor - startPosition;
+                        if (j >= 0 && j < pileups.size()) {
+                            Pileup p = pileups.get(j);
+                            p.pileOn(readN, 1.0, strand);
+                        }
+                    }
+                    break;
+                case N: // Skipped
+                case P: // Padding
+                case H: // Hard clip
+                case S: // Soft clip
+                    break;
             }
 
             if (operator.consumesReadBases()) {
@@ -855,7 +841,7 @@ public class BAMTrackRenderer extends TrackRenderer {
         levels.add(new ArrayList<Interval>()); 
         ArrayList<DrawStore> savedDraws = new ArrayList<DrawStore>();
 
-        for(int i = 0; i < data.size(); i++) {
+        for (int i = 0; i < data.size(); i++) {
 
             BAMIntervalRecord bamRecord = (BAMIntervalRecord)data.get(i);
             Interval interval = bamRecord.getInterval();
@@ -915,7 +901,7 @@ public class BAMTrackRenderer extends TrackRenderer {
         if (gp.needsToResize()) return;
 
         //now, draw everything
-        for(DrawStore drawStore : savedDraws) {
+        for (DrawStore drawStore : savedDraws) {
             Shape readshape = renderRead(g2, gp, drawStore.intervalRecord, drawStore.level, range, gp.getUnitHeight());
             recordToShapeMap.put(drawStore.intervalRecord, readshape);
             if (drawStore.mateInterval != null) {
@@ -931,7 +917,7 @@ public class BAMTrackRenderer extends TrackRenderer {
     private BAMIntervalRecord popMate(ArrayList<BAMIntervalRecord> records, SAMRecord samRecord) {
 
         if (records == null) return null;
-        for(int i = 0; i < records.size(); i++) {
+        for (int i = 0; i < records.size(); i++) {
             SAMRecord samRecord2 = ((BAMIntervalRecord)records.get(i)).getSamRecord();
             if (MiscUtils.isMate(samRecord, samRecord2, false)) {
                 BAMIntervalRecord intervalRecord = records.get(i);
@@ -941,7 +927,8 @@ public class BAMTrackRenderer extends TrackRenderer {
         }
         return null;
     }
-    /*
+
+    /**
      * Connect intervals i1 and i2 with a dashed line to show mates. 
      */
     private void connectPiledInterval(Graphics2D g2, GraphPane gp, Interval i1, Interval i2, int level, Color linecolor, IntervalRecord ir1, IntervalRecord ir2) {
@@ -984,15 +971,15 @@ public class BAMTrackRenderer extends TrackRenderer {
 
     }
 
-    /*
+    /**
      * Determine at what level a piled interval should be drawn.
      */
     private int computePiledIntervalLevel(ArrayList<ArrayList<Interval>> levels, Interval interval) {
         ArrayList<Interval> level;
-        for(int i = 0; i < levels.size(); i++) {
+        for (int i = 0; i < levels.size(); i++) {
             level = levels.get(i);
             boolean conflict = false;
-            for(Interval current : level) {
+            for (Interval current : level) {
                 if (current.intersects(interval)) {
                     conflict = true;
                     break;
@@ -1040,9 +1027,9 @@ public class BAMTrackRenderer extends TrackRenderer {
                 // Four lines, but not as wide as the others.
                 return new Dimension(125, LEGEND_LINE_HEIGHT * 4 + 6);
             case SNP:
-                return new Dimension(168, LEGEND_LINE_HEIGHT + 6);
+                return new Dimension(168, LEGEND_LINE_HEIGHT * 2 + 6);
             case STRAND_SNP:
-                return new Dimension(186, LEGEND_LINE_HEIGHT * 2 + 6);
+                return new Dimension(186, LEGEND_LINE_HEIGHT * 4 + 6);
             default:
                 return null;
         }
@@ -1060,20 +1047,20 @@ public class BAMTrackRenderer extends TrackRenderer {
             case STANDARD_PAIRED:
                 drawStrandLegends(g2, x, y);
                 y += LEGEND_LINE_HEIGHT * 2;
-                drawBaseLegendExtended(g2, x, y);
+                drawBaseLegendExtended(g2, x, y, ColourKey.A, ColourKey.C, ColourKey.G, ColourKey.T, ColourKey.SKIPPED);
                 break;
             case SEQUENCE:
-                drawBaseLegendExtended(g2, x, y);
+                drawBaseLegendExtended(g2, x, y, ColourKey.A, ColourKey.C, ColourKey.G, ColourKey.T, ColourKey.SKIPPED);
                 break;
             case ARC_PAIRED:
                 drawSimpleLegend(g2, 30, 15, ColourKey.CONCORDANT_LENGTH, ColourKey.DISCORDANT_LENGTH, ColourKey.ONE_READ_INVERTED, ColourKey.EVERTED_PAIR);
                 break;
             case SNP:
-                drawBaseLegend(g2, x, y, ColourKey.A, ColourKey.C, ColourKey.G, ColourKey.T);
+                drawBaseLegendExtended(g2, x, y, ColourKey.A, ColourKey.C, ColourKey.G, ColourKey.T);
                 break;
             case STRAND_SNP:
-                drawBaseLegend(g2, x, y, ColourKey.A, ColourKey.C, ColourKey.G, ColourKey.T);
-                y += LEGEND_LINE_HEIGHT;
+                drawBaseLegendExtended(g2, x, y, ColourKey.A, ColourKey.C, ColourKey.G, ColourKey.T);
+                y += LEGEND_LINE_HEIGHT * 2;
                 drawBaseLegend(g2, x, y, ColourKey.FORWARD_STRAND);
                 x += 90;
                 drawBaseLegend(g2, x, y, ColourKey.REVERSE_STRAND);
@@ -1109,8 +1096,8 @@ public class BAMTrackRenderer extends TrackRenderer {
     /**
      * Draw the legend for bases, but also the entries for insertions and deletions.
      */
-    private void drawBaseLegendExtended(Graphics2D g2, int x, int y) {
-        drawBaseLegend(g2, x, y, ColourKey.A, ColourKey.C, ColourKey.G, ColourKey.T, ColourKey.SKIPPED);
+    private void drawBaseLegendExtended(Graphics2D g2, int x, int y, ColourKey... keys) {
+        drawBaseLegend(g2, x, y, keys);
 
         y += LEGEND_LINE_HEIGHT;
         g2.setColor(Color.BLACK);

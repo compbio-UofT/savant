@@ -20,6 +20,7 @@ import java.util.Set;
 import savant.api.adapter.RangeAdapter;
 import savant.controller.LocationController;
 import savant.controller.event.LocationChangeCompletedListener;
+import savant.util.MiscUtils;
 import savant.util.Range;
 
 
@@ -82,7 +83,7 @@ public class NavigationUtils {
      * @param range the range to set as current
      */
     public static void navigateTo(String ref, RangeAdapter range) {
-        lc.setLocation(ref, (Range)range);
+        lc.setLocation(homogeniseRef(ref), (Range)range);
     }
 
     /**
@@ -122,5 +123,24 @@ public class NavigationUtils {
      */
     public static RangeAdapter createRange(int from, int to) {
         return new Range(from, to);
+    }
+    
+    /**
+     * Given a string like "1" or "chr1", return it in a form which corresponds to whatever is being
+     * used by the current genome.
+     * @param orig the string to be homogenised
+     * @return <code>orig</code> or an adjusted version thereof
+     * @since 1.6.1
+     */
+    public static String homogeniseRef(String orig) {
+        if (!lc.getAllReferenceNames().contains(orig)) {
+            for (String ref: lc.getAllReferenceNames()) {
+                if (MiscUtils.homogenizeSequence(ref).equals(orig)){
+                    return ref;
+                }
+            }
+            // Not good.
+        }
+        return orig;
     }
 }
