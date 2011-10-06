@@ -18,12 +18,10 @@ package savant.view.swing.interval;
 
 import java.awt.*;
 import java.awt.geom.Arc2D;
-import java.awt.geom.Area;
 import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -399,7 +397,7 @@ public class BAMTrackRenderer extends TrackRenderer {
                                         g2.setColor(col);
                                         g2.fill(opRect);
                                     }
-                                    if (mismatched && fontFits(BrowserSettings.getTrackFont(),unitWidth,unitHeight,g2)) {
+                                    if (lastMode != DrawingMode.SEQUENCE && mismatched && fontFits(BrowserSettings.getTrackFont(),unitWidth,unitHeight,g2)) {
                                         // If it's a real mismatch, we want to draw the base letter (space permitting).
                                         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                                         g2.setColor(new Color(10, 10, 10));
@@ -590,7 +588,7 @@ public class BAMTrackRenderer extends TrackRenderer {
         double unitHeight = (Math.rint(gp.transformYPos(0) * 0.9)) / maxHeight;
         double unitWidth =  gp.getUnitWidth();
 
-        Map<ColourKey, Area> areas = new EnumMap<ColourKey, Area>(ColourKey.class);
+        ColourAccumulator accumulator = new ColourAccumulator(cs);
         List<Rectangle2D> insertions = new ArrayList<Rectangle2D>();
 
         for (Pileup p : pileups) {
@@ -608,7 +606,7 @@ public class BAMTrackRenderer extends TrackRenderer {
             while ((genome.isSequenceSet() && (snpNuc = p.getLargestNucleotide(genomeNuc)) != null) || ((snpNuc = p.getLargestNucleotide(Nucleotide.OTHER)) != null)) {
                 double h = unitHeight * p.getCoverage(snpNuc);
                 Rectangle2D rect = new Rectangle2D.Double(gp.transformXPos(p.getPosition()), bottom - h, unitWidth, h);
-                addRegion(getSubPileColour(snpNuc, genomeNuc), rect, areas);
+                accumulator.addShape(getSubPileColour(snpNuc, genomeNuc), rect);
                 if (snpNuc == Nucleotide.INSERTION) {
                     insertions.add(rect);
                 } else {
@@ -618,10 +616,7 @@ public class BAMTrackRenderer extends TrackRenderer {
             }
         }
         
-        for (ColourKey col: areas.keySet()) {
-            g2.setColor(cs.getColor(col));
-            g2.fill(areas.get(col));
-        }
+        accumulator.render(g2);
         for (Rectangle2D ins: insertions) {
             drawInsertion(g2, ins.getX(), ins.getY(), ins.getWidth(), ins.getHeight());
         }
@@ -661,7 +656,7 @@ public class BAMTrackRenderer extends TrackRenderer {
         gp.setXRange(axisRange.getXRange());
         gp.setYRange(new Range(0,(int)Math.rint((double)maxHeight/0.9)));
 
-        Map<ColourKey, Area> areas = new EnumMap<ColourKey, Area>(ColourKey.class);
+        ColourAccumulator accumulator = new ColourAccumulator(cs);
         List<Rectangle2D> insertions = new ArrayList<Rectangle2D>();
 
         double unitHeight = (Math.rint(gp.transformYPos(0) * 0.45)) / maxHeight;
@@ -689,7 +684,7 @@ public class BAMTrackRenderer extends TrackRenderer {
                 if (coverage1 > 0.0) {
                     double h = unitHeight * coverage1;
                     Rectangle2D rect = new Rectangle2D.Double(x, top, unitWidth, h);
-                    addRegion(col == ColourKey.REVERSE_STRAND ? ColourKey.FORWARD_STRAND : col, rect, areas);
+                    accumulator.addShape(col == ColourKey.REVERSE_STRAND ? ColourKey.FORWARD_STRAND : col, rect);
                     if (snpNuc == Nucleotide.INSERTION) {
                         insertions.add(rect);
                     } else {
@@ -699,7 +694,7 @@ public class BAMTrackRenderer extends TrackRenderer {
                 if (coverage2 > 0.0) {
                     double h = unitHeight * coverage2;
                     Rectangle2D rect = new Rectangle2D.Double(x, bottom - h, unitWidth, h);
-                    addRegion(col, rect, areas);
+                    accumulator.addShape(col, rect);
                     if (snpNuc == Nucleotide.INSERTION) {
                         insertions.add(rect);
                     } else {
@@ -711,10 +706,7 @@ public class BAMTrackRenderer extends TrackRenderer {
             }
         }
 
-        for (ColourKey col: areas.keySet()) {
-            g2.setColor(cs.getColor(col));
-            g2.fill(areas.get(col));
-        }
+        accumulator.render(g2);
         for (Rectangle2D ins: insertions) {
             drawInsertion(g2, ins.getX(), ins.getY(), ins.getWidth(), ins.getHeight());
         }
@@ -722,18 +714,6 @@ public class BAMTrackRenderer extends TrackRenderer {
         g2.setColor(Color.BLACK);
         g2.draw(new Line2D.Double(0, gp.transformYPos(0) * 0.5, gp.getWidth(), gp.transformYPos(0) * 0.5));
     }
-
-    /**
-     * Add a SNP region to our visual representation.  We accumulate an Area for each colour, because drawing the
-     * rectangles separately causes unsightly banding when anti-aliasing is turned on.
-     */
-    private void addRegion(ColourKey col, Rectangle2D rect, Map<ColourKey, Area> areas) {
-        if (!areas.containsKey(col)) {
-            areas.put(col, new Area());
-        }
-        areas.get(col).add(new Area(rect));
-    }
-
 
     private void updatePileupsFromSAMRecord(List<Pileup> pileups, SAMRecord samRecord, int startPosition) {
         
@@ -1029,7 +1009,8 @@ public class BAMTrackRenderer extends TrackRenderer {
             case SNP:
                 return new Dimension(168, LEGEND_LINE_HEIGHT * 2 + 6);
             case STRAND_SNP:
-                return new Dimension(186, LEGEND_LINE_HEIGHT * 4 + 6);
+                // A little wider because "Forward Strand" and "Reverse Strand" are on the same line.
+                return new Dimension(180, LEGEND_LINE_HEIGHT * 3 + 6);
             default:
                 return null;
         }

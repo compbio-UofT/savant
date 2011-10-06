@@ -16,6 +16,7 @@
 
 package savant.view.swing.sequence;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -26,6 +27,7 @@ import java.io.UnsupportedEncodingException;
 import savant.data.types.SequenceRecord;
 import savant.exception.RenderingException;
 import savant.util.AxisRange;
+import savant.util.ColourAccumulator;
 import savant.util.ColourKey;
 import savant.util.ColourScheme;
 import savant.util.DrawingInstruction;
@@ -67,24 +69,23 @@ public class SequenceTrackRenderer extends TrackRenderer {
         }
 
         AxisRange axisRange = (AxisRange)instructions.get(DrawingInstruction.AXIS_RANGE);
+        ColourScheme cs = (ColourScheme)instructions.get(DrawingInstruction.COLOUR_SCHEME);
+        ColourAccumulator accumulator = new ColourAccumulator(cs);
 
         int len = sequence.length;
         for (int i = 0; i < len; i++) {
+            double x = gp.transformXPos(axisRange.getXMin() + i);
+            accumulator.addBaseShape((char)sequence[i], new Rectangle2D.Double(x, 0.0, unitWidth, gp.getHeight()));
+        }
+        accumulator.render(g2);
+        
+        g2.setColor(Color.BLACK);
+        g2.setStroke(new BasicStroke(0.25f));
+        for (int i = 0; i < len; i++) {
             double x = gp.transformXPos(axisRange.getXMin()+i);
             double y = 0.0;
-            double w = Math.ceil(unitWidth);    // If we don't do the ceil(), the sequence looks washed out at lower resolutions.
-            double h = gp.getHeight();
-
-            Rectangle2D.Double rect = new Rectangle2D.Double(x, y, w, h);
-
-            ColourScheme cs = (ColourScheme)instructions.get(DrawingInstruction.COLOUR_SCHEME);
-            Color c = cs.getBaseColor((char)sequence[i]);
-            if (c != null) {
-                g2.setColor(c);
-                g2.fill(rect);
-            }
-
-            if (w > 5.0) {
+            Rectangle2D.Double rect = new Rectangle2D.Double(x, y, unitWidth, gp.getHeight());
+            if (unitWidth > 12.0) {
                 g2.draw(rect);
             }
 
@@ -98,7 +99,6 @@ public class SequenceTrackRenderer extends TrackRenderer {
                     float charX = (float) (rect.getX() + (rect.getWidth() - charRect.getWidth())/2);
                     float charY = (float) ((rect.getHeight()-5)/2 + g2.getFontMetrics().getAscent()/2);
                     // draw character
-                    g2.setColor(Color.BLACK);
                     g2.drawString(base, charX, charY);
 
                 }
