@@ -627,50 +627,50 @@ public class BAMTrackRenderer extends TrackRenderer {
         Genome genome = GenomeController.getInstance().getGenome();
 
         AxisRange axisRange = (AxisRange)instructions.get(DrawingInstruction.AXIS_RANGE);
+        int xMin = axisRange.getXMin();
+        int xMax = axisRange.getXMax();
         ColourScheme cs = (ColourScheme)instructions.get(DrawingInstruction.COLOUR_SCHEME);
 
         List<Pileup> pileups = new ArrayList<Pileup>();
 
         // make the pileups
-        int length = axisRange.getXMax() - axisRange.getXMin() + 1;
-        assert Math.abs(axisRange.getXMin()) <= Integer.MAX_VALUE;
-        int startPosition = (int)axisRange.getXMin();
-        for (int j = 0; j < length; j++) {
-            pileups.add(new Pileup(startPosition + j));
+        for (int j = xMin; j <= xMax; j++) {
+            pileups.add(new Pileup(j));
         }
 
         // Go through the samrecords and edit the pileups
         for (Record record: data) {
             SAMRecord samRecord = ((BAMIntervalRecord)record).getSamRecord();
-            updatePileupsFromSAMRecord(pileups, samRecord, startPosition);
+            updatePileupsFromSAMRecord(pileups, samRecord, xMin);
         }
 
-        double maxHeight = 0;
+        double maxHeight = 0.0;
         for (Pileup p : pileups) {
             double current1 = p.getTotalStrandCoverage(true);
             double current2 = p.getTotalStrandCoverage(false);
             if (current1 > maxHeight) maxHeight = current1;
             if (current2 > maxHeight) maxHeight = current2;
         }
-
-        gp.setXRange(axisRange.getXRange());
-        gp.setYRange(new Range(0,(int)Math.rint((double)maxHeight/0.9)));
+        int yMax = (int)Math.ceil(maxHeight / 0.9);
+        gp.setYRange(new Range(-yMax, yMax));
+        instructions.put(DrawingInstruction.AXIS_RANGE, AxisRange.initWithMinMax(xMin, xMax, -yMax, yMax));
 
         ColourAccumulator accumulator = new ColourAccumulator(cs);
         List<Rectangle2D> insertions = new ArrayList<Rectangle2D>();
 
-        double unitHeight = (Math.rint(gp.transformYPos(0) * 0.45)) / maxHeight;
+        double unitHeight = gp.getUnitHeight();
         double unitWidth =  gp.getUnitWidth();
+        double axis = gp.transformYPos(0.0);
 
         for (Pileup p : pileups) {
 
             Nucleotide snpNuc = null;
-            double bottom = gp.transformYPos(0) * 0.5;
-            double top = gp.transformYPos(0) * 0.5;
+            double bottom = axis;
+            double top = axis;
 
             Nucleotide genomeNuc = null;
             if (genome.isSequenceSet()) {
-                genomeNuc = Pileup.getNucleotide((char)refSeq[(int)(p.getPosition() - startPosition)]);
+                genomeNuc = Pileup.getNucleotide((char)refSeq[p.getPosition() - xMin]);
                 snpNuc = genomeNuc;
             }
 
@@ -712,7 +712,7 @@ public class BAMTrackRenderer extends TrackRenderer {
         }
 
         g2.setColor(Color.BLACK);
-        g2.draw(new Line2D.Double(0, gp.transformYPos(0) * 0.5, gp.getWidth(), gp.transformYPos(0) * 0.5));
+        g2.draw(new Line2D.Double(0, axis, gp.getWidth(), axis));
     }
 
     private void updatePileupsFromSAMRecord(List<Pileup> pileups, SAMRecord samRecord, int startPosition) {
