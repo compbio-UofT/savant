@@ -133,16 +133,21 @@ public class Ruler extends JPanel {
 
         int[] tickPositions = MiscUtils.getTickPositions(r);
         int separation = tickPositions.length > 1 ? tickPositions[1] - tickPositions[0] : 0;
+        int xEnd = Integer.MIN_VALUE;
+        FontMetrics fm = g2.getFontMetrics();
 
         for (int p: tickPositions) {
 
             int x = MiscUtils.transformPositionToPixel(p, getWidth(), r);
-            g2.setColor(new Color(50,50,50,50)); //BrowserDefaults.colorAxisGrid);
-            g2.drawLine(x, 0, x, getHeight());
+            if (x > xEnd + 10) {
+                g2.setColor(new Color(50,50,50,50)); //BrowserDefaults.colorAxisGrid);
+                g2.drawLine(x, 0, x, getHeight());
 
-            String numStr = MiscUtils.posToShortStringWithSeparation(p, separation);
-            g2.setColor(Color.black);
-            g2.drawString(numStr, x + 3, getHeight() / 2 + 3);
+                String numStr = MiscUtils.posToShortStringWithSeparation(p, separation);
+                g2.setColor(Color.black);
+                g2.drawString(numStr, x + 3, getHeight() / 2 + 3);
+                xEnd = x + fm.stringWidth(numStr) + 3;
+            }
         }
 
         if (r.getLength() >= locationController.getRangeStart()) {

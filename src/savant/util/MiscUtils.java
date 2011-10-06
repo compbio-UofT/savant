@@ -258,7 +258,7 @@ public class MiscUtils {
 
     public static String posToShortStringWithSeparation(int pos, int separation) {
 
-        if (separation > 1) {
+        if (separation > 10) {
             int backdigits = (int) Math.floor(Math.log10(separation));
             int significantDigits = 0;
             if (pos > 1000000000) {
@@ -271,7 +271,7 @@ public class MiscUtils {
 
             return posToShortString(pos, significantDigits);
         } else {
-            // For separation 1, there's no point in using the G/M/k forms.
+            // For separation of 10 or less, there's no point in using the G/M/k forms.
             return MiscUtils.numToString(pos);
         }
      }
