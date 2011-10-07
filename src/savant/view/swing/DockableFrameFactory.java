@@ -17,7 +17,6 @@
 package savant.view.swing;
 
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeListener;
@@ -25,11 +24,9 @@ import java.util.HashMap;
 import java.util.Map;
 import javax.swing.Action;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 
 import com.jidesoft.docking.DockContext;
 import com.jidesoft.docking.DockableFrame;
-import com.jidesoft.swing.JideScrollPane;
 
 import savant.controller.FrameController;
 
@@ -116,11 +113,5 @@ public class DockableFrameFactory {
         panel.setLayout(new BorderLayout());
         panel.add(frame.getFrameLandscape());
         return frame;
-    }
-
-    public static JScrollPane createScrollPane(Component component) {
-        JScrollPane pane = new JideScrollPane(component);
-        pane.setFocusable(false);
-        return pane;
     }
 }

@@ -219,8 +219,6 @@ public class ToolsModule {
         toolsDockingManager.setInitSplitPriority(DockingManager.SPLIT_EAST_SOUTH_WEST_NORTH);
         //toolsDockingManager.loadLayoutData();
 
-        Savant.addDockingManagerToGroup(toolsDockingManager);
-
         toolsDockingManager.setTabbedPaneCustomizer(new TabbedPaneCustomizer() {
 
             @Override

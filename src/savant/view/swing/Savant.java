@@ -135,7 +135,7 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
 
         auxDockingManager = new DefaultDockingManager(this, masterPlaceholderPanel);
         masterPlaceholderPanel.setBackground(ColourSettings.getColor(ColourKey.SPLITTER));
-        //auxDockingManager.setSidebarRollover(false);
+        auxDockingManager.setSidebarRollover(false);
         auxDockingManager.getWorkspace().setBackground(ColourSettings.getColor(ColourKey.SPLITTER));
         auxDockingManager.setInitSplitPriority(DockingManager.SPLIT_EAST_SOUTH_WEST_NORTH);
         //auxDockingManager.loadLayoutData();
@@ -183,10 +183,6 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
 
         trackDockingManager.getWorkspace().add(trackBackground);
         trackDockingManager.setAllowedDockSides(DockContext.DOCK_SIDE_HORIZONTAL);
-
-        // make sure only one active frame
-        addDockingManagerToGroup(auxDockingManager);
-        addDockingManagerToGroup(trackDockingManager);
     }
     /** Minimum and maximum dimensions of the browser form */
     static int minimumFormWidth = 500;
@@ -336,12 +332,11 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
                 SavantPlugin plugin = event.getPlugin();
                 if (event.getType() == PluginEvent.Type.LOADED) {
                     if (plugin instanceof SavantPanelPlugin) {
-                        final DockableFrame f = DockableFrameFactory.createGUIPluginFrame(plugin.getTitle());
+                        DockableFrame f = DockableFrameFactory.createGUIPluginFrame(plugin.getTitle());
                         JPanel p = (JPanel)f.getContentPane();
                         p.setLayout(new BorderLayout());
                         p.add(event.getCanvas(), BorderLayout.CENTER);
                         auxDockingManager.addFrame(f);
-//                      auxDockingManager.autohideFrame(f, 100, 100);
                         addPluginToMenu(new PluginMenuItem((SavantPanelPlugin)plugin));
                     } else if (event.getPlugin() instanceof SavantDataSourcePlugin) {
                         loadFromDataSourcePluginItem.setText("Load Track from Other Datasource...");
@@ -1552,14 +1547,6 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
 
         df.getContentPane().setLayout(new BorderLayout());
         df.getContentPane().add(canvas, BorderLayout.CENTER);
-    }
-    private static DockingManagerGroup dmg;
-
-    public static void addDockingManagerToGroup(DockingManager m) {
-        if (dmg == null) {
-            dmg = new DockingManagerGroup();
-        }
-        dmg.add(m);
     }
 
     private void initBookmarksPanel() {
