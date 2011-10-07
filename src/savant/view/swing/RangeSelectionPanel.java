@@ -244,9 +244,11 @@ public class RangeSelectionPanel extends JPanel implements LocationChangedListen
                 }
             }
 
-            // The shade corresponds to the shade of blue at the top of the bar_selected_glossy.png.
+            // The shade corresponds to the shade of blue at the top of bar_selected_glossy.png.
             g.setColor(new Color(167, 201, 236));
+            g2d.setComposite(COMPOSITE_75);
             g.fillRect(selStart, 0, selEnd - selStart, height);
+            g2d.setComposite(originalComposite);
 
             // Draw the bottom dividing line along the whole genome, leaving a hole for the selected area.
             g.setColor(LINE_COLOUR);
