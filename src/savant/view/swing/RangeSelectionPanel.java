@@ -20,14 +20,15 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.io.IOException;
+import javax.imageio.ImageIO;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
+
 import savant.controller.GenomeController;
 import savant.controller.LocationController;
 import savant.controller.event.LocationChangedEvent;
 import savant.controller.event.LocationChangedListener;
-
 import savant.data.types.Genome;
 import savant.data.types.Genome.Cytoband;
 import savant.util.Range;
@@ -160,164 +161,150 @@ public class RangeSelectionPanel extends JPanel implements LocationChangedListen
     public void paintComponent(final Graphics g) {
         super.paintComponent(g);
 
-        int wid = getWidth();
-        int hei = getHeight();
-
-        Cytoband[] bands = null;
-        Genome genome = GenomeController.getInstance().getGenome();
-        if (genome != null) {
-            bands = genome.getCytobands(locationController.getReferenceName());
-        }
-
-        Image image_bar_unselected_glossy = null;
-        Image image_bar_selected_glossy = null;
-        Image image_left_cap = null;
-        Image image_right_cap = null;
-
         try {
-            image_bar_unselected_glossy = javax.imageio.ImageIO.read(getClass().getResource("/savant/images/bar_unselected_glossy.PNG"));
-            image_bar_selected_glossy = javax.imageio.ImageIO.read(getClass().getResource("/savant/images/bar_selected_glossy.png"));
-            image_left_cap = javax.imageio.ImageIO.read(getClass().getResource("/savant/images/round_cap_left_bordered.png"));
-            image_right_cap = javax.imageio.ImageIO.read(getClass().getResource("/savant/images/round_cap_right_bordered.png"));
-        } catch (IOException e) {}
+            Cytoband[] bands = null;
+            Genome genome = GenomeController.getInstance().getGenome();
+            if (genome != null) {
+                bands = genome.getCytobands(locationController.getReferenceName());
+            }
 
-        // draw background
-        Graphics2D g2d = (Graphics2D) g;
-        Composite originalComposite = g2d.getComposite();
-        g2d.setComposite(COMPOSITE_75);
-        g.drawImage(image_bar_unselected_glossy, 0,0,this.getWidth(),this.getHeight(),this);
-        g2d.setComposite(originalComposite);
-        
-        int width = this.x1 - this.x2;
-        int height = this.getHeight();// this.y1 - this.y2;
+            Image barUnselectedGlossyImage = ImageIO.read(getClass().getResource("/savant/images/bar_unselected_glossy.PNG"));
+            Image leftCapImage = ImageIO.read(getClass().getResource("/savant/images/round_cap_left_bordered.png"));
+            Image rightCapImage = ImageIO.read(getClass().getResource("/savant/images/round_cap_right_bordered.png"));
 
-        int w = Math.max(2, Math.abs(width));
-        int h = Math.abs(height);
-        int x = width < 0 ? this.x1 : this.x2;
-        int y = 0;
+            int width = getWidth();
+            int height = getHeight();
 
-        // Lines on top and bottom
-        g.setColor(LINE_COLOUR);
-        g.drawLine(0, 0, wid, 0);
-        g.drawLine(0, hei - 1, wid, hei - 1);
+            // draw background
+            Graphics2D g2d = (Graphics2D) g;
+            Composite originalComposite = g2d.getComposite();
+            g2d.setComposite(COMPOSITE_75);
+            g.drawImage(barUnselectedGlossyImage, 0, 0, width, height, this);
+            g2d.setComposite(originalComposite);
 
-        // At early points in the GUI initialisation, the range has not yet been set.
-        if (locationController.getRange() == null) {
-            return;
-        }
+            // Lines on top.
+            g.setColor(LINE_COLOUR);
+            g.drawLine(0, 0, width, 0);
 
-        String bandPos = "";
+            // At early points in the GUI initialisation, the range has not yet been set.
+            if (locationController.getRange() == null) {
+                g.drawLine(0, height - 1, width, height - 1);
+                return;
+            }
 
-        if (bands != null) {
-            int centromereStart = -1;
-            g2d.setComposite(COMPOSITE_50);
-            for (Cytoband b: bands) {
-                int bandX = MiscUtils.transformPositionToPixel(b.start, getWidth(), locationController.getMaxRange());
-                int bandWidth = MiscUtils.transformPositionToPixel(b.end, getWidth(), locationController.getMaxRange()) - bandX;
-                if (isMouseInside && x_notdragging >= bandX && x_notdragging <= bandX + bandWidth) {
-                    bandPos = " (" + b.name + ")";
-                }
-                g.setColor(b.getColor());
-                g.fillRect(bandX, y + 1, bandWidth, h - 2);
-                
-                if (b.isCentromere()) {
-                    if (centromereStart >= 0) {
-                        int mid = y + h / 2;
-                        g2d.setComposite(originalComposite);
-                        Polygon bowtie = new Polygon(new int[] { centromereStart, bandX, centromereStart, bandX + bandWidth, bandX, bandX + bandWidth },
-                                                     new int[] { y,               mid,   y + h,           y + h,             mid,   y }, 6);
-                        g.setColor(getBackground());
-                        g.fillPolygon(bowtie);
-                        g.setColor(LINE_COLOUR);
-                        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                        g.drawLine(centromereStart - 1, y, bandX, mid);
-                        g.drawLine(centromereStart - 1, y + h, bandX, mid);
-                        g.drawLine(bandX, mid, bandX + bandWidth, y);
-                        g.drawLine(bandX, mid, bandX + bandWidth, y + h);
-                        g2d.setComposite(COMPOSITE_50);
-                        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_DEFAULT);
-                    } else {
-                        centromereStart = bandX;
+            String bandPos = "";
+
+            if (bands != null) {
+                int centromereStart = -1;
+                g2d.setComposite(COMPOSITE_50);
+                for (Cytoband b: bands) {
+                    int bandX = MiscUtils.transformPositionToPixel(b.start, width, locationController.getMaxRange());
+                    int bandWidth = MiscUtils.transformPositionToPixel(b.end, getWidth(), locationController.getMaxRange()) - bandX;
+                    if (isMouseInside && x_notdragging >= bandX && x_notdragging <= bandX + bandWidth) {
+                        bandPos = " (" + b.name + ")";
+                    }
+                    g.setColor(b.getColor());
+                    g.fillRect(bandX, 1, bandWidth, height - 2);
+
+                    if (b.isCentromere()) {
+                        if (centromereStart >= 0) {
+                            int mid = height / 2;
+                            g2d.setComposite(originalComposite);
+                            Polygon bowtie = new Polygon(new int[] { centromereStart, bandX, centromereStart, bandX + bandWidth, bandX, bandX + bandWidth },
+                                                         new int[] { 0,               mid,   height,           height,             mid,   0 }, 6);
+                            g.setColor(getBackground());
+                            g.fillPolygon(bowtie);
+                            g.setColor(LINE_COLOUR);
+                            g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                            g.drawLine(centromereStart - 1, 0, bandX, mid);
+                            g.drawLine(centromereStart - 1, height, bandX, mid);
+                            g.drawLine(bandX, mid, bandX + bandWidth, 0);
+                            g.drawLine(bandX, mid, bandX + bandWidth, height);
+                            g2d.setComposite(COMPOSITE_50);
+                            g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_DEFAULT);
+                        } else {
+                            centromereStart = bandX;
+                        }
                     }
                 }
+                g2d.setComposite(originalComposite);
             }
-            g2d.setComposite(originalComposite);
-        }
 
-        if (isDragging) {
-            // draw selected region
-            g2d.setComposite(COMPOSITE_50);
-            g.drawImage(image_bar_selected_glossy, x, y, w, h,this);
-            g2d.setComposite(originalComposite);
-
-            g.setColor(LINE_COLOUR);
-            g.drawRect(x, y, w, h);
-            
-        } else {
-            int startrange = locationController.getRangeStart();
-            int endrange = locationController.getRangeEnd();
-
-            int startx = MiscUtils.transformPositionToPixel(startrange, getWidth(), locationController.getMaxRange());
-            int endx = MiscUtils.transformPositionToPixel(endrange, getWidth(), locationController.getMaxRange());
-            int widpixels = Math.max(5, endx-startx);
-
-            //Graphics2D g2d = (Graphics2D) g;
-            //Composite originalComposite = g2d.getComposite();
-            g2d.setComposite(COMPOSITE_75);
-            g.drawImage(image_bar_selected_glossy, startx, y,widpixels, h,this);
-            g2d.setComposite(originalComposite);
-
-            g.setColor(new Color(100, 100, 100));
-            g.drawRect( startx, y, widpixels, h);
-        }
-
-        g.drawImage(image_left_cap, 0, 0, Ruler.CAP_WIDTH, Ruler.CAP_HEIGHT, this);
-        g.drawImage(image_right_cap, getWidth() - Ruler.CAP_WIDTH, 0, Ruler.CAP_WIDTH, Ruler.CAP_HEIGHT,this);
-
-        if (isDragging) {
-            g.setColor(Color.black);
-
-            int fromX = this.x1 > this.x2 ? this.x2 : this.x1;
-            int toX = this.x1 > this.x2 ? this.x1 : this.x2;
-            String from, to;
-            int startFrom, startTo;
-            int ypos = this.getHeight() / 2 + 4;
-
-            if (this.rangeChangedExternally) {
-                Range r = locationController.getRange();
-                from = MiscUtils.posToShortString(r.getFrom());
-                to = MiscUtils.posToShortString(r.getTo());
+            int selStart, selEnd;
+            int startRange = locationController.getRangeStart();
+            int endRange = locationController.getRangeEnd();
+            if (isDragging) {
+                selStart = x1 < x2 ? x1 : x2;
+                selEnd = selStart + Math.max(2, Math.abs(x1 - x2));
             } else {
-                from = MiscUtils.posToShortString(MiscUtils.transformPixelToPosition(fromX, this.getWidth(), locationController.getMaxRange()));
-                to = MiscUtils.posToShortString(MiscUtils.transformPixelToPosition(toX, this.getWidth(), locationController.getMaxRange()));
-            }
-
-            FontMetrics metrics = g.getFontMetrics(g.getFont());
-            // get the advance of my text in this font and render context
-            int fromWidth = metrics.stringWidth(from);
-            int toWidth = metrics.stringWidth(to);
-
-            startFrom = fromX - 7 - fromWidth;
-            startTo = toX + 7;
-
-            if (startFrom + fromWidth + 12 < startTo) {
-                if (startFrom > 0) {
-                    g.drawString(from, startFrom, ypos);
-                }
-                if (startTo + toWidth < this.getWidth()) {
-                    g.drawString(to, startTo, ypos);
+                selStart = MiscUtils.transformPositionToPixel(startRange, width, locationController.getMaxRange());
+                selEnd = MiscUtils.transformPositionToPixel(endRange, width, locationController.getMaxRange());
+                if (selEnd < selStart + 5) {
+                    selEnd = selStart + 5;  // Make the selection big enough to be visible.
                 }
             }
-        } else if (isMouseInside) {
-            g.setColor(Color.black);
 
-            FontMetrics metrics = g.getFontMetrics(g.getFont());
+            // The shade corresponds to the shade of blue at the top of the bar_selected_glossy.png.
+            g.setColor(new Color(167, 201, 236));
+            g.fillRect(selStart, 0, selEnd - selStart, height);
 
-            int genomepos = translatePixelToPosition(x_notdragging);
+            // Draw the bottom dividing line along the whole genome, leaving a hole for the selected area.
+            g.setColor(LINE_COLOUR);
+            g.drawLine(0, height - 1, selStart, height - 1);
+            g.drawLine(selStart, height - 1, selStart, 0);
+            g.drawLine(selStart, 0, selEnd, 0);
+            g.drawLine(selEnd, 0, selEnd, height - 1);
+            g.drawLine(selEnd, height - 1, width, height - 1);
 
-            String mousePos = MiscUtils.posToShortString(genomepos) + bandPos;
+            g.drawImage(leftCapImage, 0, 0, Ruler.CAP_WIDTH, Ruler.CAP_HEIGHT, this);
+            g.drawImage(rightCapImage, width - Ruler.CAP_WIDTH, 0, Ruler.CAP_WIDTH, Ruler.CAP_HEIGHT,this);
 
-            g.drawString(mousePos, x_notdragging - metrics.stringWidth(mousePos) - 12, getHeight() / 2 + 4);
+            if (isDragging) {
+                g.setColor(Color.black);
+
+                int fromX = x1 > x2 ? x2 : x1;
+                int toX = x1 > x2 ? x1 : x2;
+                String from, to;
+                int startFrom, startTo;
+                int ypos = this.getHeight() / 2 + 4;
+
+                if (rangeChangedExternally) {
+                    from = MiscUtils.posToShortString(startRange);
+                    to = MiscUtils.posToShortString(endRange);
+                } else {
+                    from = MiscUtils.posToShortString(MiscUtils.transformPixelToPosition(fromX, width, locationController.getMaxRange()));
+                    to = MiscUtils.posToShortString(MiscUtils.transformPixelToPosition(toX, width, locationController.getMaxRange()));
+                }
+
+                FontMetrics metrics = g.getFontMetrics(g.getFont());
+
+                // Get the advance of my text in this font and render context
+                int fromWidth = metrics.stringWidth(from);
+                int toWidth = metrics.stringWidth(to);
+
+                startFrom = fromX - 7 - fromWidth;
+                startTo = toX + 7;
+
+                if (startFrom + fromWidth + 12 < startTo) {
+                    if (startFrom > 0) {
+                        g.drawString(from, startFrom, ypos);
+                    }
+                    if (startTo + toWidth < width) {
+                        g.drawString(to, startTo, ypos);
+                    }
+                }
+            } else if (isMouseInside) {
+                g.setColor(Color.black);
+
+                FontMetrics metrics = g.getFontMetrics(g.getFont());
+
+                int genomepos = translatePixelToPosition(x_notdragging);
+
+                String mousePos = MiscUtils.posToShortString(genomepos) + bandPos;
+
+                g.drawString(mousePos, x_notdragging - metrics.stringWidth(mousePos) - 12, height / 2 + 4);
+            }
+        } catch (IOException ignored) {
         }
     }
 
