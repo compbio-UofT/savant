@@ -21,7 +21,7 @@ import javax.swing.JPanel;
 import savant.controller.TrackController;
 import savant.util.MiscUtils;
 import savant.view.swing.Savant;
-import savant.view.swing.Track;
+import savant.view.tracks.Track;
 
 
 /**

@@ -33,7 +33,7 @@ import savant.data.types.Record;
 import savant.util.Listener;
 import savant.util.MiscUtils;
 import savant.util.Range;
-import savant.view.swing.Track;
+import savant.view.tracks.Track;
 
 
 /**

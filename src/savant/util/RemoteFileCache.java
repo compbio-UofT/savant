@@ -30,7 +30,7 @@ import org.apache.commons.logging.LogFactory;
 import savant.api.util.DialogUtils;
 import savant.controller.TrackController;
 import savant.settings.DirectorySettings;
-import savant.view.swing.Track;
+import savant.view.tracks.Track;
 
 /**
  *

@@ -14,7 +14,7 @@
  *    limitations under the License.
  */
 
-package savant.view.swing;
+package savant.view.tracks;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -45,13 +45,7 @@ import savant.format.SavantFileFormatterUtils;
 import savant.plugin.SavantDataSourcePlugin;
 import savant.util.MiscUtils;
 import savant.util.NetworkUtils;
-import savant.view.swing.continuous.ContinuousTrack;
-import savant.view.swing.interval.BAMCoverageTrack;
-import savant.view.swing.interval.BAMTrack;
-import savant.view.swing.interval.RichIntervalTrack;
-import savant.view.swing.interval.IntervalTrack;
-import savant.view.swing.point.PointTrack;
-import savant.view.swing.sequence.SequenceTrack;
+import savant.view.swing.Savant;
 
 /**
  * Factory class responsible for creating all flavours of Track objects.

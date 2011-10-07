@@ -13,7 +13,7 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package savant.view.swing;
+package savant.view.tracks;
 
 import java.awt.Color;
 import java.util.List;
@@ -34,6 +34,7 @@ import savant.file.DataFormat;
 import savant.plugin.SavantPanelPlugin;
 import savant.util.*;
 import savant.util.swing.DialogUtils;
+import savant.view.swing.Frame;
 
 /**
  * Class to handle the preparation for rendering of a track. Handles colour schemes and

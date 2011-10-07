@@ -22,7 +22,7 @@ import savant.api.adapter.GenomeAdapter;
 import savant.api.adapter.TrackAdapter;
 import savant.controller.GenomeController;
 import savant.data.types.Genome;
-import savant.view.swing.Track;
+import savant.view.tracks.Track;
 
 
 /**

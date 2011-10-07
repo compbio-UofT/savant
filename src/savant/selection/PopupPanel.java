@@ -37,7 +37,7 @@ import savant.util.DrawingMode;
 import savant.util.MiscUtils;
 import savant.util.Range;
 import savant.view.swing.GraphPane;
-import savant.view.swing.Track;
+import savant.view.tracks.Track;
 
 /**
  * Panel to display information about the current selection.

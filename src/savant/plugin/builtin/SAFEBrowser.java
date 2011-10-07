@@ -48,7 +48,7 @@ import savant.settings.DirectorySettings;
 import savant.util.NetworkUtils;
 import savant.view.dialog.tree.TreeBrowserModel;
 import savant.view.dialog.tree.TreeBrowserEntry;
-import savant.view.swing.TrackFactory;
+import savant.view.tracks.TrackFactory;
 
 /**
  *

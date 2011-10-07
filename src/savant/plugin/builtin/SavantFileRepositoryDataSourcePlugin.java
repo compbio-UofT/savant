@@ -18,7 +18,7 @@ package savant.plugin.builtin;
 
 import savant.api.adapter.DataSourceAdapter;
 import savant.plugin.SavantDataSourcePlugin;
-import savant.view.swing.TrackFactory;
+import savant.view.tracks.TrackFactory;
 
 public class SavantFileRepositoryDataSourcePlugin extends SavantDataSourcePlugin {
 

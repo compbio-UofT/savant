@@ -31,7 +31,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.Border;
 import savant.controller.TrackController;
-import savant.view.swing.Track;
+import savant.view.tracks.Track;
 
 
 /**

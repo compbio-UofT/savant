@@ -39,8 +39,8 @@ import savant.controller.event.TrackEvent;
 import savant.settings.DirectorySettings;
 import savant.util.Listener;
 import savant.util.MiscUtils;
-import savant.view.swing.Track;
-import savant.view.swing.interval.BAMCoverageTrack;
+import savant.view.tracks.Track;
+import savant.view.tracks.BAMCoverageTrack;
 
 /**
  *

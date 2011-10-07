@@ -15,6 +15,7 @@
  */
 package savant.view.swing;
 
+import savant.view.tracks.Track;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Toolkit;
@@ -43,8 +44,8 @@ import savant.util.DrawingMode;
 import savant.util.MiscUtils;
 import savant.util.Resolution;
 import savant.view.dialog.BamFilterDialog;
-import savant.view.swing.interval.BAMTrack;
-import savant.view.swing.interval.RichIntervalTrack;
+import savant.view.tracks.BAMTrack;
+import savant.view.tracks.RichIntervalTrack;
 
 /**
  * Menu-bar which appears in the top-right of each Frame, adjusted depending on the track type.

@@ -42,8 +42,8 @@ import savant.settings.BrowserSettings;
 import savant.util.IOUtils;
 import savant.util.NetworkUtils;
 import savant.util.Resolution;
-import savant.view.swing.Track;
-import savant.view.swing.sequence.SequenceTrack;
+import savant.view.tracks.Track;
+import savant.view.tracks.SequenceTrack;
 
 
 /**

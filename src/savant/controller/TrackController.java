@@ -25,7 +25,7 @@ import org.apache.commons.logging.LogFactory;
 import savant.controller.event.TrackEvent;
 import savant.file.DataFormat;
 import savant.util.Controller;
-import savant.view.swing.Track;
+import savant.view.tracks.Track;
 
 /**
  * Controller object to manage changes to the list of tracks.

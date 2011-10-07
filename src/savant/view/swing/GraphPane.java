@@ -16,6 +16,8 @@
 
 package savant.view.swing;
 
+import savant.view.tracks.Track;
+import savant.view.tracks.TrackCancellationListener;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.Area;
@@ -45,9 +47,9 @@ import savant.selection.PopupPanel;
 import savant.settings.ColourSettings;
 import savant.util.swing.ProgressPanel;
 import savant.util.*;
-import savant.view.swing.continuous.ContinuousTrackRenderer;
-import savant.view.swing.interval.BAMTrack;
-import savant.view.swing.interval.BAMTrackRenderer;
+import savant.view.tracks.ContinuousTrackRenderer;
+import savant.view.tracks.BAMTrack;
+import savant.view.tracks.BAMTrackRenderer;
 
 
 /**
@@ -431,7 +433,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
                 BAMIntervalRecord rec2 = ((BAMTrack)tracks[0]).getMate(rec1); //mate
                 
                 //render reads with mismatches
-                ((BAMTrackRenderer)tracks[0].renderer).renderReadsFromArc(g2, this, rec1, rec2, prevRange);
+                ((BAMTrackRenderer)tracks[0].getRenderer()).renderReadsFromArc(g2, this, rec1, rec2, prevRange);
 
             } else {
                 g2.setColor(new Color(255,0,0,150));

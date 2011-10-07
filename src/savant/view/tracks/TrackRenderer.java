@@ -14,7 +14,7 @@
  *    limitations under the License.
  */
 
-package savant.view.swing;
+package savant.view.tracks;
 
 import java.awt.*;
 import java.awt.geom.Line2D;
@@ -40,6 +40,7 @@ import savant.util.DrawingInstruction;
 import savant.util.DrawingMode;
 import savant.util.Listener;
 import savant.util.Resolution;
+import savant.view.swing.GraphPane;
 
 
 /**

@@ -15,6 +15,8 @@
  */
 package savant.view.swing;
 
+import savant.view.tracks.TrackFactory;
+import savant.view.tracks.Track;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.DataOutputStream;

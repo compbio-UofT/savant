@@ -16,6 +16,7 @@
 
 package savant.view.swing;
 
+import savant.view.tracks.Track;
 import java.awt.Color;
 
 import savant.settings.ColourSchemeSettingsSection;

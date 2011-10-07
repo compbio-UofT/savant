@@ -16,6 +16,7 @@
 
 package savant.view.swing;
 
+import savant.view.tracks.Track;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;

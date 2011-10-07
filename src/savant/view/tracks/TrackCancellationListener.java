@@ -13,13 +13,14 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package savant.view.swing;
+package savant.view.tracks;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import savant.view.swing.Frame;
 
 
 /**

@@ -20,7 +20,7 @@ import javax.swing.JTextField;
 import savant.controller.LocationController;
 import savant.util.MiscUtils;
 import savant.util.SAMReadUtils;
-import savant.view.swing.interval.BAMTrack;
+import savant.view.tracks.BAMTrack;
 
 
 /**

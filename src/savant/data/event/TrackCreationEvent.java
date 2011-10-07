@@ -16,7 +16,7 @@
 
 package savant.data.event;
 
-import savant.view.swing.Track;
+import savant.view.tracks.Track;
 
 
 /**

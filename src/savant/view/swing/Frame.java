@@ -15,6 +15,7 @@
  */
 package savant.view.swing;
 
+import savant.view.tracks.Track;
 import java.awt.*;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
@@ -45,7 +46,7 @@ import savant.util.Listener;
 import savant.util.Range;
 import savant.util.swing.ProgressPanel;
 import savant.view.icon.SavantIconFactory;
-import savant.view.swing.sequence.SequenceTrack;
+import savant.view.tracks.SequenceTrack;
 
 
 /**

@@ -40,8 +40,8 @@ import savant.file.DataFormat;
 import savant.util.Listener;
 import savant.view.swing.DockableFrameFactory;
 import savant.view.swing.Frame;
-import savant.view.swing.TrackFactory;
-import savant.view.swing.Track;
+import savant.view.tracks.TrackFactory;
+import savant.view.tracks.Track;
 
 /**
  * Utilities for Savant tracks

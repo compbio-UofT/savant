@@ -31,7 +31,7 @@ import com.jidesoft.grid.*;
 
 import savant.controller.TrackController;
 import savant.util.ColourKey;
-import savant.view.swing.Track;
+import savant.view.tracks.Track;
 
 /**
  * SettingsDialog panel which lets the user screw up their colour settings.

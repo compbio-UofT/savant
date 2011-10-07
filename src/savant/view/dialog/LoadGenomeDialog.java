@@ -41,8 +41,8 @@ import savant.data.types.Genome;
 import savant.data.types.Genome.Auxiliary;
 import savant.data.types.Genome.AuxiliaryType;
 import savant.view.swing.Savant;
-import savant.view.swing.Track;
-import savant.view.swing.TrackFactory;
+import savant.view.tracks.Track;
+import savant.view.tracks.TrackFactory;
 
 
 /**
