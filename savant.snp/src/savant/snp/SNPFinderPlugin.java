@@ -291,11 +291,11 @@ public class SNPFinderPlugin extends SavantPanelPlugin
         // get the reference sequencing in range (if allowed by resolution)
         setSequence();
 
-        // if a sequence could be retreived, run the SNP finder on the
+        // if a sequence could be retrieved, run the SNP finder on the
         // data in range
         if (sequence != null) {
             updateTrackCanvasMap();
-            runSNPFinder();
+            doEverything();
         }
     }
 
@@ -348,18 +348,18 @@ public class SNPFinderPlugin extends SavantPanelPlugin
      * @param isOn
      */
     private void setIsOn(boolean isOn) {
-        this.isSNPFinderOn = isOn;
+        isSNPFinderOn = isOn;
         List<PileupPanel> panels = this.getPileupPanels();
         for (PileupPanel p : panels) {
             p.setIsOn(isSNPFinderOn);
         }
-        this.repaintPileupPanels();
-        this.doEverything();
+        repaintPileupPanels();
+        doEverything();
     }
 
     private void setBookmarking(boolean isOn) {
-        this.addBookmarks = isOn;
-        this.doEverything();
+        addBookmarks = isOn;
+        doEverything();
     }
 
     /**
@@ -367,12 +367,12 @@ public class SNPFinderPlugin extends SavantPanelPlugin
      */
     private void setSensitivity(int s) {
         confidence = s;
-        this.doEverything();
+        doEverything();
     }
 
     private void setSNPPrior(double s) {
         snpPrior = s;
-        this.doEverything();
+        doEverything();
     }
 
 
@@ -389,9 +389,9 @@ public class SNPFinderPlugin extends SavantPanelPlugin
     }
 
     /**
-     * Run the finder.
+     * Do everything.
      */
-    private void runSNPFinder() {
+    private void doEverything() {
         if (isSNPFinderOn) {
 
             if (NavigationUtils.getCurrentRange().getLength() > MAX_RANGE_TO_SEARCH) {
@@ -399,24 +399,15 @@ public class SNPFinderPlugin extends SavantPanelPlugin
                 return;
             }
 
-            doEverything();
-        }
-    }
-
-    /**
-     * Do everything.
-     */
-    private void doEverything() {
-        if (!isSNPFinderOn)
-            return;
-        if (sequence == null) {
-            setSequence();
-        }
-        if (sequence != null) {
-            updateTrackCanvasMap();
-            createPileups();
-            callSNPs();
-            drawPiles();
+            if (sequence == null) {
+                setSequence();
+            }
+            if (sequence != null) {
+                updateTrackCanvasMap();
+                createPileups();
+                callSNPs();
+                drawPiles();
+            }
         }
     }
 
