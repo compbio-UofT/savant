@@ -232,9 +232,9 @@ public class TabixReader {
 		while ((end = s.indexOf('\t', beg)) >= 0 || end == -1) {
 			++col;
 			if (col == mSc) {
-				intv.tid = chr2tid(s.substring(beg, end));
+				intv.tid = chr2tid(end != -1 ? s.substring(beg, end) : s.substring(beg));
 			} else if (col == mBc) {
-				intv.beg = intv.end = Integer.parseInt(s.substring(beg, end));
+				intv.beg = intv.end = Integer.parseInt(end != -1 ? s.substring(beg, end) : s.substring(beg));
 				if ((mPreset&0x10000) != 0) ++intv.end;
 				else --intv.beg;
 				if (intv.beg < 0) intv.beg = 0;
@@ -242,7 +242,7 @@ public class TabixReader {
 			} else { // FIXME: SAM supports are not tested yet
 				if ((mPreset&0xffff) == 0) { // generic
 					if (col == mEc)
-						intv.end = Integer.parseInt(s.substring(beg, end));
+						intv.end = Integer.parseInt(end != -1 ? s.substring(beg, end) : s.substring(beg));
 				} else if ((mPreset&0xffff) == 1) { // SAM
 					if (col == 6) { // CIGAR
 						int l = 0, i, j;
