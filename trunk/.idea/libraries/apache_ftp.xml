@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="apache-ftp">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/extlib/commons-net-ftp-2.0/commons-net-ftp-2.0.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
