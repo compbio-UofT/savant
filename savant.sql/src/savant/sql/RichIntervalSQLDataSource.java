@@ -24,9 +24,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import savant.api.adapter.RangeAdapter;
+import savant.api.data.DataFormat;
+import savant.api.util.Resolution;
 import savant.data.types.TabixIntervalRecord;
-import savant.file.DataFormat;
-import savant.util.Resolution;
 
 /**
  * DataSource class which retrieves rich interval data from an SQL database.

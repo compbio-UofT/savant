@@ -30,19 +30,18 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import savant.api.data.ContinuousRecord;
+import savant.api.data.Record;
 import savant.controller.LocationController;
-import savant.controller.SelectionController;
 import savant.data.event.DataRetrievalEvent;
-import savant.data.types.GenericContinuousRecord;
-import savant.data.types.Record;
 import savant.exception.RenderingException;
+import savant.selection.SelectionController;
 import savant.util.AxisRange;
 import savant.util.ColourKey;
 import savant.util.ColourScheme;
 import savant.util.DrawingInstruction;
 import savant.util.Range;
 import savant.view.swing.GraphPane;
-import savant.view.tracks.TrackRenderer;
 
 
 /**
@@ -100,7 +99,7 @@ public class ContinuousTrackRenderer extends TrackRenderer {
         boolean haveData = false;
         if (data != null) {
             for (int i = 0; i < data.size(); i++) {
-                GenericContinuousRecord continuousRecord = (GenericContinuousRecord)data.get(i);
+                ContinuousRecord continuousRecord = (ContinuousRecord)data.get(i);
                 int xPos = continuousRecord.getPosition();
                 float yPos = continuousRecord.getValue();
                 if (Float.isNaN(yPos)) {
@@ -164,7 +163,7 @@ public class ContinuousTrackRenderer extends TrackRenderer {
     }
 
     public static Shape continuousRecordToEllipse(GraphPane gp, Record o){
-        GenericContinuousRecord rec = (GenericContinuousRecord) o;
+        ContinuousRecord rec = (ContinuousRecord) o;
         Double x = gp.transformXPos(rec.getPosition()) + (gp.getUnitWidth()/2) -4;
         Double y = gp.transformYPos(rec.getValue()) -4;// + (this.getUnitWidth()/2);
         Shape s = new Ellipse2D.Double(x, y, 8, 8);

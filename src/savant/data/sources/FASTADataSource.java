@@ -26,15 +26,15 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import savant.api.adapter.RangeAdapter;
-import savant.data.types.SequenceRecord;
-import savant.file.DataFormat;
+import savant.api.data.SequenceRecord;
+import savant.api.data.DataFormat;
 import savant.file.FileType;
 import savant.file.SavantFileNotFormattedException;
 import savant.file.SavantROFile;
 import savant.file.SavantUnsupportedVersionException;
 import savant.format.SavantFileFormatterUtils;
 import savant.util.MiscUtils;
-import savant.util.Resolution;
+import savant.api.util.Resolution;
 
 /**
  *

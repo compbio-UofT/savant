@@ -21,6 +21,8 @@
 
 package savant.data.types;
 
+import savant.api.data.Interval;
+import savant.api.data.IntervalRecord;
 import java.awt.Color;
 import net.sf.samtools.SAMRecord;
 

@@ -21,7 +21,7 @@ import java.util.Collections;
 import java.util.List;
 
 import savant.api.util.RangeUtils;
-import savant.data.types.IntervalRecord;
+import savant.api.data.IntervalRecord;
 import savant.file.SavantROFile;
 import savant.util.Range;
 import savant.util.SavantFileUtils;

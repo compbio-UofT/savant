@@ -29,7 +29,7 @@ import savant.api.adapter.BookmarkAdapter;
 import savant.api.adapter.DataSourceAdapter;
 import savant.api.util.BookmarkUtils;
 import savant.api.util.RangeUtils;
-import savant.data.types.Record;
+import savant.api.data.Record;
 
 
 /**

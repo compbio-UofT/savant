@@ -21,9 +21,9 @@ import java.net.URI;
 import java.util.List;
 import java.util.Set;
 
-import savant.data.types.Record;
-import savant.file.DataFormat;
-import savant.util.Resolution;
+import savant.api.data.Record;
+import savant.api.data.DataFormat;
+import savant.api.util.Resolution;
 
 
 /**

@@ -16,8 +16,6 @@
 
 package savant.view.swing;
 
-import savant.view.tracks.Track;
-import savant.view.tracks.TrackCancellationListener;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.Area;
@@ -33,6 +31,8 @@ import com.jidesoft.popup.JidePopup;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import savant.api.data.Record;
+import savant.api.util.Listener;
 import savant.controller.GraphPaneController;
 import savant.controller.LocationController;
 import savant.controller.event.GraphPaneEvent;
@@ -40,16 +40,17 @@ import savant.data.event.ExportEvent;
 import savant.data.event.ExportEventListener;
 import savant.data.types.BAMIntervalRecord;
 import savant.data.types.GenericContinuousRecord;
-import savant.data.types.Record;
 import savant.exception.RenderingException;
 import savant.selection.PopupThread;
 import savant.selection.PopupPanel;
 import savant.settings.ColourSettings;
 import savant.util.swing.ProgressPanel;
 import savant.util.*;
-import savant.view.tracks.ContinuousTrackRenderer;
 import savant.view.tracks.BAMTrack;
 import savant.view.tracks.BAMTrackRenderer;
+import savant.view.tracks.ContinuousTrackRenderer;
+import savant.view.tracks.Track;
+import savant.view.tracks.TrackCancellationListener;
 
 
 /**

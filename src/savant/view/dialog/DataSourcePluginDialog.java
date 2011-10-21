@@ -23,7 +23,7 @@ import javax.swing.JDialog;
 
 import savant.api.adapter.DataSourceAdapter;
 import savant.controller.DataSourcePluginController;
-import savant.plugin.SavantDataSourcePlugin;
+import savant.api.SavantDataSourcePlugin;
 import savant.util.MiscUtils;
 
 /**

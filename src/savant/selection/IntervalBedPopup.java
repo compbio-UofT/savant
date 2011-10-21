@@ -18,7 +18,7 @@
 package savant.selection;
 
 import javax.swing.JLabel;
-import savant.data.types.BEDIntervalRecord;
+import savant.api.data.RichIntervalRecord;
 
 /**
  *
@@ -26,9 +26,9 @@ import savant.data.types.BEDIntervalRecord;
  */
 public class IntervalBedPopup extends PopupPanel {
 
-    private BEDIntervalRecord rec;
+    private RichIntervalRecord rec;
 
-    public IntervalBedPopup(BEDIntervalRecord rec){
+    public IntervalBedPopup(RichIntervalRecord rec){
         this.rec = rec;
     }
 

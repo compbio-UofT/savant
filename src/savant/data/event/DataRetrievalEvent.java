@@ -18,7 +18,7 @@ package savant.data.event;
 
 import java.util.List;
 
-import savant.data.types.Record;
+import savant.api.data.Record;
 
 
 /**

@@ -36,11 +36,11 @@ import javax.swing.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import savant.api.event.BookmarksChangedEvent;
 import savant.api.util.DialogUtils;
+import savant.api.util.Listener;
 import savant.controller.BookmarkController;
 import savant.controller.LocationController;
-import savant.controller.event.BookmarksChangedEvent;
-import savant.controller.event.BookmarksChangedListener;
 import savant.util.Bookmark;
 import savant.util.Range;
 import savant.view.icon.SavantIconFactory;
@@ -50,7 +50,7 @@ import savant.view.swing.model.BookmarksTableModel;
  *
  * @author mfiume
  */
-public class BookmarkSheet extends JPanel implements BookmarksChangedListener {
+public class BookmarkSheet extends JPanel implements Listener<BookmarksChangedEvent> {
 
     private static final Log LOG = LogFactory.getLog(BookmarkSheet.class);
 
@@ -237,8 +237,8 @@ public class BookmarkSheet extends JPanel implements BookmarksChangedListener {
     }
 
     @Override
-    public void bookmarksChanged(BookmarksChangedEvent event) {
-        this.refreshData(BookmarkController.getInstance().getBookmarks());
+    public void handleEvent(BookmarksChangedEvent event) {
+        refreshData(BookmarkController.getInstance().getBookmarks());
     }
 
     private void refreshData(List<Bookmark> favorites) {

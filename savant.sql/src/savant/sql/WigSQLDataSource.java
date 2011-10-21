@@ -23,14 +23,13 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.sf.samtools.util.SeekableHTTPStream;
 import net.sf.samtools.util.SeekableStream;
 
 import savant.api.adapter.RangeAdapter;
+import savant.api.data.DataFormat;
+import savant.api.util.Resolution;
 import savant.data.types.GenericContinuousRecord;
-import savant.file.DataFormat;
 import savant.util.NetworkUtils;
-import savant.util.Resolution;
 
 
 /**

@@ -20,6 +20,7 @@ import java.io.File;
 
 import savant.api.adapter.GenomeAdapter;
 import savant.api.adapter.TrackAdapter;
+import savant.api.event.GenomeChangedEvent;
 import savant.controller.GenomeController;
 import savant.data.types.Genome;
 import savant.view.tracks.Track;
@@ -87,5 +88,23 @@ public class GenomeUtils {
      */
     public static GenomeAdapter createGenome(File f) throws Throwable {
         return createGenome(TrackUtils.createTrack(f)[0]);
+    }
+    
+    /**
+     * Add a listener to monitor changes in the reference genome.
+     *
+     * @param l the listener to be added
+     */
+    public static void addGenomeChangedListener(Listener<GenomeChangedEvent> l) {
+        genomeController.addListener(l);
+    }
+
+    /**
+     * Remove a genome change listener.
+     *
+     * @param l the listener to be removed
+     */
+    public static void removeGenomeChangedListener(Listener<GenomeChangedEvent> l) {
+        genomeController.removeListener(l);
     }
 }

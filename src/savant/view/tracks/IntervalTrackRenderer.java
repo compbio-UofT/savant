@@ -16,6 +16,7 @@
 
 package savant.view.tracks;
 
+import savant.api.util.Resolution;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
@@ -24,9 +25,9 @@ import java.awt.geom.Rectangle2D;
 import java.util.List;
 
 import savant.data.event.DataRetrievalEvent;
-import savant.data.types.Interval;
-import savant.data.types.IntervalRecord;
-import savant.data.types.Record;
+import savant.api.data.Interval;
+import savant.api.data.IntervalRecord;
+import savant.api.data.Record;
 import savant.exception.RenderingException;
 import savant.util.*;
 import savant.view.swing.GraphPane;

@@ -27,9 +27,9 @@ import java.util.PriorityQueue;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import savant.data.types.Interval;
-import savant.data.types.IntervalRecord;
-import savant.data.types.Record;
+import savant.api.data.Interval;
+import savant.api.data.IntervalRecord;
+import savant.api.data.Record;
 
 
 /**

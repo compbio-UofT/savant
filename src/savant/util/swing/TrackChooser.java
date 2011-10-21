@@ -34,7 +34,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import savant.controller.FrameController;
-import savant.file.DataFormat;
+import savant.api.data.DataFormat;
 import savant.settings.PersistentSettings;
 import savant.util.MiscUtils;
 import savant.view.swing.Frame;

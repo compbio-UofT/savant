@@ -17,9 +17,9 @@
 package savant.util;
 
 import java.util.Comparator;
-import savant.data.types.Interval;
+import savant.api.data.Interval;
 
-import savant.data.types.IntervalRecord;
+import savant.api.data.IntervalRecord;
 
 
 /**

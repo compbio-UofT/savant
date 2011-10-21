@@ -34,10 +34,11 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import savant.api.adapter.DataSourceAdapter;
+import savant.api.adapter.TrackAdapter;
 import savant.api.util.DialogUtils;
-import savant.controller.event.TrackEvent;
+import savant.api.util.Listener;
+import savant.api.event.TrackEvent;
 import savant.settings.DirectorySettings;
-import savant.util.Listener;
 import savant.util.MiscUtils;
 import savant.view.tracks.Track;
 import savant.view.tracks.BAMCoverageTrack;
@@ -72,7 +73,7 @@ public class RecentTracksController {
             @Override
             public void handleEvent(TrackEvent event) {
                 if (event.getType() == TrackEvent.Type.ADDED) {
-                    Track t = event.getTrack();
+                    TrackAdapter t = event.getTrack();
 
                     if (t instanceof BAMCoverageTrack) { return; }
 

@@ -30,13 +30,13 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import savant.api.adapter.TrackAdapter;
+import savant.api.data.Block;
+import savant.api.data.Record;
+import savant.api.data.RichIntervalRecord;
+import savant.api.data.Strand;
 import savant.api.util.GenomeUtils;
 import savant.api.util.NavigationUtils;
 import savant.api.util.RangeUtils;
-import savant.data.types.Block;
-import savant.data.types.Record;
-import savant.data.types.RichIntervalRecord;
-import savant.data.types.Strand;
 
 /**
  * Semi-transparent panel which is drawn over the layered-panel.

@@ -27,13 +27,13 @@ import javax.xml.stream.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import savant.api.event.GenomeChangedEvent;
+import savant.api.util.Listener;
 import savant.controller.*;
-import savant.controller.event.GenomeChangedEvent;
 import savant.data.types.Genome;
 import savant.data.types.Genome.ReferenceInfo;
 import savant.exception.SavantEmptySessionException;
 import savant.util.Bookmark;
-import savant.util.Listener;
 import savant.util.MiscUtils;
 import savant.util.Range;
 import savant.view.swing.Frame;

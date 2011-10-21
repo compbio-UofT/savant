@@ -31,11 +31,12 @@ import savant.api.adapter.BookmarkAdapter;
 import savant.api.adapter.DataSourceAdapter;
 import savant.api.adapter.RangeAdapter;
 import savant.api.adapter.TrackAdapter;
+import savant.api.data.ContinuousRecord;
+import savant.api.data.DataFormat;
 import savant.api.util.TrackUtils;
 import savant.data.types.GenericContinuousRecord;
-import savant.file.DataFormat;
 import savant.util.MiscUtils;
-import savant.util.Resolution;
+import savant.api.util.Resolution;
 
 /**
  * The actual data-source implemented by the Diff plugin.  Takes two existing continuous data-sources
@@ -43,11 +44,11 @@ import savant.util.Resolution;
  *
  * @author tarkvara
  */
-public class DiffDataSource implements DataSourceAdapter<GenericContinuousRecord> {
+public class DiffDataSource implements DataSourceAdapter<ContinuousRecord> {
     private static final Log LOG = LogFactory.getLog(DiffDataSource.class);
 
     /** Our two input data-sources. */
-    DataSourceAdapter<? extends GenericContinuousRecord> inputA, inputB;
+    DataSourceAdapter<? extends ContinuousRecord> inputA, inputB;
     
     private URI uri;
 
@@ -98,17 +99,17 @@ public class DiffDataSource implements DataSourceAdapter<GenericContinuousRecord
      * to simplify our task.
      */
     @Override
-    public List<GenericContinuousRecord> getRecords(String ref, RangeAdapter range, Resolution res) throws IOException {
-        List<GenericContinuousRecord> result = null;
+    public List<ContinuousRecord> getRecords(String ref, RangeAdapter range, Resolution res) throws IOException {
+        List<ContinuousRecord> result = null;
         if (inputsAttached()) {
-            List<? extends GenericContinuousRecord> aRecords = inputA.getRecords(ref, range, res);
-            List<? extends GenericContinuousRecord> bRecords = inputB.getRecords(ref, range, res);
+            List<? extends ContinuousRecord> aRecords = inputA.getRecords(ref, range, res);
+            List<? extends ContinuousRecord> bRecords = inputB.getRecords(ref, range, res);
 
-            result = new ArrayList<GenericContinuousRecord>(aRecords.size());
+            result = new ArrayList<ContinuousRecord>(aRecords.size());
             int j = 0;
-            GenericContinuousRecord recB = bRecords.get(j);
+            ContinuousRecord recB = bRecords.get(j);
             for (int i = 0; i < aRecords.size(); i++) {
-                GenericContinuousRecord recA = aRecords.get(i);
+                ContinuousRecord recA = aRecords.get(i);
                 int pos = recA.getPosition();
 
                 // Figure out which record in B corresponds to A.
@@ -134,17 +135,17 @@ public class DiffDataSource implements DataSourceAdapter<GenericContinuousRecord
      * we may have to interpolate.  Arbitrarily, we decide that inputA provides the
      * bench-mark and inputB gets interpolated.
      */
-    private float interpolate(List<? extends GenericContinuousRecord> bRecords, int j, int pos) {
+    private float interpolate(List<? extends ContinuousRecord> bRecords, int j, int pos) {
         float result = 0.0f;
         if (j < bRecords.size()) {
-            GenericContinuousRecord recB = bRecords.get(j);
+            ContinuousRecord recB = bRecords.get(j);
 
             if (recB.getPosition() == pos || j == 0) {
                 // Simple case.  We have a data-point at the exact position.
                 result = recB.getValue();
             } else if (recB.getPosition() > pos) {
                 // If we got here, recB is further on in the chromosome than pos, so we need to interpolate with the preceding data-point.
-                GenericContinuousRecord prevRecB = bRecords.get(j - 1);
+                ContinuousRecord prevRecB = bRecords.get(j - 1);
                 float weight = (float)(pos - prevRecB.getPosition()) / (recB.getPosition() - prevRecB.getPosition());
                 result = prevRecB.getValue() * weight + recB.getValue() * (1.0f - weight);
             }

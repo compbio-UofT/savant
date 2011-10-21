@@ -41,7 +41,7 @@ import savant.data.sources.FASTADataSource;
 import savant.settings.BrowserSettings;
 import savant.util.IOUtils;
 import savant.util.NetworkUtils;
-import savant.util.Resolution;
+import savant.api.util.Resolution;
 import savant.view.tracks.Track;
 import savant.view.tracks.SequenceTrack;
 

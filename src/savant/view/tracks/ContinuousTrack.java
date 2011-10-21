@@ -16,16 +16,16 @@
 
 package savant.view.tracks;
 
+import savant.api.util.Resolution;
 import java.util.List;
 
 import savant.api.adapter.DataSourceAdapter;
 import savant.api.adapter.RangeAdapter;
-import savant.data.types.GenericContinuousRecord;
-import savant.data.types.Record;
+import savant.api.data.ContinuousRecord;
+import savant.api.data.Record;
 import savant.exception.SavantTrackCreationCancelledException;
 import savant.settings.TrackResolutionSettings;
 import savant.util.*;
-import savant.view.tracks.Track;
 
 
 /**
@@ -79,7 +79,7 @@ import savant.view.tracks.Track;
         float min = Float.MAX_VALUE;
         if (data != null) {
             for (Record r: data) {
-                float val = ((GenericContinuousRecord)r).getValue();
+                float val = ((ContinuousRecord)r).getValue();
                 if (val > max) max = val;
                 if (val < min) min = val;
             }

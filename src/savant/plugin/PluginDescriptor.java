@@ -16,11 +16,13 @@
 package savant.plugin;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
+import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 
 
@@ -63,6 +65,9 @@ public class PluginDescriptor implements Comparable<PluginDescriptor> {
     private static XMLStreamReader reader;
 
     private PluginDescriptor(String className, String id, String version, String name, String sdkVersion, File file) {
+        if (className == null || id == null || version == null || name == null || file == null) {
+            throw new IllegalArgumentException("Null argument passed to PluginDescriptor constructor.");
+        }
         this.className = className;
         this.id = id;
         this.version = version;
@@ -113,49 +118,65 @@ public class PluginDescriptor implements Comparable<PluginDescriptor> {
         return sdkVersion.equals("1.6.1");
     }
 
-    public static PluginDescriptor fromFile(File f) throws PluginVersionException {
-        try {
-            JarFile jar = new JarFile(f);
-            ZipEntry entry = jar.getEntry("plugin.xml");
-            if (entry != null) {
-                InputStream entryStream = jar.getInputStream(entry);
-                reader = XMLInputFactory.newInstance().createXMLStreamReader(entryStream);
-                String className = null;
-                String id = null;
-                String version = null;
-                String sdkVersion = null;
-                String name = null;
-                do {
-                    switch (reader.next()) {
-                        case XMLStreamConstants.START_ELEMENT:
-                            switch (readElement()) {
-                                case PLUGIN:
-                                    className = readAttribute(PluginXMLAttribute.CLASS);
-                                    id = readAttribute(PluginXMLAttribute.ID);
-                                    version = readAttribute(PluginXMLAttribute.VERSION);
-                                    break;
-                                case ATTRIBUTE:
-                                    if ("sdk-version".equals(readAttribute(PluginXMLAttribute.ID))) {
-                                        sdkVersion = readAttribute(PluginXMLAttribute.VALUE);
-                                    }
-                                    break;
-                                case PARAMETER:
-                                    if ("name".equals(readAttribute(PluginXMLAttribute.ID))) {
-                                        name = readAttribute(PluginXMLAttribute.VALUE);
-                                    }
-                                    break;
+
+    /**
+     * Parse the given input stream to get the plugin attributes.
+     */
+    private static PluginDescriptor fromStream(InputStream input, File f) throws XMLStreamException {
+        reader = XMLInputFactory.newInstance().createXMLStreamReader(input);
+        String className = null;
+        String id = null;
+        String version = null;
+        String sdkVersion = null;
+        String name = null;
+        do {
+            switch (reader.next()) {
+                case XMLStreamConstants.START_ELEMENT:
+                    switch (readElement()) {
+                        case PLUGIN:
+                            className = readAttribute(PluginXMLAttribute.CLASS);
+                            id = readAttribute(PluginXMLAttribute.ID);
+                            version = readAttribute(PluginXMLAttribute.VERSION);
+                            break;
+                        case ATTRIBUTE:
+                            if ("sdk-version".equals(readAttribute(PluginXMLAttribute.ID))) {
+                                sdkVersion = readAttribute(PluginXMLAttribute.VALUE);
                             }
                             break;
-                        case XMLStreamConstants.END_DOCUMENT:
-                            reader.close();
-                            reader = null;
+                        case PARAMETER:
+                            if ("name".equals(readAttribute(PluginXMLAttribute.ID))) {
+                                name = readAttribute(PluginXMLAttribute.VALUE);
+                            }
                             break;
                     }
-                } while (reader != null);
+                    break;
+                case XMLStreamConstants.END_DOCUMENT:
+                    reader.close();
+                    reader = null;
+                    break;
+            }
+        } while (reader != null);
 
-                if (className != null && id != null && name != null) {
-                    return new PluginDescriptor(className, id, version, name, sdkVersion, f);
+        // Will throw an IllegalArgumentException if one of our required attributes has not been set.
+        return new PluginDescriptor(className, id, version, name, sdkVersion, f);
+    }
+ 
+    /**
+     * For a true plugin, the plugin.xml file lives inside a Jar file.
+     * @throws PluginVersionException 
+     */
+    public static PluginDescriptor fromFile(File f) throws PluginVersionException {
+        try {
+            if (f.getName().endsWith(".jar")) {
+                // For a true Java plugin, the descriptor is inside a jar file.
+                JarFile jar = new JarFile(f);
+                ZipEntry entry = jar.getEntry("plugin.xml");
+                if (entry != null) {
+                    return fromStream(jar.getInputStream(entry), f);
                 }
+            } else {
+                // For a tool, the descriptor is just a bare XML file.
+                return fromStream(new FileInputStream(f), f);
             }
         } catch (Exception x) {
         }

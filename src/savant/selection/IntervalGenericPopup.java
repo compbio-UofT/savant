@@ -1,5 +1,5 @@
 /*
- *    Copyright 2010 University of Toronto
+ *    Copyright 2010-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -16,12 +16,8 @@
 
 package savant.selection;
 
-import java.awt.Color;
-import java.awt.Cursor;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import javax.swing.JLabel;
-import savant.data.types.GenericIntervalRecord;
+import savant.api.data.IntervalRecord;
 
 
 /**
@@ -31,9 +27,9 @@ import savant.data.types.GenericIntervalRecord;
  */
 public class IntervalGenericPopup extends PopupPanel {
 
-    private GenericIntervalRecord rec;
+    private IntervalRecord rec;
 
-    public IntervalGenericPopup(GenericIntervalRecord rec){
+    public IntervalGenericPopup(IntervalRecord rec) {
         this.rec = rec;
     }
 
@@ -65,4 +61,3 @@ public class IntervalGenericPopup extends PopupPanel {
         initIntervalJumps(rec);
     }
 }
-

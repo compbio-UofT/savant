@@ -23,10 +23,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import savant.api.adapter.RangeAdapter;
+import savant.api.data.DataFormat;
+import savant.api.data.Interval;
+import savant.api.util.Resolution;
 import savant.data.types.GenericIntervalRecord;
-import savant.data.types.Interval;
-import savant.file.DataFormat;
-import savant.util.Resolution;
 
 
 /**

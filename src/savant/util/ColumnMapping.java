@@ -17,7 +17,7 @@ package savant.util;
 
 import org.broad.tabix.TabixWriter.Conf;
 
-import savant.file.DataFormat;
+import savant.api.data.DataFormat;
 
 
 /**

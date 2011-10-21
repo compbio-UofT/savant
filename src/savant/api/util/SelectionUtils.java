@@ -17,11 +17,9 @@
 package savant.api.util;
 
 import savant.api.adapter.TrackAdapter;
-import savant.controller.SelectionController;
-import savant.controller.event.SelectionChangedEvent;
-import savant.controller.event.SelectionChangedListener;
-import savant.data.types.Record;
-import savant.util.Listener;
+import savant.api.event.SelectionChangedEvent;
+import savant.api.data.Record;
+import savant.selection.SelectionController;
 
 /**
  * Utilities for data selection in Savant.
@@ -58,7 +56,7 @@ public class SelectionUtils {
      *
      * @param l the listener to subscribe
      */
-    public static void addListener(Listener<SelectionChangedEvent> l) {
+    public static void addSelectionChangedListener(Listener<SelectionChangedEvent> l) {
         sc.addListener(l);
     }
 
@@ -67,32 +65,7 @@ public class SelectionUtils {
      *
      * @param l the listener to unsubscribe
      */
-    public static void removeListener(Listener<SelectionChangedEvent> l) {
+    public static void removeSelectionChangedListener(Listener<SelectionChangedEvent> l) {
         sc.removeListener(l);
-    }
-
-    /**
-     * Subscribe a listener to be notified when the selection changes.
-     *
-     * @param l the listener to subscribe
-     * @deprecated Use <code>addListener</code> instead
-     */
-    public static void addSelectionChangedListener(final SelectionChangedListener l) {
-        sc.addListener(new Listener<SelectionChangedEvent>() {
-            @Override
-            public void handleEvent(SelectionChangedEvent event) {
-                l.selectionChanged(event);
-            }
-        });
-    }
-
-    /**
-     * Unsubscribe a listener from being notified when the selection changes.
-     *
-     * @param l the listener to unsubscribe
-     * @deprecated Use <code>removeListener</code> instead
-     */
-    public static void removeSelectionChangedListener(SelectionChangedListener l) {
-        // Does nothing.  Don't think anybody's actually using this method.
     }
 }

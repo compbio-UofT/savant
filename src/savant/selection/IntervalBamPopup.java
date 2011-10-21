@@ -25,12 +25,12 @@ import javax.swing.JLabel;
 
 import net.sf.samtools.SAMRecord;
 
+import savant.api.data.Record;
+import savant.api.util.Listener;
 import savant.api.util.RangeUtils;
 import savant.controller.LocationController;
 import savant.data.event.DataRetrievalEvent;
 import savant.data.types.BAMIntervalRecord;
-import savant.data.types.Record;
-import savant.util.Listener;
 import savant.util.MiscUtils;
 import savant.util.Range;
 import savant.view.tracks.Track;

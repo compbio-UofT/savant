@@ -37,16 +37,14 @@ import org.biojava.bio.chromatogram.Chromatogram;
 import org.biojava.bio.chromatogram.ChromatogramFactory;
 import org.biojava.bio.chromatogram.UnsupportedChromatogramFormatException;
 
+import savant.api.SavantPanelPlugin;
 import savant.api.adapter.TrackAdapter;
+import savant.api.event.GenomeChangedEvent;
+import savant.api.event.LocationChangedEvent;
 import savant.api.util.DialogUtils;
 import savant.api.util.GenomeUtils;
+import savant.api.util.Listener;
 import savant.api.util.NavigationUtils;
-import savant.controller.GenomeController;
-import savant.controller.event.GenomeChangedEvent;
-import savant.controller.event.LocationChangedEvent;
-import savant.controller.event.LocationChangeCompletedListener;
-import savant.plugin.SavantPanelPlugin;
-import savant.util.Listener;
 
 
 public class ChromatogramPlugin extends SavantPanelPlugin {
@@ -67,13 +65,13 @@ public class ChromatogramPlugin extends SavantPanelPlugin {
     @Override
     public void init(JPanel panel) {
 
-        NavigationUtils.addLocationChangeListener(new LocationChangeCompletedListener() {
+        NavigationUtils.addLocationChangedListener(new Listener<LocationChangedEvent>() {
             @Override
-            public void locationChangeCompleted(LocationChangedEvent event) {
+            public void handleEvent(LocationChangedEvent event) {
                 updateChromatogram();
             }
         });
-        GenomeController.getInstance().addListener(new Listener<GenomeChangedEvent>() {
+        GenomeUtils.addGenomeChangedListener(new Listener<GenomeChangedEvent>() {
             @Override
             public void handleEvent(GenomeChangedEvent event) {
                 updateChromatogram();

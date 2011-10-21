@@ -32,12 +32,12 @@ import org.broad.igv.tdf.TDFTile;
 import org.broad.igv.track.WindowFunction;
 
 import savant.api.adapter.RangeAdapter;
+import savant.api.data.DataFormat;
 import savant.controller.LocationController;
 import savant.data.types.GenericContinuousRecord;
-import savant.file.DataFormat;
 import savant.util.MiscUtils;
 import savant.util.Range;
-import savant.util.Resolution;
+import savant.api.util.Resolution;
 
 /**
  * Data source which uses Broad Institute's TDF format to display a continuous track.

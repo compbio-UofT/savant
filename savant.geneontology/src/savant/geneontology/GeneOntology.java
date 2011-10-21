@@ -1,5 +1,5 @@
 /*
- *    Copyright 2010 University of Toronto
+ *    Copyright 2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -13,20 +13,20 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-
-/*
- * DataTab.java
- * Created on Feb 25, 2010
- */
-
 package savant.geneontology;
 
 import java.awt.BorderLayout;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import javax.swing.*;
-import savant.plugin.SavantPanelPlugin;
 
+import savant.api.SavantPanelPlugin;
+
+/**
+ * Plugin to access the Gene Ontology website.
+ *
+ * @author nnursimulu
+ */
 public class GeneOntology extends SavantPanelPlugin {
     
     /**
@@ -104,6 +104,7 @@ public class GeneOntology extends SavantPanelPlugin {
         
     }
 
+    @Override
     public void init(JPanel canvas) {
 
 
@@ -127,9 +128,8 @@ public class GeneOntology extends SavantPanelPlugin {
 
     }
 
+    @Override
     public String getTitle() {
         return "Gene Ontology Plugin";
     }
-    
-    
 }

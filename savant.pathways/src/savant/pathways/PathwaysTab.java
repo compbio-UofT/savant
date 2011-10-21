@@ -22,21 +22,12 @@ import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.net.URL;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JDialog;
-import javax.swing.JLabel;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
-
-import savant.plugin.SavantPanelPlugin;
+import javax.swing.*;
 
 import org.bridgedb.bio.Organism;
 import org.pathvisio.wikipathways.WikiPathwaysClient;
+
+import savant.api.SavantPanelPlugin;
 import savant.api.util.DialogUtils;
 
 /**

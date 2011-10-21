@@ -16,10 +16,12 @@
 
 package savant.data.types;
 
+import savant.api.data.ContinuousRecord;
+
 /**
  * Immutable class to contain a value and the position at which that value obtains.
  */
-public class GenericContinuousRecord implements Record {
+public class GenericContinuousRecord implements ContinuousRecord {
 
     /**
      * Column names shared by our various continuous data-sources.
@@ -46,6 +48,7 @@ public class GenericContinuousRecord implements Record {
         return reference;
     }
 
+    @Override
     public float getValue() {
         return value;
     }

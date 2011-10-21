@@ -24,15 +24,13 @@ import java.util.List;
 import java.util.Set;
 
 import savant.api.adapter.RangeAdapter;
+import savant.api.data.DataFormat;
 import savant.data.types.GenericPointRecord;
-import savant.data.types.Point;
-import savant.file.DataFormat;
 import savant.file.FileType;
 import savant.file.SavantFileNotFormattedException;
 import savant.file.SavantROFile;
 import savant.file.SavantUnsupportedVersionException;
-import savant.util.MiscUtils;
-import savant.util.Resolution;
+import savant.api.util.Resolution;
 import savant.util.SavantFileUtils;
 
 /**
@@ -52,7 +50,7 @@ public class GenericPointDataSource extends DataSource<GenericPointRecord> {
     }
 
     private GenericPointRecord convertRecordToGenericPointRecord(List<Object> record) {
-        return GenericPointRecord.valueOf((String) record.get(0), Point.valueOf((Integer) record.get(1)), (String) record.get(2));
+        return GenericPointRecord.valueOf((String) record.get(0), (Integer)record.get(1), (String)record.get(2));
     }
 
     @Override
@@ -69,10 +67,10 @@ public class GenericPointDataSource extends DataSource<GenericPointRecord> {
                 savantFile.seek(reference, (indexOfStart++) * getRecordSize());
                 List<Object> record = SavantFileUtils.readBinaryRecord(savantFile, savantFile.getFields());
                 GenericPointRecord p = convertRecordToGenericPointRecord(record);
-                Point pnt = p.getPoint();
+                int pnt = p.getPoint();
 
                 // TODO: remove the necessity to trim ... this is a problem with the delimiter in formatting
-                if (pnt.getPosition() > range.getTo() || !p.getReference().trim().equals(reference)) {
+                if (pnt > range.getTo() || !p.getReference().trim().equals(reference)) {
                     break;
                 }
 

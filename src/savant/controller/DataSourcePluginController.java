@@ -17,7 +17,7 @@ package savant.controller;
 
 import java.util.ArrayList;
 import java.util.List;
-import savant.plugin.SavantDataSourcePlugin;
+import savant.api.SavantDataSourcePlugin;
 import savant.plugin.builtin.SavantFileRepositoryDataSourcePlugin;
 
 /**

@@ -1,5 +1,5 @@
 /*
- *    Copyright 2010 University of Toronto
+ *    Copyright 2010-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -21,15 +21,15 @@ import java.awt.Graphics2D;
 import java.awt.Polygon;
 import java.awt.geom.Point2D;
 
-import savant.data.types.PointRecord;
-import savant.data.types.Record;
+import savant.api.data.PointRecord;
+import savant.api.data.Record;
 import savant.exception.RenderingException;
 import savant.util.ColourKey;
 import savant.util.DrawingInstruction;
-import savant.util.Resolution;
+import savant.api.util.Resolution;
 import savant.util.ColourScheme;
 import savant.view.swing.GraphPane;
-import savant.view.tracks.TrackRenderer;
+
 
 /**
  *
@@ -63,12 +63,12 @@ public class PointTrackRenderer extends TrackRenderer {
             for (Record record: data) {
                 Polygon p = new Polygon();
 
-                savant.data.types.Point sp = ((PointRecord)record).getPoint();
+                int sp = ((PointRecord)record).getPoint();
 
-                Point2D.Double p1 = new Point2D.Double(gp.transformXPos(sp.getPosition()),0);
-                Point2D.Double p2 = new Point2D.Double(gp.transformXPos(sp.getPosition()+1),0);
-                Point2D.Double p3 = new Point2D.Double(gp.transformXPos(sp.getPosition()+1),gp.getHeight());
-                Point2D.Double p4 = new Point2D.Double(gp.transformXPos(sp.getPosition()),gp.getHeight());
+                Point2D.Double p1 = new Point2D.Double(gp.transformXPos(sp),0);
+                Point2D.Double p2 = new Point2D.Double(gp.transformXPos(sp + 1),0);
+                Point2D.Double p3 = new Point2D.Double(gp.transformXPos(sp + 1),gp.getHeight());
+                Point2D.Double p4 = new Point2D.Double(gp.transformXPos(sp),gp.getHeight());
 
                 p.addPoint((int)p1.x, (int)p1.y);
                 p.addPoint((int)p2.x, (int)p2.y);

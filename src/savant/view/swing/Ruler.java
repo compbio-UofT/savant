@@ -24,12 +24,11 @@ import javax.swing.SwingConstants;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import savant.api.event.LocationChangedEvent;
+import savant.api.util.Listener;
 import savant.controller.GraphPaneController;
 import savant.controller.LocationController;
 import savant.controller.event.GraphPaneEvent;
-import savant.controller.event.LocationChangedEvent;
-import savant.controller.event.LocationChangedListener;
-import savant.util.Listener;
 import savant.util.MiscUtils;
 import savant.util.Range;
 
@@ -82,9 +81,9 @@ public class Ruler extends JPanel {
             }
         });
 
-        locationController.addLocationChangedListener(new LocationChangedListener() {
+        locationController.addListener(new Listener<LocationChangedEvent>() {
             @Override
-            public void locationChanged(LocationChangedEvent event) {
+            public void handleEvent(LocationChangedEvent event) {
                 repaint();
             }
         });

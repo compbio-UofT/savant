@@ -34,13 +34,13 @@ import org.apache.commons.logging.LogFactory;
 import org.broad.tabix.TabixReader;
 
 import savant.api.adapter.RangeAdapter;
+import savant.api.data.DataFormat;
 import savant.util.IndexCache;
 import savant.data.types.TabixIntervalRecord;
-import savant.file.DataFormat;
 import savant.util.ColumnMapping;
 import savant.util.MiscUtils;
 import savant.util.NetworkUtils;
-import savant.util.Resolution;
+import savant.api.util.Resolution;
 
 /**
  * DataSource for reading records from a Tabix file.  These can be either a plain Interval

@@ -1,9 +1,5 @@
 /*
- * GenericPointRecord.java
- * Created on Jan 8, 2010
- *
- *
- *    Copyright 2010 University of Toronto
+ *    Copyright 2010-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -20,6 +16,9 @@
 
 package savant.data.types;
 
+import savant.api.data.PointRecord;
+
+
 /**
  * Immutable Record class to hold a generic point (point + optional description)
  * 
@@ -28,29 +27,31 @@ package savant.data.types;
 public class GenericPointRecord implements PointRecord {
 
     private final String reference;
-    private final Point point;
+    private final int point;
     private final String description;
 
-    GenericPointRecord(String reference, Point point, String description) {
+    GenericPointRecord(String reference, int point, String description) {
         if (reference == null) throw new IllegalArgumentException("reference must not be null");
-        if (point == null) throw new IllegalArgumentException("point must not be null");
         this.reference = reference;
         this.point = point;
         this.description = description;
     }
 
-    public static GenericPointRecord valueOf(String reference, Point point, String description) {
+    public static GenericPointRecord valueOf(String reference, int point, String description) {
         return new GenericPointRecord(reference, point, description);
     }
 
+    @Override
     public String getReference() {
         return reference;
     }
 
-    public Point getPoint() {
+    @Override
+    public int getPoint() {
         return point;
     }
 
+    @Override
     public String getDescription() {
         return description;
     }
@@ -63,7 +64,7 @@ public class GenericPointRecord implements PointRecord {
         GenericPointRecord that = (GenericPointRecord) o;
 
         if (description != null ? !description.equals(that.description) : that.description != null) return false;
-        if (!point.equals(that.point)) return false;
+        if (point != that.point) return false;
         if (!reference.equals(that.reference)) return false;
 
         return true;
@@ -72,7 +73,7 @@ public class GenericPointRecord implements PointRecord {
     @Override
     public int hashCode() {
         int result = reference.hashCode();
-        result = 31 * result + point.hashCode();
+        result = 31 * result + point;
         result = 31 * result + (description != null ? description.hashCode() : 0);
         return result;
     }
@@ -88,14 +89,15 @@ public class GenericPointRecord implements PointRecord {
         return sb.toString();
     }
 
+    @Override
     public int compareTo(Object o) {
         GenericPointRecord that = (GenericPointRecord) o;
 
         //compare ref
-        if (!this.reference.equals(that.getReference())){
-            String a1 = this.reference;
+        if (!this.reference.equals(that.getReference())) {
+            String a1 = reference;
             String a2 = that.getReference();
-            for(int i = 0; i < Math.min(a1.length(), a2.length()); i++){
+            for(int i = 0; i < Math.min(a1.length(), a2.length()); i++) {
                 if((int)a1.charAt(i) < (int)a2.charAt(i)) return -1;
                 else if ((int)a1.charAt(i) > (int)a2.charAt(i)) return 1;
             }
@@ -104,9 +106,9 @@ public class GenericPointRecord implements PointRecord {
         }
 
         //compare position
-        if (this.getPoint().getPosition() == that.getPoint().getPosition()){
+        if (point == that.getPoint()) {
             return 0;
-        } else if(this.getPoint().getPosition() < that.getPoint().getPosition()){
+        } else if(point < that.getPoint()) {
             return -1;
         } else {
             return 1;

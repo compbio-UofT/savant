@@ -27,9 +27,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import savant.api.adapter.RangeAdapter;
+import savant.api.data.IntervalRecord;
+import savant.api.data.DataFormat;
 import savant.data.types.GenericIntervalRecord;
-import savant.data.types.IntervalRecord;
-import savant.file.DataFormat;
 import savant.file.FileType;
 import savant.file.SavantFileNotFormattedException;
 import savant.file.SavantROFile;
@@ -37,9 +37,8 @@ import savant.file.SavantUnsupportedVersionException;
 import savant.format.DataFormatter;
 import savant.format.IntervalRecordGetter;
 import savant.format.IntervalSearchTree;
-import savant.util.MiscUtils;
 import savant.util.Range;
-import savant.util.Resolution;
+import savant.api.util.Resolution;
 
 
 /**

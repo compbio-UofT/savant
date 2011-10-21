@@ -22,6 +22,8 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import savant.api.util.Listener;
+
 
 /**
  * Generic controller class which provides functionality which can be used by other

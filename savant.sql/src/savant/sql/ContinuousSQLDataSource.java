@@ -23,9 +23,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import savant.api.adapter.RangeAdapter;
+import savant.api.data.DataFormat;
+import savant.api.util.Resolution;
 import savant.data.types.GenericContinuousRecord;
-import savant.file.DataFormat;
-import savant.util.Resolution;
 
 
 /**

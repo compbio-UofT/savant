@@ -29,9 +29,9 @@ import org.apache.commons.logging.LogFactory;
 import savant.api.adapter.BookmarkAdapter;
 import savant.api.adapter.DataSourceAdapter;
 import savant.api.adapter.RangeAdapter;
-import savant.data.types.Record;
-import savant.file.DataFormat;
-import savant.util.Resolution;
+import savant.api.data.DataFormat;
+import savant.api.data.Record;
+import savant.api.util.Resolution;
 
 /**
  * Class which maintains a record-based cache of data.  This is intended for the

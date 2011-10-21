@@ -130,27 +130,23 @@ public class TabixFormatter extends SavantFileFormatter {
 
                 @Override
                 public String writeHeader(AsciiLineReader reader, PrintWriter writer) {
-                    boolean foundComments = false;
                     String nextLine = reader.readLine();
                     while (nextLine.startsWith("#")) {
                         writer.println(nextLine);
                         nextLine = reader.readLine();
-                        foundComments = true;
                     }
-                    if (!foundComments) {
-                        // We may have to truncate the header to remove optional columns (usually for Bed).
-                        int numColumns = nextLine.split("\\t").length;
-                        String[] headerColumns = header.split("\\t");
-                        if (headerColumns.length > numColumns) {
-                            header = headerColumns[0];
-                            for (int i = 1; i < numColumns; i++) {
-                                header += "\t" + headerColumns[i];
-                            }
+                    // We may have to truncate the header to remove optional columns (usually for Bed).
+                    int numColumns = nextLine.split("\\t").length;
+                    String[] headerColumns = header.split("\\t");
+                    if (headerColumns.length > numColumns) {
+                        header = headerColumns[0];
+                        for (int i = 1; i < numColumns; i++) {
+                            header += "\t" + headerColumns[i];
                         }
-                        writer.println("#" + header);
-                        // Readjust our mapping now that we know the actual number of columns.
-                        mapping = ColumnMapping.inferMapping(header, mapping.oneBased);
                     }
+                    writer.println("#" + header);
+                    // Readjust our mapping now that we know the actual number of columns.
+                    mapping = ColumnMapping.inferMapping(header, mapping.oneBased);
                     return nextLine;
                 }
             }.run();

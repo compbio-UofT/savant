@@ -17,6 +17,7 @@
 package savant.util;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import javax.swing.filechooser.FileFilter;
 
 /**
@@ -24,7 +25,7 @@ import javax.swing.filechooser.FileFilter;
  * 
  * @author tarkvara
  */
-public class FileExtensionFilter extends FileFilter {
+public class FileExtensionFilter extends FileFilter implements FilenameFilter {
     private String extension;
     private String description;
     
@@ -32,11 +33,15 @@ public class FileExtensionFilter extends FileFilter {
      * Construct a filter with the appropriate string.
      *
      * @param desc a descriptive string like "PNG files"
-     * @param ext a file extension like "png"
+     * @param ext a file extension like "png" (no leading dot)
      */
     public FileExtensionFilter(String desc, String ext) {
         description = String.format("%s (*.%s)", desc, ext);
         extension = ext;
+    }
+
+    public FileExtensionFilter(String ext) {
+        this(ext.toUpperCase() + " files", ext);
     }
 
     @Override
@@ -51,5 +56,10 @@ public class FileExtensionFilter extends FileFilter {
     @Override
     public String getDescription() {
         return description;
+    }
+
+    @Override
+    public boolean accept(File dir, String name) {
+        return name.endsWith("." + extension);
     }
 }

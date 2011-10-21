@@ -42,7 +42,7 @@ import savant.file.SavantROFile;
 import savant.file.SavantUnsupportedFileTypeException;
 import savant.file.SavantUnsupportedVersionException;
 import savant.format.SavantFileFormatterUtils;
-import savant.plugin.SavantDataSourcePlugin;
+import savant.api.SavantDataSourcePlugin;
 import savant.util.MiscUtils;
 import savant.util.NetworkUtils;
 import savant.view.swing.Savant;

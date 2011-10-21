@@ -32,9 +32,9 @@ import org.broad.igv.bbfile.RPChromosomeRegion;
 import org.broad.igv.bbfile.WigItem;
 
 import savant.api.adapter.RangeAdapter;
+import savant.api.data.DataFormat;
 import savant.data.types.GenericContinuousRecord;
-import savant.file.DataFormat;
-import savant.util.Resolution;
+import savant.api.util.Resolution;
 
 
 /**

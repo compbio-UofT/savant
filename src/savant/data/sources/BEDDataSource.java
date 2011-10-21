@@ -27,9 +27,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import savant.api.adapter.RangeAdapter;
+import savant.api.data.DataFormat;
+import savant.api.data.IntervalRecord;
 import savant.data.types.BEDIntervalRecord;
-import savant.data.types.IntervalRecord;
-import savant.file.DataFormat;
 import savant.file.FileType;
 import savant.file.SavantFileNotFormattedException;
 import savant.file.SavantROFile;
@@ -37,9 +37,8 @@ import savant.file.SavantUnsupportedVersionException;
 import savant.format.DataFormatter;
 import savant.format.IntervalRecordGetter;
 import savant.format.IntervalSearchTree;
-import savant.util.MiscUtils;
 import savant.util.Range;
-import savant.util.Resolution;
+import savant.api.util.Resolution;
 
 
 /**
@@ -65,13 +64,12 @@ public class BEDDataSource extends DataSource<BEDIntervalRecord> {
 
     @Override
     public List<BEDIntervalRecord> getRecords(String reference, RangeAdapter range, Resolution resolution) throws IOException {
-        List<IntervalRecord> data = null;
 
         IntervalSearchTree ist = getIntervalSearchTreeForReference(reference);
 
         if (ist == null) { return new ArrayList<BEDIntervalRecord>(); }
 
-        data = IntervalRecordGetter.getData(this.dFile, reference, (Range)range, ist.getRoot());
+        List<IntervalRecord> data = IntervalRecordGetter.getData(dFile, reference, (Range)range, ist.getRoot());
 
         //TODO: fix me
         List<BEDIntervalRecord> girList = new ArrayList<BEDIntervalRecord>(data.size());

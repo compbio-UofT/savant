@@ -18,8 +18,8 @@ package savant.api.util;
 import java.util.Set;
 
 import savant.api.adapter.RangeAdapter;
+import savant.api.event.LocationChangedEvent;
 import savant.controller.LocationController;
-import savant.controller.event.LocationChangeCompletedListener;
 import savant.util.MiscUtils;
 import savant.util.Range;
 
@@ -100,8 +100,8 @@ public class NavigationUtils {
      *
      * @param l the listener to subscribe
      */
-    public static synchronized void addLocationChangeListener(LocationChangeCompletedListener l) {
-        lc.addLocationChangeCompletedListener(l);
+    public static synchronized void addLocationChangedListener(Listener<LocationChangedEvent> l) {
+        lc.addListener(l);
     }
 
     /**
@@ -109,22 +109,10 @@ public class NavigationUtils {
      *
      * @param l the listener to unsubscribe
      */
-    public static synchronized void removeLocationChangeListener(LocationChangeCompletedListener l) {
-        lc.removeLocationChangeCompletedListener(l);
+    public static synchronized void removeLocationChangedListener(Listener<LocationChangedEvent> l) {
+        lc.removeListener(l);
     }
 
-    /**
-     * Construct a new Range object representing the given range of bases.
-     *
-     * @param from start-point of the range
-     * @param to end-point of the range
-     * @return a newly-constructed <code>RangeAdapter</code>
-     * @deprecated Use <code>RangeUtils.createRange</code> instead.
-     */
-    public static RangeAdapter createRange(int from, int to) {
-        return new Range(from, to);
-    }
-    
     /**
      * Given a string like "1" or "chr1", return it in a form which corresponds to whatever is being
      * used by the current genome.

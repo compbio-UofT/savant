@@ -16,23 +16,20 @@
 
 package savant.controller;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.Stack;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import savant.api.event.LocationChangedEvent;
 import savant.api.util.DialogUtils;
-import savant.controller.event.GenomeChangedEvent;
-import savant.controller.event.LocationChangeCompletedListener;
-import savant.controller.event.LocationChangedEvent;
-import savant.controller.event.LocationChangedListener;
+import savant.api.util.Listener;
+import savant.api.event.GenomeChangedEvent;
 import savant.data.types.Genome;
 import savant.settings.BrowserSettings;
-import savant.util.Listener;
+import savant.util.Controller;
 import savant.util.Range;
 
 
@@ -41,7 +38,7 @@ import savant.util.Range;
  *
  * @author AndrewBrook, vwilliams
  */
-public class LocationController implements Listener<GenomeChangedEvent> {
+public class LocationController extends Controller<LocationChangedEvent> implements Listener<GenomeChangedEvent> {
 
     private static LocationController instance;
     private static final Log LOG = LogFactory.getLog(LocationController.class);
@@ -58,10 +55,6 @@ public class LocationController implements Listener<GenomeChangedEvent> {
     private Range maximumViewableRange;
     private Range currentViewableRange;
 
-    // Location Changed Listeners
-    private List<LocationChangedListener> locationChangedListeners;
-    private List<LocationChangeCompletedListener> locationChangeCompletedListeners;
-
     /** Reference which was set before genome was loaded (e.g. while loading a project). */
     private String pendingReference;
 
@@ -77,8 +70,6 @@ public class LocationController implements Listener<GenomeChangedEvent> {
     }
 
     private LocationController() {
-        locationChangedListeners = new ArrayList<LocationChangedListener>();
-        locationChangeCompletedListeners = new ArrayList<LocationChangeCompletedListener>();
         undoStack = new Stack<History>();
         redoStack = new Stack<History>();
     }
@@ -93,22 +84,18 @@ public class LocationController implements Listener<GenomeChangedEvent> {
         if (isValidAndNewReference(ref) || forceEvent){
             updateHistory();
             setReference(ref);
-            fireLocationChangedEvent(true);
+            fireEvent(new LocationChangedEvent(true, currentReference, currentViewableRange));
         }
     }
 
     public void setLocation(Range range){
         updateHistory();
         setRange(range);
-        fireLocationChangedEvent(false);
+        fireEvent(new LocationChangedEvent(false, currentReference, currentViewableRange));
     }
 
     public void setLocation(int from, int to){
         setLocation(new Range(from, to));
-    }
-
-    public void setLocation(String ref, int from, int to){
-        setLocation(ref, new Range(from, to));
     }
 
     /**
@@ -124,7 +111,7 @@ public class LocationController implements Listener<GenomeChangedEvent> {
                 newRef = true;
             }
             setRange(range);
-            fireLocationChangedEvent(newRef);
+            fireEvent(new LocationChangedEvent(newRef, currentReference, currentViewableRange));
             pendingReference = null;
             pendingRange = null;
         } else {
@@ -136,8 +123,6 @@ public class LocationController implements Listener<GenomeChangedEvent> {
     private void setLocation(History history){
         setLocation(history.reference, history.range);
     }
-
-    //REFERENCE/////////////////////////////////////////////////////////////////
 
     /**
      * Set the reference. Always check isValidAndNewReference before doing this.
@@ -190,12 +175,10 @@ public class LocationController implements Listener<GenomeChangedEvent> {
     }
 
 
-    //RANGE/////////////////////////////////////////////////////////////////////
-
-    /*
+    /**
      * Should only be called before event is to be fired
      */
-    private void setDefaultRange(){
+    private void setDefaultRange() {
         Genome loadedGenome = GenomeController.getInstance().getGenome();
         setMaxRange(new Range(1, loadedGenome.getLength()));
         setRange(1, Math.min(1000, loadedGenome.getLength()));
@@ -376,7 +359,7 @@ public class LocationController implements Listener<GenomeChangedEvent> {
 
     public void zoomToLength(int length, int center) {
 
-        if(length > maximumViewableRange.getLength()){
+        if(length > maximumViewableRange.getLength()) {
             zoomToLength(maximumViewableRange.getLength());
         }
 
@@ -422,7 +405,7 @@ public class LocationController implements Listener<GenomeChangedEvent> {
     
     //HISTORY///////////////////////////////////////////////////////////////////
 
-    private void updateHistory(){
+    private void updateHistory() {
         if (shouldClearRedoStack && currentViewableRange != null && currentReference != null) {
             redoStack.clear();
             undoStack.push(new History(currentReference, currentViewableRange));
@@ -432,7 +415,7 @@ public class LocationController implements Listener<GenomeChangedEvent> {
         }
     }
 
-    public void undoLocationChange(){
+    public void undoLocationChange() {
         if (undoStack.size() > 0) {
             shouldClearRedoStack = false;
             redoStack.push(new History(currentReference, currentViewableRange));
@@ -441,7 +424,7 @@ public class LocationController implements Listener<GenomeChangedEvent> {
         }
     }
 
-    public void redoLocationChange(){
+    public void redoLocationChange() {
         if (redoStack.size() > 0) {
             shouldClearRedoStack = false;
             undoStack.push(new History(currentReference, currentViewableRange));
@@ -468,37 +451,5 @@ public class LocationController implements Listener<GenomeChangedEvent> {
             this.range = range;
             this.reference = ref;
         }
-    }
-
-    //EVENTS////////////////////////////////////////////////////////////////////
-
-    private synchronized void fireLocationChangedEvent(boolean newRef) {
-        LocationChangedEvent evt = new LocationChangedEvent(newRef, currentReference, currentViewableRange);
-        for (LocationChangedListener l: locationChangedListeners) {
-            l.locationChanged(evt);
-        }
-    }
-
-    public synchronized void fireLocationChangeCompletedEvent() {
-        LocationChangedEvent evt = new LocationChangedEvent(false, currentReference, currentViewableRange);
-        for (LocationChangeCompletedListener l : locationChangeCompletedListeners) {
-            l.locationChangeCompleted(evt);
-        }
-    }
-
-    public synchronized void addLocationChangedListener(LocationChangedListener l) {
-        locationChangedListeners.add(l);
-    }
-
-    public synchronized void removeLocationChangedListener(LocationChangedListener l) {
-        locationChangedListeners.remove(l);
-    }
-
-    public synchronized void addLocationChangeCompletedListener(LocationChangeCompletedListener l) {
-        locationChangeCompletedListeners.add(l);
-    }
-
-    public synchronized void removeLocationChangeCompletedListener(LocationChangeCompletedListener l) {
-        locationChangeCompletedListeners.remove(l);
     }
 }

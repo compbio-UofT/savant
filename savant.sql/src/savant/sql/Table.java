@@ -16,7 +16,6 @@
 
 package savant.sql;
 
-import java.net.URI;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;

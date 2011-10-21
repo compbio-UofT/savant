@@ -28,10 +28,13 @@ import javax.swing.JPanel;
 import javax.swing.JSeparator;
 
 import savant.api.adapter.DataSourceAdapter;
+import savant.api.data.ContinuousRecord;
+import savant.api.data.DataFormat;
+import savant.api.data.IntervalRecord;
+import savant.api.data.Record;
 import savant.controller.BookmarkController;
 import savant.controller.LocationController;
 import savant.data.types.*;
-import savant.file.DataFormat;
 import savant.util.Bookmark;
 import savant.util.DrawingMode;
 import savant.util.MiscUtils;
@@ -57,7 +60,7 @@ public abstract class PopupPanel extends JPanel {
     protected int start;
     protected int end;
 
-    public static PopupPanel create(GraphPane parent, DrawingMode mode, DataSourceAdapter dataSource, Record rec){
+    public static PopupPanel create(GraphPane parent, DrawingMode mode, DataSourceAdapter dataSource, Record rec) {
 
         PopupPanel p = null;
         switch(dataSource.getDataFormat()) {
@@ -82,21 +85,21 @@ public abstract class PopupPanel extends JPanel {
                 if (rec instanceof TabixIntervalRecord) {
                     p = new TabixPopup((TabixIntervalRecord)rec, dataSource);
                 } else {
-                    p = new IntervalGenericPopup((GenericIntervalRecord)rec);
+                    p = new IntervalGenericPopup((IntervalRecord)rec);
                 }
                 break;
             case CONTINUOUS_GENERIC:
-                p = new ContinuousPopup((GenericContinuousRecord)rec);
+                p = new ContinuousPopup((ContinuousRecord)rec);
                 break;
             default:
                 break;
         }
 
-        if(p != null) p.init(parent, mode, dataSource.getDataFormat(), rec);
+        if (p != null) p.init(parent, mode, dataSource.getDataFormat(), rec);
         return p;
     }
 
-    protected void init(GraphPane parent, DrawingMode mode, DataFormat ff, Record rec){
+    protected void init(GraphPane parent, DrawingMode mode, DataFormat ff, Record rec) {
 
         this.fileFormat = ff;
         this.mode = mode;
@@ -113,7 +116,7 @@ public abstract class PopupPanel extends JPanel {
 
     }
 
-    protected void initStandardButtons(){
+    protected void initStandardButtons() {
 
         //START OF BUTTONS
         JPanel filler = new JPanel();
@@ -131,7 +134,7 @@ public abstract class PopupPanel extends JPanel {
             @Override
             public void mouseClicked(MouseEvent e) {
                 for (Track t: gp.getTracks()) {
-                    if (t.getDataFormat() == fileFormat){
+                    if (t.getDataFormat() == fileFormat) {
                         t.getRenderer().addToSelected(record);
                         break;
                     }
@@ -142,10 +145,10 @@ public abstract class PopupPanel extends JPanel {
         this.add(select);
 
         //BOOKMARKING
-        if(ref == null){
+        if (ref == null) {
             ref = LocationController.getInstance().getReferenceName();
         }
-        if(start != -1 && end != -1){
+        if (start != -1 && end != -1) {
             JLabel bookmark = new JLabel("Add to Bookmarks");
             bookmark.setForeground(Color.BLUE);
             bookmark.setCursor(new Cursor(Cursor.HAND_CURSOR));
@@ -153,7 +156,7 @@ public abstract class PopupPanel extends JPanel {
                 @Override
                 public void mouseClicked(MouseEvent e) {
                     ref = homogenizeRef(ref);
-                    if (name != null){
+                    if (name != null) {
                         BookmarkController.getInstance().addBookmark(new Bookmark(ref, new Range(start, end), name, true));
                     } else {
                         BookmarkController.getInstance().addBookmark(new Bookmark(ref, new Range(start, end), true));
@@ -165,18 +168,18 @@ public abstract class PopupPanel extends JPanel {
         }
     }
 
-    protected void initSpecificButtons(){};
+    protected void initSpecificButtons() {};
 
     protected abstract void calculateInfo();
 
-    protected void initInfo(){};
+    protected void initInfo() {};
 
-    protected String homogenizeRef(String orig){
-        if(!LocationController.getInstance().getAllReferenceNames().contains(orig)){
+    protected String homogenizeRef(String orig) {
+        if (!LocationController.getInstance().getAllReferenceNames().contains(orig)) {
             Iterator<String> it = LocationController.getInstance().getAllReferenceNames().iterator();
-            while(it.hasNext()){
+            while(it.hasNext()) {
                 String current = it.next();
-                if(MiscUtils.homogenizeSequence(current).equals(orig)){
+                if (MiscUtils.homogenizeSequence(current).equals(orig)) {
                     return current;
                 }
             }
@@ -192,9 +195,9 @@ public abstract class PopupPanel extends JPanel {
         gp.hidePopup();
     }
 
-    protected void initIntervalJumps(final IntervalRecord rec){
+    protected void initIntervalJumps(final IntervalRecord rec) {
         //jump to start of read
-        if(LocationController.getInstance().getRangeStart() > rec.getInterval().getStart()){
+        if (LocationController.getInstance().getRangeStart() > rec.getInterval().getStart()) {
             JLabel endJump = new JLabel("Jump to Start of Interval");
             endJump.setForeground(Color.BLUE);
             endJump.setCursor(new Cursor(Cursor.HAND_CURSOR));
@@ -207,11 +210,11 @@ public abstract class PopupPanel extends JPanel {
                     hidePopup();
                 }
             });
-            this.add(endJump);
+            add(endJump);
         }
 
         //jump to end of read
-        if(LocationController.getInstance().getRangeEnd() < rec.getInterval().getEnd()){
+        if (LocationController.getInstance().getRangeEnd() < rec.getInterval().getEnd()) {
             JLabel endJump = new JLabel("Jump to End of Interval");
             endJump.setForeground(Color.BLUE);
             endJump.setCursor(new Cursor(Cursor.HAND_CURSOR));
@@ -224,8 +227,7 @@ public abstract class PopupPanel extends JPanel {
                     hidePopup();
                 }
             });
-            this.add(endJump);
+            add(endJump);
         }
     }
-
 }

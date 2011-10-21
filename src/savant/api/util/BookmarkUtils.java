@@ -18,8 +18,8 @@ package savant.api.util;
 
 import savant.api.adapter.BookmarkAdapter;
 import savant.api.adapter.RangeAdapter;
+import savant.api.event.BookmarksChangedEvent;
 import savant.controller.BookmarkController;
-import savant.controller.event.BookmarksChangedListener;
 import savant.util.Bookmark;
 import savant.util.Range;
 
@@ -72,8 +72,8 @@ public class BookmarkUtils {
      *
      * @param l the listener to subscribe
      */
-    public static void addBookmarksChangedListener(BookmarksChangedListener l) {
-        controller.addBookmarksChangedListener(l);
+    public static void addBookmarksChangedListener(Listener<BookmarksChangedEvent> l) {
+        controller.addListener(l);
     }
 
     /**
@@ -81,8 +81,8 @@ public class BookmarkUtils {
      *
      * @param l the listener to unsubscribe
      */
-    public static void removeBookmarksChangedListener(BookmarksChangedListener l) {
-        controller.removeBookmarksChangedListener(l);
+    public static void removeBookmarksChangedListener(Listener<BookmarksChangedEvent> l) {
+        controller.removeListener(l);
     }
 
     /**

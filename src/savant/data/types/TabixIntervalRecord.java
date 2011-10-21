@@ -15,6 +15,8 @@
  */
 package savant.data.types;
 
+import savant.api.data.Interval;
+import savant.api.data.IntervalRecord;
 import savant.util.ColumnMapping;
 
 
@@ -49,7 +51,7 @@ public class TabixIntervalRecord implements IntervalRecord {
         if (!mapping.oneBased) {
             start++;
         }
-        interval = new Interval(start, end);
+        interval = Interval.valueOf(start, end);
     }
 
     /**

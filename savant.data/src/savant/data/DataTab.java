@@ -22,12 +22,10 @@ package savant.data;
 
 import javax.swing.JPanel;
 
-import savant.api.util.NavigationUtils;
-import savant.api.util.SelectionUtils;
+import savant.api.SavantPanelPlugin;
+import savant.api.event.TrackEvent;
+import savant.api.util.Listener;
 import savant.api.util.TrackUtils;
-import savant.controller.event.TrackEvent;
-import savant.plugin.SavantPanelPlugin;
-import savant.util.Listener;
 
 
 public class DataTab extends SavantPanelPlugin {
@@ -43,11 +41,7 @@ public class DataTab extends SavantPanelPlugin {
                 dataSheet.updateTrackList();
             }
         });
-
-        NavigationUtils.addLocationChangeListener(dataSheet);
-        SelectionUtils.addSelectionChangedListener(dataSheet);
     }
-
 
     @Override
     public String getTitle() {

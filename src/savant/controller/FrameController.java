@@ -34,10 +34,11 @@ import com.jidesoft.docking.event.DockableFrameEvent;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import savant.api.event.LocationChangedEvent;
 import savant.api.util.DialogUtils;
-import savant.controller.event.LocationChangedEvent;
-import savant.controller.event.LocationChangedListener;
-import savant.file.DataFormat;
+import savant.api.util.Listener;
+import savant.api.data.DataFormat;
+import savant.selection.SelectionController;
 import savant.view.swing.DockableFrameFactory;
 import savant.view.swing.Frame;
 import savant.view.swing.Savant;
@@ -68,14 +69,13 @@ public class FrameController {
 
     private FrameController() {
         frames = new ArrayList<Frame>();
-        locationController.addLocationChangedListener(new LocationChangedListener() {
+        locationController.addListener(new Listener<LocationChangedEvent>() {
             /**
              * Listen for RangeChangedEvents, which will cause all the frames to be drawn.
              * This code used to be in Savant.java.
              */
-
             @Override
-            public void locationChanged(LocationChangedEvent event) {
+            public void handleEvent(LocationChangedEvent event) {
                 drawFrames();
             }
         });

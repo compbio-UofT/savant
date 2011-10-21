@@ -19,10 +19,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.JCheckBoxMenuItem;
 
-import savant.controller.PluginController;
-import savant.controller.event.PluginEvent;
-import savant.plugin.SavantPanelPlugin;
-import savant.util.Listener;
+import savant.api.util.Listener;
+import savant.api.event.PluginEvent;
+import savant.plugin.PluginController;
+import savant.api.SavantPanelPlugin;
 
 
 /**

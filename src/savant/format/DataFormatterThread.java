@@ -1,13 +1,11 @@
 package savant.format;
 
-import savant.controller.event.ThreadActivityChangedEvent;
 import savant.view.dialog.FormatFrame;
 
 public class DataFormatterThread implements Runnable {
 
     private DataFormatter df;
     private FormatFrame ff;
-    private boolean didComplete = false;
 
     public DataFormatterThread(DataFormatter df) {
         this.df = df;
@@ -26,9 +24,6 @@ public class DataFormatterThread implements Runnable {
 
     @Override
     public void run() {
-
-        ThreadActivityChangedEvent.Activity status;
-
         try {
             df.format();
             notifyFormatFrameOfTermination(true, null);

@@ -27,19 +27,17 @@ import javax.swing.filechooser.FileFilter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import savant.api.event.BookmarksChangedEvent;
+import savant.api.event.LocationChangedEvent;
+import savant.api.event.TrackEvent;
 import savant.api.util.DialogUtils;
-import savant.controller.event.BookmarksChangedEvent;
-import savant.controller.event.BookmarksChangedListener;
+import savant.api.util.Listener;
 import savant.controller.event.ProjectEvent;
-import savant.controller.event.LocationChangedEvent;
-import savant.controller.event.LocationChangedListener;
-import savant.controller.event.TrackEvent;
 import savant.data.types.Genome;
 import savant.file.Project;
 import savant.settings.DirectorySettings;
 import savant.util.Controller;
 import savant.util.FileExtensionFilter;
-import savant.util.Listener;
 
 
 /**
@@ -66,15 +64,15 @@ public class ProjectController extends Controller {
 
     private ProjectController() {
         // Set up listeners so that when the project's state changes, we know that we have something to save.
-        BookmarkController.getInstance().addBookmarksChangedListener(new BookmarksChangedListener() {
+        BookmarkController.getInstance().addListener(new Listener<BookmarksChangedEvent>() {
             @Override
-            public void bookmarksChanged(BookmarksChangedEvent event) {
+            public void handleEvent(BookmarksChangedEvent event) {
                 setProjectSaved(false);
             }
         });
-        LocationController.getInstance().addLocationChangedListener(new LocationChangedListener() {
+        LocationController.getInstance().addListener(new Listener<LocationChangedEvent>() {
             @Override
-            public void locationChanged(LocationChangedEvent event) {
+            public void handleEvent(LocationChangedEvent event) {
                 setProjectSaved(false);
             }
         });
@@ -197,7 +195,7 @@ public class ProjectController extends Controller {
 
         String localName = null;
         StringTokenizer st = new StringTokenizer(url.getFile(), "/");
-        while (st.hasMoreTokens()){
+        while (st.hasMoreTokens()) {
             localName = st.nextToken();
         }
         //TODO: where should we store this? currently in tmp dir

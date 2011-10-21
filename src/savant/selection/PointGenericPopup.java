@@ -1,5 +1,5 @@
 /*
- *    Copyright 2010 University of Toronto
+ *    Copyright 2010-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 package savant.selection;
 
 import javax.swing.JLabel;
-import savant.data.types.GenericPointRecord;
+import savant.api.data.PointRecord;
 
 /**
  *
@@ -25,16 +25,16 @@ import savant.data.types.GenericPointRecord;
  */
 public class PointGenericPopup extends PopupPanel {
 
-    private GenericPointRecord rec;
+    private PointRecord rec;
 
-    public PointGenericPopup(GenericPointRecord rec){
+    public PointGenericPopup(PointRecord rec){
         this.rec = rec;
     }
 
     @Override
     protected void calculateInfo() {
         ref = rec.getReference();
-        start = rec.getPoint().getPosition();
+        start = rec.getPoint();
         end = start;
         name = rec.getDescription();
     }

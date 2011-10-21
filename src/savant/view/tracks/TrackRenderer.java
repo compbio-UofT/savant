@@ -29,17 +29,17 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import savant.api.util.Listener;
 import savant.controller.LocationController;
-import savant.controller.SelectionController;
 import savant.data.event.DataRetrievalEvent;
-import savant.data.types.Record;
+import savant.api.data.Record;
 import savant.exception.RenderingException;
+import savant.selection.SelectionController;
 import savant.util.ColourKey;
 import savant.util.ColourScheme;
 import savant.util.DrawingInstruction;
 import savant.util.DrawingMode;
-import savant.util.Listener;
-import savant.util.Resolution;
+import savant.api.util.Resolution;
 import savant.view.swing.GraphPane;
 
 

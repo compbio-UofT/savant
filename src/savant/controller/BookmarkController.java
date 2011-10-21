@@ -28,9 +28,9 @@ import java.util.StringTokenizer;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import savant.controller.event.BookmarksChangedEvent;
-import savant.controller.event.BookmarksChangedListener;
+import savant.api.event.BookmarksChangedEvent;
 import savant.util.Bookmark;
+import savant.util.Controller;
 import savant.util.Range;
 
 
@@ -39,15 +39,12 @@ import savant.util.Range;
  *
  * @author mfiume
  */
-public class BookmarkController {
+public class BookmarkController extends Controller<BookmarksChangedEvent> {
     private static final Log LOG = LogFactory.getLog(LocationController.class);
-
 
     private static BookmarkController instance;
 
     private List<Bookmark> bookmarks;
-
-    private List<BookmarksChangedListener> bookmarksChangedListeners;
 
     public static synchronized BookmarkController getInstance() {
         if (instance == null) {
@@ -57,7 +54,6 @@ public class BookmarkController {
     }
 
     private BookmarkController() {
-        bookmarksChangedListeners = new ArrayList<BookmarksChangedListener>();
         bookmarks = new ArrayList<Bookmark>();
     }
 
@@ -72,14 +68,16 @@ public class BookmarkController {
     public void addBookmark(Bookmark f, boolean fireEvent) {
         if (bookmarks == null || bookmarks.isEmpty()) { bookmarks = new ArrayList<Bookmark>(); }
         bookmarks.add(f);
-        if(fireEvent) fireBookmarksChangedEvent(f,true);
+        if(fireEvent) {
+            fireEvent(new BookmarksChangedEvent(f,true));
+        }
     }
 
     public void addBookmarks(List<Bookmark> bkmks){
         for (Bookmark b : bkmks) {
             addBookmark(b, false);
         }
-        this.fireBookmarksChangedEvent(bkmks.get(bkmks.size()-1), true);
+        fireEvent(new BookmarksChangedEvent(bkmks.get(bkmks.size()-1), true));
     }
     
      private static Bookmark parseBookmark(String line, boolean addMargin) {
@@ -126,26 +124,8 @@ public class BookmarkController {
             LOG.info("Bookmark removed.");
             Bookmark b = bookmarks.get(index);
             bookmarks.remove(index);
-            fireBookmarksChangedEvent(b,false);
+            fireEvent(new BookmarksChangedEvent(b, false));
         } catch(Exception e) {}
-    }
-
-    /**
-     * Fire the RangeChangedEvent
-     */
-    private synchronized void fireBookmarksChangedEvent(Bookmark bkmk, boolean isAdded) {
-        BookmarksChangedEvent evt = new BookmarksChangedEvent(this, bkmk, isAdded);
-        for (BookmarksChangedListener listener : bookmarksChangedListeners) {
-            listener.bookmarksChanged(evt);
-        }
-    }
-
-    public synchronized void addBookmarksChangedListener(BookmarksChangedListener l) {
-        bookmarksChangedListeners.add(l);
-    }
-
-    public synchronized void removeBookmarksChangedListener(BookmarksChangedListener l) {
-        bookmarksChangedListeners.remove(l);
     }
 
     public void addCurrentRangeToBookmarks() {

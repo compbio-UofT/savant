@@ -16,7 +16,7 @@
 
 package savant.settings;
 
-import savant.file.DataFormat;
+import savant.api.data.DataFormat;
 
 
 /**

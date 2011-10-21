@@ -16,6 +16,9 @@
 
 package savant.data.types;
 
+import savant.api.data.Interval;
+import savant.api.data.IntervalRecord;
+
 /**
  * Immutable class to represent an interval + a description.
  * 

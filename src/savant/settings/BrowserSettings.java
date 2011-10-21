@@ -57,14 +57,14 @@ public class BrowserSettings {
     public static final URL NEWS_URL = NetworkUtils.getKnownGoodURL(URL, "serve/start/news.xml");
     public static final URL SAFE_URL = NetworkUtils.getKnownGoodURL(URL, "safe/savantsafe.php");
 
-    public static final String VERSION = "1.6.1";
+    public static final String VERSION = "2.0.0";
     public static String BUILD = "beta";
 
     /**
      * Is this version a beta release?
      */
     public static boolean isBeta() {
-        return BUILD.equals("beta");
+        return BUILD.startsWith("beta");
     }
 
     /**

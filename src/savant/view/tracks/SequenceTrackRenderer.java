@@ -24,7 +24,7 @@ import java.awt.Graphics2D;
 import java.awt.geom.Rectangle2D;
 import java.io.UnsupportedEncodingException;
 
-import savant.data.types.SequenceRecord;
+import savant.api.data.SequenceRecord;
 import savant.exception.RenderingException;
 import savant.util.AxisRange;
 import savant.util.ColourAccumulator;

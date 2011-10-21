@@ -34,14 +34,14 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableRowSorter;
 
 import savant.api.adapter.TrackAdapter;
+import savant.api.event.LocationChangedEvent;
+import savant.api.event.SelectionChangedEvent;
 import savant.api.util.DialogUtils;
+import savant.api.util.Listener;
+import savant.api.util.NavigationUtils;
 import savant.api.util.SelectionUtils;
 import savant.api.util.TrackUtils;
-import savant.controller.event.LocationChangedEvent;
-import savant.controller.event.LocationChangeCompletedListener;
-import savant.controller.event.SelectionChangedEvent;
-import savant.controller.event.SelectionChangedListener;
-import savant.data.types.Record;
+import savant.api.data.Record;
 
 
 /**
@@ -49,7 +49,7 @@ import savant.data.types.Record;
  *
  * @author mfiume
  */
-public class DataSheet implements LocationChangeCompletedListener, SelectionChangedListener {
+public class DataSheet {
 
     private JComboBox trackList;
     private ExtendedTable table;
@@ -171,6 +171,27 @@ public class DataSheet implements LocationChangeCompletedListener, SelectionChan
         jtb.setVisible(true);
         jtb.setFloatable(false);
         panel.add(jtb);
+
+        NavigationUtils.addLocationChangedListener(new Listener<LocationChangedEvent>() {
+            @Override
+            public void handleEvent(LocationChangedEvent event) {
+                if (autoUpdate) {
+                    refreshData();
+                    refreshSelection();
+                }
+            }
+        });
+        SelectionUtils.addSelectionChangedListener(new Listener<SelectionChangedEvent>() {
+            @Override
+            public void handleEvent(SelectionChangedEvent event) {
+                if (onlySelected) {
+                    refreshSelection();
+                    refreshData();
+                } else if (autoUpdate) {
+                    refreshSelection();
+                }
+            }
+        });
     }
 
     private void setAutoUpdate(boolean value) {
@@ -246,14 +267,6 @@ public class DataSheet implements LocationChangeCompletedListener, SelectionChan
         }
     }
 
-    @Override
-    public void locationChangeCompleted(LocationChangedEvent event) {
-        if (autoUpdate) {
-            refreshData();
-            refreshSelection();
-        }
-    }
-
     private void exportTable(TrackAdapter track) {
 
         String[] choices = { "All records", "Only selected records" };
@@ -318,16 +331,6 @@ public class DataSheet implements LocationChangeCompletedListener, SelectionChan
             }
         }
         dtm.closeExport();
-    }
-
-    @Override
-    public void selectionChanged(SelectionChangedEvent event) {
-        if (onlySelected) {
-            refreshSelection();
-            refreshData();
-        } else if (autoUpdate) {
-            refreshSelection();
-        }
     }
 
     public void refreshSelection(){

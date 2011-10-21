@@ -27,7 +27,7 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import savant.data.types.Block;
+import savant.api.data.Block;
 import savant.data.types.ItemRGB;
 import savant.file.FieldType;
 import savant.file.FileType;

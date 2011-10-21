@@ -1,5 +1,5 @@
 /*
- *    Copyright 2010 University of Toronto
+ *    Copyright 2010-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -14,11 +14,11 @@
  *    limitations under the License.
  */
 
-
 package savant.selection;
 
 import javax.swing.JLabel;
-import savant.data.types.GenericContinuousRecord;
+import savant.api.data.ContinuousRecord;
+
 
 /**
  *
@@ -26,9 +26,9 @@ import savant.data.types.GenericContinuousRecord;
  */
 public class ContinuousPopup extends PopupPanel {
 
-    private GenericContinuousRecord rec;
+    private ContinuousRecord rec;
 
-    public ContinuousPopup(GenericContinuousRecord rec){
+    public ContinuousPopup(ContinuousRecord rec){
         this.rec = rec;
     }
 

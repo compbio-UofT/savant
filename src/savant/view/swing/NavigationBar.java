@@ -16,8 +16,6 @@
 
 package savant.view.swing;
 
-import savant.view.tracks.Track;
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
@@ -35,23 +33,20 @@ import javax.swing.*;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import savant.api.adapter.BookmarkAdapter;
+import savant.api.event.LocationChangedEvent;
 import savant.api.util.DialogUtils;
+import savant.api.util.Listener;
 import savant.controller.GenomeController;
 import savant.controller.LocationController;
 import savant.controller.TrackController;
-import savant.controller.event.GenomeChangedEvent;
-import savant.controller.event.LocationChangedEvent;
-import savant.controller.event.LocationChangedListener;
+import savant.api.event.GenomeChangedEvent;
 import savant.settings.BrowserSettings;
 import savant.util.Bookmark;
-import savant.util.Listener;
 import savant.util.MiscUtils;
 import savant.util.Range;
 import savant.view.icon.SavantIconFactory;
+import savant.view.tracks.Track;
 
 
 /**
@@ -60,7 +55,6 @@ import savant.view.icon.SavantIconFactory;
  * @author tarkvara
  */
 public class NavigationBar extends JToolBar {
-    private static final Log LOG = LogFactory.getLog(NavigationBar.class);
     private static final Dimension LOCATION_SIZE = new Dimension(270, 22);
     private static final Dimension LENGTH_SIZE = new Dimension(100, 22);
     private static final Dimension ICON_SIZE = MiscUtils.MAC ? new Dimension(50, 23) : new Dimension(27, 27);
@@ -358,10 +352,10 @@ public class NavigationBar extends JToolBar {
 
         add(getRigidPadding());
 
-        locationController.addLocationChangedListener(new LocationChangedListener() {
+        locationController.addListener(new Listener<LocationChangedEvent>() {
             @Override
-            public void locationChanged(LocationChangedEvent event) {
-                updateLocation(event.getReference(), event.getRange());
+            public void handleEvent(LocationChangedEvent event) {
+                updateLocation(event.getReference(), (Range)event.getRange());
             }
         });
 
@@ -401,7 +395,6 @@ public class NavigationBar extends JToolBar {
     }
 
     private void updateLocation(String ref, Range r) {
-        LOG.debug("updateLocation(" + ref + ", " + r + ")");
         String s = String.format("%s: %,d - %,d", ref, r.getFrom(), r.getTo());
         locationField.setSelectedItem(s);
         lengthLabel.setText(String.format("%,d", r.getLength()));
@@ -428,10 +421,8 @@ public class NavigationBar extends JToolBar {
             }
             if (newItems.size() > 0 || lastPoppedUp != null) {
                 if (newItems.size() > 0) {
-                    LOG.debug("Found " + newItems.size() + " matches for \"" + text + "\"");
                     lastPoppedUp = text;
                 } else {
-                    LOG.debug("No matches for \"" + text + "\", falling back on references.");
                     lastPoppedUp = null;
                     newItems = GenomeController.getInstance().getGenome().getReferenceNames();
                 }

@@ -15,6 +15,8 @@
  */
 package savant.util;
 
+import savant.api.util.Listener;
+
 
 /**
  * Basically just a Listener class, but also allows for the possibility that the

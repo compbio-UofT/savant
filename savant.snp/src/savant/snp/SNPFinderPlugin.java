@@ -45,6 +45,7 @@ import net.sf.samtools.SAMRecord;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import savant.api.SavantPanelPlugin;
 import savant.api.adapter.GenomeAdapter;
 import savant.api.adapter.TrackAdapter;
 import savant.api.util.BookmarkUtils;
@@ -52,20 +53,15 @@ import savant.api.util.GenomeUtils;
 import savant.api.util.NavigationUtils;
 import savant.api.util.RangeUtils;
 import savant.api.util.TrackUtils;
-import savant.controller.event.LocationChangeCompletedListener;
-import savant.controller.event.LocationChangedEvent;
-import savant.controller.event.TrackEvent;
+import savant.api.data.Record;
+import savant.api.data.DataFormat;
+import savant.api.event.LocationChangedEvent;
+import savant.api.event.TrackEvent;
+import savant.api.util.Listener;
 import savant.data.types.BAMIntervalRecord;
-import savant.data.types.Record;
-import savant.file.DataFormat;
-import savant.plugin.SavantPanelPlugin;
 import savant.snp.Pileup.Nucleotide;
-import savant.util.Listener;
 
-public class SNPFinderPlugin extends SavantPanelPlugin
-        implements
-        LocationChangeCompletedListener,
-        Listener<TrackEvent> {
+public class SNPFinderPlugin extends SavantPanelPlugin {
 
     // a logger
     private static final Log LOG = LogFactory.getLog(SNPFinderPlugin.class);
@@ -106,8 +102,28 @@ public class SNPFinderPlugin extends SavantPanelPlugin
     @Override
     public void init(JPanel canvas) {
         // subscribe to events
-        NavigationUtils.addLocationChangeListener(this);
-        TrackUtils.addTrackListener(this);
+        NavigationUtils.addLocationChangedListener(new Listener<LocationChangedEvent>() {
+            @Override
+            public void handleEvent(LocationChangedEvent event) {
+                // get the reference sequencing in range (if allowed by resolution)
+                setSequence();
+
+                // if a sequence could be retrieved, run the SNP finder on the
+                // data in range
+                if (sequence != null) {
+                    updateTrackCanvasMap();
+                    doEverything();
+                }
+            }
+        });
+        TrackUtils.addTrackListener(new Listener<TrackEvent>() {
+            /**
+             * Track change.  Should do something here.
+             */
+            @Override
+            public void handleEvent(TrackEvent event) {
+            }
+        });
 
         // initialize SNP list
         snpsFound = new HashMap<TrackAdapter, List<Pileup>>();
@@ -279,31 +295,6 @@ public class SNPFinderPlugin extends SavantPanelPlugin
             }
         }
         return panels;
-    }
-
-    /**
-     * Range change.
-     *
-     * @param event
-     */
-    @Override
-    public void locationChangeCompleted(LocationChangedEvent event) {
-        // get the reference sequencing in range (if allowed by resolution)
-        setSequence();
-
-        // if a sequence could be retrieved, run the SNP finder on the
-        // data in range
-        if (sequence != null) {
-            updateTrackCanvasMap();
-            doEverything();
-        }
-    }
-
-    /**
-     * Track change.
-     */
-    @Override
-    public void handleEvent(TrackEvent event) {
     }
 
     /**
@@ -487,7 +478,7 @@ public class SNPFinderPlugin extends SavantPanelPlugin
         }
 
         // the reference sequence
-        byte[] refSeq = genome.getSequence(NavigationUtils.getCurrentReferenceName(), NavigationUtils.createRange(alignmentStart, alignmentEnd));
+        byte[] refSeq = genome.getSequence(NavigationUtils.getCurrentReferenceName(), RangeUtils.createRange(alignmentStart, alignmentEnd));
 
         // get the cigar object for this alignment
         Cigar cigar = samRecord.getCigar();

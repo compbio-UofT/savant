@@ -16,6 +16,7 @@
 
 package savant.view.tracks;
 
+import savant.api.util.Resolution;
 import java.awt.*;
 import java.awt.geom.Arc2D;
 import java.awt.geom.Line2D;
@@ -34,14 +35,14 @@ import net.sf.samtools.SAMRecord;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import savant.api.data.Interval;
+import savant.api.data.IntervalRecord;
+import savant.api.data.Record;
 import savant.controller.GenomeController;
 import savant.controller.LocationController;
 import savant.data.event.DataRetrievalEvent;
 import savant.data.types.BAMIntervalRecord;
 import savant.data.types.Genome;
-import savant.data.types.Interval;
-import savant.data.types.IntervalRecord;
-import savant.data.types.Record;
 import savant.exception.RenderingException;
 import savant.settings.BrowserSettings;
 import savant.util.*;

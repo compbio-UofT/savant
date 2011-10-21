@@ -33,7 +33,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import savant.api.util.DialogUtils;
-import savant.controller.PluginController;
+import savant.plugin.PluginController;
 import savant.settings.BrowserSettings;
 import savant.settings.DirectorySettings;
 import savant.util.MiscUtils;

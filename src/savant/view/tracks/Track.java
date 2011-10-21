@@ -15,6 +15,7 @@
  */
 package savant.view.tracks;
 
+import savant.api.util.Resolution;
 import java.awt.Color;
 import java.util.List;
 import javax.swing.JPanel;
@@ -24,14 +25,14 @@ import org.apache.commons.logging.LogFactory;
 
 import savant.api.adapter.DataSourceAdapter;
 import savant.api.adapter.TrackAdapter;
-import savant.controller.SelectionController;
 import savant.controller.TrackController;
 import savant.data.event.DataRetrievalEvent;
-import savant.data.types.Record;
+import savant.api.data.Record;
 import savant.exception.RenderingException;
 import savant.exception.SavantTrackCreationCancelledException;
-import savant.file.DataFormat;
-import savant.plugin.SavantPanelPlugin;
+import savant.api.data.DataFormat;
+import savant.api.SavantPanelPlugin;
+import savant.selection.SelectionController;
 import savant.util.*;
 import savant.util.swing.DialogUtils;
 import savant.view.swing.Frame;

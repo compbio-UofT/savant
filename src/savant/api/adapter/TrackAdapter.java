@@ -19,12 +19,12 @@ package savant.api.adapter;
 import java.util.List;
 import javax.swing.JPanel;
 
-import savant.data.types.Record;
-import savant.file.DataFormat;
-import savant.plugin.SavantPanelPlugin;
+import savant.api.data.Record;
+import savant.api.data.DataFormat;
+import savant.api.SavantPanelPlugin;
 import savant.util.AxisType;
 import savant.util.DrawingMode;
-import savant.util.Resolution;
+import savant.api.util.Resolution;
 
 /**
  * Public interface to Savant track objects.

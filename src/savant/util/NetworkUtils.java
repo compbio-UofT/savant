@@ -40,6 +40,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.net.ftp.FTPFile;
 
+import savant.api.util.Listener;
 import savant.exception.UnknownSchemeException;
 import savant.settings.BrowserSettings;
 

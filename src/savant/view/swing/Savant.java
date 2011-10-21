@@ -15,8 +15,8 @@
  */
 package savant.view.swing;
 
-import savant.view.tracks.TrackFactory;
-import savant.view.tracks.Track;
+import savant.api.event.GenomeChangedEvent;
+import savant.api.event.PluginEvent;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.DataOutputStream;
@@ -48,29 +48,30 @@ import com.jidesoft.status.MemoryStatusBarItem;
 import com.jidesoft.swing.JideSplitPane;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.jdom.JDOMException;
 
 import savant.api.adapter.DataSourceAdapter;
+import savant.api.event.BookmarksChangedEvent;
 import savant.api.util.DialogUtils;
+import savant.api.util.Listener;
 import savant.controller.*;
 import savant.controller.event.*;
-import savant.data.types.Genome;
-import savant.experimental.XMLTool;
-import savant.plugin.SavantDataSourcePlugin;
-import savant.plugin.SavantPanelPlugin;
+import savant.plugin.PluginController;
+import savant.api.SavantDataSourcePlugin;
+import savant.api.SavantPanelPlugin;
 import savant.plugin.SavantPlugin;
 import savant.plugin.builtin.SAFEDataSourcePlugin;
 import savant.plugin.builtin.SavantFileRepositoryDataSourcePlugin;
+import savant.selection.SelectionController;
 import savant.settings.*;
 import savant.util.ColourKey;
-import savant.util.Listener;
 import savant.util.MiscUtils;
 import savant.util.Version;
 import savant.util.swing.TrackChooser;
 import savant.view.dialog.*;
 import savant.view.icon.SavantIconFactory;
-import savant.view.tools.ToolsModule;
 import savant.view.swing.start.StartPanel;
+import savant.view.tracks.Track;
+import savant.view.tracks.TrackFactory;
 
 
 /**
@@ -78,8 +79,7 @@ import savant.view.swing.start.StartPanel;
  *
  * @author mfiume
  */
-public class Savant extends JFrame implements BookmarksChangedListener, LocationChangedListener {
-
+public class Savant extends JFrame {
     private static final Log LOG = LogFactory.getLog(Savant.class);
     public static boolean turnExperimentalFeaturesOff = true;
     private static boolean isDebugging = false;
@@ -87,7 +87,6 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
     private JPanel trackBackground;
     private DockingManager trackDockingManager;
     private NavigationBar navigationBar;
-    private ToolsModule savantTools;
     static boolean showNonGenomicReferenceDialog = true;
     private static boolean showBookmarksChangedDialog = false; // turned off, its kind of annoying
     private MemoryStatusBarItem memorystatusbar;
@@ -164,7 +163,7 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
         rangeSelector = new RangeSelectionPanel();
         rangeSelector.setPreferredSize(new Dimension(10000, 23));
         rangeSelector.setMaximumSize(new Dimension(10000, 23));
-        locationController.addLocationChangedListener(rangeSelector);
+        locationController.addListener(rangeSelector);
         rangeSelector.setVisible(false);
 
         ruler = new Ruler();
@@ -202,7 +201,6 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
      */
     private static BookmarkSheet favoriteSheet;
     private LocationController locationController = LocationController.getInstance();
-    private BookmarkController favoriteController = BookmarkController.getInstance();
     private static Savant instance = null;
 
     public static synchronized Savant getInstance() {
@@ -359,19 +357,6 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
         s.setVisible(false);
 
         makeGUIVisible();
-    }
-
-    private void initXMLTools() {
-        try {
-            File dir = DirectorySettings.getXMLToolDescriptionsDirectory();
-            for (File f : dir.listFiles()) {
-                if (f.getName().toLowerCase().endsWith(".xml")) {
-                    ToolsModule.addTool(new XMLTool(f));
-                }
-            }
-        } catch (IOException ex) {
-        } catch (JDOMException ex) {
-        }
     }
 
     /** This method is called from within the constructor to
@@ -1077,10 +1062,10 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
 
     private void windowMenuStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_windowMenuStateChanged
         /*
-        if(this.getAuxDockingManager().getFrame("Information & Analysis").isVisible() != this.menu_info.getState()){
+        if(this.getAuxDockingManager().getFrame("Information & Analysis").isVisible() != this.menu_info.getState()) {
         this.menu_info.setState(!this.menu_info.getState());
         }
-        if(this.getAuxDockingManager().getFrame("Bookmarks").isVisible() != this.menu_bookmarks.getState()){
+        if(this.getAuxDockingManager().getFrame("Bookmarks").isVisible() != this.menu_bookmarks.getState()) {
         this.menu_bookmarks.setState(!this.menu_bookmarks.getState());
         }
          */
@@ -1227,20 +1212,20 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
             boolean loadPlugin = false;
             String loadProjectUrl = null;
             List<String> loadPluginUrls = new ArrayList<String>();
-            for(int i = 0; i < args.length; i++){
+            for(int i = 0; i < args.length; i++) {
                 String s = args[i];
-                if(s.startsWith("--")){ //build
+                if(s.startsWith("--")) { //build
                     loadProject = false;
                     loadPlugin = false;
                     BrowserSettings.BUILD = s.replaceAll("-", "");
                     if (s.equals("--debug")) {
                         turnExperimentalFeaturesOff = false;
                     }
-                } else if (s.startsWith("-")){
-                    if(s.equals("-project")){
+                } else if (s.startsWith("-")) {
+                    if(s.equals("-project")) {
                         loadProject = true;
                         loadPlugin = false;
-                    } else if (s.equals("-plugins")){
+                    } else if (s.equals("-plugins")) {
                         loadPlugin = true;
                         loadProject = false;
                     }
@@ -1506,11 +1491,8 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
      * Initialize the Browser
      */
     private void init() {
-        LocationController.getInstance().addLocationChangedListener(this);
-
         initGUIFrame();
         initDocking();
-        //initToolsPanel();
         initMenu();
         initStatusBar();
         initBookmarksPanel();
@@ -1530,27 +1512,6 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
         return trackDockingManager;
     }
 
-    private void initToolsPanel() {
-
-        String frameTitle = "Tools";
-        DockableFrame df = DockableFrameFactory.createFrame(frameTitle, DockContext.STATE_HIDDEN, DockContext.DOCK_SIDE_SOUTH);
-        df.setAvailableButtons(DockableFrame.BUTTON_AUTOHIDE | DockableFrame.BUTTON_FLOATING | DockableFrame.BUTTON_MAXIMIZE);
-        auxDockingManager.addFrame(df);
-        MiscUtils.setFrameVisibility(frameTitle, false, auxDockingManager);
-
-        JPanel canvas = new JPanel();
-
-        savantTools = new ToolsModule(canvas);
-
-        // make sure only one active frame
-        //DockingManagerGroup dmg = getDockingManagerGroup(); //new DockingManagerGroup();
-        //dmg.add(auxDockingManager);
-        //dmg.add(trackDockingManager);
-
-        df.getContentPane().setLayout(new BorderLayout());
-        df.getContentPane().add(canvas, BorderLayout.CENTER);
-    }
-
     private void initBookmarksPanel() {
 
         DockableFrame df = DockableFrameFactory.createFrame("Bookmarks", DockContext.STATE_HIDDEN, DockContext.DOCK_SIDE_EAST);
@@ -1562,8 +1523,29 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
 
         //JPanel tablePanel = createTabPanel(jtp, "Bookmarks");
         favoriteSheet = new BookmarkSheet(df.getContentPane());
-        favoriteController.addBookmarksChangedListener(favoriteSheet);
-        favoriteController.addBookmarksChangedListener(this);
+        BookmarkController bc = BookmarkController.getInstance();
+        bc.addListener(favoriteSheet);
+        bc.addListener(new Listener<BookmarksChangedEvent>() {
+            @Override
+            public void handleEvent(BookmarksChangedEvent event) {
+                if (showBookmarksChangedDialog) {
+                    //Custom button text
+                    Object[] options = {"OK", "Don't show again"};
+                    int n = JOptionPane.showOptionDialog(Savant.this,
+                            event.isAdded() ? "Bookmark added at " + event.getBookmark().getReference() + ":" + event.getBookmark().getRange() : "Bookmark removed at " + event.getBookmark().getRange(),
+                            "Bookmarks changed",
+                            JOptionPane.YES_NO_CANCEL_OPTION,
+                            JOptionPane.INFORMATION_MESSAGE,
+                            null,
+                            options,
+                            options[0]);
+
+                    if (n == 1) {
+                        showBookmarksChangedDialog = false;
+                    }
+                }
+            }
+        });
     }
 
     private void askToDispose() {
@@ -1725,37 +1707,6 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
         setSpeedAndEfficiencyIndicatorsVisible(false);
     }
 
-    @Override
-    public void bookmarksChanged(BookmarksChangedEvent event) {
-        if (!showBookmarksChangedDialog) {
-            return;
-        }
-        //Custom button text
-        Object[] options = {"OK",
-            "Don't show again"};
-        int n = JOptionPane.showOptionDialog(Savant.getInstance(),
-                event.isAdded() ? "Bookmark added at " + event.getBookmark().getReference() + ":" + event.getBookmark().getRange() : "Bookmark removed at " + event.getBookmark().getRange(),
-                "Bookmarks changed",
-                JOptionPane.YES_NO_CANCEL_OPTION,
-                JOptionPane.INFORMATION_MESSAGE,
-                null,
-                options,
-                options[0]);
-
-        if (n == 1) {
-            showBookmarksChangedDialog = false;
-        }
-        //JOptionPane.showMessageDialog(this, , , JOptionPane.INFORMATION_MESSAGE);
-    }
-
-    @Override
-    public void locationChanged(LocationChangedEvent event) {
-        if (event.isNewReference()) {
-            Genome loadedGenome = GenomeController.getInstance().getGenome();
-            rangeSelector.setMaximum(loadedGenome.getLength());
-        }
-    }
-
     private void setSpeedAndEfficiencyIndicatorsVisible(boolean b) {
         speedAndEfficiencyItem.setSelected(b);
         timeCaption.setVisible(b);
@@ -1816,7 +1767,7 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
         }
     }
 
-    public boolean isWebStart(){
+    public boolean isWebStart() {
         return webStart;
     }
 
@@ -1830,20 +1781,11 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
                 FileOutputStream fos=null;
 
                 StringTokenizer st=new StringTokenizer(url.getFile(), "/");
-                while (st.hasMoreTokens()){
+                while (st.hasMoreTokens()) {
                     localFile=st.nextToken();
                 }
 
-                String dir;
-                if(localFile.endsWith("SavantCore.jar")){
-                    File dirFile = DirectorySettings.getLibsDirectory();
-                    if(!dirFile.exists()) dirFile.mkdirs();
-                    dir = dirFile.getPath();
-                } else {
-                    dir = DirectorySettings.getPluginsDirectory().getPath();
-                }
-
-                localFile = dir + System.getProperty("file.separator") + localFile;
+                localFile = new File(DirectorySettings.getPluginsDirectory(), localFile).getAbsolutePath();
 
                 fos = new FileOutputStream(localFile);
 
@@ -1868,7 +1810,7 @@ public class Savant extends JFrame implements BookmarksChangedListener, Location
         lastTrackDirectory = full;
     }
 
-    private void initHiddenShortcuts(){
+    private void initHiddenShortcuts() {
         JMenuBar hiddenBar = new JMenuBar();
         hiddenBar.setSize(new Dimension(0,0));
         hiddenBar.setMaximumSize(new Dimension(0,0));

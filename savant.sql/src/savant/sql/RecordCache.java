@@ -23,12 +23,12 @@ import org.apache.commons.logging.LogFactory;
 
 import savant.api.adapter.DataSourceAdapter;
 import savant.api.adapter.RangeAdapter;
+import savant.api.data.ContinuousRecord;
+import savant.api.data.Interval;
+import savant.api.data.IntervalRecord;
+import savant.api.data.Record;
 import savant.api.util.RangeUtils;
-import savant.data.types.GenericContinuousRecord;
-import savant.data.types.Interval;
-import savant.data.types.IntervalRecord;
-import savant.data.types.Record;
-import savant.util.Resolution;
+import savant.api.util.Resolution;
 
 
 /**
@@ -145,7 +145,7 @@ public class RecordCache<E extends Record> {
         void store(List<E> fetched) {
             Map<Integer, List<E>> tempMap = new HashMap<Integer, List<E>>();
             for (E rec : fetched) {
-                int key = ((GenericContinuousRecord) rec).getPosition();
+                int key = ((ContinuousRecord)rec).getPosition();
                 List<E> existing = tempMap.get(key);
                 if (existing == null) {
                     existing = new ArrayList<E>();

@@ -24,8 +24,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import savant.api.adapter.RangeAdapter;
+import savant.api.data.DataFormat;
 import savant.data.types.GenericContinuousRecord;
-import savant.file.DataFormat;
 import savant.file.FileType;
 import savant.file.SavantFileNotFormattedException;
 import savant.file.SavantROFile;
@@ -34,7 +34,7 @@ import savant.format.ContinuousFormatterHelper;
 import savant.format.ContinuousFormatterHelper.Level;
 import savant.util.MiscUtils;
 import savant.util.Range;
-import savant.util.Resolution;
+import savant.api.util.Resolution;
 import savant.util.SavantFileUtils;
 
 

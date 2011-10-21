@@ -92,7 +92,6 @@ public class GraphPaneController extends Controller {
             // Get elapsed time in seconds
             float elapsedTimeSec = elapsedTimeMillis * 0.001F;
             fireEvent(new GraphPaneEvent(String.format("took %.3f s", elapsedTimeSec)));
-            LocationController.getInstance().fireLocationChangeCompletedEvent();
         }
     }
 

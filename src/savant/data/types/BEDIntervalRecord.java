@@ -18,6 +18,11 @@ package savant.data.types;
 import java.util.Collections;
 import java.util.List;
 
+import savant.api.data.Block;
+import savant.api.data.Interval;
+import savant.api.data.RichIntervalRecord;
+import savant.api.data.Strand;
+
 
 /**
  * Immutable class to represent one line of a BED file and all the fields therein.
@@ -54,7 +59,7 @@ public class BEDIntervalRecord implements RichIntervalRecord {
         if (chrom == null) throw new IllegalArgumentException("Invalid argument: chrom may not be null");
         //if (interval == null) throw new IllegalArgumentException("Invalid argument. Interval must not be null");
  
-        this.interval = new Interval(start,end-1);
+        this.interval = Interval.valueOf(start,end-1);
         this.chrom = chrom;
         this.name = name;
         this.score = score;

@@ -18,8 +18,8 @@ package savant.util;
 
 import java.util.ArrayList;
 import java.util.List;
-import savant.data.types.Interval;
-import savant.data.types.IntervalRecord;
+import savant.api.data.Interval;
+import savant.api.data.IntervalRecord;
 
 /**
  *
@@ -57,7 +57,7 @@ public class StuffedIntervalRecord implements IntervalRecord {
         this.originalRecord = record;
         this.leftstuffing = leftstuffing;
         this.rightstuffing = rightstuffing;
-        this.stuffedRecord = new Interval(Math.max(0,record.getInterval().getStart()-leftstuffing), record.getInterval().getEnd()+rightstuffing);
+        this.stuffedRecord = Interval.valueOf(Math.max(0,record.getInterval().getStart()-leftstuffing), record.getInterval().getEnd()+rightstuffing);
     }
 
     @Override

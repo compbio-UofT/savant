@@ -41,7 +41,7 @@ import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 
 import savant.api.util.DialogUtils;
-import savant.controller.PluginController;
+import savant.plugin.PluginController;
 import savant.settings.DirectorySettings;
 import savant.util.MiscUtils;
 import savant.view.dialog.DownloadDialog;

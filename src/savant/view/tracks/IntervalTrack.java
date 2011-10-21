@@ -15,6 +15,7 @@
  */
 package savant.view.tracks;
 
+import savant.api.util.Resolution;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -22,13 +23,12 @@ import org.apache.commons.logging.LogFactory;
 
 import savant.api.adapter.DataSourceAdapter;
 import savant.api.adapter.RangeAdapter;
-import savant.data.types.GenericIntervalRecord;
-import savant.data.types.Interval;
-import savant.data.types.Record;
+import savant.api.data.Interval;
+import savant.api.data.IntervalRecord;
+import savant.api.data.Record;
 import savant.exception.SavantTrackCreationCancelledException;
 import savant.settings.TrackResolutionSettings;
 import savant.util.*;
-import savant.view.tracks.Track;
 
 
 /**
@@ -124,7 +124,7 @@ public class IntervalTrack extends Track {
     public static int getMaxValue(List<Record> data) {
         double max = 0;
         for (Record r: data) {
-            Interval interval = ((GenericIntervalRecord)r).getInterval();
+            Interval interval = ((IntervalRecord)r).getInterval();
             double val = interval.getLength();
             if (val > max) max = val;
         }

@@ -16,6 +16,7 @@
 
 package savant.view.tracks;
 
+import savant.api.util.Resolution;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 

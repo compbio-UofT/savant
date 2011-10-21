@@ -16,6 +16,8 @@
 
 package savant.view.tracks;
 
+import savant.api.util.Resolution;
+import savant.api.data.Strand;
 import java.awt.*;
 import java.awt.geom.Area;
 import java.awt.geom.Line2D;
@@ -26,13 +28,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
 
+import savant.api.data.RichIntervalRecord;
+import savant.api.data.Interval;
+import savant.api.data.Record;
+import savant.api.data.Block;
+import savant.api.data.IntervalRecord;
 import savant.data.types.*;
 import savant.exception.RenderingException;
 import savant.settings.BrowserSettings;
 import savant.util.*;
 import savant.view.swing.GraphPane;
 import savant.util.StuffedIntervalRecord;
-import savant.view.tracks.TrackRenderer;
 
 
 /**

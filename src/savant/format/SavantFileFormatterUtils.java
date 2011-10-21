@@ -16,6 +16,7 @@
 
 package savant.format;
 
+import savant.api.data.Strand;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -27,6 +28,9 @@ import java.util.StringTokenizer;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import savant.api.data.Interval;
+import savant.api.data.Block;
+import savant.api.data.IntervalRecord;
 import savant.data.types.*;
 import savant.file.FieldType;
 import savant.file.FileType;
@@ -390,14 +394,6 @@ public class SavantFileFormatterUtils {
     }
     
 
-    public static void printRecord(List<Object> record) {
-        for (Object o : record) {
-            System.out.print(o + "\t");
-        }
-        System.out.println();
-    }
-
-
     public static int getRecordSize(List<Object> record, List<FieldType> fields) {
 
         int recordSize = 0;
@@ -453,7 +449,7 @@ public class SavantFileFormatterUtils {
                 break;
             case INTERVAL_GFF:
 
-                //TODOL fix... this won't work unless indexes correspond to start / end indicies
+                //TODO: fix... this won't work unless indexes correspond to start / end indicies
                 ir = convertRecordToGenericInterval(record,fields);
                 break;
             default:

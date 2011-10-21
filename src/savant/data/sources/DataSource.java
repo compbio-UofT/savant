@@ -34,7 +34,7 @@ import savant.api.adapter.DataSourceAdapter;
 import savant.api.adapter.RangeAdapter;
 import savant.api.util.RangeUtils;
 import savant.controller.BookmarkController;
-import savant.data.types.Record;
+import savant.api.data.Record;
 import savant.util.Bookmark;
 import savant.util.IOUtils;
 import savant.util.MiscUtils;

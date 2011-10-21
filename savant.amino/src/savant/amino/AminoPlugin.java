@@ -26,18 +26,17 @@ import javax.swing.SwingConstants;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import savant.api.SavantPanelPlugin;
 import savant.api.adapter.TrackAdapter;
+import savant.api.data.DataFormat;
+import savant.api.event.LocationChangedEvent;
+import savant.api.event.PluginEvent;
+import savant.api.event.TrackEvent;
+import savant.api.util.Listener;
 import savant.api.util.NavigationUtils;
+import savant.api.util.PluginUtils;
 import savant.api.util.SettingsUtils;
 import savant.api.util.TrackUtils;
-import savant.controller.PluginController;
-import savant.controller.event.LocationChangeCompletedListener;
-import savant.controller.event.LocationChangedEvent;
-import savant.controller.event.PluginEvent;
-import savant.controller.event.TrackEvent;
-import savant.file.DataFormat;
-import savant.plugin.SavantPanelPlugin;
-import savant.util.Listener;
 
 
 /**
@@ -70,11 +69,11 @@ public class AminoPlugin extends SavantPanelPlugin {
         // First time through, create canvasses for any existing gene tracks.  We
         // hook this onto a listener so that we'll know that Savant has fully loaded
         // the plugin before we try to do anything.
-        PluginController.getInstance().addListener(new Listener<PluginEvent>() {
+        PluginUtils.addPluginListener(new Listener<PluginEvent>() {
             @Override
             public void handleEvent(PluginEvent event) {
                 if (event.getType() == PluginEvent.Type.LOADED && event.getPlugin() instanceof AminoPlugin) {
-                    PluginController.getInstance().removeListener(this);
+                    PluginUtils.removePluginListener(this);
                     TrackAdapter[] existingTracks = TrackUtils.getTracks(DataFormat.INTERVAL_RICH);
                     for (TrackAdapter t: existingTracks) {
                         createCanvas(t);
@@ -92,9 +91,9 @@ public class AminoPlugin extends SavantPanelPlugin {
             }
         });
 
-        NavigationUtils.addLocationChangeListener(new LocationChangeCompletedListener() {
+        NavigationUtils.addLocationChangedListener(new Listener<LocationChangedEvent>() {
             @Override
-            public void locationChangeCompleted(LocationChangedEvent event) {
+            public void handleEvent(LocationChangedEvent event) {
                 for (TrackAdapter t: TrackUtils.getTracks()) {
                     if (t.getDataFormat() == DataFormat.INTERVAL_RICH) {
                         t.getLayerCanvas(AminoPlugin.this).repaint();

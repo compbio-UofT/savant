@@ -25,10 +25,10 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
+import savant.api.event.LocationChangedEvent;
+import savant.api.util.Listener;
 import savant.controller.GenomeController;
 import savant.controller.LocationController;
-import savant.controller.event.LocationChangedEvent;
-import savant.controller.event.LocationChangedListener;
 import savant.data.types.Genome;
 import savant.data.types.Genome.Cytoband;
 import savant.util.Range;
@@ -39,7 +39,7 @@ import savant.util.MiscUtils;
  *
  * @author mfiume, tarkvara
  */
-public class RangeSelectionPanel extends JPanel implements LocationChangedListener {
+public class RangeSelectionPanel extends JPanel implements Listener<LocationChangedEvent> {
 
     private static final AlphaComposite COMPOSITE_50 = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.50F);
     private static final AlphaComposite COMPOSITE_75 = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.75F);
@@ -53,7 +53,7 @@ public class RangeSelectionPanel extends JPanel implements LocationChangedListen
     int x_notdragging;
     private final JLabel recStart;
     private final JLabel recStop;
-    private final JLabel cords; // set up GUI and register mouse event handlers
+    private final JLabel coords;
     boolean isNewRect = true;
     private boolean rangeChangedExternally;
     private LocationController locationController = LocationController.getInstance();
@@ -61,18 +61,18 @@ public class RangeSelectionPanel extends JPanel implements LocationChangedListen
 
     public RangeSelectionPanel() {
 
-        this.mousePosition = new JLabel();
-        this.mousePosition.setHorizontalAlignment(SwingConstants.CENTER);
-        this.add(this.mousePosition, BorderLayout.CENTER);
+        mousePosition = new JLabel();
+        mousePosition.setHorizontalAlignment(SwingConstants.CENTER);
+        add(mousePosition, BorderLayout.CENTER);
 
-        this.recStart = new JLabel();
-        this.add(this.recStart, BorderLayout.WEST);
+        recStart = new JLabel();
+        add(recStart, BorderLayout.WEST);
 
-        this.recStop = new JLabel();
-        this.add(this.recStop, BorderLayout.EAST);
+        recStop = new JLabel();
+        add(recStop, BorderLayout.EAST);
 
-        this.cords = new JLabel();
-        this.add(this.cords, BorderLayout.NORTH);
+        coords = new JLabel();
+        add(coords, BorderLayout.NORTH);
 
         this.setToolTipText("Click and drag to select a subregion of the reference");
 
@@ -343,9 +343,13 @@ public class RangeSelectionPanel extends JPanel implements LocationChangedListen
     }
 
     @Override
-    public void locationChanged(LocationChangedEvent event) {
+    public void handleEvent(LocationChangedEvent event) {
+        if (event.isNewReference()) {
+            Genome loadedGenome = GenomeController.getInstance().getGenome();
+            setMaximum(loadedGenome.getLength());
+        }
         rangeChangedExternally = true;
-        setRange(event.getRange());
+        setRange((Range)event.getRange());
     }
 }
 

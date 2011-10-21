@@ -22,8 +22,8 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import savant.controller.event.TrackEvent;
-import savant.file.DataFormat;
+import savant.api.event.TrackEvent;
+import savant.api.data.DataFormat;
 import savant.util.Controller;
 import savant.view.tracks.Track;
 

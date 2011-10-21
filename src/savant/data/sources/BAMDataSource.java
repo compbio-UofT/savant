@@ -31,14 +31,14 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import savant.api.adapter.RangeAdapter;
+import savant.api.data.DataFormat;
 import savant.controller.LocationController;
-import savant.util.IndexCache;
 import savant.data.types.BAMIntervalRecord;
-import savant.file.DataFormat;
+import savant.util.IndexCache;
 import savant.util.AxisRange;
 import savant.util.MiscUtils;
 import savant.util.NetworkUtils;
-import savant.util.Resolution;
+import savant.api.util.Resolution;
 
 /**
  * Class to represent a track of BAM intervals. Uses SAMTools to read data within a range.

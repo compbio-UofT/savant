@@ -28,10 +28,11 @@ import net.sf.samtools.SAMFileWriterFactory;
 import net.sf.samtools.SAMRecord;
 
 import savant.api.adapter.DataSourceAdapter;
+import savant.api.data.*;
 import savant.api.util.NavigationUtils;
 import savant.data.sources.BAMDataSource;
-import savant.data.types.*;
-import savant.file.DataFormat;
+import savant.data.types.BAMIntervalRecord;
+import savant.data.types.TabixIntervalRecord;
 
 
 /**
@@ -132,18 +133,18 @@ public class DataTableModel extends AbstractTableModel {
                         case 0:
                             return datum.getReference();
                         case 1:
-                            return ((GenericPointRecord)datum).getPoint().getPosition();
+                            return ((PointRecord)datum).getPoint();
                         case 2:
-                            return ((GenericPointRecord)datum).getDescription();
+                            return ((PointRecord)datum).getDescription();
                     }
                 case CONTINUOUS_GENERIC:
                     switch (column) {
                         case 0:
                             return datum.getReference();
                         case 1:
-                            return ((GenericContinuousRecord)datum).getPosition();
+                            return ((ContinuousRecord)datum).getPosition();
                         case 2:
-                            return ((GenericContinuousRecord)datum).getValue();
+                            return ((ContinuousRecord)datum).getValue();
                     }
                 case INTERVAL_GENERIC:
                     switch (column) {
@@ -188,15 +189,15 @@ public class DataTableModel extends AbstractTableModel {
                 case INTERVAL_RICH:
                     switch (column) {
                         case 0:
-                            return ((BEDIntervalRecord)datum).getReference();
+                            return ((RichIntervalRecord)datum).getReference();
                         case 1:
-                            return ((BEDIntervalRecord)datum).getInterval().getStart();
+                            return ((RichIntervalRecord)datum).getInterval().getStart();
                         case 2:
-                            return ((BEDIntervalRecord)datum).getInterval().getEnd();
+                            return ((RichIntervalRecord)datum).getInterval().getEnd();
                         case 3:
-                            return ((BEDIntervalRecord)datum).getName();
+                            return ((RichIntervalRecord)datum).getName();
                         case 4:
-                            List<Block> blocks = ((BEDIntervalRecord)datum).getBlocks();
+                            List<Block> blocks = ((RichIntervalRecord)datum).getBlocks();
                             return blocks != null ? blocks.size() : 0;
                     }
                 default:
@@ -232,7 +233,7 @@ public class DataTableModel extends AbstractTableModel {
                 // Continuous tracks now use NaNs for missing values.  Filter them out.
                 data = new ArrayList<Record>();
                 for (Record r: dataInRange) {
-                    if (!Float.isNaN(((GenericContinuousRecord)r).getValue())) {
+                    if (!Float.isNaN(((ContinuousRecord)r).getValue())) {
                         data.add(r);
                         if (data.size() >= maxRows) {
                             break;
@@ -311,10 +312,10 @@ public class DataTableModel extends AbstractTableModel {
                 exportWriter.println(new String(((SequenceRecord)datum).getSequence()));
                 break;
             case POINT_GENERIC:
-                exportWriter.printf("%s\t%d\t%s", datum.getReference(), ((GenericPointRecord)datum).getPoint().getPosition(), ((GenericPointRecord)datum).getDescription()).println();
+                exportWriter.printf("%s\t%d\t%s", datum.getReference(), ((PointRecord)datum).getPoint(), ((PointRecord)datum).getDescription()).println();
                 break;
             case CONTINUOUS_GENERIC:
-                exportWriter.printf("%s\t%d\t%f", datum.getReference(), ((GenericContinuousRecord)datum).getPosition(), ((GenericContinuousRecord)datum).getValue()).println();
+                exportWriter.printf("%s\t%d\t%f", datum.getReference(), ((ContinuousRecord)datum).getPosition(), ((ContinuousRecord)datum).getValue()).println();
                 break;
             case INTERVAL_GENERIC:
                 Interval inter = ((IntervalRecord)datum).getInterval();
