@@ -67,6 +67,7 @@ public class PluginManagerDialog extends JDialog {
         initComponents();
         MiscUtils.registerCancelButton(closeButton);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setLocationRelativeTo(parent);
         setResizable(false);
         browser = new PluginBrowser();
         browserPanel.add(new JScrollPane(browser), BorderLayout.CENTER);

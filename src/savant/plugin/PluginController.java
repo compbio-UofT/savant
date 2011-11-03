@@ -20,28 +20,17 @@ import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import javax.swing.JPanel;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import savant.api.util.DialogUtils;
-import savant.controller.DataSourcePluginController;
-import savant.api.event.PluginEvent;
-import savant.plugin.PluginDescriptor;
-import savant.plugin.PluginIndex;
-import savant.plugin.PluginVersionException;
 import savant.api.SavantDataSourcePlugin;
 import savant.api.SavantPanelPlugin;
-import savant.plugin.SavantPlugin;
+import savant.api.event.PluginEvent;
+import savant.api.util.DialogUtils;
+import savant.controller.DataSourcePluginController;
 import savant.settings.BrowserSettings;
 import savant.settings.DirectorySettings;
 import savant.util.Controller;
@@ -361,8 +350,13 @@ public class PluginController extends Controller {
         File pluginFile = new File(DirectorySettings.getPluginsDirectory(), selectedFile.getName());
         IOUtils.copyFile(selectedFile, pluginFile);
         PluginDescriptor desc = addPlugin(pluginFile);
-        pluginLoader.addJar(pluginFile);
-        loadPlugin(desc);
+        if (desc != null) {
+            if (pluginLoader == null) {
+                pluginLoader = new PluginLoader(new URL[] { pluginFile.toURI().toURL() }, getClass().getClassLoader());
+            }
+            pluginLoader.addJar(pluginFile);
+            loadPlugin(desc);
+        }
     }
 
     private boolean checkForPluginUpdate(String id) {

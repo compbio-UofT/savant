@@ -1045,9 +1045,7 @@ public class Savant extends JFrame {
     }//GEN-LAST:event_websiteItemActionPerformed
 
     private void menuitem_pluginmanagerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuitem_pluginmanagerActionPerformed
-        PluginManagerDialog pd = PluginManagerDialog.getInstance();
-        pd.setLocationRelativeTo(this);
-        pd.setVisible(true);
+        PluginManagerDialog.getInstance().setVisible(true);
     }//GEN-LAST:event_menuitem_pluginmanagerActionPerformed
 
     private void plumblineItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_plumblineItemActionPerformed
@@ -1198,7 +1196,7 @@ public class Savant extends JFrame {
     }//GEN-LAST:event_featureRequestItemActionPerformed
 
     private void bugReportItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bugReportItemActionPerformed
-        (new BugReportDialog(this, "Bug Report", null)).setVisible(true);
+        (new BugReportDialog("Bug Report", null)).setVisible(true);
     }//GEN-LAST:event_bugReportItemActionPerformed
 
     /**

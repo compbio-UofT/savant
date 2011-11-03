@@ -32,9 +32,9 @@ import savant.exception.RenderingException;
 import savant.exception.SavantTrackCreationCancelledException;
 import savant.api.data.DataFormat;
 import savant.api.SavantPanelPlugin;
+import savant.api.util.DialogUtils;
 import savant.selection.SelectionController;
 import savant.util.*;
-import savant.util.swing.DialogUtils;
 import savant.view.swing.Frame;
 
 /**

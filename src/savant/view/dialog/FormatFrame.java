@@ -313,7 +313,7 @@ public class FormatFrame extends JDialog implements FormatProgressListener {
                     issue += MiscUtils.getStackTrace(e);
 
                     dialog.dispose();
-                    (new BugReportDialog(DialogUtils.getMainWindow(), issue, dataFormatter.getInputFile().getAbsolutePath())).setVisible(true);
+                    (new BugReportDialog(issue, dataFormatter.getInputFile().getAbsolutePath())).setVisible(true);
                 }
 
             });

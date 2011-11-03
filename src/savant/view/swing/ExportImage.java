@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import javax.imageio.ImageIO;
-import javax.swing.*;
 
 import savant.api.util.DialogUtils;
 import savant.controller.FrameController;
@@ -125,8 +124,7 @@ public class ExportImage {
 
     private void save(BufferedImage screen) {
 
-        JFrame jf = new JFrame();
-        File selectedFile = DialogUtils.chooseFileForSave("Output File", "Untitled.png", new FileExtensionFilter("Image files", "png"));
+        File selectedFile = DialogUtils.chooseFileForSave("Output File", "Untitled.png", new FileExtensionFilter("Image files", "png"), null);
 
         // set the genome
         if (selectedFile != null) {

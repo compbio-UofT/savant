@@ -16,11 +16,26 @@
 
 package savant.api.util;
 
+import java.awt.Dialog;
+import java.awt.FileDialog;
+import java.awt.Frame;
+import java.awt.KeyboardFocusManager;
 import java.awt.Window;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.FilenameFilter;
+import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JDialog;
+import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileFilter;
 
-import savant.view.swing.Savant;
+import com.jidesoft.dialog.JideOptionPane;
+
+import savant.util.MiscUtils;
+import savant.view.dialog.BugReportDialog;
 
 /**
  * Utility methods to allow plugins to make Savant display a dialog.  Among other
@@ -55,7 +70,7 @@ public class DialogUtils {
      * Display a Savant dialog to ask a yes/no question.
      */
     public static int askYesNo(String title, String prompt) {
-        return savant.util.swing.DialogUtils.askYesNo(title, prompt);
+        return JOptionPane.showConfirmDialog(getMainWindow(), prompt, title, JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
     }
 
     /**
@@ -69,16 +84,7 @@ public class DialogUtils {
      * Display a Savant dialog to ask a yes/no/cancel question with the title "Savant".
      */
     public static int askYesNoCancel(String prompt) {
-        return savant.util.swing.DialogUtils.askYesNoCancel("Savant", prompt);
-    }
-
-    /**
-     * Display a Savant error dialog with the given message and the title "Savant Error".
-     *
-     * @param message the message to be displayed
-     */
-    public static void displayError(String message) {
-        savant.util.swing.DialogUtils.displayError("Savant Error", message);
+        return JOptionPane.showConfirmDialog(getMainWindow(), prompt, "Savant", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
     }
 
     /**
@@ -88,23 +94,31 @@ public class DialogUtils {
      * @param message the message to be displayed
      */
     public static void displayError(String title, String message) {
-        savant.util.swing.DialogUtils.displayError(title, message);
+        JOptionPane.showMessageDialog(getMainWindow(), message, title, JOptionPane.ERROR_MESSAGE);
+    }
+
+    /**
+     * Display a Savant error dialog with the given message and the title "Savant Error".
+     *
+     * @param message the message to be displayed
+     */
+    public static void displayError(String message) {
+        displayError("Savant Error", message);
     }
 
     /**
      * Display a dialog that gets an input string from the user.
+     * 
+     * @param title title of the dialog window
+     * @param message prompt message that appears in the dialog
+     * @param defaultInput default string which appears in the text-field
      */
-    public static String displayInputMessage(String message, String defaultInput) {
-        return savant.util.swing.DialogUtils.displayInputMessage("Savant", message, defaultInput);
-    }
-
-    /**
-     * Display a Savant message dialog with the given message and the title "Savant".
-     *
-     * @param message the message to be displayed
-     */
-    public static void displayMessage(String message) {
-        savant.util.swing.DialogUtils.displayMessage("Savant", message);
+    public static String displayInputMessage(String title, String message, String defaultInput) {
+        String result = JOptionPane.showInputDialog(getMainWindow(), message, "Savant", JOptionPane.QUESTION_MESSAGE);
+        if (result != null && result.length() > 0) {
+            return result;
+        }
+        return null;
     }
 
     /**
@@ -114,7 +128,16 @@ public class DialogUtils {
      * @param message the message to be displayed
      */
     public static void displayMessage(String title, String message) {
-        savant.util.swing.DialogUtils.displayMessage(title, message);
+        JOptionPane.showMessageDialog(getMainWindow(), message, title, JOptionPane.PLAIN_MESSAGE);
+    }
+
+    /**
+     * Display a Savant message dialog with the given message and the title "Savant".
+     *
+     * @param message the message to be displayed
+     */
+    public static void displayMessage(String message) {
+        displayMessage("Savant", message);
     }
 
 
@@ -125,12 +148,51 @@ public class DialogUtils {
      * @param message the message to be displayed
      * @param x exception whose stack trace will be displayed in the Details section
      */
-    public static void displayException(String title, String message, Throwable x) {
-        savant.util.swing.DialogUtils.displayException(title, message, x);
+    public static void displayException(final String title, final String message, final Throwable t) {
+        MiscUtils.invokeLaterIfNecessary(new Runnable() {
+            @Override
+            public void run() {
+                String msg = message;
+                if (t.getCause() != null) {
+                    msg += "\r\nCause: " + MiscUtils.getMessage(t.getCause()) + ".";
+                }
+                JideOptionPane optionPane = new JideOptionPane(msg, JOptionPane.ERROR_MESSAGE, JideOptionPane.CLOSE_OPTION);
+                optionPane.setTitle(title);
+                optionPane.setOptions(new String[] {});
+                JButton reportButton = new JButton("Report Issue");
+                ((JComponent)optionPane.getComponent(optionPane.getComponentCount()-1)).add(reportButton);
+                final JDialog dialog = optionPane.createDialog(getMainWindow(), "Error encountered");
+                dialog.setResizable(true);
+                String details = t.getMessage() + "\r\n" + MiscUtils.getStackTrace(t);
+                optionPane.setDetails(details);
+                dialog.pack();
+
+                reportButton.addActionListener(new ActionListener() {
+
+                @Override
+                public void actionPerformed(ActionEvent e2) {
+                    String issue = "Hey Savant Developers,\n\n";
+                    issue += "I am encountering an error in Savant. I have provided additional diagnostic information below.\n\n";
+
+                    issue += "=== DESCRIBE THE ISSUE BELOW ===\n\n\n";
+
+
+                    issue += "=== ERROR DETAILS ===\n";
+                    issue += MiscUtils.getStackTrace(t);
+
+                    dialog.dispose();
+                    (new BugReportDialog(issue, null)).setVisible(true);
+                }
+
+                });
+
+                dialog.setVisible(true);
+            }
+        });
     }
 
     /**
-     * Prompt the user to open a file.
+     * Prompt the user to open a single file.
      *
      * @param title title of the dialog
      * @param filter filter for determining which files to display
@@ -138,8 +200,38 @@ public class DialogUtils {
      * @return a <code>File</code>, or null if cancelled
      */
     public static File chooseFileForOpen(String title, FileFilter filter, File initialDir) {
-        return savant.util.swing.DialogUtils.chooseFileForOpen(Savant.getInstance(), title, filter, initialDir);
+        if (MiscUtils.MAC) {
+            FileDialog fd = getFileDialog(title, FileDialog.LOAD);
+            if (filter != null) {
+                fd.setFilenameFilter(new FilenameFilterAdapter(filter));
+            }
+            if (initialDir != null) {
+                fd.setDirectory(initialDir.getAbsolutePath());
+            }
+            fd.setVisible(true);
+            fd.setAlwaysOnTop(true);
+            String selectedFileName = fd.getFile();
+            if (selectedFileName != null) {
+                return new File(fd.getDirectory(), selectedFileName);
+            }
+        } else {
+            JFileChooser fd = new JFileChooser();
+            fd.setDialogTitle(title);
+            fd.setDialogType(JFileChooser.OPEN_DIALOG);
+            if (filter != null) {
+                fd.setFileFilter(filter);
+            }
+            if (initialDir != null) {
+                fd.setCurrentDirectory(initialDir);
+            }
+            int result = fd.showOpenDialog(getMainWindow());
+            if (result == JFileChooser.APPROVE_OPTION) {
+                return fd.getSelectedFile();
+            }
+        }
+        return null;
     }
+
 
     /**
      * Open-file dialog variant which lets user select multiple files on Windows and
@@ -151,7 +243,27 @@ public class DialogUtils {
      * @return an array of selected files; an empty array if nothing is selected
      */
     public static File[] chooseFilesForOpen(String title, FileFilter filter, File initialDir) {
-        return savant.util.swing.DialogUtils.chooseFilesForOpen(Savant.getInstance(), title, filter, initialDir);
+        if (MiscUtils.MAC) {
+            // Mac AWT FileDialog doesn't support multiple selection.
+            File f = chooseFileForOpen(title, filter, initialDir);
+            if (f != null) {
+                return new File[] { f };
+            }
+        } else {
+            JFileChooser fd = new JFileChooser();
+            fd.setDialogTitle(title);
+            fd.setSelectedFile(initialDir);
+            fd.setDialogType(JFileChooser.OPEN_DIALOG);
+            if (filter != null) {
+                fd.setFileFilter(filter);
+            }
+            fd.setMultiSelectionEnabled(true);
+            int result = fd.showOpenDialog(getMainWindow());
+            if (result == JFileChooser.APPROVE_OPTION) {
+                return fd.getSelectedFiles();
+            }
+        }
+        return new File[] {};
     }
 
     /**
@@ -162,37 +274,55 @@ public class DialogUtils {
      * @return a <code>File</code>, or null if cancelled
      */
     public static File chooseFileForSave(String title, String defaultName) {
-        return savant.util.swing.DialogUtils.chooseFileForSave(Savant.getInstance(), title, defaultName, null, null);
+        return chooseFileForSave(title, defaultName, null, null);
     }
 
     /**
      * Prompt the user to save a file.
      *
      * @param title title of the dialog
+     * @param defaultName default file-name to appear in the dialog
      * @param filter file-filter for controlling what appears in the dialog
+     * @param initialDir the default directory
      * @return a <code>File</code>, or null if cancelled
      */
-    public static File chooseFileForSave(String title, String defaultName, FileFilter filter) {
-        return savant.util.swing.DialogUtils.chooseFileForSave(Savant.getInstance(), title, defaultName, filter, null);
+    public static File chooseFileForSave(String title, String defaultName, FileFilter filter, File initialDir) {
+        FileDialog fd = getFileDialog(title, FileDialog.SAVE);
+        if (filter != null) {
+            fd.setFilenameFilter(new FilenameFilterAdapter(filter));
+        }
+        if (initialDir != null) {
+            fd.setDirectory(initialDir.getAbsolutePath());
+        }
+        fd.setFile(defaultName);
+        fd.setAlwaysOnTop(true);
+        fd.setVisible(true);
+        String selectedFile = fd.getFile();
+        if (selectedFile != null) {
+            return new File(fd.getDirectory(), selectedFile);
+        }
+        return null;
     }
 
     /**
-     * Prompt the user to save a file.
-     *
-     * @param title title of the dialog
-     * @param filter file-filter for controlling what appears in the dialog
-     * @param dir the default directory
-     * @return a <code>File</code>, or null if cancelled
-     */
-    public static File chooseFileForSave(String title, String defaultName, FileFilter filter, File dir) {
-        return savant.util.swing.DialogUtils.chooseFileForSave(Savant.getInstance(), title, defaultName, filter, dir);
-    }
-
-    /**
-     * For purposes of centring dialogs, here's the Savant main window.
+     * Choose an appropriate parent for the dialog being requested.  Usually the Savant main
+     * window, but may sometimes be an open dialog.
      */
     public static Window getMainWindow() {
-        return Savant.getInstance();
+        return KeyboardFocusManager.getCurrentKeyboardFocusManager().getActiveWindow();
+    }
+
+    /**
+     * In a remarkable piece of bad design, Java provides separate FileDialog constructors
+     * depending on whether the parent is a Frame or a Dialog.
+     */
+    private static FileDialog getFileDialog(String title, int type) {
+        Window w = getMainWindow();
+        if (w instanceof Frame) {
+            return new FileDialog((Frame)w, title, type);
+        } else {
+            return new FileDialog((Dialog)w, title, type);
+        }
     }
 
     /**
@@ -203,5 +333,23 @@ public class DialogUtils {
      */
     public static void showProgress(String message, double fraction) {
         savant.util.swing.ProgressDialog.showProgress(message, fraction);
+    }
+
+
+    /**
+     * Little class so that caller can pass us a FileFilter and will still be able
+     * to use it with a Mac FileDialog.
+     */
+    static class FilenameFilterAdapter implements FilenameFilter {
+        FileFilter filter;
+
+        FilenameFilterAdapter(FileFilter f) {
+            filter = f;
+        }
+
+        @Override
+        public boolean accept(File dir, String name) {
+            return filter.accept(new File(dir, name));
+        }
     }
 }

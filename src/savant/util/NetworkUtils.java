@@ -202,7 +202,11 @@ public class NetworkUtils {
      */
     public static URL getKnownGoodURL(URL base, String spec) {
         try {
-            return new URL(base, spec);
+            String baseStr = base.toString();
+            if (!baseStr.endsWith("/")) {
+                baseStr += "/";
+            }
+            return new URL(baseStr + spec);
         } catch (MalformedURLException ignored) {
             throw new IllegalArgumentException();
         }

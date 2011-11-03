@@ -298,7 +298,7 @@ public class BookmarkSheet extends JPanel implements Listener<BookmarksChangedEv
         List<Bookmark> bookmarks = btm.getData();
 
         // get the path (null if none selected)
-        File selectedFile = DialogUtils.chooseFileForSave("Save Bookmarks", "Bookmarks.txt", null);
+        File selectedFile = DialogUtils.chooseFileForSave("Save Bookmarks", "Bookmarks.txt");
 
         // set the genome
         if (selectedFile != null) {
