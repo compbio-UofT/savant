@@ -19,12 +19,12 @@ package savant.diff;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import savant.api.SavantDataSourcePlugin;
 import savant.api.adapter.DataSourceAdapter;
 import savant.api.adapter.TrackAdapter;
 import savant.api.data.DataFormat;
 import savant.api.util.DialogUtils;
 import savant.api.util.TrackUtils;
+import savant.plugin.SavantDataSourcePlugin;
 
 
 /**

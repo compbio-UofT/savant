@@ -4,7 +4,6 @@
  */
 package savant.plugin;
 
-import savant.api.SavantPanelPlugin;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.GridBagConstraints;

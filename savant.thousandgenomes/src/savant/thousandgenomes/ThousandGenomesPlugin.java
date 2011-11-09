@@ -25,7 +25,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 
-import savant.api.SavantPanelPlugin;
+import savant.plugin.SavantPanelPlugin;
 
 
 public class ThousandGenomesPlugin extends SavantPanelPlugin {

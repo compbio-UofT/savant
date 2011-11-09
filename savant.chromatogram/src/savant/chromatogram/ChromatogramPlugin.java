@@ -37,7 +37,6 @@ import org.biojava.bio.chromatogram.Chromatogram;
 import org.biojava.bio.chromatogram.ChromatogramFactory;
 import org.biojava.bio.chromatogram.UnsupportedChromatogramFormatException;
 
-import savant.api.SavantPanelPlugin;
 import savant.api.adapter.TrackAdapter;
 import savant.api.event.GenomeChangedEvent;
 import savant.api.event.LocationChangedEvent;
@@ -45,6 +44,7 @@ import savant.api.util.DialogUtils;
 import savant.api.util.GenomeUtils;
 import savant.api.util.Listener;
 import savant.api.util.NavigationUtils;
+import savant.plugin.SavantPanelPlugin;
 
 
 public class ChromatogramPlugin extends SavantPanelPlugin {

@@ -26,7 +26,6 @@ import javax.swing.SwingConstants;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import savant.api.SavantPanelPlugin;
 import savant.api.adapter.TrackAdapter;
 import savant.api.data.DataFormat;
 import savant.api.event.LocationChangedEvent;
@@ -37,6 +36,7 @@ import savant.api.util.NavigationUtils;
 import savant.api.util.PluginUtils;
 import savant.api.util.SettingsUtils;
 import savant.api.util.TrackUtils;
+import savant.plugin.SavantPanelPlugin;
 
 
 /**

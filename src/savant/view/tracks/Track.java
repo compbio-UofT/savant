@@ -31,7 +31,7 @@ import savant.api.data.Record;
 import savant.exception.RenderingException;
 import savant.exception.SavantTrackCreationCancelledException;
 import savant.api.data.DataFormat;
-import savant.api.SavantPanelPlugin;
+import savant.plugin.SavantPanelPlugin;
 import savant.api.util.DialogUtils;
 import savant.selection.SelectionController;
 import savant.util.*;

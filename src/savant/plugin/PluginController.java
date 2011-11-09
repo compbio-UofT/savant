@@ -26,8 +26,6 @@ import javax.swing.JPanel;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import savant.api.SavantDataSourcePlugin;
-import savant.api.SavantPanelPlugin;
 import savant.api.event.PluginEvent;
 import savant.api.util.DialogUtils;
 import savant.controller.DataSourcePluginController;

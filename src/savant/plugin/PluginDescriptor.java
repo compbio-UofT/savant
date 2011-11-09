@@ -115,7 +115,7 @@ public class PluginDescriptor implements Comparable<PluginDescriptor> {
      * Here's where we do our SDK compatibility check.  Update this code whenever the API changes.
      */
     public boolean isCompatible() {
-        return sdkVersion.equals("1.6.1");
+        return sdkVersion.equals("2.0.0");
     }
 
 

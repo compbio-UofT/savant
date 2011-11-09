@@ -20,7 +20,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import javax.swing.*;
 
-import savant.api.SavantPanelPlugin;
+import savant.plugin.SavantPanelPlugin;
 
 /**
  * Plugin to access the Gene Ontology website.

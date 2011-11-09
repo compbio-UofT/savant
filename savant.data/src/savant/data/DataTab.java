@@ -22,10 +22,10 @@ package savant.data;
 
 import javax.swing.JPanel;
 
-import savant.api.SavantPanelPlugin;
 import savant.api.event.TrackEvent;
 import savant.api.util.Listener;
 import savant.api.util.TrackUtils;
+import savant.plugin.SavantPanelPlugin;
 
 
 public class DataTab extends SavantPanelPlugin {

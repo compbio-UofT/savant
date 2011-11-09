@@ -41,7 +41,7 @@ import savant.data.event.DataRetrievalEvent;
 import savant.data.event.TrackCreationEvent;
 import savant.data.event.TrackCreationListener;
 import savant.api.data.DataFormat;
-import savant.api.SavantPanelPlugin;
+import savant.plugin.SavantPanelPlugin;
 import savant.util.DrawingMode;
 import savant.util.Range;
 import savant.util.swing.ProgressPanel;

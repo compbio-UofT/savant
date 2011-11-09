@@ -1,6 +1,6 @@
 <?xml version="1.0" ?>
 <!DOCTYPE plugin PUBLIC "-//JPF//Java Plug-in Manifest 1.0" "http://jpf.sourceforge.net/plugin_1_0.dtd">
-<plugin id="savant.amino" version="1.0.1" class="savant.amino.AminoPlugin">
+<plugin id="savant.amino" version="1.0.2" class="savant.amino.AminoPlugin">
     <attributes><attribute id="sdk-version" value="2.0.0"/></attributes>
     <requires>
         <import plugin-id="savant.core"/>

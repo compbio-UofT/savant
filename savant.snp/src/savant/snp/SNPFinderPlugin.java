@@ -45,7 +45,6 @@ import net.sf.samtools.SAMRecord;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import savant.api.SavantPanelPlugin;
 import savant.api.adapter.GenomeAdapter;
 import savant.api.adapter.TrackAdapter;
 import savant.api.util.BookmarkUtils;
@@ -59,6 +58,7 @@ import savant.api.event.LocationChangedEvent;
 import savant.api.event.TrackEvent;
 import savant.api.util.Listener;
 import savant.data.types.BAMIntervalRecord;
+import savant.plugin.SavantPanelPlugin;
 import savant.snp.Pileup.Nucleotide;
 
 public class SNPFinderPlugin extends SavantPanelPlugin {

@@ -27,8 +27,8 @@ import javax.swing.*;
 import org.bridgedb.bio.Organism;
 import org.pathvisio.wikipathways.WikiPathwaysClient;
 
-import savant.api.SavantPanelPlugin;
 import savant.api.util.DialogUtils;
+import savant.plugin.SavantPanelPlugin;
 
 /**
  *

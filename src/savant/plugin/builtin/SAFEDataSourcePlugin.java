@@ -17,7 +17,7 @@
 package savant.plugin.builtin;
 
 import savant.api.adapter.DataSourceAdapter;
-import savant.api.SavantDataSourcePlugin;
+import savant.plugin.SavantDataSourcePlugin;
 
 public class SAFEDataSourcePlugin extends SavantDataSourcePlugin {
 

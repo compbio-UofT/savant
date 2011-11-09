@@ -14,7 +14,7 @@
  *    limitations under the License.
  */
 
-package savant.api;
+package savant.plugin;
 
 import com.jidesoft.docking.DockingManager;
 import javax.swing.JPanel;

@@ -30,10 +30,10 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import savant.api.SavantDataSourcePlugin;
 import savant.api.adapter.DataSourceAdapter;
 import savant.api.util.DialogUtils;
 import savant.api.util.SettingsUtils;
+import savant.plugin.SavantDataSourcePlugin;
 import savant.util.ReferenceComparator;
 
 

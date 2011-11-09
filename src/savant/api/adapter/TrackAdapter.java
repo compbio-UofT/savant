@@ -21,7 +21,7 @@ import javax.swing.JPanel;
 
 import savant.api.data.Record;
 import savant.api.data.DataFormat;
-import savant.api.SavantPanelPlugin;
+import savant.plugin.SavantPanelPlugin;
 import savant.util.AxisType;
 import savant.util.DrawingMode;
 import savant.api.util.Resolution;

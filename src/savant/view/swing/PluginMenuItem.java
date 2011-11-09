@@ -22,7 +22,7 @@ import javax.swing.JCheckBoxMenuItem;
 import savant.api.util.Listener;
 import savant.api.event.PluginEvent;
 import savant.plugin.PluginController;
-import savant.api.SavantPanelPlugin;
+import savant.plugin.SavantPanelPlugin;
 
 
 /**
