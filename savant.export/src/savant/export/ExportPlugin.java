@@ -1,5 +1,5 @@
 /*
- *    Copyright 2010 University of Toronto
+ *    Copyright 2010-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -30,7 +30,6 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 import javax.imageio.ImageIO;
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -38,23 +37,24 @@ import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import savant.api.adapter.BookmarkAdapter;
 import savant.api.adapter.RangeAdapter;
-import savant.controller.BookmarkController;
+import savant.api.adapter.TrackAdapter;
+import savant.api.util.BookmarkUtils;
+import savant.api.util.NavigationUtils;
+import savant.api.util.RangeUtils;
 import savant.controller.FrameController;
-import savant.controller.LocationController;
 import savant.data.event.ExportEvent;
 import savant.data.event.ExportEventListener;
 import savant.plugin.SavantPanelPlugin;
-import savant.util.Bookmark;
-import savant.util.Range;
 import savant.util.swing.PathField;
-import savant.view.swing.GraphPane;
-import savant.view.swing.Track;
 import savant.view.swing.ExportImage;
 import savant.view.swing.Frame;
+import savant.view.swing.GraphPane;
 
 /**
  * @author AndrewBrook
@@ -76,11 +76,11 @@ public class ExportPlugin extends SavantPanelPlugin {
     private int numBookmarks;
     private int numFrames;
     private int framesDone;
-    private List<Bookmark> bookmarks;
+    private BookmarkAdapter[] bookmarks;
 
     //these will be stored to return to later
     private String currentReference;
-    private Range currentRange;
+    private RangeAdapter currentRange;
 
     //private Thread exportThread;
     private JDialog progressDialog;
@@ -150,7 +150,7 @@ public class ExportPlugin extends SavantPanelPlugin {
                     progressPanel.setOptions(options);
                     progressDialog = progressPanel.createDialog("Export in progress");
                     progressDialog.setVisible(true);
-                    if(progressPanel.getValue().equals("Cancel")){
+                    if (progressPanel.getValue().equals("Cancel")) {
                         exportCancelled = true;
                     }
 
@@ -194,12 +194,12 @@ public class ExportPlugin extends SavantPanelPlugin {
     public void runTool() throws InterruptedException {
 
         //store current location
-        currentReference = LocationController.getInstance().getReferenceName();
-        currentRange = LocationController.getInstance().getRange();
+        currentReference = NavigationUtils.getCurrentReferenceName();
+        currentRange = NavigationUtils.getCurrentRange();
     
         //output init
         baseFolder = pf.getPath();
-        if(baseFolder.equals("")){
+        if (baseFolder.equals("")) {
             outputLabel.setText("     Please enter a filename for index.");
             return;
         }
@@ -210,21 +210,21 @@ public class ExportPlugin extends SavantPanelPlugin {
         baseFile =  baseFolder + System.getProperty("file.separator") + dateFormat.format(date);
         indexFile = baseFile + ".html";
         boolean createdIndex = this.initIndex();
-        if(!createdIndex){
+        if (!createdIndex) {
             endRun(false);
             return;
         }
 
         //init bookmarks
-        bookmarks = BookmarkController.getInstance().getBookmarks();
-        if(bookmarks.isEmpty() || FrameController.getInstance().getFrames().isEmpty()){
+        bookmarks = BookmarkUtils.getBookmarks();
+        if (bookmarks.length == 0 || FrameController.getInstance().getFrames().isEmpty()) {
             outputLabel.setText("     There is nothing to export.");
             return;
         }
 
         //store export info
         numFrames = FrameController.getInstance().getFrames().size();
-        numBookmarks = bookmarks.size() -1;
+        numBookmarks = bookmarks.length - 1;
         currentBookmark = 0;
 
         runExport();
@@ -233,7 +233,7 @@ public class ExportPlugin extends SavantPanelPlugin {
 
     private void cancelExport() {
         closeIndex();
-        for(int i = 0; i < FrameController.getInstance().getFrames().size(); i++){
+        for(int i = 0; i < FrameController.getInstance().getFrames().size(); i++) {
             Frame f = FrameController.getInstance().getFrames().get(i);
             f.getGraphPane().removeExportListeners();
         }
@@ -245,17 +245,17 @@ public class ExportPlugin extends SavantPanelPlugin {
     /*
      * Update the progress of export
      */
-    private void updateRunLabel(){
+    private void updateRunLabel() {
         String message = "     Running Export: " + (currentBookmark+1) + "/" + (numBookmarks+1);
         outputLabel.setText("Export in progress");
-        if(progressPanel != null){
+        if (progressPanel != null) {
             progressPanel.setMessage(message);
         }
     }
 
     private void runExport() {
 
-        if(exportCancelled){
+        if (exportCancelled) {
             cancelExport();
             return;
         }
@@ -264,26 +264,26 @@ public class ExportPlugin extends SavantPanelPlugin {
 
         framesDone = 0;
 
-        final Bookmark bm = bookmarks.get(currentBookmark);
+        final BookmarkAdapter bm = bookmarks[currentBookmark];
         final String reference = bm.getReference();
         RangeAdapter rangeAd = bm.getRange();
-        final Range range = new Range(rangeAd.getFrom(), rangeAd.getTo());
+        final RangeAdapter range = RangeUtils.createRange(rangeAd.getFrom(), rangeAd.getTo());
         String annotation = bm.getAnnotation();
 
         //TODO: multiple tracks per frame??
-        for(int i = 0; i < numFrames; i++){
+        for(int i = 0; i < numFrames; i++) {
             final int index = i;
             Frame frame = FrameController.getInstance().getFrames().get(i);
 
             //track info
-            Track t = frame.getTracks()[0];
+            TrackAdapter t = frame.getTracks()[0];
             final GraphPane gp = frame.getGraphPane();
 
             ExportEventListener eel = new ExportEventListener() {
 
                 @Override
                 public void exportCompleted(ExportEvent evt) {
-                    if(evt.getRange().equals(range)){
+                    if (evt.getRange().equals(range)) {
                         gp.removeExportListener(this);
                         nextBookmark();
                     }
@@ -292,7 +292,7 @@ public class ExportPlugin extends SavantPanelPlugin {
             gp.addExportEventListener(eel);
             
         }
-        LocationController.getInstance().setLocation(reference, range);
+        NavigationUtils.navigateTo(reference, range);
     }
 
     /*
@@ -300,10 +300,10 @@ public class ExportPlugin extends SavantPanelPlugin {
      */
     public void nextBookmark() {
         framesDone++;
-        if(framesDone == numFrames){
-            createImage(currentBookmark, bookmarks.get(currentBookmark));
+        if (framesDone == numFrames) {
+            createImage(currentBookmark, bookmarks[currentBookmark]);
             currentBookmark++;
-            if(currentBookmark > numBookmarks){
+            if (currentBookmark > numBookmarks) {
                 closeIndex();
                 return;
             }
@@ -311,10 +311,10 @@ public class ExportPlugin extends SavantPanelPlugin {
         }
     }
 
-    public void createImage(int increment, Bookmark bm){
+    public void createImage(int increment, BookmarkAdapter bm) {
 
         String[] trackNames = new String[FrameController.getInstance().getFrames().size()];
-        for(int i = 0; i < trackNames.length; i++){
+        for(int i = 0; i < trackNames.length; i++) {
             trackNames[i] = FrameController.getInstance().getFrames().get(i).getTracks()[0].getName();
         }
 
@@ -325,7 +325,7 @@ public class ExportPlugin extends SavantPanelPlugin {
         endRun(success);
     }
     
-    private boolean save(BufferedImage image, int increment, Bookmark bm){
+    private boolean save(BufferedImage image, int increment, BookmarkAdapter bm) {
         String filename = this.baseFile + increment + ".png";
 
         File file = new File(filename);
@@ -345,7 +345,7 @@ public class ExportPlugin extends SavantPanelPlugin {
         return true;
     }
 
-    private boolean initIndex(){
+    private boolean initIndex() {
         new File(baseFolder).mkdirs();
         try {
             BufferedWriter out = new BufferedWriter(new FileWriter(this.indexFile, false));
@@ -358,8 +358,8 @@ public class ExportPlugin extends SavantPanelPlugin {
         return true;
     }
 
-    private boolean closeIndex(){
-        if(progressDialog != null){
+    private boolean closeIndex() {
+        if (progressDialog != null) {
             progressDialog.setVisible(false);
         }
         try {
@@ -373,7 +373,7 @@ public class ExportPlugin extends SavantPanelPlugin {
         return true;
     }
 
-    private boolean addImageToIndex(String filename, String text){
+    private boolean addImageToIndex(String filename, String text) {
         try {
             BufferedWriter out = new BufferedWriter(new FileWriter(this.indexFile, true));
             String s = "<a href=\"" + "file:///" + filename + "\">" + text + "</a><br>";
@@ -385,14 +385,14 @@ public class ExportPlugin extends SavantPanelPlugin {
         return true;
     }
 
-    private void endRun(boolean success){
+    private void endRun(boolean success) {
         //Return browser to original location
-        LocationController.getInstance().setLocation(currentReference, currentRange);
+        NavigationUtils.navigateTo(currentReference, currentRange);
 
         //reset output
-        if(success){
+        if (success) {
             outputLabel.setText("     Created file " + indexFile);
-        } else if(exportCancelled) {
+        } else if (exportCancelled) {
             outputLabel.setText("     Export cancelled");
         } else {
             outputLabel.setText("     Export failed. Make sure output path is correct.");
