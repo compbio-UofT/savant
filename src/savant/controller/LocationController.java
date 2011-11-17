@@ -74,27 +74,23 @@ public class LocationController extends Controller<LocationChangedEvent> impleme
         redoStack = new Stack<History>();
     }
 
-    //LOCATION//////////////////////////////////////////////////////////////////
-
-    public void setLocation(String ref){
-        setLocation(ref, false);
-    }
-
-    public void setLocation(String ref, boolean forceEvent){
-        if (isValidAndNewReference(ref) || forceEvent){
+    public void setLocation(String ref, boolean forceEvent) {
+        if (isValidAndNewReference(ref) || forceEvent) {
             updateHistory();
             setReference(ref);
             fireEvent(new LocationChangedEvent(true, currentReference, currentViewableRange));
         }
     }
 
-    public void setLocation(Range range){
-        updateHistory();
-        setRange(range);
-        fireEvent(new LocationChangedEvent(false, currentReference, currentViewableRange));
+    public void setLocation(Range range) {
+        if (!range.equals(currentViewableRange)) {
+            updateHistory();
+            setRange(range);
+            fireEvent(new LocationChangedEvent(false, currentReference, currentViewableRange));
+        }
     }
 
-    public void setLocation(int from, int to){
+    public void setLocation(int from, int to) {
         setLocation(new Range(from, to));
     }
 
@@ -110,8 +106,10 @@ public class LocationController extends Controller<LocationChangedEvent> impleme
                 setReference(ref);
                 newRef = true;
             }
-            setRange(range);
-            fireEvent(new LocationChangedEvent(newRef, currentReference, currentViewableRange));
+            if (newRef || !range.equals(currentViewableRange)) {
+                setRange(range);
+                fireEvent(new LocationChangedEvent(newRef, currentReference, currentViewableRange));
+            }
             pendingReference = null;
             pendingRange = null;
         } else {
@@ -120,16 +118,18 @@ public class LocationController extends Controller<LocationChangedEvent> impleme
         }
     }
 
-    private void setLocation(History history){
+    private void setLocation(History history) {
         setLocation(history.reference, history.range);
     }
 
     /**
      * Set the reference. Always check isValidAndNewReference before doing this.
      */
-    private void setReference(String ref){
+    private void setReference(String ref) {
         currentReference = ref;
-        setDefaultRange();
+        Genome loadedGenome = GenomeController.getInstance().getGenome();
+        setMaxRange(new Range(1, loadedGenome.getLength()));
+        setRange(1, Math.min(1000, loadedGenome.getLength()));
     }
 
     /**
@@ -138,7 +138,7 @@ public class LocationController extends Controller<LocationChangedEvent> impleme
      * @param ref           the new reference
      * @return True iff reference can be changed
      */
-    private boolean isValidAndNewReference(String ref){
+    private boolean isValidAndNewReference(String ref) {
         if (getAllReferenceNames().contains(ref)) {
             if (!ref.equals(currentReference)) {
                 return true;
@@ -175,20 +175,11 @@ public class LocationController extends Controller<LocationChangedEvent> impleme
     }
 
 
-    /**
-     * Should only be called before event is to be fired
-     */
-    private void setDefaultRange() {
-        Genome loadedGenome = GenomeController.getInstance().getGenome();
-        setMaxRange(new Range(1, loadedGenome.getLength()));
-        setRange(1, Math.min(1000, loadedGenome.getLength()));
-    }
-
-    private void setRange(int from, int to){
+    private void setRange(int from, int to) {
         setRange(new Range(from, to));
     }
 
-    private void setRange(Range r){
+    private void setRange(Range r) {
         LOG.debug("Setting range to " + r);        
 
         int from = r.getFrom();
@@ -447,7 +438,7 @@ public class LocationController extends Controller<LocationChangedEvent> impleme
     private class History {
         public Range range;
         public String reference;
-        public History(String ref, Range range){
+        public History(String ref, Range range) {
             this.range = range;
             this.reference = ref;
         }

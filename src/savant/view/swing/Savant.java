@@ -1186,7 +1186,7 @@ public class Savant extends JFrame {
             if (s != null) {
                 FrameController.getInstance().createFrame(new Track[] { TrackFactory.createTrack(s) });
             }
-        } catch (Exception x) {
+        } catch (Throwable x) {
             DialogUtils.displayException("Track Creation Failed", "Unable to create track.", x);
         }
     }//GEN-LAST:event_loadFromDataSourcePluginItemActionPerformed

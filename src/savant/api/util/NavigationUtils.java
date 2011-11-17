@@ -64,7 +64,7 @@ public class NavigationUtils {
      * @param ref the name of the reference to navigate to (e.g. "chrX")
      */
     public void navigateTo(String ref) {
-        lc.setLocation(ref);
+        lc.setLocation(ref, false);
     }
 
     /**

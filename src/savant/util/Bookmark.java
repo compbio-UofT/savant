@@ -185,6 +185,14 @@ public class Bookmark implements BookmarkAdapter, Serializable {
     @Override
     public final void setAnnotation(String ann) { this.annotation = ann; }
 
+    public final int getFrom() {
+        return from;
+    }
+
+    public final int getTo() {
+        return to;
+    }
+
     /**
      * Get the bookmark's location expressed in its canonical form.
      */
