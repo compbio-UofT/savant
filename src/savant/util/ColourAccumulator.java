@@ -18,8 +18,8 @@ package savant.util;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.Shape;
-import java.awt.geom.Area;
+import java.awt.geom.Path2D;
+import java.awt.geom.Rectangle2D;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -32,7 +32,7 @@ import java.util.Map;
  */
 public class ColourAccumulator {
     ColourScheme scheme;
-    Map<Color, Area> areas = new HashMap<Color, Area>();
+    Map<Color, Path2D> areas = new HashMap<Color, Path2D>();
     
     public ColourAccumulator(ColourScheme cs) {
         scheme = cs;
@@ -41,24 +41,24 @@ public class ColourAccumulator {
     /**
      * Add a coloured rectangle to our accumulated visual representation.
      */
-    public void addShape(ColourKey col, Shape shape) {
+    public void addShape(ColourKey col, Rectangle2D shape) {
         Color c = scheme.getColor(col);
         if (!areas.containsKey(c)) {
-            areas.put(c, new Area());
+            areas.put(c, new Path2D.Double());
         }
-        areas.get(c).add(new Area(shape));
+        areas.get(c).append(shape.getPathIterator(null), false);
     }
     
     /**
      * Add a coloured rectangle for a base to our accumulated visual representation.
      */
-    public void addBaseShape(char baseChar, Shape shape) {
+    public void addBaseShape(char baseChar, Rectangle2D shape) {
         Color c = scheme.getBaseColor(baseChar);
         if (c != null) {
             if (!areas.containsKey(c)) {
-                areas.put(c, new Area());
+                areas.put(c, new Path2D.Double());
             }
-            areas.get(c).add(new Area(shape));
+            areas.get(c).append(shape.getPathIterator(null), false);
         }
     }
     
