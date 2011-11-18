@@ -1333,6 +1333,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
             add(progressPanel);
         }
         progressPanel.setMessage(msg);
+        validate();
     }
     
     public void addExportEventListener(ExportEventListener eel) {
