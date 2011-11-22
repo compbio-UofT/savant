@@ -22,16 +22,15 @@ import java.util.List;
 
 import net.sf.samtools.SAMFileWriter;
 import net.sf.samtools.SAMFileWriterFactory;
-import net.sf.samtools.SAMSequenceDictionary;
 
-import net.sf.samtools.SAMSequenceRecord;
 import savant.api.adapter.RangeAdapter;
 import savant.api.adapter.TrackAdapter;
 import savant.api.data.Record;
 import savant.api.util.Resolution;
+import savant.controller.LocationController;
 import savant.data.sources.BAMDataSource;
 import savant.data.types.BAMIntervalRecord;
-import savant.settings.TrackResolutionSettings;
+import savant.util.DownloadEvent;
 import savant.util.Range;
 
 /**
@@ -41,6 +40,9 @@ import savant.util.Range;
  * @author tarkvara
  */
 public class BamExporter extends TrackExporter {
+    /** Download bam data in 1MB chunks */
+    private static final int CHUNK_SIZE = 1000000;
+
     /** Destination for export of BAM tracks. */
     private SAMFileWriter samWriter;
 
@@ -61,17 +63,22 @@ public class BamExporter extends TrackExporter {
     @Override
     public void exportRange(String ref, RangeAdapter r, File destFile) throws IOException {
         try {
+            if (r == null) {
+                r = new Range(1, LocationController.getInstance().getReferenceLength(ref));
+            }
             // If the file extension is .sam, it will create a SAM text file.
             // If it's .bam, it will create a BAM file and corresponding index.
             samWriter = new SAMFileWriterFactory().setCreateIndex(true).makeSAMOrBAMWriter(((BAMDataSource)track.getDataSource()).getHeader(), true, destFile);
 
-            int chunkSize = Math.max(TrackResolutionSettings.getBamDefaultModeLowToHighThresh(), TrackResolutionSettings.getBamArcModeLowToHighThresh());
-            for (int i = r.getFrom(); i < r.getTo(); i += chunkSize) {
-                List<Record> recs = track.getDataSource().getRecords(ref, new Range(i, i + chunkSize), Resolution.HIGH);
+            double len = r.getTo() - r.getFrom();
+            for (int i = r.getFrom(); i < r.getTo(); i += CHUNK_SIZE) {
+                List<Record> recs = track.getDataSource().getRecords(ref, new Range(i, i + CHUNK_SIZE - 1), Resolution.HIGH);
                 for (Record rec: recs) {
                     samWriter.addAlignment(((BAMIntervalRecord)rec).getSamRecord());
                 }
+                fireEvent(new DownloadEvent((i - r.getFrom()) / len));
             }
+            fireEvent(new DownloadEvent(destFile));
         } finally {
             if (samWriter != null) {
                 samWriter.close();

@@ -44,6 +44,12 @@ import savant.controller.LocationController;
 class ToolSettingsPanel extends JPanel {
     private final Tool tool;
     private JLabel commandLine;
+    private ActionListener executeListener = new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent ae) {
+            tool.execute();
+        }
+    };
 
     ToolSettingsPanel(Tool t) {
         tool = t;
@@ -61,12 +67,7 @@ class ToolSettingsPanel extends JPanel {
             add(commandLine, gbc);
 
             JButton executeButton = new JButton("Execute");
-            executeButton.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent ae) {
-                    tool.execute();
-                }
-            });
+            executeButton.addActionListener(executeListener);
             gbc.insets = new Insets(5, 5, 5, 5);
             gbc.gridy = 1;
             add(executeButton, gbc);
@@ -110,12 +111,14 @@ class ToolSettingsPanel extends JPanel {
                 gbc.fill = GridBagConstraints.HORIZONTAL;
                 widget = new JTextField((String)arg.value);
                 RangeUpdater ignored = new RangeUpdater(arg, (JTextField)widget);
+                ((JTextField)widget).addActionListener(executeListener);
                 break;
             case RANGE:
             case BARE_RANGE:
                 gbc.fill = GridBagConstraints.HORIZONTAL;
                 widget = new JTextField();
                 LocationController.getInstance().addListener(new RangeUpdater(arg, (JTextField)widget));
+                ((JTextField)widget).addActionListener(executeListener);
                 break;
             case LIST:
                 widget = new StringCombo(arg);

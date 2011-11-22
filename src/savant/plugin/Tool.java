@@ -29,9 +29,7 @@ import java.net.URI;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.swing.*;
@@ -43,12 +41,15 @@ import javax.xml.stream.XMLStreamReader;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import savant.api.adapter.RangeAdapter;
 import savant.api.adapter.TrackAdapter;
-import savant.api.data.DataFormat;
 import savant.api.util.DialogUtils;
+import savant.api.util.Listener;
 import savant.settings.DirectorySettings;
 import savant.util.BackgroundWorker;
 import savant.util.Bookmark;
+import savant.util.CacheIndex;
+import savant.util.DownloadEvent;
 import savant.util.MiscUtils;
 import savant.util.export.TrackExporter;
 
@@ -73,12 +74,6 @@ public class Tool extends SavantPanelPlugin {
 
     List<ToolArgument> arguments = new ArrayList<ToolArgument>();
 
-    /**
-     * Keep track of all files which have been downloaded and exported to a local file.
-     * We look them up by the requested range.
-     */
-    private static Map<ExportedTrackKey, File> exportedFiles = new HashMap<ExportedTrackKey, File>();
-
     private JPanel mainPanel;
     
     // The wait panel
@@ -86,7 +81,8 @@ public class Tool extends SavantPanelPlugin {
     private JLabel progressInfo;
     private JButton cancelButton;
     
-    private Bookmark workingLoc;
+    private String workingRef;
+    private RangeAdapter workingRange;
 
     @Override
     public void init(JPanel panel) {
@@ -215,7 +211,7 @@ public class Tool extends SavantPanelPlugin {
         }
     }
 
-    List<String> buildCommandLine() {
+    List<String> buildCommandLine() throws IOException {
         List<String> commandLine = new ArrayList<String>();
         commandLine.addAll(Arrays.asList(baseCommand.split("\\s")));
         
@@ -244,8 +240,7 @@ public class Tool extends SavantPanelPlugin {
                     switch (a.type) {
                         case BAM_INPUT_FILE:
                         case FASTA_INPUT_FILE:
-                            // If the argument is a track, we want the local file which contains our data.
-                            commandLine.add(exportedFiles.get(new ExportedTrackKey((TrackAdapter)a.value, workingLoc)).getAbsolutePath());
+                            commandLine.add(getLocalFile((TrackAdapter)a.value, a.type == ToolArgument.Type.BAM_INPUT_FILE).getAbsolutePath());
                             break;
                         default:
                             commandLine.add(getStringValue(a));
@@ -269,58 +264,86 @@ public class Tool extends SavantPanelPlugin {
             case FASTA_INPUT_FILE:
                 return MiscUtils.getNeatPathFromURI(((TrackAdapter)a.value).getDataSource().getURI());
             case RANGE:
-                workingLoc = new Bookmark((String)a.value);
-                return workingLoc.getLocationText();
+                parseWorkingRange((String)a.value);
+                return formatWorkingRange(false);
             case BARE_RANGE:
-                workingLoc = new Bookmark((String)a.value);
-                return String.format("%s:%d-%d", MiscUtils.homogenizeSequence(workingLoc.getReference()), workingLoc.getFrom(), workingLoc.getTo());
+                parseWorkingRange((String)a.value);
+                return formatWorkingRange(true);
         } 
         return a.value.toString();
     }
 
+    private void parseWorkingRange(String val) throws ParseException {
+        if (val == null || val.length() == 0) {
+            // Empty string means no range restriction.
+            workingRef = null;
+            workingRange = null;
+        } else {
+            int colonPos = val.indexOf(':');
+            if (colonPos > 0) {
+                Bookmark b = new Bookmark(val);
+                workingRef = b.getReference();
+                workingRange = b.getRange();
+            } else {
+                // Just a chromosome name.
+                workingRef = val;
+                workingRange = null;
+            }
+        }
+    }
+
+    private String formatWorkingRange(boolean homo) {
+        if (workingRef != null) {
+            String ref = homo ? MiscUtils.homogenizeSequence(workingRef) : workingRef;
+            if (workingRange != null) {
+                return String.format("%s:%d-%d", ref, workingRange.getFrom(), workingRange.getTo());
+            }
+            return ref;
+        }
+        return null;
+    }
+
     /**
      * Get the local file which contains the data for the given argument.
+     *
      * @param t the track which is providing the data
      * @param loc string specifying ref and range to be processed
      * @param canUseDirectly for bam files, Savant uses them natively, so we may be able to use a local file directly
      */
-    private File getLocalFile(TrackAdapter t, Bookmark loc, boolean canUseDirectly) throws IOException {
-        ExportedTrackKey key = new ExportedTrackKey(t, loc);
-        if (exportedFiles.containsKey(key)) {
-            return exportedFiles.get(key);
-        }
+    private File getLocalFile(TrackAdapter t, boolean canUseDirectly) throws IOException {
         
+        URI uri = t.getDataSource().getURI();
+
         // If the data source is a local bam file, we can just use it.
         if (canUseDirectly) {
-            URI uri = t.getDataSource().getURI();
             if (uri.getScheme().equals("file")) {
-                File f = new File(uri);
-                exportedFiles.put(key, f);
-                return f;
+                return new File(uri);
             }
         }
         
         // Track is remote.  We'll need to download it.
-        File f = File.createTempFile("tool", getExportExtension(t.getDataFormat()), DirectorySettings.getCacheDirectory());
-        TrackExporter.getExporter(t).exportRange(loc.getReference(), loc.getRange(), f);
-        exportedFiles.put(key, f);
-        return f;
-    }
-
-    /**
-     * Given the type of a Savant track, determine the appropriate extension for the exported file.
-     * @param df
-     * @return 
-     */
-    private static String getExportExtension(DataFormat df) {
-        switch (df) {
-            case SEQUENCE_FASTA:
-                return ".fa";
-            case INTERVAL_BAM:
-                return ".bam";
-            default:
-                return null;
+        StringBuilder source = new StringBuilder(uri.toString());
+        int savantExt = source.lastIndexOf(".savant");
+        if (savantExt > 0) {
+            source.setLength(savantExt);
         }
+        
+        // File may represent only a partial track.  We may need to fetch it afresh,
+        // or it may already be in our cache.
+        if (!CacheIndex.findCacheEntry(source.toString())) {
+            // Couldn't find exported file for full genome.  Perhaps just for the current chromosome?
+            if (workingRef != null) {
+                int lastDot = source.lastIndexOf(".");
+                source.insert(lastDot, "-" + workingRef);
+                if (!CacheIndex.findCacheEntry(source.toString())) {
+                    // No existing chromosome file, so just request the subrange of interest.
+                    lastDot = source.lastIndexOf(".");
+                    source.insert(lastDot, String.format(":%d-%d", workingRange.getFrom(), workingRange.getTo()));
+                }
+            }
+        }
+
+        return CacheIndex.getCacheFile(uri.toURL(), source.toString(), 0, 0);
     }
 
     void execute() {
@@ -338,34 +361,9 @@ public class Tool extends SavantPanelPlugin {
         ((CardLayout)mainPanel.getLayout()).show(mainPanel, card);
     }
 
-    private class ExportedTrackKey {
-        TrackAdapter track;
-        Bookmark location;
-        
-        ExportedTrackKey(TrackAdapter t, Bookmark loc) {
-            track = t;
-            location = loc;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (o instanceof ExportedTrackKey) {
-                ExportedTrackKey that = (ExportedTrackKey)o;
-                return track == that.track && location.equals(that.location);
-            }
-            return false;
-        }
-
-        @Override
-        public int hashCode() {
-            int hash = 7;
-            hash = 43 * hash + (this.track != null ? this.track.hashCode() : 0);
-            hash = 43 * hash + (this.location != null ? this.location.hashCode() : 0);
-            return hash;
-        }
-    }
-    
     private class ToolWorker extends BackgroundWorker<File> {
+        List<ToolArgument> fileArgs = new ArrayList<ToolArgument>();
+        int inputIndex;
         private String errorMessage;
 
         @Override
@@ -378,6 +376,10 @@ public class Tool extends SavantPanelPlugin {
             showProgress(0.0);
             cancelButton.setText("Cancel");
             console.setText("");
+
+            if (workingRef == null) {
+                throw new IllegalArgumentException("Whole-genome operations not supported yet.");
+            }
 
             progressInfo.setText("Preparing input files…");
             prepareInputs();
@@ -398,12 +400,15 @@ public class Tool extends SavantPanelPlugin {
          * The first stage of the process may involve copying the track data into
          * local files so that the tool can operate on it.
          */
-        private void prepareInputs() throws ParseException, IOException {
-            List<ToolArgument> fileArgs = new ArrayList<ToolArgument>();
+        private void prepareInputs() throws IOException {
             for (ToolArgument a: arguments) {
                 if (a.enabled) {
                     switch (a.type) {
                         case BAM_INPUT_FILE:
+                            if (!((TrackAdapter)a.value).getDataSource().getURI().getScheme().equals("file")) {
+                                fileArgs.add(a);
+                            }
+                            break;
                         case FASTA_INPUT_FILE:
                             // Add these to the list of files which need data.
                             fileArgs.add(a);
@@ -411,10 +416,33 @@ public class Tool extends SavantPanelPlugin {
                     }
                 }
             }
-            int i = 0;
+
+            inputIndex = 0;
             for (ToolArgument a: fileArgs) {
-                getLocalFile((TrackAdapter)a.value, workingLoc, a.type == ToolArgument.Type.BAM_INPUT_FILE);
-                showProgress(++i * PREP_PORTION / fileArgs.size());
+                File f = getLocalFile((TrackAdapter)a.value, a.type == ToolArgument.Type.BAM_INPUT_FILE);
+                if (!f.exists()) {
+                    LOG.info(f + " not found, exporting.");
+                    TrackExporter exp = TrackExporter.getExporter((TrackAdapter)a.value);
+                    exp.addListener(new Listener<DownloadEvent>() {
+                        @Override
+                        public void handleEvent(DownloadEvent event) {
+                            switch (event.getType()) {
+                                case PROGRESS:
+                                    showProgress(PREP_PORTION * (inputIndex + event.getProgress()) / fileArgs.size());
+                                    break;
+                                case COMPLETED:
+                                    try {
+                                        CacheIndex.updateCacheEntry(event.getFile().getAbsolutePath());
+                                    } catch (Exception x) {
+                                        LOG.error("Unable to update cache entry for " + event.getFile(), x);
+                                    }
+                                    break;
+                            }
+                        }
+                    });
+                    exp.exportRange(workingRef, workingRange, f);
+                }
+                showProgress(++inputIndex * PREP_PORTION / fileArgs.size());
             }
         }
 
@@ -436,7 +464,12 @@ public class Tool extends SavantPanelPlugin {
                     m = progressRegex.matcher(line);
                     if (m.find()) {
                         String progress = m.group(1);
-                        LOG.info("Retrieved progress message \"" + progress + "\".");
+                        try {
+                            showProgress(PREP_PORTION + Double.valueOf(progress) * WORK_PORTION * 0.01);
+                        } catch (NumberFormatException ignored) {
+                            // So it's not a valid number.  Unfortunate, but no disaster.
+                            LOG.info("Unable to interpret \"" + progress + "\" as a percentage.");
+                        }
                     }
                 }
             }

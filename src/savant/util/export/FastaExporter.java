@@ -29,7 +29,7 @@ import savant.api.data.SequenceRecord;
 import savant.api.util.GenomeUtils;
 import savant.api.util.Resolution;
 import savant.controller.LocationController;
-import savant.settings.TrackResolutionSettings;
+import savant.util.DownloadEvent;
 import savant.util.MiscUtils;
 import savant.util.Range;
 
@@ -42,6 +42,15 @@ import savant.util.Range;
  */
 public class FastaExporter extends TrackExporter {
     private static final int LINE_SIZE = 50;
+    
+    /** Download sequence data in 1MB chunks. */
+    private static final int CHUNK_SIZE = 1000000;
+
+    /** Bases exported so far. */
+    private int basesSoFar;
+
+    /** Total length to be exported. */
+    private int totalBases;
 
     /**
      * Should be instantiated from TrackExporter.getExporter();
@@ -53,8 +62,8 @@ public class FastaExporter extends TrackExporter {
     /**
      * Export the given range of the sequence track.
      *
-     * @param ref the reference containing the range be exported
-     * @param r the range to be exported
+     * @param ref the reference containing the range be exported (null to export entire genome)
+     * @param r the range to be exported (null to export entire reference)
      * @param destFile the fasta file to be created
      */
     @Override
@@ -62,45 +71,25 @@ public class FastaExporter extends TrackExporter {
         OutputStream output = null;
         try {
             output = new BufferedOutputStream(new FileOutputStream(destFile));
-            output.write('>');
 
-            output.write(ref.getBytes());
-            output.write('\n');
-
-            // Prepend the range of interest with N characters.
-            int linePos = 0;
-            if (r.getFrom() > 1) {
-                for (int i = 1; i < r.getFrom(); i++) {
-                    output.write('N');
-                    if (++linePos == LINE_SIZE) {
-                        output.write('\n');
-                        linePos = 0;
-                    }
+            LocationController lc = LocationController.getInstance();
+            if (ref == null) {
+                for (String ref2: lc.getReferenceNames()) {
+                    totalBases += lc.getReferenceLength(ref2);
                 }
-            }
-            
-            // A reasonable chunksize is whatever the user has selected as the threshold for drawing sequence tracks.
-            int chunkSize = TrackResolutionSettings.getSequenceLowToHighThresh();
-            for (int i = r.getFrom(); i < r.getTo(); i += chunkSize) {
-                byte[] seq = ((SequenceRecord)track.getDataSource().getRecords(ref, new Range(i, i + chunkSize - 1), Resolution.HIGH).get(0)).getSequence();
-                int j = 0;
-                if (linePos > 0) {
-                    int numBytes = Math.min(seq.length, LINE_SIZE - linePos);
-                    output.write(seq, 0, numBytes);
-                    output.write('\n');
-                    j = numBytes;
-                    linePos = 0;
+                for (String ref2: lc.getReferenceNames()) {
+                    exportRangeToStream(ref2, new Range(1, lc.getReferenceLength(ref2)), output);
                 }
-                while (j + LINE_SIZE < seq.length) {
-                    output.write(seq, j, LINE_SIZE);
-                    output.write('\n');
-                    j += LINE_SIZE;
+            } else {
+                totalBases = LocationController.getInstance().getReferenceLength(ref);
+                if (r == null) {
+                    r = new Range(1, totalBases);
                 }
-                output.write(seq, j, seq.length - j);
-                linePos = seq.length - j;
+                exportRangeToStream(ref, r, output);
             }
             createIndex(ref, destFile);
             createSequenceDictionary(destFile);
+            fireEvent(new DownloadEvent(destFile));
         } finally {
             if (output != null) {
                 output.close();
@@ -108,6 +97,56 @@ public class FastaExporter extends TrackExporter {
         }
     }
     
+    /**
+     * Export the specified reference (or subrange thereof) to the given output stream.
+     * This may be invoked as part of a large export (i.e. whole genome).
+     * 
+     * @param ref the reference containing the range be exported
+     * @param r the range to be exported (must be non-null)
+     * @param output destination for fasta data
+     * @throws IOException 
+     */
+    private void exportRangeToStream(String ref, RangeAdapter r, OutputStream output) throws IOException {
+        // Write the contig name.
+        output.write('>');
+        output.write(ref.getBytes());
+        output.write('\n');
+
+        // If the range doesn't start at 1, prepend the range of interest with N characters.
+        int linePos = 0;
+        if (r.getFrom() > 1) {
+            for (int i = 1; i < r.getFrom(); i++) {
+                output.write('N');
+                if (++linePos == LINE_SIZE) {
+                    output.write('\n');
+                    linePos = 0;
+                }
+            }
+        }
+
+        double len = r.getTo() - r.getFrom();
+        for (int i = r.getFrom(); i < r.getTo(); i += CHUNK_SIZE) {
+            byte[] seq = ((SequenceRecord)track.getDataSource().getRecords(ref, new Range(i, i + CHUNK_SIZE - 1), Resolution.HIGH).get(0)).getSequence();
+            int j = 0;
+            if (linePos > 0) {
+                int numBytes = Math.min(seq.length, LINE_SIZE - linePos);
+                output.write(seq, 0, numBytes);
+                output.write('\n');
+                j = numBytes;
+                linePos = 0;
+            }
+            while (j + LINE_SIZE < seq.length) {
+                output.write(seq, j, LINE_SIZE);
+                output.write('\n');
+                j += LINE_SIZE;
+            }
+            output.write(seq, j, seq.length - j);
+            linePos = seq.length - j;
+            basesSoFar += seq.length;
+            fireEvent(new DownloadEvent((double)basesSoFar / totalBases));
+        }
+    }
+
     /**
      * Create the .fai (fasta index) file which describes the contents of the fasta file we just exported.
      * We actually lie and give lengths for all contigs (not just the chromosome in this file).

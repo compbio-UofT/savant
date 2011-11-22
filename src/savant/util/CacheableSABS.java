@@ -1,5 +1,5 @@
 /*
- *    Copyright 2010 University of Toronto
+ *    Copyright 2010-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -17,36 +17,26 @@
 package savant.util;
 
 import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
 
 import net.sf.samtools.util.SeekableStream;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import savant.settings.DirectorySettings;
-
 /**
+ * Seekable stream which uses block-based caching.
  *
  * @author AndrewBrook
  */
 public class CacheableSABS extends SeekableAdjustableBufferedStream {
     //public static final int DEFAULT_BLOCK_SIZE = 65536;
     private static final Log LOG = LogFactory.getLog(CacheableSABS.class);
-
-    /** So multiple threads don't try updating the cache index at the same time. */
-    private static final Object indexLock = new Object();
 
     private File cacheFile = null;
     private int numBlocks = 0;
@@ -163,7 +153,6 @@ public class CacheableSABS extends SeekableAdjustableBufferedStream {
         cache = new RandomAccessFile(cacheFile, "rw");
     }
 
-    //TODO: where should this be called?
     private void closeCache() throws IOException {
         cache.close();
         cache = null;
@@ -171,81 +160,20 @@ public class CacheableSABS extends SeekableAdjustableBufferedStream {
 
     private void initCache() throws IOException {
 
-        synchronized (indexLock) {
-            //create index
-            File cacheDir = DirectorySettings.getCacheDirectory();
-            File index = new File(cacheDir, "cacheIndex");
-            index.createNewFile();
+        cacheFile = CacheIndex.getCacheFile(uri.toURL(), getSource(), bufferSize, length());
 
-            //check for entry
-            String newETag = NetworkUtils.getHash(uri.toURL());
-            boolean entryFound = false;
-            boolean entryInvalid = false;
-            BufferedReader bufferedReader = null;
-            bufferedReader = new BufferedReader(new FileReader(index));
-            String line = null;
-            List<String> allLines = new ArrayList<String>();
-            while ((line = bufferedReader.readLine()) != null) {
-                if (!entryFound) {
-                    String[] lineArray = line.split(",");
+        // Calculate number of blocks in file
+        numBlocks = (int)Math.ceil(length() / (double)bufferSize);
 
-                    if (getSource().equals(lineArray[0])){
-                        entryFound = true;
-
-                        // Equivalent entry found
-                        cacheFile = new File(lineArray[4]);
-
-                        // Compare ETags and buffer sizes.  Could also check file lengths (lineArray[2]), but
-                        // we currently don't do that, since the ETag should reflect such a change.
-                        if (!lineArray[1].equals(newETag) || bufferSize != Integer.parseInt(lineArray[3])) {
-                            // ETag changed or new buffer size.  Cache file is invalid.
-                            entryInvalid = true;
-                            cacheFile.delete();
-                            continue;
-                        }
-                    }
-                }
-                allLines.add(line);
-            }
-
-            // Calculate number of blocks in file
-            numBlocks = (int)Math.ceil(length() / (double)bufferSize);
-
-
-            if (entryInvalid) {
-                // We've invalidated a cache entry, so rewrite the index file without the entry.
-                BufferedWriter out = new BufferedWriter(new FileWriter(index, false));
-                for (String l: allLines) {
-                    out.write(l);
-                    out.newLine();
-                }
-                out.close();
-            }
-
-            // Add entry
-            if (entryInvalid || !entryFound) {
-
-                BufferedWriter out = new BufferedWriter(new FileWriter(index, true));
-                cacheFile = new File(cacheDir, getSource().replaceAll("[\\:/]", "+"));
-                out.write(getSource() + "," +
-                        newETag + "," +
-                        length() + "," +
-                        bufferSize + "," +
-                        cacheFile);               // replace all instances of \/:*?"<>|
-                out.newLine();
-                out.close();
-
-                //create the cacheFile
-                RandomAccessFile raf = new RandomAccessFile(cacheFile, "rw");
-                for(int i = 0; i < numBlocks; i++){
-                    //write 0x0000
-                    raf.write(0);
-                    raf.write(0);
-                    raf.write(0);
-                    raf.write(0);
-                }
-                raf.close();
-            }
+        // Create the cacheFile with an empty index section.
+        RandomAccessFile raf = new RandomAccessFile(cacheFile, "rw");
+        for(int i = 0; i < numBlocks; i++){
+            //write 0x0000
+            raf.write(0);
+            raf.write(0);
+            raf.write(0);
+            raf.write(0);
         }
+        raf.close();
     }
 }

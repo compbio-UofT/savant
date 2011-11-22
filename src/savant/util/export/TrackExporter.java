@@ -22,6 +22,8 @@ import java.io.IOException;
 import savant.api.adapter.RangeAdapter;
 import savant.api.adapter.TrackAdapter;
 import savant.controller.LocationController;
+import savant.util.Controller;
+import savant.util.DownloadEvent;
 import savant.util.Range;
 
 
@@ -31,7 +33,7 @@ import savant.util.Range;
  * 
  * @author tarkvara
  */
-public abstract class TrackExporter {
+public abstract class TrackExporter extends Controller<DownloadEvent> {
     protected final TrackAdapter track;
 
     protected TrackExporter(TrackAdapter t) {
@@ -41,21 +43,11 @@ public abstract class TrackExporter {
     /**
      * Export the given range of the track.
      *
-     * @param ref the reference containing the range be exported
-     * @param r the range to be exported
+     * @param ref the chromosome containing the range be exported
+     * @param r the range to be exported (or null to export the entire chromosome)
      * @param destFile the local file to be created
      */
     public abstract void exportRange(String ref, RangeAdapter r, File destFile) throws IOException;
-
-    /**
-     * Export the entire chromosome as a fasta file.
-     * @param ref the reference to be exported
-     * @param destFile destination fasta file
-     * @throws IOException 
-     */
-    public void exportChromosome(String ref, File destFile) throws IOException {
-        exportRange(ref, new Range(1, LocationController.getInstance().getReferenceLength(ref)), destFile);
-    }
 
     /**
      * Get a new TrackExporter appropriate for the given track.

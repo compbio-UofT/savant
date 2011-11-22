@@ -1,6 +1,17 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ *    Copyright 2011 University of Toronto
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
  */
 
 package savant.util;
@@ -35,7 +46,7 @@ public class DownloadEvent {
     /**
      * A download event indicating that the process has started.
      */
-    DownloadEvent(Type type) {
+    public DownloadEvent(Type type) {
         this(type, Double.NaN, null, null);
     }
 
@@ -44,7 +55,7 @@ public class DownloadEvent {
      *
      * @param progress a value from 0.0 to 1.0 indicating the amount of progress completed
      */
-    DownloadEvent(double progress) {
+    public DownloadEvent(double progress) {
         this(Type.PROGRESS, progress, null, null);
     }
 
@@ -53,7 +64,7 @@ public class DownloadEvent {
      *
      * @param file the destination file
      */
-    DownloadEvent(File file) {
+    public DownloadEvent(File file) {
         this(Type.COMPLETED, Double.NaN, file, null);
     }
 
@@ -62,7 +73,7 @@ public class DownloadEvent {
      *
      * @param file the destination file
      */
-    DownloadEvent(Exception error) {
+    public DownloadEvent(Exception error) {
         this(Type.FAILED, Double.NaN, null, error);
     }
 
