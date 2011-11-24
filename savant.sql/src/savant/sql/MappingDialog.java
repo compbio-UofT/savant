@@ -214,7 +214,7 @@ public class MappingDialog extends javax.swing.JDialog {
                         mappingPanel.populate(columns, ColumnMapping.getSavedMapping(plugin, columns, false), false);
                     }
                 }
-            };
+            }.execute();
         }
 }//GEN-LAST:event_tableComboActionPerformed
 
@@ -261,7 +261,7 @@ public class MappingDialog extends javax.swing.JDialog {
                     }
                 }
             }
-        };
+        }.execute();
     }
 
     /**
@@ -294,7 +294,7 @@ public class MappingDialog extends javax.swing.JDialog {
                     }
                 }
             }
-        };
+        }.execute();
     }
 
     public MappedTable getMapping() {

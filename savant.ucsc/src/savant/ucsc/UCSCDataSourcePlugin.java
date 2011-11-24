@@ -43,8 +43,14 @@ import savant.util.ReferenceComparator;
  */
 public class UCSCDataSourcePlugin extends SQLDataSourcePlugin implements SQLConstants {
     private static final Map<String, ColumnMapping> KNOWN_MAPPINGS = new HashMap<String, ColumnMapping>();
+    
+    public static final String[] STANDARD_CLADES = new String[] { "Mammal", "Vertebrate", "Deuterostome", "Insect", "Nematode", "Other" };
 
-    Database hgcentral;
+    private Database hgcentral;
+
+    Map<String, List<GenomeDef>> cladeGenomeMap = new HashMap<String, List<GenomeDef>>();
+    Table table = null;
+    Database genomeDB = null;
 
     static {
         ColumnMapping bed3Mapping = ColumnMapping.getIntervalMapping("chrom", "chromStart", "chromEnd", null);
@@ -168,10 +174,8 @@ public class UCSCDataSourcePlugin extends SQLDataSourcePlugin implements SQLCons
      */
     @Override
     protected MappedTable requestMapping(Table t) throws SQLException {
-        if (hgcentral == null) {
-            hgcentral = new Database("hgcentral", uri, userName, password);
-        }
-        UCSCNavigationDialog dlg = new UCSCNavigationDialog(DialogUtils.getMainWindow(), this, t);
+        table = t;
+        UCSCNavigationDialog dlg = new UCSCNavigationDialog(DialogUtils.getMainWindow(), this);
         dlg.setVisible(true);
         return dlg.getMapping();
     }
@@ -239,4 +243,45 @@ public class UCSCDataSourcePlugin extends SQLDataSourcePlugin implements SQLCons
         return result;
     }
 
+    public void closeGenomeConnection() {
+        table = null;
+        if (genomeDB != null) {
+            genomeDB.closeConnection();
+            genomeDB = null;
+        }
+    }
+
+    public ColumnMapping selectTrack(TrackDef track) {
+        table = new Table(track.table, genomeDB);
+        return getKnownMapping(track.type);
+    }
+
+    /**
+     * Get access to the UCSC database which keeps top-level info about other databases.
+     */
+    public Database getHGCentral() throws SQLException {
+        try {
+            if (hgcentral == null) {
+                getConnection();
+                hgcentral = new Database("hgcentral", uri, userName, password);
+            }
+            return hgcentral;
+        } catch (ClassNotFoundException x) {
+            throw new SQLException("Unable to load MySQL driver.");
+        }
+    }
+
+    public GenomeDef[] getCladeGenomes(String clade) {
+        return cladeGenomeMap.get(clade).toArray(new GenomeDef[0]);
+    }
+
+    public GenomeDef getCurrentGenome(String clade) {
+        List<GenomeDef> genomes = cladeGenomeMap.get(clade);
+        for (GenomeDef g: genomes) {
+            if (g.database.equals(genomeDB.getName())) {
+                return g;
+            }
+        }
+        return null;
+    }
 }
