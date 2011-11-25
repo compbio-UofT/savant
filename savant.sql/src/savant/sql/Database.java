@@ -67,6 +67,23 @@ public class Database {
         return name;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (o instanceof Database) {
+            Database other = (Database)o;
+            return name.equals(other.name) && serverURI.equals(other.serverURI);
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 3;
+        hash = 59 * hash + (this.name != null ? this.name.hashCode() : 0);
+        hash = 59 * hash + (this.serverURI != null ? this.serverURI.hashCode() : 0);
+        return hash;
+    }
+
     public synchronized List<Table> getTables() throws SQLException {
         if (tables == null) {
             tables = new ArrayList<Table>();

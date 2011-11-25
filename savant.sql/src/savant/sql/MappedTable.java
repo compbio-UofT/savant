@@ -51,4 +51,11 @@ public class MappedTable extends Table {
         return URI.create(database.serverURI + "/" + database.name + "/" + trackName);
     }
 
+    /**
+     * We can tell whether a table has been mapped or not by looking at the mapping's format.
+     * @return 
+     */
+    public boolean isMapped() {
+        return mapping != null && mapping.format != null;
+    }
 }

@@ -230,7 +230,7 @@ public class SQLDataSourcePlugin extends SavantDataSourcePlugin {
      * @throws ClassNotFoundException
      * @throws SQLException
      */
-    protected Connection getConnection() throws ClassNotFoundException, SQLException {
+    public Connection getConnection() throws ClassNotFoundException, SQLException {
         if (connection == null) {
             Class.forName(driverName);
             connection = DriverManager.getConnection(uri.toString(), userName, password);
@@ -278,9 +278,9 @@ public class SQLDataSourcePlugin extends SavantDataSourcePlugin {
     }
 
     /**
-     * Get a connection to a particular database.
+     * Create an object which reflects the given database.
      */
-    public synchronized Database getDatabase(String name) throws SQLException {
+    public synchronized Database getDatabase(String name) {
         if (lastDatabase == null || !name.equals(lastDatabase.name)) {
             lastDatabase = new Database(name, uri, userName, password);
         } else {
@@ -338,6 +338,7 @@ public class SQLDataSourcePlugin extends SavantDataSourcePlugin {
 
     /**
      * Restore all the information about a table, given information from a JDBC URI.
+     * The column mapping will be retrieved from the settings file.
      *
      * @param tableName name of the MySQL table (e.g. knownGene or chr6_mrna)
      * @param dbName name of the MySQL database (e.g. hg18)

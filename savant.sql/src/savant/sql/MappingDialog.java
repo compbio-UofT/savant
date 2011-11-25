@@ -18,6 +18,8 @@ package savant.sql;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
 import java.awt.Window;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Collections;
@@ -117,11 +119,6 @@ public class MappingDialog extends javax.swing.JDialog {
         gridBagConstraints.insets = new java.awt.Insets(8, 8, 8, 8);
         navigationPanel.add(databaseLabel, gridBagConstraints);
 
-        databaseCombo.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                databaseComboActionPerformed(evt);
-            }
-        });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
@@ -187,10 +184,6 @@ public class MappingDialog extends javax.swing.JDialog {
         mappingPanel.setFormat(((FormatDef)formatCombo.getSelectedItem()).format);
 }//GEN-LAST:event_formatComboActionPerformed
 
-    private void databaseComboActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_databaseComboActionPerformed
-        populateTableCombo();
-}//GEN-LAST:event_databaseComboActionPerformed
-
     private void tableComboActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tableComboActionPerformed
         final Table t = (Table) tableCombo.getSelectedItem();
         if (t != null) {
@@ -253,6 +246,14 @@ public class MappingDialog extends javax.swing.JDialog {
                     for (Database db : databases) {
                         databaseCombo.addItem(db);
                     }
+                    
+                    databaseCombo.addActionListener(new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent ae) {
+                            populateTableCombo();
+                        }
+                        
+                    });
                     // Setting the selected index will populate the table combo.
                     if (table != null) {
                         databaseCombo.setSelectedItem(table.database);

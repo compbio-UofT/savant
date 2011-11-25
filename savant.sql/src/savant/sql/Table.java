@@ -46,6 +46,23 @@ public class Table {
         return name;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (o instanceof Table) {
+            Table other = (Table)o;
+            return name.equals(other.name) && database.equals(other.database);
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 59 * hash + (this.name != null ? this.name.hashCode() : 0);
+        hash = 59 * hash + (this.database != null ? this.database.hashCode() : 0);
+        return hash;
+    }
+
     /**
      * As part of the plugin's cleanup, it should close the JDBC connection.
      */
