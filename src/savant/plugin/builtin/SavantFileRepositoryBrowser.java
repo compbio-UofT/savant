@@ -36,8 +36,8 @@ import org.apache.commons.logging.LogFactory;
 import savant.api.util.DialogUtils;
 import savant.data.types.Genome;
 import savant.util.MiscUtils;
-import savant.view.dialog.tree.TreeBrowserModel;
-import savant.view.dialog.tree.TreeBrowserEntry;
+import savant.view.swing.model.TreeBrowserModel;
+import savant.view.swing.model.TreeBrowserEntry;
 
 
 /**

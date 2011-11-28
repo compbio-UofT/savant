@@ -13,8 +13,10 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package savant.view.dialog.tree;
+package savant.view.dialog;
 
+import savant.view.swing.model.TreeBrowserEntry;
+import savant.view.swing.model.TreeBrowserModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -41,10 +43,9 @@ import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 
 import savant.api.util.DialogUtils;
-import savant.plugin.PluginController;
-import savant.settings.DirectorySettings;
+import savant.api.util.PluginUtils;
 import savant.util.MiscUtils;
-import savant.view.dialog.DownloadDialog;
+
 
 /**
  *
@@ -105,19 +106,11 @@ public class PluginRepositoryDialog extends JDialog {
     private void downloadSelectedItem(boolean ignoreBranchSelected) {
         TreeBrowserEntry r = (TreeBrowserEntry) table.getRowAt(table.getSelectedRow());
         if (r != null && r.isLeaf()) {
-            DownloadDialog dd = new DownloadDialog(this, true);
-            dd.downloadFile(r.getURL(), DirectorySettings.getPluginsDirectory(), null);
-
-            // When the download is complete, we hide the dialog.  This makes its
-            // behaviour more parallel to Install from File.
+            // Hide the dialog when the download starts.  This makes its
+            // behaviour slightly different from Install from File.
             setVisible(false);
-            if (dd.getDownloadedFile() != null) {
-                try {
-                    PluginController.getInstance().installPlugin(dd.getDownloadedFile());
-                } catch (Throwable x) {
-                    DialogUtils.displayException("Installation Error", String.format("<html>Unable to install <i>%s</i>: %s.</html>", dd.getDownloadedFile().getName(), x), x);
-                }
-            }
+
+            PluginUtils.installPlugin(r.getURL());
         } else {
             if (!ignoreBranchSelected) {
                 DialogUtils.displayMessage("Please select a file");

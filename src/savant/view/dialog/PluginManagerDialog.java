@@ -38,7 +38,6 @@ import savant.settings.BrowserSettings;
 import savant.settings.DirectorySettings;
 import savant.util.MiscUtils;
 import savant.util.NetworkUtils;
-import savant.view.dialog.tree.PluginRepositoryDialog;
 
 
 /**
@@ -111,7 +110,7 @@ public class PluginManagerDialog extends JDialog {
         browserPanel.setBackground(new java.awt.Color(255, 255, 255));
         browserPanel.setLayout(new java.awt.BorderLayout());
 
-        closeButton.setText("Cancel");
+        closeButton.setText("Dismiss");
         closeButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 closeButtonActionPerformed(evt);

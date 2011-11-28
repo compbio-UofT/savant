@@ -51,6 +51,13 @@ public class PluginEvent {
     }
 
     /**
+     * Plugin which loaded or errored.
+     */
+    public String getPluginID() {
+        return pluginID;
+    }
+
+    /**
      * Plugin which loaded.  Will be null if the plugin did not successfully load.
      */
     public SavantPlugin getPlugin() {

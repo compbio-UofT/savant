@@ -13,14 +13,14 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package savant.view.dialog.tree;
+package savant.view.swing.model;
+
+import java.awt.*;
+import java.util.List;
 
 import com.jidesoft.grid.CellStyle;
 import com.jidesoft.grid.StyleModel;
 import com.jidesoft.grid.TreeTableModel;
-
-import java.awt.*;
-import java.util.List;
 
 public abstract class TreeBrowserModel extends TreeTableModel implements StyleModel {
     static final Color BACKGROUND = new Color(247, 247, 247);

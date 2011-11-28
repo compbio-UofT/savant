@@ -15,8 +15,12 @@
  */
 package savant.api.util;
 
+import java.io.File;
+import java.net.URL;
 import savant.api.event.PluginEvent;
 import savant.plugin.PluginController;
+import savant.settings.DirectorySettings;
+import savant.view.dialog.DownloadDialog;
 
 /**
  * Utility functions by which plugins can deal with the plugin interface itself.
@@ -40,5 +44,35 @@ public class PluginUtils {
      */
     public static void removePluginListener(Listener<PluginEvent> l) {
         PluginController.getInstance().removeListener(l);
+    }
+    
+    /**
+     * Download a plugin from the net and install it.
+     *
+     * @param url URL of the jar file containing the plugin
+     * @since 2.0.0
+     */
+    public static void installPlugin(URL url) {
+        DownloadDialog dd = new DownloadDialog(DialogUtils.getMainWindow(), true);
+        dd.downloadFile(url, DirectorySettings.getPluginsDirectory(), null);
+
+        if (dd.getDownloadedFile() != null) {
+            installPlugin(dd.getDownloadedFile());
+        }
+    }
+
+    
+    /**
+     * Install a plugin from a local file.
+     *
+     * @param f jar file containing the plugin
+     * @since 2.0.0
+     */
+    public static void installPlugin(File f) {
+        try {
+            PluginController.getInstance().installPlugin(f);
+        } catch (Throwable x) {
+            DialogUtils.displayException("Installation Error", String.format("<html>Unable to install <i>%s</i>: %s.</html>", f.getName(), x), x);
+        }
     }
 }
