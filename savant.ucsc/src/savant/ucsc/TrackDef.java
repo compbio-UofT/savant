@@ -16,9 +16,11 @@
 
 package savant.ucsc;
 
+
 /**
+ * Class which keeps track of information about a single track within the UCSC database.
  *
- * @author zig
+ * @author tarkvara
  */
 public class TrackDef {
     final String track;   // Name of track as seen by user (e.g. refGene, mrna, est).
@@ -36,5 +38,29 @@ public class TrackDef {
     @Override
     public String toString() {
         return track + " - " + label;
+    }
+    
+    @Override
+    public boolean equals(Object o) {
+        if (o instanceof TrackDef) {
+            TrackDef other = (TrackDef)o;
+            return track.equals(other.track);
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 89 * hash + (this.track != null ? this.track.hashCode() : 0);
+        return hash;
+    }
+
+    public String getTableName() {
+        return table;
+    }
+    
+    public String getTrackName() {
+        return track;
     }
 }

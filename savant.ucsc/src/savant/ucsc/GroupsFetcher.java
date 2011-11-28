@@ -48,21 +48,13 @@ public abstract class GroupsFetcher extends SQLWorker<List<GroupDef>> {
 
     @Override
     public List<GroupDef> doInBackground() throws SQLException {
-        if (plugin.genomeDB != null) {
-            if (!plugin.genomeDB.getName().equals(genome.database)) {
-                plugin.genomeDB.closeConnection();
-            }
-            references = null;
-            plugin.genomeDB = plugin.getDatabase(genome.database);
-        } else {
-            plugin.genomeDB = plugin.getDatabase(genome.database);
-        }
-
+        LOG.debug("Starting GroupsFetcher");
         List<GroupDef> groups = new ArrayList<GroupDef>();
         List<String> unknownTracks = new ArrayList<String>();
-//            ResultSet rs = genomeDB.executeQuery("SELECT label,tableName,shortLabel,type FROM trackDb,grp WHERE trackDb.grp = grp.name AND trackDb.type LIKE 'bed%%' ORDER BY trackDb.grp,trackDb.priority");
+        LOG.debug("Executing query");
         ResultSet rs = plugin.genomeDB.executeQuery("SELECT label,tableName,shortLabel,type FROM trackDb,grp WHERE trackDb.grp = grp.name ORDER BY grp.priority,trackDb.priority,trackDb.tableName");
         GroupDef lastGroup = null;
+        LOG.debug("Looping over result set.");
         while (rs.next()) {
             String type = rs.getString("type");
             if (isSupportedType(type)) {
@@ -87,7 +79,7 @@ public abstract class GroupsFetcher extends SQLWorker<List<GroupDef>> {
                     }
                 }
                 if (t != null) {
-                    if (UCSCDataSourcePlugin.getKnownMapping(type) != null) {
+                    if (UCSCDataSourcePlugin.getStandardMapping(type) != null) {
                         def = new TrackDef(track, t.getName(), label, type);
                     } else {
                         LOG.debug("Track type " + type + " unmapped for table " + track);
@@ -121,6 +113,7 @@ public abstract class GroupsFetcher extends SQLWorker<List<GroupDef>> {
                 LOG.debug("Unknown track " + s + " not found in " + plugin.genomeDB);
             }
         }
+        LOG.debug("Returning " + groups.size() + " groups.");
         return groups;
     }
 

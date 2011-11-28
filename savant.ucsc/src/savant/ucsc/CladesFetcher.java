@@ -21,7 +21,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import savant.api.util.SettingsUtils;
+import savant.sql.Database;
 import savant.sql.SQLWorker;
 
 
@@ -40,44 +40,44 @@ public abstract class CladesFetcher extends SQLWorker<String> {
 
     @Override
     public String doInBackground() throws SQLException {
-        if (plugin.table != null) {
-            plugin.genomeDB = plugin.table.getDatabase();
-        } else {
-            String selectedDB = SettingsUtils.getString(plugin, "GENOME");
-            if (selectedDB != null) {
-                plugin.genomeDB = plugin.getDatabase(selectedDB);
-            }
-        }
-        ResultSet rs = plugin.getHGCentral().executeQuery("SELECT DISTINCT name,description,genome,clade FROM dbDb NATURAL JOIN genomeClade WHERE active='1' ORDER by clade,orderKey");
+        Database hgCentral = null;
+        try {
+            hgCentral = plugin.getDatabase("hgcentral");
+            ResultSet rs = hgCentral.executeQuery("SELECT DISTINCT name,description,genome,clade FROM dbDb NATURAL JOIN genomeClade WHERE active='1' ORDER by clade,orderKey");
 
-        String lastClade = null;
-        String selectedClade = null;
-        List<GenomeDef> cladeGenomes = new ArrayList<GenomeDef>();
-        while (rs.next()) {
-            String dbName = rs.getString("name");
-            GenomeDef genome = new GenomeDef(dbName, rs.getString("genome") + " - " + rs.getString("description"));
+            String lastClade = null;
+            String selectedClade = null;
+            List<GenomeDef> cladeGenomes = new ArrayList<GenomeDef>();
+            while (rs.next()) {
+                String dbName = rs.getString("name");
+                GenomeDef genome = new GenomeDef(dbName, rs.getString("genome") + " - " + rs.getString("description"));
 
-            // In the database, clades are stored in lowercase, and Nematodes are called worms.
-            String clade = rs.getString("clade");
-            if (clade.equals("worm")) {
-                clade = "Nematode";
-            } else {
-                clade = Character.toUpperCase(clade.charAt(0)) + clade.substring(1);
-            }
-            if (plugin.genomeDB != null && dbName.equals(plugin.genomeDB.getName())) {
-                selectedClade = clade;
-            }
-
-            if (!clade.equals(lastClade)) {
-                if (lastClade != null) {
-                    plugin.cladeGenomeMap.put(lastClade, cladeGenomes);
-                    cladeGenomes = new ArrayList<GenomeDef>();
+                // In the database, clades are stored in lowercase, and Nematodes are called worms.
+                String clade = rs.getString("clade");
+                if (clade.equals("worm")) {
+                    clade = "Nematode";
+                } else {
+                    clade = Character.toUpperCase(clade.charAt(0)) + clade.substring(1);
                 }
-                lastClade = clade;
+                if (plugin.genomeDB != null && dbName.equals(plugin.genomeDB.getName())) {
+                    selectedClade = clade;
+                }
+
+                if (!clade.equals(lastClade)) {
+                    if (lastClade != null) {
+                        plugin.cladeGenomeMap.put(lastClade, cladeGenomes);
+                        cladeGenomes = new ArrayList<GenomeDef>();
+                    }
+                    lastClade = clade;
+                }
+                cladeGenomes.add(genome);
             }
-            cladeGenomes.add(genome);
+            plugin.cladeGenomeMap.put(lastClade, cladeGenomes);
+            return selectedClade;
+        } finally {
+            if (hgCentral != null) {
+                hgCentral.closeConnection();
+            }
         }
-        plugin.cladeGenomeMap.put(lastClade, cladeGenomes);
-        return selectedClade;
     }
 }

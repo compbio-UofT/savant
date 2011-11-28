@@ -26,7 +26,7 @@ public class GenomeDef {
     final String database;
     final String label;
 
-    GenomeDef(String database, String label) {
+    public GenomeDef(String database, String label) {
         this.database = database;
         this.label = label;
     }
@@ -34,6 +34,25 @@ public class GenomeDef {
     @Override
     public String toString() {
         return database + " - " + label;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o instanceof GenomeDef) {
+            return database.equals(((GenomeDef)o).database);
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 3;
+        hash = 89 * hash + (this.database != null ? this.database.hashCode() : 0);
+        return hash;
+    }
+    
+    public String getDatabase() {
+        return database;
     }
 }
 

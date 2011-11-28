@@ -24,10 +24,14 @@ import java.util.List;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JDialog;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import savant.api.util.DialogUtils;
 import savant.api.util.SettingsUtils;
 import savant.sql.*;
 import savant.sql.MappingDialog.FormatDef;
+import savant.util.MiscUtils;
 
 
 /**
@@ -36,9 +40,11 @@ import savant.sql.MappingDialog.FormatDef;
  * @author tarkvara
  */
 public class UCSCNavigationDialog extends JDialog implements SQLConstants {
+    private static final Log LOG = LogFactory.getLog(UCSCNavigationDialog.class);
 
     private MappingPanel mappingPanel;
     private ColumnMapping knownMapping;
+    private Table table;
 
     private UCSCDataSourcePlugin plugin = null;
 
@@ -46,12 +52,16 @@ public class UCSCNavigationDialog extends JDialog implements SQLConstants {
      * Dialog which lets the user navigate through the UCSC hierarchy and select
      * the table they want.
      *
-     * @param parent cannot be null
+     * @param parent parent window (cannot be null)
+     * @param plug associated Plugin object
+     * @param t current table (determines initial state of dialog)
      */
-    public UCSCNavigationDialog(Window parent, UCSCDataSourcePlugin plug) throws SQLException {
+    public UCSCNavigationDialog(Window parent, UCSCDataSourcePlugin plug, Table t) {
         super(parent, ModalityType.APPLICATION_MODAL);
         this.plugin = plug;
+        this.table = t;
         initComponents();
+        MiscUtils.registerCancelButton(cancelButton);
 
         mappingPanel = new MappingPanel();
         GridBagConstraints gbc = new GridBagConstraints();
@@ -78,7 +88,7 @@ public class UCSCNavigationDialog extends JDialog implements SQLConstants {
     private void initComponents() {
         java.awt.GridBagConstraints gridBagConstraints;
 
-        okButton = new javax.swing.JButton();
+        javax.swing.JButton okButton = new javax.swing.JButton();
         cancelButton = new javax.swing.JButton();
         javax.swing.JPanel navigationPanel = new javax.swing.JPanel();
         javax.swing.JLabel cladeLabel = new javax.swing.JLabel();
@@ -261,7 +271,6 @@ public class UCSCNavigationDialog extends JDialog implements SQLConstants {
 }//GEN-LAST:event_okButtonActionPerformed
 
     private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelButtonActionPerformed
-        plugin.closeGenomeConnection();
         setVisible(false);
 }//GEN-LAST:event_cancelButtonActionPerformed
 
@@ -279,7 +288,8 @@ public class UCSCNavigationDialog extends JDialog implements SQLConstants {
 
     private void trackComboActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_trackComboActionPerformed
         TrackDef track = (TrackDef)trackCombo.getSelectedItem();
-        knownMapping = plugin.selectTrack(track);
+        table = new Table(track.table, plugin.genomeDB);
+        knownMapping = UCSCDataSourcePlugin.getStandardMapping(track.type);
         formatLabel.setText(track.type);
         if (knownMapping != null) {
             switch (knownMapping.format) {
@@ -303,7 +313,7 @@ public class UCSCNavigationDialog extends JDialog implements SQLConstants {
         mappingPanel.setFormat(((FormatDef)formatCombo.getSelectedItem()).format);
         try {
             TrackDef trackDef = (TrackDef)trackCombo.getSelectedItem();
-            mappingPanel.populate(plugin.table.getColumns(), knownMapping, !plugin.table.getName().equals(trackDef.track) && !plugin.table.getName().equals("all_" + trackDef.track));
+            mappingPanel.populate(table.getColumns(), knownMapping, !table.getName().equals(trackDef.track) && !table.getName().equals("all_" + trackDef.track));
         } catch (SQLException sqlx) {
             DialogUtils.displayException("SQL Error", "Unable to get list of columns.", sqlx);
         }
@@ -316,11 +326,11 @@ public class UCSCNavigationDialog extends JDialog implements SQLConstants {
     private javax.swing.JLabel formatLabel;
     private javax.swing.JComboBox genomeCombo;
     private javax.swing.JComboBox groupCombo;
-    private javax.swing.JButton okButton;
     private javax.swing.JComboBox trackCombo;
     // End of variables declaration//GEN-END:variables
 
-    private void populateCladeCombo() throws SQLException {
+    private void populateCladeCombo() {
+        plugin.selectGenomeDB(table);
         new CladesFetcher(plugin) {
             @Override
             public void done(String selectedClade) {
@@ -346,7 +356,18 @@ public class UCSCNavigationDialog extends JDialog implements SQLConstants {
             public void done(List<GroupDef> groups) {
                 if (groups != null) {
                     groupCombo.setModel(new DefaultComboBoxModel(groups.toArray()));
-                    groupCombo.setSelectedIndex(0);
+                    if (table != null) {
+                        TrackDef curTrack = new TrackDef(table.getName(), null, null, null);
+                        for (GroupDef g: groups) {
+                            if (g.tracks.contains(curTrack)) {
+                                LOG.debug("populateGroupCombo setting selected group to " + g + " for track " + curTrack);
+                                groupCombo.setSelectedItem(g);
+                                return;
+                            }
+                        }
+                        LOG.debug("populateGroupCombo setting selected group to 0.");
+                        groupCombo.setSelectedIndex(0);
+                    }
                 }
             }
         }.execute();
@@ -355,13 +376,16 @@ public class UCSCNavigationDialog extends JDialog implements SQLConstants {
     private void populateTrackCombo() {
         GroupDef group = (GroupDef)groupCombo.getSelectedItem();
         trackCombo.setModel(new DefaultComboBoxModel(group.tracks.toArray()));
-        trackCombo.setSelectedIndex(0);
+        if (table != null) {
+            LOG.debug("populateTrackCombo setting selected track to " + table.getName());
+            trackCombo.setSelectedItem(new TrackDef(table.getName(), null, null, null));
+        }
     }
 
     public MappedTable getMapping() {
-        if (plugin.table != null) {
+        if (table != null) {
             SettingsUtils.setString(plugin, "GENOME", plugin.genomeDB.getName());
-            return new MappedTable(plugin.table, mappingPanel.getMapping(), ((TrackDef)trackCombo.getSelectedItem()).track);
+            return new MappedTable(table, mappingPanel.getMapping(), ((TrackDef)trackCombo.getSelectedItem()).track);
         }
         return null;
     }

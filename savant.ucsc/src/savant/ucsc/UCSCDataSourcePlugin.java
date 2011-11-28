@@ -26,6 +26,8 @@ import java.util.List;
 import java.util.Map;
 
 import savant.api.util.DialogUtils;
+import savant.api.util.GenomeUtils;
+import savant.api.util.SettingsUtils;
 import savant.sql.ColumnMapping;
 import savant.sql.Database;
 import savant.sql.MappedTable;
@@ -42,102 +44,102 @@ import savant.util.ReferenceComparator;
  * @author tarkvara
  */
 public class UCSCDataSourcePlugin extends SQLDataSourcePlugin implements SQLConstants {
-    private static final Map<String, ColumnMapping> KNOWN_MAPPINGS = new HashMap<String, ColumnMapping>();
+    private static final Map<String, ColumnMapping> STANDARD_MAPPINGS = new HashMap<String, ColumnMapping>();
     
     public static final String[] STANDARD_CLADES = new String[] { "Mammal", "Vertebrate", "Deuterostome", "Insect", "Nematode", "Other" };
 
-    private Database hgcentral;
-
-    Map<String, List<GenomeDef>> cladeGenomeMap = new HashMap<String, List<GenomeDef>>();
-    Table table = null;
+    /** Database of the currently-selected genome. */
     Database genomeDB = null;
+
+    /** Directory of which genomes are available for each clade. */
+    Map<String, List<GenomeDef>> cladeGenomeMap = new HashMap<String, List<GenomeDef>>();
 
     static {
         ColumnMapping bed3Mapping = ColumnMapping.getIntervalMapping("chrom", "chromStart", "chromEnd", null);
-        KNOWN_MAPPINGS.put("bed 3", bed3Mapping);
-        KNOWN_MAPPINGS.put("bed 3 +", bed3Mapping);
-        KNOWN_MAPPINGS.put("bed 3 .", bed3Mapping);
-        KNOWN_MAPPINGS.put("bed .", bed3Mapping);
+        STANDARD_MAPPINGS.put("bed 3", bed3Mapping);
+        STANDARD_MAPPINGS.put("bed 3 +", bed3Mapping);
+        STANDARD_MAPPINGS.put("bed 3 .", bed3Mapping);
+        STANDARD_MAPPINGS.put("bed .", bed3Mapping);
 
         ColumnMapping bed4Mapping = ColumnMapping.getIntervalMapping("chrom", "chromStart", "chromEnd", "name");
-        KNOWN_MAPPINGS.put("bed 4", bed4Mapping);
-        KNOWN_MAPPINGS.put("bed 4 +", bed4Mapping);
-        KNOWN_MAPPINGS.put("bed 4 .", bed4Mapping);
-        KNOWN_MAPPINGS.put("ctgPos", bed4Mapping);
-        KNOWN_MAPPINGS.put("ld2", bed4Mapping);
+        STANDARD_MAPPINGS.put("bed 4", bed4Mapping);
+        STANDARD_MAPPINGS.put("bed 4 +", bed4Mapping);
+        STANDARD_MAPPINGS.put("bed 4 .", bed4Mapping);
+        STANDARD_MAPPINGS.put("ctgPos", bed4Mapping);
+        STANDARD_MAPPINGS.put("ld2", bed4Mapping);
 
         // Like bed 4, but we'll use the finished/draft/predraft column as the name field.
         ColumnMapping clonePosMapping = ColumnMapping.getIntervalMapping("chrom", "chromStart", "chromEnd", "stage");
-        KNOWN_MAPPINGS.put("clonePos", clonePosMapping);
+        STANDARD_MAPPINGS.put("clonePos", clonePosMapping);
 
         // Our generic interval format lacks a score field, so treat these as rich intervals with no blocks or strand.
         ColumnMapping bed5Mapping = ColumnMapping.getRichIntervalMapping("chrom", "chromStart", "chromEnd", "name", "score", null, null, null, null, null, null, null, null, null);
-        KNOWN_MAPPINGS.put("bed 5", bed5Mapping);
-        KNOWN_MAPPINGS.put("bed 5 +", bed5Mapping);
-        KNOWN_MAPPINGS.put("bed 5 .", bed5Mapping);
-        KNOWN_MAPPINGS.put("bed5FloatScore", bed5Mapping);
-        KNOWN_MAPPINGS.put("bed5FloatScoreWithFdr", bed5Mapping);
+        STANDARD_MAPPINGS.put("bed 5", bed5Mapping);
+        STANDARD_MAPPINGS.put("bed 5 +", bed5Mapping);
+        STANDARD_MAPPINGS.put("bed 5 .", bed5Mapping);
+        STANDARD_MAPPINGS.put("bed5FloatScore", bed5Mapping);
+        STANDARD_MAPPINGS.put("bed5FloatScoreWithFdr", bed5Mapping);
 
         // Our generic interval format lacks a score field, so treat these as rich intervals with no blocks.
         ColumnMapping bed6Mapping = ColumnMapping.getRichIntervalMapping("chrom", "chromStart", "chromEnd", "name", "score", "strand", null, null, null, null, null, null, null, null);
-        KNOWN_MAPPINGS.put("bed 6", bed6Mapping);
-        KNOWN_MAPPINGS.put("bed 6 +", bed6Mapping);
-        KNOWN_MAPPINGS.put("bed 6 .", bed6Mapping);
-        KNOWN_MAPPINGS.put("broadPeak", bed6Mapping);
-        KNOWN_MAPPINGS.put("narrowPeak", bed6Mapping);
+        STANDARD_MAPPINGS.put("bed 6", bed6Mapping);
+        STANDARD_MAPPINGS.put("bed 6 +", bed6Mapping);
+        STANDARD_MAPPINGS.put("bed 6 .", bed6Mapping);
+        STANDARD_MAPPINGS.put("broadPeak", bed6Mapping);
+        STANDARD_MAPPINGS.put("narrowPeak", bed6Mapping);
 
         // bed 8, like Bed, but with no ItemRgb or blocks.
         ColumnMapping bed8Mapping = ColumnMapping.getRichIntervalMapping("chrom", "chromStart", "chromEnd", "name", "score", "strand", "thickStart", "thickEnd", null, null, null, null, null, null);
-        KNOWN_MAPPINGS.put("bed 8", bed8Mapping);
-        KNOWN_MAPPINGS.put("bed 8 +", bed8Mapping);
-        KNOWN_MAPPINGS.put("bed 8 .", bed8Mapping);
+        STANDARD_MAPPINGS.put("bed 8", bed8Mapping);
+        STANDARD_MAPPINGS.put("bed 8 +", bed8Mapping);
+        STANDARD_MAPPINGS.put("bed 8 .", bed8Mapping);
 
         // bed 9, like Bed, but with no blocks.  Note that in bed 9, the itemRGB column is usually called "reserved".
         ColumnMapping bed9Mapping = ColumnMapping.getRichIntervalMapping("chrom", "chromStart", "chromEnd", "name", "score", "strand", "thickStart", "thickEnd", "reserved", null, null, null, null, null);
-        KNOWN_MAPPINGS.put("bed 9", bed9Mapping);
-        KNOWN_MAPPINGS.put("bed 9 +", bed9Mapping);
-        KNOWN_MAPPINGS.put("bed 9 .", bed9Mapping);
+        STANDARD_MAPPINGS.put("bed 9", bed9Mapping);
+        STANDARD_MAPPINGS.put("bed 9 +", bed9Mapping);
+        STANDARD_MAPPINGS.put("bed 9 .", bed9Mapping);
 
         ColumnMapping bed12Mapping = ColumnMapping.getRichIntervalMapping("chrom", "chromStart", "chromEnd", "name", "score", "strand", "thickStart", "thickEnd", "reserved", "chromStarts", null, null, "blockSizes", null);
-        KNOWN_MAPPINGS.put("bed 12", bed12Mapping);
-        KNOWN_MAPPINGS.put("bed 12 +", bed12Mapping);
-        KNOWN_MAPPINGS.put("bed 12 .", bed12Mapping);
-        KNOWN_MAPPINGS.put("expRatio", bed12Mapping);
-        KNOWN_MAPPINGS.put("factorSource", bed12Mapping);
-        KNOWN_MAPPINGS.put("coloredExon", bed12Mapping);    // Colour is actually stored on a per-block level, but we have no way of representing this.
+        STANDARD_MAPPINGS.put("bed 12", bed12Mapping);
+        STANDARD_MAPPINGS.put("bed 12 +", bed12Mapping);
+        STANDARD_MAPPINGS.put("bed 12 .", bed12Mapping);
+        STANDARD_MAPPINGS.put("expRatio", bed12Mapping);
+        STANDARD_MAPPINGS.put("factorSource", bed12Mapping);
+        STANDARD_MAPPINGS.put("coloredExon", bed12Mapping);    // Colour is actually stored on a per-block level, but we have no way of representing this.
 
         // knownGene table has a proteinID column instead of a name2 column.
         ColumnMapping knownGeneMapping = ColumnMapping.getRichIntervalMapping("chrom", "txStart", "txEnd", "name", "score", "strand", "cdsStart", "cdsEnd", "reserved", null, "exonStarts", "exonEnds", null, "proteinID");
-        KNOWN_MAPPINGS.put("genePred knownGenePep knownGeneMrna", knownGeneMapping);
+        STANDARD_MAPPINGS.put("genePred knownGenePep knownGeneMrna", knownGeneMapping);
 
         // Most genes have a name2 column.
         ColumnMapping geneMapping = ColumnMapping.getRichIntervalMapping("chrom", "txStart", "txEnd", "name", "score", "strand", "cdsStart", "cdsEnd", "reserved", null, "exonStarts", "exonEnds", null, "name2");
-        KNOWN_MAPPINGS.put("genePred", geneMapping);
+        STANDARD_MAPPINGS.put("genePred", geneMapping);
 
         // TODO: What to do with qStart and qEnd?
         ColumnMapping chainMapping = ColumnMapping.getIntervalMapping("tName", "tStart", "tEnd", "qName");
-        KNOWN_MAPPINGS.put("chain", chainMapping);
+        STANDARD_MAPPINGS.put("chain", chainMapping);
 
         ColumnMapping netAlignMapping = ColumnMapping.getIntervalMapping("tName", "tStart", "tEnd", "qName");
-        KNOWN_MAPPINGS.put("netAlign", netAlignMapping);
+        STANDARD_MAPPINGS.put("netAlign", netAlignMapping);
 
         ColumnMapping bedGraph4Mapping = ColumnMapping.getContinuousMapping("chrom", "chromStart", "chromEnd", "dataValue");
-        KNOWN_MAPPINGS.put("bedGraph 4", bedGraph4Mapping);
-        KNOWN_MAPPINGS.put("bedGraph 5", bedGraph4Mapping);
+        STANDARD_MAPPINGS.put("bedGraph 4", bedGraph4Mapping);
+        STANDARD_MAPPINGS.put("bedGraph 5", bedGraph4Mapping);
 
         //TODO: What do do with qStart, qEnd, and blocks.
         ColumnMapping pslMapping = ColumnMapping.getRichIntervalMapping("tName", "tStart", "tEnd", "qName", null, "strand", null, null, null, null, "tStarts", null, "blockSizes", null);
-        KNOWN_MAPPINGS.put("psl", pslMapping);
-        KNOWN_MAPPINGS.put("psl .", pslMapping);
-        KNOWN_MAPPINGS.put("psl est", pslMapping);
-        KNOWN_MAPPINGS.put("psl protein", pslMapping);
-        KNOWN_MAPPINGS.put("psl xeno", pslMapping);
+        STANDARD_MAPPINGS.put("psl", pslMapping);
+        STANDARD_MAPPINGS.put("psl .", pslMapping);
+        STANDARD_MAPPINGS.put("psl est", pslMapping);
+        STANDARD_MAPPINGS.put("psl protein", pslMapping);
+        STANDARD_MAPPINGS.put("psl xeno", pslMapping);
 
         ColumnMapping rmskMapping = ColumnMapping.getIntervalMapping("genoName", "genoStart", "genoEnd", "repName");
-        KNOWN_MAPPINGS.put("rmsk", rmskMapping);
+        STANDARD_MAPPINGS.put("rmsk", rmskMapping);
 
         ColumnMapping wigMapping = ColumnMapping.getWigMapping("chrom", "chromStart", "chromEnd", "span", "count", "offset", "file", "lowerLimit", "dataRange");
-        KNOWN_MAPPINGS.put("wig", wigMapping);
+        STANDARD_MAPPINGS.put("wig", wigMapping);
     }
 
     @Override
@@ -174,8 +176,7 @@ public class UCSCDataSourcePlugin extends SQLDataSourcePlugin implements SQLCons
      */
     @Override
     protected MappedTable requestMapping(Table t) throws SQLException {
-        table = t;
-        UCSCNavigationDialog dlg = new UCSCNavigationDialog(DialogUtils.getMainWindow(), this);
+        UCSCNavigationDialog dlg = new UCSCNavigationDialog(DialogUtils.getMainWindow(), this, t);
         dlg.setVisible(true);
         return dlg.getMapping();
     }
@@ -207,6 +208,10 @@ public class UCSCDataSourcePlugin extends SQLDataSourcePlugin implements SQLCons
         return result;
     }
 
+    /**
+     * Get a table with the columns mapped based on saved settings.  In theory, the mappings
+     * will have been saved during some earlier visit to the UCSC Navigation Dialog.
+     */
     @Override
     public MappedTable getTableByName(String tableName, String dbName, String trackName) throws SQLException {
         try {
@@ -220,6 +225,16 @@ public class UCSCDataSourcePlugin extends SQLDataSourcePlugin implements SQLCons
         }
     }
 
+    /**
+     * Get a set of mappings for a track which has <b>not</b> been configured using the navigation dialog.
+     * This is used by the UCSC chooser dialog to avoid the mapping dialog as much as possible.
+     *
+     * @param t the track for which we're getting the mapping
+     * @return a table with associated (possibly null) column mappings
+     */
+    public MappedTable getTableWithStandardMapping(TrackDef t) {
+        return new MappedTable(new Table(t.getTableName(), genomeDB), getStandardMapping(t.type), t.track);
+    }
 
     /**
      * Given a UCSC table format string, return the best mapping we have for it.
@@ -227,52 +242,44 @@ public class UCSCDataSourcePlugin extends SQLDataSourcePlugin implements SQLCons
      * @param type a value from the "type" column of hg19.trackDb (or equivalent)
      * @return a column mapping for that type, or null if none is known
      */
-    static ColumnMapping getKnownMapping(String type) {
-        ColumnMapping result = KNOWN_MAPPINGS.get(type);
+    static ColumnMapping getStandardMapping(String type) {
+        ColumnMapping result = STANDARD_MAPPINGS.get(type);
         if (result == null) {
             if (type.startsWith("chain")) {
-                result = KNOWN_MAPPINGS.get("chain");
+                result = STANDARD_MAPPINGS.get("chain");
             } else if (type.startsWith("genePred")) {
-                result = KNOWN_MAPPINGS.get("genePred");
+                result = STANDARD_MAPPINGS.get("genePred");
             } else if (type.startsWith("netAlign")) {
-                result = KNOWN_MAPPINGS.get("netAlign");
+                result = STANDARD_MAPPINGS.get("netAlign");
             } else if (type.startsWith("wig ")) {  // Note trailing space on string, to avoid catching wigMaf tracks.
-                result = KNOWN_MAPPINGS.get("wig");
+                result = STANDARD_MAPPINGS.get("wig");
             }
         }
         return result;
     }
 
-    public void closeGenomeConnection() {
-        table = null;
-        if (genomeDB != null) {
-            genomeDB.closeConnection();
-            genomeDB = null;
-        }
-    }
-
-    public ColumnMapping selectTrack(TrackDef track) {
-        table = new Table(track.table, genomeDB);
-        return getKnownMapping(track.type);
+    /**
+     * Get all the genomes which are available for the given clade.
+     * @param clade one of the six standard clades
+     * @return 
+     */
+    public GenomeDef[] getCladeGenomes(String clade) {
+        return cladeGenomeMap.get(clade).toArray(new GenomeDef[0]);
     }
 
     /**
-     * Get access to the UCSC database which keeps top-level info about other databases.
+     * Figure out which clade contains the given genome.
+     * @param g
+     * @return 
      */
-    public Database getHGCentral() throws SQLException {
-        try {
-            if (hgcentral == null) {
-                getConnection();
-                hgcentral = new Database("hgcentral", uri, userName, password);
+    public String findCladeForGenome(GenomeDef g) {
+        for (String c: cladeGenomeMap.keySet()) {
+            if (cladeGenomeMap.get(c).contains(g)) {
+                return c;
             }
-            return hgcentral;
-        } catch (ClassNotFoundException x) {
-            throw new SQLException("Unable to load MySQL driver.");
         }
-    }
-
-    public GenomeDef[] getCladeGenomes(String clade) {
-        return cladeGenomeMap.get(clade).toArray(new GenomeDef[0]);
+        // Genome not found in any of the known clades.  How did it get here?
+        return null;
     }
 
     public GenomeDef getCurrentGenome(String clade) {
@@ -282,6 +289,31 @@ public class UCSCDataSourcePlugin extends SQLDataSourcePlugin implements SQLCons
                 return g;
             }
         }
-        return null;
+        // genomeDB not found in this clade.  Default to the first one.
+        return genomes.get(0);
+    }
+
+    /**
+     * Select the current genome database based on the given table.  If the table is null,
+     * use the current genome.  If the genome is null, look for "GENOME" in the settings.
+     * If that is null, use "hg18".
+     * @param t 
+     */
+    public void selectGenomeDB(Table t) {
+        if (t != null) {
+            genomeDB = t.getDatabase();
+        } else {
+            String genomeName = null;
+            if (GenomeUtils.isGenomeLoaded()) {
+                genomeName = GenomeUtils.getGenome().getName();
+            }
+            if (genomeName == null) {
+                genomeName = SettingsUtils.getString(this, "GENOME");
+                if (genomeName == null) {
+                    genomeName = "hg18";
+                }
+            }
+            genomeDB = getDatabase(genomeName);
+        }
     }
 }

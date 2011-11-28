@@ -15,26 +15,37 @@
  */
 package savant.ucscchooser;
 
+import java.awt.Component;
+import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.net.URI;
+import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 import javax.swing.*;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import savant.api.adapter.GenomeAdapter;
+import savant.api.adapter.TrackAdapter;
+import savant.api.event.GenomeChangedEvent;
 import savant.api.event.PluginEvent;
+import savant.api.util.DialogUtils;
+import savant.api.util.GenomeUtils;
 import savant.api.util.Listener;
+import savant.api.util.PluginUtils;
+import savant.api.util.TrackUtils;
 import savant.plugin.PluginController;
 import savant.plugin.SavantPanelPlugin;
-import savant.ucsc.CladesFetcher;
-import savant.ucsc.GenomeDef;
-import savant.ucsc.GroupDef;
-import savant.ucsc.GroupsFetcher;
-import savant.ucsc.UCSCDataSourcePlugin;
+import savant.sql.MappedTable;
+import savant.ucsc.*;
+import savant.util.MiscUtils;
+import savant.util.NetworkUtils;
 
 
 /**
@@ -48,7 +59,10 @@ public class UCSCChooserPlugin extends SavantPanelPlugin {
     /** Hard-coded ID of UCSC DataSource plugin. */
     private static final String UCSC_PLUGIN_ID = "savant.ucsc";
 
-    /** Top-level topLevelPanel provided by Savant. */
+    /** Hard-coded URL of UCSC DataSource plugin. */
+    private static final URL UCSC_PLUGIN_URL = NetworkUtils.getKnownGoodURL("http://www.savantbrowser.com/plugins/esmith/savant.ucsc-1.1.4.jar");
+
+    /** Top-level panel provided by Savant. */
     JPanel topLevelPanel;
 
     private JProgressBar progressBar;
@@ -63,7 +77,9 @@ public class UCSCChooserPlugin extends SavantPanelPlugin {
     /** Panel containing list of groups. */
     private JPanel groupsPanel;
 
-    
+    /** Button which actually loads the tracks. */
+    private JButton loadButton;
+
     @Override
     public void init(JPanel panel) {
         topLevelPanel = panel;
@@ -74,7 +90,20 @@ public class UCSCChooserPlugin extends SavantPanelPlugin {
         if (getUCSCPlugin() != null) {
             buildUI();
         } else {
-            panel.add(new JLabel("Waiting for UCSC plugin to load."), new GridBagConstraints());
+            GridBagConstraints gbc = new GridBagConstraints();
+            gbc.insets = new Insets(5, 5, 5, 5);
+            gbc.gridwidth = GridBagConstraints.REMAINDER;
+            panel.add(new JLabel("Unable to access UCSC DataSource plugin."), gbc);
+
+            JButton installUCSCButton = new JButton("Install Now");
+            installUCSCButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent ae) {
+                    PluginUtils.installPlugin(UCSC_PLUGIN_URL);
+                }
+            });
+            panel.add(installUCSCButton, gbc);
+
             PluginController.getInstance().addListener(new Listener<PluginEvent>() {
                 @Override
                 public void handleEvent(PluginEvent event) {
@@ -82,8 +111,6 @@ public class UCSCChooserPlugin extends SavantPanelPlugin {
                         if (event.getType().equals(PluginEvent.Type.LOADED)) {
                             // Yay!  The UCSC plugin has finally made an appearance.
                             buildUI();
-                        } else {
-                            LOG.info("Something went wrong with the UCSC plugin.");
                         }
                         PluginController.getInstance().removeListener(this);
                     }
@@ -92,109 +119,153 @@ public class UCSCChooserPlugin extends SavantPanelPlugin {
         }
     }
 
+    @Override
+    public String getTitle() {
+        return "UCSC Chooser";
+    }
+
     private void buildUI() {
         topLevelPanel.removeAll();
         topLevelPanel.setLayout(new GridBagLayout());
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 5, 5, 5);
-        
-        JLabel cladeLabel = new JLabel("Clade:");
-        gbc.anchor = GridBagConstraints.EAST;
-        topLevelPanel.add(cladeLabel, gbc);
-        
-        cladeCombo = new JComboBox();
-        cladeCombo.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent ae) {
-                UCSCDataSourcePlugin ucsc = getUCSCPlugin();
-                String clade = (String)cladeCombo.getSelectedItem();
-                genomeCombo.setModel(new DefaultComboBoxModel(ucsc.getCladeGenomes(clade)));
-                genomeCombo.setSelectedItem(ucsc.getCurrentGenome(clade));
-            }
-        });
 
-        gbc.gridwidth = GridBagConstraints.REMAINDER;
-        gbc.anchor = GridBagConstraints.WEST;
-        topLevelPanel.add(cladeCombo, gbc);
-        
-        JLabel genomeLabel = new JLabel("Genome:");
-        gbc.gridwidth = 1;
-        gbc.anchor = GridBagConstraints.EAST;
-        topLevelPanel.add(genomeLabel, gbc);
-        
-        genomeCombo = new JComboBox();
-        genomeCombo.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent ae) {
-                buildProgressUI();
-                new GroupsFetcher(getUCSCPlugin(), (GenomeDef)genomeCombo.getSelectedItem()) {
-                    @Override
-                    public void done(List<GroupDef> groups) {
-                        if (groups != null) {
-                            LOG.info("GroupsFetcher returned " + groups.size() + " defs.");
-                            GridBagConstraints gbc = new GridBagConstraints();
-                            gbc.gridwidth = GridBagConstraints.REMAINDER;
-                            gbc.fill = GridBagConstraints.BOTH;
-                            gbc.weightx = 1.0;
-                            for (GroupDef g: groups) {
-                                groupsPanel.add(new GroupPanel(g), gbc);
-                            }
-                            
-                            // Add a filler panel to force everything to the top.
-                            gbc.weighty = 1.0;
-                            groupsPanel.add(new JPanel(), gbc);
+        try {
+            UCSCDataSourcePlugin ucsc = getUCSCPlugin();
+            ucsc.getConnection();
+            JLabel cladeLabel = new JLabel("Clade:");
+            gbc.anchor = GridBagConstraints.EAST;
+            topLevelPanel.add(cladeLabel, gbc);
 
-                            topLevelPanel.validate();
-                        } else {
-                            LOG.info("GroupFetcher returned null.");
-                        }
-                    }
-
-                    @Override
-                    public void showProgress(double value) {
-                        updateProgress(progressMessage, value);
-                    }
-                }.execute();
-            }
-        });
-        gbc.gridwidth = GridBagConstraints.REMAINDER;
-        gbc.anchor = GridBagConstraints.WEST;
-        topLevelPanel.add(genomeCombo, gbc);
-        
-        groupsPanel = new JPanel();
-        groupsPanel.setLayout(new GridBagLayout());
-        
-        JScrollPane groupsScroller = new JScrollPane(groupsPanel, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-        gbc.weightx = 1.0;
-        gbc.weighty = 1.0;
-        gbc.fill = GridBagConstraints.BOTH;
-        topLevelPanel.add(groupsScroller, gbc);
-
-        buildProgressUI();
-
-        new CladesFetcher(getUCSCPlugin()) {
-            @Override
-            public void done(String selectedClade) {
-                cladeCombo.setModel(new DefaultComboBoxModel(UCSCDataSourcePlugin.STANDARD_CLADES));
-                if (selectedClade != null) {
-                    cladeCombo.setSelectedItem(selectedClade);
-                } else {
-                    cladeCombo.setSelectedIndex(0);
+            cladeCombo = new JComboBox();
+            cladeCombo.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent ae) {
+                    UCSCDataSourcePlugin ucsc = getUCSCPlugin();
+                    String clade = (String)cladeCombo.getSelectedItem();
+                    genomeCombo.setModel(new DefaultComboBoxModel(ucsc.getCladeGenomes(clade)));
+                    genomeCombo.setSelectedItem(ucsc.getCurrentGenome(clade));
                 }
-            }
+            });
+
+            gbc.anchor = GridBagConstraints.WEST;
+            topLevelPanel.add(cladeCombo, gbc);
+
+            JLabel genomeLabel = new JLabel("Genome:");
+            gbc.anchor = GridBagConstraints.EAST;
+            topLevelPanel.add(genomeLabel, gbc);
+
+            genomeCombo = new JComboBox();
+            genomeCombo.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent ae) {
+                    buildProgressUI();
+                    new GroupsFetcher(getUCSCPlugin(), (GenomeDef)genomeCombo.getSelectedItem()) {
+                        @Override
+                        public void done(List<GroupDef> groups) {
+                            if (groups != null) {
+                                GridBagConstraints gbc = new GridBagConstraints();
+                                gbc.gridwidth = GridBagConstraints.REMAINDER;
+                                gbc.fill = GridBagConstraints.BOTH;
+                                gbc.weightx = 1.0;
+                                for (GroupDef g: groups) {
+                                    groupsPanel.add(new GroupPanel(g), gbc);
+                                }
+
+                                // Add a filler panel to force everything to the top.
+                                gbc.weighty = 1.0;
+                                groupsPanel.add(new JPanel(), gbc);
+                                loadButton.setEnabled(true);
+                                topLevelPanel.validate();
+                            }
+                        }
+
+                        @Override
+                        public void showProgress(double value) {
+                            updateProgress(progressMessage, value);
+                        }
+                    }.execute();
+                }
+            });
+            gbc.anchor = GridBagConstraints.WEST;
+            topLevelPanel.add(genomeCombo, gbc);
+
+            loadButton = new JButton("Load Selected Tracks");
+            loadButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent ae) {
+                    try {
+                        loadSelectedTracks();
+                    } catch (Throwable x) {
+                        DialogUtils.displayException(getTitle(), "Unable to load selected tracks.", x);
+                    }
+                }            
+            });
+            gbc.anchor = GridBagConstraints.EAST;
+            gbc.gridwidth = GridBagConstraints.REMAINDER;
+            topLevelPanel.add(loadButton, gbc);
+
+            groupsPanel = new JPanel();
+            groupsPanel.setLayout(new GridBagLayout());
+
+            JScrollPane groupsScroller = new JScrollPane(groupsPanel, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+            gbc.weightx = 1.0;
+            gbc.weighty = 1.0;
+            gbc.fill = GridBagConstraints.BOTH;
+            topLevelPanel.add(groupsScroller, gbc);
+
+            buildProgressUI();
+
+            GenomeUtils.addGenomeChangedListener(new Listener<GenomeChangedEvent>() {
+                @Override
+                public void handleEvent(GenomeChangedEvent event) {
+                    getUCSCPlugin().selectGenomeDB(null);
+                    GenomeAdapter newGenome = event.getNewGenome();
+                    GenomeDef g = new GenomeDef(newGenome.getName(), null);
+                    cladeCombo.setSelectedItem(getUCSCPlugin().findCladeForGenome(g));
+                }
+            });
             
-            @Override
-            public void showProgress(double value) {
-                updateProgress(progressMessage, value);
-            }
-        }.execute();
+            ucsc.selectGenomeDB(null);
+            new CladesFetcher(getUCSCPlugin()) {
+                @Override
+                public void done(String selectedClade) {
+                    cladeCombo.setModel(new DefaultComboBoxModel(UCSCDataSourcePlugin.STANDARD_CLADES));
+                    if (selectedClade != null) {
+                        cladeCombo.setSelectedItem(selectedClade);
+                    } else {
+                        cladeCombo.setSelectedIndex(0);
+                    }
+                }
+
+                @Override
+                public void showProgress(double value) {
+                    updateProgress(progressMessage, value);
+                }
+            }.execute();
+        } catch (Exception x) {
+            LOG.error("Unable to connect to UCSC database.", x);
+            topLevelPanel.removeAll();
+            gbc.anchor = GridBagConstraints.CENTER;
+            gbc.gridwidth = GridBagConstraints.REMAINDER;
+            gbc.fill = GridBagConstraints.NONE;
+            gbc.weightx = 0.0;
+            gbc.weighty = 0.0;
+            topLevelPanel.add(new JLabel("Unable to connect to UCSC database."), gbc);
+            JLabel error = new JLabel(MiscUtils.getMessage(x));
+            Font f = topLevelPanel.getFont();
+            f = f.deriveFont(Font.ITALIC, f.getSize() - 2.0f);
+            error.setFont(f);
+            topLevelPanel.add(error, gbc);
+        }
     }
 
     /**
      * While the database is loading we want to have a progress-bar.
      */
     private void buildProgressUI() {
+        loadButton.setEnabled(false);
         groupsPanel.removeAll();
 
         GridBagConstraints gbc = new GridBagConstraints();
@@ -206,6 +277,7 @@ public class UCSCChooserPlugin extends SavantPanelPlugin {
 
         progressBar = new JProgressBar();
         groupsPanel.add(progressBar, gbc);
+        groupsPanel.validate();
     }
 
     private void updateProgress(final String message, final double value) {
@@ -227,12 +299,58 @@ public class UCSCChooserPlugin extends SavantPanelPlugin {
         groupsPanel.validate();
     }
 
-    private UCSCDataSourcePlugin getUCSCPlugin() {
+    /**
+     * Utility method to get the UCSC DataSource plugin we're piggybacking off of.
+     */
+    static UCSCDataSourcePlugin getUCSCPlugin() {
         return (UCSCDataSourcePlugin)PluginController.getInstance().getPlugin(UCSC_PLUGIN_ID);
     }
+    
+    private void loadSelectedTracks() throws Throwable {
+        TrackAdapter[] existingTracks = TrackUtils.getTracks();
+        List<MappedTable> newTracks = new ArrayList<MappedTable>();
 
-    @Override
-    public String getTitle() {
-        return "UCSC Chooser";
+        List<TrackDef> selectedTracks = new ArrayList<TrackDef>();
+        for (Component c: groupsPanel.getComponents()) {
+            if (c instanceof GroupPanel) {
+                selectedTracks.addAll(((GroupPanel)c).getSelectedTracks());
+            }
+        }
+
+        UCSCDataSourcePlugin ucsc = getUCSCPlugin();
+        for (TrackDef t: selectedTracks) {
+            MappedTable table = ucsc.getTableWithStandardMapping(t);
+            if (table.isMapped()) {
+                table.getMapping().save(ucsc);
+            } else {
+                LOG.warn(t + " was not successfully mapped.");
+            }
+            URI mappedURI = table.getURI();
+            for (TrackAdapter t2: existingTracks) {
+                if (mappedURI.equals(t2.getDataSource().getURI())) {
+                    // Track already exists.  Drop it from our list.
+                    table = null;
+                    LOG.info(mappedURI + " already found in loaded tracks.");
+                    break;
+                }
+            }
+            if (table != null) {
+                newTracks.add(table);
+            }
+        }
+        
+        LOG.info("After eliminating duplicates, " + newTracks.size() + " new tracks to be loaded.");
+        if (newTracks.size() > 0) {
+            for (MappedTable mt: newTracks) {
+                TrackUtils.createTrack(mt.getURI());
+            }
+        }
+        
+        // Success.  Let's clear away the selections.
+        for (Component c: groupsPanel.getComponents()) {
+            if (c instanceof GroupPanel) {
+                ((GroupPanel)c).clearSelectedTracks();
+            }
+        }
     }
 }
