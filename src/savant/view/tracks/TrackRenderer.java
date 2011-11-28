@@ -17,7 +17,6 @@
 package savant.view.tracks;
 
 import java.awt.*;
-import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
@@ -309,11 +308,6 @@ public abstract class TrackRenderer implements Listener<DataRetrievalEvent> {
         rhombus.lineTo(x - w, y + unitHeight * 0.5);
         rhombus.closePath();
         g2.fill(rhombus);
-
-        if (unitWidth > 16.0) {
-            g2.setColor(Color.BLACK);
-            g2.draw(new Line2D.Double(x, y, x, y + unitHeight));
-        }
 
         return rhombus;
     }
