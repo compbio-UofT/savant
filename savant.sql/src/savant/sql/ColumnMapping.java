@@ -165,7 +165,7 @@ public class ColumnMapping implements SQLConstants {
                 }
             }
         }
-        return new ColumnMapping(null, chrom, start, end, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
+        return getIntervalMapping(chrom, start, end, null);
     }
 
     /**

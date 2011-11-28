@@ -48,7 +48,11 @@ public class IntervalSQLDataSource extends SQLDataSource<GenericIntervalRecord> 
         try {
             ResultSet rs = executeQuery(reference, range.getFrom(), range.getTo());
             while (rs.next()) {
-                result.add(GenericIntervalRecord.valueOf(reference, Interval.valueOf(rs.getInt(columns.start) + 1, rs.getInt(columns.end)), rs.getString(columns.name)));
+                String name = null;
+                if (columns.name != null) {
+                    name = rs.getString(columns.name);
+                }
+                result.add(GenericIntervalRecord.valueOf(reference, Interval.valueOf(rs.getInt(columns.start) + 1, rs.getInt(columns.end)), name));
             }
             rs.close();
         } catch (SQLException sqlx) {

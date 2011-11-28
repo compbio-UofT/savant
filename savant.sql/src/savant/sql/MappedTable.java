@@ -58,4 +58,8 @@ public class MappedTable extends Table {
     public boolean isMapped() {
         return mapping != null && mapping.format != null;
     }
+    
+    public ColumnMapping getMapping() {
+        return mapping;
+    }
 }
