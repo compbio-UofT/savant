@@ -20,6 +20,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,13 +30,12 @@ import javax.swing.table.TableCellRenderer;
 
 import com.jidesoft.grid.TreeTable;
 import com.jidesoft.swing.TableSearchable;
-import java.net.MalformedURLException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import savant.api.util.DialogUtils;
 import savant.data.types.Genome;
-import savant.util.MiscUtils;
+import savant.util.NetworkUtils;
 import savant.view.swing.model.TreeBrowserModel;
 import savant.view.swing.model.TreeBrowserEntry;
 
@@ -155,7 +155,7 @@ public class SavantFileRepositoryBrowser extends JDialog {
                 if (auxes.length > 0) {
                     List<TreeBrowserEntry> auxEntries = new ArrayList<TreeBrowserEntry>(auxes.length);
                     for (Genome.Auxiliary aux: g.getAuxiliaries()) {
-                        auxEntries.add(new TreeBrowserEntry(MiscUtils.getFileName(aux.uri), aux.type.toString(), aux.description, aux.uri.toURL(), "0"));
+                        auxEntries.add(new TreeBrowserEntry(NetworkUtils.getFileName(aux.uri), aux.type.toString(), aux.description, aux.uri.toURL(), "0"));
                     }
                     roots.add(new TreeBrowserEntry(g.getDescription(), auxEntries));
                 }

@@ -21,6 +21,7 @@ import java.io.IOException;
 
 import savant.api.adapter.RangeAdapter;
 import savant.api.adapter.TrackAdapter;
+import savant.api.util.TrackUtils;
 import savant.controller.LocationController;
 import savant.util.Controller;
 import savant.util.DownloadEvent;
@@ -51,10 +52,11 @@ public abstract class TrackExporter extends Controller<DownloadEvent> {
 
     /**
      * Get a new TrackExporter appropriate for the given track.
-     * @param t track to be exported (currently only fasta and bam are supported)
+     * @param trackURI URI of the track to be exported (currently only fasta and bam are supported)
      * @return an appropriate exporter, or null if one not found
      */
-    public static TrackExporter getExporter(TrackAdapter t) {
+    public static TrackExporter getExporter(String trackURI) {
+        TrackAdapter t = TrackUtils.getTrack(trackURI);
         switch (t.getDataFormat()) {
             case SEQUENCE_FASTA:
                 return new FastaExporter(t);

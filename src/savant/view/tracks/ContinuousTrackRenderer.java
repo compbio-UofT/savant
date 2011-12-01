@@ -30,10 +30,11 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import savant.api.adapter.GraphPaneAdapter;
 import savant.api.data.ContinuousRecord;
 import savant.api.data.Record;
+import savant.api.event.DataRetrievalEvent;
 import savant.controller.LocationController;
-import savant.data.event.DataRetrievalEvent;
 import savant.exception.RenderingException;
 import savant.selection.SelectionController;
 import savant.util.AxisRange;
@@ -41,7 +42,6 @@ import savant.util.ColourKey;
 import savant.util.ColourScheme;
 import savant.util.DrawingInstruction;
 import savant.util.Range;
-import savant.view.swing.GraphPane;
 
 
 /**
@@ -72,7 +72,7 @@ public class ContinuousTrackRenderer extends TrackRenderer {
     }
 
     @Override
-    public void render(Graphics2D g2, GraphPane gp) throws RenderingException {
+    public void render(Graphics2D g2, GraphPaneAdapter gp) throws RenderingException {
 
         renderPreCheck();
 
@@ -119,7 +119,7 @@ public class ContinuousTrackRenderer extends TrackRenderer {
                         haveOpenPath = true;
                     }
                     path.lineTo(xFormXPos, xFormYPos);
-                    Rectangle2D rec = new Rectangle2D.Double(xFormXPos - ((xFormXPos-path.getCurrentPoint().getX())/2),0,Math.max(xFormXPos-path.getCurrentPoint().getX(), 1),gp.getHeight());
+                    Rectangle2D rec = new Rectangle2D.Double(xFormXPos - ((xFormXPos-path.getCurrentPoint().getX())/2), 0, Math.max(xFormXPos-path.getCurrentPoint().getX(), 1), gp.getHeight());
                     recordToShapeMap.put(continuousRecord, rec);
                     xFormXPos = gp.transformXPos(xPos + 1);
                     path.lineTo(xFormXPos, xFormYPos);
@@ -153,7 +153,7 @@ public class ContinuousTrackRenderer extends TrackRenderer {
      * Current selected shapes.
      */
     @Override
-    public List<Shape> getCurrentSelectedShapes(GraphPane gp){
+    public List<Shape> getCurrentSelectedShapes(GraphPaneAdapter gp){
         List<Shape> shapes = new ArrayList<Shape>();
         List<Record> currentSelected = SelectionController.getInstance().getSelectedFromList(trackName, LocationController.getInstance().getRange(), data);
         for(int i = 0; i < currentSelected.size(); i++){
@@ -162,7 +162,7 @@ public class ContinuousTrackRenderer extends TrackRenderer {
         return shapes;
     }
 
-    public static Shape continuousRecordToEllipse(GraphPane gp, Record o){
+    public static Shape continuousRecordToEllipse(GraphPaneAdapter gp, Record o){
         ContinuousRecord rec = (ContinuousRecord) o;
         Double x = gp.transformXPos(rec.getPosition()) + (gp.getUnitWidth()/2) -4;
         Double y = gp.transformYPos(rec.getValue()) -4;// + (this.getUnitWidth()/2);

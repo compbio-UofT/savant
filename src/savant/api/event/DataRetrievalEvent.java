@@ -1,5 +1,5 @@
 /*
- *    Copyright 2011 University of Toronto
+ *    Copyright 2010-2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -14,62 +14,60 @@
  *    limitations under the License.
  */
 
-package savant.data.event;
+package savant.api.event;
 
-import savant.view.tracks.Track;
+import java.util.List;
+
+import savant.api.data.Record;
 
 
 /**
- * Event class which allows asynchronous creation of tracks.
+ * Event class which allows asynchronous retrieval of data.
  *
  * @author tarkvara
  */
-public class TrackCreationEvent {
+public class DataRetrievalEvent {
     public enum Type {
         STARTED,
         COMPLETED,
         FAILED
     };
     Type type;
-    Track[] tracks;
-    String name;
+    List<Record> data;
     Throwable error;
 
     /**
-     * Constructor for event which is fired as track-creation begins.
+     * Constructor for retrieval starting.
      */
-    public TrackCreationEvent() {
+    public DataRetrievalEvent() {
         this.type = Type.STARTED;
     }
 
     /**
-     * Constructor when tracks have been successfully created.
-     *
-     * @param tracks the tracks created
-     * @param name the display name for this collection of tracks
+     * Constructor when data is successfully retrieved.
+     * @param data the records retrieved
      */
-    public TrackCreationEvent(Track[] tracks, String name) {
+    public DataRetrievalEvent(List<Record> data) {
         this.type = Type.COMPLETED;
-        this.tracks = tracks;
-        this.name = name;
+        this.data = data;
     }
 
     /**
-     * Constructor when track creation has failed.
+     * Constructor when retrieval has failed.
      *
      * @param error
      */
-    public TrackCreationEvent(Throwable error) {
+    public DataRetrievalEvent(Throwable error) {
         this.type = Type.FAILED;
         this.error = error;
     }
 
-    public Track[] getTracks() {
-        return tracks;
+    public Type getType() {
+        return type;
     }
 
-    public String getName() {
-        return name;
+    public List<Record> getData() {
+        return data;
     }
 
     public Throwable getError() {

@@ -20,7 +20,8 @@ import java.awt.event.ActionListener;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import savant.view.swing.Frame;
+
+import savant.api.adapter.FrameAdapter;
 
 
 /**
@@ -31,9 +32,9 @@ import savant.view.swing.Frame;
 public class TrackCancellationListener implements ActionListener {
     private static final Log LOG = LogFactory.getLog(TrackCancellationListener.class);
 
-    private final Frame frame;
+    private final FrameAdapter frame;
 
-    public TrackCancellationListener(Frame f) {
+    public TrackCancellationListener(FrameAdapter f) {
         frame = f;
     }
 
@@ -48,7 +49,7 @@ public class TrackCancellationListener implements ActionListener {
         } else {
             // User has decided to cancel initial creation of the frame, so close it.
             LOG.info("Closing frame for track.");
-            frame.trackCreationFailed(null);
+            frame.handleEvent(new TrackCreationEvent(new Exception("Cancelled")));
         }
     }
 }

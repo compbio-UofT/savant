@@ -25,7 +25,10 @@ import javax.xml.stream.XMLStreamReader;
  */
 public class ToolArgument {
     public enum Type {
-        LIST,
+        INT,                  // An integer value.
+        FLOAT,                // A floating poing value
+        LIST,                 // A list of values, one of which can be selected.
+        MULTI,                // A list of values, of which multiple ones can be selected.
         BARE_RANGE,           // A bare range (without any "chr" prefix)
         RANGE,                // A normal range (possibly with a "chr" prefix)
         OUTPUT_FILE,
@@ -45,7 +48,7 @@ public class ToolArgument {
      * Value of this argument (default may be provided by XML file).
      * Usually a string, but could also be a track or a file.
      */
-    Object value;
+    String value;
 
     boolean enabled;
 
@@ -58,6 +61,10 @@ public class ToolArgument {
         enabled = required;
         
         switch (type) {
+            case INT:
+            case FLOAT:
+                value = reader.getAttributeValue(null, "default");
+                break;
             case LIST:
                 attr = reader.getAttributeValue(null, "choices");
                 choices = attr.split(",\\s*");
@@ -65,6 +72,10 @@ public class ToolArgument {
                 if (value == null) {
                     value = choices[0];
                 }
+                break;
+            case MULTI:
+                attr = reader.getAttributeValue(null, "choices");
+                choices = attr.split(",\\s*");
                 break;
         }
     }

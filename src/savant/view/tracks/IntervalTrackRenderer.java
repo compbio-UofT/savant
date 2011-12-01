@@ -16,7 +16,6 @@
 
 package savant.view.tracks;
 
-import savant.api.util.Resolution;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
@@ -24,14 +23,14 @@ import java.awt.geom.Arc2D;
 import java.awt.geom.Rectangle2D;
 import java.util.List;
 
-import savant.data.event.DataRetrievalEvent;
+import savant.api.adapter.GraphPaneAdapter;
+import savant.api.event.DataRetrievalEvent;
 import savant.api.data.Interval;
 import savant.api.data.IntervalRecord;
 import savant.api.data.Record;
+import savant.api.util.Resolution;
 import savant.exception.RenderingException;
 import savant.util.*;
-import savant.view.swing.GraphPane;
-import savant.view.tracks.TrackRenderer;
 
 
 /**
@@ -59,7 +58,7 @@ public class IntervalTrackRenderer extends TrackRenderer {
     }
 
     @Override
-    public void render(Graphics2D g2, GraphPane gp) throws RenderingException {
+    public void render(Graphics2D g2, GraphPaneAdapter gp) throws RenderingException {
 
         renderPreCheck();
 
@@ -78,7 +77,7 @@ public class IntervalTrackRenderer extends TrackRenderer {
         }
     }
 
-    private void renderSquishMode(Graphics2D g2, GraphPane gp, Resolution r) throws RenderingException {
+    private void renderSquishMode(Graphics2D g2, GraphPaneAdapter gp, Resolution r) throws RenderingException {
 
         ColourScheme cs = (ColourScheme)instructions.get(DrawingInstruction.COLOUR_SCHEME);
         Color bgcolor = cs.getColor(ColourKey.TRANSLUCENT_GRAPH);
@@ -118,7 +117,7 @@ public class IntervalTrackRenderer extends TrackRenderer {
         }
     }
 
-    private void renderArcMode(Graphics2D g2, GraphPane gp, Resolution r) {
+    private void renderArcMode(Graphics2D g2, GraphPaneAdapter gp, Resolution r) {
 
 
         ColourScheme cs = (ColourScheme)instructions.get(DrawingInstruction.COLOUR_SCHEME);
@@ -139,8 +138,8 @@ public class IntervalTrackRenderer extends TrackRenderer {
                 int arcLength = inter.getLength();
                 double arcHeight = Math.log((double)arcLength);
 
-                double rectWidth = gp.getWidth(arcLength);
-                double rectHeight = gp.getHeight(arcHeight)*2;
+                double rectWidth = arcLength * gp.getUnitWidth();
+                double rectHeight = arcHeight * 2 * gp.getUnitHeight();
 
                 double xOrigin = gp.transformXPos(inter.getStart());
                 double yOrigin = gp.transformYPos(arcHeight);
@@ -152,7 +151,7 @@ public class IntervalTrackRenderer extends TrackRenderer {
 
     }
 
-    private void renderPackMode(Graphics2D g2, GraphPane gp, Resolution r) throws RenderingException {
+    private void renderPackMode(Graphics2D g2, GraphPaneAdapter gp, Resolution r) throws RenderingException {
         ColourScheme cs = (ColourScheme)instructions.get(DrawingInstruction.COLOUR_SCHEME);
         Color bgcolor = cs.getColor(ColourKey.OPAQUE_GRAPH);
         Color linecolor = cs.getColor(ColourKey.INTERVAL_LINE);
@@ -190,7 +189,7 @@ public class IntervalTrackRenderer extends TrackRenderer {
                     double x = gp.transformXPos(interval.getStart());
                     //double y = gp.transformYPos(k)-unitHeight;
                     double y = gp.getHeight() - unitHeight * (k+1) - gp.getOffset();
-                    double w = gp.getWidth(interval.getLength());
+                    double w = interval.getLength() * gp.getUnitWidth();
                     //if (w < 1) continue; // don't draw intervals less than one pixel wide
                     double h = unitHeight;
 

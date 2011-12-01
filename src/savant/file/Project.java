@@ -27,6 +27,7 @@ import javax.xml.stream.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import savant.api.adapter.FrameAdapter;
 import savant.api.event.GenomeChangedEvent;
 import savant.api.util.Listener;
 import savant.controller.*;
@@ -34,9 +35,8 @@ import savant.data.types.Genome;
 import savant.data.types.Genome.ReferenceInfo;
 import savant.exception.SavantEmptySessionException;
 import savant.util.Bookmark;
-import savant.util.MiscUtils;
+import savant.util.NetworkUtils;
 import savant.util.Range;
-import savant.view.swing.Frame;
 
 
 /**
@@ -226,7 +226,7 @@ public class Project {
         }
 
         if (g.isSequenceSet()) {
-            writeAttribute(XMLAttribute.uri, MiscUtils.getNeatPathFromURI(g.getDataSource().getURI()));
+            writeAttribute(XMLAttribute.uri, NetworkUtils.getNeatPathFromURI(g.getDataSource().getURI()));
         } else {
             for (String ref : g.getReferenceNames()) {
                 writeEmptyElement(XMLElement.reference, "    ");
@@ -237,11 +237,11 @@ public class Project {
         writer.writeCharacters("\r\n  ");
         writer.writeEndElement();
 
-        for (Frame fr: FrameController.getInstance().getOrderedFrames()) {
+        for (FrameAdapter fr: FrameController.getInstance().getOrderedFrames()) {
             URI uri = fr.getTracks()[0].getDataSource().getURI();
             if (uri != null) {
                 writeEmptyElement(XMLElement.track, "  ");
-                writeAttribute(XMLAttribute.uri, MiscUtils.getNeatPathFromURI(uri));
+                writeAttribute(XMLAttribute.uri, NetworkUtils.getNeatPathFromURI(uri));
             }
         }
 

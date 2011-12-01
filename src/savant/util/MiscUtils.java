@@ -20,32 +20,23 @@ import java.awt.Color;
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.geom.Path2D;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.net.URI;
-import java.net.URL;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import javax.swing.*;
 
 import com.jidesoft.docking.DockableFrame;
 import com.jidesoft.docking.DockingManager;
-import java.awt.event.InputEvent;
-import java.util.Collection;
 import net.sf.samtools.SAMRecord;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import savant.api.adapter.RangeAdapter;
 
 
 /**
@@ -174,28 +165,6 @@ public class MiscUtils {
         }
     }
 
-    /**
-     * Extract the file extension from the given URL.
-     *
-     * @param url The URL from which to extract the extension
-     * @return The extension of the URL
-     */
-    public static String getExtension(URL url) {
-        return getExtension(url.toString());
-    }
-
-    /**
-     * Extract the file-name portion of a URI.
-     * 
-     * @param uri the URI to be processed
-     * @return the file-name portion of the URI
-     */
-    public static String getFileName(URI uri) {
-        String path = uri.toString();
-        int lastSlashIndex = path.lastIndexOf("/");
-        return path.substring(lastSlashIndex + 1, path.length());
-    }
-
     public static String getTemporaryDirectory() {
         String tmpDir;
         if (MAC || LINUX) {
@@ -308,7 +277,7 @@ public class MiscUtils {
     /**
      * Given a range, return a reasonable set of tick positions for that range.
      */
-    public static int[] getTickPositions(RangeAdapter r) {
+    public static int[] getTickPositions(Range r) {
         return getTickPositions(r.getFrom(), r.getTo() + 1);
     }
 
@@ -388,21 +357,6 @@ public class MiscUtils {
             return roundToSignificantDigits(((double) bytes/1000000000),2) + " GB";
         }
     }
-
-    /**
-     * If u is a file:// URI, return the absolute path.  If it's a network URI, leave
-     * it unchanged.
-     *
-     * @param u the URI to be neatened
-     * @return a canonical string representing the URI.
-     */
-    public static String getNeatPathFromURI(URI u) {
-        if(u == null) { return ""; }
-        if ("file".equals(u.getScheme())) {
-            return (new File(u)).getAbsolutePath();
-        }
-        return u.toString();
-     }
 
     /**
      * Set the title of a window to reflect whether it is saved or not.  On Windows

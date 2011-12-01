@@ -30,30 +30,32 @@ import com.jidesoft.docking.DockableFrame;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import savant.api.adapter.FrameAdapter;
+import savant.api.adapter.GraphPaneAdapter;
+import savant.api.data.DataFormat;
+import savant.api.event.GenomeChangedEvent;
+import savant.api.event.DataRetrievalEvent;
+import savant.view.tracks.TrackCreationEvent;
 import savant.api.util.DialogUtils;
 import savant.api.util.Listener;
 import savant.controller.FrameController;
 import savant.controller.GenomeController;
 import savant.controller.LocationController;
 import savant.controller.TrackController;
-import savant.api.event.GenomeChangedEvent;
-import savant.data.event.DataRetrievalEvent;
-import savant.data.event.TrackCreationEvent;
-import savant.data.event.TrackCreationListener;
-import savant.api.data.DataFormat;
 import savant.plugin.SavantPanelPlugin;
 import savant.util.DrawingMode;
 import savant.util.Range;
 import savant.util.swing.ProgressPanel;
 import savant.view.icon.SavantIconFactory;
 import savant.view.tracks.SequenceTrack;
+import savant.view.tracks.TrackFactory.TrackCreationListener;
 
 
 /**
  *
  * @author mfiume, AndrewBrook
  */
-public class Frame extends DockableFrame implements Listener<DataRetrievalEvent>, TrackCreationListener {
+public class Frame extends DockableFrame implements FrameAdapter, TrackCreationListener {
     private static final Log LOG = LogFactory.getLog(Frame.class);
 
     /** If true, the frame's construction was halted by an error or by the user cancelling. */
@@ -221,10 +223,12 @@ public class Frame extends DockableFrame implements Listener<DataRetrievalEvent>
         return frameLandscape;
     }
 
-    public GraphPane getGraphPane() {
+    @Override
+    public GraphPaneAdapter getGraphPane() {
         return graphPane;
     }
 
+    @Override
     public final Track[] getTracks() {
         return tracks;
     }
@@ -238,7 +242,7 @@ public class Frame extends DockableFrame implements Listener<DataRetrievalEvent>
      */
     public void setTracks(Track[] newTracks) {
         if (!GenomeController.getInstance().isGenomeLoaded() && newTracks[0].getDataFormat() != DataFormat.SEQUENCE_FASTA) {
-            trackCreationFailed(null);
+            handleEvent(new TrackCreationEvent(new Exception()));
             for (Track track : newTracks) {
                 TrackController.getInstance().removeTrack(track);
             }
@@ -361,6 +365,7 @@ public class Frame extends DockableFrame implements Listener<DataRetrievalEvent>
     /**
      * Force the associated track to redraw.  Used when the colour scheme has been changed by the Preferences dialog.
      */
+    @Override
     public void forceRedraw() {
         graphPane.setRenderForced();
         drawTracksInRange(LocationController.getInstance().getReferenceName(), graphPane.getXRange());
@@ -383,6 +388,12 @@ public class Frame extends DockableFrame implements Listener<DataRetrievalEvent>
         resetLayers();
     }
 
+    /**
+     * Tells the frame that the draw mode for this track has changed.  Gives the frame
+     * a chance to rebuild its user interface and request a repaint. 
+     * @param t the track whose mode has changed
+     */
+    @Override
     public void drawModeChanged(Track t) {
         DrawingMode mode = t.getDrawingMode();
         commandBar.drawModeChanged(mode);
@@ -396,6 +407,7 @@ public class Frame extends DockableFrame implements Listener<DataRetrievalEvent>
     /**
      * Get a panel for a plugin to draw on.  If necessary, a new one will be created.
      */
+    @Override
     public JPanel getLayerCanvas(SavantPanelPlugin plugin, boolean mayCreate) {
         JPanel p = pluginLayers.get(plugin);
         if (p == null && mayCreate) {
@@ -461,20 +473,18 @@ public class Frame extends DockableFrame implements Listener<DataRetrievalEvent>
     }
 
     @Override
-    public void trackCreationStarted(TrackCreationEvent evt) {
-    }
-
-    @Override
-    public void trackCreationCompleted(TrackCreationEvent evt) {
-        if (!aborted) {
-            setTracks(evt.getTracks());
+    public void handleEvent(TrackCreationEvent evt) {
+        switch (evt.getType()) {
+            case COMPLETED:
+                if (!aborted) {
+                    setTracks(evt.getTracks());
+                }
+                break;
+            case FAILED:
+                aborted = true;
+                FrameController.getInstance().closeFrame(this, false);
+                break;
         }
-    }
-
-    @Override
-    public void trackCreationFailed(TrackCreationEvent evt) {
-        aborted = true;
-        FrameController.getInstance().closeFrame(this, false);
     }
 
     public int getIntervalHeight() {

@@ -22,11 +22,11 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import savant.api.adapter.GraphPaneAdapter;
 import savant.controller.event.GraphPaneEvent;
 import savant.selection.PopupPanel;
 import savant.util.Controller;
 import savant.util.Range;
-import savant.view.swing.GraphPane;
 
 
 /**
@@ -49,7 +49,7 @@ public class GraphPaneController extends Controller {
     private double mouseYPosition;
     private boolean yIntegral;
 
-    private List<GraphPane> graphpanesQueuedForRendering;
+    private List<GraphPaneAdapter> graphpanesQueuedForRendering;
 
     private int spotlightSize;
     private double spotlightproportion = 0.25;
@@ -68,7 +68,7 @@ public class GraphPaneController extends Controller {
     // Get current time
     long start;
 
-    public void enlistRenderingGraphpane(GraphPane p) {
+    public void enlistRenderingGraphpane(GraphPaneAdapter p) {
         //System.out.println("Enlisting gp " + p.getTrackRenderers().get(0).toString());
         graphpanesQueuedForRendering.add(p);
         if (graphpanesQueuedForRendering.size() == 1) {
@@ -77,7 +77,7 @@ public class GraphPaneController extends Controller {
         }
     }
 
-    public void delistRenderingGraphpane(GraphPane p) {
+    public void delistRenderingGraphpane(GraphPaneAdapter p) {
 
         if (!graphpanesQueuedForRendering.contains(p)) {
             return;
@@ -96,7 +96,7 @@ public class GraphPaneController extends Controller {
     }
 
     private GraphPaneController() {
-        graphpanesQueuedForRendering = new ArrayList<GraphPane>();
+        graphpanesQueuedForRendering = new ArrayList<GraphPaneAdapter>();
     }
 
     public static synchronized GraphPaneController getInstance() {

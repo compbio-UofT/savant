@@ -16,16 +16,8 @@
 
 package savant.util;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URL;
-import java.net.URLConnection;
+import java.io.*;
+import java.net.*;
 import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
 import javax.net.ssl.HttpsURLConnection;
@@ -180,6 +172,66 @@ public class NetworkUtils {
         conn.setReadTimeout(READ_TIMEOUT);
         return conn.getInputStream();
     }
+
+    /**
+     * Extract the file extension from the given URL.
+     *
+     * @param url The URL from which to extract the extension
+     * @return The extension of the URL
+     */
+    public static String getExtension(URL url) {
+        return MiscUtils.getExtension(url.toString());
+    }
+
+    /**
+     * Extract the file-name portion of a URI.
+     * 
+     * @param uri the URI to be processed
+     * @return the file-name portion of the URI
+     */
+    public static String getFileName(URI uri) {
+        String path = uri.toString();
+        int lastSlashIndex = path.lastIndexOf("/");
+        return path.substring(lastSlashIndex + 1, path.length());
+    }
+
+    /**
+     * If u is a file:// URI, return the absolute path.  If it's a network URI, leave
+     * it unchanged.
+     *
+     * @param u the URI to be neatened
+     * @return a canonical string representing the URI.
+     */
+    public static String getNeatPathFromURI(URI u) {
+        if(u == null) { return ""; }
+        if ("file".equals(u.getScheme())) {
+            return (new File(u)).getAbsolutePath();
+        }
+        return u.toString();
+     }
+
+    /**
+     * Get a URI from a string.  In most cases, this is just the plain URI, but in the
+     * case of file-paths, this may include escaping special characters.  Effectively
+     * the inverse of getNeatPathFromURI().
+     *
+     * @param fileOrURI a string containing either a URI or a file-system path.
+     * @return a properly-formed URI
+     */
+    public static URI getURIFromPath(String fileOrURI) {
+        URI uri = null;
+        try {
+            uri = new URI(fileOrURI);
+            if (uri.getScheme() == null) {
+                uri = new File(fileOrURI).toURI();
+            }
+        } catch (URISyntaxException usx) {
+            // This can happen if we're passed a file-name containing spaces.
+            uri = new File(fileOrURI).toURI();
+        }
+        return uri;
+    }
+
 
     /**
      * Create a URL object from a string which we know to be a valid URL.  Avoids having

@@ -42,7 +42,7 @@ import savant.util.NetworkUtils;
  */
 public class PluginController extends Controller {
 
-    private static final Log LOG = LogFactory.getLog(PluginController.class);
+    static final Log LOG = LogFactory.getLog(PluginController.class);
     private static final String UNINSTALL_FILENAME = ".uninstall_plugins";
 
     private static PluginController instance;

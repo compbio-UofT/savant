@@ -24,7 +24,7 @@ import savant.api.adapter.DataSourceAdapter;
 import savant.api.adapter.RangeAdapter;
 import savant.exception.SavantTrackCreationCancelledException;
 import savant.util.*;
-import savant.view.tracks.Track;
+
 
 /**
  * View track for a BED interval file (containing BED Interval Records)

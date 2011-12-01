@@ -21,14 +21,14 @@ import java.awt.Graphics2D;
 import java.awt.Polygon;
 import java.awt.geom.Point2D;
 
+import savant.api.adapter.GraphPaneAdapter;
 import savant.api.data.PointRecord;
 import savant.api.data.Record;
+import savant.api.util.Resolution;
 import savant.exception.RenderingException;
 import savant.util.ColourKey;
 import savant.util.DrawingInstruction;
-import savant.api.util.Resolution;
 import savant.util.ColourScheme;
-import savant.view.swing.GraphPane;
 
 
 /**
@@ -41,7 +41,7 @@ public class PointTrackRenderer extends TrackRenderer {
     }
 
     @Override
-    public void render(Graphics2D g2, GraphPane gp) throws RenderingException {
+    public void render(Graphics2D g2, GraphPaneAdapter gp) throws RenderingException {
 
         renderPreCheck();
 

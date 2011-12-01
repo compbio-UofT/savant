@@ -28,10 +28,11 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import savant.api.adapter.GraphPaneAdapter;
 import savant.api.util.Listener;
-import savant.controller.LocationController;
-import savant.data.event.DataRetrievalEvent;
 import savant.api.data.Record;
+import savant.api.event.DataRetrievalEvent;
+import savant.controller.LocationController;
 import savant.exception.RenderingException;
 import savant.selection.SelectionController;
 import savant.util.ColourKey;
@@ -39,7 +40,6 @@ import savant.util.ColourScheme;
 import savant.util.DrawingInstruction;
 import savant.util.DrawingMode;
 import savant.api.util.Resolution;
-import savant.view.swing.GraphPane;
 
 
 /**
@@ -132,7 +132,7 @@ public abstract class TrackRenderer implements Listener<DataRetrievalEvent> {
         instructions.clear();
     }
 
-    public abstract void render(Graphics2D g2, GraphPane gp) throws RenderingException;
+    public abstract void render(Graphics2D g2, GraphPaneAdapter gp) throws RenderingException;
 
     /**
      * Before doing any actual rendering, derived classes should call this in their
@@ -148,8 +148,8 @@ public abstract class TrackRenderer implements Listener<DataRetrievalEvent> {
         recordToShapeMap.clear();
         artifactMap.clear();
 
-        Boolean refexists = (Boolean)instructions.get(DrawingInstruction.REFERENCE_EXISTS);
-        if (!refexists) {
+        Boolean refExists = (Boolean)instructions.get(DrawingInstruction.REFERENCE_EXISTS);
+        if (refExists == null || !refExists) {
             throw new RenderingException("No data for " + LocationController.getInstance().getReferenceName(), 1);
         }
         RenderingException error = (RenderingException)instructions.get(DrawingInstruction.ERROR);
@@ -267,7 +267,7 @@ public abstract class TrackRenderer implements Listener<DataRetrievalEvent> {
     /**
      * Current selected shapes.
      */
-    public List<Shape> getCurrentSelectedShapes(GraphPane gp) {
+    public List<Shape> getCurrentSelectedShapes(GraphPaneAdapter gp) {
         List<Shape> shapes = new ArrayList<Shape>();
         List<Record> currentSelected = SelectionController.getInstance().getSelectedFromList(trackName, LocationController.getInstance().getRange(), data);
         for(int i = 0; i < currentSelected.size(); i++) {

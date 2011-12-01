@@ -156,10 +156,10 @@ public class TrackUtils {
     /**
      * Get a track by name.
      *
-     * @param trackname Name of the track to get
+     * @param trackName Name of the track to get (generally the same as the track's URI)
      * @return The track with the specified name, null if none
      */
-    public static TrackAdapter getTrack(String trackname) {
-        return trackController.getTrack(trackname);
+    public static TrackAdapter getTrack(String trackName) {
+        return trackController.getTrack(trackName);
     }
 }

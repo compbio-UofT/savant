@@ -16,8 +16,8 @@
 
 package savant.format;
 
-import savant.api.data.Strand;
 import java.io.*;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -31,12 +31,17 @@ import org.apache.commons.logging.LogFactory;
 import savant.api.data.Interval;
 import savant.api.data.Block;
 import savant.api.data.IntervalRecord;
+import savant.api.util.DialogUtils;
+import savant.api.data.Strand;
+import savant.controller.GenomeController;
 import savant.data.types.*;
 import savant.file.FieldType;
 import savant.file.FileType;
 import savant.file.FileTypeHeader;
 import savant.util.MiscUtils;
+import savant.util.NetworkUtils;
 import savant.util.Range;
+import savant.view.dialog.DataFormatForm;
 
 
 /**
@@ -644,4 +649,16 @@ public class SavantFileFormatterUtils {
 
         return seqnameToFileNameMap;
     }
+
+    /**
+     * The user has tried to open an unformatted file.  Prompt them to format it.
+     *
+     * @param uri the file URI which the user has tried to open.
+     */
+    public static void promptUserToFormatFile(URI uri) {
+        if (DialogUtils.askYesNo("Unformatted File", String.format("<html><i>%s</i> does not appear to be formatted. Format now?</html>", NetworkUtils.getFileName(uri))) == DialogUtils.YES) {
+            new DataFormatForm(DialogUtils.getMainWindow(), uri, !GenomeController.getInstance().isGenomeLoaded()).setVisible(true);
+        }
+    }
+
 }

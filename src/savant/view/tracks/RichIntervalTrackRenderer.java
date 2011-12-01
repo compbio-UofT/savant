@@ -16,8 +16,6 @@
 
 package savant.view.tracks;
 
-import savant.api.util.Resolution;
-import savant.api.data.Strand;
 import java.awt.*;
 import java.awt.geom.Area;
 import java.awt.geom.Line2D;
@@ -28,17 +26,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
 
+import savant.api.adapter.GraphPaneAdapter;
 import savant.api.data.RichIntervalRecord;
 import savant.api.data.Interval;
 import savant.api.data.Record;
 import savant.api.data.Block;
 import savant.api.data.IntervalRecord;
-import savant.data.types.*;
+import savant.api.data.Strand;
+import savant.api.util.Resolution;
 import savant.exception.RenderingException;
 import savant.settings.BrowserSettings;
 import savant.util.*;
-import savant.view.swing.GraphPane;
-import savant.util.StuffedIntervalRecord;
 
 
 /**
@@ -55,7 +53,7 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
     }
     
     @Override
-    public void render(Graphics2D g2, GraphPane gp) throws RenderingException {
+    public void render(Graphics2D g2, GraphPaneAdapter gp) throws RenderingException {
 
         renderPreCheck();
 
@@ -73,7 +71,7 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
         }
     }
 
-    private void renderPackMode(Graphics2D g2, GraphPane gp, Resolution resolution) throws RenderingException {
+    private void renderPackMode(Graphics2D g2, GraphPaneAdapter gp, Resolution resolution) throws RenderingException {
 
         AxisRange axisRange = (AxisRange)instructions.get(DrawingInstruction.AXIS_RANGE);
         ColourScheme cs = (ColourScheme)instructions.get(DrawingInstruction.COLOUR_SCHEME);
@@ -123,7 +121,7 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
         }
     }
 
-    private void renderGene(Graphics2D g2, GraphPane gp, ColourScheme cs, RichIntervalRecord rec, Interval interval, int level) {
+    private void renderGene(Graphics2D g2, GraphPaneAdapter gp, ColourScheme cs, RichIntervalRecord rec, Interval interval, int level) {
 
         // for the chevrons
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -210,7 +208,7 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
                     drawChevrons(g2, chevronIntervalStart, chevronIntervalEnd,  yPos, unitHeight, rec.getStrand(), area);
                 }
 
-                double w = gp.getWidth(block.getSize());
+                double w = block.getSize() * unitWidth;
                 double h = unitHeight;
 
                 Shape blockShape;
@@ -342,7 +340,7 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
         }
     }
 
-    private void renderSquishMode(Graphics2D g2, GraphPane gp, Resolution resolution) throws RenderingException {
+    private void renderSquishMode(Graphics2D g2, GraphPaneAdapter gp, Resolution resolution) throws RenderingException {
 
         // ranges, width, and height
         AxisRange axisRange = (AxisRange)instructions.get(DrawingInstruction.AXIS_RANGE);
@@ -431,7 +429,7 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
                 // draw a line in the middle, the full length of the interval
                 double yPos = gp.transformYPos(level) - unitHeight * 0.5;
                 g2.setColor(lineColor);
-                int lineWidth = (int)gp.getWidth(interval.getLength());
+                int lineWidth = (int)(interval.getLength() * gp.getUnitWidth());
                 if (lineWidth > 4) {
                     g2.draw(new Line2D.Double(startXPos, yPos, startXPos + lineWidth, yPos));
                     drawChevrons(g2, startXPos, startXPos + lineWidth,  yPos, unitHeight, strand, null);
@@ -486,17 +484,19 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
         
     }
 
-    private void drawBlocks(List<Interval> blocks, int level, GraphPane gp, Color fillColor, Color lineColor, Graphics2D g2) {
+    private void drawBlocks(List<Interval> blocks, int level, GraphPaneAdapter gp, Color fillColor, Color lineColor, Graphics2D g2) {
 
         if (blocks == null || blocks.isEmpty()) return;
 
+        double unitWidth = gp.getUnitWidth();
+        double unitHeight = gp.getUnitHeight();
         double x, y, w, h;
         for (Interval block: blocks) {
             if (block.getLength() == 0) continue;
             x = gp.transformXPos(block.getStart());
-            y = gp.transformYPos(level)-gp.getUnitHeight();
-            w = gp.getWidth(block.getLength());
-            h = gp.getUnitHeight();
+            y = gp.transformYPos(level) - unitHeight;
+            w = block.getLength() * unitWidth;
+            h = unitHeight;
 
             Rectangle2D.Double blockRect = new Rectangle2D.Double(x,y,w,h);
 

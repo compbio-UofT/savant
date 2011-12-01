@@ -1,5 +1,5 @@
 /*
- *    Copyright 2010-2011 University of Toronto
+ *    Copyright 2011 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -14,50 +14,50 @@
  *    limitations under the License.
  */
 
-package savant.data.event;
-
-import java.util.List;
-
-import savant.api.data.Record;
+package savant.view.tracks;
 
 
 /**
- * Event class which allows asynchronous retrieval of data.
+ * Event class which allows asynchronous creation of tracks.
  *
  * @author tarkvara
  */
-public class DataRetrievalEvent {
+public class TrackCreationEvent {
     public enum Type {
         STARTED,
         COMPLETED,
         FAILED
     };
     Type type;
-    List<Record> data;
+    Track[] tracks;
+    String name;
     Throwable error;
 
     /**
-     * Constructor for retrieval starting.
+     * Constructor for event which is fired as track-creation begins.
      */
-    public DataRetrievalEvent() {
+    public TrackCreationEvent() {
         this.type = Type.STARTED;
     }
 
     /**
-     * Constructor when data is successfully retrieved.
-     * @param data the records retrieved
+     * Constructor when tracks have been successfully created.
+     *
+     * @param tracks the tracks created
+     * @param name the display name for this collection of tracks
      */
-    public DataRetrievalEvent(List<Record> data) {
+    public TrackCreationEvent(Track[] tracks, String name) {
         this.type = Type.COMPLETED;
-        this.data = data;
+        this.tracks = tracks;
+        this.name = name;
     }
 
     /**
-     * Constructor when retrieval has failed.
+     * Constructor when track creation has failed.
      *
      * @param error
      */
-    public DataRetrievalEvent(Throwable error) {
+    public TrackCreationEvent(Throwable error) {
         this.type = Type.FAILED;
         this.error = error;
     }
@@ -66,8 +66,12 @@ public class DataRetrievalEvent {
         return type;
     }
 
-    public List<Record> getData() {
-        return data;
+    public Track[] getTracks() {
+        return tracks;
+    }
+
+    public String getName() {
+        return name;
     }
 
     public Throwable getError() {

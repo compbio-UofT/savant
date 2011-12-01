@@ -37,7 +37,6 @@ import savant.controller.BookmarkController;
 import savant.api.data.Record;
 import savant.util.Bookmark;
 import savant.util.IOUtils;
-import savant.util.MiscUtils;
 import savant.util.NetworkUtils;
 
 
@@ -62,7 +61,7 @@ public abstract class DataSource<E extends Record> implements DataSourceAdapter 
 
     @Override
     public String getName() {
-        return MiscUtils.getNeatPathFromURI(getURI());
+        return NetworkUtils.getNeatPathFromURI(getURI());
     }
     
     /**

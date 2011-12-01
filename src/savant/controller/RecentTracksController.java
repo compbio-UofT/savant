@@ -39,8 +39,7 @@ import savant.api.util.DialogUtils;
 import savant.api.util.Listener;
 import savant.api.event.TrackEvent;
 import savant.settings.DirectorySettings;
-import savant.util.MiscUtils;
-import savant.view.tracks.Track;
+import savant.util.NetworkUtils;
 import savant.view.tracks.BAMCoverageTrack;
 
 /**
@@ -83,7 +82,7 @@ public class RecentTracksController {
                         return;
                     }
 
-                    String path = MiscUtils.getNeatPathFromURI(ds.getURI());
+                    String path = NetworkUtils.getNeatPathFromURI(ds.getURI());
 
                     queue.remove(path);
                     resizeQueue(queue, NUM_RECENTS_TO_SAVE);

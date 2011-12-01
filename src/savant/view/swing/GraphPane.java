@@ -31,13 +31,14 @@ import com.jidesoft.popup.JidePopup;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import savant.api.adapter.FrameAdapter;
+import savant.api.adapter.GraphPaneAdapter;
 import savant.api.data.Record;
+import savant.api.event.ExportEvent;
 import savant.api.util.Listener;
 import savant.controller.GraphPaneController;
 import savant.controller.LocationController;
 import savant.controller.event.GraphPaneEvent;
-import savant.data.event.ExportEvent;
-import savant.data.event.ExportEventListener;
 import savant.data.types.BAMIntervalRecord;
 import savant.data.types.GenericContinuousRecord;
 import savant.exception.RenderingException;
@@ -57,7 +58,7 @@ import savant.view.tracks.TrackCancellationListener;
  *
  * @author mfiume
  */
-public class GraphPane extends JPanel implements MouseWheelListener, MouseListener, MouseMotionListener {
+public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelListener, MouseListener, MouseMotionListener {
 
     private static final Log LOG = LogFactory.getLog(GraphPane.class);
 
@@ -133,7 +134,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
     private keyModifier keyMod = keyModifier.DEFAULT;
 
     //awaiting exported images
-    private final List<ExportEventListener> exportListeners = new ArrayList<ExportEventListener>();
+    private final List<Listener<ExportEvent>> exportListeners = new ArrayList<Listener<ExportEvent>>();
 
     /**
      * CONSTRUCTOR
@@ -271,7 +272,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
             hidePopup();
         }
         boolean sameMode = currentMode == prevMode;
-        boolean sameSize = prevSize != null && getSize().equals(prevSize) && parentFrame.getFrameLandscape().getWidth() == oldWidth && getParentFrame().getFrameLandscape().getHeight() == oldHeight;
+        boolean sameSize = prevSize != null && getSize().equals(prevSize) && parentFrame.getFrameLandscape().getWidth() == oldWidth && parentFrame.getFrameLandscape().getHeight() == oldHeight;
         boolean sameRef = prevRef != null && lc.getReferenceName().equals(prevRef);
         boolean withinScrollBounds = bufferedImage != null && scroller.getValue() >= getOffset() && scroller.getValue() < getOffset() + getViewportHeight() * 2;
 
@@ -449,6 +450,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         g2.translate(0, -getOffset());
     }
 
+    @Override
     public void setRenderForced(){
         renderRequired = true;
     }
@@ -473,6 +475,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         posOffset = offset;
     }
 
+    @Override
     public int getOffset(){
         return posOffset;
     }
@@ -638,6 +641,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
      *
      * @param r an X range
      */
+    @Override
     public void setXRange(Range r) {
         if (r != null) {
             xMin = r.getFrom();
@@ -646,6 +650,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         }
     }
 
+    @Override
     public Range getYRange() {
         return new Range(yMin, yMax);
     }
@@ -655,6 +660,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
      *
      * @param r a Y range
      */
+    @Override
     public void setYRange(Range r) {
         if (r != null && yAxisType != AxisType.NONE) {
             int oldYMin = yMin;
@@ -685,6 +691,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
      * Calculate the number of pixels equal to one graph unit of height.
      * @return 
      */
+    @Override
     public double getUnitHeight() {
         return unitHeight;
     }
@@ -707,6 +714,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
      *
      * @return  the number of pixels equal to one graph unit of width.
      */
+    @Override
     public double getUnitWidth() {
         return unitWidth;
     }
@@ -719,31 +727,12 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
     }
 
     /**
-     * Transform a graph height into a pixel height
-     *
-     * @param len height in graph units
-     * @return corresponding number of pixels
-     */
-    public double getHeight(double h) {
-        return unitHeight * h;
-    }
-
-    /**
-     * Transform a graph width into a pixel width
-     *
-     * @param w width in graph units (i.e. bases)
-     * @return corresponding number of pixels
-     */
-    public double getWidth(int w) {
-        return unitWidth * w;
-    }
-
-    /**
      * Transform a horizontal position in terms of drawing coordinates into graph units.
      *
      * @param pix drawing position in pixels
      * @return corresponding logical position
      */
+    @Override
     public int transformXPixel(double pix) {
         return (int)Math.floor(pix / unitWidth + xMin);
     }
@@ -754,6 +743,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
      * @param pos position in graph coordinates
      * @return corresponding drawing coordinate
      */
+    @Override
     public double transformXPos(int pos) {
         return (pos - xMin) * unitWidth;
     }
@@ -764,6 +754,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
      * @param pix position in pixel coordinates
      * @return corresponding graph coordinate
      */
+    @Override
     public double transformYPixel(double pix) {
         return (getHeight() - pix) / unitHeight + yMin;
     }
@@ -775,6 +766,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
      * @param pos position in graph coordinates
      * @return a corresponding drawing coordinate
      */
+    @Override
     public double transformYPos(double pos) {
         return getHeight() - ((pos - yMin) * unitHeight);
     }
@@ -1121,12 +1113,18 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
     }
 
     /**
-     * @return true if the track is locked, false o/w
+     * A locked track maintains its horizontal location while other tracks scroll.
+     * 
+     * @return true if the track is locked, false otherwise
      */
     public boolean isLocked() {
         return lockedRange != null;
     }
 
+    /**
+     * Set a track so that it doesn't scroll horizontally.
+     * @param b true to prevent horizontal scrolling
+     */
     public void setLocked(boolean b) {
         if (b) {
             lockedRange = LocationController.getInstance().getRange();
@@ -1137,7 +1135,8 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         repaint();
     }
 
-    public Frame getParentFrame(){
+    @Override
+    public FrameAdapter getParentFrame(){
         return parentFrame;
     }
 
@@ -1336,13 +1335,13 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
         validate();
     }
     
-    public void addExportEventListener(ExportEventListener eel) {
+    public void addExportEventListener(Listener<ExportEvent> eel) {
         synchronized (exportListeners) {
             exportListeners.add(eel);
         }
     }
 
-    public void removeExportListener(ExportEventListener eel){
+    public void removeExportListener(Listener<ExportEvent> eel){
         synchronized (exportListeners) {
             exportListeners.remove(eel);
         }
@@ -1357,11 +1356,12 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
     public void fireExportReady(Range range, BufferedImage image){
         int size = exportListeners.size();
         for (int i = 0; i < size; i++){
-            exportListeners.get(i).exportCompleted(new ExportEvent(range, image));
+            exportListeners.get(i).handleEvent(new ExportEvent(range, image));
             size = exportListeners.size(); //a listener may get removed
         }
     }
 
+    @Override
     public void setScaledToFit(boolean value) {
         if (scaledToFit != value) {
             scaledToFit = value;
@@ -1386,6 +1386,7 @@ public class GraphPane extends JPanel implements MouseWheelListener, MouseListen
      *
      * @return true if pane needs to be resized
      */
+    @Override
     public boolean needsToResize() {
         if (!scaledToFit) {
             int currentHeight = getHeight();

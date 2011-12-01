@@ -31,6 +31,7 @@ import javax.swing.event.MenuListener;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import savant.api.adapter.TrackAdapter;
 import savant.api.data.DataFormat;
 import savant.api.data.SequenceRecord;
 import savant.api.util.DialogUtils;
@@ -86,8 +87,8 @@ public final class FrameCommandBar extends JMenuBar {
      */
     FrameCommandBar(Frame f) {
         frame = f;
-        graphPane = f.getGraphPane();
-        mainTrack = f.getTracks()[0];
+        graphPane = (GraphPane)f.getGraphPane();
+        mainTrack = (Track)f.getTracks()[0];
         setMinimumSize(new Dimension(50,22));
         setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY));
 
@@ -240,7 +241,7 @@ public final class FrameCommandBar extends JMenuBar {
                         DrawingMode[] validModes = mainTrack.getValidDrawingModes();
                         for (int j = 0; j < modeItems.length; j++){
                             if (item.getText().equals(validModes[j].toString())) {
-                                for (Track t: frame.getTracks()) {
+                                for (TrackAdapter t: frame.getTracks()) {
                                     t.setDrawingMode(validModes[j]);
                                 }
                                 drawModePosition = j;

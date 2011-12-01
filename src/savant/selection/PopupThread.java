@@ -19,7 +19,9 @@ package savant.selection;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
+
 import savant.settings.InterfaceSettings;
+import savant.view.swing.Frame;
 import savant.view.swing.GraphPane;
 
 /**
@@ -53,17 +55,18 @@ public class PopupThread implements Runnable {
                 while(retry){
                     retry = false;
                     //Point p1 = gp.getMousePosition();
-                    Point p1 = gp.getParentFrame().getLayeredPane().getMousePosition();
+                    Frame f = (Frame)gp.getParentFrame();
+                    Point p1 = f.getLayeredPane().getMousePosition();
                     if(p1 != null)
-                        p1.y += gp.getParentFrame().scrollPane.getVerticalScrollBar().getValue();
+                        p1.y += f.scrollPane.getVerticalScrollBar().getValue();
 
                     try {
                         //sleep for 1 sec and then compare
                         Thread.sleep(1000);
                         //Point p2 = gp.getMousePosition();
-                        Point p2 = gp.getParentFrame().getLayeredPane().getMousePosition();
+                        Point p2 = f.getLayeredPane().getMousePosition();
                         if(p2 != null)
-                            p2.y += gp.getParentFrame().scrollPane.getVerticalScrollBar().getValue();
+                            p2.y += f.scrollPane.getVerticalScrollBar().getValue();
 
                         if(p1 != null && p2 != null && p1.equals(p2) && !InterfaceSettings.isPopupsDisabled()) {
                             gp.tryPopup(p2);

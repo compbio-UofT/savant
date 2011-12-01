@@ -25,7 +25,7 @@ import javax.swing.filechooser.FileSystemView;
 import com.jidesoft.grid.AbstractExpandableRow;
 
 import savant.settings.DirectorySettings;
-import savant.util.MiscUtils;
+import savant.util.NetworkUtils;
 
 /**
  * Class which represents an entry in a tree-like display.  Used for the repository
@@ -120,7 +120,7 @@ public class TreeBrowserEntry extends AbstractExpandableRow implements Comparabl
 
     public Icon getIcon() {
         if (isLeaf) {
-            String ext = MiscUtils.getExtension(url);
+            String ext = NetworkUtils.getExtension(url);
             try {
                 File f = File.createTempFile("savant_icon.", "." +ext);
                 Icon i = getFileSystemView().getSystemIcon(f);

@@ -39,6 +39,7 @@ import savant.api.util.DialogUtils;
 import savant.api.util.Listener;
 import savant.api.data.DataFormat;
 import savant.selection.SelectionController;
+import savant.util.NetworkUtils;
 import savant.view.swing.DockableFrameFactory;
 import savant.view.swing.Frame;
 import savant.view.swing.Savant;
@@ -161,18 +162,7 @@ public class FrameController {
 
 
     public Frame addTrackFromPath(String fileOrURI, boolean seq) {
-
-        URI uri = null;
-        try {
-            uri = new URI(fileOrURI);
-            if (uri.getScheme() == null) {
-                uri = new File(fileOrURI).toURI();
-            }
-        } catch (URISyntaxException usx) {
-            // This can happen if we're passed a file-name containing spaces.
-            uri = new File(fileOrURI).toURI();
-        }
-        return addTrackFromURI(uri, seq || fileOrURI.endsWith(".fa.savant"));
+        return addTrackFromURI(NetworkUtils.getURIFromPath(fileOrURI), seq || fileOrURI.endsWith(".fa.savant"));
     }
 
     public Frame addTrackFromURI(URI uri, boolean seq) {

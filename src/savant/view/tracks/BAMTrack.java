@@ -16,7 +16,6 @@
 
 package savant.view.tracks;
 
-import savant.api.util.Resolution;
 import java.util.List;
 
 import net.sf.samtools.SAMRecord;
@@ -26,6 +25,7 @@ import org.apache.commons.logging.LogFactory;
 import savant.api.adapter.DataSourceAdapter;
 import savant.api.adapter.RangeAdapter;
 import savant.api.data.Record;
+import savant.api.util.Resolution;
 import savant.data.sources.BAMDataSource;
 import savant.data.types.BAMIntervalRecord;
 import savant.exception.RenderingException;

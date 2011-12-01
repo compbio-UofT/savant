@@ -179,6 +179,7 @@ public class PluginDescriptor implements Comparable<PluginDescriptor> {
                 return fromStream(new FileInputStream(f), f);
             }
         } catch (Exception x) {
+            PluginController.LOG.info("Unable to get plugin from " + f, x);
         }
         throw new PluginVersionException(f.getName() + " did not contain a valid plugin");
     }

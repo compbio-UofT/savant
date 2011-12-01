@@ -15,7 +15,6 @@
  */
 package savant.view.tracks;
 
-import savant.api.util.Resolution;
 import java.awt.Color;
 import java.util.List;
 import javax.swing.JPanel;
@@ -24,18 +23,19 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import savant.api.adapter.DataSourceAdapter;
+import savant.api.adapter.FrameAdapter;
 import savant.api.adapter.TrackAdapter;
-import savant.controller.TrackController;
-import savant.data.event.DataRetrievalEvent;
+import savant.api.data.DataFormat;
 import savant.api.data.Record;
+import savant.api.event.DataRetrievalEvent;
+import savant.api.util.DialogUtils;
+import savant.api.util.Resolution;
+import savant.controller.TrackController;
 import savant.exception.RenderingException;
 import savant.exception.SavantTrackCreationCancelledException;
-import savant.api.data.DataFormat;
 import savant.plugin.SavantPanelPlugin;
-import savant.api.util.DialogUtils;
 import savant.selection.SelectionController;
 import savant.util.*;
-import savant.view.swing.Frame;
 
 /**
  * Class to handle the preparation for rendering of a track. Handles colour schemes and
@@ -57,8 +57,11 @@ public abstract class Track extends Controller<DataRetrievalEvent> implements Tr
     private final DataSourceAdapter dataSource;
     private DataRetriever retriever;
 
-    // FIXME:
-    private Frame frame;
+    /**
+     * In practice this will be a JIDE DockableFrame, but we could conceivably have a
+     * stub implementation for headless or web-based operation.
+     */
+    private FrameAdapter frame;
 
     /**
      * Constructor a new track with the given renderer.
@@ -272,13 +275,11 @@ public abstract class Track extends Controller<DataRetrievalEvent> implements Tr
     }
 
 
-    // FIXME:
-    public Frame getFrame() {
+    public FrameAdapter getFrame() {
         return frame;
     }
 
-    // FIXME:
-    public void setFrame(Frame frame) {
+    public void setFrame(FrameAdapter frame) {
         this.frame = frame;
         addListener(frame);
     }

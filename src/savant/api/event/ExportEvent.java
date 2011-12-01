@@ -14,7 +14,7 @@
  *    limitations under the License.
  */
 
-package savant.data.event;
+package savant.api.event;
 
 import java.awt.image.BufferedImage;
 import savant.util.Range;

@@ -16,7 +16,6 @@
 
 package savant.view.tracks;
 
-import savant.api.util.Resolution;
 import java.awt.*;
 import java.awt.geom.Arc2D;
 import java.awt.geom.Line2D;
@@ -35,19 +34,20 @@ import net.sf.samtools.SAMRecord;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import savant.api.adapter.GraphPaneAdapter;
 import savant.api.data.Interval;
 import savant.api.data.IntervalRecord;
 import savant.api.data.Record;
+import savant.api.event.DataRetrievalEvent;
+import savant.api.util.Resolution;
 import savant.controller.GenomeController;
 import savant.controller.LocationController;
-import savant.data.event.DataRetrievalEvent;
 import savant.data.types.BAMIntervalRecord;
 import savant.data.types.Genome;
 import savant.exception.RenderingException;
 import savant.settings.BrowserSettings;
 import savant.util.*;
 import savant.util.Pileup.Nucleotide;
-import savant.view.swing.GraphPane;
 
 
 /**
@@ -89,7 +89,7 @@ public class BAMTrackRenderer extends TrackRenderer {
     }
 
     @Override
-    public void render(Graphics2D g2, GraphPane gp) throws RenderingException {
+    public void render(Graphics2D g2, GraphPaneAdapter gp) throws RenderingException {
 
         DrawingMode oldMode = lastMode;
         lastMode = (DrawingMode)instructions.get(DrawingInstruction.MODE);
@@ -166,7 +166,7 @@ public class BAMTrackRenderer extends TrackRenderer {
         }
     }
 
-    private void renderPackMode(Graphics2D g2, GraphPane gp, Resolution r) throws RenderingException {
+    private void renderPackMode(Graphics2D g2, GraphPaneAdapter gp, Resolution r) throws RenderingException {
 
         if (lastMode == DrawingMode.MISMATCH) {
             Genome genome = GenomeController.getInstance().getGenome();
@@ -221,7 +221,7 @@ public class BAMTrackRenderer extends TrackRenderer {
 
     }
 
-    public Shape renderRead(Graphics2D g2, GraphPane gp, BAMIntervalRecord rec, int level, Range range, double unitHeight) {
+    private Shape renderRead(Graphics2D g2, GraphPaneAdapter gp, BAMIntervalRecord rec, int level, Range range, double readHeight) {
 
         SAMRecord samRec = rec.getSamRecord();
         boolean reverseStrand = samRec.getReadNegativeStrandFlag();
@@ -244,8 +244,8 @@ public class BAMTrackRenderer extends TrackRenderer {
 
         //y = gp.transformYPos(0) - (level + 1)*unitHeight;
         double x = gp.transformXPos(rec.getInterval().getStart());
-        double y = gp.transformYPos(0) - (level + 1)*unitHeight - gp.getOffset();
-        double w = gp.getWidth(rec.getInterval().getLength());
+        double y = gp.transformYPos(0) - (level + 1)* readHeight - gp.getOffset();
+        double w = rec.getInterval().getLength() * gp.getUnitWidth();
 
 
         // cut off x and w so no drawing happens off-screen
@@ -260,7 +260,7 @@ public class BAMTrackRenderer extends TrackRenderer {
         }
         w = x2 - x;
 
-        Shape pointyBar = getPointyBar(reverseStrand, x, y, w, unitHeight);
+        Shape pointyBar = getPointyBar(reverseStrand, x, y, w, readHeight);
 
         // Only fill in the read if we're not going to slam bases on top of it.
         boolean baseQuality = (Boolean)instructions.get(DrawingInstruction.BASE_QUALITY);
@@ -271,7 +271,7 @@ public class BAMTrackRenderer extends TrackRenderer {
 
         // Render individual bases/mismatches as appropriate for the current mode.
         if (lastMode != DrawingMode.STANDARD || baseQuality) {
-            renderBases(g2, gp, samRec, level, refSeq, range, unitHeight);
+            renderBases(g2, gp, samRec, level, refSeq, range, readHeight);
         }
 
         // Draw outline, if there's room
@@ -321,7 +321,7 @@ public class BAMTrackRenderer extends TrackRenderer {
      * Render the individual bases on top of the read.  Depending on the drawing mode
      * this can be either bases read or mismatches.
      */
-    private void renderBases(Graphics2D g2, GraphPane gp, SAMRecord samRecord, int level, byte[] refSeq, Range range, double unitHeight) {
+    private void renderBases(Graphics2D g2, GraphPaneAdapter gp, SAMRecord samRecord, int level, byte[] refSeq, Range range, double unitHeight) {
 
         ColourScheme cs = (ColourScheme) instructions.get(DrawingInstruction.COLOUR_SCHEME);
         
@@ -353,7 +353,7 @@ public class BAMTrackRenderer extends TrackRenderer {
             Rectangle2D.Double opRect = null;
 
             double opStart = gp.transformXPos(sequenceCursor);
-            double opWidth = gp.getWidth(operatorLength);
+            double opWidth = operatorLength * unitWidth;
 
             // Cut off start and width so no drawing happens off-screen, must be done in the order w, then x, since w depends on first value of x
             double x2 = Math.min(rightMostX, opStart + opWidth);
@@ -430,8 +430,8 @@ public class BAMTrackRenderer extends TrackRenderer {
     /**
      * Render the black rectangle which indicates a deletion.
      */
-    private void renderDeletion(Graphics2D g2, GraphPane gp, double opStart, int level, int operatorLength, double unitHeight) {
-        double width = gp.getWidth(operatorLength);
+    private void renderDeletion(Graphics2D g2, GraphPaneAdapter gp, double opStart, int level, int operatorLength, double unitHeight) {
+        double width = operatorLength * gp.getUnitWidth();
         if (width < 1.0) {
             width = 1.0;
         }
@@ -440,13 +440,13 @@ public class BAMTrackRenderer extends TrackRenderer {
         g2.fill(opRect);
     }
 
-    private void renderInsertion(Graphics2D g2, GraphPane gp, int pos, int level, double unitHeight) {
+    private void renderInsertion(Graphics2D g2, GraphPaneAdapter gp, int pos, int level, double unitHeight) {
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         drawInsertion(g2, gp.transformXPos(pos), gp.transformYPos(0) - ((level + 1) * unitHeight) - gp.getOffset(), gp.getUnitWidth(), unitHeight);
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
     }
 
-    private void renderArcPairedMode(Graphics2D g2, GraphPane gp) {
+    private void renderArcPairedMode(Graphics2D g2, GraphPaneAdapter gp) {
 
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
@@ -540,8 +540,8 @@ public class BAMTrackRenderer extends TrackRenderer {
             }
             int arcHeight = arcLength;
 
-            int rectWidth = (int)(gp.getWidth(arcLength));
-            int rectHeight = (int)(gp.getHeight(arcHeight*2));
+            int rectWidth = (int)(arcLength * gp.getUnitWidth());
+            int rectHeight = (int)(arcHeight * 2 * gp.getUnitHeight());
 
             int xOrigin = (int)(gp.transformXPos(intervalStart));
             int yOrigin = (int)(gp.transformYPos(arcHeight));
@@ -554,7 +554,7 @@ public class BAMTrackRenderer extends TrackRenderer {
         }
     }
 
-    private void renderSNPMode(Graphics2D g2, GraphPane gp, Resolution r) {
+    private void renderSNPMode(Graphics2D g2, GraphPaneAdapter gp, Resolution r) {
 
         Genome genome = GenomeController.getInstance().getGenome();
 
@@ -623,7 +623,7 @@ public class BAMTrackRenderer extends TrackRenderer {
         }
     }
 
-    private void renderStrandSNPMode(Graphics2D g2, GraphPane gp, Resolution r) {
+    private void renderStrandSNPMode(Graphics2D g2, GraphPaneAdapter gp, Resolution r) {
 
         Genome genome = GenomeController.getInstance().getGenome();
 
@@ -795,7 +795,7 @@ public class BAMTrackRenderer extends TrackRenderer {
         }
     }
     
-    public void renderReadsFromArc(Graphics2D g2, GraphPane gp, BAMIntervalRecord rec1, BAMIntervalRecord rec2, Range range) {
+    public void renderReadsFromArc(Graphics2D g2, GraphPaneAdapter gp, BAMIntervalRecord rec1, BAMIntervalRecord rec2, Range range) {
         
         int readHeight = gp.getParentFrame().getIntervalHeight();
 
@@ -806,7 +806,7 @@ public class BAMTrackRenderer extends TrackRenderer {
         }
     }
 
-    private void renderStandardPairedMode(Graphics2D g2, GraphPane gp) throws RenderingException {
+    private void renderStandardPairedMode(Graphics2D g2, GraphPaneAdapter gp) throws RenderingException {
 
         AxisRange axisRange = (AxisRange) instructions.get(DrawingInstruction.AXIS_RANGE);
         ColourScheme cs = (ColourScheme) instructions.get(DrawingInstruction.COLOUR_SCHEME);
@@ -912,7 +912,7 @@ public class BAMTrackRenderer extends TrackRenderer {
     /**
      * Connect intervals i1 and i2 with a dashed line to show mates. 
      */
-    private void connectPiledInterval(Graphics2D g2, GraphPane gp, Interval i1, Interval i2, int level, Color linecolor, IntervalRecord ir1, IntervalRecord ir2) {
+    private void connectPiledInterval(Graphics2D g2, GraphPaneAdapter gp, Interval i1, Interval i2, int level, Color linecolor, IntervalRecord ir1, IntervalRecord ir2) {
         Interval mateInterval = computeMateInterval(i1, i2);
 
         Stroke currentStroke = g2.getStroke();

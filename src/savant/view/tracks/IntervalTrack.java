@@ -15,7 +15,6 @@
  */
 package savant.view.tracks;
 
-import savant.api.util.Resolution;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -26,6 +25,7 @@ import savant.api.adapter.RangeAdapter;
 import savant.api.data.Interval;
 import savant.api.data.IntervalRecord;
 import savant.api.data.Record;
+import savant.api.util.Resolution;
 import savant.exception.SavantTrackCreationCancelledException;
 import savant.settings.TrackResolutionSettings;
 import savant.util.*;

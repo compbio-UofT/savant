@@ -24,16 +24,10 @@ import java.awt.Graphics2D;
 import java.awt.geom.Rectangle2D;
 import java.io.UnsupportedEncodingException;
 
+import savant.api.adapter.GraphPaneAdapter;
 import savant.api.data.SequenceRecord;
 import savant.exception.RenderingException;
-import savant.util.AxisRange;
-import savant.util.ColourAccumulator;
-import savant.util.ColourKey;
-import savant.util.ColourScheme;
-import savant.util.DrawingInstruction;
-import savant.util.DrawingMode;
-import savant.view.swing.GraphPane;
-import savant.view.tracks.TrackRenderer;
+import savant.util.*;
 
 
 /**
@@ -50,7 +44,7 @@ public class SequenceTrackRenderer extends TrackRenderer {
     }
 
     @Override
-    public void render(Graphics2D g2, GraphPane gp) throws RenderingException {
+    public void render(Graphics2D g2, GraphPaneAdapter gp) throws RenderingException {
 
         renderPreCheck();
         

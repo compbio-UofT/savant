@@ -1645,17 +1645,6 @@ public class Savant extends JFrame {
     }
 
     /**
-     * The user has tried to open an unformatted file.  Prompt them to format it.
-     *
-     * @param uri the file URI which the user has tried to open.
-     */
-    public void promptUserToFormatFile(URI uri) {
-        if (DialogUtils.askYesNo("Unformatted File", String.format("<html><i>%s</i> does not appear to be formatted. Format now?</html>", MiscUtils.getFileName(uri))) == DialogUtils.YES) {
-            new DataFormatForm(this, uri, !GenomeController.getInstance().isGenomeLoaded()).setVisible(true);
-        }
-    }
-
-    /**
      * Move our start page out of the way and open up our rulers and navigation widgets.
      * Called by FrameController when the first Frame is opened.
      */

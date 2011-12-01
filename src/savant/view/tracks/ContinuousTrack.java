@@ -16,13 +16,13 @@
 
 package savant.view.tracks;
 
-import savant.api.util.Resolution;
 import java.util.List;
 
 import savant.api.adapter.DataSourceAdapter;
 import savant.api.adapter.RangeAdapter;
 import savant.api.data.ContinuousRecord;
 import savant.api.data.Record;
+import savant.api.util.Resolution;
 import savant.exception.SavantTrackCreationCancelledException;
 import savant.settings.TrackResolutionSettings;
 import savant.util.*;

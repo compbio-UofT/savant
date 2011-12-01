@@ -30,9 +30,6 @@ import org.apache.commons.logging.LogFactory;
 import savant.api.adapter.DataSourceAdapter;
 import savant.api.util.DialogUtils;
 import savant.controller.DataSourcePluginController;
-import savant.controller.TrackController;
-import savant.data.event.TrackCreationEvent;
-import savant.data.event.TrackCreationListener;
 import savant.data.sources.*;
 import savant.exception.SavantTrackCreationCancelledException;
 import savant.exception.UnknownSchemeException;
@@ -45,7 +42,7 @@ import savant.format.SavantFileFormatterUtils;
 import savant.plugin.SavantDataSourcePlugin;
 import savant.util.MiscUtils;
 import savant.util.NetworkUtils;
-import savant.view.swing.Savant;
+
 
 /**
  * Factory class responsible for creating all flavours of Track objects.
@@ -102,7 +99,7 @@ public class TrackFactory {
      * @param l the listener which is invoked when the track-creation thread completes
      */
     public static void createTrack(URI trackURI, TrackCreationListener l) {
-        l.trackCreationStarted(new TrackCreationEvent());
+        l.handleEvent(new TrackCreationEvent());
         Thread t = new Thread(new TrackCreator(trackURI, l), "TrackCreator");
         t.start();
         try {
@@ -251,7 +248,7 @@ public class TrackFactory {
                 @Override
                 public void run() {
                     if (listener != null) {
-                        listener.trackCreationCompleted(new TrackCreationEvent(tracks, name));
+                        listener.handleEvent(new TrackCreationEvent(tracks, name));
                     }
                 }
             });
@@ -290,8 +287,7 @@ public class TrackFactory {
                     if (x instanceof SavantUnsupportedFileTypeException) {
                         DialogUtils.displayMessage("Sorry", "Files of this type are not supported.");
                     } else if (x instanceof SavantFileNotFormattedException) {
-                        Savant s = Savant.getInstance();
-                        s.promptUserToFormatFile(trackURI);
+                        SavantFileFormatterUtils.promptUserToFormatFile(trackURI);
                     } else if (x instanceof SavantUnsupportedVersionException) {
                         DialogUtils.displayMessage("Sorry", "This file was created using an older version of Savant. Please re-format the source.");
                     } else if (x instanceof SavantTrackCreationCancelledException) {
@@ -301,9 +297,17 @@ public class TrackFactory {
                     } else {
                         DialogUtils.displayException("Error opening track", String.format("There was a problem opening this file: %s.", MiscUtils.getMessage(x)), x);
                     }
-                    listener.trackCreationFailed(new TrackCreationEvent(x));
+                    listener.handleEvent(new TrackCreationEvent(x));
                 }
             });
         }
+    }
+    
+    /**
+     * Normally we would just use Listener&lt;TrackCreationEvent&gt;, but Java's lame-ass implementation
+     * of generics gets in the way.
+     */
+    public interface TrackCreationListener {
+        public void handleEvent(TrackCreationEvent evt);
     }
 }

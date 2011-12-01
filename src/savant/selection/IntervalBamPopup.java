@@ -29,7 +29,7 @@ import savant.api.data.Record;
 import savant.api.util.Listener;
 import savant.api.util.RangeUtils;
 import savant.controller.LocationController;
-import savant.data.event.DataRetrievalEvent;
+import savant.api.event.DataRetrievalEvent;
 import savant.data.types.BAMIntervalRecord;
 import savant.util.MiscUtils;
 import savant.util.Range;
