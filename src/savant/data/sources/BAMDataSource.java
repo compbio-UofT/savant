@@ -30,22 +30,24 @@ import net.sf.samtools.util.SeekableStream;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import savant.api.adapter.BAMDataSourceAdapter;
 import savant.api.adapter.RangeAdapter;
+import savant.api.adapter.RecordFilterAdapter;
 import savant.api.data.DataFormat;
+import savant.api.util.Resolution;
 import savant.controller.LocationController;
 import savant.data.types.BAMIntervalRecord;
 import savant.util.IndexCache;
-import savant.util.AxisRange;
 import savant.util.MiscUtils;
 import savant.util.NetworkUtils;
-import savant.api.util.Resolution;
+
 
 /**
  * Class to represent a track of BAM intervals. Uses SAMTools to read data within a range.
  *
  * @author vwilliams
  */
-public class BAMDataSource extends DataSource<BAMIntervalRecord> {
+public class BAMDataSource extends DataSource<BAMIntervalRecord> implements BAMDataSourceAdapter {
 
     private static final Log LOG = LogFactory.getLog(BAMDataSource.class);
 
@@ -76,20 +78,10 @@ public class BAMDataSource extends DataSource<BAMIntervalRecord> {
         }
     }
 
-    /**
-     * Since <code>BAMTrack.retrieveData</code> uses the version of <code>getRecords</code>
-     * which applies filter parameters, this method is not actually used.  It is retained
-     * to keep the compiler happy, and possibly for use by plugins.
-     */
     @Override
-    public List<BAMIntervalRecord> getRecords(String reference, RangeAdapter range, Resolution resolution) {
-        return getRecords(reference, range, resolution, Double.MAX_VALUE, null, false, true, true, 0);
-    }
+    public List<BAMIntervalRecord> getRecords(String reference, RangeAdapter range, Resolution resolution, RecordFilterAdapter filt) {
 
-    public List<BAMIntervalRecord> getRecords(String reference, RangeAdapter range, Resolution resolution, double lengthThreshold, AxisRange axisRange, boolean pairMode, boolean includeDuplicates, boolean includeVendorFailed, int qualityThreshold) {
-
-        //CloseableIterator<SAMRecord> recordIterator=null;
-        SAMRecordIterator recordIterator=null;
+        SAMRecordIterator recordIterator = null;
         List<BAMIntervalRecord> result = new ArrayList<BAMIntervalRecord>();
         try {
             // todo: actually use the given reference
@@ -113,27 +105,10 @@ public class BAMDataSource extends DataSource<BAMIntervalRecord> {
                 // Don't keep unmapped reads
                 if (samRecord.getReadUnmappedFlag()) continue;
 
-                // Discard reads that don't match our criteria.
-                if (!includeDuplicates && samRecord.getDuplicateReadFlag()) continue;
-
-                if (!includeVendorFailed && samRecord.getReadFailsVendorQualityCheckFlag()) continue;
-
-                if (samRecord.getMappingQuality() < qualityThreshold) continue;
-
-                if (pairMode) {
-                    int arcLength = Math.abs(samRecord.getInferredInsertSize());
-                    // skip reads with a zero insert length--probably mapping errors
-                    if (arcLength == 0) continue;               
-
-                    if ((axisRange != null && lengthThreshold != 0.0d && lengthThreshold < 1.0d && arcLength < axisRange.getXRange().getLength()*lengthThreshold)
-                            || (lengthThreshold > 1.0d && arcLength < lengthThreshold)) {
-                        continue;
-                    }
-                }
-
                 record = BAMIntervalRecord.valueOf(samRecord);
-
-                result.add(record);
+                if (filt == null || filt.accept(record)) {
+                    result.add(record);
+                }
             }
 
         } finally {
@@ -236,6 +211,7 @@ public class BAMDataSource extends DataSource<BAMIntervalRecord> {
     /**
      * For use by the Data Table plugin, which needs to know the header for export purposes.
      */
+    @Override
     public SAMFileHeader getHeader() {
         return samFileHeader;
     }

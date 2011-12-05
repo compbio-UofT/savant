@@ -24,13 +24,14 @@ import java.util.List;
 import java.util.Set;
 
 import savant.api.adapter.RangeAdapter;
+import savant.api.adapter.RecordFilterAdapter;
 import savant.api.data.DataFormat;
+import savant.api.util.Resolution;
 import savant.data.types.GenericPointRecord;
 import savant.file.FileType;
 import savant.file.SavantFileNotFormattedException;
 import savant.file.SavantROFile;
 import savant.file.SavantUnsupportedVersionException;
-import savant.api.util.Resolution;
 import savant.util.SavantFileUtils;
 
 /**
@@ -54,7 +55,7 @@ public class GenericPointDataSource extends DataSource<GenericPointRecord> {
     }
 
     @Override
-    public List<GenericPointRecord> getRecords(String reference, RangeAdapter range, Resolution resolution) throws IOException {
+    public List<GenericPointRecord> getRecords(String reference, RangeAdapter range, Resolution resolution, RecordFilterAdapter filt) throws IOException {
 
         List<GenericPointRecord> data = new ArrayList<GenericPointRecord>();
 

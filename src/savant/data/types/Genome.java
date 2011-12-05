@@ -31,17 +31,19 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
+import savant.api.adapter.DataSourceAdapter;
 import savant.api.adapter.GenomeAdapter;
 import savant.api.adapter.RangeAdapter;
+import savant.api.adapter.SequenceDataSourceAdapter;
 import savant.api.adapter.TrackAdapter;
+import savant.api.data.SequenceRecord;
 import savant.api.util.DialogUtils;
+import savant.api.util.Resolution;
 import savant.controller.LocationController;
 import savant.controller.TrackController;
-import savant.data.sources.FASTADataSource;
 import savant.settings.BrowserSettings;
 import savant.util.IOUtils;
 import savant.util.NetworkUtils;
-import savant.api.util.Resolution;
 import savant.view.tracks.Track;
 import savant.view.tracks.SequenceTrack;
 
@@ -66,15 +68,16 @@ public final class Genome implements Serializable, GenomeAdapter {
     private SequenceTrack sequenceTrack = null;
 
     /**
-     * Construct a genome from a Fasta file.  There will be no cytobands.
+     * Construct a genome from a FASTA file.  There will be no cytobands.
      */
     private Genome(String name, SequenceTrack track) {
         this.name = name;
         this.description = null;
         this.sequenceTrack = track;
-        FASTADataSource dataSource = (FASTADataSource)track.getDataSource();
-        for (String ref : dataSource.getReferenceNames()) {
-            referenceMap.put(ref, dataSource.getLength(ref));
+        DataSourceAdapter dataSource = track.getDataSource();
+        Set<String> refs = dataSource.getReferenceNames();
+        for (String ref : refs) {
+            referenceMap.put(ref, ((SequenceDataSourceAdapter)dataSource).getLength(ref));
         }
     }
 
@@ -152,7 +155,7 @@ public final class Genome implements Serializable, GenomeAdapter {
 
     @Override
     public byte[] getSequence(String reference, RangeAdapter range) throws IOException {
-        return isSequenceSet() ? ((FASTADataSource)sequenceTrack.getDataSource()).getRecords(reference, range, Resolution.HIGH).get(0).getSequence() : null;
+        return isSequenceSet() ? ((SequenceRecord)(sequenceTrack.getDataSource()).getRecords(reference, range, Resolution.HIGH, null).get(0)).getSequence() : null;
     }
 
     @Override
@@ -171,8 +174,8 @@ public final class Genome implements Serializable, GenomeAdapter {
     }
 
     @Override
-    public FASTADataSource getDataSource() {
-        return (FASTADataSource)sequenceTrack.getDataSource();
+    public DataSourceAdapter<SequenceRecord> getDataSource() {
+        return (DataSourceAdapter<SequenceRecord>)sequenceTrack.getDataSource();
     }
 
     @Override

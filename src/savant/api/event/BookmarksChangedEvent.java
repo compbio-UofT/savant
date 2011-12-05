@@ -32,9 +32,9 @@ public class BookmarksChangedEvent {
     private Bookmark bookmark;
 
     /**
+     * Event which describes a change in a bookmark.
      *
-     * @param source
-     * @param bm
+     * @param bm the bookmark which has change
      * @param isAdded true iff bookmark was added, false if removed
      */
     public BookmarksChangedEvent(Bookmark bm, boolean isAdded) {

@@ -58,13 +58,13 @@ public class BrowserSettings {
     public static final URL SAFE_URL = NetworkUtils.getKnownGoodURL(URL, "safe/savantsafe.php");
 
     public static final String VERSION = "2.0.0";
-    public static String BUILD = "beta";
+    public static String BUILD = "alpha";
 
     /**
      * Is this version a beta release?
      */
     public static boolean isBeta() {
-        return BUILD.startsWith("beta");
+        return BUILD.startsWith("beta") || BUILD.startsWith("alpha");
     }
 
     /**

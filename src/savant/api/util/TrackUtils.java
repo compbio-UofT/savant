@@ -55,9 +55,8 @@ public class TrackUtils {
     }
 
     /**
-     * Add a track to the list of tracks.
-     * @param track The track to add
-     * @deprecated No longer necessary; createTracks does all the work.
+     * Add a single track to the list of tracks.  
+     * @param track the track to add
      */
     public static void addTrack(TrackAdapter track) {
         addTracks(Arrays.asList(new TrackAdapter[] { track }));
@@ -66,8 +65,7 @@ public class TrackUtils {
     /**
      * Add multiple tracks to the list of tracks.
      *
-     * @param tracks The tracks to add
-     * @deprecated No longer necessary; createTracks does all the work.
+     * @param tracks the tracks to add
      */
     public static void addTracks(List<TrackAdapter> tracks) {
         Track[] myTracks = new Track[tracks.size()];

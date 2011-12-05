@@ -130,8 +130,16 @@ public class NetworkUtils {
             } finally {
                 ftp.close();
             }
+        } else if (proto.equals("file")) {
+            // Cheesy fake hash-code based on the modification time and size.
+            try {
+                File f = new File(url.toURI());
+                return String.format("%016x-%016x", f.lastModified(), f.length());
+            } catch (URISyntaxException x) {
+                throw new IllegalArgumentException("Invalid argument; cannot parse " + url + " as a file.");
+            }
         } else {
-            throw new IllegalArgumentException("Invalid argument; cannot get hash for " + proto + " URLs");
+            throw new IllegalArgumentException("Invalid argument; cannot get hash for " + proto + " URLs.");
         }
     }
 

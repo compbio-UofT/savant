@@ -16,12 +16,12 @@
 
 package savant.view.tracks;
 
-import savant.api.util.Resolution;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import savant.api.adapter.DataSourceAdapter;
 import savant.api.adapter.RangeAdapter;
+import savant.api.util.Resolution;
 import savant.exception.SavantTrackCreationCancelledException;
 import savant.util.*;
 

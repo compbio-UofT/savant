@@ -54,8 +54,8 @@ public class Version implements Comparable {
 
     /**
      * Factory method which construct a Version object from a URL pointing to an XML file.
-     * @param uri
-     * @return
+     * @param url URL of our version.xml file
+     * @return the version number read from the file
      */
     public static Version fromURL(URL url) throws IOException {
         try {

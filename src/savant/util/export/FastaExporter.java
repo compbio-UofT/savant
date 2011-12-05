@@ -21,17 +21,18 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
+
+import net.sf.samtools.SAMSequenceDictionary;
+import net.sf.samtools.SAMSequenceRecord;
 
 import savant.api.adapter.RangeAdapter;
 import savant.api.adapter.TrackAdapter;
 import savant.api.data.SequenceRecord;
-import savant.api.util.GenomeUtils;
 import savant.api.util.Resolution;
-import savant.controller.LocationController;
 import savant.util.DownloadEvent;
 import savant.util.MiscUtils;
-import savant.util.Range;
 
 
 /**
@@ -42,21 +43,22 @@ import savant.util.Range;
  */
 public class FastaExporter extends TrackExporter {
     private static final int LINE_SIZE = 50;
+
+    /** Only report progress every 100000 bases. */
+    private static final int PROGRESS_INTERVAL = 100000;
     
-    /** Download sequence data in 1MB chunks. */
-    private static final int CHUNK_SIZE = 1000000;
+    /** Stream for writing to destination Fasta file. */
+    FastaOutputStream fastaOutput;
 
-    /** Bases exported so far. */
-    private int basesSoFar;
-
-    /** Total length to be exported. */
-    private int totalBases;
-
+    /** Keeps track of the file offsets where each chromosome's data starts. */
+    Map<String, Integer> refOffsets = new HashMap<String, Integer>();
+    
     /**
      * Should be instantiated from TrackExporter.getExporter();
      */
-    FastaExporter(TrackAdapter t) {
-        super(t);
+    FastaExporter(TrackAdapter t, File f) throws IOException {
+        super(t, f);
+        fastaOutput = new FastaOutputStream(new FileOutputStream(destFile));
     }
 
     /**
@@ -67,144 +69,147 @@ public class FastaExporter extends TrackExporter {
      * @param destFile the fasta file to be created
      */
     @Override
-    public void exportRange(String ref, RangeAdapter r, File destFile) throws IOException {
-        OutputStream output = null;
-        try {
-            output = new BufferedOutputStream(new FileOutputStream(destFile));
-
-            LocationController lc = LocationController.getInstance();
-            if (ref == null) {
-                for (String ref2: lc.getReferenceNames()) {
-                    totalBases += lc.getReferenceLength(ref2);
-                }
-                for (String ref2: lc.getReferenceNames()) {
-                    exportRangeToStream(ref2, new Range(1, lc.getReferenceLength(ref2)), output);
-                }
-            } else {
-                totalBases = LocationController.getInstance().getReferenceLength(ref);
-                if (r == null) {
-                    r = new Range(1, totalBases);
-                }
-                exportRangeToStream(ref, r, output);
-            }
-            createIndex(ref, destFile);
-            createSequenceDictionary(destFile);
-            fireEvent(new DownloadEvent(destFile));
-        } finally {
-            if (output != null) {
-                output.close();
-            }
+    void close() throws IOException {
+        if (fastaOutput != null) {
+            fastaOutput.close();
         }
     }
     
     /**
-     * Export the specified reference (or subrange thereof) to the given output stream.
+     * Export the specified reference (or subrange thereof) to the exporter's output stream.
      * This may be invoked as part of a large export (i.e. whole genome).
      * 
      * @param ref the reference containing the range be exported
      * @param r the range to be exported (must be non-null)
-     * @param output destination for fasta data
+     * @param fastaOutput destination for fasta data
      * @throws IOException 
      */
-    private void exportRangeToStream(String ref, RangeAdapter r, OutputStream output) throws IOException {
+    @Override
+    void exportRange(String ref, RangeAdapter r) throws IOException {
         // Write the contig name.
-        output.write('>');
-        output.write(ref.getBytes());
-        output.write('\n');
+        fastaOutput.write('>');
+        fastaOutput.write(ref.getBytes());
+        fastaOutput.write('\n');
+        
+        refOffsets.put(MiscUtils.homogenizeSequence(ref), fastaOutput.numWritten);
 
         // If the range doesn't start at 1, prepend the range of interest with N characters.
         int linePos = 0;
         if (r.getFrom() > 1) {
             for (int i = 1; i < r.getFrom(); i++) {
-                output.write('N');
+                fastaOutput.write('N');
                 if (++linePos == LINE_SIZE) {
-                    output.write('\n');
+                    fastaOutput.write('\n');
                     linePos = 0;
                 }
             }
-        }
-
-        double len = r.getTo() - r.getFrom();
-        for (int i = r.getFrom(); i < r.getTo(); i += CHUNK_SIZE) {
-            byte[] seq = ((SequenceRecord)track.getDataSource().getRecords(ref, new Range(i, i + CHUNK_SIZE - 1), Resolution.HIGH).get(0)).getSequence();
-            int j = 0;
-            if (linePos > 0) {
-                int numBytes = Math.min(seq.length, LINE_SIZE - linePos);
-                output.write(seq, 0, numBytes);
-                output.write('\n');
-                j = numBytes;
-                linePos = 0;
-            }
-            while (j + LINE_SIZE < seq.length) {
-                output.write(seq, j, LINE_SIZE);
-                output.write('\n');
-                j += LINE_SIZE;
-            }
-            output.write(seq, j, seq.length - j);
-            linePos = seq.length - j;
-            basesSoFar += seq.length;
+            basesSoFar += r.getFrom() - 1;
             fireEvent(new DownloadEvent((double)basesSoFar / totalBases));
         }
+
+        fireEvent(new DownloadEvent(-1.0));
+        byte[] seq = ((SequenceRecord)track.getDataSource().getRecords(ref, r, Resolution.HIGH, null).get(0)).getSequence();
+        int j = 0;
+        if (linePos > 0) {
+            int numBytes = Math.min(seq.length, LINE_SIZE - linePos);
+            fastaOutput.write(seq, 0, numBytes);
+            fastaOutput.write('\n');
+            j = numBytes;
+            linePos = 0;
+        }
+        int lastProgress = basesSoFar;
+        while (j + LINE_SIZE < seq.length) {
+            fastaOutput.write(seq, j, LINE_SIZE);
+            fastaOutput.write('\n');
+            j += LINE_SIZE;
+            basesSoFar += LINE_SIZE;
+            if (basesSoFar - lastProgress > PROGRESS_INTERVAL) {
+                lastProgress = basesSoFar;
+                fireEvent(new DownloadEvent((double)basesSoFar / totalBases));
+            }
+        }
+        fastaOutput.write(seq, j, seq.length - j);
+        basesSoFar += seq.length - j;
+        fireEvent(new DownloadEvent((double)basesSoFar / totalBases));
     }
 
     /**
-     * Create the .fai (fasta index) file which describes the contents of the fasta file we just exported.
-     * We actually lie and give lengths for all contigs (not just the chromosome in this file).
+     * Create the .fai (fasta index) file which describes the contents of a fasta file we've just exported.
+     * We actually lie and give lengths for all contigs (not just the chromosomes in this file).  This is necessary
+     * because some tools (I'm looking at you, SRMA) make a braindead check that the bam file's sequence
+     * dictionary be <b>exactly</b> the same as the fasta file's dictionary.
      */
-    private void createIndex(String ref, File fastaFile) throws IOException {
-        OutputStream output = null;
+    public void createFakeIndex(SAMSequenceDictionary samDict) throws IOException {
+        OutputStream faiOutput = null;
         try {
             // Index file is expected to be .fa.fai.
-            output = new FileOutputStream(fastaFile.getAbsolutePath() + ".fai");
+            faiOutput = new FileOutputStream(destFile.getAbsolutePath() + ".fai");
             
-            // To keep GATK happy, we need to write entries for every contig, even though this file only has
-            // data for a single chromosome.
-            Set<String> allRefs = GenomeUtils.getGenome().getReferenceNames();
-            for (String ref2: allRefs) {
-                int numBases = LocationController.getInstance().getReferenceLength(ref2);
+            // We need to write entries for every contig, even though they may not actually exist in the Fasta file.
+            for (SAMSequenceRecord samRec: samDict.getSequences()) {
+                String samRef = samRec.getSequenceName();
+                int offset = 0;
+                if (refOffsets.containsKey(samRef)) {
+                    offset = refOffsets.get(samRef);
+                }
 
-                // Only the ref being exported has a proper start position; others just have a placeholder.
-                int start = Integer.MAX_VALUE;
-                if (ref2.equals(ref)) {
-                    start = ref.length() + 2;
-                }
-                String homoRef = MiscUtils.homogenizeSequence(ref2);
-                if (!homoRef.equals(ref2)) {
-                    output.write(String.format("%s\t%d\t%d\t%d\t%d\n", homoRef, numBases, start, LINE_SIZE, LINE_SIZE + 1).getBytes());
-                }
+                faiOutput.write(String.format("%s\t%d\t%d\t%d\t%d\n", samRef, samRec.getSequenceLength(), offset, LINE_SIZE, LINE_SIZE + 1).getBytes());
             }
         } finally {
-            if (output != null) {
-                output.close();
+            if (faiOutput != null) {
+                faiOutput.close();
             }
         }
     }
 
     /**
      * Create the .dict (SAM sequence dictionary) file which also describes the contents of the fasta file we just exported.
-     * We do this so GATK won't waste half an hour calculating an MD5 hash for the entire sequence.
+     * We do this so GATK won't waste half an hour calculating an MD5 hash for the entire sequence.  Because SRMA is so
+     * braindead, we totally ignore the actual fasta file and just use the dictionary from the bam file.
      */
-    private void createSequenceDictionary(File fastaFile) throws IOException {
-        OutputStream output = null;
+    public void createFakeSequenceDictionary(SAMSequenceDictionary samDict) throws IOException {
+        OutputStream dictOutput = null;
         try {
             // Index file is expected to be .dict (not .fa.dict).
-            String fastaPath = fastaFile.getAbsolutePath();
+            String fastaPath = destFile.getAbsolutePath();
             String s = fastaPath.replaceFirst("\\.(fa)|(fasta)$", ".dict");
-            output = new FileOutputStream(s);
-            output.write("@HD\tVN:1.0\tSO:unsorted\n".getBytes());
+            dictOutput = new FileOutputStream(s);
+            dictOutput.write("@HD\tVN:1.0\tSO:unsorted\n".getBytes());
 
             // To keep GATK happy, we need to write entries for every contig, even though this file only has
             // data for a single chromosome.
-            Set<String> allRefs = GenomeUtils.getGenome().getReferenceNames();
-            for (String ref: allRefs) {
-                int numBases = LocationController.getInstance().getReferenceLength(ref);
-                String homoRef = MiscUtils.homogenizeSequence(ref);
-                output.write(String.format("@SQ\tSN:%s\tLN:%d\tUR:file:%s\tM5:00000000000000000000000000000000\n", homoRef, numBases, fastaPath).getBytes());
+            for (SAMSequenceRecord samRec: samDict.getSequences()) {
+                String samRef = samRec.getSequenceName();
+                dictOutput.write(String.format("@SQ\tSN:%s\tLN:%d\tUR:file:%s\tM5:00000000000000000000000000000000\n", samRef, samRec.getSequenceLength(), fastaPath).getBytes());
             }
         } finally {
-            if (output != null) {
-                output.close();
+            if (dictOutput != null) {
+                dictOutput.close();
             }
+        }
+    }
+
+    /**
+     * Just a normal BufferedOutputStream, but we count the bytes as we write them
+     * so that we can record the current offset.
+     */
+    private static class FastaOutputStream extends BufferedOutputStream {
+        int numWritten = 0;
+
+        FastaOutputStream(OutputStream os) {
+            super(os);
+        }
+
+        @Override
+        public synchronized void write(int b) throws IOException {
+            numWritten++;
+            super.write(b);
+        }
+
+        @Override
+        public synchronized void write(byte b[], int off, int len) throws IOException {
+            numWritten += len;
+            super.write(b, off, len);
         }
     }
 }

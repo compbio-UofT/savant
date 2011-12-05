@@ -34,13 +34,14 @@ import org.apache.commons.logging.LogFactory;
 import org.broad.tabix.TabixReader;
 
 import savant.api.adapter.RangeAdapter;
+import savant.api.adapter.RecordFilterAdapter;
 import savant.api.data.DataFormat;
+import savant.api.util.Resolution;
 import savant.util.IndexCache;
 import savant.data.types.TabixIntervalRecord;
 import savant.util.ColumnMapping;
 import savant.util.MiscUtils;
 import savant.util.NetworkUtils;
-import savant.api.util.Resolution;
 
 /**
  * DataSource for reading records from a Tabix file.  These can be either a plain Interval
@@ -148,7 +149,7 @@ public class TabixDataSource extends DataSource<TabixIntervalRecord> {
      * {@inheritDoc}
      */
     @Override
-    public List<TabixIntervalRecord> getRecords(String reference, RangeAdapter range, Resolution resolution) throws IOException {
+    public List<TabixIntervalRecord> getRecords(String reference, RangeAdapter range, Resolution resolution, RecordFilterAdapter filt) throws IOException {
         List<TabixIntervalRecord> result = new ArrayList<TabixIntervalRecord>();
         try {
             TabixReader.Iterator i = reader.query(MiscUtils.homogenizeSequence(reference) + ":" + range.getFrom() + "-" + (range.getTo()+1));

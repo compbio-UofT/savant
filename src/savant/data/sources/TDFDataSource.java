@@ -32,12 +32,13 @@ import org.broad.igv.tdf.TDFTile;
 import org.broad.igv.track.WindowFunction;
 
 import savant.api.adapter.RangeAdapter;
+import savant.api.adapter.RecordFilterAdapter;
 import savant.api.data.DataFormat;
+import savant.api.util.Resolution;
 import savant.controller.LocationController;
 import savant.data.types.GenericContinuousRecord;
 import savant.util.MiscUtils;
 import savant.util.Range;
-import savant.api.util.Resolution;
 
 /**
  * Data source which uses Broad Institute's TDF format to display a continuous track.
@@ -75,7 +76,7 @@ public class TDFDataSource extends DataSource<GenericContinuousRecord> {
     }
 
     @Override
-    public List<GenericContinuousRecord> getRecords(String ref, RangeAdapter range, Resolution resolution) throws IOException {
+    public List<GenericContinuousRecord> getRecords(String ref, RangeAdapter range, Resolution resolution, RecordFilterAdapter filt) throws IOException {
         List<GenericContinuousRecord> result = new ArrayList<GenericContinuousRecord>();
         TDFDataset ds = getTDFDataset(ref, (Range)range);
         if (ds != null) {

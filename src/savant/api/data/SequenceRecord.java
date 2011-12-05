@@ -32,7 +32,7 @@ public class SequenceRecord implements Record {
     private final String reference;
     private final byte[] sequence;
 
-    SequenceRecord(String reference, byte[] sequence) {
+    protected SequenceRecord(String reference, byte[] sequence) {
         if (reference == null) throw new IllegalArgumentException("Invalid argument; reference may not be null.");
         if (sequence == null) throw new IllegalArgumentException("Invalud argument; sequence may not be null.");
 

@@ -37,31 +37,73 @@ import savant.util.Range;
 public abstract class TrackExporter extends Controller<DownloadEvent> {
     protected final TrackAdapter track;
 
-    protected TrackExporter(TrackAdapter t) {
+    /** Bases exported so far (for calculating progress). */
+    protected int basesSoFar;
+
+    /** Total length to be exported (for calculating progress). */
+    protected int totalBases;
+
+    /** Destination file for output. */
+    protected File destFile;
+
+    protected TrackExporter(TrackAdapter t, File f) {
         track = t;
+        destFile = f;
     }
 
     /**
      * Export the given range of the track.
      *
-     * @param ref the chromosome containing the range be exported
+     * @param ref the chromosome containing the range be exported (or null to export the whole genome).
      * @param r the range to be exported (or null to export the entire chromosome)
-     * @param destFile the local file to be created
      */
-    public abstract void exportRange(String ref, RangeAdapter r, File destFile) throws IOException;
+    public void export(String ref, RangeAdapter r) throws IOException {
+        LocationController lc = LocationController.getInstance();
+        if (ref == null) {
+            for (String ref2: lc.getReferenceNames()) {
+                totalBases += lc.getReferenceLength(ref2);
+            }
+            for (String ref2: lc.getReferenceNames()) {
+                exportRange(ref2, new Range(1, lc.getReferenceLength(ref2)));
+            }
+        } else {
+            totalBases = LocationController.getInstance().getReferenceLength(ref);
+            if (r == null) {
+                r = new Range(1, totalBases);
+            }
+            exportRange(ref, r);
+        }
+        close();
+        fireEvent(new DownloadEvent(destFile));
+    }
+
+    /**
+     * Give derived classes a chance to clean up when they've finished processing.
+     */
+    abstract void close() throws IOException;
+
+    /**
+     * Export the specified reference (or subrange thereof) to the given output stream.
+     * This may be invoked as part of a large export (i.e. whole genome).
+     * 
+     * @param ref the reference containing the range be exported (must be non-null)
+     * @param r the range to be exported (must be non-null)
+     * @throws IOException 
+     */
+    abstract void exportRange(String ref, RangeAdapter r) throws IOException;
 
     /**
      * Get a new TrackExporter appropriate for the given track.
      * @param trackURI URI of the track to be exported (currently only fasta and bam are supported)
      * @return an appropriate exporter, or null if one not found
      */
-    public static TrackExporter getExporter(String trackURI) {
+    public static TrackExporter getExporter(String trackURI, File f) throws IOException {
         TrackAdapter t = TrackUtils.getTrack(trackURI);
         switch (t.getDataFormat()) {
             case SEQUENCE_FASTA:
-                return new FastaExporter(t);
+                return new FastaExporter(t, f);
             case INTERVAL_BAM:
-                return new BamExporter(t);
+                return new BAMExporter(t, f);
             default:
                 return null;
         }

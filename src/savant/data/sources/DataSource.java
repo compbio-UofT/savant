@@ -67,8 +67,6 @@ public abstract class DataSource<E extends Record> implements DataSourceAdapter 
     /**
      * Get the dictionary for performing lookups on the associated track.  Default
      * behaviour is to load it from a .dict file in the same location as the main URI.
-     *
-     * @return a dictionary containing the bookmarks (may be empty, but never null)
      */
     @Override
     public void loadDictionary() throws IOException {

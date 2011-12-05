@@ -58,7 +58,7 @@ public class ColourScheme {
      * Often we just want to get the colour of a base.
      *
      * @param baseLetter 'A', 'C', 'T', 'G', or 'N'
-     * @return
+     * @return the {@link Color} to be used for the given base
      */
     public Color getBaseColor(char baseLetter) {
 

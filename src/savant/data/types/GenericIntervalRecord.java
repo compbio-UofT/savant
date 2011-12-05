@@ -35,7 +35,7 @@ public class GenericIntervalRecord implements IntervalRecord {
     private final Interval interval;
     private final String name;
 
-    GenericIntervalRecord(String reference, Interval interval, String name) {
+    protected GenericIntervalRecord(String reference, Interval interval, String name) {
         if (reference == null) throw new IllegalArgumentException("reference must not be null");
         if (interval == null) throw new IllegalArgumentException("Invalid argument. Interval must not be null");
         this.reference = reference;

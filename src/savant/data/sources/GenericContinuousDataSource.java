@@ -24,7 +24,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import savant.api.adapter.RangeAdapter;
+import savant.api.adapter.RecordFilterAdapter;
 import savant.api.data.DataFormat;
+import savant.api.util.Resolution;
 import savant.data.types.GenericContinuousRecord;
 import savant.file.FileType;
 import savant.file.SavantFileNotFormattedException;
@@ -34,7 +36,6 @@ import savant.format.ContinuousFormatterHelper;
 import savant.format.ContinuousFormatterHelper.Level;
 import savant.util.MiscUtils;
 import savant.util.Range;
-import savant.api.util.Resolution;
 import savant.util.SavantFileUtils;
 
 
@@ -90,7 +91,7 @@ public class GenericContinuousDataSource extends DataSource<GenericContinuousRec
      * @throws IOException
      */
     @Override
-    public List<GenericContinuousRecord> getRecords(String ref, RangeAdapter r, Resolution ignored) throws IOException {
+    public List<GenericContinuousRecord> getRecords(String ref, RangeAdapter r, Resolution ignored, RecordFilterAdapter filt) throws IOException {
 
         List<GenericContinuousRecord> data = new ArrayList<GenericContinuousRecord>();
 

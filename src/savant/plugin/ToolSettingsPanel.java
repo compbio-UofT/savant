@@ -31,6 +31,7 @@ import javax.swing.event.ListDataListener;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 
+import savant.api.adapter.BAMDataSourceAdapter;
 import savant.api.adapter.TrackAdapter;
 import savant.api.data.DataFormat;
 import savant.api.event.LocationChangedEvent;
@@ -108,64 +109,73 @@ class ToolSettingsPanel extends JPanel {
             gbc.gridx = 0;
             add(enablerCheck, gbc);
         }
-        gbc.gridx = 1;
-        gbc.anchor = GridBagConstraints.EAST;
-        JLabel nameLabel = new JLabel(arg.name + ":");
-        add(nameLabel, gbc);
-        
-        gbc.gridx = 2;
-        gbc.anchor = GridBagConstraints.WEST;
-        gbc.gridwidth = GridBagConstraints.REMAINDER;
-        gbc.weightx = 1.0;
         JComponent widget = null;
-        JTextField field = null;
-        switch (arg.type) {
-            case INT:
-                field = new JFormattedTextField();
-                ((JFormattedTextField)field).setValue(Integer.valueOf(arg.value != null ? arg.value : "0"));
-                field.setColumns(5);
-                break;
-            case FLOAT:
-                field = new JFormattedTextField();
-                ((JFormattedTextField)field).setValue(Double.valueOf(arg.value != null ? arg.value : "0.0"));
-                field.setColumns(10);
-                break;
-            case OUTPUT_FILE:
-                gbc.fill = GridBagConstraints.HORIZONTAL;
-                field = new JTextField(arg.value);
-                break;
-            case RANGE:
-            case BARE_RANGE:
-                field = new JTextField();
-                field.setColumns(25);
-                LocationController.getInstance().addListener(new RangeUpdater(field));
-                break;
-            case LIST:
-                widget = new StringCombo(arg);
-                break;
-            case MULTI:
-                gbc.fill = GridBagConstraints.HORIZONTAL;
-                widget = new MultiCheckGrid(arg);
-                break;
-            case BAM_INPUT_FILE:
-                widget = new TrackCombo(arg, DataFormat.INTERVAL_BAM);
-                TrackUtils.addTrackListener((TrackCombo)widget);
-                break;
-            case FASTA_INPUT_FILE:
-                widget = new TrackCombo(arg, DataFormat.SEQUENCE_FASTA);
-                TrackUtils.addTrackListener((TrackCombo)widget);
-                break;
-        }
-        if (field != null) {
-            field.addActionListener(executeListener);
-            field.getDocument().addDocumentListener(new EditListener(arg));
-            field.setMinimumSize(field.getPreferredSize());
-            widget = field;
-        }
-        if (widget != null) {
+        if (arg.type == ToolArgument.Type.BOOL) {
+            gbc.gridx = 2;
+            gbc.anchor = GridBagConstraints.WEST;
+            widget = new BoolCheck(arg);
             add(widget, gbc);
             if (enablerCheck != null) {
-                enablerCheck.addActionListener(new EnablerCheckListener(arg, nameLabel, widget));
+                enablerCheck.addActionListener(new EnablerCheckListener(arg, widget));
+            }
+        } else {
+            gbc.gridx = 1;
+            gbc.anchor = GridBagConstraints.EAST;
+            JLabel nameLabel = new JLabel(arg.name + ":");
+            add(nameLabel, gbc);
+        
+            gbc.gridx = 2;
+            gbc.anchor = GridBagConstraints.WEST;
+            gbc.gridwidth = GridBagConstraints.REMAINDER;
+            gbc.weightx = 1.0;
+            JTextField field = null;
+            switch (arg.type) {
+                case INT:
+                    field = new JFormattedTextField();
+                    ((JFormattedTextField)field).setValue(Integer.valueOf(arg.value != null ? arg.value : "0"));
+                    field.setColumns(5);
+                    break;
+                case FLOAT:
+                    field = new JFormattedTextField();
+                    ((JFormattedTextField)field).setValue(Double.valueOf(arg.value != null ? arg.value : "0.0"));
+                    field.setColumns(10);
+                    break;
+                case OUTPUT_FILE:
+                    gbc.fill = GridBagConstraints.HORIZONTAL;
+                    field = new JTextField(arg.value);
+                    break;
+                case RANGE:
+                    field = new JTextField();
+                    field.setColumns(25);
+                    LocationController.getInstance().addListener(new RangeUpdater(field));
+                    break;
+                case LIST:
+                    widget = new StringCombo(arg);
+                    break;
+                case MULTI:
+                    gbc.fill = GridBagConstraints.HORIZONTAL;
+                    widget = new MultiCheckGrid(arg);
+                    break;
+                case BAM_INPUT_FILE:
+                    widget = new TrackCombo(arg, DataFormat.INTERVAL_BAM);
+                    TrackUtils.addTrackListener((TrackCombo)widget);
+                    break;
+                case FASTA_INPUT_FILE:
+                    widget = new TrackCombo(arg, DataFormat.SEQUENCE_FASTA);
+                    TrackUtils.addTrackListener((TrackCombo)widget);
+                    break;
+            }
+            if (field != null) {
+                field.addActionListener(executeListener);
+                field.getDocument().addDocumentListener(new EditListener(arg));
+                field.setMinimumSize(field.getPreferredSize());
+                widget = field;
+            }
+            if (widget != null) {
+                add(widget, gbc);
+                if (enablerCheck != null) {
+                    enablerCheck.addActionListener(new EnablerCheckListener(arg, nameLabel, widget));
+                }
             }
         }
     }
@@ -188,11 +198,30 @@ class ToolSettingsPanel extends JPanel {
             for (JComponent w: widgets) {
                 w.setEnabled(enabled);
                 if (enabled && w instanceof JTextField) {
-                    w.requestFocus();
+                    ((JTextField)w).selectAll();
                 }
             }
             argument.enabled = enabled;
             tool.displayCommandLine(commandLine);
+        }
+    }
+
+    /**
+     * Check-box which controls the value of a boolean parameter.
+     */
+    private class BoolCheck extends JCheckBox {
+        private final ToolArgument argument;
+
+        private BoolCheck(ToolArgument arg) {
+            super(arg.name);
+            argument = arg;
+            setSelected(Boolean.getBoolean(arg.value));
+            addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent ae) {
+                    argument.value = String.valueOf(isSelected());
+                }
+            });
         }
     }
 
@@ -242,6 +271,13 @@ class ToolSettingsPanel extends JPanel {
             public void setSelectedItem(Object o) {
                 selection = (String)o;
                 argument.value = selection;
+                if (argument.type == ToolArgument.Type.BAM_INPUT_FILE) {
+                    tool.useHomoRefs = true;
+                    String firstRef = ((BAMDataSourceAdapter)TrackUtils.getTrackDataSource(selection)).getHeader().getSequence(0).getSequenceName();
+                    if (firstRef.startsWith("chr")) {
+                        tool.useHomoRefs = false;
+                    }
+                }
                 tool.displayCommandLine(commandLine);
             }
 

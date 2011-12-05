@@ -35,7 +35,7 @@ public class TabixIntervalRecord implements IntervalRecord {
     /**
      * Constructor. Clients should use static factory method valueOf() instead.
      */
-    TabixIntervalRecord(String s, ColumnMapping mapping) {
+    protected TabixIntervalRecord(String s, ColumnMapping mapping) {
         // String.split() will omit a trailing empty field.  We want it to be present as an empty value.
         if (s.endsWith("\t")) {
             values = (s + " ").split("\\t");

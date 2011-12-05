@@ -148,7 +148,7 @@ public final class FrameCommandBar extends JMenuBar {
                 public void actionPerformed(ActionEvent ae) {
                     try {
                         LocationController lc = LocationController.getInstance();
-                        byte[] seq = ((SequenceRecord)mainTrack.getDataSource().getRecords(lc.getReferenceName(), lc.getRange(), Resolution.HIGH).get(0)).getSequence();
+                        byte[] seq = ((SequenceRecord)mainTrack.getDataSource().getRecords(lc.getReferenceName(), lc.getRange(), Resolution.HIGH, null).get(0)).getSequence();
                         Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(new String(seq)), null);
                     } catch (IOException x) {
                         LOG.error(x);

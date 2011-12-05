@@ -39,7 +39,7 @@ public interface FrameAdapter extends Listener<DataRetrievalEvent> {
     /**
      * Tells the frame that the draw mode for this track has changed.  Gives the frame
      * a chance to rebuild its user interface and request a repaint. 
-     * @param t the track whose mode has changed
+     * @param track the track whose mode has changed
      */
     public void drawModeChanged(Track track);
     

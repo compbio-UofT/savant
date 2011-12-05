@@ -71,7 +71,7 @@ public class DownloadEvent {
     /**
      * A download event indicating that the download has failed.
      *
-     * @param file the destination file
+     * @param error the exception which caused the download to fail
      */
     public DownloadEvent(Exception error) {
         this(Type.FAILED, Double.NaN, null, error);

@@ -40,14 +40,17 @@ public interface DataSourceAdapter<E extends Record> {
     public Set<String> getReferenceNames();
 
     /**
-     * Get all records in the given range at the given resolution
+     * Get all records in the given range at the given resolution.
      *
      * @param ref the reference sequence name for which to fetch records
      * @param range the range for which to fetch records
      * @param resolution the resolution currently being viewed (allows <code>DataSource</code>s to substitute a low-resolution rendition if appropriate.
+     * @param filter class which allows results to be filtered out (<code>null</code> if no filtering to be done)
      * @return an ordered list of records
+     * 
+     * @since 2.0.0
      */
-    public List<E> getRecords(String ref, RangeAdapter range, Resolution resolution) throws IOException;
+    public List<E> getRecords(String ref, RangeAdapter range, Resolution resolution, RecordFilterAdapter<E> filter) throws IOException;
 
     public URI getURI();
 

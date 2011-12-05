@@ -53,7 +53,7 @@ public interface GraphPaneAdapter {
 
     /**
      * Convert a logical Y position into a vertical position in pixels.
-     * @param pix logical vertical position
+     * @param pos logical vertical position
      * @return the corresponding vertical pixel position
      */
     public double transformYPos(double pos);

@@ -25,12 +25,12 @@ import javax.xml.stream.XMLStreamReader;
  */
 public class ToolArgument {
     public enum Type {
+        BOOL,                 // A boolean value.
         INT,                  // An integer value.
         FLOAT,                // A floating poing value
         LIST,                 // A list of values, one of which can be selected.
         MULTI,                // A list of values, of which multiple ones can be selected.
-        BARE_RANGE,           // A bare range (without any "chr" prefix)
-        RANGE,                // A normal range (possibly with a "chr" prefix)
+        RANGE,                // A range (with or without a "chr" prefix)
         OUTPUT_FILE,
         BAM_INPUT_FILE,       // A local .bam file (corresponding to a Savant alignment track)
         FASTA_INPUT_FILE      // A local .fa file (corresponding to a Savant sequence track)
@@ -61,6 +61,7 @@ public class ToolArgument {
         enabled = required;
         
         switch (type) {
+            case BOOL:
             case INT:
             case FLOAT:
                 value = reader.getAttributeValue(null, "default");

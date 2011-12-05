@@ -36,20 +36,16 @@ import net.sf.samtools.SAMRecord;
  */
 public class BAMIntervalRecord implements IntervalRecord {
 
-    //public enum PairType { NORMAL, INVERTED_MATE, INVERTED_READ, EVERTED };
-
     private final Interval interval;
     private final SAMRecord samRecord;
-    //private final PairType type;
     private Color overrideColor = null;
 
     /**
      * Constructor. Clients should use static factory method valueOf() instead.
      *
      * @param samRecord samRecord the SAMRecord associated with the read; may not be null
-     * @param type type the pair type; may be null if read is unpaired or mate is unmapped
      */
-    BAMIntervalRecord(SAMRecord samRecord) {
+    protected BAMIntervalRecord(SAMRecord samRecord) {
 
         if (samRecord == null) throw new IllegalArgumentException("samRecord must not be null");
 
@@ -82,7 +78,7 @@ public class BAMIntervalRecord implements IntervalRecord {
         return samRecord.getReadName();
     }
 
-    public SAMRecord getSamRecord() {
+    public SAMRecord getSAMRecord() {
         return samRecord;
     }
 
@@ -119,8 +115,8 @@ public class BAMIntervalRecord implements IntervalRecord {
     @Override
     public int compareTo(Object o) {
 
-        SAMRecord otherSam = ((BAMIntervalRecord) o).getSamRecord();
-        SAMRecord thisSam = this.getSamRecord();
+        SAMRecord otherSam = ((BAMIntervalRecord) o).getSAMRecord();
+        SAMRecord thisSam = this.getSAMRecord();
 
         //compare ref
         if (!thisSam.getReferenceName().equals(otherSam.getReferenceName())){

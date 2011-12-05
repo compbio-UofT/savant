@@ -16,6 +16,10 @@
 package savant.view.tracks;
 
 import java.awt.Color;
+import java.awt.Point;
+import java.awt.Rectangle;
+import java.awt.Shape;
+import java.awt.geom.Point2D;
 import java.util.List;
 import javax.swing.JPanel;
 
@@ -24,6 +28,7 @@ import org.apache.commons.logging.LogFactory;
 
 import savant.api.adapter.DataSourceAdapter;
 import savant.api.adapter.FrameAdapter;
+import savant.api.adapter.RecordFilterAdapter;
 import savant.api.adapter.TrackAdapter;
 import savant.api.data.DataFormat;
 import savant.api.data.Record;
@@ -56,6 +61,7 @@ public abstract class Track extends Controller<DataRetrievalEvent> implements Tr
     protected final TrackRenderer renderer;
     private final DataSourceAdapter dataSource;
     private DataRetriever retriever;
+    protected RecordFilterAdapter filter;
 
     /**
      * In practice this will be a JIDE DockableFrame, but we could conceivably have a
@@ -274,6 +280,36 @@ public abstract class Track extends Controller<DataRetrievalEvent> implements Tr
         return frame.getGraphPane().transformYPos(pos);
     }
 
+    /**
+     * Given a record, determine the bounds which would be used for displaying that record.
+     * @param rec the record whose bounds we're interested in
+     * @return the record's bounds in pixels, relative to the track's bounds (or null
+     */
+    @Override
+    public Rectangle getRecordBounds(Record rec) {
+        Shape s = renderer.recordToShapeMap.get(rec);
+        if (s != null) {
+            return s.getBounds();
+        }
+        return null;
+    }
+
+    /**
+     * Given a location within a track window, determine the record which lies at that location.
+     * If multiple records overlap at the given position, only the first one will be returned.
+     * @param pt the point we're interested in
+     * @return the record at that position, or <code>null</code> if no record is there
+     */
+    @Override
+    public Record getRecordAtPos(Point pt) {
+        for (Record r: renderer.recordToShapeMap.keySet()) {
+            Shape s = renderer.recordToShapeMap.get(r);
+            if (s.contains(new Point2D.Double(pt.x, pt.y))) {
+                return r;
+            }
+        }
+        return null;
+    }
 
     public FrameAdapter getFrame() {
         return frame;
@@ -340,7 +376,7 @@ public abstract class Track extends Controller<DataRetrievalEvent> implements Tr
         }
         dataInRange = null;
         fireEvent(new DataRetrievalEvent());
-        retriever = new DataRetriever(reference, range);
+        retriever = new DataRetriever(reference, range, filter);
         retriever.start();
         try {
             if (retriever != null) {
@@ -412,25 +448,27 @@ public abstract class Track extends Controller<DataRetrievalEvent> implements Tr
      * @return a List of data objects from the given range and resolution
      * @throws Exception
      */
-    protected synchronized List<Record> retrieveData(String reference, Range range, Resolution resolution) throws Exception {
-        return getDataSource().getRecords(reference, range, resolution);
+    protected synchronized List<Record> retrieveData(String reference, Range range, Resolution resolution, RecordFilterAdapter filter) throws Exception {
+        return getDataSource().getRecords(reference, range, resolution, filter);
     }
 
     private class DataRetriever extends Thread {
         String reference;
         Range range;
+        RecordFilterAdapter filter;
  
-        DataRetriever(String ref, Range r) {
+        DataRetriever(String ref, Range r, RecordFilterAdapter filt) {
             super("DataRetriever-" + ref + ":" + r);
             reference = ref;
             range = r;
+            filter = filt;
         }
 
         @Override
         public void run() {
             try {
                 LOG.debug("Retrieving data for " + name + "(" + reference + ":" + range + ")");
-                dataInRange = retrieveData(reference, range, getResolution(range));
+                dataInRange = retrieveData(reference, range, getResolution(range), filter);
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("Retrieved " + (dataInRange != null ? Integer.toString(dataInRange.size()) : "no") + " records for " + name + "(" + reference + ":" + range + ")");
                 }

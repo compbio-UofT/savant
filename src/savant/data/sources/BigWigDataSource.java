@@ -32,9 +32,10 @@ import org.broad.igv.bbfile.RPChromosomeRegion;
 import org.broad.igv.bbfile.WigItem;
 
 import savant.api.adapter.RangeAdapter;
+import savant.api.adapter.RecordFilterAdapter;
 import savant.api.data.DataFormat;
-import savant.data.types.GenericContinuousRecord;
 import savant.api.util.Resolution;
+import savant.data.types.GenericContinuousRecord;
 
 
 /**
@@ -66,7 +67,7 @@ public class BigWigDataSource extends DataSource<GenericContinuousRecord> {
     }
 
     @Override
-    public List<GenericContinuousRecord> getRecords(String ref, RangeAdapter range, Resolution resolution) throws IOException {
+    public List<GenericContinuousRecord> getRecords(String ref, RangeAdapter range, Resolution resolution, RecordFilterAdapter filt) throws IOException {
         List<GenericContinuousRecord> result = new ArrayList<GenericContinuousRecord>();
         int chromID = bbReader.getChromosomeID(ref);
         RPChromosomeRegion region = new RPChromosomeRegion(chromID, range.getFrom(), chromID, range.getTo());

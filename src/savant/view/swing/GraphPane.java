@@ -689,7 +689,7 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
 
     /**
      * Calculate the number of pixels equal to one graph unit of height.
-     * @return 
+     * @return the height of a graph unit in pixels
      */
     @Override
     public double getUnitHeight() {
@@ -874,7 +874,7 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
      * {@inheritDoc}
      */
     @Override
-    public void mouseClicked( final MouseEvent event ) {
+    public void mouseClicked(MouseEvent event) {
 
         if (event.getClickCount() == 2) {
             LocationController.getInstance().zoomInOnMouse();
@@ -895,10 +895,8 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
 
         setMouseModifier(event);
 
-        this.requestFocus();
+        requestFocus();
 
-        int w = getWidth();
-        Range xRange = getXRange();
         int x1 = getConstrainedX(event);
 
         baseX = transformXPixel(x1);

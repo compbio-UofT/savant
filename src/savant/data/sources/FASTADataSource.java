@@ -26,21 +26,22 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import savant.api.adapter.RangeAdapter;
+import savant.api.adapter.RecordFilterAdapter;
+import savant.api.adapter.SequenceDataSourceAdapter;
 import savant.api.data.SequenceRecord;
 import savant.api.data.DataFormat;
+import savant.api.util.Resolution;
 import savant.file.FileType;
 import savant.file.SavantFileNotFormattedException;
 import savant.file.SavantROFile;
 import savant.file.SavantUnsupportedVersionException;
 import savant.format.SavantFileFormatterUtils;
-import savant.util.MiscUtils;
-import savant.api.util.Resolution;
 
 /**
  *
  * @author mfiume
  */
-public class FASTADataSource extends DataSource<SequenceRecord> {
+public class FASTADataSource extends DataSource<SequenceRecord> implements SequenceDataSourceAdapter {
 
     private static Log LOG = LogFactory.getLog(FASTADataSource.class);
 
@@ -62,7 +63,7 @@ public class FASTADataSource extends DataSource<SequenceRecord> {
     }
 
     @Override
-    public List<SequenceRecord> getRecords(String reference, RangeAdapter range, Resolution resolution) throws IOException {
+    public List<SequenceRecord> getRecords(String reference, RangeAdapter range, Resolution resolution, RecordFilterAdapter filt) throws IOException {
 
         int rangeLength = range.getLength();
         byte[] sequence = new byte[rangeLength];

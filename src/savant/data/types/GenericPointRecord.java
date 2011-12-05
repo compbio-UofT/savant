@@ -30,7 +30,7 @@ public class GenericPointRecord implements PointRecord {
     private final int point;
     private final String description;
 
-    GenericPointRecord(String reference, int point, String description) {
+    protected GenericPointRecord(String reference, int point, String description) {
         if (reference == null) throw new IllegalArgumentException("reference must not be null");
         this.reference = reference;
         this.point = point;

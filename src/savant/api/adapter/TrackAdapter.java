@@ -16,15 +16,17 @@
 
 package savant.api.adapter;
 
+import java.awt.Point;
+import java.awt.Rectangle;
 import java.util.List;
 import javax.swing.JPanel;
 
 import savant.api.data.Record;
 import savant.api.data.DataFormat;
+import savant.api.util.Resolution;
 import savant.plugin.SavantPanelPlugin;
 import savant.util.AxisType;
 import savant.util.DrawingMode;
-import savant.api.util.Resolution;
 
 /**
  * Public interface to Savant track objects.
@@ -146,8 +148,8 @@ public interface TrackAdapter {
     /**
      * Transform a vertical position in terms of pixels into graph units.
      *
-     * @param pos position in graph coordinates
-     * @return a corresponding drawing coordinate
+     * @param pix position in pixel coordinates
+     * @return corresponding graph coordinate
      * @since 1.6.0
      */
     public double transformYPixel(double pix);
@@ -155,11 +157,26 @@ public interface TrackAdapter {
     /**
      * Transform a vertical position in terms of graph units into a pixel position.
      *
-     * @param pos position in pixel coordinates
-     * @return corresponding graph coordinate
+     * @param pos position in graph coordinates
+     * @return the corresponding drawing coordinate
      * @since 1.6.0
      */
     public double transformYPos(double pos);
+
+    /**
+     * Given a record, determine the bounds which would be used for displaying that record.
+     * @param rec the record whose bounds we're interested in
+     * @return the record's bounds in pixels, relative to the track's bounds (or <code>null</code> if record not found in track)
+     */
+    public Rectangle getRecordBounds(Record rec);
+
+    /**
+     * Given a location within a track window, determine the record which lies at that location.
+     * If multiple records overlap at the given position, only the first one will be returned.
+     * @param pt the point we're interested in
+     * @return the record at that position, or <code>null</code> if no record is there
+     */
+    public Record getRecordAtPos(Point pt);
 
     /**
      * Does this track allow selections?

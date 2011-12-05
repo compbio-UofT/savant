@@ -45,7 +45,8 @@ public class BEDIntervalRecord implements RichIntervalRecord {
      * Constructor. Clients should use static factory method valueOf() instead.
      *
      * @param chrom chromosome; may not be null
-     * @param interval interval including chromStart and chromEnd; may not be null
+     * @param start start of the interval
+     * @param end of the interval
      * @param name
      * @param score
      * @param strand
@@ -54,10 +55,9 @@ public class BEDIntervalRecord implements RichIntervalRecord {
      * @param rgb
      * @param blocks
      */
-    private BEDIntervalRecord(String chrom, int start, int end, String name, float score, Strand strand, int thickStart, int thickEnd, ItemRGB rgb, List<Block> blocks) {
+    protected BEDIntervalRecord(String chrom, int start, int end, String name, float score, Strand strand, int thickStart, int thickEnd, ItemRGB rgb, List<Block> blocks) {
 
         if (chrom == null) throw new IllegalArgumentException("Invalid argument: chrom may not be null");
-        //if (interval == null) throw new IllegalArgumentException("Invalid argument. Interval must not be null");
  
         this.interval = Interval.valueOf(start,end-1);
         this.chrom = chrom;

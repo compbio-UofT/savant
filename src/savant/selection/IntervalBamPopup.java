@@ -51,7 +51,7 @@ public class IntervalBamPopup extends PopupPanel implements Listener<DataRetriev
 
     @Override
     protected void calculateInfo() {
-        samRec = rec.getSamRecord();
+        samRec = rec.getSAMRecord();
         name = samRec.getReadName();
         ref = samRec.getReferenceName();
         start = samRec.getAlignmentStart();
@@ -138,7 +138,7 @@ public class IntervalBamPopup extends PopupPanel implements Listener<DataRetriev
         switch (evt.getType()) {
             case COMPLETED:
                 for (Record r: evt.getData()) {
-                    SAMRecord current = ((BAMIntervalRecord)r).getSamRecord();
+                    SAMRecord current = ((BAMIntervalRecord)r).getSAMRecord();
                     if (MiscUtils.isMate(samRec, current, true)) {
                         for (Track t: gp.getTracks()) {
                             if (t.getDataFormat() == fileFormat){

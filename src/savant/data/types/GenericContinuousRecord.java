@@ -32,7 +32,7 @@ public class GenericContinuousRecord implements ContinuousRecord {
     private final float value;
     private final int position;
 
-    GenericContinuousRecord(String reference, int position, float value) {
+    protected GenericContinuousRecord(String reference, int position, float value) {
         if (reference == null) throw new IllegalArgumentException("Reference may not be null.");
         this.reference = reference;
         this.position = position;

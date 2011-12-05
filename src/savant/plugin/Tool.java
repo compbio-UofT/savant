@@ -38,19 +38,18 @@ import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 
+import net.sf.samtools.SAMSequenceDictionary;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import savant.api.adapter.BAMDataSourceAdapter;
 import savant.api.adapter.RangeAdapter;
 import savant.api.util.DialogUtils;
 import savant.api.util.Listener;
+import savant.api.util.TrackUtils;
 import savant.settings.DirectorySettings;
-import savant.util.BackgroundWorker;
-import savant.util.Bookmark;
-import savant.util.CacheIndex;
-import savant.util.DownloadEvent;
-import savant.util.MiscUtils;
-import savant.util.NetworkUtils;
+import savant.util.*;
+import savant.util.export.FastaExporter;
 import savant.util.export.TrackExporter;
 
 
@@ -83,6 +82,7 @@ public class Tool extends SavantPanelPlugin {
     
     private String workingRef;
     private RangeAdapter workingRange;
+    boolean useHomoRefs;
 
     @Override
     public void init(JPanel panel) {
@@ -207,11 +207,9 @@ public class Tool extends SavantPanelPlugin {
             } else if (a.enabled) {
                 switch (a.type) {
                     case RANGE:
-                    case BARE_RANGE:
                         // We assume that a tool will only have a single RANGE argument.
-                        // TODO: Handle empty range and just a chromosome.
                         try {
-                            // This will set workingLoc, so we can assume it's already set in buildCommandLine
+                            // This sets workingRef and workingRange, so buildCommandLine can count on those being set.
                             getStringValue(a);
                         } catch (ParseException px) {
                             throw new IllegalArgumentException(String.format("Unable to parse \"%s\" as a valid range.", a.value));
@@ -279,13 +277,19 @@ public class Tool extends SavantPanelPlugin {
      */
     public String getStringValue(ToolArgument a) throws ParseException {
         switch (a.type) {
+            case BAM_INPUT_FILE:
+                return a.value;
             case RANGE:
                 parseWorkingRange(a.value);
-                return formatWorkingRange(false);
-            case BARE_RANGE:
-                parseWorkingRange(a.value);
-                return formatWorkingRange(true);
-        } 
+                if (workingRef != null) {
+                    String ref = useHomoRefs ? MiscUtils.homogenizeSequence(workingRef) : workingRef;
+                    if (workingRange != null) {
+                        return String.format("%s:%d-%d", ref, workingRange.getFrom(), workingRange.getTo());
+                    }
+                    return ref;
+                } 
+                break;
+        }
         return a.value;
     }
 
@@ -306,17 +310,6 @@ public class Tool extends SavantPanelPlugin {
                 workingRange = null;
             }
         }
-    }
-
-    private String formatWorkingRange(boolean homo) {
-        if (workingRef != null) {
-            String ref = homo ? MiscUtils.homogenizeSequence(workingRef) : workingRef;
-            if (workingRange != null) {
-                return String.format("%s:%d-%d", ref, workingRange.getFrom(), workingRange.getTo());
-            }
-            return ref;
-        }
-        return null;
     }
 
     /**
@@ -352,9 +345,11 @@ public class Tool extends SavantPanelPlugin {
                 int lastDot = source.lastIndexOf(".");
                 source.insert(lastDot, "-" + workingRef);
                 if (!CacheIndex.findCacheEntry(source.toString())) {
-                    // No existing chromosome file, so just request the subrange of interest.
-                    lastDot = source.lastIndexOf(".");
-                    source.insert(lastDot, String.format(":%d-%d", workingRange.getFrom(), workingRange.getTo()));
+                    if (workingRange != null) {
+                        // No existing chromosome file, so just request the subrange of interest.
+                        lastDot = source.lastIndexOf(".");
+                        source.insert(lastDot, String.format(":%d-%d", workingRange.getFrom(), workingRange.getTo()));
+                    }
                 }
             }
         }
@@ -384,6 +379,7 @@ public class Tool extends SavantPanelPlugin {
 
         @Override
         protected void showProgress(double fraction) {
+            progressBar.setIndeterminate(fraction < 0.0);
             progressBar.setValue((int)(fraction * 100.0));
         }
 
@@ -392,10 +388,6 @@ public class Tool extends SavantPanelPlugin {
             showProgress(0.0);
             cancelButton.setText("Cancel");
             console.setText("");
-
-            if (workingRef == null) {
-                throw new IllegalArgumentException("Whole-genome operations not supported yet.");
-            }
 
             progressInfo.setText("Preparing input files…");
             prepareInputs();
@@ -415,8 +407,12 @@ public class Tool extends SavantPanelPlugin {
         /**
          * The first stage of the process may involve copying the track data into
          * local files so that the tool can operate on it.
+         * 
+         * Once the files have been set up, we have an extra step of bullshit, which
+         * involves generating fake .fai and .dict files for our sequence.
          */
         private void prepareInputs() throws IOException {
+            ToolArgument bamArg = null;
             for (ToolArgument a: arguments) {
                 if (a.enabled) {
                     switch (a.type) {
@@ -425,6 +421,7 @@ public class Tool extends SavantPanelPlugin {
                             if (!NetworkUtils.getURIFromPath(a.value).getScheme().equals("file")) {
                                 missingFiles.add(a);
                             }
+                            bamArg = a;
                             break;
                         case FASTA_INPUT_FILE:
                             // Remote URLs and formatted FASTA files will need to be downloaded.
@@ -438,17 +435,23 @@ public class Tool extends SavantPanelPlugin {
 
             inputIndex = 0;
             
+            FastaExporter fastaExp = null;
             for (ToolArgument a: missingFiles) {
                 File f = getLocalFile(a.value, a.type == ToolArgument.Type.BAM_INPUT_FILE);
                 if (!f.exists()) {
                     LOG.info(f + " not found, exporting.");
-                    TrackExporter exp = TrackExporter.getExporter(a.value);
+                    TrackExporter exp = TrackExporter.getExporter(a.value, f);
                     exp.addListener(new Listener<DownloadEvent>() {
                         @Override
                         public void handleEvent(DownloadEvent event) {
                             switch (event.getType()) {
                                 case PROGRESS:
-                                    showProgress(PREP_PORTION * (inputIndex + event.getProgress()) / missingFiles.size());
+                                    double prog = event.getProgress();
+                                    if (prog >= 0.0) {
+                                        showProgress(PREP_PORTION * (inputIndex + event.getProgress()) / missingFiles.size());
+                                    } else {
+                                        showProgress(-1.0);
+                                    }
                                     break;
                                 case COMPLETED:
                                     try {
@@ -460,9 +463,20 @@ public class Tool extends SavantPanelPlugin {
                             }
                         }
                     });
-                    exp.exportRange(workingRef, workingRange, f);
+                    exp.export(workingRef, workingRange);
+                    if (exp instanceof FastaExporter) {
+                        fastaExp = (FastaExporter)exp;
+                    }
                 }
                 showProgress(++inputIndex * PREP_PORTION / missingFiles.size());
+            }
+            
+            // If we did a fasta export, we have to create the index and dictionary based, not on the contents of the
+            // FASTA file, but on the sequence dictionary from the header of the BAM file.
+            if (fastaExp != null && bamArg != null) {
+                SAMSequenceDictionary samDict = ((BAMDataSourceAdapter)TrackUtils.getTrackDataSource(bamArg.value)).getHeader().getSequenceDictionary();
+                fastaExp.createFakeIndex(samDict);
+                fastaExp.createFakeSequenceDictionary(samDict);
             }
         }
 
@@ -476,12 +490,17 @@ public class Tool extends SavantPanelPlugin {
             while ((line = reader.readLine()) != null) {
                 line += "\n";
                 console.append(line);
-                Matcher m = errorRegex.matcher(line);
-                if (m.find()) {
-                    errorMessage = m.group(1);
-                    LOG.info("Retrieved error message \"" + errorMessage + "\".");
-                } else {
-                    m = progressRegex.matcher(line);
+                if (errorRegex != null) {
+                    Matcher m = errorRegex.matcher(line);
+                    if (m.find()) {
+                        errorMessage = m.group(1);
+                        LOG.info("Retrieved error message \"" + errorMessage + "\".");
+                        continue;
+                    }
+                }
+                
+                if (progressRegex != null) {
+                    Matcher m = progressRegex.matcher(line);
                     if (m.find()) {
                         String progress = m.group(1);
                         try {

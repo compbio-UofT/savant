@@ -27,8 +27,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import savant.api.adapter.RangeAdapter;
+import savant.api.adapter.RecordFilterAdapter;
 import savant.api.data.IntervalRecord;
 import savant.api.data.DataFormat;
+import savant.api.util.Resolution;
 import savant.data.types.GenericIntervalRecord;
 import savant.file.FileType;
 import savant.file.SavantFileNotFormattedException;
@@ -38,7 +40,6 @@ import savant.format.DataFormatter;
 import savant.format.IntervalRecordGetter;
 import savant.format.IntervalSearchTree;
 import savant.util.Range;
-import savant.api.util.Resolution;
 
 
 /**
@@ -73,7 +74,7 @@ public class GenericIntervalDataSource extends DataSource<GenericIntervalRecord>
     }
 
     @Override
-    public List<GenericIntervalRecord> getRecords(String reference, RangeAdapter range, Resolution resolution) throws IOException {
+    public List<GenericIntervalRecord> getRecords(String reference, RangeAdapter range, Resolution resolution, RecordFilterAdapter filt) throws IOException {
         IntervalSearchTree ist = getIntervalSearchTreeForReference(reference);
 
         if (ist == null) { return new ArrayList<GenericIntervalRecord>(); }

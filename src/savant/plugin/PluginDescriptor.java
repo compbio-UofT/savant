@@ -51,6 +51,8 @@ public class PluginDescriptor implements Comparable<PluginDescriptor> {
         VALUE,
         VERSION,
         CLASS,
+        SDK_VERSION,
+        NAME,
         IGNORED
     };
 
@@ -137,8 +139,11 @@ public class PluginDescriptor implements Comparable<PluginDescriptor> {
                             className = readAttribute(PluginXMLAttribute.CLASS);
                             id = readAttribute(PluginXMLAttribute.ID);
                             version = readAttribute(PluginXMLAttribute.VERSION);
+                            sdkVersion = readAttribute(PluginXMLAttribute.SDK_VERSION);
+                            name = readAttribute(PluginXMLAttribute.NAME);
                             break;
                         case ATTRIBUTE:
+                            // Older plugins store the SDK version in a special <attributes> tag.
                             if ("sdk-version".equals(readAttribute(PluginXMLAttribute.ID))) {
                                 sdkVersion = readAttribute(PluginXMLAttribute.VALUE);
                             }

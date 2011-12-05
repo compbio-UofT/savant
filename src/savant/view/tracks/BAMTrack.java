@@ -24,9 +24,9 @@ import org.apache.commons.logging.LogFactory;
 
 import savant.api.adapter.DataSourceAdapter;
 import savant.api.adapter.RangeAdapter;
+import savant.api.adapter.RecordFilterAdapter;
 import savant.api.data.Record;
 import savant.api.util.Resolution;
-import savant.data.sources.BAMDataSource;
 import savant.data.types.BAMIntervalRecord;
 import savant.exception.RenderingException;
 import savant.exception.SavantTrackCreationCancelledException;
@@ -134,7 +134,7 @@ public class BAMTrack extends Track {
         if (data != null) {
             for (Record r: data) {
 
-                SAMRecord samRecord = ((BAMIntervalRecord)r).getSamRecord();
+                SAMRecord samRecord = ((BAMIntervalRecord)r).getSAMRecord();
 
                 int val = Math.abs(samRecord.getInferredInsertSize());
 
@@ -241,16 +241,16 @@ public class BAMTrack extends Track {
     }
 
     @Override
-    protected synchronized List<Record> retrieveData(String reference, Range range, Resolution resolution) throws Exception {
+    protected synchronized List<Record> retrieveData(String reference, Range range, Resolution resolution, RecordFilterAdapter filt) throws Exception {
         DrawingMode mode = getDrawingMode();
-        return (List<Record>)(List)((BAMDataSource)getDataSource()).getRecords(reference, range, resolution, getArcSizeVisibilityThreshold(), AxisRange.initWithRanges(range, getDefaultYRange()), mode == DrawingMode.STANDARD_PAIRED || mode == DrawingMode.ARC_PAIRED, includeDuplicateReads, includeVendorFailedReads, mappingQualityThreshold);
+        return getDataSource().getRecords(reference, range, resolution, filt);
     }
     
     public BAMIntervalRecord getMate(BAMIntervalRecord rec) {
         List<Record> data = getDataInRange();
-        SAMRecord samRec = rec.getSamRecord();
+        SAMRecord samRec = rec.getSAMRecord();
         for (Record rec2: data) {
-            SAMRecord current = ((BAMIntervalRecord)rec2).getSamRecord();
+            SAMRecord current = ((BAMIntervalRecord)rec2).getSAMRecord();
             if (MiscUtils.isMate(samRec, current, false)){
                 return (BAMIntervalRecord)rec2;
             }

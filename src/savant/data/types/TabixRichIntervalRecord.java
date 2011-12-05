@@ -35,7 +35,7 @@ public class TabixRichIntervalRecord extends TabixIntervalRecord implements Rich
     /**
      * Constructor not be be called directly, but rather through TabixIntervalRecord.valueOf.
      */
-    TabixRichIntervalRecord(String line, ColumnMapping mapping) {
+    protected TabixRichIntervalRecord(String line, ColumnMapping mapping) {
         super(line, mapping);
     }
 

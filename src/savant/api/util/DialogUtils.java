@@ -146,7 +146,7 @@ public class DialogUtils {
      *
      * @param title title of the dialog window
      * @param message the message to be displayed
-     * @param x exception whose stack trace will be displayed in the Details section
+     * @param t exception whose stack trace will be displayed in the Details section
      */
     public static void displayException(final String title, final String message, final Throwable t) {
         MiscUtils.invokeLaterIfNecessary(new Runnable() {

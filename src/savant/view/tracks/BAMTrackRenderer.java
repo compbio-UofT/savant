@@ -209,7 +209,7 @@ public class BAMTrackRenderer extends TrackRenderer {
 
                 BAMIntervalRecord bamRecord = (BAMIntervalRecord) intervalRecord;
 
-                if (bamRecord.getSamRecord().getReadUnmappedFlag()) {
+                if (bamRecord.getSAMRecord().getReadUnmappedFlag()) {
                     // this read is unmapped, don't visualize it
                     recordToShapeMap.put(intervalRecord, null);
                 } else {
@@ -223,7 +223,7 @@ public class BAMTrackRenderer extends TrackRenderer {
 
     private Shape renderRead(Graphics2D g2, GraphPaneAdapter gp, BAMIntervalRecord rec, int level, Range range, double readHeight) {
 
-        SAMRecord samRec = rec.getSamRecord();
+        SAMRecord samRec = rec.getSAMRecord();
         boolean reverseStrand = samRec.getReadNegativeStrandFlag();
 
         ColourScheme cs = (ColourScheme) instructions.get(DrawingInstruction.COLOUR_SCHEME);
@@ -472,7 +472,7 @@ public class BAMTrackRenderer extends TrackRenderer {
         LOG.debug("BAMTrackRenderer.renderArcMatePairMode: " + data.size() + " records.");
         for (Record record: data) {
             BAMIntervalRecord bamRecord = (BAMIntervalRecord)record;
-            SAMRecord samRecord = bamRecord.getSamRecord();
+            SAMRecord samRecord = bamRecord.getSAMRecord();
             SAMReadUtils.PairedSequencingProtocol prot = (SAMReadUtils.PairedSequencingProtocol) instructions.get(DrawingInstruction.PAIRED_PROTOCOL);
             SAMReadUtils.PairMappingType type = SAMReadUtils.getPairType(samRecord,prot);
 
@@ -573,7 +573,7 @@ public class BAMTrackRenderer extends TrackRenderer {
 
         // Go through the samrecords and edit the pileups
         for (Record record: data) {
-            SAMRecord samRecord = ((BAMIntervalRecord)record).getSamRecord();
+            SAMRecord samRecord = ((BAMIntervalRecord)record).getSAMRecord();
             updatePileupsFromSAMRecord(pileups, samRecord, startPosition);
         }
 
@@ -641,7 +641,7 @@ public class BAMTrackRenderer extends TrackRenderer {
 
         // Go through the samrecords and edit the pileups
         for (Record record: data) {
-            SAMRecord samRecord = ((BAMIntervalRecord)record).getSamRecord();
+            SAMRecord samRecord = ((BAMIntervalRecord)record).getSAMRecord();
             updatePileupsFromSAMRecord(pileups, samRecord, xMin);
         }
 
@@ -826,7 +826,7 @@ public class BAMTrackRenderer extends TrackRenderer {
 
             BAMIntervalRecord bamRecord = (BAMIntervalRecord)data.get(i);
             Interval interval = bamRecord.getInterval();
-            SAMRecord samRecord = bamRecord.getSamRecord();
+            SAMRecord samRecord = bamRecord.getSAMRecord();
             SAMReadUtils.PairedSequencingProtocol prot = (SAMReadUtils.PairedSequencingProtocol) instructions.get(DrawingInstruction.PAIRED_PROTOCOL);
             SAMReadUtils.PairMappingType type = SAMReadUtils.getPairType(samRecord,prot);
             int arcLength = Math.abs(samRecord.getInferredInsertSize());
@@ -899,7 +899,7 @@ public class BAMTrackRenderer extends TrackRenderer {
 
         if (records == null) return null;
         for (int i = 0; i < records.size(); i++) {
-            SAMRecord samRecord2 = ((BAMIntervalRecord)records.get(i)).getSamRecord();
+            SAMRecord samRecord2 = ((BAMIntervalRecord)records.get(i)).getSAMRecord();
             if (MiscUtils.isMate(samRecord, samRecord2, false)) {
                 BAMIntervalRecord intervalRecord = records.get(i);
                 records.remove(i);

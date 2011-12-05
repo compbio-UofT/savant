@@ -151,7 +151,7 @@ public class Bookmark implements BookmarkAdapter, Serializable {
 
     /**
      * Intended for use when we want to display bookmarks in a list or combo-box.
-     * @return
+     * @return the bookmark's annotation
      */
     @Override
     public String toString() {

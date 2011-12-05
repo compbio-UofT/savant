@@ -49,7 +49,7 @@ public class CacheIndex {
      * @param source path to our resource (often the same as url)
      * @param bufferSize block size of buffer (0 if not using block-based cacheing)
      * @param length file length (written to index but not actually used)
-     * @return
+     * @return file containing cache data for <code>url</code>
      * @throws IOException 
      */
     public static File getCacheFile(URL url, String source, int bufferSize, long length) throws IOException {

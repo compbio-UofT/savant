@@ -27,8 +27,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import savant.api.adapter.RangeAdapter;
+import savant.api.adapter.RecordFilterAdapter;
 import savant.api.data.DataFormat;
 import savant.api.data.IntervalRecord;
+import savant.api.util.Resolution;
 import savant.data.types.BEDIntervalRecord;
 import savant.file.FileType;
 import savant.file.SavantFileNotFormattedException;
@@ -38,7 +40,6 @@ import savant.format.DataFormatter;
 import savant.format.IntervalRecordGetter;
 import savant.format.IntervalSearchTree;
 import savant.util.Range;
-import savant.api.util.Resolution;
 
 
 /**
@@ -63,7 +64,7 @@ public class BEDDataSource extends DataSource<BEDIntervalRecord> {
      }
 
     @Override
-    public List<BEDIntervalRecord> getRecords(String reference, RangeAdapter range, Resolution resolution) throws IOException {
+    public List<BEDIntervalRecord> getRecords(String reference, RangeAdapter range, Resolution resolution, RecordFilterAdapter filt) throws IOException {
 
         IntervalSearchTree ist = getIntervalSearchTreeForReference(reference);
 

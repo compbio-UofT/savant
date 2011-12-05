@@ -487,10 +487,12 @@ public class Frame extends DockableFrame implements FrameAdapter, TrackCreationL
         }
     }
 
+    @Override
     public int getIntervalHeight() {
         return commandBar.getIntervalHeight();
     }
 
+    @Override
     public void setHeightFromSlider() {
         int h = commandBar.getIntervalHeight();
         graphPane.setUnitHeight(h);
