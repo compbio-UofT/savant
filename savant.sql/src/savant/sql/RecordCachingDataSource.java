@@ -29,6 +29,7 @@ import org.apache.commons.logging.LogFactory;
 import savant.api.adapter.BookmarkAdapter;
 import savant.api.adapter.DataSourceAdapter;
 import savant.api.adapter.RangeAdapter;
+import savant.api.adapter.RecordFilterAdapter;
 import savant.api.data.DataFormat;
 import savant.api.data.Record;
 import savant.api.util.Resolution;
@@ -63,7 +64,7 @@ public class RecordCachingDataSource<E extends Record> implements DataSourceAdap
      * @return an ordered list of records
      */
     @Override
-    public List<E> getRecords(String ref, RangeAdapter range, Resolution res) throws IOException {
+    public List<E> getRecords(String ref, RangeAdapter range, Resolution res, RecordFilterAdapter filt) throws IOException {
         List<E> result = null;
         String subID = ref + ":" + res;
         RecordCache subCache = wholeCache.get(subID);
@@ -71,7 +72,7 @@ public class RecordCachingDataSource<E extends Record> implements DataSourceAdap
             subCache = new RecordCache<E>(source, ref, res);
             wholeCache.put(subID, subCache);
         }
-        result = subCache.getRecords(range);
+        result = subCache.getRecords(range, filt);
         return result;
     }
 

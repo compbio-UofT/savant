@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import savant.api.adapter.RangeAdapter;
+import savant.api.adapter.RecordFilterAdapter;
 import savant.api.data.DataFormat;
 import savant.api.util.Resolution;
 import savant.data.types.TabixIntervalRecord;
@@ -64,7 +65,7 @@ public class RichIntervalSQLDataSource extends SQLDataSource<TabixIntervalRecord
     }
 
     @Override
-    public List<TabixIntervalRecord> getRecords(String reference, RangeAdapter range, Resolution resolution) throws IOException {
+    public List<TabixIntervalRecord> getRecords(String reference, RangeAdapter range, Resolution resolution, RecordFilterAdapter filt) throws IOException {
         List<TabixIntervalRecord> result = new ArrayList<TabixIntervalRecord>();
         try {
             ResultSet rs = executeQuery(reference, range.getFrom(), range.getTo());
@@ -113,7 +114,10 @@ public class RichIntervalSQLDataSource extends SQLDataSource<TabixIntervalRecord
 
                 // Because we're pretending to be Tabix, we just slam together a tab-delimited line of data.
                 String line = reference +"\t" + start + "\t" + rs.getInt(columns.end) + "\t" + name + "\t" + score + "\t" + strand + "\t" + thickStart + "\t" + thickEnd + "\t" + itemRGB + "\t" + blockStarts + "\t" + blockEnds + "\t" + name2;
-                result.add(TabixIntervalRecord.valueOf(line, tabixMapping));
+                TabixIntervalRecord rec = TabixIntervalRecord.valueOf(line, tabixMapping);
+                if (filt == null || filt.accept(rec)) {
+                    result.add(rec);
+                }
             }
             rs.close();
         } catch (SQLException sqlx) {

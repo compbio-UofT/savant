@@ -306,6 +306,11 @@ public class UCSCDataSourcePlugin extends SQLDataSourcePlugin implements SQLCons
             String genomeName = null;
             if (GenomeUtils.isGenomeLoaded()) {
                 genomeName = GenomeUtils.getGenome().getName();
+                // If we're loaded from a Fasta file, we probably want to trim off the ".fa.savant" from the genome name.
+                int extPos = genomeName.indexOf(".fa");
+                if (extPos > 0) {
+                    genomeName = genomeName.substring(0, extPos);
+                }
             }
             if (genomeName == null) {
                 genomeName = SettingsUtils.getString(this, "GENOME");

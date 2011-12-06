@@ -23,6 +23,7 @@ import org.apache.commons.logging.LogFactory;
 
 import savant.api.adapter.DataSourceAdapter;
 import savant.api.adapter.RangeAdapter;
+import savant.api.adapter.RecordFilterAdapter;
 import savant.api.data.ContinuousRecord;
 import savant.api.data.Interval;
 import savant.api.data.IntervalRecord;
@@ -51,11 +52,11 @@ public class RecordCache<E extends Record> {
         resolution = res;
     }
 
-    List<E> getRecords(RangeAdapter range) throws IOException {
+    List<E> getRecords(RangeAdapter range, RecordFilterAdapter filt) throws IOException {
 
         List<RangeAdapter> missing = getMissingRanges(range);
         for (RangeAdapter r : missing) {
-            List<E> subFetch = source.getRecords(reference, r, resolution);
+            List<E> subFetch = source.getRecords(reference, r, resolution, filt);
             LOG.debug("Fetched " + subFetch.size() + " records from DataSource for " + r.getFrom() + "-" + r.getTo());
             addToCovered(r);
             if (subFetch.size() > 0) {

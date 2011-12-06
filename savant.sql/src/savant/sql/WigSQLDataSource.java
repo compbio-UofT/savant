@@ -26,6 +26,7 @@ import java.util.List;
 import net.sf.samtools.util.SeekableStream;
 
 import savant.api.adapter.RangeAdapter;
+import savant.api.adapter.RecordFilterAdapter;
 import savant.api.data.DataFormat;
 import savant.api.util.Resolution;
 import savant.data.types.GenericContinuousRecord;
@@ -46,7 +47,7 @@ public class WigSQLDataSource extends SQLDataSource<GenericContinuousRecord> {
     }
 
     @Override
-    public List<GenericContinuousRecord> getRecords(String reference, RangeAdapter range, Resolution resolution) throws IOException {
+    public List<GenericContinuousRecord> getRecords(String reference, RangeAdapter range, Resolution resolution, RecordFilterAdapter filt) throws IOException {
         if (resolution != Resolution.HIGH) {
             throw new IOException("Zoom in to see data");
         }
@@ -93,7 +94,10 @@ public class WigSQLDataSource extends SQLDataSource<GenericContinuousRecord> {
                             if (buf[i] >= 0) {
                                 value = lowerLimit + dataRange * buf[i] / 127.0F;
                             }
-                            result.add(GenericContinuousRecord.valueOf(reference, nextPos++, value));
+                            GenericContinuousRecord rec = GenericContinuousRecord.valueOf(reference, nextPos++, value);
+                            if (filt == null || filt.accept(rec)) {
+                                result.add(rec);
+                            }
                         }
                         p++;
                     }

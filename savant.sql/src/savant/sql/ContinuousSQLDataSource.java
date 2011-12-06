@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import savant.api.adapter.RangeAdapter;
+import savant.api.adapter.RecordFilterAdapter;
 import savant.api.data.DataFormat;
 import savant.api.util.Resolution;
 import savant.data.types.GenericContinuousRecord;
@@ -41,7 +42,7 @@ public class ContinuousSQLDataSource extends SQLDataSource<GenericContinuousReco
     }
 
     @Override
-    public List<GenericContinuousRecord> getRecords(String reference, RangeAdapter range, Resolution resolution) throws IOException {
+    public List<GenericContinuousRecord> getRecords(String reference, RangeAdapter range, Resolution resolution, RecordFilterAdapter filt) throws IOException {
         List<GenericContinuousRecord> result = new ArrayList<GenericContinuousRecord>();
         try {
             ResultSet rs = executeQuery(reference, range.getFrom(), range.getTo());
@@ -50,7 +51,10 @@ public class ContinuousSQLDataSource extends SQLDataSource<GenericContinuousReco
                 int start = rs.getInt(columns.start);
                 int end = rs.getInt(columns.end);
                 for (int i = start; i <= end; i++) {
-                    result.add(GenericContinuousRecord.valueOf(chrom, i, rs.getFloat(columns.value)));
+                    GenericContinuousRecord rec = GenericContinuousRecord.valueOf(chrom, i, rs.getFloat(columns.value));
+                    if (filt == null || filt.accept(rec)) {
+                        result.add(rec);
+                    }
                 }
             }
             rs.close();

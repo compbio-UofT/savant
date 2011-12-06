@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import savant.api.adapter.RangeAdapter;
+import savant.api.adapter.RecordFilterAdapter;
 import savant.api.data.DataFormat;
 import savant.api.data.Interval;
 import savant.api.util.Resolution;
@@ -43,7 +44,7 @@ public class IntervalSQLDataSource extends SQLDataSource<GenericIntervalRecord> 
     }
 
     @Override
-    public List<GenericIntervalRecord> getRecords(String reference, RangeAdapter range, Resolution resolution) throws IOException {
+    public List<GenericIntervalRecord> getRecords(String reference, RangeAdapter range, Resolution resolution, RecordFilterAdapter filt) throws IOException {
         List<GenericIntervalRecord> result = new ArrayList<GenericIntervalRecord>();
         try {
             ResultSet rs = executeQuery(reference, range.getFrom(), range.getTo());
@@ -52,7 +53,10 @@ public class IntervalSQLDataSource extends SQLDataSource<GenericIntervalRecord> 
                 if (columns.name != null) {
                     name = rs.getString(columns.name);
                 }
-                result.add(GenericIntervalRecord.valueOf(reference, Interval.valueOf(rs.getInt(columns.start) + 1, rs.getInt(columns.end)), name));
+                GenericIntervalRecord rec = GenericIntervalRecord.valueOf(reference, Interval.valueOf(rs.getInt(columns.start) + 1, rs.getInt(columns.end)), name);
+                if (filt == null || filt.accept(rec)) {
+                    result.add(rec);
+                }
             }
             rs.close();
         } catch (SQLException sqlx) {
