@@ -144,6 +144,9 @@ public class UCSCChooserPlugin extends SavantPanelPlugin {
                 public void actionPerformed(ActionEvent ae) {
                     UCSCDataSourcePlugin ucsc = getUCSCPlugin();
                     String clade = (String)cladeCombo.getSelectedItem();
+                    if (clade == null) {
+                        clade = (String)cladeCombo.getItemAt(0);
+                    }
                     genomeCombo.setModel(new DefaultComboBoxModel(ucsc.getCladeGenomes(clade)));
                     genomeCombo.setSelectedItem(ucsc.getCurrentGenome(clade));
                 }
