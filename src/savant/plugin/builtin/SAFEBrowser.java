@@ -45,6 +45,7 @@ import savant.api.adapter.DataSourceAdapter;
 import savant.api.util.DialogUtils;
 import savant.settings.BrowserSettings;
 import savant.settings.DirectorySettings;
+import savant.util.MiscUtils;
 import savant.util.NetworkUtils;
 import savant.view.swing.model.TreeBrowserModel;
 import savant.view.swing.model.TreeBrowserEntry;
@@ -88,7 +89,7 @@ public class SAFEBrowser extends JDialog {
                 trackPath = r.getURL();
                 closeDialog();
             } catch (Exception ex) {
-                DialogUtils.displayMessage(String.format("Error opening URL %s: %s.", r.getURL(), ex.getLocalizedMessage()));
+                DialogUtils.displayMessage(String.format("Error opening URL %s: %s.", r.getURL(), MiscUtils.getMessage(ex)));
             }
         } else {
             if (!ignoreActionOnBranch) {

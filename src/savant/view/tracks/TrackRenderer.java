@@ -29,9 +29,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import savant.api.adapter.GraphPaneAdapter;
-import savant.api.util.Listener;
 import savant.api.data.Record;
 import savant.api.event.DataRetrievalEvent;
+import savant.api.util.Listener;
+import savant.api.util.Resolution;
 import savant.controller.LocationController;
 import savant.exception.RenderingException;
 import savant.selection.SelectionController;
@@ -39,7 +40,7 @@ import savant.util.ColourKey;
 import savant.util.ColourScheme;
 import savant.util.DrawingInstruction;
 import savant.util.DrawingMode;
-import savant.api.util.Resolution;
+import savant.util.MiscUtils;
 
 
 /**
@@ -102,7 +103,7 @@ public abstract class TrackRenderer implements Listener<DataRetrievalEvent> {
             case FAILED:
                 // Data retrieval has failed for some reason.
                 instructions.remove(DrawingInstruction.PROGRESS);
-                instructions.put(DrawingInstruction.ERROR, new RenderingException(evt.getError().getLocalizedMessage(), 3));
+                instructions.put(DrawingInstruction.ERROR, new RenderingException(MiscUtils.getMessage(evt.getError()), 3));
                 break;
         }
     }

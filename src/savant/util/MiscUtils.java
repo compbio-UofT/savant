@@ -97,7 +97,7 @@ public class MiscUtils {
         try {
             return Integer.parseInt(str);
         } catch (NumberFormatException e) {
-            LOG.info(e.getLocalizedMessage());
+            LOG.info(MiscUtils.getMessage(e));
             return -1;
         }
     }
@@ -292,7 +292,11 @@ public class MiscUtils {
         } else if (t instanceof FileNotFoundException) {
             return String.format("File %s not found", t.getMessage());
         } else {
-            return t.getMessage();
+            if (t.getMessage() != null) {
+                return t.getMessage();
+            } else {
+                return t.toString();
+            }
         }
     }
 
