@@ -365,9 +365,9 @@ public class UCSCNavigationDialog extends JDialog implements SQLConstants {
                                 return;
                             }
                         }
-                        LOG.debug("populateGroupCombo setting selected group to 0.");
-                        groupCombo.setSelectedIndex(0);
                     }
+                    LOG.debug("populateGroupCombo setting selected group to 0.");
+                    groupCombo.setSelectedIndex(0);
                 }
             }
         }.execute();
@@ -375,10 +375,13 @@ public class UCSCNavigationDialog extends JDialog implements SQLConstants {
 
     private void populateTrackCombo() {
         GroupDef group = (GroupDef)groupCombo.getSelectedItem();
+        LOG.info("populating track combo based on " + group);
         trackCombo.setModel(new DefaultComboBoxModel(group.tracks.toArray()));
         if (table != null) {
             LOG.debug("populateTrackCombo setting selected track to " + table.getName());
             trackCombo.setSelectedItem(new TrackDef(table.getName(), null, null, null));
+        } else {
+            trackCombo.setSelectedIndex(0);
         }
     }
 
