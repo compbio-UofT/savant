@@ -64,6 +64,7 @@ public class Bookmark implements BookmarkAdapter, Serializable {
      * <dt>chr2:1000-2000</dt><dd>chr2, range 1000-2000</dd>
      * <dt>chr2:</dt><dd>the current range, but in chr2</dd>
      * <dt>1000-2000</dt><dd>in current chromosome, range 1000-2000</dd>
+     * <dt>1000-900</dt><dd>in current chromosome, range 900-1000</dd>
      * <dt>1000+2000</dt><dd>in current chromosome, range 1000-3000</dd>
      * <dt>1000</dt><dd>in current chromosome, start position at 1000, keeping current range-length</dd>
      * <dt>+1000</dt><dd>1000 bases to the right of the current start, keeping same range-length</dd>
@@ -101,9 +102,17 @@ public class Bookmark implements BookmarkAdapter, Serializable {
                 from -= delta;
                 to -= delta;
             } else if (minusPos > 0) {
-                // Fully-specified range.
-                from = numberParser.parse(text.substring(0, minusPos)).intValue();
-                to = numberParser.parse(text.substring(minusPos + 1)).intValue();
+                // Fully-specified range.  Could be reversed if Miško is causing problems.
+                int first = numberParser.parse(text.substring(0, minusPos)).intValue();
+                int second = numberParser.parse(text.substring(minusPos + 1)).intValue();
+                if (first <= second) {
+                    from = first;
+                    to = second;
+                } else {
+                    // Coordinates given in reverse order.
+                    from = second;
+                    to = first;
+                }
             } else {
                 // No minus sign.  Maybe there's a plus?
                 int plusPos = text.indexOf('+');
