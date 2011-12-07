@@ -112,15 +112,32 @@ abstract class SQLDataSource<E extends Record> implements DataSourceAdapter<E> {
     public void loadDictionary() {
     }
 
+    /**
+     * Look up the given key in the database.  The key passed by Savant will be lower
+     * case and will use '*' for wild-cards.  The following implementation depends on
+     * the fact that the MySQL <code>LIKE</code> is case-insensitive.
+     * @param key a lookup string typed into the Savant navigation box
+     * @return list of bookmarks which can be used to populate the combo-box
+     */
     @Override
     public List<BookmarkAdapter> lookup(String key) {
         List<BookmarkAdapter> result = new ArrayList<BookmarkAdapter>();
         try {
             if (columns.name != null) {
                 long t0 = System.currentTimeMillis();
-                String where = String.format("%s='%s'", columns.name, key);
-                if (columns.name2 != null) {
-                    where += String.format(" OR %s='%s'", columns.name2, key);
+                String where;
+                if (key.indexOf('*') >= 0) {
+                    key = key.replace('*', '%');
+                    where = String.format("%s LIKE '%s'", columns.name, key);
+                    if (columns.name2 != null) {
+                        where += String.format(" OR %s LIKE '%s'", columns.name2, key);
+                    }
+                } else {
+                    // Exact match.  Doesn't actually happen with our current Savant UI.
+                    where = String.format("%s='%s'", columns.name, key);
+                    if (columns.name2 != null) {
+                        where += String.format(" OR %s='%s'", columns.name2, key);
+                    }
                 }
                 ResultSet rs;
                 if (columns.chrom == null) {
@@ -131,18 +148,19 @@ abstract class SQLDataSource<E extends Record> implements DataSourceAdapter<E> {
                             if (query.length() > 0) {
                                 query.append(" UNION ");
                             }
-                            query.append(String.format("SELECT '%s',%s,%s FROM %s_%s WHERE %s", ref, columns.start, columns.end, ref, table.trackName, where));
+                            query.append(String.format("SELECT '%s',%s,%s,%s FROM %s_%s WHERE %s", ref, columns.start, columns.end, columns.name, ref, table.trackName, where));
                         }
                     }
                     rs = table.database.executeQuery(query.toString());
                 } else {
-                    rs = table.database.executeQuery("SELECT %s,%s,%s FROM %s WHERE %s", columns.chrom, columns.start, columns.end, table.name, where);
+                    rs = table.database.executeQuery("SELECT %s,%s,%s,%s FROM %s WHERE %s", columns.chrom, columns.start, columns.end, columns.name, table.name, where);
                 }
                 while (rs.next()) {
                     String chrom = rs.getString(1).intern();
                     int start = rs.getInt(2);
                     int end = rs.getInt(3);
-                    BookmarkAdapter mark = BookmarkUtils.createBookmark(chrom, RangeUtils.createRange(start, end));
+                    String name = rs.getString(4);
+                    BookmarkAdapter mark = BookmarkUtils.createBookmark(chrom, RangeUtils.createRange(start, end), name);
 
                     result.add(mark);
                 }
