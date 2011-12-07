@@ -105,15 +105,22 @@ public class TabixDataSource extends DataSource<TabixIntervalRecord> {
         }
         input.close();
 
-        // The chrom, start, and end fields are enough to uniquely determine which of the well-known formats we have.
+        int numCols = 1;
+        for (int i = 0; i < line.length(); i++) {
+            if (line.charAt(i) == '\t') {
+                numCols++;
+            }
+        }
+
+        // The chrom, start, and end fields are generally enough to uniquely determine which of the well-known formats we have.
         if (matchesMapping(ColumnMapping.BED)) {
             // It's a Bed file, but we can't set the mapping, because it may have a variable number of actual columns.
             columnNames = new String[] { "chrom", "start", "end", "name", "score", "strand", "thickStart", "thickEnd", "itemRgb", "blockCount", "blockStarts", "blockSizes" };
         } else if (matchesMapping(ColumnMapping.KNOWNGENE)) {
             columnNames = new String[] { "Name", "Reference", "Strand", "Transcription start", "Transcription end", "Coding start", "Coding end", null, null, null, "Unique ID", "Alternate name", null, null, null };
             mapping = ColumnMapping.KNOWNGENE;
-        } else if (matchesMapping(ColumnMapping.REFSEQ)) {
-            columnNames = new String[] { null, "Name", "Reference", "Strand", "Transcription start", "Transcription end", "Coding start", "Coding end", null, null, null, "Unique ID", "Alternate name", null, null, null };
+        } else if (matchesMapping(ColumnMapping.REFSEQ) && numCols == 16) {
+            columnNames = new String[] { null, "Transcript name", "Reference", "Strand", "Transcription start", "Transcription end", "Coding start", "Coding end", null, null, null, "Unique ID", "Gene name", null, null, null };
             mapping = ColumnMapping.REFSEQ;
         } else if (matchesMapping(ColumnMapping.GFF)) {
             columnNames = new String[] { "Reference", "Program", "Feature", "Start", "End", "Score", "Strand", "Frame", "Group" };
