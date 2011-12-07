@@ -158,7 +158,7 @@ public class DataTableModel extends AbstractTableModel {
                             return ((IntervalRecord)datum).getName();
                     }
                 case INTERVAL_BAM:
-                    SAMRecord samRecord = ((BAMIntervalRecord)datum).getSamRecord();
+                    SAMRecord samRecord = ((BAMIntervalRecord)datum).getSAMRecord();
                     boolean mated = samRecord.getReadPairedFlag();
                     switch (column) {
                         case 0:
@@ -322,7 +322,7 @@ public class DataTableModel extends AbstractTableModel {
                 exportWriter.printf("%d\t%d\t%d\t%s", datum.getReference(), inter.getStart(), inter.getEnd(), ((IntervalRecord)datum).getName()).println();
                 break;
             case INTERVAL_BAM:
-                samWriter.addAlignment(((BAMIntervalRecord)datum).getSamRecord());
+                samWriter.addAlignment(((BAMIntervalRecord)datum).getSAMRecord());
                 break;
             case INTERVAL_RICH:
                 String[] values = ((TabixIntervalRecord)datum).getValues();

@@ -129,6 +129,10 @@ public final class Genome implements Serializable, GenomeAdapter {
         String genomePath = sequenceTrack.getName();
         int lastSlashIndex = genomePath.lastIndexOf("/");
         String name = genomePath.substring(lastSlashIndex + 1, genomePath.length());
+        int extIndex = name.lastIndexOf(".fa");
+        if (extIndex > 0) {
+            name = name.substring(0, extIndex);
+        }
 
         return new Genome(name, (SequenceTrack)sequenceTrack);
     }

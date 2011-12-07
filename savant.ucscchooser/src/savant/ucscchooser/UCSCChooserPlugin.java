@@ -144,9 +144,6 @@ public class UCSCChooserPlugin extends SavantPanelPlugin {
                 public void actionPerformed(ActionEvent ae) {
                     UCSCDataSourcePlugin ucsc = getUCSCPlugin();
                     String clade = (String)cladeCombo.getSelectedItem();
-                    if (clade == null) {
-                        clade = (String)cladeCombo.getItemAt(0);
-                    }
                     genomeCombo.setModel(new DefaultComboBoxModel(ucsc.getCladeGenomes(clade)));
                     genomeCombo.setSelectedItem(ucsc.getCurrentGenome(clade));
                 }
@@ -223,10 +220,16 @@ public class UCSCChooserPlugin extends SavantPanelPlugin {
             GenomeUtils.addGenomeChangedListener(new Listener<GenomeChangedEvent>() {
                 @Override
                 public void handleEvent(GenomeChangedEvent event) {
-                    getUCSCPlugin().selectGenomeDB(null);
+                    UCSCDataSourcePlugin ucsc = getUCSCPlugin();
+                    ucsc.selectGenomeDB(null);
                     GenomeAdapter newGenome = event.getNewGenome();
                     GenomeDef g = new GenomeDef(newGenome.getName(), null);
-                    cladeCombo.setSelectedItem(getUCSCPlugin().findCladeForGenome(g));
+                    String newClade = ucsc.findCladeForGenome(g);
+
+                    // newClade could be null if the user has opened a genome which has no UCSC equivalent.
+                    if (newClade != null) {
+                        cladeCombo.setSelectedItem(newClade);
+                    }
                 }
             });
             
