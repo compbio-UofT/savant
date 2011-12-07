@@ -103,7 +103,7 @@ public abstract class TrackRenderer implements Listener<DataRetrievalEvent> {
             case FAILED:
                 // Data retrieval has failed for some reason.
                 instructions.remove(DrawingInstruction.PROGRESS);
-                instructions.put(DrawingInstruction.ERROR, new RenderingException(MiscUtils.getMessage(evt.getError()), 3));
+                instructions.put(DrawingInstruction.ERROR, new RenderingException(MiscUtils.getMessage(evt.getError()), RenderingException.ERROR_PRIORITY));
                 break;
         }
     }
@@ -151,14 +151,14 @@ public abstract class TrackRenderer implements Listener<DataRetrievalEvent> {
 
         Boolean refExists = (Boolean)instructions.get(DrawingInstruction.REFERENCE_EXISTS);
         if (refExists == null || !refExists) {
-            throw new RenderingException("No data for " + LocationController.getInstance().getReferenceName(), 1);
+            throw new RenderingException("No data for " + LocationController.getInstance().getReferenceName(), RenderingException.INFO_PRIORITY);
         }
         RenderingException error = (RenderingException)instructions.get(DrawingInstruction.ERROR);
         if (error != null) {
             throw error;
         }
         if (data == null || data.isEmpty()) {
-            throw new RenderingException("No data in range", 1);
+            throw new RenderingException("No data in range", RenderingException.INFO_PRIORITY);
         }
     }
 

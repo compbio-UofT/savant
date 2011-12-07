@@ -50,7 +50,7 @@ public class PointTrackRenderer extends TrackRenderer {
         // don't draw things which are too small to be seen: less than 1/2 pixel wide
         double width = gp.getUnitWidth();
         if (width < 0.5 || data == null) {
-            throw new RenderingException("Zoom in to see points", 0);
+            throw new RenderingException("Zoom in to see points", RenderingException.LOWEST_PRIORITY);
         }
 
 
@@ -88,8 +88,8 @@ public class PointTrackRenderer extends TrackRenderer {
                 }
             }
         }
-        if(data.isEmpty()){
-            throw new RenderingException("No data in range", 1);
+        if (data.isEmpty()) {
+            throw new RenderingException("No data in range", RenderingException.INFO_PRIORITY);
         }
     }
 }

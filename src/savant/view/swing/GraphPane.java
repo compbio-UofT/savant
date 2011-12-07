@@ -331,6 +331,11 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
                         message = rx.getMessage();
                         priority = rx.getPriority();
                     }
+                } catch (Throwable x) {
+                    // Renderer itself threw an exception.
+                    LOG.error("Error rendering " + t, x);
+                    message = MiscUtils.getMessage(x);
+                    priority = RenderingException.ERROR_PRIORITY;
                 }
             }
             if (nothingRendered && message != null) {

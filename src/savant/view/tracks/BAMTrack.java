@@ -99,7 +99,7 @@ public class BAMTrack extends Track {
                 renderer.addInstruction(DrawingInstruction.ERROR, ZOOM_MESSAGE);
             } else {
                 // If there is an actual coverage track, this error message will never be drawn.
-                renderer.addInstruction(DrawingInstruction.ERROR, new RenderingException("No coverage file available\nTo generate a coverage file, go to File > Format File", 0));
+                renderer.addInstruction(DrawingInstruction.ERROR, new RenderingException("No coverage file available\nTo generate a coverage file, go to File > Format File", RenderingException.LOWEST_PRIORITY));
             }
         }
 

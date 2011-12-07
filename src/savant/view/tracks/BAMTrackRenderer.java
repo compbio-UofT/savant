@@ -105,7 +105,7 @@ public class BAMTrackRenderer extends TrackRenderer {
                     try {
                         refSeq = genome.getSequence(LocationController.getInstance().getReferenceName(), range);
                     } catch (IOException e) {
-                        throw new RenderingException(e.getMessage(), 2);
+                        throw new RenderingException(e.getMessage(), RenderingException.ERROR_PRIORITY);
                     }
                 }
             }
@@ -162,7 +162,7 @@ public class BAMTrackRenderer extends TrackRenderer {
                 break;
         }
         if (data.isEmpty()) {
-            throw new RenderingException("No data in range", 1);
+            throw new RenderingException("No data in range", RenderingException.INFO_PRIORITY);
         }
     }
 
@@ -171,7 +171,7 @@ public class BAMTrackRenderer extends TrackRenderer {
         if (lastMode == DrawingMode.MISMATCH) {
             Genome genome = GenomeController.getInstance().getGenome();
             if (!genome.isSequenceSet()) {
-                throw new RenderingException("No reference sequence loaded\nSwitch to standard display mode", 2);
+                throw new RenderingException("No reference sequence loaded\nSwitch to standard display mode", RenderingException.WARNING_PRIORITY);
             }
         }
 

@@ -130,7 +130,7 @@ public class ContinuousTrackRenderer extends TrackRenderer {
             }
         }
         if (!haveData) {
-            throw new RenderingException("No data in range", 1);
+            throw new RenderingException("No data in range", RenderingException.INFO_PRIORITY);
         }
         if (haveOpenPath) {
             // Path needs to be closed.

@@ -52,7 +52,7 @@ import savant.util.*;
  */
 public abstract class Track extends Controller<DataRetrievalEvent> implements TrackAdapter {
     private static final Log LOG = LogFactory.getLog(Track.class);
-    protected static final RenderingException ZOOM_MESSAGE = new RenderingException(MiscUtils.MAC ? "Zoom in to see data\nTo view data at this range, change Preferences > Track Resolutions" : "Zoom in to see data\nTo view data at this range, change Edit > Preferences > Track Resolutions", 0);
+    protected static final RenderingException ZOOM_MESSAGE = new RenderingException(MiscUtils.MAC ? "Zoom in to see data\nTo view data at this range, change Preferences > Track Resolutions" : "Zoom in to see data\nTo view data at this range, change Edit > Preferences > Track Resolutions", RenderingException.LOWEST_PRIORITY);
 
     private final String name;
     private ColourScheme colourScheme;

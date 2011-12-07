@@ -23,6 +23,11 @@ package savant.exception;
  * @author tarkvara
  */
 public class RenderingException extends Exception {
+    public static final int LOWEST_PRIORITY = 0;
+    public static final int INFO_PRIORITY = 1;
+    public static final int WARNING_PRIORITY = 2;
+    public static final int ERROR_PRIORITY = 3;
+
     private final int priority;
 
     /**
