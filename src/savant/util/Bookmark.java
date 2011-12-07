@@ -45,7 +45,7 @@ public class Bookmark implements BookmarkAdapter, Serializable {
     }
 
     public Bookmark(String reference, Range r, String ann) {
-        this(reference, r, "", false);
+        this(reference, r, ann, false);
     }
     
     public Bookmark(String reference, Range r, String ann, boolean addMargin){

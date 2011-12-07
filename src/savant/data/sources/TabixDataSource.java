@@ -113,7 +113,7 @@ public class TabixDataSource extends DataSource<TabixIntervalRecord> {
             columnNames = new String[] { "Name", "Reference", "Strand", "Transcription start", "Transcription end", "Coding start", "Coding end", null, null, null, "Unique ID", "Alternate name", null, null, null };
             mapping = ColumnMapping.KNOWNGENE;
         } else if (matchesMapping(ColumnMapping.REFSEQ)) {
-            columnNames = new String[] { null, "Name ", "Reference", "Strand", "Transcription start", "Transcription end", "Coding start", "Coding end", null, null, null, "Unique ID", "Alternate name", null, null, null };
+            columnNames = new String[] { null, "Name", "Reference", "Strand", "Transcription start", "Transcription end", "Coding start", "Coding end", null, null, null, "Unique ID", "Alternate name", null, null, null };
             mapping = ColumnMapping.REFSEQ;
         } else if (matchesMapping(ColumnMapping.GFF)) {
             columnNames = new String[] { "Reference", "Program", "Feature", "Start", "End", "Score", "Strand", "Frame", "Group" };

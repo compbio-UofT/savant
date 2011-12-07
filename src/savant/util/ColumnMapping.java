@@ -42,8 +42,11 @@ public class ColumnMapping {
     /** Set of columns observed in knownGene tables from UCSC FAQ. */
     public static final ColumnMapping KNOWNGENE = inferMapping(KNOWNGENE_HEADER, false);
 
-    /** Set of columns observed in RefSeq genes from UCSC FAQ.  Similar to knownGene, but adds a bin column, and the name2 column is different. */
-    public static final ColumnMapping REFSEQ = inferMapping("bin\t" + REFGENE_HEADER, false);
+    /**
+     * Set of columns observed in RefSeq genes from UCSC FAQ.  Similar to knownGene, but adds a bin column.  Also, we quietly swap the name
+     * and name2 columns because name2 is more informative for RefSeq genes.
+     */
+    public static final ColumnMapping REFSEQ = createRichIntervalMapping(2, 4, 5, 12, -1, 3, 6, 7, -1, -1, 9, 10, -1, 1, false);
 
     /** Set of columns for GFF and GTF files.  The only difference is that in GTF the final column is called "attributes" rather than "group". */
     public static final ColumnMapping GFF = inferMapping(GFF_HEADER, true);
