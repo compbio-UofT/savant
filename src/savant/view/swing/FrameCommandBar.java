@@ -35,6 +35,7 @@ import savant.api.adapter.TrackAdapter;
 import savant.api.data.DataFormat;
 import savant.api.data.SequenceRecord;
 import savant.api.util.DialogUtils;
+import savant.api.util.Resolution;
 import savant.controller.GenomeController;
 import savant.controller.LocationController;
 import savant.data.sources.DataSource;
@@ -43,8 +44,7 @@ import savant.settings.InterfaceSettings;
 import savant.settings.SettingsDialog;
 import savant.util.DrawingMode;
 import savant.util.MiscUtils;
-import savant.api.util.Resolution;
-import savant.view.dialog.BamFilterDialog;
+import savant.view.dialog.Foo;
 import savant.view.tracks.BAMTrack;
 import savant.view.tracks.RichIntervalTrack;
 
@@ -191,7 +191,7 @@ public final class FrameCommandBar extends JMenuBar {
             item.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    BamFilterDialog dlg = new BamFilterDialog(DialogUtils.getMainWindow(), (BAMTrack)mainTrack);
+                    Foo dlg = new Foo(DialogUtils.getMainWindow(), (BAMTrack)mainTrack);
                     dlg.setVisible(true);
                 }
             });
