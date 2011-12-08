@@ -44,7 +44,7 @@ import savant.settings.InterfaceSettings;
 import savant.settings.SettingsDialog;
 import savant.util.DrawingMode;
 import savant.util.MiscUtils;
-import savant.view.dialog.Foo;
+import savant.view.dialog.BAMFilterDialog;
 import savant.view.tracks.BAMTrack;
 import savant.view.tracks.RichIntervalTrack;
 
@@ -191,8 +191,7 @@ public final class FrameCommandBar extends JMenuBar {
             item.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    Foo dlg = new Foo(DialogUtils.getMainWindow(), (BAMTrack)mainTrack);
-                    dlg.setVisible(true);
+                    new BAMFilterDialog(DialogUtils.getMainWindow(), (BAMTrack)mainTrack).setVisible(true);
                 }
             });
             menu.add(item);
