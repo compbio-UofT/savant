@@ -114,7 +114,7 @@ public class WigSQLDataSource extends SQLDataSource<GenericContinuousRecord> {
 
     @Override
     public DataFormat getDataFormat() {
-        return DataFormat.CONTINUOUS_GENERIC;
+        return DataFormat.CONTINUOUS;
     }
 
     @Override

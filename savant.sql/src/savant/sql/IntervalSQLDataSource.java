@@ -69,7 +69,7 @@ public class IntervalSQLDataSource extends SQLDataSource<GenericIntervalRecord> 
 
     @Override
     public DataFormat getDataFormat() {
-        return DataFormat.INTERVAL_GENERIC;
+        return DataFormat.GENERIC_INTERVAL;
     }
 
     @Override

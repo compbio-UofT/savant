@@ -139,7 +139,7 @@ public class RichIntervalSQLDataSource extends SQLDataSource<TabixIntervalRecord
 
     @Override
     public DataFormat getDataFormat() {
-        return DataFormat.INTERVAL_RICH;
+        return DataFormat.RICH_INTERVAL;
     }
 
     @Override
