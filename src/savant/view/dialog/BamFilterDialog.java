@@ -17,7 +17,9 @@ package savant.view.dialog;
 
 import java.awt.*;
 import javax.swing.JTextField;
+
 import savant.controller.LocationController;
+import savant.data.filters.BAMRecordFilter;
 import savant.util.MiscUtils;
 import savant.util.SAMReadUtils;
 import savant.view.tracks.BAMTrack;
@@ -30,10 +32,10 @@ import savant.view.tracks.BAMTrack;
 public class BamFilterDialog extends javax.swing.JDialog {
     private static final int DEFAULT_DISCORDANT_MIN = 50;
     private static final int DEFAULT_DISCORDANT_MAX = 1000;
-    private static final int DEFAULT_ARC_THRESHOLD = 1;
     private static final int DEFAULT_ARC_YMAX_THRESHOLD = 10000;
 
     private final BAMTrack track;
+    private final BAMRecordFilter filter;
     private JTextField errField = null;
 
     /** Creates new form BamFilterDialog */
@@ -41,12 +43,13 @@ public class BamFilterDialog extends javax.swing.JDialog {
         super(parent, Dialog.ModalityType.APPLICATION_MODAL);
         initComponents();
         track = t;
+        filter = t.getFilter();
 
-        duplicateReadsCheck.setSelected(t.getIncludeDuplicateReads());
-        vendorFailedReadsCheck.setSelected(t.getIncludeVendorFailedReads());
-        mappingQualitySlider.setValue(t.getMappingQualityThreshold());
+        duplicateReadsCheck.setSelected(filter.getIncludeDuplicateReads());
+        vendorFailedReadsCheck.setSelected(filter.getIncludeVendorFailedReads());
+        mappingQualitySlider.setValue(filter.getMappingQualityThreshold());
 
-        double arcThreshold = t.getArcSizeVisibilityThreshold();
+        double arcThreshold = filter.getArcLengthThreshold();
         if (arcThreshold < 1.0 && arcThreshold > 0.0) {
             arcThresholdField.setText(String.format("%d%%", (int)(arcThreshold * 100.0)));
         } else {
@@ -55,7 +58,7 @@ public class BamFilterDialog extends javax.swing.JDialog {
         discordantMinField.setText(String.valueOf(t.getConcordantMin()));
         discordantMaxField.setText(String.valueOf(t.getConcordantMax()));
         arcYMaxThresholdField.setText(String.valueOf(t.getMaxBPForYMax()));
-        if (t.getPairedSequencingProtocol() == SAMReadUtils.PairedSequencingProtocol.PAIREDEND){
+        if (t.getPairedProtocol() == SAMReadUtils.PairedSequencingProtocol.PAIREDEND) {
             pairedEndRadio.setSelected(true);
         } else {
             oppositeRadio.setSelected(true);
@@ -315,14 +318,14 @@ public class BamFilterDialog extends javax.swing.JDialog {
             double arcThreshold = parseArcThreshold();
             int maxBPForYMax = parseField(arcYMaxThresholdField, DEFAULT_ARC_YMAX_THRESHOLD);
 
-            // Everything parsed okay, so update the track properties.
-            track.setIncludeDuplicateReads(duplicateReadsCheck.isSelected());
-            track.setIncludeVendorFailedReads(vendorFailedReadsCheck.isSelected());
-            track.setMappingQualityThreshold(mappingQualitySlider.getValue());
+            // Everything parsed okay, so update the filter and track properties.
+            filter.setArcLengthThreshold(arcThreshold);
+            filter.setIncludeDuplicateReads(duplicateReadsCheck.isSelected());
+            filter.setIncludeVendorFailedReads(vendorFailedReadsCheck.isSelected());
+            filter.setMappingQualityThreshold(mappingQualitySlider.getValue());
             track.setPairedProtocol(prot);
             track.setConcordantMin(discordantMin);
             track.setConcordantMax(discordantMax);
-            track.setArcSizeVisibilityThreshold(arcThreshold);
             track.setMaxBPForYMax(maxBPForYMax);
             setVisible(false);
             track.prepareForRendering(LocationController.getInstance().getReferenceName() , LocationController.getInstance().getRange());
@@ -352,7 +355,7 @@ public class BamFilterDialog extends javax.swing.JDialog {
         double result;
         String threshStr = arcThresholdField.getText();
         if (threshStr.equals("")) {
-            result = DEFAULT_ARC_THRESHOLD;
+            result = BAMRecordFilter.DEFAULT_ARC_LENGTH_THRESHOLD;
         } else {
             if (threshStr.endsWith("%")) {
                 // It's a percentage value.  Note that if they type in a percentage greater than 100, it

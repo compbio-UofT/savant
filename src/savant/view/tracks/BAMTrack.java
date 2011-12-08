@@ -27,6 +27,7 @@ import savant.api.adapter.RangeAdapter;
 import savant.api.adapter.RecordFilterAdapter;
 import savant.api.data.Record;
 import savant.api.util.Resolution;
+import savant.data.filters.BAMRecordFilter;
 import savant.data.types.BAMIntervalRecord;
 import savant.exception.RenderingException;
 import savant.exception.SavantTrackCreationCancelledException;
@@ -49,18 +50,10 @@ public class BAMTrack extends Track {
 
     private SAMReadUtils.PairedSequencingProtocol pairedProtocol = SAMReadUtils.PairedSequencingProtocol.MATEPAIR;
 
-    // if > 1, treat as absolute size below which an arc will not be drawn
-    // if 0 < 1, treat as percentage of y range below which an arc will not be drawn
-    // if = 0, draw all arcs
-    private double arcSizeVisibilityThreshold=0.0d;
-
     // arcs below concordantMin or above concordantMax are coloured as discordant-by-length
     private int concordantMin = 50;
     private int concordantMax = 1000;
     private static int maxBPForYMax = 10000;
-    private boolean includeVendorFailedReads = true;
-    private boolean includeDuplicateReads = true;
-    private int mappingQualityThreshold = 0;
     private boolean baseQualityEnabled = false;
     private boolean mappingQualityEnabled = false;
 
@@ -112,7 +105,7 @@ public class BAMTrack extends Track {
         renderer.addInstruction(DrawingInstruction.REFERENCE_EXISTS, containsReference(reference));
 
         if (getDrawingMode() == DrawingMode.ARC_PAIRED) {
-            renderer.addInstruction(DrawingInstruction.ARC_MIN, getArcSizeVisibilityThreshold());
+            renderer.addInstruction(DrawingInstruction.ARC_MIN, getFilter().getArcLengthThreshold());
             renderer.addInstruction(DrawingInstruction.DISCORDANT_MIN, getConcordantMin());
             renderer.addInstruction(DrawingInstruction.DISCORDANT_MAX, getConcordantMax());
         } else {
@@ -163,14 +156,6 @@ public class BAMTrack extends Track {
         }
     }
 
-    public double getArcSizeVisibilityThreshold() {
-        return arcSizeVisibilityThreshold;
-    }
-
-    public void setArcSizeVisibilityThreshold(double arcSizeVisibilityThreshold) {
-        this.arcSizeVisibilityThreshold = arcSizeVisibilityThreshold;
-    }
-
     public int getConcordantMin() {
         return concordantMin;
     }
@@ -184,15 +169,15 @@ public class BAMTrack extends Track {
     }
 
     public void setConcordantMax(int value) {
-        this.concordantMax = value;
+        concordantMax = value;
     }
 
     public void setPairedProtocol(PairedSequencingProtocol t) {
-        this.pairedProtocol = t;
+        pairedProtocol = t;
     }
 
-    public PairedSequencingProtocol getPairedSequencingProtocol() {
-        return this.pairedProtocol;
+    public PairedSequencingProtocol getPairedProtocol() {
+        return pairedProtocol;
     }
 
     public int getMaxBPForYMax(){
@@ -203,28 +188,15 @@ public class BAMTrack extends Track {
         maxBPForYMax = max;
     }
 
-    public boolean getIncludeDuplicateReads() {
-        return includeDuplicateReads;
+    public BAMRecordFilter getFilter() {
+        if (filter == null) {
+            filter = new BAMRecordFilter();
+        }
+        return (BAMRecordFilter)filter;
     }
 
-    public void setIncludeDuplicateReads(boolean value) {
-        includeDuplicateReads = value;
-    }
-
-    public boolean getIncludeVendorFailedReads() {
-        return includeVendorFailedReads;
-    }
-
-    public void setIncludeVendorFailedReads(boolean value) {
-        includeVendorFailedReads = value;
-    }
-
-    public int getMappingQualityThreshold() {
-        return mappingQualityThreshold;
-    }
-
-    public void setMappingQualityThreshold(int value) {
-        mappingQualityThreshold = value;
+    public void setFilter(BAMRecordFilter value) {
+        filter = value;
     }
 
     @Override

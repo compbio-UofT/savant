@@ -19,6 +19,7 @@ package savant.data.filters;
 import net.sf.samtools.SAMRecord;
 
 import savant.api.adapter.RecordFilterAdapter;
+import savant.controller.LocationController;
 import savant.data.types.BAMIntervalRecord;
 
 
@@ -28,22 +29,59 @@ import savant.data.types.BAMIntervalRecord;
  * @author tarkvara
  */
 public class BAMRecordFilter implements RecordFilterAdapter<BAMIntervalRecord> {
-    private final double lengthThreshold;
-    private final int xRange;
-    private final boolean pairMode;
-    private final boolean includeDuplicates;
-    private final boolean includeVendorFailed;
-    private final int qualityThreshold;
+    public static final double DEFAULT_ARC_LENGTH_THRESHOLD = 1.0;
 
-    public BAMRecordFilter(double lengthThreshold, int xRange, boolean pairMode, boolean includeDuplicates, boolean includeVendorFailed, int qualityThreshold) {
-        this.lengthThreshold = lengthThreshold;
-        this.xRange = xRange;
-        this.pairMode = pairMode;
-        this.includeDuplicates = includeDuplicates;
-        this.includeVendorFailed = includeVendorFailed;
-        this.qualityThreshold = qualityThreshold;
+    private double arcLengthThreshold = 1.0;
+    private boolean includeDuplicates = false;
+    private boolean includeVendorFailed = false;
+    private int mappingQualityThreshold;
+    private boolean pairMode;
+
+    public BAMRecordFilter() {}
+
+    public double getArcLengthThreshold() {
+        return arcLengthThreshold;
     }
 
+    /**
+     * if > 1, treat as absolute size below which an arc will not be drawn
+     * if 0 < 1, treat as percentage of y range below which an arc will not be drawn
+     * if = 0, draw all arcs
+     */
+    public void setArcLengthThreshold(double value) {
+        arcLengthThreshold = value;
+    }
+
+    public int getMappingQualityThreshold() {
+        return mappingQualityThreshold;
+    }
+
+    public void setMappingQualityThreshold(int value) {
+        mappingQualityThreshold = value;
+    }
+
+    public boolean getIncludeDuplicateReads() {
+        return includeDuplicates;
+    }
+
+    public void setIncludeDuplicateReads(boolean value) {
+        includeDuplicates = value;
+    }
+
+    public boolean getIncludeVendorFailedReads() {
+        return includeVendorFailed;
+    }
+
+    public void setIncludeVendorFailedReads(boolean value) {
+        includeVendorFailed = value;
+    }
+
+    /** Filtering for BAM tracks is slightly different depending on whether we're in normal mode or Arc Pair mode. */
+    public void setPairMode(boolean value) {
+        pairMode = value;
+    }
+
+    
     @Override
     public boolean accept(BAMIntervalRecord rec) {
         SAMRecord samRecord = rec.getSAMRecord();
@@ -56,7 +94,7 @@ public class BAMRecordFilter implements RecordFilterAdapter<BAMIntervalRecord> {
             return false;
         }
 
-        if (samRecord.getMappingQuality() < qualityThreshold) {
+        if (samRecord.getMappingQuality() < mappingQualityThreshold) {
             return false;
         }
 
@@ -67,7 +105,7 @@ public class BAMRecordFilter implements RecordFilterAdapter<BAMIntervalRecord> {
                 return false;
             }
 
-            if ((lengthThreshold != 0.0d && lengthThreshold < 1.0d && arcLength < xRange * lengthThreshold) || (lengthThreshold > 1.0d && arcLength < lengthThreshold)) {
+            if ((arcLengthThreshold != 0.0d && arcLengthThreshold < 1.0d && arcLength < LocationController.getInstance().getRange().getLength() * arcLengthThreshold) || (arcLengthThreshold > 1.0d && arcLength < arcLengthThreshold)) {
                 return false;
             }
         }
