@@ -105,7 +105,7 @@ public final class FrameCommandBar extends JMenuBar {
         add(appearanceMenu);
 
         DataFormat df = mainTrack.getDataFormat();
-        if (df == DataFormat.INTERVAL_BAM || df == DataFormat.INTERVAL_GENERIC || df == DataFormat.INTERVAL_RICH) {
+        if (df == DataFormat.ALIGNMENT || df == DataFormat.GENERIC_INTERVAL || df == DataFormat.RICH_INTERVAL) {
             intervalMenu = createIntervalMenu();
             add(intervalMenu);
 
@@ -140,7 +140,7 @@ public final class FrameCommandBar extends JMenuBar {
         menu.add(item);
 
         DataFormat df = mainTrack.getDataFormat();
-        if (df == DataFormat.SEQUENCE_FASTA) {
+        if (df == DataFormat.SEQUENCE) {
             menu.add(new JSeparator());
             JMenuItem copyItem = new JMenuItem("Copy Sequence to Clipboard");
             copyItem.addActionListener(new ActionListener() {
@@ -182,7 +182,7 @@ public final class FrameCommandBar extends JMenuBar {
                     }
                 }
             });
-        } else if (df == DataFormat.INTERVAL_BAM) {
+        } else if (df == DataFormat.ALIGNMENT) {
             menu.add(new JSeparator());
 
             item = new JMenuItem("Filter...");
@@ -195,7 +195,7 @@ public final class FrameCommandBar extends JMenuBar {
                 }
             });
             menu.add(item);
-        } else if (df == DataFormat.INTERVAL_RICH) {
+        } else if (df == DataFormat.RICH_INTERVAL) {
             menu.add(new JSeparator());
 
             final JMenuItem bookmarkAll = new JMenuItem("Bookmark All Features");
@@ -308,7 +308,7 @@ public final class FrameCommandBar extends JMenuBar {
 
         DataFormat df = mainTrack.getDataFormat();
 
-        if (df != DataFormat.SEQUENCE_FASTA) {
+        if (df != DataFormat.SEQUENCE) {
             scaleToFitItem = new JCheckBoxMenuItem("Scale to Fit");
             scaleToFitItem.addActionListener(new ActionListener() {
                 @Override
@@ -336,7 +336,7 @@ public final class FrameCommandBar extends JMenuBar {
             menu.add(scaleToFitItem);
         }
 
-        if (df == DataFormat.INTERVAL_RICH) {
+        if (df == DataFormat.RICH_INTERVAL) {
             menu.add(new JSeparator());
             JCheckBoxMenuItem itemRGB = new JCheckBoxMenuItem("Enable ItemRGB");
             itemRGB.setState(false);
@@ -373,7 +373,7 @@ public final class FrameCommandBar extends JMenuBar {
                 }
             });
             menu.add(alternate);
-        } else if (df == DataFormat.INTERVAL_BAM) {
+        } else if (df == DataFormat.ALIGNMENT) {
             menu.add(new JSeparator());
             baseQualityItem = new JCheckBoxMenuItem("Enable Base Quality");
             baseQualityItem.setState(false);

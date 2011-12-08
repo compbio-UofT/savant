@@ -15,7 +15,6 @@
  */
 package savant.view.swing;
 
-import savant.view.tracks.Track;
 import java.awt.*;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
@@ -35,7 +34,6 @@ import savant.api.adapter.GraphPaneAdapter;
 import savant.api.data.DataFormat;
 import savant.api.event.GenomeChangedEvent;
 import savant.api.event.DataRetrievalEvent;
-import savant.view.tracks.TrackCreationEvent;
 import savant.api.util.DialogUtils;
 import savant.api.util.Listener;
 import savant.controller.FrameController;
@@ -48,6 +46,8 @@ import savant.util.Range;
 import savant.util.swing.ProgressPanel;
 import savant.view.icon.SavantIconFactory;
 import savant.view.tracks.SequenceTrack;
+import savant.view.tracks.Track;
+import savant.view.tracks.TrackCreationEvent;
 import savant.view.tracks.TrackFactory.TrackCreationListener;
 
 
@@ -83,9 +83,9 @@ public class Frame extends DockableFrame implements FrameAdapter, TrackCreationL
      *
      * @param seq if true, the Frame will be holding a sequence track
      */
-    public Frame(boolean seq) {
+    public Frame(DataFormat df) {
         super(SavantIconFactory.getInstance().getIcon(SavantIconFactory.StandardIcon.TRACK));
-        sequence = seq;
+        sequence = df == DataFormat.SEQUENCE;
 
         // Component which displays the legend component.
         legend = new JComponent() {
@@ -241,7 +241,8 @@ public class Frame extends DockableFrame implements FrameAdapter, TrackCreationL
      * @param newTracks the tracks to be displayed in this frame
      */
     public void setTracks(Track[] newTracks) {
-        if (!GenomeController.getInstance().isGenomeLoaded() && newTracks[0].getDataFormat() != DataFormat.SEQUENCE_FASTA) {
+        Track t0 = newTracks[0];
+        if (!GenomeController.getInstance().isGenomeLoaded() && t0.getDataFormat() != DataFormat.SEQUENCE) {
             handleEvent(new TrackCreationEvent(new Exception()));
             for (Track track : newTracks) {
                 TrackController.getInstance().removeTrack(track);
@@ -249,7 +250,7 @@ public class Frame extends DockableFrame implements FrameAdapter, TrackCreationL
             DialogUtils.displayError("Sorry", "This does not appear to be a genome track. Please load a genome first.");
             return;
         }
-        if (newTracks[0].getDataFormat() == DataFormat.SEQUENCE_FASTA) {
+        if (t0.getDataFormat() == DataFormat.SEQUENCE) {
             GenomeController.getInstance().setSequence((SequenceTrack)newTracks[0]);
         }
 
@@ -266,19 +267,18 @@ public class Frame extends DockableFrame implements FrameAdapter, TrackCreationL
         }
 
         // We get the name and other properties from the zero'th track.
-        Track t0 = tracks[0];
         setName(t0.getName());
         setKey(t0.getName());
 
         DataFormat df = t0.getDataFormat();
-        if (df != DataFormat.SEQUENCE_FASTA && df != DataFormat.INTERVAL_RICH) {
+        if (df != DataFormat.SEQUENCE && df != DataFormat.RICH_INTERVAL) {
             yMaxPanel = new JLabel();
             yMaxPanel.setBorder(BorderFactory.createLineBorder(Color.darkGray));
             yMaxPanel.setBackground(new Color(240,240,240));
             yMaxPanel.setOpaque(true);
             yMaxPanel.setAlignmentX(0.5f);
 
-            if (df == DataFormat.INTERVAL_BAM) {
+            if (df == DataFormat.ALIGNMENT) {
                 // We need to listen to genome changes so that we can redraw mismatches as appropriate.
                 GenomeController.getInstance().addListener(new Listener<GenomeChangedEvent>() {
                     @Override

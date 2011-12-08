@@ -64,15 +64,15 @@ public abstract class PopupPanel extends JPanel {
 
         PopupPanel p = null;
         switch(dataSource.getDataFormat()) {
-            case POINT_GENERIC:
+            case POINT:
                 p = new PointGenericPopup((GenericPointRecord) rec);
                 break;
-            case INTERVAL_BAM:
+            case ALIGNMENT:
                 if (mode != DrawingMode.SNP) {
                     p = new IntervalBamPopup((BAMIntervalRecord)rec);
                 }
                 break;
-            case INTERVAL_RICH:
+            case RICH_INTERVAL:
                 if (mode != DrawingMode.SQUISH) {
                     if (rec instanceof TabixIntervalRecord) {
                         p = new TabixPopup((TabixIntervalRecord)rec, dataSource);
@@ -81,14 +81,14 @@ public abstract class PopupPanel extends JPanel {
                     }
                 }
                 break;
-            case INTERVAL_GENERIC:
+            case GENERIC_INTERVAL:
                 if (rec instanceof TabixIntervalRecord) {
                     p = new TabixPopup((TabixIntervalRecord)rec, dataSource);
                 } else {
                     p = new IntervalGenericPopup((IntervalRecord)rec);
                 }
                 break;
-            case CONTINUOUS_GENERIC:
+            case CONTINUOUS:
                 p = new ContinuousPopup((ContinuousRecord)rec);
                 break;
             default:

@@ -279,10 +279,10 @@ public class DataSheet {
 
             String defaultName;
             switch (track.getDataFormat()) {
-                case SEQUENCE_FASTA:
+                case SEQUENCE:
                     defaultName = "Export.fa";
                     break;
-                case INTERVAL_BAM:
+                case ALIGNMENT:
                     // If the file-extension is .bam, we will create both a .bam and .bai file.
                     defaultName = "Export.bam";
                     break;

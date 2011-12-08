@@ -200,7 +200,7 @@ public class BAMDataSource extends DataSource<BAMIntervalRecord> implements BAMD
 
     @Override
     public final DataFormat getDataFormat() {
-        return DataFormat.INTERVAL_BAM;
+        return DataFormat.ALIGNMENT;
     }
 
     @Override

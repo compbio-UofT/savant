@@ -108,7 +108,7 @@ public class BigWigDataSource extends DataSource<GenericContinuousRecord> {
 
     @Override
     public DataFormat getDataFormat() {
-        return DataFormat.CONTINUOUS_GENERIC;
+        return DataFormat.CONTINUOUS;
     }
 
     @Override

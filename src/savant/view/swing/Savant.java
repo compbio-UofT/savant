@@ -25,7 +25,6 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
@@ -1019,7 +1018,7 @@ public class Savant extends JFrame {
         File[] selectedFiles = DialogUtils.chooseFilesForOpen("Open Tracks", null, lastTrackDirectory);
         for (File f : selectedFiles) {
             // This creates the tracks asynchronously, which handles all exceptions internally.
-            FrameController.getInstance().addTrackFromPath(f.getAbsolutePath(), false);
+            FrameController.getInstance().addTrackFromPath(f.getAbsolutePath(), null);
         }
         if (selectedFiles.length > 0) {
             this.setLastTrackDirectory(selectedFiles[0].getParentFile());
@@ -1030,7 +1029,7 @@ public class Savant extends JFrame {
         URL url = OpenURLDialog.getURL(this);
         if (url != null) {
             try {
-                FrameController.getInstance().addTrackFromURI(url.toURI(), false);
+                FrameController.getInstance().addTrackFromURI(url.toURI(), null);
             } catch (URISyntaxException ignored) {
             }
         }

@@ -32,6 +32,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import savant.api.adapter.DataSourceAdapter;
+import savant.api.data.DataFormat;
 import savant.api.util.DialogUtils;
 import savant.controller.DataSourcePluginController;
 import savant.controller.FrameController;
@@ -404,7 +405,7 @@ public class LoadGenomeDialog extends JDialog {
                 if (projectController.promptToSaveChanges(false)) {
                     projectController.clearExistingProject();
                     GenomeController.getInstance().setGenome(null);
-                    FrameController.getInstance().addTrackFromURI(url.toURI(), true);
+                    FrameController.getInstance().addTrackFromURI(url.toURI(), DataFormat.SEQUENCE);
                 }
             } catch (Throwable x) {
                 DialogUtils.displayException("Error Loading Genome", String.format("Unable to load genome from %s.", url), x);
@@ -423,7 +424,7 @@ public class LoadGenomeDialog extends JDialog {
                     projectController.clearExistingProject();
                     GenomeController.getInstance().setGenome(null);
                     Savant.getInstance().setLastTrackDirectory(selectedFile.getParentFile());
-                    FrameController.getInstance().addTrackFromPath(selectedFile.getAbsolutePath(), true);
+                    FrameController.getInstance().addTrackFromPath(selectedFile.getAbsolutePath(), DataFormat.SEQUENCE);
                 }
             } catch (Throwable x) {
                 DialogUtils.displayException("Error Loading Genome", String.format("Unable to load genome from %s.", selectedFile.getName()), x);

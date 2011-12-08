@@ -19,6 +19,7 @@ package savant.util;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -40,8 +41,25 @@ public class IOUtils {
         copyStream(new FileInputStream(srcFile), new FileOutputStream(destFile));
     }
 
+    /**
+     * Copy all files from one directory to another.
+     * @param srcDir source directory
+     * @param destDir destination directory
+     */
     public static void copyDir(File srcDir, File destDir) throws IOException {
         File[] files = srcDir.listFiles();
+        for (File f: files) {
+            copyFile(f, new File(destDir, f.getName()));
+        }
+    }
+
+    /**
+     * Copy all files from one directory to another.
+     * @param srcDir source directory
+     * @param destDir destination directory
+     */
+    public static void copyDir(File srcDir, File destDir, FilenameFilter filter) throws IOException {
+        File[] files = srcDir.listFiles(filter);
         for (File f: files) {
             copyFile(f, new File(destDir, f.getName()));
         }

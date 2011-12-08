@@ -102,7 +102,7 @@ public class BEDDataSource extends DataSource<BEDIntervalRecord> {
 
     @Override
     public final DataFormat getDataFormat() {
-        return DataFormat.INTERVAL_RICH;
+        return DataFormat.RICH_INTERVAL;
     }
 
     @Override

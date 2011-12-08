@@ -55,7 +55,8 @@ public class ColumnMapping {
     public static final ColumnMapping PSL = inferMapping(PSL_HEADER, false);
 
     /** Set of columns for VCF files.  Note that there is no end column. */
-    public static final ColumnMapping VCF = inferMapping(VCF_HEADER, true);
+    public static final ColumnMapping VCF = new ColumnMapping(DataFormat.VARIANT, 0, 1, -1, 2, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, true);
+
 
     public final DataFormat format;
 
@@ -103,14 +104,14 @@ public class ColumnMapping {
      * Factory method used to map GenericInterval formats.
      */
     public static ColumnMapping createIntervalMapping(int chrom, int start, int end, int name, boolean oneBased) {
-        return new ColumnMapping(DataFormat.INTERVAL_GENERIC, chrom, start, end, name, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, oneBased);
+        return new ColumnMapping(DataFormat.GENERIC_INTERVAL, chrom, start, end, name, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, oneBased);
     }
 
     /**
-     * Factory method used to map BedInterval formats.
+     * Factory method used to map RichInterval formats.
      */
     public static ColumnMapping createRichIntervalMapping(int chrom, int start, int end, int name, int score, int strand, int thickStart, int thickEnd, int itemRGB, int blockStartsRelative, int blockStartsAbsolute, int blockEnds, int blockSizes, int name2, boolean oneBased) {
-        return new ColumnMapping(DataFormat.INTERVAL_RICH, chrom, start, end, name, score, strand, thickStart, thickEnd, itemRGB, blockStartsRelative, blockStartsAbsolute, blockEnds, blockSizes, name2, oneBased);
+        return new ColumnMapping(DataFormat.RICH_INTERVAL, chrom, start, end, name, score, strand, thickStart, thickEnd, itemRGB, blockStartsRelative, blockStartsAbsolute, blockEnds, blockSizes, name2, oneBased);
     }
 
     /**

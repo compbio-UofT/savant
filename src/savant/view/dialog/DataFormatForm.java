@@ -52,6 +52,7 @@ public final class DataFormatForm extends JDialog {
                                         FASTA,
                                         new FormatDef("BED", false, false, FileType.INTERVAL_BED , "BED format is an alternative to GFF format for describing co-ordinates of localized features on genomes."),
                                         new FormatDef("GFF", true, false, FileType.INTERVAL_GFF , "GFF is a format for locating & describing genes and other localized features associated with DNA, RNA and Protein sequences."),
+                                        new FormatDef("VCF", false, false, FileType.INTERVAL_VCF , "VCF (Variant Call Format) is a format for storing gene sequence variants."),
                                         new FormatDef("BAM Coverage", true, false, FileType.INTERVAL_BAM , "SAM format (binary, for BAM) is a generic format for storing large nucleotide sequence alignments."),
                                         new FormatDef("WIG/BedGraph", true, false, FileType.CONTINUOUS_WIG , "WIG format allows display of continuous-valued data in track format. This display type is useful for GC percent, probability scores, and transcriptome data."),
                                         new FormatDef("Generic Interval", true, true, FileType.INTERVAL_GENERIC , "Generic intervals can be used to display any number of from-to pairs, each with an associated description.")
@@ -82,17 +83,17 @@ public final class DataFormatForm extends JDialog {
     private void initComponents() {
 
         inputField = new javax.swing.JTextField();
-        jScrollPane2 = new javax.swing.JScrollPane();
+        javax.swing.JScrollPane jScrollPane2 = new javax.swing.JScrollPane();
         descriptionArea = new javax.swing.JTextArea();
-        jLabel2 = new javax.swing.JLabel();
-        jScrollPane1 = new javax.swing.JScrollPane();
+        javax.swing.JLabel jLabel2 = new javax.swing.JLabel();
+        javax.swing.JScrollPane jScrollPane1 = new javax.swing.JScrollPane();
         formatList = new javax.swing.JList();
         inputButton = new javax.swing.JButton();
-        jLabel1 = new javax.swing.JLabel();
-        jLabel3 = new javax.swing.JLabel();
+        javax.swing.JLabel jLabel1 = new javax.swing.JLabel();
+        javax.swing.JLabel jLabel3 = new javax.swing.JLabel();
         outputButton = new javax.swing.JButton();
         formatButton = new javax.swing.JButton();
-        jLabel4 = new javax.swing.JLabel();
+        javax.swing.JLabel jLabel4 = new javax.swing.JLabel();
         outputField = new javax.swing.JTextField();
         tempOutputCheck = new javax.swing.JCheckBox();
         zeroBasedCheck = new javax.swing.JCheckBox();
@@ -311,12 +312,6 @@ public final class DataFormatForm extends JDialog {
     private javax.swing.JList formatList;
     private javax.swing.JButton inputButton;
     private javax.swing.JTextField inputField;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel4;
-    private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JButton outputButton;
     private javax.swing.JTextField outputField;
     private javax.swing.JCheckBox tempOutputCheck;

@@ -72,7 +72,7 @@ public class FormatTool {
                 throw new FileNotFoundException(String.format("File not found: %s.", inFile.getAbsolutePath()));
             }
             if (ft == null) {
-                ft = inferFileType(inFile);
+                ft = SavantFileFormatterUtils.guessFileTypeFromPath(inFile.getAbsolutePath());
                 if (ft == null) {
                     ft = FileType.INTERVAL_UNKNOWN;
                     System.out.println(String.format("Unable to determine type of %s; will try to infer fields from comment on first line.", inFile.getName()));
@@ -166,17 +166,6 @@ public class FormatTool {
             return FileType.INTERVAL_REFGENE;
         }
         throw new IllegalArgumentException(String.format("Unknown file type: %s.", arg));
-    }
-
-    /**
-     * Guess the FileType if the user hasn't specified one.  Right now, this is based
-     * on code in SavantFileFormatterUtils, which looks only at the file extension.
-     *
-     * @param   inFile  path to the input file
-     * @return  the file's type, or null if it wasn't recognised
-     */
-    private static FileType inferFileType(File inFile) {
-        return SavantFileFormatterUtils.guessFileTypeFromPath(inFile.getAbsolutePath());
     }
 
     private static boolean inferOneBased(FileType ft) {

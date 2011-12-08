@@ -111,7 +111,7 @@ public class FASTADataSource extends DataSource<SequenceRecord> implements Seque
 
     @Override
     public final DataFormat getDataFormat() {
-        return DataFormat.SEQUENCE_FASTA;
+        return DataFormat.SEQUENCE;
     }
 
     @Override

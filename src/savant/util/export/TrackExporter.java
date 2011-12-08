@@ -100,9 +100,9 @@ public abstract class TrackExporter extends Controller<DownloadEvent> {
     public static TrackExporter getExporter(String trackURI, File f) throws IOException {
         TrackAdapter t = TrackUtils.getTrack(trackURI);
         switch (t.getDataFormat()) {
-            case SEQUENCE_FASTA:
+            case SEQUENCE:
                 return new FastaExporter(t, f);
-            case INTERVAL_BAM:
+            case ALIGNMENT:
                 return new BAMExporter(t, f);
             default:
                 return null;

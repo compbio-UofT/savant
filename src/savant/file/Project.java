@@ -28,6 +28,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import savant.api.adapter.FrameAdapter;
+import savant.api.data.DataFormat;
 import savant.api.event.GenomeChangedEvent;
 import savant.api.util.Listener;
 import savant.controller.*;
@@ -292,17 +293,17 @@ public class Project {
                     for (String path: trackPaths) {
                         if (!path.equals(genomePath)) {
                             LOG.info("Adding ordinary track for " + path);
-                            FrameController.getInstance().addTrackFromPath(path, false);
+                            FrameController.getInstance().addTrackFromPath(path, null);
                         }
                     }
                 }
             });
             LOG.info("Adding sequence track for " + genomePath);
-            FrameController.getInstance().addTrackFromPath(genomePath, true);
+            FrameController.getInstance().addTrackFromPath(genomePath, DataFormat.SEQUENCE);
         } else {
             // Genome in place, so just load the tracks.
             for (String path : trackPaths) {
-                FrameController.getInstance().addTrackFromPath(path, false);
+                FrameController.getInstance().addTrackFromPath(path, null);
             }
         }
         if (bookmarks != null && bookmarks.size() > 0) {

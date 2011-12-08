@@ -15,6 +15,8 @@
  */
 package savant.file;
 
+import savant.api.data.DataFormat;
+
 
 /**
  * Enumeration defining the file-types recognised by Savant.  For Savant's native
@@ -54,6 +56,39 @@ public enum FileType {
         return magicNumber;
     }
 
+    public DataFormat toDataFormat() {
+        switch (this) {
+            case INTERVAL_BAM:
+                return DataFormat.ALIGNMENT;
+            case INTERVAL_GENERIC:
+                return DataFormat.GENERIC_INTERVAL;
+            case INTERVAL_BED:
+            case INTERVAL_GFF:
+            case TABIX:
+            case INTERVAL_BIGBED:
+            case INTERVAL_BED1:      // BED file with a bin column inserted as column 0.
+            case INTERVAL_KNOWNGENE:
+            case INTERVAL_REFGENE:     // Gene file with a bin column inserted as column 0.  Used by UCSC for RefSeq genes.
+            case INTERVAL_UNKNOWN:     // Some unknown interval format.  Columns must be identified by comment-line at start of file.
+                return DataFormat.RICH_INTERVAL;
+            case INTERVAL_PSL:
+                // TODO: PSL files really contain alignments, not intervals.
+                return DataFormat.RICH_INTERVAL;
+            case CONTINUOUS_WIG:
+            case CONTINUOUS_GENERIC:
+            case CONTINUOUS_BIGWIG:
+            case CONTINUOUS_TDF:
+                return DataFormat.CONTINUOUS;
+            case SEQUENCE_FASTA:
+                return DataFormat.SEQUENCE;
+            case POINT_GENERIC:
+                return DataFormat.POINT;
+            case INTERVAL_VCF:
+                return DataFormat.VARIANT;
+        }
+        return null;
+    }
+
     static public FileType fromMagicNumber(int magicNumber) {
         FileType[] types = FileType.values();
         for (int i=0; i<types.length; i++) {
@@ -61,5 +96,4 @@ public enum FileType {
         }
         return null;
     }
-
 }

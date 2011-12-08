@@ -111,7 +111,7 @@ public class GenericIntervalDataSource extends DataSource<GenericIntervalRecord>
 
     @Override
     public final DataFormat getDataFormat() {
-        return DataFormat.INTERVAL_GENERIC;
+        return DataFormat.GENERIC_INTERVAL;
     }
 
     @Override

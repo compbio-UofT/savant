@@ -68,23 +68,26 @@ public class TrackFactory {
 
         Track t;
         switch (ds.getDataFormat()) {
-            case SEQUENCE_FASTA:
+            case SEQUENCE:
                 t = new SequenceTrack(ds);
                 break;
-            case INTERVAL_RICH:
+            case RICH_INTERVAL:
                 t = new RichIntervalTrack(ds);   // BED or Tabix
                 break;
-            case POINT_GENERIC:
+            case POINT:
                 t = new PointTrack(ds);
                 break;
-            case CONTINUOUS_GENERIC:
+            case CONTINUOUS:
                 t = new ContinuousTrack(ds);     // Savant or TDF
                 break;
-            case INTERVAL_BAM:
+            case ALIGNMENT:
                 t = new BAMTrack(ds);
                 break;
-            case INTERVAL_GENERIC:
+            case GENERIC_INTERVAL:
                 t = new IntervalTrack(ds);
+                break;
+            case VARIANT:
+                t = new VariantTrack(ds);
                 break;
             default:
                 throw new IllegalArgumentException(String.format("Unknown data format: %s.", ds.getDataFormat()));

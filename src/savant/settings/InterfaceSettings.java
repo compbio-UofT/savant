@@ -51,9 +51,9 @@ public class InterfaceSettings {
 
     public static int getIntervalHeight(DataFormat type) {
         switch (type) {
-            case INTERVAL_BAM:
+            case ALIGNMENT:
                 return getBamIntervalHeight();
-            case INTERVAL_RICH:
+            case RICH_INTERVAL:
                 return getRichIntervalHeight();
             default:
                 return getGenericIntervalHeight();

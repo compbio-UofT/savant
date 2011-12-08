@@ -140,7 +140,7 @@ public class GenericPointDataSource extends DataSource<GenericPointRecord> {
 
     @Override
     public final DataFormat getDataFormat() {
-        return DataFormat.POINT_GENERIC;
+        return DataFormat.POINT;
     }
 
     @Override

@@ -175,7 +175,7 @@ public class GenericContinuousDataSource extends DataSource<GenericContinuousRec
 
     @Override
     public final DataFormat getDataFormat() {
-        return DataFormat.CONTINUOUS_GENERIC;
+        return DataFormat.CONTINUOUS;
     }
 
     @Override

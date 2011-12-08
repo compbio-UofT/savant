@@ -18,9 +18,7 @@ package savant.controller;
 
 import java.awt.Component;
 import java.beans.PropertyVetoException;
-import java.io.File;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -34,11 +32,12 @@ import com.jidesoft.docking.event.DockableFrameEvent;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import savant.api.data.DataFormat;
 import savant.api.event.LocationChangedEvent;
 import savant.api.util.DialogUtils;
 import savant.api.util.Listener;
-import savant.api.data.DataFormat;
 import savant.selection.SelectionController;
+import savant.util.MiscUtils;
 import savant.util.NetworkUtils;
 import savant.view.swing.DockableFrameFactory;
 import savant.view.swing.Frame;
@@ -153,39 +152,51 @@ public class FrameController {
      * FIXME: Can we use the normal track-creation code?
      */
     public Frame createFrame(Track[] tracks) {
-        Frame frame = DockableFrameFactory.createTrackFrame(tracks[0].getDataFormat() == DataFormat.SEQUENCE_FASTA);
+        DataFormat df = tracks[0].getDataFormat();
+        Frame frame = DockableFrameFactory.createTrackFrame(df);
         frame.setKey(tracks[0].getName());
-        addFrame(frame);
+        addFrame(frame, df);
         frame.setTracks(tracks);
         return frame;
     }
 
 
-    public Frame addTrackFromPath(String fileOrURI, boolean seq) {
-        return addTrackFromURI(NetworkUtils.getURIFromPath(fileOrURI), seq || fileOrURI.endsWith(".fa.savant"));
+    public Frame addTrackFromPath(String fileOrURI, DataFormat df) {
+        if (df == null) {
+            if (fileOrURI.endsWith(".fa") || fileOrURI.endsWith(".fa.savant")) {
+                df = DataFormat.SEQUENCE;
+            } else if (fileOrURI.endsWith(".vcf.gz")) {
+                df = DataFormat.VARIANT;
+            }
+        }
+        return addTrackFromURI(NetworkUtils.getURIFromPath(fileOrURI), df);
     }
 
-    public Frame addTrackFromURI(URI uri, boolean seq) {
-        Frame frame = DockableFrameFactory.createTrackFrame(seq);
+    public Frame addTrackFromURI(URI uri, DataFormat df) {
+        Frame frame = DockableFrameFactory.createTrackFrame(df);
         //Force a unique frame key. The title of frame is overwritten by track name later.
         frame.setKey(uri.toString()+System.nanoTime());
-        addFrame(frame);
+        addFrame(frame, df);
         TrackFactory.createTrack(uri, frame);
         return frame;
     }
 
 
-    private void addFrame(Frame f) {
+    private void addFrame(Frame f, DataFormat df) {
         frames.add(f);
 
-        DockingManager trackDockingManager = Savant.getInstance().getTrackDockingManager();
+        if (df == DataFormat.VARIANT) {
+            DockingManager dm = Savant.getInstance().getAuxDockingManager();
+            dm.addFrame(f);
+        } else {
+            DockingManager trackDockingManager = Savant.getInstance().getTrackDockingManager();
+            trackDockingManager.addFrame(f);
 
-        trackDockingManager.addFrame(f);
-
-        // Insert the frame immediately below the currently-active frame.
-        if (frames.size() > 1) {
-            FrameHandle lastFrame = getFrontmostFrame(trackDockingManager);
-            trackDockingManager.moveFrame(f.getKey(), lastFrame.getKey(), DockContext.DOCK_SIDE_SOUTH);
+            // Insert the frame immediately below the currently-active frame.
+            if (frames.size() > 1) {
+                FrameHandle lastFrame = getFrontmostFrame(trackDockingManager);
+                trackDockingManager.moveFrame(f.getKey(), lastFrame.getKey(), DockContext.DOCK_SIDE_SOUTH);
+            }
         }
     }
 

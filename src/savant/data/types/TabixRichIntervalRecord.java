@@ -16,12 +16,12 @@
 
 package savant.data.types;
 
-import savant.api.data.Strand;
-import savant.api.data.Block;
-import savant.api.data.RichIntervalRecord;
 import java.util.ArrayList;
 import java.util.List;
 
+import savant.api.data.Strand;
+import savant.api.data.Block;
+import savant.api.data.RichIntervalRecord;
 import savant.util.ColumnMapping;
 
 

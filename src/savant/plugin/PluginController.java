@@ -85,13 +85,7 @@ public class PluginController extends Controller {
      * Try to load all JAR and XML files in the given directory.
      */
     public void loadPlugins(File pluginsDir) {
-        File[] files = pluginsDir.listFiles(new FilenameFilter() {
-            @Override
-            public boolean accept(File dir, String name) {
-                name = name.toLowerCase();
-                return name.endsWith(".jar") || name.endsWith(".xml");
-            }
-        });
+        File[] files = pluginsDir.listFiles(new PluginFileFilter());
         for (File f: files) {
             try {
                 addPlugin(f);
@@ -276,11 +270,12 @@ public class PluginController extends Controller {
     private void copyBuiltInPlugins() {
         File destDir = DirectorySettings.getPluginsDirectory();
         File srcDir = null;
+        FilenameFilter pluginFilter = new PluginFileFilter();
         if (MiscUtils.MAC) {
             srcDir = new File(com.apple.eio.FileManager.getPathToApplicationBundle() + "/Contents/Plugins");
             if (srcDir.exists()) {
                 try {
-                    IOUtils.copyDir(srcDir, destDir);
+                    IOUtils.copyDir(srcDir, destDir, pluginFilter);
                     return;
                 } catch (Exception ignored) {
                     // We should expect to see this when running in the debugger.
@@ -289,7 +284,7 @@ public class PluginController extends Controller {
         }
         try {
             srcDir = new File("plugins");
-            IOUtils.copyDir(srcDir, destDir);
+            IOUtils.copyDir(srcDir, destDir, pluginFilter);
         } catch (Exception x) {
             LOG.error("Unable to copy builtin plugins from " + srcDir.getAbsolutePath() + " to " + destDir, x);
         }
@@ -387,6 +382,14 @@ public class PluginController extends Controller {
                 addURL(f.toURI().toURL());
             } catch (MalformedURLException ignored) {
             }
+        }
+    }
+    
+    class PluginFileFilter implements FilenameFilter {
+        @Override
+        public boolean accept(File dir, String name) {
+            name = name.toLowerCase();
+            return name.endsWith(".jar") || name.endsWith(".xml");
         }
     }
 }

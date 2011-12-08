@@ -16,6 +16,7 @@
 
 package savant.format;
 
+import java.io.BufferedReader;
 import java.io.EOFException;
 import java.io.File;
 import java.io.FileReader;
@@ -130,7 +131,7 @@ public class DataFormatter {
 
             // If necessary, check that it really is a text file
             if (inputFileType != FileType.INTERVAL_BIGBED && inputFileType != FileType.CONTINUOUS_BIGWIG) {
-                verifyTextFile(inFile, inputFileType != FileType.SEQUENCE_FASTA && inputFileType != FileType.CONTINUOUS_WIG);
+                verifyTextFile(inFile, '#', inputFileType != FileType.SEQUENCE_FASTA && inputFileType != FileType.CONTINUOUS_WIG);
             }
 
             // format the input file in the appropriate way
@@ -319,27 +320,42 @@ public class DataFormatter {
 
     /**
      * Verifies that the file in question is a tab-delimited text file.
+     *
      * @param fileName the file to be examined
      * @param lookingForTabs if true, we're looking for a tab-delimited file (false for .fasta and .wig)
      */
-    private void verifyTextFile(File fileName, boolean lookingForTabs) throws SavantFileFormattingException {
+    private void verifyTextFile(File fileName, char commentChar, boolean lookingForTabs) throws IOException, SavantFileFormattingException {
+        BufferedReader reader = null;
         try {
-            FileReader reader =  new FileReader(fileName);
-            char[] readBuf = new char[1000];
-            int charsRead = reader.read(readBuf);
-            if (charsRead != -1) {
-                for (int i = 0; i < charsRead; i++) {
-                    if (readBuf[i] == '\t') {
-                        lookingForTabs = false;
-                    } else if (!lookingForTabs && (readBuf[i] == '\r' || readBuf[i] == '\n')) {
-                        return;
-                    }
+            reader = new BufferedReader(new FileReader(fileName));
+            String line = reader.readLine();
+            do {
+                line = reader.readLine();
+            } while (line.charAt(0) == commentChar);
+
+            // Found a "line" which doesn't have a comment character.
+            // Look for tabs and unprintable characters.
+            boolean tabFound = false;
+            for (int i = 0; i < line.length(); i++) {
+                char c = line.charAt(i);
+                if (c == '\t') {
+                    tabFound = true;
+                } else if (c < ' ' || c > '~') {
+                    throw new SavantFileFormattingException(String.format("%s does not appear to be a text file.", inFile.getName()));
                 }
             }
-        } catch (IOException ignored) {
-            // result will be false
+            // Got through a whole line without finding any suspicious characters.
+            if (lookingForTabs && !tabFound) {
+                throw new SavantFileFormattingException(String.format("%s does not appear to be a tab-delimited file.", inFile.getName()));
+            }
+        } finally {
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (IOException ignored) {
+                }
+            }
         }
-        throw new SavantFileFormattingException(String.format("<html><i>%s</i> does not appear to be a %s file.</html>", inFile.getName(), lookingForTabs ? "tab-delimited text" : "text"));
     }
 
     public void addProgressListener(FormatProgressListener listener) {

@@ -43,7 +43,7 @@ public class DataTableModel extends AbstractTableModel {
     private static final Class[] SEQUENCE_COLUMN_CLASSES = { String.class };
     private static final Class[] POINT_COLUMN_CLASSES = { String.class, Integer.class, String.class };
     private static final Class[] INTERVAL_COLUMN_CLASSES = { String.class, Integer.class, Integer.class, String.class };
-    private static final Class[] BAM_COLUMN_CLASSES = { String.class, String.class, Integer.class, Boolean.class, Integer.class, Boolean.class, Integer.class, String.class, String.class, Integer.class, Boolean.class, Integer.class};
+    private static final Class[] ALIGNMENT_COLUMN_CLASSES = { String.class, String.class, Integer.class, Boolean.class, Integer.class, Boolean.class, Integer.class, String.class, String.class, Integer.class, Boolean.class, Integer.class};
     private static final Class[] CONTINUOUS_COLUMN_CLASSES = { String.class, Integer.class, Double.class };
 
     private final DataSourceAdapter dataSource;
@@ -68,22 +68,23 @@ public class DataTableModel extends AbstractTableModel {
 
         columnNames = ds.getColumnNames();
         switch (ds.getDataFormat()) {
-            case SEQUENCE_FASTA:
+            case SEQUENCE:
                 columnClasses = SEQUENCE_COLUMN_CLASSES;
                 break;
-            case POINT_GENERIC:
+            case POINT:
                 columnClasses = POINT_COLUMN_CLASSES;
                 break;
-            case CONTINUOUS_GENERIC:
+            case CONTINUOUS:
                 columnClasses = CONTINUOUS_COLUMN_CLASSES;
                 break;
-            case INTERVAL_GENERIC:
+            case GENERIC_INTERVAL:
                 columnClasses = INTERVAL_COLUMN_CLASSES;
                 break;
-            case INTERVAL_BAM:
-                columnClasses = BAM_COLUMN_CLASSES;
+            case ALIGNMENT:
+                columnClasses = ALIGNMENT_COLUMN_CLASSES;
                 break;
-            case INTERVAL_RICH:
+            case RICH_INTERVAL:
+            case VARIANT:
                 // Special treatment for Tabix data, which may have some suppressed fields indicated by nulls in the column list.
                 remappedColumns = new int[columnNames.length];
                 List<String> usefulNames = new ArrayList<String>(columnNames.length);
@@ -126,9 +127,9 @@ public class DataTableModel extends AbstractTableModel {
             return ((TabixIntervalRecord)datum).getValues()[remappedColumns[column]];
         } else {
             switch (dataSource.getDataFormat()) {
-                case SEQUENCE_FASTA:
+                case SEQUENCE:
                     return new String(((SequenceRecord)datum).getSequence());
-                case POINT_GENERIC:
+                case POINT:
                     switch (column) {
                         case 0:
                             return datum.getReference();
@@ -137,7 +138,7 @@ public class DataTableModel extends AbstractTableModel {
                         case 2:
                             return ((PointRecord)datum).getDescription();
                     }
-                case CONTINUOUS_GENERIC:
+                case CONTINUOUS:
                     switch (column) {
                         case 0:
                             return datum.getReference();
@@ -146,7 +147,7 @@ public class DataTableModel extends AbstractTableModel {
                         case 2:
                             return ((ContinuousRecord)datum).getValue();
                     }
-                case INTERVAL_GENERIC:
+                case GENERIC_INTERVAL:
                     switch (column) {
                         case 0:
                             return datum.getReference();
@@ -157,7 +158,7 @@ public class DataTableModel extends AbstractTableModel {
                         case 3:
                             return ((IntervalRecord)datum).getName();
                     }
-                case INTERVAL_BAM:
+                case ALIGNMENT:
                     SAMRecord samRecord = ((BAMIntervalRecord)datum).getSAMRecord();
                     boolean mated = samRecord.getReadPairedFlag();
                     switch (column) {
@@ -186,7 +187,7 @@ public class DataTableModel extends AbstractTableModel {
                         case 11:
                             return mated ? samRecord.getInferredInsertSize() : 0;
                     }
-                case INTERVAL_RICH:
+                case RICH_INTERVAL:
                     switch (column) {
                         case 0:
                             return ((RichIntervalRecord)datum).getReference();
@@ -229,7 +230,7 @@ public class DataTableModel extends AbstractTableModel {
         if (dataInRange == null) { 
             data = null;
         } else {
-            if (dataSource.getDataFormat() == DataFormat.CONTINUOUS_GENERIC) {
+            if (dataSource.getDataFormat() == DataFormat.CONTINUOUS) {
                 // Continuous tracks now use NaNs for missing values.  Filter them out.
                 data = new ArrayList<Record>();
                 for (Record r: dataInRange) {
@@ -259,7 +260,7 @@ public class DataTableModel extends AbstractTableModel {
      * @param destFile
      */
     public void openExport(File destFile) throws IOException {
-        if (dataSource.getDataFormat() == DataFormat.INTERVAL_BAM) {
+        if (dataSource.getDataFormat() == DataFormat.ALIGNMENT) {
             // If the file extension is .sam, it will create a SAM text file.
             // If it's .bam, it will create a BAM file and corresponding index.
             samWriter = new SAMFileWriterFactory().setCreateIndex(true).makeSAMOrBAMWriter(((BAMDataSource)dataSource).getHeader(), true, destFile);
@@ -269,13 +270,13 @@ public class DataTableModel extends AbstractTableModel {
 
         // Write an appropriate header.
         switch (dataSource.getDataFormat()) {
-            case SEQUENCE_FASTA:
+            case SEQUENCE:
                 exportWriter.printf(">%s", NavigationUtils.getCurrentReferenceName()).println();
                 break;
-            case POINT_GENERIC:
-            case CONTINUOUS_GENERIC:
-            case INTERVAL_GENERIC:
-            case INTERVAL_RICH:
+            case POINT:
+            case CONTINUOUS:
+            case GENERIC_INTERVAL:
+            case RICH_INTERVAL:
                 exportWriter.println("# Savant Data Table Plugin 1.2.4");
                 exportWriter.printf("#%s", columnNames[0]);
                 for (int i = 1; i < columnNames.length; i++) {
@@ -283,7 +284,7 @@ public class DataTableModel extends AbstractTableModel {
                 }
                 exportWriter.println();
                 break;
-            case INTERVAL_BAM:
+            case ALIGNMENT:
                 break;
         }
     }
@@ -292,7 +293,7 @@ public class DataTableModel extends AbstractTableModel {
      * Close the current export file.
      */
     public void closeExport() {
-        if (dataSource.getDataFormat() == DataFormat.INTERVAL_BAM) {
+        if (dataSource.getDataFormat() == DataFormat.ALIGNMENT) {
             samWriter.close();
             samWriter = null;
         } else {
@@ -308,23 +309,23 @@ public class DataTableModel extends AbstractTableModel {
     public void exportRow(int row) {
         Record datum = data.get(row);
         switch (dataSource.getDataFormat()) {
-            case SEQUENCE_FASTA:
+            case SEQUENCE:
                 exportWriter.println(new String(((SequenceRecord)datum).getSequence()));
                 break;
-            case POINT_GENERIC:
+            case POINT:
                 exportWriter.printf("%s\t%d\t%s", datum.getReference(), ((PointRecord)datum).getPoint(), ((PointRecord)datum).getDescription()).println();
                 break;
-            case CONTINUOUS_GENERIC:
+            case CONTINUOUS:
                 exportWriter.printf("%s\t%d\t%f", datum.getReference(), ((ContinuousRecord)datum).getPosition(), ((ContinuousRecord)datum).getValue()).println();
                 break;
-            case INTERVAL_GENERIC:
+            case GENERIC_INTERVAL:
                 Interval inter = ((IntervalRecord)datum).getInterval();
                 exportWriter.printf("%d\t%d\t%d\t%s", datum.getReference(), inter.getStart(), inter.getEnd(), ((IntervalRecord)datum).getName()).println();
                 break;
-            case INTERVAL_BAM:
+            case ALIGNMENT:
                 samWriter.addAlignment(((BAMIntervalRecord)datum).getSAMRecord());
                 break;
-            case INTERVAL_RICH:
+            case RICH_INTERVAL:
                 String[] values = ((TabixIntervalRecord)datum).getValues();
                 for (int i = 0; i < columnNames.length; i++) {
                     if (i > 0) {

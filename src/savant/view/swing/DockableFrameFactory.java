@@ -28,20 +28,29 @@ import javax.swing.JPanel;
 import com.jidesoft.docking.DockContext;
 import com.jidesoft.docking.DockableFrame;
 
+import savant.api.data.DataFormat;
 import savant.controller.FrameController;
 
 
 /**
- * Factory for creating dockable frames.  This come in two flavours: one for tracks
- * (including genome tracks), and the other for GUI plugins.
+ * Factory for creating dockable frames.  This come in three flavours: one for bookmarks,
+ * one for tracks (including genome tracks), and one for GUI plugins.
  */
 public class DockableFrameFactory {
 
+    /**
+     * Factory method used to create the Bookmarks frame.
+     *
+     * @param name the frame's title
+     * @param mode STATE_HIDDEN, STATE_FLOATING, STATE_AUTOHIDE, or STATE_FRAMEDOCKED
+     * @param side DOCK_SIDE_EAST, DOCK_SIDE_WEST, DOCK_SIDE_SOUTH, DOCK_SIDE_NORTH, or DOCK_SIDE_CENTER
+     * @return 
+     */
     public static DockableFrame createFrame(String name, int mode, int side) {
         DockableFrame frame = new DockableFrame(name, null);
         frame.setSlidingAutohide(true);
-        frame.getContext().setInitMode(mode);
-        frame.getContext().setInitSide(side);
+        frame.setInitMode(mode);
+        frame.setInitSide(side);
         frame.add(new JPanel());
         frame.setPreferredSize(new Dimension(400, 400));
         frame.setAutohideWidth(400);
@@ -55,15 +64,24 @@ public class DockableFrameFactory {
         return f;
     }
 
-    public static Frame createTrackFrame(boolean seq) {
+    public static Frame createTrackFrame(DataFormat df) {
 
-        final Frame frame = new Frame(seq);
+        final Frame frame = new Frame(df);
         
         frame.setAvailableButtons(DockableFrame.BUTTON_AUTOHIDE | DockableFrame.BUTTON_MAXIMIZE | DockableFrame.BUTTON_CLOSE );
         
-        frame.setInitMode(DockContext.STATE_FRAMEDOCKED);
-        frame.setInitSide(DockContext.DOCK_SIDE_NORTH);
-        frame.setSlidingAutohide(false);
+        if (df == DataFormat.VARIANT) {
+//            frame.setSlidingAutohide(true);
+            frame.setInitMode(DockContext.STATE_AUTOHIDE);
+            frame.setInitSide(DockContext.DOCK_SIDE_EAST);
+//            frame.setPreferredSize(new Dimension(400, 400));
+//            frame.setAutohideWidth(400);
+//            frame.setAutohideHeight(400);
+        } else {
+            frame.setSlidingAutohide(false);
+            frame.setInitMode(DockContext.STATE_FRAMEDOCKED);
+            frame.setInitSide(DockContext.DOCK_SIDE_NORTH);
+        }
         //frame.setShowTitleBar(false);
         //frame.setShowGripper(true);
         //frame.setPreferredAutohideSide(DockContext.DOCK_SIDE_SOUTH);

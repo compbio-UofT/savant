@@ -157,11 +157,11 @@ class ToolSettingsPanel extends JPanel {
                     widget = new MultiCheckGrid(arg);
                     break;
                 case BAM_INPUT_FILE:
-                    widget = new TrackCombo(arg, DataFormat.INTERVAL_BAM);
+                    widget = new TrackCombo(arg, DataFormat.ALIGNMENT);
                     TrackUtils.addTrackListener((TrackCombo)widget);
                     break;
                 case FASTA_INPUT_FILE:
-                    widget = new TrackCombo(arg, DataFormat.SEQUENCE_FASTA);
+                    widget = new TrackCombo(arg, DataFormat.SEQUENCE);
                     TrackUtils.addTrackListener((TrackCombo)widget);
                     break;
             }

@@ -17,7 +17,6 @@
 package savant.api.util;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -72,7 +71,7 @@ public class TrackUtils {
         for (int i = 0; i < tracks.size(); i++) {
             myTracks[i] = (Track)tracks.get(i);
         }
-        Frame f = DockableFrameFactory.createTrackFrame(myTracks[0].getDataFormat() == DataFormat.SEQUENCE_FASTA);
+        Frame f = DockableFrameFactory.createTrackFrame(myTracks[0].getDataFormat());
         f.setTracks(myTracks);
     }
 
@@ -92,7 +91,7 @@ public class TrackUtils {
      * @throws IOException Exception opening the track at path
      */
     public static TrackAdapter[] createTrack(URI uri) throws Throwable {
-        Frame f = FrameController.getInstance().addTrackFromURI(uri, false);
+        Frame f = FrameController.getInstance().addTrackFromURI(uri, null);
         return f.getTracks();
     }
 
@@ -104,7 +103,7 @@ public class TrackUtils {
      * @throws IOException Exception opening the track at path
      */
     public static TrackAdapter[] createTrack(File file) throws Throwable {
-        Frame f = FrameController.getInstance().addTrackFromURI(file.toURI(), false);
+        Frame f = FrameController.getInstance().addTrackFromURI(file.toURI(), null);
         return f.getTracks();
     }
 

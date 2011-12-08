@@ -265,37 +265,40 @@ public class FormatFrame extends JDialog implements FormatProgressListener {
         if (wasFormatSuccessful) {
             if (GenomeController.getInstance().isGenomeLoaded() || dataFormatter.getInputFileType() == FileType.SEQUENCE_FASTA) {
                 int result = JOptionPane.showConfirmDialog(this, "Format successful. Open track now?", "Format Successful", JOptionPane.YES_NO_OPTION);
-                this.setVisible(false);
+                setVisible(false);
                 if (result == JOptionPane.YES_OPTION) {
                     try {
-                        FrameController.getInstance().addTrackFromPath(dataFormatter.getOutputFile().getAbsolutePath(), false);
+                        FrameController.getInstance().addTrackFromPath(dataFormatter.getOutputFile().getAbsolutePath(), null);
                     } catch (Exception ex) {
                     }
                 }
             } else {
                 JOptionPane.showMessageDialog(this, "<HTML>Format successful. <BR>A genome must be loaded before you can open this track.</HTML>", "Format Successful", JOptionPane.INFORMATION_MESSAGE);
             }
-            this.dispose();
+            dispose();
         } else if (e instanceof InterruptedException) {
+            setVisible(false);
             DialogUtils.displayMessage("Format cancelled.");
         } else if (e instanceof SavantFileFormattingException) {
             // Not a Savant error.  They've just chosen the wrong kind of file.
+            setVisible(false);
             DialogUtils.displayMessage("Sorry", e.getMessage());
         } else {
-                JideOptionPane optionPane = new JideOptionPane("Click \"Details\" button to see more information ... \n\n"
-                        + "Please report any issues you experience to the to the development team.\n", JOptionPane.ERROR_MESSAGE, JideOptionPane.CLOSE_OPTION);
-                optionPane.setTitle("A problem was encountered while formatting.");
-                optionPane.setOptions(new String[] {});
-                JButton reportButton = new JButton("Report Issue");
-                ((JComponent) optionPane.getComponent(optionPane.getComponentCount()-1)).add(reportButton);
-                final JDialog dialog = optionPane.createDialog(this, "Format unsuccessful");
-                dialog.setModal(true);
-                dialog.setResizable(true);
-                optionPane.setDetails(MiscUtils.getStackTrace(e));
-                //optionPane.setDetailsVisible(true);
-                dialog.pack();
+            setVisible(false);
+            JideOptionPane optionPane = new JideOptionPane("Click \"Details\" button to see more information ... \n\n"
+                    + "Please report any issues you experience to the to the development team.\n", JOptionPane.ERROR_MESSAGE, JideOptionPane.CLOSE_OPTION);
+            optionPane.setTitle("A problem was encountered while formatting.");
+            optionPane.setOptions(new String[] {});
+            JButton reportButton = new JButton("Report Issue");
+            ((JComponent) optionPane.getComponent(optionPane.getComponentCount()-1)).add(reportButton);
+            final JDialog dialog = optionPane.createDialog(this, "Format unsuccessful");
+            dialog.setModal(true);
+            dialog.setResizable(true);
+            optionPane.setDetails(MiscUtils.getStackTrace(e));
+            //optionPane.setDetailsVisible(true);
+            dialog.pack();
 
-                reportButton.addActionListener(new ActionListener() {
+            reportButton.addActionListener(new ActionListener() {
 
                 @Override
                 public void actionPerformed(ActionEvent e2) {
@@ -319,8 +322,6 @@ public class FormatFrame extends JDialog implements FormatProgressListener {
             });
 
             dialog.setVisible(true);
-
-            dispose();
         }
     }
 
