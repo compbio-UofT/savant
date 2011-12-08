@@ -48,7 +48,7 @@ public class DiffPlugin extends SavantDataSourcePlugin {
      */
     @Override
     public DataSourceAdapter getDataSource() throws URISyntaxException {
-        TrackAdapter[] availableTracks = TrackUtils.getTracks(DataFormat.CONTINUOUS_GENERIC);
+        TrackAdapter[] availableTracks = TrackUtils.getTracks(DataFormat.CONTINUOUS);
         if (availableTracks.length >= 2) {
             SourceDialog dlg = new SourceDialog(availableTracks);
             dlg.setVisible(true);

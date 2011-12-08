@@ -30,6 +30,7 @@ import org.apache.commons.logging.LogFactory;
 import savant.api.adapter.BookmarkAdapter;
 import savant.api.adapter.DataSourceAdapter;
 import savant.api.adapter.RangeAdapter;
+import savant.api.adapter.RecordFilterAdapter;
 import savant.api.adapter.TrackAdapter;
 import savant.api.data.ContinuousRecord;
 import savant.api.data.DataFormat;
@@ -99,11 +100,11 @@ public class DiffDataSource implements DataSourceAdapter<ContinuousRecord> {
      * to simplify our task.
      */
     @Override
-    public List<ContinuousRecord> getRecords(String ref, RangeAdapter range, Resolution res) throws IOException {
+    public List<ContinuousRecord> getRecords(String ref, RangeAdapter range, Resolution res, RecordFilterAdapter filter) throws IOException {
         List<ContinuousRecord> result = null;
         if (inputsAttached()) {
-            List<? extends ContinuousRecord> aRecords = inputA.getRecords(ref, range, res);
-            List<? extends ContinuousRecord> bRecords = inputB.getRecords(ref, range, res);
+            List<? extends ContinuousRecord> aRecords = inputA.getRecords(ref, range, res, filter);
+            List<? extends ContinuousRecord> bRecords = inputB.getRecords(ref, range, res, filter);
 
             result = new ArrayList<ContinuousRecord>(aRecords.size());
             int j = 0;
@@ -178,11 +179,11 @@ public class DiffDataSource implements DataSourceAdapter<ContinuousRecord> {
     }
 
     /**
-     * @return <code>CONTINUOUS_GENERIC</code>
+     * @return <code>CONTINUOUS</code>
      */
     @Override
     public DataFormat getDataFormat() {
-        return DataFormat.CONTINUOUS_GENERIC;
+        return DataFormat.CONTINUOUS;
     }
 
     /**
@@ -232,7 +233,7 @@ public class DiffDataSource implements DataSourceAdapter<ContinuousRecord> {
                 URI uriA = new URI(uriString.substring(0, delimiterPos));
                 URI uriB = new URI(uriString.substring(delimiterPos + 1));
 
-                TrackAdapter[] availableTracks = TrackUtils.getTracks(DataFormat.CONTINUOUS_GENERIC);
+                TrackAdapter[] availableTracks = TrackUtils.getTracks(DataFormat.CONTINUOUS);
                 for (TrackAdapter t: availableTracks) {
                     URI u = t.getDataSource().getURI();
                     if (u.equals(uriA)) {
