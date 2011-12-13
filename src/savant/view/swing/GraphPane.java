@@ -77,6 +77,7 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
     private double unitHeight;
 
     private AxisType yAxisType = AxisType.NONE;
+    private AxisType xAxisType = AxisType.NONE;
     private boolean mouseInside = false;
 
     // Locking
@@ -260,6 +261,7 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
             }
         }
 
+        setXAxisType(tracks[0].getXAxisType(tracks[0].getResolution(xRange)));
         setXRange(xRange);
         setYAxisType(bestYAxis);
         Range consolidatedYRange = new Range(minYRange, maxYRange);
@@ -313,7 +315,7 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
             prevMode = tracks[0].getDrawingMode();
             prevRef = lc.getReferenceName();
 
-            renderBackground(g3, true, yAxisType == AxisType.INTEGER || yAxisType == AxisType.REAL);
+            renderBackground(g3, xAxisType == AxisType.INTEGER || xAxisType == AxisType.REAL, yAxisType == AxisType.INTEGER || yAxisType == AxisType.REAL);
 
             // Call the actual render() methods.
             boolean nothingRendered = true;
@@ -655,6 +657,14 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
         }
     }
 
+    /**
+     * Set the interpretation of the pane's horizontal coordinate system.
+     */
+    public void setXAxisType(AxisType type) {
+        xAxisType = type;
+    }
+
+    
     @Override
     public Range getYRange() {
         return new Range(yMin, yMax);

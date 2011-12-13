@@ -16,6 +16,7 @@
 
 package savant.data.types;
 
+import savant.api.data.VariantRecord;
 import savant.util.ColumnMapping;
 
 /**
@@ -23,11 +24,56 @@ import savant.util.ColumnMapping;
  *
  * @author tarkvara
  */
-public class VCFVariantRecord extends TabixIntervalRecord {
+public class VCFVariantRecord extends TabixIntervalRecord implements VariantRecord {
+    public static final int REF_COLUMN = 3;
+    public static final int ALT_COLUMN = 4;
+
     /**
      * Constructor not be be called directly, but rather through TabixIntervalRecord.valueOf.
      */
     protected VCFVariantRecord(String line, ColumnMapping mapping) {
         super(line, mapping);
+    }
+    
+    @Override
+    public String getRefBases() {
+        return values[REF_COLUMN];
+    }
+
+    @Override
+    public String getAltBases() {
+        return values[ALT_COLUMN];
+    }
+    
+    /**
+     * TODO: Interpret ALT strings which contain descriptive information rather than bases.
+     * @return the type of variant represented by this record
+     */
+    @Override
+    public Type getType() {
+        String refBases = getRefBases();
+        String altBases = getAltBases();
+        if (refBases.length() == 1 && altBases.length() == 1) {
+            return Type.SNP;
+        }
+        if (altBases.charAt(0) == '<') {
+            if (altBases.startsWith("<INS")) {
+                return Type.INSERTION;
+            } else if (altBases.startsWith("<DEL")) {
+                return Type.DELETION;
+            } else {
+                return Type.OTHER;
+            }
+        }
+        if (altBases.indexOf(',') >= 0) {
+            // ALT contains multiple entries.  Let's bail and call it OTHER.
+            return Type.OTHER;
+        }
+        if (altBases.length() > refBases.length()) {
+            return Type.INSERTION;
+        } else if (altBases.length() < refBases.length()) {
+            return Type.DELETION;
+        }
+        return Type.OTHER;
     }
 }

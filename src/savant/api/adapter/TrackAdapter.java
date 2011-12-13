@@ -124,6 +124,13 @@ public interface TrackAdapter {
     public Resolution getResolution(RangeAdapter range);
 
     /**
+     * Determine what kind of x-axis would be appropriate for this track at the given resolution.
+     * All normal tracks should return AxisType.INTEGER to get the default display.
+     * @since 2.0.0
+     */
+    public AxisType getXAxisType(Resolution r);
+
+    /**
      * Determine what kind of y-axis would be appropriate for this track at the given resolution.
      */
     public AxisType getYAxisType(Resolution r);

@@ -354,6 +354,11 @@ public abstract class Track extends Controller<DataRetrievalEvent> implements Tr
     }
 
     @Override
+    public AxisType getXAxisType(Resolution r) {
+        return AxisType.INTEGER;
+    }
+
+    @Override
     public AxisType getYAxisType(Resolution r) {
         return AxisType.NONE;
     }

@@ -27,6 +27,10 @@ import javax.swing.JPanel;
 
 import com.jidesoft.docking.DockContext;
 import com.jidesoft.docking.DockableFrame;
+import com.jidesoft.docking.event.DockableFrameAdapter;
+import com.jidesoft.docking.event.DockableFrameEvent;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import savant.api.data.DataFormat;
 import savant.controller.FrameController;
@@ -37,6 +41,7 @@ import savant.controller.FrameController;
  * one for tracks (including genome tracks), and one for GUI plugins.
  */
 public class DockableFrameFactory {
+    private static final Log LOG = LogFactory.getLog(DockableFrameFactory.class);
 
     /**
      * Factory method used to create the Bookmarks frame.
@@ -74,6 +79,12 @@ public class DockableFrameFactory {
 //            frame.setSlidingAutohide(true);
             frame.setInitMode(DockContext.STATE_AUTOHIDE);
             frame.setInitSide(DockContext.DOCK_SIDE_EAST);
+            frame.addDockableFrameListener(new DockableFrameAdapter() {
+                @Override
+                public void dockableFrameAutohideShowing(DockableFrameEvent dfe) {
+                    frame.forceRedraw();
+                }
+            });
 //            frame.setPreferredSize(new Dimension(400, 400));
 //            frame.setAutohideWidth(400);
 //            frame.setAutohideHeight(400);
