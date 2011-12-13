@@ -224,15 +224,6 @@ public class LocationController extends Controller<LocationChangedEvent> impleme
     }
 
     /**
-     * Set the maximum viewable range (usually 0 to genome size).
-     * @param from Lowest value of the maximum viewable range
-     * @param to Highest value of the maximum viewable range
-     */
-    public void setMaxRange(int from, int to) {
-        setMaxRange(new Range(from, to));
-    }
-
-    /**
      * Get the maximumViewableRange.
      * @return The maximumViewableRange
      */

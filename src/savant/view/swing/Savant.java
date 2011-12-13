@@ -49,9 +49,12 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import savant.api.adapter.DataSourceAdapter;
+import savant.api.data.DataFormat;
 import savant.api.event.BookmarksChangedEvent;
 import savant.api.util.DialogUtils;
 import savant.api.util.Listener;
+import savant.api.util.Resolution;
+import savant.api.util.TrackUtils;
 import savant.controller.*;
 import savant.controller.event.*;
 import savant.plugin.PluginController;
@@ -96,30 +99,6 @@ public class Savant extends JFrame {
     static BasicService basicService = null;
     static boolean webStart = false;
     private StartPanel startpage;
-
-    public void addToolBar(JToolBar b) {
-        this.panel_toolbar.setLayout(new BoxLayout(this.panel_toolbar, BoxLayout.X_AXIS));
-        this.panel_toolbar.add(b);
-        updateToolBarVisibility();
-    }
-
-    public void removeToolBar(JToolBar b) {
-        this.panel_toolbar.remove(b);
-        updateToolBarVisibility();
-    }
-
-    private void updateToolBarVisibility() {
-        if (this.panel_toolbar.getComponentCount() == 0) {
-            setToolBarVisibility(false);
-        } else {
-            setToolBarVisibility(true);
-        }
-    }
-
-    private void setToolBarVisibility(boolean isVisible) {
-        this.panel_toolbar.setVisible(isVisible);
-        pluginToolbarItem.setSelected(isVisible);
-    }
 
     /** == [[ DOCKING ]] ==
      *  Components (such as frames, the Task Pane, etc.)
@@ -378,7 +357,7 @@ public class Savant extends JFrame {
         label_status = new javax.swing.JLabel();
         s_e_sep = new javax.swing.JToolBar.Separator();
         label_memory = new javax.swing.JLabel();
-        panel_toolbar = new javax.swing.JPanel();
+        pluginToolbar = new javax.swing.JPanel();
         menuBar_top = new javax.swing.JMenuBar();
         fileMenu = new javax.swing.JMenu();
         loadGenomeItem = new javax.swing.JMenuItem();
@@ -499,19 +478,9 @@ public class Savant extends JFrame {
         label_memory.setText(" Memory: ");
         toolbar_bottom.add(label_memory);
 
-        panel_toolbar.setVisible(false);
-        panel_toolbar.setPreferredSize(new java.awt.Dimension(856, 24));
-
-        javax.swing.GroupLayout panel_toolbarLayout = new javax.swing.GroupLayout(panel_toolbar);
-        panel_toolbar.setLayout(panel_toolbarLayout);
-        panel_toolbarLayout.setHorizontalGroup(
-            panel_toolbarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 1027, Short.MAX_VALUE)
-        );
-        panel_toolbarLayout.setVerticalGroup(
-            panel_toolbarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 24, Short.MAX_VALUE)
-        );
+        pluginToolbar.setVisible(false);
+        pluginToolbar.setPreferredSize(new java.awt.Dimension(856, 24));
+        pluginToolbar.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEADING));
 
         fileMenu.setText("File");
 
@@ -921,7 +890,7 @@ public class Savant extends JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addComponent(toolbar_bottom, javax.swing.GroupLayout.DEFAULT_SIZE, 1007, Short.MAX_VALUE)
                 .addContainerGap())
-            .addComponent(panel_toolbar, javax.swing.GroupLayout.DEFAULT_SIZE, 1027, Short.MAX_VALUE)
+            .addComponent(pluginToolbar, javax.swing.GroupLayout.DEFAULT_SIZE, 1027, Short.MAX_VALUE)
             .addComponent(panel_main, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 1027, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
@@ -929,7 +898,7 @@ public class Savant extends JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addComponent(panel_top, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 0, 0)
-                .addComponent(panel_toolbar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(pluginToolbar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 0, 0)
                 .addComponent(panel_main, javax.swing.GroupLayout.DEFAULT_SIZE, 526, Short.MAX_VALUE)
                 .addGap(0, 0, 0)
@@ -1163,7 +1132,7 @@ public class Savant extends JFrame {
     }//GEN-LAST:event_saveProjectItemActionPerformed
 
     private void pluginToolbarItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_pluginToolbarItemActionPerformed
-        this.setToolBarVisibility(pluginToolbarItem.isSelected());
+        pluginToolbar.setVisible(pluginToolbarItem.isSelected());
     }//GEN-LAST:event_pluginToolbarItemActionPerformed
 
     private void speedAndEfficiencyItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_speedAndEfficiencyItemActionPerformed
@@ -1372,8 +1341,8 @@ public class Savant extends JFrame {
     private javax.swing.JMenuItem panRightItem;
     private javax.swing.JPanel panelExtendedMiddle;
     private javax.swing.JPanel panel_main;
-    private javax.swing.JPanel panel_toolbar;
     private javax.swing.JPanel panel_top;
+    private javax.swing.JPanel pluginToolbar;
     private javax.swing.JCheckBoxMenuItem pluginToolbarItem;
     private javax.swing.JMenu pluginsMenu;
     private javax.swing.JCheckBoxMenuItem plumblineItem;
@@ -1704,6 +1673,10 @@ public class Savant extends JFrame {
 
     public void addPluginToMenu(JCheckBoxMenuItem cb) {
         pluginsMenu.add(cb);
+    }
+
+    public JPanel getPluginToolbar() {
+        return pluginToolbar;
     }
 
     private void makeGUIVisible() {

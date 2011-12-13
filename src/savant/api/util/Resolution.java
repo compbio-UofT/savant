@@ -15,8 +15,14 @@
  */
 package savant.api.util;
 
+/**
+ * Enum which indicates what viewing-resolution Savant should use.  The main purpose
+ * is to allow DataSources to return a lower-resolution version of the data if Savant
+ * is currently zoomed out.
+ *
+ * @author tarkvara
+ */
 public enum Resolution {
-    
     LOW,
     MEDIUM,     // Not currently used.
     HIGH;

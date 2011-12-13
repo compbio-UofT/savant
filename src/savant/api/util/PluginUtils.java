@@ -17,10 +17,13 @@ package savant.api.util;
 
 import java.io.File;
 import java.net.URL;
+import javax.swing.JPanel;
+
 import savant.api.event.PluginEvent;
 import savant.plugin.PluginController;
 import savant.settings.DirectorySettings;
 import savant.view.dialog.DownloadDialog;
+import savant.view.swing.Savant;
 
 /**
  * Utility functions by which plugins can deal with the plugin interface itself.
@@ -74,5 +77,16 @@ public class PluginUtils {
         } catch (Throwable x) {
             DialogUtils.displayException("Installation Error", String.format("<html>Unable to install <i>%s</i>: %s.</html>", f.getName(), x), x);
         }
+    }
+    
+    /**
+     * Access to a JPanel on which plugins can place toolbar items for quick access.  The JPanel
+     * is located just above the main Savant tool-bar and has a FlowLayout.
+     *
+     * @return a JPanel near the top of the screen
+     * @since 2.0.0
+     */
+    public static JPanel getPluginToolbar() {
+        return Savant.getInstance().getPluginToolbar();
     }
 }
