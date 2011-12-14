@@ -160,7 +160,7 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
 
         // GraphPaneController listens to popup events to make sure that only one
         // popup is open at a time.
-        addPopupEventListener(controller);
+        addPopupListener(controller);
     }
 
     /**
@@ -1348,12 +1348,14 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
         }
     }
 
-    public final void addPopupEventListener(Listener<PopupEvent> pel){
+    @Override
+    public void addPopupListener(Listener<PopupEvent> pel){
         synchronized (popupListeners) {
             popupListeners.add(pel);
         }
     }
 
+    @Override
     public void removePopupListener(Listener<PopupEvent> eel){
         synchronized (popupListeners) {
             popupListeners.remove(eel);

@@ -18,22 +18,21 @@
 package savant.selection;
 
 import javax.swing.JLabel;
-import savant.api.data.RichIntervalRecord;
+import savant.api.data.IntervalRecord;
 
 /**
+ * Popup panel for displaying information about a non-Tabix RichIntervalRecord.
  *
  * @author AndrewBrook
  */
 public class IntervalBedPopup extends PopupPanel {
 
-    private RichIntervalRecord rec;
-
-    public IntervalBedPopup(RichIntervalRecord rec){
-        this.rec = rec;
+    protected IntervalBedPopup(){
     }
 
     @Override
     protected void calculateInfo() {
+        IntervalRecord rec = (IntervalRecord)record;
         name = rec.getName();
         ref = rec.getReference();
         start = rec.getInterval().getStart();
@@ -42,19 +41,13 @@ public class IntervalBedPopup extends PopupPanel {
 
     @Override
     protected void initInfo() {
-        String readName = "Read Name: " + name;
-        this.add(new JLabel(readName));
-
-        String readPosition = "Position: " + start;
-        this.add(new JLabel(readPosition));
-
-        String readLength = "Length: " + (end - start);
-        this.add(new JLabel(readLength));
-
+        add(new JLabel("Name: " + name));
+        add(new JLabel("Position: " + start));
+        add(new JLabel("Length: " + (end - start)));
     }
     
     @Override
     protected void initSpecificButtons() {
-        initIntervalJumps(rec);
+        initIntervalJumps();
     }
 }

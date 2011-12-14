@@ -27,14 +27,12 @@ import savant.api.data.IntervalRecord;
  */
 public class IntervalGenericPopup extends PopupPanel {
 
-    private IntervalRecord rec;
-
-    public IntervalGenericPopup(IntervalRecord rec) {
-        this.rec = rec;
+    protected IntervalGenericPopup() {
     }
 
     @Override
     protected void calculateInfo() {
+        IntervalRecord rec = (IntervalRecord)record;
         name = rec.getName();
         ref = rec.getReference();
         start = rec.getInterval().getStart();
@@ -43,21 +41,14 @@ public class IntervalGenericPopup extends PopupPanel {
 
     @Override
     protected void initInfo() {
-        String readName = "Description: " + name;
-        this.add(new JLabel(readName));
-
-        String readStart = "Start: " + start;
-        this.add(new JLabel(readStart));
-
-        String readEnd = "End: " + end;
-        this.add(new JLabel(readEnd));
-
-        String readLength = "Length: " + (end - start);
-        this.add(new JLabel(readLength));
+        add(new JLabel("Name: " + name));
+        add(new JLabel("Start: " + start));
+        add(new JLabel("End: " + end));
+        add(new JLabel("Length: " + (end - start)));
     }
 
     @Override
     protected void initSpecificButtons() {
-        initIntervalJumps(rec);
+        initIntervalJumps();
     }
 }

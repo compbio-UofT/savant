@@ -24,22 +24,20 @@ import savant.data.types.TabixIntervalRecord;
 
 
 /**
- *
+ * Popup panel for Tabix interval records.
  * @author AndrewBrook
  */
 public class TabixPopup extends PopupPanel {
 
-    private TabixIntervalRecord rec;
     private String[] columnNames;
 
-    public TabixPopup(TabixIntervalRecord rec, DataSourceAdapter dataSource) {
-        this.rec = rec;
+    public TabixPopup(DataSourceAdapter dataSource) {
         columnNames = dataSource.getColumnNames();
     }
 
     @Override
     protected void calculateInfo() {
-        //name = rec.getDescription();w
+        TabixIntervalRecord rec = (TabixIntervalRecord)record;
         name = rec.getName();
         ref = rec.getReference();
         start = rec.getInterval().getStart();
@@ -48,7 +46,7 @@ public class TabixPopup extends PopupPanel {
 
     @Override
     protected void initInfo() {
-        String[] values = rec.getValues();
+        String[] values = ((TabixIntervalRecord)record).getValues();
         
         for (int i = 0; i < columnNames.length && i < values.length; i++) {
             if (columnNames[i] != null) {
@@ -59,6 +57,6 @@ public class TabixPopup extends PopupPanel {
     
     @Override
     protected void initSpecificButtons() {
-        initIntervalJumps(rec);
+        initIntervalJumps();
     }
 }

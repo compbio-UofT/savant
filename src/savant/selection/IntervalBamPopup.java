@@ -17,8 +17,6 @@
 
 package savant.selection;
 
-import java.awt.Color;
-import java.awt.Cursor;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import javax.swing.JLabel;
@@ -26,10 +24,10 @@ import javax.swing.JLabel;
 import net.sf.samtools.SAMRecord;
 
 import savant.api.data.Record;
+import savant.api.event.DataRetrievalEvent;
 import savant.api.util.Listener;
 import savant.api.util.RangeUtils;
 import savant.controller.LocationController;
-import savant.api.event.DataRetrievalEvent;
 import savant.data.types.BAMIntervalRecord;
 import savant.util.MiscUtils;
 import savant.util.Range;
@@ -42,16 +40,14 @@ import savant.view.tracks.Track;
  */
 public class IntervalBamPopup extends PopupPanel implements Listener<DataRetrievalEvent> {
 
-    private BAMIntervalRecord rec;
     private SAMRecord samRec;
 
-    public IntervalBamPopup(BAMIntervalRecord rec){
-        this.rec = rec;
+    protected IntervalBamPopup(){
     }
 
     @Override
     protected void calculateInfo() {
-        samRec = rec.getSAMRecord();
+        samRec = ((BAMIntervalRecord)record).getSAMRecord();
         name = samRec.getReadName();
         ref = samRec.getReferenceName();
         start = samRec.getAlignmentStart();
@@ -60,24 +56,14 @@ public class IntervalBamPopup extends PopupPanel implements Listener<DataRetriev
 
     @Override
     protected void initInfo() {
-        String readName = "Read Name: " + name;
-        this.add(new JLabel(readName));
-
-        String readPosition = "Position: " + start;
-        this.add(new JLabel(readPosition));
-
-        String readLength = "Read Length: " + samRec.getReadLength();
-        this.add(new JLabel(readLength));
-
-        String mq = "Mapping Quality: " + samRec.getMappingQuality();
-        this.add(new JLabel(mq));
-
-        String bq = "Base Quality: " + samRec.getBaseQualityString();
-        this.add(new JLabel(bq));
+        add(new JLabel("Read Name: " + name));
+        add(new JLabel("Position: " + start));
+        add(new JLabel("Read Length: " + samRec.getReadLength()));
+        add(new JLabel("Mapping Quality: " + samRec.getMappingQuality()));
+        add(new JLabel("Base Quality: " + samRec.getBaseQualityString()));
 
         if (samRec.getReadPairedFlag()) {
-            String matePosition = "Mate Position: " + homogenizeRef(samRec.getMateReferenceName()) + ": " + samRec.getMateAlignmentStart();
-            this.add(new JLabel(matePosition));
+            add(new JLabel("Mate Position: " + homogenizeRef(samRec.getMateReferenceName()) + ": " + samRec.getMateAlignmentStart()));
         }
     }
 
@@ -86,9 +72,7 @@ public class IntervalBamPopup extends PopupPanel implements Listener<DataRetriev
 
         if(samRec.getReadPairedFlag() && !(samRec.getMateReferenceName().equals("*") || samRec.getMateAlignmentStart() == 0)){
             //jump to mate button
-            JLabel mateJump = new JLabel("Jump to Mate");
-            mateJump.setForeground(Color.BLUE);
-            mateJump.setCursor(new Cursor(Cursor.HAND_CURSOR));
+            Buttonoid mateJump = new Buttonoid("Jump to Mate");
             mateJump.addMouseListener(new MouseAdapter() {
                 @Override
                 public void mouseClicked(MouseEvent e) {
@@ -100,14 +84,12 @@ public class IntervalBamPopup extends PopupPanel implements Listener<DataRetriev
                     hidePopup();
                 }
             });
-            this.add(mateJump);
+            add(mateJump);
 
             //jump to mate and select button
-            JLabel mateJump1 = new JLabel("Select Pair");
+            Buttonoid pairSelect = new Buttonoid("Select Pair");
             if (samRec.getReferenceName().equals(samRec.getMateReferenceName())) {
-                mateJump1.setForeground(Color.BLUE);
-                mateJump1.setCursor(new Cursor(Cursor.HAND_CURSOR));
-                mateJump1.addMouseListener(new MouseAdapter() {
+                pairSelect.addMouseListener(new MouseAdapter() {
                     @Override
                     public void mouseClicked(MouseEvent e) {
                         for (Track t: graphPane.getTracks()) {
@@ -124,13 +106,13 @@ public class IntervalBamPopup extends PopupPanel implements Listener<DataRetriev
                 });
             } else {
                 // Mate is in a different ref, so Select Pair unavailable.
-                mateJump1.setEnabled(false);
-                mateJump1.setToolTipText("Disabled because mate is in " + samRec.getMateReferenceName());
+                pairSelect.setEnabled(false);
+                pairSelect.setToolTipText("Disabled because mate is in " + samRec.getMateReferenceName());
             }
-            this.add(mateJump1);
+            add(pairSelect);
         }
 
-        initIntervalJumps(rec);
+        initIntervalJumps();
     }
 
     @Override

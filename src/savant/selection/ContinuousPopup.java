@@ -21,20 +21,19 @@ import savant.api.data.ContinuousRecord;
 
 
 /**
+ * Popup panel for displaying information about a ContinuousRecord.
  *
  * @author AndrewBrook
  */
 public class ContinuousPopup extends PopupPanel {
 
-    private ContinuousRecord rec;
-
-    public ContinuousPopup(ContinuousRecord rec){
-        this.rec = rec;
+    ContinuousPopup() {
     }
 
     @Override
     protected void calculateInfo() {
-        ref = rec.getReference();
+        ref = record.getReference();
+        ContinuousRecord rec = (ContinuousRecord)record;
         start = rec.getPosition();
         end = rec.getPosition();
         name = "Value: " + rec.getValue(); //for bookmarking annotation
@@ -42,13 +41,7 @@ public class ContinuousPopup extends PopupPanel {
 
     @Override
     protected void initInfo() {
-
-        String readPosition = "Position: " + start;
-        this.add(new JLabel(readPosition));
-
-        String readValue = "Value: " + rec.getValue();
-        this.add(new JLabel(readValue));
-
+        add(new JLabel("Position: " + start));
+        add(new JLabel("Value: " + ((ContinuousRecord)record).getValue()));
     }
-
 }

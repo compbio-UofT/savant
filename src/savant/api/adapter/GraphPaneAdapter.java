@@ -16,6 +16,8 @@
 
 package savant.api.adapter;
 
+import savant.api.event.PopupEvent;
+import savant.api.util.Listener;
 import savant.util.Range;
 
 
@@ -100,4 +102,18 @@ public interface GraphPaneAdapter {
     public FrameAdapter getParentFrame();
 
     public void setScaledToFit(boolean b);
+    
+    /**
+     * Add a listener which is notified when the track popup is about to be shown.
+     *
+     * @param l the listener to be added
+     */
+    public void addPopupListener(Listener<PopupEvent> l);
+    
+    /**
+     * Remove a listener which has been added by <code>addPopupListener</code>
+     *
+     * @param l the listener to be removed
+     */
+    public void removePopupListener(Listener<PopupEvent> l);
 }

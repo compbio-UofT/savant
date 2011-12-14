@@ -20,19 +20,18 @@ import javax.swing.JLabel;
 import savant.api.data.PointRecord;
 
 /**
+ * Popup panel for displaying information about a generic point record.
  *
  * @author AndrewBrook
  */
 public class PointGenericPopup extends PopupPanel {
 
-    private PointRecord rec;
-
-    public PointGenericPopup(PointRecord rec){
-        this.rec = rec;
+    protected PointGenericPopup(){
     }
 
     @Override
     protected void calculateInfo() {
+        PointRecord rec = (PointRecord)record;
         ref = rec.getReference();
         start = rec.getPoint();
         end = start;
@@ -41,10 +40,7 @@ public class PointGenericPopup extends PopupPanel {
 
     @Override
     protected void initInfo() {
-        String readName = "Description: " + name;
-        this.add(new JLabel(readName));
-
-        String readStart = "Position: " + start;
-        this.add(new JLabel(readStart));
+        add(new JLabel("Description: " + name));
+        add(new JLabel("Position: " + start));
     }
 }

@@ -18,7 +18,6 @@ package savant.selection;
 
 import java.awt.Color;
 import java.awt.Cursor;
-import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -29,13 +28,13 @@ import javax.swing.JPanel;
 import javax.swing.JSeparator;
 
 import savant.api.adapter.DataSourceAdapter;
-import savant.api.data.ContinuousRecord;
 import savant.api.data.DataFormat;
+import savant.api.data.Interval;
 import savant.api.data.IntervalRecord;
 import savant.api.data.Record;
 import savant.controller.BookmarkController;
 import savant.controller.LocationController;
-import savant.data.types.*;
+import savant.data.types.TabixIntervalRecord;
 import savant.util.Bookmark;
 import savant.util.DrawingMode;
 import savant.util.MiscUtils;
@@ -64,33 +63,33 @@ public abstract class PopupPanel extends JPanel {
     public static PopupPanel create(GraphPane parent, DrawingMode mode, DataSourceAdapter dataSource, Record rec) {
 
         PopupPanel p = null;
-        switch(dataSource.getDataFormat()) {
+        switch (dataSource.getDataFormat()) {
             case POINT:
-                p = new PointGenericPopup((GenericPointRecord) rec);
+                p = new PointGenericPopup();
                 break;
             case ALIGNMENT:
                 if (mode != DrawingMode.SNP) {
-                    p = new IntervalBamPopup((BAMIntervalRecord)rec);
+                    p = new IntervalBamPopup();
                 }
                 break;
             case RICH_INTERVAL:
                 if (mode != DrawingMode.SQUISH) {
                     if (rec instanceof TabixIntervalRecord) {
-                        p = new TabixPopup((TabixIntervalRecord)rec, dataSource);
+                        p = new TabixPopup(dataSource);
                     } else {
-                        p = new IntervalBedPopup((BEDIntervalRecord)rec);
+                        p = new IntervalBedPopup();
                     }
                 }
                 break;
             case GENERIC_INTERVAL:
                 if (rec instanceof TabixIntervalRecord) {
-                    p = new TabixPopup((TabixIntervalRecord)rec, dataSource);
+                    p = new TabixPopup(dataSource);
                 } else {
-                    p = new IntervalGenericPopup((IntervalRecord)rec);
+                    p = new IntervalGenericPopup();
                 }
                 break;
             case CONTINUOUS:
-                p = new ContinuousPopup((ContinuousRecord)rec);
+                p = new ContinuousPopup();
                 break;
             default:
                 break;
@@ -124,9 +123,7 @@ public abstract class PopupPanel extends JPanel {
         add(new JSeparator());
 
         //SELECT
-        final JLabel select = new JLabel("Select/Deselect");
-        select.setForeground(Color.BLUE);
-        select.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        Buttonoid select = new Buttonoid("Select/Deselect");
         select.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -146,9 +143,7 @@ public abstract class PopupPanel extends JPanel {
             ref = LocationController.getInstance().getReferenceName();
         }
         if (start != -1 && end != -1) {
-            JLabel bookmark = new JLabel("Add to Bookmarks");
-            bookmark.setForeground(Color.BLUE);
-            bookmark.setCursor(new Cursor(Cursor.HAND_CURSOR));
+            Buttonoid bookmark = new Buttonoid("Add to Bookmarks");
             bookmark.addMouseListener(new MouseAdapter() {
                 @Override
                 public void mouseClicked(MouseEvent e) {
@@ -164,6 +159,7 @@ public abstract class PopupPanel extends JPanel {
             add(bookmark);
         }
     }
+
 
     protected void initSpecificButtons() {};
 
@@ -192,39 +188,62 @@ public abstract class PopupPanel extends JPanel {
         graphPane.hidePopup();
     }
 
-    protected void initIntervalJumps(final IntervalRecord rec) {
+    protected void initIntervalJumps() {
         //jump to start of read
-        if (LocationController.getInstance().getRangeStart() > rec.getInterval().getStart()) {
-            JLabel endJump = new JLabel("Jump to Start of Interval");
-            endJump.setForeground(Color.BLUE);
-            endJump.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        if (LocationController.getInstance().getRangeStart() > ((IntervalRecord)record).getInterval().getStart()) {
+            Buttonoid startJump = new Buttonoid("Jump to Start of Interval");
+            startJump.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    LocationController lc = LocationController.getInstance();
+                    int len = lc.getRangeEnd() - lc.getRangeStart();
+                    Interval inter = ((IntervalRecord)record).getInterval();
+                    lc.setLocation(inter.getStart() - len / 2, inter.getStart() + len / 2);
+                    hidePopup();
+                }
+            });
+            add(startJump);
+        }
+
+        //jump to end of read
+        if (LocationController.getInstance().getRangeEnd() < ((IntervalRecord)record).getInterval().getEnd()) {
+            Buttonoid endJump = new Buttonoid("Jump to End of Interval");
             endJump.addMouseListener(new MouseAdapter() {
                 @Override
                 public void mouseClicked(MouseEvent e) {
                     LocationController lc = LocationController.getInstance();
                     int len = lc.getRangeEnd() - lc.getRangeStart();
-                    lc.setLocation(rec.getInterval().getStart()-(len/2), rec.getInterval().getStart()+(len/2));
+                    Interval inter = ((IntervalRecord)record).getInterval();
+                    lc.setLocation(inter.getEnd() - len / 2, inter.getEnd() + len / 2);
                     hidePopup();
                 }
             });
             add(endJump);
         }
-
-        //jump to end of read
-        if (LocationController.getInstance().getRangeEnd() < rec.getInterval().getEnd()) {
-            JLabel endJump = new JLabel("Jump to End of Interval");
-            endJump.setForeground(Color.BLUE);
-            endJump.setCursor(new Cursor(Cursor.HAND_CURSOR));
-            endJump.addMouseListener(new MouseAdapter() {
+    }
+    
+    /**
+     * A clickable buttonish thing on the popup panel.
+     */
+    class Buttonoid extends JLabel {
+        Buttonoid(String text) {
+            super(text);
+            setForeground(Color.BLUE);
+            setCursor(new Cursor(Cursor.HAND_CURSOR));
+            
+            addMouseListener(new MouseAdapter() {
                 @Override
-                public void mouseClicked(MouseEvent e) {
-                    LocationController lc = LocationController.getInstance();
-                    int len = lc.getRangeEnd() - lc.getRangeStart();
-                    lc.setLocation(rec.getInterval().getEnd()-(len/2), rec.getInterval().getEnd()+(len/2));
-                    hidePopup();
+                public void mouseEntered(MouseEvent me) {
+                    setBackground(Color.BLUE);
+                    setForeground(Color.WHITE);
+                }
+
+                @Override
+                public void mouseExited(MouseEvent me) {
+                    setBackground(Color.WHITE);
+                    setForeground(Color.BLUE);
                 }
             });
-            add(endJump);
         }
     }
 }
