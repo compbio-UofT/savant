@@ -23,6 +23,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import savant.api.adapter.GraphPaneAdapter;
+import savant.api.event.PopupEvent;
+import savant.api.util.Listener;
 import savant.controller.event.GraphPaneEvent;
 import savant.selection.PopupPanel;
 import savant.util.Controller;
@@ -33,7 +35,7 @@ import savant.util.Range;
  *
  * @author mfiume
  */
-public class GraphPaneController extends Controller {
+public class GraphPaneController extends Controller implements Listener<PopupEvent> {
     private static final Log LOG = LogFactory.getLog(GraphPaneController.class);
 
     private boolean isSpotlight;
@@ -250,11 +252,12 @@ public class GraphPaneController extends Controller {
     /**
      * Recognise when a new popup has opened so that we can close the previous one.
      */
-    public void setPopup(PopupPanel pp) {
-        if (poppedUp != null) {
+    @Override
+    public void handleEvent(PopupEvent evt) {
+        if (poppedUp != null && evt.getPopup() != poppedUp) {
             LOG.info("Hiding popup for " + poppedUp.getRecord());
             poppedUp.hidePopup();
         }
-        poppedUp = pp;
+        poppedUp = (PopupPanel)evt.getPopup();
     }
 }

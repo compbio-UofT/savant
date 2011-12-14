@@ -110,7 +110,7 @@ public class IntervalBamPopup extends PopupPanel implements Listener<DataRetriev
                 mateJump1.addMouseListener(new MouseAdapter() {
                     @Override
                     public void mouseClicked(MouseEvent e) {
-                        for (Track t: gp.getTracks()) {
+                        for (Track t: graphPane.getTracks()) {
                             if (t.getDataFormat() == fileFormat){
                                 t.getRenderer().forceAddToSelected(record);
                                 break;
@@ -118,7 +118,7 @@ public class IntervalBamPopup extends PopupPanel implements Listener<DataRetriev
                         }
                         int start = Math.min(samRec.getAlignmentStart(), samRec.getMateAlignmentStart());
                         int end = Math.max(samRec.getAlignmentEnd(), samRec.getMateAlignmentStart() + samRec.getReadLength());
-                        gp.getTracks()[0].addListener(IntervalBamPopup.this);
+                        graphPane.getTracks()[0].addListener(IntervalBamPopup.this);
                         LocationController.getInstance().setLocation((Range)RangeUtils.addMargin(new Range(start, end)));
                     }
                 });
@@ -140,7 +140,7 @@ public class IntervalBamPopup extends PopupPanel implements Listener<DataRetriev
                 for (Record r: evt.getData()) {
                     SAMRecord current = ((BAMIntervalRecord)r).getSAMRecord();
                     if (MiscUtils.isMate(samRec, current, true)) {
-                        for (Track t: gp.getTracks()) {
+                        for (Track t: graphPane.getTracks()) {
                             if (t.getDataFormat() == fileFormat){
                                 t.getRenderer().forceAddToSelected(r);
                                 break;
@@ -150,7 +150,7 @@ public class IntervalBamPopup extends PopupPanel implements Listener<DataRetriev
                     }
                 }       
                 hidePopup();
-                gp.getTracks()[0].removeListener(this);
+                graphPane.getTracks()[0].removeListener(this);
                 break;
         }
     }

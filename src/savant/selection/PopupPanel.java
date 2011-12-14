@@ -23,6 +23,7 @@ import java.awt.GridLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Iterator;
+import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
@@ -49,7 +50,7 @@ import savant.view.tracks.Track;
  */
 public abstract class PopupPanel extends JPanel {
 
-    protected GraphPane gp;
+    protected GraphPane graphPane;
     protected DrawingMode mode;
     protected DataFormat fileFormat;
     protected Record record;
@@ -99,15 +100,16 @@ public abstract class PopupPanel extends JPanel {
         return p;
     }
 
-    protected void init(GraphPane parent, DrawingMode mode, DataFormat ff, Record rec) {
+    protected void init(GraphPane parent, DrawingMode m, DataFormat ff, Record rec) {
 
-        this.fileFormat = ff;
-        this.mode = mode;
-        this.gp = parent;
-        this.record = rec;
+        fileFormat = ff;
+        mode = m;
+        graphPane = parent;
+        record = rec;
 
-        this.setBackground(Color.WHITE);
-        this.setLayout(new GridLayout(0,1));
+        setBackground(Color.WHITE);
+        setLayout(new GridLayout(0, 1));
+        setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
 
         calculateInfo();
         initInfo();
@@ -119,12 +121,7 @@ public abstract class PopupPanel extends JPanel {
     protected void initStandardButtons() {
 
         //START OF BUTTONS
-        JPanel filler = new JPanel();
-        filler.setPreferredSize(new Dimension(5,5));
-        filler.setSize(new Dimension(5,5));
-        filler.setBackground(Color.WHITE);
-        this.add(filler);
-        this.add(new JSeparator());
+        add(new JSeparator());
 
         //SELECT
         final JLabel select = new JLabel("Select/Deselect");
@@ -133,16 +130,16 @@ public abstract class PopupPanel extends JPanel {
         select.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                for (Track t: gp.getTracks()) {
+                for (Track t: graphPane.getTracks()) {
                     if (t.getDataFormat() == fileFormat) {
                         t.getRenderer().addToSelected(record);
                         break;
                     }
                 }
-                gp.repaint();
+                graphPane.repaint();
             }
         });
-        this.add(select);
+        add(select);
 
         //BOOKMARKING
         if (ref == null) {
@@ -164,7 +161,7 @@ public abstract class PopupPanel extends JPanel {
                     hidePopup();
                 }
             });
-            this.add(bookmark);
+            add(bookmark);
         }
     }
 
@@ -192,7 +189,7 @@ public abstract class PopupPanel extends JPanel {
     }
 
     public void hidePopup() {
-        gp.hidePopup();
+        graphPane.hidePopup();
     }
 
     protected void initIntervalJumps(final IntervalRecord rec) {
