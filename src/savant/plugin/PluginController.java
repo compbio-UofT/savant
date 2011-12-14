@@ -359,9 +359,18 @@ public class PluginController extends Controller {
             }
             URL updateURL = repositoryIndex.getPluginURL(id);
             if (updateURL != null) {
-                LOG.info("Downloading updated version of " + id + " from " + updateURL);
-                addPlugin(NetworkUtils.downloadFile(updateURL, DirectorySettings.getPluginsDirectory(), null));
-                return true;
+                // The following assumes that plugins in the repository have a naming scheme
+                // which exposes their version number as -1.2.3.jar.  Since we manage the
+                // repository we can enforce this naming convention.
+                String repoVersion = MiscUtils.getFilenameFromPath(updateURL.getFile());
+                repoVersion = repoVersion.substring(repoVersion.indexOf('-') + 1, repoVersion.lastIndexOf('.'));
+                if (repoVersion.compareTo(knownPlugins.get(id).version) > 0) {
+                    LOG.info("Downloading updated version of " + id + " from " + updateURL);
+                    addPlugin(NetworkUtils.downloadFile(updateURL, DirectorySettings.getPluginsDirectory(), null));
+                    return true;
+                } else {
+                    LOG.info("Repository version " + updateURL + " is no newer than local version of " + id + ".");
+                }
             }
         } catch (IOException x) {
             LOG.error("Unable to install update for " + id, x);
