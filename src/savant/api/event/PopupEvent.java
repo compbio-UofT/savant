@@ -18,6 +18,9 @@ package savant.api.event;
 
 import javax.swing.JPanel;
 
+import savant.api.data.Record;
+import savant.selection.PopupPanel;
+
 
 /**
  * Event which is fired when a popup panel is opened over a track.  Plugins can use
@@ -27,13 +30,13 @@ import javax.swing.JPanel;
  */
 public class PopupEvent {
 
-    private final JPanel popup;
+    private final PopupPanel popup;
 
     /**
      * For internal use by Savant.
      */
-    public PopupEvent(JPanel popup){
-        this.popup = popup;
+    public PopupEvent(PopupPanel p) {
+        popup = p;
     }
 
     /**
@@ -42,8 +45,16 @@ public class PopupEvent {
      *
      * @return the panel which is being popped up
      */
-    public JPanel getPopup(){
+    public JPanel getPopup() {
         return popup;
+    }
+
+    /**
+     * Get the record for which the popup is being popped up.
+     * @return the record associated with this popup
+     */
+    public Record getRecord() {
+        return popup.getRecord();
     }
 
 }
