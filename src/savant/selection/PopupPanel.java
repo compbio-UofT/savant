@@ -230,6 +230,7 @@ public abstract class PopupPanel extends JPanel {
             super(text);
             setForeground(Color.BLUE);
             setCursor(new Cursor(Cursor.HAND_CURSOR));
+            setOpaque(true);
             
             addMouseListener(new MouseAdapter() {
                 @Override

@@ -45,7 +45,10 @@ public class SortableRecordCodec implements SortingCollection.Codec<SortableReco
         try {
             outputStream.writeUTF(record.getChromosome());
             outputStream.writeInt(record.getStart());
-            outputStream.writeUTF(record.getText());
+            String s = record.getText();
+            byte[] textBytes = s.getBytes("utf-8");
+            outputStream.writeInt(textBytes.length);
+            outputStream.write(textBytes, 0, textBytes.length);
         } catch (IOException ex) {
             log.error("Error encoding alignment", ex);
         }
@@ -56,7 +59,10 @@ public class SortableRecordCodec implements SortingCollection.Codec<SortableReco
 
             String chr = inputStream.readUTF();
             int start = inputStream.readInt();
-            String text = inputStream.readUTF();
+            int textLen = inputStream.readInt();
+            byte[] textBytes = new byte[textLen];
+            inputStream.readFully(textBytes);
+            String text = new String(textBytes, "utf-8");
             return new SortableRecord(chr, start, text);
         } catch (EOFException ex) {
             return null;
