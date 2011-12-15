@@ -21,7 +21,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.net.URI;
 
@@ -34,26 +33,27 @@ import org.apache.commons.logging.LogFactory;
  *
  * @author AndrewBrook
  */
-public class CacheableSABS extends SeekableAdjustableBufferedStream {
+public class CachedSeekableStream extends SeekableStream {
     //public static final int DEFAULT_BLOCK_SIZE = 65536;
-    private static final Log LOG = LogFactory.getLog(CacheableSABS.class);
+    private static final Log LOG = LogFactory.getLog(CachedSeekableStream.class);
+
+    private final SeekableStream wrappedStream;
+    private final int bufferSize;
+    private final URI uri;
 
     private File cacheFile = null;
     private int numBlocks = 0;
     private RandomAccessFile cache = null;
-    private int positionInBuff = 0;
-    protected InputStream inputStream;
-    private URI uri;
-    int openCount = 0;
+    private BufferedInputStream bufferedStream;
+    private int positionInBuf = 0;
+    private long positionInFile = 0;
 
-    public CacheableSABS(SeekableStream seekable, int bufferSize, URI uri) {
-        super(seekable, bufferSize);
+
+    public CachedSeekableStream(SeekableStream seekable, int bufSize, URI uri) {
+        wrappedStream = seekable;
+        bufferSize = bufSize;
         this.uri = uri;
-        try {
-            this.initCache();
-        } catch(IOException e) {
-            LOG.error("Unable to initialise cache.", e);
-        }
+        bufferedStream = new BufferedInputStream(wrappedStream, bufferSize);
     }
 
     @Override
@@ -61,16 +61,16 @@ public class CacheableSABS extends SeekableAdjustableBufferedStream {
 
         int posInByteArray = offset;
         int bytesRead = 0;
-        while(length > 0){
-            //how many we can read from this buffer (ie. how far allow stream is it)
-            int canRead = bufferSize - positionInBuff;
+        while (length > 0) {
+            // How many we can read from this buffer (ie. how far allow stream is it).
+            int canRead = bufferSize - positionInBuf;
 
-            //if we are at the end of the bufferedStream, get a new one
-            if(canRead == 0){
+            // If we are at the end of the bufferedStream, get a new one.
+            if (canRead == 0) {
                 //seek
-                this.seek(position);
+                seek(positionInFile);
                 //update canRead
-                canRead = bufferSize - positionInBuff;
+                canRead = bufferSize - positionInBuf;
             }
 
             //Create temporary buffer
@@ -82,11 +82,11 @@ public class CacheableSABS extends SeekableAdjustableBufferedStream {
             System.arraycopy(buff1, 0, buffer, posInByteArray, toRead);
 
             //prepare for next iteration
-            position += bytesReadThisTime;
+            positionInFile += bytesReadThisTime;
             posInByteArray += toRead;
             length -= toRead;
             bytesRead += bytesReadThisTime;
-            positionInBuff +=bytesReadThisTime;
+            positionInBuf +=bytesReadThisTime;
         }
         return bytesRead;
     }
@@ -101,33 +101,35 @@ public class CacheableSABS extends SeekableAdjustableBufferedStream {
             cacheStream.skip(actualOffset);
             bufferedStream = new BufferedInputStream(cacheStream, bufferSize);
             bufferedStream.skip(positionOffset);
-            positionInBuff = positionOffset;
+            positionInBuf = positionOffset;
         } catch (IOException x) {
             throw x;
         }
     }
 
     @Override
-    public synchronized void seek(long position) throws IOException {
+    public synchronized void seek(long pos) throws IOException {
 
-        this.position = position;
+        positionInFile = pos;
 
         //determine which block needs to be accessed
-        int block = (int)(position / bufferSize);
+        int block = (int)(pos / bufferSize);
 
-        //check offset for block
-        this.openCache();
+        // Check offset for block
+        openCache();
         cache.seek(block * 4);
         int offset = cache.readInt();
 
-        if(offset!=0){
+        if (offset != 0) {
             //block is cached
-            int positionOffset = (int)(position % bufferSize);
+            int positionOffset = (int)(pos % bufferSize);
             cachedSeek(offset, positionOffset);
             closeCache();
         } else {
             // Not cached, seek to start of block
-            super.seek(position - (position % bufferSize));
+            positionInFile = pos - (pos % bufferSize);
+            wrappedStream.seek(positionInFile);
+            bufferedStream = new BufferedInputStream(wrappedStream, bufferSize);
 
             // Cache block
             byte[] b = new byte[bufferSize];
@@ -140,16 +142,45 @@ public class CacheableSABS extends SeekableAdjustableBufferedStream {
             cache.write(b, 0, bufferSize); //write data
 
             //skip to position % buffersize
-            positionInBuff = 0;
+            positionInBuf = 0;
             closeCache();
 
             //TODO: is this necessary? extra work...
-            seek(position);
+            seek(pos);
         }
         
     }
 
-    private void openCache() throws FileNotFoundException {
+    @Override
+    public long length() {
+        return wrappedStream.length();
+    }
+
+    @Override
+    public String getSource() {
+        return wrappedStream.getSource();
+    }
+
+
+    @Override
+    public void close() throws IOException {
+        wrappedStream.close();
+    }
+
+    @Override
+    public boolean eof() throws IOException {
+        return positionInFile >= wrappedStream.length();
+    }
+
+    @Override
+    public int read() throws IOException {
+        return wrappedStream.read();
+    }
+
+    private void openCache() throws IOException {
+        if (cacheFile == null || !cacheFile.exists()) {
+            initCache();
+        }
         cache = new RandomAccessFile(cacheFile, "rw");
     }
 
@@ -160,14 +191,14 @@ public class CacheableSABS extends SeekableAdjustableBufferedStream {
 
     private void initCache() throws IOException {
 
-        cacheFile = CacheIndex.getCacheFile(uri.toURL(), getSource(), bufferSize, length());
+        cacheFile = RemoteFileCache.getCacheFile(uri.toURL(), getSource(), bufferSize, length());
 
         // Calculate number of blocks in file
         numBlocks = (int)Math.ceil(length() / (double)bufferSize);
 
         // Create the cacheFile with an empty index section.
         RandomAccessFile raf = new RandomAccessFile(cacheFile, "rw");
-        for(int i = 0; i < numBlocks; i++){
+        for (int i = 0; i < numBlocks; i++) {
             //write 0x0000
             raf.write(0);
             raf.write(0);

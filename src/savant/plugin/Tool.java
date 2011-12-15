@@ -19,12 +19,7 @@ package savant.plugin;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.URI;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -339,12 +334,12 @@ public class Tool extends SavantPanelPlugin {
         
         // File may represent only a partial track.  We may need to fetch it afresh,
         // or it may already be in our cache.
-        if (!CacheIndex.findCacheEntry(source.toString())) {
+        if (RemoteFileCache.findCacheEntry(source.toString()) == null) {
             // Couldn't find exported file for full genome.  Perhaps just for the current chromosome?
             if (workingRef != null) {
                 int lastDot = source.lastIndexOf(".");
                 source.insert(lastDot, "-" + workingRef);
-                if (!CacheIndex.findCacheEntry(source.toString())) {
+                if (RemoteFileCache.findCacheEntry(source.toString()) == null) {
                     if (workingRange != null) {
                         // No existing chromosome file, so just request the subrange of interest.
                         lastDot = source.lastIndexOf(".");
@@ -354,7 +349,7 @@ public class Tool extends SavantPanelPlugin {
             }
         }
 
-        return CacheIndex.getCacheFile(uri.toURL(), source.toString(), 0, 0);
+        return RemoteFileCache.getCacheFile(uri.toURL(), source.toString(), 0, 0);
     }
 
     void execute() {
@@ -455,7 +450,7 @@ public class Tool extends SavantPanelPlugin {
                                     break;
                                 case COMPLETED:
                                     try {
-                                        CacheIndex.updateCacheEntry(event.getFile().getAbsolutePath());
+                                        RemoteFileCache.updateCacheEntry(event.getFile());
                                     } catch (Exception x) {
                                         LOG.error("Unable to update cache entry for " + event.getFile(), x);
                                     }

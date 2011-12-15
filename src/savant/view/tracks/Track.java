@@ -479,8 +479,20 @@ public abstract class Track extends Controller<DataRetrievalEvent> implements Tr
                 }
                 fireDataRetrievalCompleted();
             } catch (Throwable x) {
-                LOG.error("Data retrieval failed.", x);
-                fireDataRetrievalFailed(x);
+                if (NetworkUtils.isStreamCached(dataSource.getURI())) {
+                    LOG.info("Cached read failed for " + getName() + " with " + MiscUtils.getMessage(x) + "; deleting cache file and retrying.");
+                    try {
+                        RemoteFileCache.removeCacheEntry(dataSource.getURI().toString());
+                        dataInRange = retrieveData(reference, range, getResolution(range), filter);
+                        fireDataRetrievalCompleted();
+                    } catch (Throwable x2) {
+                        LOG.error("Data retrieval failed twice.", x2);
+                        fireDataRetrievalFailed(x2);
+                    }   
+                } else {
+                    LOG.error("Data retrieval failed.", x);
+                    fireDataRetrievalFailed(x);
+                }
             }
             retriever = null;
         }

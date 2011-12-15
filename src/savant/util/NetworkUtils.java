@@ -164,10 +164,28 @@ public class NetworkUtils {
             }
             if (BrowserSettings.getCachingEnabled()) {
                 //result = new CacheableSABS(result, CacheableSABS.DEFAULT_BLOCK_SIZE, uri);
-                result = new CacheableSABS(result, BrowserSettings.getRemoteBufferSize(), uri);
+                result = new CachedSeekableStream(result, BrowserSettings.getRemoteBufferSize(), uri);
             }
         }
         return result;
+    }
+
+    /**
+     * Goes through the logic of getSeekableStreamForURI, but doesn't actually create a stream.
+     * Useful for determining whether an error might be due to cache corruption, in which case
+     * a retry is worth taking.
+     * 
+     * @param uri an ftp:, http:, or file: URI
+     * @return <code>true</code> if the URI would be opened with a CacheableSABS
+     */
+    public static boolean isStreamCached(URI uri) {
+        if (BrowserSettings.getCachingEnabled()) {
+            String proto = uri.getScheme().toLowerCase();
+            if (proto.equals("http") || proto.equals("https") || proto.equals("ftp")) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

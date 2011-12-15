@@ -24,7 +24,6 @@ import org.apache.commons.logging.LogFactory;
 
 import savant.api.adapter.DataSourceAdapter;
 import savant.api.adapter.RangeAdapter;
-import savant.api.adapter.RecordFilterAdapter;
 import savant.api.data.Record;
 import savant.api.util.Resolution;
 import savant.data.filters.BAMRecordFilter;
@@ -212,12 +211,6 @@ public class BAMTrack extends Track {
         }
     }
 
-    @Override
-    protected synchronized List<Record> retrieveData(String reference, Range range, Resolution resolution, RecordFilterAdapter filt) throws Exception {
-        DrawingMode mode = getDrawingMode();
-        return getDataSource().getRecords(reference, range, resolution, filt);
-    }
-    
     public BAMIntervalRecord getMate(BAMIntervalRecord rec) {
         List<Record> data = getDataInRange();
         SAMRecord samRec = rec.getSAMRecord();
