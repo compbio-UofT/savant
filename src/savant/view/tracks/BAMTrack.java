@@ -108,7 +108,7 @@ public class BAMTrack extends Track {
             renderer.addInstruction(DrawingInstruction.DISCORDANT_MIN, getConcordantMin());
             renderer.addInstruction(DrawingInstruction.DISCORDANT_MAX, getConcordantMax());
         } else {
-            renderer.addInstruction(DrawingInstruction.AXIS_RANGE, AxisRange.initWithRanges(range, getDefaultYRange()));
+            renderer.addInstruction(DrawingInstruction.AXIS_RANGE, new AxisRange(range, new Range(0, 1)));
         }
         renderer.addInstruction(DrawingInstruction.SELECTION_ALLOWED, true);
         renderer.addInstruction(DrawingInstruction.MODE, getDrawingMode());
@@ -139,10 +139,6 @@ public class BAMTrack extends Track {
             }
         }
         return max;
-    }
-
-    private Range getDefaultYRange() {
-        return new Range(0, 1);
     }
 
     @Override

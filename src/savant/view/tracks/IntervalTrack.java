@@ -111,14 +111,10 @@ public class IntervalTrack extends Track {
         renderer.addInstruction(DrawingInstruction.REFERENCE_EXISTS, containsReference(reference));
 
         if (getDrawingMode() != DrawingMode.ARC) {
-            renderer.addInstruction(DrawingInstruction.AXIS_RANGE, AxisRange.initWithRanges(range, getDefaultYRange()));
+            renderer.addInstruction(DrawingInstruction.AXIS_RANGE, new AxisRange(range, new Range(0, 1)));
         }
         renderer.addInstruction(DrawingInstruction.MODE, getDrawingMode());
         renderer.addInstruction(DrawingInstruction.SELECTION_ALLOWED, true);
-    }
-
-    private Range getDefaultYRange() {
-        return new Range(0, 1);
     }
 
     public static int getMaxValue(List<Record> data) {

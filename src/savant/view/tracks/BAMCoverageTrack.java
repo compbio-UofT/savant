@@ -36,7 +36,7 @@ public class BAMCoverageTrack extends Track {
         Resolution r = getResolution(range);
         if (r != Resolution.HIGH) {
             renderer.addInstruction(DrawingInstruction.PROGRESS, "Retrieving coverage data...");
-            renderer.addInstruction(DrawingInstruction.AXIS_RANGE, AxisRange.initWithRanges(range, getDefaultYRange()));
+            renderer.addInstruction(DrawingInstruction.AXIS_RANGE, new AxisRange(range, new Range(0, 1)));
             requestData(reference, range);
         } else {
             saveNullData();
@@ -67,9 +67,5 @@ public class BAMCoverageTrack extends Track {
     @Override
     public AxisType getYAxisType(Resolution r) {
         return r == Resolution.HIGH ? AxisType.NONE : AxisType.REAL;
-    }
-
-    private Range getDefaultYRange() {
-        return new Range(0, 1);
     }
 }

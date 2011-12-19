@@ -42,6 +42,7 @@ import savant.controller.LocationController;
 import savant.controller.TrackController;
 import savant.plugin.SavantPanelPlugin;
 import savant.util.DrawingMode;
+import savant.util.MiscUtils;
 import savant.util.Range;
 import savant.util.swing.ProgressPanel;
 import savant.view.icon.SavantIconFactory;
@@ -126,7 +127,11 @@ public class Frame extends DockableFrame implements FrameAdapter, TrackCreationL
         legend.setVisible(false);
 
         frameLandscape = new JLayeredPane();
-        graphPane = new GraphPane(this);
+        if (df == DataFormat.VARIANT) {
+            graphPane = new VariantGraphPane(this);
+        } else {
+            graphPane = new GraphPane(this);
+        }
 
         //scrollpane
         scrollPane = new JScrollPane();
@@ -212,7 +217,12 @@ public class Frame extends DockableFrame implements FrameAdapter, TrackCreationL
 
         // Add our progress-panel.  If setTracks is called promptly, it will be cleared
         // away before it ever has a chance to draw.
-        getContentPane().add(new ProgressPanel(null));
+        getContentPane().add(new ProgressPanel(null), BorderLayout.CENTER);
+    }
+
+    @Override
+    public Dimension getPreferredSize() {
+        return new Dimension(100, sequence ? 100 : 200);
     }
 
     public FrameCommandBar getCommandBar() {
@@ -242,7 +252,9 @@ public class Frame extends DockableFrame implements FrameAdapter, TrackCreationL
      */
     public void setTracks(Track[] newTracks) {
         Track t0 = newTracks[0];
-        if (!GenomeController.getInstance().isGenomeLoaded() && t0.getDataFormat() != DataFormat.SEQUENCE) {
+        DataFormat df = t0.getDataFormat();
+
+        if (!GenomeController.getInstance().isGenomeLoaded() && df != DataFormat.SEQUENCE) {
             handleEvent(new TrackCreationEvent(new Exception()));
             for (Track track : newTracks) {
                 TrackController.getInstance().removeTrack(track);
@@ -250,7 +262,7 @@ public class Frame extends DockableFrame implements FrameAdapter, TrackCreationL
             DialogUtils.displayError("Sorry", "This does not appear to be a genome track. Please load a genome first.");
             return;
         }
-        if (t0.getDataFormat() == DataFormat.SEQUENCE) {
+        if (df == DataFormat.SEQUENCE) {
             GenomeController.getInstance().setSequence((SequenceTrack)newTracks[0]);
         }
 
@@ -267,11 +279,13 @@ public class Frame extends DockableFrame implements FrameAdapter, TrackCreationL
         }
 
         // We get the name and other properties from the zero'th track.
-        setName(t0.getName());
         setKey(t0.getName());
+        if (df == DataFormat.VARIANT) {
+            // Variant tracks have less room for their title, so trim off the directory info.
+            setTabTitle(MiscUtils.getFilenameFromPath(t0.getName()));
+        }
 
-        DataFormat df = t0.getDataFormat();
-        if (df != DataFormat.SEQUENCE && df != DataFormat.RICH_INTERVAL) {
+        if (df != DataFormat.SEQUENCE && df != DataFormat.RICH_INTERVAL && df != DataFormat.VARIANT) {
             yMaxPanel = new JLabel();
             yMaxPanel.setBorder(BorderFactory.createLineBorder(Color.darkGray));
             yMaxPanel.setBackground(new Color(240,240,240));
@@ -315,11 +329,6 @@ public class Frame extends DockableFrame implements FrameAdapter, TrackCreationL
         contentPane.add(frameLandscape);
     }
 
-    @Override
-    public Dimension getPreferredSize() {
-        return new Dimension(100, sequence ? 100 : 200);
-    }
-
     /**
      * Convenience method.  More often than not, we just want the frame to host a single track.
      *
@@ -332,6 +341,7 @@ public class Frame extends DockableFrame implements FrameAdapter, TrackCreationL
 
     public void setActiveFrame(boolean value) {
         sidePanel.setVisible(value);
+        LOG.info("sidePanel.Visible=" + value + " for " + getName() + ", sidePanel.Bounds=" + sidePanel.getBounds());
         if (value) {
             // We may have to kick the legend to make it show up.
             legend.setVisible(legend.getPreferredSize().height > 0);

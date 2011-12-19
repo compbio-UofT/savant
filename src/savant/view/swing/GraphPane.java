@@ -74,7 +74,7 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
     private int yMin;
     private int yMax;
     private double unitWidth = Double.NaN;
-    private double unitHeight;
+    protected double unitHeight;
 
     private AxisType yAxisType = AxisType.NONE;
     private AxisType xAxisType = AxisType.NONE;
@@ -84,7 +84,7 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
     private Range lockedRange;
 
     /** By default, tracks adjust their unitHeight to accommodate the contents without a scroll-bar. */
-    private boolean scaledToFit = true;
+    protected boolean scaledToFit = true;
 
     /** Selection Variables */
     private Rectangle2D selectionRect = new Rectangle2D.Double();
@@ -105,7 +105,7 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
     private int newScroll = 0;
     private boolean renderRequired = false;
     private int posOffset = 0;
-    private boolean forcedHeight = false;
+    protected boolean forcedHeight = false;
 
     //dragging
     private int startX;
@@ -309,7 +309,7 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
             } else {
                 setOffset(scroller.getValue() - getViewportHeight());
             }
-            LOG.trace("Rendering fresh " + bufferedImage.getWidth() + "x" + bufferedImage.getHeight() + " bufferedImage at (0, " + getOffset() + ")");
+            LOG.debug("Rendering fresh " + bufferedImage.getWidth() + "x" + bufferedImage.getHeight() + " bufferedImage at (0, " + getOffset() + ")");
 
             Graphics2D g3 = bufferedImage.createGraphics();
             g3.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -326,7 +326,7 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
             int priority = -1;
             for (Track t: tracks) {
                 // Change renderers' drawing instructions to reflect consolidated YRange
-                t.getRenderer().addInstruction(DrawingInstruction.AXIS_RANGE, AxisRange.initWithRanges(xRange, consolidatedYRange));
+                t.getRenderer().addInstruction(DrawingInstruction.AXIS_RANGE, new AxisRange(xRange, consolidatedYRange));
                 try {
                     t.getRenderer().render(g3, this);
                     nothingRendered = false;
@@ -724,7 +724,8 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
     /**
      * Set the number of pixels equal to one graph unit of height.
      */
-    public void setUnitHeight(int height) {
+    @Override
+    public void setUnitHeight(double height) {
         unitHeight = height;
     }
 
@@ -1156,10 +1157,6 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
         return parentFrame;
     }
 
-    public void setBufferedImage(BufferedImage bi){
-        this.bufferedImage = bi;
-    }
-
     //POPUP
     public void tryPopup(Point p){
 
@@ -1184,14 +1181,6 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
                 Record overRecord = (Record)recs[0];
                 
                 JPopupMenu jp = new JPopupMenu();
-/*            @Override
-            public void mouseExited(MouseEvent e) {
-                if(e.getX() < 0 || e.getY() < 0 || e.getX() >= e.getComponent().getWidth() || e.getY() >= e.getComponent().getHeight()){
-                    hidePopup();
-                }
-            }
-        });*/
-
                 PopupPanel pp = PopupPanel.create(this, tracks[0].getDrawingMode(), t.getDataSource(), overRecord);
                 firePopupEvent(pp);
                 if (pp != null){

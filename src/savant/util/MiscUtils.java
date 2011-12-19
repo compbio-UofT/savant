@@ -18,11 +18,14 @@ package savant.util;
 
 import java.awt.Color;
 import java.awt.EventQueue;
+import java.awt.FontMetrics;
+import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.geom.Path2D;
+import java.awt.geom.Rectangle2D;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -292,7 +295,9 @@ public class MiscUtils {
         } else if (t instanceof FileNotFoundException) {
             return String.format("File %s not found", t.getMessage());
         } else if (t instanceof ArrayIndexOutOfBoundsException) {
-            return String.format("Array index out of bounds: " + t.getMessage());
+            return "Array index out of bounds: " + t.getMessage();
+        } else if (t instanceof OutOfMemoryError) {
+            return "Out of memory: " + t.getMessage();
         } else {
             if (t.getMessage() != null) {
                 return t.getMessage();
@@ -492,5 +497,17 @@ public class MiscUtils {
         }
         result.closePath();
         return result;
+    }
+
+    /**
+     * Patterned off GraphPane.drawMessageHelper, draws a string centred in the given box.
+     */
+    public static void drawMessage(Graphics2D g2, String message, Rectangle2D box){
+        FontMetrics metrics = g2.getFontMetrics();
+        Rectangle2D stringBounds = g2.getFont().getStringBounds(message, g2.getFontRenderContext());
+        float x = (float)(box.getX() + (box.getWidth() - stringBounds.getWidth()) / 2.0);
+        float y = (float)(box.getY() + (box.getHeight() + metrics.getAscent() - metrics.getDescent()) / 2.0);
+
+        g2.drawString(message, x, y);
     }
 }

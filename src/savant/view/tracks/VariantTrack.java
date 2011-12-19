@@ -16,20 +16,28 @@
 
 package savant.view.tracks;
 
+import java.util.BitSet;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.broad.igv.feature.Genome;
 import savant.api.adapter.DataSourceAdapter;
+import savant.api.adapter.GraphPaneAdapter;
 import savant.api.adapter.RangeAdapter;
-import savant.api.util.GenomeUtils;
+import savant.api.adapter.RecordFilterAdapter;
+import savant.api.data.Record;
+import savant.api.data.VariantRecord;
+import savant.api.event.LocationChangedEvent;
+import savant.api.util.Listener;
 import savant.api.util.Resolution;
+import savant.controller.LocationController;
 import savant.exception.SavantTrackCreationCancelledException;
 import savant.util.AxisRange;
 import savant.util.AxisType;
 import savant.util.ColourKey;
 import savant.util.ColourScheme;
 import savant.util.DrawingInstruction;
+import savant.util.DrawingMode;
 import savant.util.Range;
 
 /**
@@ -40,8 +48,25 @@ import savant.util.Range;
 public class VariantTrack extends Track {
     private static final Log LOG = LogFactory.getLog(VariantTrack.class);
 
+    private String reference;
+    private Range range;
+    private BitSet participants;
+
     public VariantTrack(DataSourceAdapter ds) throws SavantTrackCreationCancelledException {
         super(ds, new VariantTrackRenderer());
+        filter = new ParticipantFilter();
+        
+        // Set the initial range and reference to whatever Savant is displaying.
+        LocationController lc = LocationController.getInstance();
+        reference = lc.getReferenceName();
+        range = lc.getMaxRange();
+        lc.addListener(new Listener<LocationChangedEvent>() {
+            @Override
+            public void handleEvent(LocationChangedEvent event) {
+                reference = event.getReference();
+                range = LocationController.getInstance().getMaxRange();
+            }
+        });
     }
 
     @Override
@@ -50,11 +75,23 @@ public class VariantTrack extends Track {
     }
 
     @Override
-    public void prepareForRendering(String reference, Range range) {
+    public DrawingMode[] getValidDrawingModes() {
+        return new DrawingMode[] { DrawingMode.STANDARD, DrawingMode.MATRIX, DrawingMode.LD_PLOT };
+    }
+
+
+    /**
+     * Unlike other tracks, variant tracks have their own internal notion of the current range
+     * separate from whatever the LocationController provides.
+     * @param ignored1
+     * @param ignored2
+     */
+    @Override
+    public void prepareForRendering(String ignored1, Range ignored2) {
         Resolution r = getResolution(range);
         if (r == Resolution.HIGH) {
             renderer.addInstruction(DrawingInstruction.PROGRESS, "Retrieving variant data...");
-            requestData(reference, new Range(1, GenomeUtils.getGenome().getLength(reference)));
+            requestData(reference, range);
         } else {
             saveNullData();
         }
@@ -65,8 +102,22 @@ public class VariantTrack extends Track {
 
         renderer.addInstruction(DrawingInstruction.REFERENCE_EXISTS, containsReference(reference));
 
-        renderer.addInstruction(DrawingInstruction.AXIS_RANGE, AxisRange.initWithRanges(range, getDefaultYRange()));
-        renderer.addInstruction(DrawingInstruction.SELECTION_ALLOWED, true);
+        // Shove in a placeholder axis range since we won't know the actual range until the data arrives.
+        AxisRange axes = null;
+        switch (getDrawingMode()) {
+            case STANDARD:
+                axes = new AxisRange(0, 1, 0, 1);
+                break;
+            case MATRIX:
+                axes = new AxisRange(0, participants.size(), 0, 1);
+                break;
+            case LD_PLOT:
+                // TODO: Implement this properly.
+                axes = new AxisRange(0, 1, 0, 1);
+                break;
+        }
+        renderer.addInstruction(DrawingInstruction.AXIS_RANGE, axes);
+        renderer.addInstruction(DrawingInstruction.SELECTION_ALLOWED, false);
         renderer.addInstruction(DrawingInstruction.MODE, getDrawingMode());
     }
 
@@ -76,11 +127,56 @@ public class VariantTrack extends Track {
     }
 
     @Override
-    public AxisType getXAxisType(Resolution r) {
+    public AxisType getXAxisType(Resolution ignored) {
         return AxisType.NONE;
     }
 
-    private Range getDefaultYRange() {
-        return new Range(0, 1);
+    @Override
+    public AxisType getYAxisType(Resolution ignored) {
+        return AxisType.INTEGER_GRIDLESS;
+    }
+
+    /**
+     * Zoom out one level
+     */
+    public void zoomOut() {
+        GraphPaneAdapter gp = getFrame().getGraphPane();
+        gp.setUnitHeight(Math.max(1.0, gp.getUnitHeight() * 0.5));
+        repaint();
+    }
+
+    /**
+     * Zoom in one level
+     */
+    public void zoomIn() {
+        GraphPaneAdapter gp = getFrame().getGraphPane();
+        gp.setUnitHeight(Math.min(8.0, gp.getUnitHeight() * 2.0));
+        repaint();
+    }
+
+    /**
+     * Record filter which only accepts records for which one of the relevant participants
+     * has the given variant.
+     */
+    private class ParticipantFilter implements RecordFilterAdapter {
+        public ParticipantFilter() {
+        }
+
+        @Override
+        public boolean accept(Record rec) {
+            VariantRecord varRec = (VariantRecord)rec;
+            int count = varRec.getParticipantCount();
+            for (int i = 0; i < count; i++) {
+                if (varRec.getVariantForParticipant(i) != VariantRecord.VariantType.NONE) {
+                    if (participants == null) {
+                        // TODO: There's probably a better place to init this.
+                        participants = new BitSet(count);
+                        participants.set(0, count);
+                    }
+                    return true;
+                }
+            }
+            return false;
+        }
     }
 }

@@ -81,7 +81,7 @@ public class BAMTrackRenderer extends TrackRenderer {
                 if ((DrawingMode)instructions.get(DrawingInstruction.MODE) == DrawingMode.ARC_PAIRED) {
                     int maxDataValue = BAMTrack.getArcYMax(evt.getData());
                     Range range = (Range)instructions.get(DrawingInstruction.RANGE);
-                    addInstruction(DrawingInstruction.AXIS_RANGE, AxisRange.initWithRanges(range, new Range(0,(int)Math.round(maxDataValue+maxDataValue*0.1))));
+                    addInstruction(DrawingInstruction.AXIS_RANGE, new AxisRange(range, new Range(0,(int)Math.round(maxDataValue+maxDataValue*0.1))));
                 }
                 break;
         }
@@ -654,7 +654,7 @@ public class BAMTrackRenderer extends TrackRenderer {
         }
         int yMax = (int)Math.ceil(maxHeight / 0.9);
         gp.setYRange(new Range(-yMax, yMax));
-        instructions.put(DrawingInstruction.AXIS_RANGE, AxisRange.initWithMinMax(xMin, xMax, -yMax, yMax));
+        instructions.put(DrawingInstruction.AXIS_RANGE, new AxisRange(xMin, xMax, -yMax, yMax));
 
         ColourAccumulator accumulator = new ColourAccumulator(cs);
         List<Rectangle2D> insertions = new ArrayList<Rectangle2D>();

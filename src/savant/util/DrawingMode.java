@@ -15,14 +15,18 @@ public enum DrawingMode {
     PACK,
     ARC,
     
-    // Bam modes
+    // BAM modes
     STANDARD,
     MISMATCH,
     SEQUENCE,
     STANDARD_PAIRED,
     ARC_PAIRED,
     SNP,
-    STRAND_SNP;
+    STRAND_SNP,
+    
+    // Variant modes
+    MATRIX,
+    LD_PLOT;
 
     @Override
     public String toString() {
@@ -47,6 +51,10 @@ public enum DrawingMode {
                 return"SNP";
             case STRAND_SNP:
                 return "Strand SNP";
+            case MATRIX:
+                return "Participant Matrix";
+            case LD_PLOT:
+                return "LD Plot";
         }
         return null;
     }

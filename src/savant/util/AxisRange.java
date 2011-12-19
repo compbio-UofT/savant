@@ -28,19 +28,15 @@ public class AxisRange {
     private final int yMin;
     private final int yMax;
 
-    AxisRange(int xMin, int xMax, int yMin, int yMax) {
+    public AxisRange(int xMin, int xMax, int yMin, int yMax) {
         this.xMin = xMin;
         this.xMax = xMax;
         this.yMin = yMin;
         this.yMax = yMax;
     }
 
-    public static AxisRange initWithMinMax(int xMin, int xMax, int yMin, int yMax) {
-        return new AxisRange(xMin, xMax, yMin, yMax);
-    }
-
-    public static AxisRange initWithRanges(Range xRange, Range yRange) {
-        return new AxisRange (xRange.getFrom(), xRange.getTo(), yRange.getFrom(), yRange.getTo());
+    public AxisRange(Range xRange, Range yRange) {
+        this(xRange.getFrom(), xRange.getTo(), yRange.getFrom(), yRange.getTo());
     }
 
     public int getXMin() { return xMin; }

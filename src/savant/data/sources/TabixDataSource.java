@@ -163,31 +163,32 @@ public class TabixDataSource extends DataSource<TabixIntervalRecord> {
 
             if (i != null) {
                 String line = null;
-                long start = -1;
-                long end = -1;
-                Map<Long, Integer> ends = new HashMap<Long, Integer>();
+                int start = -1;
+                int end = -1;
+                Map<Integer, Integer> ends = new HashMap<Integer, Integer>();
                 while ((line = i.next()) != null) {
-                    //Note: count is used to uniquely identify records in same location
-                    //Assumption is that iterator will always give records in same order
+                    // Note: count is used to uniquely identify records in same location
+                    // Assumption is that iterator will always give records in same order
                     TabixIntervalRecord tir = TabixIntervalRecord.valueOf(line, mapping);
-                    if(tir.getInterval().getStart() == start){
-                        end = tir.getInterval().getEnd();
-                        if(ends.get(end) == null){
-                            ends.put(end, 0);
+                    if (filt == null || filt.accept(tir)) {
+                        if (tir.getInterval().getStart() == start) {
+                            end = tir.getInterval().getEnd();
+                            if (ends.get(end) == null) {
+                                ends.put(end, 0);
+                            } else {
+                                int count = ends.get(end)+1;
+                                ends.put(end, count);
+                                tir.setCount(count);
+                            }
                         } else {
-                            int count = ends.get(end)+1;
-                            ends.put(end, count);
-                            tir.setCount(count);
+                            start = tir.getInterval().getStart();
+                            end = tir.getInterval().getEnd();
+                            ends.clear();
+                            ends.put(end, 0);
+                            tir.setCount(0);
                         }
-                    } else {
-                        start = tir.getInterval().getStart();
-                        end = tir.getInterval().getEnd();
-                        //FIXME: is the overhead of doing this high?
-                        ends = new HashMap<Long, Integer>();
-                        ends.put(end, 0);
-                        tir.setCount(0);
+                        result.add(tir);
                     }
-                    result.add(tir);
                 }
             }
         } catch (ArrayIndexOutOfBoundsException x) {

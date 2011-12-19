@@ -56,7 +56,7 @@ public class RichIntervalTrack extends Track {
         renderer.addInstruction(DrawingInstruction.RANGE, range);
         renderer.addInstruction(DrawingInstruction.RESOLUTION, r);
         renderer.addInstruction(DrawingInstruction.COLOUR_SCHEME, getColourScheme());
-        renderer.addInstruction(DrawingInstruction.AXIS_RANGE, AxisRange.initWithRanges(range, getDefaultYRange()));
+        renderer.addInstruction(DrawingInstruction.AXIS_RANGE, new AxisRange(range, new Range(0, 1)));
         renderer.addInstruction(DrawingInstruction.REFERENCE_EXISTS, containsReference(reference));
         renderer.addInstruction(DrawingInstruction.MODE, getDrawingMode());
         renderer.addInstruction(DrawingInstruction.SELECTION_ALLOWED, true);
@@ -73,10 +73,6 @@ public class RichIntervalTrack extends Track {
     @Override
     public DrawingMode[] getValidDrawingModes() {
         return new DrawingMode[] { DrawingMode.STANDARD, DrawingMode.SQUISH };
-    }
-
-    private Range getDefaultYRange() {
-        return new Range(0, 1);
     }
 
     public void toggleItemRGBEnabled(){

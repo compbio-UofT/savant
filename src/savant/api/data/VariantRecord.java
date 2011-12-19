@@ -22,14 +22,20 @@ package savant.api.data;
  * @author tarkvara
  */
 public interface VariantRecord extends IntervalRecord {
-    public enum Type {
+    public enum VariantType {
+        NONE,
         SNP,
         DELETION,
         INSERTION,
         OTHER
     }
-    
-    public Type getType();
+
+    /**
+     * Type of variant represented by this record.
+     *
+     * @return the type (cannot be NONE)
+     */
+    public VariantType getVariantType();
     
     /**
      * Reference bases corresponding to this variant.
@@ -44,4 +50,19 @@ public interface VariantRecord extends IntervalRecord {
      * @return a non-empty string containing reference bases
      */
     public String getAltBases();
+    
+    /**
+     * Get the number of participants represented by this record (probably the same for
+     * all records from a given DataSource).
+     *
+     * @return the number of participants in this record
+     */
+    public int getParticipantCount();
+    
+    /**
+     * Given a participant, determine what type of variant (if any) they have for this record.
+     * @param index the participant's index (0-based)
+     * @return the variant for this participant (possibly NONE)
+     */
+    public VariantType getVariantForParticipant(int index);
 }

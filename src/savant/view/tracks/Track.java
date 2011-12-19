@@ -353,13 +353,25 @@ public abstract class Track extends Controller<DataRetrievalEvent> implements Tr
         return renderer.selectionAllowed(false);
     }
 
+    /**
+     * All ordinary tracks have integer markings along their x axes.
+     * @param res the resolution to be considered (ignored)
+     * @return <code>AxisType.INTEGER</code>
+     */
     @Override
-    public AxisType getXAxisType(Resolution r) {
+    public AxisType getXAxisType(Resolution res) {
         return AxisType.INTEGER;
     }
 
+    
+    /**
+     * A number of common track types (Sequence, Point, RichInterval) have no y-axis,
+     * so they all share this implementation.
+     * @param res the resolution to be considered (ignored)
+     * @return <code>AxisType.NONE</code>
+     */
     @Override
-    public AxisType getYAxisType(Resolution r) {
+    public AxisType getYAxisType(Resolution res) {
         return AxisType.NONE;
     }
 

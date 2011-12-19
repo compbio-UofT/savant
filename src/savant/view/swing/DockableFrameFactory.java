@@ -76,7 +76,7 @@ public class DockableFrameFactory {
         frame.setAvailableButtons(DockableFrame.BUTTON_AUTOHIDE | DockableFrame.BUTTON_MAXIMIZE | DockableFrame.BUTTON_CLOSE );
         
         if (df == DataFormat.VARIANT) {
-//            frame.setSlidingAutohide(true);
+            frame.setSlidingAutohide(true);
             frame.setInitMode(DockContext.STATE_AUTOHIDE);
             frame.setInitSide(DockContext.DOCK_SIDE_EAST);
             frame.addDockableFrameListener(new DockableFrameAdapter() {
@@ -85,9 +85,9 @@ public class DockableFrameFactory {
                     frame.forceRedraw();
                 }
             });
-//            frame.setPreferredSize(new Dimension(400, 400));
-//            frame.setAutohideWidth(400);
-//            frame.setAutohideHeight(400);
+            frame.setPreferredSize(new Dimension(600, 600));
+            frame.setAutohideWidth(600);
+            frame.setAutohideHeight(600);
         } else {
             frame.setSlidingAutohide(false);
             frame.setInitMode(DockContext.STATE_FRAMEDOCKED);

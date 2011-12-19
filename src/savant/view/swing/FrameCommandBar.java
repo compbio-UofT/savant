@@ -15,7 +15,6 @@
  */
 package savant.view.swing;
 
-import savant.view.tracks.Track;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Toolkit;
@@ -45,8 +44,11 @@ import savant.settings.SettingsDialog;
 import savant.util.DrawingMode;
 import savant.util.MiscUtils;
 import savant.view.dialog.BAMFilterDialog;
+import savant.view.icon.SavantIconFactory;
 import savant.view.tracks.BAMTrack;
 import savant.view.tracks.RichIntervalTrack;
+import savant.view.tracks.Track;
+import savant.view.tracks.VariantTrack;
 
 /**
  * Menu-bar which appears in the top-right of each Frame, adjusted depending on the track type.
@@ -113,6 +115,28 @@ public final class FrameCommandBar extends JMenuBar {
             int h = getIntervalHeight();
             graphPane.setUnitHeight(h);
             graphPane.setScaledToFit(false);
+        } else if (df == DataFormat.VARIANT) {
+            JButton zoomInButton = new JButton();
+            zoomInButton.setIcon(SavantIconFactory.getInstance().getIcon(SavantIconFactory.StandardIcon.ZOOMIN));
+            zoomInButton.setBorderPainted(false);
+            zoomInButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    ((VariantTrack)mainTrack).zoomIn();
+                }
+            });
+            add(zoomInButton);
+
+            JButton zoomOutButton = new JButton();
+            zoomOutButton.setIcon(SavantIconFactory.getInstance().getIcon(SavantIconFactory.StandardIcon.ZOOMOUT));
+            zoomOutButton.setBorderPainted(false);
+            zoomOutButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    ((VariantTrack)mainTrack).zoomOut();
+                }
+            });
+            add(zoomOutButton);
         }
     }
 

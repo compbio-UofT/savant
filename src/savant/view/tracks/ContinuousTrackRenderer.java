@@ -64,7 +64,7 @@ public class ContinuousTrackRenderer extends TrackRenderer {
 
                 // Range will be null if we're a coverage track which is hidden by the corresponding .bam track.
                 if (range != null) {
-                    addInstruction(DrawingInstruction.AXIS_RANGE, AxisRange.initWithRanges(range, new Range(Math.min(0, (int) Math.floor(extremes[0]*1.05)), Math.max(0,(int) Math.ceil(extremes[1]*1.05)))));
+                    addInstruction(DrawingInstruction.AXIS_RANGE, new AxisRange(range, new Range(Math.min(0, (int) Math.floor(extremes[0]*1.05)), Math.max(0,(int) Math.ceil(extremes[1]*1.05)))));
                 }
                 break;
         }

@@ -63,7 +63,7 @@ public class SequenceTrack extends Track {
         }
 
         renderer.addInstruction(DrawingInstruction.RESOLUTION, r);
-        renderer.addInstruction(DrawingInstruction.AXIS_RANGE, AxisRange.initWithRanges(range, getDefaultYRange()));
+        renderer.addInstruction(DrawingInstruction.AXIS_RANGE, new AxisRange(range, new Range(0, 1)));
         renderer.addInstruction(DrawingInstruction.REFERENCE_EXISTS, containsReference(reference));
         renderer.addInstruction(DrawingInstruction.SELECTION_ALLOWED, false);
 
@@ -71,9 +71,5 @@ public class SequenceTrack extends Track {
             renderer.addInstruction(DrawingInstruction.RANGE, range);
             renderer.addInstruction(DrawingInstruction.COLOUR_SCHEME, this.getColourScheme());
         }
-    }
-
-    private Range getDefaultYRange() {
-        return new Range(0, 1);
     }
 }
