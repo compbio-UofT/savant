@@ -91,6 +91,12 @@ public interface GraphPaneAdapter {
      */
     public double getUnitHeight();
 
+    /**
+     * Set the height of the graph pane's logical unit.
+     * @param h the number of pixels equal to one graph unit of height
+     */
+    public void setUnitHeight(double h);
+
     public void setXRange(Range range);
 
     public Range getYRange();

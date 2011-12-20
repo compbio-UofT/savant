@@ -173,6 +173,7 @@ public class Frame extends DockableFrame implements FrameAdapter, TrackCreationL
         c.gridx = 1;
         c.gridy = 0;
         c.insets = new Insets(0, 0, 0, 16); // Leave 16 pixels so that we don't sit on top of the scroll-bar.
+        frameLandscape.setLayer(sidePanel, JLayeredPane.PALETTE_LAYER);
         frameLandscape.add(sidePanel, c);
 
         addComponentListener(new ComponentAdapter() {
@@ -210,10 +211,8 @@ public class Frame extends DockableFrame implements FrameAdapter, TrackCreationL
         c.gridwidth = 2;
         c.gridheight = 1;
         c.insets = new Insets(0, 0, 0, 0);
-        frameLandscape.add(scrollPane, c);
-
-        frameLandscape.setLayer(sidePanel, JLayeredPane.PALETTE_LAYER);
         frameLandscape.setLayer(scrollPane, JLayeredPane.DEFAULT_LAYER);
+        frameLandscape.add(scrollPane, c);
 
         // Add our progress-panel.  If setTracks is called promptly, it will be cleared
         // away before it ever has a chance to draw.
@@ -345,16 +344,7 @@ public class Frame extends DockableFrame implements FrameAdapter, TrackCreationL
         if (value) {
             // We may have to kick the legend to make it show up.
             legend.setVisible(legend.getPreferredSize().height > 0);
-            legend.invalidate();
         }
-    }
-
-    public void resetLayers(){
-        frameLandscape.moveToBack(graphPane);
-    }
-
-    public void redrawSidePanel(){
-        sidePanel.repaint();
     }
 
     public void updateYMax(int value) {
@@ -395,7 +385,6 @@ public class Frame extends DockableFrame implements FrameAdapter, TrackCreationL
             t.getRenderer().clearInstructions();
             t.prepareForRendering(reference, range);
         }
-        resetLayers();
     }
 
     /**

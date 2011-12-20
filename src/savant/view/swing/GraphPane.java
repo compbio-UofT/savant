@@ -38,7 +38,6 @@ import savant.api.event.PopupEvent;
 import savant.api.util.Listener;
 import savant.controller.GraphPaneController;
 import savant.controller.LocationController;
-import savant.controller.event.GraphPaneEvent;
 import savant.data.types.BAMIntervalRecord;
 import savant.data.types.GenericContinuousRecord;
 import savant.exception.RenderingException;
@@ -151,12 +150,6 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
         popupThread.start();
 
         GraphPaneController controller = GraphPaneController.getInstance();
-        controller.addListener(new Listener<GraphPaneEvent>() {
-            @Override
-            public void handleEvent(GraphPaneEvent event) {
-                parentFrame.resetLayers();
-            }
-        });
 
         // GraphPaneController listens to popup events to make sure that only one
         // popup is open at a time.
@@ -388,7 +381,6 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
             fireExportEvent(xRange, bufferedImage);
             
             renderCurrentSelected(g2);
-            parentFrame.redrawSidePanel();
         }
     }
 
@@ -817,7 +809,6 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
                 lc.zoomOutFromMouse();
            }
         }
-        parentFrame.resetLayers();
     }
 
         /** Mouse modifiers */
@@ -903,7 +894,6 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
         trySelect(event.getPoint());
 
         setMouseModifier(event);
-        parentFrame.resetLayers();
     }
 
     /**
@@ -927,7 +917,6 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
 
         GraphPaneController gpc = GraphPaneController.getInstance();
         gpc.setMouseClickPosition(transformXPixel(x1));
-        parentFrame.resetLayers();
     }
 
     public void resetCursor() {
@@ -985,7 +974,6 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
         setMouseModifier(event);
 
         gpc.setMouseReleasePosition(transformXPixel(x2));
-        parentFrame.resetLayers();
     }
 
 
@@ -1065,8 +1053,6 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
             panVert = false;
             gpc.setMouseReleasePosition(transformXPixel(x2));
         }
-
-        parentFrame.resetLayers();
     }
 
     /**
@@ -1338,7 +1324,7 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
     }
 
     @Override
-    public void addPopupListener(Listener<PopupEvent> pel){
+    public final void addPopupListener(Listener<PopupEvent> pel){
         synchronized (popupListeners) {
             popupListeners.add(pel);
         }

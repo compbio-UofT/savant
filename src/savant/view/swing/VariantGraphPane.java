@@ -33,8 +33,8 @@ import savant.controller.GraphPaneController;
 public class VariantGraphPane extends GraphPane {
     public VariantGraphPane(Frame f) {
         super(f);
-//        scaledToFit = false;
-//        unitHeight = 1.0;
+        scaledToFit = false;
+        unitHeight = 1.0;
     }
 
     /**
