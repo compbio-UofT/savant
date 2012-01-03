@@ -1,5 +1,5 @@
 /*
- *    Copyright 2011 University of Toronto
+ *    Copyright 2011-2012 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package savant.util;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Stack;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -35,15 +36,15 @@ public abstract class Controller<E> {
     private static final Log LOG = LogFactory.getLog(Controller.class);
 
     protected List<Listener<E>> listeners = new ArrayList<Listener<E>>();
-    private List<Listener<E>> listenersToAdd;
-    private List<Listener<E>> listenersToRemove;
+    private Stack<List<Listener<E>>> listenersToAdd = new Stack<List<Listener<E>>>();
+    private Stack<List<Listener<E>>> listenersToRemove = new Stack<List<Listener<E>>>();
 
     /**
      * Fire the specified event to all our listeners.
      */
     public synchronized void fireEvent(E event) {
-        listenersToAdd = new ArrayList<Listener<E>>();
-        listenersToRemove = new ArrayList<Listener<E>>();
+        listenersToAdd.push(new ArrayList<Listener<E>>());
+        listenersToRemove.push(new ArrayList<Listener<E>>());
         for (final Listener l: listeners) {
             try {
                 l.handleEvent(event);
@@ -51,33 +52,31 @@ public abstract class Controller<E> {
                 LOG.warn(l + " threw exception while handling event.", x);
             }
         }
-        for (Listener<E> l: listenersToAdd) {
+        for (Listener<E> l: listenersToAdd.pop()) {
             listeners.add(l);
         }
-        listenersToAdd = null;
-        for (Listener<E> l: listenersToRemove) {
+        for (Listener<E> l: listenersToRemove.pop()) {
             listeners.remove(l);
         }
-        listenersToRemove = null;
     }
 
     public void addListener(Listener<E> l) {
-        if (listenersToAdd != null) {
-            // Currently enumerating, so delay the add until the loop is done.
-            listenersToAdd.add(l);
-        } else {
+        if (listenersToAdd.isEmpty()) {
             // Not in a loop, so add the listener immediately.
             listeners.add(l);
+        } else {
+            // Currently enumerating, so delay the add until the loop is done.
+            listenersToAdd.peek().add(l);
         }
     }
 
     public void removeListener(Listener<E> l) {
-        if (listenersToRemove != null) {
-            // Currently enumerating, so delay the removal until the loop is done.
-            listenersToRemove.add(l);
-        } else {
+        if (listenersToRemove.isEmpty()) {
             // Not in a loop, so remove the listener immediately.
             listeners.remove(l);
+        } else {
+            // Currently enumerating, so delay the removal until the loop is done.
+            listenersToRemove.peek().add(l);
         }
     }
 }
