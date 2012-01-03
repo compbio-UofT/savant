@@ -15,13 +15,21 @@
  */
 package savant.view.swing;
 
+import java.awt.event.AdjustmentEvent;
+import java.awt.event.AdjustmentListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.util.List;
+import javax.swing.JScrollBar;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import savant.api.data.Record;
 import savant.api.data.VariantRecord;
 import savant.controller.GraphPaneController;
+import savant.util.swing.TallScrollingPanel;
+import savant.view.tracks.VariantTrack;
 
 
 /**
@@ -31,10 +39,13 @@ import savant.controller.GraphPaneController;
  * @author tarkvara
  */
 public class VariantGraphPane extends GraphPane {
+    private static final Log LOG = LogFactory.getLog(VariantGraphPane.class);
+
     public VariantGraphPane(Frame f) {
         super(f);
         scaledToFit = false;
         unitHeight = 1.0;
+        forcedHeight = true;
     }
 
     /**
@@ -80,5 +91,31 @@ public class VariantGraphPane extends GraphPane {
         } else {
             GraphPaneController.getInstance().setMouseXPosition(-1);            
         }
+    }
+
+    /**
+     * Access to the scrollbar associated with this VariantGraphPane.  For the variant GraphPane,
+     * the scroll-bar belongs to our parent.
+     */
+    @Override
+    public JScrollBar getVerticalScrollBar() {
+        return ((TallScrollingPanel)getParent()).getScrollBar();
+    }
+
+
+    /**
+     * Update the display of ymax.  Overridden by VariantGraphPanes to show the current range.
+     */
+    @Override
+    protected void updateYMax() {
+        VariantTrack t = (VariantTrack)getTracks()[0];
+        ((Frame)getParentFrame()).updateYMax("%s:%s", t.getReference(), t.getRange());
+    }
+
+    /**
+     * Override unforceFullHeight because we always want a full-height rendering.
+     */
+    @Override
+    public void unforceFullHeight(){
     }
 }

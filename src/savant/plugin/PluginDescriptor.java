@@ -200,7 +200,7 @@ public class PluginDescriptor implements Comparable<PluginDescriptor> {
     }
 
     private static String readAttribute(PluginXMLAttribute attr) {
-        return reader.getAttributeValue(null, attr.toString().toLowerCase());
+        return reader.getAttributeValue(null, attr.toString().toLowerCase().replace('_', '-'));
     }
 
 

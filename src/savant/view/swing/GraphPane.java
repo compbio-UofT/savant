@@ -70,8 +70,8 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
     /** min / max axis values */
     private int xMin;
     private int xMax;
-    private int yMin;
-    private int yMax;
+    protected int yMin;
+    protected int yMax;
     private double unitWidth = Double.NaN;
     protected double unitHeight;
 
@@ -296,13 +296,14 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
             if (!forcedHeight) {
                 h = Math.min(h, getViewportHeight() * 3);
             }
+            LOG.debug("Requesting " + getWidth() + "×" + h + " bufferedImage.");
             bufferedImage = new BufferedImage(getWidth(), h, BufferedImage.TYPE_INT_RGB);
             if (bufferedImage.getHeight() == getHeight()){
                 setOffset(0);
             } else {
                 setOffset(scroller.getValue() - getViewportHeight());
             }
-            LOG.debug("Rendering fresh " + bufferedImage.getWidth() + "x" + bufferedImage.getHeight() + " bufferedImage at (0, " + getOffset() + ")");
+            LOG.debug("Rendering fresh " + bufferedImage.getWidth() + "×" + bufferedImage.getHeight() + " bufferedImage at (0, " + getOffset() + ")");
 
             Graphics2D g3 = bufferedImage.createGraphics();
             g3.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -342,7 +343,7 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
                 drawMessage(g3, message);
             }
 
-            parentFrame.updateYMax(yMax);
+            updateYMax();
 
             // If a change has occured that affects scrollbar...
             if (paneResize) {
@@ -392,9 +393,10 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
     }
 
     /**
-     * Access to the scrollbar associated with this GraphPane.  The JScrollPane is our great-grandparent.
+     * Access to the scrollbar associated with this GraphPane.  For ordinary GraphPanes,
+     * the JScrollPane is our great-grandparent.
      */
-    private JScrollBar getVerticalScrollBar() {
+    public JScrollBar getVerticalScrollBar() {
         return ((JScrollPane)getParent().getParent().getParent()).getVerticalScrollBar();
     }
 
@@ -1384,5 +1386,12 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
             }
         }
         return false;
+    }
+
+    /**
+     * Update the display of ymax.  Overridden by VariantGraphPanes to show the
+     */
+    protected void updateYMax() {
+        parentFrame.updateYMax(yMax);
     }
 }

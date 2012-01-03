@@ -85,9 +85,9 @@ public class DockableFrameFactory {
                     frame.forceRedraw();
                 }
             });
-            frame.setPreferredSize(new Dimension(600, 600));
-            frame.setAutohideWidth(600);
-            frame.setAutohideHeight(600);
+            frame.setPreferredSize(new Dimension(400, 400));
+            frame.setAutohideWidth(400);
+            frame.setAutohideHeight(400);
         } else {
             frame.setSlidingAutohide(false);
             frame.setInitMode(DockContext.STATE_FRAMEDOCKED);

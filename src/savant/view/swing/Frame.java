@@ -44,6 +44,7 @@ import savant.plugin.SavantPanelPlugin;
 import savant.util.DrawingMode;
 import savant.util.MiscUtils;
 import savant.util.Range;
+import savant.util.swing.TallScrollingPanel;
 import savant.util.swing.ProgressPanel;
 import savant.view.icon.SavantIconFactory;
 import savant.view.tracks.SequenceTrack;
@@ -127,11 +128,6 @@ public class Frame extends DockableFrame implements FrameAdapter, TrackCreationL
         legend.setVisible(false);
 
         frameLandscape = new JLayeredPane();
-        if (df == DataFormat.VARIANT) {
-            graphPane = new VariantGraphPane(this);
-        } else {
-            graphPane = new GraphPane(this);
-        }
 
         //scrollpane
         scrollPane = new JScrollPane();
@@ -148,7 +144,16 @@ public class Frame extends DockableFrame implements FrameAdapter, TrackCreationL
         gbc.weighty = 1.0;
         gbc.gridx = 0;
         gbc.gridy = 0;
-        jlp.add(graphPane, gbc, 0);
+
+        if (df == DataFormat.VARIANT) {
+            graphPane = new VariantGraphPane(this);
+            TallScrollingPanel longScroller = new TallScrollingPanel(graphPane);
+            jlp.add(longScroller, gbc, 0);
+        } else {
+            graphPane = new GraphPane(this);
+            jlp.add(graphPane, gbc, 0);
+        }
+
 
         scrollPane.getViewport().add(jlp);
 
@@ -224,10 +229,6 @@ public class Frame extends DockableFrame implements FrameAdapter, TrackCreationL
         return new Dimension(100, sequence ? 100 : 200);
     }
 
-    public FrameCommandBar getCommandBar() {
-        return commandBar;
-    }
-
     public JLayeredPane getFrameLandscape() {
         return frameLandscape;
     }
@@ -284,7 +285,7 @@ public class Frame extends DockableFrame implements FrameAdapter, TrackCreationL
             setTabTitle(MiscUtils.getFilenameFromPath(t0.getName()));
         }
 
-        if (df != DataFormat.SEQUENCE && df != DataFormat.RICH_INTERVAL && df != DataFormat.VARIANT) {
+        if (df != DataFormat.SEQUENCE && df != DataFormat.RICH_INTERVAL) {
             yMaxPanel = new JLabel();
             yMaxPanel.setBorder(BorderFactory.createLineBorder(Color.darkGray));
             yMaxPanel.setBackground(new Color(240,240,240));
@@ -340,16 +341,18 @@ public class Frame extends DockableFrame implements FrameAdapter, TrackCreationL
 
     public void setActiveFrame(boolean value) {
         sidePanel.setVisible(value);
-        LOG.info("sidePanel.Visible=" + value + " for " + getName() + ", sidePanel.Bounds=" + sidePanel.getBounds());
         if (value) {
-            // We may have to kick the legend to make it show up.
             legend.setVisible(legend.getPreferredSize().height > 0);
         }
     }
 
     public void updateYMax(int value) {
+        updateYMax(" ymax=%d ", value);
+    }
+
+    public void updateYMax(String format, Object... args) {
         if (yMaxPanel != null) {
-            yMaxPanel.setText(String.format(" ymax=%d ", value));
+            yMaxPanel.setText(String.format(format, args));
         }
     }
 

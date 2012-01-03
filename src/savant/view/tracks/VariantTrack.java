@@ -39,6 +39,7 @@ import savant.util.ColourScheme;
 import savant.util.DrawingInstruction;
 import savant.util.DrawingMode;
 import savant.util.Range;
+import savant.view.swing.VariantGraphPane;
 
 /**
  * Track class for representing VCF files.
@@ -58,15 +59,24 @@ public class VariantTrack extends Track {
         
         // Set the initial range and reference to whatever Savant is displaying.
         LocationController lc = LocationController.getInstance();
-        reference = lc.getReferenceName();
-        range = lc.getMaxRange();
+        setLocation(lc.getReferenceName(), lc.getRange());
         lc.addListener(new Listener<LocationChangedEvent>() {
             @Override
             public void handleEvent(LocationChangedEvent event) {
-                reference = event.getReference();
-                range = LocationController.getInstance().getMaxRange();
+                setLocation(event.getReference(), (Range)event.getRange());
             }
         });
+    }
+
+    private void setLocation(String ref, Range r) {
+        String oldRef = reference;
+        reference = ref;
+        range = r;
+        if (!reference.equals(oldRef)) {
+            if (getFrame() != null) {
+                ((VariantGraphPane)getFrame().getGraphPane()).getVerticalScrollBar().setMaximum(LocationController.getInstance().getReferenceLength(ref));
+            }
+        }
     }
 
     @Override
@@ -134,6 +144,14 @@ public class VariantTrack extends Track {
     @Override
     public AxisType getYAxisType(Resolution ignored) {
         return AxisType.INTEGER_GRIDLESS;
+    }
+
+    public String getReference() {
+        return reference;
+    }
+    
+    public Range getRange() {
+        return range;
     }
 
     /**

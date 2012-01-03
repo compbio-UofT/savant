@@ -82,19 +82,6 @@ class VariantTrackRenderer extends TrackRenderer {
                 renderStandardMode(g2, gp);
                 break;
         }
-        
-        Range r = (Range)instructions.get(DrawingInstruction.RANGE);
-        String locStr = LocationController.getInstance().getReferenceName() + ":" + r;
-        Rectangle2D locRect = g2.getFont().getStringBounds(locStr, g2.getFontRenderContext());
-        locRect = new Rectangle2D.Double(5.0, 5.0, locRect.getWidth() + 5.0, locRect.getHeight() + 5.0);
-        
-        g2.setColor(Color.WHITE);
-        g2.fill(locRect);
-        g2.setColor(Color.BLACK);
-        g2.setStroke(ONE_STROKE);
-        g2.draw(locRect);
-        g2.setFont(LEGEND_FONT);
-        MiscUtils.drawMessage(g2, locStr, locRect);
     }
     
     /**
