@@ -1,5 +1,5 @@
 /*
- *    Copyright 2010-2011 University of Toronto
+ *    Copyright 2010-2012 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -28,7 +28,6 @@ import savant.api.util.DialogUtils;
 import savant.api.util.Listener;
 import savant.api.event.GenomeChangedEvent;
 import savant.data.types.Genome;
-import savant.settings.BrowserSettings;
 import savant.util.Controller;
 import savant.util.Range;
 
@@ -340,12 +339,9 @@ public class LocationController extends Controller<LocationChangedEvent> impleme
     }
 
     public void zoomToLength(int length, int center) {
-
-        if(length > maximumViewableRange.getLength()) {
-            zoomToLength(maximumViewableRange.getLength());
-        }
-
+        length = Math.min(length, maximumViewableRange.getLength());
         length = Math.max(length, 1);
+
         LOG.debug("Zooming to length " + length);
 
         if (length > getMaxRangeEnd()) {
@@ -362,8 +358,7 @@ public class LocationController extends Controller<LocationChangedEvent> impleme
      * Zoom out one level
      */
     public void zoomOut() {
-        int length = Math.min(maximumViewableRange.getLength(), currentViewableRange.getLength() * BrowserSettings.zoomAmount);
-        zoomToLength(length);
+        zoomToLength(currentViewableRange.getLength() * 2);
     }
 
     /**
@@ -371,18 +366,18 @@ public class LocationController extends Controller<LocationChangedEvent> impleme
      */
     public void zoomIn() {
         if (currentViewableRange.getLength() > 1) {
-            zoomToLength(currentViewableRange.getLength() / BrowserSettings.zoomAmount);
+            zoomToLength(currentViewableRange.getLength() / 2);
         }
     }
 
     public void zoomInOnMouse() {
         int center = GraphPaneController.getInstance().getMouseXPosition();
-        zoomToLength(currentViewableRange.getLength() / BrowserSettings.zoomAmount,center);
+        zoomToLength(currentViewableRange.getLength() / 2, center);
     }
 
     public void zoomOutFromMouse() {
         int center = GraphPaneController.getInstance().getMouseXPosition();
-        zoomToLength(currentViewableRange.getLength() * BrowserSettings.zoomAmount,center);
+        zoomToLength(currentViewableRange.getLength() * 2, center);
     }
     
     //HISTORY///////////////////////////////////////////////////////////////////

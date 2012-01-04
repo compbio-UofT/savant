@@ -1,5 +1,5 @@
 /*
- *    Copyright 2009-2011 University of Toronto
+ *    Copyright 2009-2012 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ import savant.util.NetworkUtils;
 
 
 /**
- *
+ * Various constants and settings relevant to the browser as a whole.
  * @author mfiume
  */
 public class BrowserSettings {
@@ -113,22 +113,6 @@ public class BrowserSettings {
     public static void setShowStartPage(boolean b) {
         settings.setBoolean(SHOWSTARTPAGE_KEY, b);
     }
-
-    /**
-     * padding
-     */
-    public static int padding = 7;
-
-    /**
-     * Zooming
-     */
-    public static int zoomAmount = 2;
-
-    /**
-     * Fonts
-     */
-    public static String fontName = "Arial";
-
 
     public static Font getTrackFont() {
         return TRACK_FONT;

@@ -1,5 +1,5 @@
 /*
- *    Copyright 2009-2011 University of Toronto
+ *    Copyright 2009-2012 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -200,7 +200,7 @@ public abstract class TrackRenderer implements Listener<DataRetrievalEvent> {
         Rectangle2D testIntersection = new Rectangle2D.Double(p.x-3, p.y-3, 7, 7);
         for(int i = 0; i < data.size(); i++) {
             if (data.get(i) == null) continue;
-            Shape s = recordToShapeMap.get((Record)data.get(i));
+            Shape s = recordToShapeMap.get(data.get(i));
             if (s == null) continue;
 
             //if (contains AND (notArc OR (isEdge...))          
@@ -299,7 +299,7 @@ public abstract class TrackRenderer implements Listener<DataRetrievalEvent> {
      */
     public Shape drawInsertion(Graphics2D g2, double x, double y, double unitWidth, double unitHeight) {
 
-        g2.setColor(Color.WHITE);
+        g2.setColor(Color.BLUE);
         double w = unitWidth * 0.5;
 
         Path2D.Double rhombus = new Path2D.Double();

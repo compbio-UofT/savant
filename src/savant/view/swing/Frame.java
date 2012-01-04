@@ -78,8 +78,6 @@ public class Frame extends DockableFrame implements FrameAdapter, TrackCreationL
     private JLabel yMaxPanel;
     private Map<SavantPanelPlugin, JPanel> pluginLayers = new HashMap<SavantPanelPlugin, JPanel>();
 
-    public JScrollPane scrollPane;
-
     /**
      * Construct a new Frame for holding a track.
      *
@@ -129,12 +127,6 @@ public class Frame extends DockableFrame implements FrameAdapter, TrackCreationL
 
         frameLandscape = new JLayeredPane();
 
-        //scrollpane
-        scrollPane = new JScrollPane();
-        scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-        scrollPane.setWheelScrollingEnabled(false);
-        scrollPane.setBorder(null);
-
         //add graphPane -> jlp -> scrollPane
         jlp = new JLayeredPane();
         jlp.setLayout(new GridBagLayout());
@@ -145,17 +137,26 @@ public class Frame extends DockableFrame implements FrameAdapter, TrackCreationL
         gbc.gridx = 0;
         gbc.gridy = 0;
 
+        JComponent mainPane = null;
         if (df == DataFormat.VARIANT) {
             graphPane = new VariantGraphPane(this);
             TallScrollingPanel longScroller = new TallScrollingPanel(graphPane);
             jlp.add(longScroller, gbc, 0);
+            mainPane = jlp;
         } else {
+            //scrollpane
+            JScrollPane scrollPane = new JScrollPane();
+            scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+            scrollPane.setWheelScrollingEnabled(false);
+            scrollPane.setBorder(null);
+
             graphPane = new GraphPane(this);
             jlp.add(graphPane, gbc, 0);
+
+            scrollPane.getViewport().add(jlp);
+            mainPane = scrollPane;
         }
 
-
-        scrollPane.getViewport().add(jlp);
 
         //GRID FRAMEWORK AND COMPONENT ADDING...
         frameLandscape.setLayout(new GridBagLayout());
@@ -216,8 +217,9 @@ public class Frame extends DockableFrame implements FrameAdapter, TrackCreationL
         c.gridwidth = 2;
         c.gridheight = 1;
         c.insets = new Insets(0, 0, 0, 0);
-        frameLandscape.setLayer(scrollPane, JLayeredPane.DEFAULT_LAYER);
-        frameLandscape.add(scrollPane, c);
+        
+        frameLandscape.setLayer(mainPane, JLayeredPane.DEFAULT_LAYER);
+        frameLandscape.add(mainPane, c);
 
         // Add our progress-panel.  If setTracks is called promptly, it will be cleared
         // away before it ever has a chance to draw.

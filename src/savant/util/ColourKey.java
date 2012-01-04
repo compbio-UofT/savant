@@ -1,5 +1,5 @@
 /*
- *    Copyright 2009-2010 University of Toronto
+ *    Copyright 2009-2012 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@ public enum ColourKey {
     T,
     N,                  // Grey used for missing bases
     DELETED_BASE,       // Black for deletions
+    INSERTED_BASE,      // White for insertions   
     SKIPPED,            // Grey for skipped regions in reads
 
     FORWARD_STRAND,

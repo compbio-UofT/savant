@@ -1,5 +1,5 @@
 /*
- *    Copyright 2010-2011 University of Toronto
+ *    Copyright 2010-2012 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -101,7 +101,7 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
     private int oldWidth = -1;
     private int oldHeight = -1;
     private int oldViewHeight = -1;
-    private int newScroll = 0;
+    protected int newScroll = 0;
     private boolean renderRequired = false;
     private int posOffset = 0;
     protected boolean forcedHeight = false;
@@ -272,7 +272,7 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
         boolean sameMode = currentMode == prevMode;
         boolean sameSize = prevSize != null && getSize().equals(prevSize) && parentFrame.getFrameLandscape().getWidth() == oldWidth && parentFrame.getFrameLandscape().getHeight() == oldHeight;
         boolean sameRef = prevRef != null && lc.getReferenceName().equals(prevRef);
-        boolean withinScrollBounds = bufferedImage != null && scroller.getValue() >= getOffset() && scroller.getValue() < getOffset() + getViewportHeight() * 2;
+        boolean withinScrollBounds = bufferedImage != null && isWithinScrollBounds();
 
         //bufferedImage stores the current graphic for future use. If nothing
         //has changed in the track since the last render, bufferedImage will
@@ -280,7 +280,7 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
         //on tracks where nothing has changed (panning, selection, plumbline,...)
 
         //if nothing has changed draw buffered image
-        if (sameRange && sameMode && sameSize && sameRef && !renderRequired && withinScrollBounds){
+        if (sameRange && sameMode && sameSize && sameRef && !renderRequired && withinScrollBounds) {
             g2.drawImage(bufferedImage, 0, getOffset(), this);
             renderCurrentSelected(g2);
 
@@ -298,7 +298,7 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
             }
             LOG.debug("Requesting " + getWidth() + "×" + h + " bufferedImage.");
             bufferedImage = new BufferedImage(getWidth(), h, BufferedImage.TYPE_INT_RGB);
-            if (bufferedImage.getHeight() == getHeight()){
+            if (bufferedImage.getHeight() == getHeight()) {
                 setOffset(0);
             } else {
                 setOffset(scroller.getValue() - getViewportHeight());
@@ -320,7 +320,8 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
             int priority = -1;
             for (Track t: tracks) {
                 // Change renderers' drawing instructions to reflect consolidated YRange
-                t.getRenderer().addInstruction(DrawingInstruction.AXIS_RANGE, new AxisRange(xRange, consolidatedYRange));
+                AxisRange oldAxes = (AxisRange)t.getRenderer().getInstruction(DrawingInstruction.AXIS_RANGE);
+                t.getRenderer().addInstruction(DrawingInstruction.AXIS_RANGE, new AxisRange(oldAxes.getXRange(), consolidatedYRange));
                 try {
                     t.getRenderer().render(g3, this);
                     nothingRendered = false;
@@ -369,12 +370,7 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
                 newScroll = oldScroll + (oldViewHeight - newViewHeight);
                 oldViewHeight = newViewHeight;
             }
-
-            if (newScroll != -1) {
-                scroller.setValue(newScroll);
-                newScroll = -1;
-            }
-
+            updateScrollForHeight();
             oldWidth = parentFrame.getFrameLandscape().getWidth();
             oldHeight = parentFrame.getFrameLandscape().getHeight();
 
@@ -400,7 +396,28 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
         return ((JScrollPane)getParent().getParent().getParent()).getVerticalScrollBar();
     }
 
-    private void renderCurrentSelected(Graphics2D g2){
+    /**
+     * Set the scroller position based on the height.  VariantGraphPanes override this
+     * because they have their own notion of what the scroll height should be.
+     */
+    protected void updateScrollForHeight() {
+        if (newScroll != -1) {
+            getVerticalScrollBar().setValue(newScroll);
+            newScroll = -1;
+        }
+    }
+
+    /**
+     * Determine whether the display is within the current scroll bounds, or whether it
+     * needs to be re-generated.  Overridden by VariantGraphPane, which has a different
+     * notion of scroll bounds.
+     */
+    protected boolean isWithinScrollBounds() {
+        JScrollBar scroller = getVerticalScrollBar();
+        return scroller.getValue() >= getOffset() && scroller.getValue() < getOffset() + getViewportHeight() * 2;
+    }
+
+    private void renderCurrentSelected(Graphics2D g2) {
         // Temporarily shift the origin
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g2.translate(0, getOffset());
@@ -418,7 +435,7 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
                                 //g2.setColor(Color.GREEN);
                                 g2.setColor(new Color(0,255,0,150));
                                 g2.fill(selectedShape);
-                                if (selectedShape.getBounds().getWidth() > 5){
+                                if (selectedShape.getBounds().getWidth() > 5) {
                                     g2.setColor(Color.BLACK);
                                     g2.draw(selectedShape);
                                 }
@@ -455,7 +472,7 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
     }
 
     @Override
-    public void setRenderForced(){
+    public void setRenderForced() {
         renderRequired = true;
     }
 
@@ -467,20 +484,20 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
      * Force the bufferedImage to contain entire height at current range.  Intended
      * for creating images for track export.  Make sure you unforce immediately after!
      */
-    public void forceFullHeight(){
+    public void forceFullHeight() {
         forcedHeight = true;
     }
 
-    public void unforceFullHeight(){
+    public void unforceFullHeight() {
         forcedHeight = false;
     }
 
-    private void setOffset(int offset){
+    private void setOffset(int offset) {
         posOffset = offset;
     }
 
     @Override
-    public int getOffset(){
+    public int getOffset() {
         return posOffset;
     }
 
@@ -499,7 +516,7 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
         GraphPaneController gpc = GraphPaneController.getInstance();
         int h = getHeight();
 
-        /* AIMING ADJUSTMENTS */
+        // Aiming adjustments.
         if (gpc.isAiming() && mouseInside) {
             g2.setColor(Color.BLACK);
             Font thickfont = g2.getFont().deriveFont(Font.BOLD, 15.0F);
@@ -524,12 +541,10 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
 
         selectionRect = new Rectangle2D.Double(width < 0 ? x1 : x2, 0.0, Math.max(2.0 ,Math.abs(width)), h);
 
-        /* PANNING ADJUSTMENTS */
-        if (gpc.isPanning()) {}
-
-        /* ZOOMING ADJUSTMENTS */
-        else if (gpc.isZooming() || gpc.isSelecting()) {
-
+        if (gpc.isPanning()) {
+            // Panning adjustments (none).
+        } else if (gpc.isZooming() || gpc.isSelecting()) {
+            // Zooming adjustments.
             Rectangle2D rectangle = new Rectangle2D.Double(selectionRect.getX(), selectionRect.getY() - 10.0, selectionRect.getWidth(), selectionRect.getHeight() + 10.0);
             g2.setColor(Color.gray);
             g2.setStroke(new BasicStroke(1f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND, 3f, new float[] {4f}, 4f));
@@ -543,7 +558,7 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
             g2.fill(selectionRect);
         }
 
-        /* PLUMBING ADJUSTMENTS */
+        // Plumbing adjustments.
         Range xRange = getXRange();
         if (gpc.isPlumbing()) {
             g2.setColor(Color.BLACK);
@@ -553,7 +568,7 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
             g2.draw(new Line2D.Double(rpos, 0, rpos, h));
         }
 
-        /* SPOTLIGHT */
+        // Spotlight
         if (gpc.isSpotlight() && !gpc.isZooming()) {
 
             int center = gpc.getMouseXPosition();
@@ -941,7 +956,7 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
 
         if (gpc.isPanning()) {
 
-            if(!panVert){
+            if(!panVert) {
                 Range r = lc.getRange();
                 int shiftVal = (int) (Math.round((x1-x2) / getUnitWidth()));
 
@@ -1039,7 +1054,7 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
             int magY = Math.abs(currY - startY);
 
 
-            if (magX >= magY){
+            if (magX >= magY) {
                 //pan horizontally, reset vertical pan
                 panVert = false;
                 gpc.setMouseReleasePosition(transformXPixel(x2));
@@ -1141,12 +1156,12 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
     }
 
     @Override
-    public FrameAdapter getParentFrame(){
+    public FrameAdapter getParentFrame() {
         return parentFrame;
     }
 
     //POPUP
-    public void tryPopup(Point p){
+    public void tryPopup(Point p) {
 
         Point p_offset = new Point(p.x, p.y - this.getOffset());
         if(tracks == null) return;
@@ -1171,7 +1186,7 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
                 JPopupMenu jp = new JPopupMenu();
                 PopupPanel pp = PopupPanel.create(this, tracks[0].getDrawingMode(), t.getDataSource(), overRecord);
                 firePopupEvent(pp);
-                if (pp != null){
+                if (pp != null) {
                     jp.setLayout(new BorderLayout());
                     jp.add(pp, BorderLayout.CENTER);
                     Point p1 = (Point)p.clone();
@@ -1183,7 +1198,7 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
                 
                 currentOverRecord = overRecord;
                 currentOverShape = map.get(currentOverRecord);
-                if (currentOverRecord instanceof GenericContinuousRecord){
+                if (currentOverRecord instanceof GenericContinuousRecord) {
                     currentOverShape = ContinuousTrackRenderer.continuousRecordToEllipse(this, currentOverRecord);
                 }
 
@@ -1196,8 +1211,8 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
         currentOverRecord = null;
     }
 
-    public void hidePopup(){
-        if (poppedUp != null){
+    public void hidePopup() {
+        if (poppedUp != null) {
             poppedUp.setVisible(false);
             poppedUp = null;
         }
@@ -1208,7 +1223,7 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
         }
     }
 
-    public void trySelect(Point p){
+    public void trySelect(Point p) {
 
         Point p_offset = new Point(p.x, p.y - getOffset());
 
@@ -1216,11 +1231,11 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
             Map<Record, Shape> map = t.getRenderer().searchPoint(p_offset);
             if (map != null) {
                 Object[] recs = map.keySet().toArray();
-                if(recs.length == 1){
+                if(recs.length == 1) {
                     t.getRenderer().addToSelected((Record)recs[0]);
                 } else {
                     ArrayList<Record> array = new ArrayList<Record>();
-                    for(Object rec : recs){
+                    for(Object rec : recs) {
                         array.add((Record)rec);
                     }
                     t.getRenderer().toggleGroup(array);
@@ -1267,7 +1282,7 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
         }
     }
     
-    private void drawMessageHelper(Graphics2D g2, String message, Font font, int w, int h, int offset){
+    private void drawMessageHelper(Graphics2D g2, String message, Font font, int w, int h, int offset) {
         g2.setFont(font);
         FontMetrics metrics = g2.getFontMetrics();
 
@@ -1305,43 +1320,43 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
         }
     }
 
-    public void removeExportListener(Listener<ExportEvent> eel){
+    public void removeExportListener(Listener<ExportEvent> eel) {
         synchronized (exportListeners) {
             exportListeners.remove(eel);
         }
     }
 
-    public void removeExportListeners(){
+    public void removeExportListeners() {
         synchronized (exportListeners) {
             exportListeners.clear();
         }
     }
 
-    public void fireExportEvent(Range range, BufferedImage image){
+    public void fireExportEvent(Range range, BufferedImage image) {
         int size = exportListeners.size();
-        for (int i = 0; i < size; i++){
+        for (int i = 0; i < size; i++) {
             exportListeners.get(i).handleEvent(new ExportEvent(range, image));
             size = exportListeners.size(); //a listener may get removed
         }
     }
 
     @Override
-    public final void addPopupListener(Listener<PopupEvent> pel){
+    public final void addPopupListener(Listener<PopupEvent> pel) {
         synchronized (popupListeners) {
             popupListeners.add(pel);
         }
     }
 
     @Override
-    public void removePopupListener(Listener<PopupEvent> eel){
+    public void removePopupListener(Listener<PopupEvent> eel) {
         synchronized (popupListeners) {
             popupListeners.remove(eel);
         }
     }
 
-    public void firePopupEvent(PopupPanel popup){
+    public void firePopupEvent(PopupPanel popup) {
         int size = popupListeners.size();
-        for (int i = 0; i < size; i++){
+        for (int i = 0; i < size; i++) {
             popupListeners.get(i).handleEvent(new PopupEvent(popup));
             size = popupListeners.size(); //a listener may get removed
         }

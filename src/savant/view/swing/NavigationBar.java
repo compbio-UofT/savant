@@ -1,5 +1,5 @@
 /*
- *    Copyright 2010-2011 University of Toronto
+ *    Copyright 2010-2012 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -41,7 +41,6 @@ import savant.controller.GenomeController;
 import savant.controller.LocationController;
 import savant.controller.TrackController;
 import savant.api.event.GenomeChangedEvent;
-import savant.settings.BrowserSettings;
 import savant.util.Bookmark;
 import savant.util.MiscUtils;
 import savant.util.Range;
@@ -369,7 +368,7 @@ public class NavigationBar extends JToolBar {
     }
 
     private static Component getRigidPadding() {
-        return Box.createRigidArea(new Dimension(BrowserSettings.padding, BrowserSettings.padding));
+        return Box.createRigidArea(new Dimension(7, 7));
     }
 
     /**

@@ -27,7 +27,23 @@ public interface VariantRecord extends IntervalRecord {
         SNP,
         DELETION,
         INSERTION,
-        OTHER
+        OTHER;
+        
+        @Override
+        public String toString() {
+            switch (this) {
+                case SNP:
+                    return "SNP";
+                case DELETION:
+                    return "Deletion";
+                case INSERTION:
+                    return "Insertion";
+                case OTHER:
+                    return "Other";
+                default:
+                    return "";
+            }
+        }
     }
 
     /**

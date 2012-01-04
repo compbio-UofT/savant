@@ -1,5 +1,5 @@
 /*
- *    Copyright 2009-2011 University of Toronto
+ *    Copyright 2009-2012 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -37,6 +37,7 @@ public class ColourSettings {
         DEFAULT_SETTINGS.put(ColourKey.T, new Color(162, 98, 45));
         DEFAULT_SETTINGS.put(ColourKey.N, new Color(100,100,100));
         DEFAULT_SETTINGS.put(ColourKey.DELETED_BASE, Color.BLACK);
+        DEFAULT_SETTINGS.put(ColourKey.INSERTED_BASE, Color.WHITE);
         DEFAULT_SETTINGS.put(ColourKey.SKIPPED, Color.GRAY);
 
         DEFAULT_SETTINGS.put(ColourKey.FORWARD_STRAND, new Color(0, 131, 192));

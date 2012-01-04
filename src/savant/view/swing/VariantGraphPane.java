@@ -1,5 +1,5 @@
 /*
- *    Copyright 2011 University of Toronto
+ *    Copyright 2011-2012 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -15,8 +15,6 @@
  */
 package savant.view.swing;
 
-import java.awt.event.AdjustmentEvent;
-import java.awt.event.AdjustmentListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.util.List;
@@ -43,7 +41,7 @@ public class VariantGraphPane extends GraphPane {
 
     public VariantGraphPane(Frame f) {
         super(f);
-        scaledToFit = false;
+        scaledToFit = true;
         unitHeight = 1.0;
         forcedHeight = true;
     }
@@ -89,7 +87,7 @@ public class VariantGraphPane extends GraphPane {
             VariantRecord rec = (VariantRecord)data.get(data.size() - logicalY);
             GraphPaneController.getInstance().setMouseXPosition(rec.getInterval().getStart());
         } else {
-            GraphPaneController.getInstance().setMouseXPosition(-1);            
+            GraphPaneController.getInstance().setMouseXPosition(-1);
         }
     }
 
@@ -102,14 +100,32 @@ public class VariantGraphPane extends GraphPane {
         return ((TallScrollingPanel)getParent()).getScrollBar();
     }
 
+    /**
+     * Determine whether the display is within the current scroll bounds, or whether it
+     * needs to be re-generated.  Overridden by VariantGraphPane, which has a different
+     * notion of scroll bounds.
+     */
+    @Override
+    protected boolean isWithinScrollBounds() {
+        return false;
+    }
 
+    /**
+     * Suppress the default behaviour, which is to update the scroll-bar's position based
+     * on the height of the canvas.
+     */
+    @Override
+    protected void updateScrollForHeight() {
+    }
+
+    
     /**
      * Update the display of ymax.  Overridden by VariantGraphPanes to show the current range.
      */
     @Override
     protected void updateYMax() {
         VariantTrack t = (VariantTrack)getTracks()[0];
-        ((Frame)getParentFrame()).updateYMax("%s:%s", t.getReference(), t.getRange());
+        ((Frame)getParentFrame()).updateYMax("%s:%s", t.getReference(), t.getVisibleRange());
     }
 
     /**
@@ -118,4 +134,6 @@ public class VariantGraphPane extends GraphPane {
     @Override
     public void unforceFullHeight(){
     }
+    
+    
 }

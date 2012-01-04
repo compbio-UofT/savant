@@ -1,5 +1,5 @@
 /*
- *    Copyright 2011 University of Toronto
+ *    Copyright 2011-2012 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -16,13 +16,15 @@
 
 package savant.view.tracks;
 
-import java.util.BitSet;
+import java.awt.event.AdjustmentEvent;
+import java.awt.event.AdjustmentListener;
+import javax.swing.JScrollBar;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import savant.api.adapter.DataSourceAdapter;
-import savant.api.adapter.GraphPaneAdapter;
+import savant.api.adapter.FrameAdapter;
 import savant.api.adapter.RangeAdapter;
 import savant.api.adapter.RecordFilterAdapter;
 import savant.api.data.Record;
@@ -39,6 +41,7 @@ import savant.util.ColourScheme;
 import savant.util.DrawingInstruction;
 import savant.util.DrawingMode;
 import savant.util.Range;
+import savant.util.swing.TallScrollingPanel;
 import savant.view.swing.VariantGraphPane;
 
 /**
@@ -50,8 +53,7 @@ public class VariantTrack extends Track {
     private static final Log LOG = LogFactory.getLog(VariantTrack.class);
 
     private String reference;
-    private Range range;
-    private BitSet participants;
+    private Range visibleRange;
 
     public VariantTrack(DataSourceAdapter ds) throws SavantTrackCreationCancelledException {
         super(ds, new VariantTrackRenderer());
@@ -68,15 +70,27 @@ public class VariantTrack extends Track {
         });
     }
 
-    private void setLocation(String ref, Range r) {
-        String oldRef = reference;
-        reference = ref;
-        range = r;
-        if (!reference.equals(oldRef)) {
-            if (getFrame() != null) {
-                ((VariantGraphPane)getFrame().getGraphPane()).getVerticalScrollBar().setMaximum(LocationController.getInstance().getReferenceLength(ref));
+    /**
+     * Our frame may be late in arriving, so override setFrame to update the visible range correctly.
+     */
+    @Override
+    public void setFrame(FrameAdapter frame) {
+        super.setFrame(frame);
+        setVisibleRange(LocationController.getInstance().getRange());
+        ((VariantGraphPane)frame.getGraphPane()).getVerticalScrollBar().addAdjustmentListener(new AdjustmentListener() {
+            @Override
+            public void adjustmentValueChanged(AdjustmentEvent ae) {
+                int start = ae.getValue();
+                if (start != visibleRange.getFrom()) {
+                    setVisibleRange(new Range(start, Math.min(start + visibleRange.getLength(), LocationController.getInstance().getMaxRangeEnd())));
+                }
             }
-        }
+        });
+    }
+
+    private void setLocation(String ref, Range r) {
+        reference = ref;
+        setVisibleRange(r);
     }
 
     @Override
@@ -98,36 +112,23 @@ public class VariantTrack extends Track {
      */
     @Override
     public void prepareForRendering(String ignored1, Range ignored2) {
-        Resolution r = getResolution(range);
+        Resolution r = getResolution(visibleRange);
         if (r == Resolution.HIGH) {
             renderer.addInstruction(DrawingInstruction.PROGRESS, "Retrieving variant data...");
-            requestData(reference, range);
+            requestData(reference, visibleRange);
         } else {
             saveNullData();
         }
 
-        renderer.addInstruction(DrawingInstruction.RANGE, range);
+        renderer.addInstruction(DrawingInstruction.RANGE, visibleRange);
         renderer.addInstruction(DrawingInstruction.RESOLUTION, r);
         renderer.addInstruction(DrawingInstruction.COLOUR_SCHEME, getColourScheme());
 
         renderer.addInstruction(DrawingInstruction.REFERENCE_EXISTS, containsReference(reference));
 
         // Shove in a placeholder axis range since we won't know the actual range until the data arrives.
-        AxisRange axes = null;
-        switch (getDrawingMode()) {
-            case STANDARD:
-                axes = new AxisRange(0, 1, 0, 1);
-                break;
-            case MATRIX:
-                axes = new AxisRange(0, participants.size(), 0, 1);
-                break;
-            case LD_PLOT:
-                // TODO: Implement this properly.
-                axes = new AxisRange(0, 1, 0, 1);
-                break;
-        }
-        renderer.addInstruction(DrawingInstruction.AXIS_RANGE, axes);
-        renderer.addInstruction(DrawingInstruction.SELECTION_ALLOWED, false);
+        renderer.addInstruction(DrawingInstruction.AXIS_RANGE, new AxisRange(0, 1, 0, 1));
+        renderer.addInstruction(DrawingInstruction.SELECTION_ALLOWED, true);
         renderer.addInstruction(DrawingInstruction.MODE, getDrawingMode());
     }
 
@@ -150,26 +151,71 @@ public class VariantTrack extends Track {
         return reference;
     }
     
-    public Range getRange() {
-        return range;
+    /**
+     * The variant track purports to display the entire chromosome, but only a sub-range may actually 
+     * be visible in the scrolling area.
+     * @return the range which is currently visible in the scrolling area
+     */
+    public Range getVisibleRange() {
+        return visibleRange;
+    }
+
+    public void setVisibleRange(Range r) {
+        if (getFrame() != null) {
+            if (!r.equals(visibleRange)) {
+                visibleRange = r;
+                JScrollBar scroller = ((TallScrollingPanel)((VariantGraphPane)getFrame().getGraphPane()).getParent()).getScrollBar();
+                scroller.setMaximum(LocationController.getInstance().getMaxRangeEnd());
+                scroller.setValue(visibleRange.getFrom());
+                scroller.setVisibleAmount(visibleRange.getLength());
+
+                getRenderer().clearInstructions();
+                prepareForRendering(reference, visibleRange);
+                repaint();
+            }
+        }
     }
 
     /**
-     * Zoom out one level
+     * Zoom out by a factor of two.
      */
     public void zoomOut() {
-        GraphPaneAdapter gp = getFrame().getGraphPane();
-        gp.setUnitHeight(Math.max(1.0, gp.getUnitHeight() * 0.5));
-        repaint();
+        zoomToLength(visibleRange.getLength() * 2);
     }
 
     /**
-     * Zoom in one level
+     * Zoom in by a factor of two.
      */
     public void zoomIn() {
-        GraphPaneAdapter gp = getFrame().getGraphPane();
-        gp.setUnitHeight(Math.min(8.0, gp.getUnitHeight() * 2.0));
-        repaint();
+        zoomToLength(visibleRange.getLength() / 2);
+    }
+
+    private void zoomToLength(int length) {
+        int maxLen = LocationController.getInstance().getMaxRangeEnd();
+        if (length > maxLen) {
+            length = maxLen;
+        } else if (length < 1) {
+            length = 1;
+        }
+        LOG.info("Zooming to length " + length);
+        int from = (visibleRange.getFrom() + 1 + visibleRange.getTo() - length) / 2;
+        int to = from + length - 1;
+
+        if (from < 1) {
+            to += 1 - from;
+            from = 1;
+        }
+
+        if (to > maxLen) {
+            from -= to - maxLen;
+            to = maxLen;
+
+            if (from < 1) {
+                from = 1;
+            }
+        }
+
+        setVisibleRange(new Range(from, to));
     }
 
     /**
@@ -186,11 +232,6 @@ public class VariantTrack extends Track {
             int count = varRec.getParticipantCount();
             for (int i = 0; i < count; i++) {
                 if (varRec.getVariantForParticipant(i) != VariantRecord.VariantType.NONE) {
-                    if (participants == null) {
-                        // TODO: There's probably a better place to init this.
-                        participants = new BitSet(count);
-                        participants.set(0, count);
-                    }
                     return true;
                 }
             }

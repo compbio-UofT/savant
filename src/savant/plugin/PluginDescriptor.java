@@ -18,6 +18,10 @@ package savant.plugin;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 import javax.xml.stream.XMLInputFactory;
@@ -40,6 +44,7 @@ public class PluginDescriptor implements Comparable<PluginDescriptor> {
         PLUGIN,
         ATTRIBUTE,
         PARAMETER,
+        LIB,
         IGNORED
     };
 
@@ -63,10 +68,11 @@ public class PluginDescriptor implements Comparable<PluginDescriptor> {
     final String name;
     final String sdkVersion;
     final File file;
+    final File[] libs;
 
     private static XMLStreamReader reader;
 
-    private PluginDescriptor(String className, String id, String version, String name, String sdkVersion, File file) {
+    private PluginDescriptor(String className, String id, String version, String name, String sdkVersion, File file, File[] libs) {
         if (className == null || id == null || version == null || name == null || file == null) {
             throw new IllegalArgumentException("Null argument passed to PluginDescriptor constructor.");
         }
@@ -76,6 +82,7 @@ public class PluginDescriptor implements Comparable<PluginDescriptor> {
         this.name = name;
         this.sdkVersion = sdkVersion != null ? sdkVersion : "1.4.2 or earlier";
         this.file = file;
+        this.libs = libs;
     }
 
     @Override
@@ -107,6 +114,27 @@ public class PluginDescriptor implements Comparable<PluginDescriptor> {
         return file;
     }
 
+    /**
+     * Retrieve an array of all jar files required by this plugin.  In most cases, this
+     * will just be the plugin's own jar, but in 2.0.0 a plugin can use &lt;lib> tags to
+     * specify additional external jars.
+     */
+    public URL[] getJars() throws MalformedURLException {
+        List<URL> urls = new ArrayList<URL>();
+        if (file.getName().endsWith(".jar")) {
+            urls.add(file.toURI().toURL());
+            for (File f: libs) {
+                if (f.isAbsolute()) {
+                    urls.add(f.toURI().toURL());
+                } else {
+                    // Lib file is relative to plugin location.
+                    urls.add(new File(file.getParentFile(), f.getPath()).toURI().toURL());
+                }
+            }
+        }
+        return urls.toArray(new URL[0]);
+    }
+
     @Override
     public int compareTo(PluginDescriptor t) {
         return (id + version).compareTo(t.id + t.version);
@@ -120,7 +148,6 @@ public class PluginDescriptor implements Comparable<PluginDescriptor> {
         return sdkVersion.equals("2.0.0");
     }
 
-
     /**
      * Parse the given input stream to get the plugin attributes.
      */
@@ -131,6 +158,7 @@ public class PluginDescriptor implements Comparable<PluginDescriptor> {
         String version = null;
         String sdkVersion = null;
         String name = null;
+        List<File> libs = new ArrayList<File>();
         do {
             switch (reader.next()) {
                 case XMLStreamConstants.START_ELEMENT:
@@ -153,6 +181,9 @@ public class PluginDescriptor implements Comparable<PluginDescriptor> {
                                 name = readAttribute(PluginXMLAttribute.VALUE);
                             }
                             break;
+                        case LIB:
+                            libs.add(new File(reader.getElementText()));
+                            break;
                     }
                     break;
                 case XMLStreamConstants.END_DOCUMENT:
@@ -163,7 +194,7 @@ public class PluginDescriptor implements Comparable<PluginDescriptor> {
         } while (reader != null);
 
         // Will throw an IllegalArgumentException if one of our required attributes has not been set.
-        return new PluginDescriptor(className, id, version, name, sdkVersion, f);
+        return new PluginDescriptor(className, id, version, name, sdkVersion, f, libs.toArray(new File[0]));
     }
  
     /**

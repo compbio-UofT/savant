@@ -133,7 +133,7 @@ public class PluginController extends Controller {
         for (PluginDescriptor desc: knownPlugins.values()) {
             try {
                 if (!pluginErrors.containsKey(desc.getID())) {
-                    jarURLs.add(desc.getFile().toURI().toURL());
+                    jarURLs.addAll(Arrays.asList(desc.getJars()));
                 }
             } catch (MalformedURLException ignored) {
             }
@@ -345,9 +345,10 @@ public class PluginController extends Controller {
         PluginDescriptor desc = addPlugin(pluginFile);
         if (desc != null) {
             if (pluginLoader == null) {
-                pluginLoader = new PluginLoader(new URL[] { pluginFile.toURI().toURL() }, getClass().getClassLoader());
+                pluginLoader = new PluginLoader(desc.getJars(), getClass().getClassLoader());
+            } else {
+                pluginLoader.addJars(desc.getJars());
             }
-            pluginLoader.addJar(pluginFile);
             loadPlugin(desc);
         }
     }
@@ -386,10 +387,9 @@ public class PluginController extends Controller {
             super(urls, parent);
         }
 
-        void addJar(File f) {
-            try {
-                addURL(f.toURI().toURL());
-            } catch (MalformedURLException ignored) {
+        void addJars(URL[] urls) {
+            for (URL u: urls) {
+                addURL(u);
             }
         }
     }

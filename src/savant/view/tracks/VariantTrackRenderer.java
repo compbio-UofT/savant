@@ -1,5 +1,5 @@
 /*
- *    Copyright 2011 University of Toronto
+ *    Copyright 2011-2012 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -16,17 +16,16 @@
 
 package savant.view.tracks;
 
-import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.geom.Rectangle2D;
-import java.util.ArrayList;
-import java.util.List;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import savant.api.adapter.GraphPaneAdapter;
 import savant.api.data.Record;
 import savant.api.data.VariantRecord;
 import savant.api.event.DataRetrievalEvent;
-import savant.controller.LocationController;
 import savant.exception.RenderingException;
 import savant.util.AxisRange;
 import savant.util.ColourAccumulator;
@@ -34,8 +33,6 @@ import savant.util.ColourKey;
 import savant.util.ColourScheme;
 import savant.util.DrawingInstruction;
 import savant.util.DrawingMode;
-import savant.util.MiscUtils;
-import savant.util.Range;
 
 
 /**
@@ -44,6 +41,8 @@ import savant.util.Range;
  * @author tarkvara
  */
 class VariantTrackRenderer extends TrackRenderer {
+    private static final Log LOG = LogFactory.getLog(VariantTrackRenderer.class);
+
     VariantTrackRenderer() {
     }
     
@@ -55,8 +54,15 @@ class VariantTrackRenderer extends TrackRenderer {
     public void handleEvent(DataRetrievalEvent evt) {
         switch (evt.getType()) {
             case COMPLETED:
-                AxisRange axis = (AxisRange)instructions.get(DrawingInstruction.AXIS_RANGE);
-                addInstruction(DrawingInstruction.AXIS_RANGE, new AxisRange(axis.getXMin(), axis.getXMax(), 0, evt.getData().size()));
+                if (evt.getData().size() > 0) {
+                    int xMax = 1;
+                    if (getInstruction(DrawingInstruction.MODE) == DrawingMode.MATRIX) {
+                        VariantRecord rec0 = (VariantRecord)evt.getData().get(0);
+                        xMax = rec0.getParticipantCount();
+                    }
+                    addInstruction(DrawingInstruction.AXIS_RANGE, new AxisRange(1, xMax, 1, evt.getData().size()));
+                    LOG.info("DataRetrievalEvent set y-range to " + ((AxisRange)getInstruction(DrawingInstruction.AXIS_RANGE)).getYRange());
+                }
                 break;
         }
         super.handleEvent(evt);
@@ -81,6 +87,9 @@ class VariantTrackRenderer extends TrackRenderer {
             case STANDARD:
                 renderStandardMode(g2, gp);
                 break;
+            case MATRIX:
+                renderMatrixMode(g2, gp);
+                break;
         }
     }
     
@@ -98,7 +107,6 @@ class VariantTrackRenderer extends TrackRenderer {
         
         ColourScheme cs = (ColourScheme)instructions.get(DrawingInstruction.COLOUR_SCHEME);
         ColourAccumulator accumulator = new ColourAccumulator(cs);
-        List<Rectangle2D> insertions = new ArrayList<Rectangle2D>();
 
         double i = 0.0;
         for (Record rec: data) {
@@ -107,7 +115,9 @@ class VariantTrackRenderer extends TrackRenderer {
             Rectangle2D rect = new Rectangle2D.Double(0.0, i * h, w, h);            
             switch (varRec.getVariantType()) {
                 case INSERTION:
-                    insertions.add(rect);
+                    // Because the scaling of a VCF track is not base-based, it doesn't make sense
+                    // to draw insertions using the rhombus we employ elsewhere.
+                    accumulator.addShape(ColourKey.INSERTED_BASE, rect);
                     break;
                 case DELETION:
                     accumulator.addShape(ColourKey.DELETED_BASE, rect);
@@ -116,12 +126,52 @@ class VariantTrackRenderer extends TrackRenderer {
                     accumulator.addBaseShape(varRec.getAltBases().charAt(0), rect);
                     break;
             }
+            recordToShapeMap.put(varRec, rect);
             i++;
         }
         accumulator.render(g2);
+    }
 
-        for (Rectangle2D ins: insertions) {
-            drawInsertion(g2, ins.getX(), ins.getY(), ins.getWidth(), ins.getHeight());
+    /**
+     * Render the data with horizontal blocks for each participant.
+     *
+     * @param g2 the AWT graphics object to be rendered onto
+     * @param gp the GraphPane which we're drawing into
+     * @throws RenderingException 
+     */
+    private void renderMatrixMode(Graphics2D g2, GraphPaneAdapter gp) throws RenderingException {
+
+        double h = gp.getUnitHeight();
+        double w = gp.getUnitWidth();
+        
+        ColourScheme cs = (ColourScheme)instructions.get(DrawingInstruction.COLOUR_SCHEME);
+        ColourAccumulator accumulator = new ColourAccumulator(cs);
+
+        int participantCount = ((VariantRecord)data.get(0)).getParticipantCount();
+        double i = 0.0;
+        for (Record rec: data) {
+
+            VariantRecord varRec = (VariantRecord)rec;
+            
+            for (int j = 0; j < participantCount; j++) {
+                Rectangle2D rect = new Rectangle2D.Double(j * w, i * h, w, h);
+                switch (varRec.getVariantForParticipant(j)) {
+                    case INSERTION:
+                        // Because the scaling of a VCF track is not base-based, it doesn't make sense
+                        // to draw insertions using the rhombus we employ elsewhere.
+                        accumulator.addShape(ColourKey.INSERTED_BASE, rect);
+                        break;
+                    case DELETION:
+                        accumulator.addShape(ColourKey.DELETED_BASE, rect);
+                        break;
+                    case SNP:
+                        accumulator.addBaseShape(varRec.getAltBases().charAt(0), rect);
+                        break;
+                }
+            }
+            recordToShapeMap.put(varRec, new Rectangle2D.Double(0, i * h, w * participantCount, h));
+            i++;
         }
+        accumulator.render(g2);
     }
 }
