@@ -58,8 +58,6 @@ public class GraphPaneController extends Controller implements Listener<PopupEve
 
     private static GraphPaneController instance;
 
-    private boolean changeMade = false;
-
     /** Panel (if any) which is currently popped up. */
     private PopupPanel poppedUp = null;
 
@@ -108,11 +106,6 @@ public class GraphPaneController extends Controller implements Listener<PopupEve
         return instance;
     }
 
-    public boolean isChanged(){
-        return changeMade;
-    }
-
-
     public void askForRefresh() {
         if (isPanning() || isZooming() || isPlumbing() || isSpotlight() || isAiming()) {
             fireEvent(new GraphPaneEvent());
@@ -136,15 +129,14 @@ public class GraphPaneController extends Controller implements Listener<PopupEve
     }
 
     public void setPlumbing(boolean isPlumbing) {
-        if (isPlumbing) {
-            this.isSpotlight = false;
-            this.isAiming = false;
+        if (this.isPlumbing != isPlumbing) {
+            this.isPlumbing = isPlumbing;
+            if (isPlumbing) {
+                this.isSpotlight = false;
+                this.isAiming = false;
+            }
+            forceRefresh();
         }
-
-        this.isPlumbing = isPlumbing;
-        changeMade = true;
-        forceRefresh();
-        changeMade = false;
     }
 
     public boolean isSpotlight() {
@@ -152,18 +144,25 @@ public class GraphPaneController extends Controller implements Listener<PopupEve
     }
 
     public void setSpotlight(boolean isSpotlight) {
-        if (isSpotlight) {
-            this.isPlumbing = false;
-            this.isAiming = false;
+        if (this.isSpotlight != isSpotlight) {
+            this.isSpotlight = isSpotlight;
+            if (isSpotlight) {
+                this.isPlumbing = false;
+                this.isAiming = false;
+            }
+            forceRefresh();
         }
-        this.isSpotlight = isSpotlight;
-        changeMade = true;
-        forceRefresh();
-        changeMade = false;
     }
 
     public boolean isZooming() {
         return this.isZooming;
+    }
+
+    public void setZooming(boolean isZooming) {
+        if (this.isZooming != isZooming) {
+            this.isZooming = isZooming;
+            forceRefresh();
+        }
     }
 
     public boolean isAiming() {
@@ -171,19 +170,14 @@ public class GraphPaneController extends Controller implements Listener<PopupEve
     }
 
     public void setAiming(boolean isAiming) {
-        this.isAiming = isAiming;
-        if (isAiming) {
-            this.isPlumbing = false;
-            this.isSpotlight = false;
+        if (this.isAiming != isAiming) {
+            this.isAiming = isAiming;
+            if (isAiming) {
+                this.isPlumbing = false;
+                this.isSpotlight = false;
+            }
+            forceRefresh();
         }
-        changeMade = true;
-        forceRefresh();
-        changeMade = false;
-    }
-
-    public void setZooming(boolean isZooming) {
-        this.isZooming = isZooming;
-        forceRefresh();
     }
 
     public boolean isPanning() {
@@ -191,8 +185,10 @@ public class GraphPaneController extends Controller implements Listener<PopupEve
     }
 
     public void setPanning(boolean isPanning) {
-        this.isPanning = isPanning;
-        forceRefresh();
+        if (this.isPanning != isPanning) {
+            this.isPanning = isPanning;
+            forceRefresh();
+        }
     }
 
     public Range getMouseDragRange() {

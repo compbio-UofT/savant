@@ -38,6 +38,7 @@ import savant.api.event.PopupEvent;
 import savant.api.util.Listener;
 import savant.controller.GraphPaneController;
 import savant.controller.LocationController;
+import savant.controller.event.GraphPaneEvent;
 import savant.data.types.BAMIntervalRecord;
 import savant.data.types.GenericContinuousRecord;
 import savant.exception.RenderingException;
@@ -149,11 +150,21 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
         popupThread = new Thread(new PopupThread(this), "PopupThread");
         popupThread.start();
 
-        GraphPaneController controller = GraphPaneController.getInstance();
+        //
+        GraphPaneController gpc = GraphPaneController.getInstance();
+
+        gpc.addListener(new Listener<GraphPaneEvent>() {
+            @Override
+            public void handleEvent(GraphPaneEvent event) {
+                if (event.getType() == GraphPaneEvent.Type.HIGHLIGHTING) {
+                    repaint();
+                }
+            }
+        });
 
         // GraphPaneController listens to popup events to make sure that only one
         // popup is open at a time.
-        addPopupListener(controller);
+        addPopupListener(gpc);
     }
 
     /**
@@ -320,8 +331,13 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
             int priority = -1;
             for (Track t: tracks) {
                 // Change renderers' drawing instructions to reflect consolidated YRange
-                AxisRange oldAxes = (AxisRange)t.getRenderer().getInstruction(DrawingInstruction.AXIS_RANGE);
-                t.getRenderer().addInstruction(DrawingInstruction.AXIS_RANGE, new AxisRange(oldAxes.getXRange(), consolidatedYRange));
+                AxisRange axes = (AxisRange)t.getRenderer().getInstruction(DrawingInstruction.AXIS_RANGE);
+                if (axes == null) {
+                    axes = new AxisRange(xRange, consolidatedYRange);
+                } else {
+                    axes = new AxisRange(axes.getXRange(), consolidatedYRange);
+                }
+                t.getRenderer().addInstruction(DrawingInstruction.AXIS_RANGE, axes);
                 try {
                     t.getRenderer().render(g3, this);
                     nothingRendered = false;
@@ -508,6 +524,9 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
 
     @Override
     protected void paintComponent(Graphics g) {
+        if (tracks != null && tracks.length > 0) {
+            LOG.trace("GraphPane.paintComponent(" + tracks[0].getName() + ")");
+        }
         super.paintComponent(g);
 
         Graphics2D g2 = (Graphics2D)g;
