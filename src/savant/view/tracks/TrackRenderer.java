@@ -299,7 +299,7 @@ public abstract class TrackRenderer implements Listener<DataRetrievalEvent> {
      */
     public Shape drawInsertion(Graphics2D g2, double x, double y, double unitWidth, double unitHeight) {
 
-        g2.setColor(Color.BLUE);
+        g2.setColor(Color.WHITE);
         double w = unitWidth * 0.5;
 
         Path2D.Double rhombus = new Path2D.Double();

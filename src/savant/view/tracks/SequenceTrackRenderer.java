@@ -26,6 +26,7 @@ import java.io.UnsupportedEncodingException;
 
 import savant.api.adapter.GraphPaneAdapter;
 import savant.api.data.SequenceRecord;
+import savant.api.util.Resolution;
 import savant.exception.RenderingException;
 import savant.util.*;
 
@@ -111,7 +112,8 @@ public class SequenceTrackRenderer extends TrackRenderer {
     
     @Override
     public Dimension getLegendSize(DrawingMode ignored) {
-        return new Dimension(150, 24);
+        Resolution res = (Resolution)getInstruction(DrawingInstruction.RESOLUTION);
+        return res == Resolution.HIGH ? new Dimension(150, 24) : null;
     }
     
     @Override

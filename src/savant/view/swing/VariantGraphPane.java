@@ -115,7 +115,7 @@ public class VariantGraphPane extends GraphPane {
      * on the height of the canvas.
      */
     @Override
-    protected void updateScrollForHeight() {
+    protected void updateScrollForHeight(int newScroll) {
     }
 
     

@@ -97,12 +97,10 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
     private Dimension prevSize = null;
     private String prevRef = null;
     private boolean paneResize = false;
-    private double axisYPixel;
     private int newHeight;
     private int oldWidth = -1;
     private int oldHeight = -1;
     private int oldViewHeight = -1;
-    protected int newScroll = 0;
     private boolean renderRequired = false;
     private int posOffset = 0;
     protected boolean forcedHeight = false;
@@ -372,21 +370,21 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
                     Dimension newSize = new Dimension(landscape.getWidth(), newHeight);
                     setPreferredSize(newSize);
                     setSize(newSize);
+                    parentFrame.validate(); // Ensures that scroller.getMaximum() is up to date.
+
+                    // If pane is resized, scrolling always starts at the bottom.  The only place
+                    // where looks wrong is when we have a continuous track with negative values.
+                    updateScrollForHeight(scroller.getMaximum());
                 }
-
-                // If we have a scroll-bar, scroll so that vertical position of the x-axis matches previous view.
-                newScroll = (int)Math.round(transformYPos(0.0) - axisYPixel);
-
-                // Resizing the components will trigger a paintComponent() which will cause render() to be reentered.
+                repaint();
                 return;
 
             } else if (oldViewHeight != -1 && oldViewHeight != getViewportHeight()) {
                 int newViewHeight = getViewportHeight();
                 int oldScroll = scroller.getValue();
-                newScroll = oldScroll + (oldViewHeight - newViewHeight);
+                updateScrollForHeight(oldScroll + (oldViewHeight - newViewHeight));
                 oldViewHeight = newViewHeight;
             }
-            updateScrollForHeight();
             oldWidth = parentFrame.getFrameLandscape().getWidth();
             oldHeight = parentFrame.getFrameLandscape().getHeight();
 
@@ -416,11 +414,8 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
      * Set the scroller position based on the height.  VariantGraphPanes override this
      * because they have their own notion of what the scroll height should be.
      */
-    protected void updateScrollForHeight() {
-        if (newScroll != -1) {
-            getVerticalScrollBar().setValue(newScroll);
-            newScroll = -1;
-        }
+    protected void updateScrollForHeight(int newScroll) {
+        getVerticalScrollBar().setValue(newScroll);
     }
 
     /**
@@ -847,7 +842,7 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
         }
     }
 
-        /** Mouse modifiers */
+    /** Mouse modifiers */
     private boolean isRightClick() {
         return mouseMod == mouseModifier.RIGHT;
     }
@@ -1388,8 +1383,6 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
             if (value) {
                 // If we have just switched to scaled-to-fit mode, we will have to reevaluate our scroll-bars.
                 requestHeight(getViewportHeight());
-            } else {
-                axisYPixel = transformYPos(0.0);
             }
             renderRequired = true;
             repaint();
