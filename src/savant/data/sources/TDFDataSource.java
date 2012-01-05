@@ -95,13 +95,15 @@ public class TDFDataSource extends DataSource<GenericContinuousRecord> {
                             LOG.debug("Skipping NaN hole at " + nextPos);
                         } else {
                             while (nextPos < datumStart && nextPos <= rangeEnd) {
-                                result.add(GenericContinuousRecord.valueOf(ref, nextPos += usefulStep, Float.NaN));
+                                result.add(GenericContinuousRecord.valueOf(ref, nextPos, Float.NaN));
+                                nextPos += usefulStep;
                             }
                         }
                         float datum = t.getValue(0, i);
                         LOG.debug("Tile " + i + " from " + datumStart + " to " + datumEnd + "=" + datum);
                         while (nextPos < datumEnd && nextPos <= rangeEnd) {
-                            result.add(GenericContinuousRecord.valueOf(ref, nextPos += usefulStep, datum));
+                            result.add(GenericContinuousRecord.valueOf(ref, nextPos, datum));
+                            nextPos += usefulStep;
                         }
                     }
                 }
