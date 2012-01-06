@@ -1,5 +1,0 @@
-<?xml version="1.0" ?>
-<plugin id="savant.ucscchooser" version="1.0.0" class="savant.ucscchooser.UCSCChooserPlugin">
-    <attributes><attribute id="sdk-version" value="2.0.0"/></attributes>
-    <parameter id="name" value="UCSC Chooser"/>
-</plugin>

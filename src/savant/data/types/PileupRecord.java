@@ -39,13 +39,13 @@ public class PileupRecord implements Record {
         if (stranded) {
             coverage = new int[2][7];
             percentage = new double[2][7];
-            double denominator0 = p.getTotalStrandCoverage(false) * 0.01;
-            double denominator1 = p.getTotalStrandCoverage(true) * 0.01;
+            double denominator0 = p.getTotalStrandCoverage(true) * 0.01;
+            double denominator1 = p.getTotalStrandCoverage(false) * 0.01;
             int i = 0;
             for (Nucleotide nuc: Nucleotide.values()) {
-                coverage[0][i] = (int)p.getStrandCoverage(nuc, false);
+                coverage[0][i] = (int)p.getStrandCoverage(nuc, true);
                 percentage[0][i] = coverage[0][i] / denominator0;
-                coverage[1][i] = (int)p.getStrandCoverage(nuc, true);
+                coverage[1][i] = (int)p.getStrandCoverage(nuc, false);
                 percentage[1][i] = coverage[1][i] / denominator1;
                 i++;
             }
@@ -99,7 +99,7 @@ public class PileupRecord implements Record {
     
     /**
      * Retrieve an array of 7 nucleotide coverage values for the given strand
-     * @param strand 0=forward or unstranded; 1=reverse
+     * @param strand 0=reverse or unstranded; 1=forward
      */
     public double[] getPercentage(int strand) {
         return percentage[strand];

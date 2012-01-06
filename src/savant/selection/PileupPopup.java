@@ -36,17 +36,24 @@ public class PileupPopup extends PopupPanel {
     @Override
     protected void initInfo() {
         PileupRecord rec = (PileupRecord)record;
-        
+        add(new JLabel("Position: " + rec.getPosition()));
         if (mode == DrawingMode.STRAND_SNP) {
-            add(new JLabel("Strand +"));
-            addStrand(rec, 0, "   ");
             add(new JLabel("Strand -"));
+            addStrand(rec, 0, "   ");
+            add(new JLabel("Strand +"));
             addStrand(rec, 1, "   ");
         } else {
             addStrand(rec, 0, "");
         }
     }
-    
+
+    /**
+     * Suppress initStandardButtons because SNP tracks don't want to be selectable or bookmarkable.
+     */
+    @Override
+    protected void initStandardButtons() {
+    }
+
     private void addStrand(PileupRecord rec, int strand, String indent) {
         int[] coverage = rec.getCoverage(strand);
         double[] percentage = rec.getPercentage(strand);
