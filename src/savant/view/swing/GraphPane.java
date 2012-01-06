@@ -904,7 +904,7 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
 
         if (gpc.isPanning()) {
 
-            if(!panVert) {
+            if (!panVert) {
                 Range r = lc.getRange();
                 int shiftVal = (int) (Math.round((x1-x2) / getUnitWidth()));
 
@@ -1092,7 +1092,7 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
     //POPUP
     public void tryPopup(Point p) {
 
-        if(tracks == null) return;
+        if (tracks == null) return;
 
         Point pt = new Point(p.x, p.y - getOffset());
 
@@ -1106,13 +1106,8 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
                  */
                 hidePopup();
                 
-                Object[] recs = map.keySet().toArray();
-                if(recs.length > 1) { //if there is more than one record, stop here
-                    repaint();
-                    return;
-                }
-
-                Record overRecord = (Record)recs[0];
+                // Arbitrarily pick the first record in the map.  Most of the time, there will be only one.
+                Record overRecord = map.keySet().iterator().next();
                 
                 JPopupMenu jp = new JPopupMenu();
                 PopupPanel pp = PopupPanel.create(this, tracks[0].getDrawingMode(), t.getDataSource(), overRecord);
@@ -1162,7 +1157,7 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
             Map<Record, Shape> map = t.getRenderer().searchPoint(p_offset);
             if (map != null) {
                 Object[] recs = map.keySet().toArray();
-                if(recs.length == 1) {
+                if (recs.length == 1) {
                     t.getRenderer().addToSelected((Record)recs[0]);
                 } else {
                     ArrayList<Record> array = new ArrayList<Record>();
