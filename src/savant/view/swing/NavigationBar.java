@@ -146,11 +146,7 @@ public class NavigationBar extends JToolBar {
         textField.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent evt) {
-                if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
-                    if (!locationField.isPopupVisible()) {
-                        setRangeFromText(locationField.getEditor().getItem().toString());
-                    }
-                } else if (evt.getKeyCode() == KeyEvent.VK_TAB) {
+                if (evt.getKeyCode() == KeyEvent.VK_TAB) {
                     locationField.showPopup();
                 } else if (evt.getModifiers() == KeyEvent.SHIFT_MASK) {
                     switch (evt.getKeyCode()) {
