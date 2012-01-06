@@ -30,16 +30,13 @@ public class PointGenericPopup extends PopupPanel {
     }
 
     @Override
-    protected void calculateInfo() {
+    protected void initInfo() {
         PointRecord rec = (PointRecord)record;
         ref = rec.getReference();
         start = rec.getPoint();
         end = start;
         name = rec.getDescription();
-    }
 
-    @Override
-    protected void initInfo() {
         add(new JLabel("Description: " + name));
         add(new JLabel("Position: " + start));
     }

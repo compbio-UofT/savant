@@ -44,6 +44,7 @@ import savant.controller.GenomeController;
 import savant.controller.LocationController;
 import savant.data.types.BAMIntervalRecord;
 import savant.data.types.Genome;
+import savant.data.types.PileupRecord;
 import savant.exception.RenderingException;
 import savant.settings.BrowserSettings;
 import savant.util.*;
@@ -594,26 +595,33 @@ public class BAMTrackRenderer extends TrackRenderer {
 
         for (Pileup p : pileups) {
 
-            Nucleotide snpNuc = null;
-            double bottom = gp.transformYPos(0);
+            if (p.getTotalCoverage() > 0.0) {
+                Nucleotide snpNuc = null;
+                double bottom = gp.transformYPos(0);
+                double x = gp.transformXPos(p.getPosition());
+                double h = unitHeight * p.getTotalCoverage();
 
-            Nucleotide genomeNuc = null;
-            if (genome.isSequenceSet()) {
-                genomeNuc = Pileup.getNucleotide((char)refSeq[p.getPosition() - startPosition]);
-                snpNuc = genomeNuc;
-            }
-            
-            
-            while ((genome.isSequenceSet() && (snpNuc = p.getLargestNucleotide(genomeNuc)) != null) || ((snpNuc = p.getLargestNucleotide(Nucleotide.OTHER)) != null)) {
-                double h = unitHeight * p.getCoverage(snpNuc);
-                Rectangle2D rect = new Rectangle2D.Double(gp.transformXPos(p.getPosition()), bottom - h, unitWidth, h);
-                accumulator.addShape(getSubPileColour(snpNuc, genomeNuc), rect);
-                if (snpNuc == Nucleotide.INSERTION) {
-                    insertions.add(rect);
-                } else {
-                    bottom -= h;
+                Nucleotide genomeNuc = null;
+                if (genome.isSequenceSet()) {
+                    genomeNuc = Pileup.getNucleotide((char)refSeq[p.getPosition() - startPosition]);
+                    snpNuc = genomeNuc;
                 }
-                p.clearNucleotide(snpNuc);
+                if (p.getTotalCoverage() > p.getCoverage(genomeNuc)) {
+                    // Only record a shape if we have at least some mismatches.
+                    recordToShapeMap.put(new PileupRecord(p, false), new Rectangle2D.Double(x, bottom - h, unitWidth, h));
+                }
+
+                while ((genome.isSequenceSet() && (snpNuc = p.getLargestNucleotide(genomeNuc)) != null) || ((snpNuc = p.getLargestNucleotide(Nucleotide.OTHER)) != null)) {
+                    h = unitHeight * p.getCoverage(snpNuc);
+                    Rectangle2D rect = new Rectangle2D.Double(x, bottom - h, unitWidth, h);
+                    accumulator.addShape(getSubPileColour(snpNuc, genomeNuc), rect);
+                    if (snpNuc == Nucleotide.INSERTION) {
+                        insertions.add(rect);
+                    } else {
+                        bottom -= h;
+                    }
+                    p.clearNucleotide(snpNuc);
+                }
             }
         }
         
@@ -665,45 +673,53 @@ public class BAMTrackRenderer extends TrackRenderer {
 
         for (Pileup p : pileups) {
 
-            Nucleotide snpNuc = null;
-            double bottom = axis;
-            double top = axis;
-
-            Nucleotide genomeNuc = null;
-            if (genome.isSequenceSet()) {
-                genomeNuc = Pileup.getNucleotide((char)refSeq[p.getPosition() - xMin]);
-                snpNuc = genomeNuc;
-            }
-
-            while ((genome.isSequenceSet() && (snpNuc = p.getLargestNucleotide(genomeNuc)) != null) || ((snpNuc = p.getLargestNucleotide(Nucleotide.OTHER)) != null)) {
-            
+            if (p.getTotalCoverage() > 0.0) {
+                Nucleotide snpNuc = null;
+                double bottom = axis;
+                double top = axis;
                 double x = gp.transformXPos(p.getPosition());
-                double coverage1 = p.getStrandCoverage(snpNuc, false);
-                double coverage2 = p.getStrandCoverage(snpNuc, true);
+                double h = unitHeight * p.getTotalCoverage();
 
-                ColourKey col = getSubPileColour(snpNuc, genomeNuc);
-                if (coverage1 > 0.0) {
-                    double h = unitHeight * coverage1;
-                    Rectangle2D rect = new Rectangle2D.Double(x, top, unitWidth, h);
-                    accumulator.addShape(col == ColourKey.REVERSE_STRAND ? ColourKey.FORWARD_STRAND : col, rect);
-                    if (snpNuc == Nucleotide.INSERTION) {
-                        insertions.add(rect);
-                    } else {
-                        top += h;
-                    }
-                }
-                if (coverage2 > 0.0) {
-                    double h = unitHeight * coverage2;
-                    Rectangle2D rect = new Rectangle2D.Double(x, bottom - h, unitWidth, h);
-                    accumulator.addShape(col, rect);
-                    if (snpNuc == Nucleotide.INSERTION) {
-                        insertions.add(rect);
-                    } else {
-                        bottom -= h;
-                    }
+                Nucleotide genomeNuc = null;
+                if (genome.isSequenceSet()) {
+                    genomeNuc = Pileup.getNucleotide((char)refSeq[p.getPosition() - xMin]);
+                    snpNuc = genomeNuc;
                 }
 
-                p.clearNucleotide(snpNuc);
+                if (p.getTotalCoverage() > p.getCoverage(genomeNuc)) {
+                    // Only record a shape if we have at least some mismatches.
+                    recordToShapeMap.put(new PileupRecord(p, true), new Rectangle2D.Double(x, bottom - unitHeight * p.getTotalStrandCoverage(true), unitWidth, h));
+                }
+
+                while ((genome.isSequenceSet() && (snpNuc = p.getLargestNucleotide(genomeNuc)) != null) || ((snpNuc = p.getLargestNucleotide(Nucleotide.OTHER)) != null)) {
+
+                    double coverage1 = p.getStrandCoverage(snpNuc, false);
+                    double coverage2 = p.getStrandCoverage(snpNuc, true);
+
+                    ColourKey col = getSubPileColour(snpNuc, genomeNuc);
+                    if (coverage1 > 0.0) {
+                        h = unitHeight * coverage1;
+                        Rectangle2D rect = new Rectangle2D.Double(x, top, unitWidth, h);
+                        accumulator.addShape(col == ColourKey.REVERSE_STRAND ? ColourKey.FORWARD_STRAND : col, rect);
+                        if (snpNuc == Nucleotide.INSERTION) {
+                            insertions.add(rect);
+                        } else {
+                            top += h;
+                        }
+                    }
+                    if (coverage2 > 0.0) {
+                        h = unitHeight * coverage2;
+                        Rectangle2D rect = new Rectangle2D.Double(x, bottom - h, unitWidth, h);
+                        accumulator.addShape(col, rect);
+                        if (snpNuc == Nucleotide.INSERTION) {
+                            insertions.add(rect);
+                        } else {
+                            bottom -= h;
+                        }
+                    }
+
+                    p.clearNucleotide(snpNuc);
+                }
             }
         }
 

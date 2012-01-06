@@ -46,16 +46,13 @@ public class IntervalBamPopup extends PopupPanel implements Listener<DataRetriev
     }
 
     @Override
-    protected void calculateInfo() {
+    protected void initInfo() {
         samRec = ((BAMIntervalRecord)record).getSAMRecord();
         name = samRec.getReadName();
         ref = samRec.getReferenceName();
         start = samRec.getAlignmentStart();
         end = samRec.getAlignmentEnd();
-    }
 
-    @Override
-    protected void initInfo() {
         add(new JLabel("Read Name: " + name));
         add(new JLabel("Position: " + start));
         add(new JLabel("Read Length: " + samRec.getReadLength()));
@@ -70,7 +67,7 @@ public class IntervalBamPopup extends PopupPanel implements Listener<DataRetriev
     @Override
     protected void initSpecificButtons() {
 
-        if(samRec.getReadPairedFlag() && !(samRec.getMateReferenceName().equals("*") || samRec.getMateAlignmentStart() == 0)){
+        if (samRec.getReadPairedFlag() && !(samRec.getMateReferenceName().equals("*") || samRec.getMateAlignmentStart() == 0)) {
             //jump to mate button
             Buttonoid mateJump = new Buttonoid("Jump to Mate");
             mateJump.addMouseListener(new MouseAdapter() {

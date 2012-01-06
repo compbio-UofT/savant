@@ -18,6 +18,7 @@ package savant.selection;
 
 import javax.swing.JLabel;
 
+import savant.api.data.Interval;
 import savant.api.data.VariantRecord;
 
 
@@ -27,25 +28,19 @@ import savant.api.data.VariantRecord;
  * @author tarkvara
  */
 public class VariantPopup extends PopupPanel {
-    private String type;
-    private int position;
-    private String refBases;
-    private String altBases;
 
-    @Override
-    protected void calculateInfo() {
-        VariantRecord rec = (VariantRecord)record;
-        type = rec.getVariantType().name();
-        position = rec.getInterval().getStart();
-        refBases = rec.getRefBases();
-        altBases = rec.getAltBases();
+    VariantPopup() {
+        Interval inter = ((VariantRecord)record).getInterval();
+        start = inter.getStart();
+        end = inter.getEnd();
     }
 
     @Override
     protected void initInfo() {
-        add(new JLabel("Type: " + type));
-        add(new JLabel("Position: " + position));
-        add(new JLabel("Reference: " + refBases));
-        add(new JLabel("Alt: " + altBases));
+        VariantRecord rec = (VariantRecord)record;
+        add(new JLabel("Type: " + rec.getVariantType().name()));
+        add(new JLabel("Position: " + start));
+        add(new JLabel("Reference: " + rec.getRefBases()));
+        add(new JLabel("Alt: " + rec.getAltBases()));
     }
 }

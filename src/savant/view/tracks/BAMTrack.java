@@ -81,13 +81,14 @@ public class BAMTrack extends Track {
     @Override
     public void prepareForRendering(String reference, Range range) {
 
+        DrawingMode mode = getDrawingMode();
         Resolution r = getResolution(range);
         if (r == Resolution.HIGH) {
             renderer.addInstruction(DrawingInstruction.PROGRESS, "Retrieving BAM data...");
             requestData(reference, range);
         } else {
             saveNullData();
-            if (getDrawingMode() == DrawingMode.ARC_PAIRED) {
+            if (mode == DrawingMode.ARC_PAIRED) {
                 renderer.addInstruction(DrawingInstruction.ERROR, ZOOM_MESSAGE);
             } else {
                 // If there is an actual coverage track, this error message will never be drawn.
@@ -103,15 +104,15 @@ public class BAMTrack extends Track {
         boolean f = containsReference(reference);
         renderer.addInstruction(DrawingInstruction.REFERENCE_EXISTS, containsReference(reference));
 
-        if (getDrawingMode() == DrawingMode.ARC_PAIRED) {
+        if (mode == DrawingMode.ARC_PAIRED) {
             renderer.addInstruction(DrawingInstruction.ARC_MIN, getFilter().getArcLengthThreshold());
             renderer.addInstruction(DrawingInstruction.DISCORDANT_MIN, getConcordantMin());
             renderer.addInstruction(DrawingInstruction.DISCORDANT_MAX, getConcordantMax());
         } else {
             renderer.addInstruction(DrawingInstruction.AXIS_RANGE, new AxisRange(range, new Range(0, 1)));
         }
-        renderer.addInstruction(DrawingInstruction.SELECTION_ALLOWED, true);
-        renderer.addInstruction(DrawingInstruction.MODE, getDrawingMode());
+        renderer.addInstruction(DrawingInstruction.SELECTION_ALLOWED, mode != DrawingMode.SNP && mode != DrawingMode.STRAND_SNP);
+        renderer.addInstruction(DrawingInstruction.MODE, mode);
         renderer.addInstruction(DrawingInstruction.BASE_QUALITY, baseQualityEnabled);
         renderer.addInstruction(DrawingInstruction.MAPPING_QUALITY, mappingQualityEnabled);
     }

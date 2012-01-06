@@ -1,5 +1,5 @@
 /*
- *    Copyright 2010-2011 University of Toronto
+ *    Copyright 2010-2012 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -31,17 +31,13 @@ public class ContinuousPopup extends PopupPanel {
     }
 
     @Override
-    protected void calculateInfo() {
+    protected void initInfo() {
         ref = record.getReference();
         ContinuousRecord rec = (ContinuousRecord)record;
         start = rec.getPosition();
         end = rec.getPosition();
-        name = "Value: " + rec.getValue(); //for bookmarking annotation
-    }
-
-    @Override
-    protected void initInfo() {
+        name = "Value: " + rec.getValue();
         add(new JLabel("Position: " + start));
-        add(new JLabel("Value: " + ((ContinuousRecord)record).getValue()));
+        add(new JLabel("Value: " + rec.getValue()));
     }
 }

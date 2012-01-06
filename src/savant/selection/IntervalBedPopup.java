@@ -31,16 +31,13 @@ public class IntervalBedPopup extends PopupPanel {
     }
 
     @Override
-    protected void calculateInfo() {
+    protected void initInfo() {
         IntervalRecord rec = (IntervalRecord)record;
         name = rec.getName();
         ref = rec.getReference();
         start = rec.getInterval().getStart();
         end = rec.getInterval().getEnd();
-    }
 
-    @Override
-    protected void initInfo() {
         add(new JLabel("Name: " + name));
         add(new JLabel("Position: " + start));
         add(new JLabel("Length: " + (end - start)));

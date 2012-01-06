@@ -54,7 +54,7 @@ public abstract class PopupPanel extends JPanel {
     protected DataFormat fileFormat;
     protected Record record;
 
-    //info
+    // Common fields used for bookmarking.
     protected String name;
     protected String ref;
     protected int start;
@@ -68,8 +68,10 @@ public abstract class PopupPanel extends JPanel {
                 p = new PointGenericPopup();
                 break;
             case ALIGNMENT:
-                if (mode != DrawingMode.SNP) {
+                if (mode != DrawingMode.SNP && mode != DrawingMode.STRAND_SNP) {
                     p = new IntervalBamPopup();
+                } else {
+                    p = new PileupPopup();
                 }
                 break;
             case RICH_INTERVAL:
@@ -98,7 +100,9 @@ public abstract class PopupPanel extends JPanel {
                 break;
         }
 
-        if (p != null) p.init(parent, mode, dataSource.getDataFormat(), rec);
+        if (p != null) {
+            p.init(parent, mode, dataSource.getDataFormat(), rec);
+        }
         return p;
     }
 
@@ -113,7 +117,6 @@ public abstract class PopupPanel extends JPanel {
         setLayout(new GridLayout(0, 1));
         setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
 
-        calculateInfo();
         initInfo();
         initStandardButtons();
         initSpecificButtons();
@@ -166,9 +169,7 @@ public abstract class PopupPanel extends JPanel {
 
     protected void initSpecificButtons() {};
 
-    protected abstract void calculateInfo();
-
-    protected void initInfo() {};
+    protected abstract void initInfo();
 
     protected String homogenizeRef(String orig) {
         if (!LocationController.getInstance().getAllReferenceNames().contains(orig)) {

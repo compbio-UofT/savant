@@ -36,16 +36,12 @@ public class TabixPopup extends PopupPanel {
     }
 
     @Override
-    protected void calculateInfo() {
+    protected void initInfo() {
         TabixIntervalRecord rec = (TabixIntervalRecord)record;
         name = rec.getName();
         ref = rec.getReference();
         start = rec.getInterval().getStart();
         end = rec.getInterval().getEnd();
-    }
-
-    @Override
-    protected void initInfo() {
         String[] values = ((TabixIntervalRecord)record).getValues();
         
         for (int i = 0; i < columnNames.length && i < values.length; i++) {

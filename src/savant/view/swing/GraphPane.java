@@ -32,6 +32,7 @@ import org.apache.commons.logging.LogFactory;
 
 import savant.api.adapter.FrameAdapter;
 import savant.api.adapter.GraphPaneAdapter;
+import savant.api.data.ContinuousRecord;
 import savant.api.data.Record;
 import savant.api.event.ExportEvent;
 import savant.api.event.PopupEvent;
@@ -40,7 +41,6 @@ import savant.controller.GraphPaneController;
 import savant.controller.LocationController;
 import savant.controller.event.GraphPaneEvent;
 import savant.data.types.BAMIntervalRecord;
-import savant.data.types.GenericContinuousRecord;
 import savant.exception.RenderingException;
 import savant.selection.PopupThread;
 import savant.selection.PopupPanel;
@@ -122,13 +122,6 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
      * Provides progress indication when loading a track.
      */
     private ProgressPanel progressPanel;
-
-    // mouse and key modifiers
-    private enum mouseModifier { NONE, LEFT, MIDDLE, RIGHT };
-    private mouseModifier mouseMod = mouseModifier.LEFT;
-
-    private enum keyModifier { DEFAULT, CTRL, SHIFT, META, ALT; };
-    private keyModifier keyMod = keyModifier.DEFAULT;
 
     //awaiting exported images
     private final List<Listener<ExportEvent>> exportListeners = new ArrayList<Listener<ExportEvent>>();
@@ -842,72 +835,13 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
         }
     }
 
-    /** Mouse modifiers */
-    private boolean isRightClick() {
-        return mouseMod == mouseModifier.RIGHT;
-    }
-
-    private boolean isLeftClick() {
-        return mouseMod == mouseModifier.LEFT;
-    }
-
-    private boolean isMiddleClick() {
-        return mouseMod == mouseModifier.MIDDLE;
-    }
-
-    // Key modifiers
-    private boolean isNoKeyModifierPressed() {
-        return keyMod == keyModifier.DEFAULT;
-    }
-
-    private boolean isShiftKeyModifierPressed() {
-        return keyMod == keyModifier.SHIFT;
-    }
-
-    private boolean isCtrlKeyModifierPressed() {
-        return keyMod == keyModifier.CTRL;
-    }
-
-    private boolean isMetaModifierPressed() {
-        return keyMod == keyModifier.META;
-    }
-
-    private boolean isAltModifierPressed() {
-        return keyMod == keyModifier.ALT;
-    }
-
-    private boolean isZoomModifierPressed() {
-        return (MiscUtils.MAC && isMetaModifierPressed()) || (!MiscUtils.MAC && isCtrlKeyModifierPressed());
-    }
-
-    private boolean isSelectModifierPressed() {
-        if (isShiftKeyModifierPressed()) return true;
-        else return false;
-    }
-
     private void setMouseModifier(MouseEvent e) {
-
-        if (e.getButton() == 1) mouseMod= mouseModifier.LEFT;
-        else if (e.getButton() == 2) mouseMod = mouseModifier.MIDDLE;
-        else if (e.getButton() == 3) mouseMod = mouseModifier.RIGHT;
-
-        if (e.isControlDown()) {
-            keyMod = keyModifier.CTRL;
-        }
-        else if (e.isShiftDown()) {
-            keyMod = keyModifier.SHIFT;
-        }
-        else if (e.isMetaDown()) {
-            keyMod = keyModifier.META;
-        }
-        else if (e.isAltDown()) {
-            keyMod = keyModifier.ALT;
-        }
-        else {
-            keyMod = keyModifier.DEFAULT;
-        }
-
-        tellModifiersToGraphPaneController();
+        GraphPaneController gpc = GraphPaneController.getInstance();
+        boolean zooming = MiscUtils.MAC ? e.isMetaDown() : e.isControlDown();
+        boolean selecting = e.isShiftDown() && !zooming;
+        gpc.setZooming(isDragging && zooming);
+        gpc.setPanning(isDragging && !zooming && !selecting);
+        gpc.setSelecting(isDragging && selecting);
     }
 
 
@@ -1127,25 +1061,6 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
         return Math.min(x, getWidth());
     }
 
-    private void tellModifiersToGraphPaneController() {
-        GraphPaneController gpc = GraphPaneController.getInstance();
-        setZooming(gpc);
-        setPanning(gpc);
-        setSelecting(gpc);
-    }
-
-    private void setZooming(GraphPaneController gpc) {
-        gpc.setZooming(isDragging &&  ((isLeftClick() && isZoomModifierPressed()) || (isRightClick() && isZoomModifierPressed())));
-    }
-
-    private void setSelecting(GraphPaneController gpc) {
-        gpc.setSelecting(isDragging &&  ((isLeftClick() && isSelectModifierPressed()) || (isRightClick() && isSelectModifierPressed())));
-    }
-
-    private void setPanning(GraphPaneController gpc) {
-        gpc.setPanning(isDragging && isNoKeyModifierPressed());
-    }
-
     /**
      * A locked track maintains its horizontal location while other tracks scroll.
      * 
@@ -1177,10 +1092,12 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
     //POPUP
     public void tryPopup(Point p) {
 
-        Point p_offset = new Point(p.x, p.y - this.getOffset());
         if(tracks == null) return;
+
+        Point pt = new Point(p.x, p.y - getOffset());
+
         for (Track t: tracks) {
-            Map<Record, Shape> map = t.getRenderer().searchPoint(p_offset);
+            Map<Record, Shape> map = t.getRenderer().searchPoint(pt);
             if (map != null) {
                 /** XXX: This line is here to get around what looks like a bug in the 1.6.0_20 JVM for Snow Leopard
                  * which causes the mouseExited events not to be triggered sometimes. We hide the popup before
@@ -1212,7 +1129,7 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
                 
                 currentOverRecord = overRecord;
                 currentOverShape = map.get(currentOverRecord);
-                if (currentOverRecord instanceof GenericContinuousRecord) {
+                if (currentOverRecord instanceof ContinuousRecord) {
                     currentOverShape = ContinuousTrackRenderer.continuousRecordToEllipse(this, currentOverRecord);
                 }
 

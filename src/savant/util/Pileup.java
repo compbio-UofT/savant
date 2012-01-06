@@ -36,9 +36,9 @@ public final class Pileup {
         clearNucleotide(Nucleotide.C);
         clearNucleotide(Nucleotide.G);
         clearNucleotide(Nucleotide.T);
-        clearNucleotide(Nucleotide.OTHER);
         clearNucleotide(Nucleotide.DELETION);
         clearNucleotide(Nucleotide.INSERTION);
+        clearNucleotide(Nucleotide.OTHER);
     }
 
     public int getPosition() {
@@ -120,7 +120,7 @@ public final class Pileup {
         return getCoverage(n) / getTotalCoverage();
     }
 
-    public enum Nucleotide { A, C, G, T, OTHER, INSERTION, DELETION; }
+    public enum Nucleotide { A, C, G, T, INSERTION, DELETION, OTHER; }
 
     private class Coverage {
         double total = 0.0;

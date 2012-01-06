@@ -185,42 +185,38 @@ public abstract class TrackRenderer implements Listener<DataRetrievalEvent> {
 
     public Map<Record, Shape> searchPoint(Point p) {
 
-        if (!selectionAllowed(true) || !hasMappedValues() || data == null) return null;
+        if (!hasMappedValues() || data == null) return null;
         
-        //check for arcMode
-        boolean isArc = false;
         DrawingMode mode = (DrawingMode)instructions.get(DrawingInstruction.MODE);
-        if (mode == DrawingMode.ARC_PAIRED) {
-            isArc = true;
-        }
         
         Map<Record, Shape> map = new HashMap<Record, Shape>();
-        boolean found = false;
                
         Rectangle2D testIntersection = new Rectangle2D.Double(p.x-3, p.y-3, 7, 7);
-        for(int i = 0; i < data.size(); i++) {
-            if (data.get(i) == null) continue;
-            Shape s = recordToShapeMap.get(data.get(i));
-            if (s == null) continue;
+        for (Record rec: recordToShapeMap.keySet()) {
+            Shape s = recordToShapeMap.get(rec);
 
-            //if (contains AND (notArc OR (isEdge...))          
-            if ( (!isArc && s.contains(p)) || 
-                (isArc && s.intersects(testIntersection) && (!s.contains(p.x-3, p.y-3) || !s.contains(p.x+3, p.y-3)))) {
-                map.put((Record)data.get(i), s);
-                found = true;
+            //if (contains AND (notArc OR (isEdge...))
+            boolean hit = false;
+            if (mode == DrawingMode.ARC || mode == DrawingMode.ARC_PAIRED) {
+                hit = s.intersects(testIntersection) && (!s.contains(p.x-3, p.y-3) || !s.contains(p.x+3, p.y-3));
+            } else if (mode == DrawingMode.SNP || mode == DrawingMode.STRAND_SNP) {
+                hit = s.intersects(testIntersection);
+            } else {
+                hit = s.contains(p);
+            }
+            if (hit) {
+                map.put(rec, s);
                 continue;
             }
             
             //check other artifacts
-            Shape artifact = artifactMap.get((Record)data.get(i));
+            Shape artifact = artifactMap.get(rec);
             if (artifact != null && artifact.contains(p.x, p.y)) {
-                map.put((Record)data.get(i), s);
-                found = true;
+                map.put(rec, s);
             }
         }
-        
-        if (found) return map;
-        else return null;
+        LOG.info("Searching for " + p + " found " + map.size() + " hits.");
+        return map.isEmpty() ? null : map;
     }
 
     public boolean rectangleSelect(Rectangle2D rect) {
@@ -271,7 +267,7 @@ public abstract class TrackRenderer implements Listener<DataRetrievalEvent> {
     public List<Shape> getCurrentSelectedShapes(GraphPaneAdapter gp) {
         List<Shape> shapes = new ArrayList<Shape>();
         List<Record> currentSelected = SelectionController.getInstance().getSelectedFromList(trackName, LocationController.getInstance().getRange(), data);
-        for(int i = 0; i < currentSelected.size(); i++) {
+        for (int i = 0; i < currentSelected.size(); i++) {
             Shape s = recordToShapeMap.get(currentSelected.get(i));
             if (s != null) {
                 shapes.add(s);
