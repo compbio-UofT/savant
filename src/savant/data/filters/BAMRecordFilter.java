@@ -1,5 +1,5 @@
 /*
- *    Copyright 2011 University of Toronto
+ *    Copyright 2011-2012 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -34,8 +34,10 @@ public class BAMRecordFilter implements RecordFilterAdapter<BAMIntervalRecord> {
     private double arcLengthThreshold = 1.0;
     private boolean includeDuplicates = false;
     private boolean includeVendorFailed = false;
+    private boolean includePaired = true;
+    private boolean includeUnpaired = true;
     private int mappingQualityThreshold;
-    private boolean pairMode;
+    private boolean arcMode;
 
     public BAMRecordFilter() {}
 
@@ -45,7 +47,7 @@ public class BAMRecordFilter implements RecordFilterAdapter<BAMIntervalRecord> {
 
     /**
      * if > 1, treat as absolute size below which an arc will not be drawn
-     * if 0 < 1, treat as percentage of y range below which an arc will not be drawn
+     * if 0 &lt; 1, treat as percentage of y range below which an arc will not be drawn
      * if = 0, draw all arcs
      */
     public void setArcLengthThreshold(double value) {
@@ -76,9 +78,25 @@ public class BAMRecordFilter implements RecordFilterAdapter<BAMIntervalRecord> {
         includeVendorFailed = value;
     }
 
+    public boolean getIncludePairedReads() {
+        return includePaired;
+    }
+
+    public void setIncludePairedReads(boolean value) {
+        includePaired = value;
+    }
+
+    public boolean getIncludeUnpairedReads() {
+        return includeUnpaired;
+    }
+
+    public void setIncludeUnpairedReads(boolean value) {
+        includeUnpaired = value;
+    }
+
     /** Filtering for BAM tracks is slightly different depending on whether we're in normal mode or Arc Pair mode. */
-    public void setPairMode(boolean value) {
-        pairMode = value;
+    public void setArcMode(boolean value) {
+        arcMode = value;
     }
 
     
@@ -94,11 +112,19 @@ public class BAMRecordFilter implements RecordFilterAdapter<BAMIntervalRecord> {
             return false;
         }
 
+        if (!includePaired && samRecord.getReadPairedFlag()) {
+            return false;
+        }
+        
+        if (!includeUnpaired && !samRecord.getReadPairedFlag()) {
+            return false;
+        }
+
         if (samRecord.getMappingQuality() < mappingQualityThreshold) {
             return false;
         }
 
-        if (pairMode) {
+        if (arcMode) {
             int arcLength = Math.abs(samRecord.getInferredInsertSize());
             // skip reads with a zero insert length--probably mapping errors
             if (arcLength == 0) {

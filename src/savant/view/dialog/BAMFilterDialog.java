@@ -51,6 +51,8 @@ public class BAMFilterDialog extends javax.swing.JDialog {
 
         duplicateReadsCheck.setSelected(filter.getIncludeDuplicateReads());
         vendorFailedReadsCheck.setSelected(filter.getIncludeVendorFailedReads());
+        pairedCheck.setSelected(filter.getIncludePairedReads());
+        unpairedCheck.setSelected(filter.getIncludeUnpairedReads());
         mappingQualitySlider.setValue(filter.getMappingQualityThreshold());
 
         double arcThreshold = filter.getArcLengthThreshold();
@@ -82,15 +84,17 @@ public class BAMFilterDialog extends javax.swing.JDialog {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        buttonGroup1 = new javax.swing.ButtonGroup();
+        javax.swing.ButtonGroup strandGroup = new javax.swing.ButtonGroup();
         cancelButton = new javax.swing.JButton();
         okButton = new javax.swing.JButton();
-        jPanel1 = new javax.swing.JPanel();
+        javax.swing.JPanel jPanel1 = new javax.swing.JPanel();
         duplicateReadsCheck = new javax.swing.JCheckBox();
         vendorFailedReadsCheck = new javax.swing.JCheckBox();
+        pairedCheck = new javax.swing.JCheckBox();
+        unpairedCheck = new javax.swing.JCheckBox();
         javax.swing.JLabel mappingQualityLabel = new javax.swing.JLabel();
         mappingQualitySlider = new javax.swing.JSlider();
-        jPanel2 = new javax.swing.JPanel();
+        javax.swing.JPanel jPanel2 = new javax.swing.JPanel();
         javax.swing.JLabel arcYMaxThresholdLabel = new javax.swing.JLabel();
         javax.swing.JLabel oppositeIcon = new javax.swing.JLabel();
         javax.swing.JLabel minConcordantLabel = new javax.swing.JLabel();
@@ -109,8 +113,8 @@ public class BAMFilterDialog extends javax.swing.JDialog {
         javax.swing.JLabel jLabel3 = new javax.swing.JLabel();
         javax.swing.JLabel pairLabel = new javax.swing.JLabel();
 
-        buttonGroup1.add(pairedEndRadio);
-        buttonGroup1.add(oppositeRadio);
+        strandGroup.add(pairedEndRadio);
+        strandGroup.add(oppositeRadio);
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
         setTitle("Read Pair Settings");
@@ -137,6 +141,12 @@ public class BAMFilterDialog extends javax.swing.JDialog {
         vendorFailedReadsCheck.setSelected(true);
         vendorFailedReadsCheck.setText("Include vendor failed reads");
 
+        pairedCheck.setSelected(true);
+        pairedCheck.setText("Include paired reads");
+
+        unpairedCheck.setSelected(true);
+        unpairedCheck.setText("Include unpaired reads");
+
         mappingQualityLabel.setText("Mapping quality threshold");
 
         mappingQualitySlider.setMajorTickSpacing(50);
@@ -151,13 +161,15 @@ public class BAMFilterDialog extends javax.swing.JDialog {
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(duplicateReadsCheck)
                     .addComponent(vendorFailedReadsCheck)
+                    .addComponent(duplicateReadsCheck)
+                    .addComponent(pairedCheck)
+                    .addComponent(unpairedCheck)
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(mappingQualityLabel)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGap(18, 18, 18)
                         .addComponent(mappingQualitySlider, javax.swing.GroupLayout.PREFERRED_SIZE, 358, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(14, Short.MAX_VALUE))
+                .addContainerGap(9, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -165,11 +177,19 @@ public class BAMFilterDialog extends javax.swing.JDialog {
                 .addComponent(duplicateReadsCheck)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(vendorFailedReadsCheck)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
-                    .addComponent(mappingQualitySlider, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(mappingQualityLabel))
-                .addGap(44, 44, 44))
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(pairedCheck)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(unpairedCheck)
+                        .addGap(18, 18, 18)
+                        .addComponent(mappingQualityLabel)
+                        .addContainerGap(40, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(mappingQualitySlider, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(24, 24, 24))))
         );
 
         jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder("Arc Mode Settings"));
@@ -237,7 +257,7 @@ public class BAMFilterDialog extends javax.swing.JDialog {
                             .addComponent(jLabel2)
                             .addComponent(jLabel1)
                             .addComponent(jLabel4))))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(29, Short.MAX_VALUE))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -288,22 +308,22 @@ public class BAMFilterDialog extends javax.swing.JDialog {
                         .addComponent(okButton)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(cancelButton, javax.swing.GroupLayout.PREFERRED_SIZE, 71, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(jPanel1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jPanel2, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(jPanel2, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 134, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 9, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(okButton)
                     .addComponent(cancelButton))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
         );
 
         pack();
@@ -326,6 +346,8 @@ public class BAMFilterDialog extends javax.swing.JDialog {
             filter.setArcLengthThreshold(arcThreshold);
             filter.setIncludeDuplicateReads(duplicateReadsCheck.isSelected());
             filter.setIncludeVendorFailedReads(vendorFailedReadsCheck.isSelected());
+            filter.setIncludePairedReads(pairedCheck.isSelected());
+            filter.setIncludeUnpairedReads(unpairedCheck.isSelected());
             filter.setMappingQualityThreshold(mappingQualitySlider.getValue());
             track.setPairedProtocol(prot);
             track.setConcordantMin(discordantMin);
@@ -378,17 +400,16 @@ public class BAMFilterDialog extends javax.swing.JDialog {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextField arcThresholdField;
     private javax.swing.JTextField arcYMaxThresholdField;
-    private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.JButton cancelButton;
     private javax.swing.JTextField discordantMaxField;
     private javax.swing.JTextField discordantMinField;
     private javax.swing.JCheckBox duplicateReadsCheck;
-    private javax.swing.JPanel jPanel1;
-    private javax.swing.JPanel jPanel2;
     private javax.swing.JSlider mappingQualitySlider;
     private javax.swing.JButton okButton;
     private javax.swing.JRadioButton oppositeRadio;
+    private javax.swing.JCheckBox pairedCheck;
     private javax.swing.JRadioButton pairedEndRadio;
+    private javax.swing.JCheckBox unpairedCheck;
     private javax.swing.JCheckBox vendorFailedReadsCheck;
     // End of variables declaration//GEN-END:variables
 }
