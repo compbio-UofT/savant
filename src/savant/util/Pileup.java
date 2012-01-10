@@ -1,5 +1,5 @@
 /*
- *    Copyright 2010-2011 University of Toronto
+ *    Copyright 2010-2012 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -19,6 +19,9 @@ package savant.util;
 import java.util.EnumMap;
 import java.util.Map;
 
+import savant.api.data.VariantType;
+
+
 /**
  * Keeps track of statistics when computing SNP and Strand SNP modes.
  *
@@ -28,24 +31,24 @@ public final class Pileup {
 
     private int position;
 
-    private Map<Nucleotide, Coverage> coverage = new EnumMap<Nucleotide, Coverage>(Nucleotide.class);
+    private Map<VariantType, Coverage> coverage = new EnumMap<VariantType, Coverage>(VariantType.class);
 
     public Pileup(int position) {
         this.position = position;
-        clearNucleotide(Nucleotide.A);
-        clearNucleotide(Nucleotide.C);
-        clearNucleotide(Nucleotide.G);
-        clearNucleotide(Nucleotide.T);
-        clearNucleotide(Nucleotide.DELETION);
-        clearNucleotide(Nucleotide.INSERTION);
-        clearNucleotide(Nucleotide.OTHER);
+        clearVariantType(VariantType.SNP_A);
+        clearVariantType(VariantType.SNP_C);
+        clearVariantType(VariantType.SNP_G);
+        clearVariantType(VariantType.SNP_T);
+        clearVariantType(VariantType.DELETION);
+        clearVariantType(VariantType.INSERTION);
+        clearVariantType(VariantType.OTHER);
     }
 
     public int getPosition() {
         return position;
     }
 
-    public void pileOn(Nucleotide n, double quality, boolean strand) {
+    public void pileOn(VariantType n, double quality, boolean strand) {
         coverage.get(n).pileOn(quality, strand);
     }
 
@@ -53,12 +56,12 @@ public final class Pileup {
      * When rendering the SNP and Strand SNP modes, we start with the biggest variant
      * near the axis.
      */
-    public Nucleotide getLargestNucleotide(Nucleotide notThis) {
-        Nucleotide[] nucs = { Nucleotide.A, Nucleotide.C, Nucleotide.G, Nucleotide.T, Nucleotide.DELETION, Nucleotide.INSERTION };
+    public VariantType getLargestVariantType(VariantType notThis) {
+        VariantType[] nucs = { VariantType.SNP_A, VariantType.SNP_C, VariantType.SNP_G, VariantType.SNP_T, VariantType.DELETION, VariantType.INSERTION };
 
-        Nucleotide snpNuc = null;
+        VariantType snpNuc = null;
 
-        for (Nucleotide n : nucs) {
+        for (VariantType n : nucs) {
             if(n == notThis) continue;
             if(this.getCoverage(n) > 0 && (snpNuc == null || this.getCoverage(n) > this.getCoverage(snpNuc))){
                 snpNuc = n;
@@ -68,7 +71,7 @@ public final class Pileup {
         return snpNuc;
     }
 
-    public void clearNucleotide(Nucleotide n) {
+    public void clearVariantType(VariantType n) {
         coverage.put(n, new Coverage());
     }
 
@@ -88,39 +91,37 @@ public final class Pileup {
         return total;
     }
 
-    public static Nucleotide getNucleotide(char c) {
+    public static VariantType getVariantType(char c) {
         switch (c) {
             case 'A':
             case 'a':
-                return Nucleotide.A;
+                return VariantType.SNP_A;
             case 'C':
             case 'c':
-                return Nucleotide.C;
+                return VariantType.SNP_C;
             case 'G':
             case 'g':
-                return Nucleotide.G;
+                return VariantType.SNP_G;
             case 'T':
             case 't':
-                return Nucleotide.T;
+                return VariantType.SNP_T;
             default:
-                return Nucleotide.OTHER;
+                return VariantType.OTHER;
         }
     }
 
-    public double getCoverage(Nucleotide n) {
+    public double getCoverage(VariantType n) {
         return coverage.get(n).total;
     }
     
         
-    public double getStrandCoverage(Nucleotide n, boolean reverse) {
+    public double getStrandCoverage(VariantType n, boolean reverse) {
         return coverage.get(n).strand[reverse ? 1 : 0];
     }
 
-    public double getCoverageProportion(Nucleotide n) {
+    public double getCoverageProportion(VariantType n) {
         return getCoverage(n) / getTotalCoverage();
     }
-
-    public enum Nucleotide { A, C, G, T, INSERTION, DELETION, OTHER; }
 
     private class Coverage {
         double total = 0.0;

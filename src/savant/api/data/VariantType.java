@@ -13,34 +13,39 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-
-package savant.selection;
-
-import javax.swing.JLabel;
-
-import savant.api.data.Interval;
-import savant.api.data.VariantRecord;
-
+package savant.api.data;
 
 /**
- * Popup panel which is displayed over a variant track.
+ * Enum which categorises the various types of structural variants.
  *
  * @author tarkvara
  */
-public class VariantPopup extends PopupPanel {
-
-    VariantPopup() {
-    }
+public enum VariantType {
+    NONE,
+    SNP_A,
+    SNP_C,
+    SNP_G,
+    SNP_T,
+    DELETION,
+    INSERTION,
+    OTHER;
 
     @Override
-    protected void initInfo() {
-        VariantRecord rec = (VariantRecord)record;
-        Interval inter = rec.getInterval();
-        start = inter.getStart();
-        end = inter.getEnd();
-        add(new JLabel("Type: " + rec.getVariantType()));
-        add(new JLabel("Position: " + start));
-        add(new JLabel("Reference: " + rec.getRefBases()));
-        add(new JLabel("Alt: " + rec.getAltBases()));
+    public String toString() {
+        switch (this) {
+            case SNP_A:
+            case SNP_C:
+            case SNP_G:
+            case SNP_T:
+                return "SNP";
+            case DELETION:
+                return "Deletion";
+            case INSERTION:
+                return "Insertion";
+            case OTHER:
+                return "Other";
+            default:
+                return "";
+        }
     }
 }

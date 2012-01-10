@@ -29,6 +29,7 @@ import savant.api.adapter.RangeAdapter;
 import savant.api.adapter.RecordFilterAdapter;
 import savant.api.data.Record;
 import savant.api.data.VariantRecord;
+import savant.api.data.VariantType;
 import savant.api.event.LocationChangedEvent;
 import savant.api.util.Listener;
 import savant.api.util.Resolution;
@@ -128,7 +129,7 @@ public class VariantTrack extends Track {
 
         // Shove in a placeholder axis range since we won't know the actual range until the data arrives.
         renderer.addInstruction(DrawingInstruction.AXIS_RANGE, new AxisRange(0, 1, 0, 1));
-        renderer.addInstruction(DrawingInstruction.SELECTION_ALLOWED, true);
+        renderer.addInstruction(DrawingInstruction.SELECTION_ALLOWED, false);
         renderer.addInstruction(DrawingInstruction.MODE, getDrawingMode());
     }
 
@@ -231,7 +232,7 @@ public class VariantTrack extends Track {
             VariantRecord varRec = (VariantRecord)rec;
             int count = varRec.getParticipantCount();
             for (int i = 0; i < count; i++) {
-                if (varRec.getVariantForParticipant(i) != VariantRecord.VariantType.NONE) {
+                if (varRec.getVariantForParticipant(i) != VariantType.NONE) {
                     return true;
                 }
             }

@@ -17,8 +17,8 @@
 package savant.data.types;
 
 import savant.api.data.Record;
+import savant.api.data.VariantType;
 import savant.util.Pileup;
-import savant.util.Pileup.Nucleotide;
 
 /**
  * Pseudo-record which stores pileup information.  We want this to look like a Record so
@@ -27,7 +27,7 @@ import savant.util.Pileup.Nucleotide;
  * @author tarkvara
  */
 public class PileupRecord implements Record {
-    /** Names to be displayed in popup.  Must be in same order as enum values in Pileup.Nucleotide. */
+    /** Names to be displayed in popup.  Must be in same order as enum values in VariantTYpe. */
     public static final String[] NUCLEOTIDE_NAMES = { "A", "C", "G", "T", "Insertion", "Deletion", "Other" };
 
     int position;
@@ -42,22 +42,26 @@ public class PileupRecord implements Record {
             double denominator0 = p.getTotalStrandCoverage(true) * 0.01;
             double denominator1 = p.getTotalStrandCoverage(false) * 0.01;
             int i = 0;
-            for (Nucleotide nuc: Nucleotide.values()) {
-                coverage[0][i] = (int)p.getStrandCoverage(nuc, true);
-                percentage[0][i] = coverage[0][i] / denominator0;
-                coverage[1][i] = (int)p.getStrandCoverage(nuc, false);
-                percentage[1][i] = coverage[1][i] / denominator1;
-                i++;
+            for (VariantType nuc: VariantType.values()) {
+                if (nuc != VariantType.NONE) {
+                    coverage[0][i] = (int)p.getStrandCoverage(nuc, true);
+                    percentage[0][i] = coverage[0][i] / denominator0;
+                    coverage[1][i] = (int)p.getStrandCoverage(nuc, false);
+                    percentage[1][i] = coverage[1][i] / denominator1;
+                    i++;
+                }
             }
         } else {
             coverage = new int[1][7];
             percentage = new double[1][7];
             double denominator = p.getTotalCoverage() * 0.01;
             int i = 0;
-            for (Nucleotide nuc: Nucleotide.values()) {
-                coverage[0][i] = (int)p.getCoverage(nuc);
-                percentage[0][i] = coverage[0][i] / denominator;
-                i++;
+            for (VariantType nuc: VariantType.values()) {
+                if (nuc != VariantType.NONE) {
+                    coverage[0][i] = (int)p.getCoverage(nuc);
+                    percentage[0][i] = coverage[0][i] / denominator;
+                    i++;
+                }
             }
         }
     }

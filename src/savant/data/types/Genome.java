@@ -244,8 +244,10 @@ public final class Genome implements Serializable, GenomeAdapter {
             }
             addCytobands(chrom, chromBands);
             input.close();
-        } catch (IOException iox) {
-            LOG.error("Unable to load cytoband info from " + cytobandURI, iox);
+        } catch (Exception x) {
+            // Usually an IOException, but could be something else (e.g. an ArrayIndexException
+            // if the file has the wrong number of columns.
+            LOG.error("Unable to load cytoband info from " + cytobandURI, x);
         }
     }
 

@@ -38,6 +38,7 @@ import savant.api.adapter.GraphPaneAdapter;
 import savant.api.data.Interval;
 import savant.api.data.IntervalRecord;
 import savant.api.data.Record;
+import savant.api.data.VariantType;
 import savant.api.event.DataRetrievalEvent;
 import savant.api.util.Resolution;
 import savant.controller.GenomeController;
@@ -48,7 +49,6 @@ import savant.data.types.PileupRecord;
 import savant.exception.RenderingException;
 import savant.settings.BrowserSettings;
 import savant.util.*;
-import savant.util.Pileup.Nucleotide;
 
 
 /**
@@ -297,18 +297,18 @@ public class BAMTrackRenderer extends TrackRenderer {
         return MiscUtils.createPolygon(x, y, x + w, y, x + w, y + h, x, y + h);
     }
 
-    private ColourKey getSubPileColour(Nucleotide snpNuc, Nucleotide genomeNuc) {
-        if (snpNuc == genomeNuc || snpNuc == Nucleotide.INSERTION) {
+    private ColourKey getSubPileColour(VariantType snpNuc, VariantType genomeNuc) {
+        if (snpNuc == genomeNuc || snpNuc == VariantType.INSERTION) {
             return ColourKey.REVERSE_STRAND;
         } else {
             switch (snpNuc) {
-                case A:
+                case SNP_A:
                     return ColourKey.A;
-                case C:
+                case SNP_C:
                     return ColourKey.C;
-                case G:
+                case SNP_G:
                     return ColourKey.G;
-                case T:
+                case SNP_T:
                     return ColourKey.T;
                 case DELETION:
                     return ColourKey.DELETED_BASE;
@@ -596,14 +596,14 @@ public class BAMTrackRenderer extends TrackRenderer {
         for (Pileup p : pileups) {
 
             if (p.getTotalCoverage() > 0.0) {
-                Nucleotide snpNuc = null;
+                VariantType snpNuc = null;
                 double bottom = gp.transformYPos(0);
                 double x = gp.transformXPos(p.getPosition());
                 double h = unitHeight * p.getTotalCoverage();
 
-                Nucleotide genomeNuc = null;
+                VariantType genomeNuc = null;
                 if (genome.isSequenceSet()) {
-                    genomeNuc = Pileup.getNucleotide((char)refSeq[p.getPosition() - startPosition]);
+                    genomeNuc = Pileup.getVariantType((char)refSeq[p.getPosition() - startPosition]);
                     snpNuc = genomeNuc;
                 }
                 if (p.getTotalCoverage() > p.getCoverage(genomeNuc)) {
@@ -611,16 +611,16 @@ public class BAMTrackRenderer extends TrackRenderer {
                     recordToShapeMap.put(new PileupRecord(p, false), new Rectangle2D.Double(x, bottom - h, unitWidth, h));
                 }
 
-                while ((genome.isSequenceSet() && (snpNuc = p.getLargestNucleotide(genomeNuc)) != null) || ((snpNuc = p.getLargestNucleotide(Nucleotide.OTHER)) != null)) {
+                while ((genome.isSequenceSet() && (snpNuc = p.getLargestVariantType(genomeNuc)) != null) || ((snpNuc = p.getLargestVariantType(VariantType.OTHER)) != null)) {
                     h = unitHeight * p.getCoverage(snpNuc);
                     Rectangle2D rect = new Rectangle2D.Double(x, bottom - h, unitWidth, h);
                     accumulator.addShape(getSubPileColour(snpNuc, genomeNuc), rect);
-                    if (snpNuc == Nucleotide.INSERTION) {
+                    if (snpNuc == VariantType.INSERTION) {
                         insertions.add(rect);
                     } else {
                         bottom -= h;
                     }
-                    p.clearNucleotide(snpNuc);
+                    p.clearVariantType(snpNuc);
                 }
             }
         }
@@ -674,15 +674,15 @@ public class BAMTrackRenderer extends TrackRenderer {
         for (Pileup p : pileups) {
 
             if (p.getTotalCoverage() > 0.0) {
-                Nucleotide snpNuc = null;
+                VariantType snpNuc = null;
                 double bottom = axis;
                 double top = axis;
                 double x = gp.transformXPos(p.getPosition());
                 double h = unitHeight * p.getTotalCoverage();
 
-                Nucleotide genomeNuc = null;
+                VariantType genomeNuc = null;
                 if (genome.isSequenceSet()) {
-                    genomeNuc = Pileup.getNucleotide((char)refSeq[p.getPosition() - xMin]);
+                    genomeNuc = Pileup.getVariantType((char)refSeq[p.getPosition() - xMin]);
                     snpNuc = genomeNuc;
                 }
 
@@ -691,7 +691,7 @@ public class BAMTrackRenderer extends TrackRenderer {
                     recordToShapeMap.put(new PileupRecord(p, true), new Rectangle2D.Double(x, bottom - unitHeight * p.getTotalStrandCoverage(true), unitWidth, h));
                 }
 
-                while ((genome.isSequenceSet() && (snpNuc = p.getLargestNucleotide(genomeNuc)) != null) || ((snpNuc = p.getLargestNucleotide(Nucleotide.OTHER)) != null)) {
+                while ((genome.isSequenceSet() && (snpNuc = p.getLargestVariantType(genomeNuc)) != null) || ((snpNuc = p.getLargestVariantType(VariantType.OTHER)) != null)) {
 
                     double coverage1 = p.getStrandCoverage(snpNuc, false);
                     double coverage2 = p.getStrandCoverage(snpNuc, true);
@@ -701,7 +701,7 @@ public class BAMTrackRenderer extends TrackRenderer {
                         h = unitHeight * coverage1;
                         Rectangle2D rect = new Rectangle2D.Double(x, top, unitWidth, h);
                         accumulator.addShape(col == ColourKey.REVERSE_STRAND ? ColourKey.FORWARD_STRAND : col, rect);
-                        if (snpNuc == Nucleotide.INSERTION) {
+                        if (snpNuc == VariantType.INSERTION) {
                             insertions.add(rect);
                         } else {
                             top += h;
@@ -711,14 +711,14 @@ public class BAMTrackRenderer extends TrackRenderer {
                         h = unitHeight * coverage2;
                         Rectangle2D rect = new Rectangle2D.Double(x, bottom - h, unitWidth, h);
                         accumulator.addShape(col, rect);
-                        if (snpNuc == Nucleotide.INSERTION) {
+                        if (snpNuc == VariantType.INSERTION) {
                             insertions.add(rect);
                         } else {
                             bottom -= h;
                         }
                     }
 
-                    p.clearNucleotide(snpNuc);
+                    p.clearVariantType(snpNuc);
                 }
             }
         }
@@ -769,7 +769,7 @@ public class BAMTrackRenderer extends TrackRenderer {
                         int j = i + sequenceCursor - startPosition;
                         if (j >= 0 && j < pileups.size()) {
                             Pileup p = pileups.get(j);
-                            p.pileOn(Nucleotide.DELETION, 1.0, strand);
+                            p.pileOn(VariantType.DELETION, 1.0, strand);
                         }
                     }
                     break;
@@ -778,7 +778,7 @@ public class BAMTrackRenderer extends TrackRenderer {
                     int insPos = sequenceCursor - startPosition;
                     if (insPos >= 0 && insPos < pileups.size()) {
                         Pileup p = pileups.get(insPos);
-                        p.pileOn(Nucleotide.INSERTION, 1.0, strand);
+                        p.pileOn(VariantType.INSERTION, 1.0, strand);
                     }
                     break;
                 case M:
@@ -786,7 +786,7 @@ public class BAMTrackRenderer extends TrackRenderer {
                     for (int i = 0; i < operatorLength; i++) {
                         int readIndex = readCursor - alignmentStart + i;
 
-                        Nucleotide readN = Pileup.getNucleotide((char)readBases[readIndex]);
+                        VariantType readN = Pileup.getVariantType((char)readBases[readIndex]);
 
                         int j = i + sequenceCursor - startPosition;
                         if (j >= 0 && j < pileups.size()) {

@@ -15,6 +15,7 @@
  */
 package savant.view.swing;
 
+import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.util.List;
@@ -51,6 +52,7 @@ public class VariantGraphPane extends GraphPane {
      */
     @Override
     public void mouseClicked(MouseEvent event) {
+        
     }
 
     /**
@@ -80,11 +82,8 @@ public class VariantGraphPane extends GraphPane {
      */
     @Override
     public void mouseMoved(MouseEvent event) {
-        int mouseY = event.getY();
-        int logicalY = (int)transformYPixel(mouseY);
-        List<Record> data = getTracks()[0].getDataInRange();
-        if (data != null && logicalY >= 0 && logicalY < data.size()) {
-            VariantRecord rec = (VariantRecord)data.get(data.size() - logicalY);
+        VariantRecord rec = pointToRecord(event.getPoint());
+        if (rec != null) {
             GraphPaneController.getInstance().setMouseXPosition(rec.getInterval().getStart());
         } else {
             GraphPaneController.getInstance().setMouseXPosition(-1);
@@ -136,4 +135,29 @@ public class VariantGraphPane extends GraphPane {
     }
     
     
+    /**
+     * Override tryPopup because we have a different notion of getOffset().
+     * @param p 
+     */
+    @Override
+    public void tryPopup(Point p) {
+        //  We don't use pointToRecord() here because there's lots of extra logic in the base-class tryPopup.
+        int y = p.y - getVerticalScrollBar().getValue();
+        super.tryPopup(new Point(p.x, y));
+    }
+    
+    /**
+     * Given a point in GraphPane coordinates, figure out which record it corresponds to.
+     * @param pt
+     * @return 
+     */
+    private VariantRecord pointToRecord(Point pt) {
+        int mouseY = pt.y;
+        int logicalY = (int)transformYPixel(mouseY);
+        List<Record> data = getTracks()[0].getDataInRange();
+        if (data != null && logicalY >= 0 && logicalY < data.size()) {
+            return (VariantRecord)data.get(data.size() - logicalY);
+        }
+        return null;
+    }
 }

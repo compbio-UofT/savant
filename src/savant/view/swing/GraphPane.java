@@ -309,7 +309,7 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
 
             Graphics2D g3 = bufferedImage.createGraphics();
             g3.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            prevRange = lc.getRange();
+            prevRange = xRange;
             prevSize = getSize();
             prevMode = tracks[0].getDrawingMode();
             prevRef = lc.getReferenceName();

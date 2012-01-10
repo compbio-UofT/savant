@@ -1,5 +1,5 @@
 /*
- *    Copyright 2011 University of Toronto
+ *    Copyright 2011-2012 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -22,30 +22,6 @@ package savant.api.data;
  * @author tarkvara
  */
 public interface VariantRecord extends IntervalRecord {
-    public enum VariantType {
-        NONE,
-        SNP,
-        DELETION,
-        INSERTION,
-        OTHER;
-        
-        @Override
-        public String toString() {
-            switch (this) {
-                case SNP:
-                    return "SNP";
-                case DELETION:
-                    return "Deletion";
-                case INSERTION:
-                    return "Insertion";
-                case OTHER:
-                    return "Other";
-                default:
-                    return "";
-            }
-        }
-    }
-
     /**
      * Type of variant represented by this record.
      *
@@ -67,6 +43,14 @@ public interface VariantRecord extends IntervalRecord {
      */
     public String getAltBases();
     
+    /**
+     * Within this record, determine the frequency of the non-REF allele among the participants.
+     * Note: all ALT alleles will be lumped together.
+     *
+     * @return a value from 0.0 to 1.0
+     */
+    public double getAltFrequency();
+
     /**
      * Get the number of participants represented by this record (probably the same for
      * all records from a given DataSource).

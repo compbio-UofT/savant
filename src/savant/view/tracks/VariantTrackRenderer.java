@@ -25,6 +25,7 @@ import org.apache.commons.logging.LogFactory;
 import savant.api.adapter.GraphPaneAdapter;
 import savant.api.data.Record;
 import savant.api.data.VariantRecord;
+import savant.api.data.VariantType;
 import savant.api.event.DataRetrievalEvent;
 import savant.exception.RenderingException;
 import savant.util.AxisRange;
@@ -90,6 +91,9 @@ class VariantTrackRenderer extends TrackRenderer {
             case MATRIX:
                 renderMatrixMode(g2, gp);
                 break;
+            case LD_PLOT:
+                renderLDPlot(g2, gp);
+                break;
         }
     }
     
@@ -114,6 +118,18 @@ class VariantTrackRenderer extends TrackRenderer {
             VariantRecord varRec = (VariantRecord)rec;
             Rectangle2D rect = new Rectangle2D.Double(0.0, i * h, w, h);            
             switch (varRec.getVariantType()) {
+                case SNP_A:
+                    accumulator.addBaseShape('A', rect);
+                    break;
+                case SNP_C:
+                    accumulator.addBaseShape('C', rect);
+                    break;
+                case SNP_G:
+                    accumulator.addBaseShape('G', rect);
+                    break;
+                case SNP_T:
+                    accumulator.addBaseShape('T', rect);
+                    break;
                 case INSERTION:
                     // Because the scaling of a VCF track is not base-based, it doesn't make sense
                     // to draw insertions using the rhombus we employ elsewhere.
@@ -121,9 +137,6 @@ class VariantTrackRenderer extends TrackRenderer {
                     break;
                 case DELETION:
                     accumulator.addShape(ColourKey.DELETED_BASE, rect);
-                    break;
-                case SNP:
-                    accumulator.addBaseShape(varRec.getAltBases().charAt(0), rect);
                     break;
             }
             recordToShapeMap.put(varRec, rect);
@@ -156,6 +169,18 @@ class VariantTrackRenderer extends TrackRenderer {
             for (int j = 0; j < participantCount; j++) {
                 Rectangle2D rect = new Rectangle2D.Double(j * w, i * h, w, h);
                 switch (varRec.getVariantForParticipant(j)) {
+                    case SNP_A:
+                        accumulator.addBaseShape('A', rect);
+                        break;
+                    case SNP_C:
+                        accumulator.addBaseShape('C', rect);
+                        break;
+                    case SNP_G:
+                        accumulator.addBaseShape('G', rect);
+                        break;
+                    case SNP_T:
+                        accumulator.addBaseShape('T', rect);
+                        break;
                     case INSERTION:
                         // Because the scaling of a VCF track is not base-based, it doesn't make sense
                         // to draw insertions using the rhombus we employ elsewhere.
@@ -164,14 +189,50 @@ class VariantTrackRenderer extends TrackRenderer {
                     case DELETION:
                         accumulator.addShape(ColourKey.DELETED_BASE, rect);
                         break;
-                    case SNP:
-                        accumulator.addBaseShape(varRec.getAltBases().charAt(0), rect);
-                        break;
                 }
             }
             recordToShapeMap.put(varRec, new Rectangle2D.Double(0, i * h, w * participantCount, h));
             i++;
         }
         accumulator.render(g2);
+    }
+    
+    private void renderLDPlot(Graphics2D g2, GraphPaneAdapter gp) throws RenderingException {
+        double[][] ldData = new double[data.size()][data.size()];
+        for (int i = 0; i < data.size(); i++) {
+            VariantRecord recI = (VariantRecord)data.get(i);
+            VariantType var = recI.getVariantType();
+            double denom = recI.getParticipantCount();
+            int n1 = 0;
+            for (int k = 0; k < recI.getParticipantCount(); k++) {
+                if (recI.getVariantForParticipant(k) == var) {
+                    n1++;
+                }
+            }
+            double p1 = n1 / denom;
+            double p2 = 1.0 - p1;
+
+            for (int j = i + 1; j < data.size(); j++) {
+                VariantRecord recJ = (VariantRecord)data.get(j);
+
+                n1 = 0;
+                int n11 = 0;
+                for (int k = 0; k < recJ.getParticipantCount(); k++) {
+                    if (recJ.getVariantForParticipant(k) == var) {
+                        n1++;
+                        if (recI.getVariantForParticipant(k) == var) {
+                            n11++;
+                        }
+                    }
+                }
+                double q1 = n1 / denom;
+                double q2 = 1.0 - q1;
+                double x11 = n11 / denom;
+                double d = x11 - p1 * q1;
+                double dMax = d < 0.0 ? Math.min(p1 * q1, p2 * q2) : Math.min(p1 * q2, p2 * q1);
+                double dPrime = d / dMax;
+                ldData[i][j] = ldData[j][i] = dPrime;
+            }
+        }
     }
 }

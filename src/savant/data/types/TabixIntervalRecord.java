@@ -27,7 +27,7 @@ import savant.util.ColumnMapping;
  */
 public class TabixIntervalRecord implements IntervalRecord {
 
-    protected final String[] values;
+    protected String[] values;
     protected final ColumnMapping mapping;
     protected final Interval interval;
     private int count = 0;
