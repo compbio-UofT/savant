@@ -1,5 +1,5 @@
 /*
- *    Copyright 2009-2011 University of Toronto
+ *    Copyright 2009-2012 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -45,6 +45,7 @@ public class DataTableModel extends AbstractTableModel {
     private static final Class[] INTERVAL_COLUMN_CLASSES = { String.class, Integer.class, Integer.class, String.class };
     private static final Class[] ALIGNMENT_COLUMN_CLASSES = { String.class, String.class, Integer.class, Boolean.class, Integer.class, Boolean.class, Integer.class, String.class, String.class, Integer.class, Boolean.class, Integer.class};
     private static final Class[] CONTINUOUS_COLUMN_CLASSES = { String.class, Integer.class, Double.class };
+    private static final Class[] VARIANT_COLUMN_CLASSES = { String.class, String.class, Integer.class, String.class, String.class };
 
     private final DataSourceAdapter dataSource;
     private String[] columnNames;
@@ -83,8 +84,11 @@ public class DataTableModel extends AbstractTableModel {
             case ALIGNMENT:
                 columnClasses = ALIGNMENT_COLUMN_CLASSES;
                 break;
-            case RICH_INTERVAL:
             case VARIANT:
+                columnClasses = VARIANT_COLUMN_CLASSES;
+                columnNames = new String[] { "Name", "Type", "Position", "Ref", "Alt" };
+                break;
+            case RICH_INTERVAL:
                 // Special treatment for Tabix data, which may have some suppressed fields indicated by nulls in the column list.
                 remappedColumns = new int[columnNames.length];
                 List<String> usefulNames = new ArrayList<String>(columnNames.length);
@@ -187,6 +191,20 @@ public class DataTableModel extends AbstractTableModel {
                         case 11:
                             return mated ? samRecord.getInferredInsertSize() : 0;
                     }
+                case VARIANT:
+                    VariantRecord varRec = (VariantRecord)datum;
+                    switch (column) {
+                        case 0:
+                            return varRec.getName();
+                        case 1:
+                            return varRec.getVariantType().toString();
+                        case 2:
+                            return varRec.getInterval().getStart();
+                        case 3:
+                            return varRec.getRefBases();
+                        case 4:
+                            return varRec.getAltBases();
+                    }
                 case RICH_INTERVAL:
                     switch (column) {
                         case 0:
@@ -276,8 +294,9 @@ public class DataTableModel extends AbstractTableModel {
             case POINT:
             case CONTINUOUS:
             case GENERIC_INTERVAL:
+            case VARIANT:
             case RICH_INTERVAL:
-                exportWriter.println("# Savant Data Table Plugin 1.2.4");
+                exportWriter.println("# Savant Data Table Plugin 1.2.5");
                 exportWriter.printf("#%s", columnNames[0]);
                 for (int i = 1; i < columnNames.length; i++) {
                     exportWriter.printf("\t%s", columnNames[i]);
@@ -320,10 +339,14 @@ public class DataTableModel extends AbstractTableModel {
                 break;
             case GENERIC_INTERVAL:
                 Interval inter = ((IntervalRecord)datum).getInterval();
-                exportWriter.printf("%d\t%d\t%d\t%s", datum.getReference(), inter.getStart(), inter.getEnd(), ((IntervalRecord)datum).getName()).println();
+                exportWriter.printf("%s\t%d\t%d\t%s", datum.getReference(), inter.getStart(), inter.getEnd(), ((IntervalRecord)datum).getName()).println();
                 break;
             case ALIGNMENT:
                 samWriter.addAlignment(((BAMIntervalRecord)datum).getSAMRecord());
+                break;
+            case VARIANT:
+                VariantRecord varRec = (VariantRecord)datum;
+                exportWriter.printf("%s\t%d\t%s\t%s\t%s", datum.getReference(), varRec.getInterval().getStart(), varRec.getInterval().getEnd(), varRec.getVariantType(), varRec.getRefBases(), varRec.getAltBases()).println();
                 break;
             case RICH_INTERVAL:
                 String[] values = ((TabixIntervalRecord)datum).getValues();

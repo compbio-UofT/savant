@@ -31,10 +31,12 @@ import savant.util.ColumnMapping;
  */
 public class VCFVariantRecord extends TabixIntervalRecord implements VariantRecord {
     private static final Log LOG = LogFactory.getLog(VCFVariantRecord.class);
+    private static final int NAME_COLUMN = 2;
     private static final int REF_COLUMN = 3;
     private static final int ALT_COLUMN = 4;
     private static final int FIRST_PARTICIPANT_COLUMN = 9;
     
+    private final String name;
     private final String refBases;
     private final String[] altBases;
     private final byte[] participants0;
@@ -48,6 +50,7 @@ public class VCFVariantRecord extends TabixIntervalRecord implements VariantReco
         
         // Storing all the string information is grossly inefficient, so we just parse what we
         // need and set the values to null.
+        name = values[NAME_COLUMN].equals(".") ? null : values[NAME_COLUMN];    // VCF uses "." for missing value
         refBases = values[REF_COLUMN].intern();
         
         String altValue = values[ALT_COLUMN];
@@ -59,6 +62,7 @@ public class VCFVariantRecord extends TabixIntervalRecord implements VariantReco
                 altBases[i] = altBases[i].intern();
             }
         }
+
         participants0 = new byte[values.length - FIRST_PARTICIPANT_COLUMN];
         participants1 = new byte[values.length - FIRST_PARTICIPANT_COLUMN];
         for (int i = 0; i < participants0.length; i++) {
@@ -118,6 +122,11 @@ public class VCFVariantRecord extends TabixIntervalRecord implements VariantReco
         }
         
         return getAltBases().compareTo(that.getAltBases());
+    }
+
+    @Override
+    public String getName() {
+        return name;
     }
 
     /**

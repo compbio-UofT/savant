@@ -204,7 +204,7 @@ public abstract class TrackRenderer implements Listener<DataRetrievalEvent> {
                 hit = s.contains(p);
             }
             // At low resolutions, SNPs can be hard to hit with the mouse, so give a second chance with a fuzzier check.
-            if (mode == DrawingMode.SNP || mode == DrawingMode.STRAND_SNP) {
+            if (mode == DrawingMode.SNP || mode == DrawingMode.STRAND_SNP || mode == DrawingMode.MATRIX) {
                 if (hit) {
                     if (allowFuzzySNPs) {
                         // We may have accumulated some fuzzy SNP hits.  We now have an exact one, so dump the fuzzies.

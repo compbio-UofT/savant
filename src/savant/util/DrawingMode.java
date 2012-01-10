@@ -25,8 +25,7 @@ public enum DrawingMode {
     STRAND_SNP,
     
     // Variant modes
-    MATRIX,
-    LD_PLOT;
+    MATRIX;
 
     @Override
     public String toString() {
@@ -53,8 +52,6 @@ public enum DrawingMode {
                 return "Strand SNP";
             case MATRIX:
                 return "Participant Matrix";
-            case LD_PLOT:
-                return "LD Plot";
         }
         return null;
     }

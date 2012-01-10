@@ -75,27 +75,9 @@ public class DockableFrameFactory {
         
         frame.setAvailableButtons(DockableFrame.BUTTON_AUTOHIDE | DockableFrame.BUTTON_MAXIMIZE | DockableFrame.BUTTON_CLOSE );
         
-        if (df == DataFormat.VARIANT) {
-            frame.setSlidingAutohide(true);
-            frame.setInitMode(DockContext.STATE_AUTOHIDE);
-            frame.setInitSide(DockContext.DOCK_SIDE_EAST);
-            frame.addDockableFrameListener(new DockableFrameAdapter() {
-                @Override
-                public void dockableFrameAutohideShowing(DockableFrameEvent dfe) {
-                    frame.forceRedraw();
-                }
-            });
-            frame.setPreferredSize(new Dimension(400, 400));
-            frame.setAutohideWidth(400);
-            frame.setAutohideHeight(400);
-        } else {
-            frame.setSlidingAutohide(false);
-            frame.setInitMode(DockContext.STATE_FRAMEDOCKED);
-            frame.setInitSide(DockContext.DOCK_SIDE_NORTH);
-        }
-        //frame.setShowTitleBar(false);
-        //frame.setShowGripper(true);
-        //frame.setPreferredAutohideSide(DockContext.DOCK_SIDE_SOUTH);
+        frame.setSlidingAutohide(false);
+        frame.setInitMode(DockContext.STATE_FRAMEDOCKED);
+        frame.setInitSide(DockContext.DOCK_SIDE_NORTH);
         
         frame.add(new JPanel());
 

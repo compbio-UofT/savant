@@ -137,11 +137,7 @@ public class FrameController {
     public Frame addTrackFromURI(URI uri, DataFormat df) {
         Frame frame = DockableFrameFactory.createTrackFrame(df);
         //Force a unique frame key. The title of frame is overwritten by track name later.
-        if (df == DataFormat.VARIANT) {
-            frame.setKey(MiscUtils.getFilenameFromPath(uri.toString()) + System.nanoTime());
-        } else {
-            frame.setKey(uri.toString() + System.nanoTime());
-        }
+        frame.setKey(uri.toString() + System.nanoTime());
         addFrame(frame, df);
         TrackFactory.createTrack(uri, frame);
         return frame;
@@ -151,18 +147,13 @@ public class FrameController {
     private void addFrame(Frame f, DataFormat df) {
         frames.add(f);
 
-        if (df == DataFormat.VARIANT) {
-            DockingManager dm = Savant.getInstance().getAuxDockingManager();
-            dm.addFrame(f);
-        } else {
-            DockingManager trackDockingManager = Savant.getInstance().getTrackDockingManager();
-            trackDockingManager.addFrame(f);
+        DockingManager trackDockingManager = Savant.getInstance().getTrackDockingManager();
+        trackDockingManager.addFrame(f);
 
-            // Insert the frame immediately below the currently-active frame.
-            if (frames.size() > 1) {
-                FrameHandle lastFrame = getFrontmostFrame(trackDockingManager);
-                trackDockingManager.moveFrame(f.getKey(), lastFrame.getKey(), DockContext.DOCK_SIDE_SOUTH);
-            }
+        // Insert the frame immediately below the currently-active frame.
+        if (frames.size() > 1) {
+            FrameHandle lastFrame = getFrontmostFrame(trackDockingManager);
+            trackDockingManager.moveFrame(f.getKey(), lastFrame.getKey(), DockContext.DOCK_SIDE_SOUTH);
         }
     }
 

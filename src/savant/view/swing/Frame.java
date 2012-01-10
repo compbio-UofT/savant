@@ -137,25 +137,16 @@ public class Frame extends DockableFrame implements FrameAdapter, TrackCreationL
         gbc.gridx = 0;
         gbc.gridy = 0;
 
-        JComponent mainPane = null;
-        if (df == DataFormat.VARIANT) {
-            graphPane = new VariantGraphPane(this);
-            TallScrollingPanel longScroller = new TallScrollingPanel(graphPane);
-            jlp.add(longScroller, gbc, 0);
-            mainPane = jlp;
-        } else {
-            //scrollpane
-            JScrollPane scrollPane = new JScrollPane();
-            scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-            scrollPane.setWheelScrollingEnabled(false);
-            scrollPane.setBorder(null);
+        //scrollpane
+        JScrollPane scrollPane = new JScrollPane();
+        scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        scrollPane.setWheelScrollingEnabled(false);
+        scrollPane.setBorder(null);
 
-            graphPane = new GraphPane(this);
-            jlp.add(graphPane, gbc, 0);
+        graphPane = new GraphPane(this);
+        jlp.add(graphPane, gbc, 0);
 
-            scrollPane.getViewport().add(jlp);
-            mainPane = scrollPane;
-        }
+        scrollPane.getViewport().add(jlp);
 
 
         //GRID FRAMEWORK AND COMPONENT ADDING...
@@ -218,8 +209,8 @@ public class Frame extends DockableFrame implements FrameAdapter, TrackCreationL
         c.gridheight = 1;
         c.insets = new Insets(0, 0, 0, 0);
         
-        frameLandscape.setLayer(mainPane, JLayeredPane.DEFAULT_LAYER);
-        frameLandscape.add(mainPane, c);
+        frameLandscape.setLayer(scrollPane, JLayeredPane.DEFAULT_LAYER);
+        frameLandscape.add(scrollPane, c);
 
         // Add our progress-panel.  If setTracks is called promptly, it will be cleared
         // away before it ever has a chance to draw.
@@ -282,10 +273,6 @@ public class Frame extends DockableFrame implements FrameAdapter, TrackCreationL
 
         // We get the name and other properties from the zero'th track.
         setKey(t0.getName());
-        if (df == DataFormat.VARIANT) {
-            // Variant tracks have less room for their title, so trim off the directory info.
-            setTabTitle(MiscUtils.getFilenameFromPath(t0.getName()));
-        }
 
         if (df != DataFormat.SEQUENCE && df != DataFormat.RICH_INTERVAL) {
             yMaxPanel = new JLabel();
