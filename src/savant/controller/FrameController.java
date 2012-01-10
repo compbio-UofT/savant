@@ -223,6 +223,11 @@ public class FrameController {
         Arrays.sort(result, new Comparator<Component>() {
             @Override
             public int compare(Component t, Component t1) {
+                if (t == null) {
+                    return t1 == null ? 0 : 1;
+                } else if (t1 == null) {
+                    return -1;
+                }
                 int result = t.getY() - t1.getY();
                 if (result == 0) {
                     result = t.getX() - t1.getX();
