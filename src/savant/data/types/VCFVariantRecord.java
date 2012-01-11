@@ -129,21 +129,6 @@ public class VCFVariantRecord extends TabixIntervalRecord implements VariantReco
         return name;
     }
 
-    /**
-     * TODO: Interpret ALT strings which contain descriptive information rather than bases.
-     * TODO: Interpret ALT strings which contain multiple comma-separated values.
-     */
-    @Override
-    public double getAltFrequency() {
-        int sum = 0;
-        for (int i = 0; i < participants0.length; i++) {
-            if (getVariantForParticipant(i) != VariantType.NONE) {
-                sum++;
-            }
-        }
-        return (double)sum / participants0.length;
-    }
-
     @Override
     public String getRefBases() {
         return refBases;
@@ -156,14 +141,6 @@ public class VCFVariantRecord extends TabixIntervalRecord implements VariantReco
             result += "," + altBases[i];
         }
         return result;
-    }
-
-    /**
-     * Retrieve the number of participants represented by this record.
-     */
-    @Override
-    public int getParticipantCount() {
-        return participants0.length;
     }
 
     /**

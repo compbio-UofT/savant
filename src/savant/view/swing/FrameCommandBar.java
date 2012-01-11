@@ -206,7 +206,7 @@ public final class FrameCommandBar extends JMenuBar {
                     DataSource ds = (DataSource)mainTrack.getDataSource();
                     if (DialogUtils.askYesNo("Bookmark All Features ", String.format("This will create %d bookmarks.  Are you sure you want to do this?", ds.getDictionaryCount())) == DialogUtils.YES) {
                         ds.addDictionaryToBookmarks();
-                        Savant.getInstance().displayAuxPanels();
+                        Savant.getInstance().displayBookmarksPanel();
                     }
                 }
             });

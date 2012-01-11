@@ -23,6 +23,7 @@ import savant.api.data.Record;
 import savant.api.data.VariantRecord;
 import savant.api.data.VariantType;
 import savant.api.util.Resolution;
+import savant.data.sources.TabixDataSource;
 import savant.exception.SavantTrackCreationCancelledException;
 import savant.util.AxisRange;
 import savant.util.AxisType;
@@ -48,14 +49,13 @@ public class VariantTrack extends Track {
 
     @Override
     public ColourScheme getDefaultColourScheme() {
-        return new ColourScheme(ColourKey.A, ColourKey.C, ColourKey.G, ColourKey.T, ColourKey.N);
+        return new ColourScheme(ColourKey.A, ColourKey.C, ColourKey.G, ColourKey.T, ColourKey.INSERTED_BASE, ColourKey.DELETED_BASE);
     }
 
     @Override
     public DrawingMode[] getValidDrawingModes() {
         return new DrawingMode[] { DrawingMode.MATRIX };
     }
-
 
     /**
      * Unlike other tracks, variant tracks have their own internal notion of the current range
@@ -104,6 +104,10 @@ public class VariantTrack extends Track {
         return AxisType.INTEGER;
     }
 
+    public int getParticipantCount() {
+        return ((TabixDataSource)getDataSource()).getExtraColumns().length;
+    }
+
     /**
      * Record filter which only accepts records for which one of the relevant participants
      * has the given variant.
@@ -115,7 +119,7 @@ public class VariantTrack extends Track {
         @Override
         public boolean accept(Record rec) {
             VariantRecord varRec = (VariantRecord)rec;
-            int count = varRec.getParticipantCount();
+            int count = getParticipantCount();
             for (int i = 0; i < count; i++) {
                 if (varRec.getVariantForParticipant(i) != VariantType.NONE) {
                     return true;

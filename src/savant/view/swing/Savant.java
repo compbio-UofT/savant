@@ -15,8 +15,7 @@
  */
 package savant.view.swing;
 
-import savant.api.event.GenomeChangedEvent;
-import savant.api.event.PluginEvent;
+import savant.view.swing.variation.VariationPanel;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.DataOutputStream;
@@ -49,12 +48,11 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import savant.api.adapter.DataSourceAdapter;
-import savant.api.data.DataFormat;
 import savant.api.event.BookmarksChangedEvent;
+import savant.api.event.GenomeChangedEvent;
+import savant.api.event.PluginEvent;
 import savant.api.util.DialogUtils;
 import savant.api.util.Listener;
-import savant.api.util.Resolution;
-import savant.api.util.TrackUtils;
 import savant.controller.*;
 import savant.controller.event.*;
 import savant.plugin.PluginController;
@@ -326,7 +324,7 @@ public class Savant extends JFrame {
 
         s.setStatus("Organizing layout");
 
-        displayAuxPanels();
+        displayBookmarksPanel();
 
         if (turnExperimentalFeaturesOff) {
             disableExperimentalFeatures();
@@ -404,7 +402,6 @@ public class Savant extends JFrame {
         speedAndEfficiencyItem = new javax.swing.JCheckBoxMenuItem();
         javax.swing.JSeparator jSeparator9 = new javax.swing.JSeparator();
         startPageItem = new javax.swing.JCheckBoxMenuItem();
-        toolsItem = new javax.swing.JCheckBoxMenuItem();
         bookmarksItem = new javax.swing.JCheckBoxMenuItem();
         pluginsMenu = new javax.swing.JMenu();
         menuitem_pluginmanager = new javax.swing.JMenuItem();
@@ -794,15 +791,6 @@ public class Savant extends JFrame {
         });
         windowMenu.add(startPageItem);
 
-        toolsItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Z, java.awt.event.InputEvent.SHIFT_MASK | java.awt.event.InputEvent.CTRL_MASK));
-        toolsItem.setText("Tools");
-        toolsItem.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                toolsItemActionPerformed(evt);
-            }
-        });
-        windowMenu.add(toolsItem);
-
         bookmarksItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_B, java.awt.event.InputEvent.SHIFT_MASK | java.awt.event.InputEvent.CTRL_MASK));
         bookmarksItem.setText("Bookmarks");
         bookmarksItem.addActionListener(new java.awt.event.ActionListener() {
@@ -1092,13 +1080,6 @@ public class Savant extends JFrame {
         dlg.setVisible(true);
     }//GEN-LAST:event_preferencesItemActionPerformed
 
-    private void toolsItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_toolsItemActionPerformed
-        String frameKey = "Tools";
-        boolean isVisible = auxDockingManager.getFrame(frameKey).isHidden();
-        MiscUtils.setFrameVisibility(frameKey, isVisible, auxDockingManager);
-        toolsItem.setSelected(isVisible);
-    }//GEN-LAST:event_toolsItemActionPerformed
-
     private void menuitem_deselectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuitem_deselectActionPerformed
         SelectionController.getInstance().removeAll();
     }//GEN-LAST:event_menuitem_deselectActionPerformed
@@ -1228,7 +1209,7 @@ public class Savant extends JFrame {
                 ProjectController.getInstance().loadProjectFromURL(loadProjectUrl);
             }
         } catch (Exception x) {
-            LOG.error(x);
+            LOG.error("Error in main()", x);
         }
     }
 
@@ -1362,7 +1343,6 @@ public class Savant extends JFrame {
     private javax.swing.JMenuItem toEndItem;
     private javax.swing.JMenuItem toStartItem;
     private javax.swing.JToolBar toolbar_bottom;
-    private javax.swing.JCheckBoxMenuItem toolsItem;
     private javax.swing.JMenuItem tutorialsItem;
     private javax.swing.JMenuItem undoItem;
     private javax.swing.JMenuItem userManualItem;
@@ -1462,12 +1442,12 @@ public class Savant extends JFrame {
         initMenu();
         initStatusBar();
         initBookmarksPanel();
+        initVariationPanel();
         initDataSources();
         initStartPage();
     }
 
     private void disableExperimentalFeatures() {
-        toolsItem.setVisible(false);
     }
 
     public DockingManager getAuxDockingManager() {
@@ -1512,6 +1492,15 @@ public class Savant extends JFrame {
                 }
             }
         });
+    }
+
+    private void initVariationPanel() {
+
+        DockableFrame df = DockableFrameFactory.createFrame("Variation", DockContext.STATE_HIDDEN, DockContext.DOCK_SIDE_EAST);
+        df.setAvailableButtons(DockableFrame.BUTTON_AUTOHIDE | DockableFrame.BUTTON_FLOATING | DockableFrame.BUTTON_MAXIMIZE);
+        auxDockingManager.addFrame(df);
+        MiscUtils.setFrameVisibility("Variation", false, auxDockingManager);
+        df.getContentPane().add(new VariationPanel());
     }
 
     private void askToDispose() {
@@ -1712,10 +1701,14 @@ public class Savant extends JFrame {
         return tracks;
     }
 
-    public final void displayAuxPanels() {
+    public final void displayBookmarksPanel() {
         MiscUtils.setFrameVisibility("Bookmarks", true, auxDockingManager);
         auxDockingManager.toggleAutohideState("Bookmarks");
         bookmarksItem.setState(true);
+        auxDockingManager.setActive(false);
+
+        MiscUtils.setFrameVisibility("Variation", true, auxDockingManager);
+        auxDockingManager.toggleAutohideState("Variation");
         auxDockingManager.setActive(false);
     }
 

@@ -18,6 +18,7 @@ package savant.api.event;
 
 import java.util.List;
 
+import savant.api.adapter.TrackAdapter;
 import savant.api.data.Record;
 
 
@@ -33,13 +34,15 @@ public class DataRetrievalEvent {
         FAILED
     };
     Type type;
+    TrackAdapter track;
     List<Record> data;
     Throwable error;
 
     /**
      * Constructor for retrieval starting.
      */
-    public DataRetrievalEvent() {
+    public DataRetrievalEvent(TrackAdapter t) {
+        this.track = t;
         this.type = Type.STARTED;
     }
 
@@ -47,7 +50,8 @@ public class DataRetrievalEvent {
      * Constructor when data is successfully retrieved.
      * @param data the records retrieved
      */
-    public DataRetrievalEvent(List<Record> data) {
+    public DataRetrievalEvent(TrackAdapter t, List<Record> data) {
+        this.track = t;
         this.type = Type.COMPLETED;
         this.data = data;
     }
@@ -57,13 +61,18 @@ public class DataRetrievalEvent {
      *
      * @param error
      */
-    public DataRetrievalEvent(Throwable error) {
+    public DataRetrievalEvent(TrackAdapter t, Throwable error) {
+        this.track = t;
         this.type = Type.FAILED;
         this.error = error;
     }
 
     public Type getType() {
         return type;
+    }
+
+    public TrackAdapter getTrack() {
+        return track;
     }
 
     public List<Record> getData() {

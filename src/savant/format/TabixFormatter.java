@@ -90,7 +90,7 @@ public class TabixFormatter extends SavantFileFormatter {
                 break;
             case INTERVAL_VCF:
                 flags = TabixWriter.TI_PRESET_VCF;
-                header = ColumnMapping.VCF_HEADER;
+                readHeaderLine();
                 break;
             case INTERVAL_UNKNOWN:
                 readHeaderLine();

@@ -56,8 +56,7 @@ class VariantTrackRenderer extends TrackRenderer {
         switch (evt.getType()) {
             case COMPLETED:
                 if (evt.getData().size() > 0) {
-                    VariantRecord rec0 = (VariantRecord)evt.getData().get(0);
-                    int yMax = rec0.getParticipantCount();
+                    int yMax = ((VariantTrack)evt.getTrack()).getParticipantCount();
                     AxisRange oldRange = (AxisRange)getInstruction(DrawingInstruction.AXIS_RANGE);
                     addInstruction(DrawingInstruction.AXIS_RANGE, new AxisRange(oldRange.getXRange(), new Range(0, yMax)));
                 }
@@ -100,7 +99,7 @@ class VariantTrackRenderer extends TrackRenderer {
         ColourScheme cs = (ColourScheme)instructions.get(DrawingInstruction.COLOUR_SCHEME);
         ColourAccumulator accumulator = new ColourAccumulator(cs);
 
-        int participantCount = ((VariantRecord)data.get(0)).getParticipantCount();
+        int participantCount = ((AxisRange)instructions.get(DrawingInstruction.AXIS_RANGE)).getYMax();
         for (Record rec: data) {
 
             VariantRecord varRec = (VariantRecord)rec;

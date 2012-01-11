@@ -44,22 +44,6 @@ public interface VariantRecord extends IntervalRecord {
     public String getAltBases();
     
     /**
-     * Within this record, determine the frequency of the non-REF allele among the participants.
-     * Note: all ALT alleles will be lumped together.
-     *
-     * @return a value from 0.0 to 1.0
-     */
-    public double getAltFrequency();
-
-    /**
-     * Get the number of participants represented by this record (probably the same for
-     * all records from a given DataSource).
-     *
-     * @return the number of participants in this record
-     */
-    public int getParticipantCount();
-    
-    /**
      * Given a participant, determine what type of variant (if any) they have for this record.
      * @param index the participant's index (0-based)
      * @return the variant for this participant (possibly NONE)

@@ -392,7 +392,7 @@ public abstract class Track extends Controller<DataRetrievalEvent> implements Tr
             }
         }
         dataInRange = null;
-        fireEvent(new DataRetrievalEvent());
+        fireEvent(new DataRetrievalEvent(this));
         retriever = new DataRetriever(reference, range, filter);
         retriever.start();
         try {
@@ -417,7 +417,7 @@ public abstract class Track extends Controller<DataRetrievalEvent> implements Tr
         MiscUtils.invokeLaterIfNecessary(new Runnable() {
             @Override
             public void run() {
-                fireEvent(new DataRetrievalEvent(dataInRange));
+                fireEvent(new DataRetrievalEvent(Track.this, dataInRange));
             }
         });
     }
@@ -430,7 +430,7 @@ public abstract class Track extends Controller<DataRetrievalEvent> implements Tr
         MiscUtils.invokeLaterIfNecessary(new Runnable() {
             @Override
             public void run() {
-                fireEvent(new DataRetrievalEvent(x));
+                fireEvent(new DataRetrievalEvent(Track.this, x));
             }
         });
     }

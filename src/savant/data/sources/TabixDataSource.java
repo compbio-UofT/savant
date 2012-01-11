@@ -59,6 +59,12 @@ public class TabixDataSource extends DataSource<TabixIntervalRecord> {
 
     /** Names of the columns, in the same order they appear in the file. */
     String[] columnNames;
+    
+    /**
+     * Extra columns after the columns which are used in the mapping.  For VCF files, this
+     * is where we find the information about the participants.
+     */
+    String[] extraColumns;
 
     private URI uri;
 
@@ -129,22 +135,28 @@ public class TabixDataSource extends DataSource<TabixIntervalRecord> {
             columnNames = new String[] { "Matches", "Mismatches", "Matches that are part of repeats", "Number of 'N' bases", "Number of inserts in query", "Number of bases inserted in query", "Number of inserts in target", "Number of bases inserted in target", "Strand", "Query sequence name", "Query sequence size", "Alignment start in query", "Alignment end in query", "Target sequence name", "Target sequence size", "Alignment start in target", "Alignment end in target", null, null, null };
             mapping = ColumnMapping.PSL;
         } else if (matchesMapping(ColumnMapping.VCF)) {
-            columnNames = new String[] { "Reference", "Position", "ID", "Reference base(s)", "Alternate non-reference alleles", "Quality", "Filter", "Additional information" };
+            columnNames = new String[] { "Reference", "Position", "ID", "Reference base(s)", "Alternate non-reference alleles", "Quality", "Filter", "Additional information", "Format" };
             mapping = ColumnMapping.VCF;
         }
 
-        if (mapping == null) {
-            if (lastCommentLine != null) {
+        if (lastCommentLine != null) {
+            if (mapping == null ) {
                 columnNames = lastCommentLine.substring(1).split("\\t");
-                
                 // If user has screwed up the comment line in a bed file, make sure it doesn't lead us astray.
                 columnNames[reader.getChromColumn()] = "chrom";
                 columnNames[reader.getStartColumn()] = "start";
                 if (reader.getEndColumn() >= 0) {
                     columnNames[reader.getEndColumn()] = "end";
                 }
+                mapping = ColumnMapping.inferMapping(columnNames, false);
+            } else if (mapping == ColumnMapping.VCF) {
+                // For VCF files, save off the participant IDs stored in the extra columns.
+                String[] allColumns = lastCommentLine.substring(1).split("\\t");
+                extraColumns = new String[allColumns.length - columnNames.length];
+                for (int i = columnNames.length; i < allColumns.length; i++) {
+                    extraColumns[i - columnNames.length] = allColumns[i];
+                }
             }
-            mapping = ColumnMapping.inferMapping(columnNames, false);
         }
     }
 
@@ -245,5 +257,13 @@ public class TabixDataSource extends DataSource<TabixIntervalRecord> {
     @Override
     public final String[] getColumnNames() {
         return columnNames;
+    }
+    
+    /**
+     * For VCF files, the extra columns contain participant IDs.
+     * @return 
+     */
+    public String[] getExtraColumns() {
+        return extraColumns;
     }
 }
