@@ -1,5 +1,5 @@
 /*
- *    Copyright 2011 University of Toronto
+ *    Copyright 2011-2012 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -18,8 +18,8 @@ package savant.util;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.Shape;
 import java.awt.geom.Path2D;
-import java.awt.geom.Rectangle2D;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -39,33 +39,46 @@ public class ColourAccumulator {
     }
 
     /**
-     * Add a coloured rectangle to our accumulated visual representation.
+     * Add a coloured rectangle to our accumulated visual representation.  Assumes that
+     * the colour scheme has been set and that the key is in the scheme.
      */
-    public void addShape(ColourKey col, Rectangle2D shape) {
-        Color c = scheme.getColor(col);
-        if (!areas.containsKey(c)) {
-            areas.put(c, new Path2D.Double());
-        }
-        areas.get(c).append(shape.getPathIterator(null), false);
+    public void addShape(ColourKey col, Shape shape) {
+        addShape(scheme.getColor(col), shape);
     }
     
     /**
      * Add a coloured rectangle for a base to our accumulated visual representation.
+     * Assumes that the colour scheme has been set and that the key is in the scheme.
      */
-    public void addBaseShape(char baseChar, Rectangle2D shape) {
-        Color c = scheme.getBaseColor(baseChar);
-        if (c != null) {
-            if (!areas.containsKey(c)) {
-                areas.put(c, new Path2D.Double());
-            }
-            areas.get(c).append(shape.getPathIterator(null), false);
-        }
+    public void addBaseShape(char baseChar, Shape shape) {
+        addShape(scheme.getBaseColor(baseChar), shape);
     }
     
-    public void render(Graphics2D g2) {
+    public void addShape(Color col, Shape shape) {
+        if (col != null) {
+            if (!areas.containsKey(col)) {
+                areas.put(col, new Path2D.Double());
+            }
+            areas.get(col).append(shape.getPathIterator(null), false);
+        }
+    }
+
+    /**
+     * Fill the accumulated areas with their associated colors.
+     */
+    public void fill(Graphics2D g2) {
         for (Color c: areas.keySet()) {
             g2.setColor(c);
             g2.fill(areas.get(c));
+        }
+    }
+
+    /**
+     * Draw frames around the accumulated areas in the current color.
+     */
+    public void draw(Graphics2D g2) {
+        for (Color c: areas.keySet()) {
+            g2.draw(areas.get(c));
         }
     }
 }

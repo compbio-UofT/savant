@@ -30,8 +30,7 @@ public enum VariantType {
     INSERTION,
     OTHER;
 
-    @Override
-    public String toString() {
+    public String getDescription() {
         switch (this) {
             case SNP_A:
             case SNP_C:

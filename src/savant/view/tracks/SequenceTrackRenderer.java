@@ -72,7 +72,7 @@ public class SequenceTrackRenderer extends TrackRenderer {
             double x = gp.transformXPos(axisRange.getXMin() + i);
             accumulator.addBaseShape((char)sequence[i], new Rectangle2D.Double(x, 0.0, unitWidth, gp.getHeight()));
         }
-        accumulator.render(g2);
+        accumulator.fill(g2);
         
         g2.setColor(Color.BLACK);
         g2.setStroke(new BasicStroke(0.25f));

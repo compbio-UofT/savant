@@ -104,7 +104,7 @@ class VariantTrackRenderer extends TrackRenderer {
 
             VariantRecord varRec = (VariantRecord)rec;
             double x = gp.transformXPos(varRec.getInterval().getStart());
-            double y = 0.0;
+            double y = (participantCount - 1) * unitHeight;
             double w = unitWidth * varRec.getInterval().getLength();
 
             for (int j = 0; j < participantCount; j++) {
@@ -131,10 +131,10 @@ class VariantTrackRenderer extends TrackRenderer {
                         accumulator.addShape(ColourKey.DELETED_BASE, rect);
                         break;
                 }
-                y += unitHeight;
+                y -= unitHeight;
             }
             recordToShapeMap.put(varRec, new Rectangle2D.Double(x, 0.0, w, unitHeight * participantCount));
         }
-        accumulator.render(g2);
+        accumulator.fill(g2);
     }
 }

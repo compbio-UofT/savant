@@ -19,6 +19,7 @@ import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Rectangle2D;
@@ -26,18 +27,15 @@ import java.util.List;
 import javax.swing.JPanel;
 
 import savant.api.data.VariantRecord;
-import savant.api.util.RangeUtils;
-import savant.controller.GraphPaneController;
-import savant.controller.LocationController;
 import savant.settings.BrowserSettings;
 import savant.settings.ColourSettings;
 import savant.util.ColourAccumulator;
 import savant.util.ColourKey;
 import savant.util.ColourScheme;
-import savant.util.Range;
 
 
 /**
+ * Map-like overview of all variant tracks.
  *
  * @author tarkvara
  */
@@ -48,31 +46,19 @@ public class VariantMap extends JPanel {
     private double unitHeight;
     private double unitWidth;
 
-    VariantMap(VariationPanel owner) {
-        this.owner = owner;
+    VariantMap(VariationPanel p) {
+        this.owner = p;
         setFont(BrowserSettings.getTrackFont());
 
         MouseAdapter listener = new MouseAdapter() {
-            /**
-             * Override mouseMoved because the x-position we report is actually derived from
-             * our y-position.
-             */
             @Override
             public void mouseMoved(MouseEvent event) {
-                VariantRecord rec = pointToRecord(event.getPoint().y);
-                if (rec != null) {
-                    GraphPaneController.getInstance().setMouseXPosition(rec.getInterval().getStart());
-                } else {
-                    GraphPaneController.getInstance().setMouseXPosition(-1);
-                }
+                owner.updateStatusBar(pointToRecord(event.getPoint().y));
             }
 
             @Override
             public void mouseClicked(MouseEvent event) {
-                VariantRecord rec = pointToRecord(event.getPoint().y);
-                if (rec != null) {
-                    LocationController.getInstance().setLocation((Range)RangeUtils.addMargin(new Range(rec.getInterval().getStart(), rec.getInterval().getEnd())));
-                }
+                owner.navigateToRecord(pointToRecord(event.getY()));
             }
         };
         addMouseListener(listener);
@@ -83,6 +69,8 @@ public class VariantMap extends JPanel {
     public void paintComponent(Graphics g) {
         Graphics2D g2 = (Graphics2D)g;
         g2.clearRect(0, 0, getWidth(), getHeight());
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
         List<VariantRecord> data = owner.getData();
         if (data == null || data.isEmpty()) {
             Font font = g2.getFont().deriveFont(Font.PLAIN, 36);
@@ -135,7 +123,7 @@ public class VariantMap extends JPanel {
                 }
                 y += unitHeight;
             }
-            accumulator.render(g2);
+            accumulator.fill(g2);
         }
     }
 

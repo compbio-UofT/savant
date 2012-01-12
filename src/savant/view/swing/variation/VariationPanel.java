@@ -21,6 +21,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,6 +37,8 @@ import savant.api.event.DataRetrievalEvent;
 import savant.api.event.LocationChangedEvent;
 import savant.api.event.TrackEvent;
 import savant.api.util.Listener;
+import savant.api.util.RangeUtils;
+import savant.controller.GraphPaneController;
 import savant.controller.LocationController;
 import savant.controller.TrackController;
 import savant.util.Range;
@@ -48,14 +52,16 @@ import savant.view.tracks.VariantTrack;
  * @author tarkvara
  */
 public class VariationPanel extends JPanel implements Listener<DataRetrievalEvent> {
-    private static final Log LOG = LogFactory.getLog(VariantMap.class);
+    private static final Log LOG = LogFactory.getLog(VariationPanel.class);
 
     Map<VariantTrack, List<VariantRecord>> rawData = new HashMap<VariantTrack, List<VariantRecord>>();
     private int participantCount;
     private String reference;
     private Range visibleRange;
     
+    private JTable table;
     private VariantMap map;
+    private LDPlot ldPlot;
     
     private JTextField rangeField;
     private JScrollBar mapScroller;
@@ -93,8 +99,18 @@ public class VariationPanel extends JPanel implements Listener<DataRetrievalEven
         tools.add(zoomOutButton);
         
         JTabbedPane tabs = new JTabbedPane();
-        tabs.addTab("Table", new VariantTable(this));
-        
+        table = new JTable(new VariantTableModel(null));
+        table.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent me) {
+                if (me.getClickCount() == 2) {
+                    VariantRecord varRec = getData().get(table.getSelectedRow());
+                    navigateToRecord(varRec);
+                }
+            }
+        });
+        tabs.addTab("Table", new JScrollPane(table));
+
         JPanel mapPanel = new JPanel();
         mapPanel.setLayout(new GridBagLayout());
         
@@ -122,7 +138,8 @@ public class VariationPanel extends JPanel implements Listener<DataRetrievalEven
         mapPanel.add(mapScroller, gbc);
         tabs.addTab("Map", mapPanel);
 
-        tabs.addTab("LD Plot", new LDPlot(this));
+        ldPlot = new LDPlot(this);
+        tabs.addTab("LD Plot", ldPlot);
 
         gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.weightx = 1.0;
@@ -175,7 +192,9 @@ public class VariationPanel extends JPanel implements Listener<DataRetrievalEven
                 break;
             case COMPLETED:
                 rawData.put((VariantTrack)evt.getTrack(), (List)evt.getData());
+                table.setModel(new VariantTableModel(getData()));
                 map.repaint();
+                ldPlot.forceRedraw();
                 break;
         }
     }
@@ -248,5 +267,23 @@ public class VariationPanel extends JPanel implements Listener<DataRetrievalEven
         }
 
         setVisibleRange(new Range(from, to));
-    }    
+    }
+
+    /**
+     * One of our panels has clicked or double-clicked.  Navigate to the record in the main window.
+     */
+    void navigateToRecord(VariantRecord rec) {
+        LocationController.getInstance().setLocation((Range)RangeUtils.addMargin(new Range(rec.getInterval().getStart(), rec.getInterval().getEnd())));
+    }
+    
+    /**
+     * A mouse-move on one of our sub-panels.  Update the status bar in the main window.
+     */
+    void updateStatusBar(VariantRecord rec) {
+        if (rec != null) {
+            GraphPaneController.getInstance().setMouseXPosition(rec.getInterval().getStart());
+        } else {
+            GraphPaneController.getInstance().setMouseXPosition(-1);
+        }
+    }
 }

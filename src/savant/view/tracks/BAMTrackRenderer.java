@@ -625,7 +625,7 @@ public class BAMTrackRenderer extends TrackRenderer {
             }
         }
         
-        accumulator.render(g2);
+        accumulator.fill(g2);
         for (Rectangle2D ins: insertions) {
             drawInsertion(g2, ins.getX(), ins.getY(), ins.getWidth(), ins.getHeight());
         }
@@ -723,7 +723,7 @@ public class BAMTrackRenderer extends TrackRenderer {
             }
         }
 
-        accumulator.render(g2);
+        accumulator.fill(g2);
         for (Rectangle2D ins: insertions) {
             drawInsertion(g2, ins.getX(), ins.getY(), ins.getWidth(), ins.getHeight());
         }
