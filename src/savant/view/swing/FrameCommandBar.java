@@ -422,10 +422,11 @@ public final class FrameCommandBar extends JMenuBar {
             @Override
             public void stateChanged(ChangeEvent e) {
                 int h = getIntervalHeight();
-                graphPane.setUnitHeight(h);
                 if (graphPane.isScaledToFit()) {
+                    graphPane.setUnitHeight(h);
                     graphPane.setScaledToFit(false);    // Forces rerender and repaint internally.
-                } else {
+                } else if (graphPane.getUnitHeight() != h) {
+                    graphPane.setUnitHeight(h);
                     graphPane.setRenderForced();
                     graphPane.repaint();
                 }

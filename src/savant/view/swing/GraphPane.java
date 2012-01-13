@@ -274,7 +274,7 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
         boolean sameMode = currentMode == prevMode;
         boolean sameSize = prevSize != null && getSize().equals(prevSize) && parentFrame.getFrameLandscape().getWidth() == oldWidth && parentFrame.getFrameLandscape().getHeight() == oldHeight;
         boolean sameRef = prevRef != null && lc.getReferenceName().equals(prevRef);
-        boolean withinScrollBounds = bufferedImage != null && isWithinScrollBounds();
+        boolean withinScrollBounds = bufferedImage != null && scroller.getValue() >= getOffset() && scroller.getValue() < getOffset() + getViewportHeight() * 2;
 
         //bufferedImage stores the current graphic for future use. If nothing
         //has changed in the track since the last render, bufferedImage will
@@ -358,24 +358,22 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
                 paneResize = false;
 
                 // Change size of current frame
-                JLayeredPane landscape = parentFrame.getFrameLandscape();
-                if (landscape.getHeight() != newHeight) {
-                    Dimension newSize = new Dimension(landscape.getWidth(), newHeight);
+                if (getHeight() != newHeight) {
+                    Dimension newSize = new Dimension(getWidth(), newHeight);
                     setPreferredSize(newSize);
                     setSize(newSize);
                     parentFrame.validate(); // Ensures that scroller.getMaximum() is up to date.
 
                     // If pane is resized, scrolling always starts at the bottom.  The only place
                     // where looks wrong is when we have a continuous track with negative values.
-                    updateScrollForHeight(scroller.getMaximum());
+                    scroller.setValue(scroller.getMaximum());
+                    repaint();
+                    return;
                 }
-                repaint();
-                return;
-
             } else if (oldViewHeight != -1 && oldViewHeight != getViewportHeight()) {
                 int newViewHeight = getViewportHeight();
                 int oldScroll = scroller.getValue();
-                updateScrollForHeight(oldScroll + (oldViewHeight - newViewHeight));
+                scroller.setValue(oldScroll + (oldViewHeight - newViewHeight));
                 oldViewHeight = newViewHeight;
             }
             oldWidth = parentFrame.getFrameLandscape().getWidth();
@@ -401,24 +399,6 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
      */
     public JScrollBar getVerticalScrollBar() {
         return ((JScrollPane)getParent().getParent().getParent()).getVerticalScrollBar();
-    }
-
-    /**
-     * Set the scroller position based on the height.  VariantGraphPanes override this
-     * because they have their own notion of what the scroll height should be.
-     */
-    protected void updateScrollForHeight(int newScroll) {
-        getVerticalScrollBar().setValue(newScroll);
-    }
-
-    /**
-     * Determine whether the display is within the current scroll bounds, or whether it
-     * needs to be re-generated.  Overridden by VariantGraphPane, which has a different
-     * notion of scroll bounds.
-     */
-    protected boolean isWithinScrollBounds() {
-        JScrollBar scroller = getVerticalScrollBar();
-        return scroller.getValue() >= getOffset() && scroller.getValue() < getOffset() + getViewportHeight() * 2;
     }
 
     private void renderCurrentSelected(Graphics2D g2) {
@@ -1315,10 +1295,9 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
     public boolean needsToResize() {
         if (!scaledToFit) {
             int currentHeight = getHeight();
-            int currentViewportHeight = getViewportHeight();
             int expectedHeight = (int)((yMax - yMin) * unitHeight);
 
-            expectedHeight = Math.max(expectedHeight, currentViewportHeight);
+            expectedHeight = Math.max(expectedHeight, parentFrame.getFrameLandscape().getHeight());
             if (expectedHeight != currentHeight) {
                 requestHeight(expectedHeight);
                 return true;
