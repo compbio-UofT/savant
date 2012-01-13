@@ -42,7 +42,15 @@ public interface VariantRecord extends IntervalRecord {
      * @return a non-empty string containing reference bases
      */
     public String getAltBases();
-    
+
+    /**
+     * Get the number of participants represented by this record (probably the same for
+     * all records from a given DataSource).
+     *
+     * @return the number of participants in this record
+     */
+    public int getParticipantCount();
+
     /**
      * Given a participant, determine what type of variant (if any) they have for this record.
      * @param index the participant's index (0-based)

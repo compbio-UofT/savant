@@ -15,14 +15,12 @@
  */
 package savant.view.swing.variation;
 
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.AdjustmentEvent;
-import java.awt.event.AdjustmentListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.*;
+import java.awt.event.*;
+import java.awt.geom.Rectangle2D;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,6 +39,8 @@ import savant.api.util.RangeUtils;
 import savant.controller.GraphPaneController;
 import savant.controller.LocationController;
 import savant.controller.TrackController;
+import savant.settings.ColourSettings;
+import savant.util.ColourKey;
 import savant.util.Range;
 import savant.view.icon.SavantIconFactory;
 import savant.view.tracks.VariantTrack;
@@ -51,10 +51,19 @@ import savant.view.tracks.VariantTrack;
  *
  * @author tarkvara
  */
-public class VariationPanel extends JPanel implements Listener<DataRetrievalEvent> {
-    private static final Log LOG = LogFactory.getLog(VariationPanel.class);
+public class VariationSheet extends JPanel implements Listener<DataRetrievalEvent> {
+    private static final Log LOG = LogFactory.getLog(VariationSheet.class);
+
+    private static final Comparator<VariantRecord> VARIANT_COMPARATOR = new Comparator<VariantRecord>() {
+        @Override
+        public int compare(VariantRecord t, VariantRecord t1) {
+            return t.compareTo(t1);
+        }
+    };
 
     Map<VariantTrack, List<VariantRecord>> rawData = new HashMap<VariantTrack, List<VariantRecord>>();
+    List<VariantRecord> aggregateData = null;
+
     private int participantCount;
     private String reference;
     private Range visibleRange;
@@ -66,7 +75,7 @@ public class VariationPanel extends JPanel implements Listener<DataRetrievalEven
     private JTextField rangeField;
     private JScrollBar mapScroller;
 
-    public VariationPanel() {
+    public VariationSheet() {
         setLayout(new GridBagLayout());
         
         // Toolbar shared by all panels.
@@ -166,12 +175,12 @@ public class VariationPanel extends JPanel implements Listener<DataRetrievalEven
                         case ADDED:
                             rawData.put(t, null);
                             participantCount += t.getParticipantCount();
-                            t.addListener(VariationPanel.this);
+                            t.addListener(VariationSheet.this);
                             break;
                         case REMOVED:
                             participantCount -= t.getParticipantCount();
                             rawData.remove(t);
-                            t.removeListener(VariationPanel.this);
+                            t.removeListener(VariationSheet.this);
                             break;
                     }
                 }
@@ -192,6 +201,7 @@ public class VariationPanel extends JPanel implements Listener<DataRetrievalEven
                 break;
             case COMPLETED:
                 rawData.put((VariantTrack)evt.getTrack(), (List)evt.getData());
+                aggregateData = null;
                 table.setModel(new VariantTableModel(getData()));
                 map.repaint();
                 ldPlot.forceRedraw();
@@ -200,8 +210,45 @@ public class VariationPanel extends JPanel implements Listener<DataRetrievalEven
     }
 
     // TODO: Should aggregate variants from all VCF tracks.
-    List<VariantRecord> getData() {
-        return rawData.entrySet().iterator().next().getValue();
+    synchronized List<VariantRecord> getData() {
+        if (aggregateData == null) {
+            int n = 0;
+            for (VariantTrack t: rawData.keySet()) {
+                List<VariantRecord> trackData = rawData.get(t);
+                if (trackData != null) {
+                    if (aggregateData == null) {
+                        aggregateData = new ArrayList<VariantRecord>(trackData.size());
+                        for (VariantRecord rec: trackData) {
+                            aggregateData.add(new PaddedVariantRecord(rec, 0));
+                        }
+                    } else {
+                        // Slower process.  Traverse the list inserting data as we go.
+                        // It would might be more efficient to insert everything and sort,
+                        // but we have to allow for the possibility of having to munge together
+                        // two VariantRecords.
+                        for (VariantRecord rec: trackData) {
+                            int index = Collections.binarySearch(aggregateData, rec, VARIANT_COMPARATOR);
+                            if (index < 0) {
+                                // Not found in list.  Insert it at the given location.
+                                int insertionPos = -index - 1;
+                                String before = insertionPos > 0 ? aggregateData.get(insertionPos - 1).toString() : "START";
+                                String after = insertionPos < aggregateData.size() ? aggregateData.get(insertionPos).toString() : "END";
+                                
+                                LOG.info("Inserting " + rec + " after " + before + " and before " + after);
+                                aggregateData.add(insertionPos, new PaddedVariantRecord(rec, n));
+                            } else {
+                                VariantRecord oldRec = aggregateData.get(index);
+                                LOG.info("Merging " + rec + " into " + oldRec + " padding " + (n - oldRec.getParticipantCount()));
+                                aggregateData.set(index, new MergedVariantRecord(oldRec, rec, n - oldRec.getParticipantCount()));
+                            }
+                        }
+                    }
+                    n += t.getParticipantCount();
+                }
+            }
+            participantCount = n;
+        }
+        return aggregateData;
     }
 
     int getParticipantCount() {
@@ -285,5 +332,19 @@ public class VariationPanel extends JPanel implements Listener<DataRetrievalEven
         } else {
             GraphPaneController.getInstance().setMouseXPosition(-1);
         }
+    }
+    
+    void drawNoDataMessage(Graphics2D g2, Dimension size) {
+        Font font = g2.getFont().deriveFont(Font.PLAIN, 36);
+        g2.setColor(ColourSettings.getColor(ColourKey.GRAPH_PANE_MESSAGE));
+        FontMetrics metrics = g2.getFontMetrics();
+        String message = "No data in range";
+        Rectangle2D stringBounds = font.getStringBounds(message, g2.getFontRenderContext());
+
+        int x = (size.width - (int)stringBounds.getWidth()) / 2;
+        int y = (size.height / 2) + ((metrics.getAscent()- metrics.getDescent()) / 2);
+
+        g2.setFont(font);
+        g2.drawString(message, x,y);
     }
 }

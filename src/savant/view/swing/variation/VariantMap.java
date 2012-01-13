@@ -15,8 +15,6 @@
  */
 package savant.view.swing.variation;
 
-import java.awt.Font;
-import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
@@ -28,7 +26,6 @@ import javax.swing.JPanel;
 
 import savant.api.data.VariantRecord;
 import savant.settings.BrowserSettings;
-import savant.settings.ColourSettings;
 import savant.util.ColourAccumulator;
 import savant.util.ColourKey;
 import savant.util.ColourScheme;
@@ -41,12 +38,12 @@ import savant.util.ColourScheme;
  */
 public class VariantMap extends JPanel {
     
-    private VariationPanel owner;
+    private VariationSheet owner;
     
     private double unitHeight;
     private double unitWidth;
 
-    VariantMap(VariationPanel p) {
+    VariantMap(VariationSheet p) {
         this.owner = p;
         setFont(BrowserSettings.getTrackFont());
 
@@ -73,17 +70,7 @@ public class VariantMap extends JPanel {
 
         List<VariantRecord> data = owner.getData();
         if (data == null || data.isEmpty()) {
-            Font font = g2.getFont().deriveFont(Font.PLAIN, 36);
-            g2.setColor(ColourSettings.getColor(ColourKey.GRAPH_PANE_MESSAGE));
-            FontMetrics metrics = g2.getFontMetrics();
-            String message = "No data in range";
-            Rectangle2D stringBounds = font.getStringBounds(message, g2.getFontRenderContext());
-
-            int x = (getWidth() - (int)stringBounds.getWidth()) / 2;
-            int y = (getHeight() / 2) + ((metrics.getAscent()- metrics.getDescent()) / 2);
-
-            g2.setFont(font);
-            g2.drawString(message, x,y);
+            owner.drawNoDataMessage(g2, getSize());
         } else {
             int participantCount = owner.getParticipantCount();
             unitHeight = getHeight() / data.size();

@@ -79,6 +79,14 @@ public class VCFVariantRecord extends TabixIntervalRecord implements VariantReco
         values = null;
     }
 
+    /**
+     * For debug purposes, provides a succinct summary of the variant.
+     */
+    @Override
+    public String toString() {
+        return getVariantType().toString() + "@" + getInterval().getStart();
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (obj == null) {
@@ -110,15 +118,15 @@ public class VCFVariantRecord extends TabixIntervalRecord implements VariantReco
     @Override
     public int compareTo(Object o) {
 
-        VCFVariantRecord that = (VCFVariantRecord) o;
+        VariantRecord that = (VariantRecord) o;
 
         // Compare position.  This should be unique.
-        if (!interval.equals(that.interval)) {
-            return interval.compareTo(that.interval);
+        if (!interval.equals(that.getInterval())) {
+            return interval.compareTo(that.getInterval());
         }
         
-        if (!refBases.equals(that.refBases)) {
-            return refBases.compareTo(that.refBases);
+        if (!refBases.equals(that.getRefBases())) {
+            return refBases.compareTo(that.getRefBases());
         }
         
         return getAltBases().compareTo(that.getAltBases());
@@ -141,6 +149,11 @@ public class VCFVariantRecord extends TabixIntervalRecord implements VariantReco
             result += "," + altBases[i];
         }
         return result;
+    }
+
+    @Override
+    public int getParticipantCount() {
+        return participants0.length;
     }
 
     /**

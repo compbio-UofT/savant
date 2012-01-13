@@ -37,7 +37,7 @@ public class ColourSettings {
         DEFAULT_SETTINGS.put(ColourKey.T, new Color(162, 98, 45));
         DEFAULT_SETTINGS.put(ColourKey.N, new Color(100,100,100));
         DEFAULT_SETTINGS.put(ColourKey.DELETED_BASE, Color.BLACK);
-        DEFAULT_SETTINGS.put(ColourKey.INSERTED_BASE, Color.MAGENTA);
+        DEFAULT_SETTINGS.put(ColourKey.INSERTED_BASE, new Color(204, 102, 255));
         DEFAULT_SETTINGS.put(ColourKey.SKIPPED, Color.GRAY);
 
         DEFAULT_SETTINGS.put(ColourKey.FORWARD_STRAND, new Color(0, 131, 192));
