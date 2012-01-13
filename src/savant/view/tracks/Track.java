@@ -315,8 +315,9 @@ public abstract class Track extends Controller<DataRetrievalEvent> implements Tr
         return frame;
     }
 
-    public void setFrame(FrameAdapter frame) {
+    public void setFrame(FrameAdapter frame, DrawingMode initialMode) {
         this.frame = frame;
+        this.drawingMode = initialMode;
         addListener(frame);
     }
 

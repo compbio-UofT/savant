@@ -196,30 +196,34 @@ public abstract class TrackRenderer implements Listener<DataRetrievalEvent> {
         for (Record rec: recordToShapeMap.keySet()) {
             Shape s = recordToShapeMap.get(rec);
 
-            //if (contains AND (notArc OR (isEdge...))
-            boolean hit = false;
-            if (mode == DrawingMode.ARC || mode == DrawingMode.ARC_PAIRED) {
-                hit = s.intersects(testIntersection) && (!s.contains(p.x-3, p.y-3) || !s.contains(p.x+3, p.y-3));
-            } else {
-                hit = s.contains(p);
-            }
-            // At low resolutions, SNPs can be hard to hit with the mouse, so give a second chance with a fuzzier check.
-            if (mode == DrawingMode.SNP || mode == DrawingMode.STRAND_SNP || mode == DrawingMode.MATRIX) {
-                if (hit) {
-                    if (allowFuzzySNPs) {
-                        // We may have accumulated some fuzzy SNP hits.  We now have an exact one, so dump the fuzzies.
-                        map.clear();
-                        allowFuzzySNPs = false;
-                    }
+            if (s != null) {
+                //if (contains AND (notArc OR (isEdge...))
+                boolean hit = false;
+                if (mode == DrawingMode.ARC || mode == DrawingMode.ARC_PAIRED) {
+                    hit = s.intersects(testIntersection) && (!s.contains(p.x-3, p.y-3) || !s.contains(p.x+3, p.y-3));
                 } else {
-                    if (allowFuzzySNPs) {
-                        hit = s.intersects(testIntersection);
+                    hit = s.contains(p);
+                }
+                // At low resolutions, SNPs can be hard to hit with the mouse, so give a second chance with a fuzzier check.
+                if (mode == DrawingMode.SNP || mode == DrawingMode.STRAND_SNP || mode == DrawingMode.MATRIX) {
+                    if (hit) {
+                        if (allowFuzzySNPs) {
+                            // We may have accumulated some fuzzy SNP hits.  We now have an exact one, so dump the fuzzies.
+                            map.clear();
+                            allowFuzzySNPs = false;
+                        }
+                    } else {
+                        if (allowFuzzySNPs) {
+                            hit = s.intersects(testIntersection);
+                        }
                     }
                 }
-            }
-            if (hit) {
-                map.put(rec, s);
-                continue;
+                if (hit) {
+                    map.put(rec, s);
+                    continue;
+                }
+            } else {
+                LOG.info("Why is shape null for " + rec);
             }
             
             //check other artifacts

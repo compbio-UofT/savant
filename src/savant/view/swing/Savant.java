@@ -975,7 +975,7 @@ public class Savant extends JFrame {
         File[] selectedFiles = DialogUtils.chooseFilesForOpen("Open Tracks", null, lastTrackDirectory);
         for (File f : selectedFiles) {
             // This creates the tracks asynchronously, which handles all exceptions internally.
-            FrameController.getInstance().addTrackFromPath(f.getAbsolutePath(), null);
+            FrameController.getInstance().addTrackFromPath(f.getAbsolutePath(), null, null);
         }
         if (selectedFiles.length > 0) {
             this.setLastTrackDirectory(selectedFiles[0].getParentFile());
@@ -986,7 +986,7 @@ public class Savant extends JFrame {
         URL url = OpenURLDialog.getURL(this);
         if (url != null) {
             try {
-                FrameController.getInstance().addTrackFromURI(url.toURI(), null);
+                FrameController.getInstance().addTrackFromURI(url.toURI(), null, null);
             } catch (URISyntaxException ignored) {
             }
         }

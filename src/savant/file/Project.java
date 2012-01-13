@@ -1,5 +1,5 @@
 /*
- *    Copyright 2010-2011 University of Toronto
+ *    Copyright 2010-2012 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import savant.api.adapter.FrameAdapter;
+import savant.api.adapter.TrackAdapter;
 import savant.api.data.DataFormat;
 import savant.api.event.GenomeChangedEvent;
 import savant.api.util.Listener;
@@ -36,8 +37,10 @@ import savant.data.types.Genome;
 import savant.data.types.Genome.ReferenceInfo;
 import savant.exception.SavantEmptySessionException;
 import savant.util.Bookmark;
+import savant.util.DrawingMode;
 import savant.util.NetworkUtils;
 import savant.util.Range;
+import savant.view.swing.Frame;
 
 
 /**
@@ -48,7 +51,10 @@ import savant.util.Range;
 public class Project {
 
     private static final Log LOG = LogFactory.getLog(Project.class);
-    private static final int FILE_VERSION = 1;
+
+    // 1: original version
+    // 2: added mode attribute to track element
+    private static final int FILE_VERSION = 2;
 
     private enum XMLElement {
         savant,
@@ -65,11 +71,13 @@ public class Project {
         uri,
         range,
         length,
-        cytoband
+        cytoband,
+        mode
     };
     private Genome genome;
     private List<Bookmark> bookmarks;
     private List<String> trackPaths;
+    private List<DrawingMode> trackModes;
     private String reference;
     private Range range;
     private String genomePath;
@@ -144,6 +152,7 @@ public class Project {
 
     private void createFromXML(InputStream input) throws XMLStreamException, ParseException, IOException {
         trackPaths = new ArrayList<String>();
+        trackModes = new ArrayList<DrawingMode>();
         bookmarks = new ArrayList<Bookmark>();
         String genomeName = null;
         String genomeDesc = null;
@@ -174,8 +183,13 @@ public class Project {
                             references.add(new ReferenceInfo(readAttribute(XMLAttribute.name), Integer.valueOf(readAttribute(XMLAttribute.length))));
                             break;
                         case track:
-                            // If the file is well-formed, the track will have exactly one attribute, the URI.
                             trackPaths.add(readAttribute(XMLAttribute.uri));
+                            try {
+                                trackModes.add(DrawingMode.valueOf(readAttribute(XMLAttribute.mode)));
+                            } catch (Exception x) {
+                                // Mode attribute is invalid or missing.
+                                trackModes.add(null);
+                            }
                             break;
                         case bookmark:
                             Bookmark b = new Bookmark(readAttribute(XMLAttribute.range));
@@ -239,10 +253,12 @@ public class Project {
         writer.writeEndElement();
 
         for (FrameAdapter fr: FrameController.getInstance().getOrderedFrames()) {
-            URI uri = fr.getTracks()[0].getDataSource().getURI();
+            TrackAdapter t0 = fr.getTracks()[0];
+            URI uri = t0.getDataSource().getURI();
             if (uri != null) {
                 writeEmptyElement(XMLElement.track, "  ");
                 writeAttribute(XMLAttribute.uri, NetworkUtils.getNeatPathFromURI(uri));
+                writeAttribute(XMLAttribute.mode, t0.getDrawingMode().toString());
             }
         }
 
@@ -290,20 +306,24 @@ public class Project {
                 public void handleEvent(GenomeChangedEvent event) {
                     GenomeController.getInstance().removeListener(this);
                     LOG.info("Received genomeChanged");
-                    for (String path: trackPaths) {
+                    for (int i = 0; i < trackPaths.size(); i++) {
+                        String path = trackPaths.get(i);
+                        DrawingMode mode = trackModes.get(i);
                         if (!path.equals(genomePath)) {
                             LOG.info("Adding ordinary track for " + path);
-                            FrameController.getInstance().addTrackFromPath(path, null);
+                            FrameController.getInstance().addTrackFromPath(path, null, mode);
                         }
                     }
                 }
             });
             LOG.info("Adding sequence track for " + genomePath);
-            FrameController.getInstance().addTrackFromPath(genomePath, DataFormat.SEQUENCE);
+            FrameController.getInstance().addTrackFromPath(genomePath, DataFormat.SEQUENCE, null);
         } else {
             // Genome in place, so just load the tracks.
-            for (String path : trackPaths) {
-                FrameController.getInstance().addTrackFromPath(path, null);
+            for (int i = 0; i < trackPaths.size(); i++) {
+                String path = trackPaths.get(i);
+                DrawingMode mode = trackModes.get(i);
+                Frame fr = FrameController.getInstance().addTrackFromPath(path, null, mode);
             }
         }
         if (bookmarks != null && bookmarks.size() > 0) {

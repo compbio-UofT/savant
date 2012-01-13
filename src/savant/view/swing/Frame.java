@@ -1,5 +1,5 @@
 /*
- *    Copyright 2010-2011 University of Toronto
+ *    Copyright 2010-2012 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -42,9 +42,7 @@ import savant.controller.LocationController;
 import savant.controller.TrackController;
 import savant.plugin.SavantPanelPlugin;
 import savant.util.DrawingMode;
-import savant.util.MiscUtils;
 import savant.util.Range;
-import savant.util.swing.TallScrollingPanel;
 import savant.util.swing.ProgressPanel;
 import savant.view.icon.SavantIconFactory;
 import savant.view.tracks.SequenceTrack;
@@ -69,6 +67,7 @@ public class Frame extends DockableFrame implements FrameAdapter, TrackCreationL
     private GraphPane graphPane;
     private JLayeredPane frameLandscape;
     private Track[] tracks = new Track[0];
+    private DrawingMode initialDrawingMode;
 
     private JLayeredPane jlp;
 
@@ -262,14 +261,14 @@ public class Frame extends DockableFrame implements FrameAdapter, TrackCreationL
         tracks = newTracks;
         graphPane.setTracks(tracks);
 
-        commandBar = new FrameCommandBar(this);
-
         for (Track t: tracks) {
-            t.setFrame(this);
+            t.setFrame(this, initialDrawingMode);
 
             // Adds the track to the TrackController's internal list, and fires a TrackEvent.ADDED event to all listeners.
             TrackController.getInstance().addTrack(t);
         }
+
+        commandBar = new FrameCommandBar(this);
 
         // We get the name and other properties from the zero'th track.
         setKey(t0.getName());
@@ -333,6 +332,10 @@ public class Frame extends DockableFrame implements FrameAdapter, TrackCreationL
         if (value) {
             legend.setVisible(legend.getPreferredSize().height > 0);
         }
+    }
+
+    public void setInitialDrawingMode(DrawingMode dm) {
+        initialDrawingMode = dm;
     }
 
     public void updateYMax(int value) {

@@ -97,7 +97,7 @@ public final class FrameCommandBar extends JMenuBar {
         JMenu toolsMenu = createToolsMenu();
         add(toolsMenu);
 
-        if (mainTrack.getValidDrawingModes().length > 0){
+        if (mainTrack.getValidDrawingModes().length > 1) {
             JMenu modeMenu = createDisplayModeMenu();
             add(modeMenu);
         }
@@ -231,16 +231,16 @@ public final class FrameCommandBar extends JMenuBar {
         //display modes
         DrawingMode[] validModes = mainTrack.getValidDrawingModes();
         modeItems = new JCheckBoxMenuItem[validModes.length];
-        for(int i = 0; i < validModes.length; i++){
-            JCheckBoxMenuItem item = new JCheckBoxMenuItem(validModes[i].toString());
+        for (int i = 0; i < validModes.length; i++) {
+            JCheckBoxMenuItem item = new JCheckBoxMenuItem(validModes[i].getDescription());
             item.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     JCheckBoxMenuItem item = (JCheckBoxMenuItem)e.getSource();
                     if (item.getState()) {
                         DrawingMode[] validModes = mainTrack.getValidDrawingModes();
-                        for (int j = 0; j < modeItems.length; j++){
-                            if (item.getText().equals(validModes[j].toString())) {
+                        for (int j = 0; j < modeItems.length; j++) {
+                            if (item.getText().equals(validModes[j].getDescription())) {
                                 for (TrackAdapter t: frame.getTracks()) {
                                     t.setDrawingMode(validModes[j]);
                                 }
@@ -263,8 +263,8 @@ public final class FrameCommandBar extends JMenuBar {
 
         // Determine position of current draw mode.
         DrawingMode currentMode = mainTrack.getDrawingMode();
-        for(int i = 0; i < validModes.length; i++){
-            if (validModes[i].equals(currentMode)){
+        for (int i = 0; i < validModes.length; i++) {
+            if (validModes[i].equals(currentMode)) {
                 drawModePosition = i;
                 break;
             }
@@ -276,7 +276,7 @@ public final class FrameCommandBar extends JMenuBar {
             public void keyTyped(KeyEvent e) {
                 //check for: Mac + Command + 'm' OR !Mac + Ctrl + 'm'
                 if((MiscUtils.MAC && e.getModifiersEx() == 256 && e.getKeyChar() == 'm') ||
-                        (!MiscUtils.MAC && e.getKeyChar() == '\n' && e.isControlDown())){
+                        (!MiscUtils.MAC && e.getKeyChar() == '\n' && e.isControlDown())) {
                     cycleDisplayMode();
                 }
             }
@@ -284,7 +284,7 @@ public final class FrameCommandBar extends JMenuBar {
         return menu;
     }
 
-    private void cycleDisplayMode(){
+    private void cycleDisplayMode() {
         if(modeItems == null) return;
         modeItems[drawModePosition].setState(false);
         drawModePosition++;
@@ -462,13 +462,13 @@ public final class FrameCommandBar extends JMenuBar {
      * Given an interval height, determine the slider value which corresponds to it.
      * @return
      */
-    private static int getSliderFromIntervalHeight(int intervalHeight){
+    private static int getSliderFromIntervalHeight(int intervalHeight) {
         int newValue = 0;
         int diff = Math.abs(AVAILABLE_INTERVAL_HEIGHTS[0] - intervalHeight);
-        for(int i = 1; i < AVAILABLE_INTERVAL_HEIGHTS.length; i++){
+        for (int i = 1; i < AVAILABLE_INTERVAL_HEIGHTS.length; i++) {
             int currVal = AVAILABLE_INTERVAL_HEIGHTS[i];
             int currDiff = Math.abs(currVal - intervalHeight);
-            if(currDiff < diff){
+            if(currDiff < diff) {
                 newValue = i;
                 diff = currDiff;
             }

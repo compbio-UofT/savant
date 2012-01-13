@@ -91,7 +91,7 @@ public class TrackUtils {
      * @throws IOException Exception opening the track at path
      */
     public static TrackAdapter[] createTrack(URI uri) throws Throwable {
-        Frame f = FrameController.getInstance().addTrackFromURI(uri, null);
+        Frame f = FrameController.getInstance().addTrackFromURI(uri, null, null);
         return f.getTracks();
     }
 
@@ -103,7 +103,7 @@ public class TrackUtils {
      * @throws IOException Exception opening the track at path
      */
     public static TrackAdapter[] createTrack(File file) throws Throwable {
-        Frame f = FrameController.getInstance().addTrackFromURI(file.toURI(), null);
+        Frame f = FrameController.getInstance().addTrackFromURI(file.toURI(), null, null);
         return f.getTracks();
     }
 

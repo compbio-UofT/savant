@@ -38,7 +38,7 @@ import savant.api.event.LocationChangedEvent;
 import savant.api.util.DialogUtils;
 import savant.api.util.Listener;
 import savant.selection.SelectionController;
-import savant.util.MiscUtils;
+import savant.util.DrawingMode;
 import savant.util.NetworkUtils;
 import savant.view.swing.DockableFrameFactory;
 import savant.view.swing.Frame;
@@ -123,7 +123,7 @@ public class FrameController {
     }
 
 
-    public Frame addTrackFromPath(String fileOrURI, DataFormat df) {
+    public Frame addTrackFromPath(String fileOrURI, DataFormat df, DrawingMode dm) {
         if (df == null) {
             if (fileOrURI.endsWith(".fa") || fileOrURI.endsWith(".fa.savant")) {
                 df = DataFormat.SEQUENCE;
@@ -131,13 +131,14 @@ public class FrameController {
                 df = DataFormat.VARIANT;
             }
         }
-        return addTrackFromURI(NetworkUtils.getURIFromPath(fileOrURI), df);
+        return addTrackFromURI(NetworkUtils.getURIFromPath(fileOrURI), df, dm);
     }
 
-    public Frame addTrackFromURI(URI uri, DataFormat df) {
+    public Frame addTrackFromURI(URI uri, DataFormat df, DrawingMode dm) {
         Frame frame = DockableFrameFactory.createTrackFrame(df);
         //Force a unique frame key. The title of frame is overwritten by track name later.
         frame.setKey(uri.toString() + System.nanoTime());
+        frame.setInitialDrawingMode(dm);
         addFrame(frame, df);
         TrackFactory.createTrack(uri, frame);
         return frame;

@@ -125,7 +125,7 @@ public class RecentTracksController {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     try {
-                        FrameController.getInstance().addTrackFromPath(s, null);
+                        FrameController.getInstance().addTrackFromPath(s, null, null);
                     } catch (Exception ex) {
                         LOG.error("Unable to open file.", ex);
                         DialogUtils.displayError("Problem opening track from file " + s);

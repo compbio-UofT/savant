@@ -271,7 +271,7 @@ public class BAMTrackRenderer extends TrackRenderer {
         }
 
         // Render individual bases/mismatches as appropriate for the current mode.
-        if (lastMode != DrawingMode.STANDARD || baseQuality) {
+        if ((lastMode != DrawingMode.STANDARD && lastMode != DrawingMode.STANDARD_PAIRED) || baseQuality) {
             renderBases(g2, gp, samRec, level, refSeq, range, readHeight);
         }
 
@@ -346,6 +346,7 @@ public class BAMTrackRenderer extends TrackRenderer {
         // Absolute positions in the reference sequence and the read bases, set after each cigar operator is processed
         int sequenceCursor = alignmentStart;
         int readCursor = alignmentStart;
+        List<Rectangle2D> insertions = new ArrayList<Rectangle2D>();
 
         for (CigarElement cigarElement : cigar.getCigarElements()) {
 
@@ -367,7 +368,7 @@ public class BAMTrackRenderer extends TrackRenderer {
                     break;
                 
                 case I: // Insertion
-                    renderInsertion(g2, gp, sequenceCursor, level, unitHeight);
+                    insertions.add(new Rectangle2D.Double(gp.transformXPos(sequenceCursor), gp.transformYPos(0) - ((level + 1) * unitHeight) - gp.getOffset(), unitWidth, unitHeight));
                     break;
                     
                 case M: // Match or mismatch
@@ -377,7 +378,7 @@ public class BAMTrackRenderer extends TrackRenderer {
                             // indices into refSeq and readBases associated with this position in the cigar string
                             int readIndex = readCursor-alignmentStart+i;
                             int refIndex = sequenceCursor + i - range.getFrom();
-                            if (refIndex >= 0 && (refSeq == null || refIndex < refSeq.length)) {
+                            if (refIndex >= 0 && refSeq != null && refIndex < refSeq.length) {
                                 
                                 boolean mismatched = refSeq[refIndex] != readBases[readIndex];
                                 
@@ -425,7 +426,11 @@ public class BAMTrackRenderer extends TrackRenderer {
             if (operator.consumesReadBases()) readCursor += operatorLength;
             if (operator.consumesReferenceBases()) sequenceCursor += operatorLength;
         }
-
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        for (Rectangle2D ins: insertions) {
+            drawInsertion(g2, ins.getX(), ins.getY(), ins.getWidth(), ins.getHeight());
+        }
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
     }
     
     /**
@@ -439,12 +444,6 @@ public class BAMTrackRenderer extends TrackRenderer {
         Rectangle2D opRect = new Rectangle2D.Double(opStart, gp.transformYPos(0) - (level + 1) * unitHeight - gp.getOffset(), width, unitHeight);
         g2.setColor(Color.BLACK);
         g2.fill(opRect);
-    }
-
-    private void renderInsertion(Graphics2D g2, GraphPaneAdapter gp, int pos, int level, double unitHeight) {
-        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        drawInsertion(g2, gp.transformXPos(pos), gp.transformYPos(0) - ((level + 1) * unitHeight) - gp.getOffset(), gp.getUnitWidth(), unitHeight);
-        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
     }
 
     private void renderArcPairedMode(Graphics2D g2, GraphPaneAdapter gp) {

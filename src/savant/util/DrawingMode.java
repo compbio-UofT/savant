@@ -27,8 +27,7 @@ public enum DrawingMode {
     // Variant modes
     MATRIX;
 
-    @Override
-    public String toString() {
+    public String getDescription() {
         switch (this) {
             case SQUISH:
                 return "Squish";

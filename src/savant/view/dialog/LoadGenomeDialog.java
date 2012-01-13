@@ -405,7 +405,7 @@ public class LoadGenomeDialog extends JDialog {
                 if (projectController.promptToSaveChanges(false)) {
                     projectController.clearExistingProject();
                     GenomeController.getInstance().setGenome(null);
-                    FrameController.getInstance().addTrackFromURI(url.toURI(), DataFormat.SEQUENCE);
+                    FrameController.getInstance().addTrackFromURI(url.toURI(), DataFormat.SEQUENCE, null);
                 }
             } catch (Throwable x) {
                 DialogUtils.displayException("Error Loading Genome", String.format("Unable to load genome from %s.", url), x);
@@ -424,7 +424,7 @@ public class LoadGenomeDialog extends JDialog {
                     projectController.clearExistingProject();
                     GenomeController.getInstance().setGenome(null);
                     Savant.getInstance().setLastTrackDirectory(selectedFile.getParentFile());
-                    FrameController.getInstance().addTrackFromPath(selectedFile.getAbsolutePath(), DataFormat.SEQUENCE);
+                    FrameController.getInstance().addTrackFromPath(selectedFile.getAbsolutePath(), DataFormat.SEQUENCE, null);
                 }
             } catch (Throwable x) {
                 DialogUtils.displayException("Error Loading Genome", String.format("Unable to load genome from %s.", selectedFile.getName()), x);
