@@ -231,14 +231,16 @@ public class VariationSheet extends JPanel implements Listener<DataRetrievalEven
                             if (index < 0) {
                                 // Not found in list.  Insert it at the given location.
                                 int insertionPos = -index - 1;
-                                String before = insertionPos > 0 ? aggregateData.get(insertionPos - 1).toString() : "START";
-                                String after = insertionPos < aggregateData.size() ? aggregateData.get(insertionPos).toString() : "END";
-                                
-                                LOG.info("Inserting " + rec + " after " + before + " and before " + after);
+                                if (LOG.isDebugEnabled()) {
+                                    String before = insertionPos > 0 ? aggregateData.get(insertionPos - 1).toString() : "START";
+                                    String after = insertionPos < aggregateData.size() ? aggregateData.get(insertionPos).toString() : "END";
+
+                                    LOG.debug("Inserting " + rec + " after " + before + " and before " + after);
+                                }
                                 aggregateData.add(insertionPos, new PaddedVariantRecord(rec, n));
                             } else {
                                 VariantRecord oldRec = aggregateData.get(index);
-                                LOG.info("Merging " + rec + " into " + oldRec + " padding " + (n - oldRec.getParticipantCount()));
+                                LOG.debug("Merging " + rec + " into " + oldRec + " padding " + (n - oldRec.getParticipantCount()));
                                 aggregateData.set(index, new MergedVariantRecord(oldRec, rec, n - oldRec.getParticipantCount()));
                             }
                         }
@@ -258,6 +260,10 @@ public class VariationSheet extends JPanel implements Listener<DataRetrievalEven
     private void setLocation(String ref, Range r) {
         reference = ref;
         setVisibleRange(r);
+    }
+
+    Range getVisibleRange() {
+        return visibleRange;
     }
 
     void setVisibleRange(Range r) {

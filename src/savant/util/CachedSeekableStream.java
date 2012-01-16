@@ -93,7 +93,7 @@ public class CachedSeekableStream extends SeekableStream {
 
     private void cachedSeek(int blockOffset, int positionOffset) throws IOException{
         //from offset, calculate actual position in file
-        int actualOffset = (numBlocks * 4) + (blockOffset -1) * bufferSize;
+        long actualOffset = (numBlocks * 4L) + (blockOffset - 1L) * bufferSize;
 
         //retrieve from stream
         FileInputStream cacheStream = new FileInputStream(cacheFile);

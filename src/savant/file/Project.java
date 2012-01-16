@@ -322,7 +322,7 @@ public class Project {
             // Genome in place, so just load the tracks.
             for (int i = 0; i < trackPaths.size(); i++) {
                 String path = trackPaths.get(i);
-                DrawingMode mode = trackModes.get(i);
+                DrawingMode mode = trackModes != null ? trackModes.get(i) : null;
                 Frame fr = FrameController.getInstance().addTrackFromPath(path, null, mode);
             }
         }

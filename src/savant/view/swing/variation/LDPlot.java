@@ -23,7 +23,6 @@ import java.awt.RenderingHints;
 import java.awt.Shape;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.util.List;
 import javax.swing.JPanel;
@@ -52,7 +51,7 @@ public class LDPlot extends JPanel {
 //        { 0.996f, 0.910f, 0.784f }, { 0.992f, 0.733f, 0.518f }, { 0.890f, 0.290f, 0.200f }};
 
     private float[][] ldData;
-    private double y0;
+    private double x0, y0;
     private double unitHeight;
 
     VariationSheet owner;
@@ -130,7 +129,7 @@ public class LDPlot extends JPanel {
                                 // r-squared
                                 float rSquared = (float)(d * d / (p1 * p2 * q1 * q2));
     //                            System.out.println("D[" + i + "(" + varI + ")][" + j + "(" + varJ + ")]=" + d + "\tx11=" + x11 + "\tp1=" + p1 + "\tq1=" + q1 + "\tD'=" + dPrime + "\tr²=" + rSquared);
-                                ldData[i][j] = rSquared;
+                                ldData[i][j] = dPrime;
                             } else {
                                 ldData[i][j] = Float.NaN;
                             }
@@ -166,18 +165,16 @@ public class LDPlot extends JPanel {
 
             ColourAccumulator accumulator = new ColourAccumulator(null);
 
-            double x0 = getWidth() - AXIS_WIDTH;
+            x0 = getWidth() - AXIS_WIDTH;
             y0 = (getHeight() - n * unitHeight) * 0.5;
-            AffineTransform jSlide = AffineTransform.getTranslateInstance(-0.5 * unitHeight, 0.5 * unitHeight);
             for (int i = 0; i < n; i++) {
-                Shape diamond = MiscUtils.createPolygon(x0 - 0.5 * unitHeight, y0 + (i + 0.5) * unitHeight, x0, y0 + (i + 1) * unitHeight, x0 - 0.5 * unitHeight, y0 + (i + 1.5) * unitHeight, x0 - unitHeight, y0 + (i + 1) * unitHeight);
                 for (int j = i + 1; j < n; j++) {
+                    Shape diamond = getDiamond(i, j);
                     if (Float.isNaN(ldData[i][j])) {
                         accumulator.addShape(g2.getBackground(), diamond);
                     } else {
                         accumulator.addShape(createBlend(ldData[i][j]), diamond);
                     }
-                    diamond = jSlide.createTransformedShape(diamond);
                 }
             }
             accumulator.fill(g2);
@@ -189,7 +186,15 @@ public class LDPlot extends JPanel {
             drawAxis(g2);
         }
     }
-    
+
+    /**
+     * Calculate the diamond at the intersection of variants i and j.
+     */
+    private Shape getDiamond(int i, int j) {
+        double dj = 0.5 * (j - i - 1) * unitHeight;
+        return MiscUtils.createPolygon(x0 - 0.5 * unitHeight - dj, y0 + (i + 0.5) * unitHeight + dj, x0 - dj, y0 + (i + 1) * unitHeight + dj, x0 - 0.5 * unitHeight - dj, y0 + (i + 1.5) * unitHeight + dj, x0 - unitHeight - dj, y0 + (i + 1) * unitHeight + dj);
+    }
+
     private void drawAxis(Graphics2D g2) {
 
         List<VariantRecord> data = owner.getData();
