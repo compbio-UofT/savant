@@ -54,7 +54,7 @@ public class Splash extends javax.swing.JDialog {
 
         this.setLocationRelativeTo(null);
 
-        Image i = new ImageIcon(getClass().getResource("/savant/images/splash.png")).getImage();
+        Image i = new ImageIcon(getClass().getResource("/savant/images/splash2.png")).getImage();
         this.setPreferredSize(new Dimension(i.getWidth(null),i.getHeight(null)));
         this.setMaximumSize(new Dimension(i.getWidth(null),i.getHeight(null)));
         this.setMinimumSize(new Dimension(i.getWidth(null),i.getHeight(null)));
@@ -75,13 +75,13 @@ public class Splash extends javax.swing.JDialog {
         formatLabel(authors, false);
         textPanel.add(authors);
 
-        textPanel.add(getPadding(6));
+        textPanel.add(getPadding(2));
 
         JLabel version = new JLabel(pad + "Version: " + BrowserSettings.VERSION + " " + BrowserSettings.BUILD);
         formatLabel(version, false);
         textPanel.add(version);
 
-        textPanel.add(getPadding(6));
+        textPanel.add(getPadding(2));
 
         status = new JLabel(modal ? "" : pad + "Initializing ...");
         formatLabel(status, true);
@@ -97,7 +97,7 @@ public class Splash extends javax.swing.JDialog {
         progress.setMinimumSize(d);
         progress.setMaximumSize(d);
         textPanel.add(progress);
-         * 
+         *
          */
 
         //textPanel.add(getPadding(3));
