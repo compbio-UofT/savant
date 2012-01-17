@@ -89,7 +89,7 @@ public class IntervalBamPopup extends PopupPanel implements Listener<DataRetriev
                 pairSelect.addMouseListener(new MouseAdapter() {
                     @Override
                     public void mouseClicked(MouseEvent e) {
-                        for (Track t: graphPane.getTracks()) {
+                        for (Track t: host.getTracks()) {
                             if (t.getDataFormat() == fileFormat){
                                 t.getRenderer().forceAddToSelected(record);
                                 break;
@@ -97,7 +97,7 @@ public class IntervalBamPopup extends PopupPanel implements Listener<DataRetriev
                         }
                         int start = Math.min(samRec.getAlignmentStart(), samRec.getMateAlignmentStart());
                         int end = Math.max(samRec.getAlignmentEnd(), samRec.getMateAlignmentStart() + samRec.getReadLength());
-                        graphPane.getTracks()[0].addListener(IntervalBamPopup.this);
+                        host.getTracks()[0].addListener(IntervalBamPopup.this);
                         LocationController.getInstance().setLocation((Range)RangeUtils.addMargin(new Range(start, end)));
                     }
                 });
@@ -119,7 +119,7 @@ public class IntervalBamPopup extends PopupPanel implements Listener<DataRetriev
                 for (Record r: evt.getData()) {
                     SAMRecord current = ((BAMIntervalRecord)r).getSAMRecord();
                     if (MiscUtils.isMate(samRec, current, true)) {
-                        for (Track t: graphPane.getTracks()) {
+                        for (Track t: host.getTracks()) {
                             if (t.getDataFormat() == fileFormat){
                                 t.getRenderer().forceAddToSelected(r);
                                 break;
@@ -129,7 +129,7 @@ public class IntervalBamPopup extends PopupPanel implements Listener<DataRetriev
                     }
                 }       
                 hidePopup();
-                graphPane.getTracks()[0].removeListener(this);
+                host.getTracks()[0].removeListener(this);
                 break;
         }
     }

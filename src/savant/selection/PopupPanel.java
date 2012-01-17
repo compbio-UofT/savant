@@ -16,18 +16,22 @@
 
 package savant.selection;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.GridLayout;
+import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Iterator;
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JSeparator;
 
 import savant.api.adapter.DataSourceAdapter;
+import savant.api.adapter.PopupHostingAdapter;
 import savant.api.data.DataFormat;
 import savant.api.data.Interval;
 import savant.api.data.IntervalRecord;
@@ -39,7 +43,6 @@ import savant.util.Bookmark;
 import savant.util.DrawingMode;
 import savant.util.MiscUtils;
 import savant.util.Range;
-import savant.view.swing.GraphPane;
 import savant.view.tracks.Track;
 
 /**
@@ -49,7 +52,7 @@ import savant.view.tracks.Track;
  */
 public abstract class PopupPanel extends JPanel {
 
-    protected GraphPane graphPane;
+    protected PopupHostingAdapter host;
     protected DrawingMode mode;
     protected DataFormat fileFormat;
     protected Record record;
@@ -60,7 +63,7 @@ public abstract class PopupPanel extends JPanel {
     protected int start;
     protected int end;
 
-    public static PopupPanel create(GraphPane parent, DrawingMode mode, DataSourceAdapter dataSource, Record rec) {
+    private static PopupPanel create(PopupHostingAdapter parent, DrawingMode mode, DataSourceAdapter dataSource, Record rec) {
 
         PopupPanel p = null;
         switch (dataSource.getDataFormat()) {
@@ -106,11 +109,25 @@ public abstract class PopupPanel extends JPanel {
         return p;
     }
 
-    protected void init(GraphPane parent, DrawingMode m, DataFormat ff, Record rec) {
+    public static void showPopup(PopupHostingAdapter parent, Point globalPt, Track t, Record overRecord) {
+        JPopupMenu jp = new JPopupMenu();
+        PopupPanel pp = create(parent, t.getDrawingMode(), t.getDataSource(), overRecord);
+        parent.firePopupEvent(pp);
+        if (pp != null) {
+            jp.setLayout(new BorderLayout());
+            jp.add(pp, BorderLayout.CENTER);
+            jp.setLocation(globalPt.x - 2, globalPt.y - 2);
+            parent.popupShown(jp);
+            jp.setVisible(true);
+        }
+    }
+
+
+    protected void init(PopupHostingAdapter parent, DrawingMode m, DataFormat ff, Record rec) {
 
         fileFormat = ff;
         mode = m;
-        graphPane = parent;
+        host = parent;
         record = rec;
 
         setBackground(Color.WHITE);
@@ -128,18 +145,17 @@ public abstract class PopupPanel extends JPanel {
         //START OF BUTTONS
         add(new JSeparator());
 
-        //SELECT
         Buttonoid select = new Buttonoid("Select/Deselect");
         select.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                for (Track t: graphPane.getTracks()) {
+                for (Track t: host.getTracks()) {
                     if (t.getDataFormat() == fileFormat) {
                         t.getRenderer().addToSelected(record);
                         break;
                     }
                 }
-                graphPane.repaint();
+                host.repaint();
             }
         });
         add(select);
@@ -189,7 +205,7 @@ public abstract class PopupPanel extends JPanel {
     }
 
     public void hidePopup() {
-        graphPane.hidePopup();
+        host.hidePopup();
     }
 
     protected void initIntervalJumps() {

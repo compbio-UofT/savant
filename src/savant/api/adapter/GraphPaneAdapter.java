@@ -1,5 +1,5 @@
 /*
- *    Copyright 2010-2011 University of Toronto
+ *    Copyright 2010-2012 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -16,8 +16,6 @@
 
 package savant.api.adapter;
 
-import savant.api.event.PopupEvent;
-import savant.api.util.Listener;
 import savant.util.Range;
 
 
@@ -30,7 +28,7 @@ import savant.util.Range;
  * @author tarkvara
  * @since 2.0.0
  */
-public interface GraphPaneAdapter {
+public interface GraphPaneAdapter extends PopupHostingAdapter {
 
     /**
      * Convert an X position in pixels into a base position.
@@ -108,18 +106,4 @@ public interface GraphPaneAdapter {
     public FrameAdapter getParentFrame();
 
     public void setScaledToFit(boolean b);
-    
-    /**
-     * Add a listener which is notified when the track popup is about to be shown.
-     *
-     * @param l the listener to be added
-     */
-    public void addPopupListener(Listener<PopupEvent> l);
-    
-    /**
-     * Remove a listener which has been added by <code>addPopupListener</code>
-     *
-     * @param l the listener to be removed
-     */
-    public void removePopupListener(Listener<PopupEvent> l);
 }

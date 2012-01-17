@@ -15,13 +15,8 @@
  */
 package savant.view.swing.variation;
 
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.GradientPaint;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Rectangle;
-import java.awt.RenderingHints;
+import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Area;
@@ -29,14 +24,25 @@ import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
 import java.util.List;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.SwingUtilities;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import savant.api.adapter.PopupHostingAdapter;
 import savant.api.data.VariantRecord;
+import savant.api.event.PopupEvent;
+import savant.api.util.Listener;
+import savant.selection.PopupPanel;
 import savant.settings.BrowserSettings;
 import savant.settings.ColourSettings;
 import savant.util.ColourAccumulator;
 import savant.util.ColourKey;
 import savant.util.ColourScheme;
+import savant.util.DrawingMode;
+import savant.util.Hoverer;
 import savant.util.MiscUtils;
+import savant.view.tracks.Track;
 
 
 /**
@@ -44,11 +50,14 @@ import savant.util.MiscUtils;
  *
  * @author tarkvara
  */
-public class VariantMap extends JPanel {
+public class VariantMap extends JPanel implements PopupHostingAdapter {
+    private static final Log LOG = LogFactory.getLog(VariantMap.class);
+
     /** Height in pixels of gap between blocks (when we have enough space to draw gap sizes). */
     private static final double GAP_HEIGHT = 9.0;
 
     private VariationSheet owner;
+    private JPopupMenu poppedUp;
     
     private double unitHeight;
     private double unitWidth;
@@ -57,15 +66,45 @@ public class VariantMap extends JPanel {
         this.owner = p;
         setFont(BrowserSettings.getTrackFont());
 
-        MouseAdapter listener = new MouseAdapter() {
+        MouseAdapter listener = new Hoverer() {
+            private Point dragStart = null;
+
             @Override
-            public void mouseMoved(MouseEvent event) {
-                owner.updateStatusBar(pointToRecord(event.getPoint().y));
+            public void actionPerformed(ActionEvent evt) {
+                LOG.info("Hoverer fired for " + hoverPos);
+                VariantRecord varRec = pointToRecord(hoverPos.y);
+                if (varRec != null) {
+                    hidePopup();
+                    Point globalPt = SwingUtilities.convertPoint(VariantMap.this, hoverPos, null);
+                    PopupPanel.showPopup(VariantMap.this, globalPt, owner.rawData.keySet().iterator().next(), varRec);
+                }
+                hoverPos = null;
+            }
+            
+            @Override
+            public void mouseMoved(MouseEvent evt) {
+                owner.updateStatusBar(pointToRecord(evt.getPoint().y));
+                Point oldHover = hoverPos;
+                super.mouseMoved(evt);
+                if (oldHover != null && !isHoverable(oldHover)) {
+                    hidePopup();
+                }
             }
 
             @Override
-            public void mouseClicked(MouseEvent event) {
-                owner.navigateToRecord(pointToRecord(event.getY()));
+            public void mouseClicked(MouseEvent evt) {
+                owner.navigateToRecord(pointToRecord(evt.getY()));
+            }
+            
+            @Override
+            public void mousePressed(MouseEvent evt) {
+                dragStart = evt.getPoint();
+            }
+
+            @Override
+            public void mouseExited(MouseEvent evt) {
+                super.mouseExited(evt);
+                hidePopup();
             }
         };
         addMouseListener(listener);
@@ -244,4 +283,33 @@ public class VariantMap extends JPanel {
         }
     }
 
+    @Override
+    public void addPopupListener(Listener<PopupEvent> l) {
+    }
+
+    @Override
+    public void removePopupListener(Listener<PopupEvent> l) {
+    }
+
+    @Override
+    public void firePopupEvent(PopupPanel panel) {
+    }
+
+    @Override
+    public void popupShown(JPopupMenu menu) {
+        poppedUp = menu;
+    }
+
+    @Override
+    public void hidePopup() {
+        if (poppedUp != null) {
+            poppedUp.setVisible(false);
+            poppedUp = null;
+        }
+    }
+
+    @Override
+    public Track[] getTracks() {
+        return new Track[0];
+    }
 }

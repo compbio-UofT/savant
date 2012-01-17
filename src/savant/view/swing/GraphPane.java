@@ -171,6 +171,7 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
     /**
      * Return the list of tracks associated with this GraphPane.
      */
+    @Override
     public Track[] getTracks() {
         return tracks;
     }
@@ -1089,18 +1090,9 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
                 // Arbitrarily pick the first record in the map.  Most of the time, there will be only one.
                 Record overRecord = map.keySet().iterator().next();
                 
-                JPopupMenu jp = new JPopupMenu();
-                PopupPanel pp = PopupPanel.create(this, tracks[0].getDrawingMode(), t.getDataSource(), overRecord);
-                firePopupEvent(pp);
-                if (pp != null) {
-                    jp.setLayout(new BorderLayout());
-                    jp.add(pp, BorderLayout.CENTER);
-                    Point p1 = (Point)p.clone();
-                    SwingUtilities.convertPointToScreen(p1, this);
-                    jp.setLocation(p1.x - 2, p1.y - 2);
-                    poppedUp = jp;
-                    jp.setVisible(true);
-                }
+                Point p1 = (Point)p.clone();
+                SwingUtilities.convertPointToScreen(p1, this);
+                PopupPanel.showPopup(this, p1, t, overRecord);
                 
                 currentOverRecord = overRecord;
                 currentOverShape = map.get(currentOverRecord);
@@ -1117,6 +1109,7 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
         currentOverRecord = null;
     }
 
+    @Override
     public void hidePopup() {
         if (poppedUp != null) {
             poppedUp.setVisible(false);
@@ -1127,6 +1120,10 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
             currentOverRecord = null;
             repaint();
         }
+    }
+
+    public void popupShown(JPopupMenu menu) {
+        poppedUp = menu;
     }
 
     public void trySelect(Point p) {
@@ -1260,6 +1257,7 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
         }
     }
 
+    @Override
     public void firePopupEvent(PopupPanel popup) {
         int size = popupListeners.size();
         for (int i = 0; i < size; i++) {

@@ -74,6 +74,7 @@ public class VariationSheet extends JPanel implements Listener<DataRetrievalEven
     
     private JTextField rangeField;
     private JScrollBar mapScroller;
+    private ButtonGroup methodGroup;
 
     public VariationSheet() {
         setLayout(new GridBagLayout());
@@ -147,8 +148,41 @@ public class VariationSheet extends JPanel implements Listener<DataRetrievalEven
         mapPanel.add(mapScroller, gbc);
         tabs.addTab("Map", mapPanel);
 
+        JPanel ldPanel = new JPanel();
+        ldPanel.setLayout(new GridBagLayout());
+
+        ActionListener redrawForcer = new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                ldPlot.recalculate();
+                ldPlot.repaint();
+            }
+        };
+        JRadioButton dPrimeButton = new JRadioButton("D'", true);
+        dPrimeButton.setActionCommand("true");
+        dPrimeButton.addActionListener(redrawForcer);
+        JRadioButton rSquaredButton = new JRadioButton("r²", false);
+        rSquaredButton.setActionCommand("false");
+        rSquaredButton.addActionListener(redrawForcer);
+        
+        methodGroup = new ButtonGroup();
+        JPanel methodPanel = new JPanel();
+        methodPanel.setBorder(BorderFactory.createTitledBorder("Calculation Method"));
+        methodPanel.add(dPrimeButton);
+        methodGroup.add(dPrimeButton);
+        methodPanel.add(rSquaredButton);
+        methodGroup.add(rSquaredButton);
+
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.weighty = 0.0;
+        gbc.weightx = 1.0;
+        ldPanel.add(methodPanel, gbc);
+
         ldPlot = new LDPlot(this);
-        tabs.addTab("LD Plot", ldPlot);
+        gbc.weighty = 1.0;
+        ldPanel.add(ldPlot, gbc);
+
+        tabs.addTab("LD Plot", ldPanel);
 
         gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.weightx = 1.0;
@@ -181,6 +215,7 @@ public class VariationSheet extends JPanel implements Listener<DataRetrievalEven
                             participantCount -= t.getParticipantCount();
                             rawData.remove(t);
                             t.removeListener(VariationSheet.this);
+                            recalculate();
                             break;
                     }
                 }
@@ -201,10 +236,7 @@ public class VariationSheet extends JPanel implements Listener<DataRetrievalEven
                 break;
             case COMPLETED:
                 rawData.put((VariantTrack)evt.getTrack(), (List)evt.getData());
-                aggregateData = null;
-                table.setModel(new VariantTableModel(getData()));
-                map.repaint();
-                ldPlot.forceRedraw();
+                recalculate();
                 break;
         }
     }
@@ -340,6 +372,18 @@ public class VariationSheet extends JPanel implements Listener<DataRetrievalEven
         }
     }
     
+    void recalculate() {
+        aggregateData = null;
+        table.setModel(new VariantTableModel(getData()));
+        map.repaint();
+        ldPlot.recalculate();
+        ldPlot.repaint();
+    }
+
+    boolean isDPrimeSelected() {
+        return Boolean.parseBoolean(methodGroup.getSelection().getActionCommand());
+    }
+
     void drawNoDataMessage(Graphics2D g2, Dimension size) {
         Font font = g2.getFont().deriveFont(Font.PLAIN, 36);
         g2.setColor(ColourSettings.getColor(ColourKey.GRAPH_PANE_MESSAGE));

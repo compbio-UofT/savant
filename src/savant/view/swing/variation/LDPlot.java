@@ -17,6 +17,7 @@ package savant.view.swing.variation;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
@@ -32,6 +33,7 @@ import org.apache.commons.logging.LogFactory;
 
 import savant.api.data.VariantRecord;
 import savant.api.data.VariantType;
+import savant.settings.ColourSettings;
 import savant.util.ColourAccumulator;
 import savant.util.ColourKey;
 import savant.util.ColourScheme;
@@ -87,7 +89,7 @@ public class LDPlot extends JPanel {
             List<VariantRecord> data = owner.getData();
             if (data != null && data.size() > 0) {
                 int participantCount = owner.getParticipantCount();
-
+                boolean dPrimeSelected = owner.isDPrimeSelected();
                 ldData = new float[data.size()][data.size()];
                 for (int i = 0; i < data.size(); i++) {
                     VariantRecord recI = (VariantRecord)data.get(i);
@@ -122,14 +124,14 @@ public class LDPlot extends JPanel {
                                 double x11 = n11 / (double)participantCount;
                                 double d = x11 - p1 * q1;
 
-                                // D'
-                                double dMax = d < 0.0 ? -Math.min(p1 * q1, p2 * q2) : Math.min(p1 * q2, p2 * q1);
-                                float dPrime = (float)(d / dMax);
-
-                                // r-squared
-                                float rSquared = (float)(d * d / (p1 * p2 * q1 * q2));
-    //                            System.out.println("D[" + i + "(" + varI + ")][" + j + "(" + varJ + ")]=" + d + "\tx11=" + x11 + "\tp1=" + p1 + "\tq1=" + q1 + "\tD'=" + dPrime + "\tr²=" + rSquared);
-                                ldData[i][j] = dPrime;
+                                if (dPrimeSelected) {
+                                    // D'
+                                    double dMax = d < 0.0 ? -Math.min(p1 * q1, p2 * q2) : Math.min(p1 * q2, p2 * q1);
+                                    ldData[i][j] = (float)(d / dMax);
+                                } else {
+                                    // r²
+                                    ldData[i][j] = (float)(d * d / (p1 * p2 * q1 * q2));
+                                }
                             } else {
                                 ldData[i][j] = Float.NaN;
                             }
@@ -142,15 +144,17 @@ public class LDPlot extends JPanel {
         }
     }
     
-    void forceRedraw() {
+    void recalculate() {
         ldData = null;
-        repaint();
     }
 
     @Override
     public void paintComponent(Graphics g) {
         Graphics2D g2 = (Graphics2D)g;
-        g2.clearRect(0, 0, getWidth(), getHeight());
+        GradientPaint gp0 = new GradientPaint(0, 0, ColourSettings.getColor(ColourKey.GRAPH_PANE_BACKGROUND_TOP), 0, getHeight(), ColourSettings.getColor(ColourKey.GRAPH_PANE_BACKGROUND_BOTTOM));
+        g2.setPaint(gp0);
+        g2.fillRect(0, 0, getWidth(), getHeight());
+
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
         calculateLD();
@@ -164,6 +168,7 @@ public class LDPlot extends JPanel {
             unitHeight = Math.min(h, w);
 
             ColourAccumulator accumulator = new ColourAccumulator(null);
+            Color transparent = new Color(0, 0, 0, 0);
 
             x0 = getWidth() - AXIS_WIDTH;
             y0 = (getHeight() - n * unitHeight) * 0.5;
@@ -171,7 +176,7 @@ public class LDPlot extends JPanel {
                 for (int j = i + 1; j < n; j++) {
                     Shape diamond = getDiamond(i, j);
                     if (Float.isNaN(ldData[i][j])) {
-                        accumulator.addShape(g2.getBackground(), diamond);
+                        accumulator.addShape(transparent, diamond);
                     } else {
                         accumulator.addShape(createBlend(ldData[i][j]), diamond);
                     }
