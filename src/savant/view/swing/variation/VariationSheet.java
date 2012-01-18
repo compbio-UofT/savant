@@ -29,6 +29,7 @@ import javax.swing.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import savant.api.adapter.RangeAdapter;
 import savant.api.data.DataFormat;
 import savant.api.data.VariantRecord;
 import savant.api.event.DataRetrievalEvent;
@@ -65,7 +66,7 @@ public class VariationSheet extends JPanel implements Listener<DataRetrievalEven
     List<VariantRecord> aggregateData = null;
 
     private int participantCount;
-    private String reference;
+    private String visibleRef;
     private Range visibleRange;
     private boolean adjustingRange = false;
     
@@ -197,7 +198,12 @@ public class VariationSheet extends JPanel implements Listener<DataRetrievalEven
         LocationController.getInstance().addListener(new Listener<LocationChangedEvent>() {
             @Override
             public void handleEvent(LocationChangedEvent event) {
-                setLocation(event.getReference(), (Range)event.getRange());
+                // Only change the variation range if the track range falls outside.
+                String ref = event.getReference();
+                RangeAdapter r = event.getRange();
+                if (!ref.equals(visibleRef) || !RangeUtils.contains(visibleRange, r)) {
+                    setLocation(ref, (Range)r);
+                }
             }
         });
 
@@ -233,14 +239,17 @@ public class VariationSheet extends JPanel implements Listener<DataRetrievalEven
      */
     @Override
     public void handleEvent(DataRetrievalEvent evt) {
-        switch (evt.getType()) {
-            case STARTED:
-                rawData.put((VariantTrack)evt.getTrack(), null);
-                break;
-            case COMPLETED:
-                rawData.put((VariantTrack)evt.getTrack(), (List)evt.getData());
-                recalculate();
-                break;
+        if (evt.getRange().equals(visibleRange)) {
+            switch (evt.getType()) {
+                case STARTED:
+                    rawData.put((VariantTrack)evt.getTrack(), null);
+                    break;
+                case COMPLETED:
+                    LOG.trace("Received " + evt.getData().size() + " records, recalculating.");
+                    rawData.put((VariantTrack)evt.getTrack(), (List)evt.getData());
+                    recalculate();
+                    break;
+            }
         }
     }
 
@@ -293,7 +302,7 @@ public class VariationSheet extends JPanel implements Listener<DataRetrievalEven
     }
 
     private void setLocation(String ref, Range r) {
-        reference = ref;
+        visibleRef = ref;
         setVisibleRange(r);
     }
 
@@ -305,8 +314,9 @@ public class VariationSheet extends JPanel implements Listener<DataRetrievalEven
         if (!r.equals(visibleRange)) {
             adjustingRange = true;
             visibleRange = r;
+            LOG.trace("Requesting data for " + r);
             for (VariantTrack t: rawData.keySet()) {
-                t.requestData(reference, visibleRange);
+                t.requestData(visibleRef, visibleRange);
             }
             mapScroller.setMaximum(LocationController.getInstance().getMaxRangeEnd());
             mapScroller.setValue(visibleRange.getFrom());
@@ -315,7 +325,7 @@ public class VariationSheet extends JPanel implements Listener<DataRetrievalEven
             mapScroller.repaint();
             adjustingRange = false;
         }
-        rangeField.setText(String.format("%s:%d-%d", reference, r.getFrom(), r.getTo()));
+        rangeField.setText(String.format("%s:%d-%d", visibleRef, r.getFrom(), r.getTo()));
     }
 
     /**
@@ -339,7 +349,7 @@ public class VariationSheet extends JPanel implements Listener<DataRetrievalEven
         } else if (length < 1) {
             length = 1;
         }
-        LOG.info("Zooming to length " + length);
+        LOG.trace("Zooming to length " + length);
         int from = (visibleRange.getFrom() + 1 + visibleRange.getTo() - length) / 2;
         int to = from + length - 1;
 
@@ -381,6 +391,7 @@ public class VariationSheet extends JPanel implements Listener<DataRetrievalEven
     void recalculate() {
         aggregateData = null;
         table.setModel(new VariantTableModel(getData()));
+        LOG.trace("Repainting VariantMap");
         map.repaint();
         ldPlot.recalculate();
         ldPlot.repaint();

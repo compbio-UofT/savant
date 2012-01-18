@@ -247,14 +247,16 @@ public class LDPlot extends JPanel {
                 g2.setColor(ColourSettings.getColor(ColourKey.AXIS_GRID));
                 Font tickFont = g2.getFont().deriveFont(Font.PLAIN, 9);
                 g2.setFont(tickFont);
+                FontMetrics fm = g2.getFontMetrics();
+                float baselineOffset = fm.getAscent() - fm.getHeight() * 0.5f;
 
                 for (VariantRecord varRec: data) {
                     String name = varRec.getName();
                     if (name == null || name.isEmpty()) {
                         name = varRec.getReference() + ":" + varRec.getInterval().getStart();
                     }
-                    Rectangle2D labelRect = tickFont.getStringBounds(name, g2.getFontRenderContext());
-                    double baseline = y + unitHeight - (unitHeight - labelRect.getHeight()) * 0.5 - 1.0;
+                    Rectangle2D labelRect = fm.getStringBounds(name, g2);
+                    double baseline = y + unitHeight * 0.5 + baselineOffset;
                     g2.drawString(name, (float)(getWidth() - AXIS_WIDTH + (AXIS_WIDTH - labelRect.getWidth()) * 0.5), (float)baseline);
                     y += unitHeight;
                 }

@@ -24,7 +24,6 @@ import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
 import java.util.List;
 import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
 
 import org.apache.commons.logging.Log;
@@ -57,7 +56,6 @@ public class VariantMap extends JPanel implements PopupHostingAdapter {
     private static final double GAP_HEIGHT = 9.0;
 
     private VariationSheet owner;
-    private JPopupMenu poppedUp;
     
     private double unitHeight;
     private double unitWidth;
@@ -74,7 +72,7 @@ public class VariantMap extends JPanel implements PopupHostingAdapter {
                 LOG.info("Hoverer fired for " + hoverPos);
                 VariantRecord varRec = pointToRecord(hoverPos.y);
                 if (varRec != null) {
-                    hidePopup();
+                    PopupPanel.hidePopup();
                     Point globalPt = SwingUtilities.convertPoint(VariantMap.this, hoverPos, null);
                     PopupPanel.showPopup(VariantMap.this, globalPt, owner.rawData.keySet().iterator().next(), varRec);
                 }
@@ -87,7 +85,7 @@ public class VariantMap extends JPanel implements PopupHostingAdapter {
                 Point oldHover = hoverPos;
                 super.mouseMoved(evt);
                 if (oldHover != null && !isHoverable(oldHover)) {
-                    hidePopup();
+                    PopupPanel.hidePopup();
                 }
             }
 
@@ -211,9 +209,9 @@ public class VariantMap extends JPanel implements PopupHostingAdapter {
             Color gridColor = ColourSettings.getColor(ColourKey.AXIS_GRID);
 
             // Smallish font for tick labels.
-            Font tickFont = g2.getFont().deriveFont(Font.PLAIN, 9);
+            g2.setFont(g2.getFont().deriveFont(Font.PLAIN, 9));
             g2.setColor(gridColor);
-            g2.setFont(tickFont);
+            FontMetrics fm = g2.getFontMetrics();
 
             // We don't want the axes stomping on our labels, so make sure the clip excludes them.
             Area clipArea = new Area(new Rectangle(0, 0, getWidth(), getHeight()));
@@ -231,8 +229,8 @@ public class VariantMap extends JPanel implements PopupHostingAdapter {
                 ys[i] = y;
 
                 String s = Integer.toString(t);
-                Rectangle2D labelRect = tickFont.getStringBounds(s, g2.getFontRenderContext());
-                double baseline = y + labelRect.getHeight() * 0.5 - 2.0;
+                Rectangle2D labelRect = fm.getStringBounds(s, g2);
+                double baseline = y + fm.getAscent() - fm.getHeight() * 0.5;
                 g2.drawString(s, labelX + 4.0F, (float)baseline);
                 clipArea.subtract(new Area(new Rectangle2D.Double(labelX + 3.0, baseline - labelRect.getHeight() - 1.0, labelRect.getWidth() + 2.0, labelRect.getHeight() + 2.0)));
                 labelX += labelRect.getWidth() + 2.0F;
@@ -255,10 +253,10 @@ public class VariantMap extends JPanel implements PopupHostingAdapter {
         if (data.size() > 1) {
             Color gridColor = ColourSettings.getColor(ColourKey.AXIS_GRID);
 
-            // Smallish font for tick labels.
-            Font tickFont = g2.getFont().deriveFont(Font.PLAIN, 8);
+            // Tiny font for gap labels.
+            g2.setFont(g2.getFont().deriveFont(Font.PLAIN, 8));
+            FontMetrics fm = g2.getFontMetrics();
             g2.setColor(gridColor);
-            g2.setFont(tickFont);
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
             double y = unitHeight;
@@ -266,10 +264,10 @@ public class VariantMap extends JPanel implements PopupHostingAdapter {
             for (int i = 1; i < data.size(); i++) {
                 int gapSize = data.get(i).getInterval().getStart() - data.get(i - 1).getInterval().getEnd() - 1;
                 if (gapSize > 0) {
-                    String s = String.format("%d bases", gapSize);
+                    String s = gapSize > 1 ? String.format("%d bases", gapSize) : "1 base";
 
-                    Rectangle2D labelRect = tickFont.getStringBounds(s, g2.getFontRenderContext());
-                    double baseline = y + labelRect.getHeight() * 0.5 - 2.0;
+                    Rectangle2D labelRect = fm.getStringBounds(s, g2);
+                    double baseline = y + fm.getAscent() - fm.getHeight() * 0.5;
                     g2.drawString(s, (float)((w - labelRect.getWidth()) * 0.5), (float)baseline);
                     g2.draw(new Line2D.Double(0.0, y - GAP_HEIGHT * 0.5, w, y - GAP_HEIGHT * 0.5));
                     g2.draw(new Line2D.Double(0.0, y + GAP_HEIGHT * 0.5, w, y + GAP_HEIGHT * 0.5));
@@ -292,16 +290,7 @@ public class VariantMap extends JPanel implements PopupHostingAdapter {
     }
 
     @Override
-    public void popupShown(JPopupMenu menu) {
-        poppedUp = menu;
-    }
-
-    @Override
-    public void hidePopup() {
-        if (poppedUp != null) {
-            poppedUp.setVisible(false);
-            poppedUp = null;
-        }
+    public void popupHidden() {
     }
 
     @Override

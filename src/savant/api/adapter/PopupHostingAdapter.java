@@ -16,8 +16,6 @@
 
 package savant.api.adapter;
 
-import javax.swing.JPopupMenu;
-
 import savant.api.event.PopupEvent;
 import savant.api.util.Listener;
 import savant.selection.PopupPanel;
@@ -53,9 +51,7 @@ public interface PopupHostingAdapter {
 
     public void repaint();
 
-    public void popupShown(JPopupMenu menu);
-
-    public void hidePopup();
+    public void popupHidden();
 
     /**
      * Return the list of tracks associated with this host.

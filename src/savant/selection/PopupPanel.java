@@ -52,6 +52,9 @@ import savant.view.tracks.Track;
  */
 public abstract class PopupPanel extends JPanel {
 
+    private static JPopupMenu activePopup;
+    private static PopupHostingAdapter activeHost;
+
     protected PopupHostingAdapter host;
     protected DrawingMode mode;
     protected DataFormat fileFormat;
@@ -117,8 +120,21 @@ public abstract class PopupPanel extends JPanel {
             jp.setLayout(new BorderLayout());
             jp.add(pp, BorderLayout.CENTER);
             jp.setLocation(globalPt.x - 2, globalPt.y - 2);
-            parent.popupShown(jp);
+            activePopup = jp;
+            activeHost = parent;
             jp.setVisible(true);
+        }
+    }
+
+    
+    public static void hidePopup() {
+        if (activePopup != null) {
+            activePopup.setVisible(false);
+            activePopup = null;
+        }
+        if (activeHost != null) {
+            activeHost.popupHidden();
+            activeHost = null;
         }
     }
 
@@ -202,10 +218,6 @@ public abstract class PopupPanel extends JPanel {
 
     public Record getRecord() {
         return record;
-    }
-
-    public void hidePopup() {
-        host.hidePopup();
     }
 
     protected void initIntervalJumps() {

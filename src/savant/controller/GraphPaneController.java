@@ -23,10 +23,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import savant.api.adapter.GraphPaneAdapter;
-import savant.api.event.PopupEvent;
-import savant.api.util.Listener;
 import savant.controller.event.GraphPaneEvent;
-import savant.selection.PopupPanel;
 import savant.util.Controller;
 import savant.util.Range;
 
@@ -35,7 +32,7 @@ import savant.util.Range;
  *
  * @author mfiume
  */
-public class GraphPaneController extends Controller implements Listener<PopupEvent> {
+public class GraphPaneController extends Controller {
     private static final Log LOG = LogFactory.getLog(GraphPaneController.class);
 
     private boolean isSpotlight;
@@ -57,9 +54,6 @@ public class GraphPaneController extends Controller implements Listener<PopupEve
     private double spotlightproportion = 0.25;
 
     private static GraphPaneController instance;
-
-    /** Panel (if any) which is currently popped up. */
-    private PopupPanel poppedUp = null;
 
     public void clearRenderingList() {
         graphpanesQueuedForRendering.clear();
@@ -237,23 +231,11 @@ public class GraphPaneController extends Controller implements Listener<PopupEve
     }
     
     public void setSpotlightSize(int size) {
-        this.spotlightSize = Math.max(2,(int) Math.round(size*spotlightproportion));
-        this.spotlightSize = 1;
+//        this.spotlightSize = Math.max(2,(int) Math.round(size*spotlightproportion));
+        spotlightSize = 1;
     }
 
     public int getSpotlightSize() {
-        return this.spotlightSize;
-    }
-
-    /**
-     * Recognise when a new popup has opened so that we can close the previous one.
-     */
-    @Override
-    public void handleEvent(PopupEvent evt) {
-        if (poppedUp != null && evt.getPopup() != poppedUp) {
-            LOG.info("Hiding popup for " + poppedUp.getRecord());
-            poppedUp.hidePopup();
-        }
-        poppedUp = (PopupPanel)evt.getPopup();
+        return spotlightSize;
     }
 }

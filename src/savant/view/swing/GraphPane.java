@@ -113,7 +113,6 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
     private boolean panVert = false;
 
     //popup
-    private JPopupMenu poppedUp;
     public Thread popupThread;
     private Record currentOverRecord = null;
     private Shape currentOverShape = null;
@@ -152,10 +151,6 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
                 }
             }
         });
-
-        // GraphPaneController listens to popup events to make sure that only one
-        // popup is open at a time.
-        addPopupListener(gpc);
     }
 
     /**
@@ -270,7 +265,7 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
 
         boolean sameRange = (prevRange != null && xRange.equals(prevRange));
         if (!sameRange) {
-            hidePopup();
+            PopupPanel.hidePopup();
         }
         boolean sameMode = currentMode == prevMode;
         boolean sameSize = prevSize != null && getSize().equals(prevSize) && parentFrame.getFrameLandscape().getWidth() == oldWidth && parentFrame.getFrameLandscape().getHeight() == oldHeight;
@@ -932,7 +927,7 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
         resetCursor();
         mouseInside = true;
         setMouseModifier(event);
-        hidePopup();
+        PopupPanel.hidePopup();
     }
 
     /**
@@ -1085,7 +1080,7 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
                  * showing another. This needs to be done exactly here: after we know we have a new popup to show
                  * and before we set currentOverRecord. Otherwise, it won't work.
                  */
-                hidePopup();
+                PopupPanel.hidePopup();
                 
                 // Arbitrarily pick the first record in the map.  Most of the time, there will be only one.
                 Record overRecord = map.keySet().iterator().next();
@@ -1110,20 +1105,12 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
     }
 
     @Override
-    public void hidePopup() {
-        if (poppedUp != null) {
-            poppedUp.setVisible(false);
-            poppedUp = null;
-        }
+    public void popupHidden() {
         if (currentOverShape != null) {
             currentOverShape = null;
             currentOverRecord = null;
             repaint();
         }
-    }
-
-    public void popupShown(JPopupMenu menu) {
-        poppedUp = menu;
     }
 
     public void trySelect(Point p) {
