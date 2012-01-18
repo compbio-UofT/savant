@@ -70,6 +70,7 @@ import savant.util.swing.TrackChooser;
 import savant.view.dialog.*;
 import savant.view.icon.SavantIconFactory;
 import savant.view.swing.start.StartPanel;
+import savant.view.swing.start.WelcomePage;
 import savant.view.tracks.Track;
 import savant.view.tracks.TrackFactory;
 
@@ -96,7 +97,7 @@ public class Savant extends JFrame {
     //web start
     static BasicService basicService = null;
     static boolean webStart = false;
-    private StartPanel startpage;
+    private WelcomePage startpage;
 
     /** == [[ DOCKING ]] ==
      *  Components (such as frames, the Task Pane, etc.)
@@ -286,7 +287,7 @@ public class Savant extends JFrame {
 
         s.setStatus("Initializing GUI");
 
-        initComponents();       
+        initComponents();
         customizeUI();
         init();
         initHiddenShortcuts();
@@ -1675,7 +1676,7 @@ public class Savant extends JFrame {
 
     private void initDataSources() {
         DataSourcePluginController.getInstance().addDataSourcePlugin(new SavantFileRepositoryDataSourcePlugin());
-        
+
         if (!turnExperimentalFeaturesOff) {
             DataSourcePluginController.getInstance().addDataSourcePlugin(new SAFEDataSourcePlugin());
         }
@@ -1714,7 +1715,7 @@ public class Savant extends JFrame {
 
     private void initStartPage() {
         if (BrowserSettings.getShowStartPage()) {
-            startpage = new StartPanel();
+            startpage = new WelcomePage();
             trackBackground.add(startpage, BorderLayout.CENTER);
         }
     }

@@ -42,7 +42,7 @@ public class SavantIconFactory {
         return new ImageIcon(getClass().getResource(resourcePath));
     }
 
-    public enum StandardIcon { 
+    public enum StandardIcon {
         ADD,
         SAVE,
         OPEN,
@@ -118,7 +118,7 @@ public class SavantIconFactory {
             case FOLDER:
                 return getIcon("/savant/images/icon/folder.png");
             case LOGO:
-                return getIcon("/savant/images/icon/logo.png");
+                return getIcon("/savant/images/icon/savantlogo.png");
             case TRACK:
                 return getIcon("/savant/images/icon/track.png");
             case BKMK_ADD:
