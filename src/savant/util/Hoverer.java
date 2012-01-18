@@ -55,7 +55,6 @@ public abstract class Hoverer extends MouseAdapter implements ActionListener {
                 
     @Override
     public void mouseExited(MouseEvent me) {
-        System.out.println("mouseExited stopping timer");
         timer.stop();
         hoverPos = null;
     }

@@ -84,7 +84,8 @@ public class Tool extends SavantPanelPlugin {
         mainPanel = panel;
         panel.setLayout(new CardLayout());
         
-        panel.add(new ToolSettingsPanel(this), "Settings");
+        JPanel settingsPanel = new ToolSettingsPanel(this);
+        panel.add(new JScrollPane(settingsPanel), "Settings");
         
         JPanel waitCard = new JPanel();
         waitCard.setLayout(new GridBagLayout());
