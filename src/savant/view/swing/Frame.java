@@ -450,19 +450,23 @@ public class Frame extends DockableFrame implements FrameAdapter, TrackCreationL
 
     @Override
     public void handleEvent(DataRetrievalEvent evt) {
-        switch (evt.getType()) {
-            case COMPLETED:
-                LOG.trace("Frame received dataRetrievalCompleted.  Forcing full render.");
-                setYMaxVisible(evt.getData() != null && evt.getData().size() > 0);
-                graphPane.setRenderForced();
-                graphPane.repaint();
-                break;
-            case FAILED:
-                LOG.trace("Frame received dataRetrievalFailed.  Forcing full render.");
-                setYMaxVisible(false);
-                graphPane.setRenderForced();
-                graphPane.repaint();
-                break;
+        // We're only interested in the event if it's for the range we're looking at.  This prevents
+        // moving around on the VariantMap from repainting our variant tracks.
+        if (LocationController.getInstance().getRange().equals(evt.getRange())) {
+            switch (evt.getType()) {
+                case COMPLETED:
+                    LOG.trace("Frame " + getKey() + " received dataRetrievalCompleted.  Forcing full render.");
+                    setYMaxVisible(evt.getData() != null && evt.getData().size() > 0);
+                    graphPane.setRenderForced();
+                    graphPane.repaint();
+                    break;
+                case FAILED:
+                    LOG.trace("Frame " + getKey() + " received dataRetrievalFailed.  Forcing full render.");
+                    setYMaxVisible(false);
+                    graphPane.setRenderForced();
+                    graphPane.repaint();
+                    break;
+            }
         }
     }
 

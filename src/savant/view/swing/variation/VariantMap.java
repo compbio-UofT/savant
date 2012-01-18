@@ -29,6 +29,7 @@ import javax.swing.SwingUtilities;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import savant.api.adapter.PopupHostingAdapter;
 import savant.api.data.VariantRecord;
 import savant.api.event.PopupEvent;
@@ -39,7 +40,6 @@ import savant.settings.ColourSettings;
 import savant.util.ColourAccumulator;
 import savant.util.ColourKey;
 import savant.util.ColourScheme;
-import savant.util.DrawingMode;
 import savant.util.Hoverer;
 import savant.util.MiscUtils;
 import savant.view.tracks.Track;
@@ -99,12 +99,6 @@ public class VariantMap extends JPanel implements PopupHostingAdapter {
             @Override
             public void mousePressed(MouseEvent evt) {
                 dragStart = evt.getPoint();
-            }
-
-            @Override
-            public void mouseExited(MouseEvent evt) {
-                super.mouseExited(evt);
-                hidePopup();
             }
         };
         addMouseListener(listener);
@@ -270,14 +264,16 @@ public class VariantMap extends JPanel implements PopupHostingAdapter {
             double y = unitHeight;
             double w = getWidth();
             for (int i = 1; i < data.size(); i++) {
-                int gapSize = data.get(i).getInterval().getStart() - data.get(i - 1).getInterval().getEnd();
-                String s = String.format("%d bases", gapSize);
+                int gapSize = data.get(i).getInterval().getStart() - data.get(i - 1).getInterval().getEnd() - 1;
+                if (gapSize > 0) {
+                    String s = String.format("%d bases", gapSize);
 
-                Rectangle2D labelRect = tickFont.getStringBounds(s, g2.getFontRenderContext());
-                double baseline = y + labelRect.getHeight() * 0.5 - 2.0;
-                g2.drawString(s, (float)((w - labelRect.getWidth()) * 0.5), (float)baseline);
-                g2.draw(new Line2D.Double(0.0, y - GAP_HEIGHT * 0.5, w, y - GAP_HEIGHT * 0.5));
-                g2.draw(new Line2D.Double(0.0, y + GAP_HEIGHT * 0.5, w, y + GAP_HEIGHT * 0.5));
+                    Rectangle2D labelRect = tickFont.getStringBounds(s, g2.getFontRenderContext());
+                    double baseline = y + labelRect.getHeight() * 0.5 - 2.0;
+                    g2.drawString(s, (float)((w - labelRect.getWidth()) * 0.5), (float)baseline);
+                    g2.draw(new Line2D.Double(0.0, y - GAP_HEIGHT * 0.5, w, y - GAP_HEIGHT * 0.5));
+                    g2.draw(new Line2D.Double(0.0, y + GAP_HEIGHT * 0.5, w, y + GAP_HEIGHT * 0.5));
+                }
                 y += unitHeight;
             }
         }

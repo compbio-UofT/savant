@@ -40,6 +40,7 @@ public enum DrawingInstruction {
     SCORE,              // boolean; use score tint for BED
     ALTERNATE_NAME,     // boolean; display alternate name instead of name
     BASE_QUALITY,       // boolean; alpha will be based on base quality
-    MAPPING_QUALITY     // boolean; alpha will be based on mapping quality
+    MAPPING_QUALITY,    // boolean; alpha will be based on mapping quality
+    PARTICIPANTS        // String[] containing names/IDs of all participants
 }
 

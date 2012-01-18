@@ -44,23 +44,23 @@ public class PointTrack extends Track {
     }
 
     @Override
-    public void prepareForRendering(String reference, Range range) {
-        Resolution r = getResolution(range);
+    public void prepareForRendering(String ref, Range r) {
+        Resolution res = getResolution(r);
 
-        switch (r) {
+        switch (res) {
             case HIGH:
                 renderer.addInstruction(DrawingInstruction.PROGRESS, "Retrieving data...");
-                requestData(reference, range);
+                requestData(ref, r);
                 break;
             default:
-                saveNullData();
+                saveNullData(r);
                 break;
         }
 
-        renderer.addInstruction(DrawingInstruction.RESOLUTION, r);
+        renderer.addInstruction(DrawingInstruction.RESOLUTION, res);
         renderer.addInstruction(DrawingInstruction.COLOUR_SCHEME, this.getColourScheme());
-        renderer.addInstruction(DrawingInstruction.AXIS_RANGE, new AxisRange(range, new Range(0, 1)));
-        renderer.addInstruction(DrawingInstruction.REFERENCE_EXISTS, containsReference(reference));
+        renderer.addInstruction(DrawingInstruction.AXIS_RANGE, new AxisRange(r, new Range(0, 1)));
+        renderer.addInstruction(DrawingInstruction.REFERENCE_EXISTS, containsReference(ref));
         renderer.addInstruction(DrawingInstruction.SELECTION_ALLOWED, true);
     }
 }

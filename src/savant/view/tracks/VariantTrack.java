@@ -64,25 +64,27 @@ public class VariantTrack extends Track {
      * @param ignored2
      */
     @Override
-    public void prepareForRendering(String ref, Range range) {
-        Resolution r = getResolution(range);
-        if (r == Resolution.HIGH) {
+    public void prepareForRendering(String ref, Range r) {
+        Resolution res = getResolution(r);
+        if (res == Resolution.HIGH) {
             renderer.addInstruction(DrawingInstruction.PROGRESS, "Retrieving variant data...");
-            requestData(ref, range);
+            requestData(ref, r);
         } else {
-            saveNullData();
+            saveNullData(r);
         }
 
-        renderer.addInstruction(DrawingInstruction.RESOLUTION, r);
-        renderer.addInstruction(DrawingInstruction.RANGE, range);
+        renderer.addInstruction(DrawingInstruction.RESOLUTION, res);
+        renderer.addInstruction(DrawingInstruction.RANGE, r);
         renderer.addInstruction(DrawingInstruction.COLOUR_SCHEME, getColourScheme());
 
         renderer.addInstruction(DrawingInstruction.REFERENCE_EXISTS, containsReference(ref));
 
         // Shove in a placeholder axis range since we won't know the actual range until the data arrives.
-        renderer.addInstruction(DrawingInstruction.AXIS_RANGE, new AxisRange(range, new Range(0, 1)));
+        renderer.addInstruction(DrawingInstruction.AXIS_RANGE, new AxisRange(r, new Range(0, 1)));
         renderer.addInstruction(DrawingInstruction.SELECTION_ALLOWED, true);
         renderer.addInstruction(DrawingInstruction.MODE, getDrawingMode());
+        
+        renderer.addInstruction(DrawingInstruction.PARTICIPANTS, ((TabixDataSource)getDataSource()).getExtraColumns());
     }
 
     @Override

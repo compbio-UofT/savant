@@ -1,5 +1,5 @@
 /*
- *    Copyright 2010-2011 University of Toronto
+ *    Copyright 2010-2012 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package savant.api.event;
 
 import java.util.List;
 
+import savant.api.adapter.RangeAdapter;
 import savant.api.adapter.TrackAdapter;
 import savant.api.data.Record;
 
@@ -33,27 +34,33 @@ public class DataRetrievalEvent {
         COMPLETED,
         FAILED
     };
-    Type type;
-    TrackAdapter track;
-    List<Record> data;
-    Throwable error;
+    private final Type type;
+    private final TrackAdapter track;
+    private final List<Record> data;
+    private final RangeAdapter range;
+    private final Throwable error;
 
     /**
      * Constructor for retrieval starting.
      */
-    public DataRetrievalEvent(TrackAdapter t) {
-        this.track = t;
-        this.type = Type.STARTED;
+    public DataRetrievalEvent(TrackAdapter t, RangeAdapter r) {
+        type = Type.STARTED;
+        track = t;
+        data = null;
+        range = r;
+        error = null;
     }
 
     /**
      * Constructor when data is successfully retrieved.
-     * @param data the records retrieved
+     * @param d the records retrieved
      */
-    public DataRetrievalEvent(TrackAdapter t, List<Record> data) {
-        this.track = t;
-        this.type = Type.COMPLETED;
-        this.data = data;
+    public DataRetrievalEvent(TrackAdapter t, List<Record> d, RangeAdapter r) {
+        type = Type.COMPLETED;
+        track = t;
+        data = d;
+        range = r;
+        error = null;
     }
 
     /**
@@ -61,10 +68,13 @@ public class DataRetrievalEvent {
      *
      * @param error
      */
-    public DataRetrievalEvent(TrackAdapter t, Throwable error) {
-        this.track = t;
-        this.type = Type.FAILED;
-        this.error = error;
+    public DataRetrievalEvent(TrackAdapter t, Throwable x, RangeAdapter r) {
+        type = Type.FAILED;
+        track = t;
+        data = null;
+        range = r;
+        error = x;
+        
     }
 
     public Type getType() {
@@ -77,6 +87,10 @@ public class DataRetrievalEvent {
 
     public List<Record> getData() {
         return data;
+    }
+
+    public RangeAdapter getRange() {
+        return range;
     }
 
     public Throwable getError() {

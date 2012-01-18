@@ -58,10 +58,11 @@ public enum ColourKey {
 
     SPLITTER,                       // Used in various DockingFrames
 
-    TOOLS_MARGIN_BACKGROUND,        // For the Tools module
-    TOOLS_BACKGROUND,               // For the Tools module
-
-    AXIS_GRID;                      // Medium grey for axis gridlines
+    AXIS_GRID,                      // Medium grey for axis gridlines
+    
+    HEATMAP_LOW,                    // Blue for low heat
+    HEATMAP_MEDIUM,                 // Mauve for medium heat
+    HEATMAP_HIGH;                   // Red for high heat
 
     /**
      * Provide a human-friendly name for the given colour settings.  These are currently

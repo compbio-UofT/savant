@@ -274,24 +274,9 @@ public class RichIntervalTrackRenderer extends TrackRenderer {
         }
 
         if (geneName != null) {
-            FontMetrics fm = g2.getFontMetrics();
-            double stringstartx = startXPos - fm.stringWidth(geneName) - 5;
-
             g2.setColor(textColor);
-
-            double mid = gp.getHeight() - (level * unitHeight) - unitHeight * 0.5 + (fm.getHeight() - fm.getDescent()) * 0.5;
-            if (stringstartx <= 0) {
-                Rectangle2D r = fm.getStringBounds(geneName, g2);
-
-                int b = 2;
-                g2.setColor(new Color(255,255,255,200));
-                g2.fill(new RoundRectangle2D.Double(3.0, mid - (fm.getHeight() - fm.getDescent()) - b - offset, r.getWidth() + 2 * b, r.getHeight() + 2 * b, 8.0, 8.0));
-                g2.setColor(textColor);
-                g2.drawString(geneName, 5.0F, (float)mid - offset);
-            } else {
-                g2.setColor(textColor);
-                g2.drawString(geneName, (float)stringstartx, (float)mid - offset);
-            }
+            FontMetrics fm = g2.getFontMetrics();
+            drawFeatureLabel(g2, geneName, startXPos, gp.getHeight() - (level * unitHeight) - unitHeight * 0.5 + (fm.getHeight() - fm.getDescent()) * 0.5 - offset);
         }
     }
 

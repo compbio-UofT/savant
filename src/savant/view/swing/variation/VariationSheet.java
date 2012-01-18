@@ -67,6 +67,7 @@ public class VariationSheet extends JPanel implements Listener<DataRetrievalEven
     private int participantCount;
     private String reference;
     private Range visibleRange;
+    private boolean adjustingRange = false;
     
     private JTable table;
     private VariantMap map;
@@ -128,9 +129,11 @@ public class VariationSheet extends JPanel implements Listener<DataRetrievalEven
         mapScroller.addAdjustmentListener(new AdjustmentListener() {
             @Override
             public void adjustmentValueChanged(AdjustmentEvent ae) {
-                int start = ae.getValue();
-                if (start != visibleRange.getFrom()) {
-                    setVisibleRange(new Range(start, Math.min(start + visibleRange.getLength(), LocationController.getInstance().getMaxRangeEnd())));
+                if (!adjustingRange) {
+                    int start = ae.getValue();
+                    if (start != visibleRange.getFrom()) {
+                        setVisibleRange(new Range(start, Math.min(start + visibleRange.getLength(), LocationController.getInstance().getMaxRangeEnd())));
+                    }
                 }
             }
         });
@@ -300,6 +303,7 @@ public class VariationSheet extends JPanel implements Listener<DataRetrievalEven
 
     void setVisibleRange(Range r) {
         if (!r.equals(visibleRange)) {
+            adjustingRange = true;
             visibleRange = r;
             for (VariantTrack t: rawData.keySet()) {
                 t.requestData(reference, visibleRange);
@@ -307,7 +311,9 @@ public class VariationSheet extends JPanel implements Listener<DataRetrievalEven
             mapScroller.setMaximum(LocationController.getInstance().getMaxRangeEnd());
             mapScroller.setValue(visibleRange.getFrom());
             mapScroller.setVisibleAmount(visibleRange.getLength());
+            mapScroller.setBlockIncrement(visibleRange.getLength());
             mapScroller.repaint();
+            adjustingRange = false;
         }
         rangeField.setText(String.format("%s:%d-%d", reference, r.getFrom(), r.getTo()));
     }

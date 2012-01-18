@@ -85,7 +85,7 @@ class MergedVariantRecord implements VariantRecord {
 
     @Override
     public String getAltBases() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return altBases;
     }
 
     @Override

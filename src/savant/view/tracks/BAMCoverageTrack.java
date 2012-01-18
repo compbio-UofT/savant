@@ -31,21 +31,21 @@ public class BAMCoverageTrack extends Track {
     }
 
     @Override
-    public void prepareForRendering(String reference, Range range) {
+    public void prepareForRendering(String ref, Range r) {
 
-        Resolution r = getResolution(range);
-        if (r != Resolution.HIGH) {
+        Resolution res = getResolution(r);
+        if (res != Resolution.HIGH) {
             renderer.addInstruction(DrawingInstruction.PROGRESS, "Retrieving coverage data...");
-            renderer.addInstruction(DrawingInstruction.AXIS_RANGE, new AxisRange(range, new Range(0, 1)));
-            requestData(reference, range);
+            renderer.addInstruction(DrawingInstruction.AXIS_RANGE, new AxisRange(r, new Range(0, 1)));
+            requestData(ref, r);
         } else {
-            saveNullData();
+            saveNullData(r);
         }
 
-        renderer.addInstruction(DrawingInstruction.REFERENCE_EXISTS, containsReference(reference));
+        renderer.addInstruction(DrawingInstruction.REFERENCE_EXISTS, containsReference(ref));
         renderer.addInstruction(DrawingInstruction.COLOUR_SCHEME, this.getColourScheme());
-        renderer.addInstruction(DrawingInstruction.RANGE, range);
-        renderer.addInstruction(DrawingInstruction.RESOLUTION, r);
+        renderer.addInstruction(DrawingInstruction.RANGE, r);
+        renderer.addInstruction(DrawingInstruction.RESOLUTION, res);
         renderer.addInstruction(DrawingInstruction.SELECTION_ALLOWED, true);
     }
 

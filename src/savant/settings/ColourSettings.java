@@ -68,8 +68,9 @@ public class ColourSettings {
         DEFAULT_SETTINGS.put(ColourKey.GRAPH_PANE_SELECTION_FILL, new Color(120, 70, 10, 100));
         DEFAULT_SETTINGS.put(ColourKey.AXIS_GRID, Color.LIGHT_GRAY);
 
-        DEFAULT_SETTINGS.put(ColourKey.TOOLS_MARGIN_BACKGROUND, new Color(236, 236, 236));
-        DEFAULT_SETTINGS.put(ColourKey.TOOLS_BACKGROUND, Color.WHITE);
+        DEFAULT_SETTINGS.put(ColourKey.HEATMAP_LOW, new Color(0, 0, 255));
+        DEFAULT_SETTINGS.put(ColourKey.HEATMAP_MEDIUM, new Color(192, 128, 192));
+        DEFAULT_SETTINGS.put(ColourKey.HEATMAP_HIGH, new Color(255, 0, 0));        
     }
 
     private static PersistentSettings settings = PersistentSettings.getInstance();

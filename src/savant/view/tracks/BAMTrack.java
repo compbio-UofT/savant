@@ -79,15 +79,15 @@ public class BAMTrack extends Track {
     }
 
     @Override
-    public void prepareForRendering(String reference, Range range) {
+    public void prepareForRendering(String ref, Range r) {
 
         DrawingMode mode = getDrawingMode();
-        Resolution r = getResolution(range);
-        if (r == Resolution.HIGH) {
+        Resolution res = getResolution(r);
+        if (res == Resolution.HIGH) {
             renderer.addInstruction(DrawingInstruction.PROGRESS, "Retrieving BAM data...");
-            requestData(reference, range);
+            requestData(ref, r);
         } else {
-            saveNullData();
+            saveNullData(r);
             if (mode == DrawingMode.ARC_PAIRED) {
                 renderer.addInstruction(DrawingInstruction.ERROR, ZOOM_MESSAGE);
             } else {
@@ -96,20 +96,20 @@ public class BAMTrack extends Track {
             }
         }
 
-        renderer.addInstruction(DrawingInstruction.RANGE, range);
-        renderer.addInstruction(DrawingInstruction.RESOLUTION, r);
+        renderer.addInstruction(DrawingInstruction.RANGE, r);
+        renderer.addInstruction(DrawingInstruction.RESOLUTION, res);
         renderer.addInstruction(DrawingInstruction.COLOUR_SCHEME, getColourScheme());
         renderer.addInstruction(DrawingInstruction.PAIRED_PROTOCOL, pairedProtocol);
 
-        boolean f = containsReference(reference);
-        renderer.addInstruction(DrawingInstruction.REFERENCE_EXISTS, containsReference(reference));
+        boolean f = containsReference(ref);
+        renderer.addInstruction(DrawingInstruction.REFERENCE_EXISTS, containsReference(ref));
 
         if (mode == DrawingMode.ARC_PAIRED) {
             renderer.addInstruction(DrawingInstruction.ARC_MIN, getFilter().getArcLengthThreshold());
             renderer.addInstruction(DrawingInstruction.DISCORDANT_MIN, getConcordantMin());
             renderer.addInstruction(DrawingInstruction.DISCORDANT_MAX, getConcordantMax());
         } else {
-            renderer.addInstruction(DrawingInstruction.AXIS_RANGE, new AxisRange(range, new Range(0, 1)));
+            renderer.addInstruction(DrawingInstruction.AXIS_RANGE, new AxisRange(r, new Range(0, 1)));
         }
         renderer.addInstruction(DrawingInstruction.SELECTION_ALLOWED, mode != DrawingMode.SNP && mode != DrawingMode.STRAND_SNP);
         renderer.addInstruction(DrawingInstruction.MODE, mode);

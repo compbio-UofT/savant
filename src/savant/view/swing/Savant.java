@@ -1,5 +1,5 @@
 /*
- *    Copyright 2009-2011 University of Toronto
+ *    Copyright 2009-2012 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -756,6 +756,7 @@ public class Savant extends JFrame {
         windowMenu.add(rulerItem);
 
         pluginToolbarItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_T, java.awt.event.InputEvent.SHIFT_MASK | java.awt.event.InputEvent.CTRL_MASK));
+        pluginToolbarItem.setSelected(true);
         pluginToolbarItem.setText("Plugin Toolbar");
         pluginToolbarItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {

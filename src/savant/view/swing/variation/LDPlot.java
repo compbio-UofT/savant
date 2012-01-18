@@ -17,6 +17,8 @@ package savant.view.swing.variation;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -24,6 +26,7 @@ import java.awt.RenderingHints;
 import java.awt.Shape;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
 import java.util.List;
 import javax.swing.JPanel;
@@ -47,10 +50,13 @@ import savant.util.MiscUtils;
  */
 public class LDPlot extends JPanel {
     private static final Log LOG = LogFactory.getLog(LDPlot.class);
-    private static final int AXIS_WIDTH = 24;
-    private static final float[][] HEATMAP_COLORS = {{ 0.000f, 0.000f, 1.000f }, { 0.750f, 0.500f, 0.750f }, { 1.000f, 0.000f, 0.000f }};
-//{{ 0.996f, 0.878f, 0.824f }, { 0.988f, 0.573f, 0.447f }, { 0.871f, 0.176f, 0.149f }};
-//        { 0.996f, 0.910f, 0.784f }, { 0.992f, 0.733f, 0.518f }, { 0.890f, 0.290f, 0.200f }};
+    private static final double AXIS_WIDTH = 90.0;
+    private static final double LEGEND_MARGIN = 15.0;
+    private static final double LEGEND_HEIGHT = 180.0;
+    private static final double LEGEND_WIDTH = 15.0;
+    private static final float TICK_LENGTH = 3.0f;
+
+    private static final Color[] HEATMAP_COLORS = { ColourSettings.getColor(ColourKey.HEATMAP_LOW), ColourSettings.getColor(ColourKey.HEATMAP_MEDIUM), ColourSettings.getColor(ColourKey.HEATMAP_HIGH) };
 
     private float[][] ldData;
     private double x0, y0;
@@ -189,6 +195,7 @@ public class LDPlot extends JPanel {
                 accumulator.draw(g2);
             }
             drawAxis(g2);
+            drawLegend(g2);
         }
     }
 
@@ -234,20 +241,68 @@ public class LDPlot extends JPanel {
                 y += unitHeight;
             }
             accumulator.fill(g2);
+            
+            if (unitHeight > 10.0) {
+                y = y0;
+                g2.setColor(ColourSettings.getColor(ColourKey.AXIS_GRID));
+                Font tickFont = g2.getFont().deriveFont(Font.PLAIN, 9);
+                g2.setFont(tickFont);
+
+                for (VariantRecord varRec: data) {
+                    String name = varRec.getName();
+                    if (name == null || name.isEmpty()) {
+                        name = varRec.getReference() + ":" + varRec.getInterval().getStart();
+                    }
+                    Rectangle2D labelRect = tickFont.getStringBounds(name, g2.getFontRenderContext());
+                    double baseline = y + unitHeight - (unitHeight - labelRect.getHeight()) * 0.5 - 1.0;
+                    g2.drawString(name, (float)(getWidth() - AXIS_WIDTH + (AXIS_WIDTH - labelRect.getWidth()) * 0.5), (float)baseline);
+                    y += unitHeight;
+                }
+            }
         }
     }
 
-    private static Color createBlend(float val) {
+    /**
+     * Draw a legend in the lower right of the LD plot.
+     * @param g2 
+     */
+    private void drawLegend(Graphics2D g2) {
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
+
+        Rectangle2D legendRect = new Rectangle2D.Double(LEGEND_MARGIN, getHeight() - LEGEND_HEIGHT - LEGEND_MARGIN, LEGEND_WIDTH, LEGEND_HEIGHT);
+
+        // We support the use of a three-colour heat-map, so we have to draw the legend in two pieces.
+        g2.setPaint(new GradientPaint(0.0f, (float)legendRect.getMinY(), createBlend(0.0), 0.0f, (float)legendRect.getCenterY(), createBlend(0.5)));
+        g2.fill(new Rectangle2D.Double(legendRect.getX(), legendRect.getY(), legendRect.getWidth(), legendRect.getHeight() * 0.5));
+        g2.setPaint(new GradientPaint(0.0f, (float)legendRect.getCenterY(), createBlend(0.5), 0.0f, (float)legendRect.getMaxY(), createBlend(1.0)));
+        g2.fill(new Rectangle2D.Double(legendRect.getX(), legendRect.getCenterY(), legendRect.getWidth(), legendRect.getHeight() * 0.5));
+
+        g2.setColor(ColourSettings.getColor(ColourKey.INTERVAL_LINE));
+        g2.draw(legendRect);
+        
+        float x = (float)legendRect.getMaxX();
+        drawTick(g2, x, (float)legendRect.getMinY(), 0.0);
+        drawTick(g2, x, (float)legendRect.getCenterY(), 0.5);
+        drawTick(g2, x, (float)legendRect.getMaxY(), 1.0);
+    }
+
+    private void drawTick(Graphics2D g2, float x, float y, double val) {
+        g2.draw(new Line2D.Float(x, y, x + TICK_LENGTH, y));
+        FontMetrics fm = g2.getFontMetrics();
+        g2.drawString(Double.toString(val), x + TICK_LENGTH + 1.0f, y + fm.getAscent() - fm.getHeight() * 0.5f);
+    }
+
+    private static Color createBlend(double val) {
         int i0 = 0;
         int i1 = 1;
-        float w1 = val * 2.0f;
-        if (val > 0.5f) {
+        double w1 = val * 2.0;
+        if (val > 0.5) {
             i0 = 1;
             i1 = 2;
-            w1 -= 1.0f;
+            w1 -= 1.0;
         }
-        float w0 = 1.0f - w1;
-        return new Color(HEATMAP_COLORS[i0][0] * w0 + HEATMAP_COLORS[i1][0] * w1, HEATMAP_COLORS[i0][1] * w0 + HEATMAP_COLORS[i1][1] * w1, HEATMAP_COLORS[i0][2] * w0 + HEATMAP_COLORS[i1][2] * w1);
+        double w0 = 1.0f - w1;
+        return new Color((int)(HEATMAP_COLORS[i0].getRed() * w0 + HEATMAP_COLORS[i1].getRed() * w1), (int)(HEATMAP_COLORS[i0].getGreen() * w0 + HEATMAP_COLORS[i1].getGreen() * w1), (int)(HEATMAP_COLORS[i0].getBlue() * w0 + HEATMAP_COLORS[i1].getBlue() * w1));
     }
 
     /**

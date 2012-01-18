@@ -48,27 +48,25 @@ public class SequenceTrack extends Track {
     }
 
     @Override
-    public void prepareForRendering(String reference, Range range) {
+    public void prepareForRendering(String ref, Range r) {
 
-        if (range == null) { return; }
+        Resolution res = getResolution(r);
 
-        Resolution r = getResolution(range);
-
-        if (r == Resolution.HIGH) {
+        if (res == Resolution.HIGH) {
             renderer.addInstruction(DrawingInstruction.PROGRESS, "Loading sequence data...");
-            requestData(reference, range);
+            requestData(ref, r);
         } else {
             renderer.addInstruction(DrawingInstruction.ERROR, ZOOM_MESSAGE);
-            saveNullData();
+            saveNullData(r);
         }
 
-        renderer.addInstruction(DrawingInstruction.RESOLUTION, r);
-        renderer.addInstruction(DrawingInstruction.AXIS_RANGE, new AxisRange(range, new Range(0, 1)));
-        renderer.addInstruction(DrawingInstruction.REFERENCE_EXISTS, containsReference(reference));
+        renderer.addInstruction(DrawingInstruction.RESOLUTION, res);
+        renderer.addInstruction(DrawingInstruction.AXIS_RANGE, new AxisRange(r, new Range(0, 1)));
+        renderer.addInstruction(DrawingInstruction.REFERENCE_EXISTS, containsReference(ref));
         renderer.addInstruction(DrawingInstruction.SELECTION_ALLOWED, false);
 
-        if (r == Resolution.HIGH) {
-            renderer.addInstruction(DrawingInstruction.RANGE, range);
+        if (res == Resolution.HIGH) {
+            renderer.addInstruction(DrawingInstruction.RANGE, r);
             renderer.addInstruction(DrawingInstruction.COLOUR_SCHEME, this.getColourScheme());
         }
     }

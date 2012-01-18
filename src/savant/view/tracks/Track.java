@@ -337,10 +337,10 @@ public abstract class Track extends Controller<DataRetrievalEvent> implements Tr
      * is now done on a separate thread, preparing to render should not throw any
      * exceptions.
      *
-     * @param reference the reference to be rendered
-     * @param range the range to be rendered
+     * @param ref the reference to be rendered
+     * @param r the range to be rendered
      */
-    public abstract void prepareForRendering(String reference, Range range);
+    public abstract void prepareForRendering(String ref, Range r);
 
     /**
      * Method which plugins can use to force the Track to repaint itself.
@@ -395,7 +395,7 @@ public abstract class Track extends Controller<DataRetrievalEvent> implements Tr
             }
         }
         dataInRange = null;
-        fireEvent(new DataRetrievalEvent(this));
+        fireEvent(new DataRetrievalEvent(this, range));
         retriever = new DataRetriever(reference, range, filter);
         retriever.start();
         try {
@@ -416,11 +416,11 @@ public abstract class Track extends Controller<DataRetrievalEvent> implements Tr
      * Fires a DataSource successful completion event.  It will be posted to the
      * AWT event-queue thread, so that UI code can function properly.
      */
-    private void fireDataRetrievalCompleted() {
+    private void fireDataRetrievalCompleted(final Range r) {
         MiscUtils.invokeLaterIfNecessary(new Runnable() {
             @Override
             public void run() {
-                fireEvent(new DataRetrievalEvent(Track.this, dataInRange));
+                fireEvent(new DataRetrievalEvent(Track.this, dataInRange, r));
             }
         });
     }
@@ -429,11 +429,11 @@ public abstract class Track extends Controller<DataRetrievalEvent> implements Tr
      * Fires a DataSource error event.  It will be posted to the AWT event-queue
      * thread, so that UI code can function properly.
      */
-    private void fireDataRetrievalFailed(final Throwable x) {
+    private void fireDataRetrievalFailed(final Throwable x, final Range r) {
         MiscUtils.invokeLaterIfNecessary(new Runnable() {
             @Override
             public void run() {
-                fireEvent(new DataRetrievalEvent(Track.this, x));
+                fireEvent(new DataRetrievalEvent(Track.this, x, r));
             }
         });
     }
@@ -444,7 +444,7 @@ public abstract class Track extends Controller<DataRetrievalEvent> implements Tr
     public void cancelDataRequest() {
         if (retriever != null) {
             retriever.interrupt();
-            fireDataRetrievalFailed(new Exception("Data retrieval cancelled"));
+            fireDataRetrievalFailed(new Exception("Data retrieval cancelled"), retriever.range);
         }
     }
 
@@ -454,9 +454,9 @@ public abstract class Track extends Controller<DataRetrievalEvent> implements Tr
      *
      * @throws Exception
      */
-    public void saveNullData() {
+    public void saveNullData(Range r) {
         dataInRange = null;
-        fireDataRetrievalCompleted();
+        fireDataRetrievalCompleted(r);
     }
 
     /**
@@ -492,21 +492,21 @@ public abstract class Track extends Controller<DataRetrievalEvent> implements Tr
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("Retrieved " + (dataInRange != null ? Integer.toString(dataInRange.size()) : "no") + " records for " + name + "(" + reference + ":" + range + ")");
                 }
-                fireDataRetrievalCompleted();
+                fireDataRetrievalCompleted(range);
             } catch (Throwable x) {
                 if (NetworkUtils.isStreamCached(dataSource.getURI())) {
                     LOG.info("Cached read failed for " + getName() + " with " + MiscUtils.getMessage(x) + "; deleting cache file and retrying.");
                     try {
                         RemoteFileCache.removeCacheEntry(dataSource.getURI().toString());
                         dataInRange = retrieveData(reference, range, getResolution(range), filter);
-                        fireDataRetrievalCompleted();
+                        fireDataRetrievalCompleted(range);
                     } catch (Throwable x2) {
                         LOG.error("Data retrieval failed twice.", x2);
-                        fireDataRetrievalFailed(x2);
+                        fireDataRetrievalFailed(x2, range);
                     }   
                 } else {
                     LOG.error("Data retrieval failed.", x);
-                    fireDataRetrievalFailed(x);
+                    fireDataRetrievalFailed(x, range);
                 }
             }
             retriever = null;

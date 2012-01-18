@@ -19,6 +19,7 @@ package savant.view.tracks;
 import java.awt.*;
 import java.awt.geom.Path2D;
 import java.awt.geom.Rectangle2D;
+import java.awt.geom.RoundRectangle2D;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.HashMap;
@@ -302,6 +303,24 @@ public abstract class TrackRenderer implements Listener<DataRetrievalEvent> {
     public void toggleGroup(ArrayList<Record> recs) {
         if (selectionAllowed(false)) {
             SelectionController.getInstance().toggleGroup(trackName, recs);
+        }
+    }
+
+    public void drawFeatureLabel(Graphics2D g2, String geneName, double startXPos, double y) {
+        FontMetrics fm = g2.getFontMetrics();
+        double stringstartx = startXPos - fm.stringWidth(geneName) - 5;
+
+        if (stringstartx <= 0) {
+            Rectangle2D r = fm.getStringBounds(geneName, g2);
+
+            int b = 2;
+            Color textColor = g2.getColor();
+            g2.setColor(new Color(255,255,255,200));
+            g2.fill(new RoundRectangle2D.Double(3.0, y - (fm.getHeight() - fm.getDescent()) - b, r.getWidth() + 2 * b, r.getHeight() + 2 * b, 8.0, 8.0));
+            g2.setColor(textColor);
+            g2.drawString(geneName, 5.0F, (float)y);
+        } else {
+            g2.drawString(geneName, (float)stringstartx, (float)y);
         }
     }
 

@@ -27,6 +27,7 @@ import savant.api.data.Record;
 import savant.api.data.VariantRecord;
 import savant.api.event.DataRetrievalEvent;
 import savant.exception.RenderingException;
+import savant.settings.ColourSettings;
 import savant.util.AxisRange;
 import savant.util.ColourAccumulator;
 import savant.util.ColourKey;
@@ -136,5 +137,15 @@ class VariantTrackRenderer extends TrackRenderer {
             recordToShapeMap.put(varRec, new Rectangle2D.Double(x, 0.0, w, unitHeight * participantCount));
         }
         accumulator.fill(g2);
+
+        if (unitHeight > 16.0) {
+            String[] participants = (String[])instructions.get(DrawingInstruction.PARTICIPANTS);
+            double y = (participants.length - 0.5) * unitHeight + 4.0;
+            g2.setColor(ColourSettings.getColor(ColourKey.INTERVAL_TEXT));
+            for (int i = 0; i < participants.length; i++) {
+                drawFeatureLabel(g2, participants[i], 0.0, y);
+                y -= unitHeight;
+            }
+        }
     }
 }

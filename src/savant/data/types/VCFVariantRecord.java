@@ -36,6 +36,7 @@ public class VCFVariantRecord extends TabixIntervalRecord implements VariantReco
     private static final int ALT_COLUMN = 4;
     private static final int FIRST_PARTICIPANT_COLUMN = 9;
     
+    private final String reference;
     private final String name;
     private final String refBases;
     private final String[] altBases;
@@ -50,6 +51,7 @@ public class VCFVariantRecord extends TabixIntervalRecord implements VariantReco
         
         // Storing all the string information is grossly inefficient, so we just parse what we
         // need and set the values to null.
+        reference = super.getReference().intern();
         name = values[NAME_COLUMN].equals(".") ? null : values[NAME_COLUMN];    // VCF uses "." for missing value
         refBases = values[REF_COLUMN].intern();
         
@@ -130,6 +132,11 @@ public class VCFVariantRecord extends TabixIntervalRecord implements VariantReco
         }
         
         return getAltBases().compareTo(that.getAltBases());
+    }
+
+    @Override
+    public String getReference() {
+        return reference;
     }
 
     @Override
