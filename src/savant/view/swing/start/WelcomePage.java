@@ -1,15 +1,21 @@
+/*
+ *    Copyright 2011-2012 University of Toronto
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
+ */
 package savant.view.swing.start;
 
-import com.jidesoft.swing.AutoResizingTextArea;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Desktop;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.GridLayout;
-import java.awt.Image;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -22,16 +28,14 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
+import javax.swing.*;
+
+import com.jidesoft.swing.AutoResizingTextArea;
+import javax.swing.border.Border;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.input.SAXBuilder;
+
 import savant.api.util.DialogUtils;
 import savant.controller.ProjectController;
 import savant.controller.RecentProjectsController;
@@ -40,7 +44,7 @@ import savant.settings.DirectorySettings;
 import savant.util.NetworkUtils;
 import savant.util.swing.HyperlinkButton;
 import savant.view.icon.SavantIconFactory;
-import savant.view.swing.start.StartPanel.BlankHighlighter;
+
 
 /**
  *
@@ -48,35 +52,35 @@ import savant.view.swing.start.StartPanel.BlankHighlighter;
  */
 public class WelcomePage extends JPanel {
 
-    private Color TEXT_COLOR = Color.black;
-    private Font TITLE_FONT = new Font("Arial",Font.BOLD,13);
-    private Font DATE_FONT = new Font("Arial",Font.ITALIC,12);
+    private static final Color TEXT_COLOR = Color.BLACK;
+    private static final Font TITLE_FONT = new Font("Arial",Font.BOLD,13);
+    private static final Font DATE_FONT = new Font("Arial",Font.ITALIC,12);
+    private static final Border INFO_BORDER = BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(Color.GRAY, 1), BorderFactory.createEmptyBorder(10,10,10,10));
 
     public WelcomePage() {
-        //this.setBackground(Color.white);
-        this.setLayout(new BorderLayout());
+        setLayout(new BorderLayout());
 
         JPanel p = new JPanel();
         p.setLayout(new BoxLayout(p,BoxLayout.Y_AXIS));
         p.setOpaque(false);
 
-        p.add(Box.createVerticalStrut(70));
+        p.add(Box.createVerticalStrut(40));
         p.add(new SpiralPanel());
         p.add(align(0,createLabel("v" + BrowserSettings.VERSION + " " + BrowserSettings.BUILD)));
         p.add(Box.createVerticalStrut(20));
         p.add(align(-1,createBoldLabel("Recent Projects")));
-        p.add(stretch(-1,getRecentProjectsInnerPanel()));
+        p.add(getRecentProjectsInnerPanel());
         p.add(Box.createVerticalStrut(10));
         p.add(align(-1,createBoldLabel("Recent News")));
         p.add(getNewsInnerPanel());
         p.add(Box.createVerticalGlue());
         p.add(Box.createVerticalStrut(10));
         p.add(align(0,createSmallLabel("Developed by the Computational Biology Lab at University of Toronto")));
-        p.add(Box.createVerticalStrut(70));
+        p.add(Box.createVerticalStrut(40));
 
-        this.add(getSidePanel(),BorderLayout.WEST);
-        this.add(p,BorderLayout.CENTER);
-        this.add(getSidePanel(),BorderLayout.EAST);
+        add(getSidePanel(),BorderLayout.WEST);
+        add(p,BorderLayout.CENTER);
+        add(getSidePanel(),BorderLayout.EAST);
     }
 
     private static JPanel getSidePanel() {
@@ -89,26 +93,6 @@ public class WelcomePage extends JPanel {
         p.setMinimumSize(d);
         p.setPreferredSize(d);
         return p;
-    }
-
-    private JComponent stretch(int dir, JComponent c) {
-
-        /*
-        switch (dir) {
-            case -1:
-                c.setMinimumSize(new Dimension(999,1));
-                break;
-            case 1:
-                c.setMinimumSize(new Dimension(1,999));
-                break;
-            default:
-                c.setMinimumSize(new Dimension(999,1));
-                break;
-        }
-         *
-         */
-
-        return c;
     }
 
     private JComponent align(int dir, JComponent c) {
@@ -142,15 +126,16 @@ public class WelcomePage extends JPanel {
 
     private JPanel getRecentProjectsInnerPanel() {
 
-        JPanel pan = new InfoPanel();
-        //pan.setOpaque(false);
-        pan.setLayout(new BoxLayout(pan, BoxLayout.Y_AXIS));
+        JPanel p = new JPanel();
+        p.setBorder(INFO_BORDER);
+        p.setBackground(Color.WHITE);
+        p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
 
         try {
             List<String> projects = RecentProjectsController.getInstance().getRecentProjects();
             for (final String t : projects) {
 
-                pan.add(align(-1,HyperlinkButton.createHyperlinkButton(t, Color.black, new ActionListener() {
+                p.add(align(-1,HyperlinkButton.createHyperlinkButton(t, Color.black, new ActionListener() {
 
                     @Override
                     public void actionPerformed(ActionEvent e) {
@@ -164,35 +149,31 @@ public class WelcomePage extends JPanel {
             }
 
             if (projects.isEmpty()) {
-                pan.add(align(-1,createLabel("No recent projects")));
+                p.add(align(-1,createLabel("No recent projects")));
             }
         } catch (IOException ex) {
         }
 
-        return pan;
+        return p;
     }
 
     private JLabel createLabel(String lab) {
         JLabel l = new JLabel(lab);
         l.setOpaque(false);
-        l.setForeground(Color.black);
+        l.setForeground(Color.BLACK);
         l.setAlignmentX(Component.LEFT_ALIGNMENT);
-
-        //l.setFont(new Font("Arial", Font.PLAIN, 12));
         return l;
     }
 
     private JLabel createBoldLabel(String lab) {
         JLabel l = createLabel(lab);
-        Font f = l.getFont();
-        l.setFont(new Font(f.getFamily(),Font.BOLD,f.getSize()));
+        l.setFont(l.getFont().deriveFont(Font.BOLD));
         return l;
     }
 
     private JLabel createSmallLabel(String lab) {
         JLabel l = createLabel(lab);
-        Font f = l.getFont();
-        l.setFont(new Font(f.getFamily(),Font.PLAIN,11));
+        l.setFont(l.getFont().deriveFont(Font.PLAIN, 11.0f));
         return l;
     }
 
@@ -206,6 +187,7 @@ public class WelcomePage extends JPanel {
             this.setMaximumSize(new Dimension(999, 150));
         }
 
+        @Override
         public void paintComponent(Graphics g) {
             //g.setColor(Color.black);
             //g.fillRect(0, 0, this.getWidth(), this.getHeight());
@@ -213,23 +195,11 @@ public class WelcomePage extends JPanel {
         }
     }
 
-    private static class InfoPanel extends JPanel {
-        public InfoPanel() {
-            //this.setPreferredSize(new Dimension(400,10));
-            this.setBorder(BorderFactory.createCompoundBorder(
-                    BorderFactory.createLineBorder(Color.gray, 1),
-                    BorderFactory.createEmptyBorder(10,10,10,10)));
-        }
+    private JComponent getNewsInnerPanel() {
 
-        public void paintComponent(Graphics g) {
-            g.setColor(Color.white);
-            g.fillRect(0, 0, this.getWidth(), this.getHeight());
-        }
-    }
-
-        private JComponent getNewsInnerPanel() {
-
-        JPanel p = new InfoPanel();
+        JPanel p = new JPanel();
+        p.setBorder(INFO_BORDER);
+        p.setBackground(Color.WHITE);
 
         try {
             File newsFile = NetworkUtils.downloadFile(BrowserSettings.NEWS_URL, DirectorySettings.getTmpDirectory(), null);

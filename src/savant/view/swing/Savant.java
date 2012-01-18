@@ -69,7 +69,6 @@ import savant.util.Version;
 import savant.util.swing.TrackChooser;
 import savant.view.dialog.*;
 import savant.view.icon.SavantIconFactory;
-import savant.view.swing.start.StartPanel;
 import savant.view.swing.start.WelcomePage;
 import savant.view.tracks.Track;
 import savant.view.tracks.TrackFactory;
