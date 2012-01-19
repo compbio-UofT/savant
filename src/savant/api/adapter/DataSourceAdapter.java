@@ -50,7 +50,7 @@ public interface DataSourceAdapter<E extends Record> {
      * 
      * @since 2.0.0
      */
-    public List<E> getRecords(String ref, RangeAdapter range, Resolution resolution, RecordFilterAdapter<E> filter) throws IOException;
+    public List<E> getRecords(String ref, RangeAdapter range, Resolution resolution, RecordFilterAdapter<E> filter) throws IOException, InterruptedException;
 
     public URI getURI();
 

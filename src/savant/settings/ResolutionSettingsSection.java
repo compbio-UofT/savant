@@ -1,5 +1,5 @@
 /*
- *    Copyright 2011 University of Toronto
+ *    Copyright 2011-2012 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -19,19 +19,16 @@ package savant.settings;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.io.IOException;
 import java.text.NumberFormat;
 import javax.swing.BorderFactory;
-import javax.swing.GroupLayout;
-import javax.swing.GroupLayout.Alignment;
 import javax.swing.Icon;
 import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
-import javax.swing.border.Border;
+
 import savant.controller.FrameController;
-import savant.controller.GraphPaneController;
 import savant.view.swing.Frame;
 
 
@@ -41,11 +38,12 @@ import savant.view.swing.Frame;
  */
 public class ResolutionSettingsSection extends Section {
 
-    private JFormattedTextField sequenceAmountField;
-    private JFormattedTextField intervalAmountField;
-    private JFormattedTextField bamDefaultModeAmountField;
-    private JFormattedTextField bamArcModeAmountField;
-    private JFormattedTextField conservationAmountField;
+    private JFormattedTextField sequenceThresholdField;
+    private JFormattedTextField intervalThresholdField;
+    private JFormattedTextField bamThresholdField;
+    private JFormattedTextField bamArcModeThresholdField;
+    private JFormattedTextField continuousThresholdField;
+    private JFormattedTextField variantThresholdField;
 
     @Override
     public String getTitle() {
@@ -64,18 +62,20 @@ public class ResolutionSettingsSection extends Section {
         add(getSequencePanel(), gbc);
         add(getIntervalPanel(), gbc);
         add(getBAMPanel(), gbc);
+        add(getContinuousPanel(), gbc);
         gbc.weighty = 1.0;
-        add(getConservationPanel(), gbc);
+        add(getVariantPanel(), gbc);
     }
 
     @Override
     public void applyChanges() {
-        if (bamArcModeAmountField != null) {
-            TrackResolutionSettings.setBamArcModeLowToHighThresh(Integer.parseInt(bamArcModeAmountField.getText().replaceAll(",", "")));
-            TrackResolutionSettings.setBamDefaultModeLowToHighThresh(Integer.parseInt(bamDefaultModeAmountField.getText().replaceAll(",", "")));
-            TrackResolutionSettings.setIntervalLowToHighThresh(Integer.parseInt(intervalAmountField.getText().replaceAll(",", "")));
-            TrackResolutionSettings.setSequenceLowToHighThresh(Integer.parseInt(sequenceAmountField.getText().replaceAll(",", "")));
-            TrackResolutionSettings.setConservationLowToHighThresh(Integer.parseInt(conservationAmountField.getText().replaceAll(",", "")));
+        if (bamArcModeThresholdField != null) {
+            TrackResolutionSettings.setBAMArcModeLowToHighThreshold(Integer.parseInt(bamArcModeThresholdField.getText().replaceAll(",", "")));
+            TrackResolutionSettings.setBAMLowToHighThreshold(Integer.parseInt(bamThresholdField.getText().replaceAll(",", "")));
+            TrackResolutionSettings.setIntervalLowToHighThreshold(Integer.parseInt(intervalThresholdField.getText().replaceAll(",", "")));
+            TrackResolutionSettings.setSequenceLowToHighThreshold(Integer.parseInt(sequenceThresholdField.getText().replaceAll(",", "")));
+            TrackResolutionSettings.setContinuousLowToHighThreshold(Integer.parseInt(continuousThresholdField.getText().replaceAll(",", "")));
+            TrackResolutionSettings.setVariantLowToHighThreshold(Integer.parseInt(variantThresholdField.getText().replaceAll(",", "")));
             
             //redraw all tracks
             for(Frame f : FrameController.getInstance().getFrames()){
@@ -92,222 +92,103 @@ public class ResolutionSettingsSection extends Section {
 
     private JPanel getSequencePanel() {
 
-        sequenceAmountField = getFormattedTextField(TrackResolutionSettings.getSequenceLowToHighThresh());
+        sequenceThresholdField = getFormattedTextField(TrackResolutionSettings.getSequenceLowToHighThreshold());
 
         JPanel panel = new JPanel(new GridBagLayout());
-        //panel.setPreferredSize(new Dimension(1,1));
-        Border sequenceTitle = BorderFactory.createTitledBorder("Sequence Tracks (FASTA)");
-        panel.setBorder(sequenceTitle);
+        panel.setBorder(BorderFactory.createTitledBorder("Sequence Tracks (FASTA)"));
 
-        GroupLayout layout = new GroupLayout(panel);
-        panel.setLayout(layout);
-
-        // Turn on automatically adding gaps between components
-        layout.setAutoCreateGaps(true);
-
-        // Turn on automatically creating gaps between components that touch
-        // the edge of the container and the container.
-        layout.setAutoCreateContainerGaps(true);
-
-        JLabel label1 = new JLabel("Don't show sequence for ranges larger than ");
-        JTextField tf1 = sequenceAmountField;
-        JLabel label3 = new JLabel(" bp");
-
-        GroupLayout.SequentialGroup hGroup = layout.createSequentialGroup();
-
-        // The sequential group in turn contains two parallel groups.
-        // One parallel group contains the labels, the other the text fields.
-        // Putting the labels in a parallel group along the horizontal axis
-        // positions them at the same x location.
-        //
-        // Variable indentation is used to reinforce the level of grouping.
-        hGroup.addGroup(layout.createParallelGroup().
-                addComponent(label1));
-        hGroup.addGroup(layout.createParallelGroup().
-                addComponent(tf1));
-        hGroup.addGroup(layout.createParallelGroup().
-                addComponent(label3));
-        layout.setHorizontalGroup(hGroup);
-
-        // Create a sequential group for the vertical axis.
-        GroupLayout.SequentialGroup vGroup = layout.createSequentialGroup();
-
-        // The sequential group contains two parallel groups that align
-        // the contents along the baseline. The first parallel group contains
-        // the first label and text field, and the second parallel group contains
-        // the second label and text field. By using a sequential group
-        // the labels and text fields are positioned vertically after one another.
-        vGroup.addGroup(layout.createParallelGroup(Alignment.BASELINE).
-                addComponent(label1).addComponent(tf1).addComponent(label3));
-        layout.setVerticalGroup(vGroup);
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(6, 6, 6, 6);
+        panel.add(new JLabel("Don't show sequence for ranges larger than"), gbc);
+        panel.add(sequenceThresholdField, gbc);
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.weightx = 1.0;
+        panel.add(new JLabel("bp"), gbc);
 
         return panel;
     }
 
     private JPanel getIntervalPanel() {
 
-        intervalAmountField = getFormattedTextField(TrackResolutionSettings.getIntervalLowToHighThresh());
+        intervalThresholdField = getFormattedTextField(TrackResolutionSettings.getIntervalLowToHighThreshold());
 
         JPanel panel = new JPanel(new GridBagLayout());
-        //panel.setPreferredSize(new Dimension(1,1));
-        Border sequenceTitle = BorderFactory.createTitledBorder("Interval Tracks (BED, GFF, etc.)");
-        panel.setBorder(sequenceTitle);
+        panel.setBorder(BorderFactory.createTitledBorder("Interval Tracks (BED, GFF, etc.)"));
 
-        GroupLayout layout = new GroupLayout(panel);
-        panel.setLayout(layout);
-
-        // Turn on automatically adding gaps between components
-        layout.setAutoCreateGaps(true);
-
-        // Turn on automatically creating gaps between components that touch
-        // the edge of the container and the container.
-        layout.setAutoCreateContainerGaps(true);
-
-        JLabel label1 = new JLabel("Don't show intervals for ranges larger than ");
-        JTextField tf1 = intervalAmountField;
-        JLabel label3 = new JLabel(" bp");
-
-        GroupLayout.SequentialGroup hGroup = layout.createSequentialGroup();
-
-        // The sequential group in turn contains two parallel groups.
-        // One parallel group contains the labels, the other the text fields.
-        // Putting the labels in a parallel group along the horizontal axis
-        // positions them at the same x location.
-        //
-        // Variable indentation is used to reinforce the level of grouping.
-        hGroup.addGroup(layout.createParallelGroup().
-                addComponent(label1));
-        hGroup.addGroup(layout.createParallelGroup().
-                addComponent(tf1));
-        hGroup.addGroup(layout.createParallelGroup().
-                addComponent(label3));
-        layout.setHorizontalGroup(hGroup);
-
-        // Create a sequential group for the vertical axis.
-        GroupLayout.SequentialGroup vGroup = layout.createSequentialGroup();
-
-        // The sequential group contains two parallel groups that align
-        // the contents along the baseline. The first parallel group contains
-        // the first label and text field, and the second parallel group contains
-        // the second label and text field. By using a sequential group
-        // the labels and text fields are positioned vertically after one another.
-        vGroup.addGroup(layout.createParallelGroup(Alignment.BASELINE).
-                addComponent(label1).addComponent(tf1).addComponent(label3));
-        layout.setVerticalGroup(vGroup);
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(6, 6, 6, 6);
+        panel.add(new JLabel("Don't show intervals for ranges larger than"), gbc);
+        panel.add(intervalThresholdField, gbc);
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.weightx = 1.0;
+        panel.add(new JLabel("bp"), gbc);
 
         return panel;
     }
 
     private JPanel getBAMPanel() {
 
-        bamDefaultModeAmountField = getFormattedTextField(TrackResolutionSettings.getBamDefaultModeLowToHighThresh());
-        bamArcModeAmountField = getFormattedTextField(TrackResolutionSettings.getBamArcModeLowToHighThresh());
+        bamThresholdField = getFormattedTextField(TrackResolutionSettings.getBAMLowToHighThreshold());
+        bamArcModeThresholdField = getFormattedTextField(TrackResolutionSettings.getBAMArcModeLowToHighThreshold());
 
         JPanel panel = new JPanel(new GridBagLayout());
-        //panel.setPreferredSize(new Dimension(1,1));
-        Border sequenceTitle = BorderFactory.createTitledBorder("Read alignment tracks (BAM)");
-        panel.setBorder(sequenceTitle);
+        panel.setBorder(BorderFactory.createTitledBorder("Read alignment tracks (BAM)"));
 
-        GroupLayout layout = new GroupLayout(panel);
-        panel.setLayout(layout);
-
-        // Turn on automatically adding gaps between components
-        layout.setAutoCreateGaps(true);
-
-        // Turn on automatically creating gaps between components that touch
-        // the edge of the container and the container.
-        layout.setAutoCreateContainerGaps(true);
-
-        JLabel label1 = new JLabel("Show coverage for ranges larger than ");
-        JLabel label2 = new JLabel("Don't show mate arcs for ranges larger than ");
-        JTextField tf1 = bamDefaultModeAmountField;
-        JTextField tf2 = bamArcModeAmountField;
-        JLabel label3 = new JLabel(" bp");
-        JLabel label4 = new JLabel(" bp");
-
-        GroupLayout.SequentialGroup hGroup = layout.createSequentialGroup();
-
-        // The sequential group in turn contains two parallel groups.
-        // One parallel group contains the labels, the other the text fields.
-        // Putting the labels in a parallel group along the horizontal axis
-        // positions them at the same x location.
-        //
-        // Variable indentation is used to reinforce the level of grouping.
-        hGroup.addGroup(layout.createParallelGroup().
-                addComponent(label1).addComponent(label2));
-        hGroup.addGroup(layout.createParallelGroup().
-                addComponent(tf1).addComponent(tf2));
-        hGroup.addGroup(layout.createParallelGroup().
-                addComponent(label3).addComponent(label4));
-        layout.setHorizontalGroup(hGroup);
-
-        // Create a sequential group for the vertical axis.
-        GroupLayout.SequentialGroup vGroup = layout.createSequentialGroup();
-
-        // The sequential group contains two parallel groups that align
-        // the contents along the baseline. The first parallel group contains
-        // the first label and text field, and the second parallel group contains
-        // the second label and text field. By using a sequential group
-        // the labels and text fields are positioned vertically after one another.
-        vGroup.addGroup(layout.createParallelGroup(Alignment.BASELINE).
-                addComponent(label1).addComponent(tf1).addComponent(label3));
-        vGroup.addGroup(layout.createParallelGroup(Alignment.BASELINE).
-                addComponent(label2).addComponent(tf2).addComponent(label4));
-        layout.setVerticalGroup(vGroup);
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(6, 6, 6, 6);
+        gbc.anchor = GridBagConstraints.EAST;
+        panel.add(new JLabel("Show coverage for ranges larger than"), gbc);
+        panel.add(bamThresholdField, gbc);
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.weightx = 1.0;
+        panel.add(new JLabel("bp"), gbc);
+        
+        gbc.gridwidth = 1;
+        gbc.anchor = GridBagConstraints.EAST;
+        gbc.weightx = 0.0;
+        panel.add(new JLabel("Don't show mate arcs for ranges larger than"), gbc);
+        panel.add(bamArcModeThresholdField, gbc);
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.weightx = 1.0;
+        panel.add(new JLabel("bp"), gbc);
 
         return panel;
     }
 
-    private JPanel getConservationPanel() {
+    private JPanel getContinuousPanel() {
 
-        conservationAmountField = getFormattedTextField(TrackResolutionSettings.getConservationLowToHighThresh());
+        continuousThresholdField = getFormattedTextField(TrackResolutionSettings.getContinuousLowToHighThreshold());
 
         JPanel panel = new JPanel(new GridBagLayout());
-        //panel.setPreferredSize(new Dimension(1,1));
-        Border sequenceTitle = BorderFactory.createTitledBorder("Unformatted Continuous Tracks (WIG, BigWig, etc. from external datasources)");
-        panel.setBorder(sequenceTitle);
+        panel.setBorder(BorderFactory.createTitledBorder("Unformatted Continuous Tracks (WIG, BigWig, etc. from external datasources)"));
 
-        GroupLayout layout = new GroupLayout(panel);
-        panel.setLayout(layout);
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(6, 6, 6, 6);
+        gbc.anchor = GridBagConstraints.WEST;
+        
+        panel.add(new JLabel("Don't show levels for ranges larger than"), gbc);
+        panel.add(continuousThresholdField, gbc);
+        gbc.weightx = 1.0;
+        panel.add(new JLabel("bp"), gbc);
 
-        // Turn on automatically adding gaps between components
-        layout.setAutoCreateGaps(true);
+        return panel;
+    }
 
-        // Turn on automatically creating gaps between components that touch
-        // the edge of the container and the container.
-        layout.setAutoCreateContainerGaps(true);
+    private JPanel getVariantPanel() {
 
-        JLabel label1 = new JLabel("Don't show levels for ranges larger than ");
-        JTextField tf1 = conservationAmountField;
-        JLabel label3 = new JLabel(" bp");
+        variantThresholdField = getFormattedTextField(TrackResolutionSettings.getVariantLowToHighThreshold());
 
-        GroupLayout.SequentialGroup hGroup = layout.createSequentialGroup();
+        JPanel panel = new JPanel(new GridBagLayout());
+        panel.setBorder(BorderFactory.createTitledBorder("Variant Tracks (VCF)"));
 
-        // The sequential group in turn contains two parallel groups.
-        // One parallel group contains the labels, the other the text fields.
-        // Putting the labels in a parallel group along the horizontal axis
-        // positions them at the same x location.
-        //
-        // Variable indentation is used to reinforce the level of grouping.
-        hGroup.addGroup(layout.createParallelGroup().
-                addComponent(label1));
-        hGroup.addGroup(layout.createParallelGroup().
-                addComponent(tf1));
-        hGroup.addGroup(layout.createParallelGroup().
-                addComponent(label3));
-        layout.setHorizontalGroup(hGroup);
-
-        // Create a sequential group for the vertical axis.
-        GroupLayout.SequentialGroup vGroup = layout.createSequentialGroup();
-
-        // The sequential group contains two parallel groups that align
-        // the contents along the baseline. The first parallel group contains
-        // the first label and text field, and the second parallel group contains
-        // the second label and text field. By using a sequential group
-        // the labels and text fields are positioned vertically after one another.
-        vGroup.addGroup(layout.createParallelGroup(Alignment.BASELINE).
-                addComponent(label1).addComponent(tf1).addComponent(label3));
-        layout.setVerticalGroup(vGroup);
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(6, 6, 6, 6);
+        gbc.anchor = GridBagConstraints.WEST;
+        panel.add(new JLabel("Don't show variants for ranges larger than"), gbc);
+        panel.add(variantThresholdField, gbc);
+        gbc.weightx = 1.0;
+        panel.add(new JLabel("bp"), gbc);
 
         return panel;
     }
@@ -315,10 +196,11 @@ public class ResolutionSettingsSection extends Section {
     private JFormattedTextField getFormattedTextField(int amount) {
 
         JFormattedTextField result = new JFormattedTextField(NumberFormat.getNumberInstance());
-        result.setValue(new Double(amount));
+        result.setValue(new Integer(amount));
         result.setColumns(10);
-        result.setPreferredSize(new Dimension(100, 18));
-        result.setMaximumSize(new Dimension(100, 18));
+        result.setPreferredSize(new Dimension(90, 18));
+        result.setMinimumSize(new Dimension(90, 18));
+        result.setMaximumSize(new Dimension(90, 18));
         result.addKeyListener(enablingKeyListener);
 
         return result;

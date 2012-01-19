@@ -17,13 +17,10 @@ package savant.view.swing.variation;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import javax.swing.*;
 
 import org.apache.commons.logging.Log;
@@ -40,9 +37,9 @@ import savant.api.util.RangeUtils;
 import savant.controller.GraphPaneController;
 import savant.controller.LocationController;
 import savant.controller.TrackController;
-import savant.settings.ColourSettings;
-import savant.util.ColourKey;
+import savant.util.MiscUtils;
 import savant.util.Range;
+import savant.util.swing.ProgressPanel;
 import savant.view.icon.SavantIconFactory;
 import savant.view.tracks.VariantTrack;
 
@@ -62,7 +59,8 @@ public class VariationSheet extends JPanel implements Listener<DataRetrievalEven
         }
     };
 
-    Map<VariantTrack, List<VariantRecord>> rawData = new HashMap<VariantTrack, List<VariantRecord>>();
+    List<VariantTrack> tracks = new ArrayList<VariantTrack>();
+    List<List<VariantRecord>> rawData = new ArrayList<List<VariantRecord>>();
     List<VariantRecord> aggregateData = null;
 
     private int participantCount;
@@ -70,6 +68,12 @@ public class VariationSheet extends JPanel implements Listener<DataRetrievalEven
     private Range visibleRange;
     private boolean adjustingRange = false;
     
+    // The cards we can show.
+    private JTabbedPane tabs;
+    private JLabel messageLabel;
+    private ProgressPanel progressPanel;
+    private JComponent currentCard;
+
     private JTable table;
     private VariantMap map;
     private LDPlot ldPlot;
@@ -79,8 +83,8 @@ public class VariationSheet extends JPanel implements Listener<DataRetrievalEven
     private ButtonGroup methodGroup;
 
     public VariationSheet() {
-        setLayout(new GridBagLayout());
-        
+        super(new GridBagLayout());
+
         // Toolbar shared by all panels.
         JToolBar tools = new JToolBar();
         tools.setFloatable(false);
@@ -110,7 +114,7 @@ public class VariationSheet extends JPanel implements Listener<DataRetrievalEven
         });
         tools.add(zoomOutButton);
         
-        JTabbedPane tabs = new JTabbedPane();
+        tabs = new JTabbedPane();
         table = new JTable(new VariantTableModel(null));
         table.addMouseListener(new MouseAdapter() {
             @Override
@@ -192,8 +196,20 @@ public class VariationSheet extends JPanel implements Listener<DataRetrievalEven
         gbc.weightx = 1.0;
         gbc.weighty = 0.0;
         add(tools, gbc);
-        gbc.weighty = 1.0;
-        add(tabs, gbc);
+
+        // Create the informative cards, but don't use them.
+        messageLabel = new JLabel();
+        progressPanel = new ProgressPanel(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                LOG.info("Cancelling data requests for " + tracks.size() + " variant tracks.");
+                for (VariantTrack t: tracks) {
+                    t.cancelDataRequest();
+                }
+            }
+        });
+        
+        showCard(tabs, null);
 
         LocationController.getInstance().addListener(new Listener<LocationChangedEvent>() {
             @Override
@@ -216,13 +232,16 @@ public class VariationSheet extends JPanel implements Listener<DataRetrievalEven
                     VariantTrack t = (VariantTrack)event.getTrack();
                     switch (event.getType()) {
                         case ADDED:
-                            rawData.put(t, null);
+                            tracks.add(t);
+                            rawData.add(null);
                             participantCount += t.getParticipantCount();
                             t.addListener(VariationSheet.this);
                             break;
                         case REMOVED:
                             participantCount -= t.getParticipantCount();
-                            rawData.remove(t);
+                            int index = tracks.indexOf(t);
+                            tracks.remove(index);
+                            rawData.remove(index);
                             t.removeListener(VariationSheet.this);
                             recalculate();
                             break;
@@ -240,25 +259,33 @@ public class VariationSheet extends JPanel implements Listener<DataRetrievalEven
     @Override
     public void handleEvent(DataRetrievalEvent evt) {
         if (evt.getRange().equals(visibleRange)) {
-            switch (evt.getType()) {
-                case STARTED:
-                    rawData.put((VariantTrack)evt.getTrack(), null);
-                    break;
-                case COMPLETED:
-                    LOG.trace("Received " + evt.getData().size() + " records, recalculating.");
-                    rawData.put((VariantTrack)evt.getTrack(), (List)evt.getData());
-                    recalculate();
-                    break;
+            int index = tracks.indexOf(evt.getTrack());
+            if (index >= 0) {
+                switch (evt.getType()) {
+                    case STARTED:
+                        rawData.set(index, null);
+                        showCard(progressPanel, "Retrieving variant data…");
+                        break;
+                    case COMPLETED:
+                        LOG.info("Received " + evt.getData().size() + " records for " + evt.getTrack() + "; recalculating.");
+                        rawData.set(index, (List)evt.getData());
+                        recalculate();
+                        break;
+                    case FAILED:
+                        LOG.info("Received " + evt.getError() + " error for " + evt.getTrack());
+                        showCard(messageLabel, MiscUtils.getMessage(evt.getError()));
+                        break;
+                }
             }
         }
     }
 
-    // TODO: Should aggregate variants from all VCF tracks.
     synchronized List<VariantRecord> getData() {
         if (aggregateData == null) {
             int n = 0;
-            for (VariantTrack t: rawData.keySet()) {
-                List<VariantRecord> trackData = rawData.get(t);
+            int i = 0;
+            for (VariantTrack t: tracks) {
+                List<VariantRecord> trackData = rawData.get(i++);
                 if (trackData != null) {
                     if (aggregateData == null) {
                         aggregateData = new ArrayList<VariantRecord>(trackData.size());
@@ -314,8 +341,7 @@ public class VariationSheet extends JPanel implements Listener<DataRetrievalEven
         if (!r.equals(visibleRange)) {
             adjustingRange = true;
             visibleRange = r;
-            LOG.trace("Requesting data for " + r);
-            for (VariantTrack t: rawData.keySet()) {
+            for (VariantTrack t: tracks) {
                 t.requestData(visibleRef, visibleRange);
             }
             mapScroller.setMaximum(LocationController.getInstance().getMaxRangeEnd());
@@ -389,29 +415,56 @@ public class VariationSheet extends JPanel implements Listener<DataRetrievalEven
     }
     
     void recalculate() {
+        for (List<VariantRecord> trackData: rawData) {
+            if (trackData == null) {
+                // One of the tracks hasn't reported in yet.
+                return;
+            }
+        }
+        showCard(progressPanel, "Aggregating variant data…");
         aggregateData = null;
         table.setModel(new VariantTableModel(getData()));
-        LOG.trace("Repainting VariantMap");
-        map.repaint();
-        ldPlot.recalculate();
-        ldPlot.repaint();
+        if (aggregateData.size() > 0) {
+            showCard(tabs, null);
+            map.repaint();
+            ldPlot.recalculate();
+            ldPlot.repaint();
+        } else {
+            showCard(messageLabel, "No data in range");
+        }
     }
 
     boolean isDPrimeSelected() {
         return Boolean.parseBoolean(methodGroup.getSelection().getActionCommand());
     }
 
-    void drawNoDataMessage(Graphics2D g2, Dimension size) {
-        Font font = g2.getFont().deriveFont(Font.PLAIN, 36);
-        g2.setColor(ColourSettings.getColor(ColourKey.GRAPH_PANE_MESSAGE));
-        FontMetrics metrics = g2.getFontMetrics();
-        String message = "No data in range";
-        Rectangle2D stringBounds = font.getStringBounds(message, g2.getFontRenderContext());
-
-        int x = (size.width - (int)stringBounds.getWidth()) / 2;
-        int y = (size.height / 2) + ((metrics.getAscent()- metrics.getDescent()) / 2);
-
-        g2.setFont(font);
-        g2.drawString(message, x,y);
+    final void showCard(JComponent card, String message) {
+        if (currentCard != card) {
+            if (currentCard != null) {
+                remove(currentCard);
+            }
+            GridBagConstraints gbc = new GridBagConstraints();
+            gbc.gridwidth = GridBagConstraints.REMAINDER;
+            gbc.weightx = 1.0;
+            gbc.weighty = 1.0;
+            
+            if (card == tabs) {
+                gbc.fill = GridBagConstraints.BOTH;
+            } else {
+                gbc.insets = new Insets(20, 20, 20, 20);
+                gbc.anchor = GridBagConstraints.NORTH;
+                if (message != null) {
+                    if (card == messageLabel) {
+                        messageLabel.setText(message);
+                    } else {
+                        progressPanel.setMessage(message);
+                    }
+                }
+            }
+            add(card, gbc);
+            currentCard = card;
+            repaint();
+            validate();
+        }
     }
 }

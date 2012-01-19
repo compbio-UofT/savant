@@ -67,7 +67,7 @@ public class BigWigDataSource extends DataSource<GenericContinuousRecord> {
     }
 
     @Override
-    public List<GenericContinuousRecord> getRecords(String ref, RangeAdapter range, Resolution resolution, RecordFilterAdapter filt) throws IOException {
+    public List<GenericContinuousRecord> getRecords(String ref, RangeAdapter range, Resolution resolution, RecordFilterAdapter filt) throws IOException, InterruptedException {
         List<GenericContinuousRecord> result = new ArrayList<GenericContinuousRecord>();
         int chromID = bbReader.getChromosomeID(ref);
         RPChromosomeRegion region = new RPChromosomeRegion(chromID, range.getFrom(), chromID, range.getTo());
@@ -89,6 +89,9 @@ public class BigWigDataSource extends DataSource<GenericContinuousRecord> {
                 while (nextPos < datumEnd && nextPos <= rangeEnd) {
                     result.add(GenericContinuousRecord.valueOf(ref, nextPos, value));
                     nextPos++;
+                }
+                if (Thread.interrupted()) {
+                    throw new InterruptedException();
                 }
             }
         } catch (RuntimeException ignored) {

@@ -47,7 +47,7 @@ public interface GenomeAdapter {
      * @param range the range being retrieved
      * @return the sequence of bases for the given reference and range
      */
-    public byte[] getSequence(String ref, RangeAdapter range) throws IOException;
+    public byte[] getSequence(String ref, RangeAdapter range) throws IOException, InterruptedException;
 
     /**
      * Get the number of bases in the currently-active reference.

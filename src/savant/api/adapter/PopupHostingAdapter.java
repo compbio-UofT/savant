@@ -16,10 +16,10 @@
 
 package savant.api.adapter;
 
+import savant.api.data.Record;
 import savant.api.event.PopupEvent;
 import savant.api.util.Listener;
 import savant.selection.PopupPanel;
-import savant.view.tracks.Track;
 
 
 /**
@@ -49,12 +49,14 @@ public interface PopupHostingAdapter {
     
     public void firePopupEvent(PopupPanel panel);
 
-    public void repaint();
-
+    /**
+     * Invoked when the popup has been hidden so that the host can do any extra cleanup.
+     */
     public void popupHidden();
 
     /**
-     * Return the list of tracks associated with this host.
+     * Invoked when user chooses Select/Deselect from the popup menu.
+     * @param rec the record which should be selected
      */
-    public Track[] getTracks();
+    public void recordSelected(Record rec);
 }

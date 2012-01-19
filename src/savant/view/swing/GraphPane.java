@@ -166,7 +166,6 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
     /**
      * Return the list of tracks associated with this GraphPane.
      */
-    @Override
     public Track[] getTracks() {
         return tracks;
     }
@@ -1102,6 +1101,18 @@ public class GraphPane extends JPanel implements GraphPaneAdapter, MouseWheelLis
         // Didn't get a hit on any track.
         currentOverShape = null;
         currentOverRecord = null;
+    }
+
+    /**
+     * Invoked when user selects something in the popup menu.
+     * @param rec 
+     */
+    @Override
+    public void recordSelected(Record rec) {
+        for (Track t: tracks) {
+            t.getRenderer().addToSelected(rec);
+        }
+        repaint();
     }
 
     @Override

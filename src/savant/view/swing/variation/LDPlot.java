@@ -165,9 +165,7 @@ public class LDPlot extends JPanel {
 
         calculateLD();
         
-        if (ldData == null || ldData.length == 0) {
-            owner.drawNoDataMessage(g2, getSize());
-        } else {
+        if (ldData != null && ldData.length != 0) {
             int n = ldData.length;
             double h = getHeight() / n;
             double w = (getWidth() - AXIS_WIDTH) * 2.0 / n;

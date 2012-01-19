@@ -259,13 +259,10 @@ public abstract class TrackRenderer implements Listener<DataRetrievalEvent> {
         return repaint;
     }
 
-    
 
-    // GLOBAL SELECTED
-
-    public void addToSelected(Record i) {
+    public void addToSelected(Record rec) {
         if (selectionAllowed(false)) {
-            SelectionController.getInstance().toggleSelection(trackName, i);
+            SelectionController.getInstance().toggleSelection(trackName, rec);
         }
     }
 

@@ -1,5 +1,5 @@
 /*
- *    Copyright 2011 University of Toronto
+ *    Copyright 2011-2012 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -18,6 +18,8 @@ package savant.settings;
 
 
 /**
+ * Settings which control the ranges at which various tracks decide to display vs. not
+ * display vs. fall back to coverage.
  *
  * @author mfiume
  */
@@ -25,56 +27,66 @@ public class TrackResolutionSettings {
     private static final PersistentSettings SETTINGS = PersistentSettings.getInstance();
 
     // The defaults
-    private static final int SEQUENCE_LOW_TO_HIGH = 10000;
-    private static final int INTERVAL_LOW_TO_HIGH = 1000000;
-    private static final int BAM_DEFAULT_LOW_TO_HIGH = 20000;
-    private static final int BAM_ARC_LOW_TO_HIGH = 100000;
-    private static final int CONSERVATION_LOW_TO_HIGH = 10000;
+    private static final int SEQUENCE_LOW_TO_HIGH_DEFAULT = 10000;
+    private static final int INTERVAL_LOW_TO_HIGH_DEFAULT = 1000000;
+    private static final int BAM_LOW_TO_HIGH_DEFAULT = 20000;
+    private static final int BAM_ARC_LOW_TO_HIGH_DEFAULT = 100000;
+    private static final int CONTINUOUS_LOW_TO_HIGH_DEFAULT = 10000;
+    private static final int VARIANT_LOW_TO_HIGH_DEFAULT = 1000000;
 
     // The property keys.
     private static final String SEQUENCE_LOW_TO_HIGH_KEY = "SequenceLowToHigh";
     private static final String INTERVAL_LOW_TO_HIGH_KEY = "IntervalLowToHigh";
-    private static final String BAM_DEFAULT_LOW_TO_HIGH_KEY = "BamDefaultLowToHigh";
-    private static final String BAM_ARC_LOW_TO_HIGH_KEY = "BamArcLowToHigh";
+    private static final String BAM_LOW_TO_HIGH_KEY = "BAMLowToHigh";
+    private static final String BAM_ARC_LOW_TO_HIGH_KEY = "BAMArcLowToHigh";
     private static final String CONSERVATION_LOW_TO_HIGH_KEY = "ConservationLowToHigh";
+    private static final String VARIANT_LOW_TO_HIGH_KEY = "VariantLowToHigh";
 
-    public static int getBamArcModeLowToHighThresh() {
-        return SETTINGS.getInt(BAM_ARC_LOW_TO_HIGH_KEY, BAM_ARC_LOW_TO_HIGH);
+    public static int getBAMArcModeLowToHighThreshold() {
+        return SETTINGS.getInt(BAM_ARC_LOW_TO_HIGH_KEY, BAM_ARC_LOW_TO_HIGH_DEFAULT);
     }
 
-    public static void setBamArcModeLowToHighThresh(int value) {
+    public static void setBAMArcModeLowToHighThreshold(int value) {
         SETTINGS.setInt(BAM_ARC_LOW_TO_HIGH_KEY, value);
     }
 
-    public static int getBamDefaultModeLowToHighThresh() {
-        return SETTINGS.getInt(BAM_DEFAULT_LOW_TO_HIGH_KEY, BAM_DEFAULT_LOW_TO_HIGH);
+    public static int getBAMLowToHighThreshold() {
+        return SETTINGS.getInt(BAM_LOW_TO_HIGH_KEY, BAM_LOW_TO_HIGH_DEFAULT);
     }
 
-    public static void setBamDefaultModeLowToHighThresh(int value) {
-        SETTINGS.setInt(BAM_DEFAULT_LOW_TO_HIGH_KEY, value);
+    public static void setBAMLowToHighThreshold(int value) {
+        SETTINGS.setInt(BAM_LOW_TO_HIGH_KEY, value);
     }
 
-    public static int getIntervalLowToHighThresh() {
-        return SETTINGS.getInt(INTERVAL_LOW_TO_HIGH_KEY, INTERVAL_LOW_TO_HIGH);
+    public static int getIntervalLowToHighThreshold() {
+        return SETTINGS.getInt(INTERVAL_LOW_TO_HIGH_KEY, INTERVAL_LOW_TO_HIGH_DEFAULT);
     }
 
-    public static void setIntervalLowToHighThresh(int value) {
+    public static void setIntervalLowToHighThreshold(int value) {
         SETTINGS.setInt(INTERVAL_LOW_TO_HIGH_KEY, value);
     }
 
-    public static int getSequenceLowToHighThresh() {
-        return SETTINGS.getInt(SEQUENCE_LOW_TO_HIGH_KEY, SEQUENCE_LOW_TO_HIGH);
+    public static int getSequenceLowToHighThreshold() {
+        return SETTINGS.getInt(SEQUENCE_LOW_TO_HIGH_KEY, SEQUENCE_LOW_TO_HIGH_DEFAULT);
     }
 
-    public static void setSequenceLowToHighThresh(int value) {
+    public static void setSequenceLowToHighThreshold(int value) {
         SETTINGS.setInt(SEQUENCE_LOW_TO_HIGH_KEY, value);
     }
 
-    public static int getConservationLowToHighThresh() {
-        return SETTINGS.getInt(CONSERVATION_LOW_TO_HIGH_KEY, CONSERVATION_LOW_TO_HIGH);
+    public static int getContinuousLowToHighThreshold() {
+        return SETTINGS.getInt(CONSERVATION_LOW_TO_HIGH_KEY, CONTINUOUS_LOW_TO_HIGH_DEFAULT);
     }
 
-    public static void setConservationLowToHighThresh(int value) {
+    public static void setContinuousLowToHighThreshold(int value) {
         SETTINGS.setInt(CONSERVATION_LOW_TO_HIGH_KEY, value);
+    }
+
+    public static int getVariantLowToHighThreshold() {
+        return SETTINGS.getInt(VARIANT_LOW_TO_HIGH_KEY, VARIANT_LOW_TO_HIGH_DEFAULT);
+    }
+
+    public static void setVariantLowToHighThreshold(int value) {
+        SETTINGS.setInt(VARIANT_LOW_TO_HIGH_KEY, value);
     }
 }

@@ -58,9 +58,9 @@ public class BAMCoverageTrack extends Track {
     public Resolution getResolution(RangeAdapter range) {
         switch (getDrawingMode()) {
             case ARC_PAIRED:
-                return range.getLength() > TrackResolutionSettings.getBamArcModeLowToHighThresh() ? Resolution.LOW : Resolution.HIGH;
+                return range.getLength() > TrackResolutionSettings.getBAMArcModeLowToHighThreshold() ? Resolution.LOW : Resolution.HIGH;
             default:
-                return range.getLength() > TrackResolutionSettings.getBamDefaultModeLowToHighThresh() ? Resolution.LOW : Resolution.HIGH;
+                return range.getLength() > TrackResolutionSettings.getBAMLowToHighThreshold() ? Resolution.LOW : Resolution.HIGH;
         }
     }
 

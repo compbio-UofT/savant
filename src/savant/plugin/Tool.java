@@ -407,7 +407,7 @@ public class Tool extends SavantPanelPlugin {
          * Once the files have been set up, we have an extra step of bullshit, which
          * involves generating fake .fai and .dict files for our sequence.
          */
-        private void prepareInputs() throws IOException {
+        private void prepareInputs() throws IOException, InterruptedException {
             ToolArgument bamArg = null;
             for (ToolArgument a: arguments) {
                 if (a.enabled) {

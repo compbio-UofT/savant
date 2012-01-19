@@ -44,7 +44,7 @@ public class SequenceTrack extends Track {
 
     @Override
     public Resolution getResolution(RangeAdapter range) {
-        return range.getLength() > TrackResolutionSettings.getSequenceLowToHighThresh() ? Resolution.LOW : Resolution.HIGH;
+        return range.getLength() > TrackResolutionSettings.getSequenceLowToHighThreshold() ? Resolution.LOW : Resolution.HIGH;
     }
 
     @Override

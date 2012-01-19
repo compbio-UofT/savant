@@ -1,5 +1,5 @@
 /*
- *    Copyright 2009-2011 University of Toronto
+ *    Copyright 2009-2012 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -351,6 +351,13 @@ public abstract class Track extends Controller<DataRetrievalEvent> implements Tr
         frame.getGraphPane().repaint();
     }
 
+    /**
+     * Like repaint(), but doesn't force a re-render.  Intended for updating the track's selection.
+     */
+    public void repaintSelection() {
+        frame.getGraphPane().repaint();
+    }
+
     @Override
     public boolean isSelectionAllowed() {
         return renderer.selectionAllowed(false);
@@ -443,8 +450,7 @@ public abstract class Track extends Controller<DataRetrievalEvent> implements Tr
      */
     public void cancelDataRequest() {
         if (retriever != null) {
-            retriever.interrupt();
-            fireDataRetrievalFailed(new Exception("Data retrieval cancelled"), retriever.range);
+            retriever.interrupt();  // Will fire fireDataRetrievalFailed when InterruptedException is caught.
         }
     }
 
@@ -489,10 +495,16 @@ public abstract class Track extends Controller<DataRetrievalEvent> implements Tr
             try {
                 LOG.debug("Retrieving data for " + name + "(" + reference + ":" + range + ")");
                 dataInRange = retrieveData(reference, range, getResolution(range), filter);
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Retrieved " + (dataInRange != null ? Integer.toString(dataInRange.size()) : "no") + " records for " + name + "(" + reference + ":" + range + ")");
+                if (isInterrupted()) {
+                    LOG.info(name + " was interrupted.");
+                } else {
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Retrieved " + (dataInRange != null ? Integer.toString(dataInRange.size()) : "no") + " records for " + name + "(" + reference + ":" + range + ")");
+                    }
+                    fireDataRetrievalCompleted(range);
                 }
-                fireDataRetrievalCompleted(range);
+            } catch (InterruptedException x) {
+                fireDataRetrievalFailed(new Exception("Data retrieval cancelled"), range);
             } catch (Throwable x) {
                 if (NetworkUtils.isStreamCached(dataSource.getURI())) {
                     LOG.info("Cached read failed for " + getName() + " with " + MiscUtils.getMessage(x) + "; deleting cache file and retrying.");

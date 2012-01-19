@@ -1,5 +1,5 @@
 /*
- *    Copyright 2010-2011 University of Toronto
+ *    Copyright 2010-2012 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -61,7 +61,7 @@ import savant.util.*;
      */
     @Override
     public Resolution getResolution(RangeAdapter range) {
-        return range.getLength() > TrackResolutionSettings.getConservationLowToHighThresh() ? Resolution.LOW : Resolution.HIGH;
+        return range.getLength() > TrackResolutionSettings.getContinuousLowToHighThreshold() ? Resolution.LOW : Resolution.HIGH;
     }
 
     @Override

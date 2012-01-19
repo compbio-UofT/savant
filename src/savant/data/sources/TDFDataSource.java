@@ -76,7 +76,7 @@ public class TDFDataSource extends DataSource<GenericContinuousRecord> {
     }
 
     @Override
-    public List<GenericContinuousRecord> getRecords(String ref, RangeAdapter range, Resolution resolution, RecordFilterAdapter filt) throws IOException {
+    public List<GenericContinuousRecord> getRecords(String ref, RangeAdapter range, Resolution resolution, RecordFilterAdapter filt) throws IOException, InterruptedException {
         List<GenericContinuousRecord> result = new ArrayList<GenericContinuousRecord>();
         TDFDataset ds = getTDFDataset(ref, (Range)range);
         if (ds != null) {
@@ -106,6 +106,9 @@ public class TDFDataSource extends DataSource<GenericContinuousRecord> {
                             nextPos += usefulStep;
                         }
                     }
+                }
+                if (Thread.interrupted()) {
+                    throw new InterruptedException();
                 }
             }
         }

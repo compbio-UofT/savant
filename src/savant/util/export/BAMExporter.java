@@ -73,7 +73,7 @@ public class BAMExporter extends TrackExporter {
      * @throws IOException 
      */
     @Override
-    void exportRange(String ref, RangeAdapter r) throws IOException {
+    void exportRange(String ref, RangeAdapter r) throws IOException, InterruptedException {
         fireEvent(new DownloadEvent(-1.0));
         List<Record> recs = track.getDataSource().getRecords(ref, r, Resolution.HIGH, null);
         fireEvent(new DownloadEvent(0.5));

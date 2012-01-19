@@ -165,13 +165,7 @@ public abstract class PopupPanel extends JPanel {
         select.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                for (Track t: host.getTracks()) {
-                    if (t.getDataFormat() == fileFormat) {
-                        t.getRenderer().addToSelected(record);
-                        break;
-                    }
-                }
-                host.repaint();
+                host.recordSelected(record);
             }
         });
         add(select);

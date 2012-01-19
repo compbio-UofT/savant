@@ -105,7 +105,7 @@ public class BAMTrackRenderer extends TrackRenderer {
                     Range range = axisRange.getXRange();
                     try {
                         refSeq = genome.getSequence(LocationController.getInstance().getReferenceName(), range);
-                    } catch (IOException e) {
+                    } catch (Exception e) {
                         throw new RenderingException(e.getMessage(), RenderingException.ERROR_PRIORITY);
                     }
                 }

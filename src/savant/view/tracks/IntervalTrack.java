@@ -79,15 +79,15 @@ public class IntervalTrack extends Track {
     }
 
     public static Resolution getDefaultModeResolution(Range range) {
-        return range.getLength() > TrackResolutionSettings.getIntervalLowToHighThresh() ? Resolution.LOW : Resolution.HIGH;
+        return range.getLength() > TrackResolutionSettings.getIntervalLowToHighThreshold() ? Resolution.LOW : Resolution.HIGH;
     }
 
     public static Resolution getArcModeResolution(Range range) {
-        return range.getLength() > TrackResolutionSettings.getIntervalLowToHighThresh() ? Resolution.LOW : Resolution.HIGH;
+        return range.getLength() > TrackResolutionSettings.getIntervalLowToHighThreshold() ? Resolution.LOW : Resolution.HIGH;
     }
 
     public static Resolution getSquishModeResolution(Range range) {
-        return range.getLength() > TrackResolutionSettings.getIntervalLowToHighThresh() ? Resolution.LOW : Resolution.HIGH;
+        return range.getLength() > TrackResolutionSettings.getIntervalLowToHighThreshold() ? Resolution.LOW : Resolution.HIGH;
     }
 
     @Override

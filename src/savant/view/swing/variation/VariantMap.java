@@ -30,6 +30,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import savant.api.adapter.PopupHostingAdapter;
+import savant.api.data.Record;
 import savant.api.data.VariantRecord;
 import savant.api.event.PopupEvent;
 import savant.api.util.Listener;
@@ -74,7 +75,7 @@ public class VariantMap extends JPanel implements PopupHostingAdapter {
                 if (varRec != null) {
                     PopupPanel.hidePopup();
                     Point globalPt = SwingUtilities.convertPoint(VariantMap.this, hoverPos, null);
-                    PopupPanel.showPopup(VariantMap.this, globalPt, owner.rawData.keySet().iterator().next(), varRec);
+                    PopupPanel.showPopup(VariantMap.this, globalPt, owner.tracks.get(0), varRec);
                 }
                 hoverPos = null;
             }
@@ -118,18 +119,16 @@ public class VariantMap extends JPanel implements PopupHostingAdapter {
 
 
         List<VariantRecord> data = owner.getData();
-        if (data == null || data.isEmpty()) {
-            owner.drawNoDataMessage(g2, getSize());
-        } else {
+        if (data != null && !data.isEmpty()) {
             int participantCount = owner.getParticipantCount();
             unitHeight = (double)h / data.size();
             unitWidth = (double)w / participantCount;
-            
+
             boolean gappable = unitHeight > GAP_HEIGHT * 2.0;
 
             ColourScheme cs = new ColourScheme(ColourKey.A, ColourKey.C, ColourKey.G, ColourKey.T, ColourKey.INSERTED_BASE, ColourKey.DELETED_BASE);
             ColourAccumulator accumulator = new ColourAccumulator(cs);
-            
+
 
             double y = 0.0;
             double topGap = 0.0;
@@ -173,7 +172,7 @@ public class VariantMap extends JPanel implements PopupHostingAdapter {
                 y += unitHeight;
             }
             accumulator.fill(g2);
-            
+
             if (gappable) {
                 drawGapSizes(g2);
             } else {
@@ -293,8 +292,26 @@ public class VariantMap extends JPanel implements PopupHostingAdapter {
     public void popupHidden() {
     }
 
+    /**
+     * Invoked when user chooses Select/Deselect from the popup menu.
+     * @param rec the record which should be selected
+     */
     @Override
-    public Track[] getTracks() {
-        return new Track[0];
+    public void recordSelected(Record rec) {
+        for (Track t: owner.tracks) {
+            boolean sel = false;
+            if (rec instanceof MergedVariantRecord) {
+                for (VariantRecord rec2: ((MergedVariantRecord)rec).getConstituents()) {
+                    t.getRenderer().addToSelected(rec2);
+                    sel = true;
+                }
+            } else {
+                t.getRenderer().addToSelected(rec);
+                sel = true;
+            }
+            if (sel) {
+                t.repaintSelection();
+            }
+        }
     }
 }

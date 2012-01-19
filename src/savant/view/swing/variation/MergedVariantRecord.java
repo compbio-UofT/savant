@@ -15,6 +15,9 @@
  */
 package savant.view.swing.variation;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import savant.api.data.Interval;
 import savant.api.data.VariantRecord;
 import savant.api.data.VariantType;
@@ -138,5 +141,20 @@ class MergedVariantRecord implements VariantRecord {
         }
 
         return getAltBases().compareTo(that.getAltBases());
+    }
+    
+    public Collection<VariantRecord> getConstituents() {
+        List<VariantRecord> result = new ArrayList<VariantRecord>();
+        if (original1 instanceof MergedVariantRecord) {
+            result.addAll(((MergedVariantRecord)original1).getConstituents());
+        } else {
+            result.add(original1);
+        }
+        if (original2 instanceof MergedVariantRecord) {
+            result.addAll(((MergedVariantRecord)original2).getConstituents());
+        } else {
+            result.add(original2);
+        }
+        return result;
     }
 }

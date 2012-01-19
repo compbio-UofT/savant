@@ -85,7 +85,7 @@ public class FastaExporter extends TrackExporter {
      * @throws IOException 
      */
     @Override
-    void exportRange(String ref, RangeAdapter r) throws IOException {
+    void exportRange(String ref, RangeAdapter r) throws IOException, InterruptedException {
         // Write the contig name.
         fastaOutput.write('>');
         fastaOutput.write(ref.getBytes());

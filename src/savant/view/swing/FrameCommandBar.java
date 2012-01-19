@@ -1,5 +1,5 @@
 /*
- *    Copyright 2010-2011 University of Toronto
+ *    Copyright 2010-2012 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -20,7 +20,6 @@ import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.*;
-import java.io.IOException;
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -151,7 +150,7 @@ public final class FrameCommandBar extends JMenuBar {
                         LocationController lc = LocationController.getInstance();
                         byte[] seq = ((SequenceRecord)mainTrack.getDataSource().getRecords(lc.getReferenceName(), lc.getRange(), Resolution.HIGH, null).get(0)).getSequence();
                         Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(new String(seq)), null);
-                    } catch (IOException x) {
+                    } catch (Throwable x) {
                         LOG.error(x);
                         DialogUtils.displayError("Unable to copy sequence to clipboard.");
                     }

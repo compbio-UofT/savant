@@ -79,7 +79,7 @@ public class BAMDataSource extends DataSource<BAMIntervalRecord> implements BAMD
     }
 
     @Override
-    public List<BAMIntervalRecord> getRecords(String reference, RangeAdapter range, Resolution resolution, RecordFilterAdapter filt) {
+    public List<BAMIntervalRecord> getRecords(String reference, RangeAdapter range, Resolution resolution, RecordFilterAdapter filt) throws InterruptedException {
 
         SAMRecordIterator recordIterator = null;
         List<BAMIntervalRecord> result = new ArrayList<BAMIntervalRecord>();
@@ -109,10 +109,14 @@ public class BAMDataSource extends DataSource<BAMIntervalRecord> implements BAMD
                 if (filt == null || filt.accept(record)) {
                     result.add(record);
                 }
+                if (Thread.interrupted()) {
+                    throw new InterruptedException();
+                }
             }
-
         } finally {
-            if (recordIterator != null) recordIterator.close();
+            if (recordIterator != null) {
+                recordIterator.close();
+            }
         }
 
         return result;

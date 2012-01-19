@@ -31,6 +31,7 @@ import savant.controller.LocationController;
 import savant.data.types.BAMIntervalRecord;
 import savant.util.MiscUtils;
 import savant.util.Range;
+import savant.view.swing.GraphPane;
 import savant.view.tracks.Track;
 
 
@@ -89,7 +90,7 @@ public class IntervalBamPopup extends PopupPanel implements Listener<DataRetriev
                 pairSelect.addMouseListener(new MouseAdapter() {
                     @Override
                     public void mouseClicked(MouseEvent e) {
-                        for (Track t: host.getTracks()) {
+                        for (Track t: ((GraphPane)host).getTracks()) {
                             if (t.getDataFormat() == fileFormat){
                                 t.getRenderer().forceAddToSelected(record);
                                 break;
@@ -97,7 +98,7 @@ public class IntervalBamPopup extends PopupPanel implements Listener<DataRetriev
                         }
                         int start = Math.min(samRec.getAlignmentStart(), samRec.getMateAlignmentStart());
                         int end = Math.max(samRec.getAlignmentEnd(), samRec.getMateAlignmentStart() + samRec.getReadLength());
-                        host.getTracks()[0].addListener(IntervalBamPopup.this);
+                        ((GraphPane)host).getTracks()[0].addListener(IntervalBamPopup.this);
                         LocationController.getInstance().setLocation((Range)RangeUtils.addMargin(new Range(start, end)));
                     }
                 });
@@ -119,7 +120,7 @@ public class IntervalBamPopup extends PopupPanel implements Listener<DataRetriev
                 for (Record r: evt.getData()) {
                     SAMRecord current = ((BAMIntervalRecord)r).getSAMRecord();
                     if (MiscUtils.isMate(samRec, current, true)) {
-                        for (Track t: host.getTracks()) {
+                        for (Track t: ((GraphPane)host).getTracks()) {
                             if (t.getDataFormat() == fileFormat){
                                 t.getRenderer().forceAddToSelected(r);
                                 break;
@@ -129,7 +130,7 @@ public class IntervalBamPopup extends PopupPanel implements Listener<DataRetriev
                     }
                 }       
                 hidePopup();
-                host.getTracks()[0].removeListener(this);
+                ((GraphPane)host).getTracks()[0].removeListener(this);
                 break;
         }
     }

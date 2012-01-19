@@ -57,23 +57,26 @@ public abstract class TrackExporter extends Controller<DownloadEvent> {
      * @param ref the chromosome containing the range be exported (or null to export the whole genome).
      * @param r the range to be exported (or null to export the entire chromosome)
      */
-    public void export(String ref, RangeAdapter r) throws IOException {
+    public void export(String ref, RangeAdapter r) throws IOException, InterruptedException {
         LocationController lc = LocationController.getInstance();
-        if (ref == null) {
-            for (String ref2: lc.getReferenceNames()) {
-                totalBases += lc.getReferenceLength(ref2);
+        try {
+            if (ref == null) {
+                for (String ref2: lc.getReferenceNames()) {
+                    totalBases += lc.getReferenceLength(ref2);
+                }
+                for (String ref2: lc.getReferenceNames()) {
+                    exportRange(ref2, new Range(1, lc.getReferenceLength(ref2)));
+                }
+            } else {
+                totalBases = LocationController.getInstance().getReferenceLength(ref);
+                if (r == null) {
+                    r = new Range(1, totalBases);
+                }
+                exportRange(ref, r);
             }
-            for (String ref2: lc.getReferenceNames()) {
-                exportRange(ref2, new Range(1, lc.getReferenceLength(ref2)));
-            }
-        } else {
-            totalBases = LocationController.getInstance().getReferenceLength(ref);
-            if (r == null) {
-                r = new Range(1, totalBases);
-            }
-            exportRange(ref, r);
+        } finally {
+            close();
         }
-        close();
         fireEvent(new DownloadEvent(destFile));
     }
 
@@ -90,7 +93,7 @@ public abstract class TrackExporter extends Controller<DownloadEvent> {
      * @param r the range to be exported (must be non-null)
      * @throws IOException 
      */
-    abstract void exportRange(String ref, RangeAdapter r) throws IOException;
+    abstract void exportRange(String ref, RangeAdapter r) throws IOException, InterruptedException;
 
     /**
      * Get a new TrackExporter appropriate for the given track.

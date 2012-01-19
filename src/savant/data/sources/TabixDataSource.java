@@ -168,7 +168,7 @@ public class TabixDataSource extends DataSource<TabixIntervalRecord> {
      * {@inheritDoc}
      */
     @Override
-    public List<TabixIntervalRecord> getRecords(String reference, RangeAdapter range, Resolution resolution, RecordFilterAdapter filt) throws IOException {
+    public List<TabixIntervalRecord> getRecords(String reference, RangeAdapter range, Resolution resolution, RecordFilterAdapter filt) throws IOException, InterruptedException {
         List<TabixIntervalRecord> result = new ArrayList<TabixIntervalRecord>();
         try {
             TabixReader.Iterator i = reader.query(MiscUtils.homogenizeSequence(reference) + ":" + range.getFrom() + "-" + (range.getTo()+1));
@@ -200,6 +200,9 @@ public class TabixDataSource extends DataSource<TabixIntervalRecord> {
                             tir.setCount(0);
                         }
                         result.add(tir);
+                    }
+                    if (Thread.interrupted()) {
+                        throw new InterruptedException();
                     }
                 }
             }
