@@ -162,7 +162,7 @@ public class AminoCanvas extends JPanel {
                             }
                         }
                     }
-                } catch (IOException x) {
+                } catch (Exception x) {
                     LOG.info("Unable to retrieve sequence.", x);
                 }
             }

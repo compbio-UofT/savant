@@ -318,7 +318,7 @@ public class SNPFinderPlugin extends SavantPanelPlugin {
 
         for (TrackAdapter t : TrackUtils.getTracks()) {
 
-            if (t.getDataSource().getDataFormat() == DataFormat.INTERVAL_BAM) {
+            if (t.getDataSource().getDataFormat() == DataFormat.ALIGNMENT) {
 
                 if (viewTrackToCanvasMap.containsKey(t)) {
                     newmap.put(t, viewTrackToCanvasMap.get(t));
@@ -427,7 +427,7 @@ public class SNPFinderPlugin extends SavantPanelPlugin {
                 this.viewTrackToPilesMap.put(t, piles);
 
             // report errors and move on
-            } catch (IOException ex) {
+            } catch (Exception ex) {
                 addMessage("Error: " + ex.getMessage());
                 break;
             }
@@ -437,7 +437,7 @@ public class SNPFinderPlugin extends SavantPanelPlugin {
     /**
      * Make pileups for SAM records.
      */
-    private List<Pileup> makePileupsFromSAMRecords(String viewTrackName, List<Record> samRecords, byte[] sequence, int startPosition) throws IOException {
+    private List<Pileup> makePileupsFromSAMRecords(String viewTrackName, List<Record> samRecords, byte[] sequence, int startPosition) throws IOException, InterruptedException {
 
         // list of pileups, one per genomic position in range
         List<Pileup> pileups = new ArrayList<Pileup>();
@@ -451,7 +451,7 @@ public class SNPFinderPlugin extends SavantPanelPlugin {
 
             // go through all the samrecords and update the pileups
             for (Record r : samRecords) {
-                SAMRecord sr = ((BAMIntervalRecord)r).getSamRecord();
+                SAMRecord sr = ((BAMIntervalRecord)r).getSAMRecord();
                 updatePileupsFromSAMRecord(pileups, GenomeUtils.getGenome(), sr, startPosition);
             }
         }
@@ -459,7 +459,7 @@ public class SNPFinderPlugin extends SavantPanelPlugin {
         return pileups;
     }
 
-    private void updatePileupsFromSAMRecord(List<Pileup> pileups, GenomeAdapter genome, SAMRecord samRecord, int startPosition) throws IOException {
+    private void updatePileupsFromSAMRecord(List<Pileup> pileups, GenomeAdapter genome, SAMRecord samRecord, int startPosition) throws IOException, InterruptedException {
 
         // the start and end of the alignment
         int alignmentStart = samRecord.getAlignmentStart();
@@ -665,7 +665,7 @@ public class SNPFinderPlugin extends SavantPanelPlugin {
         if (GenomeUtils.isGenomeLoaded()) {
             try {
                 sequence = GenomeUtils.getGenome().getSequence(NavigationUtils.getCurrentReferenceName(), NavigationUtils.getCurrentRange());
-            } catch (IOException ex) {
+            } catch (Exception ex) {
                 addMessage("Error: could not get sequence");
                 return;
             }

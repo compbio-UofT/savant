@@ -1,5 +1,5 @@
 /*
- *    Copyright 2011 University of Toronto
+ *    Copyright 2011-2012 University of Toronto
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -64,7 +64,7 @@ public class RecordCachingDataSource<E extends Record> implements DataSourceAdap
      * @return an ordered list of records
      */
     @Override
-    public List<E> getRecords(String ref, RangeAdapter range, Resolution res, RecordFilterAdapter filt) throws IOException {
+    public List<E> getRecords(String ref, RangeAdapter range, Resolution res, RecordFilterAdapter filt) throws IOException, InterruptedException {
         List<E> result = null;
         String subID = ref + ":" + res;
         RecordCache subCache = wholeCache.get(subID);

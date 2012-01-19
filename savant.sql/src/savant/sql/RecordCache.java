@@ -52,7 +52,7 @@ public class RecordCache<E extends Record> {
         resolution = res;
     }
 
-    List<E> getRecords(RangeAdapter range, RecordFilterAdapter filt) throws IOException {
+    List<E> getRecords(RangeAdapter range, RecordFilterAdapter filt) throws IOException, InterruptedException {
 
         List<RangeAdapter> missing = getMissingRanges(range);
         for (RangeAdapter r : missing) {

@@ -197,7 +197,7 @@ public class DataTableModel extends AbstractTableModel {
                         case 0:
                             return varRec.getName();
                         case 1:
-                            return varRec.getVariantType().toString();
+                            return varRec.getVariantType().getDescription();
                         case 2:
                             return varRec.getInterval().getStart();
                         case 3:
