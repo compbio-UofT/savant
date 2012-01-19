@@ -141,20 +141,14 @@ public class PluginController extends Controller {
         if (jarURLs.size() > 0) {
             pluginLoader = new PluginLoader(jarURLs.toArray(new URL[0]), getClass().getClassLoader());
 
-            for (final PluginDescriptor desc: knownPlugins.values()) {
-                if (!pluginErrors.containsKey(desc.getID())) {
-                    new Thread("PluginLoader-" + desc) {
-                        @Override
-                        public void run() {
-                            try {
-                                loadPlugin(desc);
-                            } catch (Throwable x) {
-                                LOG.error("Unable to load " + desc.getName(), x);
-                                pluginErrors.put(desc.getID(), x.getClass().getName());
-                                DialogUtils.displayMessage("Plugin Not Loaded", String.format("<html>The following plugin could not be loaded:<br><br><i>%s – %s</i><br><br>It will not be available to Savant.</html>", desc.getID(), x));
-                            }
-                        }
-                    }.start();
+            // If present, the savant.data plugin always gets loaded first, and in the main thread.
+            PluginDescriptor dataDesc = knownPlugins.get("savant.data");
+            if (dataDesc != null && !pluginErrors.containsKey("savant.data")) {
+                new LoaderThread(dataDesc).run();
+            }
+            for (PluginDescriptor desc: knownPlugins.values()) {
+                if (desc != dataDesc && !pluginErrors.containsKey(desc.getID())) {
+                    new LoaderThread(desc).start();
                 }
             }
         }
@@ -381,6 +375,25 @@ public class PluginController extends Controller {
         return false;
     }
 
+    class LoaderThread extends Thread {
+        PluginDescriptor desc;
+
+        LoaderThread(PluginDescriptor pd) {
+            super("PluginLoader-" + pd);
+            desc = pd;
+        }
+        
+        @Override
+        public void run() {
+            try {
+                loadPlugin(desc);
+            } catch (Throwable x) {
+                LOG.error("Unable to load " + desc.getName(), x);
+                pluginErrors.put(desc.getID(), x.getClass().getName());
+                DialogUtils.displayMessage("Plugin Not Loaded", String.format("<html>The following plugin could not be loaded:<br><br><i>%s – %s</i><br><br>It will not be available to Savant.</html>", desc.getID(), x));
+            }
+        }
+    }
 
     class PluginLoader extends URLClassLoader {
         PluginLoader(URL[] urls, ClassLoader parent) {
