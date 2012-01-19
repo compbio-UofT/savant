@@ -56,7 +56,7 @@ class VariantTrackRenderer extends TrackRenderer {
     public void handleEvent(DataRetrievalEvent evt) {
         switch (evt.getType()) {
             case COMPLETED:
-                if (evt.getData().size() > 0) {
+                if (evt.getData() != null && evt.getData().size() > 0) {
                     int yMax = ((VariantTrack)evt.getTrack()).getParticipantCount();
                     AxisRange oldRange = (AxisRange)getInstruction(DrawingInstruction.AXIS_RANGE);
                     addInstruction(DrawingInstruction.AXIS_RANGE, new AxisRange(oldRange.getXRange(), new Range(0, yMax)));

@@ -25,6 +25,7 @@ import savant.api.data.VariantType;
 import savant.api.util.Resolution;
 import savant.data.sources.TabixDataSource;
 import savant.exception.SavantTrackCreationCancelledException;
+import savant.settings.TrackResolutionSettings;
 import savant.util.AxisRange;
 import savant.util.AxisType;
 import savant.util.ColourKey;
@@ -70,6 +71,7 @@ public class VariantTrack extends Track {
             renderer.addInstruction(DrawingInstruction.PROGRESS, "Retrieving variant data...");
             requestData(ref, r);
         } else {
+            renderer.addInstruction(DrawingInstruction.ERROR, ZOOM_MESSAGE);
             saveNullData(r);
         }
 
@@ -89,7 +91,7 @@ public class VariantTrack extends Track {
 
     @Override
     public Resolution getResolution(RangeAdapter range) {
-        return Resolution.HIGH;
+        return range.getLength() > TrackResolutionSettings.getVariantLowToHighThreshold() ? Resolution.LOW : Resolution.HIGH;
     }
 
     /**

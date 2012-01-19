@@ -37,6 +37,7 @@ import savant.api.util.RangeUtils;
 import savant.controller.GraphPaneController;
 import savant.controller.LocationController;
 import savant.controller.TrackController;
+import savant.settings.TrackResolutionSettings;
 import savant.util.MiscUtils;
 import savant.util.Range;
 import savant.util.swing.ProgressPanel;
@@ -51,6 +52,7 @@ import savant.view.tracks.VariantTrack;
  */
 public class VariationSheet extends JPanel implements Listener<DataRetrievalEvent> {
     private static final Log LOG = LogFactory.getLog(VariationSheet.class);
+    private static final String ZOOM_MESSAGE = MiscUtils.MAC ? "<html><center>Zoom in to see data<br><small>To view data at this range, change Preferences > Track Resolutions</small></center></html>" : "<html><center>Zoom in to see data<br><small>To view data at this range, change Edit > Preferences > Track Resolutions</small></center></html>";
 
     private static final Comparator<VariantRecord> VARIANT_COMPARATOR = new Comparator<VariantRecord>() {
         @Override
@@ -199,6 +201,8 @@ public class VariationSheet extends JPanel implements Listener<DataRetrievalEven
 
         // Create the informative cards, but don't use them.
         messageLabel = new JLabel();
+        messageLabel.setFont(new Font("Sans-Serif", Font.PLAIN, 24));
+        messageLabel.setAlignmentX(0.5f);;
         progressPanel = new ProgressPanel(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent ae) {
@@ -267,9 +271,11 @@ public class VariationSheet extends JPanel implements Listener<DataRetrievalEven
                         showCard(progressPanel, "Retrieving variant data…");
                         break;
                     case COMPLETED:
-                        LOG.info("Received " + evt.getData().size() + " records for " + evt.getTrack() + "; recalculating.");
-                        rawData.set(index, (List)evt.getData());
-                        recalculate();
+                        if (evt.getData() != null) {
+                            LOG.trace("Received " + evt.getData().size() + " records for " + evt.getTrack() + "; recalculating.");
+                            rawData.set(index, (List)evt.getData());
+                            recalculate();
+                        }
                         break;
                     case FAILED:
                         LOG.info("Received " + evt.getError() + " error for " + evt.getTrack());
@@ -341,14 +347,18 @@ public class VariationSheet extends JPanel implements Listener<DataRetrievalEven
         if (!r.equals(visibleRange)) {
             adjustingRange = true;
             visibleRange = r;
-            for (VariantTrack t: tracks) {
-                t.requestData(visibleRef, visibleRange);
+            if (r.getLength() > TrackResolutionSettings.getVariantLowToHighThreshold()) {
+                showCard(messageLabel, ZOOM_MESSAGE);
+            } else {
+                for (VariantTrack t: tracks) {
+                    t.requestData(visibleRef, visibleRange);
+                }
+                mapScroller.setMaximum(LocationController.getInstance().getMaxRangeEnd());
+                mapScroller.setValue(visibleRange.getFrom());
+                mapScroller.setVisibleAmount(visibleRange.getLength());
+                mapScroller.setBlockIncrement(visibleRange.getLength());
+                mapScroller.repaint();
             }
-            mapScroller.setMaximum(LocationController.getInstance().getMaxRangeEnd());
-            mapScroller.setValue(visibleRange.getFrom());
-            mapScroller.setVisibleAmount(visibleRange.getLength());
-            mapScroller.setBlockIncrement(visibleRange.getLength());
-            mapScroller.repaint();
             adjustingRange = false;
         }
         rangeField.setText(String.format("%s:%d-%d", visibleRef, r.getFrom(), r.getTo()));
@@ -451,6 +461,7 @@ public class VariationSheet extends JPanel implements Listener<DataRetrievalEven
             if (card == tabs) {
                 gbc.fill = GridBagConstraints.BOTH;
             } else {
+                gbc.fill = GridBagConstraints.HORIZONTAL;
                 gbc.insets = new Insets(20, 20, 20, 20);
                 gbc.anchor = GridBagConstraints.NORTH;
                 if (message != null) {
